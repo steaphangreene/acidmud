@@ -120,6 +120,35 @@ Mind *get_mob_mind() {
 
 void Object::CircleFinishMob(Object *mob) {
   mob->Attach(get_mob_mind());
+
+  Object *bag = new Object;
+  if(!mob->ActTarg(ACT_WEAR_LSHOULDER)) { //CircleMud Bags Only
+    bag->SetParent(mob);
+    bag->SetShortDesc("a CircleMud bag");
+    bag->SetDesc("A mysterious bag that didn't seem to need to exist before.");
+
+    bag->SetSkill("Wearable on Left Shoulder", 1);
+    bag->SetSkill("Wearable on Right Shoulder", 2);
+    bag->SetSkill("Container", 1000 * 454);
+    bag->SetSkill("Capacity", 1000);
+    bag->SetSkill("Closeable", 1);
+
+    bag->SetWeight(5 * 454);
+    bag->SetSize(1000);
+    bag->SetVolume(5);
+    bag->SetValue(200);
+
+    bag->SetPos(POS_LIE);
+    mob->AddAct(ACT_WEAR_LSHOULDER, bag);
+    }
+
+  if(mob->Skill("CircleGold")) {
+    if(!gold) init_gold();
+    Object *g = new Object(*gold);
+    g->SetParent(bag);
+    g->SetSkill("Quantity", mob->Skill("CircleGold"));
+    }
+
   if(mob->ActTarg(ACT_WEAR_LSHOULDER)) { //CircleMud Bags Only
     mob->ActTarg(ACT_WEAR_LSHOULDER)->SetSkill("Container",
 	mob->ActTarg(ACT_WEAR_LSHOULDER)->ContainedWeight());
@@ -455,12 +484,7 @@ void Object::CircleLoadMob(const char *fn) {
 	fscanf(mudm, " %dd%d+%d\n", &val, &val2, &val3); // Barehand Damage
 
 	fscanf(mudm, "%d", &val);  // Gold
-	if(val > 0) {
-	  if(!gold) init_gold();
-	  Object *g = new Object(*gold);
-	  g->SetParent(obj);
-	  g->SetSkill("Quantity", val);
-	  }
+	obj->SetSkill("CircleGold", val);
 
 	fscanf(mudm, "%*[^\n]\n"); // XP //FIXME: Worth Karma?
 

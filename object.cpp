@@ -1076,6 +1076,13 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
   return (*(ret.begin()));
   }
 
+static int tag(Object *obj, set<Object*> &ret, int *ordinal) {
+  (*ordinal)--;
+  if((*ordinal) <= 0) ret.insert(obj);
+  if((*ordinal) == 0) return 1;
+  return 0;
+  }
+
 set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
   set<Object*> ret;
 
@@ -1128,11 +1135,7 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
     if(!strcasecmp(dir, "d")) dir = "down";
 
     if(parent->connections.count(dir) > 0) {
-      (*ordinal)--;
-      if((*ordinal)==0) {
-	ret.insert(parent->connections[dir]);
-	return ret;
-	}
+      if(tag(parent->connections[dir], ret, ordinal)) return ret;
       }
     }
 
@@ -1144,9 +1147,7 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
       if(cont.count(action->second)) {
 	cont.erase(action->second);
 	if(matches(action->second->ShortDesc(), name)) {
-	  (*ordinal)--;
-	  if((*ordinal) <= 0) ret.insert(action->second);
-	  if((*ordinal) == 0) return ret;
+	  if(tag(action->second, ret, ordinal)) return ret;
 	  }
 	if(action->second->Skill("Container")) {
 	  set<Object*> add;
@@ -1162,9 +1163,7 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
       fprintf(stderr, "Checking: %s\n", (*ind)->Name());
       if(matches((*ind)->ShortDesc(), name)) {
-	(*ordinal)--;
-	if((*ordinal) <= 0) ret.insert(*ind);
-	if((*ordinal) == 0) return ret;
+	if(tag(*ind, ret, ordinal)) return ret;
 	}
       if((*ind)->Skill("Container")) {
 	set<Object*> add;
@@ -1180,9 +1179,7 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
     for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
       if(matches((*ind)->ShortDesc(), name)) {
-	(*ordinal)--;
-	if((*ordinal) <= 0) ret.insert(*ind);
-	if((*ordinal) == 0) return ret;
+	if(tag(*ind, ret, ordinal)) return ret;
 	}
       if((*ind)->Skill("Transparent")) {
 	set<Object*> add;
