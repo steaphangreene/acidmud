@@ -16,7 +16,7 @@ Finish article substitution ("A" -> "A second" -> "The" -> "Joe's", etc...).
 Pick up a fight's other opponents after your target goes down without delay.
 Wear/wield from own containers need auto open/close.
 Get it to understand two-handed weapons and shield use.
-You should still be able to wield and hold while resting.
+Get it to understand offhand and mounted weapon use.
 Consistently pluralize (or don't) skill names (fix online version too!).
 Fixup "Back" slot so it makes more sense.
 A "suit of" object should not just be on the fucking chest!
@@ -37,6 +37,7 @@ Implement All Remaining Weapon Types (Guns, etc...).
 Implement the Rest of the Skills.
 Implement item "piles" "pairs", "mixtures", etc....
 Implement reserved words ('in', 'to', 'at', 'Ninja').
+Put away stuff when you sleep, don't drop it.
 
 
 Implement AcidMail.
