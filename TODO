@@ -1,5 +1,3 @@
-Implement various types of armor and damage.
-Implement armor and cloathing effects.
 Show armor messages in ninja display.
 Implement experience.
 Implement quantitative dispay (eg: "4 gold pieces").
@@ -21,7 +19,9 @@ Fixup "Back" slot so it makes more sense.
 A "suit of" object should not just be on the fucking chest!
 Create in direction works oddly.
 Delete a direction-linked object exploderates.
+Implement various types of armor and damage.
 Do 3-layer armor system.
+Implement equipment's magical effects.
 Following.
 Translate circle armor.
 Make circle MOBs do more stuff.
