@@ -1586,26 +1586,35 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
     typeof(body->Parent()->Contents()) objs = body->Parent()->Contents();
     typeof(objs.begin()) shpkp_i;
-    Object *shpkp = NULL;
+    typeof(body->Parent()->Contents()) shpkps;
+    string reason = "";
     for(shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
-      if((*shpkp_i)->Skill("Sell Profit")) {shpkp = (*shpkp_i); break; }
+      if((*shpkp_i)->Skill("Sell Profit")) {
+	if((*shpkp_i)->IsAct(ACT_DEAD)) {
+	  reason = "Sorry, the shopkeeper is dead!\n";
+	  }
+	else if((*shpkp_i)->IsAct(ACT_DYING)) {
+	  reason = "Sorry, the shopkeeper is dying!\n";
+	  }
+	else if((*shpkp_i)->IsAct(ACT_UNCONSCIOUS)) {
+	  reason = "Sorry, the shopkeeper is unconscious!\n";
+	  }
+	else if((*shpkp_i)->IsAct(ACT_SLEEP)) {
+	  reason = "Sorry, the shopkeeper is asleep!\n";
+	  }
+	else {
+	  shpkps.push_back(*shpkp_i);
+	  }
+	}
       }
-    if(shpkp == NULL) {
-      if(mind) mind->Send("You can only do that around a shopkeeper.\n");
-      }
-    else if(shpkp->IsAct(ACT_DEAD)) {
-      if(mind) mind->Send("Sorry, the shopkeeper is dead!\n");
-      }
-    else if(shpkp->IsAct(ACT_DYING)) {
-      if(mind) mind->Send("Sorry, the shopkeeper is dying!\n");
-      }
-    else if(shpkp->IsAct(ACT_UNCONSCIOUS)) {
-      if(mind) mind->Send("Sorry, the shopkeeper is unconscious!\n");
-      }
-    else if(shpkp->IsAct(ACT_SLEEP)) {
-      if(mind) mind->Send("Sorry, the shopkeeper is asleep!\n");
+    if(shpkps.size() == 0) {
+      if(mind) {
+	mind->Send("%s", reason.c_str());
+	mind->Send("You can only do that around a shopkeeper.\n");
+	}
       }
     else {
+      Object *shpkp = shpkps.front();
       typeof(body->Contents()) targs = body->PickObjects(comline+len, LOC_INTERNAL);
       if(!targs.size()) {
 	if(mind) mind->Send("You want to value what?\n");
