@@ -1035,6 +1035,9 @@ void Object::CircleLoad(const char *fn) {
       else if(val == 7) obj->SetSkill("WaterDepth", 2);	// WATER_NOSWIM
       else if(val == 8) obj->SetSkill("WaterDepth", 3);	// UNDERWATER
 
+      if(string(buf).find('b') < strlen(buf) || (atoi(buf) & 2)) { //DEATH
+        obj->SetSkill("Hazardous", 2);
+	}
       if(string(buf).find('c') < strlen(buf) || (atoi(buf) & 4)) { //NOMOB
         obj->SetSkill("CircleZone", 999999);
 	}
@@ -1107,8 +1110,7 @@ void Object::CircleLoadShp(const char *fn) {
 	vortex->SetShortDesc("A shopkeeper vortex");
 	vortex->SetDesc("An advanced wormhole that shopkeeper's use.");
 	vortex->SetSkill("Vortex", 1); // Mark it as a shopkeeper Vortex.
-	vortex->SetSkill("Container", 100000 * 454);
-	vortex->SetSkill("Capacity", 100000);
+	vortex->AddAct(ACT_SPECIAL_NOTSHOWN);
 	vortex->SetSkill("Wearable on Right Shoulder", 1);
 	vortex->SetSkill("Wearable on Left Shoulder", 2);
 

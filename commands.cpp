@@ -1167,7 +1167,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else {
       if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)
-		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Container")) {
+		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
 	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 	objs = vortex->Contents();
 	typeof(objs.begin()) obj;
@@ -1213,7 +1213,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else {
       if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)
-		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Container")) {
+		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
 	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 
         vector<Object *>targs = vortex->PickObjects(comline+len, LOC_INTERNAL);
@@ -1379,7 +1379,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	if(mind) mind->Send("You want to sell what?\n");
 	}
       else if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)
-		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Container")) {
+		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
 	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 
 	vector<Object *>::iterator targ_i;
