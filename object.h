@@ -207,6 +207,9 @@ public:
   void BusyWith(Object *other, const char *default_next = "");
   void DoWhenFree(const char *);
 
+  void operator = (const Object &in);
+  int operator == (const Object &in) const;
+
 private:
   string short_desc;
   string desc;

@@ -570,8 +570,10 @@ void Object::SendContents(Mind *m, Object *o, int seeinside) {
 
   int total = 0;
   m->Send("%s", CGRN);
+  set<Object*> master = cont;
   set<Object*>::iterator ind;
-  for(ind = cont.begin(); ind != cont.end(); ++ind) {
+  for(ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
+    master.erase(*ind);
     if(total >= 20) {
       m->Send(base.c_str());
       m->Send("...and %d more things are here too.\n",
@@ -581,6 +583,17 @@ void Object::SendContents(Mind *m, Object *o, int seeinside) {
     ++total;
     if((*ind) != o) {
       if(base != "") m->Send("%s%sInside:%s ", base.c_str(), CNRM, CGRN);
+
+      int qty = 1;
+      if(!(*ind)->Attribute(1)) { // Immobile things can have higher qtys
+	set<Object*>::iterator oth = ind;
+	for(qty = 0; oth != cont.end(); ++oth) if((*(*oth)) == (*(*ind))) {
+	  master.erase(*oth);
+	  qty += 1 >? (*oth)->Skill("Quantity");
+	  }
+	}
+
+      if(qty > 1) m->Send("(x%d) ", qty);
 
       sprintf(buf, "%s %s%c", (*ind)->ShortDesc(), (*ind)->PosString(), 0);
       buf[0] = toupper(buf[0]);
@@ -1718,3 +1731,54 @@ void FreeActions() {
       }
     }
   }
+
+int Object::operator == (const Object &in) const {
+  if(short_desc != in.short_desc) return 0;
+  if(desc != in.desc) return 0;
+  if(long_desc != in.long_desc) return 0;
+  if(contents.size() != 0 || in.contents.size() != 0) return 0;
+  if(pos != in.pos) return 0;
+  if(weight != in.weight) return 0;
+  if(volume != in.volume) return 0;
+  if(size != in.size) return 0;
+  if(value != in.value) return 0;
+  if(gender != in.gender) return 0;
+
+  if(att[0] != in.att[0]) return 0;
+  if(att[1] != in.att[1]) return 0;
+  if(att[2] != in.att[2]) return 0;
+  if(att[3] != in.att[3]) return 0;
+  if(att[4] != in.att[4]) return 0;
+  if(att[5] != in.att[5]) return 0;
+  if(att[6] != in.att[6]) return 0;
+  if(att[7] != in.att[7]) return 0;
+
+//  if(act != in.act) return 0;
+
+  return 1;
+  }
+
+void Object::operator = (const Object &in) {
+  short_desc = in.short_desc;
+  desc = in.desc;
+  long_desc = in.long_desc;
+  pos = in.pos;
+  weight = in.weight;
+  volume = in.volume;
+  size = in.size;
+  value = in.value;
+  gender = in.gender;
+
+  att[0] = in.att[0];
+  att[1] = in.att[1];
+  att[2] = in.att[2];
+  att[3] = in.att[3];
+  att[4] = in.att[4];
+  att[5] = in.att[5];
+  att[6] = in.att[6];
+  att[7] = in.att[7];
+
+//  contents.size() = in.contents.size();
+//  act = in.act;
+  }
+

@@ -1,11 +1,12 @@
+Implement quantitative dispay (eg: "4 gold pieces").
+Implement quantitative plurality (eg: "offer 7 gold").
 Implement money.
 Translate CircleMud shops.
 Implement intelligent stashing.
 Pluralize appropriate commands with intelligent stashing (rem, get).
 Implement experience.
 Improve character creation interface.
-Implement quantitative dispay (eg: "4 gold pieces").
-Implement quantitative plurality (eg: "offer 7 gold").
+Implement item "piles" "pairs", "mixtures", etc....
 Positional modifyers (sleeping/lying down/standing, etc...).
 Travel limitations (speed of movement, fleeing, sprinting, running).
 Refine the fudging of circle MOBs' stats.
@@ -40,7 +41,6 @@ Doors and Locks.
 Handle Multiple Weapon Types (eg: Bastard Swords).
 Implement All Remaining Weapon Types (Guns, etc...).
 Implement the Rest of the Skills.
-Implement item "piles" "pairs", "mixtures", etc....
 Implement reserved words ('in', 'to', 'at', 'Ninja').
 Put away stuff when you sleep, don't drop it.
 See contents when you look at a nearby room (eg: "look north").

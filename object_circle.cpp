@@ -99,6 +99,17 @@ void Object::CircleCleanup() {
 
 static Mind *circle_mob_mind = NULL;
 
+static Object *gold = NULL;
+static void init_gold() {
+  gold = new Object();
+  gold->SetShortDesc("a gold piece");
+  gold->SetDesc("A standard one-ounce gold piece.");
+  gold->SetWeight(454 / 16);
+  gold->SetVolume(0);
+  gold->SetValue(1);
+  gold->SetSize(0);
+  }
+
 Mind *get_mob_mind() {
   if(!circle_mob_mind) {
     circle_mob_mind = new Mind();
@@ -443,7 +454,15 @@ void Object::CircleLoadMob(const char *fn) {
 
 	fscanf(mudm, " %dd%d+%d\n", &val, &val2, &val3); // Barehand Damage
 
-	fscanf(mudm, "%*[^\n]\n"); // Gold & XP //FIXME: Possess gold!
+	fscanf(mudm, "%d", &val);  // Gold
+	if(val > 0) {
+	  if(!gold) init_gold();
+	  Object *g = new Object(*gold);
+	  g->SetParent(obj);
+	  g->SetSkill("Quantity", val);
+	  }
+
+	fscanf(mudm, "%*[^\n]\n"); // XP //FIXME: Worth Karma?
 
 	fscanf(mudm, "%d %d %d\n", &val, &val2, &val3);
 
@@ -632,6 +651,11 @@ void Object::CircleLoadObj(const char *fn) {
 
       if(tp == 9) { // ARMOR
 	obj->SetAttribute(0, val[0]);
+	}
+      else if(tp == 20) { // MONEY
+	if(!gold) init_gold();
+	(*obj) = (*gold);
+	obj->SetSkill("Quantity", val[0]);
 	}
       else if(tp == 15) { // CONTAINER
 	obj->SetSkill("Container", val[0] * 454);
