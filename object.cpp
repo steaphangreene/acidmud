@@ -1915,3 +1915,8 @@ set<Object *> Object::Contents() {
 */
   return contents;
   }
+
+int Object::Contains(Object *obj) {
+  return contents.count(obj);
+  }
+

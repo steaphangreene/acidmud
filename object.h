@@ -118,7 +118,7 @@ public:
   vector<Object *> PickObjects(char *, int loc, int *ordinal=NULL);
   int IsNearBy(Object *obj);
   int IsWithin(Object *obj);
-  int Contains(Object *obj) { return contents.count(obj); }
+  int Contains(Object *obj);
   set<Object *> Contents();
   map<string,Object*> Connections() { return connections; }
 
