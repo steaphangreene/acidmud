@@ -1611,7 +1611,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(body->IsAct(ACT_WIELD) && body->IsAct(ACT_HOLD)) {
 	if(body->ActTarg(ACT_HOLD) != targ) {
 	  if(mind) mind->Send("You are both holding and wielding other things.\n"
-		"Perhaps you want to drop one of them?");
+		"Perhaps you want to drop one of them?\n");
 	  return 0;
 	  }
 	}
@@ -1932,7 +1932,20 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("You are already sleeping!\n");
       }
     else if(body->Pos() == POS_LIE) {
-      body->SetPos(POS_LIE);
+      if(body->ActTarg(ACT_WIELD)) {
+	Object *tostash = body->ActTarg(ACT_WIELD);
+	if(body->Stash(tostash)) {
+	  body->Parent()->SendOut(
+		";s stashes ;s.\n", "You stash ;s.\n", body, tostash);
+	  }
+	}
+      if(body->ActTarg(ACT_HOLD)) {
+	Object *tostash = body->ActTarg(ACT_HOLD);
+	if(body->Stash(tostash)) {
+	  body->Parent()->SendOut(
+		";s stashes ;s.\n", "You stash ;s.\n", body, tostash);
+	  }
+	}
       body->Collapse();
       body->AddAct(ACT_SLEEP);
       body->Parent()->SendOut(
@@ -1940,6 +1953,20 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else {
       body->SetPos(POS_LIE);
+      if(body->ActTarg(ACT_WIELD)) {
+	Object *tostash = body->ActTarg(ACT_WIELD);
+	if(body->Stash(tostash)) {
+	  body->Parent()->SendOut(
+		";s stashes ;s.\n", "You stash ;s.\n", body, tostash);
+	  }
+	}
+      if(body->ActTarg(ACT_HOLD)) {
+	Object *tostash = body->ActTarg(ACT_HOLD);
+	if(body->Stash(tostash)) {
+	  body->Parent()->SendOut(
+		";s stashes ;s.\n", "You stash ;s.\n", body, tostash);
+	  }
+	}
       body->Collapse();
       body->AddAct(ACT_SLEEP);
       body->Parent()->SendOut(
