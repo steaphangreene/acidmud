@@ -1068,7 +1068,6 @@ void Object::CircleLoadShp(const char *fn) {
       while(1) {
 	int val;
 	if(!fscanf(mud, "#%d~\n", &val)) break;  // Shop Number
-	fprintf(stderr, "Loading shop %d\n", val);
 
 	vortex = new Object;
 	vortex->SetShortDesc("A shopkeeper vortex");
@@ -1114,8 +1113,8 @@ void Object::CircleLoadShp(const char *fn) {
 	fscanf(mud, "%[^\n]\n", buf+strlen(buf));  // Shop Bitvectors
 
 	fscanf(mud, "%d\n", &val);  // Shopkeeper!
-	Object *keeper = bynummobinst[val];
-	fprintf(stderr, "keeper = %d\n", val);
+	Object *keeper = NULL;
+	if(bynummobinst.count(val)) keeper = bynummobinst[val];
 
 	memset(buf, 0, 65536);
 	fscanf(mud, "%[^\n]\n", buf+strlen(buf));  // With Bitvectors
