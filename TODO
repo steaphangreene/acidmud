@@ -45,6 +45,7 @@ Implement reserved words ('in', 'to', 'at', 'Ninja').
 Put away stuff when you sleep, don't drop it.
 See contents when you look at a nearby room (eg: "look north").
 Create "aim" command to intentionally hit certain locations.
+Add "corpse" alias for dead stuff.
 
 
 Implement AcidMail.

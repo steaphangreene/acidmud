@@ -941,13 +941,13 @@ int Object::Travel(Object *dest) {
   int cap = dest->Skill("Capacity");
   if(cap > 0) {
     cap -= dest->ContainedVolume();
-    if(volume > cap) return -2;
+    if(Volume() > cap) return -2;
     }
 
   int con = dest->Skill("Container");
   if(con > 0) {
     con -= dest->ContainedWeight();
-    if(weight > con) return -3;
+    if(Weight() > con) return -3;
     }
 
   parent->contents.erase(this);
@@ -957,6 +957,18 @@ int Object::Travel(Object *dest) {
     if(parent->ActTarg(act) == this) parent->StopAct(act);
 
   parent = dest;
+  set<Object*>::iterator ind = parent->contents.begin();
+  for(; ind != parent->contents.end(); ++ind) {
+    if((*this) == (*(*ind))) {
+      int q = 1;
+      if(Skill("Quantity")) q = Skill("Quantity");
+      if((*ind)->Skill("Quantity")) q += (*ind)->Skill("Quantity");
+      else q += 1;
+      SetSkill("Quantity", q);
+      delete(*ind);
+      break;
+      }
+    }
   parent->contents.insert(this);
 
   StopAct(ACT_POINT);
@@ -1734,7 +1746,6 @@ int Object::operator == (const Object &in) const {
   if(desc != in.desc) return 0;
   if(long_desc != in.long_desc) return 0;
   if(contents.size() != 0 || in.contents.size() != 0) return 0;
-  if(pos != in.pos) return 0;
   if(weight != in.weight) return 0;
   if(volume != in.volume) return 0;
   if(size != in.size) return 0;
@@ -1750,7 +1761,9 @@ int Object::operator == (const Object &in) const {
   if(att[6] != in.att[6]) return 0;
   if(att[7] != in.att[7]) return 0;
 
-//  if(act != in.act) return 0;
+  if(pos != in.pos) return 0;
+
+  if(act.size() != 0 || in.act.size() != 0) return 0;
 
   return 1;
   }
@@ -1775,7 +1788,7 @@ void Object::operator = (const Object &in) {
   att[6] = in.att[6];
   att[7] = in.att[7];
 
-//  contents.size() = in.contents.size();
+//  contents = in.contents;
 //  act = in.act;
   }
 
