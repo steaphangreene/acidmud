@@ -16,9 +16,10 @@ class Object;
 #define OBJECT_H
 
 #define	LOC_SELF	1
-#define	LOC_INTERNAL	2
-#define	LOC_NEARBY	4
-#define	LOC_ADJACENT	8
+#define	LOC_HERE	2
+#define	LOC_INTERNAL	4
+#define	LOC_NEARBY	8
+#define	LOC_ADJACENT	16
 
 enum pos_t {
 	POS_NONE=0,

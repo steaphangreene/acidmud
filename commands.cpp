@@ -1070,7 +1070,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else {
       targ = body->PickObject(comline+len,
-		LOC_INTERNAL|LOC_NEARBY|LOC_SELF);
+		LOC_INTERNAL|LOC_NEARBY|LOC_SELF|LOC_HERE);
       }
     if(!targ) {
       if(mind) mind->Send("You don't see that here.\n");
@@ -1315,7 +1315,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	if(mind) mind->Send("You want to value what?\n");
 	}
       else if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)
-		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Container")) {
+		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
 	vector<Object *>::iterator targ_i;
 	for(targ_i = targs.begin(); targ_i != targs.end(); ++targ_i) {
 	  Object *targ = (*targ_i);

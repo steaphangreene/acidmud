@@ -1344,6 +1344,13 @@ vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
       }
     }
 
+  if(loc & LOC_HERE) {
+    if(!strcasecmp(name, "here")) {
+      if((*ordinal) == 1 && parent) ret.push_back(parent);
+      return ret;
+      }
+    }
+
   if(loc & LOC_INTERNAL) {
     if(!strncasecmp(name, "my ", 3)) {
       name += 3;
