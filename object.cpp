@@ -1090,10 +1090,39 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
   }
 
 static int tag(Object *obj, set<Object*> &ret, int *ordinal) {
-  if(*ordinal > 0) (*ordinal)--;
-  else if(*ordinal > ALL) (*ordinal)++;
-  if((*ordinal) <= 0) ret.insert(obj);
-  if((*ordinal) == 0) return 1;
+  int qty = 1;
+  Object *nobj = NULL;
+  if(obj->Skill("Quantity")) qty = obj->Skill("Quantity");
+  while(qty) {
+    if(*ordinal > 0) (*ordinal)--;
+    else if(*ordinal > ALL) (*ordinal)++;
+    if((*ordinal) <= 0) {
+      if((!nobj) && obj->Skill("Quantity") <= 1) ret.insert(obj);
+      else {
+	if(!nobj) {
+	  nobj = new Object(*obj);
+	  nobj->SetParent(obj->Parent());
+	  nobj->SetSkill("Quantity", 0);
+	  ret.insert(nobj);
+	  }
+	else {
+	  int q = (1 >? nobj->Skill("Quantity")) + 1;
+	  nobj->SetSkill("Quantity", q);
+	  }
+	if(obj->Skill("Quantity") <= 1) {
+	  delete obj;
+	  }
+	else if(obj->Skill("Quantity") == 2) {
+	  obj->SetSkill("Quantity", 0);
+	  }
+	else {
+	  obj->SetSkill("Quantity", obj->Skill("Quantity") - 1);
+	  }
+	}
+      }
+    if((*ordinal) == 0) return 1;
+    --qty;
+    }
   return 0;
   }
 
