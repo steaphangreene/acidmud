@@ -169,9 +169,9 @@ int save_players(const char *fn) {
 void player_rooms_erase(Object *obj) {
   map<string, Player *>::iterator pl = player_list.begin();
   for(; pl != player_list.end(); ++pl) {
-    if((*pl).second->Room()) {
-      (*pl).second->Room()->contents.erase(obj);
-      }
+    if((*pl).second->Creator()->ActTarg(ACT_POINT) == obj)
+      (*pl).second->Creator()->StopAct(ACT_POINT);
+    (*pl).second->Room()->contents.erase(obj);
     }
   }
 
