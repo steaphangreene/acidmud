@@ -2737,8 +2737,26 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		body->Attribute(2)
 			+ (0 >? body->ActTarg(ACT_WIELD)->Skill("WeaponForce"))
 		);
-	sev = targ->HitPhys(body->Attribute(2)
-	  + (0 >? body->ActTarg(ACT_WIELD)->Skill("WeaponForce")),
+	int force = body->Attribute(2)
+		+ (0 >? body->ActTarg(ACT_WIELD)->Skill("WeaponForce"));
+
+	if(body->ActTarg(ACT_WIELD)->Skill("WeaponType")
+			== get_weapon_type("Two-Handed Blades")
+		|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
+			== get_weapon_type("Two-Handed Cleaves")
+		|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
+			== get_weapon_type("Two-Handed Crushing")
+		|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
+			== get_weapon_type("Two-Handed Flails")
+			|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
+			== get_weapon_type("Two-Handed Piercing")
+		|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
+			== get_weapon_type("Two-Handed Staves")
+		) {
+	  force += body->Attribute(2);
+	  }
+
+	sev = targ->HitPhys(force,
 	  stage + (0 >? body->ActTarg(ACT_WIELD)->Skill("WeaponSeverity")),
 	  succ);
 	}
