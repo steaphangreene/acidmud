@@ -171,7 +171,7 @@ int Object::LoadFrom(FILE *fl) {
     fscanf(fl, "%d ", &num2);
     Object *obj = new Object(this);
     toload.push_back(obj);
-    contents.insert(obj);
+    AddLink(obj);
     }
 
   fscanf(fl, "%d\n", &num); pos = (pos_t)num;

@@ -439,7 +439,7 @@ void Object::LinkToNew(const char *n) {
 
 void Object::SetParent(Object *o) {
   parent = o;
-  if(o) o->contents.insert(this);
+  if(o) o->AddLink(this);
   }
 
 void Object::SendContents(Object *targ, Object *o, int seeinside) {
@@ -819,9 +819,9 @@ void Object::SendDescSurround(Mind *m, Object *o) {
   if(parent && Skill("Transparent")) {
     m->Send("%s", CCYN);
     m->Send("Outside you see: ");
-    parent->contents.erase(this);
+    parent->RemoveLink(this);
     parent->SendDescSurround(m, this);
-    parent->contents.insert(this);
+    parent->AddLink(this);
     }
 
 //  m->Send("%s", CMAG);
@@ -975,7 +975,7 @@ int Object::Travel(Object *dest) {
     if(Weight() > con) return -3;
     }
 
-  parent->contents.erase(this);
+  parent->RemoveLink(this);
   if(parent->ActTarg(ACT_HOLD) == this) parent->StopAct(ACT_HOLD);
   if(parent->ActTarg(ACT_WIELD) == this) parent->StopAct(ACT_WIELD);
   for(act_t act=ACT_WEAR_BACK; act < ACT_MAX; ++((int&)(act)))
@@ -1003,7 +1003,7 @@ int Object::Travel(Object *dest) {
       break;
       }
     }
-  parent->contents.insert(this);
+  parent->AddLink(this);
 
   StopAct(ACT_POINT);
   return 0;
@@ -1041,7 +1041,7 @@ Object::~Object() {
     }
   minds.clear();
 
-  parent->contents.erase(this);
+  parent->RemoveLink(this);
   busylist.erase(this);
   }
 
@@ -1253,14 +1253,14 @@ vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
       }
     if(parent->Skill("Transparent")) {
       if(parent->parent) {
-	parent->parent->contents.erase(parent);
+	parent->parent->RemoveLink(parent);
 
 	int olen = int(ret.size());
 	vector<Object *> add = parent->PickObjects(name, LOC_NEARBY, ordinal);
 	ret.resize(olen + add.size());
 	copy(add.begin(), add.end(), ret.begin()+olen);
 
-	parent->parent->contents.insert(parent);
+	parent->parent->AddLink(parent);
 	if((*ordinal) == 0) return ret;
 	}
       }
@@ -1346,9 +1346,9 @@ int Object::IsNearBy(Object *obj) {
       }
     }
   if(parent->parent && parent->Skill("Transparent")) {
-    parent->parent->contents.erase(parent);
+    parent->parent->RemoveLink(parent);
     int ret = parent->IsNearBy(obj);
-    parent->parent->contents.insert(parent);
+    parent->parent->AddLink(parent);
     if(ret) return ret;
     }
   return 0;
@@ -1684,9 +1684,9 @@ void Object::SendOut(const char *mes, const char *youmes,
     }
 
   if(parent && Skill("Transparent")) {
-    parent->contents.erase(this);
+    parent->RemoveLink(this);
     parent->SendOut(str, youstr, actor, targ);
-    parent->contents.insert(this);
+    parent->AddLink(this);
     }
 
   free(str);
