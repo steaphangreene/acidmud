@@ -1776,7 +1776,7 @@ void Object::Send(int tnum, int rsucc, const char *mes, ...) {
 
   if(mes[0] == 0) return;
 
-  if(tnum != ALL && (!Roll("Perception", tnum))) {
+  if(tnum != ALL && rsucc > 0 && (!Roll("Perception", tnum))) {
     return;
     }
 
@@ -1825,7 +1825,7 @@ void Object::SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
   for(char *ctr=buf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
   for(char *ctr=youbuf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
 
-  if(youmes && this == actor) Send(tnum, rsucc, youbuf, tstr.c_str());
+  if(youmes && this == actor) Send(ALL, 0, youbuf, tstr.c_str());
   else Send(tnum, rsucc, buf, astr.c_str(), tstr.c_str());
 
   typeof(contents.begin()) ind;
@@ -1866,7 +1866,7 @@ void Object::SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
   for(char *ctr=buf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
   for(char *ctr=youbuf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
 
-  if(youmes && this == actor) Send(tnum, rsucc, youbuf, tstr.c_str());
+  if(youmes && this == actor) Send(ALL, 0, youbuf, tstr.c_str());
   else Send(tnum, rsucc, buf, astr.c_str(), tstr.c_str());
 
   typeof(contents.begin()) ind;
