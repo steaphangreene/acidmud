@@ -1,15 +1,17 @@
-Make single-item commands get only single items.
-Make all plural commands see pluralized items correctly.
-Implement boats and boat travel.
+Dup shopkeeper items correctly (all gauntlets are left, etc...).
+CircleMOB (and equipment?) repopping.
 Implement "all of " for all within.
 Implement "everything"/"everyone".
 Implement "stuff"/"money"/"cash".
 Implement "loot" command.
+Make single-item commands get only single items.
+Make all plural commands see pluralized items correctly.
+Implement boats and boat travel.
 Fix the "examine one of a group of held items and get it in your rectum" bug.
-Dup shopkeeper items correctly (all gauntlets are left, etc...).
+Add "mirror" command (like clone, but a mirror-image).
 Handle odd pluralized cases (Holding two items when one is looked at...).
-CircleMOB repopping.
 Cleanup item manipulation commands.
+Can't wear/wield plural items.
 Implement intelligent stashing.
 Pluralize appropriate commands with intelligent stashing (rem, get).
 Cleanup and secure shopkeeper vortex objects.
@@ -19,7 +21,7 @@ Implement money denominations and change.
 Implement item "piles" "pairs", "mixtures", etc....
 Positional modifyers (sleeping/lying down/standing, etc...).
 Travel limitations (speed of movement, fleeing, sprinting, running).
-Finish article substitution ("A" -> "A second" -> "The" -> "Joe's", etc...).
+Finish article substitution ("A" -> "A second", etc...).
 Pick up a fight's other opponents after your target goes down without delay.
 Refine the fudging of circle MOBs' stats (Better AC Handling, Natural Armor).
 Wear/wield from own containers need auto open/close.
@@ -54,7 +56,7 @@ Implement reserved words ('in', 'to', 'at', 'Ninja').
 Put away stuff when you sleep, don't drop it.
 See contents when you look at a nearby room (eg: "look north").
 Create "aim" command to intentionally hit certain locations.
-Add "corpse" alias for dead stuff.
+Add "corpse" alias for dead stuff?
 
 
 Implement AcidMail.
