@@ -1825,8 +1825,27 @@ void Object::SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
   for(char *ctr=buf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
   for(char *ctr=youbuf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
 
-  if(youmes && this == actor) Send(ALL, 0, youbuf, tstr.c_str());
-  else Send(tnum, rsucc, buf, astr.c_str(), tstr.c_str());
+  if(youmes && youbuf[0] == '*' && this == actor) {
+    Send(ALL, 0, CGRN);
+    Send(ALL, 0, youbuf+1, tstr.c_str());
+    Send(ALL, 0, CNRM);
+    }
+  else if(buf[0] == '*' && targ == this) {
+    Send(ALL, 0, CRED);
+    Send(tnum, rsucc, buf+1, astr.c_str(), tstr.c_str());
+    Send(ALL, 0, CNRM);
+    }
+  else if(buf[0] == '*') {
+    Send(ALL, 0, CMAG);
+    Send(tnum, rsucc, buf+1, astr.c_str(), tstr.c_str());
+    Send(ALL, 0, CNRM);
+    }
+  else if(youmes && this == actor) {
+    Send(ALL, 0, youbuf, tstr.c_str());
+    }
+  else {
+    Send(tnum, rsucc, buf, astr.c_str(), tstr.c_str());
+    }
 
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
@@ -1866,8 +1885,22 @@ void Object::SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
   for(char *ctr=buf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
   for(char *ctr=youbuf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
 
-  if(youmes && this == actor) Send(ALL, 0, youbuf, tstr.c_str());
-  else Send(tnum, rsucc, buf, astr.c_str(), tstr.c_str());
+  if(youmes && youbuf[0] == '*' && this == actor) {
+    Send(ALL, 0, CGRN);
+    Send(ALL, 0, youbuf+1, tstr.c_str());
+    Send(ALL, 0, CNRM);
+    }
+  else if(buf[0] == '*') {
+    Send(ALL, 0, CRED);
+    Send(tnum, rsucc, buf+1, astr.c_str(), tstr.c_str());
+    Send(ALL, 0, CNRM);
+    }
+  else if(youmes && this == actor) {
+    Send(ALL, 0, youbuf, tstr.c_str());
+    }
+  else {
+    Send(tnum, rsucc, buf, astr.c_str(), tstr.c_str());
+    }
 
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {

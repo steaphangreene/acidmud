@@ -2760,16 +2760,17 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       //FIXME: Remove debugging stuff ("succ" and "res") from these messages.
       if(com == COM_KICK)
 	body->Parent()->SendOut(stealth_t, stealth_s, 
-		";s kicks ;s%s. [%d] %s\n", "You kick ;s%s. [%d] %s\n",
+		"*;s kicks ;s%s. [%d] %s\n", "*You kick ;s%s. [%d] %s\n",
 		body, targ, locm.c_str(), succ, res.c_str());
       else if(body->IsAct(ACT_WIELD))
-	body->Parent()->SendOut(stealth_t, stealth_s, ";s hits ;s%s with %s. [%d] %s\n",
-		"You hit ;s%s with %s. [%d] %s\n", body, targ,
+	body->Parent()->SendOut(stealth_t, stealth_s,
+		"*;s hits ;s%s with %s. [%d] %s\n",
+		"*You hit ;s%s with %s. [%d] %s\n", body, targ,
 		locm.c_str(), body->ActTarg(ACT_WIELD)->ShortDesc(),
 		succ, res.c_str());
       else
 	body->Parent()->SendOut(stealth_t, stealth_s, 
-		";s punches ;s%s. [%d] %s\n", "You punch ;s%s. [%d] %s\n",
+		"*;s punches ;s%s. [%d] %s\n", "*You punch ;s%s. [%d] %s\n",
 		body, targ, locm.c_str(), succ, res.c_str());
       int sev = 0;
 
