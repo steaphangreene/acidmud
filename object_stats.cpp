@@ -527,6 +527,63 @@ static void init_defaults() {
   skcat[cat].push_back("Spellcasting");
   skcat[cat].push_back("Spellcraft");
   skcat[cat].push_back("Talismongery");
+
+  //Now back to non-automatically generated code
+  add_wts("Grappling");
+  add_wts("Kicking");
+  add_wts("Punching");
+  add_wts("Short Blades");
+  add_wts("Short Cleaves");
+  add_wts("Short Crushing");
+  add_wts("Short Piercing");
+  add_wts("Flails");
+  add_wts("Staves");
+  add_wts("Long Blades");
+  add_wts("Long Cleaves");
+  add_wts("Long Crushing");
+  add_wts("Long Piercing");
+  add_wts("Two-Handed Blades");
+  add_wts("Two-Handed Cleaves");
+  add_wts("Two-Handed Crushing");
+  add_wts("Two-Handed Flails");
+  add_wts("Two-Handed Piercing");
+  add_wts("Two-Handed Staves");
+
+  add_wts("Offhand Blades");
+  add_wts("Offhand Cleaves");
+  add_wts("Offhand Crushing");
+  add_wts("Offhand Flails");
+  add_wts("Offhand Piercing");
+  add_wts("Offhand Staves");
+
+  add_wts("Mounted Blades");
+  add_wts("Mounted Cleaves");
+  add_wts("Mounted Crushing");
+  add_wts("Mounted Flails");
+  add_wts("Mounted Piercing");
+  add_wts("Mounted Staves");
+
+  add_wts("Archery");
+  add_wts("Blowgun");
+  add_wts("Crossbow");
+  add_wts("Hurling");
+  add_wts("Nets");
+  add_wts("Slings");
+  add_wts("Staff Slings");
+  add_wts("Throwing (Aero)");
+  add_wts("Throwing (Non-Aero)");
+  add_wts("Whips");
+
+  add_wts("Mounted Archery");
+  add_wts("Mounted Blowgun");
+  add_wts("Mounted Crossbow");
+  add_wts("Mounted Nets");
+  add_wts("Mounted Slings");
+  add_wts("Mounted Throwing (Aero)");
+  add_wts("Mounted Throwing (Non-Aero)");
+  add_wts("Mounted Whips");
+
+  add_wts("Shields");
   }
 
 int is_skill(string sk) {
