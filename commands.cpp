@@ -577,11 +577,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
   if(com == COM_SHUTDOWN) {
     shutdn = 1;
+    if(mind) mind->Send("You instruct the system to shut down.\n");
     return 0;
     }
 
   if(com == COM_RESTART) {
     shutdn = 2;
+    if(mind) mind->Send("You instruct the system to restart.\n");
     return 0;
     }
 
