@@ -1884,8 +1884,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	Object *wield = body->ActTarg(ACT_WIELD);
 	if(wield && body->Stash(wield)) {
 	  body->Parent()->SendOut(";s stops wielding and stash ;s.\n",
-		"You stop wielding and stash ;s.\n", body,
-		body->ActTarg(ACT_WIELD));
+		"You stop wielding and stash ;s.\n", body, wield);
 	  }
 	else if(body->IsAct(ACT_HOLD)
 		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)
