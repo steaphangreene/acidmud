@@ -1881,22 +1881,31 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
       if(body->IsAct(ACT_WIELD)) {
-	if(body->IsAct(ACT_HOLD)) {
-	  if(mind) mind->Send("You are holding something else.\n"
-		"Perhaps you want to 'drop' one of these?");
-	  return 0;
-	  }
 	Object *wield = body->ActTarg(ACT_WIELD);
-	body->AddAct(ACT_HOLD, wield);
-	body->StopAct(ACT_WIELD);
-	body->Parent()->SendOut(";s stops wielding ;s.\n",
+	if(wield && body->Stash(wield)) {
+	  body->Parent()->SendOut(";s stops wielding and stash ;s.\n",
+		"You stop wielding and stash ;s.\n", body,
+		body->ActTarg(ACT_WIELD));
+	  }
+	else if(body->IsAct(ACT_HOLD)
+		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)
+		&& body->ActTarg(ACT_HOLD) != wield) {
+	  if(mind) mind->Send(
+		"You are holding %s and can't stash %s.\n"
+		"Perhaps you want to 'drop' one of these items?",
+		body->ActTarg(ACT_HOLD)->Name(1, body), wield->Name(1, body));
+	  }
+	else {
+	  body->AddAct(ACT_HOLD, wield);
+	  body->StopAct(ACT_WIELD);
+	  body->Parent()->SendOut(";s stops wielding ;s.\n",
 		"You stop wielding ;s.\n", body, wield);
-	return 0;
+	  }
 	}
       else {
 	if(mind) mind->Send("You are not wielding anything.\n");
-	return 0;
 	}      
+      return 0;
       }
 
     Object *targ = body->PickObject(comline+len, LOC_INTERNAL);
