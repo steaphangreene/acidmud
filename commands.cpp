@@ -907,6 +907,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
   if(com == COM_GET) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(!comline[len]) {
+      if(mind) mind->Send("What do you want to get?\n");
+      return 0;
+      }
     Object *targ = body->PickObject(comline+len, LOC_NEARBY);
     if(!targ) {
       if(mind) mind->Send("You want to get what?\n");
@@ -933,6 +937,14 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
 
     if(!strncasecmp(comline+len, "in ", 3)) len += 3;
+
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+
+    if(!comline[len]) {
+      if(mind) mind->Send("What do you want to put '%s' in?\n",
+	body->ActTarg(ACT_HOLD)->ShortDesc());
+      return 0;
+      }
 
     Object *targ =
 	body->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
@@ -1173,7 +1185,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
       Object *targ = (*targ_it);
 
-      if(mind) mind->Send("You try to wear %s!\n", targ->Name());
+      //if(mind) mind->Send("You try to wear %s!\n", targ->Name(0, body));
       if(body->ActTarg(ACT_WEAR_BACK) == targ
 		|| body->ActTarg(ACT_WEAR_CHEST) == targ
 		|| body->ActTarg(ACT_WEAR_HEAD) == targ
@@ -1195,7 +1207,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		|| body->ActTarg(ACT_WEAR_LSHOULDER) == targ
 		|| body->ActTarg(ACT_WEAR_RSHOULDER) == targ
 		) {
-	if(mind) mind->Send("You are already wearing that!\n");
+	if(mind && targs.size() == 1)
+	  mind->Send("You are already wearing %s!\n", targ->Name(0, body));
 	}
       else {
 	int success = 0;
@@ -1265,7 +1278,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
 	  if(locations.size() < 1) {
 	    if(mask == 1) {
-	      if(mind) mind->Send("You can't wear that - it's not wearable!\n");
+	      if(mind) mind->Send("You can't wear %s - it's not wearable!\n",
+			targ->Name(0, body));
 	      }
 	    break;
 	    }
@@ -1287,7 +1301,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  }
 
 	if(!success) {
-	  if(mind) mind->Send("You can't wear that with what you have on already!\n");
+	  if(mind)
+	    mind->Send("You can't wear %s with what you are already wearing!\n",
+		targ->Name(0, body));
 	  continue;
 	  }
 	}

@@ -302,7 +302,7 @@ Object::Object(const Object &o) {
   add_tick(this);
   }
 
-const char *Object::Name(int definite) { // Truly-formatted name
+const char *Object::Name(int definite, Object *rel) { // Truly-formatted name
   static string local;
   int proper = 0;
   string ret;
@@ -322,7 +322,10 @@ const char *Object::Name(int definite) { // Truly-formatted name
   if(!Attribute(1)) {
     Object *pos = parent;
     while(pos && (!pos->Attribute(1))) pos = pos->Parent();
-    if(pos) {
+    if(pos && pos == rel) {
+      ret = string("your ") + ret;
+      }
+    else if(pos) {
       ret = string(pos->ShortDesc()) + "'s " + ret;
       }
     else if(definite) {
@@ -978,26 +981,28 @@ int get_ordinal(char *text) {
     if(ret && isgraph(suf[2])) ret = 0;
     if(suf[0] == '.') ret = atoi(text);
     }
-  else if(!strncasecmp(text, "first",  len>?5)) ret = 1;
-  else if(!strncasecmp(text, "second", len>?6)) ret = 2;
-  else if(!strncasecmp(text, "third",  len>?5)) ret = 3;
-  else if(!strncasecmp(text, "fourth", len>?6)) ret = 4;
-  else if(!strncasecmp(text, "fifth",  len>?5)) ret = 5;
-  else if(!strncasecmp(text, "sixth",  len>?5)) ret = 6;
-  else if(!strncasecmp(text, "seventh",len>?7)) ret = 7;
-  else if(!strncasecmp(text, "eighth", len>?6)) ret = 8;
-  else if(!strncasecmp(text, "ninth",  len>?5)) ret = 9;
-  else if(!strncasecmp(text, "tenth",  len>?5)) ret = 10;
-  else if(!strncasecmp(text, "all",  len>?3)) ret = -1;
+  else if(!strncasecmp(text, "first",  5)) ret = 1;
+  else if(!strncasecmp(text, "second", 6)) ret = 2;
+  else if(!strncasecmp(text, "third",  5)) ret = 3;
+  else if(!strncasecmp(text, "fourth", 6)) ret = 4;
+  else if(!strncasecmp(text, "fifth",  5)) ret = 5;
+  else if(!strncasecmp(text, "sixth",  5)) ret = 6;
+  else if(!strncasecmp(text, "seventh",7)) ret = 7;
+  else if(!strncasecmp(text, "eighth", 6)) ret = 8;
+  else if(!strncasecmp(text, "ninth",  5)) ret = 9;
+  else if(!strncasecmp(text, "tenth",  5)) ret = 10;
+  else if(!strncasecmp(text, "all",  3)) ret = -1;
   return ret;
   }
 
 int strip_ordinal(char **text) {
   int ret = get_ordinal(*text);
   if(ret) {
+    fprintf(stderr, "Pre: %s\n", *text);
     while((!isgraph(**text)) && (**text)) ++(*text);
     while((isgraph(**text)) && (**text) != '.') ++(*text);
     while(((!isgraph(**text)) || (**text) == '.') && (**text)) ++(*text);
+    fprintf(stderr, "Post: %s\n", *text);
     }
   return ret;
   }
@@ -1014,8 +1019,6 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
   set<Object*> ret;
 
   while((!isgraph(*name)) && (*name)) ++name;
-
-  if(!(*name)) return ret;
 
   char *keyword = NULL;
   char *keyword2 = NULL;
@@ -1084,12 +1087,12 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
 	  if((*ordinal) <= 0) ret.insert(action->second);
 	  if((*ordinal) == 0) return ret;
 	  }
-	}
-      if(action->second->Skill("Container")) {
-	set<Object*> add;
-	add = action->second->PickObjects(name, LOC_INTERNAL, ordinal);
-	ret.insert(add.begin(), add.end());
-	if((*ordinal) == 0) return ret;
+	if(action->second->Skill("Container")) {
+	  set<Object*> add;
+	  add = action->second->PickObjects(name, LOC_INTERNAL, ordinal);
+	  ret.insert(add.begin(), add.end());
+	  if((*ordinal) == 0) return ret;
+	  }
 	}
       }
 

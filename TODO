@@ -1,8 +1,14 @@
-Make "wear all" work recursively.
-Fix STAY_ZONE mobs so they actually do and don't cross NOMOB zones!  Fixed?
-Finish article substitution ("A" -> "A second" -> "The" -> "Joe's", etc...).
 Add more smartness for getting things from people (permission, etc.).
 Add more smartness for recursive gets (can't grab from locked items, etc...).
+Hit locations.
+Implement armor protection.
+Implement armor and cloathing effects.
+Implement experience.
+Implement money.
+Translate CircleMud shops.
+Travel limitations (speed of movement, fleeing, sprinting, running).
+Fix STAY_ZONE mobs so they actually do and don't cross NOMOB zones!  Fixed?
+Finish article substitution ("A" -> "A second" -> "The" -> "Joe's", etc...).
 Add better messages for items possessed by characters and mobs.
 Pick up a fight's other opponents after your target goes down without delay.
 Wear/wield from own containers need auto open/close.
@@ -14,15 +20,11 @@ A "suit of" object should not just be on the fucking chest!
 Create in direction works oddly.
 Delete a direction-linked object exploderates.
 Do 3-layer armor system.
-Hit locations.
-Implement armor protection.
-Implement armor and cloathing effects.
 Following.
 Translate circle armor.
 Make circle MOBs fudge some appropriate stats.
-Make circle MOBs actually do stuff.
+Make circle MOBs do more stuff.
 Ranged Combat.
-Ticks
 Aggressive Circle MOBs shouldn't get a full-round first strike!
 Implement Reaction Action.
 Create Real Tie-Breaker for Tied Initiative.
