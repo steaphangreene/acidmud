@@ -2056,7 +2056,7 @@ void Object::DoWhenFree(const char *act) {
   busylist.insert(this);
   }
 
-void Object::BusyAct() {
+int Object::BusyAct() {
 //  fprintf(stderr, "Taking busyact %p!\n", this);
   busylist.erase(this);
 
@@ -2068,14 +2068,19 @@ void Object::BusyAct() {
   defact = "";
 
 //  fprintf(stderr, "Act is %s!\n", comm.c_str());
+
+  int ret;
   if(minds.size()) {
-    handle_command(this, comm.c_str(), *(minds.begin()));
-    if(!StillBusy()) handle_command(this, def.c_str(), *(minds.begin()));
+    ret = handle_command(this, comm.c_str(), *(minds.begin()));
+    if(ret != 2 && (!StillBusy()))
+	ret = handle_command(this, def.c_str(), *(minds.begin()));
     }
   else {
-    handle_command(this, comm.c_str());
-    if(!StillBusy()) handle_command(this, def.c_str());
+    ret = handle_command(this, comm.c_str());
+    if(ret != 2 && (!StillBusy()))
+	ret = handle_command(this, def.c_str());
     }
+  return (ret == 2); //Return 1 if no more actions this round!
   }
 
 void FreeActions() {
@@ -2096,8 +2101,9 @@ void FreeActions() {
 				// (hasn't been deleted by another's BusyAct)!
       if(init->second == phase && busylist.count(init->first)) {
 //	fprintf(stderr, "Going at %d\n", phase);
-	(init->first)->BusyAct();
-	init->second -= 10;
+	int ret = (init->first)->BusyAct();
+	if(ret) init->second = 0;
+	else init->second -= 10;
 	}
       }
     }

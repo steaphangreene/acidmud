@@ -236,7 +236,7 @@ public:
 
   void Tick();
 
-  void BusyAct();
+  int BusyAct();
   int StillBusy();
   void BusyFor(long msec, const char *default_next = "");
   void BusyWith(Object *other, const char *default_next = "");

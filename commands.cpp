@@ -604,6 +604,11 @@ Command comlist[] = {
   };
 static const int comnum = sizeof(comlist)/sizeof(Command);
 
+
+//Return values: -1: Player D/Ced
+//                0: Command Understood
+//                1: Command NOT Understood
+//                2: Command Understood - No More Actions This Round
 int handle_single_command(Object *body, const char *cl, Mind *mind) {
   int len;
   char *comline = (char*)cl;
@@ -2678,7 +2683,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		"You move to attack ;s.\n",
 		body, targ);
       body->BusyWith(body, comline); //HACK!  Make this command used first rnd!
-      return 0;
+      return 2; //No more actions until next round!
       }
 
 
