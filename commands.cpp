@@ -92,6 +92,7 @@ enum {	COM_HELP=0,
 
 	COM_LIST,
 	COM_BUY,
+	COM_VALUE,
 	COM_SELL,
 
 	COM_PLAYERS,
@@ -313,6 +314,11 @@ Command comlist[] = {
   { COM_BUY, "buy",
     "Buy an item at a shop.",
     "Buy an item at a shop.",
+    (REQ_ALERT|REQ_ACTION)
+    },
+  { COM_VALUE, "value",
+    "Find out how much a shop will give you for an item.",
+    "Find out how much a shop will give you for an item.",
     (REQ_ALERT|REQ_ACTION)
     },
   { COM_SELL, "sell",
@@ -1219,6 +1225,70 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  else {
 	    if(mind) mind->Send("You can't stash %s.\n", targ->Name(1));
 	    }
+	  }
+	}
+      }
+    return 0;
+    }
+
+  if(com == COM_VALUE) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(!comline[len]) {
+      if(mind) mind->Send("What do you want to value?\n");
+      return 0;
+      }
+
+    typeof(body->Parent()->Contents()) objs = body->Parent()->Contents();
+    typeof(objs.begin()) shpkp_i;
+    Object *shpkp = NULL;
+    for(shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
+      if((*shpkp_i)->Skill("Sell Proffit")) {shpkp = (*shpkp_i); break; }
+      }
+    if(shpkp == NULL) {
+      if(mind) mind->Send("You can only do that around a shopkeeper.\n");
+      }
+    else if(shpkp->IsAct(ACT_DEAD)) {
+      if(mind) mind->Send("Sorry, the shopkeeper is dead!\n");
+      }
+    else if(shpkp->IsAct(ACT_DYING)) {
+      if(mind) mind->Send("Sorry, the shopkeeper is dying!\n");
+      }
+    else if(shpkp->IsAct(ACT_UNCONSCIOUS)) {
+      if(mind) mind->Send("Sorry, the shopkeeper is unconscious!\n");
+      }
+    else if(shpkp->IsAct(ACT_SLEEP)) {
+      if(mind) mind->Send("Sorry, the shopkeeper is asleep!\n");
+      }
+    else {
+      vector<Object *>targs = body->PickObjects(comline+len, LOC_INTERNAL);
+      if(!targs.size()) {
+	if(mind) mind->Send("You want to value what?\n");
+	}
+      else if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)
+		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Container")) {
+	vector<Object *>::iterator targ_i;
+	for(targ_i = targs.begin(); targ_i != targs.end(); ++targ_i) {
+	  Object *targ = (*targ_i);
+	  int price = targ->Value() * (1 >? targ->Skill("Quantity"));
+	  if(price < 0) {
+	    if(mind) mind->Send("You can't sell %s.\n", targ->Name(0, body));
+	    continue;
+	    }
+	  else if(price == 0) {
+	    if(mind) {
+	      string mes = targ->Name(0, body);
+	      mes += " is worthless.\n";
+	      mes[0] = toupper(mes[0]);
+	      mind->Send(mes.c_str());
+	      }
+	    continue;
+	    }
+ 	  price *= shpkp->Skill("Buy Proffit");
+	  price += 0;  price /= 1000;
+	  string mes = targ->Name(0, body);
+	  mes[0] = toupper(mes[0]);
+	  mind->Send(mes.c_str());
+	  mind->Send(" is worth %d gp here.\n", price);
 	  }
 	}
       }
