@@ -1134,12 +1134,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else if(shpkp->IsAct(ACT_SLEEP)) {
       if(mind) mind->Send("Sorry, the shopkeeper is asleep!\n");
       }
-    else if(body->IsAct(ACT_HOLD)) {
-      if(mind) mind->Send("You are already holding something else!\n");
-      }
     else {
       set<Object *>targs = body->PickObjects(comline+len, LOC_INTERNAL);
-      if(!targs.size()) {
+      if(body->IsAct(ACT_HOLD) && (!targs.count(body->ActTarg(ACT_HOLD)))) {
+	if(mind) mind->Send("You are already holding something else!\n");
+	}
+      else if(!targs.size()) {
 	if(mind) mind->Send("You want to sell what?\n");
 	}
       else if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)	// FIXME: skpkp AFFORD?
