@@ -49,9 +49,8 @@ void Object::DynamicInit2() {
 
 
 void make_dwarf(Object *loc) {
-  if((rand()%100) < 30) {
-    Object *mob = new Object(loc);
-	
+  Object *mob = new Object(loc);
+
 	mob->Attach(get_mob_mind());
 	mob->Activate();
 	mob->SetPos(POS_STAND);
@@ -83,7 +82,6 @@ void make_dwarf(Object *loc) {
 
 	mob->AddAct(ACT_WIELD, obj);
 	mob->AddAct(ACT_HOLD, obj);
-	}
   }
 
 void Object::DynamicInit1() {		//Dwarven mine
@@ -165,6 +163,8 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetSkill("Open", 1);
       door2->SetSkill("Enterable", 1);
 
+      if((rand()%100) < 30) make_dwarf(this);
+
       }break;
     case(2): { //Major Shaft w/ Minor Offshoot
       if(mojo <= 0) break; //End of Tunnel
@@ -221,6 +221,8 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
       door2->SetSkill("Open", 1);
       door2->SetSkill("Enterable", 1);
+
+      if((rand()%100) < 30) make_dwarf(this);
 
       }break;
     case(3): { //Major Shaft w/ Secret Minor Offshoot
@@ -280,6 +282,8 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetSkill("Enterable", 1);
       door1->SetSkill("Hidden", 4 + rand()%13);
 
+      if((rand()%100) < 30) make_dwarf(this);
+
       }break;
     case(5): { //Minor Shaft
       if(mojo <= 0) break; //End of Tunnel
@@ -312,7 +316,7 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetSkill("Open", 1);
       door2->SetSkill("Enterable", 1);
 
-      make_dwarf(this);
+      if((rand()%100) < 30) make_dwarf(this);
 
       }break;
     case(6): { //Minor Shaft (Bend)
@@ -344,6 +348,8 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
       door2->SetSkill("Open", 1);
       door2->SetSkill("Enterable", 1);
+
+      if((rand()%100) < 30) make_dwarf(this);
 
       }break;
     case(7): { //Minor Shaft Fork
@@ -400,6 +406,8 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
       door2->SetSkill("Open", 1);
       door2->SetSkill("Enterable", 1);
+
+      if((rand()%100) < 30) make_dwarf(this);
 
       }break;
     default: {
