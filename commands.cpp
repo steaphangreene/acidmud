@@ -677,15 +677,16 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
       mind->Attach(body);
 
-      //This is ninja-healing and bypasses all healing mechanisms.
-      body->SetStun(0);
-      body->SetPhys(0);
-      body->SetStru(0);
-      body->UpdateDamage();
-
-      body->Parent()->SendOut(
-	";s heals and repairs ;s with Ninja Powers[TM].\n", "You heal ;s.\n",
-	body, body);
+      if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJAMODE)) {
+	//This is ninja-healing and bypasses all healing mechanisms.
+	body->SetStun(0);
+	body->SetPhys(0);
+	body->SetStru(0);
+	body->UpdateDamage();
+	body->Parent()->SendOut(
+	  ";s heals and repairs ;s with Ninja Powers[TM].\n", "You heal ;s.\n",
+	  body, body);
+	}
 
       if(body->IsAct(ACT_DYING))
 	mind->Send("You can see nothing, you are too busy dying.\n");
