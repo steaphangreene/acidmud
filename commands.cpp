@@ -54,6 +54,7 @@ enum {	COM_HELP=0,
 	COM_EXAMINE,
 	COM_INVENTORY,
 	COM_EQUIPMENT,
+	COM_STATS,
 
 	COM_OPEN,
 	COM_CLOSE,
@@ -93,6 +94,8 @@ enum {	COM_HELP=0,
 	COM_NEWBIE,
 
 	COM_NEWCHAR,
+	COM_BUY,
+
 	COM_SKILLLIST,
 
 	COM_NINJAMODE,
@@ -153,6 +156,12 @@ Command comlist[] = {
     "Check what you are wearing and using.",
     "Check what you are wearing and using.",
     (REQ_AWAKE|REQ_ACTION)
+    },
+
+  { COM_STATS, "stats",
+    "Get stats of an object or creature.",
+    "Get stats of an object or creature.",
+    (REQ_ALERT|REQ_ACTION)
     },
 
   { COM_OPEN, "open",
@@ -307,6 +316,12 @@ Command comlist[] = {
     "Create a new character.",
     (REQ_ETHEREAL)
     },
+  { COM_BUY, "buy",
+    "Spend points at character creation.",
+    "Spend points at character creation.",
+    (REQ_ETHEREAL)
+    },
+
   { COM_SKILLLIST, "skilllist",
     "List all available skills.",
     "List all available skills.",
@@ -841,7 +856,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
   if(com == COM_EXAMINE) {
     Object *targ = NULL;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    if(strlen(comline+len) < 0) {
+    if(strlen(comline+len) <= 0) {
       if(mind) mind->Send("You want to examine what?\n");
       return 0;
       }
@@ -858,10 +873,29 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     return 0;
     }
 
+  if(com == COM_STATS) {
+    Object *targ = NULL;
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(strlen(comline+len) <= 0) {
+      targ = body;
+      }
+    else {
+      targ = body->PickObject(comline+len,
+		LOC_INTERNAL|LOC_NEARBY|LOC_SELF);
+      }
+    if(!targ) {
+      if(mind) mind->Send("You don't see that here.\n");
+      }
+    else {
+      if(mind) targ->SendStats(mind, body);
+      }
+    return 0;
+    }
+
   if(com == COM_OPEN) {
     Object *targ = NULL;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    if(strlen(comline+len) < 0) {
+    if(strlen(comline+len) <= 0) {
       if(mind) mind->Send("You want to open what?\n");
       return 0;
       }
@@ -889,7 +923,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
   if(com == COM_CLOSE) {
     Object *targ = NULL;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    if(strlen(comline+len) < 0) {
+    if(strlen(comline+len) <= 0) {
       if(mind) mind->Send("You want to close what?\n");
       return 0;
       }
@@ -1734,6 +1768,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       body->BusyFor(3000);
       }
 
+    return 0;
+    }
+
+  if(com == COM_BUY) {
     return 0;
     }
 

@@ -100,6 +100,8 @@ public:
   void SendDescSurround(Object *m, Object *o = NULL);
   void SendLongDesc(Mind *m, Object *o = NULL);
   void SendLongDesc(Object *m, Object *o = NULL);
+  void SendStats(Mind *m, Object *o = NULL);
+  void SendStats(Object *m, Object *o = NULL);
 
   int Travel(Object *);
   void AddLink(Object *);

@@ -435,6 +435,13 @@ void Object::SendLongDesc(Object *targ, Object *o) {
     }
   }
 
+void Object::SendStats(Object *targ, Object *o) {
+  set<Mind*>::iterator m = targ->minds.begin();
+  for(; m != targ->minds.end(); ++m) {
+    SendStats(*m, o);
+    }
+  }
+
 static string base = "";
 static char buf[65536];
 
@@ -792,8 +799,11 @@ void Object::SendLongDesc(Mind *m, Object *o) {
   else {
     m->Send("It is closed and locked, you can't tell what's inside it.\n");
     }
+  m->Send("%s", CNRM);
+  }
 
-  m->Send("%s\n", CNRM);
+void Object::SendStats(Mind *m, Object *o) {
+  m->Send("\n%s", CNRM);
   m->Send("Bod: %2d", Attribute(0));
   m->Send("           L     M        S           D\n");
   m->Send("Qui: %2d", Attribute(1));
