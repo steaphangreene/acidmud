@@ -127,6 +127,8 @@ enum {	COM_HELP=0,
 
 	COM_RESET,
 	COM_CREATE,
+	COM_ANCHOR,
+	COM_LINK,
 	COM_COMMAND,
 	COM_CONTROL,
 	COM_CLONE,
@@ -460,6 +462,16 @@ Command comlist[] = {
     },
 
   { COM_CREATE, "create",
+    "Ninja command.",
+    "Ninja command - ninjas only!",
+    (REQ_ALERT|REQ_NINJAMODE)
+    },
+  { COM_ANCHOR, "anchor",
+    "Ninja command.",
+    "Ninja command - ninjas only!",
+    (REQ_ALERT|REQ_NINJAMODE)
+    },
+  { COM_LINK, "link",
     "Ninja command.",
     "Ninja command - ninjas only!",
     (REQ_ALERT|REQ_NINJAMODE)
@@ -3339,6 +3351,71 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 //      body->Parent()->SendOut(stealth_t, stealth_s, 
 //	";s creates a new object with Ninja Powers[TM].\n",
 //	"You create a new object.\n", body, NULL);
+      }
+    return 0;
+    }
+
+  static Object *anchor = NULL;
+
+  if(com == COM_ANCHOR) {
+    if(!mind) return 0;
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    anchor = new Object(body->Parent());
+    anchor->SetShortDesc("a shimmering portal");
+    anchor->SetDesc("This portal could only have been created by a True Ninja[TM].  You wonder where it leads.");
+    body->Parent()->SendOut(stealth_t, stealth_s, 
+	";s creates a shimmering portal with Ninja Powers[TM].\n",
+	"You create a shimmering portal.\n", body, NULL);
+    return 0;
+    }
+
+  if(com == COM_LINK) {
+    if(!mind) return 0;
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(anchor == NULL) {
+      mind->Send("You need to make an anchor before you can link to it!\n");
+      }
+    else if(comline[len] == 0) {
+      mind->Send("You need to specify what the portal will be named!\n");
+      }
+    else {
+      Object *link;
+
+      body->Parent()->SendOut(stealth_t, stealth_s, 
+	";s creates a shimmering portal \"%s\" with Ninja Powers[TM].\n",
+	"You create a shimmering portal \"%s\".\n", body, NULL, comline+len);
+
+      link = new Object(body->Parent());
+      link->SetShortDesc(comline+len);
+      link->AddAct(ACT_SPECIAL_LINKED, anchor);
+      link->AddAct(ACT_SPECIAL_MASTER, anchor);
+      link->SetSkill("Open", 1);
+      link->SetSkill("Enterable", 1);
+      anchor->AddAct(ACT_SPECIAL_LINKED, link);
+      anchor->AddAct(ACT_SPECIAL_MASTER, link);
+      anchor->SetSkill("Open", 1);
+      anchor->SetSkill("Enterable", 1);
+      string other = comline+len;
+      if(!strncmp(comline+len, "east", 4)) {
+	other = "west";  other += comline+len+4;
+	}
+      else if(!strncmp(comline+len, "west", 4)) {
+	other = "east";  other += comline+len+4;
+	}
+      else if(!strncmp(comline+len, "north", 5)) {
+	other = "south";  other += comline+len+5;
+	}
+      else if(!strncmp(comline+len, "south", 5)) {
+	other = "north";  other += comline+len+5;
+	}
+      else if(!strncmp(comline+len, "up", 2)) {
+	other = "down";  other += comline+len+2;
+	}
+      else if(!strncmp(comline+len, "down", 4)) {
+	other = "up";  other += comline+len+4;
+	}
+      anchor->SetShortDesc(other.c_str());
+      anchor = NULL;
       }
     return 0;
     }
