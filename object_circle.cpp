@@ -526,7 +526,7 @@ void Object::CircleLoadMob(const char *fn) {
       fscanf(mudm, " %d %c\n", &val, &tp);
       //FIXME: Implement special powers of MOBs here.
 
-      obj->SetSkill("Accomplishment", 100000+onum);
+      obj->SetSkill("Accomplishment", 120000+onum);
 
       if(tp == 'E' || tp == 'S') {
 	fscanf(mudm, "%d %d %d", &val, &val2, &val3);
