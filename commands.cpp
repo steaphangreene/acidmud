@@ -1397,6 +1397,17 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	    continue;
 	    }
 
+	  if(targ->Skill("Container")) {
+	    if(mind) {
+	      string mes = targ->Name(0, body);
+	      mes += " is a container.";
+	      mes += "  You can't sell containers because Stea is a lazy bitch.\n";
+	      mes[0] = toupper(mes[0]);
+	      mind->Send(mes.c_str());
+	      }
+	    continue;
+	    }
+
 	  int price = targ->Value() * (1 >? targ->Skill("Quantity"));
 	  if(price < 0) {
 	    if(mind) mind->Send("You can't sell %s.\n", targ->Name(0, body));

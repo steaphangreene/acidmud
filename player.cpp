@@ -15,6 +15,7 @@ static const char *salt_char =
 
 Player::Player(string nm, string ps) {
   flags = 0;
+  exp = 0;
 
   room = new Object();
   creator = NULL;
@@ -115,7 +116,13 @@ int Player::LoadFrom(FILE *fl) {
   memset(buf, 0, 65536);
   fscanf(fl, "%s\n", buf);
   pass = buf;
-  fscanf(fl, "%lX\n", &flags);
+  fscanf(fl, ":%ld", &exp);
+
+  unsigned long newcom;
+  while(fscanf(fl, ";%ld", &newcom) > 0) {
+    completed.insert(newcom);
+    }
+  fscanf(fl, ":%lX\n", &flags);
 
   int num;
   while(fscanf(fl, ":%d\n", &num) > 0) {
@@ -148,7 +155,17 @@ int load_players(const char *fn) {
   }
 
 int Player::SaveTo(FILE *fl) {
-  fprintf(fl, "%s\n%s\n%lX", name.c_str(), pass.c_str(), flags);
+  fscanf(fl, ":%ld:\n", &exp);
+  fprintf(fl, "%s\n%s\n", name.c_str(), pass.c_str());
+
+  fprintf(fl, ":%ld", exp);
+
+  set<unsigned long>::iterator com = completed.begin();
+  for(; com != completed.end(); ++com) {
+    fprintf(fl, ";%ld", (*com));
+    }
+
+  fprintf(fl, ":%lX", flags);
   room->WriteContentsTo(fl);
   fprintf(fl, "\n");
   return 0;
@@ -208,4 +225,10 @@ vector<Player *> get_all_players() {
       }
     }
   return ret;
+  }
+
+int Player::Accomplish(unsigned long acc) {
+  if(completed.count(acc)) return 0;
+  else completed.insert(acc);
+  return 1;
   }

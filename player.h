@@ -30,12 +30,16 @@ public:
   int LoadFrom(FILE *);
   const char *Name() { return name.c_str(); }
   void AddChar(Object *);
+  int Accomplish(unsigned long);
+  unsigned long Exp() { return exp; }
 
 private:
   map<string, Object *> body;
   string name, pass;
   Object *room, *creator;
   unsigned long flags;
+  set<unsigned long> completed;
+  unsigned long exp;
 
   friend Player *player_login(string name, string pass);
   friend Player *get_player(string name);
