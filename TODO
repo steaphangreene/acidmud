@@ -8,6 +8,7 @@ Implement intelligent stashing.
 Pluralize appropriate commands with intelligent stashing (rem, get).
 Implement experience.
 Improve character creation interface.
+Implement money denominations and change.
 Implement item "piles" "pairs", "mixtures", etc....
 Positional modifyers (sleeping/lying down/standing, etc...).
 Travel limitations (speed of movement, fleeing, sprinting, running).
