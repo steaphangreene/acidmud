@@ -6,6 +6,7 @@ using namespace std;
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstdarg>
 #include <unistd.h>
 #include <cstring>
 #include <fcntl.h>
