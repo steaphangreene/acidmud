@@ -5,6 +5,7 @@ Implement "all of " for all within.
 Implement "everything"/"everyone".
 Implement "stuff"/"money"/"cash".
 Implement "loot" command.
+Fix the "examine one of a group of held items and get it in your rectum" bug.
 Dup shopkeeper items correctly (all gauntlets are left, etc...).
 Handle odd pluralized cases (Holding two items when one is looked at...).
 CircleMOB repopping.
