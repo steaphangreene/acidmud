@@ -347,6 +347,7 @@ Object::Object(const Object &o) {
 // Generate truly-formatted name
 const char *Object::Name(int definite, Object *rel, Object *sub) {
   static string local;
+  int need_an = 0;
   int proper = 0;
   string ret;
 
@@ -358,6 +359,11 @@ const char *Object::Name(int definite, Object *rel, Object *sub) {
 
   if(!strncasecmp(short_desc.c_str(), "a ", 2)) {
     ret = (short_desc.c_str()+2);
+    need_an = 0;
+    }
+  if(!strncasecmp(short_desc.c_str(), "an ", 3)) {
+    ret = (short_desc.c_str()+3);
+    need_an = 1;
     }
   else if(!strncasecmp(short_desc.c_str(), "the ", 4)) {
     ret = (short_desc.c_str()+4);
@@ -389,12 +395,18 @@ const char *Object::Name(int definite, Object *rel, Object *sub) {
     else if(definite) {
       ret = string("the ") + ret;
       }
+    else if(need_an) {
+      ret = string("an ") + ret;
+      }
     else {
       ret = string("a ") + ret;
       }
     }
   else if(definite && (!proper)) {
     ret = string("the ") + ret;
+    }
+  else if((!proper) && need_an){
+    ret = string("an ") + ret;
     }
   else if(!proper) {
     ret = string("a ") + ret;
