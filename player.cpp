@@ -116,7 +116,7 @@ int Player::LoadFrom(FILE *fl) {
   memset(buf, 0, 65536);
   fscanf(fl, "%s\n", buf);
   pass = buf;
-  fscanf(fl, ":%ld", &exp);
+  fscanf(fl, ":%d", &exp);
 
   unsigned long newcom;
   while(fscanf(fl, ";%ld", &newcom) > 0) {
@@ -155,10 +155,9 @@ int load_players(const char *fn) {
   }
 
 int Player::SaveTo(FILE *fl) {
-  fscanf(fl, ":%ld:\n", &exp);
   fprintf(fl, "%s\n%s\n", name.c_str(), pass.c_str());
 
-  fprintf(fl, ":%ld", exp);
+  fprintf(fl, ":%d", exp);
 
   set<unsigned long>::iterator com = completed.begin();
   for(; com != completed.end(); ++com) {

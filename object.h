@@ -11,6 +11,8 @@
 using namespace std;
 
 class Object;
+class Player;
+class Mind;
 
 #ifndef OBJECT_H
 #define OBJECT_H
@@ -76,8 +78,6 @@ enum act_t {
 
 extern const char *pos_str[POS_MAX];
 extern const char *act_str[ACT_SPECIAL_MAX];
-
-class Mind;
 
 class Object {
 public:
@@ -151,6 +151,10 @@ public:
   void SetSize(int s)	{ size = s; };
   void SetValue(int v)	{ value = v; };
   void SetGender(char g){ gender = g; };
+
+  void EarnExperience(int);
+  int Accomplish(unsigned long);
+  int Exp(Player *p = NULL);
 
   int Stun()	{ return stun; };
   int Phys()	{ return phys; };
@@ -246,6 +250,8 @@ private:
   int weight, volume, size;
   int value;
   char gender;
+
+  set<unsigned long> completed;
   int exp, sexp;
 
   int phys, stun, stru;

@@ -20,7 +20,6 @@ Should not be able to wear/wield multiple (ie: pluralized) items in any location
 Implement boats and boat travel.
 Cleanup item manipulation commands.
 Cleanup and secure shopkeeper vortex objects.
-Implement character experience.
 Improve character creation interface.
 Implement money denominations and change.
 Implement item "piles" "pairs", "mixtures", etc....

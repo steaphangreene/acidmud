@@ -970,6 +970,7 @@ void Object::SendLongDesc(Mind *m, Object *o) {
   }
 
 void Object::SendScore(Mind *m, Object *o) {
+  if(!m) return;
   m->Send("\n%s", CNRM);
   m->Send("Bod: %2d", Attribute(0) <? 99);
   m->Send("           L     M        S           D\n");
@@ -1056,9 +1057,20 @@ void Object::SendScore(Mind *m, Object *o) {
       m->Send("\n");
       }
     }
+
+  m->Send("%s", CYEL);
+  m->Send("\nEarned Exp: %4d  Player Exp: %4d  Unspent Exp: %4d\n", exp,
+	(minds.count(m) && m->Owner()) ? m->Owner()->Exp() : -1,
+	Exp(m->Owner()));
+
+  m->Send("%s", CNRM);
   }
 
 void Object::SendStats(Mind *m, Object *o) {
+  if(!m) return;
+
+  m->Send("\n");
+
   if(skills.count("WeaponType")) {
     static char sevs[] = { '-', 'L', 'M', 'S', 'D' };
     m->Send("    %s: (Str+%d)%c",
@@ -1083,11 +1095,10 @@ void Object::SendStats(Mind *m, Object *o) {
   set<Mind*>::iterator mind;
   for(mind = minds.begin(); mind != minds.end(); ++mind) {
     if((*mind)->Owner()) {
-      m->Send("->Player Connected: %s (%ld exp)\n",
+      m->Send("->Player Connected: %s (%d exp)\n",
 	(*mind)->Owner()->Name(), (*mind)->Owner()->Exp());
       }
     }
-
   m->Send("%s", CNRM);
   }
 
@@ -2217,4 +2228,21 @@ void Object::Activate() {
 
 void Object::Deactivate() {
   remove_tick(this);
+  }
+
+void Object::EarnExperience(int e) {
+  exp += e;
+  }
+
+int Object::Accomplish(unsigned long acc) {
+  if(completed.count(acc)) return 0;
+  completed.insert(acc);
+  ++exp;
+  return 1;
+  }
+
+int Object::Exp(Player *p) {
+  int ret = (exp-sexp);
+  if(p) ret += p->Exp();
+  return ret;
   }
