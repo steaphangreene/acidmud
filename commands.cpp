@@ -2109,6 +2109,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	chr->SetSkill("Skills", chr->Skill("Skills") - 1);
 	}
       }
+    mind->Send("You randomly spend all remaining points for '%s'.\n",
+	chr->ShortDesc());
     return 0;
     }
 
