@@ -205,7 +205,7 @@ void Object::Tick() {
     phys = 0 >? phys;
     UpdateDamage();
     }
-  if(stun >= 10) {
+  if(phys < 10 && stun >= 10) {
     int rec = 0;
     rec = RollNoWounds("Willpower", 6);
     stun -= rec;  stun = 0 >? stun;
