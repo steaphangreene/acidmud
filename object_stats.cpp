@@ -136,6 +136,12 @@ void Object::SetSkill(const string &s, int v) {
   }
 
 int Object::Skill(const string &s, int *tnum) const {
+  if(!strncasecmp(s.c_str(), "Body", s.length())) return att[0];
+  if(!strncasecmp(s.c_str(), "Quickness", s.length())) return att[1];
+  if(!strncasecmp(s.c_str(), "Strength", s.length())) return att[2];
+  if(!strncasecmp(s.c_str(), "Charisma", s.length())) return att[3];
+  if(!strncasecmp(s.c_str(), "Intelligence", s.length())) return att[4];
+  if(!strncasecmp(s.c_str(), "Willpower", s.length())) return att[5];
   if(!defaults_init) init_defaults();
   if(skills.count(s)) return (skills.find(s))->second;  //const for 'skills[s]'
   if(tnum) {
