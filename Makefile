@@ -2,9 +2,17 @@ TSTR:=  $(shell date -u +"%Y%m%d%H%M")
 OBJS:=	main.o net.o commands.o mind.o player.o \
 	object.o object_circle.o object_acid.o object_stats.o object_dynamic.o
 
-#Production Settings
+#Production Settings (dynamic)
+#CCC:=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
+#LIBS:=	-static -lstdc++ -lcrypt
+
+#Production Settings (dynamic, except libstdc++)
+#CCC:=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
+#LIBS:=	-static `gcc$(ACIDMUD_CTAIL) -print-file-name=libstdc++.a` -lcrypt
+
+#Production Settings (static)
 CCC:=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
-LIBS:=	`gcc$(ACIDMUD_CTAIL) -print-file-name=libstdc++.a` -lcrypt
+LIBS:=	-static -lstdc++ -lcrypt
 
 #Debugging settings
 #CCC:=	gcc$(ACIDMUD_CTAIL) -g -Wall
