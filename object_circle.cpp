@@ -112,8 +112,18 @@ Mind *get_mob_mind() {
 
 void Object::CircleFinishMob(Object *mob) {
   mob->Attach(get_mob_mind());
+  if(mob->ActTarg(ACT_WEAR_LSHOULDER)) { //CircleMud Bags Only
+    stats_t stats = (*(mob->ActTarg(ACT_WEAR_LSHOULDER)->Stats()));
+    stats.SetSkill("Container",
+	mob->ActTarg(ACT_WEAR_LSHOULDER)->ContainedWeight());
+    stats.SetSkill("Capacity",
+	mob->ActTarg(ACT_WEAR_LSHOULDER)->ContainedVolume());
+    mob->ActTarg(ACT_WEAR_LSHOULDER)->SetStats(stats);
+    }
   }
 
+static Object *lastmob = NULL, *lastbag = NULL;
+static map<int, Object*>lastobj;
 void Object::CircleLoadZon(const char *fn) {
   FILE *mudz = fopen(fn, "r");
   if(mudz) {
@@ -123,8 +133,6 @@ void Object::CircleLoadZon(const char *fn) {
       }
     int done = 0;
     while(!done) {
-      static Object *lastmob = NULL, *lastbag = NULL;
-      static map<int, Object*>lastobj;
       char type;
       fscanf(mudz, " %c", &type);
       //fprintf(stderr, "Processing %c zone directive.\n", type);
@@ -291,8 +299,13 @@ void Object::CircleLoadZon(const char *fn) {
 		stats_t stats = (*(lastbag->Stats()));
 		stats.SetSkill("Wearable on Left Shoulder", 1);
 		stats.SetSkill("Wearable on Right Shoulder", 2);
-		stats.SetSkill("Container", 1000);
+		stats.SetSkill("Container", 1000 * 454);
+		stats.SetSkill("Capacity", 1000);
 		stats.SetSkill("Closeable", 1);
+		stats.weight = 5 * 454;
+		stats.size = 1000;
+		stats.volume = 5;
+		stats.value = 200;
 		lastbag->SetStats(stats);
 		lastbag->SetPos(POS_LIE);
 		lastmob->AddAct(ACT_WEAR_LSHOULDER, lastbag);
@@ -316,8 +329,8 @@ void Object::CircleLoadZon(const char *fn) {
 	  fscanf(mudz, "%*[^\n]\n");
 	  } break;
 	}
-      if(lastmob) CircleFinishMob(lastmob);
       }
+    if(lastmob) CircleFinishMob(lastmob);
     fclose(mudz);
     }
   }
@@ -570,6 +583,7 @@ void Object::CircleLoadObj(const char *fn) {
 
       if(tp == 15) { // CONTAINER
 	stats.SetSkill("Container", val[0] * 454);
+	stats.SetSkill("Capacity", val[0]);
 
 	if(!(val[1] & 4)) stats.SetSkill("Transparent", 1);  //Start open?
 
@@ -588,6 +602,7 @@ void Object::CircleLoadObj(const char *fn) {
 	}
       else if(tp == 17) { // DRINKCON
 	stats.SetSkill("Liquid Container", val[0]);
+	stats.SetSkill("Capacity", val[0]);
 	stats.SetSkill("Transparent", 1);
 	stats.SetSkill("Closeable", 1);
 	//FIXME: Put the liquid in it if it's supposed to start with it!
@@ -820,7 +835,7 @@ void Object::CircleLoadObj(const char *fn) {
       fscanf(mudo, "%d %d %*d\n", &weight, &value);
       stats.value = value;
       stats.weight = weight * 454;
-      stats.volume = 1;
+      stats.volume = weight; //FIXME: Better guess within units?
       stats.size = 1;
 
       obj->SetStats(stats);

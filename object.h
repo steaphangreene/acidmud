@@ -113,6 +113,9 @@ public:
   int Contains(Object *obj) { return contents.count(obj); }
   set<Object *> Contents() { return contents; }
 
+  int ContainedWeight();
+  int ContainedVolume();
+
   pos_t Pos() { return pos; };
   void SetPos(pos_t p) { pos = p; };
   const char *PosString() { return pos_str[pos]; };

@@ -934,17 +934,28 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("You can't put anything in that, it is locked.\n");
       }
     else {
-      int closed = 0;
-      if(!targ->Stats()->GetSkill("Transparent")) closed = 1;
-      if(closed) body->Parent()->SendOut(
+      int closed = 0, res = 0;
+      Object *obj = body->ActTarg(ACT_HOLD);
+      res = obj->Travel(targ);
+      if(res == -2) {
+	if(mind) mind->Send("It won't fit in there.\n");
+	}
+      else if(res == -3) {
+	if(mind) mind->Send("It's too heavy to put in there.\n");
+	}
+      else if(!res) {
+	if(mind) mind->Send("You can't put it in there.\n");
+	}
+      else {
+	if(!targ->Stats()->GetSkill("Transparent")) closed = 1;
+	if(closed) body->Parent()->SendOut(
 		";s opens ;s.\n", "You open ;s.\n", body, targ);
-      body->Parent()->SendOut(
+	body->Parent()->SendOut(
 		";s puts %s into ;s.\n", "You put %s into ;s.\n",
-		body, targ, body->ActTarg(ACT_HOLD)->Name());
-      body->ActTarg(ACT_HOLD)->Travel(targ);
-      body->StopAct(ACT_HOLD);
-      if(closed) body->Parent()->SendOut(
+		body, targ, obj->Name());
+	if(closed) body->Parent()->SendOut(
 		";s close ;s.\n", "You close ;s.\n", body, targ);
+	}
       }
     return 0;
     }

@@ -1,7 +1,7 @@
 You should still be able to wield and hold while resting.
 Pick up a fight's other opponents after your target goes down without delay.
 Implement container weight capacity.
-Add and implement container volume capacity.
+Implement container volume capacity.
 Add smartness for getting things from things (auto open/close, permission, etc.)
 Add better messages for items possessed by characters and mobs.
 Fixup "Back" slot so it makes more sense.
@@ -33,6 +33,7 @@ Actually "create" characters with actual stats and such.
 Case-Insensitive Playernames
 
 Add SSL support.
+Atmoize all the strings (save rediculous amounts of memory!).
 Fix network-pass commandline incremental growth.
 Add gzipped worlds save/load support.
 Be sure I Handle big messages to/from users correctly.

@@ -729,13 +729,28 @@ void Object::AddLink(Object *ob) {
 
 int Object::Travel(Object *dest) {
   if((!parent) || (!dest)) return -1;
+
+  int cap = dest->Stats()->GetSkill("Capacity");
+  if(cap > 0) {
+    cap -= dest->ContainedVolume();
+    if(stats.volume > cap) return -2;
+    }
+
+  int con = dest->Stats()->GetSkill("Container");
+  if(con > 0) {
+    con -= dest->ContainedWeight();
+    if(stats.weight > con) return -3;
+    }
+
   parent->contents.erase(this);
   if(parent->ActTarg(ACT_WIELD) == this) parent->StopAct(ACT_WIELD);
   if(parent->ActTarg(ACT_HOLD) == this) parent->StopAct(ACT_HOLD);
   for(act_t act=ACT_WEAR_BACK; act < ACT_MAX; ++((int&)(act)))
     if(parent->ActTarg(act) == this) parent->StopAct(act);
+
   parent = dest;
   parent->contents.insert(this);
+
   StopAct(ACT_POINT);
   return 0;
   }
@@ -784,6 +799,24 @@ void Object::Unattach(Mind *m) {
   if(m->Body() == this) {
     m->Unattach();
     }
+  }
+
+int Object::ContainedWeight() {
+  int ret = 0;
+  set<Object*>::iterator ind;
+  for(ind = contents.begin(); ind != contents.end(); ++ind) {
+    ret += (*ind)->Stats()->weight;
+    }
+  return ret;
+  }
+
+int Object::ContainedVolume() {
+  int ret = 0;
+  set<Object*>::iterator ind;
+  for(ind = contents.begin(); ind != contents.end(); ++ind) {
+    ret += (*ind)->Stats()->volume;
+    }
+  return ret;
   }
 
 int get_ordinal(char *text) {
