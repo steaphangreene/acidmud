@@ -148,6 +148,14 @@ Object *new_body() {
   Object *body = new Object();
   body->SetShortDesc("an amorphous blob");
   body->SetParent(default_initial);
+
+  body->SetWeight(bod_stats.GetAttribute(0) * 20000);
+  body->SetSize(1000 + bod_stats.GetAttribute(0) * 200);
+  body->SetVolume(100);
+  body->SetValue(-1);
+  body->SetWeight(80000);
+  body->SetGender('M');
+
   body->SetStats(bod_stats);
   body->SetPos(POS_STAND);
   return body;
@@ -159,6 +167,13 @@ Object::Object() {
   short_desc = "new object";
   parent = NULL;
   pos = POS_NONE;
+
+  weight = 0;
+  volume = 0;
+  size = 0;
+  value = 0;
+  gender = 'N';
+
   stats = zero_stats;
   }
 
@@ -169,6 +184,13 @@ Object::Object(Object *o) {
   parent = NULL;
   SetParent(o);
   pos = POS_NONE;
+
+  weight = 0;
+  volume = 0;
+  size = 0;
+  value = 0;
+  gender = 'N';
+
   stats = zero_stats;
   }
 
@@ -181,6 +203,12 @@ Object::Object(const Object &o) {
   stats = o.stats;
   act.clear();
   pos = o.pos;
+
+  weight = o.weight;
+  volume = o.volume;
+  size = o.size;
+  value = o.value;
+  gender = o.gender;
 
   contents.clear();
   set<Object*>::const_iterator ind;
@@ -441,7 +469,9 @@ void Object::SendShortDesc(Mind *m, Object *o) {
   }
 
 void Object::SendFullSituation(Mind *m, Object *o) {
-  string pname = "his/her/its";
+  string pname = "its";
+  if(parent && parent->Gender() == 'M') pname = "his";
+  else if(parent && parent->Gender() == 'F') pname = "her";
 
   if(!parent)
     sprintf(buf, "%s is here%c", Name(), 0);
@@ -478,6 +508,7 @@ void Object::SendFullSituation(Mind *m, Object *o) {
 
   else if(parent->ActTarg(ACT_WEAR_LFINGER) == this)
     sprintf(buf, "%s is here on %s left finger%c", Name(), pname.c_str(), 0);
+
   else if(parent->ActTarg(ACT_WEAR_RFINGER) == this)
     sprintf(buf, "%s is here on %s right finger%c", Name(), pname.c_str(), 0);
 
@@ -728,10 +759,9 @@ void Object::SendLongDesc(Mind *m, Object *o) {
   m->Send("\n");
   m->Send("Wil: %2d", stats.GetAttribute(5));
 
-  m->Send("    %d.%.3dkg, %d.%.3dm, %dv, %dY\n\n",
-	stats.weight / 1000, stats.weight % 1000,
-	stats.size / 1000, stats.size % 1000,
-	stats.volume, stats.value);
+  m->Send("    Sex: %c, %d.%.3dkg, %d.%.3dm, %dv, %dY\n\n",
+	gender, weight / 1000, weight % 1000,
+	size / 1000, size % 1000, volume, value);
 
   map<string,int> skills = stats.GetSkills();
   map<string,int>::iterator skl;
@@ -765,13 +795,13 @@ int Object::Travel(Object *dest) {
   int cap = dest->Stats()->GetSkill("Capacity");
   if(cap > 0) {
     cap -= dest->ContainedVolume();
-    if(stats.volume > cap) return -2;
+    if(volume > cap) return -2;
     }
 
   int con = dest->Stats()->GetSkill("Container");
   if(con > 0) {
     con -= dest->ContainedWeight();
-    if(stats.weight > con) return -3;
+    if(weight > con) return -3;
     }
 
   parent->contents.erase(this);
@@ -837,7 +867,7 @@ int Object::ContainedWeight() {
   int ret = 0;
   set<Object*>::iterator ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
-    ret += (*ind)->Stats()->weight;
+    ret += (*ind)->weight;
     }
   return ret;
   }
@@ -846,7 +876,7 @@ int Object::ContainedVolume() {
   int ret = 0;
   set<Object*>::iterator ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
-    ret += (*ind)->Stats()->volume;
+    ret += (*ind)->volume;
     }
   return ret;
   }

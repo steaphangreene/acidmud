@@ -3,7 +3,7 @@
 #include <map>
 
 using namespace std;
-const int SAVEFILE_VERSION = 103;
+const int SAVEFILE_VERSION = 105;
 
 #include "object.h"
 #include "mind.h"
@@ -46,6 +46,8 @@ int Object::SaveTo(FILE *fl) {
   fprintf(fl, "%s;\n", short_desc.c_str());
   fprintf(fl, "%s;\n", desc.c_str());
   fprintf(fl, "%s;\n", long_desc.c_str());
+
+  fprintf(fl, "%d %d %d %d %c;\n", weight, size, volume, value, gender);
 
   fprintf(fl, "%d\n", connections.size());
   map<string,Object*>::iterator dind;
@@ -132,6 +134,8 @@ int Object::LoadFrom(FILE *fl) {
   memset(buf, 0, 65536);
   res = fscanf(fl, "%[^;]; ", buf);  long_desc = buf;
   if(res < 1) fscanf(fl, " ; ");
+
+  fscanf(fl, "%d %d %d %d %c;\n", &weight, &size, &volume, &value, &gender);
 
   fscanf(fl, "%d ", &num);
   for(int ctr=0; ctr<num; ++ctr) {

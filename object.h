@@ -117,6 +117,18 @@ public:
   int ContainedWeight();
   int ContainedVolume();
 
+  int Weight()	{ return weight; };
+  int Volume()	{ return volume; };
+  int Size()	{ return size; };
+  int Value()	{ return value; };
+  char Gender()	{ return gender; };
+
+  void SetWeight(int w)	{ weight = w; };
+  void SetVolume(int v)	{ volume = v; };
+  void SetSize(int s)	{ size = s; };
+  void SetValue(int v)	{ value = v; };
+  void SetGender(char g){ gender = g; };
+
   pos_t Pos() { return pos; };
   void SetPos(pos_t p) { pos = p; };
   const char *PosString() { return pos_str[pos]; };
@@ -180,6 +192,11 @@ private:
   Object *parent;
   set<Mind*> minds;
   pos_t pos;
+
+  int weight, volume, size;
+  int value;
+  char gender;
+
   map<act_t,Object*> act;
   stats_t stats;
   timeval busytill;

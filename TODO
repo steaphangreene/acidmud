@@ -5,6 +5,7 @@ Add more smartness for recursive gets (can't grab from locked items, etc...).
 Add better messages for items possessed by characters and mobs.
 Pick up a fight's other opponents after your target goes down without delay.
 You should still be able to wield and hold while resting.
+Fold "stats_t" into object.
 Fixup "Back" slot so it makes more sense.
 Do 3-layer armor system.
 Make picks occur in display order (acted-on things should be first).

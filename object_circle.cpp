@@ -302,10 +302,12 @@ void Object::CircleLoadZon(const char *fn) {
 		stats.SetSkill("Container", 1000 * 454);
 		stats.SetSkill("Capacity", 1000);
 		stats.SetSkill("Closeable", 1);
-		stats.weight = 5 * 454;
-		stats.size = 1000;
-		stats.volume = 5;
-		stats.value = 200;
+
+		lastbag->SetWeight(5 * 454);
+		lastbag->SetSize(1000);
+		lastbag->SetVolume(5);
+		lastbag->SetValue(200);
+
 		lastbag->SetStats(stats);
 		lastbag->SetPos(POS_LIE);
 		lastmob->AddAct(ACT_WEAR_LSHOULDER, lastbag);
@@ -409,6 +411,9 @@ void Object::CircleLoadMob(const char *fn) {
 	else if(val == 6) { // Mob Starts off Sitting
 	  obj->SetPos(POS_SIT);
 	  }
+
+	static char genderlist[] = { 'N', 'M', 'F' };
+	obj->gender = genderlist[val3];
 	}
 
       memset(buf, 0, 65536);
@@ -438,10 +443,10 @@ void Object::CircleLoadMob(const char *fn) {
 	else break;
 	}
 
-      stats.value = -1;
-      stats.weight = stats.GetAttribute(0) * 20000;
-      stats.volume = 100;
-      stats.size = 1000 + stats.GetAttribute(0) * 200;
+      obj->SetWeight(stats.GetAttribute(0) * 20000);
+      obj->SetSize(1000 + stats.GetAttribute(0) * 200);
+      obj->SetVolume(100);
+      obj->SetValue(-1);
 
       obj->SetStats(stats);
 
@@ -833,10 +838,11 @@ void Object::CircleLoadObj(const char *fn) {
 
       int weight, value;
       fscanf(mudo, "%d %d %*d\n", &weight, &value);
-      stats.value = value;
-      stats.weight = weight * 454;
-      stats.volume = weight; //FIXME: Better guess within units?
-      stats.size = 1;
+
+      obj->SetWeight(weight * 454);
+      obj->SetVolume(weight); //FIXME: Better guess within units?
+      obj->SetSize(1);
+      obj->SetValue(value);
 
       obj->SetStats(stats);
 
@@ -858,12 +864,10 @@ void Object::CircleLoad(const char *fn) {
       olist.push_back(obj);
       bynum[onum] = obj;
 
-      stats_t stats = zero_stats;
-      stats.value = -1;
-      stats.weight = -1;
-      stats.volume = -1;
-      stats.size = -1;
-      obj->SetStats(stats);
+      obj->SetWeight(-1);
+      obj->SetVolume(-1);
+      obj->SetSize(-1);
+      obj->SetValue(-1);
 
       memset(buf, 0, 65536);
       fscanf(mud, "%[^~\n]~\n", buf);
