@@ -520,10 +520,8 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
 void Object::SendContents(Mind *m, Object *o, int seeinside) {
   set<Object*> cont = contents;
 
-  if(pos != POS_NONE) {
-    for(act_t act = ACT_WIELD; act < ACT_MAX; ++((int&)(act))) {
-      cont.erase(ActTarg(act));
-      }
+  for(act_t act = ACT_WIELD; act < ACT_MAX; ++((int&)(act))) {
+    cont.erase(ActTarg(act));  //Don't show worn/wielded stuff.
     }
 
   int total = 0;
@@ -546,11 +544,18 @@ void Object::SendContents(Mind *m, Object *o, int seeinside) {
 
       (*ind)->SendActions(m);
 
-      if(seeinside || (*ind)->Skill("Transparent")) {
+      if((*ind)->Skill("Transparent")
+		|| ( seeinside && (!(*ind)->Skill("Locked")) )
+		) {
 	string tmp = base;
 	base += "  ";
 	(*ind)->SendContents(m, o, seeinside);
 	base = tmp;
+	}
+      else {
+	string mes = base + CNRM
+		+ "  It is closed and locked, you can't see inside.\n" + CGRN;
+	m->Send(mes.c_str());
 	}
       }
     }
@@ -779,18 +784,14 @@ void Object::SendLongDesc(Mind *m, Object *o) {
     }
 
   m->Send("%s", CNRM);
-  if(pos != POS_NONE) {
-    SendExtendedActions(m, 1);
+  SendExtendedActions(m, 1);
+
+  if(Skill("Transparent") || (!Skill("Locked"))) {
+    SendContents(m, o, 1);
     }
-
-//  if(m->Body() == this) {
-//    SendContents(m, o, 1);
-//    }
-//  else if(pos == POS_NONE || Skill("Transparent")) {
-//    SendContents(m, o);
-//    }
-
-  SendContents(m, o, 1);
+  else {
+    m->Send("It is closed and locked, you can't tell what's inside it.\n");
+    }
 
   m->Send("%s\n", CNRM);
   m->Send("Bod: %2d", Attribute(0));
