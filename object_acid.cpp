@@ -157,7 +157,9 @@ int Object::LoadFrom(FILE *fl) {
 	&phys, &stun, &stru);
 
   int do_tick;
-  if(fscanf(fl, ";%d", &do_tick)) Activate();
+  if(fscanf(fl, ";%d", &do_tick)) {
+    if(do_tick) Activate();
+    }
 
   fscanf(fl, "\n");
 
