@@ -1,4 +1,4 @@
-Implement quantitative dispay (eg: "4 gold pieces").
+Fix quantitative dispay with quantized items.
 Implement quantitative plurality (eg: "offer 7 gold").
 Implement money.
 Translate CircleMud shops.

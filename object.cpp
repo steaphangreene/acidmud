@@ -1053,6 +1053,7 @@ int get_ordinal(char *text) {
     else if(!strncasecmp(suf, "th", 2)) ret = atoi(text);
     if(ret && isgraph(suf[2])) ret = 0;
     if(suf[0] == '.') ret = atoi(text);
+    if(!isgraph(*suf)) ret = -atoi(text);
     }
   else if(!strncasecmp(text, "first",  5)) ret = 1;
   else if(!strncasecmp(text, "second", 6)) ret = 2;
@@ -1064,7 +1065,7 @@ int get_ordinal(char *text) {
   else if(!strncasecmp(text, "eighth", 6)) ret = 8;
   else if(!strncasecmp(text, "ninth",  5)) ret = 9;
   else if(!strncasecmp(text, "tenth",  5)) ret = 10;
-  else if(!strncasecmp(text, "all",  3)) ret = -1;
+  else if(!strncasecmp(text, "all",  3)) ret = ALL;
   return ret;
   }
 
@@ -1089,7 +1090,8 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
   }
 
 static int tag(Object *obj, set<Object*> &ret, int *ordinal) {
-  (*ordinal)--;
+  if(*ordinal > 0) (*ordinal)--;
+  else if(*ordinal > ALL) (*ordinal)++;
   if((*ordinal) <= 0) ret.insert(obj);
   if((*ordinal) == 0) return 1;
   return 0;
