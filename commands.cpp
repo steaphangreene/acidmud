@@ -2257,12 +2257,18 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		";s stashes ;s.\n", "You stash ;s.\n", body, tostash);
 	  }
 	}
-      if(body->ActTarg(ACT_HOLD)) {
+      if(body->ActTarg(ACT_HOLD)
+		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)) {
 	Object *tostash = body->ActTarg(ACT_HOLD);
 	if(body->Stash(tostash)) {
 	  body->Parent()->SendOut(
 		";s stashes ;s.\n", "You stash ;s.\n", body, tostash);
 	  }
+	}
+      else if(body->ActTarg(ACT_HOLD)) {
+	body->Parent()->SendOut(";s stops holding ;s.\n",
+		"You stop holding ;s.\n", body, body->ActTarg(ACT_HOLD));
+	body->StopAct(ACT_HOLD);
 	}
       body->Collapse();
       body->AddAct(ACT_SLEEP);
@@ -2546,16 +2552,16 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
 		== get_weapon_type("Two-Handed Staves")
 	)) {
-      if(body->IsAct(ACT_HOLD)) {
+      if(body->ActTarg(ACT_HOLD)) {
 	if(body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)) {
 	  body->Parent()->SendOut(";s stops holding ;s.\n",
-		"You stop holding ;s.\n", body, targ);
+		"You stop holding ;s.\n", body, body->ActTarg(ACT_HOLD));
 	  body->StopAct(ACT_HOLD);
 	  }
 	else {
 	  body->Parent()->SendOut(
-		";s drops ;s.\n", "You drop ;s.\n", body, targ);
-	  targ->Travel(body->Parent());
+		";s drops ;s.\n", "You drop ;s.\n", body, body->ActTarg(ACT_HOLD));
+	  body->ActTarg(ACT_HOLD)->Travel(body->Parent());
 	  }
 	}
       Object *targ = body->ActTarg(ACT_WIELD);
