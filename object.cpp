@@ -4,6 +4,9 @@
 #include <unistd.h>
 #include <cstring>
 #include <fcntl.h>
+#include <algorithm>
+
+using namespace std;
 
 #include "commands.h"
 #include "object.h"
