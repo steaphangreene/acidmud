@@ -1,4 +1,4 @@
-Implement intelligent stashing.
+Intelligent stashing needs to open/close items, and ignore locked ones.
 Pluralize appropriate commands with intelligent stashing (rem, get).
 CircleMOB (and equipment?) repopping.
 Implement "all of " for all within.
