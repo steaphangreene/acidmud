@@ -108,6 +108,7 @@ static void init_gold() {
   gold->SetVolume(0);
   gold->SetValue(1);
   gold->SetSize(0);
+  gold->SetPos(POS_LIE);
   }
 
 Mind *get_mob_mind() {
@@ -121,8 +122,10 @@ Mind *get_mob_mind() {
 void Object::CircleFinishMob(Object *mob) {
   mob->Attach(get_mob_mind());
 
-  Object *bag = new Object;
-  if(!mob->ActTarg(ACT_WEAR_LSHOULDER)) { //CircleMud Bags Only
+  Object *bag = mob->ActTarg(ACT_WEAR_LSHOULDER); //CircleMud Bags Only
+  if(!bag) { //CircleMud Bags Only
+    bag = new Object;
+
     bag->SetParent(mob);
     bag->SetShortDesc("a CircleMud bag");
     bag->SetDesc("A mysterious bag that didn't seem to need to exist before.");
