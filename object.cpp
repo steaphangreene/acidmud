@@ -1607,10 +1607,15 @@ void Object::Collapse() {
       parent->SendOut(";s collapses!\n", "You collapse!\n", this, NULL);
       pos = POS_LIE;
       }
-    if(IsAct(ACT_HOLD)) {
+    if(IsAct(ACT_HOLD) && ActTarg(ACT_HOLD) != ActTarg(ACT_WEAR_SHIELD)) {
       parent->SendOut(";s drops %s!\n", "You drop %s!\n",
 		this, NULL, ActTarg(ACT_HOLD)->ShortDesc());
       ActTarg(ACT_HOLD)->Travel(parent);
+      }
+    else if(IsAct(ACT_HOLD)) {
+      parent->SendOut(";s stops holding %s.\n", "You stop holding %s!\n",
+		this, NULL, ActTarg(ACT_HOLD)->ShortDesc());
+      StopAct(ACT_HOLD);
       }
     if(IsAct(ACT_WIELD)) {
       parent->SendOut(";s drops %s!\n", "You drop %s!\n",
