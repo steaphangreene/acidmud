@@ -127,6 +127,7 @@ enum {	COM_HELP=0,
 
 	COM_RESET,
 	COM_CREATE,
+	COM_DCREATE,
 	COM_ANCHOR,
 	COM_LINK,
 	COM_COMMAND,
@@ -462,6 +463,11 @@ Command comlist[] = {
     },
 
   { COM_CREATE, "create",
+    "Ninja command.",
+    "Ninja command - ninjas only!",
+    (REQ_ALERT|REQ_NINJAMODE)
+    },
+  { COM_DCREATE, "dcreate",
     "Ninja command.",
     "Ninja command - ninjas only!",
     (REQ_ALERT|REQ_NINJAMODE)
@@ -3361,6 +3367,57 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 //      body->Parent()->SendOut(stealth_t, stealth_s, 
 //	";s creates a new object with Ninja Powers[TM].\n",
 //	"You create a new object.\n", body, NULL);
+      }
+    return 0;
+    }
+
+  if(com == COM_DCREATE) {
+    if(!mind) return 0;
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(comline[len] == 0) {
+      mind->Send("You need to specify in what direction!\n");
+      }
+    else {
+      Object *next = new Object(body->Parent()->Parent());
+      char *dirb="south", *dir="north";
+      if(!strcmp(comline+len, "north")) {
+	}
+      else if(!strcmp(comline+len, "south")) {
+	dirb = "north"; dir = "south";
+	}
+      else if(!strcmp(comline+len, "west")) {
+	dirb = "east"; dir = "west";
+	}
+      else if(!strcmp(comline+len, "east")) {
+	dirb = "west"; dir = "east";
+	}
+      else {
+	mind->Send("Direction \"%s\" not meaningful!\n", comline+len);
+	return 0;
+	}
+
+      next->SetShortDesc("An Entrance to a Large Mining Tunnel");
+      next->SetDesc(
+        "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
+        "that you think it will stand as-is for another millenia.\n");
+      next->SetSkill("DynamicInit", 1);
+      next->SetSkill("DynamicPhase", 0); //Entrance
+      next->SetSkill("DynamicMojo", 1000000);
+
+      Object *door1 = new Object(body->Parent());
+      Object *door2 = new Object(next);
+      door1->SetShortDesc(dir);
+      door2->SetShortDesc(dirb);
+      door1->SetDesc((string("You see a solid passage leading ") + dir + ".\n").c_str());
+      door2->SetDesc((string("You see a solid passage leading ") + dirb + ".\n").c_str());
+      door1->AddAct(ACT_SPECIAL_LINKED, door2);
+      door1->AddAct(ACT_SPECIAL_MASTER, door2);
+      door1->SetSkill("Open", 1);
+      door1->SetSkill("Enterable", 1);
+      door2->AddAct(ACT_SPECIAL_LINKED, door1);
+      door2->AddAct(ACT_SPECIAL_MASTER, door1);
+      door2->SetSkill("Open", 1);
+      door2->SetSkill("Enterable", 1);
       }
     return 0;
     }

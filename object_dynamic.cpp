@@ -96,7 +96,11 @@ void Object::DynamicInit1() {		//Dwarven mine
 
       }break;
     case(1): { //Major Shaft
-      if(mojo < 1000) break; //End of Tunnel
+      if(mojo <= 0) break; //End of Tunnel
+
+//      int ntypes[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4 };
+      int ntypes[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2 };
+      int ntype = ntypes[rand() % (sizeof(ntypes)/sizeof(int))];
 
       Object *next = new Object(parent);
       next->SetShortDesc("A Large Mining Tunnel");
@@ -104,7 +108,7 @@ void Object::DynamicInit1() {		//Dwarven mine
 	"This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
 	"that you think it will stand as-is for another millenia.\n");
       next->SetSkill("DynamicInit", 1);
-      next->SetSkill("DynamicPhase", 1); //Major Shaft
+      next->SetSkill("DynamicPhase", ntype);
       next->SetSkill("DynamicMojo", mojo-1000);
 
       Object *door1 = new Object(this);
@@ -122,6 +126,99 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetSkill("Open", 1);
       door2->SetSkill("Enterable", 1);
 
+      }break;
+    case(2): { //Major Shaft w/ Minor Offshoot
+      if(mojo <= 0) break; //End of Tunnel
+
+//      int ntypes[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4 };
+      int ntypes[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2 };
+      int ntype = ntypes[rand() % (sizeof(ntypes)/sizeof(int))];
+
+      Object *next = new Object(parent);
+      next->SetShortDesc("A Large Mining Tunnel");
+      next->SetDesc(
+	"This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
+	"that you think it will stand as-is for another millenia.\n");
+      next->SetSkill("DynamicInit", 1);
+      next->SetSkill("DynamicPhase", ntype);
+      next->SetSkill("DynamicMojo", (mojo-1000) * 3 / 4);
+
+      Object *door1 = new Object(this);
+      Object *door2 = new Object(next);
+      door1->SetShortDesc(dir);
+      door2->SetShortDesc(dirb);
+      door1->SetDesc((string("You see a solid passage leading ") + dir + ".\n").c_str());
+      door2->SetDesc((string("You see a solid passage leading ") + dirb + ".\n").c_str());
+      door1->AddAct(ACT_SPECIAL_LINKED, door2);
+      door1->AddAct(ACT_SPECIAL_MASTER, door2);
+      door1->SetSkill("Open", 1);
+      door1->SetSkill("Enterable", 1);
+      door2->AddAct(ACT_SPECIAL_LINKED, door1);
+      door2->AddAct(ACT_SPECIAL_MASTER, door1);
+      door2->SetSkill("Open", 1);
+      door2->SetSkill("Enterable", 1);
+
+      if(rand()%2) swap(dir2, dir3);	// Half left, half right
+      next = new Object(parent);
+      next->SetShortDesc("A Small Mining Tunnel");
+      next->SetDesc(
+	"This tunnel looks to have been carved quickly.  It looks like it might\n"
+	"collapse at any moment.\n");
+      next->SetSkill("DynamicInit", 1);
+      next->SetSkill("DynamicPhase", 5); //Minor Shaft
+      next->SetSkill("DynamicMojo", (mojo-1000) / 4);
+
+      door1 = new Object(this);
+      door2 = new Object(next);
+      door1->SetShortDesc(dir2);
+      door2->SetShortDesc(dir3);
+      door1->SetDesc((string("You see a crumbling passage leading ") + dir2 + ".\n").c_str());
+      door2->SetDesc((string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
+      door1->AddAct(ACT_SPECIAL_LINKED, door2);
+      door1->AddAct(ACT_SPECIAL_MASTER, door2);
+      door1->SetSkill("Open", 1);
+      door1->SetSkill("Enterable", 1);
+      door2->AddAct(ACT_SPECIAL_LINKED, door1);
+      door2->AddAct(ACT_SPECIAL_MASTER, door1);
+      door2->SetSkill("Open", 1);
+      door2->SetSkill("Enterable", 1);
+
+      }break;
+    case(5): { //Minor Shaft
+      if(mojo <= 0) break; //End of Tunnel
+
+//      int ntypes[] = { 5, 5, 5, 5, 6, 6, 6, 7, 7, 8, 9 };
+      int ntypes[] = { 5, 5, 5, 5 };
+      int ntype = ntypes[rand() % (sizeof(ntypes)/sizeof(int))];
+
+      Object *next = new Object(parent);
+      next->SetShortDesc("A Small Mining Tunnel");
+      next->SetDesc(
+	"This tunnel looks to have been carved quickly.  It looks like it might\n"
+	"collapse at any moment.\n");
+      next->SetSkill("DynamicInit", 1);
+      next->SetSkill("DynamicPhase", ntype);
+      next->SetSkill("DynamicMojo", mojo-100);
+
+      Object *door1 = new Object(this);
+      Object *door2 = new Object(next);
+      door1->SetShortDesc(dir);
+      door2->SetShortDesc(dirb);
+      door1->SetDesc((string("You see a crumbling passage leading ") + dir + ".\n").c_str());
+      door2->SetDesc((string("You see a crumbling passage leading ") + dirb + ".\n").c_str());
+      door1->AddAct(ACT_SPECIAL_LINKED, door2);
+      door1->AddAct(ACT_SPECIAL_MASTER, door2);
+      door1->SetSkill("Open", 1);
+      door1->SetSkill("Enterable", 1);
+      door2->AddAct(ACT_SPECIAL_LINKED, door1);
+      door2->AddAct(ACT_SPECIAL_MASTER, door1);
+      door2->SetSkill("Open", 1);
+      door2->SetSkill("Enterable", 1);
+
+      }break;
+    default: {
+      fprintf(stderr, "Unknown dynamic-phase-type (%d-%d) init requested!\n",
+	Skill("DynamicInit"), Skill("DynamicPhase"));
       }break;
     }
   SetSkill("DynamicPhase", 0);
