@@ -36,7 +36,6 @@ Implement various types of armor and damage.
 Translate circle armor to various armor types.
 Do 3-layer armor system.
 Implement equipment's magical effects.
-Following.
 Implement character creation priorities.
 Implement character creation resources.
 Implement character creation race.
@@ -69,7 +68,6 @@ Add SSL support.
 Atmoize all the strings (save rediculous amounts of memory!).
 Add gzipped worlds save/load support.
 Be sure I Handle big messages to/from users correctly.
-Pointing, etc... should expire once target leaves area.
 Clean up and sort log(s).
 Put telnet stuff ONLY in net.cpp.
 Remove Object::SendAll() - unused?

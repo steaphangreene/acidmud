@@ -395,13 +395,13 @@ const char *Object::Name(int definite, Object *rel, Object *sub) {
     else if(pos) {
       ret = string(pos->Name()) + "'s " + ret;
       }
-    else if(definite) {
+    else if(definite && (!proper)) {
       ret = string("the ") + ret;
       }
-    else if(need_an) {
+    else if((!proper) && need_an){
       ret = string("an ") + ret;
       }
-    else {
+    else if(!proper) {
       ret = string("a ") + ret;
       }
     }
@@ -1402,35 +1402,34 @@ int Object::IsNearBy(Object *obj) {
   }
 
 void Object::NotifyGone(Object *obj, Object *newloc, int up) {
-  if(no_seek) return;
+  if(up == 1 && parent && Skill("Transparent")) { //Climb to top first!
+    parent->NotifyGone(obj, newloc, 1);
+    return;
+    }
 
   for(act_t act=ACT_NONE; act < ACT_MAX; ++((int&)(act))) {
     if(ActTarg(act) == obj) {
       if(act != ACT_FOLLOW || (!newloc)) { StopAct(act); }
-      else {
-	string com = "";
-	if(parent) {
-	  map<string,Object*> conns = parent->Connections();
-	  map<string,Object*>::iterator conn = conns.begin();
-	  for(; com == "" && conn != conns.end(); ++conn) {
-	    if(conn->second == newloc) com = conn->first;
-	    }
-	  }
-	if(com == "") { //FIXME: Follow ENTER and LEAVE actions.
-	  }
-	if(com != "") BusyFor(500, com.c_str());
-	}
+      else if(parent == newloc) { } // Do nothing - didn't leave!
+      else Travel(newloc);
       }
     }
 
+  map<Object *, int> tonotify;
+
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
-    (*ind)->NotifyGone(obj, newloc, 0);
+    if((*ind)->Skill("Transparent")) {
+      tonotify[*ind] = 0;
+      }
+    else if(up >= 0) {
+      tonotify[*ind] = -1;
+      }
     }
-  if(up && parent && Skill("Transparent")) {
-    no_seek = 1;
-    parent->NotifyGone(obj, newloc, 1);
-    no_seek = 0;
+
+  map<Object *, int>::iterator noti;
+  for(noti = tonotify.begin(); noti != tonotify.end(); ++noti) {
+    noti->first->NotifyGone(obj, newloc, noti->second);
     }
   }
 
