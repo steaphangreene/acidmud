@@ -718,7 +718,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 	for(qty = 0; oth != cont.end(); ++oth) {
 	  string name1 = (*ind)->Name();
 	  string name2 = (*oth)->Name();
-	  if(name1 == name2) {
+	  if(name1 == name2 && (*ind)->Pos() == (*oth)->Pos()) {
 	    master.erase(*oth);
 	    qty += 1 >? (*oth)->Skill("Quantity");
 	    }
