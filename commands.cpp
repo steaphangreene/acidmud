@@ -927,6 +927,7 @@ int handle_single_command(Mind *mind, const char *cl) {
 	  return 0;
 	  }
 	}
+      targ->Travel(mind->Body()); // Kills Holds and Wields on "targ"
       if(mind->Body()->ActTarg(ACT_HOLD) == targ) {
 	mind->Body()->StopAct(ACT_HOLD);
 	}
@@ -995,12 +996,13 @@ int handle_single_command(Mind *mind, const char *cl) {
       mind->Send("You are already holding something!\n");
       }
     else {
-      if(mind->Body()->ActTarg(ACT_WIELD) == targ) {
-	mind->Body()->Parent()->SendOut(";s stops wielding ;s.\n",
-		"You stop wielding ;s.\n", mind->Body(),
-		mind->Body()->ActTarg(ACT_WIELD));
-	mind->Body()->StopAct(ACT_WIELD);
-	}
+      targ->Travel(mind->Body()); // Kills Holds and Wields on "targ"
+//      if(mind->Body()->ActTarg(ACT_WIELD) == targ) {
+//	mind->Body()->Parent()->SendOut(";s stops wielding ;s.\n",
+//		"You stop wielding ;s.\n", mind->Body(),
+//		mind->Body()->ActTarg(ACT_WIELD));
+//	mind->Body()->StopAct(ACT_WIELD);
+//	}
       mind->Body()->AddAct(ACT_HOLD, targ);
       mind->Body()->Parent()->SendOut(
 	";s holds ;s.\n", "You hold ;s.\n", mind->Body(), targ);
@@ -1143,12 +1145,7 @@ int handle_single_command(Mind *mind, const char *cl) {
 	  if(mind->Body()->IsAct(*loc)) { success = 0; break; }
 	  }
 	if(success) {
-	  if(mind->Body()->ActTarg(ACT_HOLD) == targ) {
-	    mind->Body()->StopAct(ACT_HOLD);
-	    }
-	  else if(mind->Body()->ActTarg(ACT_WIELD) == targ) {
-	    mind->Body()->StopAct(ACT_WIELD);
-	    }
+	  targ->Travel(mind->Body()); // Kills Holds and Wields on "targ"
 	  for(loc = locations.begin(); loc != locations.end(); ++loc) {
 	    mind->Body()->AddAct(*loc, targ);
 	    }
