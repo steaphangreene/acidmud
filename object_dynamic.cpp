@@ -47,6 +47,45 @@ void Object::DynamicInit3() {
 void Object::DynamicInit2() {
   }
 
+
+void make_dwarf(Object *loc) {
+  if((rand()%100) < 30) {
+    Object *mob = new Object(loc);
+	
+	mob->Attach(get_mob_mind());
+	mob->Activate();
+	mob->SetPos(POS_STAND);
+	mob->SetAttribute(0, 9);
+	mob->SetAttribute(1, 6);
+	mob->SetAttribute(2, 9);
+	mob->SetAttribute(3, 2);
+	mob->SetAttribute(4, 5);
+	mob->SetAttribute(5, 9);
+	mob->SetSkill("Two-Handed Cleaves", 9);
+
+	mob->SetShortDesc("a dwarf miner");
+	mob->SetDesc("He looks pissed.");
+
+	mob->SetSkill("CircleGold", 1000);
+	loc->CircleFinishMob(mob);
+
+        Object *obj = new Object(mob);
+	obj->SetSkill("WeaponType", get_weapon_type("Two-Handed Cleaves"));
+	obj->SetSkill("WeaponForce", 2);
+	obj->SetSkill("WeaponSeverity", 3);
+	obj->SetSkill("WeaponReach", 2);
+	obj->SetShortDesc("a dwarven mining pickaxe");
+	obj->SetDesc("A super-strong, super-sharp, super-heavy pickaxe.");
+	obj->SetWeight(20000);
+	obj->SetVolume(50);
+	obj->SetValue(2000);
+	obj->SetPos(POS_LIE);
+
+	mob->AddAct(ACT_WIELD, obj);
+	mob->AddAct(ACT_HOLD, obj);
+	}
+  }
+
 void Object::DynamicInit1() {		//Dwarven mine
   int mojo = Skill("DynamicMojo");
   SetSkill("DynamicMojo", 0);
@@ -273,37 +312,7 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetSkill("Open", 1);
       door2->SetSkill("Enterable", 1);
 
-      if((rand()%100) < 30) {
-        Object *mob = new Object(this);
-	
-	mob->Attach(get_mob_mind());
-	mob->Activate();
-	mob->SetPos(POS_STAND);
-	mob->SetAttribute(0, 9);
-	mob->SetAttribute(1, 6);
-	mob->SetAttribute(2, 9);
-	mob->SetAttribute(3, 2);
-	mob->SetAttribute(4, 5);
-	mob->SetAttribute(5, 9);
-	mob->SetSkill("Two-Handed Cleaves", 9);
-
-	mob->SetShortDesc("a dwarven miner");
-	mob->SetDesc("He looks pissed.");
-
-        Object *obj = new Object(mob);
-	obj->SetSkill("WeaponType", get_weapon_type("Two-Handed Cleaves"));
-	obj->SetSkill("WeaponForce", 2);
-	obj->SetSkill("WeaponSeverity", 3);
-	obj->SetSkill("WeaponReach", 2);
-	obj->SetShortDesc("a dwarven mining pickaxe");
-	obj->SetDesc("A super-strong, super-sharp, super-heavy pickaxe.");
-	obj->SetWeight(20000);
-	obj->SetVolume(50);
-	obj->SetValue(2000);
-
-	mob->AddAct(ACT_WIELD, obj);
-	mob->AddAct(ACT_HOLD, obj);
-	}
+      make_dwarf(this);
 
       }break;
     case(6): { //Minor Shaft (Bend)
