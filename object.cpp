@@ -1142,7 +1142,7 @@ int Object::Travel(Object *dest, int try_combine) {
     for(m = minds.begin(); m != minds.end(); ++m) {
       if((*m)->Owner()) {
 	if((*m)->Owner()->Accomplish(parent->Skill("Secret"))) {
-	  (*m)->Send("%sYou gain a player experience for finding a secret!\n%s",
+	  (*m)->Send("%sYou gain a player experience point for finding a secret!\n%s",
 		CYEL, CNRM);
 	  }
 	}

@@ -2680,7 +2680,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(targ->Skill("Accomplishment")) {
 	if(body->Accomplish(targ->Skill("Accomplishment"))) {
 	  if(mind) {
-	    mind->Send("%sYour character gains an experience for victory!\n%s",
+	    mind->Send("%sYour character gains an experience point for this victory!\n%s",
 		CYEL, CNRM);
 	    }
 	  }
