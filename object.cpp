@@ -1014,9 +1014,11 @@ int Object::Travel(Object *dest, int try_combine) {
     if(parent->ActTarg(act) == this) parent->StopAct(act);
 
   parent = dest;
+  parent->AddLink(this);
   if(try_combine) {
     typeof(parent->contents.begin()) ind;
     for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
+      if((*ind) == this) continue;	//Skip self
 
       // Never combine with an actee.
       map<act_t, Object *>::iterator a = parent->act.begin();
@@ -1037,7 +1039,6 @@ int Object::Travel(Object *dest, int try_combine) {
 	}
       }
     }
-  parent->AddLink(this);
 
   StopAct(ACT_POINT);
   return 0;
