@@ -2,19 +2,26 @@
 
 rm -f skills.txt
 snarf http://www.core.binghamton.edu/~stea/shadowrun/data/skills.txt
-grep '^S' skills.txt | cut -f2- | sort -k 2 | tr '\t' '@' | uniq \
-	| sed 's-^B@\(.*\)-  defaults["\1"] = 0;-g' \
-	| sed 's-^Q@\(.*\)-  defaults["\1"] = 1;-g' \
-	| sed 's-^S@\(.*\)-  defaults["\1"] = 2;-g' \
-	| sed 's-^C@\(.*\)-  defaults["\1"] = 3;-g' \
-	| sed 's-^I@\(.*\)-  defaults["\1"] = 4;-g' \
-	| sed 's-^W@\(.*\)-  defaults["\1"] = 5;-g' \
+
+echo 'struct skill_entry {'
+echo '  char *skcatname;'
+echo '  char *skname;'
+echo '  int linked_attr;'
+echo '  };'
+
+echo ''
+
+echo '#define CUR_CAT "None"'
+echo 'static skill_entry skill_data[] = {'
+cat skills.txt | tr '\t' '@' | uniq \
+	| sed 's-^S@B@\(.*\)-  { CUR_CAT, "\1", 0 },-g' \
+	| sed 's-^S@Q@\(.*\)-  { CUR_CAT, "\1", 1 },-g' \
+	| sed 's-^S@S@\(.*\)-  { CUR_CAT, "\1", 2 },-g' \
+	| sed 's-^S@C@\(.*\)-  { CUR_CAT, "\1", 3 },-g' \
+	| sed 's-^S@I@\(.*\)-  { CUR_CAT, "\1", 4 },-g' \
+	| sed 's-^S@W@\(.*\)-  { CUR_CAT, "\1", 5 },-g' \
+	| sed 's-^C.*@.*@\(.*\)$-  #undef CUR_CAT@  #define CUR_CAT "\1"-' \
 	| tr '@' '\n'
 
-echo ''
-
-cat skills.txt | tr '\t' '@' | sed 's-^C.*@.*@\(.*\)$-  cat = "\1";-' \
-	| sed 's-^S.*@.*@\(.*\)$-  skcat[cat].push_back("\1");-'
-
-echo ''
-
+echo '  { NULL, NULL, 0 }'
+echo '  };'
