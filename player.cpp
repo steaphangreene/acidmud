@@ -16,10 +16,7 @@ Player::Player(string nm, string ps) {
   flags = 0;
 
   room = new Object();
-  creator = new Object();
-  creator->SetParent(room);
-  creator->SetShortDesc("your character creator");
-  creator->SetPos(POS_NONE);
+  creator = NULL;
 
   SetName(nm);
   if(ps[0] == '$' && ps[1] == '1' && ps[2] == '$') {
@@ -57,7 +54,7 @@ void Player::Link(Object *obj) {
 
 void Player::AddChar(Object *ch) {
   room->AddLink(ch);
-  creator->AddAct(ACT_POINT, ch);
+  creator = ch;
   fprintf(stderr, "Added %p\n", ch);
   fprintf(stderr, "Added %s\n", ch->Name());
   }
@@ -171,8 +168,8 @@ int save_players(const char *fn) {
 void player_rooms_erase(Object *obj) {
   map<string, Player *>::iterator pl = player_list.begin();
   for(; pl != player_list.end(); ++pl) {
-    if((*pl).second->Creator()->ActTarg(ACT_POINT) == obj)
-      (*pl).second->Creator()->StopAct(ACT_POINT);
+    if((*pl).second->Creator() == obj)
+      (*pl).second->SetCreator(NULL);
     (*pl).second->Room()->contents.erase(obj);
     }
   }

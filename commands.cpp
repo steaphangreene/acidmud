@@ -161,7 +161,7 @@ Command comlist[] = {
   { COM_STATS, "stats",
     "Get stats of an object or creature.",
     "Get stats of an object or creature.",
-    (REQ_ALERT|REQ_ACTION)
+    (REQ_ETHEREAL|REQ_ALERT|REQ_ACTION)
     },
 
   { COM_OPEN, "open",
@@ -654,6 +654,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		"Use the 'newchar' command to create a new character.\n");
 	return 0;
 	}
+      if(body->Skill("Attributes") || body->Skill("Skills")
+		|| body->Skill("Resources")) {
+	mind->Send("You need to finish that character first.\n");
+	return 0;
+	}
       if(body->IsAct(ACT_DEAD)) {
 	if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJAMODE)) {
 	  // Allow entry to ninjas - autoheal!
@@ -876,7 +881,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
   if(com == COM_STATS) {
     Object *targ = NULL;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    if(strlen(comline+len) <= 0) {
+    if((!body) && strlen(comline+len) <= 0) {
+      targ = mind->Owner()->Creator();
+      }
+    else if(!body) {
+      targ = mind->Owner()->Room()->PickObject(comline+len, LOC_INTERNAL);
+      }
+    else if(strlen(comline+len) <= 0) {
       targ = body;
       }
     else {
@@ -1776,7 +1787,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     }
 
   if(com == COM_BUY) {
-    Object *chr = mind->Owner()->Creator()->ActTarg(ACT_POINT);
+    Object *chr = mind->Owner()->Creator();
     if(!chr) {
       mind->Send("You need to be working on a character first.\n");
       }

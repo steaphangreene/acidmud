@@ -158,6 +158,10 @@ Object *new_body() {
   body->SetWeight(80000);
   body->SetGender('M');
 
+  body->SetSkill("Attributes", 12);
+  body->SetSkill("Skills", 40);
+  body->SetSkill("Resources", 90000);
+
   body->SetPos(POS_STAND);
   return body;
   }

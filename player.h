@@ -22,6 +22,7 @@ public:
   void Link(Object *);
   Object *Room() { return room; };
   Object *Creator() { return creator; };
+  void SetCreator(Object *o) { creator = o; };
   int Is(unsigned long f) { return (flags & f); };
   void Set(unsigned long f) { flags |= f; };
   void UnSet(unsigned long f) { flags &= (~f); };
