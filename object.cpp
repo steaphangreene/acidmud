@@ -201,26 +201,34 @@ Object::Object(const Object &o) {
   parent = NULL;
   }
 
-const char *Object::Name() { // Truly-formatted name
+const char *Object::Name(int definite) { // Truly-formatted name
   static string ret;
-  ret = "";
+
+  if(!strncasecmp(short_desc.c_str(), "a ", 2)) {
+    ret = (short_desc.c_str()+2);
+    }
+  else if(!strncasecmp(short_desc.c_str(), "the ", 4)) {
+    ret = (short_desc.c_str()+4);
+    definite = 1;
+    }
+  else {
+    ret = short_desc.c_str();
+    }
+
   if(!stats.GetAttribute(1)) {
     Object *pos = parent;
     while(pos && (!pos->Stats()->GetAttribute(1))) pos = pos->Parent();
     if(pos) {
-      ret += pos->ShortDesc();
-      ret += "'s ";
+      ret = string(pos->ShortDesc()) + "'s " + ret;
+      }
+    else if(definite) {
+      ret = string("the ") + ret;
       }
     else {
-      ret += "a ";
+      ret = string("a ") + ret;
       }
     }
-  if(!strncasecmp(short_desc.c_str(), "a ", 2))
-    ret += (short_desc.c_str()+2);
-  else if(!strncasecmp(short_desc.c_str(), "the ", 4))
-    ret += (short_desc.c_str()+4);
-  else
-    ret += short_desc.c_str();
+
   return ret.c_str();
   }
 
