@@ -1000,11 +1000,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		"Perhaps you want to 'drop' one of these?");
 	  return 0;
 	  }
-	body->AddAct(ACT_HOLD, body->ActTarg(ACT_WIELD));
+	Object *wield = body->ActTarg(ACT_WIELD);
+	body->AddAct(ACT_HOLD, wield);
 	body->StopAct(ACT_WIELD);
 	body->Parent()->SendOut(";s stops wielding ;s.\n",
-		"You stop wielding ;s.\n", body,
-		body->ActTarg(ACT_WIELD));
+		"You stop wielding ;s.\n", body, wield);
 	return 0;
 	}
       else {
@@ -1056,11 +1056,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	body->StopAct(ACT_HOLD);
 	}
       if(body->IsAct(ACT_WIELD)) {
-	body->AddAct(ACT_HOLD, body->ActTarg(ACT_WIELD));
+	Object *wield = body->ActTarg(ACT_WIELD);
+	body->AddAct(ACT_HOLD, wield);
 	body->StopAct(ACT_WIELD);
 	body->Parent()->SendOut(";s stops wielding ;s.\n",
-		"You stop wielding ;s.\n", body,
-		body->ActTarg(ACT_WIELD));
+		"You stop wielding ;s.\n", body, wield);
 	}
       body->AddAct(ACT_WIELD, targ);
       body->Parent()->SendOut(
