@@ -327,8 +327,8 @@ Object::Object(const Object &o) {
   for(ind = o.contents.begin(); ind != o.contents.end(); ++ind) {
     Object *nobj = new Object(*(*ind));
     nobj->SetParent(this);
-    if(o.ActTarg(ACT_WIELD) == (*ind)) AddAct(ACT_WIELD, nobj);
     if(o.ActTarg(ACT_HOLD) == (*ind)) AddAct(ACT_HOLD, nobj);
+    if(o.ActTarg(ACT_WIELD) == (*ind)) AddAct(ACT_WIELD, nobj);
     for(act_t act=ACT_WEAR_BACK; act < ACT_MAX; ++((int&)(act)))
       if(o.ActTarg(act) == (*ind)) AddAct(act, nobj);
     }
@@ -519,8 +519,8 @@ void Object::SendActions(Mind *m) {
 void Object::SendExtendedActions(Mind *m, int seeinside) {
   map<act_t,Object*>::iterator cur;
   for(cur = act.begin(); cur != act.end(); ++cur) {
-    if(cur->first == ACT_WIELD) m->Send("%24s", "Wielded: ");
-    else if(cur->first == ACT_HOLD) m->Send("%24s", "Held: ");
+    if(cur->first == ACT_HOLD) m->Send("%24s", "Held: ");
+    else if(cur->first == ACT_WIELD) m->Send("%24s", "Wielded: ");
     else if(cur->first == ACT_WEAR_BACK) m->Send("%24s", "Worn on back: ");
     else if(cur->first == ACT_WEAR_CHEST) m->Send("%24s", "Worn on chest: ");
     else if(cur->first == ACT_WEAR_HEAD) m->Send("%24s", "Worn on head: ");
@@ -570,7 +570,7 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
 void Object::SendContents(Mind *m, Object *o, int seeinside) {
   set<Object*> cont = contents;
 
-  for(act_t act = ACT_WIELD; act < ACT_MAX; ++((int&)(act))) {
+  for(act_t act = ACT_HOLD; act < ACT_MAX; ++((int&)(act))) {
     cont.erase(ActTarg(act));  //Don't show worn/wielded stuff.
     }
 
@@ -638,11 +638,11 @@ void Object::SendFullSituation(Mind *m, Object *o) {
   if(!parent)
     sprintf(buf, "%s is here%c", Name(), 0);
 
-  else if(parent->ActTarg(ACT_WIELD) == this)
-    sprintf(buf, "%s is here in %s hand%c", Name(), pname.c_str(), 0);
-
   else if(parent->ActTarg(ACT_HOLD) == this)
     sprintf(buf, "%s is here in %s off-hand%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WIELD) == this)
+    sprintf(buf, "%s is here in %s hand%c", Name(), pname.c_str(), 0);
 
   else if(parent->ActTarg(ACT_WEAR_BACK) == this)
     sprintf(buf, "%s is here on %s back%c", Name(), pname.c_str(), 0);
@@ -963,8 +963,8 @@ int Object::Travel(Object *dest) {
     }
 
   parent->contents.erase(this);
-  if(parent->ActTarg(ACT_WIELD) == this) parent->StopAct(ACT_WIELD);
   if(parent->ActTarg(ACT_HOLD) == this) parent->StopAct(ACT_HOLD);
+  if(parent->ActTarg(ACT_WIELD) == this) parent->StopAct(ACT_WIELD);
   for(act_t act=ACT_WEAR_BACK; act < ACT_MAX; ++((int&)(act)))
     if(parent->ActTarg(act) == this) parent->StopAct(act);
 
@@ -999,8 +999,8 @@ int Object::Travel(Object *dest) {
 Object::~Object() {
   remove_tick(this);
   if(default_initial == this) default_initial = universe;
-  if(parent->ActTarg(ACT_WIELD) == this) parent->StopAct(ACT_WIELD);
   if(parent->ActTarg(ACT_HOLD) == this) parent->StopAct(ACT_HOLD);
+  if(parent->ActTarg(ACT_WIELD) == this) parent->StopAct(ACT_WIELD);
   for(act_t act=ACT_WEAR_BACK; act < ACT_MAX; ++((int&)(act)))
     if(parent->ActTarg(act) == this) parent->StopAct(act);
 
@@ -1328,15 +1328,15 @@ Object *Object::ActTarg(act_t a) const {
 
 void Object::StopAll() {
   if(parent) {
-    if(IsAct(ACT_WIELD)) {
-      parent->SendOut(";s drops %s!\n", "You drop %s!\n",
-		this, NULL, ActTarg(ACT_WIELD)->ShortDesc());
-      ActTarg(ACT_WIELD)->Travel(parent);
-      }
     if(IsAct(ACT_HOLD)) {
       parent->SendOut(";s drops %s!\n", "You drop %s!\n",
 		this, NULL, ActTarg(ACT_HOLD)->ShortDesc());
       ActTarg(ACT_HOLD)->Travel(parent);
+      }
+    if(IsAct(ACT_WIELD)) {
+      parent->SendOut(";s drops %s!\n", "You drop %s!\n",
+		this, NULL, ActTarg(ACT_WIELD)->ShortDesc());
+      ActTarg(ACT_WIELD)->Travel(parent);
       }
     }
   act.clear();
@@ -1355,15 +1355,15 @@ void Object::Collapse() {
       parent->SendOut(";s collapses!\n", "You collapse!\n", this, NULL);
       pos = POS_LIE;
       }
-    if(IsAct(ACT_WIELD)) {
-      parent->SendOut(";s drops %s!\n", "You drop %s!\n",
-		this, NULL, ActTarg(ACT_WIELD)->ShortDesc());
-      ActTarg(ACT_WIELD)->Travel(parent);
-      }
     if(IsAct(ACT_HOLD)) {
       parent->SendOut(";s drops %s!\n", "You drop %s!\n",
 		this, NULL, ActTarg(ACT_HOLD)->ShortDesc());
       ActTarg(ACT_HOLD)->Travel(parent);
+      }
+    if(IsAct(ACT_WIELD)) {
+      parent->SendOut(";s drops %s!\n", "You drop %s!\n",
+		this, NULL, ActTarg(ACT_WIELD)->ShortDesc());
+      ActTarg(ACT_WIELD)->Travel(parent);
       }
     }
   }
@@ -1819,7 +1819,6 @@ int Object::operator == (const Object &in) const {
   if(short_desc != in.short_desc) return 0;
   if(desc != in.desc) return 0;
   if(long_desc != in.long_desc) return 0;
-  if(contents.size() != 0 || in.contents.size() != 0) return 0;
   if(weight != in.weight) return 0;
   if(volume != in.volume) return 0;
   if(size != in.size) return 0;
@@ -1839,6 +1838,8 @@ int Object::operator == (const Object &in) const {
 
   if(act.size() != 0 || in.act.size() != 0) return 0;
 
+  if(contents.size() != 0 || in.contents.size() != 0) return 0;
+
   return 1;
   }
 
@@ -1846,7 +1847,6 @@ void Object::operator = (const Object &in) {
   short_desc = in.short_desc;
   desc = in.desc;
   long_desc = in.long_desc;
-  pos = in.pos;
   weight = in.weight;
   volume = in.volume;
   size = in.size;
@@ -1861,6 +1861,8 @@ void Object::operator = (const Object &in) {
   att[5] = in.att[5];
   att[6] = in.att[6];
   att[7] = in.att[7];
+
+  pos = in.pos;
 
 //  contents = in.contents;
 //  act = in.act;

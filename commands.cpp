@@ -1187,7 +1187,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	    targ->Travel(vortex);
 	    for(coin = pay.begin(); coin != pay.end(); ++coin) {
 	      (*coin)->Travel(body);
-	      shpkp->AddAct(ACT_HOLD, (*coin));
+	      body->AddAct(ACT_HOLD, (*coin));
 	      //FIXME: Put Away!
 	      }
 	    }

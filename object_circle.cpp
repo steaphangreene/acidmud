@@ -1092,8 +1092,6 @@ void Object::CircleLoadShp(const char *fn) {
 	vortex->SetSkill("Wearable on Right Shoulder", 1);
 	vortex->SetSkill("Wearable on Left Shoulder", 2);
 
-	vortex->SetSkill("Transparent", 1); //FIXME!
-
 	fscanf(mud, "%d\n", &val);  // Item sold
 	while(val >= 0) {
 	  if(!bynumobj.count(val)) {
