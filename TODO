@@ -1,7 +1,8 @@
-You should still be able to wield and hold while resting.
 Pick up a fight's other opponents after your target goes down without delay.
-Add smartness for getting things from things (auto open/close, permission, etc.)
+Article substitution ("A" -> "The" -> "Joe's", etc...)
+Add more smartness for getting things from people (permission, etc.)
 Add better messages for items possessed by characters and mobs.
+You should still be able to wield and hold while resting.
 Fixup "Back" slot so it makes more sense.
 Do 3-layer armor system.
 Make picks occur in display order (acted-on things should be first).
