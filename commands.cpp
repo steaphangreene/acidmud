@@ -1228,24 +1228,27 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	    togo -= (1 >? (*coin)->Skill("Quantity"));
 	    }
 
-	  vector<Object*>::iterator loc
-		= find(pay.begin(), pay.end(), body->ActTarg(ACT_HOLD));
-	  if(body->IsAct(ACT_HOLD) && loc == pay.end()) {
-	    if(mind) mind->Send("You are already holding something else!\n");
-	    }
-	  else if(togo > 0) {
+	  if(togo > 0) {
 	    if(mind) mind->Send("You can't afford the %d gold (short %d).\n",
 		price, togo);
 	    }
 	  else if(body->Stash(targ)) {
 	    body->Parent()->SendOut(
-		";s buys ;s.\n", "You buy ;s.\n", body, targ);
+		";s buys and stashes ;s.\n", "You buy and stash ;s.\n", body, targ);
+	    for(coin = pay.begin(); coin != pay.end(); ++coin) {
+	      shpkp->Stash(*coin);
+	      }
+	    }
+	  else if((!body->IsAct(ACT_HOLD)) && (!targ->Travel(body))) {
+	    body->AddAct(ACT_HOLD, targ);
+	    body->Parent()->SendOut(
+		";s buys and holds ;s.\n", "You buy and hold ;s.\n", body, targ);
 	    for(coin = pay.begin(); coin != pay.end(); ++coin) {
 	      shpkp->Stash(*coin);
 	      }
 	    }
 	  else {
-	    if(mind) mind->Send("You can't stash %s.\n", targ->Name(1));
+	    if(mind) mind->Send("You can't stash or hold %s.\n", targ->Name(1));
 	    }
 	  }
 	}
