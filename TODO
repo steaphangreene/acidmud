@@ -1,4 +1,3 @@
-Fix the "temporary-disabling of items causes them to be resorted" bug.
 Make single-item commands get only single items.
 Make all plural commands see pluralized items correctly.
 Implement boats and boat travel.
