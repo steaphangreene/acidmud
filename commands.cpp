@@ -303,8 +303,8 @@ Command comlist[] = {
     },
 
   { COM_NINJAMODE, "ninjamode", 
-    "Ninja command: toggle Ninja Mode[TM] for yourself.",
-    "Ninja command: toggle Ninja Mode[TM] for yourself.",
+    "Ninja command: run a command in Ninja Mode[TM].",
+    "Ninja command: run a command in Ninja Mode[TM].",
     (REQ_ANY|REQ_NINJA)
     },
   { COM_MAKENINJA, "makeninja", 
@@ -1602,24 +1602,20 @@ int handle_single_command(Mind *mind, const char *cl) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
 
     Player *pl = mind->Owner();
-    if(strlen(comline+len) > 0) {
-      mind->Send("You can only toggle Ninja Mode[TM] on yourself.\n");
-      return 0;
+    if(strlen(comline+len) <= 0) {
+      mind->Send("What command do you want to run in Ninja Mode[TM]?\n");
+      mind->Send("You need to include the command, like 'ninja junk boat'.\n");
       }
-
-    if(!pl) {
+    else if(!pl) {
       mind->Send("Sorry, you don't seem to be a player!\n");
-      return 0;
-      }
-    else if(pl->Is(PLAYER_NINJAMODE)) {
-      pl->UnSet(PLAYER_NINJAMODE);
-      mind->Send("Ninja mode deactivated.\n");
       }
     else {
       pl->Set(PLAYER_NINJAMODE);
       mind->Send("Ninja mode activated.\n");
+      handle_single_command(mind, comline+len);
+      pl->UnSet(PLAYER_NINJAMODE);
+      mind->Send("Ninja mode deactivated.\n");
       }
-
     return 0;
     }
 
