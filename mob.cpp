@@ -11,6 +11,32 @@
 #include "mind.h"
 #include "mob.h"
 
+static map<act_t, string> wear_attribs;
+static void init_wear_attribs() {
+  wear_attribs[ACT_WEAR_BACK] = "Wearable on Back";
+  wear_attribs[ACT_WEAR_CHEST] = "Wearable on Chest";
+  wear_attribs[ACT_WEAR_HEAD] = "Wearable on Head";
+  wear_attribs[ACT_WEAR_NECK] = "Wearable on Neck";
+  wear_attribs[ACT_WEAR_WAIST] = "Wearable on Waist";
+  wear_attribs[ACT_WEAR_SHIELD] = "Wearable on Shield";
+  wear_attribs[ACT_WEAR_LARM] = "Wearable on Left Arm";
+  wear_attribs[ACT_WEAR_RARM] = "Wearable on Right Arm";
+  wear_attribs[ACT_WEAR_LFINGER] = "Wearable on Left Finger";
+  wear_attribs[ACT_WEAR_RFINGER] = "Wearable on Right Finger";
+  wear_attribs[ACT_WEAR_LFOOT] = "Wearable on Left Foot";
+  wear_attribs[ACT_WEAR_RFOOT] = "Wearable on Right Foot";
+  wear_attribs[ACT_WEAR_LHAND] = "Wearable on Left Hand";
+  wear_attribs[ACT_WEAR_RHAND] = "Wearable on Right Hand";
+  wear_attribs[ACT_WEAR_LLEG] = "Wearable on Left Leg";
+  wear_attribs[ACT_WEAR_RLEG] = "Wearable on Right Leg";
+  wear_attribs[ACT_WEAR_LWRIST] = "Wearable on Left Wrist";
+  wear_attribs[ACT_WEAR_RWRIST] = "Wearable on Right Wrist";
+  wear_attribs[ACT_WEAR_LSHOULDER] = "Wearable on Left Shoulder";
+  wear_attribs[ACT_WEAR_RSHOULDER] = "Wearable on Right Shoulder";
+  wear_attribs[ACT_WEAR_LHIP] = "Wearable on Left Hip";
+  wear_attribs[ACT_WEAR_RHIP] = "Wearable on Right Hip";
+  }
+
 static Mind *mob_mind = NULL;
 Mind *get_mob_mind() {
   if(!mob_mind) {
@@ -146,6 +172,9 @@ void Object::AddMOB(const MOBType *type) {
 
   typeof(type->armor.begin()) ar_it;
   for(ar_it = type->armor.begin(); ar_it != type->armor.end(); ++ar_it) {
+    if(wear_attribs.size() <= 0) {
+      init_wear_attribs();
+      }
     Object *obj = new Object(mob);
     obj->SetAttribute(0, (*ar_it)->bulk + rand() %(*ar_it)->bulkm);
     obj->SetSkill("ArmorB", (*ar_it)->bulk + rand() %(*ar_it)->bulkm);
@@ -162,6 +191,7 @@ void Object::AddMOB(const MOBType *type) {
 
     typeof((*ar_it)->loc.begin()) l_it;
     for(l_it = (*ar_it)->loc.begin(); l_it != (*ar_it)->loc.end(); ++l_it) {
+      obj->SetSkill(wear_attribs[*l_it], 1);
       mob->AddAct(*l_it, obj);
       }
     }

@@ -36,6 +36,37 @@ void Object::DynamicInit2() {
   }
 
 void Object::DynamicInit1() {		//Dwarven mine
+  const char *names[] = {
+    "An Entrance to a Large Mining Tunnel",
+    "A Large Mining Tunnel",
+    "A Large Mining Tunnel with a Small Tunnel to One Side",
+    "A Large Mining Tunnel",
+    "A Large Mining Tunnel (Huh?)",
+    "A Small Mining Tunnel",
+    "A Bend in a Small Mining Tunnel",
+    "A Fork in a Small Mining Tunnel",
+    "A Small Alcove"
+    };
+  const char *descs[] = {
+    "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
+	"that you think it will stand as-is for another millenia.\n",
+    "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
+	"that you think it will stand as-is for another millenia.\n",
+    "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
+	"that you think it will stand as-is for another millenia.\n",
+    "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
+	"that you think it will stand as-is for another millenia.\n",
+    "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
+	"that you think it will stand as-is for another millenia.\n",
+    "This tunnel looks to have been carved quickly.  It looks like it might\n"
+	"collapse at any moment.\n",
+    "This tunnel looks to have been carved quickly.  It looks like it might\n"
+	"collapse at any moment.\n",
+    "This tunnel looks to have been carved quickly.  It looks like it might\n"
+	"collapse at any moment.\n",
+    "The tunnel comes to an end in a rough opening here.\n"
+    };
+
   static MOBType *dwarf_miner;
   static MOBType *dwarf_engineer;
   static MOBType *dwarf_guard;
@@ -153,10 +184,8 @@ void Object::DynamicInit1() {		//Dwarven mine
       if(mojo == 0) mojo = 100000;
 
       Object *next = new Object(parent);
-      next->SetShortDesc("A Large Mining Tunnel");
-      next->SetDesc(
-	"This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
-	"that you think it will stand as-is for another millenia.\n");
+      next->SetShortDesc(names[1]);
+      next->SetDesc(descs[1]);
       next->SetSkill("DynamicInit", 1);
       next->SetSkill("DynamicPhase", 1); //Major Shaft
       next->SetSkill("DynamicMojo", mojo-1000);
@@ -190,10 +219,8 @@ void Object::DynamicInit1() {		//Dwarven mine
       int ntype = ntypes[rand() % (sizeof(ntypes)/sizeof(int))];
 
       Object *next = new Object(parent);
-      next->SetShortDesc("A Large Mining Tunnel");
-      next->SetDesc(
-	"This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
-	"that you think it will stand as-is for another millenia.\n");
+      next->SetShortDesc(names[ntype]);
+      next->SetDesc(descs[ntype]);
       next->SetSkill("DynamicInit", 1);
       next->SetSkill("DynamicPhase", ntype);
       next->SetSkill("DynamicMojo", mojo-1000);
@@ -226,10 +253,8 @@ void Object::DynamicInit1() {		//Dwarven mine
       int ntype = ntypes[rand() % (sizeof(ntypes)/sizeof(int))];
 
       Object *next = new Object(parent);
-      next->SetShortDesc("A Large Mining Tunnel");
-      next->SetDesc(
-	"This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
-	"that you think it will stand as-is for another millenia.\n");
+      next->SetShortDesc(names[ntype]);
+      next->SetDesc(descs[ntype]);
       next->SetSkill("DynamicInit", 1);
       next->SetSkill("DynamicPhase", ntype);
       next->SetSkill("DynamicMojo", (mojo-1000) * 9 / 10);
@@ -251,10 +276,8 @@ void Object::DynamicInit1() {		//Dwarven mine
 
       if(rand()%2) swap(dir2, dir3);	// Half left, half right
       next = new Object(parent);
-      next->SetShortDesc("A Small Mining Tunnel");
-      next->SetDesc(
-	"This tunnel looks to have been carved quickly.  It looks like it might\n"
-	"collapse at any moment.\n");
+      next->SetShortDesc(names[5]);
+      next->SetDesc(descs[5]);
       next->SetSkill("DynamicInit", 1);
       next->SetSkill("DynamicPhase", 5); //Minor Shaft
       next->SetSkill("DynamicMojo", (mojo-1000) / 10);
@@ -287,10 +310,8 @@ void Object::DynamicInit1() {		//Dwarven mine
       int ntype = ntypes[rand() % (sizeof(ntypes)/sizeof(int))];
 
       Object *next = new Object(parent);
-      next->SetShortDesc("A Large Mining Tunnel");
-      next->SetDesc(
-	"This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
-	"that you think it will stand as-is for another millenia.\n");
+      next->SetShortDesc(names[ntype]);
+      next->SetDesc(descs[ntype]);
       next->SetSkill("DynamicInit", 1);
       next->SetSkill("DynamicPhase", ntype);
       next->SetSkill("DynamicMojo", (mojo-1000) * 3 / 4);
@@ -312,10 +333,8 @@ void Object::DynamicInit1() {		//Dwarven mine
 
       if(rand()%2) swap(dir2, dir3);	// Half left, half right
       next = new Object(parent);
-      next->SetShortDesc("A Small Mining Tunnel");
-      next->SetDesc(
-	"This tunnel looks to have been carved quickly.  It looks like it might\n"
-	"collapse at any moment.\n");
+      next->SetShortDesc(names[5]);
+      next->SetDesc(descs[5]);
       next->SetSkill("DynamicInit", 1);
       next->SetSkill("DynamicPhase", 5); //Minor Shaft
       next->SetSkill("DynamicMojo", (mojo-1000) / 4);
@@ -345,14 +364,12 @@ void Object::DynamicInit1() {		//Dwarven mine
       if(mojo <= 0) break; //End of Tunnel
 
 //      int ntypes[] = { 5, 5, 5, 5, 6, 6, 6, 7, 7, 8, 9 };
-      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7 };
+      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7, 8 };
       int ntype = ntypes[rand() % (sizeof(ntypes)/sizeof(int))];
 
       Object *next = new Object(parent);
-      next->SetShortDesc("A Small Mining Tunnel");
-      next->SetDesc(
-	"This tunnel looks to have been carved quickly.  It looks like it might\n"
-	"collapse at any moment.\n");
+      next->SetShortDesc(names[ntype]);
+      next->SetDesc(descs[ntype]);
       next->SetSkill("DynamicInit", 1);
       next->SetSkill("DynamicPhase", ntype);
       next->SetSkill("DynamicMojo", mojo-100);
@@ -379,15 +396,13 @@ void Object::DynamicInit1() {		//Dwarven mine
       if((rand()%100) < 20) { mojo -= 500; AddMOB(dwarf_explorer); }
 
 //      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7, 8, 9 };
-      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7 };
+      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7, 8 };
       int ntype = ntypes[rand() % (sizeof(ntypes)/sizeof(int))];
 
       if(rand()%2) swap(dir2, dir3);	// Half left, half right
       Object *next = new Object(parent);
-      next->SetShortDesc("A Small Mining Tunnel");
-      next->SetDesc(
-	"This tunnel looks to have been carved quickly.  It looks like it might\n"
-	"collapse at any moment.\n");
+      next->SetShortDesc(names[ntype]);
+      next->SetDesc(descs[ntype]);
       next->SetSkill("DynamicInit", 1);
       next->SetSkill("DynamicPhase", ntype);
       next->SetSkill("DynamicMojo", mojo-100);
@@ -414,14 +429,12 @@ void Object::DynamicInit1() {		//Dwarven mine
       if((rand()%100) < 20) { mojo -= 500; AddMOB(dwarf_explorer); }
 
 //      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7, 8, 9 };
-      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7 };
+      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7, 8 };
       int ntype = ntypes[rand() % (sizeof(ntypes)/sizeof(int))];
 
       Object *next = new Object(parent);
-      next->SetShortDesc("A Small Mining Tunnel");
-      next->SetDesc(
-	"This tunnel looks to have been carved quickly.  It looks like it might\n"
-	"collapse at any moment.\n");
+      next->SetShortDesc(names[ntype]);
+      next->SetDesc(descs[ntype]);
       next->SetSkill("DynamicInit", 1);
       next->SetSkill("DynamicPhase", ntype);
       next->SetSkill("DynamicMojo", (mojo-100)/2);
@@ -444,10 +457,8 @@ void Object::DynamicInit1() {		//Dwarven mine
       ntype = ntypes[rand() % (sizeof(ntypes)/sizeof(int))];
       swap(dir2, dir3);		// Same code, opposite dir.
       next = new Object(parent);
-      next->SetShortDesc("A Small Mining Tunnel");
-      next->SetDesc(
-	"This tunnel looks to have been carved quickly.  It looks like it might\n"
-	"collapse at any moment.\n");
+      next->SetShortDesc(names[ntype]);
+      next->SetDesc(descs[ntype]);
       next->SetSkill("DynamicInit", 1);
       next->SetSkill("DynamicPhase", ntype);
       next->SetSkill("DynamicMojo", (mojo-100)/2);
@@ -466,6 +477,55 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
       door2->SetSkill("Open", 1);
       door2->SetSkill("Enterable", 1);
+      }break;
+    case(8): { //Minor Shaft Alcove
+      if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
+      if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
+      if((rand()%100) < 10) { mojo -= 500; AddMOB(dwarf_engineer); }
+      if((rand()%100) < 20) { mojo -= 500; AddMOB(dwarf_explorer); }
+
+      if(mojo <= 0) break; //End of Tunnel
+
+      if(mojo > 10000 && (rand()%100) < 20) {
+	mojo -= 5000;
+	int option = rand()%100;
+	if(option >= 70) {
+	  swap(dir, dir2);
+	  swap(dirb, dir3);
+	  }
+	else if(option >= 70) {
+	  swap(dir, dir3);
+	  swap(dirb, dir2);
+	  }
+	}
+      else {	// No secret tunnels here!
+	break;
+	}
+
+      int ntype = 5;
+
+      Object *next = new Object(parent);
+      next->SetShortDesc(names[ntype]);
+      next->SetDesc(descs[ntype]);
+      next->SetSkill("DynamicInit", 1);
+      next->SetSkill("DynamicPhase", ntype);
+      next->SetSkill("DynamicMojo", mojo-500);
+
+      Object *door1 = new Object(this);
+      Object *door2 = new Object(next);
+      door1->SetShortDesc(dir);
+      door2->SetShortDesc(dirb);
+      door1->SetDesc((string("You see a crumbling passage leading ") + dir + ".\n").c_str());
+      door2->SetDesc((string("You see a crumbling passage leading ") + dirb + ".\n").c_str());
+      door1->AddAct(ACT_SPECIAL_LINKED, door2);
+      door1->AddAct(ACT_SPECIAL_MASTER, door2);
+      door1->SetSkill("Open", 1);
+      door1->SetSkill("Enterable", 1);
+      door2->AddAct(ACT_SPECIAL_LINKED, door1);
+      door2->AddAct(ACT_SPECIAL_MASTER, door1);
+      door2->SetSkill("Open", 1);
+      door2->SetSkill("Enterable", 1);
+      door1->SetSkill("Hidden", 4 + rand()%13);
       }break;
     default: {
       fprintf(stderr, "Unknown dynamic-phase-type (%d-%d) init requested!\n",
