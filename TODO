@@ -1,4 +1,5 @@
 Pluralize appropriate commands (drop, rem, get?).
+Make circle MOBs fudge appropriate stats.
 Add more smartness for getting things from people (permission, etc.).
 Add more smartness for recursive gets (can't grab from locked items, etc...).
 Hit locations.
@@ -10,7 +11,6 @@ Translate CircleMud shops.
 Travel limitations (speed of movement, fleeing, sprinting, running).
 Fix STAY_ZONE mobs so they actually do and don't cross NOMOB zones!  Fixed?
 Finish article substitution ("A" -> "A second" -> "The" -> "Joe's", etc...).
-Add better messages for items possessed by characters and mobs.
 Pick up a fight's other opponents after your target goes down without delay.
 Wear/wield from own containers need auto open/close.
 Get it to understand two-handed weapons and shield use.
@@ -23,7 +23,6 @@ Delete a direction-linked object exploderates.
 Do 3-layer armor system.
 Following.
 Translate circle armor.
-Make circle MOBs fudge some appropriate stats.
 Make circle MOBs do more stuff.
 Ranged Combat.
 Aggressive Circle MOBs shouldn't get a full-round first strike!
