@@ -18,6 +18,8 @@ const char *dirname[6] = { "north", "east", "south", "west", "up", "down" };
 #include "stats.h"
 #include "mind.h"
 
+extern stats_t zero_stats;
+
 static char buf[65536];
 void Object::CircleLoadAll() {
   FILE *mud = fopen("circle/wld/index", "r");
@@ -321,7 +323,6 @@ void Object::CircleLoadZon(const char *fn) {
   }
 
 
-static stats_t mob_stats;
 void Object::CircleLoadMob(const char *fn) {
   FILE *mudm = fopen(fn, "r");
   if(mudm) {
@@ -329,6 +330,7 @@ void Object::CircleLoadMob(const char *fn) {
     while(1) {
       int onum;
       if(fscanf(mudm, " #%d\n", &onum) < 1) break;
+      stats_t stats = zero_stats;
 
       Object *obj = new Object(this);
       bynummob[onum] = obj;
@@ -360,20 +362,20 @@ void Object::CircleLoadMob(const char *fn) {
       //fprintf(stderr, "Loaded Circle Mobile with LongDesc = %s\n", buf);
 
       obj->SetPos(POS_STAND);
-      mob_stats.SetAttribute(0, 3);
-      mob_stats.SetAttribute(1, 3);
-      mob_stats.SetAttribute(2, 3);
-      mob_stats.SetAttribute(3, 3);
-      mob_stats.SetAttribute(4, 3);
-      mob_stats.SetAttribute(5, 3);
+      stats.SetAttribute(0, 3);
+      stats.SetAttribute(1, 3);
+      stats.SetAttribute(2, 3);
+      stats.SetAttribute(3, 3);
+      stats.SetAttribute(4, 3);
+      stats.SetAttribute(5, 3);
 
       int val, val2, val3;  char tp;
       memset(buf, 0, 65536);
       fscanf(mudm, "%[^ \t\n] %[^ \t\n] %d %c\n", buf, buf+1024, &val, &tp);
 
-      mob_stats.SetSkill("CircleAction", 0);
+      stats.SetSkill("CircleAction", 0);
       if(string(buf).find('f') < strlen(buf) || (atoi(buf) & 32)) { //AGGRESSIVE
-	mob_stats.SetSkill("CircleAction", stats.GetSkill("CircleAction") | 32);
+	stats.SetSkill("CircleAction", stats.GetSkill("CircleAction") | 32);
 	}
 
       if(tp == 'E' || tp == 'S') {
@@ -399,21 +401,21 @@ void Object::CircleLoadMob(const char *fn) {
       memset(buf, 0, 65536);
       while(tp == 'E') {  // Basically an if with an infinite loop ;)
 	if(fscanf(mudm, "Con: %d\n", &val))
-	  mob_stats.SetAttribute(0, (val+2)/3);
+	  stats.SetAttribute(0, (val+2)/3);
 	else if(fscanf(mudm, "Dex: %d\n", &val))
-	  mob_stats.SetAttribute(1, (val+2)/3);
+	  stats.SetAttribute(1, (val+2)/3);
 
 	else if(fscanf(mudm, "Str: %d\n", &val))
-	  mob_stats.SetAttribute(2, (val+2)/3);
+	  stats.SetAttribute(2, (val+2)/3);
 
 	else if(fscanf(mudm, "ha: %d\n", &val)) //'Cha' minus 'Con' Conflict!
-	  mob_stats.SetAttribute(3, (val+2)/3);
+	  stats.SetAttribute(3, (val+2)/3);
 
 	else if(fscanf(mudm, "Int: %d\n", &val))
-	  mob_stats.SetAttribute(4, (val+2)/3);
+	  stats.SetAttribute(4, (val+2)/3);
 
 	else if(fscanf(mudm, "Wis: %d\n", &val))
-	  mob_stats.SetAttribute(5, (val+2)/3);
+	  stats.SetAttribute(5, (val+2)/3);
 
 	else if(fscanf(mudm, "Add: %d\n", &val)); //'StrAdd' - Do Nothing
 
@@ -423,7 +425,12 @@ void Object::CircleLoadMob(const char *fn) {
 	else break;
 	}
 
-      obj->SetStats(mob_stats);
+      stats.value = -1;
+      stats.weight = stats.GetAttribute(0) * 20000;
+      stats.volume = 100;
+      stats.size = 1000 + stats.GetAttribute(0) * 200;
+
+      obj->SetStats(stats);
 
       fscanf(mudm, " %*[^#$]");
       }
@@ -557,14 +564,12 @@ void Object::CircleLoadObj(const char *fn) {
 	stats.SetSkill("Wearable on Left Wrist", 1);
 	stats.SetSkill("Wearable on Right Wrist", 2);
 	}
-      obj->SetStats(stats);
       obj->SetShortDesc(name.c_str());
 
       fscanf(mudo, "%d %d %d %d\n", val+0, val+1, val+2, val+3);
 
       if(tp == 15) { // CONTAINER
-	stats_t stats = *(obj->Stats());
-	stats.SetSkill("Container", val[0]);
+	stats.SetSkill("Container", val[0] * 454);
 
 	if(!(val[1] & 4)) stats.SetSkill("Transparent", 1);  //Start open?
 
@@ -580,21 +585,16 @@ void Object::CircleLoadObj(const char *fn) {
 	if(string(obj->Name()).find("pouch") < strlen(obj->Name()))
 		stats.SetSkill("Closeable", 1);  // Pouches CAN be closed!
 
-	obj->SetStats(stats);
 	}
       else if(tp == 17) { // DRINKCON
-	stats_t stats = *(obj->Stats());
 	stats.SetSkill("Liquid Container", val[0]);
 	stats.SetSkill("Transparent", 1);
 	stats.SetSkill("Closeable", 1);
-	obj->SetStats(stats);
 	//FIXME: Put the liquid in it if it's supposed to start with it!
 	}
       else if(tp == 22) { // BOAT
-	stats_t stats = *(obj->Stats());
 	stats.SetSkill("Enterable", 1);
 	stats.SetSkill("Transparent", 1);
-	obj->SetStats(stats);
 	}
       else if(tp == 5) { // WEAPON
         int wreach = 0;						// default
@@ -806,7 +806,6 @@ void Object::CircleLoadObj(const char *fn) {
 	    }
 	  }
 
-	stats_t stats = *(obj->Stats());
 	stats.SetSkill("WeaponType", skmatch);
 //	stats.SetSkill("WeaponDamage", val[1]*val[2]);
 	int sev = 0;
@@ -815,10 +814,16 @@ void Object::CircleLoadObj(const char *fn) {
 	stats.SetSkill("WeaponForce", tot);
 	stats.SetSkill("WeaponSeverity", sev);
 	stats.SetSkill("WeaponReach", wreach);
-	obj->SetStats(stats);
 	}
 
-      fscanf(mudo, "%*[^\n]\n");
+      int weight, value;
+      fscanf(mudo, "%d %d %*d\n", &weight, &value);
+      stats.value = value;
+      stats.weight = weight * 454;
+      stats.volume = 1;
+      stats.size = 1;
+
+      obj->SetStats(stats);
 
       fscanf(mudo, " %*[^#$]");
       }
@@ -837,6 +842,13 @@ void Object::CircleLoad(const char *fn) {
       Object *obj = new Object(this);
       olist.push_back(obj);
       bynum[onum] = obj;
+
+      stats_t stats = zero_stats;
+      stats.value = -1;
+      stats.weight = -1;
+      stats.volume = -1;
+      stats.size = -1;
+      obj->SetStats(stats);
 
       memset(buf, 0, 65536);
       fscanf(mud, "%[^~\n]~\n", buf);

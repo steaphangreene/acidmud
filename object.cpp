@@ -696,6 +696,11 @@ void Object::SendLongDesc(Mind *m, Object *o) {
   m->Send("\n");
   m->Send("Wil: %2d", stats.GetAttribute(5));
 
+  m->Send("    %d.%.3dkg, %d.%.3dm, %dv, %dY\n\n",
+	stats.weight / 1000, stats.weight % 1000,
+	stats.size / 1000, stats.size % 1000,
+	stats.volume, stats.value);
+
   map<string,int> skills = stats.GetSkills();
   map<string,int>::iterator skl;
   if(skills.count("WeaponType")) {
@@ -712,12 +717,9 @@ void Object::SendLongDesc(Mind *m, Object *o) {
     }
   else {
     for(skl = skills.begin(); skl != skills.end(); ++skl) {
-      if(skl != skills.begin()) m->Send("\n       ");
-      m->Send("    %16s: %2d", skl->first.c_str(),skl->second);
+      m->Send("%16s: %2d\n", skl->first.c_str(),skl->second);
       }
     }
-
-  m->Send("\n");
   m->Send("%s", CNRM);
   }
 

@@ -31,6 +31,8 @@ public:
 
   int WoundPenalty() const;
   int phys, stun, stru;
+  int weight, volume, size;
+  int value;
 
 private:
   int att[8];
