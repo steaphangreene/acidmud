@@ -1117,8 +1117,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Container")) {
 	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 	objs = vortex->Contents();
-	typeof(objs.begin()) obj = objs.begin();
-	for(; obj != objs.end(); ++obj) {
+	typeof(objs.begin()) obj;
+	for(obj = objs.begin(); obj != objs.end(); ++obj) {
+	  if(obj != objs.begin() && (*(*obj)) == (*(*(obj-1)))) continue;
 	  int price = (*obj)->Value();
  	  price *= shpkp->Skill("Sell Proffit");
 	  price += 999;  price /= 1000;
@@ -1246,13 +1247,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       vector<Object *>targs = body->PickObjects(comline+len, LOC_INTERNAL);
       vector<Object*>::iterator loc
 		= find(targs.begin(), targs.end(), body->ActTarg(ACT_HOLD));
-      if(body->IsAct(ACT_HOLD) && loc == targs.end()) {
-	if(mind) mind->Send("You are already holding something else!\n");
-	}
-      else if(!targs.size()) {
+      if(!targs.size()) {
 	if(mind) mind->Send("You want to sell what?\n");
 	}
-      else if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)	// FIXME: skpkp AFFORD?
+      else if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)
 		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Container")) {
 	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 
@@ -1285,12 +1283,18 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  if(togo <= 0) {
 	    body->Parent()->SendOut(
 		";s sells ;s.\n", "You sell ;s.\n", body, targ);
-	    targ->Travel(vortex);
+	    Object *payment = new Object;
 	    for(coin = pay.begin(); coin != pay.end(); ++coin) {
-	      (*coin)->Travel(body);
-	      body->AddAct(ACT_HOLD, (*coin));
-	      //FIXME: Put Away!
+	      (*coin)->Travel(payment);
 	      }
+	    if(body->Stash(payment->Contents().front())) {
+	      targ->Travel(vortex);
+	      }
+	    else {
+	      shpkp->Stash(payment->Contents().front());  //Keeper gets it back
+	      if(mind) mind->Send("You couldn't stash %d gold!\n", price);
+	      }
+	    delete payment;
 	    }
 	  else {
 	    if(mind) mind->Send("I can't afford the %d gold.\n", price);
@@ -1319,10 +1323,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       Object *targ = *ind;
 
       if(targ->Pos() == POS_NONE) {
-	if(mind) mind->Send("You can't get that, it is fixed in place!\n");
+	if(mind) mind->Send("You can't get %s, it is fixed in place!\n",
+		targ->Name());
 	}
       else if(targ->Attribute(1)) {
-	if(mind) mind->Send("You can only get inanimate objects!\n");
+	if(mind) mind->Send("You can't get %s, it is not inanimate.\n",
+		targ->Name());
 	}
       else {
 	string denied="";
@@ -1332,12 +1338,16 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		&& (!owner->IsAct(ACT_UNCONSCIOUS))) {
 	    denied = "You would need ";
 	    denied += owner->Name(1);
-	    denied +="'s permission.\n";
+	    denied += "'s permission to get ";
+	    denied += targ->Name(0, NULL, owner);
+	    denied += ".\n";
 	    }
 	  else if(owner->Skill("Container") && (!owner->Skill("Transparent"))
 		&& owner->Skill("Locked")) {
 	    denied = owner->Name(1);
-	    denied += " is closed and locked.\n";
+	    denied += " is closed and locked so you can't get to ";
+	    denied += targ->Name(1);
+	    denied += ".\n";
 	    denied[0] = toupper(denied[0]);
 	    }
 	  }
@@ -1350,10 +1360,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		"You get and stash ;s.\n", body, targ);
 	  }
 	else if(body->ActTarg(ACT_HOLD)) {
-	  if(mind) mind->Send("You have no place to stash it and are already holding something else!\n");
+	  if(mind) mind->Send("You have no place to stash %s.\n", targ->Name());
 	  }
 	else if(targ->Skill("Quantity") > 1) {
-	  if(mind) mind->Send("You have no place to stash it and can only hold one thing at a time!\n");
+	  if(mind) mind->Send("You have no place to stash %s.\n", targ->Name());
 	  }
 	else {
 	  targ->Travel(body);

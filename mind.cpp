@@ -250,7 +250,9 @@ void Mind::Think(int istick) {
       }
     //NON-SENTINEL Circle Mobs
     if(body && body->Parent() && (body->Skill("CircleAction") & 2) == 0
-	&& (!body->IsAct(ACT_FIGHT)) && istick) {
+	&& (!body->IsAct(ACT_FIGHT)) && istick && (!body->StillBusy())
+	&& (!body->IsAct(ACT_REST)) && (!body->IsAct(ACT_SLEEP))
+	&& body->Stun() < 6 && body->Phys() < 6) {
       map<string,Object*> cons = body->Parent()->Connections();
 
       map<string,Object*> cons2 = cons;
