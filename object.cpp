@@ -1090,38 +1090,60 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
   }
 
 static int tag(Object *obj, set<Object*> &ret, int *ordinal) {
-  int qty = 1;
   Object *nobj = NULL;
-  if(obj->Skill("Quantity")) qty = obj->Skill("Quantity");
-  while(qty) {
-    if(*ordinal > 0) (*ordinal)--;
-    else if(*ordinal > ALL) (*ordinal)++;
-    if((*ordinal) <= 0) {
-      if((!nobj) && obj->Skill("Quantity") <= 1) ret.insert(obj);
-      else {
-	if(!nobj) {
-	  nobj = new Object(*obj);
-	  nobj->SetParent(obj->Parent());
-	  nobj->SetSkill("Quantity", 0);
-	  ret.insert(nobj);
-	  }
-	else {
-	  int q = (1 >? nobj->Skill("Quantity")) + 1;
-	  nobj->SetSkill("Quantity", q);
-	  }
-	if(obj->Skill("Quantity") <= 1) {
-	  delete obj;
-	  }
-	else if(obj->Skill("Quantity") == 2) {
-	  obj->SetSkill("Quantity", 0);
-	  }
-	else {
-	  obj->SetSkill("Quantity", obj->Skill("Quantity") - 1);
-	  }
-	}
+
+  int cqty = 1, rqty = 1, tqty = 1; //Contains / Requires / Will Transfer
+
+  if(obj->Skill("Quantity")) cqty = obj->Skill("Quantity");
+
+  tqty = cqty;
+
+  if(*ordinal == -1) (*ordinal) = 0;	// Need one - make it the first one!
+
+  if(*ordinal > 0) (*ordinal)--;
+  if(*ordinal >= 0) {
+    tqty -= *ordinal;			// Must skip earlier ords.
+
+    if(tqty < 1) {			// Have not gotten to my targ yet.
+      return 0;
       }
-    if((*ordinal) == 0) return 1;
-    --qty;
+    else if(cqty == 1) {		// Just this one.
+      ret.insert(obj);
+      return 1;
+      }
+    else {				// One of this set.
+      nobj = new Object(*obj);
+      nobj->SetParent(obj->Parent());
+      nobj->SetSkill("Quantity", 0);
+      ret.insert(nobj);
+      --cqty;
+      obj->SetSkill("Quantity", (cqty == 1) ? 0 : cqty);
+      return 1;
+      }
+    }
+
+  if(*ordinal == ALL) rqty = cqty + 1;
+  else if(*ordinal < -1) rqty = -(*ordinal);
+
+  if(rqty == cqty) {			// Exactly this entire thing.
+    ret.insert(obj);
+    *ordinal = 0;
+    return 1;
+    }
+  else if(rqty > cqty) {		// This entire thing and more.
+    ret.insert(obj);
+    if(*ordinal != ALL) *ordinal += cqty;
+    return 1;
+    }
+  else {				// Some of this set.
+    nobj = new Object(*obj);
+    nobj->SetParent(obj->Parent());
+    nobj->SetSkill("Quantity", rqty);
+    ret.insert(nobj);
+
+    cqty -= rqty;
+    obj->SetSkill("Quantity", (cqty == 1) ? 0 : cqty);
+    // Fall through to "return 0;" below.
     }
   return 0;
   }

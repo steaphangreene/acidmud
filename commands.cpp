@@ -86,6 +86,10 @@ enum {	COM_HELP=0,
 	COM_PUNCH,
 	COM_KICK,
 
+	COM_LIST,
+	COM_BUY,
+	COM_SELL,
+
 	COM_USERS,
 	COM_CHARS,
 	COM_WHO,
@@ -93,7 +97,7 @@ enum {	COM_HELP=0,
 	COM_NEWBIE,
 
 	COM_NEWCHAR,
-	COM_BUY,
+	COM_RAISE,
 
 	COM_SKILLLIST,
 
@@ -290,6 +294,22 @@ Command comlist[] = {
     (REQ_ALERT|REQ_ACTION|REQ_STAND)
     },
 
+  { COM_LIST, "list",
+    "List items available at a shop.",
+    "List items available at a shop.",
+    (REQ_ALERT|REQ_ACTION)
+    },
+  { COM_BUY, "buy",
+    "Buy an item at a shop.",
+    "Buy an item at a shop.",
+    (REQ_ALERT|REQ_ACTION)
+    },
+  { COM_SELL, "sell",
+    "Sell an item at a shop.",
+    "Sell an item at a shop.",
+    (REQ_ALERT|REQ_ACTION)
+    },
+
   { COM_WHO, "who",
     "Get a list of who is on the mud right now.",
     "Get a list of who is on the mud right now.",
@@ -311,7 +331,7 @@ Command comlist[] = {
     "Create a new character.",
     (REQ_ETHEREAL)
     },
-  { COM_BUY, "buy",
+  { COM_RAISE, "raise",
     "Spend points at character creation.",
     "Spend points at character creation.",
     (REQ_ETHEREAL)
@@ -967,6 +987,163 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       targ->SetSkill("Transparent", 0);
       body->Parent()->SendOut(
 	";s closes ;s.\n", "You close ;s.\n", body, targ);
+      }
+    return 0;
+    }
+
+  if(com == COM_LIST) {
+    if(!mind) return 0;
+
+    set<Object *> objs = body->Parent()->Contents();
+    set<Object *>::iterator shpkp_i;
+    Object *shpkp = NULL;
+    for(shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
+      if((*shpkp_i)->Skill("Sell Proffit")) {shpkp = (*shpkp_i); break; }
+      }
+    if(shpkp == NULL) {
+      mind->Send("You can only do that around a shopkeeper.\n");
+      }
+    else if(shpkp->IsAct(ACT_DEAD)) {
+      mind->Send("Sorry, the shopkeeper is dead!\n");
+      }
+    else if(shpkp->IsAct(ACT_DYING)) {
+      mind->Send("Sorry, the shopkeeper is dying!\n");
+      }
+    else if(shpkp->IsAct(ACT_UNCONSCIOUS)) {
+      mind->Send("Sorry, the shopkeeper is unconscious!\n");
+      }
+    else if(shpkp->IsAct(ACT_SLEEP)) {
+      mind->Send("Sorry, the shopkeeper is asleep!\n");
+      }
+    else {
+      if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)
+		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Container")) {
+	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
+	objs = vortex->Contents();
+	set<Object *>::iterator obj = objs.begin();
+	for(; obj != objs.end(); ++obj) {
+	  int price = (*obj)->Value();
+ 	  price *= shpkp->Skill("Sell Proffit");
+	  price += 999;  price /= 1000;
+	  mind->Send("%10d gp: %s\n", price, (*obj)->ShortDesc());
+	  }
+	}
+      }
+    return 0;
+    }
+
+  if(com == COM_BUY) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(!comline[len]) {
+      if(mind) mind->Send("What do you want to buy?\n");
+      return 0;
+      }
+
+    set<Object *> objs = body->Parent()->Contents();
+    set<Object *>::iterator shpkp_i;
+    Object *shpkp = NULL;
+    for(shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
+      if((*shpkp_i)->Skill("Sell Proffit")) {shpkp = (*shpkp_i); break; }
+      }
+    if(shpkp == NULL) {
+      if(mind) mind->Send("You can only do that around a shopkeeper.\n");
+      }
+    else if(shpkp->IsAct(ACT_DEAD)) {
+      if(mind) mind->Send("Sorry, the shopkeeper is dead!\n");
+      }
+    else if(shpkp->IsAct(ACT_DYING)) {
+      if(mind) mind->Send("Sorry, the shopkeeper is dying!\n");
+      }
+    else if(shpkp->IsAct(ACT_UNCONSCIOUS)) {
+      if(mind) mind->Send("Sorry, the shopkeeper is unconscious!\n");
+      }
+    else if(shpkp->IsAct(ACT_SLEEP)) {
+      if(mind) mind->Send("Sorry, the shopkeeper is asleep!\n");
+      }
+    else if(body->IsAct(ACT_HOLD)) {
+      if(mind) mind->Send("You are already holding something else!\n");
+      }
+    else {
+      if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)
+		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Container")) {
+	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
+	Object *item = vortex->PickObject(comline+len, LOC_INTERNAL);
+	if(item) {
+	  int price = item->Value();
+ 	  price *= shpkp->Skill("Sell Proffit");
+	  price += 999;  price /= 1000;
+	  mind->Send("%d gp: %s\n", price, item->ShortDesc());
+
+	  int togo = price, ord = -price;
+	  set<Object *> pay
+		= body->PickObjects("a gold piece", LOC_INTERNAL, &ord);
+	  set<Object *>::iterator coin;
+	  for(coin = pay.begin(); coin != pay.end(); ++coin) {
+	    togo -= (1 >? (*coin)->Skill("Quantity"));
+	    }
+
+	  if(togo <= 0) { //FIXME: Afford it!
+	    body->Parent()->SendOut(
+		";s buys ;s.\n", "You buy ;s.\n", body, item);
+	    item->Travel(body);
+	    body->AddAct(ACT_HOLD, item);
+	    }
+	  else {
+	    if(mind) mind->Send("You can't afford the %d gold (short %d).\n",
+		price, togo);
+	    }
+	  }
+	else {
+	  if(mind) mind->Send("The shopkeeper doesn't have that.\n");
+	  }
+	}
+      }
+    return 0;
+    }
+
+  if(com == COM_SELL) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(!comline[len]) {
+      if(mind) mind->Send("What do you want to sell?\n");
+      return 0;
+      }
+
+    set<Object *> objs = body->Parent()->Contents();
+    set<Object *>::iterator shpkp_i;
+    Object *shpkp = NULL;
+    for(shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
+      if((*shpkp_i)->Skill("Sell Proffit")) {shpkp = (*shpkp_i); break; }
+      }
+    if(shpkp == NULL) {
+      if(mind) mind->Send("You can only do that around a shopkeeper.\n");
+      }
+    else if(shpkp->IsAct(ACT_DEAD)) {
+      if(mind) mind->Send("Sorry, the shopkeeper is dead!\n");
+      }
+    else if(shpkp->IsAct(ACT_DYING)) {
+      if(mind) mind->Send("Sorry, the shopkeeper is dying!\n");
+      }
+    else if(shpkp->IsAct(ACT_UNCONSCIOUS)) {
+      if(mind) mind->Send("Sorry, the shopkeeper is unconscious!\n");
+      }
+    else if(shpkp->IsAct(ACT_SLEEP)) {
+      if(mind) mind->Send("Sorry, the shopkeeper is asleep!\n");
+      }
+    else {
+      set<Object *>targs = body->PickObjects(comline+len, LOC_INTERNAL);
+      if(!targs.size()) {
+	if(mind) mind->Send("You want to sell what?\n");
+	}
+      else if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)	// FIXME: skpkp AFFORD?
+		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Container")) {
+	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
+	set<Object *>::iterator targ;
+	for(targ = targs.begin(); targ != targs.end(); ++targ) {
+	  body->Parent()->SendOut(
+		";s sells ;s.\n", "You sell ;s.\n", body, *targ);
+	  (*targ)->Travel(vortex);
+	  }
+	}
       }
     return 0;
     }
@@ -1806,7 +1983,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	"Charisma", "Intelligence", "Willpower"
 	};
 
-  if(com == COM_BUY) {
+  if(com == COM_RAISE) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!body) {
       Object *chr = mind->Owner()->Creator();
