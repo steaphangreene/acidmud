@@ -43,9 +43,15 @@ void Player::SetName(string nm) {
   player_list.erase(name);
   name = nm;
   player_list[name] = this;
-  string desc = nm + "'s characters";
+  string desc = nm + "'s character room";
   room->SetShortDesc(desc.c_str());
-  desc = (string)"Here are all of " + nm + "'s characters:";
+  desc = "Available commands:\n\n";
+  desc += "     enter <character_name>: Enter a finished character\n";
+  desc += "                             or select an unfinished one.\n";
+  desc += "     newcharacter <character_name>: Create a new character.\n";
+  desc += "     raise <stat>: Raise a stat of the currently selected character.\n";
+  desc += "     help <topic>: Get more info (try 'help commands').\n";
+  desc += "\n   Here are all of your current characters:";
   room->SetDesc(desc.c_str());
   }
 

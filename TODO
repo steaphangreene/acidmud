@@ -52,6 +52,7 @@ Add "corpse" alias for dead stuff.
 
 
 Implement AcidMail.
+Should some CircleMOBs be given "Swimming"?
 Add "bug", "feature", and "concern" commands (acidmail problems to immortals).
 User management commands (delete chars, delete users, etc...).
 Skill defaults (to other skills).
