@@ -1026,6 +1026,31 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	else if(diff > 1)  mind->Send("   ...is weaker than you.\n");
 	else if(diff > 0)  mind->Send("   ...is a bit weaker than you.\n");
 	else               mind->Send("   ...is about your strength.\n");
+
+	if((!targ->ActTarg(ACT_WIELD)) && (!body->ActTarg(ACT_WIELD))) {
+	  mind->Send("   ...is unarmed, but so are you.\n");
+	  }
+	else if(!targ->ActTarg(ACT_WIELD)) {
+	  mind->Send("   ...is unarmed.\n");
+	  }
+	else if(!body->ActTarg(ACT_WIELD)) {
+	  mind->Send("   ...is armed, and you are not!\n");
+	  }
+	diff = 0;
+	if(body->ActTarg(ACT_WIELD))
+	  diff += body->ActTarg(ACT_WIELD)->Skill("WeaponReach");
+	if(targ->ActTarg(ACT_WIELD))
+	  diff -= targ->ActTarg(ACT_WIELD)->Skill("WeaponReach");
+
+	if(diff < -5)      mind->Send("   ...outreaches you by a mile.\n");
+	else if(diff < -2) mind->Send("   ...has much greater reach than you.\n");
+	else if(diff < -1) mind->Send("   ...has greater reach than you.\n");
+	else if(diff < 0)  mind->Send("   ...has a bit greater reach than you.\n");
+	else if(diff > 5)  mind->Send("   ...has a mile less reach than you.\n");
+	else if(diff > 2)  mind->Send("   ...has much less reach than you.\n");
+	else if(diff > 1)  mind->Send("   ...has less reach than you.\n");
+	else if(diff > 0)  mind->Send("   ...has a bit less reach than you.\n");
+	else               mind->Send("   ...has about your reach.\n");
 	}
       }
     return 0;

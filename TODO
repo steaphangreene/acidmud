@@ -7,6 +7,8 @@ Implement "all of " for all within.
 Implement "everything"/"everyone".
 Implement "stuff"/"money"/"cash".
 Implement "loot" command.
+Circle translations: backpack goes on SHOULDERS.
+Circle translations: sack/pack/bag are NOT lockable.
 Fixup shopkeepers so item numbers NEVER expire.
 Fixup shopkeepers so their vortices are not viewable.
 Make single-item commands get only single items.
@@ -56,7 +58,7 @@ Add "corpse" alias for dead stuff?
 
 Implement AcidMail.
 Should some CircleMOBs be given "Swimming"?
-Add "bug", "feature", and "concern" commands (acidmail problems to immortals).
+Add "bug", "request", and "concern" commands (acidmail problems to ninjas).
 User management commands (delete chars, rename users?, etc...).
 Skill defaults (to other skills).
 Case-Insensitive Playernames
