@@ -620,7 +620,6 @@ void Object::CircleLoadObj(const char *fn) {
 	obj->SetSkill("Wearable on Chest", 1);
 	obj->SetSkill("Wearable on Back", 1);
 	if(matches(name.c_str(), "suit of")) {
-	  obj->SetSkill("Wearable on Head", 1);
 	  obj->SetSkill("Wearable on Right Leg", 1);
 	  obj->SetSkill("Wearable on Left Leg", 1);
 	  obj->SetSkill("Wearable on Right Arm", 1);
