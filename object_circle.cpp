@@ -564,6 +564,7 @@ void Object::CircleLoadObj(const char *fn) {
     //fprintf(stderr, "Loading Circle Objects from \"%s\"\n", fn);
     while(1) {
       int onum;
+      int valmod = 1000;
       if(fscanf(mudo, " #%d\n", &onum) < 1) break;
 
       Object *obj = new Object(this);
@@ -620,6 +621,7 @@ void Object::CircleLoadObj(const char *fn) {
 	  obj->SetSkill("Wearable on Left Leg", 1);
 	  obj->SetSkill("Wearable on Right Arm", 1);
 	  obj->SetSkill("Wearable on Left Arm", 1);
+	  valmod *= 5;
 	  }
 	}
       if(string(buf).find('e') < strlen(buf) || (atoi(buf) & 16)) {
@@ -635,8 +637,10 @@ void Object::CircleLoadObj(const char *fn) {
 	  else obj->SetSkill("Wearable on Right Leg", 1);
 	  }
 	else obj->SetSkill("Wearable on Right Leg", 1);
-	if(!obj->Skill("Wearable on Right Leg"))	//Reversable
+	if(!obj->Skill("Wearable on Right Leg")) {	//Reversable
 	  obj->SetSkill("Wearable on Right Leg", 2);
+	  valmod /= 2;
+	  }
 	}
       if(string(buf).find('g') < strlen(buf) || (atoi(buf) & 64)) {
 	obj->SetSkill("Wearable on Left Foot", 1);
@@ -650,6 +654,9 @@ void Object::CircleLoadObj(const char *fn) {
 	  else obj->SetSkill("Wearable on Right Foot", 1);
 	  }
 	else obj->SetSkill("Wearable on Right Foot", 1);
+	if(!obj->Skill("Wearable on Right Foot")) {
+	  valmod /= 2;
+	  }
 	}
       if(string(buf).find('h') < strlen(buf) || (atoi(buf) & 128)) {
 	obj->SetSkill("Wearable on Left Hand", 1);
@@ -661,6 +668,9 @@ void Object::CircleLoadObj(const char *fn) {
 	  else obj->SetSkill("Wearable on Right Hand", 1);
 	  }
 	else obj->SetSkill("Wearable on Right Hand", 1);
+	if(!obj->Skill("Wearable on Right Hand")) {
+	  valmod /= 2;
+	  }
 	}
       if(string(buf).find('i') < strlen(buf) || (atoi(buf) & 256)) {
 	obj->SetSkill("Wearable on Left Arm", 1);
@@ -674,8 +684,10 @@ void Object::CircleLoadObj(const char *fn) {
 	  else obj->SetSkill("Wearable on Right Arm", 1);
 	  }
 	else obj->SetSkill("Wearable on Right Arm", 1);
-	if(!obj->Skill("Wearable on Right Arm"))	//Reversable
+	if(!obj->Skill("Wearable on Right Arm")) {	//Reversable
 	  obj->SetSkill("Wearable on Right Arm", 2);
+	  valmod /= 2;
+	  }
 	}
       if(string(buf).find('j') < strlen(buf) || (atoi(buf) & 512)) {
 	obj->SetSkill("Wearable on Shield", 1);	// FIXME: Wear Shield?
@@ -965,7 +977,7 @@ void Object::CircleLoadObj(const char *fn) {
 	obj->SetWeight(weight * 454);
 	obj->SetVolume(weight); //FIXME: Better guess within units?
 	obj->SetSize(1);
-	obj->SetValue(value);
+	obj->SetValue((value*valmod) / 1000);
 	}
 
       fscanf(mudo, " %*[^#$]");
