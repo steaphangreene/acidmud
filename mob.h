@@ -38,6 +38,7 @@ public:
   MOBType(const char *nm, const char *ds, const char *lds,
 	int,int, int,int, int,int, int,int, int,int, int,int, int,int);
   void Skill(const char *name, int, int);
+  void Skill(const char *name, int);
   void Arm(WeaponType *);
   void Armor(ArmorType *);
 

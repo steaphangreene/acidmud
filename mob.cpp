@@ -114,6 +114,10 @@ void MOBType::Skill(const char *nm, int percent, int mod) {
   skills[nm] = make_pair(percent, mod);
   }
 
+void MOBType::Skill(const char *nm, int val) {
+  skills[nm] = make_pair(-1, val);
+  }
+
 void MOBType::Arm(WeaponType *weap) {
   armed = weap;
   }
@@ -137,11 +141,16 @@ void Object::AddMOB(const MOBType *type) {
 
   typeof(type->skills.begin()) sk_it;
   for(sk_it = type->skills.begin(); sk_it != type->skills.end(); ++sk_it) {
-    mob->SetSkill(sk_it->first,
+    if(sk_it->second.first < 0) {
+      mob->SetSkill(sk_it->first, sk_it->second.second);
+      }
+    else {
+      mob->SetSkill(sk_it->first,
 	mob->Attribute(get_linked(sk_it->first))
 	* sk_it->second.first / 100
 	- rand() % sk_it->second.second
 	);
+      }
     //fprintf(stderr, "DBG: %d %d %d\n", get_linked(sk_it->first), sk_it->second.first, sk_it->second.second);
     }
 
@@ -149,7 +158,7 @@ void Object::AddMOB(const MOBType *type) {
   mob->SetDesc(type->desc.c_str());
   mob->SetLongDesc(type->long_desc.c_str());
 
-  give_gold(mob, type->g + rand() % type->gm);
+  if(type->g > 0 || type->gm > 1) give_gold(mob, type->g + rand() % type->gm);
 
   if(type->armed) {
     Object *obj = new Object(mob);

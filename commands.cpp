@@ -977,14 +977,14 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
   if(com == COM_SAY) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    body->Parent()->SendOut(stealth_t, stealth_s, ";s says '%s'\n", "You say '%s'\n",
+    body->Parent()->SendOut(0, 0, ";s says '%s'\n", "You say '%s'\n",
 	body, body, comline+len);
     return 0;
     }
 
   if(com == COM_EMOTE) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    body->Parent()->SendOut(stealth_t, stealth_s, ";s %s\n", "Your character %s\n",
+    body->Parent()->SendOut(0, 0, ";s %s\n", "Your character %s\n",
 	body, body, comline+len);
     return 0;
     }

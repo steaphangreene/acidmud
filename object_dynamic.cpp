@@ -41,7 +41,7 @@ void Object::DynamicInit1() {		//Dwarven mine
     "A Large Mining Tunnel",
     "A Large Mining Tunnel with a Small Tunnel to One Side",
     "A Large Mining Tunnel",
-    "A Large Mining Tunnel (Huh?)",
+    "A Large Open Chamber",
     "A Small Mining Tunnel",
     "A Bend in a Small Mining Tunnel",
     "A Fork in a Small Mining Tunnel",
@@ -53,17 +53,21 @@ void Object::DynamicInit1() {		//Dwarven mine
     "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
 	"that you think it will stand as-is for another millenia.\n",
     "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
-	"that you think it will stand as-is for another millenia.\n",
+	"that you think it will stand as-is for another millenia.  Another less\n"
+	"well-supported tunnel leads off in another direction.\n",
     "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
 	"that you think it will stand as-is for another millenia.\n",
-    "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
-	"that you think it will stand as-is for another millenia.\n",
+    "This is a large natural-looking opening.  Perhaps this is where some of the\n"
+	"miners removed a large vein of ore, or maybe this cavern was just here due\n"
+	"to natural forces before they even got here.  It seems the dwarves have used\n"
+	"this tunnel for more than just mining work - a large cage here looks well\n"
+	"used.\n",
     "This tunnel looks to have been carved quickly.  It looks like it might\n"
 	"collapse at any moment.\n",
-    "This tunnel looks to have been carved quickly.  It looks like it might\n"
-	"collapse at any moment.\n",
-    "This tunnel looks to have been carved quickly.  It looks like it might\n"
-	"collapse at any moment.\n",
+    "This bend in the tunnel looks to have been carved quickly.  It looks like it\n"
+	"might collapse at any moment.\n",
+    "This tunnel fork looks to have been carved quickly.  It looks like it\n"
+	"might collapse at any moment.\n",
     "The tunnel comes to an end in a rough opening here.\n"
     };
 
@@ -71,12 +75,13 @@ void Object::DynamicInit1() {		//Dwarven mine
   static MOBType *dwarf_engineer;
   static MOBType *dwarf_guard;
   static MOBType *dwarf_explorer;
+  static MOBType *elf_prisoner;
   if(!dwarf_miner) {
     WeaponType *weap;
     ArmorType *arm;
 
     dwarf_miner = new MOBType("a dwarf miner", "He looks pissed.", "",
-		7,7, 4,5, 6,7, 2,2, 4,3, 8,7, 500,2001);
+	7,7, 4,5, 6,7, 2,2, 4,3, 8,7, 500,2001);
     dwarf_miner->Skill("Two-Handed Cleaves", 100, 4);
     weap = new WeaponType("a dwarven mining pickaxe",
 	"A super-strong, super-sharp, super-heavy pickaxe.", "",
@@ -92,7 +97,7 @@ void Object::DynamicInit1() {		//Dwarven mine
 
 
     dwarf_engineer = new MOBType("a dwarf engineer", "He looks pissed.", "",
-		5,7, 4,5, 5,7, 3,2, 5,3, 8,7, 2000,8001);
+	5,7, 4,5, 5,7, 3,2, 5,3, 8,7, 2000,8001);
     dwarf_engineer->Skill("Long Cleaves", 100, 2);
     weap = new WeaponType("a dwarven combat axe",
 	"A super-strong, super-sharp combat axe.", "",
@@ -107,7 +112,7 @@ void Object::DynamicInit1() {		//Dwarven mine
     dwarf_engineer->Armor(arm);
 
     dwarf_guard = new MOBType("a dwarf guard", "He looks pissed.", "",
-		9,4, 6,4, 9,4, 1,3, 5,4, 9,4, 100,401);
+	9,4, 6,4, 9,4, 1,3, 5,4, 9,4, 100,401);
     dwarf_guard->Skill("Two-Handed Cleaves", 100, 4);
     weap = new WeaponType("a dwarven war axe",
 	"A super-strong, super-sharp, super-heavy, high-quality war axe.", "",
@@ -146,7 +151,7 @@ void Object::DynamicInit1() {		//Dwarven mine
     dwarf_guard->Armor(arm);
 
     dwarf_explorer = new MOBType("a dwarf explorer", "He looks pissed.", "",
-		5,4, 5,4, 6,4, 3,2, 6,4, 9,5, 1000,4001);
+	5,4, 5,4, 6,4, 3,2, 6,4, 9,5, 1000,4001);
     dwarf_explorer->Skill("Long Cleaves", 100, 4);
     weap = new WeaponType("a dwarven climbing pick",
 	"A super-sharp, lightweight pick.", "",
@@ -159,6 +164,16 @@ void Object::DynamicInit1() {		//Dwarven mine
 	ACT_WEAR_CHEST, ACT_WEAR_BACK
 	);
     dwarf_explorer->Armor(arm);
+
+    elf_prisoner = new MOBType("an elf slave",
+	"This elf looks like he's been a prisoner longer than you've been alive.", "",
+	4,2, 8,4, 5,2, 8,2, 7,4, 4,4, 0,0);
+    elf_prisoner->Skill("Carromeleg - Tier I", 2);
+    elf_prisoner->Skill("Carromeleg - Tier II", 2);
+    elf_prisoner->Skill("Carromeleg - Tier III", 2);
+    elf_prisoner->Skill("Carromeleg - Tier IV", 2);
+    elf_prisoner->Skill("Carromeleg - Tier V", 2);
+    elf_prisoner->Skill("Carromeleg - Tier VI", 2);
     }
 
   int mojo = Skill("DynamicMojo");
@@ -214,8 +229,7 @@ void Object::DynamicInit1() {		//Dwarven mine
 
       if(mojo <= 0) break; //End of Tunnel
 
-//      int ntypes[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4 };
-      int ntypes[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 3 };
+      int ntypes[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4 };
       int ntype = ntypes[rand() % (sizeof(ntypes)/sizeof(int))];
 
       Object *next = new Object(parent);
@@ -248,8 +262,7 @@ void Object::DynamicInit1() {		//Dwarven mine
 
       if(mojo <= 0) break; //End of Tunnel
 
-//      int ntypes[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4 };
-      int ntypes[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 3 };
+      int ntypes[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4 };
       int ntype = ntypes[rand() % (sizeof(ntypes)/sizeof(int))];
 
       Object *next = new Object(parent);
@@ -305,8 +318,7 @@ void Object::DynamicInit1() {		//Dwarven mine
 
       if(mojo <= 0) break; //End of Tunnel
 
-//      int ntypes[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4 };
-      int ntypes[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 3 };
+      int ntypes[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4 };
       int ntype = ntypes[rand() % (sizeof(ntypes)/sizeof(int))];
 
       Object *next = new Object(parent);
@@ -354,6 +366,56 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetSkill("Open", 1);
       door2->SetSkill("Enterable", 1);
       door1->SetSkill("Hidden", 4 + rand()%13);
+      }break;
+    case(4): { //Major Chamber
+      if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
+      if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
+      if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
+      if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
+      if((rand()%100) < 10) { mojo -= 500; AddMOB(dwarf_engineer); }
+      if((rand()%100) < 10) { mojo -= 500; AddMOB(dwarf_engineer); }
+      if((rand()%100) < 20) { mojo -= 500; AddMOB(dwarf_guard); }
+      if((rand()%100) < 20) { mojo -= 500; AddMOB(dwarf_guard); }
+      if((rand()%100) < 20) { mojo -= 500; AddMOB(dwarf_guard); }
+      if((rand()%100) < 20) { mojo -= 500; AddMOB(dwarf_guard); }
+
+      Object *cage = new Object(this);
+      cage->SetShortDesc("an old strong cage");
+      cage->SetDesc("This is a very old, large, rugged cage - probably built by dwarves.\n");
+      cage->SetSkill("Transparent", 1);
+      cage->SetSkill("Container", 100000);
+      cage->SetSkill("Locked", 1);
+      cage->SetSkill("Closeable", 1);
+
+      if((rand()%100) < 20) { mojo -= 500; cage->AddMOB(elf_prisoner); }
+      if((rand()%100) < 20) { mojo -= 500; cage->AddMOB(elf_prisoner); }
+
+      if(mojo <= 0) break; //End of Tunnel
+
+      int ntypes[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 3 };
+      int ntype = ntypes[rand() % (sizeof(ntypes)/sizeof(int))];
+
+      Object *next = new Object(parent);
+      next->SetShortDesc(names[ntype]);
+      next->SetDesc(descs[ntype]);
+      next->SetSkill("DynamicInit", 1);
+      next->SetSkill("DynamicPhase", ntype);
+      next->SetSkill("DynamicMojo", mojo-1000);
+
+      Object *door1 = new Object(this);
+      Object *door2 = new Object(next);
+      door1->SetShortDesc(dir);
+      door2->SetShortDesc(dirb);
+      door1->SetDesc((string("You see a solid passage leading ") + dir + ".\n").c_str());
+      door2->SetDesc((string("You see a solid passage leading ") + dirb + ".\n").c_str());
+      door1->AddAct(ACT_SPECIAL_LINKED, door2);
+      door1->AddAct(ACT_SPECIAL_MASTER, door2);
+      door1->SetSkill("Open", 1);
+      door1->SetSkill("Enterable", 1);
+      door2->AddAct(ACT_SPECIAL_LINKED, door1);
+      door2->AddAct(ACT_SPECIAL_MASTER, door1);
+      door2->SetSkill("Open", 1);
+      door2->SetSkill("Enterable", 1);
       }break;
     case(5): { //Minor Shaft
       if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }

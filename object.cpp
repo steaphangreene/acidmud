@@ -630,7 +630,7 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
 
     m->Send("%s%s%s.\n%s", CGRN, qty, targ, CNRM);
 
-    if(cur->second->Skill("Open")) {
+    if(cur->second->Skill("Open") || cur->second->Skill("Transparent")) {
       sprintf(buf, "%16s  %c", " ", 0);
       base = buf;
       cur->second->SendContents(m, NULL, seeinside);
@@ -678,7 +678,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 	if(base != "") m->Send("%s%sInside: ", base.c_str(), CNRM);
 	m->Send("%s", CCYN);
 	string send = (*ind)->ShortDesc();
-	if(!(*ind)->Skill("Open")) {
+	if(!((*ind)->Skill("Open") || (*ind)->Skill("Transparent"))) {
 	  send += ", the door is closed.\n";
 	  }
 	else {
@@ -736,7 +736,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 
       (*ind)->SendActions(m);
 
-      if((*ind)->Skill("Open")) {
+      if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
 	string tmp = base;
 	base += "  ";
 	(*ind)->SendContents(m, o, seeinside);
@@ -902,11 +902,11 @@ void Object::SendDescSurround(Mind *m, Object *o) {
   m->Send("%s", CNRM);
   SendExtendedActions(m, 0);
 
-  if((!parent) || Contains(o) || Skill("Open")) {
+  if((!parent) || Contains(o) || Skill("Open") || Skill("Transparent")) {
     SendContents(m, o);
     }
 
-  if(parent && Skill("Open")) {
+  if(parent && Skill("Open") && Skill("Transparent")) {
     m->Send("%s", CCYN);
     m->Send("Outside you see: ");
     no_seek = 1;
@@ -1459,14 +1459,14 @@ list<Object*> Object::PickObjects(const char *nm, int loc, int *ordinal) {
       if((*ind)->Matches(name)) {
 	if(tag(*ind, ret, ordinal)) return ret;
 	}
-      if((*ind)->Skill("Open")) {
+      if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
 	typeof(contents) add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
 	ret.insert(ret.end(), add.begin(), add.end());
 
 	if((*ordinal) == 0) return ret;
 	}
       }
-    if(parent->Skill("Open")) {
+    if(parent->Skill("Open") || parent->Skill("Transparent")) {
       if(parent->parent) {
 	parent->no_seek = 1;
 
@@ -1522,7 +1522,7 @@ int Object::IsWithin(Object *obj) {
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
     if((*ind) == obj) return 1;
-    if((*ind)->Skill("Open")) {
+    if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
       int ret = (*ind)->IsWithin(obj);
       if(ret) return ret;
       }
@@ -1536,12 +1536,12 @@ int Object::IsNearBy(Object *obj) {
   for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
     if((*ind) == obj) return 1;
     if((*ind) == this) continue;  // Not Nearby Self
-    if((*ind)->Skill("Open")) {
+    if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
       int ret = (*ind)->IsWithin(obj);
       if(ret) return ret;
       }
     }
-  if(parent->parent && parent->Skill("Open")) {
+  if(parent->parent && (parent->Skill("Open") || parent->Skill("Transparent"))) {
     parent->no_seek = 1;
     int ret = parent->IsNearBy(obj);
     parent->no_seek = 0;
@@ -1551,7 +1551,8 @@ int Object::IsNearBy(Object *obj) {
   }
 
 void Object::NotifyGone(Object *obj, Object *newloc, int up) {
-  if(up == 1 && parent && Skill("Open")) { //Climb to top first!
+  //Climb to top first!
+  if(up == 1 && parent && (Skill("Open") || Skill("Transparent"))) {
     parent->NotifyGone(obj, newloc, 1);
     return;
     }
@@ -1580,7 +1581,7 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
 
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
-    if((*ind)->Skill("Open")) {
+    if((*ind)->Skill("Open") || (*ind)->Skill("Open")) {
       tonotify[*ind] = 0;
       }
     else if(up >= 0) {
@@ -1860,7 +1861,7 @@ void Object::SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
 
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
-    if((*ind)->Skill("Open"))
+    if((*ind)->Skill("Open") || (*ind)->Skill("Transparent"))
       (*ind)->SendIn(tnum, rsucc, str, youstr, actor, targ);
     else if((*ind)->Pos() != POS_NONE)	//FIXME - Understand Transparency
       (*ind)->SendIn(tnum, rsucc, str, youstr, actor, targ);
@@ -1915,13 +1916,13 @@ void Object::SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
 
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
-    if((*ind)->Skill("Open"))
+    if((*ind)->Skill("Open") || (*ind)->Skill("Transparent"))
       (*ind)->SendIn(tnum, rsucc, str, youstr, actor, targ);
     else if((*ind)->Pos() != POS_NONE)	//FIXME - Understand Transparency
       (*ind)->SendIn(tnum, rsucc, str, youstr, actor, targ);
     }
 
-  if(parent && Skill("Open")) {
+  if(parent && (Skill("Open") || Skill("Transparent"))) {
     no_seek = 1;
     parent->SendOut(tnum, rsucc, str, youstr, actor, targ);
     no_seek = 0;
