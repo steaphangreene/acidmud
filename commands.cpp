@@ -2497,6 +2497,28 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	}
       }
 
+    if(body->ActTarg(ACT_HOLD) &&		//FIXME: Don't drop weapons!
+	body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)) {
+      Object *targ = body->ActTarg(ACT_HOLD);
+      body->Parent()->SendOut(
+	  ";s drops ;s.\n", "You drop ;s.\n", body, targ);
+      targ->Travel(body->Parent());
+      }
+
+    if(body->ActTarg(ACT_WEAR_SHIELD) && (!body->IsAct(ACT_HOLD))) {
+      Object *targ = body->ActTarg(ACT_WEAR_SHIELD);
+      if(body->Roll("Shields", 4) > 0) {
+	body->AddAct(ACT_HOLD, targ);
+	body->Parent()->SendOut(
+	  ";s holds ;s.\n", "You hold ;s.\n", body, targ);
+	}
+      else {
+	body->Parent()->SendOut(
+	  ";s fubmles with ;s.\n", "You fumble with ;s.\n", body, targ);
+	}
+      }
+
+
 //    int succ = roll(body->att[1], targ->att[1]);
     int succ; string res;  //FIXME: res if ONLY for debugging!
 
