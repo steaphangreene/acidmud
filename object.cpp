@@ -71,7 +71,8 @@ void set_start_room(Object *o) {
 
 int matches(const char *name, const char *seek) {
   int len = strlen(seek);
-  if(len == 0) return 1;
+  if(len == 0) return 0;
+  if(!strcasecmp(seek, "all")) return 1;
 
   char *desc = (char*)name;
   while(*desc) {
@@ -1080,17 +1081,17 @@ int get_ordinal(char *text) {
     if(suf[0] == '.') ret = atoi(text);
     if(!isgraph(*suf)) ret = -atoi(text);
     }
-  else if(!strncasecmp(text, "first",  5)) ret = 1;
-  else if(!strncasecmp(text, "second", 6)) ret = 2;
-  else if(!strncasecmp(text, "third",  5)) ret = 3;
-  else if(!strncasecmp(text, "fourth", 6)) ret = 4;
-  else if(!strncasecmp(text, "fifth",  5)) ret = 5;
-  else if(!strncasecmp(text, "sixth",  5)) ret = 6;
-  else if(!strncasecmp(text, "seventh",7)) ret = 7;
-  else if(!strncasecmp(text, "eighth", 6)) ret = 8;
-  else if(!strncasecmp(text, "ninth",  5)) ret = 9;
-  else if(!strncasecmp(text, "tenth",  5)) ret = 10;
-  else if(!strncasecmp(text, "all",  3)) ret = ALL;
+  else if(!strncasecmp(text, "first ",  6)) ret = 1;
+  else if(!strncasecmp(text, "second ", 7)) ret = 2;
+  else if(!strncasecmp(text, "third ",  6)) ret = 3;
+  else if(!strncasecmp(text, "fourth ", 7)) ret = 4;
+  else if(!strncasecmp(text, "fifth ",  6)) ret = 5;
+  else if(!strncasecmp(text, "sixth ",  6)) ret = 6;
+  else if(!strncasecmp(text, "seventh ",8)) ret = 7;
+  else if(!strncasecmp(text, "eighth ", 7)) ret = 8;
+  else if(!strncasecmp(text, "ninth ",  6)) ret = 9;
+  else if(!strncasecmp(text, "tenth ",  6)) ret = 10;
+  else if(!strncasecmp(text, "all ",  4)) ret = ALL;
   return ret;
   }
 
