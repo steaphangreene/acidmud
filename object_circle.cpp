@@ -487,7 +487,13 @@ void Object::CircleLoadMob(const char *fn) {
       //FIXME: Add others here.
 
       memset(buf, 0, 65536);
-      fscanf(mudm, " %[^ \t\n] %d %c\n", buf, &val, &tp);
+      fscanf(mudm, " %[^ \t\n]", buf); //Rest of line read below...
+      if(string(buf).find('g') < strlen(buf) || (atoi(buf) & 64)) { //WATERWALK
+	obj->SetSkill("CircleAffection", obj->Skill("CircleAffection") | 64);
+	}
+
+      memset(buf, 0, 65536);
+      fscanf(mudm, " %d %c\n", &val, &tp);
       //FIXME: Implement special powers of MOBs here.
 
 
@@ -1016,7 +1022,11 @@ void Object::CircleLoad(const char *fn) {
       obj->SetDesc(buf);
       //fprintf(stderr, "Loaded Circle Room with Desc = %s\n", buf);
 
-      fscanf(mud, "%*d %[^ \t\n] %*[^\n]\n", buf);
+      int val;
+      fscanf(mud, "%*d %[^ \t\n] %d\n", buf, &val);
+      if(val == 6) obj->SetSkill("WaterDepth", 1);	// WATER_SWIM
+      else if(val == 7) obj->SetSkill("WaterDepth", 2);	// WATER_NOSWIM
+      else if(val == 8) obj->SetSkill("WaterDepth", 3);	// UNDERWATER
 
       if(string(buf).find('c') < strlen(buf) || (atoi(buf) & 4)) { //NOMOB
         obj->SetSkill("CircleZone", 999999);
