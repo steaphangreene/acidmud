@@ -2315,12 +2315,18 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		";s stashes ;s.\n", "You stash ;s.\n", body, tostash);
 	  }
 	}
-      if(body->ActTarg(ACT_HOLD)) {
+      if(body->ActTarg(ACT_HOLD)
+		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)) {
 	Object *tostash = body->ActTarg(ACT_HOLD);
 	if(body->Stash(tostash)) {
 	  body->Parent()->SendOut(
 		";s stashes ;s.\n", "You stash ;s.\n", body, tostash);
 	  }
+	}
+      else if(body->ActTarg(ACT_HOLD)) {
+	body->Parent()->SendOut(";s stops holding ;s.\n",
+		"You stop holding ;s.\n", body, body->ActTarg(ACT_HOLD));
+	body->StopAct(ACT_HOLD);
 	}
       body->Collapse();
       body->AddAct(ACT_SLEEP);
