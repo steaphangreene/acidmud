@@ -1003,14 +1003,31 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
     }
 
   if(loc & LOC_INTERNAL) {
+    set<Object*> cont = contents;
+
+    map<act_t,Object*>::iterator action;
+    for(action = act.begin(); action != act.end(); ++action) {
+      if(cont.count(action->second)) {
+	cont.erase(action->second);
+	if(matches(action->second->ShortDesc(), name)) {
+	  (*ordinal)--;
+	  if((*ordinal) == 0) { return action->second; }
+	  }
+	}
+      if(action->second->Skill("Container")) {
+	Object *ret = action->second->PickObject(name, LOC_INTERNAL, ordinal);
+	if(ret) return ret;
+	}
+      }
+
     set<Object*>::iterator ind;
-    for(ind = contents.begin(); ind != contents.end(); ++ind) {
+    for(ind = cont.begin(); ind != cont.end(); ++ind) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
       if(matches((*ind)->ShortDesc(), name)) {
 	(*ordinal)--;
 	if((*ordinal) == 0) { return (*ind); }
 	}
-      if((*ind)->Skill("Transparent")) {
+      if((*ind)->Skill("Container")) {
 	Object *ret = (*ind)->PickObject(name, LOC_INTERNAL, ordinal);
 	if(ret) return ret;
 	}

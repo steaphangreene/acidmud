@@ -1,4 +1,3 @@
-Make picks occur in display order (acted-on things should be first).
 Finish article substitution ("A" -> "A second" -> "The" -> "Joe's", etc...).
 Finish implementing sex distinctions ("his" / "her" / "its").
 Add more smartness for getting things from people (permission, etc.).
