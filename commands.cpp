@@ -2762,9 +2762,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 2; //No more actions until next round!
       }
 
+    // Attacking, or being attacked removes hidden-ness.
+    body->SetSkill("Hidden", 0);
+    targ->SetSkill("Hidden", 0);
 
 //    int succ = roll(body->att[1], targ->att[1]);
-    int succ; string res;  //FIXME: res if ONLY for debugging!
+    int succ; string res;  //FIXME: res is ONLY for debugging!
 
     int reachmod = 0;
     string sk1 = "Punching", sk2 = "Punching";
