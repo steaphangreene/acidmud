@@ -370,6 +370,7 @@ void Object::CircleLoadMob(const char *fn) {
       memset(buf, 0, 65536);
       fscanf(mudm, "%[^ \t\n] %[^ \t\n] %d %c\n", buf, buf+1024, &val, &tp);
 
+      mob_stats.SetSkill("CircleAction", 0);
       if(string(buf).find('f') < strlen(buf) || (atoi(buf) & 32)) { //AGGRESSIVE
 	mob_stats.SetSkill("CircleAction", stats.GetSkill("CircleAction") | 32);
 	}
