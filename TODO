@@ -1,6 +1,6 @@
-Add auto open/close for put/get items in containers.
 Add "look in" ability with auto open/close.
 Get rid of "outside" info if looking at an object directly.
+Add smartness for getting things from things (auto open/close, permission, etc.)
 Fixup "Back" slot so it makes more sense.
 Do 3-layer armor system.
 Make picks occur in display order (acted-on things should be first).

@@ -720,25 +720,60 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_LOOK) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!mind->Body()) {
       mind->Owner()->Room()->SendDesc(mind);
       return 0;
       }
+
     Object *targ = mind->Body()->Parent();
-    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    int within = 0;
+
+    if(!strncasecmp(comline+len, "at ", 3)) len += 3;
+    if(!strncasecmp(comline+len, "in ", 3)) { len += 3; within = 1; }
+
     if(strlen(comline+len) > 0) {
       targ = mind->Body()->PickObject(comline+len,
 	LOC_NEARBY|LOC_ADJACENT|LOC_SELF|LOC_INTERNAL);
       }
     if(!targ) mind->Send("You don't see that here.\n");
     else {
-      if(strlen(comline+len) > 0)
-	mind->Body()->Parent()->SendOut(
+      if(within && (!targ->Stats()->GetSkill("Container"))) {
+	mind->Send("You can't look inside that, it is not a container.\n");
+	}
+      else if(within && (targ->Stats()->GetSkill("Locked"))) {
+	mind->Send("You can't look inside that, it is locked.\n");
+	}
+      else {
+	int must_open = within;
+	stats_t stats = (*(targ->Stats()));
+	if(within && stats.GetSkill("Transparent")) must_open = 0;
+
+	if(must_open) {
+	  stats.SetSkill("Transparent", 1);
+	  targ->SetStats(stats);
+	  mind->Body()->Parent()->SendOut(
+		";s opens ;s.\n", "You open ;s.\n", mind->Body(), targ);
+	  }
+
+	if(strlen(comline+len) > 0 && within)
+		mind->Body()->Parent()->SendOut(
+		";s looks inside ;s.\n", "", mind->Body(), targ);
+	else if(strlen(comline+len) > 0)
+		mind->Body()->Parent()->SendOut(
 		";s looks at ;s.\n", "", mind->Body(), targ);
-      else
-	mind->Body()->Parent()->SendOut(
+	else
+		mind->Body()->Parent()->SendOut(
 		";s looks around.\n", "", mind->Body(), targ);
-      targ->SendDesc(mind, mind->Body());
+	targ->SendDesc(mind, mind->Body());
+
+	if(must_open) {
+	  stats.SetSkill("Transparent", 0);
+	  targ->SetStats(stats);
+	  mind->Body()->Parent()->SendOut(
+		";s closes ;s.\n", "You close ;s.\n", mind->Body(), targ);
+	  }
+	}
       }
     return 0;
     }
@@ -844,7 +879,7 @@ int handle_single_command(Mind *mind, const char *cl) {
     Object *targ =
 	mind->Body()->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
     if(!mind->Body()->IsAct(ACT_HOLD)) {
-      mind->Send("You aren't holding anything to be put anywhere!\n");
+      mind->Send("You must first 'hold' the object you want to 'put'.\n");
       }
     else if(!targ) {
       mind->Send("I don't see '%s' to put '%s' in!\n", comline+len,
@@ -856,15 +891,21 @@ int handle_single_command(Mind *mind, const char *cl) {
     else if(!targ->Stats()->GetSkill("Container")) {
       mind->Send("You can't put anything in that, it is not a container.\n");
       }
-    else if(!targ->Stats()->GetSkill("Transparent")) {
-      mind->Send("You can't put anything in that, it is closed.\n");
+    else if(targ->Stats()->GetSkill("Locked")) {
+      mind->Send("You can't put anything in that, it is locked.\n");
       }
     else {
+      int closed = 0;
+      if(!targ->Stats()->GetSkill("Transparent")) closed = 1;
+      if(closed) mind->Body()->Parent()->SendOut(
+		";s opens ;s.\n", "You open ;s.\n", mind->Body(), targ);
       mind->Body()->Parent()->SendOut(
 		";s puts %s into ;s.\n", "You put %s into ;s.\n",
 		mind->Body(), targ, mind->Body()->ActTarg(ACT_HOLD)->Name());
       mind->Body()->ActTarg(ACT_HOLD)->Travel(targ);
       mind->Body()->StopAct(ACT_HOLD);
+      if(closed) mind->Body()->Parent()->SendOut(
+		";s close ;s.\n", "You close ;s.\n", mind->Body(), targ);
       }
     return 0;
     }
