@@ -35,14 +35,14 @@ public:
 
 class MOBType {
 public:
-  MOBType(const char *nm, const char *ds, const char *lds,
+  MOBType(const char *nm, const char *ds, const char *lds, const char *gens,
 	int,int, int,int, int,int, int,int, int,int, int,int, int,int);
   void Skill(const char *name, int, int);
   void Skill(const char *name, int);
   void Arm(WeaponType *);
   void Armor(ArmorType *);
 
-  string name, desc, long_desc;
+  string name, desc, long_desc, genders;
   int b, bm;
   int q, qm;
   int s, sm;
@@ -54,3 +54,5 @@ public:
   WeaponType *armed;
   vector<ArmorType *> armor;
   };
+
+string gender_proc(const char *in, char gender);

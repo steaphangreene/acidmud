@@ -80,8 +80,8 @@ void Object::DynamicInit1() {		//Dwarven mine
     WeaponType *weap;
     ArmorType *arm;
 
-    dwarf_miner = new MOBType("a dwarf miner", "He looks pissed.", "",
-	7,7, 4,5, 6,7, 2,2, 4,3, 8,7, 500,2001);
+    dwarf_miner = new MOBType("a dwarf miner", "{He} looks pissed.", "",
+	"M", 7,7, 4,5, 6,7, 2,2, 4,3, 8,7, 500,2001);
     dwarf_miner->Skill("Two-Handed Cleaves", 100, 4);
     weap = new WeaponType("a dwarven mining pickaxe",
 	"A super-strong, super-sharp, super-heavy pickaxe.", "",
@@ -96,8 +96,8 @@ void Object::DynamicInit1() {		//Dwarven mine
     dwarf_miner->Armor(arm);
 
 
-    dwarf_engineer = new MOBType("a dwarf engineer", "He looks pissed.", "",
-	5,7, 4,5, 5,7, 3,2, 5,3, 8,7, 2000,8001);
+    dwarf_engineer = new MOBType("a dwarf engineer", "She looks pissed.", "",
+	"F", 5,7, 4,5, 5,7, 3,2, 5,3, 8,7, 2000,8001);
     dwarf_engineer->Skill("Long Cleaves", 100, 2);
     weap = new WeaponType("a dwarven combat axe",
 	"A super-strong, super-sharp combat axe.", "",
@@ -111,8 +111,8 @@ void Object::DynamicInit1() {		//Dwarven mine
 	);
     dwarf_engineer->Armor(arm);
 
-    dwarf_guard = new MOBType("a dwarf guard", "He looks pissed.", "",
-	9,4, 6,4, 9,4, 1,3, 5,4, 9,4, 100,401);
+    dwarf_guard = new MOBType("a dwarf guard", "{He} looks pissed.", "",
+	"MF", 9,4, 6,4, 9,4, 1,3, 5,4, 9,4, 100,401);
     dwarf_guard->Skill("Two-Handed Cleaves", 100, 4);
     weap = new WeaponType("a dwarven war axe",
 	"A super-strong, super-sharp, super-heavy, high-quality war axe.", "",
@@ -150,8 +150,8 @@ void Object::DynamicInit1() {		//Dwarven mine
 	);
     dwarf_guard->Armor(arm);
 
-    dwarf_explorer = new MOBType("a dwarf explorer", "He looks pissed.", "",
-	5,4, 5,4, 6,4, 3,2, 6,4, 9,5, 1000,4001);
+    dwarf_explorer = new MOBType("a dwarf explorer", "{He} looks pissed.", "",
+	"MF", 5,4, 5,4, 6,4, 3,2, 6,4, 9,5, 1000,4001);
     dwarf_explorer->Skill("Long Cleaves", 100, 4);
     weap = new WeaponType("a dwarven climbing pick",
 	"A super-sharp, lightweight pick.", "",
@@ -166,8 +166,8 @@ void Object::DynamicInit1() {		//Dwarven mine
     dwarf_explorer->Armor(arm);
 
     elf_prisoner = new MOBType("an elf slave",
-	"This elf looks like he's been a prisoner longer than you've been alive.", "",
-	4,2, 8,4, 5,2, 8,2, 7,4, 4,4, 0,0);
+	"This elf looks like {he}'s been a prisoner longer than you've been alive.", "",
+	"MF", 4,2, 8,4, 5,2, 8,2, 7,4, 4,4, 0,0);
     elf_prisoner->Skill("Carromeleg - Tier I", 2);
     elf_prisoner->Skill("Carromeleg - Tier II", 2);
     elf_prisoner->Skill("Carromeleg - Tier III", 2);

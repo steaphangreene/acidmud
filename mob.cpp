@@ -86,12 +86,14 @@ static void give_gold(Object *mob, int qty) {
   }
 
 MOBType::MOBType(const char *nm, const char *ds, const char *lds,
+	const char *gens,
         int ib,int ibm, int iq,int iqm, int is,int ism,
 	int ic,int icm, int ii,int iim, int iw,int iwm,
 	int ig,int igm) {
   name = nm;
   desc = ds;
   long_desc = lds;
+  genders = gens;
   b = ib;
   bm = ibm >? 1;
   q = iq;
@@ -157,6 +159,11 @@ void Object::AddMOB(const MOBType *type) {
   mob->SetShortDesc(type->name.c_str());
   mob->SetDesc(type->desc.c_str());
   mob->SetLongDesc(type->long_desc.c_str());
+  if(type->genders.length() > 0) {
+    mob->SetGender(type->genders[rand() % type->genders.length()]);
+    }
+  mob->SetDesc(gender_proc(type->desc.c_str(), mob->Gender()).c_str());
+  mob->SetLongDesc(gender_proc(type->long_desc.c_str(), mob->Gender()).c_str());
 
   if(type->g > 0 || type->gm > 1) give_gold(mob, type->g + rand() % type->gm);
 
@@ -251,4 +258,28 @@ ArmorType::ArmorType(const char *nm, const char *ds, const char *lds,
   weight = w;
   volume = vol;
   value = val;
+  }
+
+static char *gen_replace[][4] = {
+  { "{He}", "She", "He", "It" },
+  { NULL, NULL, NULL, NULL }
+  };
+
+string gender_proc(const char *in, char gender) {
+  string ret = in;
+  int ctr=0, gen=3;
+
+  if(gender == 'F') gen = 1;
+  if(gender == 'M') gen = 2;
+
+  for(ctr=0; gen_replace[ctr][0]; ++ctr) {
+    int where = ret.find(gen_replace[ctr][0]);
+    while(where >= 0 && where <= int(ret.length())) {
+      fprintf(stderr, "Yep: %d %s (%s)\n", where, ret.c_str(), gen_replace[ctr][0]);
+      ret = ret.substr(0, where) + string(gen_replace[ctr][gen])
+	+ ret.substr(where+strlen(gen_replace[ctr][0]));
+      where = ret.find(gen_replace[ctr][0]);
+      }
+    }
+  return ret;
   }
