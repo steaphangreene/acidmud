@@ -275,7 +275,10 @@ void update_net() {
 void unwarn_net(int tp) {
   set<socket_t>::iterator sock;
   for(sock = fds.begin(); sock != fds.end(); ++sock) {
-    if(tp < 0) {
+    if(tp == 0) {
+      minds[*sock]->Send("...the world has been auto-saved!\n");
+      }
+    else if(tp < 0) {
       minds[*sock]->Send("...the world has been saved!\n");
       }
     else if(tp == 2) {
@@ -291,7 +294,10 @@ void warn_net(int tp) {
   set<socket_t>::iterator sock;
   for(sock = fds.begin(); sock != fds.end(); ++sock) {
     sock_write(*sock, "\nThe ground shakes with the power of the Ninjas...\n");
-    if(tp < 0) {
+    if(tp == 0) {
+      sock_write(*sock, "\n    AcidMUD is auto-saving the world, hang on!\n");
+      }
+    else if(tp < 0) {
       sock_write(*sock, "\n    AcidMUD is saving the world, hang on!\n");
       }
     else if(tp == 2) {

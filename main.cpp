@@ -24,6 +24,7 @@ static void do_restart(int) { shutdn = 2; }
 static void do_shutdown(int) { shutdn = 1; }
 
 timeval current_time = { 0, 0 };
+timeval lastsave_time = { 0, 0 };
 
 int main(int argc, char **argv) {
   int port = 4242;
@@ -67,6 +68,7 @@ int main(int argc, char **argv) {
     unwarn_net(2);
     }
 
+  gettimeofday(&lastsave_time, NULL);
   fprintf(stdout, "Ready to play!\n");
   while(shutdn <= 0) {
     gettimeofday(&current_time, NULL);
@@ -93,11 +95,14 @@ int main(int argc, char **argv) {
 
 	//static long long diff3;
 	//gettimeofday(&now_time, NULL);
-    if(shutdn < 0) {
-      warn_net(-1);
-      shutdn = 0;
+
+    //FIXME: Do real (adjustable) autosave times - hardcoded to 15 minutes!
+    if(shutdn < 0 || (current_time.tv_sec > lastsave_time.tv_sec+900)) {
+      warn_net(shutdn);
       save_world();
-      unwarn_net(-1);
+      unwarn_net(shutdn);
+      shutdn = 0;
+      lastsave_time = current_time;
       }
 	//gettimeofday(&then_time, NULL);
 	//diff3 = (long long)(then_time.tv_usec - now_time.tv_usec);
