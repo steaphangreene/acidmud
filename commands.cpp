@@ -54,7 +54,6 @@ enum {	COM_HELP=0,
 	COM_EXAMINE,
 	COM_INVENTORY,
 	COM_EQUIPMENT,
-	COM_STATS,
 
 	COM_OPEN,
 	COM_CLOSE,
@@ -114,6 +113,8 @@ enum {	COM_HELP=0,
 	COM_INCREMENT,
 	COM_DECREMENT,
 
+	COM_STATS,
+
 	COM_SHUTDOWN,
 	COM_RESTART,
 	COM_MAKESTART,
@@ -156,12 +157,6 @@ Command comlist[] = {
     "Check what you are wearing and using.",
     "Check what you are wearing and using.",
     (REQ_AWAKE|REQ_ACTION)
-    },
-
-  { COM_STATS, "stats",
-    "Get stats of an object or creature.",
-    "Get stats of an object or creature.",
-    (REQ_ANY|REQ_ACTION)
     },
 
   { COM_OPEN, "open",
@@ -410,6 +405,12 @@ Command comlist[] = {
     "Ninja command.",
     "Ninja command - ninjas only!",
     (REQ_ALERT|REQ_NINJAMODE)
+    },
+
+  { COM_STATS, "stats",
+    "Get stats of an object or creature.",
+    "Get stats of an object or creature.",
+    (REQ_ANY|REQ_ACTION)
     },
 
   { COM_SHUTDOWN, "shutdown", 
