@@ -1004,8 +1004,8 @@ void Object::SendStats(Mind *m, Object *o) {
     }
 
   for(act_t act = ACT_MAX; act < ACT_SPECIAL_MAX; ++((int&)(act))) {
-    if(ActTarg(act)) m->Send("%s -> %s\n", act_str[act], ActTarg(act)->Name());
-    else if(IsAct(act)) m->Send("%s\n", act_str[act]);
+    if(ActTarg(act)) m->Send("  %s -> %s\n", act_str[act], ActTarg(act)->Name());
+    else if(IsAct(act)) m->Send("  %s\n", act_str[act]);
     }
 
   m->Send("%s", CNRM);
