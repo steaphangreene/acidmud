@@ -1420,9 +1420,9 @@ void Object::SendIn(const char *mes, const char *youmes,
   static char youbuf[65536];
 
   string tstr = "";
-  if(targ) tstr = (char*)targ->Name();
+  if(targ) tstr = (char*)targ->Name(0, this);
   string astr = "";
-  if(actor) astr = (char*)actor->Name();
+  if(actor) astr = (char*)actor->Name(0, this);
 
   memset(buf, 0, 65536);
   memset(youbuf, 0, 65536);
@@ -1467,8 +1467,8 @@ void Object::SendOut(const char *mes, const char *youmes,
   static char buf[65536];
   static char youbuf[65536];
 
-  string tstr = "";  if(targ) tstr = (char*)targ->Name();
-  string astr = "";  if(actor) astr = (char*)actor->Name();
+  string tstr = "";  if(targ) tstr = (char*)targ->Name(0, this);
+  string astr = "";  if(actor) astr = (char*)actor->Name(0, this);
 
   memset(buf, 0, 65536);
   memset(youbuf, 0, 65536);

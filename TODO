@@ -1,4 +1,3 @@
-Add more smartness for recursive gets (can't grab from locked items, etc...).
 Hit locations.
 Implement armor protection.
 Implement armor and cloathing effects.
@@ -11,7 +10,6 @@ Implement money.
 Translate CircleMud shops.
 Travel limitations (speed of movement, fleeing, sprinting, running).
 Refine the fudging of circle MOBs' stats.
-Fix STAY_ZONE mobs so they actually do and don't cross NOMOB zones!  Fixed?
 Finish article substitution ("A" -> "A second" -> "The" -> "Joe's", etc...).
 Pick up a fight's other opponents after your target goes down without delay.
 Wear/wield from own containers need auto open/close.
