@@ -2522,7 +2522,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	}
       }
 
-    if(body->ActTarg(ACT_HOLD)		//FIXME: Don't drop offhand weapons!
+    if(body->ActTarg(ACT_HOLD)		//FIXME: Don't drop offhand weapons?!?
 	&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)
 	&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)) {
       Object *targ = body->ActTarg(ACT_HOLD);
@@ -2531,7 +2531,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       targ->Travel(body->Parent());
       }
 
-    if((!body->ActTarg(ACT_HOLD)) && body->ActTarg(ACT_WIELD)
+    if(body->ActTarg(ACT_WIELD)
+	&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)
 	&& (body->ActTarg(ACT_WIELD)->Skill("WeaponType")
 		== get_weapon_type("Two-Handed Blades")
 	|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
@@ -2545,31 +2546,21 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
 		== get_weapon_type("Two-Handed Staves")
 	)) {
+      if(body->IsAct(ACT_HOLD)) {
+	if(body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)) {
+	  body->Parent()->SendOut(";s stops holding ;s.\n",
+		"You stop holding ;s.\n", body, targ);
+	  body->StopAct(ACT_HOLD);
+	  }
+	else {
+	  body->Parent()->SendOut(
+		";s drops ;s.\n", "You drop ;s.\n", body, targ);
+	  targ->Travel(body->Parent());
+	  }
+	}
       Object *targ = body->ActTarg(ACT_WIELD);
       body->AddAct(ACT_HOLD, targ);
       body->Parent()->SendOut(";s holds ;s.\n", "You hold ;s.\n", body, targ);
-      }
-
-    if(body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)
-	&& body->ActTarg(ACT_WIELD)
-	&& (body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-		== get_weapon_type("Two-Handed Blades")
-	|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-		== get_weapon_type("Two-Handed Cleaves")
-	|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-		== get_weapon_type("Two-Handed Crushing")
-	|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-		== get_weapon_type("Two-Handed Flails")
-	|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-		== get_weapon_type("Two-Handed Piercing")
-	|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-		== get_weapon_type("Two-Handed Staves")
-	)) {
-      Object *targ = body->ActTarg(ACT_WIELD);
-      body->Parent()->SendOut(
-	";s drops ;s since it can't be used one-handed!\n",
-	"You drop ;s since it can't be used one-handed!\n", body, targ);
-      targ->Travel(body->Parent());
       }
 
     if(body->ActTarg(ACT_WEAR_SHIELD) && (!body->IsAct(ACT_HOLD))) {
