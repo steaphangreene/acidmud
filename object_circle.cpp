@@ -727,17 +727,23 @@ void Object::CircleLoadObj(const char *fn) {
 	(*obj) = (*gold);
 	obj->SetSkill("Quantity", val[0]);
 	}
+      else if(tp == 18) { // KEY
+	obj->SetSkill("Key", 100000 + onum);		// Key's "code"
+	}
       else if(tp == 15) { // CONTAINER
 	obj->SetSkill("Container", val[0] * 454);
 	obj->SetSkill("Capacity", val[0]);
 
-	if(!(val[1] & 4)) obj->SetSkill("Transparent", 1);  //Start open?
-
-	if(val[1] & 8) obj->SetSkill("Locked", 1);          //Start locked?
-
-	if(val[1] & 1) obj->SetSkill("Closeable", 1);  // Can it be closed?
-
-	if(val[2] != -1) obj->SetSkill("Lockable", 1); // Can it be locked?
+	if(!(val[1] & 4)) obj->SetSkill("Transparent", 1);	//Start open?
+	if(val[1] & 8) {
+	  obj->SetSkill("Locked", 1);			//Start locked?
+	  obj->SetSkill("Lockable", 1);			// Can it be locked?
+	  }
+	if(val[1] & 1) obj->SetSkill("Closeable", 1);	// Can it be closed?
+	if(val[2] > 0) {
+	  obj->SetSkill("Lock", 100000 + val[2]);	// Unlocking key's code
+	  obj->SetSkill("Lockable", 1);			// Can it be locked?
+	  }
 
 	if(string(obj->ShortDesc()).find("bag") < strlen(obj->ShortDesc())) {
 	  obj->SetSkill("Closeable", 1);		// Bags CAN be closed

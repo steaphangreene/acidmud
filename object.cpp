@@ -1061,7 +1061,7 @@ void Object::SendScore(Mind *m, Object *o) {
   m->Send("%s", CYEL);
   m->Send("\nEarned Exp: %4d  Player Exp: %4d  Unspent Exp: %4d\n", exp,
 	(minds.count(m) && m->Owner()) ? m->Owner()->Exp() : -1,
-	Exp(m->Owner()));
+	(minds.count(m) && m->Owner()) ? Exp(m->Owner()) : 0);
 
   m->Send("%s", CNRM);
   }
