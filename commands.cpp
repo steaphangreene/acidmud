@@ -640,6 +640,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(!dest) {
       if(mind) mind->Send("You can't go that way as far as you can tell.\n");
       }
+    else if(dest->Skill("WaterDepth") == 1 && body->Skill("Swimming") == 0) {
+      if(mind) mind->Send("Sorry, but you can't swim!\n");  //FIXME: Have boat?
+      }
+    else if(dest->Skill("WaterDepth") > 1) {		//FIXME: Have boat?
+      if(mind) mind->Send("Sorry, you need a boat to go there!\n");
+      }
     else {
       if(body->Parent()) body->Parent()->SendOut(
 	";s leaves %s.\n", "", body, NULL, comline+len);
@@ -730,6 +736,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else if((!dest->Skill("Enterable"))
 	&& ((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJAMODE)))) {
       if(mind) mind->Send("You need to be in ninja mode to enter that object!\n");
+      }
+    else if(dest->Skill("WaterDepth") == 1 && body->Skill("Swimming") == 0) {
+      if(mind) mind->Send("Sorry, but you can't swim!\n");  //FIXME: Have boat?
+      }
+    else if(dest->Skill("WaterDepth") > 1) {		//FIXME: Have boat?
+      if(mind) mind->Send("Sorry, you need a boat to go there!\n");
       }
     else {
       if(body->Parent()) body->Parent()->SendOut(

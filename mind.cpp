@@ -259,10 +259,20 @@ void Mind::Think(int istick) {
 	if(dir->second->Skill("CircleZone") == 999999) { //NO_MOBS Circle Zone
 	  cons.erase(dir->first); //Don't Enter NO_MOBS Zone!
 	  }
-	else if(body->Skill("CircleAction") & 64) { //STAY_ZONE Circle MOBs
+	else if(body->Skill("CircleAction") & 64) {	//STAY_ZONE Circle MOBs
 	  if(dir->second->Skill("CircleZone")
 			!= body->Parent()->Skill("CircleZone")) {
-	    cons.erase(dir->first); //Don't Leave Zone!
+	    cons.erase(dir->first);			//Don't Leave Zone!
+	    }
+	  }
+	else if(body->Skill("Swimming") == 0) {		//Can't Swim?
+	  if(dir->second->Skill("WaterDepth") == 1) {
+	    cons.erase(dir->first);			//Can't swim!
+	    }
+	  }
+	else if(!(body->Skill("CircleAffection")&64)) {	//Can't Waterwalk?
+	  if(dir->second->Skill("WaterDepth") >= 1) {	//Need boat!
+	    cons.erase(dir->first);			//FIXME: Have boat?
 	    }
 	  }
 	}

@@ -78,6 +78,8 @@ static void init_defaults() {
 
   add_wts("Shields");
 
+  add_wts("Swimming");
+
   //Default to Quickness if not listed here!
   defaults["Grappling"] = 2;
   defaults["Shields"] = 2;
@@ -87,6 +89,8 @@ static void init_defaults() {
   defaults["Two-Handed Flails"] = 2;
   defaults["Two-Handed Piercing"] = 2;
   defaults["Hurling"] = 2;
+
+  defaults["Swimming"] = 2;
   }
 
 string get_weapon_skill(int wtype) {
