@@ -234,6 +234,28 @@ void Object::Tick() {
     UpdateDamage();
     }
 
+  if(parent && Skill("CirclePopper") == 1 && ActTarg(ACT_SPECIAL_PREPARE)) {
+    if(!ActTarg(ACT_SPECIAL_MONITOR)) {
+      Object *obj = new Object(*(ActTarg(ACT_SPECIAL_PREPARE)));
+      obj->SetParent(this);
+      obj->Travel(parent);
+      AddAct(ACT_SPECIAL_MONITOR, obj);
+      }
+    else if(ActTarg(ACT_SPECIAL_MONITOR)->IsAct(ACT_DEAD)) {
+      if(ActTarg(ACT_SPECIAL_OLDMONITOR))
+	delete ActTarg(ACT_SPECIAL_OLDMONITOR);
+      AddAct(ACT_SPECIAL_OLDMONITOR, ActTarg(ACT_SPECIAL_MONITOR));
+      Object *obj = new Object(*(ActTarg(ACT_SPECIAL_PREPARE)));
+      obj->SetParent(this);
+      obj->Travel(parent);
+      parent->SendOut(";s arrives.", "", obj, NULL);
+      AddAct(ACT_SPECIAL_MONITOR, obj);
+      }
+    }
+  if(Skill("CirclePopper") > 0) {	// Only pop-check once per minute!
+    SetSkill("CirclePopper", (Skill("CirclePopper")%20)+1);
+    }
+
   //FIXME: rot, degrade, etc....
   }
 
@@ -608,6 +630,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside) {
   m->Send("%s", CGRN);
   typeof(cont.begin()) ind;
   for(ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
+    if((*ind)->IsAct(ACT_SPECIAL_NOTSHOWN)) continue;
     master.erase(*ind);
 
 /* Comment out this block to disable 20-item limit in view */

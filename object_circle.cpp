@@ -249,12 +249,20 @@ void Object::CircleLoadZon(const char *fn) {
 	  int num, room;
 	  fscanf(mudz, " %*d %d %*d %d %*[^\n]\n", &num, &room);
 	  if(bynum.count(room) && bynummob.count(num)) {
-	    Object *obj = new Object(*(bynummob[num]));
-	    bynummobinst[num] = obj;
+	    Object *obj = new Object;
 	    obj->SetParent(bynum[room]);
+	    obj->SetShortDesc("a CircleMUD MOB Popper");
+	    obj->SetDesc("This thing just pops out MOBs.");
+
 	    //fprintf(stderr, "Put Mob \"%s\" in Room \"%s\"\n", obj->ShortDesc(), bynum[room]->ShortDesc());
+
 	    if(lastmob) CircleFinishMob(lastmob);
-	    lastmob = obj;
+	    lastmob = new Object(*(bynummob[num]));
+	    bynummobinst[num] = lastmob;
+	    lastmob->SetParent(obj);
+	    obj->SetSkill("CirclePopper", 1);
+	    obj->AddAct(ACT_SPECIAL_PREPARE, lastmob);
+	    obj->AddAct(ACT_SPECIAL_NOTSHOWN);
 	    lastbag = NULL;
 	    }
 	  } break;
