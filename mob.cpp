@@ -92,6 +92,10 @@ void MOBType::Arm(WeaponType *weap) {
   armed = weap;
   }
 
+void MOBType::Armor(ArmorType *arm) {
+  armor.push_back(arm);
+  }
+
 void Object::AddMOB(const MOBType *type) {
   Object *mob = new Object(this);
 
@@ -131,7 +135,7 @@ void Object::AddMOB(const MOBType *type) {
 	type->armed->sev + rand() % type->armed->sevm);
     obj->SetShortDesc(type->armed->name.c_str());
     obj->SetDesc(type->armed->desc.c_str());
-    obj->SetDesc(type->armed->long_desc.c_str());
+    obj->SetLongDesc(type->armed->long_desc.c_str());
     obj->SetWeight(type->armed->weight);
     obj->SetVolume(type->armed->volume);
     obj->SetValue(type->armed->value);
@@ -139,10 +143,33 @@ void Object::AddMOB(const MOBType *type) {
     mob->AddAct(ACT_WIELD, obj);
     if(two_handed(type->armed->type)) mob->AddAct(ACT_HOLD, obj);
     }
+
+  typeof(type->armor.begin()) ar_it;
+  for(ar_it = type->armor.begin(); ar_it != type->armor.end(); ++ar_it) {
+    Object *obj = new Object(mob);
+    obj->SetAttribute(0, (*ar_it)->bulk + rand() %(*ar_it)->bulkm);
+    obj->SetSkill("ArmorB", (*ar_it)->bulk + rand() %(*ar_it)->bulkm);
+    obj->SetSkill("ArmorI", (*ar_it)->impact + rand() %(*ar_it)->impactm);
+    obj->SetSkill("ArmorT", (*ar_it)->thread + rand() %(*ar_it)->threadm);
+    obj->SetSkill("ArmorP", (*ar_it)->planar + rand() %(*ar_it)->planarm);
+    obj->SetShortDesc((*ar_it)->name.c_str());
+    obj->SetDesc((*ar_it)->desc.c_str());
+    obj->SetLongDesc((*ar_it)->long_desc.c_str());
+    obj->SetWeight((*ar_it)->weight);
+    obj->SetVolume((*ar_it)->volume);
+    obj->SetValue((*ar_it)->value);
+    obj->SetPos(POS_LIE);
+
+    typeof((*ar_it)->loc.begin()) l_it;
+    for(l_it = (*ar_it)->loc.begin(); l_it != (*ar_it)->loc.end(); ++l_it) {
+      mob->AddAct(*l_it, obj);
+      }
+    }
   }
 
 WeaponType::WeaponType(const char *nm, const char *ds, const char *lds,
-    const char *t, int r, int f,int fm, int s,int sm, int w, int vol, int val) {
+	const char *t, int r, int f,int fm, int s,int sm,
+	int w, int vol, int val) {
   name = nm;
   desc = ds;
   long_desc = lds;
@@ -152,6 +179,36 @@ WeaponType::WeaponType(const char *nm, const char *ds, const char *lds,
   forcem = fm >? 1;
   sev = s;
   sevm = sm >? 1;
+  weight = w;
+  volume = vol;
+  value = val;
+  }
+
+ArmorType::ArmorType(const char *nm, const char *ds, const char *lds,
+	int b, int bm, int i, int im, int t, int tm, int p, int pm,
+	int w, int vol, int val,
+	act_t l1, act_t l2, act_t l3, act_t l4, act_t l5, act_t l6
+	) {
+  name = nm;
+  desc = ds;
+  long_desc = lds;
+
+  bulk = b;
+  bulkm = bm >? 1;
+  impact = i;
+  impactm = im >? 1;
+  thread = t;
+  threadm = tm >? 1;
+  planar = p;
+  planarm = pm >? 1;
+
+  if(l1 != ACT_NONE) loc.push_back(l1);
+  if(l2 != ACT_NONE) loc.push_back(l2);
+  if(l3 != ACT_NONE) loc.push_back(l3);
+  if(l4 != ACT_NONE) loc.push_back(l4);
+  if(l5 != ACT_NONE) loc.push_back(l5);
+  if(l6 != ACT_NONE) loc.push_back(l6);
+
   weight = w;
   volume = vol;
   value = val;

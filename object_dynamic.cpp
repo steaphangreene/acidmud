@@ -42,6 +42,8 @@ void Object::DynamicInit1() {		//Dwarven mine
   static MOBType *dwarf_explorer;
   if(!dwarf_miner) {
     WeaponType *weap;
+    ArmorType *arm;
+
     dwarf_miner = new MOBType("a dwarf miner", "He looks pissed.", "",
 		7,7, 4,5, 6,7, 2,2, 4,3, 8,7, 500,2001);
     dwarf_miner->Skill("Two-Handed Cleaves", 100, 4);
@@ -50,6 +52,13 @@ void Object::DynamicInit1() {		//Dwarven mine
 	"Two-Handed Cleaves", 2, 2,7, 3,3, 20000, 50, 2000
 	);
     dwarf_miner->Arm(weap);
+    arm = new ArmorType("a dwarven leather jerkin",
+	"A heavy dwarven leather jerkin.  It'll probably stop an arrow.", "",
+	3, 2, 2, 2, 0, 0, 1, 0, 10000, 10, 150,
+	ACT_WEAR_CHEST, ACT_WEAR_BACK
+	);
+    dwarf_miner->Armor(arm);
+
 
     dwarf_engineer = new MOBType("a dwarf engineer", "He looks pissed.", "",
 		5,7, 4,5, 5,7, 3,2, 5,3, 8,7, 2000,8001);
@@ -59,6 +68,12 @@ void Object::DynamicInit1() {		//Dwarven mine
 	"Long Cleaves", 1, 2,7, 2,2, 4000, 10, 1000
 	);
     dwarf_engineer->Arm(weap);
+    arm = new ArmorType("a dwarven leather jerkin",
+	"A heavy dwarven leather jerkin.  It'll probably stop an arrow.", "",
+	3, 2, 2, 2, 0, 0, 1, 0, 10000, 10, 150,
+	ACT_WEAR_CHEST, ACT_WEAR_BACK
+	);
+    dwarf_engineer->Armor(arm);
 
     dwarf_guard = new MOBType("a dwarf guard", "He looks pissed.", "",
 		9,4, 6,4, 9,4, 1,3, 5,4, 9,4, 100,401);
@@ -68,6 +83,36 @@ void Object::DynamicInit1() {		//Dwarven mine
 	"Two-Handed Cleaves", 2, 4,6, 4,2, 20000, 40, 5000
 	);
     dwarf_guard->Arm(weap);
+    arm = new ArmorType("a dwarven heavy breastplate",
+	"A heavy dwarven breastplate.  It'll probably stop a warhammer.", "",
+	8, 4, 6, 2, 4, 2, 10, 5, 200000, 100, 15000,
+	ACT_WEAR_CHEST, ACT_WEAR_BACK
+	);
+    dwarf_guard->Armor(arm);
+    arm = new ArmorType("a dwarven great helm",
+	"A heavy dwarven great helm.  It'll probably stop a warhammer.", "",
+	8, 4, 6, 2, 4, 2, 10, 5, 50000, 70, 5000,
+	ACT_WEAR_HEAD
+	);
+    dwarf_guard->Armor(arm);
+    arm = new ArmorType("a dwarven arm plate (right)",
+	"A heavy dwarven arm plate.  It'll probably stop a warhammer.", "",
+	8, 4, 6, 2, 4, 2, 10, 5, 50000, 60, 5000,
+	ACT_WEAR_RARM
+	);
+    dwarf_guard->Armor(arm);
+    arm = new ArmorType("a dwarven arm plate (left)",
+	"A heavy dwarven arm plate.  It'll probably stop a warhammer.", "",
+	8, 4, 6, 2, 4, 2, 10, 5, 50000, 60, 5000,
+	ACT_WEAR_LARM
+	);
+    dwarf_guard->Armor(arm);
+    arm = new ArmorType("a dwarven battle skirt",
+	"A heavy dwarven battle skirt.  It'll probably stop a warhammer.", "",
+	8, 4, 6, 2, 4, 2, 10, 5, 100000, 80, 10000,
+	ACT_WEAR_RLEG, ACT_WEAR_LLEG
+	);
+    dwarf_guard->Armor(arm);
 
     dwarf_explorer = new MOBType("a dwarf explorer", "He looks pissed.", "",
 		5,4, 5,4, 6,4, 3,2, 6,4, 9,5, 1000,4001);
@@ -77,6 +122,12 @@ void Object::DynamicInit1() {		//Dwarven mine
 	"Long Cleaves", 1, 1,3, 3,1, 2000, 10, 500
 	);
     dwarf_explorer->Arm(weap);
+    arm = new ArmorType("a dwarven leather jerkin",
+	"A heavy dwarven leather jerkin.  It'll probably stop an arrow.", "",
+	3, 2, 2, 2, 0, 0, 1, 0, 10000, 10, 150,
+	ACT_WEAR_CHEST, ACT_WEAR_BACK
+	);
+    dwarf_explorer->Armor(arm);
     }
 
   int mojo = Skill("DynamicMojo");
