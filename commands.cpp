@@ -3692,9 +3692,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
 
     if(!is_skill(comline+len)) {
-      mind->Send("Sorry, '%s' is not implemented at this point.\n",
-		comline+len);
-      return 0;
+      mind->Send("Warning, '%s' is not a real skill name!\n", comline+len);
       }
 
     targ->SetSkill(comline+len, (targ->Skill(comline+len)>?0) + 1);

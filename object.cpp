@@ -1139,6 +1139,11 @@ int Object::Travel(Object *dest, int try_combine) {
   StopAct(ACT_POINT);
   StopAct(ACT_FOLLOW);
 
+  if(parent->Skill("DynamicInit") > 0) {  //Room is dynamic, but uninitialized
+    parent->DynamicInit(parent->Skill("DynamicInit"));
+    parent->SetSkill("DynamicInit", 0);
+    }
+
   if(parent->Skill("Secret")) {
     set<Mind*>::iterator m;
     for(m = minds.begin(); m != minds.end(); ++m) {
