@@ -1349,9 +1349,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  body->Parent()->SendOut(";s gets and stashes ;s.\n",
 		"You get and stash ;s.\n", body, targ);
 	  }
-	else if(body->ActTarg(ACT_HOLD)
-		&& (*targ) != (*(body->ActTarg(ACT_HOLD)))) {
+	else if(body->ActTarg(ACT_HOLD)) {
 	  if(mind) mind->Send("You have no place to stash it and are already holding something else!\n");
+	  }
+	else if(targ->Skill("Quantity") > 1) {
+	  if(mind) mind->Send("You have no place to stash it and can only hold one thing at a time!\n");
 	  }
 	else {
 	  targ->Travel(body);
