@@ -114,6 +114,8 @@ public:
   void Attach(Mind *mind);
   void Unattach(Mind *mind);
 
+  Object *Stash(Object *);
+
   Object *PickObject(char *, int loc, int *ordinal=NULL);
   vector<Object *> PickObjects(char *, int loc, int *ordinal=NULL);
   int IsNearBy(Object *obj);

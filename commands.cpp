@@ -1371,10 +1371,15 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	}
 
       targ = *(targs.begin());
-      body->Parent()->SendOut(
-	";s gets ;s.\n", "You grab ;s.\n", body, targ);
-      targ->Travel(body);
-      body->AddAct(ACT_HOLD, targ);
+      if(body->Stash(targ)) {
+	body->Parent()->SendOut(";s gets and stashes ;s.\n",
+		"You get and stash ;s.\n", body, targ);
+	}
+      else {
+	targ->Travel(body);
+	body->AddAct(ACT_HOLD, targ);
+	body->Parent()->SendOut(";s gets ;s.\n", "You get ;s.\n", body, targ);
+	}
       }
     return 0;
     }

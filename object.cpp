@@ -1923,3 +1923,38 @@ vector<Object *> Object::Contents() {
 int Object::Contains(Object *obj) {
   return (find(contents.begin(), contents.end(), obj) != contents.end());
   }
+
+Object *Object::Stash(Object *obj) {
+  set<Object*> conts;
+  typeof(contents.begin()) ind;
+  for(ind = contents.begin(); ind != contents.end(); ++ind) {
+    if((*ind)->Skill("Container")) conts.insert(*ind);
+    }
+
+  set<Object*> containers;
+  while(conts != containers) {
+    containers = conts;
+    set<Object*>::iterator c;
+    for(c = containers.begin(); c != containers.end(); ++c) {
+      for(ind = (*c)->contents.begin(); ind != (*c)->contents.end(); ++ind) {
+	if((*ind)->Skill("Container")) conts.insert(*ind);
+	}
+      }
+    }
+
+  Object *dest = NULL;
+  set<Object*>::iterator con;
+  for(con = containers.begin(); con != containers.end(); ++con) {
+    if((*con)->Skill("Capacity") - (*con)->ContainedVolume() < obj->Volume())
+      continue;
+    if((*con)->Skill("Container") - (*con)->ContainedWeight() < obj->Weight())
+      continue;
+    for(ind = (*con)->contents.begin(); ind != (*con)->contents.end(); ++ind) {
+      if((*obj) == (*(*ind))) dest = (*con); break;
+      }
+    }
+
+  if(dest) obj->Travel(dest);
+  return dest;
+  }
+

@@ -1,3 +1,5 @@
+Implement intelligent stashing.
+Pluralize appropriate commands with intelligent stashing (rem, get).
 CircleMOB (and equipment?) repopping.
 Implement "all of " for all within.
 Implement "everything"/"everyone".
@@ -11,8 +13,6 @@ Add "mirror" command (like clone, but a mirror-image).
 Handle odd pluralized cases (Holding two items when one is looked at...).
 Cleanup item manipulation commands.
 Can't wear/wield plural items.
-Implement intelligent stashing.
-Pluralize appropriate commands with intelligent stashing (rem, get).
 Cleanup and secure shopkeeper vortex objects.
 Implement experience.
 Improve character creation interface.
