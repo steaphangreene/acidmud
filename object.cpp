@@ -1897,6 +1897,7 @@ void Object::operator = (const Object &in) {
   }
 
 set<Object *> Object::Contents() {
+/* Uncomment for auto-recombination (BROKEN?)
   set<Object*>::iterator i1;
   set<Object*>::iterator i2;
   for(i1 = contents.begin(); i1 != contents.end(); ++i1) {
@@ -1911,5 +1912,6 @@ set<Object *> Object::Contents() {
 	}
       }
     }
+*/
   return contents;
   }
