@@ -94,13 +94,14 @@ enum {	COM_HELP=0,
 	COM_BUY,
 	COM_SELL,
 
-	COM_USERS,
+	COM_PLAYERS,
+	COM_DELPLAYER,
 	COM_CHARS,
 	COM_WHO,
 	COM_OOC,
 	COM_NEWBIE,
 
-	COM_NEWCHAR,
+	COM_NEWCHARACTER,
 	COM_RAISE,
 	COM_RANDOMIZE,
 
@@ -336,7 +337,7 @@ Command comlist[] = {
     (REQ_ANY)
     },
 
-  { COM_NEWCHAR, "newchar",
+  { COM_NEWCHARACTER, "newcharacter",
     "Create a new character.",
     "Create a new character.",
     (REQ_ETHEREAL)
@@ -405,7 +406,12 @@ Command comlist[] = {
     (REQ_ALERT|REQ_NINJAMODE)
     },
 
-  { COM_USERS, "users",
+  { COM_PLAYERS, "players",
+    "Ninja command.",
+    "Ninja command - ninjas only!",
+    (REQ_ANY|REQ_NINJAMODE)
+    },
+  { COM_DELPLAYER, "delplayer",
     "Ninja command.",
     "Ninja command - ninjas only!",
     (REQ_ANY|REQ_NINJAMODE)
@@ -2275,7 +2281,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     return 0;
     }
 
-  if(com == COM_NEWCHAR) {
+  if(com == COM_NEWCHARACTER) {
     if(!mind) return 0; //FIXME: Should never happen!
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
@@ -2577,7 +2583,25 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     return 0;
     }
 
-  if(com == COM_USERS) {
+  if(com == COM_DELPLAYER) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(comline[len] == 0) {
+      if(mind) mind->Send("You want to delete which player?\n");
+      }
+    else {
+      Player *pl = get_player(comline+len);
+      if(!pl) {
+	if(mind) mind->Send("That player doesn't seem to exist.\n");
+	}
+      else {
+	if(mind) mind->Send("You delete the player '%s'.\n", pl->Name());
+	delete pl;
+	}
+      }
+    return 0;
+    }
+
+  if(com == COM_PLAYERS) {
     if(!mind) return 0;
     string users = "Current accounts on this MUD:\n";
     vector<Player *> pls = get_all_players();

@@ -1,3 +1,4 @@
+Fix the "temporary-disabling of items causes them to be resorted" bug.
 Implement boats and boat travel.
 Dup shopkeeper items correctly (all gauntlets are left, etc...).
 Handle odd pluralized cases (Holding two items when one is looked at...).
