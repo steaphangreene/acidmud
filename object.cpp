@@ -906,7 +906,7 @@ void Object::SendDescSurround(Mind *m, Object *o) {
     SendContents(m, o);
     }
 
-  if(parent && Skill("Open") && Skill("Transparent")) {
+  if(parent && (Skill("Open") || Skill("Transparent"))) {
     m->Send("%s", CCYN);
     m->Send("Outside you see: ");
     no_seek = 1;
