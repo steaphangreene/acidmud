@@ -28,6 +28,7 @@ backup:
 upload:
 	ssh acidmud@reactor rm -f ~acidmud/acidmud
 	scp acidmud acidmud@reactor:~acidmud/acidmud
+	scp TODO acidmud@reactor:~acidmud/public_html/todo.txt
 
 acidmud: $(OBJS)
 	$(CCC) -Wall -o acidmud $(OBJS) $(LIBS)
