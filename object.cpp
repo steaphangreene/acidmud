@@ -577,6 +577,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside) {
   typeof(cont.begin()) ind;
   for(ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
     master.erase(*ind);
+
 /* Comment out this block to disable 20-item limit in view */
     if(total >= 20) {
       m->Send(base.c_str());
@@ -584,6 +585,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside) {
 	cont.size() - total);
       break;
       }
+
     ++total;
     if((*ind) != o) {
       if(base != "") m->Send("%s%sInside:%s ", base.c_str(), CNRM, CGRN);
@@ -1027,12 +1029,18 @@ Object::~Object() {
     if(parent->ActTarg(act) == this) parent->StopAct(act);
 
   set<Object*> movers;
+  set<Object*> killers;
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
     if(is_pc(*ind)) movers.insert(*ind);
-    else delete(*ind);
+    else killers.insert(*ind);
     }
   contents.clear();
+
+  typeof(killers.begin()) indk;
+  for(indk = killers.begin(); indk != killers.end(); ++indk) {
+    delete(*indk);
+    }
 
   typeof(movers.begin()) indm;
   for(indm = movers.begin(); indm != movers.end(); ++indm) {
