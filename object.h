@@ -190,6 +190,7 @@ Object *get_start_room();
 Object *getbynum(int);
 int getnum(Object *);
 int matches(const char *name, const char *seek);
+Mind *get_mob_mind();
 
 void FreeActions();
 

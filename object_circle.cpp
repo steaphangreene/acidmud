@@ -100,12 +100,16 @@ void Object::CircleCleanup() {
 
 static Mind *circle_mob_mind = NULL;
 
-void Object::CircleFinishMob(Object *mob) {
+Mind *get_mob_mind() {
   if(!circle_mob_mind) {
     circle_mob_mind = new Mind();
     circle_mob_mind->SetMob();
     }
-  mob->Attach(circle_mob_mind);
+  return circle_mob_mind;
+  }
+
+void Object::CircleFinishMob(Object *mob) {
+  mob->Attach(get_mob_mind());
   }
 
 void Object::CircleLoadZon(const char *fn) {

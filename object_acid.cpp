@@ -6,6 +6,7 @@ using namespace std;
 const int SAVEFILE_VERSION = 102;
 
 #include "object.h"
+#include "mind.h"
 
 static char buf[65536];
 static vector<Object*> todo;
@@ -159,6 +160,7 @@ int Object::LoadFrom(FILE *fl) {
     }
 
   stats.LoadFrom(fl);
+  if(stats.GetSkill("CircleAction")) get_mob_mind()->Attach(this);
 
   vector<Object*>::iterator cind;
   for(cind = toload.begin(); cind != toload.end(); ++cind) {

@@ -994,7 +994,7 @@ void Object::UpdateDamage() {
   else {
     if(IsAct(ACT_DEAD)+IsAct(ACT_DYING)+IsAct(ACT_UNCONSCIOUS) != 0) {
       parent->SendOut(
-	";s wakes up, feeling fine!\n", "You wake up, feeling fine!",
+	";s wakes up, feeling fine!\n", "You wake up, feeling fine!\n",
 	this, NULL);
       StopAct(ACT_DEAD);
       StopAct(ACT_DYING);

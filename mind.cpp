@@ -115,6 +115,7 @@ void Mind::Send(const char *mes, ...) {
       set<Object*>::iterator other;
       for(other = others.begin(); other != others.end(); ++other) {
 	if((!(*other)->Stats()->GetSkill("CircleAction")) //FIXME: Other mobs?
+		&& (!body->StillBusy())                   //I'm not busy.
 		&& body->Stats()->stun < 6                //I'm not stunned.
 		&& body->Stats()->phys < 6                //I'm not injured.
 		&& (!body->IsAct(ACT_ASLEEP))             //I'm not asleep.
