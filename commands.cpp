@@ -52,6 +52,7 @@ enum {	COM_HELP=0,
 
 	COM_LOOK,
 	COM_EXAMINE,
+	COM_INVENTORY,
 
 	COM_OPEN,
 	COM_CLOSE,
@@ -141,6 +142,11 @@ Command comlist[] = {
     "Examine an object or creature.",
     "Examine an object or creature.",
     (REQ_ALERT|REQ_ACTION)
+    },
+  { COM_INVENTORY, "inventory",
+    "Check what you have on you.",
+    "Check what you have on you.",
+    (REQ_AWAKE|REQ_ACTION)
     },
 
   { COM_OPEN, "open",
@@ -743,6 +749,14 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	body, body, comline+len);
     return 0;
     }
+
+  if(com == COM_INVENTORY) {
+   if(mind) {
+     mind->Send("You (%s) are carrying:\n", body->ShortDesc());
+     body->SendExtendedActions(mind, 1);
+     }
+   return 0;
+   }
 
   if(com == COM_LOOK) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;

@@ -442,7 +442,7 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
     m->Send("%s%s.\n%s", CGRN, targ, CNRM);
 
     if(seeinside || cur->second->Skill("Transparent")) {
-      sprintf(buf, "%24s  %c", " ", 0);
+      sprintf(buf, "%16s  %c", " ", 0);
       base = buf;
       cur->second->SendContents(m, NULL, seeinside);
       base = "";
@@ -710,15 +710,6 @@ void Object::SendLongDesc(Mind *m, Object *o) {
       buf[0] = toupper(buf[0]);
       m->Send(buf);
       }
-    }
-
-  m->Send("%s", CCYN);
-  map<string, Object*>::iterator mind;
-  for(mind = connections.begin(); mind != connections.end(); ++mind) {
-    sprintf(buf, "%s you see %s.\n%c",
-	(*mind).first.c_str(), (*mind).second->ShortDesc(), 0);
-    buf[0] = toupper(buf[0]);
-    m->Send(buf);
     }
 
   m->Send("%s", CNRM);
