@@ -676,12 +676,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     }
 
   if((!(comlist[cnum].sit & SIT_ETHEREAL)) && (!body)) {
-    if(mind) mind->Send("You can't use that command until you join the game - with the \"enter\" command.\n");
+    if(mind) mind->Send("You can't use that command until you join the game - with the 'enter' command.\n");
     return 0;
     }
 
   if((!(comlist[cnum].sit & SIT_CORPOREAL)) && (body)) {
-    if(mind) mind->Send("You can't use that command until you quit the game - with the \"quit\" command.\n");
+    if(mind) mind->Send("You can't use that command until you quit the game - with the 'quit' command.\n");
     return 0;
     }
 
@@ -945,7 +945,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       mind->Owner()->Room()->SendContents(mind);
       }
     else
-      if(mind) mind->Send("Use \"Enter\" to return to the game.\n");
+      if(mind) mind->Send("Use 'Enter' to return to the game.\n");
 
     return 0;
     }
@@ -3264,7 +3264,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(comline[len] != 0) {
       string oldn = body->Parent()->ShortDesc();
       body->Parent()->SetShortDesc(comline+len);
-      mind->Send("You rename \"%s\" to \"%s\"\n", oldn.c_str(),
+      mind->Send("You rename '%s' to '%s'\n", oldn.c_str(),
 	body->Parent()->ShortDesc());	//FIXME - Real Message
       }
     else {
@@ -3279,7 +3279,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(comline[len] != 0) {
       string oldn = body->Parent()->ShortDesc();
       body->Parent()->SetDesc(comline+len);
-      mind->Send("You redescribe \"%s\" as \"%s\"\n", oldn.c_str(),
+      mind->Send("You redescribe '%s' as '%s'\n", oldn.c_str(),
 	body->Parent()->Desc());	//FIXME - Real Message
       }
     else {
@@ -3294,7 +3294,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(comline[len] != 0) {
       string oldn = body->Parent()->ShortDesc();
       body->Parent()->SetLongDesc(comline+len);
-      mind->Send("You redefine \"%s\" as \"%s\"\n", oldn.c_str(),
+      mind->Send("You redefine '%s' as '%s'\n", oldn.c_str(),
 	body->Parent()->LongDesc());	//FIXME - Real Message
       }
     else {
@@ -3399,7 +3399,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	dirb = "up"; dir = "down";
 	}
       else {
-	mind->Send("Direction \"%s\" not meaningful!\n", comline+len);
+	mind->Send("Direction '%s' not meaningful!\n", comline+len);
 	return 0;
 	}
 
@@ -3426,6 +3426,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
       door2->SetSkill("Open", 1);
       door2->SetSkill("Enterable", 1);
+
+      body->Parent()->SendOut(stealth_t, stealth_s, 
+	";s creates a new dynamic dungeon '%s' with Ninja Powers[TM].\n",
+	"You create a new dynamic dungeon '%s'.\n", body, NULL, dir);
       }
     return 0;
     }
@@ -3457,8 +3461,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       Object *link;
 
       body->Parent()->SendOut(stealth_t, stealth_s, 
-	";s creates a shimmering portal \"%s\" with Ninja Powers[TM].\n",
-	"You create a shimmering portal \"%s\".\n", body, NULL, comline+len);
+	";s creates a shimmering portal '%s' with Ninja Powers[TM].\n",
+	"You create a shimmering portal '%s'.\n", body, NULL, comline+len);
 
       link = new Object(body->Parent());
       link->SetShortDesc(comline+len);
