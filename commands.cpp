@@ -58,6 +58,7 @@ enum {	COM_HELP=0,
 	COM_CLOSE,
 
 	COM_GET,
+	COM_PUT,
 	COM_DROP,
 	COM_WIELD,
 	COM_HOLD,
@@ -157,6 +158,11 @@ Command comlist[] = {
   { COM_GET, "get",
     "Get an item from your surroundings.",
     "Get an item from your surroundings.",
+    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    },
+  { COM_PUT, "put",
+    "Put a held item in or on something.",
+    "Put a held item in or on something.",
     (REQ_ALERT|REQ_STAND|REQ_ACTION)
     },
   { COM_DROP, "drop",
@@ -828,6 +834,34 @@ int handle_single_command(Mind *mind, const char *cl) {
       mind->Body()->Parent()->SendOut(
 	";s gets ;s.\n", "You grab ;s.\n", mind->Body(), targ);
       mind->Body()->AddAct(ACT_HOLD, targ);
+      }
+    return 0;
+    }
+
+  if(com == COM_PUT) {
+    Object *targ =
+	mind->Body()->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
+    if(!mind->Body()->IsAct(ACT_HOLD)) {
+      mind->Send("You aren't holding anything to put anywhere!\n");
+      }
+    else if(!targ) {
+      mind->Send("You want to put it where?\n");
+      }
+    else if(targ->Stats()->GetAttribute(1)) {
+      mind->Send("You can only put things in inanimate objects!\n");
+      }
+    else if(!targ->Stats()->GetSkill("Container")) {
+      mind->Send("You can't put anything in that, it is not a container.\n");
+      }
+    else if(!targ->Stats()->GetSkill("Transparent")) {
+      mind->Send("You can't put anything in that, it is closed.\n");
+      }
+    else {
+      mind->Body()->Parent()->SendOut(
+		";s puts %s into ;s.\n", "You put %s into ;s.\n",
+		mind->Body(), targ, mind->Body()->ActTarg(ACT_HOLD)->Name());
+      mind->Body()->ActTarg(ACT_HOLD)->Travel(targ);
+      mind->Body()->StopAct(ACT_HOLD);
       }
     return 0;
     }

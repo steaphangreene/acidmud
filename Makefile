@@ -26,8 +26,8 @@ backup:
 	gzip -9 ~/c/archive/acidmud.$(TSTR).tar
 
 upload:
-	ssh reactor rm -f ~acidmud/acidmud
-	scp acidmud reactor:~acidmud/acidmud
+	ssh acidmud@reactor rm -f ~acidmud/acidmud
+	scp acidmud acidmud@reactor:~acidmud/acidmud
 
 acidmud: $(OBJS)
 	$(CCC) -Wall -o acidmud $(OBJS) $(LIBS)
