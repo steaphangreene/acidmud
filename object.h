@@ -235,6 +235,7 @@ private:
   int att[8];
   map<string,int> skills;
 
+  int no_seek; //Recursion protection
 
   map<act_t,Object*> act;
   timeval busytill;

@@ -257,6 +257,8 @@ Object::Object() {
   att[7] = 0;
 
   add_tick(this);
+
+  no_seek = 0;
   }
 
 Object::Object(Object *o) {
@@ -286,6 +288,8 @@ Object::Object(Object *o) {
   att[7] = 0;
 
   add_tick(this);
+
+  no_seek = 0;
   }
 
 Object::Object(const Object &o) {
@@ -336,6 +340,8 @@ Object::Object(const Object &o) {
   parent = NULL;
 
   add_tick(this);
+
+  no_seek = 0;
   }
 
 const char *Object::Name(int definite, Object *rel) { // Truly-formatted name
@@ -771,6 +777,7 @@ void Object::SendDesc(Mind *m, Object *o) {
   }
 
 void Object::SendDescSurround(Mind *m, Object *o) {
+  if(no_seek) return;
   memset(buf, 0, 65536);
 
   if(pos != POS_NONE) {
@@ -817,9 +824,9 @@ void Object::SendDescSurround(Mind *m, Object *o) {
   if(parent && Skill("Transparent")) {
     m->Send("%s", CCYN);
     m->Send("Outside you see: ");
-    parent->RemoveLink(this);
+    no_seek = 1;
     parent->SendDescSurround(m, this);
-    parent->AddLink(this);
+    no_seek = 0;
     }
 
 //  m->Send("%s", CMAG);
@@ -1258,7 +1265,7 @@ vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
     typeof(parent->Contents()) cont = parent->Contents();
 
     typeof(cont.begin()) ind;
-    for(ind = cont.begin(); ind != cont.end(); ++ind) {
+    for(ind = cont.begin(); ind != cont.end(); ++ind) if(!(*ind)->no_seek) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
       if(matches((*ind)->ShortDesc(), name)) {
 	if(tag(*ind, ret, ordinal)) return ret;
@@ -1274,14 +1281,14 @@ vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
       }
     if(parent->Skill("Transparent")) {
       if(parent->parent) {
-	parent->parent->RemoveLink(parent);
+	parent->no_seek = 1;
 
 	int olen = int(ret.size());
 	vector<Object *> add = parent->PickObjects(name, LOC_NEARBY, ordinal);
 	ret.resize(olen + add.size());
 	copy(add.begin(), add.end(), ret.begin()+olen);
 
-	parent->parent->AddLink(parent);
+	parent->no_seek = 0;
 	if((*ordinal) == 0) return ret;
 	}
       }
@@ -1368,9 +1375,9 @@ int Object::IsNearBy(Object *obj) {
       }
     }
   if(parent->parent && parent->Skill("Transparent")) {
-    parent->parent->RemoveLink(parent);
+    parent->no_seek = 1;
     int ret = parent->IsNearBy(obj);
-    parent->parent->AddLink(parent);
+    parent->no_seek = 0;
     if(ret) return ret;
     }
   return 0;
@@ -1617,6 +1624,8 @@ void Object::SendAll(const set<Object*> &excl, const char *mes, ...) {
 
 void Object::SendIn(const char *mes, const char *youmes,
 	Object *actor, Object *targ, ...) {
+  if(no_seek) return;
+
   static char buf[65536];
   static char youbuf[65536];
 
@@ -1665,6 +1674,8 @@ void Object::SendIn(const char *mes, const char *youmes,
 
 void Object::SendOut(const char *mes, const char *youmes,
 	Object *actor, Object *targ, ...) {
+  if(no_seek) return;
+
   static char buf[65536];
   static char youbuf[65536];
 
@@ -1706,9 +1717,9 @@ void Object::SendOut(const char *mes, const char *youmes,
     }
 
   if(parent && Skill("Transparent")) {
-    parent->RemoveLink(this);
+    no_seek = 1;
     parent->SendOut(str, youstr, actor, targ);
-    parent->AddLink(this);
+    no_seek = 0;
     }
 
   free(str);
