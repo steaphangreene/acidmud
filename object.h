@@ -117,8 +117,8 @@ public:
   void SendDescSurround(Object *m, Object *o = NULL);
   void SendLongDesc(Mind *m, Object *o = NULL);
   void SendLongDesc(Object *m, Object *o = NULL);
+  void SendScore(Mind *m, Object *o = NULL);
   void SendStats(Mind *m, Object *o = NULL);
-  void SendStats(Object *m, Object *o = NULL);
 
   int Travel(Object *, int try_combine = 1);
   void AddLink(Object *);
@@ -274,6 +274,7 @@ Mind *get_mob_mind();
 void FreeActions();
 
 map<string,int> get_skills();
+int is_skill(string sk);
 string get_weapon_skill(int wtype);
 int get_weapon_type(string wskill);
 

@@ -560,13 +560,6 @@ void Object::SendLongDesc(Object *targ, Object *o) {
     }
   }
 
-void Object::SendStats(Object *targ, Object *o) {
-  set<Mind*>::iterator m = targ->minds.begin();
-  for(; m != targ->minds.end(); ++m) {
-    SendStats(*m, o);
-    }
-  }
-
 static string base = "";
 static char buf[65536];
 
@@ -967,7 +960,7 @@ void Object::SendLongDesc(Mind *m, Object *o) {
 //  m->Send("%s", CNRM);
   }
 
-void Object::SendStats(Mind *m, Object *o) {
+void Object::SendScore(Mind *m, Object *o) {
   m->Send("\n%s", CNRM);
   m->Send("Bod: %2d", Attribute(0) <? 99);
   m->Send("           L     M        S           D\n");
@@ -1026,6 +1019,14 @@ void Object::SendStats(Mind *m, Object *o) {
 
   map<string,int> skills = GetSkills();
   map<string,int>::iterator skl;
+  if(skills.count("WeaponType") == 0) {
+    for(skl = skills.begin(); skl != skills.end(); ++skl) {
+      m->Send("%26s: %2d\n", skl->first.c_str(),skl->second);
+      }
+    }
+  }
+
+void Object::SendStats(Mind *m, Object *o) {
   if(skills.count("WeaponType")) {
     static char sevs[] = { '-', 'L', 'M', 'S', 'D' };
     m->Send("    %s: (Str+%d)%c",
@@ -1038,11 +1039,6 @@ void Object::SendStats(Mind *m, Object *o) {
     else if(skills["WeaponReach"] >= 0)
       m->Send("  Reach: %d", skills["WeaponReach"]);
     m->Send("\n");
-    }
-  else {
-    for(skl = skills.begin(); skl != skills.end(); ++skl) {
-      m->Send("%16s: %2d\n", skl->first.c_str(),skl->second);
-      }
     }
 
   for(act_t act = ACT_MAX; act < ACT_SPECIAL_MAX; ++((int&)(act))) {
@@ -1966,16 +1962,18 @@ void save_world(int with_net) {
 	}
       else {
 	fprintf(stderr, "Unable to save network status!\n");
+	perror("save_world");
 	}
       }
     else {
       fprintf(stderr, "Unable to save players!\n");
+      perror("save_world");
       }
     }
   else {
     fprintf(stderr, "Unable to save world!\n");
+    perror("save_world");
     }
-  perror("save_world");
   }
 
 int Object::WriteContentsTo(FILE *fl) {

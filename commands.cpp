@@ -128,6 +128,7 @@ enum {	COM_HELP=0,
 	COM_INCREMENT,
 	COM_DECREMENT,
 
+	COM_SCORE,
 	COM_STATS,
 
 	COM_SHUTDOWN,
@@ -373,6 +374,16 @@ Command comlist[] = {
     "Spend all remaining points of current character randomly.",
     (REQ_ETHEREAL)
     },
+  { COM_SCORE, "score",
+    "Get your current character and/or player's stats and score.",
+    "Get your current character and/or player's stats and score.",
+    (REQ_CORPOREAL)
+    },
+  { COM_STATS, "stats",
+    "Get stats of a character, object or creature.",
+    "Get stats of a character, object or creature.",
+    (REQ_ANY|REQ_ACTION)
+    },
 
   { COM_SKILLLIST, "skilllist",
     "List all available skills.",
@@ -472,12 +483,6 @@ Command comlist[] = {
     "Ninja command.",
     "Ninja command - ninjas only!",
     (REQ_ALERT|REQ_NINJAMODE)
-    },
-
-  { COM_STATS, "stats",
-    "Get stats of an object or creature.",
-    "Get stats of an object or creature.",
-    (REQ_ANY|REQ_ACTION)
     },
 
   { COM_SHUTDOWN, "shutdown", 
@@ -1137,6 +1142,17 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     return 0;
     }
 
+  if(com == COM_SCORE) {
+    if(mind) {
+      mind->Send("%s", CCYN);
+      body->SendFullSituation(mind, body);
+      body->SendActions(mind);
+      mind->Send("%s", CNRM);
+      body->SendScore(mind, body);
+      }
+    return 0;
+    }
+
   if(com == COM_STATS) {
     Object *targ = NULL;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
@@ -1158,8 +1174,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else {
       if(mind) {
+	mind->Send("%s", CCYN);
 	targ->SendFullSituation(mind, body);
 	targ->SendActions(mind);
+	mind->Send("%s", CNRM);
+	targ->SendScore(mind, body);
 	targ->SendStats(mind, body);
 	}
       }
@@ -2557,12 +2576,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  }
 	}
       else {
-	map<string,int> skls = get_skills();
-	if(skls.count(comline+len)) {
-	  if(!chr->Skill("Skills")) {
-	    mind->Send("You have no free skill points left.\n");
-	    }
-	  else if(chr->Skill(comline+len)
+	if(!chr->Skill("Skills")) {
+	  mind->Send("You have no free skill points left.\n");
+	  }
+	else if(is_skill(comline+len)) {
+	  map<string,int> skls = get_skills();
+	  if(chr->Skill(comline+len)
 		< (chr->Attribute(skls[comline+len])+1) / 2) {
 	    chr->SetSkill("Skills", chr->Skill("Skills") - 1);
 	    chr->SetSkill(comline+len, chr->Skill(comline+len) + 1);
@@ -3156,8 +3175,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
-    map<string,int> skls = get_skills();
-    if(!skls.count(comline+len)) {
+    if(!is_skill(comline+len)) {
       mind->Send("Sorry, '%s' is not implemented at this point.\n",
 		comline+len);
       return 0;
