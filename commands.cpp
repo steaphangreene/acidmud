@@ -670,7 +670,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else {
       if(body->Parent()) body->Parent()->SendOut(
 	";s leaves %s.\n", "", body, NULL, comline+len);
-      body->Travel(dest);
+      body->Travel(dest, 0);
       body->Parent()->SendOut(
 	";s arrives.\n", "", body, NULL);
       if(mind && mind->Type() == MIND_REMOTE)
@@ -767,7 +767,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else {
       if(body->Parent()) body->Parent()->SendOut(
 	";s enters %s.\n", "", body, NULL, comline+len);
-      if(body->Travel(dest)) {
+      if(body->Travel(dest, 0)) {
 	if(mind) mind->Send("You could not fit!\n");
 	return 0;
 	}
@@ -1487,10 +1487,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  return 0;
 	  }
 	}
-      targ->Travel(body); // Kills Holds and Wields on "targ"
-      if(body->ActTarg(ACT_HOLD) == targ) {
-	body->StopAct(ACT_HOLD);
-	}
+      targ->Travel(body, 0); // Kills Holds and Wields on "targ"
       if(body->IsAct(ACT_WIELD)) {
 	Object *wield = body->ActTarg(ACT_WIELD);
 	body->AddAct(ACT_HOLD, wield);
@@ -1560,13 +1557,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("You are already holding something!\n");
       }
     else {
-      targ->Travel(body); // Kills Holds and Wields on "targ"
-//      if(body->ActTarg(ACT_WIELD) == targ) {
-//	body->StopAct(ACT_WIELD);
-//	body->Parent()->SendOut(";s stops wielding ;s.\n",
-//		"You stop wielding ;s.\n", body,
-//		body->ActTarg(ACT_WIELD));
-//	}
+      targ->Travel(body, 0); // Kills Holds and Wields on "targ"
       body->AddAct(ACT_HOLD, targ);
       body->Parent()->SendOut(
 	";s holds ;s.\n", "You hold ;s.\n", body, targ);
@@ -1797,7 +1788,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("You need to be in ninja mode to leave this object!\n");
       }
     else {
-      body->Travel(body->Parent()->Parent());
+      body->Travel(body->Parent()->Parent(), 0);
       if(oldp) oldp->SendOut(";s leaves.\n", "", body, NULL);
       body->Parent()->SendDescSurround(body, body);
       body->Parent()->SendOut(
@@ -2634,7 +2625,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       typeof(targ->Contents()) cont = targ->Contents();
       typeof(cont.begin()) item = cont.begin();
       for(; item != cont.end(); ++item) delete (*item);
-      targ->Travel(get_start_room());
+      targ->Travel(get_start_room(), 0);
 
       body->Parent()->SendOut(
 	";s resets ;s with Ninja Powers[TM].\n", "You reset ;s.\n",
