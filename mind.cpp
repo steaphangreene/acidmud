@@ -181,8 +181,8 @@ void Mind::Think(int istick) {
     //AGGRESSIVE and WIMPY Circle Mobs
     if(body && body->Parent() && (body->Skill("CircleAction") & 160) == 160
 	&& (!body->IsAct(ACT_FIGHT))) {
-      set<Object*> others = body->Parent()->Contents();
-      set<Object*>::iterator other;
+      typeof(body->Parent()->Contents()) others = body->Parent()->Contents();
+      typeof(others.begin()) other;
       for(other = others.begin(); other != others.end(); ++other) {
 	if((!(*other)->Skill("CircleAction")) //FIXME: Other mobs?
 		&& (!body->StillBusy())			//I'm not busy
@@ -204,8 +204,8 @@ void Mind::Think(int istick) {
     //AGGRESSIVE and (!WIMPY) Circle Mobs
     else if(body && body->Parent() && (body->Skill("CircleAction") & 160) == 32
 	&& (!body->IsAct(ACT_FIGHT))) {
-      set<Object*> others = body->Parent()->Contents();
-      set<Object*>::iterator other;
+      typeof(body->Parent()->Contents()) others = body->Parent()->Contents();
+      typeof(others.begin()) other;
       for(other = others.begin(); other != others.end(); ++other) {
 	if((!(*other)->Skill("CircleAction")) //FIXME: Other mobs?
 		&& (!body->StillBusy())			//I'm not busy
@@ -226,8 +226,8 @@ void Mind::Think(int istick) {
     //HELPER Circle Mobs
     if(body && body->Parent() && (body->Skill("CircleAction") & 4096)
 	&& (!body->IsAct(ACT_FIGHT))) {
-      set<Object*> others = body->Parent()->Contents();
-      set<Object*>::iterator other;
+      typeof(body->Parent()->Contents()) others = body->Parent()->Contents();
+      typeof(others.begin()) other;
       for(other = others.begin(); other != others.end(); ++other) {
 	if((!(*other)->Skill("CircleAction")) //FIXME: Other mobs?
 		&& (!body->StillBusy())			//I'm not busy
