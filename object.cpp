@@ -1144,6 +1144,8 @@ Object::~Object() {
   Deactivate();
   if(default_initial == this) default_initial = universe;
 
+  //fprintf(stderr, "Deleting: %s\n", Name(0));
+
   set<Object*> movers;
   set<Object*> killers;
   typeof(contents.begin()) ind;
@@ -1151,12 +1153,15 @@ Object::~Object() {
     if(is_pc(*ind)) movers.insert(*ind);
     else killers.insert(*ind);
     }
-  contents.clear();
 
   typeof(killers.begin()) indk;
   for(indk = killers.begin(); indk != killers.end(); ++indk) {
-    delete(*indk);
+    if(find(contents.begin(), contents.end(), *indk) != contents.end()) {
+      delete(*indk);
+      }
     }
+
+  contents.clear();
 
   typeof(movers.begin()) indm;
   for(indm = movers.begin(); indm != movers.end(); ++indm) {
@@ -1208,6 +1213,8 @@ Object::~Object() {
     }
 
   busylist.erase(this);
+
+  //fprintf(stderr, "Done deleting: %s\n", Name(0));
   }
 
 void Object::Attach(Mind *m) {

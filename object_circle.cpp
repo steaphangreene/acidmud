@@ -1109,6 +1109,7 @@ void Object::CircleLoad(const char *fn) {
 	    nobj2->SetParent(bynum[tnum]);
 	    nobj2->AddAct(ACT_SPECIAL_MASTER, nobj);
 	    nobj2->AddAct(ACT_SPECIAL_NOTSHOWN);
+	    tonum[dir].erase(*ob);
 	    }
 	  }
 	}
