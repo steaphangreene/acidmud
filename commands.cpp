@@ -2052,7 +2052,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
       Object *targ = (*targ_it);
 
-      fprintf(stderr, "You try to wear %s!\n", targ->Name(0, body));
+      //fprintf(stderr, "You try to wear %s!\n", targ->Name(0, body));
       //if(mind) mind->Send("You try to wear %s!\n", targ->Name(0, body));
       if(body->ActTarg(ACT_WEAR_BACK) == targ
 		|| body->ActTarg(ACT_WEAR_CHEST) == targ
