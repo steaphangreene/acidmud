@@ -959,6 +959,15 @@ int Object::Travel(Object *dest) {
   parent = dest;
   set<Object*>::iterator ind = parent->contents.begin();
   for(; ind != parent->contents.end(); ++ind) {
+
+    // Never combine with an actee.
+    map<act_t, Object *>::iterator a = parent->act.begin();
+    for(;a != parent->act.end(); ++a) {
+      if(a->second == (*ind)) break;
+      }
+    if(a != parent->act.end()) continue;
+
+
     if((*this) == (*(*ind))) {
       int q = 1;
       if(Skill("Quantity")) q = Skill("Quantity");
