@@ -1238,6 +1238,15 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
+    vector<Object *>::iterator ind;
+    for(ind = targs.end() - 1; ind != targs.begin(); --ind) {
+      if((*(*ind)) == (*(*(ind-1)))) {
+	(*(ind-1))->SetSkill("Quantity", ((*(ind-1))->Skill("Quantity") >? 1)
+				+ ((*ind)->Skill("Quantity") >? 1));
+	targs.erase(ind);
+	}
+      }
+
     Object *targ = *(targs.begin());
     if(targs.size() > 1) {
       if(mind) mind->Send("No autostashing yet - need to get only one kind of item!\n");
