@@ -1,6 +1,17 @@
 #include <string>
 #include <map>
 
+class ArmorType {
+public:
+  ArmorType(const char *nm, const char *ds, const char *lds,
+	const char *, int, int,int, int,int, int, int, int);
+  string name, desc, long_desc;
+  int type, reach;
+  int force, forcem;
+  int sev, sevm;
+  int weight, volume, value;
+  };
+
 class WeaponType {
 public:
   WeaponType(const char *nm, const char *ds, const char *lds,

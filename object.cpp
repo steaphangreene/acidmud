@@ -2127,6 +2127,8 @@ int Object::operator == (const Object &in) const {
 
   if(contents.size() != 0 || in.contents.size() != 0) return 0;
 
+  if(skills != in.skills) return 0;
+
   return 1;
   }
 
