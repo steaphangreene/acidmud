@@ -6,7 +6,6 @@
 #include "net.h"
 #include "main.h"
 #include "mind.h"
-#include "stats.h"
 #include "object.h"
 #include "commands.h"
 
@@ -645,11 +644,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	body, body);
 
       //This is ninja-healing and bypasses all healing mechanisms.
-      stats_t st = (*(body->Stats()));
-      st.phys = 0;
-      st.stun = 0;
-      st.stru = 0;
-      body->SetStats(st);
+      body->SetStun(0);
+      body->SetPhys(0);
+      body->SetStru(0);
+      body->UpdateDamage();
 
       if(body->IsAct(ACT_DYING))
 	mind->Send("You can see nothing, you are too busy dying.\n");
@@ -665,11 +663,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(!dest) {
       if(mind) mind->Send("You want to go where?\n");
       }
-    else if((!dest->Stats()->GetSkill("Enterable"))
+    else if((!dest->Skill("Enterable"))
 	&& ((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJA)))) {
       if(mind) mind->Send("It is not possible to enter that object!\n");
       }
-    else if((!dest->Stats()->GetSkill("Enterable"))
+    else if((!dest->Skill("Enterable"))
 	&& ((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJAMODE)))) {
       if(mind) mind->Send("You need to be in ninja mode to enter that object!\n");
       }
@@ -767,20 +765,18 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("You don't see that here.\n");
       }
     else {
-      if(within && (!targ->Stats()->GetSkill("Container"))) {
+      if(within && (!targ->Skill("Container"))) {
 	if(mind) mind->Send("You can't look inside that, it is not a container.\n");
 	}
-      else if(within && (targ->Stats()->GetSkill("Locked"))) {
+      else if(within && (targ->Skill("Locked"))) {
 	if(mind) mind->Send("You can't look inside that, it is locked.\n");
 	}
       else {
 	int must_open = within;
-	stats_t stats = (*(targ->Stats()));
-	if(within && stats.GetSkill("Transparent")) must_open = 0;
+	if(within && targ->Skill("Transparent")) must_open = 0;
 
 	if(must_open) {
-	  stats.SetSkill("Transparent", 1);
-	  targ->SetStats(stats);
+	  targ->SetSkill("Transparent", 1);
 	  body->Parent()->SendOut(
 		";s opens ;s.\n", "You open ;s.\n", body, targ);
 	  }
@@ -802,8 +798,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  }
 
 	if(must_open) {
-	  stats.SetSkill("Transparent", 0);
-	  targ->SetStats(stats);
+	  targ->SetSkill("Transparent", 0);
 	  body->Parent()->SendOut(
 		";s closes ;s.\n", "You close ;s.\n", body, targ);
 	  }
@@ -843,18 +838,16 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(!targ) {
       if(mind) mind->Send("You don't see that here.\n");
       }
-    else if(!targ->Stats()->GetSkill("Closeable")) {
+    else if(!targ->Skill("Closeable")) {
       if(mind) mind->Send("That can't be opened or closed.\n");
       }
-    else if(targ->Stats()->GetSkill("Transparent")) {
+    else if(targ->Skill("Transparent")) {
       if(mind) mind->Send("It's already open!\n");
       }
     else {
       body->Parent()->SendOut(
 	";s opens ;s.\n", "You open ;s.", body, targ);
-      stats_t stats = (*(targ->Stats()));
-      stats.SetSkill("Transparent", 1);
-      targ->SetStats(stats);
+      targ->SetSkill("Transparent", 1);
       }
     return 0;
     }
@@ -870,18 +863,16 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(!targ) {
       if(mind) mind->Send("You don't see that here.\n");
       }
-    else if(!targ->Stats()->GetSkill("Closeable")) {
+    else if(!targ->Skill("Closeable")) {
       if(mind) mind->Send("That can't be opened or closed.\n");
       }
-    else if(!targ->Stats()->GetSkill("Transparent")) {
+    else if(!targ->Skill("Transparent")) {
       if(mind) mind->Send("It's already closed!\n");
       }
     else {
       body->Parent()->SendOut(
 	";s closes ;s.\n", "You close ;s.\n", body, targ);
-      stats_t stats = (*(targ->Stats()));
-      stats.SetSkill("Transparent", 0);
-      targ->SetStats(stats);
+      targ->SetSkill("Transparent", 0);
       }
     return 0;
     }
@@ -895,7 +886,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else if(targ->Pos() == POS_NONE) {
       if(mind) mind->Send("You can't get that, it is fixed in place!\n");
       }
-    else if(targ->Stats()->GetAttribute(1)) {
+    else if(targ->Attribute(1)) {
       if(mind) mind->Send("You can only get inanimate objects!\n");
       }
     else if(body->IsAct(ACT_HOLD)) {
@@ -924,13 +915,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("I don't see '%s' to put '%s' in!\n", comline+len,
 	body->ActTarg(ACT_HOLD)->ShortDesc());
       }
-    else if(targ->Stats()->GetAttribute(1)) {
+    else if(targ->Attribute(1)) {
       if(mind) mind->Send("You can only put things in inanimate objects!\n");
       }
-    else if(!targ->Stats()->GetSkill("Container")) {
+    else if(!targ->Skill("Container")) {
       if(mind) mind->Send("You can't put anything in that, it is not a container.\n");
       }
-    else if(targ->Stats()->GetSkill("Locked")) {
+    else if(targ->Skill("Locked")) {
       if(mind) mind->Send("You can't put anything in that, it is locked.\n");
       }
     else {
@@ -947,7 +938,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	if(mind) mind->Send("You can't put it in there.\n");
 	}
       else {
-	if(!targ->Stats()->GetSkill("Transparent")) closed = 1;
+	if(!targ->Skill("Transparent")) closed = 1;
 	if(closed) body->Parent()->SendOut(
 		";s opens ;s.\n", "You open ;s.\n", body, targ);
 	body->Parent()->SendOut(
@@ -986,7 +977,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(!targ) {
       if(mind) mind->Send("You want to wield what?\n");
       }
-    else if(targ->Stats()->GetSkill("WeaponType") <= 0) {
+    else if(targ->Skill("WeaponType") <= 0) {
       if(mind) mind->Send("You can't wield that - it's not a weapon!\n");
       }
     else if(body->ActTarg(ACT_WEAR_BACK) == targ
@@ -1084,7 +1075,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("You are wearing that, perhaps you want to 'remove' it?\n");
       }
 //FIXME - Implement Str-based Holding Capacity
-//    else if(targ->Stats()->GetSkill("WeaponType") <= 0) {
+//    else if(targ->Skill("WeaponType") <= 0) {
 //      if(mind) mind->Send("You can't hold that - you are too weak!\n");
 //      }
     else if(body->IsAct(ACT_HOLD)) {
@@ -1149,7 +1140,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(!targ) {
       if(mind) mind->Send("You want to wear what?\n");
       }
-//    else if(targ->Stats()->GetSkill("WeaponType") <= 0) {
+//    else if(targ->Skill("WeaponType") <= 0) {
 //      if(mind) mind->Send("You can't wear that - it's not wearable!\n");
 //      }
     else if(body->ActTarg(ACT_WEAR_BACK) == targ
@@ -1181,64 +1172,64 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       while(!success) {
 	set<act_t> locations;
 
-	if(targ->Stats()->GetSkill("Wearable on Back") & mask)
+	if(targ->Skill("Wearable on Back") & mask)
 		locations.insert(ACT_WEAR_BACK);
 
-	if(targ->Stats()->GetSkill("Wearable on Chest") & mask)
+	if(targ->Skill("Wearable on Chest") & mask)
 		locations.insert(ACT_WEAR_CHEST);
 
-	if(targ->Stats()->GetSkill("Wearable on Head") & mask)
+	if(targ->Skill("Wearable on Head") & mask)
 		locations.insert(ACT_WEAR_HEAD);
 
-	if(targ->Stats()->GetSkill("Wearable on Neck") & mask)
+	if(targ->Skill("Wearable on Neck") & mask)
 		locations.insert(ACT_WEAR_NECK);
 
-	if(targ->Stats()->GetSkill("Wearable on Waist") & mask)
+	if(targ->Skill("Wearable on Waist") & mask)
 		locations.insert(ACT_WEAR_WAIST);
 
-	if(targ->Stats()->GetSkill("Wearable on Shield") & mask)
+	if(targ->Skill("Wearable on Shield") & mask)
 		locations.insert(ACT_WEAR_SHIELD);
 
-	if(targ->Stats()->GetSkill("Wearable on Left Arm") & mask)
+	if(targ->Skill("Wearable on Left Arm") & mask)
 		locations.insert(ACT_WEAR_LARM);
 
-	if(targ->Stats()->GetSkill("Wearable on Right Arm") & mask)
+	if(targ->Skill("Wearable on Right Arm") & mask)
 		locations.insert(ACT_WEAR_RARM);
 
-	if(targ->Stats()->GetSkill("Wearable on Left Finger") & mask)
+	if(targ->Skill("Wearable on Left Finger") & mask)
 		locations.insert(ACT_WEAR_LFINGER);
 
-	if(targ->Stats()->GetSkill("Wearable on Right Finger") & mask)
+	if(targ->Skill("Wearable on Right Finger") & mask)
 		locations.insert(ACT_WEAR_RFINGER);
 
-	if(targ->Stats()->GetSkill("Wearable on Left Foot") & mask)
+	if(targ->Skill("Wearable on Left Foot") & mask)
 		locations.insert(ACT_WEAR_LFOOT);
 
-	if(targ->Stats()->GetSkill("Wearable on Right Foot") & mask)
+	if(targ->Skill("Wearable on Right Foot") & mask)
 		locations.insert(ACT_WEAR_RFOOT);
 
-	if(targ->Stats()->GetSkill("Wearable on Left Hand") & mask)
+	if(targ->Skill("Wearable on Left Hand") & mask)
 		locations.insert(ACT_WEAR_LHAND);
 
-	if(targ->Stats()->GetSkill("Wearable on Right Hand") & mask)
+	if(targ->Skill("Wearable on Right Hand") & mask)
 		locations.insert(ACT_WEAR_RHAND);
 
-	if(targ->Stats()->GetSkill("Wearable on Left Leg") & mask)
+	if(targ->Skill("Wearable on Left Leg") & mask)
 		locations.insert(ACT_WEAR_LLEG);
 
-	if(targ->Stats()->GetSkill("Wearable on Right Leg") & mask)
+	if(targ->Skill("Wearable on Right Leg") & mask)
 		locations.insert(ACT_WEAR_RLEG);
 
-	if(targ->Stats()->GetSkill("Wearable on Left Wrist") & mask)
+	if(targ->Skill("Wearable on Left Wrist") & mask)
 		locations.insert(ACT_WEAR_LWRIST);
 
-	if(targ->Stats()->GetSkill("Wearable on Right Wrist") & mask)
+	if(targ->Skill("Wearable on Right Wrist") & mask)
 		locations.insert(ACT_WEAR_RWRIST);
 
-	if(targ->Stats()->GetSkill("Wearable on Left Shoulder") & mask)
+	if(targ->Skill("Wearable on Left Shoulder") & mask)
 		locations.insert(ACT_WEAR_LSHOULDER);
 
-	if(targ->Stats()->GetSkill("Wearable on Right Shoulder") & mask)
+	if(targ->Skill("Wearable on Right Shoulder") & mask)
 		locations.insert(ACT_WEAR_RSHOULDER);
 
 	if(locations.size() < 1) break;
@@ -1285,11 +1276,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(!body->Parent()->Parent()) {
       if(mind) mind->Send("It is not possible to leave this object!\n");
       }
-    else if((!body->Parent()->Stats()->GetSkill("Enterable"))
+    else if((!body->Parent()->Skill("Enterable"))
 	&& ((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJA)))) {
       if(mind) mind->Send("It is not possible to leave this object!\n");
       }
-    else if((!body->Parent()->Stats()->GetSkill("Enterable"))
+    else if((!body->Parent()->Skill("Enterable"))
 	&& ((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJAMODE)))) {
       if(mind) mind->Send("You need to be in ninja mode to leave this object!\n");
       }
@@ -1473,7 +1464,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	}
       }
 
-    if(com == COM_ATTACK && (targ->Stats()->GetAttribute(1) <= 0
+    if(com == COM_ATTACK && (targ->Attribute(1) <= 0
 	|| targ->IsAct(ACT_DEAD) || targ->IsAct(ACT_DYING)
 	|| targ->IsAct(ACT_UNCONSCIOUS))) {
       if(mind) mind->Send("No need, target is down!\n");
@@ -1483,7 +1474,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
     body->BusyFor(3000); //Overridden below if is alive/animate
 
-    if(!(targ->Stats()->GetAttribute(1) <= 0 || targ->IsAct(ACT_DEAD)
+    if(!(targ->Attribute(1) <= 0 || targ->IsAct(ACT_DEAD)
 	|| targ->IsAct(ACT_DYING) || targ->IsAct(ACT_UNCONSCIOUS))) {
       body->AddAct(ACT_FIGHT, targ);
       body->BusyFor(3000, "attack");
@@ -1496,7 +1487,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	}
       }
 
-//    int succ = roll(body->Stats()->att[1], targ->Stats()->att[1]);
+//    int succ = roll(body->att[1], targ->att[1]);
     int succ; string res;  //FIXME: res if ONLY for debugging!
 
     int reachmod = 0;
@@ -1505,19 +1496,19 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else {
       if(body->IsAct(ACT_WIELD)) {
         sk1 = get_weapon_skill(body->ActTarg(ACT_WIELD)
-		->Stats()->GetSkill("WeaponType"));
+		->Skill("WeaponType"));
 	reachmod += (0 >? body->ActTarg(ACT_WIELD)
-		->Stats()->GetSkill("WeaponReach"));
+		->Skill("WeaponReach"));
 	}
       if(targ->IsAct(ACT_WIELD)) {
         sk2 = get_weapon_skill(targ->ActTarg(ACT_WIELD)
-		->Stats()->GetSkill("WeaponType"));
+		->Skill("WeaponType"));
 	reachmod -= (0 >? targ->ActTarg(ACT_WIELD)
-		->Stats()->GetSkill("WeaponReach"));
+		->Skill("WeaponReach"));
 	}
       }
 
-    succ = body->Stats()->Roll(sk1, targ->Stats(), sk2, reachmod, &res);
+    succ = body->Roll(sk1, targ, sk2, reachmod, &res);
 
     if(succ > 0) {
       //FIXME: Remove debugging stuff ("succ" and "res") from these messages.
@@ -1537,14 +1528,14 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       int sev = 0;
 
       if(com == COM_KICK)
-	sev = targ->HitStun(body->Stats()->GetAttribute(2), 2, succ);
+	sev = targ->HitStun(body->Attribute(2), 2, succ);
       else if(body->IsAct(ACT_WIELD))
-	sev = targ->HitPhys(body->Stats()->GetAttribute(2)
-	  + (0 >? body->ActTarg(ACT_WIELD)->Stats()->GetSkill("WeaponForce")),
-	  (0 >? body->ActTarg(ACT_WIELD)->Stats()->GetSkill("WeaponSeverity")),
+	sev = targ->HitPhys(body->Attribute(2)
+	  + (0 >? body->ActTarg(ACT_WIELD)->Skill("WeaponForce")),
+	  (0 >? body->ActTarg(ACT_WIELD)->Skill("WeaponSeverity")),
 	  succ);
       else
-	sev = targ->HitStun(body->Stats()->GetAttribute(2), 1, succ);
+	sev = targ->HitStun(body->Attribute(2), 1, succ);
 
       if(sev <= 0) {
 	if(mind) mind->Send("You hit - but didn't do much.\n");  //FIXME - Real Messages
@@ -1562,7 +1553,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	body, targ, succ, res.c_str());
       }
 
-    if(targ->Stats()->GetAttribute(1) <= 0 || targ->IsAct(ACT_DEAD)
+    if(targ->Attribute(1) <= 0 || targ->IsAct(ACT_DEAD)
 	|| targ->IsAct(ACT_DYING) || targ->IsAct(ACT_UNCONSCIOUS)) {
       body->StopAct(ACT_FIGHT);
       body->BusyFor(3000);
@@ -1812,7 +1803,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(!targ) {
       mind->Send("You want to control who?\n");
       }
-    else if(targ->Stats()->GetAttribute(1) <= 0) {
+    else if(targ->Attribute(1) <= 0) {
       mind->Send("You can't control inanimate objects!\n");
       }
     else {
@@ -1835,7 +1826,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else if(comline[len] == 0) {
       mind->Send("Command %s to do what?\n", targ->ShortDesc());
       }
-    else if(targ->Stats()->GetAttribute(5) <= 0) {
+    else if(targ->Attribute(5) <= 0) {
       mind->Send("You can't command an object that has no will of its own.\n");
       }
     else {
@@ -1973,11 +1964,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	body, targ);
 
       //This is ninja-healing and bypasses all healing mechanisms.
-      stats_t st = (*(targ->Stats()));
-      st.phys = 0;
-      st.stun = 0;
-      st.stru = 0;
-      targ->SetStats(st);
+      targ->SetPhys(0);
+      targ->SetStun(0);
+      targ->SetStru(0);
+      targ->UpdateDamage();
       }
     return 0;
     }
@@ -2002,7 +1992,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(toupper(comline[len]) == 'I') stat = 4;
     if(toupper(comline[len]) == 'W') stat = 5;
 
-    if(targ->Stats()->GetAttribute(stat) == 0) {
+    if(targ->Attribute(stat) == 0) {
       mind->Send("This object doesn't have that stat.\n");
       return 0;
       }
@@ -2012,9 +2002,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	"You jack the %s of ;s.\n",
 	body, targ, statnames[stat]);
 
-    stats_t st = (*(targ->Stats()));
-    st.SetAttribute(stat, st.GetAttribute(stat) + 1);
-    targ->SetStats(st);
+    targ->SetAttribute(stat, targ->Attribute(stat) + 1);
     return 0;
     }
 
@@ -2033,11 +2021,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(toupper(comline[len]) == 'I') stat = 4;
     if(toupper(comline[len]) == 'W') stat = 5;
 
-    if(targ->Stats()->GetAttribute(stat) == 0) {
+    if(targ->Attribute(stat) == 0) {
       mind->Send("This object doesn't have that stat.\n");
       return 0;
       }
-    if(targ->Stats()->GetAttribute(stat) == 1) {
+    if(targ->Attribute(stat) == 1) {
       mind->Send("It is already a 1 (the minimum!).\n");
       return 0;
       }
@@ -2047,9 +2035,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	"You chump the %s of ;s.\n",
 	body, targ, statnames[stat]);
 
-    stats_t st = (*(targ->Stats()));
-    st.SetAttribute(stat, st.GetAttribute(stat) - 1);
-    targ->SetStats(st);
+    targ->SetAttribute(stat, targ->Attribute(stat) - 1);
     return 0;
     }
 
@@ -2069,9 +2055,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
-    stats_t st = (*(targ->Stats()));
-    st.SetSkill(comline+len, (st.GetSkill(comline+len)>?0) + 1);
-    targ->SetStats(st);
+    targ->SetSkill(comline+len, (targ->Skill(comline+len)>?0) + 1);
 
     body->Parent()->SendOut(
 	";s increments the %s of ;s with Ninja Powers[TM].\n",
@@ -2090,9 +2074,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
-    stats_t st = (*(targ->Stats()));
-    st.SetSkill(comline+len, st.GetSkill(comline+len) - 1);
-    targ->SetStats(st);
+    targ->SetSkill(comline+len, targ->Skill(comline+len) - 1);
 
     body->Parent()->SendOut(
 	";s decrements the %s of ;s with Ninja Powers[TM].\n",

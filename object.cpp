@@ -13,12 +13,9 @@ using namespace std;
 
 #include "commands.h"
 #include "object.h"
-#include "stats.h"
 #include "color.h"
 #include "mind.h"
 #include "net.h"
-
-extern stats_t zero_stats;
 
 const char *pos_str[POS_MAX] = {
         "is here",
@@ -137,26 +134,24 @@ Object *get_start_room() {
   }
 
 Object *new_body() {
-  static stats_t bod_stats;
-  bod_stats.SetAttribute(0, 3);
-  bod_stats.SetAttribute(1, 3);
-  bod_stats.SetAttribute(2, 3);
-  bod_stats.SetAttribute(3, 3);
-  bod_stats.SetAttribute(4, 3);
-  bod_stats.SetAttribute(5, 3);
-
   Object *body = new Object();
+  body->SetAttribute(0, 3);
+  body->SetAttribute(1, 3);
+  body->SetAttribute(2, 3);
+  body->SetAttribute(3, 3);
+  body->SetAttribute(4, 3);
+  body->SetAttribute(5, 3);
+
   body->SetShortDesc("an amorphous blob");
   body->SetParent(default_initial);
 
-  body->SetWeight(bod_stats.GetAttribute(0) * 20000);
-  body->SetSize(1000 + bod_stats.GetAttribute(0) * 200);
+  body->SetWeight(body->Attribute(0) * 20000);
+  body->SetSize(1000 + body->Attribute(0) * 200);
   body->SetVolume(100);
   body->SetValue(-1);
   body->SetWeight(80000);
   body->SetGender('M');
 
-  body->SetStats(bod_stats);
   body->SetPos(POS_STAND);
   return body;
   }
@@ -174,7 +169,17 @@ Object::Object() {
   value = 0;
   gender = 'N';
 
-  stats = zero_stats;
+  stun = 0;
+  phys = 0;
+  stru = 0;
+  att[0] = 0;
+  att[1] = 0;
+  att[2] = 0;
+  att[3] = 0;
+  att[4] = 0;
+  att[5] = 0;
+  att[6] = 0;
+  att[7] = 0;
   }
 
 Object::Object(Object *o) {
@@ -191,7 +196,17 @@ Object::Object(Object *o) {
   value = 0;
   gender = 'N';
 
-  stats = zero_stats;
+  stun = 0;
+  phys = 0;
+  stru = 0;
+  att[0] = 0;
+  att[1] = 0;
+  att[2] = 0;
+  att[3] = 0;
+  att[4] = 0;
+  att[5] = 0;
+  att[6] = 0;
+  att[7] = 0;
   }
 
 Object::Object(const Object &o) {
@@ -200,7 +215,6 @@ Object::Object(const Object &o) {
   short_desc = o.short_desc;
   desc = o.desc;
   long_desc = o.long_desc;
-  stats = o.stats;
   act.clear();
   pos = o.pos;
 
@@ -209,6 +223,20 @@ Object::Object(const Object &o) {
   size = o.size;
   value = o.value;
   gender = o.gender;
+
+  stun = o.stun;
+  phys = o.phys;
+  stru = o.stru;
+  att[0] = o.att[0];
+  att[1] = o.att[1];
+  att[2] = o.att[2];
+  att[3] = o.att[3];
+  att[4] = o.att[4];
+  att[5] = o.att[5];
+  att[6] = o.att[6];
+  att[7] = o.att[7];
+
+  skills = o.skills;
 
   contents.clear();
   set<Object*>::const_iterator ind;
@@ -243,9 +271,9 @@ const char *Object::Name(int definite) { // Truly-formatted name
     ret = short_desc.c_str();
     }
 
-  if(!stats.GetAttribute(1)) {
+  if(!Attribute(1)) {
     Object *pos = parent;
-    while(pos && (!pos->Stats()->GetAttribute(1))) pos = pos->Parent();
+    while(pos && (!pos->Attribute(1))) pos = pos->Parent();
     if(pos) {
       ret = string(pos->ShortDesc()) + "'s " + ret;
       }
@@ -413,7 +441,7 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
 
     m->Send("%s%s.\n%s", CGRN, targ, CNRM);
 
-    if(seeinside || cur->second->Stats()->GetSkill("Transparent")) {
+    if(seeinside || cur->second->Skill("Transparent")) {
       sprintf(buf, "%24s  %c", " ", 0);
       base = buf;
       cur->second->SendContents(m, NULL, seeinside);
@@ -452,7 +480,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside) {
 
       (*ind)->SendActions(m);
 
-      if(seeinside || (*ind)->Stats()->GetSkill("Transparent")) {
+      if(seeinside || (*ind)->Skill("Transparent")) {
 	string tmp = base;
 	base += "  ";
 	(*ind)->SendContents(m, o, seeinside);
@@ -591,7 +619,7 @@ void Object::SendDesc(Mind *m, Object *o) {
 //    SendContents(m, o, 1);
 //    }
 //  else 
-  if(pos == POS_NONE || Stats()->GetSkill("Transparent")) {
+  if(pos == POS_NONE || Skill("Transparent")) {
     SendContents(m, o);
     }
 
@@ -639,11 +667,11 @@ void Object::SendDescSurround(Mind *m, Object *o) {
 //    SendContents(m, o, 1);
 //    }
 //  else 
-  if(pos == POS_NONE || Stats()->GetSkill("Transparent")) {
+  if(pos == POS_NONE || Skill("Transparent")) {
     SendContents(m, o);
     }
 
-  if(parent && Stats()->GetSkill("Transparent")) {
+  if(parent && Skill("Transparent")) {
     m->Send("%s", CCYN);
     m->Send("Outside you see: ");
     parent->contents.erase(this);
@@ -701,69 +729,69 @@ void Object::SendLongDesc(Mind *m, Object *o) {
 //  if(m->Body() == this) {
 //    SendContents(m, o, 1);
 //    }
-//  else if(pos == POS_NONE || Stats()->GetSkill("Transparent")) {
+//  else if(pos == POS_NONE || Skill("Transparent")) {
 //    SendContents(m, o);
 //    }
 
   SendContents(m, o, 1);
 
   m->Send("%s\n", CNRM);
-  m->Send("Bod: %2d", stats.GetAttribute(0));
+  m->Send("Bod: %2d", Attribute(0));
   m->Send("           L     M        S           D\n");
-  m->Send("Qui: %2d", stats.GetAttribute(1));
+  m->Send("Qui: %2d", Attribute(1));
   m->Send("    Stun: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
-	stats.stun <= 0 ? ' ' : 'X',
-	stats.stun <= 1 ? ' ' : 'X',
-	stats.stun <= 2 ? ' ' : 'X',
-	stats.stun <= 3 ? ' ' : 'X',
-	stats.stun <= 4 ? ' ' : 'X',
-	stats.stun <= 5 ? ' ' : 'X',
-	stats.stun <= 6 ? ' ' : 'X',
-	stats.stun <= 7 ? ' ' : 'X',
-	stats.stun <= 8 ? ' ' : 'X',
-	stats.stun <= 9 ? ' ' : 'X'
+	stun <= 0 ? ' ' : 'X',
+	stun <= 1 ? ' ' : 'X',
+	stun <= 2 ? ' ' : 'X',
+	stun <= 3 ? ' ' : 'X',
+	stun <= 4 ? ' ' : 'X',
+	stun <= 5 ? ' ' : 'X',
+	stun <= 6 ? ' ' : 'X',
+	stun <= 7 ? ' ' : 'X',
+	stun <= 8 ? ' ' : 'X',
+	stun <= 9 ? ' ' : 'X'
 	);
   m->Send("\n");
-  m->Send("Str: %2d", stats.GetAttribute(2));
+  m->Send("Str: %2d", Attribute(2));
   m->Send("    Phys: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
-	stats.phys <= 0 ? ' ' : 'X',
-	stats.phys <= 1 ? ' ' : 'X',
-	stats.phys <= 2 ? ' ' : 'X',
-	stats.phys <= 3 ? ' ' : 'X',
-	stats.phys <= 4 ? ' ' : 'X',
-	stats.phys <= 5 ? ' ' : 'X',
-	stats.phys <= 6 ? ' ' : 'X',
-	stats.phys <= 7 ? ' ' : 'X',
-	stats.phys <= 8 ? ' ' : 'X',
-	stats.phys <= 9 ? ' ' : 'X'
+	phys <= 0 ? ' ' : 'X',
+	phys <= 1 ? ' ' : 'X',
+	phys <= 2 ? ' ' : 'X',
+	phys <= 3 ? ' ' : 'X',
+	phys <= 4 ? ' ' : 'X',
+	phys <= 5 ? ' ' : 'X',
+	phys <= 6 ? ' ' : 'X',
+	phys <= 7 ? ' ' : 'X',
+	phys <= 8 ? ' ' : 'X',
+	phys <= 9 ? ' ' : 'X'
 	);
-  if(stats.phys > 10) {
-    m->Send(" Overflow: %d", stats.phys-10);
+  if(phys > 10) {
+    m->Send(" Overflow: %d", phys-10);
     }
   m->Send("\n");
-  m->Send("Cha: %2d", stats.GetAttribute(3));
+  m->Send("Cha: %2d", Attribute(3));
   m->Send("    Stru: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
-	stats.stru <= 0 ? ' ' : 'X',
-	stats.stru <= 1 ? ' ' : 'X',
-	stats.stru <= 2 ? ' ' : 'X',
-	stats.stru <= 3 ? ' ' : 'X',
-	stats.stru <= 4 ? ' ' : 'X',
-	stats.stru <= 5 ? ' ' : 'X',
-	stats.stru <= 6 ? ' ' : 'X',
-	stats.stru <= 7 ? ' ' : 'X',
-	stats.stru <= 8 ? ' ' : 'X',
-	stats.stru <= 9 ? ' ' : 'X'
+	stru <= 0 ? ' ' : 'X',
+	stru <= 1 ? ' ' : 'X',
+	stru <= 2 ? ' ' : 'X',
+	stru <= 3 ? ' ' : 'X',
+	stru <= 4 ? ' ' : 'X',
+	stru <= 5 ? ' ' : 'X',
+	stru <= 6 ? ' ' : 'X',
+	stru <= 7 ? ' ' : 'X',
+	stru <= 8 ? ' ' : 'X',
+	stru <= 9 ? ' ' : 'X'
 	);
   m->Send("\n");
-  m->Send("Int: %2d", stats.GetAttribute(4));
+  m->Send("Int: %2d", Attribute(4));
   m->Send("\n");
-  m->Send("Wil: %2d", stats.GetAttribute(5));
+  m->Send("Wil: %2d", Attribute(5));
 
   m->Send("    Sex: %c, %d.%.3dkg, %d.%.3dm, %dv, %dY\n\n",
 	gender, weight / 1000, weight % 1000,
 	size / 1000, size % 1000, volume, value);
 
-  map<string,int> skills = stats.GetSkills();
+  map<string,int> skills = GetSkills();
   map<string,int>::iterator skl;
   if(skills.count("WeaponType")) {
     static char sevs[] = { '-', 'L', 'M', 'S', 'D' };
@@ -792,13 +820,13 @@ void Object::AddLink(Object *ob) {
 int Object::Travel(Object *dest) {
   if((!parent) || (!dest)) return -1;
 
-  int cap = dest->Stats()->GetSkill("Capacity");
+  int cap = dest->Skill("Capacity");
   if(cap > 0) {
     cap -= dest->ContainedVolume();
     if(volume > cap) return -2;
     }
 
-  int con = dest->Stats()->GetSkill("Container");
+  int con = dest->Skill("Container");
   if(con > 0) {
     con -= dest->ContainedWeight();
     if(weight > con) return -3;
@@ -982,7 +1010,7 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
 	(*ordinal)--;
 	if((*ordinal) == 0) { return (*ind); }
 	}
-      if((*ind)->Stats()->GetSkill("Transparent")) {
+      if((*ind)->Skill("Transparent")) {
 	Object *ret = (*ind)->PickObject(name, LOC_INTERNAL, ordinal);
 	if(ret) return ret;
 	}
@@ -997,12 +1025,12 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
 	(*ordinal)--;
 	if((*ordinal) == 0) { return (*ind); }
 	}
-      if((*ind)->Stats()->GetSkill("Transparent")) {
+      if((*ind)->Skill("Transparent")) {
 	Object *ret = (*ind)->PickObject(name, LOC_INTERNAL, ordinal);
 	if(ret) return ret;
 	}
       }
-    if(parent->Stats()->GetSkill("Transparent")) {
+    if(parent->Skill("Transparent")) {
       if(parent->parent) {
 	parent->parent->contents.erase(parent);
 	Object *ret = parent->PickObject(name, LOC_NEARBY, ordinal);
@@ -1019,7 +1047,7 @@ int Object::IsWithin(Object *obj) {
   set<Object*>::iterator ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
     if((*ind) == obj) return 1;
-    if((*ind)->Stats()->GetSkill("Transparent")) {
+    if((*ind)->Skill("Transparent")) {
       int ret = (*ind)->IsWithin(obj);
       if(ret) return ret;
       }
@@ -1033,12 +1061,12 @@ int Object::IsNearBy(Object *obj) {
   for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
     if((*ind) == obj) return 1;
     if((*ind) == this) continue;  // Not Nearby Self
-    if((*ind)->Stats()->GetSkill("Transparent")) {
+    if((*ind)->Skill("Transparent")) {
       int ret = (*ind)->IsWithin(obj);
       if(ret) return ret;
       }
     }
-  if(parent->parent && parent->Stats()->GetSkill("Transparent")) {
+  if(parent->parent && parent->Skill("Transparent")) {
     parent->parent->contents.erase(parent);
     int ret = parent->IsNearBy(obj);
     parent->parent->contents.insert(parent);
@@ -1095,15 +1123,15 @@ void Object::Collapse() {
   }
 
 void Object::UpdateDamage() {
-  if(stats.stun > 10) {
-    stats.phys += stats.stun-10;
-    stats.stun = 10;
+  if(stun > 10) {
+    phys += stun-10;
+    stun = 10;
     }
-  if(stats.phys > 10+stats.GetAttribute(0)) {
+  if(phys > 10+Attribute(0)) {
     if(IsAct(ACT_DEAD) == 0) {
       parent->SendOut(
 	";s expires from its wounds.\n", "You expire, sorry.\n", this, NULL);
-      stats.stun = 10;
+      stun = 10;
       Collapse();
       AddAct(ACT_DEAD);
       set<Mind*> removals;
@@ -1117,13 +1145,13 @@ void Object::UpdateDamage() {
       }
     SetPos(POS_LIE);
     }
-  else if(stats.phys >= 10) {
+  else if(phys >= 10) {
     if(IsAct(ACT_DYING)+IsAct(ACT_DEAD) == 0) {
       parent->SendOut(
 	";s collapses, bleeding and dying!\n",
 	"You collapse, bleeding and dying!\n",
 	this, NULL);
-      stats.stun = 10;
+      stun = 10;
       Collapse();
       AddAct(ACT_DYING);
       }
@@ -1136,7 +1164,7 @@ void Object::UpdateDamage() {
       }
     SetPos(POS_LIE);
     }
-  else if(stats.stun >= 10) {
+  else if(stun >= 10) {
     if(IsAct(ACT_UNCONSCIOUS)+IsAct(ACT_DYING)+IsAct(ACT_DEAD)==0) {
       parent->SendOut(
 	";s falls unconscious!\n", "You fall unconscious!\n", this, NULL);
@@ -1153,7 +1181,7 @@ void Object::UpdateDamage() {
       }
     SetPos(POS_LIE);
     }
-  else if(stats.stun > 0) {
+  else if(stun > 0) {
     if(IsAct(ACT_DEAD)+IsAct(ACT_DYING)+IsAct(ACT_UNCONSCIOUS) != 0) {
       parent->SendOut(
 	";s wakes up, a little groggy.\n", "You wake up, a little groggy.",
@@ -1176,65 +1204,65 @@ void Object::UpdateDamage() {
   }
 
 int Object::HealStun(int boxes) {
-  if(stats.GetAttribute(1) <= 0) return 0;
-  if(stats.phys >= 10) return 0;
-  if(boxes > stats.stun) boxes = stats.stun;
-  stats.stun -= boxes;
+  if(Attribute(1) <= 0) return 0;
+  if(phys >= 10) return 0;
+  if(boxes > stun) boxes = stun;
+  stun -= boxes;
   UpdateDamage();
   return boxes;
   }
 
 int Object::HealPhys(int boxes) {
-  if(stats.GetAttribute(1) <= 0) return 0;
-  if(boxes > stats.phys) boxes = stats.phys;
-  stats.phys -= boxes;
+  if(Attribute(1) <= 0) return 0;
+  if(boxes > phys) boxes = phys;
+  phys -= boxes;
   UpdateDamage();
   return boxes;
   }
 
 int Object::HealStru(int boxes) {
-  if(boxes > stats.stru) boxes = stats.stru;
-  stats.stru -= boxes;
+  if(boxes > stru) boxes = stru;
+  stru -= boxes;
   UpdateDamage();
   return boxes;
   }
 
 int Object::HitMent(int force, int sev, int succ) {
-  if(stats.GetAttribute(1) <= 0) return 0;
-  succ -= roll(stats.GetAttribute(0), force);
+  if(Attribute(1) <= 0) return 0;
+  succ -= roll(Attribute(0), force);
   sev *= 2;  sev += succ;
-  for(int ctr=0; ctr<=(sev/2) && ctr<=4; ++ctr) stats.stun += ctr;
-  if(sev > 8) stats.stun += (sev-8);
-  if(stats.stun > 10) stats.stun = 10;  // No Overflow to Phys from "Ment"
+  for(int ctr=0; ctr<=(sev/2) && ctr<=4; ++ctr) stun += ctr;
+  if(sev > 8) stun += (sev-8);
+  if(stun > 10) stun = 10;  // No Overflow to Phys from "Ment"
   UpdateDamage();
   return sev;
   }
 
 int Object::HitStun(int force, int sev, int succ) {
-  if(stats.GetAttribute(1) <= 0) return 0;
-  succ -= roll(stats.GetAttribute(0), force);
+  if(Attribute(1) <= 0) return 0;
+  succ -= roll(Attribute(0), force);
   sev *= 2;  sev += succ;
-  for(int ctr=0; ctr<=(sev/2) && ctr<=4; ++ctr) stats.stun += ctr;
-  if(sev > 8) stats.stun += (sev-8);
+  for(int ctr=0; ctr<=(sev/2) && ctr<=4; ++ctr) stun += ctr;
+  if(sev > 8) stun += (sev-8);
   UpdateDamage();
   return sev;
   }
 
 int Object::HitPhys(int force, int sev, int succ) {
-  if(stats.GetAttribute(1) <= 0) return 0;
-  succ -= roll(stats.GetAttribute(0), force);
+  if(Attribute(1) <= 0) return 0;
+  succ -= roll(Attribute(0), force);
   sev *= 2;  sev += succ;
-  for(int ctr=0; ctr<=(sev/2) && ctr<=4; ++ctr) stats.phys += ctr;
-  if(sev > 8) stats.phys += (sev-8);
+  for(int ctr=0; ctr<=(sev/2) && ctr<=4; ++ctr) phys += ctr;
+  if(sev > 8) phys += (sev-8);
   UpdateDamage();
   return sev;
   }
 
 int Object::HitStru(int force, int sev, int succ) {
-  succ -= roll(stats.GetAttribute(0), force);
+  succ -= roll(Attribute(0), force);
   sev *= 2;  sev += succ;
-  for(int ctr=0; ctr<=(sev/2) && ctr<=4; ++ctr) stats.stru += ctr;
-  if(sev > 8) stats.stru += (sev-8);
+  for(int ctr=0; ctr<=(sev/2) && ctr<=4; ++ctr) stru += ctr;
+  if(sev > 8) stru += (sev-8);
   UpdateDamage();
   return sev;
   }
@@ -1317,7 +1345,7 @@ void Object::SendIn(const char *mes, const char *youmes,
 
   set<Object*>::const_iterator ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
-    if((*ind)->Stats()->GetSkill("Transparent"))
+    if((*ind)->Skill("Transparent"))
       (*ind)->SendIn(str, youstr, actor, targ);
     else if((*ind)->Pos() != POS_NONE)	//FIXME - Understand Transparency
       (*ind)->SendIn(str, youstr, actor, targ);
@@ -1358,13 +1386,13 @@ void Object::SendOut(const char *mes, const char *youmes,
 
   set<Object*>::const_iterator ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
-    if((*ind)->Stats()->GetSkill("Transparent"))
+    if((*ind)->Skill("Transparent"))
       (*ind)->SendIn(str, youstr, actor, targ);
     else if((*ind)->Pos() != POS_NONE)	//FIXME - Understand Transparency
       (*ind)->SendIn(str, youstr, actor, targ);
     }
 
-  if(parent && Stats()->GetSkill("Transparent")) {
+  if(parent && Skill("Transparent")) {
     parent->contents.erase(this);
     parent->SendOut(str, youstr, actor, targ);
     parent->contents.insert(this);
@@ -1447,11 +1475,6 @@ int Object::WriteContentsTo(FILE *fl) {
   return 0;
   }
 
-void Object::SetStats(const stats_t &st) {
-  stats = st;
-  UpdateDamage();
-  }
-
 void Object::BusyFor(long msec, const char *default_next) {
 //  fprintf(stderr, "Holding %p, will default do '%s'!\n", this, default_next);
   busytill = current_time;
@@ -1515,7 +1538,7 @@ void FreeActions() {
   for(set<Object *>::iterator busy = busylist.begin();
 		busy != busylist.end(); ++busy) {
     if(!(*busy)->StillBusy()) {
-      initlist[*busy] = (*busy)->Stats()->RollInitiative();
+      initlist[*busy] = (*busy)->RollInitiative();
 //      fprintf(stderr, "Initiative = %d\n", initlist[*busy]);
       maxinit = maxinit >? initlist[*busy];
       }

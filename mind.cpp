@@ -65,8 +65,8 @@ void Mind::UpdatePrompt() {
     }
   else if(Body()) {
     static char buf[65536];  //null-termed by sprintf below.
-    sprintf(buf, "[%s][%s] %s> %c", sevs[10<?Body()->Stats()->phys],
-	sevs[10<?Body()->Stats()->stun], Body()->ShortDesc(), 0);
+    sprintf(buf, "[%s][%s] %s> %c", sevs[10<?Body()->Phys()],
+	sevs[10<?Body()->Stun()], Body()->ShortDesc(), 0);
     SetPrompt(pers, buf);
     }
   else SetPrompt(pers, "No Character> ");
@@ -109,18 +109,18 @@ void Mind::Send(const char *mes, ...) {
     write(pers, newmes.c_str(), newmes.length());
 
     //AGGRESSIVE Circle Mobs
-    if(body && body->Parent() && (body->Stats()->GetSkill("CircleAction") & 32)
+    if(body && body->Parent() && (body->Skill("CircleAction") & 32)
 	&& (!body->IsAct(ACT_FIGHT))) {
       set<Object*> others = body->Parent()->Contents();
       set<Object*>::iterator other;
       for(other = others.begin(); other != others.end(); ++other) {
-	if((!(*other)->Stats()->GetSkill("CircleAction")) //FIXME: Other mobs?
+	if((!(*other)->Skill("CircleAction")) //FIXME: Other mobs?
 		&& (!body->StillBusy())                   //I'm not busy.
-		&& body->Stats()->stun < 6                //I'm not stunned.
-		&& body->Stats()->phys < 6                //I'm not injured.
+		&& body->Stun() < 6                //I'm not stunned.
+		&& body->Phys() < 6                //I'm not injured.
 		&& (!body->IsAct(ACT_ASLEEP))             //I'm not asleep.
 		&& (!body->IsAct(ACT_REST))               //I'm not resting.
-		&& (*other)->Stats()->GetAttribute(1)     //Not a rock
+		&& (*other)->Attribute(1)     //Not a rock
 		&& (!(*other)->IsAct(ACT_DEAD))           //Not a dead
 	        ) {
 	  string command = string("attack ") + (*other)->ShortDesc();

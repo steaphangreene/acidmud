@@ -3,7 +3,6 @@
 
 using namespace std;
 
-#include "stats.h"
 #include "object.h"
 
 class Player;
@@ -21,8 +20,6 @@ public:
   ~Player();
   void SetName(string);
   void Link(Object *);
-  void NewChar(stats_t);
-  stats_t *Stats();
   Object *Room() { return room; };
   int Is(unsigned long f) { return (flags & f); };
   void Set(unsigned long f) { flags |= f; };
@@ -33,7 +30,6 @@ public:
   void AddChar(Object *);
 
 private:
-  map<string, stats_t*> sheet;
   map<string, Object *> body;
   string name, pass;
   Object *room;

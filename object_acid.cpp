@@ -49,6 +49,15 @@ int Object::SaveTo(FILE *fl) {
 
   fprintf(fl, "%d %d %d %d %c;\n", weight, size, volume, value, gender);
 
+  fprintf(fl, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+	att[0], att[1], att[2], att[3], att[4], att[5], att[6], att[7],
+	phys, stun, stru);
+
+  map<string,int>::const_iterator sk = skills.begin();
+  for(; sk != skills.end(); ++sk)
+    fprintf(fl, ":%s,%d", (*sk).first.c_str(), (*sk).second);
+  fprintf(fl, ";\n");
+
   fprintf(fl, "%d\n", connections.size());
   map<string,Object*>::iterator dind;
   for(dind = connections.begin(); dind != connections.end(); ++dind) {
@@ -68,8 +77,6 @@ int Object::SaveTo(FILE *fl) {
   for(aind = act.begin(); aind != act.end(); ++aind) {
     fprintf(fl, "%d;%d\n", (*aind).first, getnum((*aind).second));
     }
-
-  stats.SaveTo(fl);
 
   fprintf(fl, "\n");
 
@@ -137,6 +144,18 @@ int Object::LoadFrom(FILE *fl) {
 
   fscanf(fl, "%d %d %d %d %c;\n", &weight, &size, &volume, &value, &gender);
 
+  fscanf(fl, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+	&att[0], &att[1], &att[2], &att[3], &att[4], &att[5], &att[6], &att[7],
+	&phys, &stun, &stru);
+
+  memset(buf, 0, 65536);
+  int val;
+  while(fscanf(fl, ":%[^\n,:],%d", buf, &val)) {
+    //fprintf(stderr, "Loaded %s: %d\n", buf, val);
+    skills[buf] = val;
+    }
+  fscanf(fl, ";\n");
+
   fscanf(fl, "%d ", &num);
   for(int ctr=0; ctr<num; ++ctr) {
     memset(buf, 0, 65536);  int num2;
@@ -163,8 +182,7 @@ int Object::LoadFrom(FILE *fl) {
     act[(act_t)anum] = (Object*)num2;
     }
 
-  stats.LoadFrom(fl);
-  if(stats.GetSkill("CircleAction")) get_mob_mind()->Attach(this);
+  if(Skill("CircleAction")) get_mob_mind()->Attach(this);
 
   vector<Object*>::iterator cind;
   for(cind = toload.begin(); cind != toload.end(); ++cind) {

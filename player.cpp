@@ -49,13 +49,6 @@ void Player::SetName(string nm) {
 void Player::Link(Object *obj) {
   }
 
-void Player::NewChar(stats_t st) {
-  }
-
-stats_t *Player::Stats() {
-  return NULL;
-  }
-
 void Player::AddChar(Object *ch) {
   room->AddLink(ch);
   }

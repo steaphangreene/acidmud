@@ -9,8 +9,6 @@
 
 using namespace std;
 
-#include "stats.h"
-
 class Object;
 
 #ifndef OBJECT_H
@@ -129,6 +127,29 @@ public:
   void SetValue(int v)	{ value = v; };
   void SetGender(char g){ gender = g; };
 
+  int Stun()	{ return stun; };
+  int Phys()	{ return phys; };
+  int Stru()	{ return stru; };
+
+  void SetStun(int s)	{ stun = s; };  //Don't use these for normal healing!
+  void SetPhys(int p)	{ phys = p; };
+  void SetStru(int s)	{ stru = s; };
+  void UpdateDamage();
+
+  int Attribute(int) const;
+  int Skill(const string &, int *tnum = NULL) const;
+  map<string,int> GetSkills() const { return skills; }
+
+  void SetAttribute(int, int);
+  void SetSkill(const string &, int);
+
+  int RollInitiative() const;
+  int Roll(const string &, const Object *, const string &, int bias = 0, string *res=NULL) const;
+  int Roll(const string &, int, string *res=NULL) const;
+  int RollNoWounds(const string &, int, string *res=NULL) const;
+
+  int WoundPenalty() const;
+
   pos_t Pos() { return pos; };
   void SetPos(pos_t p) { pos = p; };
   const char *PosString() { return pos_str[pos]; };
@@ -140,8 +161,6 @@ public:
   void StopAct(act_t a) { act.erase(a); };
   int IsAct(act_t a) const { return act.count(a); };
   Object *ActTarg(act_t a) const;
-  void SetStats(const stats_t &s);
-  const stats_t *Stats() { return &stats; }
 
   int HitMent(int force, int sev, int succ);
   int HitStun(int force, int sev, int succ);
@@ -183,7 +202,6 @@ public:
   void DoWhenFree(const char *);
 
 private:
-  void UpdateDamage();
   string short_desc;
   string desc;
   string long_desc;
@@ -197,12 +215,18 @@ private:
   int value;
   char gender;
 
+  int phys, stun, stru;
+  int att[8];
+  map<string,int> skills;
+
+
   map<act_t,Object*> act;
-  stats_t stats;
   timeval busytill;
   string dowhenfree, defact;
   friend void player_rooms_erase(Object *);
   };
+
+int roll(int ndice, int targ);
 
 void init_world();
 void save_world(int with_net=0);
@@ -215,5 +239,9 @@ int matches(const char *name, const char *seek);
 Mind *get_mob_mind();
 
 void FreeActions();
+
+map<string,int> get_skills();
+string get_weapon_skill(int wtype);
+int get_weapon_type(string wskill);
 
 #endif

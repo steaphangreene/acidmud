@@ -1,6 +1,6 @@
 TSTR:=  $(shell date -u +"%Y%m%d%H%M")
-OBJS:=	main.o net.o commands.o mind.o stats.o player.o \
-	object.o object_circle.o object_acid.o
+OBJS:=	main.o net.o commands.o mind.o player.o \
+	object.o object_circle.o object_acid.o object_stats.o
 
 #Production Settings
 CCC:=	gcc -s -Wall -O3

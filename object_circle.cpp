@@ -15,10 +15,7 @@ const char *dirname[6] = { "north", "east", "south", "west", "up", "down" };
 #include "commands.h"
 #include "object.h"
 #include "color.h"
-#include "stats.h"
 #include "mind.h"
-
-extern stats_t zero_stats;
 
 static char buf[65536];
 void Object::CircleLoadAll() {
@@ -113,12 +110,10 @@ Mind *get_mob_mind() {
 void Object::CircleFinishMob(Object *mob) {
   mob->Attach(get_mob_mind());
   if(mob->ActTarg(ACT_WEAR_LSHOULDER)) { //CircleMud Bags Only
-    stats_t stats = (*(mob->ActTarg(ACT_WEAR_LSHOULDER)->Stats()));
-    stats.SetSkill("Container",
+    mob->ActTarg(ACT_WEAR_LSHOULDER)->SetSkill("Container",
 	mob->ActTarg(ACT_WEAR_LSHOULDER)->ContainedWeight());
-    stats.SetSkill("Capacity",
+    mob->ActTarg(ACT_WEAR_LSHOULDER)->SetSkill("Capacity",
 	mob->ActTarg(ACT_WEAR_LSHOULDER)->ContainedVolume());
-    mob->ActTarg(ACT_WEAR_LSHOULDER)->SetStats(stats);
     }
   }
 
@@ -171,52 +166,48 @@ void Object::CircleLoadZon(const char *fn) {
 	    Object *obj = new Object(*(bynumobj[num]));
 	    Object *obj2 = NULL;
 	    obj->SetParent(lastmob);
-	    if(obj->Stats()->GetSkill("Wearable on Left Hand")
-	    	!= obj->Stats()->GetSkill("Wearable on Right Hand")) {
+	    if(obj->Skill("Wearable on Left Hand")
+	    	!= obj->Skill("Wearable on Right Hand")) {
 	      obj2 = new Object(*(bynumobj[num]));
 	      obj2->SetParent(lastmob);
-	      stats_t stats = (*(obj2->Stats()));
-	      stats.SetSkill("Wearable on Left Hand", 0);
-	      stats.SetSkill("Wearable on Right Hand", 1);
-	      obj2->SetStats(stats);
+	      obj2->SetSkill("Wearable on Left Hand", 0);
+	      obj2->SetSkill("Wearable on Right Hand", 1);
 	      obj->SetShortDesc((string(obj->ShortDesc()) + " (left)").c_str());
 	      obj2->SetShortDesc((string(obj2->ShortDesc()) + " (right)").c_str());
 	      fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
 	      }
-	    else if(obj->Stats()->GetSkill("Wearable on Left Hand")) {
+	    else if(obj->Skill("Wearable on Left Hand")) {
 	      fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
 	      }
-	    else if(obj->Stats()->GetSkill("Wearable on Left Foot")
-	    	!= obj->Stats()->GetSkill("Wearable on Right Foot")) {
+	    else if(obj->Skill("Wearable on Left Foot")
+	    	!= obj->Skill("Wearable on Right Foot")) {
 	      obj2 = new Object(*(bynumobj[num]));
 	      obj2->SetParent(lastmob);
-	      stats_t stats = (*(obj2->Stats()));
-	      stats.SetSkill("Wearable on Left Foot", 0);
-	      stats.SetSkill("Wearable on Right Foot", 1);
-	      obj2->SetStats(stats);
+	      obj2->SetSkill("Wearable on Left Foot", 0);
+	      obj2->SetSkill("Wearable on Right Foot", 1);
 	      obj->SetShortDesc((string(obj->ShortDesc()) + " (left)").c_str());
 	      obj2->SetShortDesc((string(obj2->ShortDesc()) + " (right)").c_str());
 	      fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
 	      }
-	    else if(obj->Stats()->GetSkill("Wearable on Left Foot")) {
+	    else if(obj->Skill("Wearable on Left Foot")) {
 	      fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
 	      }
-	    else if(obj->Stats()->GetSkill("Wearable on Left Leg")
-	    	!= obj->Stats()->GetSkill("Wearable on Right Leg")) {
+	    else if(obj->Skill("Wearable on Left Leg")
+	    	!= obj->Skill("Wearable on Right Leg")) {
 	      obj2 = new Object(*(bynumobj[num]));
 	      obj2->SetParent(lastmob);
 	      fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
 	      }
-	    else if(obj->Stats()->GetSkill("Wearable on Left Leg")) {
+	    else if(obj->Skill("Wearable on Left Leg")) {
 	      fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
 	      }
-	    else if(obj->Stats()->GetSkill("Wearable on Left Arm")
-	    	!= obj->Stats()->GetSkill("Wearable on Right Arm")) {
+	    else if(obj->Skill("Wearable on Left Arm")
+	    	!= obj->Skill("Wearable on Right Arm")) {
 	      obj2 = new Object(*(bynumobj[num]));
 	      obj2->SetParent(lastmob);
 	      fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
 	      }
-	    else if(obj->Stats()->GetSkill("Wearable on Left Arm")) {
+	    else if(obj->Skill("Wearable on Left Arm")) {
 	      fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
 	      }
 	    lastobj[num] = obj;
@@ -296,19 +287,18 @@ void Object::CircleLoadZon(const char *fn) {
 		lastbag->SetParent(lastmob);
 		lastbag->SetShortDesc("a CircleMud bag");
 		lastbag->SetDesc("A mysterious bag that didn't seem to need to exist before.");
-		stats_t stats = (*(lastbag->Stats()));
-		stats.SetSkill("Wearable on Left Shoulder", 1);
-		stats.SetSkill("Wearable on Right Shoulder", 2);
-		stats.SetSkill("Container", 1000 * 454);
-		stats.SetSkill("Capacity", 1000);
-		stats.SetSkill("Closeable", 1);
+
+		lastbag->SetSkill("Wearable on Left Shoulder", 1);
+		lastbag->SetSkill("Wearable on Right Shoulder", 2);
+		lastbag->SetSkill("Container", 1000 * 454);
+		lastbag->SetSkill("Capacity", 1000);
+		lastbag->SetSkill("Closeable", 1);
 
 		lastbag->SetWeight(5 * 454);
 		lastbag->SetSize(1000);
 		lastbag->SetVolume(5);
 		lastbag->SetValue(200);
 
-		lastbag->SetStats(stats);
 		lastbag->SetPos(POS_LIE);
 		lastmob->AddAct(ACT_WEAR_LSHOULDER, lastbag);
 		}
@@ -345,7 +335,6 @@ void Object::CircleLoadMob(const char *fn) {
     while(1) {
       int onum;
       if(fscanf(mudm, " #%d\n", &onum) < 1) break;
-      stats_t stats = zero_stats;
 
       Object *obj = new Object(this);
       bynummob[onum] = obj;
@@ -377,20 +366,20 @@ void Object::CircleLoadMob(const char *fn) {
       //fprintf(stderr, "Loaded Circle Mobile with LongDesc = %s\n", buf);
 
       obj->SetPos(POS_STAND);
-      stats.SetAttribute(0, 3);
-      stats.SetAttribute(1, 3);
-      stats.SetAttribute(2, 3);
-      stats.SetAttribute(3, 3);
-      stats.SetAttribute(4, 3);
-      stats.SetAttribute(5, 3);
+      obj->SetAttribute(0, 3);
+      obj->SetAttribute(1, 3);
+      obj->SetAttribute(2, 3);
+      obj->SetAttribute(3, 3);
+      obj->SetAttribute(4, 3);
+      obj->SetAttribute(5, 3);
 
       int val, val2, val3;  char tp;
       memset(buf, 0, 65536);
       fscanf(mudm, "%[^ \t\n] %[^ \t\n] %d %c\n", buf, buf+1024, &val, &tp);
 
-      stats.SetSkill("CircleAction", 0);
+      obj->SetSkill("CircleAction", 0);
       if(string(buf).find('f') < strlen(buf) || (atoi(buf) & 32)) { //AGGRESSIVE
-	stats.SetSkill("CircleAction", stats.GetSkill("CircleAction") | 32);
+	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 32);
 	}
 
       if(tp == 'E' || tp == 'S') {
@@ -419,21 +408,21 @@ void Object::CircleLoadMob(const char *fn) {
       memset(buf, 0, 65536);
       while(tp == 'E') {  // Basically an if with an infinite loop ;)
 	if(fscanf(mudm, "Con: %d\n", &val))
-	  stats.SetAttribute(0, (val+2)/3);
+	  obj->SetAttribute(0, (val+2)/3);
 	else if(fscanf(mudm, "Dex: %d\n", &val))
-	  stats.SetAttribute(1, (val+2)/3);
+	  obj->SetAttribute(1, (val+2)/3);
 
 	else if(fscanf(mudm, "Str: %d\n", &val))
-	  stats.SetAttribute(2, (val+2)/3);
+	  obj->SetAttribute(2, (val+2)/3);
 
 	else if(fscanf(mudm, "ha: %d\n", &val)) //'Cha' minus 'Con' Conflict!
-	  stats.SetAttribute(3, (val+2)/3);
+	  obj->SetAttribute(3, (val+2)/3);
 
 	else if(fscanf(mudm, "Int: %d\n", &val))
-	  stats.SetAttribute(4, (val+2)/3);
+	  obj->SetAttribute(4, (val+2)/3);
 
 	else if(fscanf(mudm, "Wis: %d\n", &val))
-	  stats.SetAttribute(5, (val+2)/3);
+	  obj->SetAttribute(5, (val+2)/3);
 
 	else if(fscanf(mudm, "Add: %d\n", &val)); //'StrAdd' - Do Nothing
 
@@ -443,12 +432,10 @@ void Object::CircleLoadMob(const char *fn) {
 	else break;
 	}
 
-      obj->SetWeight(stats.GetAttribute(0) * 20000);
-      obj->SetSize(1000 + stats.GetAttribute(0) * 200);
+      obj->SetWeight(obj->Attribute(0) * 20000);
+      obj->SetSize(1000 + obj->Attribute(0) * 200);
       obj->SetVolume(100);
       obj->SetValue(-1);
-
-      obj->SetStats(stats);
 
       fscanf(mudm, " %*[^#$]");
       }
@@ -503,35 +490,34 @@ void Object::CircleLoadObj(const char *fn) {
       else if(!strncasecmp(obj->ShortDesc(), "a set of ", 9)) sf = 8;
 
       string name = obj->ShortDesc();
-      stats_t stats = (*(obj->Stats()));
       if(string(buf).find('b') < strlen(buf) || (atoi(buf) & 2)) {
-	stats.SetSkill("Wearable on Left Finger", 1);	//Two Alternatives
-	stats.SetSkill("Wearable on Right Finger", 2);
+	obj->SetSkill("Wearable on Left Finger", 1);	//Two Alternatives
+	obj->SetSkill("Wearable on Right Finger", 2);
 	}
       if(string(buf).find('c') < strlen(buf) || (atoi(buf) & 4)) {
-	stats.SetSkill("Wearable on Neck", 1);
+	obj->SetSkill("Wearable on Neck", 1);
 	}
       if(string(buf).find('d') < strlen(buf) || (atoi(buf) & 8)) {
-	stats.SetSkill("Wearable on Chest", 1);
+	obj->SetSkill("Wearable on Chest", 1);
 	}
       if(string(buf).find('e') < strlen(buf) || (atoi(buf) & 16)) {
-	stats.SetSkill("Wearable on Head", 1);
+	obj->SetSkill("Wearable on Head", 1);
 	}
       if(string(buf).find('f') < strlen(buf) || (atoi(buf) & 32)) {
-	stats.SetSkill("Wearable on Left Leg", 1);
+	obj->SetSkill("Wearable on Left Leg", 1);
 	if(sf) {
 	  if(!strcasecmp(name.c_str()+(name.length()-9), " leggings"))
 	    name = string("a") + name.substr(sf, name.length()-(sf+1));
 	  else if(!strcasecmp(name.c_str()+(name.length()-7), " plates"))
 	    name = string("a") + name.substr(sf, name.length()-(sf+1));
-	  else stats.SetSkill("Wearable on Right Leg", 1);
+	  else obj->SetSkill("Wearable on Right Leg", 1);
 	  }
-	else stats.SetSkill("Wearable on Right Leg", 1);
-	if(!stats.GetSkill("Wearable on Right Leg"))	//Reversable
-	  stats.SetSkill("Wearable on Right Leg", 2);
+	else obj->SetSkill("Wearable on Right Leg", 1);
+	if(!obj->Skill("Wearable on Right Leg"))	//Reversable
+	  obj->SetSkill("Wearable on Right Leg", 2);
 	}
       if(string(buf).find('g') < strlen(buf) || (atoi(buf) & 64)) {
-	stats.SetSkill("Wearable on Left Foot", 1);
+	obj->SetSkill("Wearable on Left Foot", 1);
 	if(sf) {
 	  if(!strcasecmp(name.c_str()+(name.length()-8), " sandals"))
 	    name = string("a") + name.substr(sf, name.length()-(sf+1));
@@ -539,23 +525,23 @@ void Object::CircleLoadObj(const char *fn) {
 	    name = string("a") + name.substr(sf, name.length()-(sf+1));
 	  else if(!strcasecmp(name.c_str()+(name.length()-6), " shoes"))
 	    name = string("a") + name.substr(sf, name.length()-(sf+1));
-	  else stats.SetSkill("Wearable on Right Foot", 1);
+	  else obj->SetSkill("Wearable on Right Foot", 1);
 	  }
-	else stats.SetSkill("Wearable on Right Foot", 1);
+	else obj->SetSkill("Wearable on Right Foot", 1);
 	}
       if(string(buf).find('h') < strlen(buf) || (atoi(buf) & 128)) {
-	stats.SetSkill("Wearable on Left Hand", 1);
+	obj->SetSkill("Wearable on Left Hand", 1);
 	if(sf) {
 	  if(!strcasecmp(name.c_str()+(name.length()-10), " gauntlets"))
 	    name = string("a") + name.substr(sf, name.length()-(sf+1));
 	  else if(!strcasecmp(name.c_str()+(name.length()-7), " gloves"))
 	    name = string("a") + name.substr(sf, name.length()-(sf+1));
-	  else stats.SetSkill("Wearable on Right Hand", 1);
+	  else obj->SetSkill("Wearable on Right Hand", 1);
 	  }
-	else stats.SetSkill("Wearable on Right Hand", 1);
+	else obj->SetSkill("Wearable on Right Hand", 1);
 	}
       if(string(buf).find('i') < strlen(buf) || (atoi(buf) & 256)) {
-	stats.SetSkill("Wearable on Left Arm", 1);
+	obj->SetSkill("Wearable on Left Arm", 1);
 	if(sf) {
 	  if(!strcasecmp(name.c_str()+(name.length()-8), " sleeves"))
 	    name = string("a") + name.substr(sf, name.length()-(sf+1));
@@ -563,58 +549,58 @@ void Object::CircleLoadObj(const char *fn) {
 	    name = string("a") + name.substr(sf, name.length()-(sf+1));
 	  else if(!strcasecmp(name.c_str()+(name.length()-7), " plates"))
 	    name = string("a") + name.substr(sf, name.length()-(sf+1));
-	  else stats.SetSkill("Wearable on Right Arm", 1);
+	  else obj->SetSkill("Wearable on Right Arm", 1);
 	  }
-	else stats.SetSkill("Wearable on Right Arm", 1);
-	if(!stats.GetSkill("Wearable on Right Arm"))	//Reversable
-	  stats.SetSkill("Wearable on Right Arm", 2);
+	else obj->SetSkill("Wearable on Right Arm", 1);
+	if(!obj->Skill("Wearable on Right Arm"))	//Reversable
+	  obj->SetSkill("Wearable on Right Arm", 2);
 	}
       if(string(buf).find('j') < strlen(buf) || (atoi(buf) & 512)) {
-	stats.SetSkill("Wearable on Shield", 1);	// FIXME: Wear Shield?
+	obj->SetSkill("Wearable on Shield", 1);	// FIXME: Wear Shield?
 	}
       if(string(buf).find('k') < strlen(buf) || (atoi(buf) & 1024)) {
-	stats.SetSkill("Wearable on Back", 1);		// "WEAR_ABOUT"
+	obj->SetSkill("Wearable on Back", 1);		// "WEAR_ABOUT"
 	}
       if(string(buf).find('l') < strlen(buf) || (atoi(buf) & 2048)) {
-	stats.SetSkill("Wearable on Waist", 1);
+	obj->SetSkill("Wearable on Waist", 1);
 	}
       if(string(buf).find('m') < strlen(buf) || (atoi(buf) & 4096)) {
-	stats.SetSkill("Wearable on Left Wrist", 1);
-	stats.SetSkill("Wearable on Right Wrist", 2);
+	obj->SetSkill("Wearable on Left Wrist", 1);
+	obj->SetSkill("Wearable on Right Wrist", 2);
 	}
       obj->SetShortDesc(name.c_str());
 
       fscanf(mudo, "%d %d %d %d\n", val+0, val+1, val+2, val+3);
 
       if(tp == 15) { // CONTAINER
-	stats.SetSkill("Container", val[0] * 454);
-	stats.SetSkill("Capacity", val[0]);
+	obj->SetSkill("Container", val[0] * 454);
+	obj->SetSkill("Capacity", val[0]);
 
-	if(!(val[1] & 4)) stats.SetSkill("Transparent", 1);  //Start open?
+	if(!(val[1] & 4)) obj->SetSkill("Transparent", 1);  //Start open?
 
-	if(val[1] & 8) stats.SetSkill("Locked", 1);          //Start locked?
+	if(val[1] & 8) obj->SetSkill("Locked", 1);          //Start locked?
 
-	if(val[1] & 1) stats.SetSkill("Closeable", 1);  // Can it be closed?
+	if(val[1] & 1) obj->SetSkill("Closeable", 1);  // Can it be closed?
 
-	if(val[2] != -1) stats.SetSkill("Lockable", 1); // Can it be locked?
+	if(val[2] != -1) obj->SetSkill("Lockable", 1); // Can it be locked?
 
 	if(string(obj->ShortDesc()).find("bag") < strlen(obj->ShortDesc()))
-		stats.SetSkill("Closeable", 1);  // Bags CAN be closed!
+		obj->SetSkill("Closeable", 1);  // Bags CAN be closed!
 
 	if(string(obj->ShortDesc()).find("pouch") < strlen(obj->ShortDesc()))
-		stats.SetSkill("Closeable", 1);  // Pouches CAN be closed!
+		obj->SetSkill("Closeable", 1);  // Pouches CAN be closed!
 
 	}
       else if(tp == 17) { // DRINKCON
-	stats.SetSkill("Liquid Container", val[0]);
-	stats.SetSkill("Capacity", val[0]);
-	stats.SetSkill("Transparent", 1);
-	stats.SetSkill("Closeable", 1);
+	obj->SetSkill("Liquid Container", val[0]);
+	obj->SetSkill("Capacity", val[0]);
+	obj->SetSkill("Transparent", 1);
+	obj->SetSkill("Closeable", 1);
 	//FIXME: Put the liquid in it if it's supposed to start with it!
 	}
       else if(tp == 22) { // BOAT
-	stats.SetSkill("Enterable", 1);
-	stats.SetSkill("Transparent", 1);
+	obj->SetSkill("Enterable", 1);
+	obj->SetSkill("Transparent", 1);
 	}
       else if(tp == 5) { // WEAPON
         int wreach = 0;						// default
@@ -826,14 +812,14 @@ void Object::CircleLoadObj(const char *fn) {
 	    }
 	  }
 
-	stats.SetSkill("WeaponType", skmatch);
-//	stats.SetSkill("WeaponDamage", val[1]*val[2]);
+	obj->SetSkill("WeaponType", skmatch);
+//	obj->SetSkill("WeaponDamage", val[1]*val[2]);
 	int sev = 0;
 	int tot = (val[1] * (val[2]+1) + 1) / 2;  //Avg. Circle Dam. Rounded Up
 	while(tot > sev) { ++sev; tot -= sev; }
-	stats.SetSkill("WeaponForce", tot);
-	stats.SetSkill("WeaponSeverity", sev);
-	stats.SetSkill("WeaponReach", wreach);
+	obj->SetSkill("WeaponForce", tot);
+	obj->SetSkill("WeaponSeverity", sev);
+	obj->SetSkill("WeaponReach", wreach);
 	}
 
       int weight, value;
@@ -843,8 +829,6 @@ void Object::CircleLoadObj(const char *fn) {
       obj->SetVolume(weight); //FIXME: Better guess within units?
       obj->SetSize(1);
       obj->SetValue(value);
-
-      obj->SetStats(stats);
 
       fscanf(mudo, " %*[^#$]");
       }

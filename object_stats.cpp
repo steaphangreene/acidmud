@@ -1,6 +1,6 @@
 #include <cstdlib>
 
-#include "stats.h"
+#include "object.h"
 
 const int SAVEFILE_VERSION=104;
 
@@ -122,20 +122,20 @@ int roll(int ndice, int targ) {
   return ret;
   }
 
-int stats_t::GetAttribute(int a) const {
+int Object::Attribute(int a) const {
   return att[a];
   }
 
-void stats_t::SetAttribute(int a, int v) {
+void Object::SetAttribute(int a, int v) {
   att[a] = v;
   }
 
-void stats_t::SetSkill(const string &s, int v) {
+void Object::SetSkill(const string &s, int v) {
   skills[s] = v;
   if(v <= 0) skills.erase(s);
   }
 
-int stats_t::GetSkill(const string &s, int *tnum) const {
+int Object::Skill(const string &s, int *tnum) const {
   if(!defaults_init) init_defaults();
   if(skills.count(s)) return (skills.find(s))->second;  //const for 'skills[s]'
   if(tnum) {
@@ -145,41 +145,11 @@ int stats_t::GetSkill(const string &s, int *tnum) const {
   return 0;
   }
 
-int stats_t::SaveTo(FILE *fl) const {
-  fprintf(fl, "%d:", SAVEFILE_VERSION);
-  fprintf(fl, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
-	att[0], att[1], att[2], att[3], att[4], att[5], att[6], att[7],
-	phys, stun, stru);
-
-  map<string,int>::const_iterator sk = skills.begin();
-  for(; sk != skills.end(); ++sk)
-    fprintf(fl, ":%s,%d", (*sk).first.c_str(), (*sk).second);
-  fprintf(fl, "\n");
-  return 0;
-  }
-
-int stats_t::LoadFrom(FILE *fl) {
-  int ver;
-  fscanf(fl, "%d:", &ver);
-  fscanf(fl, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
-	&att[0], &att[1], &att[2], &att[3], &att[4], &att[5], &att[6], &att[7],
-	&phys, &stun, &stru);
-
-  static char buf[65536];
-  memset(buf, 0, 65536);
-  int val;
-  while(fscanf(fl, ":%[^\n,:],%d", buf, &val)) {
-    //fprintf(stderr, "Loaded %s: %d\n", buf, val);
-    skills[buf] = val;
-    }
-  return 0;
-  }
-
-int stats_t::Roll(const string &s1, const stats_t *p2, const string &s2, int bias, string *res) const {
+int Object::Roll(const string &s1, const Object *p2, const string &s2, int bias, string *res) const {
   int succ = 0;
 
-  int t1 = p2->GetSkill(s2) - bias;
-  int t2 = GetSkill(s1) + bias;
+  int t1 = p2->Skill(s2) - bias;
+  int t2 = Skill(s1) + bias;
 
   if(res) (*res) += "(";
   succ = Roll(s1, t1, res);
@@ -189,7 +159,7 @@ int stats_t::Roll(const string &s1, const stats_t *p2, const string &s2, int bia
   return succ;
   }
 
-int stats_t::Roll(const string &s1, int targ, string *res) const {
+int Object::Roll(const string &s1, int targ, string *res) const {
   if(phys>=10 || stun>=10 || (!(att[0]*att[1]*att[2]*att[3]*att[4]*att[5]))) {
     if(res) (*res) += "N/A";
     return 0;
@@ -198,9 +168,9 @@ int stats_t::Roll(const string &s1, int targ, string *res) const {
   return RollNoWounds(s1, targ, res);
   }
 
-int stats_t::RollNoWounds(const string &s1, int targ, string *res) const {
+int Object::RollNoWounds(const string &s1, int targ, string *res) const {
   int succ = 0;
-  int d1 = GetSkill(s1, &targ);
+  int d1 = Skill(s1, &targ);
   succ = roll(abs(d1), targ);
 
   if(res) {
@@ -218,7 +188,7 @@ int stats_t::RollNoWounds(const string &s1, int targ, string *res) const {
   return succ;
   }
 
-int stats_t::WoundPenalty() const {
+int Object::WoundPenalty() const {
   int ret = 0;
   if(stun >= 10) ret += 4;
   else if(stun >= 6) ret += 3;
@@ -232,7 +202,7 @@ int stats_t::WoundPenalty() const {
   return ret;
   }
 
-int stats_t::RollInitiative() const {
+int Object::RollInitiative() const {
   int ret = 1+(rand()%6);
   ret += 1+(rand()%6);
   ret += att[1];
@@ -241,5 +211,3 @@ int stats_t::RollInitiative() const {
 
   return ret;
   }
-
-stats_t zero_stats;
