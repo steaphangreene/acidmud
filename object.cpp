@@ -996,9 +996,19 @@ int strip_ordinal(char **text) {
   }
 
 Object *Object::PickObject(char *name, int loc, int *ordinal) {
+  set<Object*> ret = PickObjects(name, loc, ordinal);
+  if(ret.size() != 1) {
+    return NULL;
+    }
+  return (*(ret.begin()));
+  }
+
+set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
+  set<Object*> ret;
+
   while((!isgraph(*name)) && (*name)) ++name;
 
-  if(!(*name)) return NULL;
+  if(!(*name)) return ret;
 
   char *keyword = NULL;
   char *keyword2 = NULL;
@@ -1008,8 +1018,8 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
     keyword2 = strdup(name);
     keyword2[keyword-name] = 0;
     Object *master = PickObject(keyword2, loc);
-    if(!master) { free(keyword2); return NULL; }
-    Object *ret = master->PickObject(keyword2 + (keyword-name)+3, LOC_INTERNAL);
+    if(!master) { free(keyword2); return ret; }
+    ret = master->PickObjects(keyword2 + (keyword-name)+3, LOC_INTERNAL);
     free(keyword2);
     return ret;
     }
@@ -1024,15 +1034,16 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
 
   if(loc & LOC_SELF) {
     if((!strcasecmp(name, "self")) || (!strcasecmp(name, "myself"))) {
-      if((*ordinal) != 1) return NULL;
-      return this;
+      if((*ordinal) != 1) return ret;
+      ret.insert(this);
+      return ret;
       }
     }
 
   if(loc & LOC_INTERNAL) {
     if(!strncasecmp(name, "my ", 3)) {
       name += 3;
-      return PickObject(name, loc & (LOC_INTERNAL|LOC_SELF));
+      return PickObjects(name, loc & (LOC_INTERNAL|LOC_SELF));
       }
     }
 
@@ -1047,7 +1058,10 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
 
     if(parent->connections.count(dir) > 0) {
       (*ordinal)--;
-      if((*ordinal)==0) return parent->connections[dir];
+      if((*ordinal)==0) {
+	ret.insert(parent->connections[dir]);
+	return ret;
+	}
       }
     }
 
@@ -1060,12 +1074,12 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
 	cont.erase(action->second);
 	if(matches(action->second->ShortDesc(), name)) {
 	  (*ordinal)--;
-	  if((*ordinal) == 0) { return action->second; }
+	  if((*ordinal) == 0) { ret.insert(action->second); return ret; }
 	  }
 	}
       if(action->second->Skill("Container")) {
-	Object *ret = action->second->PickObject(name, LOC_INTERNAL, ordinal);
-	if(ret) return ret;
+	ret = action->second->PickObjects(name, LOC_INTERNAL, ordinal);
+	if(ret.size()) return ret;
 	}
       }
 
@@ -1074,11 +1088,11 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
       if(matches((*ind)->ShortDesc(), name)) {
 	(*ordinal)--;
-	if((*ordinal) == 0) { return (*ind); }
+	if((*ordinal) == 0) { ret.insert(*ind); return ret; }
 	}
       if((*ind)->Skill("Container")) {
-	Object *ret = (*ind)->PickObject(name, LOC_INTERNAL, ordinal);
-	if(ret) return ret;
+	ret = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
+	if(ret.size()) return ret;
 	}
       }
     }
@@ -1089,24 +1103,24 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
       if(matches((*ind)->ShortDesc(), name)) {
 	(*ordinal)--;
-	if((*ordinal) == 0) { return (*ind); }
+	if((*ordinal) == 0) { ret.insert(*ind); return ret; }
 	}
       if((*ind)->Skill("Transparent")) {
-	Object *ret = (*ind)->PickObject(name, LOC_INTERNAL, ordinal);
-	if(ret) return ret;
+	ret = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
+	if(ret.size()) return ret;
 	}
       }
     if(parent->Skill("Transparent")) {
       if(parent->parent) {
 	parent->parent->contents.erase(parent);
-	Object *ret = parent->PickObject(name, LOC_NEARBY, ordinal);
+	ret = parent->PickObjects(name, LOC_NEARBY, ordinal);
 	parent->parent->contents.insert(parent);
-	if(ret) return ret;
+	if(ret.size()) return ret;
 	}
       }
     }
 
-  return NULL;
+  return ret;
   }
 
 int Object::IsWithin(Object *obj) {
