@@ -81,12 +81,17 @@ int main(int argc, char **argv) {
     acceptor = suspend_net();
     char buf[256];  sprintf(buf, "--network-acceptor=%d%c", acceptor, 0);
 
+    int ctr = 0;
     char **new_argv;
     new_argv = new char *[argc+3];
-    for(int ctr=0; ctr < argc; ++ctr) new_argv[ctr] = strdup(argv[ctr]);
-    new_argv[argc] = strdup("--network-stat=acid/current.nst");
-    new_argv[argc+1] = strdup(buf);
-    new_argv[argc+2] = NULL;
+    for(int octr=0; octr < argc; ++octr) {
+      if(strncmp(argv[octr], "--network-acceptor=", 19)
+		&& strncmp(argv[octr], "--network-stat=", 15))
+	new_argv[ctr++] = strdup(argv[octr]);
+      }
+    new_argv[ctr] = strdup("--network-stat=acid/current.nst");
+    new_argv[ctr+1] = strdup(buf);
+    new_argv[ctr+2] = NULL;
 
     execvp(strdup(argv[0]), new_argv);
     perror("execvp() failed for restart");
