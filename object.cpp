@@ -669,6 +669,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
   typeof(cont.begin()) ind;
   for(ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
     if((*ind)->IsAct(ACT_SPECIAL_NOTSHOWN)) continue;
+    if((*ind)->Skill("Hidden") > 0) continue;
 
     if((*ind)->IsAct(ACT_SPECIAL_LINKED)) {
       if((*ind)->ActTarg(ACT_SPECIAL_LINKED)
@@ -1140,8 +1141,7 @@ int Object::Travel(Object *dest, int try_combine) {
   StopAct(ACT_FOLLOW);
 
   if(parent->Skill("DynamicInit") > 0) {  //Room is dynamic, but uninitialized
-    parent->DynamicInit(parent->Skill("DynamicInit"));
-    parent->SetSkill("DynamicInit", 0);
+    parent->DynamicInit();
     }
 
   if(parent->Skill("Secret")) {
@@ -1324,6 +1324,7 @@ Object *Object::PickObject(const char *name, int loc, int *ordinal) {
 
 static int tag(Object *obj, list<Object *> &ret, int *ordinal) {
   if(obj->IsAct(ACT_SPECIAL_NOTSHOWN)) return 0;	//Shouldn't be detected.
+  if((*ind)->Skill("Hidden") > 0) return 0;		//Can't be seen/affected
 
   Object *nobj = NULL;
 

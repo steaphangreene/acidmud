@@ -171,7 +171,16 @@ public:
   void SetAttribute(int, int);
   void SetSkill(const string &, int);
 
-  void DynamicInit(int type);
+  void DynamicInit();
+  void DynamicInit1();
+  void DynamicInit2();
+  void DynamicInit3();
+  void DynamicInit4();
+  void DynamicInit5();
+  void DynamicInit6();
+  void DynamicInit7();
+  void DynamicInit8();
+  void DynamicInit9();
 
   int RollInitiative() const;
   int Roll(const string &, const Object *, const string &, int bias = 0, string *res=NULL) const;
