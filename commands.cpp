@@ -997,7 +997,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	(*targ_it)->SendActions(mind);
 	mind->Send("%s", CNRM);
 	(*targ_it)->SendExtendedActions(mind, 1);
-	(*targ_it)->SendContents(mind, body, 1);
+	(*targ_it)->SendContents(mind, body, 1, "  ");
 	}
       }
     return 0;

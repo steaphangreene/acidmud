@@ -105,8 +105,8 @@ public:
 
   void SendActions(Mind *m);
   void SendExtendedActions(Mind *m, int seeinside=0);
-  void SendContents(Mind *m, Object *o = NULL, int seeinside=0);
-  void SendContents(Object *m, Object *o = NULL, int seeinside=0);
+  void SendContents(Mind *m, Object *o = NULL, int seeinside=0, string b="");
+  void SendContents(Object *m, Object *o = NULL, int seeinside=0, string b="");
 
   void SendFullSituation(Mind *m, Object *o = NULL);
   void SendShortDesc(Mind *m, Object *o = NULL);

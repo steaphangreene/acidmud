@@ -518,10 +518,10 @@ void Object::SetParent(Object *o) {
   if(o) o->AddLink(this);
   }
 
-void Object::SendContents(Object *targ, Object *o, int seeinside) {
+void Object::SendContents(Object *targ, Object *o, int seeinside, string b) {
   set<Mind*>::iterator m = targ->minds.begin();
   for(; m != targ->minds.end(); ++m) {
-    SendContents(*m, o, seeinside);
+    SendContents(*m, o, seeinside, b);
     }
   }
 
@@ -626,18 +626,34 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
 
     m->Send("%s%s%s.\n%s", CGRN, qty, targ, CNRM);
 
-    if(seeinside || cur->second->Skill("Transparent")) {
+    if(cur->second->Skill("Transparent")) {
       sprintf(buf, "%16s  %c", " ", 0);
       base = buf;
       cur->second->SendContents(m, NULL, seeinside);
       base = "";
       m->Send("%s", CNRM);
       }
+    else if(cur->second->Skill("Container")) {
+      if(seeinside && (!cur->second->Skill("Locked"))) {
+	sprintf(buf, "%16s  %c", " ", 0);
+	base = buf;
+	cur->second->SendContents(m, NULL, seeinside);
+	base = "";
+	m->Send("%s", CNRM);
+	}
+      else if(seeinside && cur->second->Skill("Locked")) {
+	string mes = base + CNRM + "                "
+		+ "  It is closed and locked.\n" + CGRN;
+	m->Send(mes.c_str());
+	}
+      }
     }
   }
 
-void Object::SendContents(Mind *m, Object *o, int seeinside) {
+void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
   typeof(contents) cont = contents;
+
+  if(b.length() > 0) base += b;
 
   set<Object*> master;
   master.insert(cont.begin(), cont.end());
@@ -688,22 +704,29 @@ void Object::SendContents(Mind *m, Object *o, int seeinside) {
 
       (*ind)->SendActions(m);
 
-      if((*ind)->Skill("Transparent")
-		|| ( seeinside && (!(*ind)->Skill("Locked")) )
-		) {
+      if((*ind)->Skill("Transparent")) {
 	string tmp = base;
 	base += "  ";
 	(*ind)->SendContents(m, o, seeinside);
 	base = tmp;
 	}
-      else if(seeinside && (*ind)->Skill("Locked")) {
-	string mes = base + CNRM
+      else if((*ind)->Skill("Container")) {
+	if(seeinside && (!(*ind)->Skill("Locked"))) {
+	  string tmp = base;
+	  base += "  ";
+	  (*ind)->SendContents(m, o, seeinside);
+	  base = tmp;
+	  }
+	else if(seeinside && (*ind)->Skill("Locked")) {
+	  string mes = base + CNRM
 		+ "  It is closed and locked, you can't see inside.\n" + CGRN;
-	m->Send(mes.c_str());
+	  m->Send(mes.c_str());
+	  }
 	}
       }
     m->Send("%s", CNRM);
     }
+  if(b.length() > 0) base = "";
   }
 
 void Object::SendShortDesc(Mind *m, Object *o) {
