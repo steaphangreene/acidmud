@@ -67,12 +67,13 @@ int main(int argc, char **argv) {
     }
 
   fprintf(stdout, "Ready to play!\n");
-  while(!shutdn) {
+  while(shutdn <= 0) {
     gettimeofday(&current_time, NULL);
     tick_world();
     update_net();
     usleep(10000);
     FreeActions();
+    save_world();
     }
   if(shutdn == 2) {  // Do Ninja Restart
     save_world(1);

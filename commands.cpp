@@ -130,6 +130,7 @@ enum {	COM_HELP=0,
 
 	COM_SHUTDOWN,
 	COM_RESTART,
+	COM_SAVEALL,
 	COM_MAKESTART,
 	COM_NAME,
 	COM_DESCRIBE,
@@ -482,6 +483,11 @@ Command comlist[] = {
     "Ninja command: restart the entire MUD - preserving connections.",
     (REQ_ANY|REQ_NINJAMODE)
     },
+  { COM_SAVEALL, "saveall", 
+    "Ninja command: save the entire MUD Universe- preserving connections.",
+    "Ninja command: save the entire MUD Universe - preserving connections.",
+    (REQ_ANY|REQ_NINJAMODE)
+    },
   { COM_MAKESTART, "makestart",
     "Ninja command.",
     "Ninja command - ninjas only!",
@@ -670,6 +676,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
   if(com == COM_RESTART) {
     shutdn = 2;
     if(mind) mind->Send("You instruct the system to restart.\n");
+    return 0;
+    }
+
+  if(com == COM_SAVEALL) {
+    shutdn = -1;
+    if(mind) mind->Send("You instruct the system to save all.\n");
     return 0;
     }
 
