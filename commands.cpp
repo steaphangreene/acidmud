@@ -1,7 +1,10 @@
+#include <algorithm>
 #include <cstdio>
 #include <ctype.h>
 #include <cstring>
 #include <unistd.h>
+
+using namespace std;
 
 #include "net.h"
 #include "main.h"
@@ -1099,14 +1102,16 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  mind->Send("%d gp: %s\n", price, item->ShortDesc());
 
 	  int togo = price, ord = -price;
-	  set<Object *> pay
+	  vector<Object *> pay
 		= body->PickObjects("a gold piece", LOC_INTERNAL, &ord);
-	  set<Object *>::iterator coin;
+	  vector<Object *>::iterator coin;
 	  for(coin = pay.begin(); coin != pay.end(); ++coin) {
 	    togo -= (1 >? (*coin)->Skill("Quantity"));
 	    }
 
-	  if(body->IsAct(ACT_HOLD) && (!pay.count(body->ActTarg(ACT_HOLD)))) {
+	  vector<Object*>::iterator loc
+		= find(pay.begin(), pay.end(), body->ActTarg(ACT_HOLD));
+	  if(body->IsAct(ACT_HOLD) && loc == pay.end()) {
 	    if(mind) mind->Send("You are already holding something else!\n");
 	    }
 	  else if(togo <= 0) {
@@ -1162,8 +1167,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("Sorry, the shopkeeper is asleep!\n");
       }
     else {
-      set<Object *>targs = body->PickObjects(comline+len, LOC_INTERNAL);
-      if(body->IsAct(ACT_HOLD) && (!targs.count(body->ActTarg(ACT_HOLD)))) {
+      vector<Object *>targs = body->PickObjects(comline+len, LOC_INTERNAL);
+      vector<Object*>::iterator loc
+		= find(targs.begin(), targs.end(), body->ActTarg(ACT_HOLD));
+      if(body->IsAct(ACT_HOLD) && loc == targs.end()) {
 	if(mind) mind->Send("You are already holding something else!\n");
 	}
       else if(!targs.size()) {
@@ -1173,7 +1180,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Container")) {
 	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 
-	set<Object *>::iterator targ_i;
+	vector<Object *>::iterator targ_i;
 	for(targ_i = targs.begin(); targ_i != targs.end(); ++targ_i) {
 	  Object *targ = (*targ_i);
 
@@ -1192,9 +1199,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  mind->Send("%d gp: %s\n", price, targ->ShortDesc());
 
 	  int togo = price, ord = -price;
-	  set<Object *> pay
+	  vector<Object *> pay
 		= shpkp->PickObjects("a gold piece", LOC_INTERNAL, &ord);
-	  set<Object *>::iterator coin;
+	  vector<Object *>::iterator coin;
 	  for(coin = pay.begin(); coin != pay.end(); ++coin) {
 	    togo -= (1 >? (*coin)->Skill("Quantity"));
 	    }
@@ -1225,7 +1232,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
-    set<Object *> targs = body->PickObjects(comline+len, LOC_NEARBY);
+    vector<Object *> targs = body->PickObjects(comline+len, LOC_NEARBY);
     if(targs.size() == 0) {
       if(mind) mind->Send("You want to get what?\n");
       return 0;
@@ -1525,12 +1532,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
-    set<Object*> targs = body->PickObjects(comline+len, LOC_INTERNAL);
+    vector<Object*> targs = body->PickObjects(comline+len, LOC_INTERNAL);
     if(!targs.size()) {
       if(mind) mind->Send("You want to wear what?\n");
       return 0;
       }
-    set<Object*>::iterator targ_it;
+    vector<Object*>::iterator targ_it;
     for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
       Object *targ = (*targ_it);
 
@@ -1672,12 +1679,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("What do you want to drop?\n");
       return 0;
       }
-    set<Object *>targs = body->PickObjects(comline+len, LOC_INTERNAL);
+    vector<Object *>targs = body->PickObjects(comline+len, LOC_INTERNAL);
     if(!targs.size()) {
       if(mind) mind->Send("You want to drop what?\n");
       }
     else {
-      set<Object *>::iterator targ;
+      vector<Object *>::iterator targ;
       for(targ = targs.begin(); targ != targs.end(); ++targ) {
 	(*targ)->Travel(body->Parent());
 	body->Parent()->SendOut(

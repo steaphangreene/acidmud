@@ -1,6 +1,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include <vector>
 
 #include <ctime>
 #include <cstdio>
@@ -113,7 +114,7 @@ public:
   void Unattach(Mind *mind);
 
   Object *PickObject(char *, int loc, int *ordinal=NULL);
-  set<Object *> PickObjects(char *, int loc, int *ordinal=NULL);
+  vector<Object *> PickObjects(char *, int loc, int *ordinal=NULL);
   int IsNearBy(Object *obj);
   int IsWithin(Object *obj);
   int Contains(Object *obj) { return contents.count(obj); }

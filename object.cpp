@@ -1106,14 +1106,14 @@ int strip_ordinal(char **text) {
   }
 
 Object *Object::PickObject(char *name, int loc, int *ordinal) {
-  set<Object*> ret = PickObjects(name, loc, ordinal);
+  vector<Object*> ret = PickObjects(name, loc, ordinal);
   if(ret.size() != 1) {
     return NULL;
     }
   return (*(ret.begin()));
   }
 
-static int tag(Object *obj, set<Object*> &ret, int *ordinal) {
+static int tag(Object *obj, vector<Object*> &ret, int *ordinal) {
   Object *nobj = NULL;
 
   int cqty = 1, rqty = 1; //Contains / Requires
@@ -1131,7 +1131,7 @@ static int tag(Object *obj, set<Object*> &ret, int *ordinal) {
       }
     else if(cqty == 1) {		// Just this one.
       *ordinal = 0;
-      ret.insert(obj);
+      ret.push_back(obj);
       return 1;
       }
     else {				// One of this set.
@@ -1139,7 +1139,7 @@ static int tag(Object *obj, set<Object*> &ret, int *ordinal) {
       nobj = new Object(*obj);
       nobj->SetParent(obj->Parent());
       nobj->SetSkill("Quantity", 0);
-      ret.insert(nobj);
+      ret.push_back(nobj);
       --cqty;
       obj->SetSkill("Quantity", (cqty == 1) ? 0 : cqty);
       return 1;
@@ -1151,12 +1151,12 @@ static int tag(Object *obj, set<Object*> &ret, int *ordinal) {
   else if(*ordinal < -1) rqty = -(*ordinal);
 
   if(rqty == cqty) {			// Exactly this entire thing.
-    ret.insert(obj);
+    ret.push_back(obj);
     *ordinal = 0;
     return 1;
     }
   else if(rqty > cqty) {		// This entire thing and more.
-    ret.insert(obj);
+    ret.push_back(obj);
     if(*ordinal != ALL) *ordinal += cqty;
     return 0;
     }
@@ -1164,7 +1164,7 @@ static int tag(Object *obj, set<Object*> &ret, int *ordinal) {
     nobj = new Object(*obj);
     nobj->SetParent(obj->Parent());
     nobj->SetSkill("Quantity", rqty);
-    ret.insert(nobj);
+    ret.push_back(nobj);
 
     cqty -= rqty;
     obj->SetSkill("Quantity", (cqty == 1) ? 0 : cqty);
@@ -1173,8 +1173,8 @@ static int tag(Object *obj, set<Object*> &ret, int *ordinal) {
   return 0;
   }
 
-set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
-  set<Object*> ret;
+vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
+  vector<Object*> ret;
 
   while((!isgraph(*name)) && (*name)) ++name;
 
@@ -1192,14 +1192,16 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
     keyword2 = strdup(name);
     keyword2[keyword-name] = 0;
 
-    set<Object *>masters = PickObjects(keyword2, loc, ordinal);
+    vector<Object *>masters = PickObjects(keyword2, loc, ordinal);
     if(!masters.size()) { free(keyword2); return ret; }
 
-    set<Object *>::iterator master;
+    vector<Object *>::iterator master;
     for(master = masters.begin(); master != masters.end(); ++master) {
-      set<Object *> add = 
+      int olen = int(ret.size());
+      vector<Object *> add = 
 	(*master)->PickObjects(keyword2 + (keyword-name)+3, LOC_INTERNAL);
-      ret.insert(add.begin(), add.end());
+      ret.resize(olen + add.size());
+      copy(add.begin(), add.end(), ret.begin()+olen);
       }
     free(keyword2);
     return ret;
@@ -1211,7 +1213,7 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
   if(loc & LOC_SELF) {
     if((!strcasecmp(name, "self")) || (!strcasecmp(name, "myself"))) {
       if((*ordinal) != 1) return ret;
-      ret.insert(this);
+      ret.push_back(this);
       return ret;
       }
     }
@@ -1231,18 +1233,23 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
 	if(tag(*ind, ret, ordinal)) return ret;
 	}
       if((*ind)->Skill("Transparent")) {
-	set<Object*> add;
-	add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
-	ret.insert(add.begin(), add.end());
+	int olen = int(ret.size());
+	vector<Object *> add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
+	ret.resize(olen + add.size());
+	copy(add.begin(), add.end(), ret.begin()+olen);
+
 	if((*ordinal) == 0) return ret;
 	}
       }
     if(parent->Skill("Transparent")) {
       if(parent->parent) {
-	set<Object*> add;
 	parent->parent->contents.erase(parent);
-	add = parent->PickObjects(name, LOC_NEARBY, ordinal);
-	ret.insert(add.begin(), add.end());
+
+	int olen = int(ret.size());
+	vector<Object *> add = parent->PickObjects(name, LOC_NEARBY, ordinal);
+	ret.resize(olen + add.size());
+	copy(add.begin(), add.end(), ret.begin()+olen);
+
 	parent->parent->contents.insert(parent);
 	if((*ordinal) == 0) return ret;
 	}
@@ -1260,9 +1267,12 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
 	  if(tag(action->second, ret, ordinal)) return ret;
 	  }
 	if(action->second->Skill("Container")) {
-	  set<Object*> add;
-	  add = action->second->PickObjects(name, LOC_INTERNAL, ordinal);
-	  ret.insert(add.begin(), add.end());
+	  int olen = int(ret.size());
+	  vector<Object *> add
+		= action->second->PickObjects(name, LOC_INTERNAL, ordinal);
+	  ret.resize(olen + add.size());
+	  copy(add.begin(), add.end(), ret.begin()+olen);
+
 	  if((*ordinal) == 0) return ret;
 	  }
 	}
@@ -1275,9 +1285,11 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
 	if(tag(*ind, ret, ordinal)) return ret;
 	}
       if((*ind)->Skill("Container")) {
-	set<Object*> add;
-	add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
-	ret.insert(add.begin(), add.end());
+	int olen = int(ret.size());
+	vector<Object *> add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
+	ret.resize(olen + add.size());
+	copy(add.begin(), add.end(), ret.begin()+olen);
+
 	if((*ordinal) == 0) return ret;
 	}
       }
