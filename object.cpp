@@ -1223,17 +1223,29 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
       }
     }
 
-  if(loc & LOC_ADJACENT) {
-    char *dir = name;
-    if(!strcasecmp(dir, "n")) dir = "north";
-    if(!strcasecmp(dir, "s")) dir = "south";
-    if(!strcasecmp(dir, "w")) dir = "west";
-    if(!strcasecmp(dir, "e")) dir = "east";
-    if(!strcasecmp(dir, "u")) dir = "up";
-    if(!strcasecmp(dir, "d")) dir = "down";
-
-    if(parent->connections.count(dir) > 0) {
-      if(tag(parent->connections[dir], ret, ordinal)) return ret;
+  if(loc & LOC_NEARBY) {
+    set<Object*>::iterator ind;
+    for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
+      if((*ind) == this) continue;  // Must use "self" to pick self!
+      if(matches((*ind)->ShortDesc(), name)) {
+	if(tag(*ind, ret, ordinal)) return ret;
+	}
+      if((*ind)->Skill("Transparent")) {
+	set<Object*> add;
+	add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
+	ret.insert(add.begin(), add.end());
+	if((*ordinal) == 0) return ret;
+	}
+      }
+    if(parent->Skill("Transparent")) {
+      if(parent->parent) {
+	set<Object*> add;
+	parent->parent->contents.erase(parent);
+	add = parent->PickObjects(name, LOC_NEARBY, ordinal);
+	ret.insert(add.begin(), add.end());
+	parent->parent->contents.insert(parent);
+	if((*ordinal) == 0) return ret;
+	}
       }
     }
 
@@ -1272,29 +1284,17 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
       }
     }
 
-  if(loc & LOC_NEARBY) {
-    set<Object*>::iterator ind;
-    for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
-      if((*ind) == this) continue;  // Must use "self" to pick self!
-      if(matches((*ind)->ShortDesc(), name)) {
-	if(tag(*ind, ret, ordinal)) return ret;
-	}
-      if((*ind)->Skill("Transparent")) {
-	set<Object*> add;
-	add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
-	ret.insert(add.begin(), add.end());
-	if((*ordinal) == 0) return ret;
-	}
-      }
-    if(parent->Skill("Transparent")) {
-      if(parent->parent) {
-	set<Object*> add;
-	parent->parent->contents.erase(parent);
-	add = parent->PickObjects(name, LOC_NEARBY, ordinal);
-	ret.insert(add.begin(), add.end());
-	parent->parent->contents.insert(parent);
-	if((*ordinal) == 0) return ret;
-	}
+  if(loc & LOC_ADJACENT) {
+    char *dir = name;
+    if(!strcasecmp(dir, "n")) dir = "north";
+    if(!strcasecmp(dir, "s")) dir = "south";
+    if(!strcasecmp(dir, "w")) dir = "west";
+    if(!strcasecmp(dir, "e")) dir = "east";
+    if(!strcasecmp(dir, "u")) dir = "up";
+    if(!strcasecmp(dir, "d")) dir = "down";
+
+    if(parent->connections.count(dir) > 0) {
+      if(tag(parent->connections[dir], ret, ordinal)) return ret;
       }
     }
 
