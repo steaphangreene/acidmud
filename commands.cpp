@@ -161,7 +161,7 @@ Command comlist[] = {
   { COM_STATS, "stats",
     "Get stats of an object or creature.",
     "Get stats of an object or creature.",
-    (REQ_ETHEREAL|REQ_ALERT|REQ_ACTION)
+    (REQ_ANY|REQ_ACTION)
     },
 
   { COM_OPEN, "open",

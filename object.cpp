@@ -190,14 +190,36 @@ void tick_world() {
   }
 
 void Object::Tick() {
-  if(stun > 0) {
+  if(phys >= 10) {
+    int rec = RollNoWounds("Body", phys - 4);
+    if(!rec) ++phys;
+    UpdateDamage();
+    }
+  else if(phys > 0) {
     int rec = 0;
-    if(IsAct(ACT_SLEEP)) rec = Roll("Willpower", 2);
-    if(IsAct(ACT_REST)) rec = Roll("Willpower", 4);
-    if(!IsAct(ACT_FIGHT)) rec = Roll("Willpower", 6);
+    if(IsAct(ACT_SLEEP)) rec = Roll("Body", 4);
+    else if(IsAct(ACT_REST)) rec = Roll("Body", 6);
+    else if(!IsAct(ACT_FIGHT)) rec = Roll("Body", 8);
+    if(phys >= 6 && (!rec)) ++phys;
+    else phys -= rec/2;
+    phys = 0 >? phys;
+    UpdateDamage();
+    }
+  if(stun >= 10) {
+    int rec = 0;
+    rec = RollNoWounds("Willpower", 6);
     stun -= rec;  stun = 0 >? stun;
     UpdateDamage();
     }
+  else if(phys < 6 && stun > 0) {
+    int rec = 0;
+    if(IsAct(ACT_SLEEP)) rec = Roll("Willpower", 2);
+    else if(IsAct(ACT_REST)) rec = Roll("Willpower", 4);
+    else if(!IsAct(ACT_FIGHT)) rec = Roll("Willpower", 6);
+    stun -= rec;  stun = 0 >? stun;
+    UpdateDamage();
+    }
+
   //FIXME: bleed, rot, etc....
 
   set<Mind*>::iterator m;
