@@ -617,7 +617,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
         if(body->IsAct(ACT_SLEEP)) return 0;
         }
       if(body->IsAct(ACT_REST)) {
-        if(mind) mind->Send("You must be awake to use that command.\n");
+        if(mind) mind->Send("You must be alert to use that command.\n");
 	handle_single_command(body, "rest", mind);
         if(body->IsAct(ACT_REST)) return 0;
         }
@@ -1558,6 +1558,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("You want to wear what?\n");
       return 0;
       }
+
+    int did_something = 0;
     vector<Object*>::iterator targ_it;
     for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
       Object *targ = (*targ_it);
@@ -1663,8 +1665,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
 	  if(locations.size() < 1) {
 	    if(mask == 1) {
-	      if(mind) mind->Send("You can't wear %s - it's not wearable!\n",
-			targ->Name(0, body));
+	      if(mind && targs.size() == 1)
+		mind->Send("You can't wear %s - it's not wearable!\n",
+							targ->Name(0, body));
 	      }
 	    else {
 	      if(mind) mind->Send(
@@ -1681,6 +1684,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	    if(body->IsAct(*loc)) { success = 0; break; }
 	    }
 	  if(success) {
+	    did_something = 1;
 	    targ->Travel(body); // Kills Holds and Wields on "targ"
 	    for(loc = locations.begin(); loc != locations.end(); ++loc) {
 	      body->AddAct(*loc, targ);
@@ -1691,6 +1695,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  }
 	}
       }
+    if(!did_something)
+      if(mind) mind->Send("You don't seem to have anything (else) to wear.\n");
     return 0;
     }
 
