@@ -2140,31 +2140,19 @@ int Object::Contains(Object *obj) {
   }
 
 Object *Object::Stash(Object *obj) {
-  set<Object*> conts;
-  typeof(contents.begin()) ind;
-  for(ind = contents.begin(); ind != contents.end(); ++ind) {
+  list<Object*> containers, my_cont;
+  my_cont = PickObjects("all", LOC_INTERNAL);
+  typeof(my_cont.begin()) ind;
+  for(ind = my_cont.begin(); ind != my_cont.end(); ++ind) {
     if((*ind)->Skill("Container") && (
 	(!(*ind)->Skill("Locked")) || (*ind)->Skill("Open")
-	))
-      conts.insert(*ind);
-    }
-
-  set<Object*> containers;
-  while(conts != containers) {
-    containers = conts;
-    set<Object*>::iterator c;
-    for(c = containers.begin(); c != containers.end(); ++c) {
-      for(ind = (*c)->contents.begin(); ind != (*c)->contents.end(); ++ind) {
-	if((*ind)->Skill("Container") && (
-		(!(*ind)->Skill("Locked")) || (*ind)->Skill("Open")
-		))
-	  conts.insert(*ind);
-	}
+	)) {
+      containers.push_back(*ind);
       }
     }
 
   Object *dest = NULL;
-  set<Object*>::iterator con;
+  list<Object*>::iterator con;
   for(con = containers.begin(); con != containers.end(); ++con) {
     if((*con)->Skill("Capacity") - (*con)->ContainedVolume() < obj->Volume())
       continue;
