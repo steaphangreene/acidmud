@@ -1018,63 +1018,72 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
-    Object *targ = body->Parent();
+    typeof(body->Contents()) targs;
     int within = 0;
 
     if(!strncasecmp(comline+len, "at ", 3)) len += 3;
     if(!strncasecmp(comline+len, "in ", 3)) { len += 3; within = 1; }
 
     if(strlen(comline+len) > 0) {
-      targ = body->PickObject(comline+len,
+      targs = body->PickObjects(comline+len,
 	LOC_NEARBY|LOC_ADJACENT|LOC_SELF|LOC_INTERNAL);
       }
-    if(!targ) {
-      if(mind) mind->Send("You don't see that here.\n");
-      }
     else {
-      if(within && (!targ->Skill("Container"))) {
-	if(mind) mind->Send("You can't look inside that, it is not a container.\n");
+      targs.push_back(body->Parent());
+      }
+
+    if(targs.size() < 1) {
+      if(mind) mind->Send("You don't see that here.\n");
+      return 0;
+      }
+
+    typeof(targs.begin()) targ_it;
+    for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+      if(within && (!(*targ_it)->Skill("Container"))) {
+	if(mind) mind->Send("You can't look inside %s, it is not a container.\n",
+		(*targ_it)->Name());
 	}
-      else if(within && (targ->Skill("Locked"))) {
-	if(mind) mind->Send("You can't look inside that, it is locked.\n");
+      else if(within && ((*targ_it)->Skill("Locked"))) {
+	if(mind) mind->Send("You can't look inside %s, it is locked.\n",
+		(*targ_it)->Name());
 	}
       else {
 	int must_open = within;
-	if(within && targ->Skill("Open")) must_open = 0;
+	if(within && (*targ_it)->Skill("Open")) must_open = 0;
 
 	if(must_open) {
-	  targ->SetSkill("Open", 1);
+	  (*targ_it)->SetSkill("Open", 1);
 	  body->Parent()->SendOut(stealth_t, stealth_s, 
-		";s opens ;s.\n", "You open ;s.\n", body, targ);
+		";s opens ;s.\n", "You open ;s.\n", body, (*targ_it));
 	  }
 
 	if(strlen(comline+len) > 0 && within) {
 		body->Parent()->SendOut(stealth_t, stealth_s, 
-		";s looks inside ;s.\n", "", body, targ);
+		";s looks inside ;s.\n", "", body, (*targ_it));
 	  if(mind) {
-	    targ->SendDesc(mind, body);
-	    targ->SendExtendedActions(mind);
-	    targ->SendContents(mind);
+	    (*targ_it)->SendDesc(mind, body);
+	    (*targ_it)->SendExtendedActions(mind);
+	    (*targ_it)->SendContents(mind);
 	    }
 	  }
 	else if(strlen(comline+len) > 0) {
 		body->Parent()->SendOut(stealth_t, stealth_s, 
-		";s looks at ;s.\n", "", body, targ);
+		";s looks at ;s.\n", "", body, (*targ_it));
 	  if(mind) {
-	    targ->SendDesc(mind, body);
-	    targ->SendExtendedActions(mind);
+	    (*targ_it)->SendDesc(mind, body);
+	    (*targ_it)->SendExtendedActions(mind);
 	    }
 	  }
 	else {
 		body->Parent()->SendOut(stealth_t, stealth_s, 
-		";s looks around.\n", "", body, targ);
-	  if(mind) targ->SendDescSurround(mind, body);
+		";s looks around.\n", "", body, (*targ_it));
+	  if(mind) (*targ_it)->SendDescSurround(mind, body);
 	  }
 
 	if(must_open) {
-	  targ->SetSkill("Open", 0);
+	  (*targ_it)->SetSkill("Open", 0);
 	  body->Parent()->SendOut(stealth_t, stealth_s, 
-		";s closes ;s.\n", "You close ;s.\n", body, targ);
+		";s closes ;s.\n", "You close ;s.\n", body, (*targ_it));
 	  }
 	}
       }
