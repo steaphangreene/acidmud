@@ -1315,14 +1315,14 @@ int strip_ordinal(char **text) {
   }
 
 Object *Object::PickObject(char *name, int loc, int *ordinal) {
-  vector<Object*> ret = PickObjects(name, loc, ordinal);
+  typeof(contents) ret = PickObjects(name, loc, ordinal);
   if(ret.size() != 1) {
     return NULL;
     }
   return (*(ret.begin()));
   }
 
-static int tag(Object *obj, vector<Object*> &ret, int *ordinal) {
+static int tag(Object *obj, list<Object *> &ret, int *ordinal) {
   if(obj->IsAct(ACT_SPECIAL_NOTSHOWN)) return 0;	//Shouldn't be detected.
 
   Object *nobj = NULL;
@@ -1384,8 +1384,8 @@ static int tag(Object *obj, vector<Object*> &ret, int *ordinal) {
   return 0;
   }
 
-vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
-  vector<Object*> ret;
+list<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
+  typeof(contents) ret;
 
   while((!isgraph(*name)) && (*name)) ++name;
 
@@ -1403,16 +1403,14 @@ vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
     keyword2 = strdup(name);
     keyword2[keyword-name] = 0;
 
-    vector<Object *>masters = PickObjects(keyword2, loc, ordinal);
+    typeof(contents) masters = PickObjects(keyword2, loc, ordinal);
     if(!masters.size()) { free(keyword2); return ret; }
 
-    vector<Object *>::iterator master;
+    typeof(masters.begin()) master;
     for(master = masters.begin(); master != masters.end(); ++master) {
-      int olen = int(ret.size());
-      vector<Object *> add = 
+      typeof(contents) add = 
 	(*master)->PickObjects(keyword2 + (keyword-name)+3, LOC_INTERNAL);
-      ret.resize(olen + add.size());
-      copy(add.begin(), add.end(), ret.begin()+olen);
+      ret.insert(ret.end(), add.begin(), add.end());
       }
     free(keyword2);
     return ret;
@@ -1453,10 +1451,8 @@ vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
 	if(tag(*ind, ret, ordinal)) return ret;
 	}
       if((*ind)->Skill("Transparent")) {
-	int olen = int(ret.size());
-	vector<Object *> add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
-	ret.resize(olen + add.size());
-	copy(add.begin(), add.end(), ret.begin()+olen);
+	typeof(contents) add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
+	ret.insert(ret.end(), add.begin(), add.end());
 
 	if((*ordinal) == 0) return ret;
 	}
@@ -1465,10 +1461,8 @@ vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
       if(parent->parent) {
 	parent->no_seek = 1;
 
-	int olen = int(ret.size());
-	vector<Object *> add = parent->PickObjects(name, LOC_NEARBY, ordinal);
-	ret.resize(olen + add.size());
-	copy(add.begin(), add.end(), ret.begin()+olen);
+	typeof(contents) add = parent->PickObjects(name, LOC_NEARBY, ordinal);
+	ret.insert(ret.end(), add.begin(), add.end());
 
 	parent->no_seek = 0;
 	if((*ordinal) == 0) return ret;
@@ -1488,11 +1482,9 @@ vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
 	  if(tag(action->second, ret, ordinal)) return ret;
 	  }
 	if(action->second->Skill("Container")) {
-	  int olen = int(ret.size());
-	  vector<Object *> add
+	  typeof(contents) add
 		= action->second->PickObjects(name, LOC_INTERNAL, ordinal);
-	  ret.resize(olen + add.size());
-	  copy(add.begin(), add.end(), ret.begin()+olen);
+	  ret.insert(ret.end(), add.begin(), add.end());
 
 	  if((*ordinal) == 0) return ret;
 	  }
@@ -1506,10 +1498,8 @@ vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
 	if(tag(*ind, ret, ordinal)) return ret;
 	}
       if((*ind)->Skill("Container")) {
-	int olen = int(ret.size());
-	vector<Object *> add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
-	ret.resize(olen + add.size());
-	copy(add.begin(), add.end(), ret.begin()+olen);
+	typeof(contents) add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
+	ret.insert(ret.end(), add.begin(), add.end());
 
 	if((*ordinal) == 0) return ret;
 	}
@@ -2169,7 +2159,7 @@ void Object::operator = (const Object &in) {
 //  act = in.act;
   }
 
-vector<Object *> Object::Contents() {
+list<Object *> Object::Contents() {
   return contents;
   }
 

@@ -1,6 +1,6 @@
 #include <map>
 #include <set>
-#include <vector>
+#include <list>
 #include <string>
 
 #include <ctime>
@@ -129,12 +129,12 @@ public:
   Object *Stash(Object *);
 
   Object *PickObject(char *, int loc, int *ordinal=NULL);
-  vector<Object *> PickObjects(char *, int loc, int *ordinal=NULL);
+  list<Object *> PickObjects(char *, int loc, int *ordinal=NULL);
   void NotifyGone(Object *obj, Object *newloc = NULL, int up = 1);
   int IsNearBy(Object *obj);
   int IsWithin(Object *obj);
   int Contains(Object *obj);
-  vector<Object *> Contents();
+  list<Object *> Contents();
   map<string,Object*> Connections() { return connections; }
 
   int ContainedWeight();
@@ -242,7 +242,7 @@ private:
   string desc;
   string long_desc;
   map<string,Object*> connections;
-  vector<Object*> contents;
+  list<Object*> contents;
   Object *parent;
   set<Mind*> minds;
   pos_t pos;

@@ -1271,12 +1271,14 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 	objs = vortex->Contents();
 	typeof(objs.begin()) obj;
+	typeof(objs.begin()) oobj = objs.begin();
 	for(obj = objs.begin(); obj != objs.end(); ++obj) {
-	  if(obj != objs.begin() && (*(*obj)) == (*(*(obj-1)))) continue;
+	  if(obj != objs.begin() && (*(*obj)) == (*(*oobj))) continue;
 	  int price = (*obj)->Value();
  	  price *= shpkp->Skill("Sell Profit");
 	  price += 999;  price /= 1000;
 	  mind->Send("%10d gp: %s\n", price, (*obj)->ShortDesc());
+	  oobj = obj;
 	  }
 	}
       }
@@ -1316,13 +1318,14 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
 	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 
-        vector<Object *>targs = vortex->PickObjects(comline+len, LOC_INTERNAL);
+        typeof(vortex->Contents()) targs
+		= vortex->PickObjects(comline+len, LOC_INTERNAL);
 	if(!targs.size()) {
 	  if(mind) mind->Send("The shopkeeper doesn't have that.\n");
 	  return 0;
 	  }
 
-	vector<Object *>::iterator targ_i;
+	typeof(targs.begin()) targ_i;
 	for(targ_i = targs.begin(); targ_i != targs.end(); ++targ_i) {
 	  Object *targ = (*targ_i);
 
@@ -1346,9 +1349,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  mind->Send("%d gp: %s\n", price, targ->ShortDesc());
 
 	  int togo = price, ord = -price;
-	  vector<Object *> pay
+	  typeof(body->Contents()) pay
 		= body->PickObjects("a gold piece", LOC_INTERNAL, &ord);
-	  vector<Object *>::iterator coin;
+	  typeof(pay.begin()) coin;
 	  for(coin = pay.begin(); coin != pay.end(); ++coin) {
 	    togo -= (1 >? (*coin)->Skill("Quantity"));
 	    }
@@ -1410,13 +1413,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("Sorry, the shopkeeper is asleep!\n");
       }
     else {
-      vector<Object *>targs = body->PickObjects(comline+len, LOC_INTERNAL);
+      typeof(body->Contents()) targs = body->PickObjects(comline+len, LOC_INTERNAL);
       if(!targs.size()) {
 	if(mind) mind->Send("You want to value what?\n");
 	}
       else if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)
 		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
-	vector<Object *>::iterator targ_i;
+	typeof(targs.begin()) targ_i;
 	for(targ_i = targs.begin(); targ_i != targs.end(); ++targ_i) {
 	  Object *targ = (*targ_i);
 	  int price = targ->Value() * (1 >? targ->Skill("Quantity"));
@@ -1474,7 +1477,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("Sorry, the shopkeeper is asleep!\n");
       }
     else {
-      vector<Object *>targs = body->PickObjects(comline+len, LOC_INTERNAL);
+      typeof(body->Contents()) targs = body->PickObjects(comline+len, LOC_INTERNAL);
       if(!targs.size()) {
 	if(mind) mind->Send("You want to sell what?\n");
 	}
@@ -1482,7 +1485,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
 	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 
-	vector<Object *>::iterator targ_i;
+	typeof(targs.begin()) targ_i;
 	for(targ_i = targs.begin(); targ_i != targs.end(); ++targ_i) {
 	  Object *targ = (*targ_i);
 
@@ -1528,9 +1531,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  mind->Send("%d gp: %s\n", price, targ->ShortDesc());
 
 	  int togo = price, ord = -price;
-	  vector<Object *> pay
+	  typeof(body->Contents()) pay
 		= shpkp->PickObjects("a gold piece", LOC_INTERNAL, &ord);
-	  vector<Object *>::iterator coin;
+	  typeof(pay.begin()) coin;
 	  for(coin = pay.begin(); coin != pay.end(); ++coin) {
 	    togo -= (1 >? (*coin)->Skill("Quantity"));
 	    }
@@ -1567,13 +1570,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
-    vector<Object *> targs = body->PickObjects(comline+len, LOC_NEARBY);
+    typeof(body->Contents()) targs = body->PickObjects(comline+len, LOC_NEARBY);
     if(targs.size() == 0) {
       if(mind) mind->Send("You want to get what?\n");
       return 0;
       }
 
-    vector<Object *>::iterator ind;
+    typeof(targs.begin()) ind;
     for(ind = targs.begin(); ind != targs.end(); ++ind) {
       Object *targ = *ind;
 
@@ -1828,13 +1831,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
-    vector<Object*> targs = body->PickObjects(comline+len, LOC_INTERNAL);
+    typeof(body->Contents()) targs = body->PickObjects(comline+len, LOC_INTERNAL);
     if(targs.size() == 0) {
       if(mind) mind->Send("You want to remove what?\n");
       return 0;
       }
 
-    vector<Object*>::iterator targ_it;
+    typeof(targs.begin()) targ_it;
     for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
       Object *targ = (*targ_it);
     
@@ -1870,14 +1873,15 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
-    vector<Object*> targs = body->PickObjects(comline+len, LOC_INTERNAL);
+    typeof(body->Contents()) targs
+	= body->PickObjects(comline+len, LOC_INTERNAL);
     if(!targs.size()) {
       if(mind) mind->Send("You want to wear what?\n");
       return 0;
       }
 
     int did_something = 0;
-    vector<Object*>::iterator targ_it;
+    typeof(targs.begin()) targ_it;
     for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
       Object *targ = (*targ_it);
 
@@ -2024,12 +2028,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("What do you want to drop?\n");
       return 0;
       }
-    vector<Object *>targs = body->PickObjects(comline+len, LOC_INTERNAL);
+    typeof(body->Contents()) targs
+	= body->PickObjects(comline+len, LOC_INTERNAL);
     if(!targs.size()) {
       if(mind) mind->Send("You want to drop what?\n");
       }
     else {
-      vector<Object *>::iterator targ;
+      typeof(targs.begin()) targ;
       for(targ = targs.begin(); targ != targs.end(); ++targ) {
 	body->Parent()->SendOut(
 	  ";s drops ;s.\n", "You drop ;s.\n", body, *targ);
@@ -3065,13 +3070,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
   if(com == COM_JUNK) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    vector<Object*> targs
+    typeof(body->Contents()) targs
 	= body->PickObjects(comline+len, LOC_NEARBY|LOC_INTERNAL);
     if(targs.size() == 0) {
       mind->Send("You want to destroy what?\n");
       return 0;
       }
-    vector<Object*>::iterator targ_it;
+    typeof(targs.begin()) targ_it;
     for(targ_it = targs.begin(); targ_it != targs.end(); ++ targ_it) {
       body->Parent()->SendOut(
 	";s destroys ;s with Ninja Powers[TM].\n", "You destroy ;s.\n",
