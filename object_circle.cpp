@@ -491,15 +491,19 @@ void Object::CircleLoadMob(const char *fn) {
 
 
       if(tp == 'E' || tp == 'S') {
-	fscanf(mudm, "%d %d %d", &val, &val2, &val3); // Level, THAC0, AC
+	fscanf(mudm, "%d %d %d", &val, &val2, &val3);
 	for(int ctr=0; ctr<val; ++ctr)
-	  obj->SetAttribute(ctr%6, obj->Attribute(ctr%6)+1); // val1 = Level
-	obj->SetSkill("CircleAttack", (20 - val2) / 3); // val2 = THAC0
-	obj->SetSkill("CircleDefense", (10 - val3) / 3); // val2 = AC
+	  obj->SetAttribute(ctr%6, obj->Attribute(ctr%6)+1);	// val1 = Level
+	obj->SetSkill("CircleAttack", (20 - val2) / 3);		// val2 = THAC0
+	obj->SetSkill("CircleDefense", (10 - val3) / 3);	// val2 = AC
 
-	fscanf(mudm, " %dd%d+%d", &val, &val2, &val3); // Hit Points
+	fscanf(mudm, " %dd%d+%d", &val, &val2, &val3);	// Hit Points
+	val = (val*(val2+1) + 1) / 2 + val3;
+	obj->SetAttribute(0, val/100);			// Become Body
+//	fprintf(stderr, "Hit Points (%s): %d\n", obj->Name(), val);
 
 	fscanf(mudm, " %dd%d+%d\n", &val, &val2, &val3); // Barehand Damage
+	val = (val*(val2+1) + 1) / 2 + val3;
 
 	fscanf(mudm, "%d", &val);  // Gold
 	obj->SetSkill("CircleGold", val);
