@@ -154,6 +154,9 @@ void Object::CircleFinishMob(Object *mob) {
 	mob->ActTarg(ACT_WEAR_LSHOULDER)->ContainedWeight());
     mob->ActTarg(ACT_WEAR_LSHOULDER)->SetSkill("Capacity",
 	mob->ActTarg(ACT_WEAR_LSHOULDER)->ContainedVolume());
+    if(mob->ActTarg(ACT_WEAR_LSHOULDER)->Contents().size() == 0) {
+      delete mob->ActTarg(ACT_WEAR_LSHOULDER);
+      }
     }
   if(mob->Skill("CircleAttack")) {
     if(mob->IsAct(ACT_WIELD)) {
