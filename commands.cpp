@@ -1244,6 +1244,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	}
       targ->SetSkill("Locked", 1);
       body->Parent()->SendOut(";s locks ;s.\n", "You lock ;s.\n", body, targ);
+      if(targ->ActTarg(ACT_SPECIAL_MASTER)) {
+	Object *targ2 = targ->ActTarg(ACT_SPECIAL_MASTER);
+	targ2->Parent()->SendOut(";s locks.\n", "", targ2, NULL);
+	targ2->SetSkill("Locked", 1);
+	}
       }
     return 0;
     }
@@ -1279,6 +1284,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	}
       targ->SetSkill("Locked", 0);
       body->Parent()->SendOut(";s unlocks ;s.\n", "You unlock ;s.\n", body, targ);
+      if(targ->ActTarg(ACT_SPECIAL_MASTER)) {
+	Object *targ2 = targ->ActTarg(ACT_SPECIAL_MASTER);
+	targ2->Parent()->SendOut(";s unlocks.\n", "", targ2, NULL);
+	targ2->SetSkill("Locked", 1);
+	}
       }
     return 0;
     }
@@ -1306,6 +1316,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else {
       targ->SetSkill("Open", 1);
       body->Parent()->SendOut(";s opens ;s.\n", "You open ;s.\n", body, targ);
+      if(targ->ActTarg(ACT_SPECIAL_MASTER)) {
+	Object *targ2 = targ->ActTarg(ACT_SPECIAL_MASTER);
+	targ2->Parent()->SendOut(";s opens.\n", "", targ2, NULL);
+	targ2->SetSkill("Open", 1);
+	targ2->SetSkill("Locked", 0);	//FIXME: Do I want to do this?
+	}
       }
     return 0;
     }
@@ -1334,6 +1350,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       targ->SetSkill("Open", 0);
       body->Parent()->SendOut(
 	";s closes ;s.\n", "You close ;s.\n", body, targ);
+      if(targ->ActTarg(ACT_SPECIAL_MASTER)) {
+	Object *targ2 = targ->ActTarg(ACT_SPECIAL_MASTER);
+	targ2->Parent()->SendOut(";s closes.\n", "", targ2, NULL);
+	targ2->SetSkill("Open", 0);
+	targ2->SetSkill("Locked", 0);	//FIXME: Do I want to do this?
+	}
       }
     return 0;
     }

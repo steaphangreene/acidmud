@@ -1141,8 +1141,31 @@ void Object::CircleLoad(const char *fn) {
 	if(tonum[dir].count(*ob)) {
 	  int tnum = tonum[dir][*ob];
 	  if(bynum.count(tnum)) {
-	    Object *nobj = new Object;
-	    Object *nobj2 = new Object;
+	    Object *nobj = NULL;
+	    Object *nobj2 = NULL;
+	    typeof((*ob)->Contents()) cont = (*ob)->Contents();
+	    typeof(cont.begin()) cind;
+	    for(cind = cont.begin(); cind != cont.end(); ++cind) {
+	      if(string((*cind)->ShortDesc()) == "A passage exit.") {
+		if((*cind)->ActTarg(ACT_SPECIAL_MASTER)->Parent()
+			== bynum[tnum]) {
+		  nobj = (*cind);
+		  nobj2 = (*cind)->ActTarg(ACT_SPECIAL_MASTER);
+		  }
+		}
+	      }
+	    if(!nobj) {
+	      nobj = new Object;
+	      nobj2 = new Object;
+	      nobj->SetParent(*ob);
+	      nobj2->SetParent(bynum[tnum]);
+	      nobj2->SetShortDesc("A passage exit.");
+	      nobj2->SetDesc("A passage exit.");
+	      nobj2->AddAct(ACT_SPECIAL_NOTSHOWN);
+	      }
+	    else {
+	      nobj->StopAct(ACT_SPECIAL_NOTSHOWN);
+	      }
 
 	    string des, nm = dirname[dir];
 	    if(nmnum[dir][*ob] != "") {
@@ -1161,20 +1184,15 @@ void Object::CircleLoad(const char *fn) {
 		}
 	      }
 	    else {
-	      des = string("A passage ") + dirname[dir];
+	      des = string("A passage ") + dirname[dir] + " is here.";
 	      }
 	    nobj->SetShortDesc(nm.c_str());
 	    nobj->SetDesc(des.c_str());
-	    nobj->SetParent(*ob);
 	    nobj->SetSkill("Open", 1);
 	    nobj->SetSkill("Enterable", 1);
 	    nobj->AddAct(ACT_SPECIAL_LINKED, nobj2);
-
-	    nobj2->SetShortDesc("A passage exit.");
-	    nobj2->SetDesc("A passage exit.");
-	    nobj2->SetParent(bynum[tnum]);
 	    nobj2->AddAct(ACT_SPECIAL_MASTER, nobj);
-	    nobj2->AddAct(ACT_SPECIAL_NOTSHOWN);
+
 	    nmnum[dir].erase(*ob);
 	    tonum[dir].erase(*ob);
 	    tynum[dir].erase(*ob);
