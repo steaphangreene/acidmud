@@ -654,9 +654,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		"Use the 'newchar' command to create a new character.\n");
 	return 0;
 	}
-      if(body->Skill("Attributes") || body->Skill("Skills")
-		|| body->Skill("Resources")) {
-	mind->Send("You need to finish that character first.\n");
+      if(body->Skill("Attributes") || body->Skill("Skills")) {
+	mind->Send("You need to finish that character before you can use it.\n");
+	mind->Send("'%s' is now selected as your currect character to work on.\n",
+		body->Name());
+	mind->Owner()->SetCreator(body);
 	return 0;
 	}
       if(body->IsAct(ACT_DEAD)) {
@@ -669,6 +671,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  return 0;
 	  }
 	}
+
+      //FIXME: Handle conversion of body->Skill("Resources").
+      if(mind->Owner()->Creator() == body) mind->Owner()->SetCreator(NULL);
+
       mind->Attach(body);
 
       //This is ninja-healing and bypasses all healing mechanisms.
@@ -1786,13 +1792,71 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     return 0;
     }
 
+  const char *statnames[] = {
+	"Body", "Quickness", "Strength",
+	"Charisma", "Intelligence", "Willpower"
+	};
+
   if(com == COM_BUY) {
-    Object *chr = mind->Owner()->Creator();
-    if(!chr) {
-      mind->Send("You need to be working on a character first.\n");
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(!body) {
+      Object *chr = mind->Owner()->Creator();
+      if(!chr) {
+	mind->Send("You need to be working on a character first (use 'enter <character>'.\n");
+	}
+      else if(strlen(comline+len) <= 0) {
+	mind->Send("What do you want to buy?\n");
+	}
+      else if( (!strncasecmp(comline+len, "body", strlen(comline+len)))
+	    || (!strncasecmp(comline+len, "quickness", strlen(comline+len)))
+	    || (!strncasecmp(comline+len, "strength", strlen(comline+len)))
+	    || (!strncasecmp(comline+len, "charisma", strlen(comline+len)))
+	    || (!strncasecmp(comline+len, "intelligence", strlen(comline+len)))
+	    || (!strncasecmp(comline+len, "willpower", strlen(comline+len))) ) {
+	if(!chr->Skill("Attributes")) {
+	  mind->Send("You have no free attribute points left.\n");
+	  return 0;
+	  }
+	int attr=0;
+	if(toupper(*(comline+len)) == 'B') attr = 0;
+	else if(toupper(*(comline+len)) == 'Q') attr = 1;
+	else if(toupper(*(comline+len)) == 'S') attr = 2;
+	else if(toupper(*(comline+len)) == 'C') attr = 3;
+	else if(toupper(*(comline+len)) == 'I') attr = 4;
+	else if(toupper(*(comline+len)) == 'W') attr = 5;
+
+	if(chr->Attribute(attr) < 6) {
+	  chr->SetSkill("Attributes", chr->Skill("Attributes") - 1);
+	  chr->SetAttribute(attr, chr->Attribute(attr) + 1);
+	  mind->Send("You buy some %s.\n", statnames[attr]);
+	  }
+	else {
+	  mind->Send("Your %s is already at the maximum.\n", statnames[attr]);
+	  }
+	}
+      else {
+	map<string,int> skls = get_skills();
+	if(skls.count(comline+len)) {
+	  if(!chr->Skill("Skills")) {
+	    mind->Send("You have no free skill points left.\n");
+	    }
+	  else if(chr->Skill(comline+len)
+		< (chr->Attribute(skls[comline+len])+1)/2) {
+	    chr->SetSkill("Skills", chr->Skill("Skills") - 1);
+	    chr->SetSkill(comline+len, chr->Skill(comline+len) + 1);
+	    mind->Send("You buy some %s.\n", comline+len);
+	    }
+	  else {
+	    mind->Send("Your %s is already at the maximum.\n", comline+len);
+	    }
+	  }
+	else {
+	  mind->Send("I'm not sure what you are trying to buy.\n");
+	  }
+	}
       }
+
     else {
-      mind->Send("You buy stuff (not implemented).\n"); //FIXME
       }
     return 0;
     }
@@ -2209,11 +2273,6 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     return 0;
     }
-
-  const char *statnames[] = {
-	"Body", "Quickness", "Strength",
-	"Charisma", "Intelligence", "Willpower"
-	};
 
   if(com == COM_JACK) {
     if(!mind) return 0;

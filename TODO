@@ -1,4 +1,4 @@
-Actually "create" characters with actual stats and such.
+Improve character creation interface.
 Implement experience.
 Implement quantitative dispay (eg: "4 gold pieces").
 Implement quantitative plurality (eg: "offer 7 gold").
@@ -21,10 +21,14 @@ A "suit of" object should not just be on the fucking chest!
 Create in direction works oddly.
 Delete a direction-linked object exploderates.
 Implement various types of armor and damage.
+Translate circle armor to various armor types.
 Do 3-layer armor system.
 Implement equipment's magical effects.
 Following.
-Translate circle armor.
+Implement character creation priorities.
+Implement character creation resources.
+Implement character creation race.
+Implement character creation magic.
 Make circle MOBs do more stuff.
 Ranged Combat.
 Aggressive Circle MOBs shouldn't get a full-round first strike!
