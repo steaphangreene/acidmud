@@ -1238,17 +1238,14 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
-    vector<Object *>::iterator ind;
+    vector<Object *>::iterator ind;	// Can they all be combined to one?
     for(ind = targs.end() - 1; ind != targs.begin(); --ind) {
-      if((*(*ind)) == (*(*(ind-1)))) {
-	(*(ind-1))->SetSkill("Quantity", ((*(ind-1))->Skill("Quantity") >? 1)
-				+ ((*ind)->Skill("Quantity") >? 1));
-	targs.erase(ind);
-	}
+      if((*(*ind)) == (*(*(ind-1)))) continue;
+      break;
       }
 
     Object *targ = *(targs.begin());
-    if(targs.size() > 1) {
+    if(targs.size() > 1 && ind != targs.begin()) {
       if(mind) mind->Send("No autostashing yet - need to get only one kind of item!\n");
       }
     else if(targ->Pos() == POS_NONE) {
@@ -1262,20 +1259,25 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else {
       string denied="";
-      for(Object *owner = targ->Parent(); owner; owner = owner->Parent()) {
-	if(owner->Attribute(1) && owner != body && (!owner->IsAct(ACT_SLEEP))
+      for(ind = targs.begin(); ind != targs.end(); ++ind) {
+	targ = (*ind);
+	string denied2="";
+	for(Object *owner = targ->Parent(); owner; owner = owner->Parent()) {
+	  if(owner->Attribute(1) && owner != body && (!owner->IsAct(ACT_SLEEP))
 		&& (!owner->IsAct(ACT_DEAD)) && (!owner->IsAct(ACT_DYING))
 		&& (!owner->IsAct(ACT_UNCONSCIOUS))) {
-	  denied = "You would need ";
-	  denied += owner->Name(1);
-	  denied +="'s permission.\n";
-	  }
-	else if(owner->Skill("Container") && (!owner->Skill("Transparent"))
+	    denied2 = "You would need ";
+	    denied2 += owner->Name(1);
+	    denied2 +="'s permission.\n";
+	    }
+	  else if(owner->Skill("Container") && (!owner->Skill("Transparent"))
 		&& owner->Skill("Locked")) {
-	  denied = owner->Name(1);
-	  denied += " is closed and locked.\n";
-	  denied[0] = toupper(denied[0]);
+	    denied2 = owner->Name(1);
+	    denied2 += " is closed and locked.\n";
+	    denied2[0] = toupper(denied[0]);
+	    }
 	  }
+	denied += denied2;
 	}
 
       if(denied != "") {
@@ -1283,6 +1285,16 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	return 0;
 	}
 
+      if(targs.size() > 1) {			// All in set were the same!
+	for(ind = targs.end() - 1; ind != targs.begin(); --ind) {
+	  (*(ind-1))->SetSkill("Quantity", ((*(ind-1))->Skill("Quantity") >? 1)
+				+ ((*ind)->Skill("Quantity") >? 1));
+	  delete(*ind);
+	  targs.erase(ind);
+	  }
+	}
+
+      targ = *(targs.begin());
       body->Parent()->SendOut(
 	";s gets ;s.\n", "You grab ;s.\n", body, targ);
       targ->Travel(body);
