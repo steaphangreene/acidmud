@@ -866,9 +866,9 @@ void Object::SendLongDesc(Mind *m, Object *o) {
 
 void Object::SendStats(Mind *m, Object *o) {
   m->Send("\n%s", CNRM);
-  m->Send("Bod:%3d", Attribute(0));
+  m->Send("Bod: %2d", Attribute(0) <? 99);
   m->Send("           L     M        S           D\n");
-  m->Send("Qui:%3d", Attribute(1));
+  m->Send("Qui: %2d", Attribute(1) <? 99);
   m->Send("    Stun: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
 	stun <= 0 ? ' ' : 'X',
 	stun <= 1 ? ' ' : 'X',
@@ -882,7 +882,7 @@ void Object::SendStats(Mind *m, Object *o) {
 	stun <= 9 ? ' ' : 'X'
 	);
   m->Send("\n");
-  m->Send("Str:%3d", Attribute(2));
+  m->Send("Str: %2d", Attribute(2) <? 99);
   m->Send("    Phys: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
 	phys <= 0 ? ' ' : 'X',
 	phys <= 1 ? ' ' : 'X',
@@ -899,7 +899,7 @@ void Object::SendStats(Mind *m, Object *o) {
     m->Send(" Overflow: %d", phys-10);
     }
   m->Send("\n");
-  m->Send("Cha:%3d", Attribute(3));
+  m->Send("Cha: %2d", Attribute(3) <? 99);
   m->Send("    Stru: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
 	stru <= 0 ? ' ' : 'X',
 	stru <= 1 ? ' ' : 'X',
@@ -913,9 +913,9 @@ void Object::SendStats(Mind *m, Object *o) {
 	stru <= 9 ? ' ' : 'X'
 	);
   m->Send("\n");
-  m->Send("Int:%3d", Attribute(4));
+  m->Send("Int: %2d", Attribute(4) <? 99);
   m->Send("\n");
-  m->Send("Wil:%3d", Attribute(5));
+  m->Send("Wil: %2d", Attribute(5) <? 99);
 
   m->Send("    Sex: %c, %d.%.3dkg, %d.%.3dm, %dv, %dY\n\n",
 	gender, weight / 1000, weight % 1000,
@@ -937,7 +937,7 @@ void Object::SendStats(Mind *m, Object *o) {
     }
   else {
     for(skl = skills.begin(); skl != skills.end(); ++skl) {
-      m->Send("%16s:%3d\n", skl->first.c_str(),skl->second);
+      m->Send("%16s: %2d\n", skl->first.c_str(),skl->second);
       }
     }
   m->Send("%s", CNRM);

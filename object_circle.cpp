@@ -11,6 +11,7 @@ const char *dirname[6] = { "north", "east", "south", "west", "up", "down" };
 #include <unistd.h>
 #include <cstring>
 #include <fcntl.h>
+#include <cmath>
 
 #include "commands.h"
 #include "object.h"
@@ -497,13 +498,13 @@ void Object::CircleLoadMob(const char *fn) {
 	obj->SetSkill("CircleAttack", (20 - val2) / 3);		// val2 = THAC0
 	obj->SetSkill("CircleDefense", (10 - val3) / 3);	// val2 = AC
 
-	fscanf(mudm, " %dd%d+%d", &val, &val2, &val3);	// Hit Points
+	fscanf(mudm, " %dd%d+%d", &val, &val2, &val3);		// Hit Points
 	val = (val*(val2+1) + 1) / 2 + val3;
-	obj->SetAttribute(0, val/100);			// Become Body
-//	fprintf(stderr, "Hit Points (%s): %d\n", obj->Name(), val);
+	obj->SetAttribute(0, (val+49)/50);			// Becomes Body
 
-	fscanf(mudm, " %dd%d+%d\n", &val, &val2, &val3); // Barehand Damage
+	fscanf(mudm, " %dd%d+%d\n", &val, &val2, &val3);// Barehand Damage
 	val = (val*(val2+1) + 1) / 2 + val3;
+	obj->SetAttribute(2, (val+2)/3);		// Becomes Strength
 
 	fscanf(mudm, "%d", &val);  // Gold
 	obj->SetSkill("CircleGold", val);
@@ -531,21 +532,22 @@ void Object::CircleLoadMob(const char *fn) {
       memset(buf, 0, 65536);
       while(tp == 'E') {  // Basically an if with an infinite loop ;)
 	if(fscanf(mudm, "Con: %d\n", &val))
-	  obj->SetAttribute(0, (val+2)/3);
+	  obj->SetAttribute(0, obj->Attribute(0) >? ((val+2)/3));
+
 	else if(fscanf(mudm, "Dex: %d\n", &val))
-	  obj->SetAttribute(1, (val+2)/3);
+	  obj->SetAttribute(1, obj->Attribute(1) >? ((val+2)/3));
 
 	else if(fscanf(mudm, "Str: %d\n", &val))
-	  obj->SetAttribute(2, (val+2)/3);
+	  obj->SetAttribute(2, obj->Attribute(2) >? ((val+2)/3));
 
 	else if(fscanf(mudm, "ha: %d\n", &val)) //'Cha' minus 'Con' Conflict!
-	  obj->SetAttribute(3, (val+2)/3);
+	  obj->SetAttribute(3, obj->Attribute(3) >? ((val+2)/3));
 
 	else if(fscanf(mudm, "Int: %d\n", &val))
-	  obj->SetAttribute(4, (val+2)/3);
+	  obj->SetAttribute(4, obj->Attribute(4) >? ((val+2)/3));
 
 	else if(fscanf(mudm, "Wis: %d\n", &val))
-	  obj->SetAttribute(5, (val+2)/3);
+	  obj->SetAttribute(5, obj->Attribute(5) >? ((val+2)/3));
 
 	else if(fscanf(mudm, "Add: %d\n", &val)); //'StrAdd' - Do Nothing
 
