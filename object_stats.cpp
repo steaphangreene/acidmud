@@ -7,6 +7,7 @@ const int SAVEFILE_VERSION=104;
 static map<string,int> defaults;
 static map<int,string> weaponskills;
 static map<string,int> weapontypes;
+static map<string,list<string> > skcat;
 
 static int last_wtype = 0;
 static void add_wts(const string &sk) {
@@ -25,6 +26,9 @@ static int defaults_init = 0;
 static void init_defaults() {
   if(defaults_init) return;
   defaults_init = 1;
+  string cat;
+
+  //The below was generated via a script from the web version
   defaults["Acrobatics"] = 1;
   defaults["Acting"] = 3;
   defaults["Activist Etiquette"] = 3;
@@ -246,59 +250,283 @@ static void init_defaults() {
   defaults["Zero-G Combat"] = 4;
   defaults["Zero-G Ops"] = 4;
 
-  add_wts("Grappling");
-  add_wts("Kicking");
-  add_wts("Punching");
-  add_wts("Short Blades");
-  add_wts("Short Cleaves");
-  add_wts("Short Crushing");
-  add_wts("Short Piercing");
-  add_wts("Flails");
-  add_wts("Staves");
-  add_wts("Long Blades");
-  add_wts("Long Cleaves");
-  add_wts("Long Crushing");
-  add_wts("Long Piercing");
-  add_wts("Two-Handed Blades");
-  add_wts("Two-Handed Cleaves");
-  add_wts("Two-Handed Crushing");
-  add_wts("Two-Handed Flails");
-  add_wts("Two-Handed Piercing");
-  add_wts("Two-Handed Staves");
-
-  add_wts("Offhand Blades");
-  add_wts("Offhand Cleaves");
-  add_wts("Offhand Crushing");
-  add_wts("Offhand Flails");
-  add_wts("Offhand Piercing");
-  add_wts("Offhand Staves");
-
-  add_wts("Mounted Blades");
-  add_wts("Mounted Cleaves");
-  add_wts("Mounted Crushing");
-  add_wts("Mounted Flails");
-  add_wts("Mounted Piercing");
-
-  add_wts("Archery");
-  add_wts("Blowgun");
-  add_wts("Crossbow");
-  add_wts("Hurling");
-  add_wts("Nets");
-  add_wts("Slings");
-  add_wts("Staff Slings");
-  add_wts("Throwing (Aero)");
-  add_wts("Throwing (Non-Aero)");
-  add_wts("Whips");
-
-  add_wts("Mounted Archery");
-  add_wts("Mounted Blowgun");
-  add_wts("Mounted Crossbow");
-  add_wts("Mounted Nets");
-  add_wts("Mounted Slings");
-  add_wts("Mounted Throwing");
-  add_wts("Mounted Whips");
-
-  add_wts("Shields");
+  cat = "Ranged-Combat Skills";
+  skcat[cat].push_back("Archery");
+  skcat[cat].push_back("Blowgun");
+  skcat[cat].push_back("Crossbow");
+  skcat[cat].push_back("Hurling");
+  skcat[cat].push_back("Nets");
+  skcat[cat].push_back("Slings");
+  skcat[cat].push_back("Staff Slings");
+  skcat[cat].push_back("Throwing (Aero)");
+  skcat[cat].push_back("Throwing (Non-Aero)");
+  skcat[cat].push_back("Whips");
+  cat = "Pistol Skills";
+  skcat[cat].push_back("Laser Pistols");
+  skcat[cat].push_back("Machine Pistols");
+  skcat[cat].push_back("Pistols");
+  skcat[cat].push_back("Shot Pistols");
+  skcat[cat].push_back("SMGs");
+  cat = "Rifle Skills";
+  skcat[cat].push_back("Assault Rifles");
+  skcat[cat].push_back("Laser Rifles");
+  skcat[cat].push_back("Rifles");
+  skcat[cat].push_back("Shotguns");
+  cat = "Heavy Firearm Skills";
+  skcat[cat].push_back("Gunnery");
+  skcat[cat].push_back("Heavy Firearms");
+  skcat[cat].push_back("Heavy Lasers");
+  skcat[cat].push_back("Launch Weapons");
+  cat = "Mounted Ranged-Combat Skills";
+  skcat[cat].push_back("Mounted Archery");
+  skcat[cat].push_back("Mounted Blowgun");
+  skcat[cat].push_back("Mounted Crossbow");
+  skcat[cat].push_back("Mounted Nets");
+  skcat[cat].push_back("Mounted Slings");
+  skcat[cat].push_back("Mounted Throwing");
+  skcat[cat].push_back("Mounted Whips");
+  cat = "Mounted Pistol Skills";
+  skcat[cat].push_back("Mounted Laser Pistols");
+  skcat[cat].push_back("Mounted Machine Pistols");
+  skcat[cat].push_back("Mounted Pistols");
+  skcat[cat].push_back("Mounted Shot Pistols");
+  skcat[cat].push_back("Mounted SMGs");
+  cat = "Melee-Combat Skills";
+  skcat[cat].push_back("Offhand Blades");
+  skcat[cat].push_back("Offhand Crushing");
+  skcat[cat].push_back("Offhand Cleaves");
+  skcat[cat].push_back("Offhand Flails");
+  skcat[cat].push_back("Offhand Piercing");
+  skcat[cat].push_back("Offhand Staves");
+  skcat[cat].push_back("Short Blades");
+  skcat[cat].push_back("Short Cleaves");
+  skcat[cat].push_back("Short Crushing");
+  skcat[cat].push_back("Short Piercing");
+  skcat[cat].push_back("Flails");
+  skcat[cat].push_back("Staves");
+  skcat[cat].push_back("Long Blades");
+  skcat[cat].push_back("Long Cleaves");
+  skcat[cat].push_back("Long Crushing");
+  skcat[cat].push_back("Long Piercing");
+  skcat[cat].push_back("Two-Handed Blades");
+  skcat[cat].push_back("Two-Handed Crushing");
+  skcat[cat].push_back("Two-Handed Cleaves");
+  skcat[cat].push_back("Two-Handed Flails");
+  skcat[cat].push_back("Two-Handed Piercing");
+  skcat[cat].push_back("Two-Handed Staves");
+  skcat[cat].push_back("Shields");
+  cat = "Mounted Melee-Combat Skills";
+  skcat[cat].push_back("Mounted Blades");
+  skcat[cat].push_back("Mounted Crushing");
+  skcat[cat].push_back("Mounted Cleaves");
+  skcat[cat].push_back("Mounted Flails");
+  skcat[cat].push_back("Mounted Piercing");
+  cat = "Hand-to-Hand Combat Skills";
+  skcat[cat].push_back("Grappling");
+  skcat[cat].push_back("Kicking");
+  skcat[cat].push_back("Punching");
+  cat = "Specialized Hand-to-Hand Skills";
+  skcat[cat].push_back("Brawling");
+  skcat[cat].push_back("Submission Wrestling");
+  cat = "Elven Martial Arts";
+  skcat[cat].push_back("Carromeleg - Tier I");
+  skcat[cat].push_back("Carromeleg - Tier II");
+  skcat[cat].push_back("Carromeleg - Tier III");
+  skcat[cat].push_back("Carromeleg - Tier IV");
+  skcat[cat].push_back("Carromeleg - Tier V");
+  skcat[cat].push_back("Carromeleg - Tier VI");
+  cat = "Martial Arts";
+  skcat[cat].push_back("Aikido");
+  skcat[cat].push_back("Boxing");
+  skcat[cat].push_back("Hapkido");
+  skcat[cat].push_back("Judo");
+  skcat[cat].push_back("Jujitsu");
+  skcat[cat].push_back("Karate");
+  skcat[cat].push_back("Kung Fu");
+  skcat[cat].push_back("Muay Thai");
+  skcat[cat].push_back("Sport Wrestling");
+  skcat[cat].push_back("Sumo-Wrestling");
+  skcat[cat].push_back("Tae Kwon Do");
+  skcat[cat].push_back("Wildcat");
+  cat = "Combat Environment Skills";
+  skcat[cat].push_back("Amphibious Combat");
+  skcat[cat].push_back("High-G Combat");
+  skcat[cat].push_back("Low-G Combat");
+  skcat[cat].push_back("Underwater Combat");
+  skcat[cat].push_back("Zero-G Combat");
+  cat = "Athletic Skills";
+  skcat[cat].push_back("Acrobatics");
+  skcat[cat].push_back("Catching");
+  skcat[cat].push_back("Climbing");
+  skcat[cat].push_back("Jumping");
+  skcat[cat].push_back("Lifting");
+  skcat[cat].push_back("Riding");
+  skcat[cat].push_back("Running");
+  skcat[cat].push_back("Skiing");
+  skcat[cat].push_back("Sprinting");
+  skcat[cat].push_back("Stealth");
+  skcat[cat].push_back("Swimming");
+  skcat[cat].push_back("Diving");
+  cat = "Nature Skills";
+  skcat[cat].push_back("Healing");
+  skcat[cat].push_back("Navigation");
+  skcat[cat].push_back("Survival");
+  cat = "Specialized Skills";
+  skcat[cat].push_back("Knowledge");
+  skcat[cat].push_back("Perception");
+  skcat[cat].push_back("Mechanics");
+  skcat[cat].push_back("Quick-draw");
+  skcat[cat].push_back("Research");
+  skcat[cat].push_back("Tactics");
+  skcat[cat].push_back("Tracking");
+  skcat[cat].push_back("High-G Ops");
+  skcat[cat].push_back("Low-G Ops");
+  skcat[cat].push_back("Zero-G Ops");
+  cat = "Social Skills";
+  skcat[cat].push_back("Acting");
+  skcat[cat].push_back("Diplomacy");
+  skcat[cat].push_back("Instruction");
+  skcat[cat].push_back("Interrogation");
+  skcat[cat].push_back("Intimidation");
+  skcat[cat].push_back("Leadership");
+  skcat[cat].push_back("Negotiation");
+  skcat[cat].push_back("Performance");
+  skcat[cat].push_back("Seduction");
+  skcat[cat].push_back("Style");
+  cat = "Etiquette Skills";
+  skcat[cat].push_back("Farmer Etiquette");
+  skcat[cat].push_back("Human Etiquette");
+  skcat[cat].push_back("Dark Elf Etiquette");
+  skcat[cat].push_back("Dwarf Etiquette");
+  skcat[cat].push_back("Goblin Etiquette");
+  skcat[cat].push_back("Grey Elf Etiquette");
+  skcat[cat].push_back("High Elf Etiquette");
+  skcat[cat].push_back("Mercenary Etiquette");
+  skcat[cat].push_back("Noble Etiquette");
+  skcat[cat].push_back("Ork Etiquette");
+  skcat[cat].push_back("Thief Etiquette");
+  skcat[cat].push_back("Underworld Etiquette");
+  cat = "Creation Skills";
+  skcat[cat].push_back("Armoring");
+  skcat[cat].push_back("Bowyer");
+  skcat[cat].push_back("Blacksmithing");
+  skcat[cat].push_back("Carpentry");
+  skcat[cat].push_back("Clothier");
+  skcat[cat].push_back("Fletcher");
+  skcat[cat].push_back("Leatherworking");
+  skcat[cat].push_back("Masonry");
+  skcat[cat].push_back("Metalworking");
+  skcat[cat].push_back("Shipwright");
+  skcat[cat].push_back("Smelting");
+  skcat[cat].push_back("Weaponsmithing");
+  skcat[cat].push_back("Woodworking");
+  cat = "Magical Skills";
+  skcat[cat].push_back("Alchemy");
+  skcat[cat].push_back("Conjuring");
+  skcat[cat].push_back("Enchanting");
+  skcat[cat].push_back("Helmsman (Star)");
+  skcat[cat].push_back("Ritual Conjuring");
+  skcat[cat].push_back("Ritual Spellcasting");
+  skcat[cat].push_back("Spellcasting");
+  skcat[cat].push_back("Spellcraft");
+  skcat[cat].push_back("Spell Targeting");
+  skcat[cat].push_back("Staff Targeting");
+  skcat[cat].push_back("Talismongery");
+  skcat[cat].push_back("Wand Targeting");
+  cat = "Etiquette Skills";
+  skcat[cat].push_back("Activist Etiquette");
+  skcat[cat].push_back("Corporate Etiquette");
+  skcat[cat].push_back("Farmer Etiquette");
+  skcat[cat].push_back("Gang Etiquette");
+  skcat[cat].push_back("Government Etiquette");
+  skcat[cat].push_back("High Society Etiquette");
+  skcat[cat].push_back("Mercenary Etiquette");
+  skcat[cat].push_back("Military Etiquette");
+  skcat[cat].push_back("Netiquette");
+  skcat[cat].push_back("Organized Crime Etiquette");
+  skcat[cat].push_back("Police Etiquette");
+  skcat[cat].push_back("Pop Culture Etiquette");
+  skcat[cat].push_back("Religion Etiquette");
+  skcat[cat].push_back("Trucker Etiquette");
+  skcat[cat].push_back("Science Etiquette");
+  skcat[cat].push_back("Sepratist Etiquette");
+  skcat[cat].push_back("Street Etiquette");
+  skcat[cat].push_back("University Etiquette");
+  cat = "Technical Skills";
+  skcat[cat].push_back("Computer");
+  skcat[cat].push_back("Demolitions");
+  skcat[cat].push_back("Electronics");
+  skcat[cat].push_back("Mechanics");
+  skcat[cat].push_back("Engineering");
+  skcat[cat].push_back("First Aid");
+  skcat[cat].push_back("Treatment");
+  skcat[cat].push_back("Surgery");
+  skcat[cat].push_back("Security");
+  skcat[cat].push_back("Communications");
+  cat = "Build/Repair Skills";
+  skcat[cat].push_back("Computer B/R");
+  skcat[cat].push_back("Electrical B/R");
+  skcat[cat].push_back("Mechanical B/R");
+  cat = "Piloting Skills";
+  skcat[cat].push_back("Boat");
+  skcat[cat].push_back("Ship");
+  skcat[cat].push_back("Sled");
+  skcat[cat].push_back("Teamster");
+  cat = "Piloting Skills";
+  skcat[cat].push_back("Bike");
+  skcat[cat].push_back("Boat");
+  skcat[cat].push_back("Boat, Powered");
+  skcat[cat].push_back("Car");
+  skcat[cat].push_back("Fixed-wing Craft");
+  skcat[cat].push_back("Half-Track");
+  skcat[cat].push_back("Hovercraft");
+  skcat[cat].push_back("Rotorcraft");
+  skcat[cat].push_back("Ship");
+  skcat[cat].push_back("Ship, Powered");
+  skcat[cat].push_back("Sled");
+  skcat[cat].push_back("Snowmobile");
+  skcat[cat].push_back("Teamster");
+  skcat[cat].push_back("Tracked Vehicle");
+  skcat[cat].push_back("Tractor");
+  skcat[cat].push_back("Trike");
+  skcat[cat].push_back("Vectored Thrust");
+  cat = "Drone Piloting Skills";
+  skcat[cat].push_back("Fixed-Wing Drone");
+  skcat[cat].push_back("Hover Drone");
+  skcat[cat].push_back("Rotor Drone");
+  skcat[cat].push_back("Tracked Drone");
+  skcat[cat].push_back("Vectored Thrust Drone");
+  skcat[cat].push_back("Wheeled Drone");
+  cat = "Etiquette Skills";
+  skcat[cat].push_back("Activist Etiquette");
+  skcat[cat].push_back("Corporate Etiquette");
+  skcat[cat].push_back("Decker Etiquette");
+  skcat[cat].push_back("Gang Etiquette");
+  skcat[cat].push_back("Government Etiquette");
+  skcat[cat].push_back("High Society Etiquette");
+  skcat[cat].push_back("Lone Star Etiquette");
+  skcat[cat].push_back("Mage Etiquette");
+  skcat[cat].push_back("Matrix Etiquette");
+  skcat[cat].push_back("Mercenary Etiquette");
+  skcat[cat].push_back("Military Etiquette");
+  skcat[cat].push_back("Organized Crime Etiquette");
+  skcat[cat].push_back("Police Etiquette");
+  skcat[cat].push_back("Pop Culture Etiquette");
+  skcat[cat].push_back("Religion Etiquette");
+  skcat[cat].push_back("Rigger Etiquette");
+  skcat[cat].push_back("Science Etiquette");
+  skcat[cat].push_back("Shaman Etiquette");
+  skcat[cat].push_back("Street Etiquette");
+  skcat[cat].push_back("University Etiquette");
+  cat = "Magical Skills";
+  skcat[cat].push_back("Alchemy");
+  skcat[cat].push_back("Conjuring");
+  skcat[cat].push_back("Enchanting");
+  skcat[cat].push_back("Ritual Conjuring");
+  skcat[cat].push_back("Ritual Spellcasting");
+  skcat[cat].push_back("Spellcasting");
+  skcat[cat].push_back("Spellcraft");
+  skcat[cat].push_back("Talismongery");
   }
 
 int is_skill(string sk) {
@@ -324,9 +552,45 @@ int get_weapon_type(string wskill) {
   return weapontypes[wskill];
   }
 
-map<string,int> get_skills() {
+string get_skill(string sk) {
+  if(defaults.count(sk)) return sk;
+  return "";
+  }
+
+string get_skill_cat(string cat) {
+  if(skcat.count(cat)) return cat;
+  return "";
+  }
+
+int get_linked(string sk) {
+  if(defaults.count(sk)) return defaults[sk];
+  return 4; // Default to Int for knowledges
+  }
+
+list<string> get_skills(string cat) {
   if(!defaults_init) init_defaults();
-  return defaults;
+  list<string> ret;
+
+  if(cat == "Categories") {
+    typeof(skcat.begin()) ind;
+    for(ind = skcat.begin(); ind != skcat.end(); ++ind) {
+      ret.push_back(ind->first);
+      }
+    }
+  else if(cat == "all") {
+    typeof(defaults.begin()) ind;
+    for(ind = defaults.begin(); ind != defaults.end(); ++ind) {
+      ret.push_back(ind->first);
+      }
+    }
+  else if(skcat.count(cat)) {
+    typeof(skcat[cat].begin()) ind;
+    for(ind = skcat[cat].begin(); ind != skcat[cat].end(); ++ind) {
+      ret.push_back(*ind);
+      }
+    }
+
+  return ret;
   }
 
 int roll(int ndice, int targ) {

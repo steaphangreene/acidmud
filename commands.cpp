@@ -386,8 +386,8 @@ Command comlist[] = {
     },
 
   { COM_SKILLLIST, "skilllist",
-    "List all available skills.",
-    "List all available skills.",
+    "List all available skill categories, or all skills in a category.",
+    "List all available skill categories, or all skills in a category.",
     (REQ_ANY)
     },
 
@@ -2528,13 +2528,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	chr->SetSkill("Attributes", chr->Skill("Attributes") - 1);
 	}
       }
-    map<string,int> skills = get_skills();
+    list<string> skills = get_skills("all");
     while(chr->Skill("Skills")) {
       int which = (rand()%skills.size());
-      map<string,int>::iterator skl = skills.begin();
+      list<string>::iterator skl = skills.begin();
       while(which) { ++skl; --which; }
-      if(chr->Skill(skl->first) < (chr->Attribute(skl->second)+1) / 2) {
-	chr->SetSkill(skl->first, chr->Skill(skl->first) + 1);
+      if(chr->Skill(*skl) < (chr->Attribute(get_linked(*skl))+1) / 2) {
+	chr->SetSkill(*skl, chr->Skill(*skl) + 1);
 	chr->SetSkill("Skills", chr->Skill("Skills") - 1);
 	}
       }
@@ -2585,9 +2585,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  mind->Send("You have no free skill points left.\n");
 	  }
 	else if(is_skill(comline+len)) {
-	  map<string,int> skls = get_skills();
 	  if(chr->Skill(comline+len)
-		< (chr->Attribute(skls[comline+len])+1) / 2) {
+		< (chr->Attribute(get_linked(comline+len))+1) / 2) {
 	    chr->SetSkill("Skills", chr->Skill("Skills") - 1);
 	    chr->SetSkill(comline+len, chr->Skill(comline+len) + 1);
 	    mind->Send("You buy some %s.\n", comline+len);
@@ -2629,12 +2628,34 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
   if(com == COM_SKILLLIST) {
     if(!mind) return 0;
-    string skills = "Total skills in play on this MUD:\n";
-    map<string,int> skls = get_skills();
 
-    map<string,int>::iterator skl = skls.begin();
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+
+    string skills;
+    list<string> skls;
+    if(!comline[len]) {
+      skills = "Here are all the skill categories (use 'skill <Category>' to see the skills):\n";
+      skls = get_skills();
+      }
+    else {
+      string cat = get_skill_cat(comline+len);
+      if(string(comline+len) != "all") {
+	if(cat == "") {
+	  mind->Send("There is no skill category called '%s'.\n", comline+len);
+	  return 0;
+	  }
+	skills = "Total " + cat + " in play on this MUD:\n";
+	}
+      else {
+	skills = "Total skills in play on this MUD:\n";
+	cat = "all";
+	}
+      skls = get_skills(cat);
+      }
+
+    list<string>::iterator skl = skls.begin();
     for(; skl != skls.end(); ++skl) {
-      skills += skl->first;
+      skills += (*skl);
       skills += "\n";
       }
     mind->Send(skills.c_str());

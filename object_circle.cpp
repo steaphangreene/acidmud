@@ -2,8 +2,9 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <cstring>
-#include <fcntl.h>
+#include <cctype>
 #include <cmath>
+#include <fcntl.h>
 
 #include "commands.h"
 #include "object.h"

@@ -10,3 +10,11 @@ grep '^S' skills.txt | cut -f2- | sort -k 2 | tr '\t' '@' | uniq \
 	| sed 's-^I@\(.*\)-  defaults["\1"] = 4;-g' \
 	| sed 's-^W@\(.*\)-  defaults["\1"] = 5;-g' \
 	| tr '@' '\n'
+
+echo ''
+
+cat skills.txt | tr '\t' '@' | sed 's-^C.*@.*@\(.*\)$-  cat = "\1";-' \
+	| sed 's-^S.*@.*@\(.*\)$-  skcat[cat].push_back("\1");-'
+
+echo ''
+

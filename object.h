@@ -280,7 +280,10 @@ Mind *get_mob_mind();
 
 void FreeActions();
 
-map<string,int> get_skills();
+string get_skill(string sk);
+string get_skill_cat(string cat);
+int get_linked(string sk);
+list<string> get_skills(string cat = "Categories");
 int is_skill(string sk);
 string get_weapon_skill(int wtype);
 int get_weapon_type(string wskill);
