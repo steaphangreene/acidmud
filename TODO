@@ -1,4 +1,4 @@
-Implement SNEAK and HIDE actions.
+Handle REAL contested roll for perception/stealth in normal actions.
 Make auto-unwield from wielding another item also use autostashing.
 Implement scabbards and quivers.
 Get it to understand offhand weapon use.
@@ -24,6 +24,8 @@ Fix exchange system handling odd cases (including sell/buy).
 Follower should look like he gets there after folowee to those already there.
 Should not be able to wear/wield multiple (ie: pluralized) items in any location.
 Cleanup item manipulation commands.
+Implement SNEAK and HIDE actions.
+Cleanup the remaining Object::Send*(ALL, 0, ...) hacks.
 Cleanup and secure shopkeeper vortex objects.
 Improve character creation interface.
 Implement money denominations and change.

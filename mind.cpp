@@ -219,7 +219,7 @@ void Mind::Think(int istick) {
       Object *targ = body->ActTarg(ACT_HOLD);
       if(body->Stash(targ)) {
 	if(body->Parent())
-	  body->Parent()->SendOut(ALL, ";s stashes ;s.\n", "", body, targ);
+	  body->Parent()->SendOut(ALL, 0, ";s stashes ;s.\n", "", body, targ);
 	string command = string("hold ") + body->ActTarg(ACT_WEAR_SHIELD)->ShortDesc();
 	body->BusyFor(500, command.c_str());
 	}

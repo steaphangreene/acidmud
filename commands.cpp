@@ -727,6 +727,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     }
 
+  int stealth_t = ALL, stealth_s = 0;
+
+  if(body && body->Skill("Stealth") > 0) {
+    stealth_t = body->Skill("Stealth");
+    stealth_s = body->Roll("Stealth", 4);
+    }
+
   if(com == COM_SHUTDOWN) {
     shutdn = 1;
     if(mind) mind->Send("You instruct the system to shut down.\n");
@@ -802,7 +809,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	body->SetPhys(0);
 	body->SetStru(0);
 	body->UpdateDamage();
-	body->Parent()->SendOut(ALL,
+	body->Parent()->SendOut(stealth_t, stealth_s,
 	  ";s heals and repairs ;s with Ninja Powers[TM].\n", "You heal ;s.\n",
 	  body, body);
 	}
@@ -884,19 +891,19 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
       if(dest->ActTarg(ACT_SPECIAL_LINKED)
 		&& dest->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
-	body->Parent()->SendOut(ALL, ";s leaves ;s.\n", "", body, dest);
+	body->Parent()->SendOut(stealth_t, stealth_s, ";s leaves ;s.\n", "", body, dest);
 	dest = dest->ActTarg(ACT_SPECIAL_LINKED)->Parent();
 	}
       else if(body->Parent()) {
-	body->Parent()->SendOut(ALL, ";s enters ;s.\n", "", body, dest);
+	body->Parent()->SendOut(stealth_t, stealth_s, ";s enters ;s.\n", "", body, dest);
 	}
 
       if(veh->Travel(dest, 0)) {
-	body->Parent()->SendOut(ALL, "...but ;s didn't seem to fit!\n",
+	body->Parent()->SendOut(stealth_t, stealth_s, "...but ;s didn't seem to fit!\n",
 		"You could not fit!\n", body, NULL);
 	}
       else {
-	body->Parent()->SendOut(ALL, 
+	body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s arrives.\n", "", body, NULL);
 	if(mind && mind->Type() == MIND_REMOTE)
 	  body->Parent()->SendDescSurround(body, body);
@@ -952,14 +959,14 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
   if(com == COM_SAY) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    body->Parent()->SendOut(ALL, ";s says '%s'\n", "You say '%s'\n",
+    body->Parent()->SendOut(stealth_t, stealth_s, ";s says '%s'\n", "You say '%s'\n",
 	body, body, comline+len);
     return 0;
     }
 
   if(com == COM_EMOTE) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    body->Parent()->SendOut(ALL, ";s %s\n", "Your character %s\n",
+    body->Parent()->SendOut(stealth_t, stealth_s, ";s %s\n", "Your character %s\n",
 	body, body, comline+len);
     return 0;
     }
@@ -1014,12 +1021,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
 	if(must_open) {
 	  targ->SetSkill("Open", 1);
-	  body->Parent()->SendOut(ALL, 
+	  body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s opens ;s.\n", "You open ;s.\n", body, targ);
 	  }
 
 	if(strlen(comline+len) > 0 && within) {
-		body->Parent()->SendOut(ALL, 
+		body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s looks inside ;s.\n", "", body, targ);
 	  if(mind) {
 	    targ->SendDesc(mind, body);
@@ -1028,7 +1035,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	    }
 	  }
 	else if(strlen(comline+len) > 0) {
-		body->Parent()->SendOut(ALL, 
+		body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s looks at ;s.\n", "", body, targ);
 	  if(mind) {
 	    targ->SendDesc(mind, body);
@@ -1036,14 +1043,14 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	    }
 	  }
 	else {
-		body->Parent()->SendOut(ALL, 
+		body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s looks around.\n", "", body, targ);
 	  if(mind) targ->SendDescSurround(mind, body);
 	  }
 
 	if(must_open) {
 	  targ->SetSkill("Open", 0);
-	  body->Parent()->SendOut(ALL, 
+	  body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s closes ;s.\n", "You close ;s.\n", body, targ);
 	  }
 	}
@@ -1095,7 +1102,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	continue;
 	}
 
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s examines ;s.\n", "", body, *targ_it);
       if(mind) {
 	mind->Send("%s", CCYN);
@@ -1122,7 +1129,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("You don't see that here.\n");
       }
     else {
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s examines ;s.\n", "", body, targ);
       if(mind) targ->SendLongDesc(mind, body);
       }
@@ -1142,7 +1149,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("You don't see that here.\n");
       }
     else {
-      body->Parent()->SendOut(ALL, ";s considers attacking ;s.\n",
+      body->Parent()->SendOut(stealth_t, stealth_s, ";s considers attacking ;s.\n",
 	"You consider attacking ;s.\n", body, targ);
       if(mind) {
 	int diff;
@@ -1291,10 +1298,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  }
 	}
       targ->SetSkill("Locked", 1);
-      body->Parent()->SendOut(ALL, ";s locks ;s.\n", "You lock ;s.\n", body, targ);
+      body->Parent()->SendOut(stealth_t, stealth_s, ";s locks ;s.\n", "You lock ;s.\n", body, targ);
       if(targ->ActTarg(ACT_SPECIAL_MASTER)) {
 	Object *targ2 = targ->ActTarg(ACT_SPECIAL_MASTER);
-	targ2->Parent()->SendOut(ALL, ";s locks.\n", "", targ2, NULL);
+	targ2->Parent()->SendOut(stealth_t, stealth_s, ";s locks.\n", "", targ2, NULL);
 	targ2->SetSkill("Locked", 1);
 	}
       }
@@ -1331,10 +1338,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  }
 	}
       targ->SetSkill("Locked", 0);
-      body->Parent()->SendOut(ALL, ";s unlocks ;s.\n", "You unlock ;s.\n", body, targ);
+      body->Parent()->SendOut(stealth_t, stealth_s, ";s unlocks ;s.\n", "You unlock ;s.\n", body, targ);
       if(targ->ActTarg(ACT_SPECIAL_MASTER)) {
 	Object *targ2 = targ->ActTarg(ACT_SPECIAL_MASTER);
-	targ2->Parent()->SendOut(ALL, ";s unlocks.\n", "", targ2, NULL);
+	targ2->Parent()->SendOut(stealth_t, stealth_s, ";s unlocks.\n", "", targ2, NULL);
 	targ2->SetSkill("Locked", 1);
 	}
       }
@@ -1363,10 +1370,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else {
       targ->SetSkill("Open", 1);
-      body->Parent()->SendOut(ALL, ";s opens ;s.\n", "You open ;s.\n", body, targ);
+      body->Parent()->SendOut(stealth_t, stealth_s, ";s opens ;s.\n", "You open ;s.\n", body, targ);
       if(targ->ActTarg(ACT_SPECIAL_MASTER)) {
 	Object *targ2 = targ->ActTarg(ACT_SPECIAL_MASTER);
-	targ2->Parent()->SendOut(ALL, ";s opens.\n", "", targ2, NULL);
+	targ2->Parent()->SendOut(stealth_t, stealth_s, ";s opens.\n", "", targ2, NULL);
 	targ2->SetSkill("Open", 1);
 	targ2->SetSkill("Locked", 0);	//FIXME: Do I want to do this?
 	}
@@ -1396,11 +1403,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else {
       targ->SetSkill("Open", 0);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s closes ;s.\n", "You close ;s.\n", body, targ);
       if(targ->ActTarg(ACT_SPECIAL_MASTER)) {
 	Object *targ2 = targ->ActTarg(ACT_SPECIAL_MASTER);
-	targ2->Parent()->SendOut(ALL, ";s closes.\n", "", targ2, NULL);
+	targ2->Parent()->SendOut(stealth_t, stealth_s, ";s closes.\n", "", targ2, NULL);
 	targ2->SetSkill("Open", 0);
 	targ2->SetSkill("Locked", 0);	//FIXME: Do I want to do this?
 	}
@@ -1546,7 +1553,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		price, togo);
 	    }
 	  else if(body->Stash(targ)) {
-	    body->Parent()->SendOut(ALL, 
+	    body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s buys and stashes ;s.\n", "You buy and stash ;s.\n", body, targ);
 	    for(coin = pay.begin(); coin != pay.end(); ++coin) {
 	      shpkp->Stash(*coin);
@@ -1557,12 +1564,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		|| body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)
 		) && (!targ->Travel(body))) {
 	    if(body->IsAct(ACT_HOLD)) {
-	      body->Parent()->SendOut(ALL, ";s stops holding ;s.\n",
+	      body->Parent()->SendOut(stealth_t, stealth_s, ";s stops holding ;s.\n",
 		"You stop holding ;s.\n", body, body->ActTarg(ACT_HOLD));
 	      body->StopAct(ACT_HOLD);
 	      }
 	    body->AddAct(ACT_HOLD, targ);
-	    body->Parent()->SendOut(ALL, 
+	    body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s buys and holds ;s.\n", "You buy and hold ;s.\n", body, targ);
 	    for(coin = pay.begin(); coin != pay.end(); ++coin) {
 	      shpkp->Stash(*coin);
@@ -1750,7 +1757,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	    }
 
 	  if(togo <= 0) {
-	    body->Parent()->SendOut(ALL, 
+	    body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s sells ;s.\n", "You sell ;s.\n", body, targ);
 	    Object *payment = new Object;
 	    for(coin = pay.begin(); coin != pay.end(); ++coin) {
@@ -1825,7 +1832,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  if(mind) mind->Send(denied.c_str());
 	  }
 	else if(body->Stash(targ)) {
-	  body->Parent()->SendOut(ALL, ";s gets and stashes ;s.\n",
+	  body->Parent()->SendOut(stealth_t, stealth_s, ";s gets and stashes ;s.\n",
 		"You get and stash ;s.\n", body, targ);
 	  }
 	else if(body->IsAct(ACT_HOLD)
@@ -1838,13 +1845,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  }
 	else {
 	  if(body->IsAct(ACT_HOLD)) {
-	    body->Parent()->SendOut(ALL, ";s stops holding ;s.\n",
+	    body->Parent()->SendOut(stealth_t, stealth_s, ";s stops holding ;s.\n",
 		"You stop holding ;s.\n", body, body->ActTarg(ACT_HOLD));
 	    body->StopAct(ACT_HOLD);
 	    }
 	  targ->Travel(body);
 	  body->AddAct(ACT_HOLD, targ);
-	  body->Parent()->SendOut(ALL, ";s gets and holds ;s.\n",
+	  body->Parent()->SendOut(stealth_t, stealth_s, ";s gets and holds ;s.\n",
 		"You get and hold ;s.\n", body, targ);
 	  }
 	}
@@ -1901,12 +1908,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	}
       else {
 	if(!targ->Skill("Open")) closed = 1;
-	if(closed) body->Parent()->SendOut(ALL,  //FIXME: Really open/close stuff!
+	if(closed) body->Parent()->SendOut(stealth_t, stealth_s,  //FIXME: Really open/close stuff!
 		";s opens ;s.\n", "You open ;s.\n", body, targ);
-	body->Parent()->SendOut(ALL, 
+	body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s puts %s into ;s.\n", "You put %s into ;s.\n",
 		body, targ, obj->ShortDesc());
-	if(closed) body->Parent()->SendOut(ALL, 
+	if(closed) body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s close ;s.\n", "You close ;s.\n", body, targ);
 	}
       }
@@ -1919,7 +1926,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(body->IsAct(ACT_WIELD)) {
 	Object *wield = body->ActTarg(ACT_WIELD);
 	if(wield && body->Stash(wield)) {
-	  body->Parent()->SendOut(ALL, ";s stops wielding and stash ;s.\n",
+	  body->Parent()->SendOut(stealth_t, stealth_s, ";s stops wielding and stash ;s.\n",
 		"You stop wielding and stash ;s.\n", body, wield);
 	  }
 	else if(body->IsAct(ACT_HOLD)
@@ -1933,7 +1940,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	else {
 	  body->AddAct(ACT_HOLD, wield);
 	  body->StopAct(ACT_WIELD);
-	  body->Parent()->SendOut(ALL, ";s stops wielding ;s.\n",
+	  body->Parent()->SendOut(stealth_t, stealth_s, ";s stops wielding ;s.\n",
 		"You stop wielding ;s.\n", body, wield);
 	  }
 	}
@@ -1988,11 +1995,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	Object *wield = body->ActTarg(ACT_WIELD);
 	body->AddAct(ACT_HOLD, wield);
 	body->StopAct(ACT_WIELD);
-	body->Parent()->SendOut(ALL, ";s stops wielding ;s.\n",
+	body->Parent()->SendOut(stealth_t, stealth_s, ";s stops wielding ;s.\n",
 		"You stop wielding ;s.\n", body, wield);
 	}
       body->AddAct(ACT_WIELD, targ);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s wields ;s.\n", "You wield ;s.\n", body, targ);
       }
     return 0;
@@ -2037,23 +2044,23 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		== get_weapon_type("Two-Handed Staves")
 	)) {
       body->AddAct(ACT_HOLD, targ);
-      body->Parent()->SendOut(ALL, ";s puts a second hand on ;s.\n",
+      body->Parent()->SendOut(stealth_t, stealth_s, ";s puts a second hand on ;s.\n",
 	"You put a second hand on ;s.\n", body, targ);
       }
     else if(body->ActTarg(ACT_WEAR_SHIELD) == targ) {
       body->AddAct(ACT_HOLD, targ);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s holds ;s.\n", "You hold ;s.\n", body, targ);
       }
     else {
       if(body->IsAct(ACT_HOLD)) { //Means it's a shield/2-h weapon due to above.
-	body->Parent()->SendOut(ALL, ";s stops holding ;s.\n",
+	body->Parent()->SendOut(stealth_t, stealth_s, ";s stops holding ;s.\n",
 	  "You stop holding ;s.\n", body, body->ActTarg(ACT_HOLD));
 	body->StopAct(ACT_HOLD);
 	}
       targ->Travel(body, 0); // Kills Holds, Wears and Wields on "targ"
       body->AddAct(ACT_HOLD, targ);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s holds ;s.\n", "You hold ;s.\n", body, targ);
       }
     return 0;
@@ -2084,7 +2091,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
         if(mind) mind->Send("You are not wearing %s!\n", targ->Name(0, body));
 	}
       else if(body->Stash(targ)) {
-	body->Parent()->SendOut(ALL, ";s removes and stashes ;s.\n",
+	body->Parent()->SendOut(stealth_t, stealth_s, ";s removes and stashes ;s.\n",
 		"You remove and stash ;s.\n", body, targ);
 	}
       else if(body->IsAct(ACT_HOLD)
@@ -2095,13 +2102,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	}
       else {
 	if(body->IsAct(ACT_HOLD)) {
-	  body->Parent()->SendOut(ALL, ";s stops holding ;s.\n",
+	  body->Parent()->SendOut(stealth_t, stealth_s, ";s stops holding ;s.\n",
 		"You stop holding ;s.\n", body, body->ActTarg(ACT_HOLD));
 	  body->StopAct(ACT_HOLD);
 	  }
 	targ->Travel(body, 0);
 	body->AddAct(ACT_HOLD, targ);
-	body->Parent()->SendOut(ALL, ";s removes and holds ;s.\n",
+	body->Parent()->SendOut(stealth_t, stealth_s, ";s removes and holds ;s.\n",
 		"You remove and hold ;s.\n", body, targ);
 	}
       }
@@ -2253,7 +2260,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	    for(loc = locations.begin(); loc != locations.end(); ++loc) {
 	      body->AddAct(*loc, targ);
 	      }
-	    body->Parent()->SendOut(ALL, 
+	    body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s puts on ;s.\n", "You put on ;s.\n", body, targ);
 	    }
 	  }
@@ -2278,7 +2285,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else {
       typeof(targs.begin()) targ;
       for(targ = targs.begin(); targ != targs.end(); ++targ) {
-	body->Parent()->SendOut(ALL, 
+	body->Parent()->SendOut(stealth_t, stealth_s, 
 	  ";s drops ;s.\n", "You drop ;s.\n", body, *targ);
 	(*targ)->Travel(body->Parent());
 	}
@@ -2303,9 +2310,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	if(body->Parent()) body->Parent()->NotifyGone(body);
 	}
       body->Travel(body->Parent()->Parent(), 0);
-      if(oldp) oldp->SendOut(ALL, ";s leaves.\n", "", body, NULL);
+      if(oldp) oldp->SendOut(stealth_t, stealth_s, ";s leaves.\n", "", body, NULL);
       body->Parent()->SendDescSurround(body, body);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s arrives.\n", "", body, NULL);
       }
     return 0;
@@ -2319,7 +2326,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(body->ActTarg(ACT_WIELD)) {
 	Object *tostash = body->ActTarg(ACT_WIELD);
 	if(body->Stash(tostash)) {
-	  body->Parent()->SendOut(ALL, 
+	  body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s stashes ;s.\n", "You stash ;s.\n", body, tostash);
 	  }
 	}
@@ -2327,18 +2334,18 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)) {
 	Object *tostash = body->ActTarg(ACT_HOLD);
 	if(body->Stash(tostash)) {
-	  body->Parent()->SendOut(ALL, 
+	  body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s stashes ;s.\n", "You stash ;s.\n", body, tostash);
 	  }
 	}
       else if(body->ActTarg(ACT_HOLD)) {
-	body->Parent()->SendOut(ALL, ";s stops holding ;s.\n",
+	body->Parent()->SendOut(stealth_t, stealth_s, ";s stops holding ;s.\n",
 		"You stop holding ;s.\n", body, body->ActTarg(ACT_HOLD));
 	body->StopAct(ACT_HOLD);
 	}
       body->Collapse();
       body->AddAct(ACT_SLEEP);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s goes to sleep.\n", "You go to sleep.\n", body, NULL);
       }
     else {
@@ -2346,7 +2353,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(body->ActTarg(ACT_WIELD)) {
 	Object *tostash = body->ActTarg(ACT_WIELD);
 	if(body->Stash(tostash)) {
-	  body->Parent()->SendOut(ALL, 
+	  body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s stashes ;s.\n", "You stash ;s.\n", body, tostash);
 	  }
 	}
@@ -2354,18 +2361,18 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)) {
 	Object *tostash = body->ActTarg(ACT_HOLD);
 	if(body->Stash(tostash)) {
-	  body->Parent()->SendOut(ALL, 
+	  body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s stashes ;s.\n", "You stash ;s.\n", body, tostash);
 	  }
 	}
       else if(body->ActTarg(ACT_HOLD)) {
-	body->Parent()->SendOut(ALL, ";s stops holding ;s.\n",
+	body->Parent()->SendOut(stealth_t, stealth_s, ";s stops holding ;s.\n",
 		"You stop holding ;s.\n", body, body->ActTarg(ACT_HOLD));
 	body->StopAct(ACT_HOLD);
 	}
       body->Collapse();
       body->AddAct(ACT_SLEEP);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s lies down and goes to sleep.\n", "You lie down and go to sleep.\n",
 	body, NULL);
       }
@@ -2378,7 +2385,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else {
       body->StopAct(ACT_SLEEP);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s wakes up.\n", "You wake up.\n", body, NULL);
       }
     return 0;
@@ -2387,32 +2394,32 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
   if(com == COM_REST) {
     if(body->IsAct(ACT_REST)) {
       body->StopAct(ACT_REST);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s stops resting.\n", "You stop resting.\n", body, NULL);
       return 0;
       }
     else if(body->IsAct(ACT_SLEEP)) {
       body->StopAct(ACT_REST);
       body->AddAct(ACT_REST);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s wakes up and starts resting.\n", "You wake up and start resting.\n",
 	body, NULL);
       }
     else if(body->Pos() == POS_LIE || body->Pos() == POS_SIT) {
       body->AddAct(ACT_REST);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s starts resting.\n", "You start resting.\n", body, NULL);
       }
     else {
       body->AddAct(ACT_REST);
       if(body->Pos() != POS_LIE) body->SetPos(POS_SIT);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s sits down and rests.\n", "You sit down and rest.\n",
 	body, NULL);
       }
     if(body->IsAct(ACT_FOLLOW)) {
       if(body->ActTarg(ACT_FOLLOW) && mind)
-	body->Parent()->SendOut(ALL, 
+	body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s stop following ;s.\n", "You stop following ;s.\n",
 		body, body->ActTarg(ACT_FOLLOW));
       body->StopAct(ACT_FOLLOW);
@@ -2427,20 +2434,20 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else if(body->IsAct(ACT_SLEEP)) {
       body->SetPos(POS_STAND);
       body->StopAct(ACT_SLEEP);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s wakes up and stands.\n", "You wake up and stand.\n",
 	body, NULL);
       }
     else if(body->IsAct(ACT_REST)) {
       body->StopAct(ACT_REST);
       body->SetPos(POS_STAND);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s stops resting and stands up.\n", "You stop resting and stand up.\n",
 	body, NULL);
       }
     else {
       body->SetPos(POS_STAND);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s stands up.\n", "You stand up.\n", body, NULL);
       }
     return 0;
@@ -2453,23 +2460,23 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else if(body->IsAct(ACT_SLEEP)) {
       body->StopAct(ACT_SLEEP);
       body->SetPos(POS_SIT);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s awaken and sit up.\n", "You awaken and sit up.\n",
 	body, NULL);
       }
     else if(body->Pos() == POS_LIE) {
       body->SetPos(POS_SIT);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s sits up.\n", "You sit up.\n", body, NULL);
       }
     else {
       body->SetPos(POS_SIT);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s sits down.\n", "You sit down.\n", body, NULL);
       }
     if(body->IsAct(ACT_FOLLOW)) {
       if(body->ActTarg(ACT_FOLLOW) && mind)
-	body->Parent()->SendOut(ALL, 
+	body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s stop following ;s.\n", "You stop following ;s.\n",
 		body, body->ActTarg(ACT_FOLLOW));
       body->StopAct(ACT_FOLLOW);
@@ -2483,12 +2490,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else {
       body->SetPos(POS_LIE);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s lies down.\n", "You lie down.\n", body, NULL);
       }
     if(body->IsAct(ACT_FOLLOW)) {
       if(body->ActTarg(ACT_FOLLOW) && mind)
-	body->Parent()->SendOut(ALL, 
+	body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s stop following ;s.\n", "You stop following ;s.\n",
 		body, body->ActTarg(ACT_FOLLOW));
       body->StopAct(ACT_FOLLOW);
@@ -2505,7 +2512,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	}
       else {
 	body->AddAct(ACT_POINT, targ);
-	body->Parent()->SendOut(ALL, 
+	body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s starts pointing at ;s.\n", "You start pointing at ;s.\n",
 		body, targ);
 	}
@@ -2513,7 +2520,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else if(body->IsAct(ACT_POINT)) {
       Object *targ = body->ActTarg(ACT_POINT);
       body->StopAct(ACT_POINT);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s stops pointing at ;s.\n", "You stop pointing at ;s.\n",
 	body, targ);
       }
@@ -2532,7 +2539,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	}
       else {
 	body->AddAct(ACT_FOLLOW, targ);
-	body->Parent()->SendOut(ALL, 
+	body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s starts following ;s.\n", "You start following ;s.\n",
 		body, targ);
 	}
@@ -2540,7 +2547,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else if(body->IsAct(ACT_FOLLOW)) {
       Object *targ = body->ActTarg(ACT_FOLLOW);
       body->StopAct(ACT_FOLLOW);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s stops following ;s.\n", "You stop following ;s.\n",
 	body, targ);
       }
@@ -2604,7 +2611,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)
 	&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)) {
       Object *targ = body->ActTarg(ACT_HOLD);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	  ";s drops ;s.\n", "You drop ;s.\n", body, targ);
       targ->Travel(body->Parent());
       }
@@ -2626,29 +2633,29 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	)) {
       if(body->ActTarg(ACT_HOLD)) {
 	if(body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)) {
-	  body->Parent()->SendOut(ALL, ";s stops holding ;s.\n",
+	  body->Parent()->SendOut(stealth_t, stealth_s, ";s stops holding ;s.\n",
 		"You stop holding ;s.\n", body, body->ActTarg(ACT_HOLD));
 	  body->StopAct(ACT_HOLD);
 	  }
 	else {
-	  body->Parent()->SendOut(ALL, 
+	  body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s drops ;s.\n", "You drop ;s.\n", body, body->ActTarg(ACT_HOLD));
 	  body->ActTarg(ACT_HOLD)->Travel(body->Parent());
 	  }
 	}
       Object *targ = body->ActTarg(ACT_WIELD);
       body->AddAct(ACT_HOLD, targ);
-      body->Parent()->SendOut(ALL, ";s holds ;s.\n", "You hold ;s.\n", body, targ);
+      body->Parent()->SendOut(stealth_t, stealth_s, ";s holds ;s.\n", "You hold ;s.\n", body, targ);
       }
 
     if(body->ActTarg(ACT_WEAR_SHIELD) && (!body->IsAct(ACT_HOLD))) {
       Object *targ = body->ActTarg(ACT_WEAR_SHIELD);
       if(body->Roll("Shields", 4) > 0) {
 	body->AddAct(ACT_HOLD, targ);
-	body->Parent()->SendOut(ALL, ";s holds ;s.\n", "You hold ;s.\n", body, targ);
+	body->Parent()->SendOut(stealth_t, stealth_s, ";s holds ;s.\n", "You hold ;s.\n", body, targ);
 	}
       else {
-	body->Parent()->SendOut(ALL, 
+	body->Parent()->SendOut(stealth_t, stealth_s, 
 	  ";s fubmles with ;s.\n", "You fumble with ;s.\n", body, targ);
 	}
       }
@@ -2752,16 +2759,16 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(succ > 0) {
       //FIXME: Remove debugging stuff ("succ" and "res") from these messages.
       if(com == COM_KICK)
-	body->Parent()->SendOut(ALL, 
+	body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s kicks ;s%s. [%d] %s\n", "You kick ;s%s. [%d] %s\n",
 		body, targ, locm.c_str(), succ, res.c_str());
       else if(body->IsAct(ACT_WIELD))
-	body->Parent()->SendOut(ALL, ";s hits ;s%s with %s. [%d] %s\n",
+	body->Parent()->SendOut(stealth_t, stealth_s, ";s hits ;s%s with %s. [%d] %s\n",
 		"You hit ;s%s with %s. [%d] %s\n", body, targ,
 		locm.c_str(), body->ActTarg(ACT_WIELD)->ShortDesc(),
 		succ, res.c_str());
       else
-	body->Parent()->SendOut(ALL, 
+	body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s punches ;s%s. [%d] %s\n", "You punch ;s%s. [%d] %s\n",
 		body, targ, locm.c_str(), succ, res.c_str());
       int sev = 0;
@@ -2812,15 +2819,15 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	}
       }
     else {
-      if(com == COM_KICK) body->Parent()->SendOut(ALL, 
+      if(com == COM_KICK) body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s tries to kick ;s, but misses. [%d] %s\n",
 	"You try to kick ;s, but miss. [%d] %s\n",
 	body, targ, succ, res.c_str());
-      else if(body->IsAct(ACT_WIELD))body->Parent()->SendOut(ALL, 
+      else if(body->IsAct(ACT_WIELD))body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s tries to attack ;s, but misses. [%d] %s\n",
 	"You try to attack ;s, but miss. [%d] %s\n",
 	body, targ, succ, res.c_str());
-      else body->Parent()->SendOut(ALL, 
+      else body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s tries to punch ;s, but misses. [%d] %s\n",
 	"You try to punch ;s, but miss. [%d] %s\n",
 	body, targ, succ, res.c_str());
@@ -3278,7 +3285,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       mind->Send("You can't control inanimate objects!\n");
       }
     else {
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s controls ;s with Ninja Powers[TM].\n", "You control ;s.\n",
 	body, targ);
       mind->Unattach();
@@ -3301,13 +3308,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       mind->Send("You can't command an object that has no will of its own.\n");
       }
     else {
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s commands ;s to '%s' with Ninja Powers[TM].\n",
 	"You command ;s to '%s'.\n",
 	body, targ, comline+len);
 
       if(handle_command(targ, comline+len) > 0)
-	body->Parent()->SendOut(ALL, 
+	body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s did not understand the command.\n",
 		";s did not understand the command.\n",
 		targ, body);
@@ -3320,7 +3327,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(comline[len] == 0) {
       new Object(body->Parent());
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s creates a new object with Ninja Powers[TM].\n",
 	"You create a new object.\n", body, NULL);
       }
@@ -3328,7 +3335,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	//FIXME - this is fuxxored
       mind->Send("Argument mode is disabled for now\n");
 //      body->Parent()->LinkToNew(comline+len);
-//      body->Parent()->SendOut(ALL, 
+//      body->Parent()->SendOut(stealth_t, stealth_s, 
 //	";s creates a new object with Ninja Powers[TM].\n",
 //	"You create a new object.\n", body, NULL);
       }
@@ -3402,7 +3409,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       for(; item != cont.end(); ++item) delete (*item);
       targ->Travel(get_start_room(), 0);
 
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s resets ;s with Ninja Powers[TM].\n", "You reset ;s.\n",
 	body, targ);
       }
@@ -3468,7 +3475,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	}
       nobj->SetShortDesc(name.c_str());
 
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s mirrors ;s with Ninja Powers[TM].\n", "You mirror ;s.\n",
 	body, targ);
       }
@@ -3486,7 +3493,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       Object *nobj = new Object(*targ);
       nobj->SetParent(targ->Parent());
 
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s clones ;s with Ninja Powers[TM].\n", "You clone ;s.\n",
 	body, targ);
       }
@@ -3504,7 +3511,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     typeof(targs.begin()) targ_it;
     for(targ_it = targs.begin(); targ_it != targs.end(); ++ targ_it) {
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s destroys ;s with Ninja Powers[TM].\n", "You destroy ;s.\n",
 	body, *targ_it);
       delete(*targ_it);
@@ -3526,7 +3533,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       targ->SetStru(0);
       targ->UpdateDamage();
 
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s heals and repairs ;s with Ninja Powers[TM].\n", "You heal ;s.\n",
 	body, targ);
       }
@@ -3555,7 +3562,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
     targ->SetAttribute(stat, targ->Attribute(stat) + 1);
 
-    body->Parent()->SendOut(ALL, 
+    body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s jacks the %s of ;s with Ninja Powers[TM].\n",
 	"You jack the %s of ;s.\n",
 	body, targ, statnames[stat]);
@@ -3589,7 +3596,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
     targ->SetAttribute(stat, targ->Attribute(stat) - 1);
 
-    body->Parent()->SendOut(ALL, 
+    body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s chumps the %s of ;s with Ninja Powers[TM].\n",
 	"You chump the %s of ;s.\n",
 	body, targ, statnames[stat]);
@@ -3614,7 +3621,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
     targ->SetSkill(comline+len, (targ->Skill(comline+len)>?0) + 1);
 
-    body->Parent()->SendOut(ALL, 
+    body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s increments the %s of ;s with Ninja Powers[TM].\n",
 	"You increment the %s of ;s.\n",
 	body, targ, comline+len);
@@ -3633,7 +3640,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
     targ->SetSkill(comline+len, targ->Skill(comline+len) - 1);
 
-    body->Parent()->SendOut(ALL, 
+    body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s decrements the %s of ;s with Ninja Powers[TM].\n",
 	"You decrement the %s of ;s.\n",
 	body, targ, comline+len);
@@ -3646,7 +3653,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
       body->Parent()->CircleLoadAll();
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s loads the entire Circle world with Ninja Powers[TM].\n",
 	"You load the entire Circle world.\n", body, NULL);
       }
@@ -3655,7 +3662,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       body->Parent()->CircleLoad(buf);
       sprintf(buf, "circle/obj/%s.obj", comline+len);
       body->Parent()->CircleLoadObj(buf);
-      body->Parent()->SendOut(ALL, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s loads a Circle world ;s with Ninja Powers[TM].\n",
 	"You load a Circle world.\n", body, NULL);
       }
@@ -3665,7 +3672,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
   if(com == COM_CCLEAN) {
     if(!mind) return 0;
     body->CircleCleanup();
-    body->Parent()->SendOut(ALL, 
+    body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s cleans up after loading Circle worlds.\n",
 	"You clean up after loading Circle worlds.\n",
 	body, NULL);
