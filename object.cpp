@@ -1018,10 +1018,33 @@ void Object::SendScore(Mind *m, Object *o) {
 	size / 1000, size % 1000, volume, value);
 
   map<string,int> skills = GetSkills();
+  map<string,int> sks;
   map<string,int>::iterator skl;
+  map<string,int> nsks;
+  map<string,int>::iterator nskl;
+
   if(skills.count("WeaponType") == 0) {
     for(skl = skills.begin(); skl != skills.end(); ++skl) {
-      m->Send("%26s: %2d\n", skl->first.c_str(),skl->second);
+      if(is_skill(skl->first)) sks[skl->first] = skl->second;
+      else nsks[skl->first] = skl->second;
+      }
+    skl = sks.begin();
+    nskl = nsks.begin();
+    while(nskl != nsks.end() || skl != sks.end()) {
+      if(skl != sks.end()) {
+	m->Send("%25s: %2d ", skl->first.c_str(), (99 <? skl->second));
+	++skl;
+	}
+      else {
+	m->Send("%25s     ", " ");
+	}
+
+      if(nskl != nsks.end()) {
+	m->Send("%30s: %7d ", nskl->first.c_str(), nskl->second);
+	++nskl;
+	}
+
+      m->Send("\n");
       }
     }
   }
