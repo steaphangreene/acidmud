@@ -1162,21 +1162,35 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)
 		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Container")) {
 	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
-	Object *item = vortex->PickObject(comline+len, LOC_INTERNAL);
-	if(item) {
-	  int price = item->Value();
+
+        vector<Object *>targs = vortex->PickObjects(comline+len, LOC_INTERNAL);
+	if(!targs.size()) {
+	  if(mind) mind->Send("The shopkeeper doesn't have that.\n");
+	  return 0;
+	  }
+
+	vector<Object *>::iterator targ_i;
+	for(targ_i = targs.begin(); targ_i != targs.end(); ++targ_i) {
+	  Object *targ = (*targ_i);
+
+	  int price = targ->Value() * (1 >? targ->Skill("Quantity"));
 	  if(price < 0) {
-	    if(mind) mind->Send("That item can't be sold.\n");
-	    return 0;
+	    if(mind) mind->Send("You can't sell %s.\n", targ->Name(0, body));
+	    continue;
 	    }
 	  else if(price == 0) {
-	    if(mind) mind->Send("That item is worthless.\n");
-	    return 0;
+	    if(mind) {
+	      string mes = targ->Name(0, body);
+	      mes += " is worthless.\n";
+	      mes[0] = toupper(mes[0]);
+	      mind->Send(mes.c_str());
+	      }
+	    continue;
 	    }
 
  	  price *= shpkp->Skill("Sell Proffit");
 	  price += 999;  price /= 1000;
-	  mind->Send("%d gp: %s\n", price, item->ShortDesc());
+	  mind->Send("%d gp: %s\n", price, targ->ShortDesc());
 
 	  int togo = price, ord = -price;
 	  vector<Object *> pay
@@ -1191,24 +1205,20 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  if(body->IsAct(ACT_HOLD) && loc == pay.end()) {
 	    if(mind) mind->Send("You are already holding something else!\n");
 	    }
-	  else if(togo <= 0) {
-	    body->Parent()->SendOut(
-		";s buys ;s.\n", "You buy ;s.\n", body, item);
-	    item->Travel(body);
-	    body->AddAct(ACT_HOLD, item);
-	    for(coin = pay.begin(); coin != pay.end(); ++coin) {
-	      (*coin)->Travel(shpkp);
-	      shpkp->AddAct(ACT_HOLD, (*coin));
-	      //FIXME: Put Away!
-	      }
-	    }
-	  else {
+	  else if(togo > 0) {
 	    if(mind) mind->Send("You can't afford the %d gold (short %d).\n",
 		price, togo);
 	    }
-	  }
-	else {
-	  if(mind) mind->Send("The shopkeeper doesn't have that.\n");
+	  else if(body->Stash(targ)) {
+	    body->Parent()->SendOut(
+		";s buys ;s.\n", "You buy ;s.\n", body, targ);
+	    for(coin = pay.begin(); coin != pay.end(); ++coin) {
+	      shpkp->Stash(*coin);
+	      }
+	    }
+	  else {
+	    if(mind) mind->Send("You can't stash %s.\n", targ->Name(1));
+	    }
 	  }
 	}
       }
@@ -1245,8 +1255,6 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else {
       vector<Object *>targs = body->PickObjects(comline+len, LOC_INTERNAL);
-      vector<Object*>::iterator loc
-		= find(targs.begin(), targs.end(), body->ActTarg(ACT_HOLD));
       if(!targs.size()) {
 	if(mind) mind->Send("You want to sell what?\n");
 	}
@@ -1269,7 +1277,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	    continue;
 	    }
 
-	  int price = targ->Value();
+	  int price = targ->Value() * (1 >? targ->Skill("Quantity"));
 	  if(price < 0) {
 	    if(mind) mind->Send("You can't sell %s.\n", targ->Name(0, body));
 	    continue;
