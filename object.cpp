@@ -1949,8 +1949,9 @@ Object *Object::Stash(Object *obj) {
       continue;
     if((*con)->Skill("Container") - (*con)->ContainedWeight() < obj->Weight())
       continue;
+    if(!dest) dest = (*con);  //It CAN go here....
     for(ind = (*con)->contents.begin(); ind != (*con)->contents.end(); ++ind) {
-      if((*obj) == (*(*ind))) dest = (*con); break;
+      if((*obj) == (*(*ind))) { dest = (*con); break; }
       }
     }
 
