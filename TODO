@@ -1,5 +1,6 @@
 Follower should get there AFTER folowee.
 Followers who lie, sit, or rest must stop following.
+Follower should see their own movements better.
 Fix exchange system handling odd cases (including sell/buy).
 People have to be alert to FOLLOW.
 Enhance "consider" command.
@@ -83,6 +84,7 @@ Crafting (weapons, armor, tools, clothes, etc...).
 Understand visibility and cut messages accordingly.
 Do things stealthily (not be noticed looking, pointing, etc...).
 Settings for display on go/enter/leave.
+Autostash enable/disable?
 Non-ninja healing skills?
 Gossip?
 Encumbrance.  Dragging heavy objects.
