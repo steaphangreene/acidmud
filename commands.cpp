@@ -770,7 +770,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		mind->Owner()->Room()->PickObject(comline+len, LOC_INTERNAL);
       if(!body) {
 	mind->Send("Sorry, that character doesn't exist.\n"
-		"Use the 'newchar' command to create a new character.\n");
+		"Use the 'newcharacter' command to create a new character.\n");
 	return 0;
 	}
       if(body->Skill("Attributes") || body->Skill("Skills")) {
@@ -786,7 +786,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  }  
 	else {
 	  mind->Send("Sorry, that character is dead.\n"
-		"Use the 'newchar' command to create a new character.\n");
+		"Use the 'newcharacter' command to create a new character.\n");
 	  return 0;
 	  }
 	}
@@ -2826,9 +2826,18 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(!mind) return 0; //FIXME: Should never happen!
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
-      mind->Send("What's the character's name?  Use 'newchar <charname>'.\n");
+      mind->Send("What's the character's name?  Use 'newcharacter <charname>'.\n");
       return 0;
       }
+
+    char *ch = comline+len;
+    while((*ch) && isalpha(*ch)) ++ch;
+    if(*ch) {
+      mind->Send("Sorry, character names can only contain letters.\n"
+			"Pick another name.\n");
+      return 0;
+      }
+
     Object *body = mind->Owner()->Room()->PickObject(comline+len, LOC_INTERNAL);
     if(body) {
       mind->Send("Sorry, you already have a character with that name.\n"
