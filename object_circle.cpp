@@ -1035,6 +1035,11 @@ void Object::CircleLoad(const char *fn) {
       else if(val == 7) obj->SetSkill("WaterDepth", 2);	// WATER_NOSWIM
       else if(val == 8) obj->SetSkill("WaterDepth", 3);	// UNDERWATER
 
+      string name = obj->ShortDesc();
+      if(name.find("Secret") >= 0 && name.find("Secret") < name.length()) {
+        obj->SetSkill("Secret", 100000+onum);
+	}
+
       if(string(buf).find('b') < strlen(buf) || (atoi(buf) & 2)) { //DEATH
         obj->SetSkill("Hazardous", 2);
 	}

@@ -1084,6 +1084,17 @@ int Object::Travel(Object *dest, int try_combine) {
 
   StopAct(ACT_POINT);
   StopAct(ACT_FOLLOW);
+
+  if(parent->Skill("Secret")) {
+    set<Mind*>::iterator m;
+     for(m = minds.begin(); m != minds.end(); ++m) {
+      if((*m)->Owner()) {
+	(*m)->Owner()->Accomplish(parent->Skill("Secret"));
+	(*m)->Send("You gain a player experience for finding a secret!\n");
+	}
+      }
+    }
+
   return 0;
   }
 
