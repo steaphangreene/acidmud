@@ -703,6 +703,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside) {
 	}
       }
     }
+  m->Send("%s", CNRM);
   }
 
 void Object::SendShortDesc(Mind *m, Object *o) {
@@ -831,14 +832,14 @@ void Object::SendDesc(Mind *m, Object *o) {
       }
     }
 
-  m->Send("%s", CNRM);
-  if(pos != POS_NONE) {
-    SendExtendedActions(m, 0);
-    }
+//  m->Send("%s", CNRM);
+//  if(pos != POS_NONE) {
+//    SendExtendedActions(m, 0);
+//    }
 
-  if((!parent) || Contains(o) || Skill("Transparent")) {
-    SendContents(m, o);
-    }
+//  if((!parent) || Contains(o) || Skill("Transparent")) {
+//    SendContents(m, o);
+//    }
 
   m->Send("%s", CNRM);
   }
@@ -925,15 +926,15 @@ void Object::SendLongDesc(Mind *m, Object *o) {
     }
 
   m->Send("%s", CNRM);
-  SendExtendedActions(m, 1);
-
-  if(Skill("Transparent") || (!Skill("Locked"))) {
-    SendContents(m, o, 1);
-    }
-  else {
-    m->Send("It is closed and locked, you can't tell what's inside it.\n");
-    }
-  m->Send("%s", CNRM);
+//  SendExtendedActions(m, 1);
+//
+//  if(Skill("Transparent") || (!Skill("Locked"))) {
+//    SendContents(m, o, 1);
+//    }
+//  else {
+//    m->Send("It is closed and locked, you can't tell what's inside it.\n");
+//    }
+//  m->Send("%s", CNRM);
   }
 
 void Object::SendStats(Mind *m, Object *o) {

@@ -194,6 +194,7 @@ void Mind::SetPPass(string ppass) {
 
   SendRaw("%c%c%c", IAC, WONT, TELOPT_ECHO);
   player->Room()->SendDesc(this);
+  player->Room()->SendContents(this);
   }
 
 void Mind::SetPlayer(string pn) {

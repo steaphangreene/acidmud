@@ -11,6 +11,7 @@ using namespace std;
 #include "mind.h"
 #include "object.h"
 #include "commands.h"
+#include "color.h"
 
 #define SIT_ETHEREAL	1
 #define SIT_CORPOREAL	2
@@ -55,6 +56,7 @@ enum {	COM_HELP=0,
 
 	COM_LOOK,
 	COM_EXAMINE,
+	COM_SEARCH,
 	COM_CONSIDER,
 	COM_INVENTORY,
 	COM_EQUIPMENT,
@@ -160,6 +162,11 @@ Command comlist[] = {
   { COM_EXAMINE, "examine",
     "Examine an object or creature.",
     "Examine an object or creature.",
+    (REQ_ALERT|REQ_ACTION)
+    },
+  { COM_SEARCH, "search",
+    "Search an area, object or creature.",
+    "Search an area, object or creature.",
     (REQ_ALERT|REQ_ACTION)
     },
   { COM_CONSIDER, "consider",
@@ -829,8 +836,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     //if(body) delete body;
     if(mind) mind->Unattach();
 
-    if(mind && mind->Owner() && mind->Owner()->Room())
+    if(mind && mind->Owner() && mind->Owner()->Room()) {
       mind->Owner()->Room()->SendDesc(mind);
+      mind->Owner()->Room()->SendContents(mind);
+      }
     else
       if(mind) mind->Send("Use \"Enter\" to return to the game.\n");
 
@@ -900,6 +909,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!body) {
       mind->Owner()->Room()->SendDesc(mind);
+      mind->Owner()->Room()->SendContents(mind);
       return 0;
       }
 
@@ -936,12 +946,19 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	if(strlen(comline+len) > 0 && within) {
 		body->Parent()->SendOut(
 		";s looks inside ;s.\n", "", body, targ);
-	  if(mind) targ->SendDesc(mind, body);
+	  if(mind) {
+	    targ->SendDesc(mind, body);
+	    targ->SendExtendedActions(mind);
+	    targ->SendContents(mind);
+	    }
 	  }
 	else if(strlen(comline+len) > 0) {
 		body->Parent()->SendOut(
 		";s looks at ;s.\n", "", body, targ);
-	  if(mind) targ->SendDesc(mind, body);
+	  if(mind) {
+	    targ->SendDesc(mind, body);
+	    targ->SendExtendedActions(mind);
+	    }
 	  }
 	else {
 		body->Parent()->SendOut(
@@ -954,6 +971,33 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  body->Parent()->SendOut(
 		";s closes ;s.\n", "You close ;s.\n", body, targ);
 	  }
+	}
+      }
+    return 0;
+    }
+
+  if(com == COM_SEARCH) {
+    if(!body->Parent()) return 0;
+
+    typeof(body->Contents()) targs;
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    targs = body->PickObjects(comline+len,
+		LOC_INTERNAL|LOC_NEARBY|LOC_SELF);
+    if(targs.size() == 0) {
+      targs.push_back(body->Parent());
+      }
+
+    typeof(targs.begin()) targ_it;
+    for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+      body->Parent()->SendOut(
+	";s examines ;s.\n", "", body, *targ_it);
+      if(mind) {
+	mind->Send("%s", CCYN);
+	(*targ_it)->SendFullSituation(mind, body);
+	(*targ_it)->SendActions(mind);
+	mind->Send("%s", CNRM);
+	(*targ_it)->SendExtendedActions(mind, 1);
+	(*targ_it)->SendContents(mind, body, 1);
 	}
       }
     return 0;
