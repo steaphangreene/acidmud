@@ -14,7 +14,13 @@ static const char *salt_char =
 
 Player::Player(string nm, string ps) {
   flags = 0;
+
   room = new Object();
+  creator = new Object();
+  creator->SetParent(room);
+  creator->SetShortDesc("your character creator");
+  creator->SetPos(POS_NONE);
+
   SetName(nm);
   if(ps[0] == '$' && ps[1] == '1' && ps[2] == '$') {
     pass = ps;
@@ -51,6 +57,7 @@ void Player::Link(Object *obj) {
 
 void Player::AddChar(Object *ch) {
   room->AddLink(ch);
+  creator->AddAct(ACT_POINT, ch);
   }
 
 int player_exists(string name) {

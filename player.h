@@ -21,6 +21,7 @@ public:
   void SetName(string);
   void Link(Object *);
   Object *Room() { return room; };
+  Object *Creator() { return creator; };
   int Is(unsigned long f) { return (flags & f); };
   void Set(unsigned long f) { flags |= f; };
   void UnSet(unsigned long f) { flags &= (~f); };
@@ -32,7 +33,7 @@ public:
 private:
   map<string, Object *> body;
   string name, pass;
-  Object *room;
+  Object *room, *creator;
   unsigned long flags;
 
   friend Player *player_login(string name, string pass);

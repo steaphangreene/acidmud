@@ -1,9 +1,9 @@
-Show armor messages in ninja display.
+Fix all the commands that now do something wield with no arguments.
+Actually "create" characters with actual stats and such.
 Implement experience.
 Implement quantitative dispay (eg: "4 gold pieces").
 Implement quantitative plurality (eg: "offer 7 gold").
 Positional modifyers (sleeping/lying down/standing, etc...).
-Add better ninja detection to commands handler.
 Pluralize appropriate commands with intelligent stashing (rem, get).
 Implement money.
 Translate CircleMud shops.
@@ -12,6 +12,8 @@ Refine the fudging of circle MOBs' stats.
 Finish article substitution ("A" -> "A second" -> "The" -> "Joe's", etc...).
 Pick up a fight's other opponents after your target goes down without delay.
 Wear/wield from own containers need auto open/close.
+Add better ninja detection to commands handler.
+Show armor messages in ninja display.
 Get it to understand two-handed weapons and shield use.
 Get it to understand offhand and mounted weapon use.
 Consistently pluralize (or don't) skill names (fix online version too!).
@@ -45,7 +47,6 @@ Implement AcidMail.
 Add "bug", "feature", and "concern" commands (acidmail problems to immortals).
 User management commands (delete chars, delete users, etc...).
 Skill defaults (to other skills).
-Actually "create" characters with actual stats and such.
 Case-Insensitive Playernames
 
 Add SSL support.
