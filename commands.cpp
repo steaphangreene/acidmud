@@ -1123,7 +1123,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     typeof(objs.begin()) shpkp_i;
     Object *shpkp = NULL;
     for(shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
-      if((*shpkp_i)->Skill("Sell Proffit")) {shpkp = (*shpkp_i); break; }
+      if((*shpkp_i)->Skill("Sell Profit")) {shpkp = (*shpkp_i); break; }
       }
     if(shpkp == NULL) {
       mind->Send("You can only do that around a shopkeeper.\n");
@@ -1149,7 +1149,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	for(obj = objs.begin(); obj != objs.end(); ++obj) {
 	  if(obj != objs.begin() && (*(*obj)) == (*(*(obj-1)))) continue;
 	  int price = (*obj)->Value();
- 	  price *= shpkp->Skill("Sell Proffit");
+ 	  price *= shpkp->Skill("Sell Profit");
 	  price += 999;  price /= 1000;
 	  mind->Send("%10d gp: %s\n", price, (*obj)->ShortDesc());
 	  }
@@ -1169,7 +1169,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     typeof(objs.begin()) shpkp_i;
     Object *shpkp = NULL;
     for(shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
-      if((*shpkp_i)->Skill("Sell Proffit")) {shpkp = (*shpkp_i); break; }
+      if((*shpkp_i)->Skill("Sell Profit")) {shpkp = (*shpkp_i); break; }
       }
     if(shpkp == NULL) {
       if(mind) mind->Send("You can only do that around a shopkeeper.\n");
@@ -1216,7 +1216,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	    continue;
 	    }
 
- 	  price *= shpkp->Skill("Sell Proffit");
+ 	  price *= shpkp->Skill("Sell Profit");
 	  price += 999;  price /= 1000;
 	  mind->Send("%d gp: %s\n", price, targ->ShortDesc());
 
@@ -1264,7 +1264,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     typeof(objs.begin()) shpkp_i;
     Object *shpkp = NULL;
     for(shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
-      if((*shpkp_i)->Skill("Sell Proffit")) {shpkp = (*shpkp_i); break; }
+      if((*shpkp_i)->Skill("Sell Profit")) {shpkp = (*shpkp_i); break; }
       }
     if(shpkp == NULL) {
       if(mind) mind->Send("You can only do that around a shopkeeper.\n");
@@ -1305,7 +1305,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	      }
 	    continue;
 	    }
- 	  price *= shpkp->Skill("Buy Proffit");
+ 	  price *= shpkp->Skill("Buy Profit");
 	  price += 0;  price /= 1000;
 	  string mes = targ->Name(0, body);
 	  mes[0] = toupper(mes[0]);
@@ -1328,7 +1328,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     typeof(objs.begin()) shpkp_i;
     Object *shpkp = NULL;
     for(shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
-      if((*shpkp_i)->Skill("Sell Proffit")) {shpkp = (*shpkp_i); break; }
+      if((*shpkp_i)->Skill("Sell Profit")) {shpkp = (*shpkp_i); break; }
       }
     if(shpkp == NULL) {
       if(mind) mind->Send("You can only do that around a shopkeeper.\n");
@@ -1384,7 +1384,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	    continue;
 	    }
 
- 	  price *= shpkp->Skill("Buy Proffit");
+ 	  price *= shpkp->Skill("Buy Profit");
 	  price += 0;  price /= 1000;
 	  mind->Send("%d gp: %s\n", price, targ->ShortDesc());
 

@@ -1119,8 +1119,8 @@ void Object::CircleLoadShp(const char *fn) {
 	  }
 
 	double num, num2;
-	fscanf(mud, "%lf\n", &num);  // Proffit when Sell
-	fscanf(mud, "%lf\n", &num2);  // Proffit when Buy
+	fscanf(mud, "%lf\n", &num);  // Profit when Sell
+	fscanf(mud, "%lf\n", &num2);  // Profit when Buy
 
 	memset(buf, 0, 65536);
 	fscanf(mud, "%[^\n]\n", buf);  // Item types bought
@@ -1156,8 +1156,8 @@ void Object::CircleLoadShp(const char *fn) {
 	fscanf(mud, "%*d\n");  // Close time
 
 	if(keeper) {
-	  keeper->SetSkill("Sell Proffit", (int)(num*1000.0));
-	  keeper->SetSkill("Buy Proffit", (int)(num2*1000.0));
+	  keeper->SetSkill("Sell Profit", (int)(num*1000.0));
+	  keeper->SetSkill("Buy Profit", (int)(num2*1000.0));
 	  vortex->SetParent(keeper);
 	  keeper->AddAct(ACT_WEAR_RSHOULDER, vortex);
 	  }
