@@ -257,7 +257,7 @@ void Object::Tick() {
       obj->SetParent(this);
       obj->AddAct(ACT_SPECIAL_MASTER, this);
       obj->Travel(parent);
-      parent->SendOut(";s arrives.", "", obj, NULL);
+      parent->SendOut(";s arrives.\n", "", obj, NULL);
       AddAct(ACT_SPECIAL_MONITOR, obj);
       }
     }
