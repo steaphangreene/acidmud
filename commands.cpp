@@ -1993,13 +1993,16 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else {
       if(com == COM_KICK) body->Parent()->SendOut(
-	";s tries to kick ;s, but misses. [%d] %s\n", "You missed. [%d] %s\n",
+	";s tries to kick ;s, but misses. [%d] %s\n",
+	"You try to kick ;s, but miss. [%d] %s\n",
 	body, targ, succ, res.c_str());
       else if(body->IsAct(ACT_WIELD))body->Parent()->SendOut(
-	";s tries to attack ;s, but misses. [%d] %s\n", "You missed. [%d] %s\n",
+	";s tries to attack ;s, but misses. [%d] %s\n",
+	"You try to attack ;s, but miss. [%d] %s\n",
 	body, targ, succ, res.c_str());
       else body->Parent()->SendOut(
-	";s tries to punch ;s, but misses. [%d] %s\n", "You missed. [%d] %s\n",
+	";s tries to punch ;s, but misses. [%d] %s\n",
+	"You try to punch ;s, but miss. [%d] %s\n",
 	body, targ, succ, res.c_str());
       }
 
