@@ -10,17 +10,52 @@
 #include "color.h"
 #include "mind.h"
 
-void Object::DynamicInit() {
-  switch(Skill("DynamicInit")) {
-    case(1): {
-      DynamicInit1();
-      }break;
-    default: {
-      fprintf(stderr, "Unknown dynamic-type (%d) init requested!\n",
-	Skill("DynamicInit"));
-      }break;
+static Mind *mob_mind = NULL;
+Mind *get_mob_mind() {
+  if(!mob_mind) {
+    mob_mind = new Mind();
+    mob_mind->SetMob();
     }
-  SetSkill("DynamicInit", 0);
+  return mob_mind;
+  }
+
+static Object *gold = NULL;
+static void init_gold() {
+  gold = new Object();
+  gold->SetShortDesc("a gold piece");
+  gold->SetDesc("A standard one-ounce gold piece.");
+  gold->SetWeight(454 / 16);
+  gold->SetVolume(0);
+  gold->SetValue(1);
+  gold->SetSize(0);
+  gold->SetPos(POS_LIE);
+  }
+
+static void give_gold(Object *mob, int qty) {
+  Object *bag = new Object;
+
+  bag->SetParent(mob);
+  bag->SetShortDesc("a small purse");
+  bag->SetDesc("A small, durable, practical moneypurse.");
+
+  bag->SetSkill("Wearable on Left Hip", 1);
+  bag->SetSkill("Wearable on Right Hip", 2);
+  bag->SetSkill("Container", 5 * 454);
+  bag->SetSkill("Capacity", 5);
+  bag->SetSkill("Closeable", 1);
+
+  bag->SetWeight(1 * 454);
+  bag->SetSize(2);
+  bag->SetVolume(1);
+  bag->SetValue(100);
+
+  bag->SetPos(POS_LIE);
+  mob->AddAct(ACT_WEAR_RHIP, bag);
+
+  if(!gold) init_gold();
+  Object *g = new Object(*gold);
+  g->SetParent(bag);
+  g->SetSkill("Quantity", qty);
   }
 
 static void make_dwarf_miner(Object *loc) {
@@ -40,8 +75,7 @@ static void make_dwarf_miner(Object *loc) {
   mob->SetShortDesc("a dwarf miner");
   mob->SetDesc("He looks pissed.");
 
-  mob->SetSkill("CircleGold", 500+rand()%2001);
-  loc->CircleFinishMob(mob);
+  give_gold(mob, 500+rand()%2001);
 
   Object *obj = new Object(mob);
   obj->SetSkill("WeaponType", get_weapon_type("Two-Handed Cleaves"));
@@ -410,4 +444,17 @@ void Object::DynamicInit1() {		//Dwarven mine
       }break;
     }
   SetSkill("DynamicPhase", 0);
+  }
+
+void Object::DynamicInit() {
+  switch(Skill("DynamicInit")) {
+    case(1): {
+      DynamicInit1();
+      }break;
+    default: {
+      fprintf(stderr, "Unknown dynamic-type (%d) init requested!\n",
+	Skill("DynamicInit"));
+      }break;
+    }
+  SetSkill("DynamicInit", 0);
   }

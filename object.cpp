@@ -266,7 +266,7 @@ void Object::Tick() {
       obj->AddAct(ACT_SPECIAL_MASTER, this);
       obj->Travel(parent);
       AddAct(ACT_SPECIAL_MONITOR, obj);
-      obj->Attach(get_mob_mind());
+      obj->Attach(get_circle_mob_mind());
       obj->Activate();
       parent->SendOut(ALL, -1, ";s arrives.\n", "", obj, NULL);
       }
@@ -279,7 +279,7 @@ void Object::Tick() {
       obj->AddAct(ACT_SPECIAL_MASTER, this);
       obj->Travel(parent);
       AddAct(ACT_SPECIAL_MONITOR, obj);
-      obj->Attach(get_mob_mind());
+      obj->Attach(get_circle_mob_mind());
       obj->Activate();
       parent->SendOut(ALL, -1, ";s arrives.\n", "", obj, NULL);
       }

@@ -142,10 +142,10 @@ static void init_gold() {
   gold->SetPos(POS_LIE);
   }
 
-Mind *get_mob_mind() {
+Mind *get_circle_mob_mind() {
   if(!circle_mob_mind) {
     circle_mob_mind = new Mind();
-    circle_mob_mind->SetMob();
+    circle_mob_mind->SetCircleMob();
     }
   return circle_mob_mind;
   }

@@ -286,6 +286,7 @@ Object *getbynum(int);
 int getnum(Object *);
 int matches(const char *name, const char *seek);
 Mind *get_mob_mind();
+Mind *get_circle_mob_mind();
 
 void FreeActions();
 

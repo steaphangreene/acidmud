@@ -65,6 +65,11 @@ void Mind::SetRemote(int fd) {
   }
 
 void Mind::SetMob() {
+  type = MIND_MOB;
+  pers = fileno(stderr);
+  }
+
+void Mind::SetCircleMob() {
   type = MIND_CIRCLEMOB;
   pers = fileno(stderr);
   }

@@ -205,7 +205,7 @@ int Object::LoadFrom(FILE *fl) {
     act[(act_t)anum] = (Object*)num2;
     }
 
-  if(Skill("CircleAction")) get_mob_mind()->Attach(this);
+  if(Skill("CircleAction")) get_circle_mob_mind()->Attach(this);
 
   vector<Object*>::iterator cind;
   for(cind = toload.begin(); cind != toload.end(); ++cind) {
