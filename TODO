@@ -1,9 +1,9 @@
-Hit locations.
 Implement armor protection.
 Implement armor and cloathing effects.
 Implement experience.
 Implement quantitative dispay (eg: "4 gold pieces").
 Implement quantitative plurality (eg: "offer 7 gold").
+Positional modifyers (sleeping/lying down/standing, etc...).
 Add better ninja detection to commands handler.
 Pluralize appropriate commands with intelligent stashing (rem, get).
 Implement money.
@@ -37,6 +37,7 @@ Implement item "piles" "pairs", "mixtures", etc....
 Implement reserved words ('in', 'to', 'at', 'Ninja').
 Put away stuff when you sleep, don't drop it.
 See contents when you look at a nearby room (eg: "look north").
+Create "aim" command to intentionally hit certain locations.
 
 
 Implement AcidMail.

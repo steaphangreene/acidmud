@@ -1609,32 +1609,95 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
     succ = body->Roll(sk1, targ, sk2, reachmod, &res);
 
+    int loc = rand()%100;
+    act_t loca = ACT_WEAR_CHEST;
+    string locm = "";
+    int stage = 0;
+    if(loc < 50) {
+      loca = ACT_WEAR_CHEST;
+      locm = " in the chest";
+      }
+    else if(loc < 57) {
+      loca = ACT_WEAR_BACK;
+      locm = " in the back";
+      }
+    else if(loc < 59) {
+      loca = ACT_WEAR_HEAD;
+      locm = " in the head";
+      stage = 1;
+      }
+    else if(loc < 60) {
+      loca = ACT_WEAR_NECK;
+      locm = " in the neck";
+      stage = 2;
+      }
+    else if(loc < 70) {
+      loca = ACT_WEAR_LARM;
+      locm = " in the left arm";
+      stage = -1;
+      }
+    else if(loc < 80) {
+      loca = ACT_WEAR_RARM;
+      locm = " in the right arm";
+      stage = -1;
+      }
+    else if(loc < 85) {
+      loca = ACT_WEAR_LLEG;
+      locm = " in the left leg";
+      stage = -1;
+      }
+    else if(loc < 90) {
+      loca = ACT_WEAR_RLEG;
+      locm = " in the right leg";
+      stage = -1;
+      }
+    else if(loc < 93) {
+      loca = ACT_WEAR_LHAND;
+      locm = " in the left hand";
+      stage = -2;
+      }
+    else if(loc < 96) {
+      loca = ACT_WEAR_RHAND;
+      locm = " in the right hand";
+      stage = -2;
+      }
+    else if(loc < 98) {
+      loca = ACT_WEAR_LFOOT;
+      locm = " in the left foot";
+      stage = -2;
+      }
+    else {
+      loca = ACT_WEAR_RFOOT;
+      locm = " in the right foot";
+      stage = -2;
+      }
+
     if(succ > 0) {
       //FIXME: Remove debugging stuff ("succ" and "res") from these messages.
       if(com == COM_KICK)
 	body->Parent()->SendOut(
-		";s kicks ;s. [%d] %s\n", "You kick ;s. [%d] %s\n",
-		body, targ, succ, res.c_str());
+		";s kicks ;s%s. [%d] %s\n", "You kick ;s. [%d] %s\n",
+		body, targ, locm.c_str(), succ, res.c_str());
       else if(body->IsAct(ACT_WIELD))
-	body->Parent()->SendOut(";s hits ;s with %s. [%d] %s\n",
-		"You hit ;s with %s. [%d] %s\n", body, targ,
-		body->ActTarg(ACT_WIELD)->ShortDesc(),
+	body->Parent()->SendOut(";s hits ;s%s with %s. [%d] %s\n",
+		"You hit ;s%s with %s. [%d] %s\n", body, targ,
+		locm.c_str(), body->ActTarg(ACT_WIELD)->ShortDesc(),
 		succ, res.c_str());
       else
 	body->Parent()->SendOut(
-		";s punches ;s. [%d] %s\n", "You punch ;s. [%d] %s\n",
-		body, targ, succ, res.c_str());
+		";s punches ;s%s. [%d] %s\n", "You punch ;s. [%d] %s\n",
+		body, targ, locm.c_str(), succ, res.c_str());
       int sev = 0;
 
       if(com == COM_KICK)
-	sev = targ->HitStun(body->Attribute(2), 2, succ);
+	sev = targ->HitStun(body->Attribute(2), stage+2, succ);
       else if(body->IsAct(ACT_WIELD))
 	sev = targ->HitPhys(body->Attribute(2)
 	  + (0 >? body->ActTarg(ACT_WIELD)->Skill("WeaponForce")),
-	  (0 >? body->ActTarg(ACT_WIELD)->Skill("WeaponSeverity")),
+	  stage + (0 >? body->ActTarg(ACT_WIELD)->Skill("WeaponSeverity")),
 	  succ);
       else
-	sev = targ->HitStun(body->Attribute(2), 1, succ);
+	sev = targ->HitStun(body->Attribute(2), stage+1, succ);
 
       if(sev <= 0) {
 	if(mind) mind->Send("You hit - but didn't do much.\n");  //FIXME - Real Messages
