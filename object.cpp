@@ -2185,8 +2185,12 @@ void Object::Deactivate() {
   remove_tick(this);
   }
 
-void Object::EarnExperience(int e) {
+void Object::EarnExp(int e) {
   exp += e;
+  }
+
+void Object::SpendExp(int e) {
+  sexp += e;
   }
 
 int Object::Accomplish(unsigned long acc) {

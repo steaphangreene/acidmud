@@ -411,7 +411,7 @@ Command comlist[] = {
   { COM_RAISE, "raise",
     "Spend a skill or attribute point of current character.",
     "Spend a skill or attribute point of current character.",
-    (REQ_ETHEREAL)
+    (REQ_ETHEREAL|REQ_CORPOREAL)
     },
   { COM_RANDOMIZE, "randomize",
     "Spend all remaining points of current character randomly.",
@@ -2647,64 +2647,106 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     }
 
   if(com == COM_RAISE) {
+    if((!mind) || (!mind->Owner())) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    if(!body) {
-      Object *chr = mind->Owner()->Creator();
+    Object *chr = body;
+    if(!chr) {
+      chr = mind->Owner()->Creator();
       if(!chr) {
 	mind->Send("You need to be working on a character first (use 'enter <character>'.\n");
+	return 0;
 	}
-      else if(strlen(comline+len) <= 0) {
-	mind->Send("What do you want to buy?\n");
-	}
-      else if( (!strncasecmp(comline+len, "body", strlen(comline+len)))
+      }
+    if(strlen(comline+len) <= 0) {
+      mind->Send("What do you want to buy?\n");
+      return 0;
+      }
+
+    int cost = 1;
+    if( (!strncasecmp(comline+len, "body", strlen(comline+len)))
 	    || (!strncasecmp(comline+len, "quickness", strlen(comline+len)))
 	    || (!strncasecmp(comline+len, "strength", strlen(comline+len)))
 	    || (!strncasecmp(comline+len, "charisma", strlen(comline+len)))
 	    || (!strncasecmp(comline+len, "intelligence", strlen(comline+len)))
 	    || (!strncasecmp(comline+len, "willpower", strlen(comline+len))) ) {
-	if(!chr->Skill("Attributes")) {
-	  mind->Send("You have no free attribute points left.\n");
-	  return 0;
-	  }
-	int attr=0;
-	if(toupper(*(comline+len)) == 'B') attr = 0;
-	else if(toupper(*(comline+len)) == 'Q') attr = 1;
-	else if(toupper(*(comline+len)) == 'S') attr = 2;
-	else if(toupper(*(comline+len)) == 'C') attr = 3;
-	else if(toupper(*(comline+len)) == 'I') attr = 4;
-	else if(toupper(*(comline+len)) == 'W') attr = 5;
+      if((!body) && (!chr->Skill("Attributes"))) {
+	mind->Send("You have no free attribute points left.\n");
+	return 0;
+	}
+      int attr=0;
+      if(toupper(*(comline+len)) == 'B') attr = 0;
+      else if(toupper(*(comline+len)) == 'Q') attr = 1;
+      else if(toupper(*(comline+len)) == 'S') attr = 2;
+      else if(toupper(*(comline+len)) == 'C') attr = 3;
+      else if(toupper(*(comline+len)) == 'I') attr = 4;
+      else if(toupper(*(comline+len)) == 'W') attr = 5;
 
-	if(chr->Attribute(attr) < 6) {
-	  chr->SetSkill("Attributes", chr->Skill("Attributes") - 1);
-	  chr->SetAttribute(attr, chr->Attribute(attr) + 1);
-	  mind->Send("You buy some %s.\n", statnames[attr]);
-	  }
-	else {
-	  mind->Send("Your %s is already at the maximum.\n", statnames[attr]);
-	  }
+      cost = (chr->Attribute(attr) + 1) * 4;
+
+      if(body && chr->Exp(mind->Owner()) < cost) {
+	mind->Send("You don't have enough experience to raise your %s.\n"
+		"You need %d, but you only have %d\n",
+		statnames[attr], cost, chr->Exp(mind->Owner()));
+	return 0;
+	}
+
+      const char *maxask[6] = {
+	"MaxBody", "MaxQuickness", "MaxStrength",
+	"MaxCharisma", "MaxIntelligence", "MaxWillpower"
+	};
+      if((body) && (!body->Skill(maxask[attr]))) {
+	body->SetSkill(maxask[attr], (body->Attribute(attr)*3)/2);
+	}
+
+      if((!body) && chr->Attribute(attr) >= 6) {
+	mind->Send("Your %s is already at the maximum.\n", statnames[attr]);
+	}
+      else if(body && chr->Attribute(attr) >= body->Skill(maxask[attr])) {
+	mind->Send("Your %s is already at the maximum.\n", statnames[attr]);
 	}
       else {
-	if(!chr->Skill("Skills")) {
-	  mind->Send("You have no free skill points left.\n");
-	  }
-	else if(is_skill(comline+len)) {
-	  if(chr->Skill(comline+len)
-		< (chr->Attribute(get_linked(comline+len))+1) / 2) {
-	    chr->SetSkill("Skills", chr->Skill("Skills") - 1);
-	    chr->SetSkill(comline+len, chr->Skill(comline+len) + 1);
-	    mind->Send("You buy some %s.\n", comline+len);
-	    }
-	  else {
-	    mind->Send("Your %s is already at the maximum.\n", comline+len);
-	    }
-	  }
-	else {
-	  mind->Send("I'm not sure what you are trying to buy.\n");
-	  }
+	if(!body) chr->SetSkill("Attributes", chr->Skill("Attributes") - 1);
+	else chr->SpendExp(cost);
+	chr->SetAttribute(attr, chr->Attribute(attr) + 1);
+	mind->Send("You raise your %s.\n", statnames[attr]);
 	}
       }
-
     else {
+      string skill = get_skill(comline+len);
+      if(skill != "") {
+
+        if(body && (chr->Skill(skill)
+		>= (chr->Attribute(get_linked(skill))*3+1) / 2)) {
+	  mind->Send("Your %s is already at the maximum.\n", skill.c_str());
+	  return 0;
+	  }
+        else if((!body) && (chr->Skill(skill)
+		>= (chr->Attribute(get_linked(skill))+1) / 2)) {
+	  mind->Send("Your %s is already at the maximum.\n", skill.c_str());
+	  return 0;
+	  }
+        if(body) {
+	  cost = (chr->Skill(skill) + 1) * 2;
+	  if(cost/2 > chr->Attribute(get_linked(skill))) cost *= 2;
+	  if(chr->Exp(mind->Owner()) < cost) {
+	    mind->Send("You don't have enough experience to raise your %s.\n"
+		"You need %d, but you only have %d\n",
+		skill.c_str(), cost, chr->Exp(mind->Owner()));
+	    return 0;
+	    }
+	  }
+        else if(!chr->Skill("Skills")) {
+	  mind->Send("You have no free skill points left.\n");
+	  return 0;
+	  }
+	if(body) chr->SpendExp(cost);
+	else chr->SetSkill("Skills", chr->Skill("Skills") - 1);
+	chr->SetSkill(skill, chr->Skill(skill) + 1);
+	mind->Send("You raise your %s skill.\n", skill.c_str());
+	}
+      else {
+	mind->Send("I'm not sure what you are trying to buy.\n");
+	}
       }
     return 0;
     }

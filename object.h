@@ -150,7 +150,8 @@ public:
   void SetValue(int v)	{ value = v; };
   void SetGender(char g){ gender = g; };
 
-  void EarnExperience(int);
+  void EarnExp(int);
+  void SpendExp(int);
   int Accomplish(unsigned long);
   int Exp(Player *p = NULL);
 
