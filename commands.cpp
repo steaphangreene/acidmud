@@ -305,7 +305,7 @@ Command comlist[] = {
   { COM_NINJAMODE, "ninjamode", 
     "Ninja command: run a command in Ninja Mode[TM].",
     "Ninja command: run a command in Ninja Mode[TM].",
-    (REQ_ANY|REQ_NINJA)
+    (REQ_ANY|REQ_ACTION|REQ_NINJA)
     },
   { COM_MAKENINJA, "makeninja", 
     "Ninja command: make (or unmake) another player into a True Ninja[TM].",
@@ -629,11 +629,28 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	return 0;
 	}
       if(body->IsAct(ACT_DEAD)) {
-	mind->Send("Sorry, that character is dead.\n"
+	if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJAMODE)) {
+	  // Allow entry to ninjas - autoheal!
+	  }  
+	else {
+	  mind->Send("Sorry, that character is dead.\n"
 		"Use the 'newchar' command to create a new character.\n");
-	return 0;
+	  return 0;
+	  }
 	}
       mind->Attach(body);
+
+      body->Parent()->SendOut(
+	";s heals and repairs ;s with Ninja Powers[TM].\n", "You heal ;s.\n",
+	body, body);
+
+      //This is ninja-healing and bypasses all healing mechanisms.
+      stats_t st = (*(body->Stats()));
+      st.phys = 0;
+      st.stun = 0;
+      st.stru = 0;
+      body->SetStats(st);
+
       if(body->IsAct(ACT_DYING))
 	mind->Send("You can see nothing, you are too busy dying.\n");
       else if(body->IsAct(ACT_ASLEEP))
@@ -687,17 +704,19 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     }
 
   if(com == COM_HELP) {
-    if(!mind) return 0;
+    if((!mind) || (!mind->Owner())) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!strcmp(comline+len, "commands")) {
       string mes = "";
       for(int ctr=0; ctr < comnum; ++ctr) {
-        if((comlist[ctr].sit & SIT_NINJAMODE) && ((!mind->Owner())
-		|| (!mind->Owner()->Is(PLAYER_NINJAMODE)))) continue;
-        if((comlist[ctr].sit & SIT_NINJA) && ((!mind->Owner())
-		|| (!mind->Owner()->Is(PLAYER_NINJA)))) continue;
-        if((comlist[ctr].sit & SIT_SUPERNINJA) && ((!mind->Owner())
-		|| (!mind->Owner()->Is(PLAYER_SUPERNINJA)))) continue;
+        if((comlist[ctr].sit & SIT_NINJAMODE)
+		&& (!mind->Owner()->Is(PLAYER_NINJAMODE))) continue;
+        if((!(comlist[ctr].sit & SIT_NINJAMODE))
+		&& (mind->Owner()->Is(PLAYER_NINJAMODE))) continue;
+        if((comlist[ctr].sit & SIT_NINJA)
+		&& (!mind->Owner()->Is(PLAYER_NINJA))) continue;
+        if((comlist[ctr].sit & SIT_SUPERNINJA)
+		&& (!mind->Owner()->Is(PLAYER_SUPERNINJA))) continue;
         if((!(comlist[ctr].sit & SIT_CORPOREAL)) && (body)) continue;
         if((!(comlist[ctr].sit & SIT_ETHEREAL)) && (!body)) continue;
         mes += comlist[ctr].command;
@@ -893,6 +912,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
   if(com == COM_PUT) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
+
+    if(!strncasecmp(comline+len, "in ", 3)) len += 3;
+
     Object *targ =
 	body->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
     if(!body->IsAct(ACT_HOLD)) {
@@ -974,6 +996,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	|| body->ActTarg(ACT_WEAR_RLEG) == targ
 	|| body->ActTarg(ACT_WEAR_LWRIST) == targ
 	|| body->ActTarg(ACT_WEAR_RWRIST) == targ
+	|| body->ActTarg(ACT_WEAR_LSHOULDER) == targ
+	|| body->ActTarg(ACT_WEAR_RSHOULDER) == targ
 	) {
       if(mind) mind->Send("You are wearing that, perhaps you want to 'remove' it?\n");
       }
@@ -1043,6 +1067,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	|| body->ActTarg(ACT_WEAR_RLEG) == targ
 	|| body->ActTarg(ACT_WEAR_LWRIST) == targ
 	|| body->ActTarg(ACT_WEAR_RWRIST) == targ
+	|| body->ActTarg(ACT_WEAR_LSHOULDER) == targ
+	|| body->ActTarg(ACT_WEAR_RSHOULDER) == targ
 	) {
       if(mind) mind->Send("You are wearing that, perhaps you want to 'remove' it?\n");
       }
@@ -1084,7 +1110,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else {
       int removed = 0;
-      for(act_t act = ACT_WEAR_BACK; act <= ACT_WEAR_RWRIST; ++((int&)(act))) {
+      for(act_t act = ACT_WEAR_BACK; act < ACT_MAX; ++((int&)(act))) {
 	if(body->ActTarg(act) == targ) {
 	  body->StopAct(act);  removed = 1;
 	  }
@@ -1133,6 +1159,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	|| body->ActTarg(ACT_WEAR_RLEG) == targ
 	|| body->ActTarg(ACT_WEAR_LWRIST) == targ
 	|| body->ActTarg(ACT_WEAR_RWRIST) == targ
+	|| body->ActTarg(ACT_WEAR_LSHOULDER) == targ
+	|| body->ActTarg(ACT_WEAR_RSHOULDER) == targ
 	) {
       if(mind) mind->Send("You are already wearing that!\n");
       }
@@ -1195,6 +1223,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
 	if(targ->Stats()->GetSkill("Wearable on Right Wrist") & mask)
 		locations.insert(ACT_WEAR_RWRIST);
+
+	if(targ->Stats()->GetSkill("Wearable on Left Shoulder") & mask)
+		locations.insert(ACT_WEAR_LSHOULDER);
+
+	if(targ->Stats()->GetSkill("Wearable on Right Shoulder") & mask)
+		locations.insert(ACT_WEAR_RSHOULDER);
 
 	if(locations.size() < 1) break;
 	success = 1;

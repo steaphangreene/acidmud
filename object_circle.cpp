@@ -287,12 +287,13 @@ void Object::CircleLoadZon(const char *fn) {
 		lastbag->SetShortDesc("a CircleMud bag");
 		lastbag->SetDesc("A mysterious bag that didn't seem to need to exist before.");
 		stats_t stats = (*(lastbag->Stats()));
-		stats.SetSkill("Wearable on Back", 1);
+		stats.SetSkill("Wearable on Left Shoulder", 1);
+		stats.SetSkill("Wearable on Right Shoulder", 2);
 		stats.SetSkill("Container", 1000);
 		stats.SetSkill("Closeable", 1);
 		lastbag->SetStats(stats);
 		lastbag->SetPos(POS_LIE);
-		lastmob->AddAct(ACT_WEAR_BACK, lastbag);
+		lastmob->AddAct(ACT_WEAR_LSHOULDER, lastbag);
 		}
 	      obj->Travel(lastbag);
 	      if(obj2) obj2->Travel(lastbag);
