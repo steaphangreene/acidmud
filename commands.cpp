@@ -1115,14 +1115,24 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	}
 
       body->Parent()->SendOut(stealth_t, stealth_s, 
-	";s examines ;s.\n", "", body, *targ_it);
+	";s searches ;s.\n", "you search ;s.\n", body, *targ_it);
+
+      typeof(body->Contents()) objs;
+      objs = (*targ_it)->Contents();
+      typeof(objs.begin()) obj_it;
+      for(obj_it = objs.begin(); obj_it != objs.end(); ++obj_it) {
+	if((*obj_it)->Skill("Hidden")) {
+	  if(body->Roll("Perception", (*obj_it)->Skill("Hidden"))) {
+	    (*obj_it)->SetSkill("Hidden", 0);
+	    body->Parent()->SendOut(stealth_t, stealth_s, 
+		";s reveals ;s.\n", "you reveal ;s.\n", body, *obj_it);
+	    }
+	  }
+	}
+
       if(mind) {
-	mind->Send("%s", CCYN);
-	(*targ_it)->SendFullSituation(mind, body);
-	(*targ_it)->SendActions(mind);
-	mind->Send("%s", CNRM);
 	(*targ_it)->SendExtendedActions(mind, 1);
-	(*targ_it)->SendContents(mind, body, 1, "  ");
+	(*targ_it)->SendContents(mind, body, 1);
 	}
       }
     return 0;

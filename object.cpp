@@ -1324,7 +1324,7 @@ Object *Object::PickObject(const char *name, int loc, int *ordinal) {
 
 static int tag(Object *obj, list<Object *> &ret, int *ordinal) {
   if(obj->IsAct(ACT_SPECIAL_NOTSHOWN)) return 0;	//Shouldn't be detected.
-  if((*ind)->Skill("Hidden") > 0) return 0;		//Can't be seen/affected
+  if(obj->Skill("Hidden") > 0) return 0;		//Can't be seen/affected
 
   Object *nobj = NULL;
 
