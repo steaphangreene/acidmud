@@ -5,6 +5,7 @@ Implement "all of " for all within.
 Implement "everything"/"everyone".
 Implement "stuff"/"money"/"cash".
 Implement "loot" command.
+Should be able to just "hold" worn items.
 Make single-item commands get only single items.
 Make all plural commands see pluralized items correctly.
 Implement boats and boat travel.

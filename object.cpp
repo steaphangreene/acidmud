@@ -361,7 +361,7 @@ const char *Object::Name(int definite, Object *rel, Object *sub) {
     ret = (short_desc.c_str()+2);
     need_an = 0;
     }
-  if(!strncasecmp(short_desc.c_str(), "an ", 3)) {
+  else if(!strncasecmp(short_desc.c_str(), "an ", 3)) {
     ret = (short_desc.c_str()+3);
     need_an = 1;
     }
@@ -574,9 +574,9 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
 
     char qty[256] = { 0 };
     if(cur->second->Skill("Quantity") > 1)
-      sprintf(qty, " (x%d)", cur->second->Skill("Quantity"));
+      sprintf(qty, "(x%d) ", cur->second->Skill("Quantity"));
 
-    m->Send("%s%s%s.\n%s", CGRN, targ, qty, CNRM);
+    m->Send("%s%s%s.\n%s", CGRN, qty, targ, CNRM);
 
     if(seeinside || cur->second->Skill("Transparent")) {
       sprintf(buf, "%16s  %c", " ", 0);
@@ -630,7 +630,10 @@ void Object::SendContents(Mind *m, Object *o, int seeinside) {
 
       if(qty > 1) m->Send("(x%d) ", qty);
 
-      sprintf(buf, "%s %s%c", (*ind)->Name(), (*ind)->PosString(), 0);
+      if((*ind)->parent && (*ind)->parent->Skill("Container"))
+	sprintf(buf, "%s%c", (*ind)->ShortDesc(), 0);
+      else
+	sprintf(buf, "%s %s%c", (*ind)->ShortDesc(), (*ind)->PosString(), 0);
       buf[0] = toupper(buf[0]);
       m->Send(buf);
 
