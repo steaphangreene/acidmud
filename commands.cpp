@@ -2956,15 +2956,18 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
   if(com == COM_JUNK) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    Object *targ = body->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
-    if(!targ) {
+    vector<Object*> targs
+	= body->PickObjects(comline+len, LOC_NEARBY|LOC_INTERNAL);
+    if(targs.size() == 0) {
       mind->Send("You want to destroy what?\n");
+      return 0;
       }
-    else {
+    vector<Object*>::iterator targ_it;
+    for(targ_it = targs.begin(); targ_it != targs.end(); ++ targ_it) {
       body->Parent()->SendOut(
 	";s destroys ;s with Ninja Powers[TM].\n", "You destroy ;s.\n",
-	body, targ);
-      delete(targ);
+	body, *targ_it);
+      delete(*targ_it);
       }
     return 0;
     }
