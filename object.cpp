@@ -1067,6 +1067,7 @@ Object::~Object() {
     (*indm)->StopAll();
     typeof((*indm)->contents.begin()) ind2 = (*indm)->contents.begin();
     for(; ind2 != (*indm)->contents.end(); ++ind2) {
+      (*ind2)->SetParent(NULL);
       delete(*ind2);
       }
     (*indm)->Travel(default_initial);
