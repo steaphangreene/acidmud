@@ -1919,4 +1919,3 @@ set<Object *> Object::Contents() {
 int Object::Contains(Object *obj) {
   return contents.count(obj);
   }
-
