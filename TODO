@@ -1,7 +1,5 @@
 You should still be able to wield and hold while resting.
 Pick up a fight's other opponents after your target goes down without delay.
-Implement container weight capacity.
-Implement container volume capacity.
 Add smartness for getting things from things (auto open/close, permission, etc.)
 Add better messages for items possessed by characters and mobs.
 Fixup "Back" slot so it makes more sense.

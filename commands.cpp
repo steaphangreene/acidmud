@@ -943,7 +943,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       else if(res == -3) {
 	if(mind) mind->Send("It's too heavy to put in there.\n");
 	}
-      else if(!res) {
+      else if(res) {
 	if(mind) mind->Send("You can't put it in there.\n");
 	}
       else {
