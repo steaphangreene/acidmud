@@ -147,6 +147,7 @@ void Object::CircleFinishMob(Object *mob) {
     Object *g = new Object(*gold);
     g->SetParent(bag);
     g->SetSkill("Quantity", mob->Skill("CircleGold"));
+    mob->SetSkill("CircleGold", 0);
     }
 
   if(mob->ActTarg(ACT_WEAR_LSHOULDER)) { //CircleMud Bags Only
