@@ -1613,47 +1613,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(!comline[len]) {
       if(mind) mind->Send("You want to hold what?\n");
       return 0;
-//      if(body->IsAct(ACT_HOLD)) {
-//	body->StopAct(ACT_HOLD);
-//	body->Parent()->SendOut(";s stops holding ;s.\n",
-//		"You stop holding ;s.\n", body,
-//		body->ActTarg(ACT_HOLD));
-//	return 0;
-//	}
-//      else {
-//	if(mind) mind->Send("You are not holding anything.\n");
-//	return 0;
-//	}      
       }
 
     Object *targ = body->PickObject(comline+len, LOC_INTERNAL);
     if(!targ) {
       if(mind) mind->Send("You want to hold what?\n");
-      }
-    else if(body->ActTarg(ACT_WEAR_BACK) == targ
-	|| body->ActTarg(ACT_WEAR_CHEST) == targ
-	|| body->ActTarg(ACT_WEAR_HEAD) == targ
-	|| body->ActTarg(ACT_WEAR_NECK) == targ
-	|| body->ActTarg(ACT_WEAR_WAIST) == targ
-	|| body->ActTarg(ACT_WEAR_SHIELD) == targ
-	|| body->ActTarg(ACT_WEAR_LARM) == targ
-	|| body->ActTarg(ACT_WEAR_RARM) == targ
-	|| body->ActTarg(ACT_WEAR_LFINGER) == targ
-	|| body->ActTarg(ACT_WEAR_RFINGER) == targ
-	|| body->ActTarg(ACT_WEAR_LFOOT) == targ
-	|| body->ActTarg(ACT_WEAR_RFOOT) == targ
-	|| body->ActTarg(ACT_WEAR_LHAND) == targ
-	|| body->ActTarg(ACT_WEAR_RHAND) == targ
-	|| body->ActTarg(ACT_WEAR_LLEG) == targ
-	|| body->ActTarg(ACT_WEAR_RLEG) == targ
-	|| body->ActTarg(ACT_WEAR_LWRIST) == targ
-	|| body->ActTarg(ACT_WEAR_RWRIST) == targ
-	|| body->ActTarg(ACT_WEAR_LSHOULDER) == targ
-	|| body->ActTarg(ACT_WEAR_RSHOULDER) == targ
-	|| body->ActTarg(ACT_WEAR_LHIP) == targ
-	|| body->ActTarg(ACT_WEAR_RHIP) == targ
-	) {
-      if(mind) mind->Send("You are wearing that, perhaps you want to 'remove' it?\n");
       }
 //FIXME - Implement Str-based Holding Capacity
 //    else if(targ->Skill("WeaponType") <= 0) {
@@ -1662,8 +1626,33 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else if(body->IsAct(ACT_HOLD)) {
       if(mind) mind->Send("You are already holding something!\n");
       }
+//    else if(body->ActTarg(ACT_WEAR_BACK) == targ
+//	|| body->ActTarg(ACT_WEAR_CHEST) == targ
+//	|| body->ActTarg(ACT_WEAR_HEAD) == targ
+//	|| body->ActTarg(ACT_WEAR_NECK) == targ
+//	|| body->ActTarg(ACT_WEAR_WAIST) == targ
+//	|| body->ActTarg(ACT_WEAR_SHIELD) == targ
+//	|| body->ActTarg(ACT_WEAR_LARM) == targ
+//	|| body->ActTarg(ACT_WEAR_RARM) == targ
+//	|| body->ActTarg(ACT_WEAR_LFINGER) == targ
+//	|| body->ActTarg(ACT_WEAR_RFINGER) == targ
+//	|| body->ActTarg(ACT_WEAR_LFOOT) == targ
+//	|| body->ActTarg(ACT_WEAR_RFOOT) == targ
+//	|| body->ActTarg(ACT_WEAR_LHAND) == targ
+//	|| body->ActTarg(ACT_WEAR_RHAND) == targ
+//	|| body->ActTarg(ACT_WEAR_LLEG) == targ
+//	|| body->ActTarg(ACT_WEAR_RLEG) == targ
+//	|| body->ActTarg(ACT_WEAR_LWRIST) == targ
+//	|| body->ActTarg(ACT_WEAR_RWRIST) == targ
+//	|| body->ActTarg(ACT_WEAR_LSHOULDER) == targ
+//	|| body->ActTarg(ACT_WEAR_RSHOULDER) == targ
+//	|| body->ActTarg(ACT_WEAR_LHIP) == targ
+//	|| body->ActTarg(ACT_WEAR_RHIP) == targ
+//	) {
+//      if(mind) mind->Send("You are wearing that, perhaps you want to 'remove' it?\n");
+//      }
     else {
-      targ->Travel(body, 0); // Kills Holds and Wields on "targ"
+      targ->Travel(body, 0); // Kills Holds, Wears and Wields on "targ"
       body->AddAct(ACT_HOLD, targ);
       body->Parent()->SendOut(
 	";s holds ;s.\n", "You hold ;s.\n", body, targ);
