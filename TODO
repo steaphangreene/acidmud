@@ -1,4 +1,6 @@
 Fix the "temporary-disabling of items causes them to be resorted" bug.
+Make single-item commands get only single items.
+Make all plural commands see pluralized items correctly.
 Implement boats and boat travel.
 Implement "all of " for all within.
 Implement "everything"/"everyone".
@@ -6,6 +8,7 @@ Implement "stuff"/"money"/"cash".
 Implement "loot" command.
 Dup shopkeeper items correctly (all gauntlets are left, etc...).
 Handle odd pluralized cases (Holding two items when one is looked at...).
+CircleMOB repopping.
 Cleanup item manipulation commands.
 Implement intelligent stashing.
 Pluralize appropriate commands with intelligent stashing (rem, get).
