@@ -1,9 +1,8 @@
-Why are inanimate objects ACTIVE?
 Make auto-unwield from wielding another item also use autostashing.
 Get it to understand offhand weapon use.
 Get it to understand mounted weapon use.
 Enhance "consider" command.
-Place circle-placed objects on back if on chest.
+Place circle-placed objects on back if on chest (plus other corrections).
 Let "remove" command also handle unwielding?
 Implement "all of " target for all within.
 Implement "stuff"/"money"/"cash" target.
@@ -70,7 +69,6 @@ Add "bug", "request", and "concern" commands (acidmail problems to ninjas).
 User management commands (delete chars, rename users?, etc...).
 Skill defaults (to other skills).
 Case-Insensitive Playernames
-Implement "save" command.
 
 Add SSL support.
 Atmoize all the strings (save rediculous amounts of memory!).
