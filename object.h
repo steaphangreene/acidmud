@@ -134,7 +134,6 @@ public:
   int IsWithin(Object *obj);
   int Contains(Object *obj);
   list<Object *> Contents();
-  map<string,Object*> Connections() { return connections; }
 
   int ContainedWeight();
   int ContainedVolume();
@@ -240,7 +239,6 @@ private:
   string short_desc;
   string desc;
   string long_desc;
-  map<string,Object*> connections;
   list<Object*> contents;
   Object *parent;
   set<Mind*> minds;

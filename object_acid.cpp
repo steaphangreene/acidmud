@@ -37,6 +37,8 @@ int Object::Save(const char *filename) {
   }
 
 int Object::SaveTo(FILE *fl) {
+  fprintf(stderr, "Saving %s\n", Name());
+
   fprintf(fl, "%d\n", getnum(this));
   fprintf(fl, "%s;\n", short_desc.c_str());
   fprintf(fl, "%s;\n", desc.c_str());
@@ -74,6 +76,8 @@ int Object::SaveTo(FILE *fl) {
   for(cind = contents.begin(); cind != contents.end(); ++cind) {
     (*cind)->SaveTo(fl);
     }
+
+  fprintf(stderr, "Saved %s\n", Name());
   return 0;
   }
 
@@ -119,7 +123,7 @@ int Object::LoadFrom(FILE *fl) {
   res = fscanf(fl, "%[^;]; ", buf);  short_desc = buf;
   if(res < 1) fscanf(fl, " ; ");
 
-  //printf("Loading %d:%s\n", num, buf);
+  printf("Loading %d:%s\n", num, buf);
 
   memset(buf, 0, 65536);
   res = fscanf(fl, "%[^;];\n", buf);  desc = buf;
@@ -183,5 +187,8 @@ int Object::LoadFrom(FILE *fl) {
   for(cind = toload.begin(); cind != toload.end(); ++cind) {
     (*cind)->LoadFrom(fl);
     }
+
+  printf("Loading %s\n", short_desc.c_str());
+
   return 0;
   }

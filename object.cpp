@@ -567,7 +567,7 @@ void Object::SendActions(Mind *m) {
       if(!cur->second) targ = "";
       else targ = (char*) cur->second->Name(0, m->Body(), this);
 
-//      //FIXME: Busted!
+//      //FIXME: Busted!  This should be the "pointing north to bob" thingy.
 //      map<string,Object*>::iterator dir = connections.begin();
 //      for(; dir != connections.end(); ++dir) {
 //	if((*dir).second == cur->second) {
@@ -1117,7 +1117,7 @@ int Object::Travel(Object *dest, int try_combine) {
       if(a != parent->act.end()) continue;
 
       if((*this) == (*(*ind))) {
-	fprintf(stderr, "Combining '%s'\n", Name());
+	//fprintf(stderr, "Combining '%s'\n", Name());
 	int q = 1;
 	if(Skill("Quantity")) q = Skill("Quantity");
 	if((*ind)->Skill("Quantity")) q += (*ind)->Skill("Quantity");
@@ -1485,22 +1485,6 @@ list<Object*> Object::PickObjects(const char *nm, int loc, int *ordinal) {
 	}
       }
     }
-
-//  //FIXME: Uses "connections".
-//  if(loc & LOC_ADJACENT) {
-//    char *dir = name;
-//    if(!strcasecmp(dir, "n")) dir = "north";
-//    if(!strcasecmp(dir, "s")) dir = "south";
-//    if(!strcasecmp(dir, "w")) dir = "west";
-//    if(!strcasecmp(dir, "e")) dir = "east";
-//    if(!strcasecmp(dir, "u")) dir = "up";
-//    if(!strcasecmp(dir, "d")) dir = "down";
-//
-//    if(parent->connections.count(dir) > 0) {
-//      if(tag(parent->connections[dir], ret, ordinal)) return ret;
-//      }
-//    }
-
   return ret;
   }
 
