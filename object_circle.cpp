@@ -90,6 +90,7 @@ static map<int,Object*> bynummobinst;
 static map<Object*,int> tonum[6];
 static map<Object*,int> tynum[6];
 static map<Object*,int> knum[6];
+static map<Object*,string> nmnum[6];
 static vector<Object*> olist;
 
 void Object::CircleCleanup() {
@@ -118,6 +119,12 @@ void Object::CircleCleanup() {
   knum[3].clear();
   knum[4].clear();
   knum[5].clear();
+  nmnum[0].clear();
+  nmnum[1].clear();
+  nmnum[2].clear();
+  nmnum[3].clear();
+  nmnum[4].clear();
+  nmnum[5].clear();
   olist.clear();
   }
 
@@ -1104,7 +1111,11 @@ void Object::CircleLoad(const char *fn) {
 	    memset(buf, 0, 65536);
 	    fscanf(mud, "%[^\n]\n", buf);
 	    }
-	  fscanf(mud, "%[^\n]\n", buf);
+	  memset(buf, 0, 65536);
+	  if(!fscanf(mud, "%[^\n~]~\n", buf)) {
+	    fscanf(mud, "~\n");
+	    }
+	  nmnum[dnum][obj] = buf;
 
 	  fscanf(mud, "%d %d %d\n", &tmp, &tmp2, &tnum);
 
@@ -1134,8 +1145,13 @@ void Object::CircleLoad(const char *fn) {
 	    Object *nobj2 = new Object;
 
 	    string des, nm = dirname[dir];
+	    if(nmnum[dir][*ob] != "") {
+	      nm += " (";
+	      nm += nmnum[dir][*ob];
+	      nm += ")";
+	      }
 	    if(tynum[dir][*ob] != 0) {		//FIXME: Respond to "door"?
-	      des = string("A door to the ") + dirname[dir];
+	      des = string("A door to the ") + dirname[dir] + " is here.";
 	      nobj->SetSkill("Closeable", 1);
 	      nobj->SetSkill("Lockable", 1);
 	      if(tynum[dir][*ob] == 1) nobj->SetSkill("Pickable", 4);
@@ -1159,6 +1175,7 @@ void Object::CircleLoad(const char *fn) {
 	    nobj2->SetParent(bynum[tnum]);
 	    nobj2->AddAct(ACT_SPECIAL_MASTER, nobj);
 	    nobj2->AddAct(ACT_SPECIAL_NOTSHOWN);
+	    nmnum[dir].erase(*ob);
 	    tonum[dir].erase(*ob);
 	    tynum[dir].erase(*ob);
 	    knum[dir].erase(*ob);

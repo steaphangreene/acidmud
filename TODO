@@ -41,6 +41,7 @@ Delete a direction-linked object can exploderate if linked-to remains.
 Implement various types of armor and damage.
 Translate circle armor to various armor types.
 Do 3-layer armor system.
+Translate CircleMUD shopkeepers' types of purchase items.
 Handle LOC_ADJACENT correctly (eg: "look north").
 Implement equipment's magical effects.
 Implement character creation priorities.
