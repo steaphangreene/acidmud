@@ -1899,17 +1899,31 @@ void init_world() {
 
 void save_world(int with_net) {
   string fn = "acid/current";
-  string wfn = fn + ".wld";
+  string wfn = fn + ".wld.tmp";
   if(!universe->Save(wfn.c_str())) {
-    string pfn = fn + ".plr";
+    string pfn = fn + ".plr.tmp";
     if(!save_players(pfn.c_str())) {
-      string pfn = fn + ".nst";
-      if((!with_net) || (!save_net(pfn.c_str()))) return;
-      fprintf(stderr, "Unable to save network status!\n");
+      string nfn = fn + ".nst";
+      if((!with_net) || (!save_net(nfn.c_str()))) {
+	string nfn = fn + ".wld";
+	unlink(nfn.c_str());
+	rename(wfn.c_str(), nfn.c_str());
+
+	nfn = fn + ".plr";
+	unlink(nfn.c_str());
+	rename(pfn.c_str(), nfn.c_str());
+	}
+      else {
+	fprintf(stderr, "Unable to save network status!\n");
+	}
       }
-    fprintf(stderr, "Unable to save players!\n");
+    else {
+      fprintf(stderr, "Unable to save players!\n");
+      }
     }
-  fprintf(stderr, "Unable to save world!\n");
+  else {
+    fprintf(stderr, "Unable to save world!\n");
+    }
   perror("save_world");
   }
 
