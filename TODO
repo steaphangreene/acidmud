@@ -1,5 +1,3 @@
-Make the order of picks match grouped-viewed output.
-Make the order of objects in a room match order of entry!
 Implement boats and boat travel.
 Dup shopkeeper items correctly (all gauntlets are left, etc...).
 Handle odd pluralized cases (Holding two items when one is looked at...).
