@@ -1258,14 +1258,30 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	for(targ_i = targs.begin(); targ_i != targs.end(); ++targ_i) {
 	  Object *targ = (*targ_i);
 
+	  if(targ->Contents().size() > 0) {
+	    if(mind) {
+	      string mes = targ->Name(0, body);
+	      mes += " is not empty.";
+	      mes += "  You must empty it before you can sell it.\n";
+	      mes[0] = toupper(mes[0]);
+	      mind->Send(mes.c_str());
+	      }
+	    continue;
+	    }
+
 	  int price = targ->Value();
 	  if(price < 0) {
-	    if(mind) mind->Send("That item can't be sold.\n");
-	    return 0;
+	    if(mind) mind->Send("You can't sell %s.\n", targ->Name(0, body));
+	    continue;
 	    }
 	  else if(price == 0) {
-	    if(mind) mind->Send("That item is worthless.\n");
-	    return 0;
+	    if(mind) {
+	      string mes = targ->Name(0, body);
+	      mes += " is worthless.\n";
+	      mes[0] = toupper(mes[0]);
+	      mind->Send(mes.c_str());
+	      }
+	    continue;
 	    }
 
  	  price *= shpkp->Skill("Buy Proffit");
