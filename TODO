@@ -1,10 +1,5 @@
-Currentlist:
-	pluralize look
-	pluralize kill
-	make cool treasure
-	explore!! (auto-search)
-
 Add HIDE command (really easy now).
+Pluralize "kill" command.
 Search turns things blue, or does it?
 Implement real Reaction Action.
 Create Real Tie-Breaker for Tied Initiative.
@@ -27,6 +22,7 @@ Add autostashing to "wield" command's unwield.
 Make CircleMUD packs and purses non-stealable?
 Give starting players a purse and a bag?
 Autowield when entering combat.
+Implement movement settings (walk, run, explore, etc...).
 Circle translations: backpack goes on SHOULDERS?
 Fixup shopkeepers so item numbers NEVER expire.
 Fixup shopkeepers so their vortices are not viewable.
