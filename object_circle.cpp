@@ -1104,6 +1104,7 @@ void Object::CircleLoad(const char *fn) {
 	    nobj->SetShortDesc(dirname[dir]);
 	    nobj->SetDesc(desc.c_str());
 	    nobj->SetParent(*ob);
+	    nobj->SetSkill("Enterable", 1);
 	    nobj->AddAct(ACT_SPECIAL_LINKED, nobj2);
 
 	    nobj2->SetShortDesc("A passage exit.");

@@ -54,6 +54,15 @@ struct Command {
 enum {	COM_HELP=0,
 	COM_QUIT,
 
+	COM_NORTH,
+	COM_SOUTH,
+	COM_EAST,
+	COM_WEST,
+	COM_UP,
+	COM_DOWN,
+	COM_LEAVE,
+	COM_ENTER,
+
 	COM_LOOK,
 	COM_EXAMINE,
 	COM_SEARCH,
@@ -73,10 +82,6 @@ enum {	COM_HELP=0,
 	COM_HOLD,
 	COM_WEAR,
 	COM_REMOVE,
-
-	COM_LEAVE,
-	COM_ENTER,
-	COM_GO,
 
 	COM_SLEEP,
 	COM_WAKE,
@@ -155,6 +160,47 @@ Command comlist[] = {
     "Quit the game.",
     "Quit the game.",
     (REQ_ANY)
+    },
+
+  { COM_NORTH, "north",
+    "Travel north.",
+    "Travel north.",
+    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    },
+  { COM_SOUTH, "south",
+    "Travel south.",
+    "Travel south.",
+    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    },
+  { COM_EAST, "east",
+    "Travel east.",
+    "Travel east.",
+    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    },
+  { COM_WEST, "west",
+    "Travel west.",
+    "Travel west.",
+    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    },
+  { COM_UP, "up",
+    "Travel up.",
+    "Travel up.",
+    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    },
+  { COM_DOWN, "down",
+    "Travel down.",
+    "Travel down.",
+    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    },
+  { COM_LEAVE, "leave",
+    "Leave an object.",
+    "Leave an object.",
+    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    },
+  { COM_ENTER, "enter",
+    "Enter an object (or enter the game).",
+    "Enter an object (or enter the game).",
+    (REQ_ETHEREAL|REQ_ALERT|REQ_STAND|REQ_ACTION)
     },
 
   { COM_LOOK, "look",
@@ -243,22 +289,6 @@ Command comlist[] = {
     "Remove an item you are wearing.",
     "Remove an item you are wearing.",
     (REQ_ALERT|REQ_ACTION)
-    },
-
-  { COM_LEAVE, "leave",
-    "Leave an object.",
-    "Leave an object.",
-    (REQ_ALERT|REQ_STAND|REQ_ACTION)
-    },
-  { COM_ENTER, "enter",
-    "Enter an object (or enter the game).",
-    "Enter an object (or enter the game).",
-    (REQ_ETHEREAL|REQ_ALERT|REQ_STAND|REQ_ACTION)
-    },
-  { COM_GO, "go",
-    "Go in a direction (or just use 'north', 'up', 'west', etc...).",
-    "Go in a direction (or just use 'north', 'up', 'west', etc...).",
-    (REQ_ALERT|REQ_STAND|REQ_ACTION)
     },
 
   { COM_SLEEP, "sleep",
@@ -582,14 +612,6 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
   if(len == 0) return 0;
 
-  //Aliases
-  if(!strncasecmp(comline, "north", len)) { comline = "go north"; len = 2; }
-  if(!strncasecmp(comline, "south", len)) { comline = "go south"; len = 2; }
-  if(!strncasecmp(comline, "west", len)) { comline = "go west"; len = 2; }
-  if(!strncasecmp(comline, "east", len)) { comline = "go east"; len = 2; }
-  if(!strncasecmp(comline, "up", len)) { comline = "go up"; len = 2; }
-  if(!strncasecmp(comline, "down", len)) { comline = "go down"; len = 2; }
-
   int com = -1, cnum = -1;
   for(int ctr=0; ctr < comnum; ++ctr) {
     if(!strncasecmp(comline, comlist[ctr].command, len))
@@ -713,36 +735,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     return 0;
     }
 
-  if(com == COM_GO) {
-    while((!isgraph(comline[len])) && (comline[len])) ++len;
-    Object *dest = body->PickObject(comline+len, LOC_ADJACENT);
-    if(!dest) {
-      if(mind) mind->Send("You can't go that way as far as you can tell.\n");
-      }
-    else if(dest->Skill("WaterDepth") == 1 && body->Skill("Swimming") == 0) {
-      if(mind) mind->Send("Sorry, but you can't swim!\n");  //FIXME: Have boat?
-      }
-    else if(dest->Skill("WaterDepth") > 1) {		//FIXME: Have boat?
-      if(mind) mind->Send("Sorry, you need a boat to go there!\n");
-      }
-    else {
-      if(nmode) {
-	//Ninja-movement can't be followed!
-	if(body->Parent()) body->Parent()->NotifyGone(body);
-	}
-
-      if(body->Parent()) body->Parent()->SendOut(
-	";s leaves %s.\n", "", body, NULL, comline+len);
-      body->Travel(dest, 0);
-      body->Parent()->SendOut(
-	";s arrives.\n", "", body, NULL);
-      if(mind && mind->Type() == MIND_REMOTE)
-	body->Parent()->SendDescSurround(body, body);
-      else if(mind && mind->Type() == MIND_SYSTEM)
-	mind->Send("You enter %s\n", comline+len);
-      }
-    return 0;
-    }
+  if(com == COM_NORTH)	{ com = COM_ENTER; len = 6; comline = "enter north"; }
+  if(com == COM_SOUTH)	{ com = COM_ENTER; len = 6; comline = "enter south"; }
+  if(com == COM_EAST)	{ com = COM_ENTER; len = 6; comline = "enter east"; }
+  if(com == COM_WEST)	{ com = COM_ENTER; len = 6; comline = "enter west"; }
+  if(com == COM_UP)	{ com = COM_ENTER; len = 6; comline = "enter up"; }
+  if(com == COM_DOWN)	{ com = COM_ENTER; len = 6; comline = "enter down"; }
 
   if(com == COM_ENTER) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
@@ -831,18 +829,27 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	if(body->Parent()) body->Parent()->NotifyGone(body);
 	}
 
-      if(body->Parent()) body->Parent()->SendOut(
-	";s enters %s.\n", "", body, NULL, comline+len);
-      if(body->Travel(dest, 0)) {
-	if(mind) mind->Send("You could not fit!\n");
-	return 0;
+      if(dest->ActTarg(ACT_SPECIAL_LINKED)
+		&& dest->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
+	body->Parent()->SendOut(";s leaves ;s.\n", "", body, dest);
+	dest = dest->ActTarg(ACT_SPECIAL_LINKED)->Parent();
 	}
-      body->Parent()->SendOut(
-	";s arrives.\n", "", body, NULL);
-      if(mind && mind->Type() == MIND_REMOTE)
-	body->Parent()->SendDescSurround(body, body);
-      else if(mind && mind->Type() == MIND_SYSTEM)
-	mind->Send("You enter %s\n", comline+len);
+      else if(body->Parent()) {
+	body->Parent()->SendOut(";s enters ;s.\n", "", body, dest);
+	}
+
+      if(body->Travel(dest, 0)) {
+	body->Parent()->SendOut("...but ;s didn't seem to fit!\n",
+		"You could not fit!\n", body, NULL);
+	}
+      else {
+	body->Parent()->SendOut(
+		";s arrives.\n", "", body, NULL);
+	if(mind && mind->Type() == MIND_REMOTE)
+	  body->Parent()->SendDescSurround(body, body);
+	else if(mind && mind->Type() == MIND_SYSTEM)
+	  mind->Send("You enter %s\n", comline+len);
+	}
       }
     return 0;
     }
