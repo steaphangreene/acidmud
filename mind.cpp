@@ -216,6 +216,8 @@ void Mind::Think(int istick) {
 		&& (!body->IsAct(ACT_REST))		//I'm not resting
 		&& (*other)->IsAct(ACT_SLEEP)		//It's not awake (wuss!)
 		&& (*other)->Attribute(1)		//It's not a rock
+		&& (!(*other)->IsAct(ACT_UNCONSCIOUS))	//It's not already KOed
+		&& (!(*other)->IsAct(ACT_DYING))	//It's not already dying
 		&& (!(*other)->IsAct(ACT_DEAD))		//It's not already dead
 	        ) {
 	  string command = string("attack ") + (*other)->ShortDesc();
@@ -238,6 +240,8 @@ void Mind::Think(int istick) {
 		&& (!body->IsAct(ACT_SLEEP))		//I'm not asleep
 		&& (!body->IsAct(ACT_REST))		//I'm not resting
 		&& (*other)->Attribute(1)		//It's not a rock
+		&& (!(*other)->IsAct(ACT_UNCONSCIOUS))	//It's not already KOed
+		&& (!(*other)->IsAct(ACT_DYING))	//It's not already dying
 		&& (!(*other)->IsAct(ACT_DEAD))		//It's not already dead
 	        ) {
 	  string command = string("attack ") + (*other)->ShortDesc();
