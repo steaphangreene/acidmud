@@ -809,6 +809,7 @@ void Object::CircleLoadObj(const char *fn) {
       else if(tp == 22) { // BOAT
 	obj->SetSkill("Enterable", 1);
 	obj->SetSkill("Open", 1);
+	obj->SetSkill("Vehicle", 4); //Unpowered (1=0), Calm Water (4=1).
 	}
       else if(tp == 5) { // WEAPON
         int wreach = 0;						// default

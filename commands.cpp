@@ -810,28 +810,60 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
     Object *dest = body->PickObject(comline+len, LOC_NEARBY);
+    Object *rdest = dest;
+    Object *veh = body;
+
     if(!dest) {
       if(mind) mind->Send("You want to go where?\n");
+      return 0;
       }
-    else if((!dest->Skill("Enterable")) && (!ninja)) {
+
+    if(dest->ActTarg(ACT_SPECIAL_LINKED)
+		&& dest->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
+      rdest = dest->ActTarg(ACT_SPECIAL_LINKED)->Parent();
+      }
+
+    if((!dest->Skill("Enterable")) && (!ninja)) {
       if(mind) mind->Send("It is not possible to enter that object!\n");
       }
     else if((!dest->Skill("Enterable"))	&& (!nmode)) {
       if(mind) mind->Send("You need to be in ninja mode to enter that object!\n");
       }
-    else if(dest->Skill("WaterDepth") == 1 && body->Skill("Swimming") == 0) {
-      if(mind) mind->Send("Sorry, but you can't swim!\n");  //FIXME: Have boat?
-      }
-    else if(dest->Skill("WaterDepth") > 1) {		//FIXME: Have boat?
-      if(mind) mind->Send("Sorry, you need a boat to go there!\n");
-      }
-    else if(dest->Skill("Open") < 1 && (!nmode)) {	//FIXME: Have boat?
+    else if(dest->Skill("Open") < 1 && (!nmode)) {
       if(mind) mind->Send("Sorry, %s is closed!\n", dest->Name());
+      }
+    else if(dest->Parent() != body->Parent()
+	&& dest->Parent() == body->Parent()->Parent()
+	&& body->Parent()->Skill("Vehicle") == 0) {
+      if(mind)
+	mind->Send("You can't get %s to go there!\n", body->Parent()->Name(1));
       }
     else {
       if(nmode) {
 	//Ninja-movement can't be followed!
 	if(body->Parent()) body->Parent()->NotifyGone(body);
+	}
+      if(dest->Parent() != body->Parent()
+		&& dest->Parent() == body->Parent()->Parent()) {
+	if(body->Parent()->Skill("Vehicle") == 4 && body->Skill("Boat") == 0) {
+	  if(mind) mind->Send("You don't know how to operate %s!\n",
+		body->Parent()->Name(1));
+	  return 0;
+	  }
+	veh = body->Parent();
+	}
+
+      if(rdest->Skill("WaterDepth") == 1 && body->Skill("Swimming") == 0) {
+	if(veh == body || (veh->Skill("Vehicle") & 4) == 0) {	//Have boat?
+	  if(mind) mind->Send("Sorry, but you can't swim!\n");
+	  return 0;
+	  }
+	}
+      else if(rdest->Skill("WaterDepth") > 1) {
+	if(veh == body || (veh->Skill("Vehicle") & 4) == 0) {	//Have boat?
+	  if(mind) mind->Send("Sorry, you need a boat to go there!\n");
+	  return 0;
+	  }
 	}
 
       if(dest->ActTarg(ACT_SPECIAL_LINKED)
@@ -843,7 +875,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	body->Parent()->SendOut(";s enters ;s.\n", "", body, dest);
 	}
 
-      if(body->Travel(dest, 0)) {
+      if(veh->Travel(dest, 0)) {
 	body->Parent()->SendOut("...but ;s didn't seem to fit!\n",
 		"You could not fit!\n", body, NULL);
 	}
@@ -3369,7 +3401,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
-    if(!is_skill(comline+len)) {
+    if(strcmp(comline+len, "Vehicle")&&  (!is_skill(comline+len))  ) {
       mind->Send("Sorry, '%s' is not implemented at this point.\n",
 		comline+len);
       return 0;
