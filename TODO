@@ -1,3 +1,4 @@
+Implement Roll Object for passing complete rolls.
 Handle REAL contested roll for perception/stealth in normal actions.
 Make auto-unwield from wielding another item also use autostashing.
 Implement scabbards and quivers.
