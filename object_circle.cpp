@@ -1106,6 +1106,7 @@ void Object::CircleLoadShp(const char *fn) {
 	vortex = new Object;
 	vortex->SetShortDesc("A shopkeeper vortex");
 	vortex->SetDesc("An advanced wormhole that shopkeeper's use.");
+	vortex->SetSkill("Vortex", 1); // Mark it as a shopkeeper Vortex.
 	vortex->SetSkill("Container", 100000 * 454);
 	vortex->SetSkill("Capacity", 100000);
 	vortex->SetSkill("Wearable on Right Shoulder", 1);
