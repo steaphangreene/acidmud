@@ -1,7 +1,7 @@
-Pick up a fight's other opponents after your target goes down without delay.
 Article substitution ("A" -> "The" -> "Joe's", etc...)
 Add more smartness for getting things from people (permission, etc.)
 Add better messages for items possessed by characters and mobs.
+Pick up a fight's other opponents after your target goes down without delay.
 You should still be able to wield and hold while resting.
 Fixup "Back" slot so it makes more sense.
 Do 3-layer armor system.
@@ -24,6 +24,7 @@ Handle Multiple Weapon Types (eg: Bastard Swords).
 Implement All Remaining Weapon Types (Guns, etc...).
 Implement the Rest of the Skills.
 Implement item "piles" "pairs", "mixtures", etc....
+Implement reserved words ('in', 'to', 'at', 'Ninja').
 
 
 User management commands (delete chars, delete users, etc...).
