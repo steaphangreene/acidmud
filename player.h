@@ -1,0 +1,57 @@
+#include <map>
+#include <vector>
+
+using namespace std;
+
+#include "stats.h"
+#include "object.h"
+
+class Player;
+
+#ifndef PLAYER_H
+#define PLAYER_H
+
+#define PLAYER_NINJAMODE (1<<29)
+#define PLAYER_NINJA (1<<30)
+#define PLAYER_SUPERNINJA (1<<31)
+
+class Player {
+public:
+  Player(string nm, string ps);
+  ~Player();
+  void SetName(string);
+  void Link(Object *);
+  void NewChar(stats_t);
+  stats_t *Stats();
+  Object *Room() { return room; };
+  int Is(unsigned long f) { return (flags & f); };
+  void Set(unsigned long f) { flags |= f; };
+  void UnSet(unsigned long f) { flags &= (~f); };
+  int SaveTo(FILE *);
+  int LoadFrom(FILE *);
+  const char *Name() { return name.c_str(); }
+  void AddChar(Object *);
+
+private:
+  map<string, stats_t*> sheet;
+  map<string, Object *> body;
+  string name, pass;
+  Object *room;
+  unsigned long flags;
+
+  friend Player *player_login(string name, string pass);
+  friend Player *get_player(string name);
+  };
+
+Player *player_login(string name, string pass);
+Player *get_player(string name);
+int player_exists(string name);
+int save_players(const char *fn);
+int load_players(const char *fn);
+void player_rooms_erase(Object *);
+int is_pc(Object *);
+
+vector<Player *> get_current_players();
+vector<Player *> get_all_players();
+
+#endif

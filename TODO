@@ -1,0 +1,53 @@
+Get rid of "outside" info if looking at an object directly.
+Fixup "Back" slot so it makes more sense.
+Do 3-layer armor system.
+Make picks occur in display order (acted-on things should be first).
+Hit locations.
+Implement armor protection.
+Implement armor and cloathing effects.
+Following.
+Translate circle armor.
+Make circle MOBs fudge some appropriate stats.
+Make circle MOBs actually do stuff.
+Ranged Combat.
+Ticks
+Implement Reaction Action.
+Create Real Tie-Breaker for Tied Initiative.
+Global Round Sync instead of Ad-Hoc Rounds?
+Doors and Locks.
+Handle Multiple Weapon Types (eg: Bastard Swords).
+Implement All Remaining Weapon Types (Guns, etc...).
+Implement the Rest of the Skills.
+Implement item "piles" "pairs", "mixtures", etc....
+
+
+User management commands (delete chars, delete users, etc...).
+Skill defaults (to other skills).
+Actually "create" characters with actual stats and such.
+Case-Insensitive Playernames
+
+Add SSL support.
+Add gzipped worlds save/load support.
+Be sure I Handle big messages to/from users correctly.
+Pointing, etc... should expire once target leaves area.
+Clean up and sort log(s).
+Put telnet stuff ONLY in net.cpp.
+
+Correctly Handle Restarts/shutdowns during combat.
+Troll Reach.
+Natural Armor.
+Wake someone else up!
+Suite of special emote/speak commands (nod, smile, stare, etc...)
+Crafting (weapons, armor, tools, clothes, etc...).
+Understand visibility and cut messages accordingly.
+Do things stealthily (not be noticed looking, pointing, etc...).
+Settings for display on go/enter/leave.
+Non-Ninja Healing?
+Gossip?
+Encumbrance.  Dragging heavy objects.
+Color-code output (ask Wyatt).
+
+Un-Ninja Everything.
+
+CHECK FIXMEs TOO!
+

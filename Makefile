@@ -1,0 +1,41 @@
+TSTR:=  $(shell date -u +"%Y%m%d%H%M")
+OBJS:=	main.o net.o commands.o mind.o stats.o player.o \
+	object.o object_circle.o object_acid.o
+
+#Production Settings
+CCC:=	gcc -s -Wall -O3
+LIBS:=	-lstdc++ -lcrypt
+
+#Debugging settings
+#CCC:=	gcc -g -Wall
+#LIBS:=	-lstdc++ -lcrypt -lefence
+
+#Profiling settings
+#CCC:=	gcc -g -pg -fprofile-arcs -Wall
+#LIBS:=	-lstdc++ -lcrypt -lefence
+
+all: acidmud
+
+clean:
+	rm -f deps.mk *.o *.da acidmud
+
+backup:
+	cd ..;tar chvf ~/c/archive/acidmud.$(TSTR).tar \
+		acidmud/*.[hc] acidmud/*.cpp acidmud/TODO\
+		acidmud/Makefile acidmud/startup.conf
+	gzip -9 ~/c/archive/acidmud.$(TSTR).tar
+
+upload:
+	ssh reactor rm -f ~acidmud/acidmud
+	scp acidmud reactor:~acidmud/acidmud
+
+acidmud: $(OBJS)
+	$(CCC) -Wall -o acidmud $(OBJS) $(LIBS)
+
+%.o: %.cpp
+	$(CCC) -c $<
+
+include deps.mk
+
+deps.mk:	*.cpp *.h
+	$(CCC) -MM *.cpp > deps.mk
