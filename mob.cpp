@@ -80,10 +80,16 @@ MOBType::MOBType(const char *nm, const char *ds, const char *lds,
   wm = iwm >? 1;
   g = ig;
   gm = igm >? 1;
+
+  armed = NULL;
   }
 
 void MOBType::Skill(const char *nm, int percent, int mod) {
   skills[nm] = make_pair(percent, mod);
+  }
+
+void MOBType::Arm(WeaponType *weap) {
+  armed = weap;
   }
 
 void Object::AddMOB(const MOBType *type) {
@@ -102,7 +108,11 @@ void Object::AddMOB(const MOBType *type) {
   typeof(type->skills.begin()) sk_it;
   for(sk_it = type->skills.begin(); sk_it != type->skills.end(); ++sk_it) {
     mob->SetSkill(sk_it->first,
-	sk_it->second.first - rand() % sk_it->second.second);
+	mob->Attribute(get_linked(sk_it->first))
+	* sk_it->second.first / 100
+	- rand() % sk_it->second.second
+	);
+    //fprintf(stderr, "DBG: %d %d %d\n", get_linked(sk_it->first), sk_it->second.first, sk_it->second.second);
     }
 
   mob->SetShortDesc(type->name.c_str());
@@ -111,19 +121,38 @@ void Object::AddMOB(const MOBType *type) {
 
   give_gold(mob, type->g + rand() % type->gm);
 
-/*
-  Object *obj = new Object(mob);
-  obj->SetSkill("WeaponType", get_weapon_type("Two-Handed Cleaves"));
-  obj->SetSkill("WeaponForce", 2 + rand()%7);
-  obj->SetSkill("WeaponSeverity", 3 + rand()%3);
-  obj->SetSkill("WeaponReach", 2);
-  obj->SetShortDesc("a dwarven mining pickaxe");
-  obj->SetDesc("A super-strong, super-sharp, super-heavy pickaxe.");
-  obj->SetWeight(20000);
-  obj->SetVolume(50);
-  obj->SetValue(2000);
-  obj->SetPos(POS_LIE);
-  mob->AddAct(ACT_WIELD, obj);
-  mob->AddAct(ACT_HOLD, obj);
-*/
+  if(type->armed) {
+    Object *obj = new Object(mob);
+    obj->SetSkill("WeaponType", type->armed->type);
+    obj->SetSkill("WeaponReach", type->armed->reach);
+    obj->SetSkill("WeaponForce",
+	type->armed->force + rand() % type->armed->forcem);
+    obj->SetSkill("WeaponSeverity",
+	type->armed->sev + rand() % type->armed->sevm);
+    obj->SetShortDesc(type->armed->name.c_str());
+    obj->SetDesc(type->armed->desc.c_str());
+    obj->SetDesc(type->armed->long_desc.c_str());
+    obj->SetWeight(type->armed->weight);
+    obj->SetVolume(type->armed->volume);
+    obj->SetValue(type->armed->value);
+    obj->SetPos(POS_LIE);
+    mob->AddAct(ACT_WIELD, obj);
+    mob->AddAct(ACT_HOLD, obj);
+    }
+  }
+
+WeaponType::WeaponType(const char *nm, const char *ds, const char *lds,
+    const char *t, int r, int f,int fm, int s,int sm, int w, int vol, int val) {
+  name = nm;
+  desc = ds;
+  long_desc = lds;
+  type = get_weapon_type(t);
+  reach = r;
+  force = f;
+  forcem = fm >? 1;
+  sev = s;
+  sevm = sm >? 1;
+  weight = w;
+  volume = vol;
+  value = val;
   }

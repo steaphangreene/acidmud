@@ -41,6 +41,11 @@ void Object::DynamicInit1() {		//Dwarven mine
     dwarf_miner = new MOBType("a dwarf miner", "He looks pissed.", "",
 		7,7, 4,5, 6,7, 2,2, 4,3, 8,7, 500,2001);
     dwarf_miner->Skill("Two-Handed Cleaves", 100, 4);
+    WeaponType *weap = new WeaponType("a dwarven mining pickaxe",
+	"A super-strong, super-sharp, super-heavy pickaxe.", "",
+	"Two-Handed Cleaves", 2, 2,7, 3,3, 20000, 50, 2000
+	);
+    dwarf_miner->Arm(weap);
     }
 
   int mojo = Skill("DynamicMojo");
