@@ -37,15 +37,46 @@ void Object::DynamicInit2() {
 
 void Object::DynamicInit1() {		//Dwarven mine
   static MOBType *dwarf_miner;
+  static MOBType *dwarf_engineer;
+  static MOBType *dwarf_guard;
+  static MOBType *dwarf_explorer;
   if(!dwarf_miner) {
+    WeaponType *weap;
     dwarf_miner = new MOBType("a dwarf miner", "He looks pissed.", "",
 		7,7, 4,5, 6,7, 2,2, 4,3, 8,7, 500,2001);
     dwarf_miner->Skill("Two-Handed Cleaves", 100, 4);
-    WeaponType *weap = new WeaponType("a dwarven mining pickaxe",
+    weap = new WeaponType("a dwarven mining pickaxe",
 	"A super-strong, super-sharp, super-heavy pickaxe.", "",
 	"Two-Handed Cleaves", 2, 2,7, 3,3, 20000, 50, 2000
 	);
     dwarf_miner->Arm(weap);
+
+    dwarf_engineer = new MOBType("a dwarf engineer", "He looks pissed.", "",
+		5,7, 4,5, 5,7, 3,2, 5,3, 8,7, 2000,8001);
+    dwarf_engineer->Skill("Long Cleaves", 100, 2);
+    weap = new WeaponType("a dwarven combat axe",
+	"A super-strong, super-sharp combat axe.", "",
+	"Long Cleaves", 1, 2,7, 2,2, 4000, 10, 1000
+	);
+    dwarf_engineer->Arm(weap);
+
+    dwarf_guard = new MOBType("a dwarf guard", "He looks pissed.", "",
+		9,4, 6,4, 9,4, 1,3, 5,4, 9,4, 100,401);
+    dwarf_guard->Skill("Two-Handed Cleaves", 100, 4);
+    weap = new WeaponType("a dwarven war axe",
+	"A super-strong, super-sharp, super-heavy, high-quality war axe.", "",
+	"Two-Handed Cleaves", 2, 4,6, 4,2, 20000, 40, 5000
+	);
+    dwarf_guard->Arm(weap);
+
+    dwarf_explorer = new MOBType("a dwarf explorer", "He looks pissed.", "",
+		5,4, 5,4, 6,4, 3,2, 6,4, 9,5, 1000,4001);
+    dwarf_explorer->Skill("Long Cleaves", 100, 4);
+    weap = new WeaponType("a dwarven climbing pick",
+	"A super-sharp, lightweight pick.", "",
+	"Long Cleaves", 1, 1,3, 3,1, 2000, 10, 500
+	);
+    dwarf_explorer->Arm(weap);
     }
 
   int mojo = Skill("DynamicMojo");
@@ -97,6 +128,9 @@ void Object::DynamicInit1() {		//Dwarven mine
       }break;
     case(1): { //Major Shaft
       if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
+      if((rand()%100) < 10) { mojo -= 500; AddMOB(dwarf_engineer); }
+      if((rand()%100) < 20) { mojo -= 500; AddMOB(dwarf_guard); }
+      if((rand()%100) < 20) { mojo -= 500; AddMOB(dwarf_guard); }
 
       if(mojo <= 0) break; //End of Tunnel
 
@@ -130,6 +164,9 @@ void Object::DynamicInit1() {		//Dwarven mine
       }break;
     case(2): { //Major Shaft w/ Minor Offshoot
       if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
+      if((rand()%100) < 10) { mojo -= 500; AddMOB(dwarf_engineer); }
+      if((rand()%100) < 20) { mojo -= 500; AddMOB(dwarf_guard); }
+      if((rand()%100) < 20) { mojo -= 500; AddMOB(dwarf_guard); }
 
       if(mojo <= 0) break; //End of Tunnel
 
@@ -188,6 +225,9 @@ void Object::DynamicInit1() {		//Dwarven mine
       }break;
     case(3): { //Major Shaft w/ Secret Minor Offshoot
       if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
+      if((rand()%100) < 10) { mojo -= 500; AddMOB(dwarf_engineer); }
+      if((rand()%100) < 20) { mojo -= 500; AddMOB(dwarf_guard); }
+      if((rand()%100) < 20) { mojo -= 500; AddMOB(dwarf_guard); }
 
       if(mojo <= 0) break; //End of Tunnel
 
@@ -247,6 +287,9 @@ void Object::DynamicInit1() {		//Dwarven mine
       }break;
     case(5): { //Minor Shaft
       if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
+      if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
+      if((rand()%100) < 10) { mojo -= 500; AddMOB(dwarf_engineer); }
+      if((rand()%100) < 20) { mojo -= 500; AddMOB(dwarf_explorer); }
 
       if(mojo <= 0) break; //End of Tunnel
 
@@ -280,6 +323,9 @@ void Object::DynamicInit1() {		//Dwarven mine
       }break;
     case(6): { //Minor Shaft (Bend)
       if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
+      if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
+      if((rand()%100) < 10) { mojo -= 500; AddMOB(dwarf_engineer); }
+      if((rand()%100) < 20) { mojo -= 500; AddMOB(dwarf_explorer); }
 
 //      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7, 8, 9 };
       int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7 };
@@ -312,6 +358,9 @@ void Object::DynamicInit1() {		//Dwarven mine
       }break;
     case(7): { //Minor Shaft Fork
       if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
+      if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
+      if((rand()%100) < 10) { mojo -= 500; AddMOB(dwarf_engineer); }
+      if((rand()%100) < 20) { mojo -= 500; AddMOB(dwarf_explorer); }
 
 //      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7, 8, 9 };
       int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7 };
