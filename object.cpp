@@ -1098,11 +1098,9 @@ int get_ordinal(char *text) {
 int strip_ordinal(char **text) {
   int ret = get_ordinal(*text);
   if(ret) {
-    fprintf(stderr, "Pre: %s\n", *text);
     while((!isgraph(**text)) && (**text)) ++(*text);
     while((isgraph(**text)) && (**text) != '.') ++(*text);
     while(((!isgraph(**text)) || (**text) == '.') && (**text)) ++(*text);
-    fprintf(stderr, "Post: %s\n", *text);
     }
   return ret;
   }
@@ -1159,7 +1157,7 @@ static int tag(Object *obj, set<Object*> &ret, int *ordinal) {
   else if(rqty > cqty) {		// This entire thing and more.
     ret.insert(obj);
     if(*ordinal != ALL) *ordinal += cqty;
-    return 1;
+    return 0;
     }
   else {				// Some of this set.
     nobj = new Object(*obj);
@@ -1179,6 +1177,12 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
 
   while((!isgraph(*name)) && (*name)) ++name;
 
+  int ordcontainer;
+  if(ordinal) strip_ordinal(&name);
+  else { ordinal = &ordcontainer; (*ordinal) = strip_ordinal(&name); }
+  if(!strcasecmp(name, "all")) (*ordinal) = ALL;
+  if(!(*ordinal)) (*ordinal) = 1;
+
   char *keyword = NULL;
   char *keyword2 = NULL;
   if((keyword = strstr(name, "'s ")) || (keyword2 = strstr(name, "'S "))) {
@@ -1187,7 +1191,7 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
     keyword2 = strdup(name);
     keyword2[keyword-name] = 0;
 
-    set<Object *>masters = PickObjects(keyword2, loc);
+    set<Object *>masters = PickObjects(keyword2, loc, ordinal);
     if(!masters.size()) { free(keyword2); return ret; }
 
     set<Object *>::iterator master;
@@ -1199,11 +1203,6 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
     free(keyword2);
     return ret;
     }
-
-  int ordcontainer;
-  if(ordinal) strip_ordinal(&name);
-  else { ordinal = &ordcontainer; (*ordinal) = strip_ordinal(&name); }
-  if(!(*ordinal)) (*ordinal) = 1;
 
   int len = strlen(name);
   while(!isgraph(name[len-1])) --len;
@@ -1271,7 +1270,6 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
     set<Object*>::iterator ind;
     for(ind = cont.begin(); ind != cont.end(); ++ind) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
-      fprintf(stderr, "Checking: %s\n", (*ind)->Name());
       if(matches((*ind)->ShortDesc(), name)) {
 	if(tag(*ind, ret, ordinal)) return ret;
 	}
