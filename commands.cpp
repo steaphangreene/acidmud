@@ -2677,6 +2677,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		";s moves to attack ;s.\n",
 		"You move to attack ;s.\n",
 		body, targ);
+      body->BusyWith(body, comline); //HACK!  Make this command used first rnd!
       return 0;
       }
 
