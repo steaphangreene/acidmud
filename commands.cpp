@@ -3391,6 +3391,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       else if(!strcmp(comline+len, "east")) {
 	dirb = "west"; dir = "east";
 	}
+      else if(!strcmp(comline+len, "up")) {
+	dirb = "down"; dir = "up";
+	}
+      else if(!strcmp(comline+len, "down")) {
+	dirb = "up"; dir = "down";
+	}
       else {
 	mind->Send("Direction \"%s\" not meaningful!\n", comline+len);
 	return 0;
