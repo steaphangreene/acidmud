@@ -1,11 +1,13 @@
-Improve character creation interface.
+Tick-based healing, recovery and bleeding.
+Implement money.
+Translate CircleMud shops.
+Implement intelligent stashing.
+Pluralize appropriate commands with intelligent stashing (rem, get).
 Implement experience.
+Improve character creation interface.
 Implement quantitative dispay (eg: "4 gold pieces").
 Implement quantitative plurality (eg: "offer 7 gold").
 Positional modifyers (sleeping/lying down/standing, etc...).
-Pluralize appropriate commands with intelligent stashing (rem, get).
-Implement money.
-Translate CircleMud shops.
 Travel limitations (speed of movement, fleeing, sprinting, running).
 Refine the fudging of circle MOBs' stats.
 Finish article substitution ("A" -> "A second" -> "The" -> "Joe's", etc...).
@@ -70,7 +72,7 @@ Crafting (weapons, armor, tools, clothes, etc...).
 Understand visibility and cut messages accordingly.
 Do things stealthily (not be noticed looking, pointing, etc...).
 Settings for display on go/enter/leave.
-Non-Ninja Healing?
+Non-ninja healing skills?
 Gossip?
 Encumbrance.  Dragging heavy objects.
 Color-code output (ask Wyatt).
