@@ -253,13 +253,16 @@ void Mind::Think(int istick) {
 	&& (!body->IsAct(ACT_FIGHT)) && istick) {
       map<string,Object*> cons = body->Parent()->Connections();
 
-      if(body->Skill("CircleAction") & 64) { //STAY_ZONE Circle MOBs
-	map<string,Object*> cons2 = cons;
-	map<string,Object*>::iterator dir = cons2.begin();
-	for(; dir != cons2.end(); ++dir) {
+      map<string,Object*> cons2 = cons;
+      map<string,Object*>::iterator dir = cons2.begin();
+      for(; dir != cons2.end(); ++dir) {
+	if(dir->second->Skill("CircleZone") == 999999) { //NO_MOBS Circle Zone
+	  cons.erase(dir->first); //Don't Enter NO_MOBS Zone!
+	  }
+	else if(body->Skill("CircleAction") & 64) { //STAY_ZONE Circle MOBs
 	  if(dir->second->Skill("CircleZone")
 			!= body->Parent()->Skill("CircleZone"))
-	      cons.erase(dir->first); //Don't Leave Zone!
+	    cons.erase(dir->first); //Don't Leave Zone!
 	  }
 	}
 
