@@ -1156,8 +1156,8 @@ void Object::CircleLoadShp(const char *fn) {
 	fscanf(mud, "%*d\n");  // Close time
 
 	if(keeper) {
-	  keeper->SetSkill("Sell Profit", (int)(num*1000.0));
-	  keeper->SetSkill("Buy Profit", (int)(num2*1000.0));
+	  keeper->SetSkill("Sell Profit", (int)(num*1000.0+0.5));
+	  keeper->SetSkill("Buy Profit", (int)(num2*1000.0+0.5));
 	  vortex->SetParent(keeper);
 	  keeper->AddAct(ACT_WEAR_RSHOULDER, vortex);
 	  }
