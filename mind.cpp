@@ -178,20 +178,42 @@ void Mind::Think() {
 
     write(pers, newmes.c_str(), newmes.length());
 
-    //AGGRESSIVE Circle Mobs
-    if(body && body->Parent() && (body->Skill("CircleAction") & 32)
+    //AGGRESSIVE and WIMPY Circle Mobs
+    if(body && (body->Parent() && (body->Skill("CircleAction") & 96) == 96)
 	&& (!body->IsAct(ACT_FIGHT))) {
       set<Object*> others = body->Parent()->Contents();
       set<Object*>::iterator other;
       for(other = others.begin(); other != others.end(); ++other) {
 	if((!(*other)->Skill("CircleAction")) //FIXME: Other mobs?
-		&& (!body->StillBusy())                   //I'm not busy.
-		&& body->Stun() < 6                //I'm not stunned.
-		&& body->Phys() < 6                //I'm not injured.
-		&& (!body->IsAct(ACT_ASLEEP))             //I'm not asleep.
-		&& (!body->IsAct(ACT_REST))               //I'm not resting.
-		&& (*other)->Attribute(1)     //Not a rock
-		&& (!(*other)->IsAct(ACT_DEAD))           //Not a dead
+		&& (!body->StillBusy())			//I'm not busy
+		&& body->Stun() < 6			//I'm not stunned
+		&& body->Phys() < 6			//I'm not injured
+		&& (!body->IsAct(ACT_ASLEEP))		//I'm not asleep
+		&& (!body->IsAct(ACT_REST))		//I'm not resting
+		&& (*other)->IsAct(ACT_ASLEEP)		//It's not awake (wuss!)
+		&& (*other)->Attribute(1)		//It's not a rock
+		&& (!(*other)->IsAct(ACT_DEAD))		//It's not already dead
+	        ) {
+	  string command = string("attack ") + (*other)->ShortDesc();
+	  body->BusyFor(500, command.c_str());
+	  fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
+	  }
+	}
+      }
+    //AGGRESSIVE and (!WIMPY) Circle Mobs
+    else if(body && (body->Parent() && (body->Skill("CircleAction") & 96) == 32)
+	&& (!body->IsAct(ACT_FIGHT))) {
+      set<Object*> others = body->Parent()->Contents();
+      set<Object*>::iterator other;
+      for(other = others.begin(); other != others.end(); ++other) {
+	if((!(*other)->Skill("CircleAction")) //FIXME: Other mobs?
+		&& (!body->StillBusy())			//I'm not busy
+		&& body->Stun() < 6			//I'm not stunned
+		&& body->Phys() < 6			//I'm not injured
+		&& (!body->IsAct(ACT_ASLEEP))		//I'm not asleep
+		&& (!body->IsAct(ACT_REST))		//I'm not resting
+		&& (*other)->Attribute(1)		//It's not a rock
+		&& (!(*other)->IsAct(ACT_DEAD))		//It's not already dead
 	        ) {
 	  string command = string("attack ") + (*other)->ShortDesc();
 	  body->BusyFor(500, command.c_str());

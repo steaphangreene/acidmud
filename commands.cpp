@@ -651,15 +651,15 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	}
       mind->Attach(body);
 
-      body->Parent()->SendOut(
-	";s heals and repairs ;s with Ninja Powers[TM].\n", "You heal ;s.\n",
-	body, body);
-
       //This is ninja-healing and bypasses all healing mechanisms.
       body->SetStun(0);
       body->SetPhys(0);
       body->SetStru(0);
       body->UpdateDamage();
+
+      body->Parent()->SendOut(
+	";s heals and repairs ;s with Ninja Powers[TM].\n", "You heal ;s.\n",
+	body, body);
 
       if(body->IsAct(ACT_DYING))
 	mind->Send("You can see nothing, you are too busy dying.\n");
@@ -873,9 +873,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("It's already open!\n");
       }
     else {
+      targ->SetSkill("Transparent", 1);
       body->Parent()->SendOut(
 	";s opens ;s.\n", "You open ;s.", body, targ);
-      targ->SetSkill("Transparent", 1);
       }
     return 0;
     }
@@ -898,9 +898,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("It's already closed!\n");
       }
     else {
+      targ->SetSkill("Transparent", 0);
       body->Parent()->SendOut(
 	";s closes ;s.\n", "You close ;s.\n", body, targ);
-      targ->SetSkill("Transparent", 0);
       }
     return 0;
     }
@@ -921,10 +921,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("You are already holding something else!\n");
       }
     else {
-      body->Parent()->SendOut(
-	";s gets ;s.\n", "You grab ;s.\n", body, targ);
       targ->Travel(body);
       body->AddAct(ACT_HOLD, targ);
+      body->Parent()->SendOut(
+	";s gets ;s.\n", "You grab ;s.\n", body, targ);
       }
     return 0;
     }
@@ -967,7 +967,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	}
       else {
 	if(!targ->Skill("Transparent")) closed = 1;
-	if(closed) body->Parent()->SendOut(
+	if(closed) body->Parent()->SendOut( //FIXME: Really open/close stuff!
 		";s opens ;s.\n", "You open ;s.\n", body, targ);
 	body->Parent()->SendOut(
 		";s puts %s into ;s.\n", "You put %s into ;s.\n",
@@ -988,11 +988,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		"Perhaps you want to 'drop' one of these?");
 	  return 0;
 	  }
+	body->AddAct(ACT_HOLD, body->ActTarg(ACT_WIELD));
+	body->StopAct(ACT_WIELD);
 	body->Parent()->SendOut(";s stops wielding ;s.\n",
 		"You stop wielding ;s.\n", body,
 		body->ActTarg(ACT_WIELD));
-	body->AddAct(ACT_HOLD, body->ActTarg(ACT_WIELD));
-	body->StopAct(ACT_WIELD);
 	return 0;
 	}
       else {
@@ -1045,10 +1045,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	}
       if(body->IsAct(ACT_WIELD)) {
 	body->AddAct(ACT_HOLD, body->ActTarg(ACT_WIELD));
+	body->StopAct(ACT_WIELD);
 	body->Parent()->SendOut(";s stops wielding ;s.\n",
 		"You stop wielding ;s.\n", body,
 		body->ActTarg(ACT_WIELD));
-	body->StopAct(ACT_WIELD);
 	}
       body->AddAct(ACT_WIELD, targ);
       body->Parent()->SendOut(
@@ -1063,10 +1063,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("You want to hold what?\n");
       return 0;
 //      if(body->IsAct(ACT_HOLD)) {
+//	body->StopAct(ACT_HOLD);
 //	body->Parent()->SendOut(";s stops holding ;s.\n",
 //		"You stop holding ;s.\n", body,
 //		body->ActTarg(ACT_HOLD));
-//	body->StopAct(ACT_HOLD);
 //	return 0;
 //	}
 //      else {
@@ -1112,10 +1112,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else {
       targ->Travel(body); // Kills Holds and Wields on "targ"
 //      if(body->ActTarg(ACT_WIELD) == targ) {
+//	body->StopAct(ACT_WIELD);
 //	body->Parent()->SendOut(";s stops wielding ;s.\n",
 //		"You stop wielding ;s.\n", body,
 //		body->ActTarg(ACT_WIELD));
-//	body->StopAct(ACT_WIELD);
 //	}
       body->AddAct(ACT_HOLD, targ);
       body->Parent()->SendOut(
@@ -1149,9 +1149,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	if(mind) mind->Send("You are not wearing that!\n");
 	}
       else {
+	body->AddAct(ACT_HOLD, targ);
 	body->Parent()->SendOut(
 		";s removes ;s.\n", "You remove ;s.\n", body, targ);
-	body->AddAct(ACT_HOLD, targ);
 	}
       }
     return 0;
@@ -1324,20 +1324,23 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
   if(com == COM_SLEEP) {
     if(body->IsAct(ACT_ASLEEP)) {
-      if(mind) mind->Send("But you are already sleeping!\n");
+      if(mind) mind->Send("You are already sleeping!\n");
       }
     else if(body->Pos() == POS_LIE) {
+      body->SetPos(POS_LIE);
+      body->Collapse();
+      body->AddAct(ACT_ASLEEP);
       body->Parent()->SendOut(
 	";s goes to sleep.\n", "You go to sleep.\n", body, NULL);
       }
     else {
+      body->SetPos(POS_LIE);
+      body->Collapse();
+      body->AddAct(ACT_ASLEEP);
       body->Parent()->SendOut(
 	";s lies down and goes to sleep.\n", "You lie down and go to sleep.\n",
 	body, NULL);
       }
-    body->SetPos(POS_LIE);
-    body->Collapse();
-    body->AddAct(ACT_ASLEEP);
     return 0;
     }
 
@@ -1346,37 +1349,39 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("But you aren't asleep!\n");
       }
     else {
+      body->StopAct(ACT_ASLEEP);
       body->Parent()->SendOut(
 	";s wakes up.\n", "You wake up.\n", body, NULL);
-      body->StopAct(ACT_ASLEEP);
       }
     return 0;
     }
 
   if(com == COM_REST) {
     if(body->IsAct(ACT_REST)) {
+      body->StopAct(ACT_REST);
       body->Parent()->SendOut(
 	";s stops resting.\n", "You stop resting.\n", body, NULL);
-      body->StopAct(ACT_REST);
       return 0;
       }
     else if(body->IsAct(ACT_ASLEEP)) {
+      body->StopAct(ACT_REST);
+      body->AddAct(ACT_REST);
       body->Parent()->SendOut(
 	";s wakes up and starts resting.\n", "You wake up and start resting.\n",
 	body, NULL);
       }
     else if(body->Pos() == POS_LIE || body->Pos() == POS_SIT) {
+      body->AddAct(ACT_REST);
       body->Parent()->SendOut(
 	";s starts resting.\n", "You start resting.\n", body, NULL);
       }
     else {
+      body->AddAct(ACT_REST);
+      if(body->Pos() != POS_LIE) body->SetPos(POS_SIT);
       body->Parent()->SendOut(
 	";s sits down and rests.\n", "You sit down and rest.\n",
 	body, NULL);
       }
-    body->AddAct(ACT_REST);
-    body->Collapse();
-    if(body->Pos() != POS_LIE) body->SetPos(POS_SIT);
     return 0;
     }
 
@@ -1385,6 +1390,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("But you are already standing!\n");
       }
     else if(body->IsAct(ACT_ASLEEP)) {
+      body->SetPos(POS_STAND);
       body->StopAct(ACT_ASLEEP);
       body->Parent()->SendOut(
 	";s wakes up and stands.\n", "You wake up and stand.\n",
@@ -1392,15 +1398,16 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else if(body->IsAct(ACT_REST)) {
       body->StopAct(ACT_REST);
+      body->SetPos(POS_STAND);
       body->Parent()->SendOut(
 	";s stops resting and stands up.\n", "You stop resting and stand up.\n",
 	body, NULL);
       }
     else {
+      body->SetPos(POS_STAND);
       body->Parent()->SendOut(
 	";s stands up.\n", "You stand up.\n", body, NULL);
       }
-    body->SetPos(POS_STAND);
     return 0;
     }
 
@@ -1410,19 +1417,21 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else if(body->IsAct(ACT_ASLEEP)) {
       body->StopAct(ACT_ASLEEP);
+      body->SetPos(POS_SIT);
       body->Parent()->SendOut(
 	";s awaken and sit up.\n", "You awaken and sit up.\n",
 	body, NULL);
       }
     else if(body->Pos() == POS_LIE) {
+      body->SetPos(POS_SIT);
       body->Parent()->SendOut(
 	";s sits up.\n", "You sit up.\n", body, NULL);
       }
     else {
+      body->SetPos(POS_SIT);
       body->Parent()->SendOut(
 	";s sits down.\n", "You sit down.\n", body, NULL);
       }
-    body->SetPos(POS_SIT);
     return 0;
     }
 
@@ -1431,9 +1440,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("But you are already lying down!\n");
       }
     else {
+      body->SetPos(POS_LIE);
       body->Parent()->SendOut(
 	";s lies down.\n", "You lie down.\n", body, NULL);
-      body->SetPos(POS_LIE);
       }
     return 0;
     }
@@ -1454,10 +1463,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else if(body->IsAct(ACT_POINT)) {
       Object *targ = body->ActTarg(ACT_POINT);
+      body->StopAct(ACT_POINT);
       body->Parent()->SendOut(
 	";s stops pointing at ;s.\n", "You stop pointing at ;s.\n",
 	body, targ);
-      body->StopAct(ACT_POINT);
       }
     else {
       if(mind) mind->Send("But, you aren't pointing at anyting!\n");
@@ -1835,11 +1844,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       mind->Send("You can't control inanimate objects!\n");
       }
     else {
+      mind->Unattach();
+      mind->Attach(targ);
       body->Parent()->SendOut(
 	";s controls ;s with Ninja Powers[TM].\n", "You control ;s.\n",
 	body, targ);
-      mind->Unattach();
-      mind->Attach(targ);
       }
     return 0;
     }
@@ -1934,14 +1943,14 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       mind->Send("You want to reset what?\n");
       }
     else {
-      body->Parent()->SendOut(
-	";s resets ;s with Ninja Powers[TM].\n", "You reset ;s.\n",
-	body, targ);
-
       set<Object *> contents = targ->Contents();
       set<Object *>::iterator item = contents.begin();
       for(; item != contents.end(); ++item) delete (*item);
       targ->Travel(get_start_room());
+
+      body->Parent()->SendOut(
+	";s resets ;s with Ninja Powers[TM].\n", "You reset ;s.\n",
+	body, targ);
       }
     return 0;
     }
@@ -1954,11 +1963,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       mind->Send("You want to clone what?\n");
       }
     else {
+      Object *nobj = new Object(*targ);
+      nobj->SetParent(targ->Parent());
+
       body->Parent()->SendOut(
 	";s clones ;s with Ninja Powers[TM].\n", "You clone ;s.\n",
 	body, targ);
-      Object *nobj = new Object(*targ);
-      nobj->SetParent(targ->Parent());
       }
     return 0;
     }
@@ -1987,15 +1997,15 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       mind->Send("You want to heal what?\n");
       }
     else {
-      body->Parent()->SendOut(
-	";s heals and repairs ;s with Ninja Powers[TM].\n", "You heal ;s.\n",
-	body, targ);
-
       //This is ninja-healing and bypasses all healing mechanisms.
       targ->SetPhys(0);
       targ->SetStun(0);
       targ->SetStru(0);
       targ->UpdateDamage();
+
+      body->Parent()->SendOut(
+	";s heals and repairs ;s with Ninja Powers[TM].\n", "You heal ;s.\n",
+	body, targ);
       }
     return 0;
     }
@@ -2025,12 +2035,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
+    targ->SetAttribute(stat, targ->Attribute(stat) + 1);
+
     body->Parent()->SendOut(
 	";s jacks the %s of ;s with Ninja Powers[TM].\n",
 	"You jack the %s of ;s.\n",
 	body, targ, statnames[stat]);
 
-    targ->SetAttribute(stat, targ->Attribute(stat) + 1);
     return 0;
     }
 
@@ -2058,12 +2069,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
+    targ->SetAttribute(stat, targ->Attribute(stat) - 1);
+
     body->Parent()->SendOut(
 	";s chumps the %s of ;s with Ninja Powers[TM].\n",
 	"You chump the %s of ;s.\n",
 	body, targ, statnames[stat]);
 
-    targ->SetAttribute(stat, targ->Attribute(stat) - 1);
     return 0;
     }
 
