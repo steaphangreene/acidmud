@@ -3,7 +3,7 @@ OBJS:=	main.o net.o commands.o mind.o player.o \
 	object.o object_circle.o object_acid.o object_stats.o object_dynamic.o
 
 #Production Settings
-CCC:=	gcc -s -Wall -O3
+CCC:=	gcc-2.95 -s -Wall -O3
 LIBS:=	-lstdc++ -lcrypt
 
 #Debugging settings
