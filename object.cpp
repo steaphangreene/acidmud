@@ -622,7 +622,7 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
 
     m->Send("%s%s%s.\n%s", CGRN, qty, targ, CNRM);
 
-    if(cur->second->Skill("Transparent")) {
+    if(cur->second->Skill("Open")) {
       sprintf(buf, "%16s  %c", " ", 0);
       base = buf;
       cur->second->SendContents(m, NULL, seeinside);
@@ -669,9 +669,16 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 	if(base != "") m->Send("%s%sInside: ", base.c_str(), CNRM);
 	m->Send("%s", CCYN);
 	string send = (*ind)->ShortDesc();
-	send += " you see ";
-	send += (*ind)->ActTarg(ACT_SPECIAL_LINKED)->Parent()->ShortDesc();
-	send += ".\n";
+	if(!(*ind)->Skill("Open")) {
+	  send += ", the door is closed.\n";
+	  }
+	else {
+	  if((*ind)->Skill("Closeable"))
+	    send += ", through an open door,";
+	  send += " you see ";
+	  send += (*ind)->ActTarg(ACT_SPECIAL_LINKED)->Parent()->ShortDesc();
+	  send += ".\n";
+	  }
 	send[0] = toupper(send[0]);
 	m->Send(send.c_str());
 	}
@@ -716,7 +723,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 
       (*ind)->SendActions(m);
 
-      if((*ind)->Skill("Transparent")) {
+      if((*ind)->Skill("Open")) {
 	string tmp = base;
 	base += "  ";
 	(*ind)->SendContents(m, o, seeinside);
@@ -882,11 +889,11 @@ void Object::SendDescSurround(Mind *m, Object *o) {
   m->Send("%s", CNRM);
   SendExtendedActions(m, 0);
 
-  if((!parent) || Contains(o) || Skill("Transparent")) {
+  if((!parent) || Contains(o) || Skill("Open")) {
     SendContents(m, o);
     }
 
-  if(parent && Skill("Transparent")) {
+  if(parent && Skill("Open")) {
     m->Send("%s", CCYN);
     m->Send("Outside you see: ");
     no_seek = 1;
@@ -1286,7 +1293,7 @@ int strip_ordinal(char **text) {
   return ret;
   }
 
-Object *Object::PickObject(char *name, int loc, int *ordinal) {
+Object *Object::PickObject(const char *name, int loc, int *ordinal) {
   typeof(contents) ret = PickObjects(name, loc, ordinal);
   if(ret.size() != 1) {
     return NULL;
@@ -1356,9 +1363,10 @@ static int tag(Object *obj, list<Object *> &ret, int *ordinal) {
   return 0;
   }
 
-list<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
+list<Object*> Object::PickObjects(const char *nm, int loc, int *ordinal) {
   typeof(contents) ret;
 
+  char *name = (char*)nm;
   while((!isgraph(*name)) && (*name)) ++name;
 
   int ordcontainer;
@@ -1422,14 +1430,14 @@ list<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
       if(matches((*ind)->ShortDesc(), name)) {
 	if(tag(*ind, ret, ordinal)) return ret;
 	}
-      if((*ind)->Skill("Transparent")) {
+      if((*ind)->Skill("Open")) {
 	typeof(contents) add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
 	ret.insert(ret.end(), add.begin(), add.end());
 
 	if((*ordinal) == 0) return ret;
 	}
       }
-    if(parent->Skill("Transparent")) {
+    if(parent->Skill("Open")) {
       if(parent->parent) {
 	parent->no_seek = 1;
 
@@ -1501,7 +1509,7 @@ int Object::IsWithin(Object *obj) {
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
     if((*ind) == obj) return 1;
-    if((*ind)->Skill("Transparent")) {
+    if((*ind)->Skill("Open")) {
       int ret = (*ind)->IsWithin(obj);
       if(ret) return ret;
       }
@@ -1515,12 +1523,12 @@ int Object::IsNearBy(Object *obj) {
   for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
     if((*ind) == obj) return 1;
     if((*ind) == this) continue;  // Not Nearby Self
-    if((*ind)->Skill("Transparent")) {
+    if((*ind)->Skill("Open")) {
       int ret = (*ind)->IsWithin(obj);
       if(ret) return ret;
       }
     }
-  if(parent->parent && parent->Skill("Transparent")) {
+  if(parent->parent && parent->Skill("Open")) {
     parent->no_seek = 1;
     int ret = parent->IsNearBy(obj);
     parent->no_seek = 0;
@@ -1530,7 +1538,7 @@ int Object::IsNearBy(Object *obj) {
   }
 
 void Object::NotifyGone(Object *obj, Object *newloc, int up) {
-  if(up == 1 && parent && Skill("Transparent")) { //Climb to top first!
+  if(up == 1 && parent && Skill("Open")) { //Climb to top first!
     parent->NotifyGone(obj, newloc, 1);
     return;
     }
@@ -1559,7 +1567,7 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
 
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
-    if((*ind)->Skill("Transparent")) {
+    if((*ind)->Skill("Open")) {
       tonotify[*ind] = 0;
       }
     else if(up >= 0) {
@@ -1844,7 +1852,7 @@ void Object::SendIn(const char *mes, const char *youmes,
 
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
-    if((*ind)->Skill("Transparent"))
+    if((*ind)->Skill("Open"))
       (*ind)->SendIn(str, youstr, actor, targ);
     else if((*ind)->Pos() != POS_NONE)	//FIXME - Understand Transparency
       (*ind)->SendIn(str, youstr, actor, targ);
@@ -1885,13 +1893,13 @@ void Object::SendOut(const char *mes, const char *youmes,
 
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
-    if((*ind)->Skill("Transparent"))
+    if((*ind)->Skill("Open"))
       (*ind)->SendIn(str, youstr, actor, targ);
     else if((*ind)->Pos() != POS_NONE)	//FIXME - Understand Transparency
       (*ind)->SendIn(str, youstr, actor, targ);
     }
 
-  if(parent && Skill("Transparent")) {
+  if(parent && Skill("Open")) {
     no_seek = 1;
     parent->SendOut(str, youstr, actor, targ);
     no_seek = 0;
@@ -2145,7 +2153,7 @@ Object *Object::Stash(Object *obj) {
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
     if((*ind)->Skill("Container") && (
-	(!(*ind)->Skill("Locked")) || (*ind)->Skill("Transparent")
+	(!(*ind)->Skill("Locked")) || (*ind)->Skill("Open")
 	))
       conts.insert(*ind);
     }
@@ -2157,7 +2165,7 @@ Object *Object::Stash(Object *obj) {
     for(c = containers.begin(); c != containers.end(); ++c) {
       for(ind = (*c)->contents.begin(); ind != (*c)->contents.end(); ++ind) {
 	if((*ind)->Skill("Container") && (
-		(!(*ind)->Skill("Locked")) || (*ind)->Skill("Transparent")
+		(!(*ind)->Skill("Locked")) || (*ind)->Skill("Open")
 		))
 	  conts.insert(*ind);
 	}

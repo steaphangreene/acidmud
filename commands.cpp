@@ -825,6 +825,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else if(dest->Skill("WaterDepth") > 1) {		//FIXME: Have boat?
       if(mind) mind->Send("Sorry, you need a boat to go there!\n");
       }
+    else if(dest->Skill("Open") < 1 && (!nmode)) {	//FIXME: Have boat?
+      if(mind) mind->Send("Sorry, %s is closed!\n", dest->Name());
+      }
     else {
       if(nmode) {
 	//Ninja-movement can't be followed!
@@ -959,10 +962,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	}
       else {
 	int must_open = within;
-	if(within && targ->Skill("Transparent")) must_open = 0;
+	if(within && targ->Skill("Open")) must_open = 0;
 
 	if(must_open) {
-	  targ->SetSkill("Transparent", 1);
+	  targ->SetSkill("Open", 1);
 	  body->Parent()->SendOut(
 		";s opens ;s.\n", "You open ;s.\n", body, targ);
 	  }
@@ -991,7 +994,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  }
 
 	if(must_open) {
-	  targ->SetSkill("Transparent", 0);
+	  targ->SetSkill("Open", 0);
 	  body->Parent()->SendOut(
 		";s closes ;s.\n", "You close ;s.\n", body, targ);
 	  }
@@ -1030,7 +1033,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  denied += (*targ_it)->Name(0, NULL, own);
 	  denied += ".\n";
 	  }
-	else if(own->Skill("Container") && (!own->Skill("Transparent"))
+	else if(own->Skill("Container") && (!own->Skill("Open"))
 		&& own->Skill("Locked")) {
 	  denied = own->Name(1);
 	  denied += " is closed and locked so you can't get to ";
@@ -1294,14 +1297,14 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else if(!targ->Skill("Closeable")) {
       if(mind) mind->Send("That can't be opened or closed.\n");
       }
-    else if(targ->Skill("Transparent")) {
+    else if(targ->Skill("Open")) {
       if(mind) mind->Send("It's already open!\n");
       }
     else if(targ->Skill("Locked")) {
       if(mind) mind->Send("It is locked!\n");
       }
     else {
-      targ->SetSkill("Transparent", 1);
+      targ->SetSkill("Open", 1);
       body->Parent()->SendOut(";s opens ;s.\n", "You open ;s.\n", body, targ);
       }
     return 0;
@@ -1321,14 +1324,14 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else if(!targ->Skill("Closeable")) {
       if(mind) mind->Send("That can't be opened or closed.\n");
       }
-    else if(!targ->Skill("Transparent")) {
+    else if(!targ->Skill("Open")) {
       if(mind) mind->Send("It's already closed!\n");
       }
     else if(targ->Skill("Locked")) {
       if(mind) mind->Send("It is locked!\n");
       }
     else {
-      targ->SetSkill("Transparent", 0);
+      targ->SetSkill("Open", 0);
       body->Parent()->SendOut(
 	";s closes ;s.\n", "You close ;s.\n", body, targ);
       }
@@ -1694,7 +1697,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	    denied += targ->Name(0, NULL, owner);
 	    denied += ".\n";
 	    }
-	  else if(owner->Skill("Container") && (!owner->Skill("Transparent"))
+	  else if(owner->Skill("Container") && (!owner->Skill("Open"))
 		&& owner->Skill("Locked")) {
 	    denied = owner->Name(1);
 	    denied += " is closed and locked so you can't get to ";
@@ -1776,7 +1779,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	if(mind) mind->Send("You can't put it in there.\n");
 	}
       else {
-	if(!targ->Skill("Transparent")) closed = 1;
+	if(!targ->Skill("Open")) closed = 1;
 	if(closed) body->Parent()->SendOut( //FIXME: Really open/close stuff!
 		";s opens ;s.\n", "You open ;s.\n", body, targ);
 	body->Parent()->SendOut(

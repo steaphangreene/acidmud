@@ -127,8 +127,8 @@ public:
 
   Object *Stash(Object *);
 
-  Object *PickObject(char *, int loc, int *ordinal=NULL);
-  list<Object *> PickObjects(char *, int loc, int *ordinal=NULL);
+  Object *PickObject(const char *, int loc, int *ordinal=NULL);
+  list<Object *> PickObjects(const char *, int loc, int *ordinal=NULL);
   void NotifyGone(Object *obj, Object *newloc = NULL, int up = 1);
   int IsNearBy(Object *obj);
   int IsWithin(Object *obj);

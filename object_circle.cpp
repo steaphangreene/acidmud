@@ -88,6 +88,8 @@ static map<int,Object*> bynumobj;
 static map<int,Object*> bynummob;
 static map<int,Object*> bynummobinst;
 static map<Object*,int> tonum[6];
+static map<Object*,int> tynum[6];
+static map<Object*,int> knum[6];
 static vector<Object*> olist;
 
 void Object::CircleCleanup() {
@@ -104,6 +106,18 @@ void Object::CircleCleanup() {
   tonum[3].clear();
   tonum[4].clear();
   tonum[5].clear();
+  tynum[0].clear();
+  tynum[1].clear();
+  tynum[2].clear();
+  tynum[3].clear();
+  tynum[4].clear();
+  tonum[5].clear();
+  knum[0].clear();
+  knum[1].clear();
+  knum[2].clear();
+  knum[3].clear();
+  knum[4].clear();
+  knum[5].clear();
   olist.clear();
   }
 
@@ -245,6 +259,25 @@ void Object::CircleLoadZon(const char *fn) {
       switch(type) {
 	case('S'): {
 	  done = 1;
+	  } break;
+	case('D'): {	// Door state
+	  int dnum, room, state;
+	  fscanf(mudz, " %*d %d %d %d\n", &room, &dnum, &state);
+	  Object *door = NULL;
+	  if(bynum[room])
+	    door = bynum[room]->PickObject(dirname[dnum], LOC_INTERNAL);
+	  if(door && state == 0) {
+	    door->SetSkill("Open", 1);
+	    door->SetSkill("Locked", 0);
+	    }
+	  else if(door && state == 1) {
+	    door->SetSkill("Open", 0);
+	    door->SetSkill("Locked", 0);
+	    }
+	  else if(door && state == 2) {
+	    door->SetSkill("Open", 0);
+	    door->SetSkill("Locked", 1);
+	    }
 	  } break;
 	case('M'): {
 	  int num, room;
@@ -734,7 +767,7 @@ void Object::CircleLoadObj(const char *fn) {
 	obj->SetSkill("Container", val[0] * 454);
 	obj->SetSkill("Capacity", val[0]);
 
-	if(!(val[1] & 4)) obj->SetSkill("Transparent", 1);	//Start open?
+	if(!(val[1] & 4)) obj->SetSkill("Open", 1);	//Start open?
 	if(val[1] & 8) {
 	  obj->SetSkill("Locked", 1);			//Start locked?
 	  obj->SetSkill("Lockable", 1);			// Can it be locked?
@@ -761,13 +794,13 @@ void Object::CircleLoadObj(const char *fn) {
       else if(tp == 17) { // DRINKCON
 	obj->SetSkill("Liquid Container", val[0]);
 	obj->SetSkill("Capacity", val[0]);
-	obj->SetSkill("Transparent", 1);
+	obj->SetSkill("Open", 1);
 	obj->SetSkill("Closeable", 1);
 	//FIXME: Put the liquid in it if it's supposed to start with it!
 	}
       else if(tp == 22) { // BOAT
 	obj->SetSkill("Enterable", 1);
-	obj->SetSkill("Transparent", 1);
+	obj->SetSkill("Open", 1);
 	}
       else if(tp == 5) { // WEAPON
         int wreach = 0;						// default
@@ -1075,6 +1108,8 @@ void Object::CircleLoad(const char *fn) {
 	  fscanf(mud, "%d %d %d\n", &tmp, &tmp2, &tnum);
 
 	  tonum[dnum][obj] = tnum;
+	  tynum[dnum][obj] = tmp;
+	  knum[dnum][obj] = tmp2;
 	  }
 	else if(buf[0] == 'E') {
 	  fscanf(mud, "\n%[^\n]\n", buf);
@@ -1097,10 +1132,24 @@ void Object::CircleLoad(const char *fn) {
 	    Object *nobj = new Object;
 	    Object *nobj2 = new Object;
 
-	    string desc = string("A passage ") + dirname[dir];
-	    nobj->SetShortDesc(dirname[dir]);
-	    nobj->SetDesc(desc.c_str());
+	    string des, nm = dirname[dir];
+	    if(tynum[dir][*ob] != 0) {		//FIXME: Respond to "door"?
+	      des = string("A door to the ") + dirname[dir];
+	      nobj->SetSkill("Closeable", 1);
+	      nobj->SetSkill("Lockable", 1);
+	      if(tynum[dir][*ob] == 1) nobj->SetSkill("Pickable", 4);
+	      if(tynum[dir][*ob] == 2) nobj->SetSkill("Pickable", 99);
+	      if(knum[dir][*ob] > 0) {
+		nobj->SetSkill("Lock", 100000 + knum[dir][*ob]);
+		}
+	      }
+	    else {
+	      des = string("A passage ") + dirname[dir];
+	      }
+	    nobj->SetShortDesc(nm.c_str());
+	    nobj->SetDesc(des.c_str());
 	    nobj->SetParent(*ob);
+	    nobj->SetSkill("Open", 1);
 	    nobj->SetSkill("Enterable", 1);
 	    nobj->AddAct(ACT_SPECIAL_LINKED, nobj2);
 
@@ -1110,6 +1159,8 @@ void Object::CircleLoad(const char *fn) {
 	    nobj2->AddAct(ACT_SPECIAL_MASTER, nobj);
 	    nobj2->AddAct(ACT_SPECIAL_NOTSHOWN);
 	    tonum[dir].erase(*ob);
+	    tynum[dir].erase(*ob);
+	    knum[dir].erase(*ob);
 	    }
 	  }
 	}
