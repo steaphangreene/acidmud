@@ -1,6 +1,5 @@
 You should still be able to wield and hold while resting.
 Pick up a fight's other opponents after your target goes down without delay.
-Add object weight and volume.
 Implement container weight capacity.
 Add and implement container volume capacity.
 Add smartness for getting things from things (auto open/close, permission, etc.)

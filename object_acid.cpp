@@ -3,7 +3,7 @@
 #include <map>
 
 using namespace std;
-const int SAVEFILE_VERSION = 102;
+const int SAVEFILE_VERSION = 103;
 
 #include "object.h"
 #include "mind.h"

@@ -2,7 +2,7 @@
 
 #include "stats.h"
 
-const int SAVEFILE_VERSION=102;
+const int SAVEFILE_VERSION=103;
 
 static map<string,int> defaults;
 static map<int,string> weaponskills;
@@ -150,6 +150,9 @@ int stats_t::SaveTo(FILE *fl) const {
   fprintf(fl, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
 	att[0], att[1], att[2], att[3], att[4], att[5], att[6], att[7],
 	phys, stun, stru);
+
+  fprintf(fl, "%d %d %d %d;\n", weight, size, volume, value);
+
   map<string,int>::const_iterator sk = skills.begin();
   for(; sk != skills.end(); ++sk)
     fprintf(fl, ":%s,%d", (*sk).first.c_str(), (*sk).second);
@@ -163,6 +166,9 @@ int stats_t::LoadFrom(FILE *fl) {
   fscanf(fl, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
 	&att[0], &att[1], &att[2], &att[3], &att[4], &att[5], &att[6], &att[7],
 	&phys, &stun, &stru);
+
+  if(ver >= 103) fscanf(fl, "%d %d %d %d;\n", &weight, &size, &volume, &value);
+
   static char buf[65536];
   memset(buf, 0, 65536);
   int val;
