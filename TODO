@@ -1,3 +1,9 @@
+Pick up fights' other opponents after your one goes down without delay.
+Save non-player minds so mobs don't become brain-dead on restart.
+"The Second Trial Of Minos" has two swordsmem?
+Add object weight and volume.
+Implement container weight capacity.
+Add and implement container volume capacity.
 Add smartness for getting things from things (auto open/close, permission, etc.)
 Add better messages for items possessed by characters and mobs.
 Fixup "Back" slot so it makes more sense.

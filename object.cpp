@@ -1083,7 +1083,10 @@ void Object::Send(const char *mes, ...) {
 
   set<Mind*>::iterator mind;
   for(mind = minds.begin(); mind != minds.end(); ++mind) {
+    Object *body = (*mind)->Body();
+    (*mind)->Attach(this);
     (*mind)->Send(tosend);
+    (*mind)->Attach(body);
     }
   free(tosend);
   }

@@ -98,7 +98,14 @@ void Object::CircleCleanup() {
   olist.clear();
   }
 
+static Mind *circle_mob_mind = NULL;
+
 void Object::CircleFinishMob(Object *mob) {
+  if(!circle_mob_mind) {
+    circle_mob_mind = new Mind();
+    circle_mob_mind->SetMob();
+    }
+  mob->Attach(circle_mob_mind);
   }
 
 void Object::CircleLoadZon(const char *fn) {
@@ -358,6 +365,11 @@ void Object::CircleLoadMob(const char *fn) {
       int val, val2, val3;  char tp;
       memset(buf, 0, 65536);
       fscanf(mudm, "%[^ \t\n] %[^ \t\n] %d %c\n", buf, buf+1024, &val, &tp);
+
+      if(string(buf).find('f') < strlen(buf) || (atoi(buf) & 32)) { //AGGRESSIVE
+	mob_stats.SetSkill("CircleAction", stats.GetSkill("CircleAction") | 32);
+	}
+
       if(tp == 'E' || tp == 'S') {
 	for(int ctr=0; ctr<2; ++ctr) {
           fscanf(mudm, "%*[^\n]\n");

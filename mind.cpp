@@ -40,9 +40,9 @@ void Mind::SetRemote(int fd) {
   pers = fd;
   }
 
-void Mind::SetMob(int ai) {
+void Mind::SetMob() {
   type = MIND_MOB;
-  pers = ai;
+  pers = fileno(stderr);
   }
 
 void Mind::SetSlave(int master) {
@@ -74,7 +74,7 @@ void Mind::UpdatePrompt() {
 
 void Mind::Attach(Object *bod) {
   body = bod;
-  body->Attach(this);
+  if(body) body->Attach(this);
   }
 
 void Mind::Unattach() {
@@ -93,6 +93,42 @@ void Mind::Send(const char *mes, ...) {
 
   if(type == MIND_REMOTE) {
     SendOut(pers, buf);
+    }
+  else if(type == MIND_MOB) {
+    string newmes = "";
+    if(body) newmes += body->ShortDesc();
+    newmes += ": ";
+    newmes += buf;
+
+    string::iterator chr = newmes.begin();
+    for(; chr != newmes.end(); ++chr) {
+      if((*chr) == '\n' || (*chr) == '\r') (*chr) = ' ';
+      }
+    newmes += "\n";
+
+    write(pers, newmes.c_str(), newmes.length());
+
+    //AGGRESSIVE Circle Mobs
+    if(body && body->Parent() && (body->Stats()->GetSkill("CircleAction") & 32)
+	&& (!body->IsAct(ACT_FIGHT))) {
+      set<Object*> others = body->Parent()->Contents();
+      set<Object*>::iterator other;
+      for(other = others.begin(); other != others.end(); ++other) {
+	if((!(*other)->Stats()->GetSkill("CircleAction")) //FIXME: Other mobs?
+		&& body->Stats()->stun < 6                //I'm not stunned.
+		&& body->Stats()->phys < 6                //I'm not injured.
+		&& (!body->IsAct(ACT_ASLEEP))             //I'm not asleep.
+		&& (!body->IsAct(ACT_REST))               //I'm not resting.
+		&& (*other)->Stats()->GetAttribute(1)     //Not a rock
+		&& (!(*other)->IsAct(ACT_DEAD))           //Not a dead
+	        ) {
+	  string command = string("attack ") + (*other)->Name();
+	  body->BusyFor(500, command.c_str());
+	  fprintf(stderr, "%s: Tried '%s'\n", body->Name(), command.c_str());
+	  }
+	}
+      }
+
     }
   else if(type == MIND_SYSTEM) {
     string newmes = "";

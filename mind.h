@@ -18,7 +18,7 @@ public:
   Mind(int fd);
   ~Mind();
   void SetRemote(int fd);
-  void SetMob(int fd);
+  void SetMob();
   void SetSlave(int master);
   void SetSystem();
   void Attach(Object *bod);

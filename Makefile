@@ -3,12 +3,12 @@ OBJS:=	main.o net.o commands.o mind.o stats.o player.o \
 	object.o object_circle.o object_acid.o
 
 #Production Settings
-CCC:=	gcc -s -Wall -O3
-LIBS:=	-lstdc++ -lcrypt
+#CCC:=	gcc -s -Wall -O3
+#LIBS:=	-lstdc++ -lcrypt
 
 #Debugging settings
-#CCC:=	gcc -g -Wall
-#LIBS:=	-lstdc++ -lcrypt -lefence
+CCC:=	gcc -g -Wall
+LIBS:=	-lstdc++ -lcrypt -lefence
 
 #Profiling settings
 #CCC:=	gcc -g -pg -fprofile-arcs -Wall
