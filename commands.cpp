@@ -1060,9 +1060,6 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else if(shpkp->IsAct(ACT_SLEEP)) {
       if(mind) mind->Send("Sorry, the shopkeeper is asleep!\n");
       }
-    else if(body->IsAct(ACT_HOLD)) {
-      if(mind) mind->Send("You are already holding something else!\n");
-      }
     else {
       if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)
 		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Container")) {
@@ -1082,11 +1079,19 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	    togo -= (1 >? (*coin)->Skill("Quantity"));
 	    }
 
-	  if(togo <= 0) { //FIXME: Afford it!
+	  if(body->IsAct(ACT_HOLD) && (!pay.count(body->ActTarg(ACT_HOLD)))) {
+	    if(mind) mind->Send("You are already holding something else!\n");
+	    }
+	  else if(togo <= 0) {
 	    body->Parent()->SendOut(
 		";s buys ;s.\n", "You buy ;s.\n", body, item);
 	    item->Travel(body);
 	    body->AddAct(ACT_HOLD, item);
+	    for(coin = pay.begin(); coin != pay.end(); ++coin) {
+	      (*coin)->Travel(shpkp);
+	      shpkp->AddAct(ACT_HOLD, (*coin));
+	      //FIXME: Put Away!
+	      }
 	    }
 	  else {
 	    if(mind) mind->Send("You can't afford the %d gold (short %d).\n",
@@ -1129,6 +1134,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else if(shpkp->IsAct(ACT_SLEEP)) {
       if(mind) mind->Send("Sorry, the shopkeeper is asleep!\n");
       }
+    else if(body->IsAct(ACT_HOLD)) {
+      if(mind) mind->Send("You are already holding something else!\n");
+      }
     else {
       set<Object *>targs = body->PickObjects(comline+len, LOC_INTERNAL);
       if(!targs.size()) {
@@ -1137,11 +1145,37 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       else if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)	// FIXME: skpkp AFFORD?
 		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Container")) {
 	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
-	set<Object *>::iterator targ;
-	for(targ = targs.begin(); targ != targs.end(); ++targ) {
-	  body->Parent()->SendOut(
-		";s sells ;s.\n", "You sell ;s.\n", body, *targ);
-	  (*targ)->Travel(vortex);
+
+	set<Object *>::iterator targ_i;
+	for(targ_i = targs.begin(); targ_i != targs.end(); ++targ_i) {
+	  Object *targ = (*targ_i);
+
+	  int price = targ->Value();
+ 	  price *= shpkp->Skill("Buy Proffit");
+	  price += 0;  price /= 1000;
+	  mind->Send("%d gp: %s\n", price, targ->ShortDesc());
+
+	  int togo = price, ord = -price;
+	  set<Object *> pay
+		= shpkp->PickObjects("a gold piece", LOC_INTERNAL, &ord);
+	  set<Object *>::iterator coin;
+	  for(coin = pay.begin(); coin != pay.end(); ++coin) {
+	    togo -= (1 >? (*coin)->Skill("Quantity"));
+	    }
+
+	  if(togo <= 0) {
+	    body->Parent()->SendOut(
+		";s sells ;s.\n", "You sell ;s.\n", body, targ);
+	    targ->Travel(vortex);
+	    for(coin = pay.begin(); coin != pay.end(); ++coin) {
+	      (*coin)->Travel(body);
+	      shpkp->AddAct(ACT_HOLD, (*coin));
+	      //FIXME: Put Away!
+	      }
+	    }
+	  else {
+	    if(mind) mind->Send("I can't afford the %d gold.\n", price);
+	    }
 	  }
 	}
       }
