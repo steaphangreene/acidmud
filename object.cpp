@@ -565,14 +565,15 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
 void Object::SendContents(Mind *m, Object *o, int seeinside) {
   typeof(contents) cont = contents;
 
+  set<Object*> master;
+  master.insert(cont.begin(), cont.end());
+
   for(act_t act = ACT_HOLD; act < ACT_MAX; ++((int&)(act))) {
-    cont.erase(ActTarg(act));  //Don't show worn/wielded stuff.
+    master.erase(ActTarg(act));  //Don't show worn/wielded stuff.
     }
 
   int total = 0;
   m->Send("%s", CGRN);
-  set<Object*> master;
-  master.insert(cont.begin(), cont.end());
   typeof(cont.begin()) ind;
   for(ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
     master.erase(*ind);
@@ -944,11 +945,22 @@ void Object::SendStats(Mind *m, Object *o) {
   }
 
 void Object::AddLink(Object *ob) {
-  contents.insert(ob);
+				//FIXME: Insert in smarter order?
+
+//  contents.insert(ob);   		//For set<Object*> contents.
+
+  contents.push_back(ob);		//For vector<Object*> contents.
   }
 
 void Object::RemoveLink(Object *ob) {
-  contents.erase(ob);
+//  contents.erase(ob);			//For set<Object*> contents.
+
+  typeof(contents.begin()) ind;		//For vector<Object*> contents.
+  ind = find(contents.begin(), contents.end(), ob);
+  while(ind != contents.end()) {
+    contents.erase(ind);
+    ind = find(contents.begin(), contents.end(), ob);
+    }
   }
 
 int Object::Travel(Object *dest) {
@@ -1019,13 +1031,15 @@ Object::~Object() {
     else delete(*ind);
     }
   contents.clear();
-  for(ind = movers.begin(); ind != movers.end(); ++ind) {
-    (*ind)->StopAll();
-    typeof((*ind)->contents.begin()) ind2 = (*ind)->contents.begin();
-    for(; ind2 != (*ind)->contents.end(); ++ind2) {
+
+  typeof(movers.begin()) indm;
+  for(indm = movers.begin(); indm != movers.end(); ++indm) {
+    (*indm)->StopAll();
+    typeof((*indm)->contents.begin()) ind2 = (*indm)->contents.begin();
+    for(; ind2 != (*indm)->contents.end(); ++ind2) {
       delete(*ind2);
       }
-    (*ind)->Travel(default_initial);
+    (*indm)->Travel(default_initial);
     }
 
   player_rooms_erase(this);
@@ -1266,8 +1280,9 @@ vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
 
     map<act_t,Object*>::iterator action;
     for(action = act.begin(); action != act.end(); ++action) {
-      if(cont.count(action->second)) {
-	cont.erase(action->second);
+      typeof(cont.begin()) ind = find(cont.begin(), cont.end(), action->second);
+      if(ind != cont.end()) {		// IE: Is action->second within cont
+	cont.erase(ind);
 	if(matches(action->second->ShortDesc(), name)) {
 	  if(tag(action->second, ret, ordinal)) return ret;
 	  }
@@ -1896,7 +1911,7 @@ void Object::operator = (const Object &in) {
 //  act = in.act;
   }
 
-set<Object *> Object::Contents() {
+vector<Object *> Object::Contents() {
 /* Uncomment for auto-recombination (BROKEN?)
   typeof(contents.begin()) i1;
   typeof(contents.begin()) i2;
@@ -1917,5 +1932,5 @@ set<Object *> Object::Contents() {
   }
 
 int Object::Contains(Object *obj) {
-  return contents.count(obj);
+  return (find(contents.begin(), contents.end(), obj) != contents.end());
   }

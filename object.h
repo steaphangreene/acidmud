@@ -119,7 +119,7 @@ public:
   int IsNearBy(Object *obj);
   int IsWithin(Object *obj);
   int Contains(Object *obj);
-  set<Object *> Contents();
+  vector<Object *> Contents();
   map<string,Object*> Connections() { return connections; }
 
   int ContainedWeight();
@@ -222,7 +222,7 @@ private:
   string desc;
   string long_desc;
   map<string,Object*> connections;
-  set<Object*> contents;
+  vector<Object*> contents;
   Object *parent;
   set<Mind*> minds;
   pos_t pos;
