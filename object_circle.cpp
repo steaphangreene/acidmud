@@ -449,7 +449,7 @@ void Object::CircleLoadMob(const char *fn) {
 
 	if(val == 4) { // Mob Starts off Sleeping
 	  obj->SetPos(POS_LIE);
-	  obj->AddAct(ACT_ASLEEP);
+	  obj->AddAct(ACT_SLEEP);
 	  }
 	else if(val == 5) { // Mob Starts off Resting
 	  obj->SetPos(POS_SIT);

@@ -581,10 +581,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
         }
       }
     if(comlist[cnum].sit & SIT_ALERT) {
-      if(body->IsAct(ACT_ASLEEP)) {
+      if(body->IsAct(ACT_SLEEP)) {
         if(mind) mind->Send("You must be awake to use that command.\n");
 	handle_single_command(body, "wake", mind);
-        if(body->IsAct(ACT_ASLEEP)) return 0;
+        if(body->IsAct(ACT_SLEEP)) return 0;
         }
       if(body->IsAct(ACT_REST)) {
         if(mind) mind->Send("You must be awake to use that command.\n");
@@ -593,10 +593,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
         }
       }
     if(comlist[cnum].sit & SIT_AWAKE) {
-      if(body->IsAct(ACT_ASLEEP)) {
+      if(body->IsAct(ACT_SLEEP)) {
         if(mind) mind->Send("You must be awake to use that command.\n");
 	handle_single_command(body, "wake", mind);
-        if(body->IsAct(ACT_ASLEEP)) return 0;
+        if(body->IsAct(ACT_SLEEP)) return 0;
         }
       }
     }
@@ -690,7 +690,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
       if(body->IsAct(ACT_DYING))
 	mind->Send("You can see nothing, you are too busy dying.\n");
-      else if(body->IsAct(ACT_ASLEEP))
+      else if(body->IsAct(ACT_SLEEP))
 	mind->Send("You can see nothing since you are asleep.\n");
       else if(body->IsAct(ACT_UNCONSCIOUS))
 	mind->Send("You can see nothing, you are out cold.\n");
@@ -992,7 +992,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else {
       string denied="";
       for(Object *owner = targ->Parent(); owner; owner = owner->Parent()) {
-	if(owner->Attribute(1) && owner != body && (!owner->IsAct(ACT_ASLEEP))
+	if(owner->Attribute(1) && owner != body && (!owner->IsAct(ACT_SLEEP))
 		&& (!owner->IsAct(ACT_DEAD)) && (!owner->IsAct(ACT_DYING))
 		&& (!owner->IsAct(ACT_UNCONSCIOUS))) {
 	  denied = "You would need ";
@@ -1441,20 +1441,20 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     }
 
   if(com == COM_SLEEP) {
-    if(body->IsAct(ACT_ASLEEP)) {
+    if(body->IsAct(ACT_SLEEP)) {
       if(mind) mind->Send("You are already sleeping!\n");
       }
     else if(body->Pos() == POS_LIE) {
       body->SetPos(POS_LIE);
       body->Collapse();
-      body->AddAct(ACT_ASLEEP);
+      body->AddAct(ACT_SLEEP);
       body->Parent()->SendOut(
 	";s goes to sleep.\n", "You go to sleep.\n", body, NULL);
       }
     else {
       body->SetPos(POS_LIE);
       body->Collapse();
-      body->AddAct(ACT_ASLEEP);
+      body->AddAct(ACT_SLEEP);
       body->Parent()->SendOut(
 	";s lies down and goes to sleep.\n", "You lie down and go to sleep.\n",
 	body, NULL);
@@ -1463,11 +1463,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     }
 
   if(com == COM_WAKE) {
-    if(!body->IsAct(ACT_ASLEEP)) {
+    if(!body->IsAct(ACT_SLEEP)) {
       if(mind) mind->Send("But you aren't asleep!\n");
       }
     else {
-      body->StopAct(ACT_ASLEEP);
+      body->StopAct(ACT_SLEEP);
       body->Parent()->SendOut(
 	";s wakes up.\n", "You wake up.\n", body, NULL);
       }
@@ -1481,7 +1481,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	";s stops resting.\n", "You stop resting.\n", body, NULL);
       return 0;
       }
-    else if(body->IsAct(ACT_ASLEEP)) {
+    else if(body->IsAct(ACT_SLEEP)) {
       body->StopAct(ACT_REST);
       body->AddAct(ACT_REST);
       body->Parent()->SendOut(
@@ -1507,9 +1507,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(body->Pos() == POS_STAND) {
       if(mind) mind->Send("But you are already standing!\n");
       }
-    else if(body->IsAct(ACT_ASLEEP)) {
+    else if(body->IsAct(ACT_SLEEP)) {
       body->SetPos(POS_STAND);
-      body->StopAct(ACT_ASLEEP);
+      body->StopAct(ACT_SLEEP);
       body->Parent()->SendOut(
 	";s wakes up and stands.\n", "You wake up and stand.\n",
 	body, NULL);
@@ -1533,8 +1533,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(body->Pos() == POS_SIT) {
       if(mind) mind->Send("But you are already sitting!\n");
       }
-    else if(body->IsAct(ACT_ASLEEP)) {
-      body->StopAct(ACT_ASLEEP);
+    else if(body->IsAct(ACT_SLEEP)) {
+      body->StopAct(ACT_SLEEP);
       body->SetPos(POS_SIT);
       body->Parent()->SendOut(
 	";s awaken and sit up.\n", "You awaken and sit up.\n",

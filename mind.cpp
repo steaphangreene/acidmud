@@ -188,9 +188,9 @@ void Mind::Think(int istick) {
 		&& (!body->StillBusy())			//I'm not busy
 		&& body->Stun() < 6			//I'm not stunned
 		&& body->Phys() < 6			//I'm not injured
-		&& (!body->IsAct(ACT_ASLEEP))		//I'm not asleep
+		&& (!body->IsAct(ACT_SLEEP))		//I'm not asleep
 		&& (!body->IsAct(ACT_REST))		//I'm not resting
-		&& (*other)->IsAct(ACT_ASLEEP)		//It's not awake (wuss!)
+		&& (*other)->IsAct(ACT_SLEEP)		//It's not awake (wuss!)
 		&& (*other)->Attribute(1)		//It's not a rock
 		&& (!(*other)->IsAct(ACT_DEAD))		//It's not already dead
 	        ) {
@@ -211,7 +211,7 @@ void Mind::Think(int istick) {
 		&& (!body->StillBusy())			//I'm not busy
 		&& body->Stun() < 6			//I'm not stunned
 		&& body->Phys() < 6			//I'm not injured
-		&& (!body->IsAct(ACT_ASLEEP))		//I'm not asleep
+		&& (!body->IsAct(ACT_SLEEP))		//I'm not asleep
 		&& (!body->IsAct(ACT_REST))		//I'm not resting
 		&& (*other)->Attribute(1)		//It's not a rock
 		&& (!(*other)->IsAct(ACT_DEAD))		//It's not already dead
@@ -233,7 +233,7 @@ void Mind::Think(int istick) {
 		&& (!body->StillBusy())			//I'm not busy
 		&& body->Stun() < 6			//I'm not stunned
 		&& body->Phys() < 6			//I'm not injured
-		&& (!body->IsAct(ACT_ASLEEP))		//I'm not asleep
+		&& (!body->IsAct(ACT_SLEEP))		//I'm not asleep
 		&& (!body->IsAct(ACT_REST))		//I'm not resting
 		&& (*other)->Attribute(1)		//It's not a rock
 		&& (!(*other)->IsAct(ACT_DEAD))		//It's not already dead

@@ -190,7 +190,15 @@ void tick_world() {
   }
 
 void Object::Tick() {
-  //FIXME: Heal, bleed, rot, etc....
+  if(stun > 0) {
+    int rec = 0;
+    if(IsAct(ACT_SLEEP)) rec = Roll("Willpower", 2);
+    if(IsAct(ACT_REST)) rec = Roll("Willpower", 4);
+    if(!IsAct(ACT_FIGHT)) rec = Roll("Willpower", 6);
+    stun -= rec;  stun = 0 >? stun;
+    UpdateDamage();
+    }
+  //FIXME: bleed, rot, etc....
 
   set<Mind*>::iterator m;
   for(m = minds.begin(); m != minds.end(); ++m) {
@@ -298,7 +306,7 @@ Object::Object(const Object &o) {
   if(o.IsAct(ACT_DEAD)) AddAct(ACT_DEAD);
   if(o.IsAct(ACT_DYING)) AddAct(ACT_DYING);
   if(o.IsAct(ACT_UNCONSCIOUS)) AddAct(ACT_UNCONSCIOUS);
-  if(o.IsAct(ACT_ASLEEP)) AddAct(ACT_ASLEEP);
+  if(o.IsAct(ACT_SLEEP)) AddAct(ACT_SLEEP);
   if(o.IsAct(ACT_REST)) AddAct(ACT_REST);
 
   parent = NULL;
@@ -1217,7 +1225,7 @@ void Object::Collapse() {
   StopAct(ACT_DEAD);
   StopAct(ACT_DYING);
   StopAct(ACT_UNCONSCIOUS);
-  StopAct(ACT_ASLEEP);
+  StopAct(ACT_SLEEP);
   StopAct(ACT_REST);
   StopAct(ACT_POINT);
   StopAct(ACT_FIGHT);
