@@ -1116,26 +1116,26 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
 static int tag(Object *obj, set<Object*> &ret, int *ordinal) {
   Object *nobj = NULL;
 
-  int cqty = 1, rqty = 1, tqty = 1; //Contains / Requires / Will Transfer
+  int cqty = 1, rqty = 1; //Contains / Requires
 
   if(obj->Skill("Quantity")) cqty = obj->Skill("Quantity");
 
-  tqty = cqty;
+  if(*ordinal == -1) (*ordinal) = 1;	// Need one - make it the first one!
 
-  if(*ordinal == -1) (*ordinal) = 0;	// Need one - make it the first one!
+  if(*ordinal == 0) return 0;		// They don't want anything.
 
-  if(*ordinal > 0) (*ordinal)--;
-  if(*ordinal >= 0) {
-    tqty -= *ordinal;			// Must skip earlier ords.
-
-    if(tqty < 1) {			// Have not gotten to my targ yet.
+  else if(*ordinal > 0) {
+    if(*ordinal > cqty) {		// Have not gotten to my targ yet.
+      *ordinal -= cqty;
       return 0;
       }
     else if(cqty == 1) {		// Just this one.
+      *ordinal = 0;
       ret.insert(obj);
       return 1;
       }
     else {				// One of this set.
+      *ordinal = 0;
       nobj = new Object(*obj);
       nobj->SetParent(obj->Parent());
       nobj->SetSkill("Quantity", 0);
@@ -1146,7 +1146,8 @@ static int tag(Object *obj, set<Object*> &ret, int *ordinal) {
       }
     }
 
-  if(*ordinal == ALL) rqty = cqty + 1;
+  else if(*ordinal == ALL) rqty = cqty + 1;
+
   else if(*ordinal < -1) rqty = -(*ordinal);
 
   if(rqty == cqty) {			// Exactly this entire thing.
@@ -1167,7 +1168,7 @@ static int tag(Object *obj, set<Object*> &ret, int *ordinal) {
 
     cqty -= rqty;
     obj->SetSkill("Quantity", (cqty == 1) ? 0 : cqty);
-    // Fall through to "return 0;" below.
+    return 1;
     }
   return 0;
   }

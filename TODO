@@ -1,6 +1,6 @@
+Make the order of picks match grouped-viewed output.
 Implement boats and boat travel.
 Dup shopkeeper items correctly (all gauntlets are left, etc...).
-Fixup the ordinal stuff ("ex filthy's 1044.bottle" is wrong!).
 Cleanup item manipulation commands.
 Implement intelligent stashing.
 Pluralize appropriate commands with intelligent stashing (rem, get).
