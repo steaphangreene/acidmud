@@ -1,5 +1,3 @@
-Check for circle rooms with no exits and add one.
-Make some objects (such as rooms and cloners) not ever get ticked.
 Follower should get there AFTER folowee.
 Followers who lie, sit, or rest must stop following.
 Follower should see their own movements better.
@@ -40,6 +38,7 @@ Add better ninja detection to commands handler.
 Show armor messages in ninja display.
 Consistently pluralize (or don't) skill names (fix online version too!).
 Fix create-in-direction working oddly.
+Check for circle rooms with no exits and add one.
 Delete a direction-linked object can exploderate if linked-to remains.
 Implement various types of armor and damage.
 Translate circle armor to various armor types.

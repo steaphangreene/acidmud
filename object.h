@@ -86,6 +86,10 @@ public:
   Object(const Object &);
   ~Object();
 
+  int IsActive() const;
+  void Activate();
+  void Deactivate();
+
   Object *Next(string &);
   const char *Name(int definite = 0, Object *rel = NULL, Object *sub = NULL);
   const char *ShortDesc();

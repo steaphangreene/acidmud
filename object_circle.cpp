@@ -264,6 +264,7 @@ void Object::CircleLoadZon(const char *fn) {
 	    obj->SetSkill("CirclePopper", 1);
 	    obj->AddAct(ACT_SPECIAL_PREPARE, lastmob);
 	    obj->AddAct(ACT_SPECIAL_NOTSHOWN);
+	    obj->Activate();
 	    lastbag = NULL;
 	    }
 	  } break;
@@ -392,7 +393,7 @@ void Object::CircleLoadZon(const char *fn) {
 	    Object *obj = new Object(*(bynumobj[num]));
 	    Object *obj2 = dup_circle_obj(obj);
 	    obj->SetParent(lastobj[innum]);
-	    if(obj2) obj2->SetParent(lastmob);
+	    if(obj2) obj2->SetParent(lastobj[innum]);
 	    //fprintf(stderr, "Put Obj \"%s\" in Obj \"%s\"\n", obj->ShortDesc(), lastobj[innum]->ShortDesc());
 	    lastobj[num] = obj;
 	    }

@@ -44,9 +44,9 @@ int Object::SaveTo(FILE *fl) {
 
   fprintf(fl, "%d %d %d %d %c;\n", weight, size, volume, value, gender);
 
-  fprintf(fl, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+  fprintf(fl, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d;%d\n",
 	att[0], att[1], att[2], att[3], att[4], att[5], att[6], att[7],
-	phys, stun, stru);
+	phys, stun, stru, IsActive());
 
   map<string,int>::const_iterator sk = skills.begin();
   for(; sk != skills.end(); ++sk)
@@ -140,9 +140,14 @@ int Object::LoadFrom(FILE *fl) {
 
   fscanf(fl, "%d %d %d %d %c;\n", &weight, &size, &volume, &value, &gender);
 
-  fscanf(fl, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+  fscanf(fl, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
 	&att[0], &att[1], &att[2], &att[3], &att[4], &att[5], &att[6], &att[7],
 	&phys, &stun, &stru);
+
+  int do_tick;
+  if(fscanf(fl, ";%d", &do_tick)) Activate();
+
+  fscanf(fl, "\n");
 
   memset(buf, 0, 65536);
   int val;

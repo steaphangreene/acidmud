@@ -3,6 +3,7 @@
 #include <cstdarg>
 #include <unistd.h>
 #include <cstring>
+#include <cctype>
 #include <fcntl.h>
 #include <algorithm>
 
@@ -174,6 +175,9 @@ Object *new_body() {
   body->SetSkill("Resources", 90000);
 
   body->SetPos(POS_STAND);
+
+  body->Activate();
+
   return body;
   }
 
@@ -188,6 +192,13 @@ void add_tick(Object *o) {
 
 void remove_tick(Object *o) {
   for(int ctr=0; ctr<TICKSPLIT; ++ctr) ticklist[ctr].erase(o);
+  }
+
+int has_tick(const Object *o) {
+  int ret=0;
+  for(int ctr=0; (!ret) && ctr<TICKSPLIT; ++ctr)
+    ret += ticklist[ctr].count((Object *)(o));	//Why do I need to typecast?
+  return (ret != 0);
   }
 
 void tick_world() {
@@ -249,6 +260,8 @@ void Object::Tick() {
       obj->AddAct(ACT_SPECIAL_MASTER, this);
       obj->Travel(parent);
       AddAct(ACT_SPECIAL_MONITOR, obj);
+      obj->Activate();
+      parent->SendOut(";s arrives.\n", "", obj, NULL);
       }
     else if(ActTarg(ACT_SPECIAL_MONITOR)->IsAct(ACT_DEAD)) {
       if(ActTarg(ACT_SPECIAL_OLDMONITOR))
@@ -258,8 +271,9 @@ void Object::Tick() {
       obj->SetParent(this);
       obj->AddAct(ACT_SPECIAL_MASTER, this);
       obj->Travel(parent);
-      parent->SendOut(";s arrives.\n", "", obj, NULL);
       AddAct(ACT_SPECIAL_MONITOR, obj);
+      obj->Activate();
+      parent->SendOut(";s arrives.\n", "", obj, NULL);
       }
     }
   if(Skill("CirclePopper") > 0) {	// Only pop-check once per minute!
@@ -294,8 +308,6 @@ Object::Object() {
   att[6] = 0;
   att[7] = 0;
 
-  add_tick(this);
-
   no_seek = 0;
   }
 
@@ -324,8 +336,6 @@ Object::Object(Object *o) {
   att[5] = 0;
   att[6] = 0;
   att[7] = 0;
-
-  add_tick(this);
 
   no_seek = 0;
   }
@@ -377,9 +387,9 @@ Object::Object(const Object &o) {
 
   parent = NULL;
 
-  add_tick(this);
-
   no_seek = 0;
+
+  if(o.IsActive()) Activate();
   }
 
 // Generate truly-formatted name
@@ -1009,6 +1019,7 @@ void Object::SendStats(Mind *m, Object *o) {
     else if(IsAct(act)) m->Send("  %s\n", act_str[act]);
     }
 
+  if(IsActive()) m->Send("  ACTIVE\n");
 
   set<Mind*>::iterator mind;
   for(mind = minds.begin(); mind != minds.end(); ++mind) {
@@ -1110,7 +1121,7 @@ int Object::Travel(Object *dest, int try_combine) {
   }
 
 Object::~Object() {
-  remove_tick(this);
+  Deactivate();
   if(default_initial == this) default_initial = universe;
 
   set<Object*> movers;
@@ -2070,6 +2081,9 @@ void Object::operator = (const Object &in) {
 
   pos = in.pos;
 
+  if(in.IsActive()) Activate();
+  else Deactivate();
+
 //  contents = in.contents;	// NOT doing this for deep/shallow reasons.
 //  act = in.act;
   }
@@ -2123,3 +2137,14 @@ Object *Object::Stash(Object *obj) {
   return dest;
   }
 
+int Object::IsActive() const {
+  return has_tick(this);
+  }
+
+void Object::Activate() {
+  add_tick(this);
+  }
+
+void Object::Deactivate() {
+  remove_tick(this);
+  }
