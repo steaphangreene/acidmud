@@ -4,6 +4,8 @@ Implement "everything"/"everyone".
 Implement "stuff"/"money"/"cash".
 Implement "loot" command.
 Fix attribute spelling "Proffit" -> "Profit".
+Fixup shopkeepers so item numbers NEVER expire.
+Fixup shopkeepers so their vortices are not viewable.
 Make single-item commands get only single items.
 Make all plural commands see pluralized items correctly.
 Should not be able to wear multiple (ie: pluralized) items in any location.
