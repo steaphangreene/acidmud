@@ -206,11 +206,26 @@ void Mind::SetPlayer(string pn) {
 
 void Mind::Think(int istick) {
   if(type == MIND_MOB) {
+    if((!body) || body->StillBusy()) return;
+
     //Temporary
-    if(body->ActTarg(ACT_WEAR_SHIELD) &&
-	(!body->IsAct(ACT_HOLD))) {
+    if(body && body->ActTarg(ACT_WEAR_SHIELD) && (!body->IsAct(ACT_HOLD))) {
       string command = string("hold ") + body->ActTarg(ACT_WEAR_SHIELD)->ShortDesc();
       body->BusyFor(500, command.c_str());
+      return;
+      }
+    else if(body && body->ActTarg(ACT_WEAR_SHIELD) && body->ActTarg(ACT_HOLD)
+	&& body->ActTarg(ACT_WEAR_SHIELD) != body->ActTarg(ACT_HOLD)) {
+      Object *targ = body->ActTarg(ACT_HOLD);
+      if(body->Stash(targ)) {
+	if(body->Parent())
+	  body->Parent()->SendOut(";s stashes ;s.\n", "", body, targ);
+	string command = string("hold ") + body->ActTarg(ACT_WEAR_SHIELD)->ShortDesc();
+	body->BusyFor(500, command.c_str());
+	}
+      else {
+	//fprintf(stderr, "Warning: %s can't use his shield!\n", body->Name());
+	}
       return;
       }
 
@@ -222,7 +237,6 @@ void Mind::Think(int istick) {
       typeof(others.begin()) other;
       for(other = others.begin(); other != others.end(); ++other) {
 	if((!(*other)->Skill("CircleAction")) //FIXME: Other mobs?
-		&& (!body->StillBusy())			//I'm not busy
 		&& body->Stun() < 6			//I'm not stunned
 		&& body->Phys() < 6			//I'm not injured
 		&& (!body->IsAct(ACT_SLEEP))		//I'm not asleep
@@ -248,7 +262,6 @@ void Mind::Think(int istick) {
       typeof(others.begin()) other;
       for(other = others.begin(); other != others.end(); ++other) {
 	if((!(*other)->Skill("CircleAction")) //FIXME: Other mobs?
-		&& (!body->StillBusy())			//I'm not busy
 		&& body->Stun() < 6			//I'm not stunned
 		&& body->Phys() < 6			//I'm not injured
 		&& (!body->IsAct(ACT_SLEEP))		//I'm not asleep
@@ -273,7 +286,6 @@ void Mind::Think(int istick) {
       typeof(others.begin()) other;
       for(other = others.begin(); other != others.end(); ++other) {
 	if((!(*other)->Skill("CircleAction")) //FIXME: Other mobs?
-		&& (!body->StillBusy())			//I'm not busy
 		&& body->Stun() < 6			//I'm not stunned
 		&& body->Phys() < 6			//I'm not injured
 		&& (!body->IsAct(ACT_SLEEP))		//I'm not asleep
@@ -293,7 +305,7 @@ void Mind::Think(int istick) {
       }
     //NON-SENTINEL Circle Mobs
     if(body && body->Parent() && (body->Skill("CircleAction") & 2) == 0
-	&& (!body->IsAct(ACT_FIGHT)) && istick && (!body->StillBusy())
+	&& (!body->IsAct(ACT_FIGHT)) && istick
 	&& (!body->IsAct(ACT_REST)) && (!body->IsAct(ACT_SLEEP))
 	&& body->Stun() < 6 && body->Phys() < 6
 	&& body->Roll("Willpower", 9)) {
