@@ -35,7 +35,7 @@ static void make_dwarf_miner(Object *loc) {
   mob->SetAttribute(3, 2+rand()%2);
   mob->SetAttribute(4, 4+rand()%3);
   mob->SetAttribute(5, 8+rand()%7);
-  mob->SetSkill("Two-Handed Cleaves", mob->Attribute(0) - rand()%4);
+  mob->SetSkill("Two-Handed Cleaves", mob->Attribute(2) - rand()%4);
 
   mob->SetShortDesc("a dwarf miner");
   mob->SetDesc("He looks pissed.");
@@ -45,8 +45,8 @@ static void make_dwarf_miner(Object *loc) {
 
   Object *obj = new Object(mob);
   obj->SetSkill("WeaponType", get_weapon_type("Two-Handed Cleaves"));
-  obj->SetSkill("WeaponForce", 2);
-  obj->SetSkill("WeaponSeverity", 3);
+  obj->SetSkill("WeaponForce", 2 + rand()%7);
+  obj->SetSkill("WeaponSeverity", 3 + rand()%3);
   obj->SetSkill("WeaponReach", 2);
   obj->SetShortDesc("a dwarven mining pickaxe");
   obj->SetDesc("A super-strong, super-sharp, super-heavy pickaxe.");
