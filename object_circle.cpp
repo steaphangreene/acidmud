@@ -1,11 +1,3 @@
-#include <vector>
-#include <map>
-#include <set>
-
-using namespace std;
-
-const char *dirname[6] = { "north", "east", "south", "west", "up", "down" };
-
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
@@ -17,6 +9,8 @@ const char *dirname[6] = { "north", "east", "south", "west", "up", "down" };
 #include "object.h"
 #include "color.h"
 #include "mind.h"
+
+const char *dirname[6] = { "north", "east", "south", "west", "up", "down" };
 
 static char buf[65536];
 void Object::CircleLoadAll() {
