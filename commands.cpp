@@ -119,6 +119,8 @@ enum {	COM_HELP=0,
 
 	COM_SKILLLIST,
 
+	COM_RECALL,
+
 	COM_NINJAMODE,
 	COM_MAKENINJA,
 	COM_MAKESUPERNINJA,
@@ -433,6 +435,12 @@ Command comlist[] = {
     "List all available skill categories, or all skills in a category.",
     "List all available skill categories, or all skills in a category.",
     (REQ_ANY)
+    },
+
+  { COM_RECALL, "recall",
+    "Teleport back to the start when you are uninjured.",
+    "Teleport back to the start when you are uninjured.",
+    (REQ_STAND)
     },
 
   { COM_NINJAMODE, "ninjamode", 
@@ -2834,6 +2842,18 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     return 0;
     }
 
+  if(com == COM_RECALL) {
+    if(body->Phys() || body->Stun()) {
+      if(mind) mind->Send("You must be uninjured to use that command!\n");
+      }
+    else {
+      body->Travel(get_start_room(), 0);
+      if(mind && mind->Type() == MIND_REMOTE)
+	body->Parent()->SendDescSurround(body, body);
+      }
+    return 0;
+    }
+
   if(com == COM_SKILLLIST) {
     if(!mind) return 0;
 
@@ -2902,7 +2922,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       vector<Mind *> mns = get_human_minds();
       vector<Mind *>::iterator mn = mns.begin();
       for(; mn != mns.end(); ++mn) {
-	(*mn)->Send(mes.c_str());
+	(*mn)->Send("%s", mes.c_str());
 	}
       }
     return 0;
