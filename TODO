@@ -66,6 +66,7 @@ Be sure I Handle big messages to/from users correctly.
 Pointing, etc... should expire once target leaves area.
 Clean up and sort log(s).
 Put telnet stuff ONLY in net.cpp.
+Remove Object::SendAll() - unused?
 
 Troll Reach.
 Natural Armor.

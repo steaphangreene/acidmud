@@ -318,7 +318,7 @@ Object::Object(const Object &o) {
   skills = o.skills;
 
   contents.clear();
-  set<Object*>::const_iterator ind;
+  typeof(o.contents.begin()) ind;
   for(ind = o.contents.begin(); ind != o.contents.end(); ++ind) {
     Object *nobj = new Object(*(*ind));
     nobj->SetParent(this);
@@ -563,7 +563,7 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
   }
 
 void Object::SendContents(Mind *m, Object *o, int seeinside) {
-  set<Object*> cont = contents;
+  typeof(contents) cont = contents;
 
   for(act_t act = ACT_HOLD; act < ACT_MAX; ++((int&)(act))) {
     cont.erase(ActTarg(act));  //Don't show worn/wielded stuff.
@@ -571,8 +571,9 @@ void Object::SendContents(Mind *m, Object *o, int seeinside) {
 
   int total = 0;
   m->Send("%s", CGRN);
-  set<Object*> master = cont;
-  set<Object*>::iterator ind;
+  set<Object*> master;
+  master.insert(cont.begin(), cont.end());
+  typeof(cont.begin()) ind;
   for(ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
     master.erase(*ind);
 /* Comment out this block to disable 20-item limit in view */
@@ -591,7 +592,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside) {
 */
       int qty = 1;
       if(!(*ind)->Attribute(1)) { // Inanimate objects can have higher qtys
-	set<Object*>::iterator oth = ind;
+	typeof(cont.begin()) oth = ind;
 	for(qty = 0; oth != cont.end(); ++oth) if((*(*oth)) == (*(*ind))) {
 	  master.erase(*oth);
 	  qty += 1 >? (*oth)->Skill("Quantity");
@@ -976,8 +977,8 @@ int Object::Travel(Object *dest) {
     if(parent->ActTarg(act) == this) parent->StopAct(act);
 
   parent = dest;
-  set<Object*>::iterator ind = parent->contents.begin();
-  for(; ind != parent->contents.end(); ++ind) {
+  typeof(parent->contents.begin()) ind;
+  for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
 
     // Never combine with an actee.
     map<act_t, Object *>::iterator a = parent->act.begin();
@@ -1012,7 +1013,7 @@ Object::~Object() {
     if(parent->ActTarg(act) == this) parent->StopAct(act);
 
   set<Object*> movers;
-  set<Object*>::iterator ind;
+  typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
     if(is_pc(*ind)) movers.insert(*ind);
     else delete(*ind);
@@ -1020,7 +1021,7 @@ Object::~Object() {
   contents.clear();
   for(ind = movers.begin(); ind != movers.end(); ++ind) {
     (*ind)->StopAll();
-    set<Object*>::iterator ind2 = (*ind)->contents.begin();
+    typeof((*ind)->contents.begin()) ind2 = (*ind)->contents.begin();
     for(; ind2 != (*ind)->contents.end(); ++ind2) {
       delete(*ind2);
       }
@@ -1052,7 +1053,7 @@ void Object::Unattach(Mind *m) {
 
 int Object::ContainedWeight() {
   int ret = 0;
-  set<Object*>::iterator ind;
+  typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
     ret += (*ind)->weight;
     }
@@ -1061,7 +1062,7 @@ int Object::ContainedWeight() {
 
 int Object::ContainedVolume() {
   int ret = 0;
-  set<Object*>::iterator ind;
+  typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
     ret += (*ind)->volume;
     }
@@ -1228,9 +1229,9 @@ vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
     }
 
   if(loc & LOC_NEARBY) {
-    set<Object*> cont = parent->Contents();
+    typeof(parent->Contents()) cont = parent->Contents();
 
-    set<Object*>::iterator ind;
+    typeof(cont.begin()) ind;
     for(ind = cont.begin(); ind != cont.end(); ++ind) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
       if(matches((*ind)->ShortDesc(), name)) {
@@ -1261,7 +1262,7 @@ vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
     }
 
   if(loc & LOC_INTERNAL) {
-    set<Object*> cont = Contents();
+    typeof(parent->Contents()) cont = parent->Contents();
 
     map<act_t,Object*>::iterator action;
     for(action = act.begin(); action != act.end(); ++action) {
@@ -1282,7 +1283,7 @@ vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
 	}
       }
 
-    set<Object*>::iterator ind;
+    typeof(cont.begin()) ind;
     for(ind = cont.begin(); ind != cont.end(); ++ind) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
       if(matches((*ind)->ShortDesc(), name)) {
@@ -1317,7 +1318,7 @@ vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
   }
 
 int Object::IsWithin(Object *obj) {
-  set<Object*>::iterator ind;
+  typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
     if((*ind) == obj) return 1;
     if((*ind)->Skill("Transparent")) {
@@ -1330,7 +1331,7 @@ int Object::IsWithin(Object *obj) {
 
 int Object::IsNearBy(Object *obj) {
   if(!parent) return 0;
-  set<Object*>::iterator ind;
+  typeof(contents.begin()) ind;
   for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
     if((*ind) == obj) return 1;
     if((*ind) == this) continue;  // Not Nearby Self
@@ -1580,7 +1581,7 @@ void Object::SendAll(const set<Object*> &excl, const char *mes, ...) {
   char *tosend = strdup(buf);
 
   if(excl.count(this) == 0) Send(tosend);
-  set<Object*>::iterator ind;
+  typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
     (*ind)->SendAll(excl, tosend);
     }
@@ -1623,7 +1624,7 @@ void Object::SendIn(const char *mes, const char *youmes,
   else if(actor == targ) Send(buf, astr.c_str(), "itself");
   else Send(buf, astr.c_str(), tstr.c_str());
 
-  set<Object*>::const_iterator ind;
+  typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
     if((*ind)->Skill("Transparent"))
       (*ind)->SendIn(str, youstr, actor, targ);
@@ -1669,7 +1670,7 @@ void Object::SendOut(const char *mes, const char *youmes,
   else if(actor == targ) Send(buf, astr.c_str(), "itself");
   else Send(buf, astr.c_str(), tstr.c_str());
 
-  set<Object*>::const_iterator ind;
+  typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
     if((*ind)->Skill("Transparent"))
       (*ind)->SendIn(str, youstr, actor, targ);
@@ -1753,7 +1754,7 @@ void save_world(int with_net) {
   }
 
 int Object::WriteContentsTo(FILE *fl) {
-  set<Object*>::iterator cind;
+  typeof(contents.begin()) cind;
   for(cind = contents.begin(); cind != contents.end(); ++cind) {
     fprintf(fl, ":%d", getnum(*cind));
     }
@@ -1897,8 +1898,8 @@ void Object::operator = (const Object &in) {
 
 set<Object *> Object::Contents() {
 /* Uncomment for auto-recombination (BROKEN?)
-  set<Object*>::iterator i1;
-  set<Object*>::iterator i2;
+  typeof(contents.begin()) i1;
+  typeof(contents.begin()) i2;
   for(i1 = contents.begin(); i1 != contents.end(); ++i1) {
     for(i2 = i1, ++i2; i2 != contents.end(); ++i2) {
       if((*(*i1)) == (*(*i2))) {
