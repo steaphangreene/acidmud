@@ -2,7 +2,7 @@
 #include "object.h"
 #include "mind.h"
 
-const unsigned int SAVEFILE_VERSION = 0x00000011UL;
+const unsigned int SAVEFILE_VERSION = 0x00000012UL;
 
 static char buf[65536];
 static vector<Object*> todo;
@@ -61,7 +61,7 @@ int Object::SaveTo(FILE *fl) {
 
   map<string,int>::const_iterator sk = skills.begin();
   for(; sk != skills.end(); ++sk)
-    fprintf(fl, ":%s|%d", sk->first.c_str(), sk->second);
+    fprintf(fl, "|%s|%d", sk->first.c_str(), sk->second);
   fprintf(fl, ";\n");
 
   fprintf(fl, "%d\n", contents.size());
@@ -169,8 +169,14 @@ int Object::LoadFrom(FILE *fl) {
       skills[buf] = val;
       }
     }
+  else if(ver <= 0x0011) {
+    while(fscanf(fl, ":%[^\n:|]|%d", buf, &val)) {
+      //fprintf(stderr, "Loaded %s: %d\n", buf, val);
+      skills[buf] = val;
+      }
+    }
   else {
-    while(fscanf(fl, ":%[^\n|:]|%d", buf, &val)) {
+    while(fscanf(fl, "|%[^\n|]|%d", buf, &val)) {
       //fprintf(stderr, "Loaded %s: %d\n", buf, val);
       skills[buf] = val;
       }
