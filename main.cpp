@@ -6,8 +6,9 @@ using namespace std;
 #include <cstdio>
 #include <cstdlib>
 #include <cerrno>
-#include <cstring>
 #include <ctime>
+#include <cstring>
+#include <csignal>
 #include <fcntl.h>
 #include <unistd.h>
 #include <getopt.h>
@@ -18,12 +19,20 @@ using namespace std;
 
 int shutdn = 0;
 
+//Signal handlers
+static void do_restart(int) { shutdn = 2; }
+static void do_shutdown(int) { shutdn = 1; }
+
 timeval current_time = { 0, 0 };
 
 int main(int argc, char **argv) {
   int port = 4242;
   int acceptor = -1;
   static char *netstat_file = NULL;
+
+  signal(SIGHUP, &do_restart);
+  signal(SIGINT, &do_shutdown);
+  signal(SIGTERM, &do_shutdown);
 
   static option lopts[] = {
     {"port", 1, 0, 'p'},

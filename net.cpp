@@ -240,8 +240,12 @@ void update_net() {
 void stop_net() {
   set<socket_t>::iterator sock;
   for(sock = fds.begin(); sock != fds.end(); ++sock) {
+    sock_write(*sock, "\nThe ground shakes with the power of the Ninjas...\n");
+    sock_write(*sock, "AcidMud is shutting down (saving everything first)!\n");
+    sock_write(*sock, "It'll be back soon I hope.  See you then!\n\n\n");
     close(*sock);
     }
+  sleep(1); // Make sure messages really get flushed!
   close(acceptor);
   }
 
@@ -273,7 +277,7 @@ int save_net(const char *fn) {
       fprintf(fl, "%d:%s:%d\n",
 	*sk, minds[*sk]->Owner()->Name(), getnum(minds[*sk]->Body()));
       }
-    sock_write(*sk, "The ground shakes with the power of the Ninjas...\n");
+    sock_write(*sk, "\nThe ground shakes with the power of the Ninjas...\n");
     }
   sleep(1); // Make sure messages really get flushed!
 
