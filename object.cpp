@@ -21,7 +21,7 @@ const char *pos_str[POS_MAX] = {
         "is standing here",
         };
 
-const char *act_str[ACT_MAX] = {
+const char *act_str[ACT_SPECIAL_MAX] = {
         "doing nothing",
         "dead",
         "bleeding and dying",
@@ -55,6 +55,12 @@ const char *act_str[ACT_MAX] = {
         "wearing %1$s",
         "wearing %1$s",
         "wearing %1$s",
+        "ACT_MAX",
+        "ACT_SPECIAL_MONITOR",
+        "ACT_SPECIAL_OLDMONITOR",
+        "ACT_SPECIAL_PREPARE",
+        "ACT_SPECIAL_NOTSHOWN",
+        "ACT_SPECIAL_MASTER"
         };
 
 static Object *universe;
@@ -235,9 +241,11 @@ void Object::Tick() {
     }
 
   if(parent && Skill("CirclePopper") == 1 && ActTarg(ACT_SPECIAL_PREPARE)) {
+    ActTarg(ACT_SPECIAL_PREPARE)->AddAct(ACT_SPECIAL_MASTER, this);
     if(!ActTarg(ACT_SPECIAL_MONITOR)) {
       Object *obj = new Object(*(ActTarg(ACT_SPECIAL_PREPARE)));
       obj->SetParent(this);
+      obj->AddAct(ACT_SPECIAL_MASTER, this);
       obj->Travel(parent);
       AddAct(ACT_SPECIAL_MONITOR, obj);
       }
@@ -247,6 +255,7 @@ void Object::Tick() {
       AddAct(ACT_SPECIAL_OLDMONITOR, ActTarg(ACT_SPECIAL_MONITOR));
       Object *obj = new Object(*(ActTarg(ACT_SPECIAL_PREPARE)));
       obj->SetParent(this);
+      obj->AddAct(ACT_SPECIAL_MASTER, this);
       obj->Travel(parent);
       parent->SendOut(";s arrives.", "", obj, NULL);
       AddAct(ACT_SPECIAL_MONITOR, obj);
@@ -993,6 +1002,12 @@ void Object::SendStats(Mind *m, Object *o) {
       m->Send("%16s: %2d\n", skl->first.c_str(),skl->second);
       }
     }
+
+  for(act_t act = ACT_MAX; act < ACT_SPECIAL_MAX; ++((int&)(act))) {
+    if(ActTarg(act)) m->Send("%s -> %s\n", act_str[act], ActTarg(act)->Name());
+    else if(IsAct(act)) m->Send("%s\n", act_str[act]);
+    }
+
   m->Send("%s", CNRM);
   }
 
@@ -1112,6 +1127,14 @@ Object::~Object() {
     parent->RemoveLink(this);
     parent->NotifyGone(this);
     }
+
+  //Actions over long distances must be notified!
+  if(ActTarg(ACT_SPECIAL_MASTER))
+    ActTarg(ACT_SPECIAL_MASTER)->NotifyGone(this);
+  if(ActTarg(ACT_SPECIAL_MONITOR))
+    ActTarg(ACT_SPECIAL_MONITOR)->NotifyGone(this);
+  if(ActTarg(ACT_SPECIAL_OLDMONITOR))
+    ActTarg(ACT_SPECIAL_OLDMONITOR)->NotifyGone(this);
 
   busylist.erase(this);
   }
@@ -1434,7 +1457,7 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
     return;
     }
 
-  for(act_t act=ACT_NONE; act < ACT_MAX; ++((int&)(act))) {
+  for(act_t act=ACT_NONE; act < ACT_SPECIAL_MAX; ++((int&)(act))) {
     if(ActTarg(act) == obj) {
       if(act != ACT_FOLLOW || (!newloc)) { StopAct(act); }
       else if(parent == newloc) { } // Do nothing - didn't leave!

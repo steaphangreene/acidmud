@@ -260,6 +260,7 @@ void Object::CircleLoadZon(const char *fn) {
 	    lastmob = new Object(*(bynummob[num]));
 	    bynummobinst[num] = lastmob;
 	    lastmob->SetParent(obj);
+	    lastmob->AddAct(ACT_SPECIAL_MASTER, obj);
 	    obj->SetSkill("CirclePopper", 1);
 	    obj->AddAct(ACT_SPECIAL_PREPARE, lastmob);
 	    obj->AddAct(ACT_SPECIAL_NOTSHOWN);
