@@ -1067,6 +1067,15 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	Object *item = vortex->PickObject(comline+len, LOC_INTERNAL);
 	if(item) {
 	  int price = item->Value();
+	  if(price < 0) {
+	    if(mind) mind->Send("That item can't be sold.\n");
+	    return 0;
+	    }
+	  else if(price == 0) {
+	    if(mind) mind->Send("That item is worthless.\n");
+	    return 0;
+	    }
+
  	  price *= shpkp->Skill("Sell Proffit");
 	  price += 999;  price /= 1000;
 	  mind->Send("%d gp: %s\n", price, item->ShortDesc());
@@ -1151,6 +1160,15 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  Object *targ = (*targ_i);
 
 	  int price = targ->Value();
+	  if(price < 0) {
+	    if(mind) mind->Send("That item can't be sold.\n");
+	    return 0;
+	    }
+	  else if(price == 0) {
+	    if(mind) mind->Send("That item is worthless.\n");
+	    return 0;
+	    }
+
  	  price *= shpkp->Skill("Buy Proffit");
 	  price += 0;  price /= 1000;
 	  mind->Send("%d gp: %s\n", price, targ->ShortDesc());
