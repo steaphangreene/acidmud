@@ -137,10 +137,7 @@ Object *dup_circle_obj(Object *obj) {
     obj2->SetSkill("Wearable on Right Hand", 1);
     obj->SetShortDesc((string(obj->ShortDesc()) + " (left)").c_str());
     obj2->SetShortDesc((string(obj2->ShortDesc()) + " (right)").c_str());
-    fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
-    }
-  else if(obj->Skill("Wearable on Left Hand")) {
-    fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
+//    fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
     }
   else if(obj->Skill("Wearable on Left Foot")
     	!= obj->Skill("Wearable on Right Foot")) {
@@ -149,26 +146,17 @@ Object *dup_circle_obj(Object *obj) {
     obj2->SetSkill("Wearable on Right Foot", 1);
     obj->SetShortDesc((string(obj->ShortDesc()) + " (left)").c_str());
     obj2->SetShortDesc((string(obj2->ShortDesc()) + " (right)").c_str());
-    fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
-    }
-  else if(obj->Skill("Wearable on Left Foot")) {
-    fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
+//    fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
     }
   else if(obj->Skill("Wearable on Left Leg")
     	!= obj->Skill("Wearable on Right Leg")) {
     obj2 = new Object(*obj);
-    fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
-    }
-  else if(obj->Skill("Wearable on Left Leg")) {
-    fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
+//    fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
     }
   else if(obj->Skill("Wearable on Left Arm")
     	!= obj->Skill("Wearable on Right Arm")) {
     obj2 = new Object(*obj);
-    fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
-    }
-  else if(obj->Skill("Wearable on Left Arm")) {
-    fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
+//    fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
     }
   return obj2;
   }
@@ -1107,8 +1095,13 @@ void Object::CircleLoadShp(const char *fn) {
 	    }
 	  else {
 	    Object *item = new Object(*(bynumobj[val]));
+	    Object *item2 = dup_circle_obj(item);
 	    item->SetParent(vortex);
 	    item->SetSkill("Quantity", 1000);
+	    if(item2) {
+	      item2->SetParent(vortex);
+	      item2->SetSkill("Quantity", 1000);
+	      }
 	    }
 	  fscanf(mud, "%d\n", &val);  // Item sold
 	  }
