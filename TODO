@@ -1,3 +1,4 @@
+Make picks occur in display order (acted-on things should be first).
 Finish article substitution ("A" -> "A second" -> "The" -> "Joe's", etc...).
 Finish implementing sex distinctions ("his" / "her" / "its").
 Add more smartness for getting things from people (permission, etc.).
@@ -7,7 +8,6 @@ Pick up a fight's other opponents after your target goes down without delay.
 You should still be able to wield and hold while resting.
 Fixup "Back" slot so it makes more sense.
 Do 3-layer armor system.
-Make picks occur in display order (acted-on things should be first).
 Hit locations.
 Implement armor protection.
 Implement armor and cloathing effects.

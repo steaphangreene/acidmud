@@ -983,7 +983,7 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
   if(loc & LOC_INTERNAL) {
     if(!strncasecmp(name, "my ", 3)) {
       name += 3;
-      return PickObject(name, LOC_INTERNAL|LOC_SELF);
+      return PickObject(name, loc & (LOC_INTERNAL|LOC_SELF));
       }
     }
 
