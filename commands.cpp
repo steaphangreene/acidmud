@@ -1275,6 +1275,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(!body->IsAct(ACT_HOLD)) {
       if(mind) mind->Send("You must first 'hold' the object you want to 'put'.\n");
       }
+    else if(!body->ActTarg(ACT_HOLD)) {
+      if(mind) mind->Send("What!?!?!  You are holding nothing?\n");
+      }
     else if(!targ) {
       if(mind) mind->Send("I don't see '%s' to put '%s' in!\n", comline+len,
 	body->ActTarg(ACT_HOLD)->ShortDesc());

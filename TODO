@@ -1,3 +1,4 @@
+Correctly Handle Restarts/shutdowns during combat.
 Dup shopkeeper items correctly (all gauntlets are left, etc...).
 Fixup ("wear alll" works!!!!).
 Fixup ("get newbie's " works!!!!).
@@ -64,7 +65,6 @@ Pointing, etc... should expire once target leaves area.
 Clean up and sort log(s).
 Put telnet stuff ONLY in net.cpp.
 
-Correctly Handle Restarts/shutdowns during combat.
 Troll Reach.
 Natural Armor.
 Wake someone else up!

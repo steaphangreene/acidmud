@@ -55,13 +55,13 @@ int Object::SaveTo(FILE *fl) {
 
   map<string,int>::const_iterator sk = skills.begin();
   for(; sk != skills.end(); ++sk)
-    fprintf(fl, ":%s,%d", (*sk).first.c_str(), (*sk).second);
+    fprintf(fl, ":%s,%d", sk->first.c_str(), sk->second);
   fprintf(fl, ";\n");
 
   fprintf(fl, "%d\n", connections.size());
   map<string,Object*>::iterator dind;
   for(dind = connections.begin(); dind != connections.end(); ++dind) {
-    fprintf(fl, "%s;%d\n", (*dind).first.c_str(), getnum((*dind).second));
+    fprintf(fl, "%s;%d\n", dind->first.c_str(), getnum(dind->second));
     }
 
   fprintf(fl, "%d\n", contents.size());
@@ -75,7 +75,7 @@ int Object::SaveTo(FILE *fl) {
   fprintf(fl, "%d\n", act.size());
   map<act_t,Object*>::iterator aind;
   for(aind = act.begin(); aind != act.end(); ++aind) {
-    fprintf(fl, "%d;%d\n", (*aind).first, getnum((*aind).second));
+    fprintf(fl, "%d;%d\n", aind->first, getnum(aind->second));
     }
 
   fprintf(fl, "\n");
@@ -103,13 +103,14 @@ int Object::Load(const char *fn) {
   for(ind = todo.begin(); ind != todo.end(); ++ind) {
     map<string,Object*>::iterator dind = (*ind)->connections.begin();
     for(; dind != (*ind)->connections.end(); ++dind) {
-      int num = int((*dind).second);
-      (*dind).second = num2obj[num];
+      int num = int(dind->second);
+      dind->second = num2obj[num];
       }
     map<act_t,Object*>::iterator aind = (*ind)->act.begin();
     for(; aind != (*ind)->act.end(); ++aind) {
-      int num = int((*aind).second);
-      (*aind).second = num2obj[num];
+      int num = int(aind->second);
+      aind->second = num2obj[num];
+      if(aind->first == ACT_FIGHT) (*ind)->BusyFor(500, "attack");
       }
     }
   todo.clear();

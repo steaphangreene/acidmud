@@ -950,6 +950,10 @@ void Object::AddLink(Object *ob) {
 int Object::Travel(Object *dest) {
   if((!parent) || (!dest)) return -1;
 
+  for(Object *chec_recr = dest; chec_recr; chec_recr = chec_recr->parent) {
+    if(chec_recr == this) return -1;		// Check for Recursive Loops
+    }
+
   int cap = dest->Skill("Capacity");
   if(cap > 0) {
     cap -= dest->ContainedVolume();
