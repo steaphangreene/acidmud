@@ -71,6 +71,7 @@ enum act_t {
 	ACT_SPECIAL_PREPARE,
 	ACT_SPECIAL_NOTSHOWN,
 	ACT_SPECIAL_MASTER,
+	ACT_SPECIAL_LINKED,
 	ACT_SPECIAL_MAX
 	};
 
@@ -98,8 +99,6 @@ public:
   void SetShortDesc(const char *);
   void SetDesc(const char *);
   void SetLongDesc(const char *);
-  void LinkTo(const char *, Object *);
-  void LinkToNew(const char *);
   void SetParent(Object *);
   Object *Parent() { return parent; };
 

@@ -1096,6 +1096,21 @@ void Object::CircleLoad(const char *fn) {
 	  if(bynum.count(tnum)) {
 	    (*ob)->connections[dirname[dir]] = bynum[tnum];
 	    tonum[dir].erase(*ob);
+
+	    Object *nobj = new Object;
+	    Object *nobj2 = new Object;
+
+	    string desc = string("A passage ") + dirname[dir];
+	    nobj->SetShortDesc(dirname[dir]);
+	    nobj->SetDesc(desc.c_str());
+	    nobj->SetParent(*ob);
+	    nobj->AddAct(ACT_SPECIAL_LINKED, nobj2);
+
+	    nobj2->SetShortDesc("A passage exit.");
+	    nobj2->SetDesc("A passage exit.");
+	    nobj2->SetParent(bynum[tnum]);
+	    nobj2->AddAct(ACT_SPECIAL_MASTER, nobj);
+	    nobj2->AddAct(ACT_SPECIAL_NOTSHOWN);
 	    }
 	  }
 	}

@@ -61,7 +61,8 @@ const char *act_str[ACT_SPECIAL_MAX] = {
         "ACT_SPECIAL_OLDMONITOR",
         "ACT_SPECIAL_PREPARE",
         "ACT_SPECIAL_NOTSHOWN",
-        "ACT_SPECIAL_MASTER"
+        "ACT_SPECIAL_MASTER",
+        "ACT_SPECIAL_LINKED"
         };
 
 static Object *universe;
@@ -514,21 +515,6 @@ void Object::SetLongDesc(const char *d) {
   trim(long_desc);
   }
 
-void Object::LinkTo(const char *n, Object *o) {
-  connections[n] = o;
-  if(!strcmp(n, "north")) o->connections["south"] = this;
-  if(!strcmp(n, "south")) o->connections["north"] = this;
-  if(!strcmp(n, "east")) o->connections["west"] = this;
-  if(!strcmp(n, "west")) o->connections["east"] = this;
-  if(!strcmp(n, "up")) o->connections["down"] = this;
-  if(!strcmp(n, "down")) o->connections["up"] = this;
-  }
-
-void Object::LinkToNew(const char *n) {
-  Object *o = new Object(parent);
-  LinkTo(n, o);
-  }
-
 void Object::SetParent(Object *o) {
   parent = o;
   if(o) o->AddLink(this);
@@ -581,14 +567,15 @@ void Object::SendActions(Mind *m) {
       if(!cur->second) targ = "";
       else targ = (char*) cur->second->Name(0, m->Body(), this);
 
-      map<string,Object*>::iterator dir = connections.begin();
-      for(; dir != connections.end(); ++dir) {
-	if((*dir).second == cur->second) {
-	  dirn = (char*) (*dir).first.c_str();
-	  dirp = " ";
-	  break;
-	  }
-	}
+//      //FIXME: Busted!
+//      map<string,Object*>::iterator dir = connections.begin();
+//      for(; dir != connections.end(); ++dir) {
+//	if((*dir).second == cur->second) {
+//	  dirn = (char*) (*dir).first.c_str();
+//	  dirp = " ";
+//	  break;
+//	  }
+//	}
       m->Send(", ");
       m->Send(act_str[cur->first], targ, dirn, dirp);
       }
@@ -675,6 +662,21 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
   typeof(cont.begin()) ind;
   for(ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
     if((*ind)->IsAct(ACT_SPECIAL_NOTSHOWN)) continue;
+
+    if((*ind)->IsAct(ACT_SPECIAL_LINKED)) {
+      if((*ind)->ActTarg(ACT_SPECIAL_LINKED)
+		&& (*ind)->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
+	m->Send("%s", CCYN);
+	string send = (*ind)->ShortDesc();
+	send += " you see ";
+	send += (*ind)->ActTarg(ACT_SPECIAL_LINKED)->Parent()->ShortDesc();
+	send += ".\n";
+	send[0] = toupper(send[0]);
+	m->Send(send.c_str());
+	}
+      continue;
+      }
+
     m->Send("%s", CGRN);
     master.erase(*ind);
 
@@ -852,27 +854,6 @@ void Object::SendDesc(Mind *m, Object *o) {
   sprintf(buf, "%s\n%c", Desc(), 0);
   buf[0] = toupper(buf[0]);
   m->Send(buf);
-
-  if(pos == POS_NONE) {
-    m->Send("%s", CCYN);
-    map<string, Object*>::iterator mind;
-    for(mind = connections.begin(); mind != connections.end(); ++mind) {
-      sprintf(buf, "%s you see %s.\n%c",
-	(*mind).first.c_str(), (*mind).second->ShortDesc(), 0);
-      buf[0] = toupper(buf[0]);
-      m->Send(buf);
-      }
-    }
-
-//  m->Send("%s", CNRM);
-//  if(pos != POS_NONE) {
-//    SendExtendedActions(m, 0);
-//    }
-
-//  if((!parent) || Contains(o) || Skill("Transparent")) {
-//    SendContents(m, o);
-//    }
-
   m->Send("%s", CNRM);
   }
 
@@ -897,21 +878,8 @@ void Object::SendDescSurround(Mind *m, Object *o) {
   buf[0] = toupper(buf[0]);
   m->Send(buf);
 
-  if(pos == POS_NONE) {
-    m->Send("%s", CCYN);
-    map<string, Object*>::iterator mind;
-    for(mind = connections.begin(); mind != connections.end(); ++mind) {
-      sprintf(buf, "%s you see %s.\n%c",
-	(*mind).first.c_str(), (*mind).second->ShortDesc(), 0);
-      buf[0] = toupper(buf[0]);
-      m->Send(buf);
-      }
-    }
-
   m->Send("%s", CNRM);
-  if(pos != POS_NONE) {
-    SendExtendedActions(m, 0);
-    }
+  SendExtendedActions(m, 0);
 
   if((!parent) || Contains(o) || Skill("Transparent")) {
     SendContents(m, o);
@@ -945,28 +913,7 @@ void Object::SendLongDesc(Mind *m, Object *o) {
   sprintf(buf, "%s\n%c", LongDesc(), 0);
   buf[0] = toupper(buf[0]);
   m->Send(buf);
-
-  if(pos == POS_NONE) {
-    m->Send("%s", CCYN);
-    map<string, Object*>::iterator mind;
-    for(mind = connections.begin(); mind != connections.end(); ++mind) {
-      sprintf(buf, "%s you see %s.\n%c",
-	(*mind).first.c_str(), (*mind).second->ShortDesc(), 0);
-      buf[0] = toupper(buf[0]);
-      m->Send(buf);
-      }
-    }
-
   m->Send("%s", CNRM);
-//  SendExtendedActions(m, 1);
-//
-//  if(Skill("Transparent") || (!Skill("Locked"))) {
-//    SendContents(m, o, 1);
-//    }
-//  else {
-//    m->Send("It is closed and locked, you can't tell what's inside it.\n");
-//    }
-//  m->Send("%s", CNRM);
   }
 
 void Object::SendScore(Mind *m, Object *o) {
@@ -1235,12 +1182,29 @@ Object::~Object() {
     }
 
   //Actions over long distances must be notified!
+  set<Object*> tonotify;
   if(ActTarg(ACT_SPECIAL_MASTER))
-    ActTarg(ACT_SPECIAL_MASTER)->NotifyGone(this);
+    tonotify.insert(ActTarg(ACT_SPECIAL_MASTER));
   if(ActTarg(ACT_SPECIAL_MONITOR))
-    ActTarg(ACT_SPECIAL_MONITOR)->NotifyGone(this);
+    tonotify.insert(ActTarg(ACT_SPECIAL_MONITOR));
   if(ActTarg(ACT_SPECIAL_OLDMONITOR))
-    ActTarg(ACT_SPECIAL_OLDMONITOR)->NotifyGone(this);
+    tonotify.insert(ActTarg(ACT_SPECIAL_OLDMONITOR));
+  if(ActTarg(ACT_SPECIAL_LINKED))
+    tonotify.insert(ActTarg(ACT_SPECIAL_LINKED));
+
+  StopAct(ACT_SPECIAL_MASTER);
+  StopAct(ACT_SPECIAL_MONITOR);
+  StopAct(ACT_SPECIAL_OLDMONITOR);
+  StopAct(ACT_SPECIAL_LINKED);
+
+  set<Object*>::iterator noti;
+  for(noti = tonotify.begin(); noti != tonotify.end(); ++noti) {
+    int del = 0;
+    if((*noti)->ActTarg(ACT_SPECIAL_MASTER) == this) del = 1;
+    else if((*noti)->ActTarg(ACT_SPECIAL_LINKED) == this) del = 1;
+    (*noti)->NotifyGone(this);
+    if(del) delete (*noti);
+    }
 
   busylist.erase(this);
   }
@@ -1506,6 +1470,7 @@ list<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
       }
     }
 
+  //FIXME: Uses "connections".
   if(loc & LOC_ADJACENT) {
     char *dir = name;
     if(!strcasecmp(dir, "n")) dir = "north";

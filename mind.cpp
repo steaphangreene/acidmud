@@ -285,6 +285,7 @@ void Mind::Think(int istick) {
 	&& (!body->IsAct(ACT_FIGHT)) && istick && (!body->StillBusy())
 	&& (!body->IsAct(ACT_REST)) && (!body->IsAct(ACT_SLEEP))
 	&& body->Stun() < 6 && body->Phys() < 6) {
+      //FIXME: Uses connections!
       map<string,Object*> cons = body->Parent()->Connections();
 
       map<string,Object*> cons2 = cons;

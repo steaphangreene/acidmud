@@ -503,8 +503,8 @@ Command comlist[] = {
     (REQ_ANY|REQ_NINJAMODE)
     },
   { COM_RESTART, "restart", 
-    "Ninja command: restart the entire MUD - preserving connections.",
-    "Ninja command: restart the entire MUD - preserving connections.",
+    "Ninja command: restart the entire MUD.",
+    "Ninja command: restart the entire MUD.",
     (REQ_ANY|REQ_NINJAMODE)
     },
   { COM_SAVEALL, "saveall", 
