@@ -1928,7 +1928,9 @@ Object *Object::Stash(Object *obj) {
   set<Object*> conts;
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
-    if((*ind)->Skill("Container") && (!(*ind)->Skill("Locked")))
+    if((*ind)->Skill("Container") && (
+	(!(*ind)->Skill("Locked")) || (*ind)->Skill("Transparent")
+	))
       conts.insert(*ind);
     }
 
@@ -1938,7 +1940,9 @@ Object *Object::Stash(Object *obj) {
     set<Object*>::iterator c;
     for(c = containers.begin(); c != containers.end(); ++c) {
       for(ind = (*c)->contents.begin(); ind != (*c)->contents.end(); ++ind) {
-	if((*ind)->Skill("Container") && (!(*ind)->Skill("Locked")))
+	if((*ind)->Skill("Container") && (
+		(!(*ind)->Skill("Locked")) || (*ind)->Skill("Transparent")
+		))
 	  conts.insert(*ind);
 	}
       }
@@ -1957,7 +1961,7 @@ Object *Object::Stash(Object *obj) {
       }
     }
 
-  if(dest) obj->Travel(dest);
+  if(dest && (obj->Travel(dest))) dest = NULL;	//See if it actually makes it!
   return dest;
   }
 
