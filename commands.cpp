@@ -887,7 +887,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("You don't see that here.\n");
       }
     else {
-      if(mind) targ->SendStats(mind, body);
+      if(mind) {
+	targ->SendFullSituation(mind, body);
+	targ->SendActions(mind);
+	targ->SendStats(mind, body);
+	}
       }
     return 0;
     }
@@ -1772,6 +1776,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     }
 
   if(com == COM_BUY) {
+    Object *chr = mind->Owner()->Creator()->ActTarg(ACT_POINT);
+    if(!chr) {
+      mind->Send("You need to be working on a character first.\n");
+      }
+    else {
+      mind->Send("You buy stuff (not implemented).\n"); //FIXME
+      }
     return 0;
     }
 

@@ -1110,6 +1110,7 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
     set<Object*>::iterator ind;
     for(ind = cont.begin(); ind != cont.end(); ++ind) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
+      fprintf(stderr, "Checking: %s\n", (*ind)->Name());
       if(matches((*ind)->ShortDesc(), name)) {
 	(*ordinal)--;
 	if((*ordinal) <= 0) ret.insert(*ind);

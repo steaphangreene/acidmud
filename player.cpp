@@ -58,6 +58,8 @@ void Player::Link(Object *obj) {
 void Player::AddChar(Object *ch) {
   room->AddLink(ch);
   creator->AddAct(ACT_POINT, ch);
+  fprintf(stderr, "Added %p\n", ch);
+  fprintf(stderr, "Added %s\n", ch->Name());
   }
 
 int player_exists(string name) {
