@@ -949,7 +949,9 @@ void Object::AddLink(Object *ob) {
 
 //  contents.insert(ob);   		//For set<Object*> contents.
 
-  contents.push_back(ob);		//For vector<Object*> contents.
+  typeof(contents.begin()) ind;		//For vector<Object*> contents.
+  ind = find(contents.begin(), contents.end(), ob);
+  if(ind == contents.end()) contents.push_back(ob);
   }
 
 void Object::RemoveLink(Object *ob) {
@@ -1276,7 +1278,7 @@ vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
     }
 
   if(loc & LOC_INTERNAL) {
-    typeof(parent->Contents()) cont = parent->Contents();
+    typeof(Contents()) cont = Contents();
 
     map<act_t,Object*>::iterator action;
     for(action = act.begin(); action != act.end(); ++action) {
