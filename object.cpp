@@ -235,9 +235,9 @@ void Object::Tick() {
     }
   else if(phys > 0) {
     int rec = 0;
-    if(IsAct(ACT_SLEEP)) rec = Roll("Body", 4);
-    else if(IsAct(ACT_REST)) rec = Roll("Body", 6);
-    else if(!IsAct(ACT_FIGHT)) rec = Roll("Body", 8);
+    if(IsAct(ACT_SLEEP)) rec = Roll("Body", 2);
+    else if(IsAct(ACT_REST)) rec = Roll("Body", 4);
+    else if(!IsAct(ACT_FIGHT)) rec = Roll("Body", 6);
     if(phys >= 6 && (!rec)) ++phys;
     else phys -= rec/2;
     phys = 0 >? phys;
