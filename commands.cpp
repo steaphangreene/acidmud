@@ -686,7 +686,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else {
       if(body->Parent()) body->Parent()->SendOut(
 	";s enters %s.\n", "", body, NULL, comline+len);
-      body->Travel(dest);
+      if(body->Travel(dest)) {
+	if(mind) mind->Send("You could not fit!\n");
+	return 0;
+	}
       body->Parent()->SendOut(
 	";s arrives.\n", "", body, NULL);
       if(mind && mind->Type() == MIND_REMOTE)
