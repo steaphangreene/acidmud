@@ -98,6 +98,7 @@ enum {	COM_HELP=0,
 
 	COM_NEWCHAR,
 	COM_RAISE,
+	COM_RANDOMIZE,
 
 	COM_SKILLLIST,
 
@@ -332,8 +333,13 @@ Command comlist[] = {
     (REQ_ETHEREAL)
     },
   { COM_RAISE, "raise",
-    "Spend points at character creation.",
-    "Spend points at character creation.",
+    "Spend a skill or attribute point of current character.",
+    "Spend a skill or attribute point of current character.",
+    (REQ_ETHEREAL)
+    },
+  { COM_RANDOMIZE, "randomize",
+    "Spend all remaining points of current character randomly.",
+    "Spend all remaining points of current character randomly.",
     (REQ_ETHEREAL)
     },
 
@@ -2065,6 +2071,40 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	"Charisma", "Intelligence", "Willpower"
 	};
 
+  if(com == COM_RANDOMIZE) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+
+    Object *chr = mind->Owner()->Creator();
+    if(!chr) {
+      mind->Send("You need to be working on a character first (use 'enter <character>'.\n");
+      return 0;
+      }
+    else if(strlen(comline+len) > 0) {
+      mind->Send("Just type 'randomize' to randomly spend all points for %s\n",
+	chr->ShortDesc());
+      return 0;
+      }
+
+    while(chr->Skill("Attributes")) {
+      int which = (rand()%6);
+      if(chr->Attribute(which) < 6) {
+	chr->SetAttribute(which, chr->Attribute(which) + 1);
+	chr->SetSkill("Attributes", chr->Skill("Attributes") - 1);
+	}
+      }
+    map<string,int> skills = get_skills();
+    while(chr->Skill("Skills")) {
+      int which = (rand()%skills.size());
+      map<string,int>::iterator skl = skills.begin();
+      while(which) { ++skl; --which; }
+      if(chr->Skill(skl->first) < (chr->Attribute(skl->second)+1) / 2) {
+	chr->SetSkill(skl->first, chr->Skill(skl->first) + 1);
+	chr->SetSkill("Skills", chr->Skill("Skills") - 1);
+	}
+      }
+    return 0;
+    }
+
   if(com == COM_RAISE) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!body) {
@@ -2109,7 +2149,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	    mind->Send("You have no free skill points left.\n");
 	    }
 	  else if(chr->Skill(comline+len)
-		< (chr->Attribute(skls[comline+len])+1)/2) {
+		< (chr->Attribute(skls[comline+len])+1) / 2) {
 	    chr->SetSkill("Skills", chr->Skill("Skills") - 1);
 	    chr->SetSkill(comline+len, chr->Skill(comline+len) + 1);
 	    mind->Send("You buy some %s.\n", comline+len);
