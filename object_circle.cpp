@@ -392,12 +392,12 @@ void Object::CircleLoadMob(const char *fn) {
       //fprintf(stderr, "Loaded Circle Mobile with LongDesc = %s\n", buf);
 
       obj->SetPos(POS_STAND);
-      obj->SetAttribute(0, 4);
-      obj->SetAttribute(1, 4);
-      obj->SetAttribute(2, 4);
-      obj->SetAttribute(3, 4);
-      obj->SetAttribute(4, 4);
-      obj->SetAttribute(5, 4);
+      obj->SetAttribute(0, 3);
+      obj->SetAttribute(1, 3);
+      obj->SetAttribute(2, 3);
+      obj->SetAttribute(3, 3);
+      obj->SetAttribute(4, 3);
+      obj->SetAttribute(5, 3);
 
       int val, val2, val3;  char tp;
       memset(buf, 0, 65536);
