@@ -1,4 +1,5 @@
 Fix exchange system handling odd cases (including sell/buy).
+People have to be alert to FOLLOW.
 Enhance "consider" command.
 Get it to understand shield use.
 Get it to understand two-handed weapon use.

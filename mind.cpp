@@ -80,8 +80,10 @@ void Mind::SetSystem() {
   }
 
 
-static const char *sevs[]
+static const char *sevs_p[]
 	= {"-", "L", "L", "M", "M", "M", "S", "S", "S", "S", "D"};
+static const char *sevs_s[]
+	= {"-", "l", "l", "m", "m", "m", "s", "s", "s", "s", "u"};
 void Mind::UpdatePrompt() {
   if(!Owner()) {
     SetPrompt(pers, "Player Name: ");
@@ -89,8 +91,9 @@ void Mind::UpdatePrompt() {
     }
   else if(Body()) {
     static char buf[65536];  //null-termed by sprintf below.
-    sprintf(buf, "[%s][%s] %s> %c", sevs[10<?Body()->Phys()],
-	sevs[10<?Body()->Stun()], Body()->ShortDesc(), 0);
+    sprintf(buf, "[%s][%s] %s> %c",
+	sevs_p[10<?Body()->Phys()], sevs_s[10<?Body()->Stun()],
+	Body()->ShortDesc(), 0);
     SetPrompt(pers, buf);
     }
   else SetPrompt(pers, "No Character> ");
