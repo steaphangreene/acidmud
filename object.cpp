@@ -1144,6 +1144,7 @@ int Object::Travel(Object *dest, int try_combine) {
 
   StopAct(ACT_POINT);
   StopAct(ACT_FOLLOW);
+  SetSkill("Hidden", 0);
 
   if(parent->Skill("DynamicInit") > 0) {  //Room is dynamic, but uninitialized
     parent->DynamicInit();

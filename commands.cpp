@@ -63,10 +63,11 @@ enum {	COM_HELP=0,
 
 	COM_LOOK,
 	COM_EXAMINE,
-	COM_SEARCH,
 	COM_CONSIDER,
 	COM_INVENTORY,
 	COM_EQUIPMENT,
+	COM_SEARCH,
+	COM_HIDE,
 
 	COM_LEAVE,
 	COM_ENTER,
@@ -209,11 +210,6 @@ Command comlist[] = {
     "Examine an object or creature.",
     (REQ_ALERT|REQ_ACTION)
     },
-  { COM_SEARCH, "search",
-    "Search an area, object or creature.",
-    "Search an area, object or creature.",
-    (REQ_ALERT|REQ_ACTION)
-    },
   { COM_CONSIDER, "consider",
     "Consider attacking a person or creature and size it up.",
     "Consider attacking a person or creature and size it up.",
@@ -228,6 +224,16 @@ Command comlist[] = {
     "Check what you are wearing and using.",
     "Check what you are wearing and using.",
     (REQ_AWAKE|REQ_ACTION)
+    },
+  { COM_SEARCH, "search",
+    "Search an area, object or creature.",
+    "Search an area, object or creature.",
+    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    },
+  { COM_HIDE, "hide",
+    "Hide an object, or yourself.",
+    "Hide an object, or yourself.",
+    (REQ_ALERT|REQ_STAND|REQ_ACTION)
     },
 
   { COM_LEAVE, "leave",
@@ -984,6 +990,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     body->Parent()->SendOut(0, 0, ";s says '%s'\n", "You say '%s'\n",
 	body, body, comline+len);
+    body->SetSkill("Hidden", 0);
     return 0;
     }
 
@@ -991,6 +998,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     body->Parent()->SendOut(0, 0, ";s %s\n", "Your character %s\n",
 	body, body, comline+len);
+    body->SetSkill("Hidden", 0);
     return 0;
     }
 
@@ -1159,6 +1167,60 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	(*targ_it)->SendExtendedActions(mind, 1);
 	(*targ_it)->SendContents(mind, body, 1);
 	}
+      }
+    return 0;
+    }
+
+  if(com == COM_HIDE) {
+    typeof(body->Contents()) targs;
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+
+    if(strlen(comline+len) <= 0) {
+      targs.push_back(body);
+      }
+    else {
+      targs = body->PickObjects(comline+len,
+		LOC_INTERNAL|LOC_NEARBY|LOC_SELF|LOC_HERE);
+      }
+    if(targs.size() < 1) {
+      if(mind) mind->Send("You don't see that here.\n");
+      return 0;
+      }
+
+    typeof(targs.begin()) targ_it;
+    for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+      string denied = "";
+      for(Object *own = *targ_it; own; own = own->Parent()) {
+	if(own->Attribute(1) && own != body && (!own->IsAct(ACT_SLEEP))
+		&& (!own->IsAct(ACT_DEAD)) && (!own->IsAct(ACT_DYING))
+		&& (!own->IsAct(ACT_UNCONSCIOUS))) {
+	  denied = "You would need ";
+	  denied += own->Name(1);
+	  denied += "'s permission to hide ";
+	  denied += (*targ_it)->Name(0, NULL, own);
+	  denied += ".\n";
+	  }
+	else if(own->Skill("Container") && (!own->Skill("Open"))
+		&& own->Skill("Locked")) {
+	  if(own != *targ_it) {
+	    denied = own->Name(1);
+	    denied += " is closed and locked so you can't get to ";
+	    denied += (*targ_it)->Name(1);
+	    denied += ".\n";
+	    denied[0] = toupper(denied[0]);
+	    }
+	  }
+	}
+      if(denied.length() > 0) {
+	if(mind) mind->Send(denied.c_str());
+	continue;
+	}
+
+      body->Parent()->SendOut(stealth_t, stealth_s, 
+	";s hides ;s.\n", "you hide ;s.\n", body, *targ_it);
+
+      int suc = body->Roll("Stealth", 4);
+      (*targ_it)->SetSkill("Hidden", suc * 2);
       }
     return 0;
     }
