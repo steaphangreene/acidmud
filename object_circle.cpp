@@ -141,7 +141,7 @@ void Object::CircleFinishMob(Object *mob) {
     Object *bag = new Object;
 
     bag->SetParent(mob);
-    bag->SetShortDesc("a CircleMud purse");
+    bag->SetShortDesc("a CircleMUD purse");
     bag->SetDesc("A mysterious purse that didn't seem to need to exist before.");
 
     bag->SetSkill("Wearable on Left Hip", 1);
@@ -165,7 +165,7 @@ void Object::CircleFinishMob(Object *mob) {
     mob->SetSkill("CircleGold", 0);
     }
 
-  if(mob->ActTarg(ACT_WEAR_LSHOULDER)) { //CircleMud Bags Only
+  if(mob->ActTarg(ACT_WEAR_LSHOULDER)) { //CircleMUD Bags Only
     mob->ActTarg(ACT_WEAR_LSHOULDER)->SetSkill("Container",
 	mob->ActTarg(ACT_WEAR_LSHOULDER)->ContainedWeight());
     mob->ActTarg(ACT_WEAR_LSHOULDER)->SetSkill("Capacity",
@@ -370,7 +370,7 @@ void Object::CircleLoadZon(const char *fn) {
 	      if(!lastbag) {
 		lastbag = new Object;
 		lastbag->SetParent(lastmob);
-		lastbag->SetShortDesc("a CircleMud pack");
+		lastbag->SetShortDesc("a CircleMUD pack");
 		lastbag->SetDesc("A mysterious pack that didn't seem to need to exist before.");
 
 		lastbag->SetSkill("Wearable on Left Shoulder", 1);

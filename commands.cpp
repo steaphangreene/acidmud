@@ -312,8 +312,8 @@ Command comlist[] = {
     },
 
   { COM_WHO, "who",
-    "Get a list of who is on the mud right now.",
-    "Get a list of who is on the mud right now.",
+    "Get a list of who is on the MUD right now.",
+    "Get a list of who is on the MUD right now.",
     (REQ_ANY)
     },
   { COM_OOC, "ooc",
@@ -440,13 +440,13 @@ Command comlist[] = {
     },
 
   { COM_SHUTDOWN, "shutdown", 
-    "Ninja command: shutdown the entire mud.",
-    "Ninja command: shutdown the entire mud.",
+    "Ninja command: shutdown the entire MUD.",
+    "Ninja command: shutdown the entire MUD.",
     (REQ_ANY|REQ_NINJAMODE)
     },
   { COM_RESTART, "restart", 
-    "Ninja command: restart the entire mud - preserving connections.",
-    "Ninja command: restart the entire mud - preserving connections.",
+    "Ninja command: restart the entire MUD - preserving connections.",
+    "Ninja command: restart the entire MUD - preserving connections.",
     (REQ_ANY|REQ_NINJAMODE)
     },
   { COM_MAKESTART, "makestart",
@@ -2191,7 +2191,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
   if(com == COM_SKILLLIST) {
     if(!mind) return 0;
-    string skills = "Total Skills in play on this mud:\n";
+    string skills = "Total skills in play on this MUD:\n";
     map<string,int> skls = get_skills();
 
     map<string,int>::iterator skl = skls.begin();
@@ -2206,7 +2206,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
   if(com == COM_WHO) {
     if(!mind) return 0;
-    string users = "Currently on this mud:\n";
+    string users = "Currently on this MUD:\n";
     vector<Mind *> mns = get_human_minds();
 
     vector<Mind *>::iterator mn = mns.begin();
@@ -2473,7 +2473,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
   if(com == COM_USERS) {
     if(!mind) return 0;
-    string users = "Current accounts on this mud:\n";
+    string users = "Current accounts on this MUD:\n";
     vector<Player *> pls = get_all_players();
 
     vector<Player *>::iterator pl = pls.begin();
@@ -2488,7 +2488,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
   if(com == COM_CHARS) {
     if(!mind) return 0;
-    string chars = "Current characters on this mud:\n";
+    string chars = "Current characters on this MUD:\n";
     vector<Player *> pls = get_all_players();
 
     vector<Player *>::iterator pl = pls.begin();

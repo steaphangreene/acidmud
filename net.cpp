@@ -194,7 +194,7 @@ void update_net() {
       }
     fprintf(stderr, "Accepted connection.\n");
     connect_sock(newsock);
-    minds[newsock]->Send("Welcome to AcidMud!\n");
+    minds[newsock]->Send("Welcome to AcidMUD!\n");
     }
 
   set<socket_t> killfds;
@@ -241,7 +241,7 @@ void stop_net() {
   set<socket_t>::iterator sock;
   for(sock = fds.begin(); sock != fds.end(); ++sock) {
     sock_write(*sock, "\nThe ground shakes with the power of the Ninjas...\n");
-    sock_write(*sock, "AcidMud is shutting down (saving everything first)!\n");
+    sock_write(*sock, "AcidMUD is shutting down (saving everything first)!\n");
     sock_write(*sock, "It'll be back soon I hope.  See you then!\n\n\n");
     close(*sock);
     }
