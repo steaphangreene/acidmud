@@ -1958,7 +1958,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("You are already holding %s!\n",
 	targ->Name(1, body));
       }
-    else if(body->IsAct(ACT_HOLD)) {
+    else if(body->IsAct(ACT_HOLD)
+	&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)) {
       if(mind) mind->Send("You are already holding something!\n");
       }
     else if(body->ActTarg(ACT_WEAR_SHIELD) == targ) {
@@ -1967,6 +1968,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	";s holds ;s.\n", "You hold ;s.\n", body, targ);
       }
     else {
+      if(body->IsAct(ACT_HOLD)) { //Means it's a shield due to above conditions.
+	body->StopAct(ACT_HOLD);
+	body->Parent()->SendOut(";s stops holding ;s.\n",
+	  "You stop holding ;s.\n", body, body->ActTarg(ACT_WEAR_SHIELD));
+	}
       targ->Travel(body, 0); // Kills Holds, Wears and Wields on "targ"
       body->AddAct(ACT_HOLD, targ);
       body->Parent()->SendOut(
