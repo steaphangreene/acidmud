@@ -971,10 +971,12 @@ void Object::CircleLoadObj(const char *fn) {
       int weight, value;
       fscanf(mudo, "%d %d %*d\n", &weight, &value);
 
-      obj->SetWeight(weight * 454);
-      obj->SetVolume(weight); //FIXME: Better guess within units?
-      obj->SetSize(1);
-      obj->SetValue(value);
+      if(tp != 20) { // MONEY DOESN'T WORK THIS WAY
+	obj->SetWeight(weight * 454);
+	obj->SetVolume(weight); //FIXME: Better guess within units?
+	obj->SetSize(1);
+	obj->SetValue(value);
+	}
 
       fscanf(mudo, " %*[^#$]");
       }

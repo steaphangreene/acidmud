@@ -2,6 +2,7 @@ Dup shopkeeper items correctly (all gauntlets are left, etc...).
 Fixup ("wear alll" works!!!!).
 Fixup ("get newbie's " works!!!!).
 Fixup the ordinal stuff ("ex filthy's 1044.bottle" is wrong!).
+Cleanup item manipulation commands.
 Make zoned MOBs stay in their damn zones.
 Implement intelligent stashing.
 Pluralize appropriate commands with intelligent stashing (rem, get).
