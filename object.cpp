@@ -591,8 +591,11 @@ void Object::SendContents(Mind *m, Object *o, int seeinside) {
     if((*ind) != o) {
       if(base != "") m->Send("%s%sInside:%s ", base.c_str(), CNRM, CGRN);
 
+/*	Uncomment this and comment the block below to disable auto-pluralizing.
+      int qty = (1 >? (*ind)->Skill("Quantity"));
+*/
       int qty = 1;
-      if(!(*ind)->Attribute(1)) { // Immobile things can have higher qtys
+      if(!(*ind)->Attribute(1)) { // Inanimate objects can have higher qtys
 	set<Object*>::iterator oth = ind;
 	for(qty = 0; oth != cont.end(); ++oth) if((*(*oth)) == (*(*ind))) {
 	  master.erase(*oth);
@@ -1226,8 +1229,10 @@ vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
     }
 
   if(loc & LOC_NEARBY) {
+    set<Object*> cont = parent->Contents();
+
     set<Object*>::iterator ind;
-    for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
+    for(ind = cont.begin(); ind != cont.end(); ++ind) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
       if(matches((*ind)->ShortDesc(), name)) {
 	if(tag(*ind, ret, ordinal)) return ret;
@@ -1257,7 +1262,7 @@ vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
     }
 
   if(loc & LOC_INTERNAL) {
-    set<Object*> cont = contents;
+    set<Object*> cont = Contents();
 
     map<act_t,Object*>::iterator action;
     for(action = act.begin(); action != act.end(); ++action) {
@@ -1891,3 +1896,20 @@ void Object::operator = (const Object &in) {
 //  act = in.act;
   }
 
+set<Object *> Object::Contents() {
+  set<Object*>::iterator i1;
+  set<Object*>::iterator i2;
+  for(i1 = contents.begin(); i1 != contents.end(); ++i1) {
+    for(i2 = i1, ++i2; i2 != contents.end(); ++i2) {
+      if((*(*i1)) == (*(*i2))) {
+	int qty = 2;
+	if((*i1)->Skill("Quantity")) qty += ((*i1)->Skill("Quantity") - 1);
+	if((*i2)->Skill("Quantity")) qty += ((*i2)->Skill("Quantity") - 1);
+	(*i1)->SetSkill("Quantity", qty);
+	delete(*i2);
+	return Contents();
+	}
+      }
+    }
+  return contents;
+  }

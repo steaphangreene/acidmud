@@ -118,7 +118,7 @@ public:
   int IsNearBy(Object *obj);
   int IsWithin(Object *obj);
   int Contains(Object *obj) { return contents.count(obj); }
-  set<Object *> Contents() { return contents; }
+  set<Object *> Contents();
   map<string,Object*> Connections() { return connections; }
 
   int ContainedWeight();
