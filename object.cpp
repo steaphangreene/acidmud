@@ -559,7 +559,6 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
     char *targ;
     if(!cur->second) targ = "";
     else targ = (char*) cur->second->Name(0, m->Body(), this);
-    targ[0] = toupper(targ[0]);
 
     char qty[256] = { 0 };
     if(cur->second->Skill("Quantity") > 1)

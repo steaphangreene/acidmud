@@ -953,7 +953,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else {
       body->Parent()->SendOut(";s considers attacking ;s.\n",
-	"You consider attacking ;s.", body, targ);
+	"You consider attacking ;s.\n", body, targ);
       if(mind) {
 	int diff;
 	string mes = string(targ->Name()) + "...\n";

@@ -128,6 +128,51 @@ Mind *get_mob_mind() {
   return circle_mob_mind;
   }
 
+Object *dup_circle_obj(Object *obj) {
+  Object *obj2 = NULL;
+  if(obj->Skill("Wearable on Left Hand")
+    	!= obj->Skill("Wearable on Right Hand")) {
+    obj2 = new Object(*obj);
+    obj2->SetSkill("Wearable on Left Hand", 0);
+    obj2->SetSkill("Wearable on Right Hand", 1);
+    obj->SetShortDesc((string(obj->ShortDesc()) + " (left)").c_str());
+    obj2->SetShortDesc((string(obj2->ShortDesc()) + " (right)").c_str());
+    fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
+    }
+  else if(obj->Skill("Wearable on Left Hand")) {
+    fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
+    }
+  else if(obj->Skill("Wearable on Left Foot")
+    	!= obj->Skill("Wearable on Right Foot")) {
+    obj2 = new Object(*obj);
+    obj2->SetSkill("Wearable on Left Foot", 0);
+    obj2->SetSkill("Wearable on Right Foot", 1);
+    obj->SetShortDesc((string(obj->ShortDesc()) + " (left)").c_str());
+    obj2->SetShortDesc((string(obj2->ShortDesc()) + " (right)").c_str());
+    fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
+    }
+  else if(obj->Skill("Wearable on Left Foot")) {
+    fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
+    }
+  else if(obj->Skill("Wearable on Left Leg")
+    	!= obj->Skill("Wearable on Right Leg")) {
+    obj2 = new Object(*obj);
+    fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
+    }
+  else if(obj->Skill("Wearable on Left Leg")) {
+    fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
+    }
+  else if(obj->Skill("Wearable on Left Arm")
+    	!= obj->Skill("Wearable on Right Arm")) {
+    obj2 = new Object(*obj);
+    fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
+    }
+  else if(obj->Skill("Wearable on Left Arm")) {
+    fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
+    }
+  return obj2;
+  }
+
 void Object::CircleFinishMob(Object *mob) {
   mob->Attach(get_mob_mind());
 
@@ -242,52 +287,9 @@ void Object::CircleLoadZon(const char *fn) {
 	  if(type == 'G') fscanf(mudz, " %*d %d %*d%*[^\n]\n", &num);
 	  if(lastmob && bynumobj.count(num)) {
 	    Object *obj = new Object(*(bynumobj[num]));
-	    Object *obj2 = NULL;
+	    Object *obj2 = dup_circle_obj(obj);
 	    obj->SetParent(lastmob);
-	    if(obj->Skill("Wearable on Left Hand")
-	    	!= obj->Skill("Wearable on Right Hand")) {
-	      obj2 = new Object(*(bynumobj[num]));
-	      obj2->SetParent(lastmob);
-	      obj2->SetSkill("Wearable on Left Hand", 0);
-	      obj2->SetSkill("Wearable on Right Hand", 1);
-	      obj->SetShortDesc((string(obj->ShortDesc()) + " (left)").c_str());
-	      obj2->SetShortDesc((string(obj2->ShortDesc()) + " (right)").c_str());
-	      fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
-	      }
-	    else if(obj->Skill("Wearable on Left Hand")) {
-	      fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
-	      }
-	    else if(obj->Skill("Wearable on Left Foot")
-	    	!= obj->Skill("Wearable on Right Foot")) {
-	      obj2 = new Object(*(bynumobj[num]));
-	      obj2->SetParent(lastmob);
-	      obj2->SetSkill("Wearable on Left Foot", 0);
-	      obj2->SetSkill("Wearable on Right Foot", 1);
-	      obj->SetShortDesc((string(obj->ShortDesc()) + " (left)").c_str());
-	      obj2->SetShortDesc((string(obj2->ShortDesc()) + " (right)").c_str());
-	      fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
-	      }
-	    else if(obj->Skill("Wearable on Left Foot")) {
-	      fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
-	      }
-	    else if(obj->Skill("Wearable on Left Leg")
-	    	!= obj->Skill("Wearable on Right Leg")) {
-	      obj2 = new Object(*(bynumobj[num]));
-	      obj2->SetParent(lastmob);
-	      fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
-	      }
-	    else if(obj->Skill("Wearable on Left Leg")) {
-	      fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
-	      }
-	    else if(obj->Skill("Wearable on Left Arm")
-	    	!= obj->Skill("Wearable on Right Arm")) {
-	      obj2 = new Object(*(bynumobj[num]));
-	      obj2->SetParent(lastmob);
-	      fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
-	      }
-	    else if(obj->Skill("Wearable on Left Arm")) {
-	      fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
-	      }
+	    if(obj2) obj2->SetParent(lastmob);
 	    lastobj[num] = obj;
 
 	    int bagit = 0;
