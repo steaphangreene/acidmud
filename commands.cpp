@@ -1676,7 +1676,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       //FIXME: Remove debugging stuff ("succ" and "res") from these messages.
       if(com == COM_KICK)
 	body->Parent()->SendOut(
-		";s kicks ;s%s. [%d] %s\n", "You kick ;s. [%d] %s\n",
+		";s kicks ;s%s. [%d] %s\n", "You kick ;s%s. [%d] %s\n",
 		body, targ, locm.c_str(), succ, res.c_str());
       else if(body->IsAct(ACT_WIELD))
 	body->Parent()->SendOut(";s hits ;s%s with %s. [%d] %s\n",
@@ -1685,19 +1685,32 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		succ, res.c_str());
       else
 	body->Parent()->SendOut(
-		";s punches ;s%s. [%d] %s\n", "You punch ;s. [%d] %s\n",
+		";s punches ;s%s. [%d] %s\n", "You punch ;s%s. [%d] %s\n",
 		body, targ, locm.c_str(), succ, res.c_str());
       int sev = 0;
 
-      if(com == COM_KICK)
+      if(com == COM_KICK) {
+	if(targ->ActTarg(loca))
+	  succ -= roll(targ->ActTarg(loca)->Attribute(0), body->Attribute(2));
 	sev = targ->HitStun(body->Attribute(2), stage+2, succ);
-      else if(body->IsAct(ACT_WIELD))
+	}
+      else if(body->IsAct(ACT_WIELD)) {
+	if(targ->ActTarg(loca))
+	  succ -= roll(
+		targ->ActTarg(loca)->Attribute(0),
+		body->Attribute(2)
+			+ (0 >? body->ActTarg(ACT_WIELD)->Skill("WeaponForce"))
+		);
 	sev = targ->HitPhys(body->Attribute(2)
 	  + (0 >? body->ActTarg(ACT_WIELD)->Skill("WeaponForce")),
 	  stage + (0 >? body->ActTarg(ACT_WIELD)->Skill("WeaponSeverity")),
 	  succ);
-      else
+	}
+      else {
+	if(targ->ActTarg(loca))
+	  succ -= roll(targ->ActTarg(loca)->Attribute(0), body->Attribute(2));
 	sev = targ->HitStun(body->Attribute(2), stage+1, succ);
+	}
 
       if(sev <= 0) {
 	if(mind) mind->Send("You hit - but didn't do much.\n");  //FIXME - Real Messages
