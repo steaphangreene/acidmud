@@ -872,6 +872,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else if(targ->Skill("Transparent")) {
       if(mind) mind->Send("It's already open!\n");
       }
+    else if(targ->Skill("Locked")) {
+      if(mind) mind->Send("It is locked!\n");
+      }
     else {
       targ->SetSkill("Transparent", 1);
       body->Parent()->SendOut(
@@ -896,6 +899,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else if(!targ->Skill("Transparent")) {
       if(mind) mind->Send("It's already closed!\n");
+      }
+    else if(targ->Skill("Locked")) {
+      if(mind) mind->Send("It is locked!\n");
       }
     else {
       targ->SetSkill("Transparent", 0);

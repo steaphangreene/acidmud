@@ -1,4 +1,3 @@
-Add better ninja detection to commands handler.
 Add more smartness for recursive gets (can't grab from locked items, etc...).
 Hit locations.
 Implement armor protection.
@@ -6,6 +5,7 @@ Implement armor and cloathing effects.
 Implement experience.
 Implement quantitative dispay (eg: "4 gold pieces").
 Implement quantitative plurality (eg: "offer 7 gold").
+Add better ninja detection to commands handler.
 Pluralize appropriate commands with intelligent stashing (rem, get).
 Implement money.
 Translate CircleMud shops.
