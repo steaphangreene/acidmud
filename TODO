@@ -39,6 +39,8 @@ Implement item "piles" "pairs", "mixtures", etc....
 Implement reserved words ('in', 'to', 'at', 'Ninja').
 
 
+Implement AcidMail.
+Add "bug", "feature", and "concern" commands (acidmail problems to immortals).
 User management commands (delete chars, delete users, etc...).
 Skill defaults (to other skills).
 Actually "create" characters with actual stats and such.
