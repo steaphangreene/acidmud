@@ -220,7 +220,7 @@ void Object::Tick() {
     UpdateDamage();
     }
 
-  //FIXME: bleed, rot, etc....
+  //FIXME: rot, degrade, etc....
 
   set<Mind*>::iterator m;
   for(m = minds.begin(); m != minds.end(); ++m) {
