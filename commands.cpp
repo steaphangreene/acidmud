@@ -1534,7 +1534,15 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	      shpkp->Stash(*coin);
 	      }
 	    }
-	  else if((!body->IsAct(ACT_HOLD)) && (!targ->Travel(body))) {
+	  else if(((!body->IsAct(ACT_HOLD)) 
+		|| body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WIELD)
+		|| body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)
+		) && (!targ->Travel(body))) {
+	    if(body->IsAct(ACT_HOLD)) {
+	      body->Parent()->SendOut(";s stops holding ;s.\n",
+		"You stop holding ;s.\n", body, body->ActTarg(ACT_HOLD));
+	      body->StopAct(ACT_HOLD);
+	      }
 	    body->AddAct(ACT_HOLD, targ);
 	    body->Parent()->SendOut(
 		";s buys and holds ;s.\n", "You buy and hold ;s.\n", body, targ);
@@ -1784,13 +1792,20 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  body->Parent()->SendOut(";s gets and stashes ;s.\n",
 		"You get and stash ;s.\n", body, targ);
 	  }
-	else if(body->IsAct(ACT_HOLD)) {
+	else if(body->IsAct(ACT_HOLD)
+		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)
+		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)) {
 	  if(mind) mind->Send("You have no place to stash %s.\n", targ->Name());
 	  }
 	else if(targ->Skill("Quantity") > 1) {
 	  if(mind) mind->Send("You have no place to stash %s.\n", targ->Name());
 	  }
 	else {
+	  if(body->IsAct(ACT_HOLD)) {
+	    body->Parent()->SendOut(";s stops holding ;s.\n",
+		"You stop holding ;s.\n", body, body->ActTarg(ACT_HOLD));
+	    body->StopAct(ACT_HOLD);
+	    }
 	  targ->Travel(body);
 	  body->AddAct(ACT_HOLD, targ);
 	  body->Parent()->SendOut(";s gets and holds ;s.\n",
@@ -2028,11 +2043,18 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	body->Parent()->SendOut(";s removes and stashes ;s.\n",
 		"You remove and stash ;s.\n", body, targ);
 	}
-      else if(body->IsAct(ACT_HOLD)) {
+      else if(body->IsAct(ACT_HOLD)
+		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)
+		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)) {
 	if(mind) mind->Send("You are already holding something else and "
 		"can't stash %s.\n", targ->Name(0, body));
 	}
       else {
+	if(body->IsAct(ACT_HOLD)) {
+	  body->Parent()->SendOut(";s stops holding ;s.\n",
+		"You stop holding ;s.\n", body, body->ActTarg(ACT_HOLD));
+	  body->StopAct(ACT_HOLD);
+	  }
 	targ->Travel(body, 0);
 	body->AddAct(ACT_HOLD, targ);
 	body->Parent()->SendOut(";s removes and holds ;s.\n",
