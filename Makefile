@@ -4,7 +4,7 @@ OBJS:=	main.o net.o commands.o mind.o player.o \
 
 #Production Settings
 CCC:=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
-LIBS:=	`gcc$(COSMOS_CTAIL) -print-file-name=libstdc++.a` -lcrypt
+LIBS:=	`gcc$(ACIDMUD_CTAIL) -print-file-name=libstdc++.a` -lcrypt
 
 #Debugging settings
 #CCC:=	gcc$(ACIDMUD_CTAIL) -g -Wall

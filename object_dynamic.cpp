@@ -50,7 +50,7 @@ static void give_gold(Object *mob, int qty) {
   bag->SetValue(100);
 
   bag->SetPos(POS_LIE);
-  mob->AddAct(ACT_WEAR_RHIP, bag);
+  mob->AddAct(ACT_WEAR_LHIP, bag);
 
   if(!gold) init_gold();
   Object *g = new Object(*gold);
@@ -88,9 +88,9 @@ static void make_dwarf_miner(Object *loc) {
   obj->SetVolume(50);
   obj->SetValue(2000);
   obj->SetPos(POS_LIE);
-
   mob->AddAct(ACT_WIELD, obj);
   mob->AddAct(ACT_HOLD, obj);
+
   }
 
 
