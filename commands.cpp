@@ -1015,8 +1015,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
   if(com == COM_LIST) {
     if(!mind) return 0;
 
-    set<Object *> objs = body->Parent()->Contents();
-    set<Object *>::iterator shpkp_i;
+    typeof(body->Parent()->Contents()) objs = body->Parent()->Contents();
+    typeof(objs.begin()) shpkp_i;
     Object *shpkp = NULL;
     for(shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
       if((*shpkp_i)->Skill("Sell Proffit")) {shpkp = (*shpkp_i); break; }
@@ -1041,7 +1041,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Container")) {
 	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 	objs = vortex->Contents();
-	set<Object *>::iterator obj = objs.begin();
+	typeof(objs.begin()) obj = objs.begin();
 	for(; obj != objs.end(); ++obj) {
 	  int price = (*obj)->Value();
  	  price *= shpkp->Skill("Sell Proffit");
@@ -1060,8 +1060,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
-    set<Object *> objs = body->Parent()->Contents();
-    set<Object *>::iterator shpkp_i;
+    typeof(body->Parent()->Contents()) objs = body->Parent()->Contents();
+    typeof(objs.begin()) shpkp_i;
     Object *shpkp = NULL;
     for(shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
       if((*shpkp_i)->Skill("Sell Proffit")) {shpkp = (*shpkp_i); break; }
@@ -1145,8 +1145,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
-    set<Object *> objs = body->Parent()->Contents();
-    set<Object *>::iterator shpkp_i;
+    typeof(body->Parent()->Contents()) objs = body->Parent()->Contents();
+    typeof(objs.begin()) shpkp_i;
     Object *shpkp = NULL;
     for(shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
       if((*shpkp_i)->Skill("Sell Proffit")) {shpkp = (*shpkp_i); break; }
@@ -2500,8 +2500,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
     vector<Player *>::iterator pl = pls.begin();
     for(; pl != pls.end(); ++pl) {
-      set<Object *> chs = (*pl)->Room()->Contents();
-      set<Object *>::iterator ch = chs.begin();
+      typeof((*pl)->Room()->Contents()) chs = (*pl)->Room()->Contents();
+      typeof(chs.begin()) ch = chs.begin();
       for(; ch != chs.end(); ++ch) {
 	chars += (*pl)->Name();
 	chars += ": ";
@@ -2522,8 +2522,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       mind->Send("You want to reset what?\n");
       }
     else {
-      set<Object *> cont = targ->Contents();
-      set<Object *>::iterator item = cont.begin();
+      typeof(targ->Contents()) cont = targ->Contents();
+      typeof(cont.begin()) item = cont.begin();
       for(; item != cont.end(); ++item) delete (*item);
       targ->Travel(get_start_room());
 
