@@ -1009,6 +1009,15 @@ void Object::SendStats(Mind *m, Object *o) {
     else if(IsAct(act)) m->Send("  %s\n", act_str[act]);
     }
 
+
+  set<Mind*>::iterator mind;
+  for(mind = minds.begin(); mind != minds.end(); ++mind) {
+    if((*mind)->Owner()) {
+      m->Send("->Player Connected: %s (%ld exp)\n",
+	(*mind)->Owner()->Name(), (*mind)->Owner()->Exp());
+      }
+    }
+
   m->Send("%s", CNRM);
   }
 
@@ -1087,7 +1096,7 @@ int Object::Travel(Object *dest, int try_combine) {
 
   if(parent->Skill("Secret")) {
     set<Mind*>::iterator m;
-     for(m = minds.begin(); m != minds.end(); ++m) {
+    for(m = minds.begin(); m != minds.end(); ++m) {
       if((*m)->Owner()) {
 	if((*m)->Owner()->Accomplish(parent->Skill("Secret"))) {
 	  (*m)->Send("%sYou gain a player experience for finding a secret!\n%s",
