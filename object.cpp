@@ -552,7 +552,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside) {
 	(*ind)->SendContents(m, o, seeinside);
 	base = tmp;
 	}
-      else {
+      else if(seeinside && (*ind)->Skill("Locked")) {
 	string mes = base + CNRM
 		+ "  It is closed and locked, you can't see inside.\n" + CGRN;
 	m->Send(mes.c_str());
@@ -1107,7 +1107,7 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
 	}
       if((*ind)->Skill("Container")) {
 	set<Object*> add;
-	add = action->second->PickObjects(name, LOC_INTERNAL, ordinal);
+	add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
 	ret.insert(add.begin(), add.end());
 	if((*ordinal) == 0) return ret;
 	}
