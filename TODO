@@ -1,3 +1,4 @@
+Implement PROTECTED saves.
 Check for circle rooms with no exits and add one.
 Make some objects (such as rooms and cloners) not ever get ticked.
 Follower should get there AFTER folowee.
