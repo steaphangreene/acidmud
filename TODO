@@ -1,4 +1,5 @@
 Make "ninjamode help commands" display ONLY ninjamode commands.
+You should still be able to wield and hold while resting.
 Aggressive Circle MOBs shouldn't get a full-round first strike!
 Let ninja-mode take-time commands work even if "busy".
 Pick up a fight's other opponents after your target goes down without delay.
