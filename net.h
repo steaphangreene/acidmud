@@ -2,6 +2,9 @@
 
 using namespace std;
 
+void warn_net(int type);
+void unwarn_net(int type);
+
 void start_net(int port);
 void resume_net(int fd);
 void update_net(void);

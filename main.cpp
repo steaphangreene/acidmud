@@ -64,6 +64,7 @@ int main(int argc, char **argv) {
   if(netstat_file) {
     fprintf(stdout, "Restoring network state....\n");
     load_net(netstat_file);
+    unwarn_net(2);
     }
 
   fprintf(stdout, "Ready to play!\n");
@@ -92,7 +93,12 @@ int main(int argc, char **argv) {
 
 	//static long long diff3;
 	//gettimeofday(&now_time, NULL);
-    if(shutdn < 0) { save_world(); shutdn = 0; }
+    if(shutdn < 0) {
+      warn_net(-1);
+      shutdn = 0;
+      save_world();
+      unwarn_net(-1);
+      }
 	//gettimeofday(&then_time, NULL);
 	//diff3 = (long long)(then_time.tv_usec - now_time.tv_usec);
 	//diff3 += (long long)(1000000) * (long long)(then_time.tv_sec - now_time.tv_sec);
@@ -100,6 +106,7 @@ int main(int argc, char **argv) {
 	//fprintf(stderr, "times: %Ld, %Ld, %Ld\n", diff1, diff2, diff3);
     }
   if(shutdn == 2) {  // Do Ninja Restart
+    warn_net(2);
     save_world(1);
 
     fprintf(stdout, "Stopping networking....\n");
@@ -122,6 +129,7 @@ int main(int argc, char **argv) {
     perror("execvp() failed for restart");
     }
 
+  warn_net(1);
   stop_net();
   save_world();
 

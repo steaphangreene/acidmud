@@ -272,12 +272,41 @@ void update_net() {
   outbufs.clear();
   }
 
-void stop_net() {
+void unwarn_net(int tp) {
+  set<socket_t>::iterator sock;
+  for(sock = fds.begin(); sock != fds.end(); ++sock) {
+    if(tp < 0) {
+      minds[*sock]->Send("...the world has been saved!\n");
+      }
+    else if(tp == 2) {
+      minds[*sock]->Send("...the world has been restarted!\n");
+      }
+    else {
+      minds[*sock]->Send("...umm, this message shouldn't happen!\n");
+      }
+    }
+  }
+
+void warn_net(int tp) {
   set<socket_t>::iterator sock;
   for(sock = fds.begin(); sock != fds.end(); ++sock) {
     sock_write(*sock, "\nThe ground shakes with the power of the Ninjas...\n");
-    sock_write(*sock, "AcidMUD is shutting down (saving everything first)!\n");
-    sock_write(*sock, "It'll be back soon I hope.  See you then!\n\n\n");
+    if(tp < 0) {
+      sock_write(*sock, "\n    AcidMUD is saving the world, hang on!\n");
+      }
+    else if(tp == 2) {
+      sock_write(*sock, "\n    AcidMUD is restarting, hang on!\n");
+      }
+    else {
+      sock_write(*sock, "\n    AcidMUD is shutting down (saving everything first)!\n");
+      sock_write(*sock, "    It'll be back soon I hope.  See you then!\n\n\n");
+      }
+    }
+  }
+
+void stop_net() {
+  set<socket_t>::iterator sock;
+  for(sock = fds.begin(); sock != fds.end(); ++sock) {
     close(*sock);
     }
   sleep(1); // Make sure messages really get flushed!
@@ -321,7 +350,6 @@ int save_net(const char *fn) {
       fprintf(fl, "%d:%s:%d\n",
 	*sk, minds[*sk]->Owner()->Name(), getnum(minds[*sk]->Body()));
       }
-    sock_write(*sk, "\nThe ground shakes with the power of the Ninjas...\n");
     }
   sleep(1); // Make sure messages really get flushed!
 
@@ -364,8 +392,6 @@ int load_net(const char *fn) {
     else {
       fprintf(stderr, "Reattaching %d (resume login)\n", newsock);
       }
-
-    minds[newsock]->Send("...the world has been restarted!\n");
     }
 
   fclose(fl);
