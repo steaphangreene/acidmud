@@ -1,9 +1,3 @@
-#include <vector>
-#include <map>
-#include <set>
-
-using namespace std;
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstdarg>

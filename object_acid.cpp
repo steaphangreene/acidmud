@@ -1,12 +1,7 @@
-#include <vector>
-#include <set>
-#include <map>
-
-using namespace std;
-const int SAVEFILE_VERSION = 105;
-
 #include "object.h"
 #include "mind.h"
+
+const int SAVEFILE_VERSION = 105;
 
 static char buf[65536];
 static vector<Object*> todo;
@@ -65,7 +60,7 @@ int Object::SaveTo(FILE *fl) {
     }
 
   fprintf(fl, "%d\n", contents.size());
-  set<Object*>::iterator cind;
+  typeof(contents.begin()) cind;
   for(cind = contents.begin(); cind != contents.end(); ++cind) {
     fprintf(fl, "%d\n", getnum(*cind));
     }
