@@ -38,6 +38,7 @@ Implement the Rest of the Skills.
 Implement item "piles" "pairs", "mixtures", etc....
 Implement reserved words ('in', 'to', 'at', 'Ninja').
 Put away stuff when you sleep, don't drop it.
+See contents when you look at a nearby room (eg: "look north").
 
 
 Implement AcidMail.
