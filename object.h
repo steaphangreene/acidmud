@@ -36,6 +36,7 @@ enum act_t {
 	ACT_SLEEP,
 	ACT_REST,
 	ACT_POINT,
+	ACT_FOLLOW,
 	ACT_FIGHT,
 	ACT_HOLD,
 	ACT_WIELD,
@@ -118,6 +119,7 @@ public:
 
   Object *PickObject(char *, int loc, int *ordinal=NULL);
   vector<Object *> PickObjects(char *, int loc, int *ordinal=NULL);
+  void NotifyGone(Object *obj, Object *newloc = NULL, int up = 1);
   int IsNearBy(Object *obj);
   int IsWithin(Object *obj);
   int Contains(Object *obj);

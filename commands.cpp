@@ -85,6 +85,7 @@ enum {	COM_HELP=0,
 	COM_EMOTE,
 
 	COM_POINT,
+	COM_FOLLOW,
 	COM_ATTACK,
 	COM_KILL,
 	COM_PUNCH,
@@ -285,6 +286,11 @@ Command comlist[] = {
     "Point at an object, or stop pointing.",
     "Point at an object, or stop pointing.",
     (REQ_ALERT)
+    },
+  { COM_FOLLOW, "follow",
+    "Follow someone, or stop following someone.",
+    "Follow someone, or stop following someone.",
+    (REQ_ALERT|REQ_STAND)
     },
   { COM_ATTACK, "attack",
     "Attack somebody, or an object.",
@@ -2055,6 +2061,33 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else {
       if(mind) mind->Send("But, you aren't pointing at anyting!\n");
+      }
+    return 0;
+    }
+
+  if(com == COM_FOLLOW) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(strlen(comline+len) > 0) {
+      Object *targ = body->PickObject(comline+len, LOC_NEARBY|LOC_SELF);
+      if(!targ) {
+	if(mind) mind->Send("You don't see that here.\n");
+	}
+      else {
+	body->AddAct(ACT_FOLLOW, targ);
+	body->Parent()->SendOut(
+		";s starts following ;s.\n", "You start following ;s.\n",
+		body, targ);
+	}
+      }
+    else if(body->IsAct(ACT_FOLLOW)) {
+      Object *targ = body->ActTarg(ACT_FOLLOW);
+      body->StopAct(ACT_FOLLOW);
+      body->Parent()->SendOut(
+	";s stops following ;s.\n", "You stop following ;s.\n",
+	body, targ);
+      }
+    else {
+      if(mind) mind->Send("But, you aren't following anyone!\n");
       }
     return 0;
     }

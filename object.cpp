@@ -26,6 +26,7 @@ const char *act_str[ACT_MAX] = {
         "fast asleep",
         "resting",
         "pointing %2$s%3$sat %1$s",
+        "following %1$s",
         "fighting %1$s",
         "holding %1$s",
         "wielding %1$s",
@@ -1010,10 +1011,7 @@ int Object::Travel(Object *dest, int try_combine) {
     }
 
   parent->RemoveLink(this);
-  if(parent->ActTarg(ACT_HOLD) == this) parent->StopAct(ACT_HOLD);
-  if(parent->ActTarg(ACT_WIELD) == this) parent->StopAct(ACT_WIELD);
-  for(act_t act=ACT_WEAR_BACK; act < ACT_MAX; ++((int&)(act)))
-    if(parent->ActTarg(act) == this) parent->StopAct(act);
+  parent->NotifyGone(this, dest);
 
   parent = dest;
   parent->AddLink(this);
@@ -1049,10 +1047,6 @@ int Object::Travel(Object *dest, int try_combine) {
 Object::~Object() {
   remove_tick(this);
   if(default_initial == this) default_initial = universe;
-  if(parent && parent->ActTarg(ACT_HOLD) == this) parent->StopAct(ACT_HOLD);
-  if(parent && parent->ActTarg(ACT_WIELD) == this) parent->StopAct(ACT_WIELD);
-  for(act_t act=ACT_WEAR_BACK; act < ACT_MAX; ++((int&)(act)))
-    if(parent && parent->ActTarg(act) == this) parent->StopAct(act);
 
   set<Object*> movers;
   set<Object*> killers;
@@ -1086,7 +1080,11 @@ Object::~Object() {
     }
   minds.clear();
 
-  if(parent) parent->RemoveLink(this);
+  if(parent) {
+    parent->RemoveLink(this);
+    parent->NotifyGone(this);
+    }
+
   busylist.erase(this);
   }
 
@@ -1370,6 +1368,7 @@ vector<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
   }
 
 int Object::IsWithin(Object *obj) {
+  if(no_seek) return 0;
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
     if((*ind) == obj) return 1;
@@ -1382,7 +1381,7 @@ int Object::IsWithin(Object *obj) {
   }
 
 int Object::IsNearBy(Object *obj) {
-  if(!parent) return 0;
+  if(no_seek || (!parent)) return 0;
   typeof(contents.begin()) ind;
   for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
     if((*ind) == obj) return 1;
@@ -1399,6 +1398,24 @@ int Object::IsNearBy(Object *obj) {
     if(ret) return ret;
     }
   return 0;
+  }
+
+void Object::NotifyGone(Object *obj, Object *newloc, int up) {
+  if(no_seek) return;
+
+  for(act_t act=ACT_NONE; act < ACT_MAX; ++((int&)(act))) {
+    if(ActTarg(act) == obj) StopAct(act);
+    }
+
+  typeof(contents.begin()) ind;
+  for(ind = contents.begin(); ind != contents.end(); ++ind) {
+    (*ind)->NotifyGone(obj, newloc, 0);
+    }
+  if(up && parent && Skill("Transparent")) {
+    no_seek = 1;
+    parent->NotifyGone(obj, newloc, 1);
+    no_seek = 0;
+    }
   }
 
 Object *Object::ActTarg(act_t a) const {
