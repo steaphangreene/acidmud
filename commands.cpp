@@ -686,6 +686,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("Sorry, you need a boat to go there!\n");
       }
     else {
+      if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJAMODE)) {
+	//Ninja-movement can't be followed!
+	if(body->Parent()) body->Parent()->NotifyGone(body);
+	}
+
       if(body->Parent()) body->Parent()->SendOut(
 	";s leaves %s.\n", "", body, NULL, comline+len);
       body->Travel(dest, 0);
@@ -783,6 +788,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("Sorry, you need a boat to go there!\n");
       }
     else {
+      if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJAMODE)) {
+	//Ninja-movement can't be followed!
+	if(body->Parent()) body->Parent()->NotifyGone(body);
+	}
+
       if(body->Parent()) body->Parent()->SendOut(
 	";s enters %s.\n", "", body, NULL, comline+len);
       if(body->Travel(dest, 0)) {
@@ -1904,6 +1914,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("You need to be in ninja mode to leave this object!\n");
       }
     else {
+      if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJAMODE)) {
+	//Ninja-movement can't be followed!
+	if(body->Parent()) body->Parent()->NotifyGone(body);
+	}
       body->Travel(body->Parent()->Parent(), 0);
       if(oldp) oldp->SendOut(";s leaves.\n", "", body, NULL);
       body->Parent()->SendDescSurround(body, body);
