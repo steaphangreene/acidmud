@@ -201,6 +201,29 @@ Object::Object(const Object &o) {
   parent = NULL;
   }
 
+const char *Object::Name() { // Truly-formatted name
+  static string ret;
+  ret = "";
+  if(!stats.GetAttribute(1)) {
+    Object *pos = parent;
+    while(pos && (!pos->Stats()->GetAttribute(1))) pos = pos->Parent();
+    if(pos) {
+      ret += pos->ShortDesc();
+      ret += "'s ";
+      }
+    else {
+      ret += "a ";
+      }
+    }
+  if(!strncasecmp(short_desc.c_str(), "a ", 2))
+    ret += (short_desc.c_str()+2);
+  else if(!strncasecmp(short_desc.c_str(), "the ", 4))
+    ret += (short_desc.c_str()+4);
+  else
+    ret += short_desc.c_str();
+  return ret.c_str();
+  }
+
 const char *Object::ShortDesc() {
   return short_desc.c_str();
   }
@@ -409,85 +432,92 @@ void Object::SendShortDesc(Mind *m, Object *o) {
   m->Send(buf);
   }
 
+void Object::SendFullSituation(Mind *m, Object *o) {
+  string pname = "his/her/its";
+
+  if(!parent)
+    sprintf(buf, "%s is here%c", Name(), 0);
+
+  else if(parent->ActTarg(ACT_WIELD) == this)
+    sprintf(buf, "%s is here in %s hand%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_HOLD) == this)
+    sprintf(buf, "%s is here in %s off-hand%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_BACK) == this)
+    sprintf(buf, "%s is here on %s back%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_CHEST) == this)
+    sprintf(buf, "%s is here on %s chest%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_HEAD) == this)
+    sprintf(buf, "%s is here on %s head%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_NECK) == this)
+    sprintf(buf, "%s is here around %s neck%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_WAIST) == this)
+    sprintf(buf, "%s is here around %s waist%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_SHIELD) == this)
+    sprintf(buf, "%s is here on %s shield-arm%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_LARM) == this)
+    sprintf(buf, "%s is here on %s left arm%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_RARM) == this)
+    sprintf(buf, "%s is here on %s right arm%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_LFINGER) == this)
+    sprintf(buf, "%s is here on %s left finger%c", Name(), pname.c_str(), 0);
+  else if(parent->ActTarg(ACT_WEAR_RFINGER) == this)
+    sprintf(buf, "%s is here on %s right finger%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_LFOOT) == this)
+    sprintf(buf, "%s is here on %s left foot%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_RFOOT) == this)
+    sprintf(buf, "%s is here on %s right foot%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_LHAND) == this)
+    sprintf(buf, "%s is here on %s left hand%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_RHAND) == this)
+    sprintf(buf, "%s is here on %s right hand%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_LLEG) == this)
+    sprintf(buf, "%s is here on %s left leg%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_RLEG) == this)
+    sprintf(buf, "%s is here on %s right leg%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_LWRIST) == this)
+    sprintf(buf, "%s is here on %s left wrist%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_RWRIST) == this)
+    sprintf(buf, "%s is here on %s right wrist%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_LSHOULDER) == this)
+    sprintf(buf, "%s is here on %s left shoulder%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_RSHOULDER) == this)
+    sprintf(buf, "%s is here on %s right shoulder%c", Name(), pname.c_str(), 0);
+
+  else {
+    pname = parent->Name();
+    sprintf(buf, "%s %s in %s%c", Name(), PosString(), pname.c_str(), 0);
+    }
+
+  buf[0] = toupper(buf[0]);
+  m->Send(buf);
+  }
+
 void Object::SendDesc(Mind *m, Object *o) {
   memset(buf, 0, 65536);
 
   if(pos != POS_NONE) {
     m->Send("%s", CCYN);
-    if(!parent)
-      sprintf(buf, "%s is here%c", Name(), 0);
-
-    else if(parent->ActTarg(ACT_WIELD) == this)
-      sprintf(buf, "%s is here in %s's hand%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_HOLD) == this)
-      sprintf(buf, "%s is here in %s's off-hand%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_BACK) == this)
-      sprintf(buf, "%s is here on %s's back%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_CHEST) == this)
-      sprintf(buf, "%s is here on %s's chest%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_HEAD) == this)
-      sprintf(buf, "%s is here on %s's head%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_NECK) == this)
-      sprintf(buf, "%s is here around %s's neck%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_WAIST) == this)
-      sprintf(buf, "%s is here around %s's waist%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_SHIELD) == this)
-      sprintf(buf, "%s is here on %s's shield-arm%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_LARM) == this)
-      sprintf(buf, "%s is here on %s's left arm%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_RARM) == this)
-      sprintf(buf, "%s is here on %s's right arm%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_LFINGER) == this)
-      sprintf(buf, "%s is here on %s's left finger%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_RFINGER) == this)
-      sprintf(buf, "%s is here on %s's right finger%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_LFOOT) == this)
-      sprintf(buf, "%s is here on %s's left foot%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_RFOOT) == this)
-      sprintf(buf, "%s is here on %s's right foot%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_LHAND) == this)
-      sprintf(buf, "%s is here on %s's left hand%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_RHAND) == this)
-      sprintf(buf, "%s is here on %s's right hand%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_LLEG) == this)
-      sprintf(buf, "%s is here on %s's left leg%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_RLEG) == this)
-      sprintf(buf, "%s is here on %s's right leg%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_LWRIST) == this)
-      sprintf(buf, "%s is here on %s's left wrist%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_RWRIST) == this)
-      sprintf(buf, "%s is here on %s's right wrist%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_LSHOULDER) == this)
-      sprintf(buf, "%s is here on %s's left shoulder%c", Name(), parent->Name(), 0);
-
-    else if(parent->ActTarg(ACT_WEAR_RSHOULDER) == this)
-      sprintf(buf, "%s is here on %s's right shoulder%c", Name(), parent->Name(), 0);
-
-    else
-      sprintf(buf, "%s %s in %s%c", Name(), PosString(), parent->Name(), 0);
-    buf[0] = toupper(buf[0]);
-    m->Send(buf);
-
+    SendFullSituation(m, o);
     SendActions(m);
     }
   else {
@@ -535,10 +565,7 @@ void Object::SendDescSurround(Mind *m, Object *o) {
 
   if(pos != POS_NONE) {
     m->Send("%s", CCYN);
-    sprintf(buf, "%s %s%c", ShortDesc(), PosString(), 0);
-    buf[0] = toupper(buf[0]);
-    m->Send(buf);
-
+    SendFullSituation(m, o);
     SendActions(m);
     }
   else {
@@ -592,10 +619,7 @@ void Object::SendDescSurround(Mind *m, Object *o) {
 void Object::SendLongDesc(Mind *m, Object *o) {
   if(pos != POS_NONE) {
     m->Send("%s", CCYN);
-    sprintf(buf, "%s %s%c", ShortDesc(), PosString(), 0);
-    buf[0] = toupper(buf[0]);
-    m->Send(buf);
-
+    SendFullSituation(m, o);
     SendActions(m);
     }
   else {
@@ -916,7 +940,7 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
     set<Object*>::iterator ind;
     for(ind = contents.begin(); ind != contents.end(); ++ind) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
-      if(matches((*ind)->Name(), name)) {
+      if(matches((*ind)->ShortDesc(), name)) {
 	(*ordinal)--;
 	if((*ordinal) == 0) { return (*ind); }
 	}
@@ -931,7 +955,7 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
     set<Object*>::iterator ind;
     for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
-      if(matches((*ind)->Name(), name)) {
+      if(matches((*ind)->ShortDesc(), name)) {
 	(*ordinal)--;
 	if((*ordinal) == 0) { return (*ind); }
 	}
@@ -1227,8 +1251,10 @@ void Object::SendIn(const char *mes, const char *youmes,
   static char buf[65536];
   static char youbuf[65536];
 
-  char *tstr = "";  if(targ) tstr = (char*)targ->ShortDesc();
-  char *astr = "";  if(actor) astr = (char*)actor->ShortDesc();
+  string tstr = "";
+  if(targ) tstr = (char*)targ->Name();
+  string astr = "";
+  if(actor) astr = (char*)actor->Name();
 
   memset(buf, 0, 65536);
   memset(youbuf, 0, 65536);
@@ -1247,9 +1273,9 @@ void Object::SendIn(const char *mes, const char *youmes,
   for(char *ctr=youbuf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
 
   if(youmes && this == actor && this == targ) Send(youbuf, "yourself");
-  else if(youmes && this == actor) Send(youbuf, tstr);
-  else if(this == targ) Send(buf, astr, "you");
-  else Send(buf, astr, tstr);
+  else if(youmes && this == actor) Send(youbuf, tstr.c_str());
+  else if(this == targ) Send(buf, astr.c_str(), "you");
+  else Send(buf, astr.c_str(), tstr.c_str());
 
   set<Object*>::const_iterator ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
@@ -1268,8 +1294,8 @@ void Object::SendOut(const char *mes, const char *youmes,
   static char buf[65536];
   static char youbuf[65536];
 
-  char *tstr = "";  if(targ) tstr = (char*)targ->ShortDesc();
-  char *astr = "";  if(actor) astr = (char*)actor->ShortDesc();
+  string tstr = "";  if(targ) tstr = (char*)targ->ShortDesc();
+  string astr = "";  if(actor) astr = (char*)actor->ShortDesc();
 
   memset(buf, 0, 65536);
   memset(youbuf, 0, 65536);
@@ -1288,9 +1314,9 @@ void Object::SendOut(const char *mes, const char *youmes,
   for(char *ctr=youbuf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
 
   if(youmes && this == actor && this == targ) Send(youbuf, "yourself");
-  else if(youmes && this == actor) Send(youbuf, tstr);
-  else if(this == targ) Send(buf, astr, "you");
-  else Send(buf, astr, tstr);
+  else if(youmes && this == actor) Send(youbuf, tstr.c_str());
+  else if(this == targ) Send(buf, astr.c_str(), "you");
+  else Send(buf, astr.c_str(), tstr.c_str());
 
   set<Object*>::const_iterator ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {

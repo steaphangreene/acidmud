@@ -179,12 +179,12 @@ void Object::CircleLoadZon(const char *fn) {
 	      stats.SetSkill("Wearable on Left Hand", 0);
 	      stats.SetSkill("Wearable on Right Hand", 1);
 	      obj2->SetStats(stats);
-	      obj->SetShortDesc((string(obj->Name()) + " (left)").c_str());
-	      obj2->SetShortDesc((string(obj2->Name()) + " (right)").c_str());
-	      fprintf(stderr, "Duped: '%s'\n", obj2->Name());
+	      obj->SetShortDesc((string(obj->ShortDesc()) + " (left)").c_str());
+	      obj2->SetShortDesc((string(obj2->ShortDesc()) + " (right)").c_str());
+	      fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
 	      }
 	    else if(obj->Stats()->GetSkill("Wearable on Left Hand")) {
-	      fprintf(stderr, "Not Duped: '%s'\n", obj->Name());
+	      fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
 	      }
 	    else if(obj->Stats()->GetSkill("Wearable on Left Foot")
 	    	!= obj->Stats()->GetSkill("Wearable on Right Foot")) {
@@ -194,30 +194,30 @@ void Object::CircleLoadZon(const char *fn) {
 	      stats.SetSkill("Wearable on Left Foot", 0);
 	      stats.SetSkill("Wearable on Right Foot", 1);
 	      obj2->SetStats(stats);
-	      obj->SetShortDesc((string(obj->Name()) + " (left)").c_str());
-	      obj2->SetShortDesc((string(obj2->Name()) + " (right)").c_str());
-	      fprintf(stderr, "Duped: '%s'\n", obj2->Name());
+	      obj->SetShortDesc((string(obj->ShortDesc()) + " (left)").c_str());
+	      obj2->SetShortDesc((string(obj2->ShortDesc()) + " (right)").c_str());
+	      fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
 	      }
 	    else if(obj->Stats()->GetSkill("Wearable on Left Foot")) {
-	      fprintf(stderr, "Not Duped: '%s'\n", obj->Name());
+	      fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
 	      }
 	    else if(obj->Stats()->GetSkill("Wearable on Left Leg")
 	    	!= obj->Stats()->GetSkill("Wearable on Right Leg")) {
 	      obj2 = new Object(*(bynumobj[num]));
 	      obj2->SetParent(lastmob);
-	      fprintf(stderr, "Duped: '%s'\n", obj2->Name());
+	      fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
 	      }
 	    else if(obj->Stats()->GetSkill("Wearable on Left Leg")) {
-	      fprintf(stderr, "Not Duped: '%s'\n", obj->Name());
+	      fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
 	      }
 	    else if(obj->Stats()->GetSkill("Wearable on Left Arm")
 	    	!= obj->Stats()->GetSkill("Wearable on Right Arm")) {
 	      obj2 = new Object(*(bynumobj[num]));
 	      obj2->SetParent(lastmob);
-	      fprintf(stderr, "Duped: '%s'\n", obj2->Name());
+	      fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
 	      }
 	    else if(obj->Stats()->GetSkill("Wearable on Left Arm")) {
-	      fprintf(stderr, "Not Duped: '%s'\n", obj->Name());
+	      fprintf(stderr, "Not Duped: '%s'\n", obj->ShortDesc());
 	      }
 	    lastobj[num] = obj;
 
@@ -493,11 +493,11 @@ void Object::CircleLoadObj(const char *fn) {
         }
 
       int sf = 0;
-      if(!strncasecmp(obj->Name(), "a pair of ", 10)) sf = 9;
-      else if(!strncasecmp(obj->Name(), "some ", 5)) sf = 4;
-      else if(!strncasecmp(obj->Name(), "a set of ", 9)) sf = 8;
+      if(!strncasecmp(obj->ShortDesc(), "a pair of ", 10)) sf = 9;
+      else if(!strncasecmp(obj->ShortDesc(), "some ", 5)) sf = 4;
+      else if(!strncasecmp(obj->ShortDesc(), "a set of ", 9)) sf = 8;
 
-      string name = obj->Name();
+      string name = obj->ShortDesc();
       stats_t stats = (*(obj->Stats()));
       if(string(buf).find('b') < strlen(buf) || (atoi(buf) & 2)) {
 	stats.SetSkill("Wearable on Left Finger", 1);	//Two Alternatives
@@ -593,10 +593,10 @@ void Object::CircleLoadObj(const char *fn) {
 
 	if(val[2] != -1) stats.SetSkill("Lockable", 1); // Can it be locked?
 
-	if(string(obj->Name()).find("bag") < strlen(obj->Name()))
+	if(string(obj->ShortDesc()).find("bag") < strlen(obj->ShortDesc()))
 		stats.SetSkill("Closeable", 1);  // Bags CAN be closed!
 
-	if(string(obj->Name()).find("pouch") < strlen(obj->Name()))
+	if(string(obj->ShortDesc()).find("pouch") < strlen(obj->ShortDesc()))
 		stats.SetSkill("Closeable", 1);  // Pouches CAN be closed!
 
 	}
@@ -636,135 +636,135 @@ void Object::CircleLoadObj(const char *fn) {
 	else if(val[3] == 14)					// "stabs"
 		skmatch = get_weapon_type("Long Piercing");
 
-	if(matches(obj->Name(), "lance")) {
+	if(matches(obj->ShortDesc(), "lance")) {
 	  skmatch = get_weapon_type("Two-Handed Piercing");
 	  }
-	else if(matches(obj->Name(), "spear")) {
+	else if(matches(obj->ShortDesc(), "spear")) {
 	  skmatch = get_weapon_type("Two-Handed Piercing");
 	  }
-	else if(matches(obj->Name(), "pike")) {
+	else if(matches(obj->ShortDesc(), "pike")) {
 	  skmatch = get_weapon_type("Two-Handed Piercing");
 	  }
-	else if(matches(obj->Name(), "trident")) {
+	else if(matches(obj->ShortDesc(), "trident")) {
 	  skmatch = get_weapon_type("Two-Handed Piercing");
 	  }
-	else if(matches(obj->Name(), "sickle")) {
+	else if(matches(obj->ShortDesc(), "sickle")) {
 	  skmatch = get_weapon_type("Two-Handed Piercing");
 	  }
-	else if(matches(obj->Name(), "flail")) {
+	else if(matches(obj->ShortDesc(), "flail")) {
 	  skmatch = get_weapon_type("Flails");
 	  }
-	else if(matches(obj->Name(), "whip")) {
+	else if(matches(obj->ShortDesc(), "whip")) {
 	  skmatch = get_weapon_type("Whips");
 	  }
-	else if(matches(obj->Name(), "crop")) {
+	else if(matches(obj->ShortDesc(), "crop")) {
 	  skmatch = get_weapon_type("Whips");
 	  }
-	else if(matches(obj->Name(), "knife")) {
+	else if(matches(obj->ShortDesc(), "knife")) {
 	  skmatch = get_weapon_type("Short Blades");
 	  }
-	else if(matches(obj->Name(), "shard")) {
+	else if(matches(obj->ShortDesc(), "shard")) {
 	  skmatch = get_weapon_type("Short Blades");
 	  }
-	else if(matches(obj->Name(), "stake")) {
+	else if(matches(obj->ShortDesc(), "stake")) {
 	  skmatch = get_weapon_type("Short Piercing");
 	  }
-	else if(matches(obj->Name(), "spike")) {
+	else if(matches(obj->ShortDesc(), "spike")) {
 	  skmatch = get_weapon_type("Short Piercing");
 	  }
-	else if(matches(obj->Name(), "nail")) {
+	else if(matches(obj->ShortDesc(), "nail")) {
 	  skmatch = get_weapon_type("Short Piercing");
 	  }
-	else if(matches(obj->Name(), "dagger")) {
+	else if(matches(obj->ShortDesc(), "dagger")) {
 	  skmatch = get_weapon_type("Short Piercing");
 	  }
-	else if(matches(obj->Name(), "kris")) {
+	else if(matches(obj->ShortDesc(), "kris")) {
 	  skmatch = get_weapon_type("Short Piercing");
 	  }
-	else if(matches(obj->Name(), "chisel")) {
+	else if(matches(obj->ShortDesc(), "chisel")) {
 	  skmatch = get_weapon_type("Short Piercing");
 	  }
-	else if(matches(obj->Name(), "dirk")) {
+	else if(matches(obj->ShortDesc(), "dirk")) {
 	  skmatch = get_weapon_type("Short Piercing");
 	  }
-	else if(matches(obj->Name(), "rapier")) {
+	else if(matches(obj->ShortDesc(), "rapier")) {
 	  skmatch = get_weapon_type("Long Piercing");
 	  }
-	else if(matches(obj->Name(), "glaive")) {
+	else if(matches(obj->ShortDesc(), "glaive")) {
 	  skmatch = get_weapon_type("Two-Handed Blades");
 	  }
-	else if(matches(obj->Name(), "scimitar")) {
+	else if(matches(obj->ShortDesc(), "scimitar")) {
 	  skmatch = get_weapon_type("Long Blades");
 	  }
-	else if(matches(obj->Name(), "katana")) {
+	else if(matches(obj->ShortDesc(), "katana")) {
 	  skmatch = get_weapon_type("Long Blades");
 	  }
-	else if(matches(obj->Name(), "sword")) {
+	else if(matches(obj->ShortDesc(), "sword")) {
 	  skmatch = get_weapon_type("Long Blades");
 	  }
-	else if(matches(obj->Name(), "cutlass")) {
+	else if(matches(obj->ShortDesc(), "cutlass")) {
 	  skmatch = get_weapon_type("Long Blades");
 	  }
-	else if(matches(obj->Name(), "sabre")) {
+	else if(matches(obj->ShortDesc(), "sabre")) {
 	  skmatch = get_weapon_type("Long Blades");
 	  }
-	else if(matches(obj->Name(), "cleaver")) {
+	else if(matches(obj->ShortDesc(), "cleaver")) {
 	  skmatch = get_weapon_type("Long Cleaves");
 	  }
-	else if(matches(obj->Name(), "pick")) {
+	else if(matches(obj->ShortDesc(), "pick")) {
 	  skmatch = get_weapon_type("Long Cleaves");
 	  }
-	else if(matches(obj->Name(), "axe")) {
+	else if(matches(obj->ShortDesc(), "axe")) {
 	  skmatch = get_weapon_type("Long Cleaves");
 	  }
-	else if(matches(obj->Name(), "club")) {
+	else if(matches(obj->ShortDesc(), "club")) {
 	  skmatch = get_weapon_type("Long Crushing");
 	  }
-	else if(matches(obj->Name(), "mace")) {
+	else if(matches(obj->ShortDesc(), "mace")) {
 	  skmatch = get_weapon_type("Long Crushing");
 	  }
-	else if(matches(obj->Name(), "morning star")) {
+	else if(matches(obj->ShortDesc(), "morning star")) {
 	  skmatch = get_weapon_type("Long Crushing");
 	  }
-	else if(matches(obj->Name(), "cudgel")) {
+	else if(matches(obj->ShortDesc(), "cudgel")) {
 	  skmatch = get_weapon_type("Long Crushing");
 	  }
-	else if(matches(obj->Name(), "bardiche")) {
+	else if(matches(obj->ShortDesc(), "bardiche")) {
 	  skmatch = get_weapon_type("Two-Handed Cleaves");
 	  }
-	else if(matches(obj->Name(), "fauchard")) {
+	else if(matches(obj->ShortDesc(), "fauchard")) {
 	  skmatch = get_weapon_type("Two-Handed Cleaves");
 	  }
-	else if(matches(obj->Name(), "bec de corbin")) {
+	else if(matches(obj->ShortDesc(), "bec de corbin")) {
 	  skmatch = get_weapon_type("Two-Handed Cleaves");
 	  }
-	else if(matches(obj->Name(), "bill-gisarme")) {
+	else if(matches(obj->ShortDesc(), "bill-gisarme")) {
 	  skmatch = get_weapon_type("Two-Handed Cleaves");
 	  }
-	else if(matches(obj->Name(), "gisarme")) {
+	else if(matches(obj->ShortDesc(), "gisarme")) {
 	  skmatch = get_weapon_type("Two-Handed Cleaves");
 	  }
-	else if(matches(obj->Name(), "halberd")) {
+	else if(matches(obj->ShortDesc(), "halberd")) {
 	  skmatch = get_weapon_type("Two-Handed Cleaves");
 	  }
-	else if(matches(obj->Name(), "hammer")) {
+	else if(matches(obj->ShortDesc(), "hammer")) {
 	  skmatch = get_weapon_type("Long Crushing");
 	  }
-	else if(matches(obj->Name(), "staff")) {
+	else if(matches(obj->ShortDesc(), "staff")) {
 	  skmatch = get_weapon_type("Two-Handed Staves");
 	  }
-	else if(matches(obj->Name(), "bow")) {
+	else if(matches(obj->ShortDesc(), "bow")) {
 	  skmatch = get_weapon_type("Archery");
 	  }
-	else if(matches(obj->Name(), "blade")) {
+	else if(matches(obj->ShortDesc(), "blade")) {
 	  skmatch = get_weapon_type("Long Blades");
 	  }
 	else {
 	  fprintf(stderr, "Warning: Using Default of '%s' for '%s'!\n",
-		get_weapon_skill(skmatch).c_str(), obj->Name());
+		get_weapon_skill(skmatch).c_str(), obj->ShortDesc());
 	  }
 
-	if(matches(obj->Name(), "two-handed")) {
+	if(matches(obj->ShortDesc(), "two-handed")) {
 	  if(skmatch == get_weapon_type("Short Blades"))
 	    skmatch = get_weapon_type("Two-Handed Blades");
 
@@ -817,7 +817,7 @@ void Object::CircleLoadObj(const char *fn) {
 	  else if(skmatch == get_weapon_type("Archery")) wreach = 100;
 	  else {
 	    fprintf(stderr, "Warning: Using Default reach of zero for '%s'!\n",
-		obj->Name());
+		obj->ShortDesc());
 	    }
 	  }
 

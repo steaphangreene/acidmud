@@ -922,7 +922,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else if(!targ) {
       if(mind) mind->Send("I don't see '%s' to put '%s' in!\n", comline+len,
-	body->ActTarg(ACT_HOLD)->Name());
+	body->ActTarg(ACT_HOLD)->ShortDesc());
       }
     else if(targ->Stats()->GetAttribute(1)) {
       if(mind) mind->Send("You can only put things in inanimate objects!\n");
@@ -952,7 +952,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		";s opens ;s.\n", "You open ;s.\n", body, targ);
 	body->Parent()->SendOut(
 		";s puts %s into ;s.\n", "You put %s into ;s.\n",
-		body, targ, obj->Name());
+		body, targ, obj->ShortDesc());
 	if(closed) body->Parent()->SendOut(
 		";s close ;s.\n", "You close ;s.\n", body, targ);
 	}

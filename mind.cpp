@@ -123,9 +123,9 @@ void Mind::Send(const char *mes, ...) {
 		&& (*other)->Stats()->GetAttribute(1)     //Not a rock
 		&& (!(*other)->IsAct(ACT_DEAD))           //Not a dead
 	        ) {
-	  string command = string("attack ") + (*other)->Name();
+	  string command = string("attack ") + (*other)->ShortDesc();
 	  body->BusyFor(500, command.c_str());
-	  fprintf(stderr, "%s: Tried '%s'\n", body->Name(), command.c_str());
+	  fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
 	  }
 	}
       }

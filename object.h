@@ -76,7 +76,7 @@ public:
   ~Object();
 
   Object *Next(string &);
-  const char *Name() { return ShortDesc(); };
+  const char *Name();
   const char *ShortDesc();
   const char *Desc();
   const char *LongDesc();
@@ -93,6 +93,7 @@ public:
   void SendContents(Mind *m, Object *o = NULL, int seeinside=0);
   void SendContents(Object *m, Object *o = NULL, int seeinside=0);
 
+  void SendFullSituation(Mind *m, Object *o = NULL);
   void SendShortDesc(Mind *m, Object *o = NULL);
   void SendShortDesc(Object *m, Object *o = NULL);
   void SendDesc(Mind *m, Object *o = NULL);
