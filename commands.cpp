@@ -827,7 +827,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	body->SetPhys(0);
 	body->SetStru(0);
 	body->UpdateDamage();
-	body->Parent()->SendOut(stealth_t, stealth_s,
+	body->Parent()->SendOut(stealth_t, stealth_s, 
 	  ";s heals and repairs ;s with Ninja Powers[TM].\n", "You heal ;s.\n",
 	  body, body);
 	}
@@ -3061,6 +3061,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else {
       body->Travel(get_start_room(), 0);
+      body->Parent()->SendOut(0, 0, //Not Stealthy!
+	"BAMF! ;s teleports home.\n",
+	"BAMF! You teleport home.\n", body, NULL);
       if(mind && mind->Type() == MIND_REMOTE)
 	body->Parent()->SendDescSurround(body, body);
       }
