@@ -321,8 +321,8 @@ Command comlist[] = {
     (REQ_ANY)
     },
   { COM_NEWBIE, "newbie",
-    "Toggle or use newbie (New Player Help) chat.",
-    "Toggle or use newbie (New Player Help) chat.",
+    "Toggle or use newbie (new player) chat (use this to ask for help).",
+    "Toggle or use newbie (new player) chat (use this to ask for help).",
     (REQ_ANY)
     },
 
