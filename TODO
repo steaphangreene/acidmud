@@ -1,3 +1,4 @@
+Add better ninja detection to commands handler.
 Add more smartness for recursive gets (can't grab from locked items, etc...).
 Hit locations.
 Implement armor protection.
