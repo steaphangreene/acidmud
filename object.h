@@ -108,7 +108,7 @@ public:
   void SendStats(Mind *m, Object *o = NULL);
   void SendStats(Object *m, Object *o = NULL);
 
-  int Travel(Object *);
+  int Travel(Object *, int try_combine = 1);
   void AddLink(Object *);
   void RemoveLink(Object *);
   void Attach(Mind *mind);
@@ -218,6 +218,7 @@ public:
 
   void operator = (const Object &in);
   int operator == (const Object &in) const;
+  int operator != (const Object &in) const;
 
 private:
   string short_desc;

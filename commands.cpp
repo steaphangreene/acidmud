@@ -1314,71 +1314,51 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
-    vector<Object *>::iterator ind;	// Can they all be combined to one?
-    for(ind = targs.end() - 1; ind != targs.begin(); --ind) {
-      if((*(*ind)) == (*(*(ind-1)))) continue;
-      break;
-      }
+    vector<Object *>::iterator ind;
+    for(ind = targs.begin(); ind != targs.end(); ++ind) {
+      Object *targ = *ind;
 
-    Object *targ = *(targs.begin());
-    if(targs.size() > 1 && ind != targs.begin()) {
-      if(mind) mind->Send("No autostashing yet - need to get only one kind of item!\n");
-      }
-    else if(targ->Pos() == POS_NONE) {
-      if(mind) mind->Send("You can't get that, it is fixed in place!\n");
-      }
-    else if(targ->Attribute(1)) {
-      if(mind) mind->Send("You can only get inanimate objects!\n");
-      }
-    else if(body->IsAct(ACT_HOLD)) {
-      if(mind) mind->Send("You are already holding something else!\n");
-      }
-    else {
-      string denied="";
-      for(ind = targs.begin(); ind != targs.end(); ++ind) {
-	targ = (*ind);
-	string denied2="";
+      if(targ->Pos() == POS_NONE) {
+	if(mind) mind->Send("You can't get that, it is fixed in place!\n");
+	}
+      else if(targ->Attribute(1)) {
+	if(mind) mind->Send("You can only get inanimate objects!\n");
+	}
+      else {
+	string denied="";
 	for(Object *owner = targ->Parent(); owner; owner = owner->Parent()) {
 	  if(owner->Attribute(1) && owner != body && (!owner->IsAct(ACT_SLEEP))
 		&& (!owner->IsAct(ACT_DEAD)) && (!owner->IsAct(ACT_DYING))
 		&& (!owner->IsAct(ACT_UNCONSCIOUS))) {
-	    denied2 = "You would need ";
-	    denied2 += owner->Name(1);
-	    denied2 +="'s permission.\n";
+	    denied = "You would need ";
+	    denied += owner->Name(1);
+	    denied +="'s permission.\n";
 	    }
 	  else if(owner->Skill("Container") && (!owner->Skill("Transparent"))
 		&& owner->Skill("Locked")) {
-	    denied2 = owner->Name(1);
-	    denied2 += " is closed and locked.\n";
-	    denied2[0] = toupper(denied[0]);
+	    denied = owner->Name(1);
+	    denied += " is closed and locked.\n";
+	    denied[0] = toupper(denied[0]);
 	    }
 	  }
-	denied += denied2;
-	}
 
-      if(denied != "") {
-	if(mind) mind->Send(denied.c_str());
-	return 0;
-	}
-
-      if(targs.size() > 1) {			// All in set were the same!
-	for(ind = targs.end() - 1; ind != targs.begin(); --ind) {
-	  (*(ind-1))->SetSkill("Quantity", ((*(ind-1))->Skill("Quantity") >? 1)
-				+ ((*ind)->Skill("Quantity") >? 1));
-	  delete(*ind);
-	  targs.erase(ind);
+	if(denied != "") {
+	  if(mind) mind->Send(denied.c_str());
 	  }
-	}
-
-      targ = *(targs.begin());
-      if(body->Stash(targ)) {
-	body->Parent()->SendOut(";s gets and stashes ;s.\n",
+	else if(body->Stash(targ)) {
+	  body->Parent()->SendOut(";s gets and stashes ;s.\n",
 		"You get and stash ;s.\n", body, targ);
-	}
-      else {
-	targ->Travel(body);
-	body->AddAct(ACT_HOLD, targ);
-	body->Parent()->SendOut(";s gets ;s.\n", "You get ;s.\n", body, targ);
+	  }
+	else if(body->ActTarg(ACT_HOLD)
+		&& (*targ) != (*(body->ActTarg(ACT_HOLD)))) {
+	  if(mind) mind->Send("You have no place to stash it and are already holding something else!\n");
+	  }
+	else {
+	  targ->Travel(body);
+	  body->AddAct(ACT_HOLD, targ);
+	  body->Parent()->SendOut(";s gets and holds ;s.\n",
+		"You get and hold ;s.\n", body, targ);
+	  }
 	}
       }
     return 0;
@@ -1645,6 +1625,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
       Object *targ = (*targ_it);
 
+      fprintf(stderr, "You try to wear %s!\n", targ->Name(0, body));
       //if(mind) mind->Send("You try to wear %s!\n", targ->Name(0, body));
       if(body->ActTarg(ACT_WEAR_BACK) == targ
 		|| body->ActTarg(ACT_WEAR_CHEST) == targ
@@ -1766,7 +1747,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	    }
 	  if(success) {
 	    did_something = 1;
-	    targ->Travel(body); // Kills Holds and Wields on "targ"
+	    targ->Travel(body, 0); // Kills Holds and Wields on "targ"
 	    for(loc = locations.begin(); loc != locations.end(); ++loc) {
 	      body->AddAct(*loc, targ);
 	      }

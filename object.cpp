@@ -973,7 +973,7 @@ void Object::RemoveLink(Object *ob) {
     }
   }
 
-int Object::Travel(Object *dest) {
+int Object::Travel(Object *dest, int try_combine) {
   if((!parent) || (!dest)) return -1;
 
   for(Object *chec_recr = dest; chec_recr; chec_recr = chec_recr->parent) {
@@ -999,25 +999,27 @@ int Object::Travel(Object *dest) {
     if(parent->ActTarg(act) == this) parent->StopAct(act);
 
   parent = dest;
-  typeof(parent->contents.begin()) ind;
-  for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
+  if(try_combine) {
+    typeof(parent->contents.begin()) ind;
+    for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
 
-    // Never combine with an actee.
-    map<act_t, Object *>::iterator a = parent->act.begin();
-    for(;a != parent->act.end(); ++a) {
-      if(a->second == (*ind)) break;
-      }
-    if(a != parent->act.end()) continue;
+      // Never combine with an actee.
+      map<act_t, Object *>::iterator a = parent->act.begin();
+      for(;a != parent->act.end(); ++a) {
+	if(a->second == (*ind)) break;
+	}
+      if(a != parent->act.end()) continue;
 
-
-    if((*this) == (*(*ind))) {
-      int q = 1;
-      if(Skill("Quantity")) q = Skill("Quantity");
-      if((*ind)->Skill("Quantity")) q += (*ind)->Skill("Quantity");
-      else q += 1;
-      SetSkill("Quantity", q);
-      delete(*ind);
-      break;
+      if((*this) == (*(*ind))) {
+	fprintf(stderr, "Combining '%s'\n", Name());
+	int q = 1;
+	if(Skill("Quantity")) q = Skill("Quantity");
+	if((*ind)->Skill("Quantity")) q += (*ind)->Skill("Quantity");
+	else q += 1;
+	SetSkill("Quantity", q);
+	delete(*ind);
+	break;
+	}
       }
     }
   parent->AddLink(this);
@@ -1861,6 +1863,10 @@ void FreeActions() {
 	}
       }
     }
+  }
+
+int Object::operator != (const Object &in) const {
+  return !((*this) == in);
   }
 
 int Object::operator == (const Object &in) const {
