@@ -1,7 +1,7 @@
 #include "object.h"
 #include "mind.h"
 
-const int SAVEFILE_VERSION = 107;
+const unsigned int SAVEFILE_VERSION = 0x00000010UL;
 
 static char buf[65536];
 static vector<Object*> todo;
@@ -26,7 +26,7 @@ int Object::Save(const char *filename) {
   FILE *fl = fopen(filename, "w");
   if(!fl) return -1;
 
-  fprintf(fl, "%d\n", SAVEFILE_VERSION);
+  fprintf(fl, "%.8X\n", SAVEFILE_VERSION);
 
   if(SaveTo(fl)) { fclose(fl); return -1; }
 
@@ -81,7 +81,7 @@ int Object::SaveTo(FILE *fl) {
   return 0;
   }
 
-static int ver;
+static unsigned int ver;
 int Object::Load(const char *fn) {
   num2obj[0] = NULL;
   obj2num[NULL] = 0;
@@ -89,7 +89,7 @@ int Object::Load(const char *fn) {
   FILE *fl = fopen(fn, "r");
   if(!fl) return -1;
 
-  fscanf(fl, "%d\n", &ver);
+  fscanf(fl, "%X\n", &ver);
 
   todo.clear();
   if(LoadFrom(fl)) { fclose(fl); return -1; }
@@ -135,7 +135,7 @@ int Object::LoadFrom(FILE *fl) {
 
   fscanf(fl, "%d %d %d %d %c;\n", &weight, &size, &volume, &value, &gender);
 
-  if(ver >= 106) fscanf(fl, "%d %d\n", &exp, &sexp);
+  fscanf(fl, "%d %d\n", &exp, &sexp);
 
   fscanf(fl, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
 	&att[0], &att[1], &att[2], &att[3], &att[4], &att[5], &att[6], &att[7],
@@ -153,13 +153,6 @@ int Object::LoadFrom(FILE *fl) {
     skills[buf] = val;
     }
   fscanf(fl, ";\n");
-
-  if(ver < 107) {	// Load, but IGNORE old connections info
-    fscanf(fl, "%d ", &num);
-    for(int ctr=0; ctr<num; ++ctr) {
-      fscanf(fl, "%*[^;];%*d ");
-      }
-    }
 
   vector<Object*> toload;
   fscanf(fl, "%d ", &num);
