@@ -647,10 +647,10 @@ void Object::SendContents(Mind *m, Object *o, int seeinside) {
     }
 
   int total = 0;
-  m->Send("%s", CGRN);
   typeof(cont.begin()) ind;
   for(ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
     if((*ind)->IsAct(ACT_SPECIAL_NOTSHOWN)) continue;
+    m->Send("%s", CGRN);
     master.erase(*ind);
 
 /* Comment out this block to disable 20-item limit in view */
@@ -702,8 +702,8 @@ void Object::SendContents(Mind *m, Object *o, int seeinside) {
 	m->Send(mes.c_str());
 	}
       }
+    m->Send("%s", CNRM);
     }
-  m->Send("%s", CNRM);
   }
 
 void Object::SendShortDesc(Mind *m, Object *o) {
