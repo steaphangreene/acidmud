@@ -55,6 +55,7 @@ enum {	COM_HELP=0,
 
 	COM_LOOK,
 	COM_EXAMINE,
+	COM_CONSIDER,
 	COM_INVENTORY,
 	COM_EQUIPMENT,
 
@@ -154,6 +155,11 @@ Command comlist[] = {
   { COM_EXAMINE, "examine",
     "Examine an object or creature.",
     "Examine an object or creature.",
+    (REQ_ALERT|REQ_ACTION)
+    },
+  { COM_CONSIDER, "consider",
+    "Consider attacking a person or creature and size it up.",
+    "Consider attacking a person or creature and size it up.",
     (REQ_ALERT|REQ_ACTION)
     },
   { COM_INVENTORY, "inventory",
@@ -923,6 +929,70 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       body->Parent()->SendOut(
 	";s examines ;s.\n", "", body, targ);
       if(mind) targ->SendLongDesc(mind, body);
+      }
+    return 0;
+    }
+
+  if(com == COM_CONSIDER) {
+    Object *targ = NULL;
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(strlen(comline+len) <= 0) {
+      if(mind) mind->Send("You want to consider attacking what?\n");
+      return 0;
+      }
+    targ = body->PickObject(comline+len,
+		LOC_INTERNAL|LOC_NEARBY|LOC_SELF);
+    if(!targ) {
+      if(mind) mind->Send("You don't see that here.\n");
+      }
+    else {
+      body->Parent()->SendOut(";s considers attacking ;s.\n",
+	"You consider attacking ;s.", body, targ);
+      if(mind) {
+	int diff;
+	string mes = string(targ->Name()) + "...\n";
+	mes[0] = toupper(mes[0]);
+	mind->Send(mes.c_str());
+
+	diff = body->Attribute(0) - targ->Attribute(0);
+	if(diff < -10)     mind->Send("   ...is titanic.\n");
+	else if(diff < -5) mind->Send("   ...is gargantuan.\n");
+	else if(diff < -2) mind->Send("   ...is much larger than you.\n");
+	else if(diff < -1) mind->Send("   ...is larger than you.\n");
+	else if(diff < 0)  mind->Send("   ...is a bit larger than you.\n");
+	else if(diff > 10) mind->Send("   ...is an ant compared to you.\n");
+	else if(diff > 5)  mind->Send("   ...is tiny compared to you.\n");
+	else if(diff > 2)  mind->Send("   ...is much smaller than to you.\n");
+	else if(diff > 1)  mind->Send("   ...is smaller than to you.\n");
+	else if(diff > 0)  mind->Send("   ...is a bit smaller than to you.\n");
+	else               mind->Send("   ...is about your size.\n");
+
+	diff = body->Attribute(1) - targ->Attribute(1);
+	if(diff < -10)     mind->Send("   ...is a blur of speed.\n");
+	else if(diff < -5) mind->Send("   ...is lightning fast.\n");
+	else if(diff < -2) mind->Send("   ...is much faster than you.\n");
+	else if(diff < -1) mind->Send("   ...is faster than you.\n");
+	else if(diff < 0)  mind->Send("   ...is a bit faster than you.\n");
+	else if(diff > 10) mind->Send("   ...is turtle on valium.\n");
+	else if(diff > 5)  mind->Send("   ...is slower than dial-up.\n");
+	else if(diff > 2)  mind->Send("   ...is much slower than you.\n");
+	else if(diff > 1)  mind->Send("   ...is slower than you.\n");
+	else if(diff > 0)  mind->Send("   ...is a bit slower than you.\n");
+	else               mind->Send("   ...is about your speed.\n");
+
+	diff = body->Attribute(2) - targ->Attribute(2);
+	if(diff < -10)     mind->Send("   ...is the strongest thing you've ever seen.\n");
+	else if(diff < -5) mind->Send("   ...is super-strong.\n");
+	else if(diff < -2) mind->Send("   ...is much stronger than you.\n");
+	else if(diff < -1) mind->Send("   ...is stronger than you.\n");
+	else if(diff < 0)  mind->Send("   ...is a bit stronger than you.\n");
+	else if(diff > 10) mind->Send("   ...is a girly-man.\n");
+	else if(diff > 5)  mind->Send("   ...is a wuss compared to you.\n");
+	else if(diff > 2)  mind->Send("   ...is much weaker than you.\n");
+	else if(diff > 1)  mind->Send("   ...is weaker than you.\n");
+	else if(diff > 0)  mind->Send("   ...is a bit weaker than you.\n");
+	else               mind->Send("   ...is about your strength.\n");
+	}
       }
     return 0;
     }
