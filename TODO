@@ -1,5 +1,3 @@
-Make CircleMUD packs and purses non-stealable?
-Give staring players a purse and a bag?
 Make opposite sides of doors sync open/close lock/unlock.
 Enhance "consider" command.
 Get it to understand shield use.
@@ -11,6 +9,8 @@ Implement "everything"/"everyone".
 Implement "stuff"/"money"/"cash".
 Implement "loot" command.
 Add autostashing to "wield" command's unwield.
+Make CircleMUD packs and purses non-stealable?
+Give staring players a purse and a bag?
 Autowield when entering combat.
 Circle translations: backpack goes on SHOULDERS.
 Fixup shopkeepers so item numbers NEVER expire.

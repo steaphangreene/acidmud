@@ -2597,6 +2597,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  if(mind) {
 	    mind->Send("%sYour character gains an experience for victory!\n%s",
 		CYEL, CNRM);
+	    targ->SetSkill("Accomplishment", 0);
 	    }
 	  }
 	}
