@@ -1,4 +1,5 @@
-Get it to understand shield use.
+Better handle shield use during non-combat (auto unhold, etc...).
+Auto-hold worn shield in combat.
 Get it to understand two-handed weapon use.
 Get it to understand offhand and mounted weapon use.
 Enhance "consider" command.
