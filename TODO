@@ -1,4 +1,3 @@
-Add more smartness for getting things from people (permission, etc.).
 Add more smartness for recursive gets (can't grab from locked items, etc...).
 Hit locations.
 Implement armor protection.

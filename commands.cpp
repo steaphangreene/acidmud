@@ -925,6 +925,15 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("You are already holding something else!\n");
       }
     else {
+      Object *owner = targ->Parent();
+      while(owner && (!owner->Attribute(1))) owner = owner->Parent();
+      if(owner && owner != body && (!owner->IsAct(ACT_ASLEEP))
+		&& (!owner->IsAct(ACT_DEAD)) && (!owner->IsAct(ACT_DYING))
+		&& (!owner->IsAct(ACT_UNCONSCIOUS))) {
+	if(mind)
+	  mind->Send("You would need %s's permission.\n", owner->Name(1));
+	return 0;
+	}
       body->Parent()->SendOut(
 	";s gets ;s.\n", "You grab ;s.\n", body, targ);
       targ->Travel(body);
