@@ -156,6 +156,39 @@ Object *new_body() {
   return body;
   }
 
+#define TICKSPLIT 300 //3 seconds
+static set<Object*> ticklist[TICKSPLIT];
+void add_tick(Object *o) {
+  static int tickstage = 0;
+  ticklist[tickstage].insert(o);
+  ++tickstage;
+  if(tickstage >= TICKSPLIT) tickstage = 0;
+  }
+
+void remove_tick(Object *o) {
+  for(int ctr=0; ctr<TICKSPLIT; ++ctr) ticklist[ctr].erase(o);
+  }
+
+void tick_world() {
+  static int tickstage = 0;
+  set<Object*>::iterator ind = ticklist[tickstage].begin();
+  for(; ind != ticklist[tickstage].end(); ++ind) {
+    (*ind)->Tick();
+    }
+  ++tickstage;
+  if(tickstage >= TICKSPLIT) tickstage = 0;
+  }
+
+void Object::Tick() {
+  //FIXME: Heal, bleed, rot, etc....
+
+  set<Mind*>::iterator m;
+  for(m = minds.begin(); m != minds.end(); ++m) {
+    (*m)->Attach(this);
+    (*m)->Think(1);
+    }
+  }
+
 Object::Object() {
   busytill.tv_sec = 0;
   busytill.tv_usec = 0;
@@ -180,6 +213,8 @@ Object::Object() {
   att[5] = 0;
   att[6] = 0;
   att[7] = 0;
+
+  add_tick(this);
   }
 
 Object::Object(Object *o) {
@@ -207,6 +242,8 @@ Object::Object(Object *o) {
   att[5] = 0;
   att[6] = 0;
   att[7] = 0;
+
+  add_tick(this);
   }
 
 Object::Object(const Object &o) {
@@ -255,10 +292,13 @@ Object::Object(const Object &o) {
   if(o.IsAct(ACT_REST)) AddAct(ACT_REST);
 
   parent = NULL;
+
+  add_tick(this);
   }
 
 const char *Object::Name(int definite) { // Truly-formatted name
-  static string ret;
+  static string local;
+  string ret;
 
   if(!strncasecmp(short_desc.c_str(), "a ", 2)) {
     ret = (short_desc.c_str()+2);
@@ -285,7 +325,8 @@ const char *Object::Name(int definite) { // Truly-formatted name
       }
     }
 
-  return ret.c_str();
+  local = ret;
+  return local.c_str();
   }
 
 const char *Object::ShortDesc() {
@@ -705,7 +746,7 @@ void Object::SendLongDesc(Mind *m, Object *o) {
     }
 
   m->Send("%s   ", CNRM);
-  sprintf(buf, "%s\n%c", Desc(), 0);
+  sprintf(buf, "%s\n%c", LongDesc(), 0);
   buf[0] = toupper(buf[0]);
   m->Send(buf);
 
@@ -845,6 +886,7 @@ int Object::Travel(Object *dest) {
   }
 
 Object::~Object() {
+  remove_tick(this);
   if(default_initial == this) default_initial = universe;
   if(parent->ActTarg(ACT_WIELD) == this) parent->StopAct(ACT_WIELD);
   if(parent->ActTarg(ACT_HOLD) == this) parent->StopAct(ACT_HOLD);
@@ -1381,8 +1423,8 @@ void Object::SendOut(const char *mes, const char *youmes,
   static char buf[65536];
   static char youbuf[65536];
 
-  string tstr = "";  if(targ) tstr = (char*)targ->ShortDesc();
-  string astr = "";  if(actor) astr = (char*)actor->ShortDesc();
+  string tstr = "";  if(targ) tstr = (char*)targ->Name();
+  string astr = "";  if(actor) astr = (char*)actor->Name();
 
   memset(buf, 0, 65536);
   memset(youbuf, 0, 65536);

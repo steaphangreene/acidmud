@@ -308,8 +308,8 @@ Command comlist[] = {
     (REQ_ETHEREAL)
     },
   { COM_SKILLLIST, "skilllist",
-    "Create a new character.",
-    "Create a new character.",
+    "List all available skills.",
+    "List all available skills.",
     (REQ_ANY)
     },
 
@@ -1891,10 +1891,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	"You create a new object.\n", body, NULL);
       }
     else {
-      body->Parent()->LinkToNew(comline+len);
-      body->Parent()->SendOut(
-	";s creates a new object with Ninja Powers[TM].\n",
-	"You create a new object.\n", body, NULL);
+	//FIXME - this is fuxxored
+      mind->Send("Argument mode is disabled for now\n");
+//      body->Parent()->LinkToNew(comline+len);
+//      body->Parent()->SendOut(
+//	";s creates a new object with Ninja Powers[TM].\n",
+//	"You create a new object.\n", body, NULL);
       }
     return 0;
     }

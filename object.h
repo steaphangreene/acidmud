@@ -111,6 +111,7 @@ public:
   int IsWithin(Object *obj);
   int Contains(Object *obj) { return contents.count(obj); }
   set<Object *> Contents() { return contents; }
+  map<string,Object*> Connections() { return connections; }
 
   int ContainedWeight();
   int ContainedVolume();
@@ -195,6 +196,8 @@ public:
   int SaveTo(FILE *);
   int WriteContentsTo(FILE *);
 
+  void Tick();
+
   void BusyAct();
   int StillBusy();
   void BusyFor(long msec, const char *default_next = "");
@@ -243,5 +246,7 @@ void FreeActions();
 map<string,int> get_skills();
 string get_weapon_skill(int wtype);
 int get_weapon_type(string wskill);
+
+void tick_world();
 
 #endif

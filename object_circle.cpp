@@ -377,6 +377,7 @@ void Object::CircleLoadMob(const char *fn) {
       memset(buf, 0, 65536);
       fscanf(mudm, "%[^ \t\n]", buf); //Rest of line read below...
 
+      obj->SetSkill("CircleAction", 8); //IS_NPC - I'll use it to see if(MOB)
       if(string(buf).find('b') < strlen(buf) || (atoi(buf) & 2)) { //SENTINEL
 	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 2);
 	}
@@ -386,8 +387,11 @@ void Object::CircleLoadMob(const char *fn) {
       if(string(buf).find('f') < strlen(buf) || (atoi(buf) & 32)) { //AGGRESSIVE
 	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 32);
 	}
-      if(string(buf).find('h') < strlen(buf) || (atoi(buf) & 64)) { //WIMPY
+      if(string(buf).find('g') < strlen(buf) || (atoi(buf) & 64)) { //STAY_ZONE
 	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 64);
+	}
+      if(string(buf).find('h') < strlen(buf) || (atoi(buf) & 128)) { //WIMPY
+	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 128);
 	}
       if(string(buf).find('l') < strlen(buf) || (atoi(buf) & 2048)) { //MEMORY
 	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 2048);
@@ -858,6 +862,9 @@ void Object::CircleLoadObj(const char *fn) {
 
 void Object::CircleLoad(const char *fn) {
   FILE *mud = fopen(fn, "r");
+  int zone = 0, offset = strlen(fn) - 5; //Chop off the .wld
+  while(isdigit(fn[offset])) --offset;
+  zone = atoi(fn+offset+1);
   if(mud) {
     //fprintf(stderr, "Loading Circle Realm from \"%s\"\n", fn);
     while(1) {
@@ -885,7 +892,14 @@ void Object::CircleLoad(const char *fn) {
       obj->SetDesc(buf);
       //fprintf(stderr, "Loaded Circle Room with Desc = %s\n", buf);
 
-      fscanf(mud, "%[^\n]\n", buf);
+      fscanf(mud, "%*d %[^ \t\n] %*[^\n]\n", buf);
+
+      if(string(buf).find('c') < strlen(buf) || (atoi(buf) & 4)) { //NOMOB
+        obj->SetSkill("CircleZone", 999999);
+	}
+      else {
+        obj->SetSkill("CircleZone", zone);
+	}
 
       while(1) {
 	int dnum, tnum, tmp, tmp2;

@@ -95,6 +95,19 @@ void Mind::Send(const char *mes, ...) {
     SendOut(pers, buf);
     }
   else if(type == MIND_MOB) {
+//    string newmes = "";
+//    if(body) newmes += body->ShortDesc();
+//    newmes += ": ";
+//    newmes += buf;
+//
+//    string::iterator chr = newmes.begin();
+//    for(; chr != newmes.end(); ++chr) {
+//      if((*chr) == '\n' || (*chr) == '\r') (*chr) = ' ';
+//      }
+//    newmes += "\n";
+//
+//    write(pers, newmes.c_str(), newmes.length());
+
     Think(); //Reactionary actions.
     }
   else if(type == MIND_SYSTEM) {
@@ -163,23 +176,10 @@ void Mind::SetPlayer(string pn) {
     }
   }
 
-void Mind::Think() {
+void Mind::Think(int istick) {
   if(type == MIND_MOB) {
-    string newmes = "";
-    if(body) newmes += body->ShortDesc();
-    newmes += ": ";
-    newmes += buf;
-
-    string::iterator chr = newmes.begin();
-    for(; chr != newmes.end(); ++chr) {
-      if((*chr) == '\n' || (*chr) == '\r') (*chr) = ' ';
-      }
-    newmes += "\n";
-
-    write(pers, newmes.c_str(), newmes.length());
-
     //AGGRESSIVE and WIMPY Circle Mobs
-    if(body && (body->Parent() && (body->Skill("CircleAction") & 96) == 96)
+    if(body && body->Parent() && (body->Skill("CircleAction") & 160) == 160
 	&& (!body->IsAct(ACT_FIGHT))) {
       set<Object*> others = body->Parent()->Contents();
       set<Object*>::iterator other;
@@ -196,12 +196,13 @@ void Mind::Think() {
 	        ) {
 	  string command = string("attack ") + (*other)->ShortDesc();
 	  body->BusyFor(500, command.c_str());
-	  fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
+	  //fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
+	  return;
 	  }
 	}
       }
     //AGGRESSIVE and (!WIMPY) Circle Mobs
-    else if(body && (body->Parent() && (body->Skill("CircleAction") & 96) == 32)
+    else if(body && body->Parent() && (body->Skill("CircleAction") & 160) == 32
 	&& (!body->IsAct(ACT_FIGHT))) {
       set<Object*> others = body->Parent()->Contents();
       set<Object*>::iterator other;
@@ -217,8 +218,57 @@ void Mind::Think() {
 	        ) {
 	  string command = string("attack ") + (*other)->ShortDesc();
 	  body->BusyFor(500, command.c_str());
-	  fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
+	  //fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
+	  return;
 	  }
+	}
+      }
+    //HELPER Circle Mobs
+    if(body && body->Parent() && (body->Skill("CircleAction") & 4096)
+	&& (!body->IsAct(ACT_FIGHT))) {
+      set<Object*> others = body->Parent()->Contents();
+      set<Object*>::iterator other;
+      for(other = others.begin(); other != others.end(); ++other) {
+	if((!(*other)->Skill("CircleAction")) //FIXME: Other mobs?
+		&& (!body->StillBusy())			//I'm not busy
+		&& body->Stun() < 6			//I'm not stunned
+		&& body->Phys() < 6			//I'm not injured
+		&& (!body->IsAct(ACT_ASLEEP))		//I'm not asleep
+		&& (!body->IsAct(ACT_REST))		//I'm not resting
+		&& (*other)->Attribute(1)		//It's not a rock
+		&& (!(*other)->IsAct(ACT_DEAD))		//It's not already dead
+		&& (*other)->IsAct(ACT_FIGHT)		//It's figting someone
+		&& (*other)->ActTarg(ACT_FIGHT)->Skill("CircleAction")
+							//...against another MOB
+	        ) {
+	  string command = string("attack ") + (*other)->ShortDesc();
+	  body->BusyFor(500, command.c_str());
+	  //fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
+	  return;
+	  }
+	}
+      }
+    //NON-SENTINEL Circle Mobs
+    if(body && body->Parent() && (body->Skill("CircleAction") & 2) == 0
+	&& (!body->IsAct(ACT_FIGHT)) && istick) {
+      map<string,Object*> cons = body->Parent()->Connections();
+
+      if(body->Skill("CircleAction") & 64) { //STAY_ZONE Circle MOBs
+	map<string,Object*> cons2 = cons;
+	map<string,Object*>::iterator dir = cons2.begin();
+	for(; dir != cons2.end(); ++dir) {
+	  if(dir->second->Skill("CircleZone")
+			!= body->Parent()->Skill("CircleZone"))
+	      cons.erase(dir->first); //Don't Leave Zone!
+	  }
+	}
+
+      if(cons.size() && body->Roll("Willpower", 9)) {
+	int res = rand() % cons.size();
+	map<string,Object*>::iterator dir = cons.begin();
+	while(res > 0) { ++dir; --res; }
+	body->BusyFor(500, dir->first.c_str());
+	return;
 	}
       }
     }
