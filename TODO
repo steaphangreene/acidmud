@@ -1,3 +1,4 @@
+Check for circle rooms with no exits and add one.
 Make some objects (such as rooms and cloners) not ever get ticked.
 Follower should get there AFTER folowee.
 Followers who lie, sit, or rest must stop following.
@@ -24,7 +25,7 @@ Should not be able to wear/wield multiple (ie: pluralized) items in any location
 Implement boats and boat travel.
 Cleanup item manipulation commands.
 Cleanup and secure shopkeeper vortex objects.
-Implement experience.
+Implement character experience.
 Improve character creation interface.
 Implement money denominations and change.
 Implement item "piles" "pairs", "mixtures", etc....
