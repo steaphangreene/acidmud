@@ -3378,7 +3378,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       mind->Send("You need to specify in what direction!\n");
       }
     else {
-      Object *next = new Object(body->Parent()->Parent());
+      Object *box = new Object(body->Parent()->Parent());
+      Object *next = new Object(box);
       char *dirb="south", *dir="north";
       if(!strcmp(comline+len, "north")) {
 	}
@@ -3402,6 +3403,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	return 0;
 	}
 
+      box->SetShortDesc("a dynamic dungeon");
       next->SetShortDesc("An Entrance to a Large Mining Tunnel");
       next->SetDesc(
         "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
