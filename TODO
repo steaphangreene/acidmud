@@ -1,5 +1,4 @@
 Follower should get there AFTER folowee.
-Followers who lie, sit, or rest must stop following.
 Follower should see their own movements better.
 Fix exchange system handling odd cases (including sell/buy).
 People have to be alert to FOLLOW.
@@ -57,7 +56,7 @@ Doors and Locks.
 Handle Multiple Weapon Types (eg: Bastard Swords).
 Implement All Remaining Weapon Types (Guns, etc...).
 Implement the Rest of the Skills.
-Implement reserved words ('in', 'to', 'at', 'of', 'Ninja').
+Implement reserved words ("'s", "in", "to", "at", "of", "Ninja").
 See contents when you look at a nearby room (eg: "look north").
 Create "aim" command to intentionally hit certain locations.
 Add "corpse" alias for dead stuff?

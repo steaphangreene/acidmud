@@ -2065,6 +2065,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	";s sits down and rests.\n", "You sit down and rest.\n",
 	body, NULL);
       }
+    if(body->IsAct(ACT_FOLLOW)) {
+      if(body->ActTarg(ACT_FOLLOW) && mind)
+	body->Parent()->SendOut(
+		";s stop following ;s.\n", "You stop following ;s.\n",
+		body, body->ActTarg(ACT_FOLLOW));
+      body->StopAct(ACT_FOLLOW);
+      }
     return 0;
     }
 
@@ -2115,6 +2122,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       body->Parent()->SendOut(
 	";s sits down.\n", "You sit down.\n", body, NULL);
       }
+    if(body->IsAct(ACT_FOLLOW)) {
+      if(body->ActTarg(ACT_FOLLOW) && mind)
+	body->Parent()->SendOut(
+		";s stop following ;s.\n", "You stop following ;s.\n",
+		body, body->ActTarg(ACT_FOLLOW));
+      body->StopAct(ACT_FOLLOW);
+      }
     return 0;
     }
 
@@ -2126,6 +2140,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       body->SetPos(POS_LIE);
       body->Parent()->SendOut(
 	";s lies down.\n", "You lie down.\n", body, NULL);
+      }
+    if(body->IsAct(ACT_FOLLOW)) {
+      if(body->ActTarg(ACT_FOLLOW) && mind)
+	body->Parent()->SendOut(
+		";s stop following ;s.\n", "You stop following ;s.\n",
+		body, body->ActTarg(ACT_FOLLOW));
+      body->StopAct(ACT_FOLLOW);
       }
     return 0;
     }
