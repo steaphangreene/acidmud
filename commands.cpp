@@ -838,6 +838,14 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind)
 	mind->Send("You can't get %s to go there!\n", body->Parent()->Name(1));
       }
+    else if(dest->Parent() != body->Parent()
+	&& dest->Parent() == body->Parent()->Parent()
+	&& (!(body->Parent()->Skill("Vehicle") & 0xFFF0))    //No Land Travel!
+	&& body->Parent()->Parent()->Skill("WaterDepth") == 0
+	&& rdest->Skill("WaterDepth") == 0) {
+      if(mind)
+	mind->Send("You can't get %s to go there!\n", body->Parent()->Name(1));
+      }
     else {
       if(nmode) {
 	//Ninja-movement can't be followed!
