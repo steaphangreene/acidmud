@@ -1,3 +1,11 @@
+Currentlist:
+	make cool treasure
+	pluralize look
+	pluralize kill
+	search turns things blue
+	search transparent stuffness
+	explore!! (auto-search)
+
 Add HIDE command (really easy now).
 Implement real Reaction Action.
 Create Real Tie-Breaker for Tied Initiative.

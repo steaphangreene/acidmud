@@ -2057,20 +2057,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)) {
       if(mind) mind->Send("You are already holding something!\n");
       }
-    else if(body->ActTarg(ACT_WIELD) == targ && (
-	body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-		== get_weapon_type("Two-Handed Blades")
-	|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-		== get_weapon_type("Two-Handed Cleaves")
-	|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-		== get_weapon_type("Two-Handed Crushing")
-	|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-		== get_weapon_type("Two-Handed Flails")
-	|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-		== get_weapon_type("Two-Handed Piercing")
-	|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-		== get_weapon_type("Two-Handed Staves")
-	)) {
+    else if(body->ActTarg(ACT_WIELD) == targ
+	&& two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType"))
+	) {
       body->AddAct(ACT_HOLD, targ);
       body->Parent()->SendOut(stealth_t, stealth_s, ";s puts a second hand on ;s.\n",
 	"You put a second hand on ;s.\n", body, targ);
@@ -2588,6 +2577,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
   if(com == COM_ATTACK || com == COM_KILL || com == COM_PUNCH || com == COM_KICK) {
     //fprintf(stderr, "Handling attack command from %p of '%s'\n", mind, cl);
 
+    int attacknow = 1;
+    if(!body->IsAct(ACT_FIGHT)) attacknow = 0;
+
     Object *targ = NULL;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(strlen(comline+len) > 0) {
@@ -2634,6 +2626,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	body->BusyWith(targ, "attack");
 	}
       }
+    else {
+      attacknow = 1; //Uncontested.
+      }
 
     if(body->ActTarg(ACT_HOLD)		//FIXME: Don't drop offhand weapons?!?
 	&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)
@@ -2646,19 +2641,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
     if(body->ActTarg(ACT_WIELD)
 	&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)
-	&& (body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-		== get_weapon_type("Two-Handed Blades")
-	|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-		== get_weapon_type("Two-Handed Cleaves")
-	|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-		== get_weapon_type("Two-Handed Crushing")
-	|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-		== get_weapon_type("Two-Handed Flails")
-	|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-		== get_weapon_type("Two-Handed Piercing")
-	|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-		== get_weapon_type("Two-Handed Staves")
-	)) {
+	&& two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType"))
+	) {
       if(body->ActTarg(ACT_HOLD)) {
 	if(body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)) {
 	  body->Parent()->SendOut(stealth_t, stealth_s, ";s stops holding ;s.\n",
@@ -2686,6 +2670,14 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	body->Parent()->SendOut(stealth_t, stealth_s, 
 	  ";s fubmles with ;s.\n", "You fumble with ;s.\n", body, targ);
 	}
+      }
+
+    if(!attacknow) {
+      body->Parent()->SendOut(stealth_t, stealth_s, 
+		";s moves to attack ;s.\n",
+		"You move to attack ;s.\n",
+		body, targ);
+      return 0;
       }
 
 
@@ -2817,19 +2809,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	int force = body->Attribute(2)
 		+ (0 >? body->ActTarg(ACT_WIELD)->Skill("WeaponForce"));
 
-	if(body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-			== get_weapon_type("Two-Handed Blades")
-		|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-			== get_weapon_type("Two-Handed Cleaves")
-		|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-			== get_weapon_type("Two-Handed Crushing")
-		|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-			== get_weapon_type("Two-Handed Flails")
-			|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-			== get_weapon_type("Two-Handed Piercing")
-		|| body->ActTarg(ACT_WIELD)->Skill("WeaponType")
-			== get_weapon_type("Two-Handed Staves")
-		) {
+	if(two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType"))) {
 	  force += body->Attribute(2);
 	  }
 
