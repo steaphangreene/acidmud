@@ -209,7 +209,8 @@ void Mind::Think(int istick) {
     //AGGRESSIVE and WIMPY Circle Mobs
     if(body && body->Parent() && (body->Skill("CircleAction") & 160) == 160
 	&& (!body->IsAct(ACT_FIGHT))) {
-      typeof(body->Parent()->Contents()) others = body->Parent()->Contents();
+      typeof(body->Parent()->Contents()) others
+	= body->PickObjects("everyone", LOC_NEARBY);
       typeof(others.begin()) other;
       for(other = others.begin(); other != others.end(); ++other) {
 	if((!(*other)->Skill("CircleAction")) //FIXME: Other mobs?
@@ -234,7 +235,8 @@ void Mind::Think(int istick) {
     //AGGRESSIVE and (!WIMPY) Circle Mobs
     else if(body && body->Parent() && (body->Skill("CircleAction") & 160) == 32
 	&& (!body->IsAct(ACT_FIGHT))) {
-      typeof(body->Parent()->Contents()) others = body->Parent()->Contents();
+      typeof(body->Parent()->Contents()) others
+	= body->PickObjects("everyone", LOC_NEARBY);
       typeof(others.begin()) other;
       for(other = others.begin(); other != others.end(); ++other) {
 	if((!(*other)->Skill("CircleAction")) //FIXME: Other mobs?
@@ -258,7 +260,8 @@ void Mind::Think(int istick) {
     //HELPER Circle Mobs
     if(body && body->Parent() && (body->Skill("CircleAction") & 4096)
 	&& (!body->IsAct(ACT_FIGHT))) {
-      typeof(body->Parent()->Contents()) others = body->Parent()->Contents();
+      typeof(body->Parent()->Contents()) others
+	= body->PickObjects("everyone", LOC_NEARBY);
       typeof(others.begin()) other;
       for(other = others.begin(); other != others.end(); ++other) {
 	if((!(*other)->Skill("CircleAction")) //FIXME: Other mobs?

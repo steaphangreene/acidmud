@@ -1,12 +1,11 @@
-Implement "everything"/"everyone".
-Make vehicle-riders valid targets for aggro mobs!
 Get it to understand shield use.
 Get it to understand two-handed weapon use.
 Get it to understand offhand and mounted weapon use.
 Enhance "consider" command.
 Let "remove" command also handle unwielding?
-Implement "all of " for all within.
-Implement "stuff"/"money"/"cash".
+Implement "all of " target for all within.
+Implement "stuff"/"money"/"cash" target.
+Implement "everything" target.
 Implement "loot" command.
 Allow carrying of corpses and KOed creatures.
 Add autostashing to "wield" command's unwield.

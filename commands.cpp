@@ -3438,7 +3438,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
-    if(strcmp(comline+len, "Vehicle")&&  (!is_skill(comline+len))  ) {
+    if(!is_skill(comline+len)) {
       mind->Send("Sorry, '%s' is not implemented at this point.\n",
 		comline+len);
       return 0;
