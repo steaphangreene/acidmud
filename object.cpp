@@ -1254,6 +1254,8 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
   }
 
 static int tag(Object *obj, vector<Object*> &ret, int *ordinal) {
+  if(obj->IsAct(ACT_SPECIAL_NOTSHOWN)) return 0;	//Shouldn't be detected.
+
   Object *nobj = NULL;
 
   int cqty = 1, rqty = 1; //Contains / Requires
