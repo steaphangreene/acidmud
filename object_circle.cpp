@@ -71,12 +71,26 @@ void Object::CircleLoadAll() {
       }
     fclose(mudz);
     }
+  FILE *muds = fopen("circle/shp/index", "r");
+  if(muds) {
+    sprintf(buf, "circle/shp/%c", 0);
+    memset(buf+strlen(buf), 0, 256);
+    fscanf(muds, "%[^\n]\n", buf+strlen(buf));
+    while(strlen(buf) > 13) {
+      CircleLoadShp(buf);
+      sprintf(buf, "circle/shp/%c", 0);
+      memset(buf+strlen(buf), 0, 256);
+      fscanf(muds, "%[^\n]\n", buf+strlen(buf));
+      }
+    fclose(muds);
+    }
   CircleCleanup();
   }
 
 static map<int,Object*> bynum;
 static map<int,Object*> bynumobj;
 static map<int,Object*> bynummob;
+static map<int,Object*> bynummobinst;
 static map<Object*,int> tonum[6];
 static vector<Object*> olist;
 
@@ -213,6 +227,7 @@ void Object::CircleLoadZon(const char *fn) {
 	  fscanf(mudz, " %*d %d %*d %d %*[^\n]\n", &num, &room);
 	  if(bynum.count(room) && bynummob.count(num)) {
 	    Object *obj = new Object(*(bynummob[num]));
+	    bynummobinst[num] = obj;
 	    obj->SetParent(bynum[room]);
 	    //fprintf(stderr, "Put Mob \"%s\" in Room \"%s\"\n", obj->ShortDesc(), bynum[room]->ShortDesc());
 	    if(lastmob) CircleFinishMob(lastmob);
@@ -1039,5 +1054,93 @@ void Object::CircleLoad(const char *fn) {
     }
   else {
     fprintf(stderr, "Error: No Circle Realm \"%s\"\n", fn);
+    }
+  }
+
+void Object::CircleLoadShp(const char *fn) {
+  FILE *mud = fopen(fn, "r");
+  if(mud) {
+    Object *vortex = NULL;
+    if(!fscanf(mud, "CircleMUD v3.0 Shop File~%[\n]", buf)) {
+      fprintf(stderr, "Error: '%s' is not a CircleMUD v3.0 Shop File!\n", fn);
+      }
+    else {
+      while(1) {
+	int val;
+	if(!fscanf(mud, "#%d~\n", &val)) break;  // Shop Number
+	fprintf(stderr, "Loading shop %d\n", val);
+
+	vortex = new Object;
+	vortex->SetShortDesc("A shopkeeper vortex");
+	vortex->SetDesc("An advanced wormhole that shopkeeper's use.");
+	vortex->SetSkill("Container", 100000 * 454);
+	vortex->SetSkill("Capacity", 100000);
+	vortex->SetSkill("Wearable on Right Shoulder", 1);
+	vortex->SetSkill("Wearable on Left Shoulder", 2);
+
+	vortex->SetSkill("Transparent", 1); //FIXME!
+
+	fscanf(mud, "%d\n", &val);  // Item sold
+	while(val >= 0) {
+	  if(!bynumobj.count(val)) {
+	    fprintf(stderr, "Error: Shop's item #%d does not exist!\n", val);
+	    }
+	  else {
+	    Object *item = new Object(*(bynumobj[val]));
+	    item->SetParent(vortex);
+	    item->SetSkill("Quantity", 1000);
+	    }
+	  fscanf(mud, "%d\n", &val);  // Item sold
+	  }
+
+	double num, num2;
+	fscanf(mud, "%lf\n", &num);  // Proffit when Sell
+	fscanf(mud, "%lf\n", &num2);  // Proffit when Buy
+
+	memset(buf, 0, 65536);
+	fscanf(mud, "%[^\n]\n", buf);  // Item types bought
+	val = atoi(buf);
+	while(val >= 0) {
+	  memset(buf, 0, 65536);
+	  fscanf(mud, "%[^\n]\n", buf);  // Item types bought
+	  val = atoi(buf);
+	  }
+
+	for(int ctr=0; ctr<8; ++ctr) {
+	  fscanf(mud, "%[^\n]\n", buf+strlen(buf));
+	  }
+
+	memset(buf, 0, 65536);
+	fscanf(mud, "%[^\n]\n", buf+strlen(buf));  // Shop Bitvectors
+
+	fscanf(mud, "%d\n", &val);  // Shopkeeper!
+	Object *keeper = bynummobinst[val];
+	fprintf(stderr, "keeper = %d\n", val);
+
+	memset(buf, 0, 65536);
+	fscanf(mud, "%[^\n]\n", buf+strlen(buf));  // With Bitvectors
+
+	fscanf(mud, "%d\n", &val);  // Shop rooms
+	while(val >= 0) {
+	  fscanf(mud, "%d\n", &val);  // Shop rooms
+	  }
+
+	fscanf(mud, "%*d\n");  // Open time
+	fscanf(mud, "%*d\n");  // Close time
+	fscanf(mud, "%*d\n");  // Open time
+	fscanf(mud, "%*d\n");  // Close time
+
+	if(keeper) {
+	  keeper->SetSkill("Sell Proffit", (int)(num*1000.0));
+	  keeper->SetSkill("Buy Proffit", (int)(num2*1000.0));
+	  vortex->SetParent(keeper);
+	  keeper->AddAct(ACT_WEAR_RSHOULDER, vortex);
+	  }
+	}
+      }
+    fclose(mud);
+    }
+  else {
+    fprintf(stderr, "Error: '%s' does not exist!\n", fn);
     }
   }

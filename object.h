@@ -192,6 +192,7 @@ public:
   void CircleLoadMob(const char *);
   void CircleFinishMob(Object *);
   void CircleLoadZon(const char *);
+  void CircleLoadShp(const char *);
   void CircleCleanup();
   void CircleLoadAll();
 
