@@ -986,9 +986,15 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
     typeof(body->Contents()) targs;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    targs = body->PickObjects(comline+len,
-		LOC_INTERNAL|LOC_NEARBY|LOC_SELF);
-    if(targs.size() == 0) {
+
+    if(strlen(comline+len) > 0) {
+      targs = body->PickObjects(comline+len, LOC_NEARBY);
+      if(targs.size() == 0) {
+	if(mind) mind->Send("You don't see that here.\n");
+	return 0;
+	}
+      }
+    else {
       targs.push_back(body->Parent());
       }
 
