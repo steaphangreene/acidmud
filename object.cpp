@@ -1044,6 +1044,7 @@ int Object::Travel(Object *dest, int try_combine) {
     }
 
   StopAct(ACT_POINT);
+  StopAct(ACT_FOLLOW);
   return 0;
   }
 
@@ -1414,7 +1415,7 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
     if(ActTarg(act) == obj) {
       if(act != ACT_FOLLOW || (!newloc)) { StopAct(act); }
       else if(parent == newloc) { } // Do nothing - didn't leave!
-      else Travel(newloc);
+      else { Travel(newloc); AddAct(ACT_FOLLOW, obj); }
       }
     }
 
