@@ -1,4 +1,3 @@
-Make the contents of a room a vector, not a set.
 Make the order of picks match grouped-viewed output.
 Make the order of objects in a room match order of entry!
 Implement boats and boat travel.

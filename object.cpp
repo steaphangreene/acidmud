@@ -1119,6 +1119,7 @@ int get_ordinal(char *text) {
   else if(!strncasecmp(text, "ninth ",  6)) ret = 9;
   else if(!strncasecmp(text, "tenth ",  6)) ret = 10;
   else if(!strncasecmp(text, "all ",  4)) ret = ALL;
+  else if(!strncasecmp(text, "all.",  4)) ret = ALL;
   return ret;
   }
 
