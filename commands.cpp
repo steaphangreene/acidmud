@@ -280,8 +280,8 @@ Command comlist[] = {
     (REQ_ALERT|REQ_ACTION)
     },
   { COM_HOLD, "hold",
-    "Hold an item you are carrying.",
-    "Hold an item you are carrying.",
+    "Hold an item you are carrying in your off-hand.",
+    "Hold an item you are carrying in your off-hand.",
     (REQ_ALERT|REQ_ACTION)
     },
   { COM_WEAR, "wear",
@@ -1784,7 +1784,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  body->Parent()->SendOut(";s gets and stashes ;s.\n",
 		"You get and stash ;s.\n", body, targ);
 	  }
-	else if(body->ActTarg(ACT_HOLD)) {
+	else if(body->IsAct(ACT_HOLD)) {
 	  if(mind) mind->Send("You have no place to stash %s.\n", targ->Name());
 	  }
 	else if(targ->Skill("Quantity") > 1) {
@@ -1954,34 +1954,18 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 //    else if(targ->Skill("WeaponType") <= 0) {
 //      if(mind) mind->Send("You can't hold that - you are too weak!\n");
 //      }
+    else if(body->ActTarg(ACT_HOLD) == targ) {
+      if(mind) mind->Send("You are already holding %s!\n",
+	targ->Name(1, body));
+      }
     else if(body->IsAct(ACT_HOLD)) {
       if(mind) mind->Send("You are already holding something!\n");
       }
-//    else if(body->ActTarg(ACT_WEAR_BACK) == targ
-//	|| body->ActTarg(ACT_WEAR_CHEST) == targ
-//	|| body->ActTarg(ACT_WEAR_HEAD) == targ
-//	|| body->ActTarg(ACT_WEAR_NECK) == targ
-//	|| body->ActTarg(ACT_WEAR_WAIST) == targ
-//	|| body->ActTarg(ACT_WEAR_SHIELD) == targ
-//	|| body->ActTarg(ACT_WEAR_LARM) == targ
-//	|| body->ActTarg(ACT_WEAR_RARM) == targ
-//	|| body->ActTarg(ACT_WEAR_LFINGER) == targ
-//	|| body->ActTarg(ACT_WEAR_RFINGER) == targ
-//	|| body->ActTarg(ACT_WEAR_LFOOT) == targ
-//	|| body->ActTarg(ACT_WEAR_RFOOT) == targ
-//	|| body->ActTarg(ACT_WEAR_LHAND) == targ
-//	|| body->ActTarg(ACT_WEAR_RHAND) == targ
-//	|| body->ActTarg(ACT_WEAR_LLEG) == targ
-//	|| body->ActTarg(ACT_WEAR_RLEG) == targ
-//	|| body->ActTarg(ACT_WEAR_LWRIST) == targ
-//	|| body->ActTarg(ACT_WEAR_RWRIST) == targ
-//	|| body->ActTarg(ACT_WEAR_LSHOULDER) == targ
-//	|| body->ActTarg(ACT_WEAR_RSHOULDER) == targ
-//	|| body->ActTarg(ACT_WEAR_LHIP) == targ
-//	|| body->ActTarg(ACT_WEAR_RHIP) == targ
-//	) {
-//      if(mind) mind->Send("You are wearing that, perhaps you want to 'remove' it?\n");
-//      }
+    else if(body->ActTarg(ACT_WEAR_SHIELD) == targ) {
+      body->AddAct(ACT_HOLD, targ);
+      body->Parent()->SendOut(
+	";s holds ;s.\n", "You hold ;s.\n", body, targ);
+      }
     else {
       targ->Travel(body, 0); // Kills Holds, Wears and Wields on "targ"
       body->AddAct(ACT_HOLD, targ);
@@ -2526,8 +2510,17 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	reachmod += (0 >? body->ActTarg(ACT_WIELD)
 		->Skill("WeaponReach"));
 	}
-      if(targ->IsAct(ACT_WIELD)) {
-        sk2 = get_weapon_skill(targ->ActTarg(ACT_WIELD)
+      if(body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)
+		&& body->ActTarg(ACT_HOLD)) {
+	sk2 = "";
+	}
+      if(targ->ActTarg(ACT_HOLD) == targ->ActTarg(ACT_WEAR_SHIELD)
+		&& targ->ActTarg(ACT_HOLD)) {
+        sk2 = "Shields";
+	reachmod = 0;
+	}
+      else if(targ->ActTarg(ACT_WIELD)) {
+	if(sk2 == "Punching") sk2 = get_weapon_skill(targ->ActTarg(ACT_WIELD)
 		->Skill("WeaponType"));
 	reachmod -= (0 >? targ->ActTarg(ACT_WIELD)
 		->Skill("WeaponReach"));

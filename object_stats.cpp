@@ -672,6 +672,7 @@ void Object::SetSkill(const string &s, int v) {
   }
 
 int Object::Skill(const string &s, int *tnum) const {
+  if(strlen(s.c_str()) == 0) return 0;
   if(!strncasecmp(s.c_str(), "Body", s.length())) return att[0];
   if(!strncasecmp(s.c_str(), "Quickness", s.length())) return att[1];
   if(!strncasecmp(s.c_str(), "Strength", s.length())) return att[2];
@@ -695,8 +696,10 @@ int Object::Roll(const string &s1, const Object *p2, const string &s2, int bias,
 
   if(res) (*res) += "(";
   succ = Roll(s1, t1, res);
-  if(res) (*res) += " - ";
-  succ -= p2->Roll(s2, t2, res);
+  if(s2 != "") {
+    if(res) (*res) += " - ";
+    succ -= p2->Roll(s2, t2, res);
+    }
   if(res) (*res) += ")";
   return succ;
   }

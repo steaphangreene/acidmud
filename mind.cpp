@@ -206,6 +206,14 @@ void Mind::SetPlayer(string pn) {
 
 void Mind::Think(int istick) {
   if(type == MIND_MOB) {
+    //Temporary
+    if(body->ActTarg(ACT_WEAR_SHIELD) &&
+	(!body->IsAct(ACT_HOLD))) {
+      string command = string("hold ") + body->ActTarg(ACT_WEAR_SHIELD)->ShortDesc();
+      body->BusyFor(500, command.c_str());
+      return;
+      }
+
     //AGGRESSIVE and WIMPY Circle Mobs
     if(body && body->Parent() && (body->Skill("CircleAction") & 160) == 160
 	&& (!body->IsAct(ACT_FIGHT))) {
