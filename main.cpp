@@ -70,10 +70,34 @@ int main(int argc, char **argv) {
   while(shutdn <= 0) {
     gettimeofday(&current_time, NULL);
     tick_world();
+
+	//timeval now_time;
+	//timeval then_time;
+
+	//static long long diff1;
+	//gettimeofday(&now_time, NULL);
     update_net();
+	//gettimeofday(&then_time, NULL);
+	//diff1 = (long long)(then_time.tv_usec - now_time.tv_usec);
+	//diff1 += (long long)(1000000) * (long long)(then_time.tv_sec - now_time.tv_sec);
+
     usleep(10000);
+
+	//static long long diff2;
+	//gettimeofday(&now_time, NULL);
     FreeActions();
-    save_world();
+	//gettimeofday(&then_time, NULL);
+	//diff2 = (long long)(then_time.tv_usec - now_time.tv_usec);
+	//diff2 += (long long)(1000000) * (long long)(then_time.tv_sec - now_time.tv_sec);
+
+	//static long long diff3;
+	//gettimeofday(&now_time, NULL);
+    if(shutdn < 0) { save_world(); shutdn = 0; }
+	//gettimeofday(&then_time, NULL);
+	//diff3 = (long long)(then_time.tv_usec - now_time.tv_usec);
+	//diff3 += (long long)(1000000) * (long long)(then_time.tv_sec - now_time.tv_sec);
+
+	//fprintf(stderr, "times: %Ld, %Ld, %Ld\n", diff1, diff2, diff3);
     }
   if(shutdn == 2) {  // Do Ninja Restart
     save_world(1);
