@@ -236,6 +236,8 @@ public:
   int operator == (const Object &in) const;
   int operator != (const Object &in) const;
 
+  int Matches(const char *seek);
+
 private:
   string short_desc;
   string desc;

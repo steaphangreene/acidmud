@@ -1,7 +1,8 @@
+
 #include "object.h"
 #include "mind.h"
 
-const unsigned int SAVEFILE_VERSION = 0x00000010UL;
+const unsigned int SAVEFILE_VERSION = 0x00000011UL;
 
 static char buf[65536];
 static vector<Object*> todo;
@@ -60,7 +61,7 @@ int Object::SaveTo(FILE *fl) {
 
   map<string,int>::const_iterator sk = skills.begin();
   for(; sk != skills.end(); ++sk)
-    fprintf(fl, ":%s,%d", sk->first.c_str(), sk->second);
+    fprintf(fl, ":%s|%d", sk->first.c_str(), sk->second);
   fprintf(fl, ";\n");
 
   fprintf(fl, "%d\n", contents.size());
@@ -120,6 +121,8 @@ int Object::Load(const char *fn) {
   }
 
 int Object::LoadFrom(FILE *fl) {
+  //static string debug_indent = "";
+
   int num, res;
   fscanf(fl, "%d ", &num);
   num2obj[num] = this;
@@ -129,7 +132,7 @@ int Object::LoadFrom(FILE *fl) {
   res = fscanf(fl, "%[^;]; ", buf);  short_desc = buf;
   if(res < 1) fscanf(fl, " ; ");
 
-  //fprintf(stderr, "Loading %d:%s\n", num, buf);
+  //fprintf(stderr, "%sLoading %d:%s\n", debug_indent.c_str(), num, buf);
 
   memset(buf, 0, 65536);
   res = fscanf(fl, "%[^;];\n", buf);  desc = buf;
@@ -160,9 +163,17 @@ int Object::LoadFrom(FILE *fl) {
 
   memset(buf, 0, 65536);
   int val;
-  while(fscanf(fl, ":%[^\n,:],%d", buf, &val)) {
-    //fprintf(stderr, "Loaded %s: %d\n", buf, val);
-    skills[buf] = val;
+  if(ver <= 0x0010) {
+    while(fscanf(fl, ":%[^\n,:],%d", buf, &val)) {
+      //fprintf(stderr, "Loaded %s: %d\n", buf, val);
+      skills[buf] = val;
+      }
+    }
+  else {
+    while(fscanf(fl, ":%[^\n|:]|%d", buf, &val)) {
+      //fprintf(stderr, "Loaded %s: %d\n", buf, val);
+      skills[buf] = val;
+      }
     }
   fscanf(fl, ";\n");
 
@@ -190,10 +201,15 @@ int Object::LoadFrom(FILE *fl) {
 
   vector<Object*>::iterator cind;
   for(cind = toload.begin(); cind != toload.end(); ++cind) {
+    //fprintf(stderr, "%sCalling loader from %s\n", debug_indent.c_str(), short_desc.c_str());
+    //string tmp = debug_indent;
+    //debug_indent += "  ";
     (*cind)->LoadFrom(fl);
+    //debug_indent = tmp;
+    //fprintf(stderr, "%sCalled loader from %s\n", debug_indent.c_str(), short_desc.c_str());
     }
 
-  //fprintf(stderr, "Loaded %s\n", short_desc.c_str());
+  //fprintf(stderr, "%sLoaded %s\n", debug_indent.c_str(), short_desc.c_str());
 
   return 0;
   }

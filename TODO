@@ -8,6 +8,7 @@ Let "remove" command also handle unwielding?
 Implement "all of " for all within.
 Implement "stuff"/"money"/"cash".
 Implement "loot" command.
+Allow carrying of corpses and KOed creatures.
 Add autostashing to "wield" command's unwield.
 Make CircleMUD packs and purses non-stealable?
 Give staring players a purse and a bag?

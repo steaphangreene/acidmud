@@ -148,6 +148,11 @@ int matches(const char *name, const char *seek) {
   return ret;
   }
 
+int Object::Matches(const char *seek) {
+  if(!strcasecmp(seek, "everyone")) return (Attribute(1) > 0);
+  return matches(ShortDesc(), seek);
+  }
+
 Object *get_start_room() {
   return default_initial;
   }
@@ -1373,6 +1378,8 @@ list<Object*> Object::PickObjects(const char *nm, int loc, int *ordinal) {
   if(ordinal) strip_ordinal(&name);
   else { ordinal = &ordcontainer; (*ordinal) = strip_ordinal(&name); }
   if(!strcasecmp(name, "all")) (*ordinal) = ALL;
+  if(!strcasecmp(name, "everyone")) (*ordinal) = ALL;
+  if(!strcasecmp(name, "everything")) (*ordinal) = ALL;
   if(!(*ordinal)) (*ordinal) = 1;
 
   char *keyword = NULL;
@@ -1427,7 +1434,7 @@ list<Object*> Object::PickObjects(const char *nm, int loc, int *ordinal) {
     typeof(cont.begin()) ind;
     for(ind = cont.begin(); ind != cont.end(); ++ind) if(!(*ind)->no_seek) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
-      if(matches((*ind)->ShortDesc(), name)) {
+      if((*ind)->Matches(name)) {
 	if(tag(*ind, ret, ordinal)) return ret;
 	}
       if((*ind)->Skill("Open")) {
@@ -1458,7 +1465,7 @@ list<Object*> Object::PickObjects(const char *nm, int loc, int *ordinal) {
       typeof(cont.begin()) ind = find(cont.begin(), cont.end(), action->second);
       if(ind != cont.end()) {		// IE: Is action->second within cont
 	cont.erase(ind);
-	if(matches(action->second->ShortDesc(), name)) {
+	if(action->second->Matches(name)) {
 	  if(tag(action->second, ret, ordinal)) return ret;
 	  }
 	if(action->second->Skill("Container")) {
@@ -1474,7 +1481,7 @@ list<Object*> Object::PickObjects(const char *nm, int loc, int *ordinal) {
     typeof(cont.begin()) ind;
     for(ind = cont.begin(); ind != cont.end(); ++ind) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
-      if(matches((*ind)->ShortDesc(), name)) {
+      if((*ind)->Matches(name)) {
 	if(tag(*ind, ret, ordinal)) return ret;
 	}
       if((*ind)->Skill("Container")) {
