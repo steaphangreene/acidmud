@@ -3,96 +3,13 @@
 #include <unistd.h>
 #include <cstring>
 #include <cctype>
-#include <cmath>
+#include <string>
 
 #include "commands.h"
 #include "object.h"
 #include "color.h"
 #include "mind.h"
-
-static Mind *mob_mind = NULL;
-Mind *get_mob_mind() {
-  if(!mob_mind) {
-    mob_mind = new Mind();
-    mob_mind->SetMob();
-    }
-  return mob_mind;
-  }
-
-static Object *gold = NULL;
-static void init_gold() {
-  gold = new Object();
-  gold->SetShortDesc("a gold piece");
-  gold->SetDesc("A standard one-ounce gold piece.");
-  gold->SetWeight(454 / 16);
-  gold->SetVolume(0);
-  gold->SetValue(1);
-  gold->SetSize(0);
-  gold->SetPos(POS_LIE);
-  }
-
-static void give_gold(Object *mob, int qty) {
-  Object *bag = new Object;
-
-  bag->SetParent(mob);
-  bag->SetShortDesc("a small purse");
-  bag->SetDesc("A small, durable, practical moneypurse.");
-
-  bag->SetSkill("Wearable on Left Hip", 1);
-  bag->SetSkill("Wearable on Right Hip", 2);
-  bag->SetSkill("Container", 5 * 454);
-  bag->SetSkill("Capacity", 5);
-  bag->SetSkill("Closeable", 1);
-
-  bag->SetWeight(1 * 454);
-  bag->SetSize(2);
-  bag->SetVolume(1);
-  bag->SetValue(100);
-
-  bag->SetPos(POS_LIE);
-  mob->AddAct(ACT_WEAR_LHIP, bag);
-
-  if(!gold) init_gold();
-  Object *g = new Object(*gold);
-  g->SetParent(bag);
-  g->SetSkill("Quantity", qty);
-  }
-
-static void make_dwarf_miner(Object *loc) {
-  Object *mob = new Object(loc);
-
-  mob->Attach(get_mob_mind());
-  mob->Activate();
-  mob->SetPos(POS_STAND);
-  mob->SetAttribute(0, 7+rand()%7);
-  mob->SetAttribute(1, 4+rand()%5);
-  mob->SetAttribute(2, 6+rand()%7);
-  mob->SetAttribute(3, 2+rand()%2);
-  mob->SetAttribute(4, 4+rand()%3);
-  mob->SetAttribute(5, 8+rand()%7);
-  mob->SetSkill("Two-Handed Cleaves", mob->Attribute(2) - rand()%4);
-
-  mob->SetShortDesc("a dwarf miner");
-  mob->SetDesc("He looks pissed.");
-
-  give_gold(mob, 500+rand()%2001);
-
-  Object *obj = new Object(mob);
-  obj->SetSkill("WeaponType", get_weapon_type("Two-Handed Cleaves"));
-  obj->SetSkill("WeaponForce", 2 + rand()%7);
-  obj->SetSkill("WeaponSeverity", 3 + rand()%3);
-  obj->SetSkill("WeaponReach", 2);
-  obj->SetShortDesc("a dwarven mining pickaxe");
-  obj->SetDesc("A super-strong, super-sharp, super-heavy pickaxe.");
-  obj->SetWeight(20000);
-  obj->SetVolume(50);
-  obj->SetValue(2000);
-  obj->SetPos(POS_LIE);
-  mob->AddAct(ACT_WIELD, obj);
-  mob->AddAct(ACT_HOLD, obj);
-
-  }
-
+#include "mob.h"
 
 void Object::DynamicInit9() {
   }
@@ -119,6 +36,13 @@ void Object::DynamicInit2() {
   }
 
 void Object::DynamicInit1() {		//Dwarven mine
+  static MOBType *dwarf_miner;
+  if(!dwarf_miner) {
+    dwarf_miner = new MOBType("a dwarf miner", "He looks pissed.", "",
+		7,7, 4,5, 6,7, 2,2, 4,3, 8,7, 500,2001);
+    dwarf_miner->Skill("Two-Handed Cleaves", 100, 4);
+    }
+
   int mojo = Skill("DynamicMojo");
   SetSkill("DynamicMojo", 0);
 
@@ -167,7 +91,7 @@ void Object::DynamicInit1() {		//Dwarven mine
 
       }break;
     case(1): { //Major Shaft
-      if((rand()%100) < 30) { mojo -= 500; make_dwarf_miner(this); }
+      if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
 
       if(mojo <= 0) break; //End of Tunnel
 
@@ -200,7 +124,7 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetSkill("Enterable", 1);
       }break;
     case(2): { //Major Shaft w/ Minor Offshoot
-      if((rand()%100) < 30) { mojo -= 500; make_dwarf_miner(this); }
+      if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
 
       if(mojo <= 0) break; //End of Tunnel
 
@@ -258,7 +182,7 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetSkill("Enterable", 1);
       }break;
     case(3): { //Major Shaft w/ Secret Minor Offshoot
-      if((rand()%100) < 30) { mojo -= 500; make_dwarf_miner(this); }
+      if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
 
       if(mojo <= 0) break; //End of Tunnel
 
@@ -317,7 +241,7 @@ void Object::DynamicInit1() {		//Dwarven mine
       door1->SetSkill("Hidden", 4 + rand()%13);
       }break;
     case(5): { //Minor Shaft
-      if((rand()%100) < 30) { mojo -= 500; make_dwarf_miner(this); }
+      if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
 
       if(mojo <= 0) break; //End of Tunnel
 
@@ -350,7 +274,7 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetSkill("Enterable", 1);
       }break;
     case(6): { //Minor Shaft (Bend)
-      if((rand()%100) < 30) { mojo -= 500; make_dwarf_miner(this); }
+      if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
 
 //      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7, 8, 9 };
       int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7 };
@@ -382,7 +306,7 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetSkill("Enterable", 1);
       }break;
     case(7): { //Minor Shaft Fork
-      if((rand()%100) < 30) { mojo -= 500; make_dwarf_miner(this); }
+      if((rand()%100) < 30) { mojo -= 500; AddMOB(dwarf_miner); }
 
 //      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7, 8, 9 };
       int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7 };

@@ -13,6 +13,7 @@ using namespace std;
 class Object;
 class Player;
 class Mind;
+class MOBType;
 
 #ifndef OBJECT_H
 #define OBJECT_H
@@ -246,6 +247,8 @@ public:
   int operator != (const Object &in) const;
 
   int Matches(const char *seek);
+
+  void AddMOB(const MOBType *);
 
 private:
   string short_desc;

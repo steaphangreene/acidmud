@@ -503,6 +503,7 @@ const char *Object::LongDesc() {
   }
 
 static void trim(string &s) {
+  if(s.length() < 1) return;
   while(!isgraph(s[0])) s = s.substr(1);
   while(!isgraph(s[s.length()-1])) s = s.substr(0, s.length()-1);
   }
