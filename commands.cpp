@@ -430,10 +430,15 @@ Command comlist[] = {
   };
 static const int comnum = sizeof(comlist)/sizeof(Command);
 
-int handle_single_command(Mind *mind, const char *cl) {
+int handle_single_command(Object *body, const char *cl, Mind *mind) {
   int len;
   char *comline = (char*)cl;
   static char buf[2048];
+
+  if((!body) && (!mind)) { // Nobody doing something?
+    fprintf(stderr, "Warning: absolutely nobody tried to '%s'.\n", comline);
+    return 0;
+    }
 
   while((!isgraph(*comline)) && (*comline)) ++comline;
 
@@ -455,7 +460,7 @@ int handle_single_command(Mind *mind, const char *cl) {
     return 0;
     }
 
-  //fprintf(stderr, "Handling command from %p of '%s'\n", mind, cl);
+  //fprintf(stderr, "Handling command from %p[%p] of '%s'\n", mind, body, cl);
 
   for(len=0; isgraph(comline[len]); ++len); 
 
@@ -475,97 +480,97 @@ int handle_single_command(Mind *mind, const char *cl) {
       { com = comlist[ctr].id; cnum = ctr; break; }
     }
   if(com == -1) {
-    mind->Send("Command NOT understood - type \"help\" for assistance.\n");
+    if(mind) mind->Send("Command NOT understood - type 'help' for assistance.\n");
     return 1;
     }
 
-  if(((!mind->Owner()) || (!mind->Owner()->Is(PLAYER_SUPERNINJA)))
+  if(((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_SUPERNINJA)))
 	&& (comlist[cnum].sit & SIT_SUPERNINJA)) {
-    mind->Send("Sorry, that command is for Super Ninjas only!\n");
+    if(mind) mind->Send("Sorry, that command is for Super Ninjas only!\n");
     return 0;
     }
 
-  if(((!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJA)))
+  if(((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJA)))
 	&& (comlist[cnum].sit & SIT_NINJA)) {
-    mind->Send("Sorry, that command is for True Ninjas only!\n");
+    if(mind) mind->Send("Sorry, that command is for True Ninjas only!\n");
     return 0;
     }
 
-  if(((!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJAMODE)))
+  if(((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJAMODE)))
 	&& (comlist[cnum].sit & SIT_NINJAMODE)) {
-    if(mind->Owner() && mind->Owner()->Is(PLAYER_NINJA))
+    if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJA))
       mind->Send("Sorry, you need to be in Ninja Mode[TM] to do that.\n");
-    else 
+    else if(mind)
       mind->Send("Sorry, that command is for Ninjas only!\n");
     return 0;
     }
 
-  if((!(comlist[cnum].sit & SIT_ETHEREAL)) && (!mind->Body())) {
-    mind->Send("You can't use that command until you join the game - with the \"enter\" command.\n");
+  if((!(comlist[cnum].sit & SIT_ETHEREAL)) && (!body)) {
+    if(mind) mind->Send("You can't use that command until you join the game - with the \"enter\" command.\n");
     return 0;
     }
 
-  if((!(comlist[cnum].sit & SIT_CORPOREAL)) && (mind->Body())) {
-    mind->Send("You can't use that command until you quit the game - with the \"quit\" command.\n");
+  if((!(comlist[cnum].sit & SIT_CORPOREAL)) && (body)) {
+    if(mind) mind->Send("You can't use that command until you quit the game - with the \"quit\" command.\n");
     return 0;
     }
 
-  if(mind->Body()) {
-    if(mind->Body()->StillBusy() && (comlist[cnum].sit & SIT_ACTION)) {
-      mind->Body()->DoWhenFree(comline);
+  if(body) {
+    if(body->StillBusy() && (comlist[cnum].sit & SIT_ACTION)) {
+      body->DoWhenFree(comline);
       return 0;
       }
     if(comlist[cnum].sit & (SIT_ALIVE|SIT_AWAKE|SIT_ALERT)) {
-      if(mind->Body()->IsAct(ACT_DYING) || mind->Body()->IsAct(ACT_DEAD)) {
-        mind->Send("You must be alive to use that command.\n");
+      if(body->IsAct(ACT_DYING) || body->IsAct(ACT_DEAD)) {
+        if(mind) mind->Send("You must be alive to use that command.\n");
         return 0;
         }
       }
-    if(mind->Body() && (comlist[cnum].sit & SIT_CONSCIOUS)) {
-      if(mind->Body()->IsAct(ACT_UNCONSCIOUS)) {
-        mind->Send("You can't do that, you are out cold.\n");
+    if(body && (comlist[cnum].sit & SIT_CONSCIOUS)) {
+      if(body->IsAct(ACT_UNCONSCIOUS)) {
+        if(mind) mind->Send("You can't do that, you are out cold.\n");
         return 0;
         }
       }
     if((comlist[cnum].sit & (SIT_STAND|SIT_SIT)) == (SIT_STAND|SIT_SIT)) {
-      if(mind->Body()->Pos() != POS_SIT && mind->Body()->Pos() != POS_STAND) {
-        mind->Send("You must at least sit up to use that command.\n");
-	handle_single_command(mind, "sit");
-	if(mind->Body()->Pos() != POS_SIT && mind->Body()->Pos() != POS_STAND)
+      if(body->Pos() != POS_SIT && body->Pos() != POS_STAND) {
+        if(mind) mind->Send("You must at least sit up to use that command.\n");
+	handle_single_command(body, "sit", mind);
+	if(body->Pos() != POS_SIT && body->Pos() != POS_STAND)
 	  return 0;
         }
       }
     if(comlist[cnum].sit & SIT_STAND) {
-      if(mind->Body()->Pos() != POS_STAND) {
-        mind->Send("You must stand up to use that command.\n");
-	handle_single_command(mind, "stand");
-	if(mind->Body()->Pos() != POS_STAND) return 0;
+      if(body->Pos() != POS_STAND) {
+        if(mind) mind->Send("You must stand up to use that command.\n");
+	handle_single_command(body, "stand", mind);
+	if(body->Pos() != POS_STAND) return 0;
 	}
       }
     if(comlist[cnum].sit & SIT_SIT) {
-      if(mind->Body()->Pos() != POS_SIT) {
-        mind->Send("You must sit to use that command.\n");
-	handle_single_command(mind, "sit");
-	if(mind->Body()->Pos() != POS_SIT) return 0;
+      if(body->Pos() != POS_SIT) {
+        if(mind) mind->Send("You must sit to use that command.\n");
+	handle_single_command(body, "sit", mind);
+	if(body->Pos() != POS_SIT) return 0;
         }
       }
     if(comlist[cnum].sit & SIT_ALERT) {
-      if(mind->Body()->IsAct(ACT_ASLEEP)) {
-        mind->Send("You must be awake to use that command.\n");
-	handle_single_command(mind, "wake");
-        if(mind->Body()->IsAct(ACT_ASLEEP)) return 0;
+      if(body->IsAct(ACT_ASLEEP)) {
+        if(mind) mind->Send("You must be awake to use that command.\n");
+	handle_single_command(body, "wake", mind);
+        if(body->IsAct(ACT_ASLEEP)) return 0;
         }
-      if(mind->Body()->IsAct(ACT_REST)) {
-        mind->Send("You must be awake to use that command.\n");
-	handle_single_command(mind, "rest");
-        if(mind->Body()->IsAct(ACT_REST)) return 0;
+      if(body->IsAct(ACT_REST)) {
+        if(mind) mind->Send("You must be awake to use that command.\n");
+	handle_single_command(body, "rest", mind);
+        if(body->IsAct(ACT_REST)) return 0;
         }
       }
     if(comlist[cnum].sit & SIT_AWAKE) {
-      if(mind->Body()->IsAct(ACT_ASLEEP)) {
-        mind->Send("You must be awake to use that command.\n");
-	handle_single_command(mind, "wake");
-        if(mind->Body()->IsAct(ACT_ASLEEP)) return 0;
+      if(body->IsAct(ACT_ASLEEP)) {
+        if(mind) mind->Send("You must be awake to use that command.\n");
+	handle_single_command(body, "wake", mind);
+        if(body->IsAct(ACT_ASLEEP)) return 0;
         }
       }
     }
@@ -582,19 +587,19 @@ int handle_single_command(Mind *mind, const char *cl) {
 
   if(com == COM_GO) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    Object *dest = mind->Body()->PickObject(comline+len, LOC_ADJACENT);
+    Object *dest = body->PickObject(comline+len, LOC_ADJACENT);
     if(!dest) {
-      mind->Send("You can't go that way as far as you can tell.\n");
+      if(mind) mind->Send("You can't go that way as far as you can tell.\n");
       }
     else {
-      if(mind->Body()->Parent()) mind->Body()->Parent()->SendOut(
-	";s leaves %s.\n", "", mind->Body(), NULL, comline+len);
-      mind->Body()->Travel(dest);
-      mind->Body()->Parent()->SendOut(
-	";s arrives.\n", "", mind->Body(), NULL);
-      if(mind->Type() == MIND_REMOTE)
-	mind->Body()->Parent()->SendDescSurround(mind->Body(), mind->Body());
-      else if(mind->Type() == MIND_SYSTEM)
+      if(body->Parent()) body->Parent()->SendOut(
+	";s leaves %s.\n", "", body, NULL, comline+len);
+      body->Travel(dest);
+      body->Parent()->SendOut(
+	";s arrives.\n", "", body, NULL);
+      if(mind && mind->Type() == MIND_REMOTE)
+	body->Parent()->SendDescSurround(body, body);
+      else if(mind && mind->Type() == MIND_SYSTEM)
 	mind->Send("You enter %s\n", comline+len);
       }
     return 0;
@@ -602,7 +607,7 @@ int handle_single_command(Mind *mind, const char *cl) {
 
   if(com == COM_ENTER) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    if(!mind->Body()) {
+    if(!body) {  // Implies that there is a "mind"
       if(!comline[len]) {
 	mind->Send("Enter which character?  Use 'enter <charname>'.\n");
 	return 0;
@@ -637,49 +642,50 @@ int handle_single_command(Mind *mind, const char *cl) {
 	body->Parent()->SendDescSurround(mind, body);
       return 0;
       }
-    Object *dest = mind->Body()->PickObject(comline+len, LOC_NEARBY);
+    Object *dest = body->PickObject(comline+len, LOC_NEARBY);
     if(!dest) {
-      mind->Send("You want to go where?\n");
+      if(mind) mind->Send("You want to go where?\n");
       }
     else if((!dest->Stats()->GetSkill("Enterable"))
-	&& ((!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJA)))) {
-      mind->Send("It is not possible to enter that object!\n");
+	&& ((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJA)))) {
+      if(mind) mind->Send("It is not possible to enter that object!\n");
       }
     else if((!dest->Stats()->GetSkill("Enterable"))
-	&& ((!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJAMODE)))) {
-      mind->Send("You need to be in ninja mode to enter that object!\n");
+	&& ((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJAMODE)))) {
+      if(mind) mind->Send("You need to be in ninja mode to enter that object!\n");
       }
     else {
-      if(mind->Body()->Parent()) mind->Body()->Parent()->SendOut(
-	";s enters %s.\n", "", mind->Body(), NULL, comline+len);
-      mind->Body()->Travel(dest);
-      mind->Body()->Parent()->SendOut(
-	";s arrives.\n", "", mind->Body(), NULL);
-      if(mind->Type() == MIND_REMOTE)
-	mind->Body()->Parent()->SendDescSurround(mind->Body(), mind->Body());
-      else if(mind->Type() == MIND_SYSTEM)
+      if(body->Parent()) body->Parent()->SendOut(
+	";s enters %s.\n", "", body, NULL, comline+len);
+      body->Travel(dest);
+      body->Parent()->SendOut(
+	";s arrives.\n", "", body, NULL);
+      if(mind && mind->Type() == MIND_REMOTE)
+	body->Parent()->SendDescSurround(body, body);
+      else if(mind && mind->Type() == MIND_SYSTEM)
 	mind->Send("You enter %s\n", comline+len);
       }
     return 0;
     }
 
   if(com == COM_QUIT) {
-    if(!mind->Body()) {
+    if(!body) {
       delete mind;
       return -1; //Player Disconnected
       }
-    //if(mind->Body()) delete mind->Body();
-    mind->Unattach();
+    //if(body) delete body;
+    if(mind) mind->Unattach();
 
-    if(mind->Owner() && mind->Owner()->Room())
+    if(mind && mind->Owner() && mind->Owner()->Room())
       mind->Owner()->Room()->SendDesc(mind);
     else
-      mind->Send("Use \"Enter\" to return to the game.\n");
+      if(mind) mind->Send("Use \"Enter\" to return to the game.\n");
 
     return 0;
     }
 
   if(com == COM_HELP) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!strcmp(comline+len, "commands")) {
       string mes = "";
@@ -690,8 +696,8 @@ int handle_single_command(Mind *mind, const char *cl) {
 		|| (!mind->Owner()->Is(PLAYER_NINJA)))) continue;
         if((comlist[ctr].sit & SIT_SUPERNINJA) && ((!mind->Owner())
 		|| (!mind->Owner()->Is(PLAYER_SUPERNINJA)))) continue;
-        if((!(comlist[ctr].sit & SIT_CORPOREAL)) && (mind->Body())) continue;
-        if((!(comlist[ctr].sit & SIT_ETHEREAL)) && (!mind->Body())) continue;
+        if((!(comlist[ctr].sit & SIT_CORPOREAL)) && (body)) continue;
+        if((!(comlist[ctr].sit & SIT_ETHEREAL)) && (!body)) continue;
         mes += comlist[ctr].command;
         mes += " - ";
         mes += comlist[ctr].shortdesc;
@@ -707,42 +713,44 @@ int handle_single_command(Mind *mind, const char *cl) {
 
   if(com == COM_SAY) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    mind->Body()->Parent()->SendOut(";s says '%s'\n", "You say '%s'\n",
-	mind->Body(), mind->Body(), comline+len);
+    body->Parent()->SendOut(";s says '%s'\n", "You say '%s'\n",
+	body, body, comline+len);
     return 0;
     }
 
   if(com == COM_EMOTE) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    mind->Body()->Parent()->SendOut(";s %s\n", "Your character %s\n",
-	mind->Body(), mind->Body(), comline+len);
+    body->Parent()->SendOut(";s %s\n", "Your character %s\n",
+	body, body, comline+len);
     return 0;
     }
 
   if(com == COM_LOOK) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    if(!mind->Body()) {
+    if(!body) {
       mind->Owner()->Room()->SendDesc(mind);
       return 0;
       }
 
-    Object *targ = mind->Body()->Parent();
+    Object *targ = body->Parent();
     int within = 0;
 
     if(!strncasecmp(comline+len, "at ", 3)) len += 3;
     if(!strncasecmp(comline+len, "in ", 3)) { len += 3; within = 1; }
 
     if(strlen(comline+len) > 0) {
-      targ = mind->Body()->PickObject(comline+len,
+      targ = body->PickObject(comline+len,
 	LOC_NEARBY|LOC_ADJACENT|LOC_SELF|LOC_INTERNAL);
       }
-    if(!targ) mind->Send("You don't see that here.\n");
+    if(!targ) {
+      if(mind) mind->Send("You don't see that here.\n");
+      }
     else {
       if(within && (!targ->Stats()->GetSkill("Container"))) {
-	mind->Send("You can't look inside that, it is not a container.\n");
+	if(mind) mind->Send("You can't look inside that, it is not a container.\n");
 	}
       else if(within && (targ->Stats()->GetSkill("Locked"))) {
-	mind->Send("You can't look inside that, it is locked.\n");
+	if(mind) mind->Send("You can't look inside that, it is locked.\n");
 	}
       else {
 	int must_open = within;
@@ -752,31 +760,31 @@ int handle_single_command(Mind *mind, const char *cl) {
 	if(must_open) {
 	  stats.SetSkill("Transparent", 1);
 	  targ->SetStats(stats);
-	  mind->Body()->Parent()->SendOut(
-		";s opens ;s.\n", "You open ;s.\n", mind->Body(), targ);
+	  body->Parent()->SendOut(
+		";s opens ;s.\n", "You open ;s.\n", body, targ);
 	  }
 
 	if(strlen(comline+len) > 0 && within) {
-		mind->Body()->Parent()->SendOut(
-		";s looks inside ;s.\n", "", mind->Body(), targ);
-	  targ->SendDesc(mind, mind->Body());
+		body->Parent()->SendOut(
+		";s looks inside ;s.\n", "", body, targ);
+	  if(mind) targ->SendDesc(mind, body);
 	  }
 	else if(strlen(comline+len) > 0) {
-		mind->Body()->Parent()->SendOut(
-		";s looks at ;s.\n", "", mind->Body(), targ);
-	  targ->SendDesc(mind, mind->Body());
+		body->Parent()->SendOut(
+		";s looks at ;s.\n", "", body, targ);
+	  if(mind) targ->SendDesc(mind, body);
 	  }
 	else {
-		mind->Body()->Parent()->SendOut(
-		";s looks around.\n", "", mind->Body(), targ);
-	  targ->SendDescSurround(mind, mind->Body());
+		body->Parent()->SendOut(
+		";s looks around.\n", "", body, targ);
+	  if(mind) targ->SendDescSurround(mind, body);
 	  }
 
 	if(must_open) {
 	  stats.SetSkill("Transparent", 0);
 	  targ->SetStats(stats);
-	  mind->Body()->Parent()->SendOut(
-		";s closes ;s.\n", "You close ;s.\n", mind->Body(), targ);
+	  body->Parent()->SendOut(
+		";s closes ;s.\n", "You close ;s.\n", body, targ);
 	  }
 	}
       }
@@ -787,16 +795,18 @@ int handle_single_command(Mind *mind, const char *cl) {
     Object *targ = NULL;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(strlen(comline+len) < 0) {
-      mind->Send("You want to examine what?\n");
+      if(mind) mind->Send("You want to examine what?\n");
       return 0;
       }
-    targ = mind->Body()->PickObject(comline+len,
+    targ = body->PickObject(comline+len,
 		LOC_INTERNAL|LOC_NEARBY|LOC_SELF);
-    if(!targ) mind->Send("You don't see that here.\n");
+    if(!targ) {
+      if(mind) mind->Send("You don't see that here.\n");
+      }
     else {
-      mind->Body()->Parent()->SendOut(
-	";s examines ;s.\n", "", mind->Body(), targ);
-      targ->SendLongDesc(mind, mind->Body());
+      body->Parent()->SendOut(
+	";s examines ;s.\n", "", body, targ);
+      if(mind) targ->SendLongDesc(mind, body);
       }
     return 0;
     }
@@ -805,22 +815,22 @@ int handle_single_command(Mind *mind, const char *cl) {
     Object *targ = NULL;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(strlen(comline+len) < 0) {
-      mind->Send("You want to open what?\n");
+      if(mind) mind->Send("You want to open what?\n");
       return 0;
       }
-    targ = mind->Body()->PickObject(comline+len, LOC_INTERNAL|LOC_NEARBY);
+    targ = body->PickObject(comline+len, LOC_INTERNAL|LOC_NEARBY);
     if(!targ) {
-      mind->Send("You don't see that here.\n");
+      if(mind) mind->Send("You don't see that here.\n");
       }
     else if(!targ->Stats()->GetSkill("Closeable")) {
-      mind->Send("That can't be opened or closed.\n");
+      if(mind) mind->Send("That can't be opened or closed.\n");
       }
     else if(targ->Stats()->GetSkill("Transparent")) {
-      mind->Send("It's already open!\n");
+      if(mind) mind->Send("It's already open!\n");
       }
     else {
-      mind->Body()->Parent()->SendOut(
-	";s opens ;s.\n", "You open ;s.", mind->Body(), targ);
+      body->Parent()->SendOut(
+	";s opens ;s.\n", "You open ;s.", body, targ);
       stats_t stats = (*(targ->Stats()));
       stats.SetSkill("Transparent", 1);
       targ->SetStats(stats);
@@ -832,22 +842,22 @@ int handle_single_command(Mind *mind, const char *cl) {
     Object *targ = NULL;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(strlen(comline+len) < 0) {
-      mind->Send("You want to close what?\n");
+      if(mind) mind->Send("You want to close what?\n");
       return 0;
       }
-    targ = mind->Body()->PickObject(comline+len, LOC_INTERNAL|LOC_NEARBY);
+    targ = body->PickObject(comline+len, LOC_INTERNAL|LOC_NEARBY);
     if(!targ) {
-      mind->Send("You don't see that here.\n");
+      if(mind) mind->Send("You don't see that here.\n");
       }
     else if(!targ->Stats()->GetSkill("Closeable")) {
-      mind->Send("That can't be opened or closed.\n");
+      if(mind) mind->Send("That can't be opened or closed.\n");
       }
     else if(!targ->Stats()->GetSkill("Transparent")) {
-      mind->Send("It's already closed!\n");
+      if(mind) mind->Send("It's already closed!\n");
       }
     else {
-      mind->Body()->Parent()->SendOut(
-	";s closes ;s.\n", "You close ;s.\n", mind->Body(), targ);
+      body->Parent()->SendOut(
+	";s closes ;s.\n", "You close ;s.\n", body, targ);
       stats_t stats = (*(targ->Stats()));
       stats.SetSkill("Transparent", 0);
       targ->SetStats(stats);
@@ -857,24 +867,24 @@ int handle_single_command(Mind *mind, const char *cl) {
 
   if(com == COM_GET) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    Object *targ = mind->Body()->PickObject(comline+len, LOC_NEARBY);
+    Object *targ = body->PickObject(comline+len, LOC_NEARBY);
     if(!targ) {
-      mind->Send("You want to get what?\n");
+      if(mind) mind->Send("You want to get what?\n");
       }
     else if(targ->Pos() == POS_NONE) {
-      mind->Send("You can't get that, it is fixed in place!\n");
+      if(mind) mind->Send("You can't get that, it is fixed in place!\n");
       }
     else if(targ->Stats()->GetAttribute(1)) {
-      mind->Send("You can only get inanimate objects!\n");
+      if(mind) mind->Send("You can only get inanimate objects!\n");
       }
-    else if(mind->Body()->IsAct(ACT_HOLD)) {
-      mind->Send("You are already holding something else!\n");
+    else if(body->IsAct(ACT_HOLD)) {
+      if(mind) mind->Send("You are already holding something else!\n");
       }
     else {
-      targ->Travel(mind->Body());
-      mind->Body()->Parent()->SendOut(
-	";s gets ;s.\n", "You grab ;s.\n", mind->Body(), targ);
-      mind->Body()->AddAct(ACT_HOLD, targ);
+      targ->Travel(body);
+      body->Parent()->SendOut(
+	";s gets ;s.\n", "You grab ;s.\n", body, targ);
+      body->AddAct(ACT_HOLD, targ);
       }
     return 0;
     }
@@ -882,35 +892,35 @@ int handle_single_command(Mind *mind, const char *cl) {
   if(com == COM_PUT) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     Object *targ =
-	mind->Body()->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
-    if(!mind->Body()->IsAct(ACT_HOLD)) {
-      mind->Send("You must first 'hold' the object you want to 'put'.\n");
+	body->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
+    if(!body->IsAct(ACT_HOLD)) {
+      if(mind) mind->Send("You must first 'hold' the object you want to 'put'.\n");
       }
     else if(!targ) {
-      mind->Send("I don't see '%s' to put '%s' in!\n", comline+len,
-	mind->Body()->ActTarg(ACT_HOLD)->Name());
+      if(mind) mind->Send("I don't see '%s' to put '%s' in!\n", comline+len,
+	body->ActTarg(ACT_HOLD)->Name());
       }
     else if(targ->Stats()->GetAttribute(1)) {
-      mind->Send("You can only put things in inanimate objects!\n");
+      if(mind) mind->Send("You can only put things in inanimate objects!\n");
       }
     else if(!targ->Stats()->GetSkill("Container")) {
-      mind->Send("You can't put anything in that, it is not a container.\n");
+      if(mind) mind->Send("You can't put anything in that, it is not a container.\n");
       }
     else if(targ->Stats()->GetSkill("Locked")) {
-      mind->Send("You can't put anything in that, it is locked.\n");
+      if(mind) mind->Send("You can't put anything in that, it is locked.\n");
       }
     else {
       int closed = 0;
       if(!targ->Stats()->GetSkill("Transparent")) closed = 1;
-      if(closed) mind->Body()->Parent()->SendOut(
-		";s opens ;s.\n", "You open ;s.\n", mind->Body(), targ);
-      mind->Body()->Parent()->SendOut(
+      if(closed) body->Parent()->SendOut(
+		";s opens ;s.\n", "You open ;s.\n", body, targ);
+      body->Parent()->SendOut(
 		";s puts %s into ;s.\n", "You put %s into ;s.\n",
-		mind->Body(), targ, mind->Body()->ActTarg(ACT_HOLD)->Name());
-      mind->Body()->ActTarg(ACT_HOLD)->Travel(targ);
-      mind->Body()->StopAct(ACT_HOLD);
-      if(closed) mind->Body()->Parent()->SendOut(
-		";s close ;s.\n", "You close ;s.\n", mind->Body(), targ);
+		body, targ, body->ActTarg(ACT_HOLD)->Name());
+      body->ActTarg(ACT_HOLD)->Travel(targ);
+      body->StopAct(ACT_HOLD);
+      if(closed) body->Parent()->SendOut(
+		";s close ;s.\n", "You close ;s.\n", body, targ);
       }
     return 0;
     }
@@ -918,75 +928,75 @@ int handle_single_command(Mind *mind, const char *cl) {
   if(com == COM_WIELD) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
-      if(mind->Body()->IsAct(ACT_WIELD)) {
-	if(mind->Body()->IsAct(ACT_HOLD)) {
-	  mind->Send("You are holding something else.\n"
+      if(body->IsAct(ACT_WIELD)) {
+	if(body->IsAct(ACT_HOLD)) {
+	  if(mind) mind->Send("You are holding something else.\n"
 		"Perhaps you want to 'drop' one of these?");
 	  return 0;
 	  }
-	mind->Body()->Parent()->SendOut(";s stops wielding ;s.\n",
-		"You stop wielding ;s.\n", mind->Body(),
-		mind->Body()->ActTarg(ACT_WIELD));
-	mind->Body()->AddAct(ACT_HOLD, mind->Body()->ActTarg(ACT_WIELD));
-	mind->Body()->StopAct(ACT_WIELD);
+	body->Parent()->SendOut(";s stops wielding ;s.\n",
+		"You stop wielding ;s.\n", body,
+		body->ActTarg(ACT_WIELD));
+	body->AddAct(ACT_HOLD, body->ActTarg(ACT_WIELD));
+	body->StopAct(ACT_WIELD);
 	return 0;
 	}
       else {
-	mind->Send("You are not wielding anything.\n");
+	if(mind) mind->Send("You are not wielding anything.\n");
 	return 0;
 	}      
       }
 
-    Object *targ = mind->Body()->PickObject(comline+len, LOC_INTERNAL);
+    Object *targ = body->PickObject(comline+len, LOC_INTERNAL);
     if(!targ) {
-      mind->Send("You want to wield what?\n");
+      if(mind) mind->Send("You want to wield what?\n");
       }
     else if(targ->Stats()->GetSkill("WeaponType") <= 0) {
-      mind->Send("You can't wield that - it's not a weapon!\n");
+      if(mind) mind->Send("You can't wield that - it's not a weapon!\n");
       }
-    else if(mind->Body()->ActTarg(ACT_WEAR_BACK) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_CHEST) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_HEAD) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_NECK) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_WAIST) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_SHIELD) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_LARM) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_RARM) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_LFINGER) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_RFINGER) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_LFOOT) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_RFOOT) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_LHAND) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_RHAND) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_LLEG) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_RLEG) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_LWRIST) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_RWRIST) == targ
+    else if(body->ActTarg(ACT_WEAR_BACK) == targ
+	|| body->ActTarg(ACT_WEAR_CHEST) == targ
+	|| body->ActTarg(ACT_WEAR_HEAD) == targ
+	|| body->ActTarg(ACT_WEAR_NECK) == targ
+	|| body->ActTarg(ACT_WEAR_WAIST) == targ
+	|| body->ActTarg(ACT_WEAR_SHIELD) == targ
+	|| body->ActTarg(ACT_WEAR_LARM) == targ
+	|| body->ActTarg(ACT_WEAR_RARM) == targ
+	|| body->ActTarg(ACT_WEAR_LFINGER) == targ
+	|| body->ActTarg(ACT_WEAR_RFINGER) == targ
+	|| body->ActTarg(ACT_WEAR_LFOOT) == targ
+	|| body->ActTarg(ACT_WEAR_RFOOT) == targ
+	|| body->ActTarg(ACT_WEAR_LHAND) == targ
+	|| body->ActTarg(ACT_WEAR_RHAND) == targ
+	|| body->ActTarg(ACT_WEAR_LLEG) == targ
+	|| body->ActTarg(ACT_WEAR_RLEG) == targ
+	|| body->ActTarg(ACT_WEAR_LWRIST) == targ
+	|| body->ActTarg(ACT_WEAR_RWRIST) == targ
 	) {
-      mind->Send("You are wearing that, perhaps you want to 'remove' it?\n");
+      if(mind) mind->Send("You are wearing that, perhaps you want to 'remove' it?\n");
       }
     else {
-      if(mind->Body()->IsAct(ACT_WIELD) && mind->Body()->IsAct(ACT_HOLD)) {
-	if(mind->Body()->ActTarg(ACT_HOLD) != targ) {
-	  mind->Send("You are both holding and wielding other things.\n"
+      if(body->IsAct(ACT_WIELD) && body->IsAct(ACT_HOLD)) {
+	if(body->ActTarg(ACT_HOLD) != targ) {
+	  if(mind) mind->Send("You are both holding and wielding other things.\n"
 		"Perhaps you want to drop one of them?");
 	  return 0;
 	  }
 	}
-      targ->Travel(mind->Body()); // Kills Holds and Wields on "targ"
-      if(mind->Body()->ActTarg(ACT_HOLD) == targ) {
-	mind->Body()->StopAct(ACT_HOLD);
+      targ->Travel(body); // Kills Holds and Wields on "targ"
+      if(body->ActTarg(ACT_HOLD) == targ) {
+	body->StopAct(ACT_HOLD);
 	}
-      if(mind->Body()->IsAct(ACT_WIELD)) {
-	mind->Body()->AddAct(ACT_HOLD, mind->Body()->ActTarg(ACT_WIELD));
-	mind->Body()->Parent()->SendOut(";s stops wielding ;s.\n",
-		"You stop wielding ;s.\n", mind->Body(),
-		mind->Body()->ActTarg(ACT_WIELD));
-	mind->Body()->StopAct(ACT_WIELD);
+      if(body->IsAct(ACT_WIELD)) {
+	body->AddAct(ACT_HOLD, body->ActTarg(ACT_WIELD));
+	body->Parent()->SendOut(";s stops wielding ;s.\n",
+		"You stop wielding ;s.\n", body,
+		body->ActTarg(ACT_WIELD));
+	body->StopAct(ACT_WIELD);
 	}
-      mind->Body()->AddAct(ACT_WIELD, targ);
-      mind->Body()->Parent()->SendOut(
-	";s wields ;s.\n", "You wield ;s.\n", mind->Body(), targ);
+      body->AddAct(ACT_WIELD, targ);
+      body->Parent()->SendOut(
+	";s wields ;s.\n", "You wield ;s.\n", body, targ);
       }
     return 0;
     }
@@ -994,64 +1004,64 @@ int handle_single_command(Mind *mind, const char *cl) {
   if(com == COM_HOLD) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
-      mind->Send("You want to hold what?\n");
+      if(mind) mind->Send("You want to hold what?\n");
       return 0;
-//      if(mind->Body()->IsAct(ACT_HOLD)) {
-//	mind->Body()->Parent()->SendOut(";s stops holding ;s.\n",
-//		"You stop holding ;s.\n", mind->Body(),
-//		mind->Body()->ActTarg(ACT_HOLD));
-//	mind->Body()->StopAct(ACT_HOLD);
+//      if(body->IsAct(ACT_HOLD)) {
+//	body->Parent()->SendOut(";s stops holding ;s.\n",
+//		"You stop holding ;s.\n", body,
+//		body->ActTarg(ACT_HOLD));
+//	body->StopAct(ACT_HOLD);
 //	return 0;
 //	}
 //      else {
-//	mind->Send("You are not holding anything.\n");
+//	if(mind) mind->Send("You are not holding anything.\n");
 //	return 0;
 //	}      
       }
 
-    Object *targ = mind->Body()->PickObject(comline+len, LOC_INTERNAL);
+    Object *targ = body->PickObject(comline+len, LOC_INTERNAL);
     if(!targ) {
-      mind->Send("You want to hold what?\n");
+      if(mind) mind->Send("You want to hold what?\n");
       }
-    else if(mind->Body()->ActTarg(ACT_WEAR_BACK) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_CHEST) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_HEAD) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_NECK) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_WAIST) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_SHIELD) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_LARM) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_RARM) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_LFINGER) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_RFINGER) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_LFOOT) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_RFOOT) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_LHAND) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_RHAND) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_LLEG) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_RLEG) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_LWRIST) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_RWRIST) == targ
+    else if(body->ActTarg(ACT_WEAR_BACK) == targ
+	|| body->ActTarg(ACT_WEAR_CHEST) == targ
+	|| body->ActTarg(ACT_WEAR_HEAD) == targ
+	|| body->ActTarg(ACT_WEAR_NECK) == targ
+	|| body->ActTarg(ACT_WEAR_WAIST) == targ
+	|| body->ActTarg(ACT_WEAR_SHIELD) == targ
+	|| body->ActTarg(ACT_WEAR_LARM) == targ
+	|| body->ActTarg(ACT_WEAR_RARM) == targ
+	|| body->ActTarg(ACT_WEAR_LFINGER) == targ
+	|| body->ActTarg(ACT_WEAR_RFINGER) == targ
+	|| body->ActTarg(ACT_WEAR_LFOOT) == targ
+	|| body->ActTarg(ACT_WEAR_RFOOT) == targ
+	|| body->ActTarg(ACT_WEAR_LHAND) == targ
+	|| body->ActTarg(ACT_WEAR_RHAND) == targ
+	|| body->ActTarg(ACT_WEAR_LLEG) == targ
+	|| body->ActTarg(ACT_WEAR_RLEG) == targ
+	|| body->ActTarg(ACT_WEAR_LWRIST) == targ
+	|| body->ActTarg(ACT_WEAR_RWRIST) == targ
 	) {
-      mind->Send("You are wearing that, perhaps you want to 'remove' it?\n");
+      if(mind) mind->Send("You are wearing that, perhaps you want to 'remove' it?\n");
       }
 //FIXME - Implement Str-based Holding Capacity
 //    else if(targ->Stats()->GetSkill("WeaponType") <= 0) {
-//      mind->Send("You can't hold that - you are too weak!\n");
+//      if(mind) mind->Send("You can't hold that - you are too weak!\n");
 //      }
-    else if(mind->Body()->IsAct(ACT_HOLD)) {
-      mind->Send("You are already holding something!\n");
+    else if(body->IsAct(ACT_HOLD)) {
+      if(mind) mind->Send("You are already holding something!\n");
       }
     else {
-      targ->Travel(mind->Body()); // Kills Holds and Wields on "targ"
-//      if(mind->Body()->ActTarg(ACT_WIELD) == targ) {
-//	mind->Body()->Parent()->SendOut(";s stops wielding ;s.\n",
-//		"You stop wielding ;s.\n", mind->Body(),
-//		mind->Body()->ActTarg(ACT_WIELD));
-//	mind->Body()->StopAct(ACT_WIELD);
+      targ->Travel(body); // Kills Holds and Wields on "targ"
+//      if(body->ActTarg(ACT_WIELD) == targ) {
+//	body->Parent()->SendOut(";s stops wielding ;s.\n",
+//		"You stop wielding ;s.\n", body,
+//		body->ActTarg(ACT_WIELD));
+//	body->StopAct(ACT_WIELD);
 //	}
-      mind->Body()->AddAct(ACT_HOLD, targ);
-      mind->Body()->Parent()->SendOut(
-	";s holds ;s.\n", "You hold ;s.\n", mind->Body(), targ);
+      body->AddAct(ACT_HOLD, targ);
+      body->Parent()->SendOut(
+	";s holds ;s.\n", "You hold ;s.\n", body, targ);
       }
     return 0;
     }
@@ -1059,29 +1069,31 @@ int handle_single_command(Mind *mind, const char *cl) {
   if(com == COM_REMOVE) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
-      mind->Send("You want to remove what?\n");
+      if(mind) mind->Send("You want to remove what?\n");
       return 0;
       }
 
-    Object *targ = mind->Body()->PickObject(comline+len, LOC_INTERNAL);
+    Object *targ = body->PickObject(comline+len, LOC_INTERNAL);
     if(!targ) {
-      mind->Send("You want to remove what?\n");
+      if(mind) mind->Send("You want to remove what?\n");
       }
-    else if(mind->Body()->IsAct(ACT_HOLD)) {
-      mind->Send("You are already holding something else, do you mean to 'drop' this?\n");
+    else if(body->IsAct(ACT_HOLD)) {
+      if(mind) mind->Send("You are already holding something else, do you mean to 'drop' this?\n");
       }
     else {
       int removed = 0;
       for(act_t act = ACT_WEAR_BACK; act <= ACT_WEAR_RWRIST; ++((int&)(act))) {
-	if(mind->Body()->ActTarg(act) == targ) {
-	  mind->Body()->StopAct(act);  removed = 1;
+	if(body->ActTarg(act) == targ) {
+	  body->StopAct(act);  removed = 1;
 	  }
 	}
-      if(!removed) mind->Send("You are not wearing that!\n");
+      if(!removed) {
+	if(mind) mind->Send("You are not wearing that!\n");
+	}
       else {
-	mind->Body()->Parent()->SendOut(
-		";s removes ;s.\n", "You remove ;s.\n", mind->Body(), targ);
-	mind->Body()->AddAct(ACT_HOLD, targ);
+	body->Parent()->SendOut(
+		";s removes ;s.\n", "You remove ;s.\n", body, targ);
+	body->AddAct(ACT_HOLD, targ);
 	}
       }
     return 0;
@@ -1090,37 +1102,37 @@ int handle_single_command(Mind *mind, const char *cl) {
   if(com == COM_WEAR) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
-      mind->Send("You want to wear what?\n");
+      if(mind) mind->Send("You want to wear what?\n");
       return 0;
       }
 
-    Object *targ = mind->Body()->PickObject(comline+len, LOC_INTERNAL);
+    Object *targ = body->PickObject(comline+len, LOC_INTERNAL);
     if(!targ) {
-      mind->Send("You want to wear what?\n");
+      if(mind) mind->Send("You want to wear what?\n");
       }
 //    else if(targ->Stats()->GetSkill("WeaponType") <= 0) {
-//      mind->Send("You can't wear that - it's not wearable!\n");
+//      if(mind) mind->Send("You can't wear that - it's not wearable!\n");
 //      }
-    else if(mind->Body()->ActTarg(ACT_WEAR_BACK) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_CHEST) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_HEAD) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_NECK) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_WAIST) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_SHIELD) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_LARM) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_RARM) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_LFINGER) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_RFINGER) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_LFOOT) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_RFOOT) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_LHAND) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_RHAND) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_LLEG) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_RLEG) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_LWRIST) == targ
-	|| mind->Body()->ActTarg(ACT_WEAR_RWRIST) == targ
+    else if(body->ActTarg(ACT_WEAR_BACK) == targ
+	|| body->ActTarg(ACT_WEAR_CHEST) == targ
+	|| body->ActTarg(ACT_WEAR_HEAD) == targ
+	|| body->ActTarg(ACT_WEAR_NECK) == targ
+	|| body->ActTarg(ACT_WEAR_WAIST) == targ
+	|| body->ActTarg(ACT_WEAR_SHIELD) == targ
+	|| body->ActTarg(ACT_WEAR_LARM) == targ
+	|| body->ActTarg(ACT_WEAR_RARM) == targ
+	|| body->ActTarg(ACT_WEAR_LFINGER) == targ
+	|| body->ActTarg(ACT_WEAR_RFINGER) == targ
+	|| body->ActTarg(ACT_WEAR_LFOOT) == targ
+	|| body->ActTarg(ACT_WEAR_RFOOT) == targ
+	|| body->ActTarg(ACT_WEAR_LHAND) == targ
+	|| body->ActTarg(ACT_WEAR_RHAND) == targ
+	|| body->ActTarg(ACT_WEAR_LLEG) == targ
+	|| body->ActTarg(ACT_WEAR_RLEG) == targ
+	|| body->ActTarg(ACT_WEAR_LWRIST) == targ
+	|| body->ActTarg(ACT_WEAR_RWRIST) == targ
 	) {
-      mind->Send("You are already wearing that!\n");
+      if(mind) mind->Send("You are already wearing that!\n");
       }
     else {
       int success = 0;
@@ -1188,20 +1200,20 @@ int handle_single_command(Mind *mind, const char *cl) {
 
 	set<act_t>::iterator loc;
 	for(loc = locations.begin(); loc != locations.end(); ++loc) {
-	  if(mind->Body()->IsAct(*loc)) { success = 0; break; }
+	  if(body->IsAct(*loc)) { success = 0; break; }
 	  }
 	if(success) {
-	  targ->Travel(mind->Body()); // Kills Holds and Wields on "targ"
+	  targ->Travel(body); // Kills Holds and Wields on "targ"
 	  for(loc = locations.begin(); loc != locations.end(); ++loc) {
-	    mind->Body()->AddAct(*loc, targ);
+	    body->AddAct(*loc, targ);
 	    }
-	  mind->Body()->Parent()->SendOut(
-		";s puts on ;s.\n", "You put on ;s.\n", mind->Body(), targ);
+	  body->Parent()->SendOut(
+		";s puts on ;s.\n", "You put on ;s.\n", body, targ);
 	  }
 	}
 
       if(!success) {
-	mind->Send("You can't wear that with what you have on already!\n");
+	if(mind) mind->Send("You can't wear that with what you have on already!\n");
 	return 0;
 	}
       }
@@ -1209,153 +1221,153 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_DROP) {
-    Object *targ = mind->Body()->PickObject(comline+len, LOC_INTERNAL);
+    Object *targ = body->PickObject(comline+len, LOC_INTERNAL);
     if(!targ) {
-      mind->Send("You want to drop what?\n");
+      if(mind) mind->Send("You want to drop what?\n");
       }
     else {
-      targ->Travel(mind->Body()->Parent());
-      mind->Body()->Parent()->SendOut(
-	";s drops ;s.\n", "You drop ;s.\n", mind->Body(), targ);
+      targ->Travel(body->Parent());
+      body->Parent()->SendOut(
+	";s drops ;s.\n", "You drop ;s.\n", body, targ);
       }
     return 0;
     }
 
   if(com == COM_LEAVE) {
-    Object *oldp = mind->Body()->Parent();
-    if(!mind->Body()->Parent()->Parent()) {
-      mind->Send("It is not possible to leave this object!\n");
+    Object *oldp = body->Parent();
+    if(!body->Parent()->Parent()) {
+      if(mind) mind->Send("It is not possible to leave this object!\n");
       }
-    else if((!mind->Body()->Parent()->Stats()->GetSkill("Enterable"))
-	&& ((!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJA)))) {
-      mind->Send("It is not possible to leave this object!\n");
+    else if((!body->Parent()->Stats()->GetSkill("Enterable"))
+	&& ((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJA)))) {
+      if(mind) mind->Send("It is not possible to leave this object!\n");
       }
-    else if((!mind->Body()->Parent()->Stats()->GetSkill("Enterable"))
-	&& ((!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJAMODE)))) {
-      mind->Send("You need to be in ninja mode to leave this object!\n");
+    else if((!body->Parent()->Stats()->GetSkill("Enterable"))
+	&& ((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJAMODE)))) {
+      if(mind) mind->Send("You need to be in ninja mode to leave this object!\n");
       }
     else {
-      mind->Body()->Travel(mind->Body()->Parent()->Parent());
-      if(oldp) oldp->SendOut(";s leaves.\n", "", mind->Body(), NULL);
-      mind->Body()->Parent()->SendDescSurround(mind->Body(), mind->Body());
-      mind->Body()->Parent()->SendOut(
-	";s arrives.\n", "", mind->Body(), NULL);
+      body->Travel(body->Parent()->Parent());
+      if(oldp) oldp->SendOut(";s leaves.\n", "", body, NULL);
+      body->Parent()->SendDescSurround(body, body);
+      body->Parent()->SendOut(
+	";s arrives.\n", "", body, NULL);
       }
     return 0;
     }
 
   if(com == COM_SLEEP) {
-    if(mind->Body()->IsAct(ACT_ASLEEP)) {
-      mind->Send("But you are already sleeping!\n");
+    if(body->IsAct(ACT_ASLEEP)) {
+      if(mind) mind->Send("But you are already sleeping!\n");
       }
-    else if(mind->Body()->Pos() == POS_LIE) {
-      mind->Body()->Parent()->SendOut(
-	";s goes to sleep.\n", "You go to sleep.\n", mind->Body(), NULL);
+    else if(body->Pos() == POS_LIE) {
+      body->Parent()->SendOut(
+	";s goes to sleep.\n", "You go to sleep.\n", body, NULL);
       }
     else {
-      mind->Body()->Parent()->SendOut(
+      body->Parent()->SendOut(
 	";s lies down and goes to sleep.\n", "You lie down and go to sleep.\n",
-	mind->Body(), NULL);
+	body, NULL);
       }
-    mind->Body()->StopAct(ACT_ALL);
-    mind->Body()->AddAct(ACT_ASLEEP);
-    mind->Body()->SetPos(POS_LIE);
+    body->StopAct(ACT_ALL);
+    body->AddAct(ACT_ASLEEP);
+    body->SetPos(POS_LIE);
     return 0;
     }
 
   if(com == COM_WAKE) {
-    if(!mind->Body()->IsAct(ACT_ASLEEP)) {
-      mind->Send("But you aren't asleep!\n");
+    if(!body->IsAct(ACT_ASLEEP)) {
+      if(mind) mind->Send("But you aren't asleep!\n");
       }
     else {
-      mind->Body()->Parent()->SendOut(
-	";s wakes up.\n", "You wake up.\n", mind->Body(), NULL);
-      mind->Body()->StopAct(ACT_ASLEEP);
+      body->Parent()->SendOut(
+	";s wakes up.\n", "You wake up.\n", body, NULL);
+      body->StopAct(ACT_ASLEEP);
       }
     return 0;
     }
 
   if(com == COM_REST) {
-    if(mind->Body()->IsAct(ACT_REST)) {
-      mind->Body()->Parent()->SendOut(
-	";s stops resting.\n", "You stop resting.\n", mind->Body(), NULL);
-      mind->Body()->StopAct(ACT_REST);
+    if(body->IsAct(ACT_REST)) {
+      body->Parent()->SendOut(
+	";s stops resting.\n", "You stop resting.\n", body, NULL);
+      body->StopAct(ACT_REST);
       return 0;
       }
-    else if(mind->Body()->IsAct(ACT_ASLEEP)) {
-      mind->Body()->Parent()->SendOut(
+    else if(body->IsAct(ACT_ASLEEP)) {
+      body->Parent()->SendOut(
 	";s wakes up and starts resting.\n", "You wake up and start resting.\n",
-	mind->Body(), NULL);
+	body, NULL);
       }
-    else if(mind->Body()->Pos() == POS_LIE || mind->Body()->Pos() == POS_SIT) {
-      mind->Body()->Parent()->SendOut(
-	";s starts resting.\n", "You start resting.\n", mind->Body(), NULL);
+    else if(body->Pos() == POS_LIE || body->Pos() == POS_SIT) {
+      body->Parent()->SendOut(
+	";s starts resting.\n", "You start resting.\n", body, NULL);
       }
     else {
-      mind->Body()->Parent()->SendOut(
+      body->Parent()->SendOut(
 	";s sits down and rests.\n", "You sit down and rest.\n",
-	mind->Body(), NULL);
+	body, NULL);
       }
-    mind->Body()->StopAct(ACT_ALL);
-    mind->Body()->AddAct(ACT_REST);
-    if(mind->Body()->Pos() != POS_LIE) mind->Body()->SetPos(POS_SIT);
+    body->StopAct(ACT_ALL);
+    body->AddAct(ACT_REST);
+    if(body->Pos() != POS_LIE) body->SetPos(POS_SIT);
     return 0;
     }
 
   if(com == COM_STAND) {
-    if(mind->Body()->Pos() == POS_STAND) {
-      mind->Send("But you are already standing!\n");
+    if(body->Pos() == POS_STAND) {
+      if(mind) mind->Send("But you are already standing!\n");
       }
-    else if(mind->Body()->IsAct(ACT_ASLEEP)) {
-      mind->Body()->StopAct(ACT_ASLEEP);
-      mind->Body()->Parent()->SendOut(
+    else if(body->IsAct(ACT_ASLEEP)) {
+      body->StopAct(ACT_ASLEEP);
+      body->Parent()->SendOut(
 	";s wakes up and stands.\n", "You wake up and stand.\n",
-	mind->Body(), NULL);
+	body, NULL);
       }
-    else if(mind->Body()->IsAct(ACT_REST)) {
-      mind->Body()->StopAct(ACT_REST);
-      mind->Body()->Parent()->SendOut(
+    else if(body->IsAct(ACT_REST)) {
+      body->StopAct(ACT_REST);
+      body->Parent()->SendOut(
 	";s stops resting and stands up.\n", "You stop resting and stand up.\n",
-	mind->Body(), NULL);
+	body, NULL);
       }
     else {
-      mind->Body()->Parent()->SendOut(
-	";s stands up.\n", "You stand up.\n", mind->Body(), NULL);
+      body->Parent()->SendOut(
+	";s stands up.\n", "You stand up.\n", body, NULL);
       }
-    mind->Body()->SetPos(POS_STAND);
+    body->SetPos(POS_STAND);
     return 0;
     }
 
   if(com == COM_SIT) {
-    if(mind->Body()->Pos() == POS_SIT) {
-      mind->Send("But you are already sitting!\n");
+    if(body->Pos() == POS_SIT) {
+      if(mind) mind->Send("But you are already sitting!\n");
       }
-    else if(mind->Body()->IsAct(ACT_ASLEEP)) {
-      mind->Body()->StopAct(ACT_ASLEEP);
-      mind->Body()->Parent()->SendOut(
+    else if(body->IsAct(ACT_ASLEEP)) {
+      body->StopAct(ACT_ASLEEP);
+      body->Parent()->SendOut(
 	";s awaken and sit up.\n", "You awaken and sit up.\n",
-	mind->Body(), NULL);
+	body, NULL);
       }
-    else if(mind->Body()->Pos() == POS_LIE) {
-      mind->Body()->Parent()->SendOut(
-	";s sits up.\n", "You sit up.\n", mind->Body(), NULL);
+    else if(body->Pos() == POS_LIE) {
+      body->Parent()->SendOut(
+	";s sits up.\n", "You sit up.\n", body, NULL);
       }
     else {
-      mind->Body()->Parent()->SendOut(
-	";s sits down.\n", "You sit down.\n", mind->Body(), NULL);
+      body->Parent()->SendOut(
+	";s sits down.\n", "You sit down.\n", body, NULL);
       }
-    mind->Body()->SetPos(POS_SIT);
+    body->SetPos(POS_SIT);
     return 0;
     }
 
   if(com == COM_LIE) {
-    if(mind->Body()->Pos() == POS_LIE) {
-      mind->Send("But you are already lying down!\n");
+    if(body->Pos() == POS_LIE) {
+      if(mind) mind->Send("But you are already lying down!\n");
       }
     else {
-      mind->Body()->Parent()->SendOut(
-	";s lies down.\n", "You lie down.\n", mind->Body(), NULL);
-      mind->Body()->SetPos(POS_LIE);
+      body->Parent()->SendOut(
+	";s lies down.\n", "You lie down.\n", body, NULL);
+      body->SetPos(POS_LIE);
       }
     return 0;
     }
@@ -1363,24 +1375,26 @@ int handle_single_command(Mind *mind, const char *cl) {
   if(com == COM_POINT) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(strlen(comline+len) > 0) {
-      Object *targ = mind->Body()->PickObject(comline+len, LOC_NEARBY|LOC_SELF);
-      if(!targ) mind->Send("You don't see that here.\n");
+      Object *targ = body->PickObject(comline+len, LOC_NEARBY|LOC_SELF);
+      if(!targ) {
+	if(mind) mind->Send("You don't see that here.\n");
+	}
       else {
-	mind->Body()->AddAct(ACT_POINT, targ);
-	mind->Body()->Parent()->SendOut(
+	body->AddAct(ACT_POINT, targ);
+	body->Parent()->SendOut(
 		";s starts pointing at ;s.\n", "You start pointing at ;s.\n",
-		mind->Body(), targ);
+		body, targ);
 	}
       }
-    else if(mind->Body()->IsAct(ACT_POINT)) {
-      Object *targ = mind->Body()->ActTarg(ACT_POINT);
-      mind->Body()->Parent()->SendOut(
+    else if(body->IsAct(ACT_POINT)) {
+      Object *targ = body->ActTarg(ACT_POINT);
+      body->Parent()->SendOut(
 	";s stops pointing at ;s.\n", "You stop pointing at ;s.\n",
-	mind->Body(), targ);
-      mind->Body()->StopAct(ACT_POINT);
+	body, targ);
+      body->StopAct(ACT_POINT);
       }
     else {
-      mind->Send("But, you aren't pointing at anyting!\n");
+      if(mind) mind->Send("But, you aren't pointing at anyting!\n");
       }
     return 0;
     }
@@ -1391,23 +1405,23 @@ int handle_single_command(Mind *mind, const char *cl) {
     Object *targ = NULL;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(strlen(comline+len) > 0) {
-      targ = mind->Body()->PickObject(comline+len, LOC_NEARBY);
+      targ = body->PickObject(comline+len, LOC_NEARBY);
       if(!targ) { 
-	mind->Send("You don't see that here.\n");
+	if(mind) mind->Send("You don't see that here.\n");
 	return 0;
 	}
       }
     else {
-      if(mind->Body()->IsAct(ACT_FIGHT)) {
-	targ = mind->Body()->ActTarg(ACT_FIGHT);
-	if(!mind->Body()->IsNearBy(targ)) {
-	  mind->Send("Your target is gone!\n");
-	  mind->Body()->StopAct(ACT_FIGHT);
+      if(body->IsAct(ACT_FIGHT)) {
+	targ = body->ActTarg(ACT_FIGHT);
+	if(!body->IsNearBy(targ)) {
+	  if(mind) mind->Send("Your target is gone!\n");
+	  body->StopAct(ACT_FIGHT);
 	  return 0;
 	  }
 	}
       else {
-	mind->Send("Who did you want to hit?\n");
+	if(mind) mind->Send("Who did you want to hit?\n");
 	return 0;
 	}
       }
@@ -1415,37 +1429,37 @@ int handle_single_command(Mind *mind, const char *cl) {
     if(com == COM_ATTACK && (targ->Stats()->GetAttribute(1) <= 0
 	|| targ->IsAct(ACT_DEAD) || targ->IsAct(ACT_DYING)
 	|| targ->IsAct(ACT_UNCONSCIOUS))) {
-      mind->Send("No need, target is down!\n");
-      mind->Body()->StopAct(ACT_FIGHT);
+      if(mind) mind->Send("No need, target is down!\n");
+      body->StopAct(ACT_FIGHT);
       return 0;
       }
 
-    mind->Body()->BusyFor(3000); //Overridden below if is alive/animate
+    body->BusyFor(3000); //Overridden below if is alive/animate
 
     if(!(targ->Stats()->GetAttribute(1) <= 0 || targ->IsAct(ACT_DEAD)
 	|| targ->IsAct(ACT_DYING) || targ->IsAct(ACT_UNCONSCIOUS))) {
-      mind->Body()->AddAct(ACT_FIGHT, targ);
-      mind->Body()->BusyFor(3000, "attack");
+      body->AddAct(ACT_FIGHT, targ);
+      body->BusyFor(3000, "attack");
       if(!targ->IsAct(ACT_FIGHT)) {
 	targ->BusyFor(3000, "attack");
-	targ->AddAct(ACT_FIGHT, mind->Body());
+	targ->AddAct(ACT_FIGHT, body);
 	}
       else if(targ->StillBusy()) {
-	mind->Body()->BusyWith(targ, "attack");
+	body->BusyWith(targ, "attack");
 	}
       }
 
-//    int succ = roll(mind->Body()->Stats()->att[1], targ->Stats()->att[1]);
+//    int succ = roll(body->Stats()->att[1], targ->Stats()->att[1]);
     int succ; string res;  //FIXME: res if ONLY for debugging!
 
     int reachmod = 0;
     string sk1 = "Punching", sk2 = "Punching";
     if(com == COM_KICK) { sk1 = "Kicking"; sk2 = "Kicking"; }
     else {
-      if(mind->Body()->IsAct(ACT_WIELD)) {
-        sk1 = get_weapon_skill(mind->Body()->ActTarg(ACT_WIELD)
+      if(body->IsAct(ACT_WIELD)) {
+        sk1 = get_weapon_skill(body->ActTarg(ACT_WIELD)
 		->Stats()->GetSkill("WeaponType"));
-	reachmod += (0 >? mind->Body()->ActTarg(ACT_WIELD)
+	reachmod += (0 >? body->ActTarg(ACT_WIELD)
 		->Stats()->GetSkill("WeaponReach"));
 	}
       if(targ->IsAct(ACT_WIELD)) {
@@ -1456,61 +1470,62 @@ int handle_single_command(Mind *mind, const char *cl) {
 	}
       }
 
-    succ = mind->Body()->Stats()->Roll(sk1, targ->Stats(), sk2, reachmod, &res);
+    succ = body->Stats()->Roll(sk1, targ->Stats(), sk2, reachmod, &res);
 
     if(succ > 0) {
       //FIXME: Remove debugging stuff ("succ" and "res") from these messages.
       if(com == COM_KICK)
-	mind->Body()->Parent()->SendOut(
+	body->Parent()->SendOut(
 		";s kicks ;s. [%d] %s\n", "You kick ;s. [%d] %s\n",
-		mind->Body(), targ, succ, res.c_str());
-      else if(mind->Body()->IsAct(ACT_WIELD))
-	mind->Body()->Parent()->SendOut(";s hits ;s with %s. [%d] %s\n",
-		"You hit ;s with %s. [%d] %s\n", mind->Body(), targ,
-		mind->Body()->ActTarg(ACT_WIELD)->ShortDesc(),
+		body, targ, succ, res.c_str());
+      else if(body->IsAct(ACT_WIELD))
+	body->Parent()->SendOut(";s hits ;s with %s. [%d] %s\n",
+		"You hit ;s with %s. [%d] %s\n", body, targ,
+		body->ActTarg(ACT_WIELD)->ShortDesc(),
 		succ, res.c_str());
       else
-	mind->Body()->Parent()->SendOut(
+	body->Parent()->SendOut(
 		";s punches ;s. [%d] %s\n", "You punch ;s. [%d] %s\n",
-		mind->Body(), targ, succ, res.c_str());
+		body, targ, succ, res.c_str());
       int sev = 0;
 
       if(com == COM_KICK)
-	sev = targ->HitStun(mind->Body()->Stats()->GetAttribute(2), 2, succ);
-      else if(mind->Body()->IsAct(ACT_WIELD))
-	sev = targ->HitPhys(mind->Body()->Stats()->GetAttribute(2)
-	  + (0 >? mind->Body()->ActTarg(ACT_WIELD)->Stats()->GetSkill("WeaponForce")),
-	  (0 >? mind->Body()->ActTarg(ACT_WIELD)->Stats()->GetSkill("WeaponSeverity")),
+	sev = targ->HitStun(body->Stats()->GetAttribute(2), 2, succ);
+      else if(body->IsAct(ACT_WIELD))
+	sev = targ->HitPhys(body->Stats()->GetAttribute(2)
+	  + (0 >? body->ActTarg(ACT_WIELD)->Stats()->GetSkill("WeaponForce")),
+	  (0 >? body->ActTarg(ACT_WIELD)->Stats()->GetSkill("WeaponSeverity")),
 	  succ);
       else
-	sev = targ->HitStun(mind->Body()->Stats()->GetAttribute(2), 1, succ);
+	sev = targ->HitStun(body->Stats()->GetAttribute(2), 1, succ);
 
       if(sev <= 0) {
-	mind->Send("You hit - but didn't do much.\n");  //FIXME - Real Messages
+	if(mind) mind->Send("You hit - but didn't do much.\n");  //FIXME - Real Messages
 	}
       }
     else {
-      if(com == COM_KICK) mind->Body()->Parent()->SendOut(
+      if(com == COM_KICK) body->Parent()->SendOut(
 	";s tries to kick ;s, but misses. [%d] %s\n", "You missed. [%d] %s\n",
-	mind->Body(), targ, succ, res.c_str());
-      else if(mind->Body()->IsAct(ACT_WIELD))mind->Body()->Parent()->SendOut(
+	body, targ, succ, res.c_str());
+      else if(body->IsAct(ACT_WIELD))body->Parent()->SendOut(
 	";s tries to attack ;s, but misses. [%d] %s\n", "You missed. [%d] %s\n",
-	mind->Body(), targ, succ, res.c_str());
-      else mind->Body()->Parent()->SendOut(
+	body, targ, succ, res.c_str());
+      else body->Parent()->SendOut(
 	";s tries to punch ;s, but misses. [%d] %s\n", "You missed. [%d] %s\n",
-	mind->Body(), targ, succ, res.c_str());
+	body, targ, succ, res.c_str());
       }
 
     if(targ->Stats()->GetAttribute(1) <= 0 || targ->IsAct(ACT_DEAD)
 	|| targ->IsAct(ACT_DYING) || targ->IsAct(ACT_UNCONSCIOUS)) {
-      mind->Body()->StopAct(ACT_FIGHT);
-      mind->Body()->BusyFor(3000);
+      body->StopAct(ACT_FIGHT);
+      body->BusyFor(3000);
       }
 
     return 0;
     }
 
   if(com == COM_NEWCHAR) {
+    if(!mind) return 0; //FIXME: Should never happen!
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
       mind->Send("What's the character's name?  Use 'newchar <charname>'.\n");
@@ -1530,6 +1545,7 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_SKILLLIST) {
+    if(!mind) return 0;
     string skills = "Total Skills in play on this mud:\n";
     map<string,int> skls = get_skills();
 
@@ -1544,6 +1560,7 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_WHO) {
+    if(!mind) return 0;
     string users = "Currently on this mud:\n";
     vector<Mind *> mns = get_human_minds();
 
@@ -1561,6 +1578,7 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_OOC) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(strlen(comline+len) <= 0) {
       mind->Send("Toggling OOC doesn't work yet, you MUST LISTEN!!!\n");
@@ -1579,6 +1597,7 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_NEWBIE) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(strlen(comline+len) <= 0) {
       mind->Send("Toggling NEWBIE doesn't work yet, you MUST LISTEN!!!\n");
@@ -1599,6 +1618,7 @@ int handle_single_command(Mind *mind, const char *cl) {
   //Ninja Commands
 
   if(com == COM_NINJAMODE) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
 
     Player *pl = mind->Owner();
@@ -1612,7 +1632,7 @@ int handle_single_command(Mind *mind, const char *cl) {
     else {
       pl->Set(PLAYER_NINJAMODE);
       mind->Send("Ninja mode activated.\n");
-      handle_single_command(mind, comline+len);
+      handle_single_command(body, comline+len, mind);
       pl->UnSet(PLAYER_NINJAMODE);
       mind->Send("Ninja mode deactivated.\n");
       }
@@ -1620,6 +1640,7 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_MAKENINJA) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
 
     Player *pl = get_player(comline+len);
@@ -1653,6 +1674,7 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_MAKESUPERNINJA) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
 
     Player *pl = get_player(comline+len);
@@ -1685,18 +1707,20 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_MAKESTART) {
-    set_start_room(mind->Body()->Parent());
+    if(!mind) return 0;
+    set_start_room(body->Parent());
     mind->Send("You make this the default starting room for players.\n");
     return 0;
     }
 
   if(com == COM_NAME) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(comline[len] != 0) {
-      string oldn = mind->Body()->Parent()->ShortDesc();
-      mind->Body()->Parent()->SetShortDesc(comline+len);
+      string oldn = body->Parent()->ShortDesc();
+      body->Parent()->SetShortDesc(comline+len);
       mind->Send("You rename \"%s\" to \"%s\"\n", oldn.c_str(),
-	mind->Body()->Parent()->ShortDesc());	//FIXME - Real Message
+	body->Parent()->ShortDesc());	//FIXME - Real Message
       }
     else {
       mind->Send("Rename it to what?\n");
@@ -1705,12 +1729,13 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_DESCRIBE) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(comline[len] != 0) {
-      string oldn = mind->Body()->Parent()->ShortDesc();
-      mind->Body()->Parent()->SetDesc(comline+len);
+      string oldn = body->Parent()->ShortDesc();
+      body->Parent()->SetDesc(comline+len);
       mind->Send("You redescribe \"%s\" as \"%s\"\n", oldn.c_str(),
-	mind->Body()->Parent()->Desc());	//FIXME - Real Message
+	body->Parent()->Desc());	//FIXME - Real Message
       }
     else {
       mind->Send("Describe it as what?\n");
@@ -1719,12 +1744,13 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_DEFINE) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(comline[len] != 0) {
-      string oldn = mind->Body()->Parent()->ShortDesc();
-      mind->Body()->Parent()->SetLongDesc(comline+len);
+      string oldn = body->Parent()->ShortDesc();
+      body->Parent()->SetLongDesc(comline+len);
       mind->Send("You redefine \"%s\" as \"%s\"\n", oldn.c_str(),
-	mind->Body()->Parent()->LongDesc());	//FIXME - Real Message
+	body->Parent()->LongDesc());	//FIXME - Real Message
       }
     else {
       mind->Send("Define it as what?\n");
@@ -1733,8 +1759,9 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_CONTROL) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    Object *targ = mind->Body()->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
+    Object *targ = body->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
     if(!targ) {
       mind->Send("You want to control who?\n");
       }
@@ -1742,9 +1769,9 @@ int handle_single_command(Mind *mind, const char *cl) {
       mind->Send("You can't control inanimate objects!\n");
       }
     else {
-      mind->Body()->Parent()->SendOut(
+      body->Parent()->SendOut(
 	";s controls ;s with Ninja Powers[TM].\n", "You control ;s.\n",
-	mind->Body(), targ);
+	body, targ);
       mind->Unattach();
       mind->Attach(targ);
       }
@@ -1752,8 +1779,9 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_COMMAND) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    Object *targ = mind->Body()->ActTarg(ACT_POINT);
+    Object *targ = body->ActTarg(ACT_POINT);
     if(!targ) {
       mind->Send("You need to be pointing at your target.\n");
       }
@@ -1764,38 +1792,40 @@ int handle_single_command(Mind *mind, const char *cl) {
       mind->Send("You can't command an object that has no will of its own.\n");
       }
     else {
-      mind->Body()->Parent()->SendOut(
+      body->Parent()->SendOut(
 	";s commands ;s to '%s' with Ninja Powers[TM].\n",
 	"You command ;s to '%s'.\n",
-	mind->Body(), targ, comline+len);
+	body, targ, comline+len);
 
       if(handle_command(targ, comline+len) > 0)
-	mind->Body()->Parent()->SendOut(
+	body->Parent()->SendOut(
 		";s did not understand the command.\n",
 		";s did not understand the command.\n",
-		targ, mind->Body());
+		targ, body);
       }
     return 0;
     }
 
   if(com == COM_CREATE) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(comline[len] == 0) {
-      new Object(mind->Body()->Parent());
-      mind->Body()->Parent()->SendOut(
+      new Object(body->Parent());
+      body->Parent()->SendOut(
 	";s creates a new object with Ninja Powers[TM].\n",
-	"You create a new object.\n", mind->Body(), NULL);
+	"You create a new object.\n", body, NULL);
       }
     else {
-      mind->Body()->Parent()->LinkToNew(comline+len);
-      mind->Body()->Parent()->SendOut(
+      body->Parent()->LinkToNew(comline+len);
+      body->Parent()->SendOut(
 	";s creates a new object with Ninja Powers[TM].\n",
-	"You create a new object.\n", mind->Body(), NULL);
+	"You create a new object.\n", body, NULL);
       }
     return 0;
     }
 
   if(com == COM_USERS) {
+    if(!mind) return 0;
     string users = "Current accounts on this mud:\n";
     vector<Player *> pls = get_all_players();
 
@@ -1810,6 +1840,7 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_CHARS) {
+    if(!mind) return 0;
     string chars = "Current characters on this mud:\n";
     vector<Player *> pls = get_all_players();
 
@@ -1830,15 +1861,16 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_RESET) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    Object *targ = mind->Body()->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL|LOC_SELF);
+    Object *targ = body->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL|LOC_SELF);
     if(!targ) {
       mind->Send("You want to reset what?\n");
       }
     else {
-      mind->Body()->Parent()->SendOut(
+      body->Parent()->SendOut(
 	";s resets ;s with Ninja Powers[TM].\n", "You reset ;s.\n",
-	mind->Body(), targ);
+	body, targ);
 
       set<Object *> contents = targ->Contents();
       set<Object *>::iterator item = contents.begin();
@@ -1849,15 +1881,16 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_CLONE) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    Object *targ = mind->Body()->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
+    Object *targ = body->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
     if(!targ) {
       mind->Send("You want to clone what?\n");
       }
     else {
-      mind->Body()->Parent()->SendOut(
+      body->Parent()->SendOut(
 	";s clones ;s with Ninja Powers[TM].\n", "You clone ;s.\n",
-	mind->Body(), targ);
+	body, targ);
       Object *nobj = new Object(*targ);
       nobj->SetParent(targ->Parent());
       }
@@ -1865,30 +1898,32 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_JUNK) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    Object *targ = mind->Body()->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
+    Object *targ = body->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
     if(!targ) {
       mind->Send("You want to destroy what?\n");
       }
     else {
-      mind->Body()->Parent()->SendOut(
+      body->Parent()->SendOut(
 	";s destroys ;s with Ninja Powers[TM].\n", "You destroy ;s.\n",
-	mind->Body(), targ);
+	body, targ);
       delete(targ);
       }
     return 0;
     }
 
   if(com == COM_HEAL) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    Object *targ = mind->Body()->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL|LOC_SELF);
+    Object *targ = body->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL|LOC_SELF);
     if(!targ) {
       mind->Send("You want to heal what?\n");
       }
     else {
-      mind->Body()->Parent()->SendOut(
+      body->Parent()->SendOut(
 	";s heals and repairs ;s with Ninja Powers[TM].\n", "You heal ;s.\n",
-	mind->Body(), targ);
+	body, targ);
 
       //This is ninja-healing and bypasses all healing mechanisms.
       stats_t st = (*(targ->Stats()));
@@ -1906,8 +1941,9 @@ int handle_single_command(Mind *mind, const char *cl) {
 	};
 
   if(com == COM_JACK) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    Object *targ = mind->Body()->ActTarg(ACT_POINT);
+    Object *targ = body->ActTarg(ACT_POINT);
     if(!targ) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
@@ -1924,10 +1960,10 @@ int handle_single_command(Mind *mind, const char *cl) {
       return 0;
       }
 
-    mind->Body()->Parent()->SendOut(
+    body->Parent()->SendOut(
 	";s jacks the %s of ;s with Ninja Powers[TM].\n",
 	"You jack the %s of ;s.\n",
-	mind->Body(), targ, statnames[stat]);
+	body, targ, statnames[stat]);
 
     stats_t st = (*(targ->Stats()));
     st.SetAttribute(stat, st.GetAttribute(stat) + 1);
@@ -1936,8 +1972,9 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_CHUMP) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    Object *targ = mind->Body()->ActTarg(ACT_POINT);
+    Object *targ = body->ActTarg(ACT_POINT);
     if(!targ) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
@@ -1958,10 +1995,10 @@ int handle_single_command(Mind *mind, const char *cl) {
       return 0;
       }
 
-    mind->Body()->Parent()->SendOut(
+    body->Parent()->SendOut(
 	";s chumps the %s of ;s with Ninja Powers[TM].\n",
 	"You chump the %s of ;s.\n",
-	mind->Body(), targ, statnames[stat]);
+	body, targ, statnames[stat]);
 
     stats_t st = (*(targ->Stats()));
     st.SetAttribute(stat, st.GetAttribute(stat) - 1);
@@ -1970,8 +2007,9 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_INCREMENT) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    Object *targ = mind->Body()->ActTarg(ACT_POINT);
+    Object *targ = body->ActTarg(ACT_POINT);
     if(!targ) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
@@ -1988,17 +2026,18 @@ int handle_single_command(Mind *mind, const char *cl) {
     st.SetSkill(comline+len, (st.GetSkill(comline+len)>?0) + 1);
     targ->SetStats(st);
 
-    mind->Body()->Parent()->SendOut(
+    body->Parent()->SendOut(
 	";s increments the %s of ;s with Ninja Powers[TM].\n",
 	"You increment the %s of ;s.\n",
-	mind->Body(), targ, comline+len);
+	body, targ, comline+len);
 
     return 0;
     }
 
   if(com == COM_DECREMENT) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    Object *targ = mind->Body()->ActTarg(ACT_POINT);
+    Object *targ = body->ActTarg(ACT_POINT);
     if(!targ) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
@@ -2008,40 +2047,42 @@ int handle_single_command(Mind *mind, const char *cl) {
     st.SetSkill(comline+len, st.GetSkill(comline+len) - 1);
     targ->SetStats(st);
 
-    mind->Body()->Parent()->SendOut(
+    body->Parent()->SendOut(
 	";s decrements the %s of ;s with Ninja Powers[TM].\n",
 	"You decrement the %s of ;s.\n",
-	mind->Body(), targ, comline+len);
+	body, targ, comline+len);
 
     return 0;
     }
 
   if(com == COM_CLOAD) {
+    if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
-      mind->Body()->Parent()->CircleLoadAll();
-      mind->Body()->Parent()->SendOut(
+      body->Parent()->CircleLoadAll();
+      body->Parent()->SendOut(
 	";s loads the entire Circle world with Ninja Powers[TM].\n",
-	"You load the entire Circle world.\n", mind->Body(), NULL);
+	"You load the entire Circle world.\n", body, NULL);
       }
     else {
       sprintf(buf, "circle/wld/%s.wld", comline+len);
-      mind->Body()->Parent()->CircleLoad(buf);
+      body->Parent()->CircleLoad(buf);
       sprintf(buf, "circle/obj/%s.obj", comline+len);
-      mind->Body()->Parent()->CircleLoadObj(buf);
-      mind->Body()->Parent()->SendOut(
+      body->Parent()->CircleLoadObj(buf);
+      body->Parent()->SendOut(
 	";s loads a Circle world ;s with Ninja Powers[TM].\n",
-	"You load a Circle world.\n", mind->Body(), NULL);
+	"You load a Circle world.\n", body, NULL);
       }
     return 0;
     }
 
   if(com == COM_CCLEAN) {
-    mind->Body()->CircleCleanup();
-    mind->Body()->Parent()->SendOut(
+    if(!mind) return 0;
+    body->CircleCleanup();
+    body->Parent()->SendOut(
 	";s cleans up after loading Circle worlds.\n",
 	"You clean up after loading Circle worlds.\n",
-	mind->Body(), NULL);
+	body, NULL);
     return 0;
     }
 
@@ -2049,13 +2090,11 @@ int handle_single_command(Mind *mind, const char *cl) {
   return 0;
   }
 
-int handle_command(Mind *mind, const char *cl) {
+int handle_command(Object *body, const char *cl, Mind *mind) {
   static char *buf = NULL;
   static int bsize = -1;
   int ret = 0;
   char *start = (char*)cl, *end = (char*)cl;
-
-  if(!mind) return -1;
 
   while(1) {
     if((*end) == '\n' || (*end) == '\r' || (*end) == ';' || (*end) == 0) {
@@ -2069,7 +2108,7 @@ int handle_command(Mind *mind, const char *cl) {
 	memcpy(buf, start, len);
 	buf[len] = 0;
 
-	int stat = handle_single_command(mind, buf);
+	int stat = handle_single_command(body, buf, mind);
 	if(stat < 0) return stat;
 	else if(ret == 0) ret = stat;
 	}
@@ -2081,12 +2120,12 @@ int handle_command(Mind *mind, const char *cl) {
   return ret;
   }
 
-int handle_command(Object *obj, const char *cl) {
-//  fprintf(stderr, "Doing '%s' for %p\n", cl, obj);
-
-  static Mind mind;
-  mind.Attach(obj);
-  int ret = handle_command(&mind, cl);
-  mind.Unattach();
-  return ret;
-  }
+//int handle_command(Object *obj, const char *cl) {
+////  fprintf(stderr, "Doing '%s' for %p\n", cl, obj);
+//
+//  static Mind mind;
+//  mind.Attach(obj);
+//  int ret = handle_command(obj, cl, &mind);
+//  mind.Unattach();
+//  return ret;
+//  }

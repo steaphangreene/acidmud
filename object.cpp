@@ -1221,10 +1221,10 @@ void init_world() {
     anp->Set(PLAYER_NINJA);
     anp->Set(PLAYER_NINJAMODE);
 
-    Mind *mind = new Mind();
-    mind->SetPlayer("AutoNinja");
-    mind->SetSystem();
-    mind->Attach(autoninja);
+    Mind *automind = new Mind();
+    automind->SetPlayer("AutoNinja");
+    automind->SetSystem();
+    automind->Attach(autoninja);
 
     int len = lseek(fd, 0, SEEK_END);
     lseek(fd, 0, SEEK_SET);
@@ -1233,12 +1233,10 @@ void init_world() {
     buf[len] = 0;
 
 
-    handle_command(mind, buf);
-//    handle_command(mind, "quit");
-//    handle_command(mind, "quit");
+    handle_command(autoninja, buf, automind);
     close(fd);
 
-    delete mind; //DON'T NEED TO!!! DONE BY "quit" ABOVE!!!!!
+    delete automind;
     delete anp;
     delete autoninja;
 
@@ -1325,8 +1323,8 @@ void Object::BusyAct() {
 
 //  fprintf(stderr, "Act is %s!\n", comm.c_str());
   if(minds.size()) {
-    handle_command(*(minds.begin()), comm.c_str());
-    if(!StillBusy()) handle_command(*(minds.begin()), def.c_str());
+    handle_command(this, comm.c_str(), *(minds.begin()));
+    if(!StillBusy()) handle_command(this, def.c_str(), *(minds.begin()));
     }
   else {
     handle_command(this, comm.c_str());

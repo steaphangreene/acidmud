@@ -81,7 +81,7 @@ void handle_input(socket_t in_s) {
     else if((*ind) == '\n' || (*ind) == '\r') {
       outbufs[in_s] += ""; //Make sure they still get a prompt!
       if(comlines[in_s].length() > 0) {
-	int result = handle_command(mind, comlines[in_s].c_str());
+	int result = handle_command(mind->Body(), comlines[in_s].c_str(), mind);
 	comlines[in_s] = "";
 	if(result < 0) return;  // Player Disconnected
 	}
