@@ -324,6 +324,12 @@ const char *Object::Name(int definite) { // Truly-formatted name
       ret = string("a ") + ret;
       }
     }
+  else if(definite) {
+    ret = string("the ") + ret;
+    }
+  else {
+    ret = string("a ") + ret;
+    }
 
   local = ret;
   return local.c_str();
