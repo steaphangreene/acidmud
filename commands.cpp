@@ -816,6 +816,7 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_GET) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
     Object *targ = mind->Body()->PickObject(comline+len, LOC_NEARBY);
     if(!targ) {
       mind->Send("You want to get what?\n");
@@ -839,13 +840,15 @@ int handle_single_command(Mind *mind, const char *cl) {
     }
 
   if(com == COM_PUT) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
     Object *targ =
 	mind->Body()->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
     if(!mind->Body()->IsAct(ACT_HOLD)) {
-      mind->Send("You aren't holding anything to put anywhere!\n");
+      mind->Send("You aren't holding anything to be put anywhere!\n");
       }
     else if(!targ) {
-      mind->Send("You want to put it where?\n");
+      mind->Send("I don't see '%s' to put '%s' in!\n", comline+len,
+	mind->Body()->ActTarg(ACT_HOLD)->Name());
       }
     else if(targ->Stats()->GetAttribute(1)) {
       mind->Send("You can only put things in inanimate objects!\n");
@@ -988,12 +991,15 @@ int handle_single_command(Mind *mind, const char *cl) {
 //    else if(targ->Stats()->GetSkill("WeaponType") <= 0) {
 //      mind->Send("You can't hold that - you are too weak!\n");
 //      }
+    else if(mind->Body()->IsAct(ACT_HOLD)) {
+      mind->Send("You are already holding something!\n");
+      }
     else {
-      if(mind->Body()->IsAct(ACT_HOLD)) {
-	mind->Body()->Parent()->SendOut(";s stops holding ;s.\n",
-		"You stop holding ;s.\n", mind->Body(),
-		mind->Body()->ActTarg(ACT_HOLD));
-	mind->Body()->StopAct(ACT_HOLD);
+      if(mind->Body()->ActTarg(ACT_WIELD) == targ) {
+	mind->Body()->Parent()->SendOut(";s stops wielding ;s.\n",
+		"You stop wielding ;s.\n", mind->Body(),
+		mind->Body()->ActTarg(ACT_WIELD));
+	mind->Body()->StopAct(ACT_WIELD);
 	}
       mind->Body()->AddAct(ACT_HOLD, targ);
       mind->Body()->Parent()->SendOut(
