@@ -261,8 +261,13 @@ ArmorType::ArmorType(const char *nm, const char *ds, const char *lds,
   }
 
 static char *gen_replace[][4] = {
-  { "{He}", "She", "He", "It" },
-  { NULL, NULL, NULL, NULL }
+  { "{He}",  "She",  "He",  "It"  },
+  { "{Him}", "Her",  "Him", "It"  },
+  { "{His}", "Hers", "His", "Its" },
+  { "{he}",  "she",  "he",  "it"  },
+  { "{him}", "her",  "him", "it"  },
+  { "{his}", "hers", "his", "its" },
+  { NULL,    NULL,   NULL,  NULL  }
   };
 
 string gender_proc(const char *in, char gender) {
