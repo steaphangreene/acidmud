@@ -1144,6 +1144,8 @@ void Object::CircleLoad(const char *fn) {
 	  if(bynum.count(tnum)) {
 	    Object *nobj = NULL;
 	    Object *nobj2 = NULL;
+	    string des, nm = dirname[dir];
+
 	    typeof((*ob)->Contents()) cont = (*ob)->Contents();
 	    typeof(cont.begin()) cind;
 	    for(cind = cont.begin(); cind != cont.end(); ++cind) {
@@ -1152,6 +1154,14 @@ void Object::CircleLoad(const char *fn) {
 			== bynum[tnum]) {
 		  nobj = (*cind);
 		  nobj2 = (*cind)->ActTarg(ACT_SPECIAL_MASTER);
+		  }
+		}
+	      else if((*cind)->ActTarg(ACT_SPECIAL_LINKED)) {
+		if((*cind)->ActTarg(ACT_SPECIAL_LINKED)->Parent()
+			== bynum[tnum]) {
+		  nobj = (*cind);
+		  nobj2 = (*cind)->ActTarg(ACT_SPECIAL_LINKED);
+		  nm = string(nobj->ShortDesc()) + " and " + dirname[dir];
 		  }
 		}
 	      }
@@ -1168,7 +1178,6 @@ void Object::CircleLoad(const char *fn) {
 	      nobj->StopAct(ACT_SPECIAL_NOTSHOWN);
 	      }
 
-	    string des, nm = dirname[dir];
 	    if(nmnum[dir][*ob] != "") {
 	      nm += " (";
 	      nm += nmnum[dir][*ob];
