@@ -1,7 +1,7 @@
 #include "object.h"
 #include "mind.h"
 
-const int SAVEFILE_VERSION = 105;
+const int SAVEFILE_VERSION = 106;
 
 static char buf[65536];
 static vector<Object*> todo;
@@ -43,6 +43,8 @@ int Object::SaveTo(FILE *fl) {
   fprintf(fl, "%s;\n", long_desc.c_str());
 
   fprintf(fl, "%d %d %d %d %c;\n", weight, size, volume, value, gender);
+
+  fprintf(fl, "%d %d\n", exp, sexp);
 
   fprintf(fl, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d;%d\n",
 	att[0], att[1], att[2], att[3], att[4], att[5], att[6], att[7],
@@ -139,6 +141,8 @@ int Object::LoadFrom(FILE *fl) {
   if(res < 1) fscanf(fl, " ; ");
 
   fscanf(fl, "%d %d %d %d %c;\n", &weight, &size, &volume, &value, &gender);
+
+  if(ver >= 106) fscanf(fl, "%d %d\n", &exp, &sexp);
 
   fscanf(fl, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
 	&att[0], &att[1], &att[2], &att[3], &att[4], &att[5], &att[6], &att[7],

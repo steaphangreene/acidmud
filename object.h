@@ -246,6 +246,7 @@ private:
   int weight, volume, size;
   int value;
   char gender;
+  int exp, sexp;
 
   int phys, stun, stru;
   int att[8];

@@ -296,6 +296,9 @@ Object::Object() {
   value = 0;
   gender = 'N';
 
+  exp = 0;
+  sexp = 0;
+
   stun = 0;
   phys = 0;
   stru = 0;
@@ -324,6 +327,9 @@ Object::Object(Object *o) {
   size = 0;
   value = 0;
   gender = 'N';
+
+  exp = 0;
+  sexp = 0;
 
   stun = 0;
   phys = 0;
@@ -354,6 +360,9 @@ Object::Object(const Object &o) {
   size = o.size;
   value = o.value;
   gender = o.gender;
+
+  exp = o.exp;
+  sexp = o.sexp;
 
   stun = o.stun;
   phys = o.phys;
