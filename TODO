@@ -1,4 +1,3 @@
-Pluralize appropriate commands with intelligent stashing (rem).
 CircleMOB (and equipment?) repopping.
 Implement "all of " for all within.
 Implement "everything"/"everyone".
@@ -8,6 +7,7 @@ Should be able to just "hold" worn items.
 Fix attribute spelling "Proffit" -> "Profit".
 Make single-item commands get only single items.
 Make all plural commands see pluralized items correctly.
+Should not be able to wear multiple (ie: pluralized) items in any location.
 Implement boats and boat travel.
 Fix the "examine one of a group of held items and get it in your rectum" bug.
 Add "mirror" command (like clone, but a mirror-image).

@@ -1678,11 +1678,16 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
-    Object *targ = body->PickObject(comline+len, LOC_INTERNAL);
-    if(!targ) {
+    vector<Object*> targs = body->PickObjects(comline+len, LOC_INTERNAL);
+    if(targs.size() == 0) {
       if(mind) mind->Send("You want to remove what?\n");
+      return 0;
       }
-    else {
+
+    vector<Object*>::iterator targ_it;
+    for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+      Object *targ = (*targ_it);
+    
       int removed = 0;
       for(act_t act = ACT_WEAR_BACK; act < ACT_MAX; ++((int&)(act))) {
 	if(body->ActTarg(act) == targ) { removed = 1; break; }
@@ -1694,11 +1699,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	body->Parent()->SendOut(";s removes and stashes ;s.\n",
 		"You remove and stash ;s.\n", body, targ);
 	}
-     else if(body->IsAct(ACT_HOLD)) {
+      else if(body->IsAct(ACT_HOLD)) {
 	if(mind) mind->Send("You are already holding something else and "
 		"can't stash %s.\n", targ->Name(0, body));
 	}
-     else {
+      else {
 	targ->Travel(body, 0);
 	body->AddAct(ACT_HOLD, targ);
 	body->Parent()->SendOut(";s removes and holds ;s.\n",
