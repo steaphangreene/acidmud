@@ -1,4 +1,3 @@
-Add "look in" ability with auto open/close.
 Get rid of "outside" info if looking at an object directly.
 Add smartness for getting things from things (auto open/close, permission, etc.)
 Fixup "Back" slot so it makes more sense.
