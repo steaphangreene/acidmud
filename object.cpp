@@ -1928,7 +1928,8 @@ Object *Object::Stash(Object *obj) {
   set<Object*> conts;
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
-    if((*ind)->Skill("Container")) conts.insert(*ind);
+    if((*ind)->Skill("Container") && (!(*ind)->Skill("Locked")))
+      conts.insert(*ind);
     }
 
   set<Object*> containers;
@@ -1937,7 +1938,8 @@ Object *Object::Stash(Object *obj) {
     set<Object*>::iterator c;
     for(c = containers.begin(); c != containers.end(); ++c) {
       for(ind = (*c)->contents.begin(); ind != (*c)->contents.end(); ++ind) {
-	if((*ind)->Skill("Container")) conts.insert(*ind);
+	if((*ind)->Skill("Container") && (!(*ind)->Skill("Locked")))
+	  conts.insert(*ind);
 	}
       }
     }

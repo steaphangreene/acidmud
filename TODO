@@ -1,4 +1,3 @@
-Intelligent stashing needs to open/close items, and ignore locked ones.
 Pluralize appropriate commands with intelligent stashing (rem, get).
 CircleMOB (and equipment?) repopping.
 Implement "all of " for all within.
@@ -24,6 +23,7 @@ Finish article substitution ("A" -> "A second", etc...).
 Pick up a fight's other opponents after your target goes down without delay.
 Refine the fudging of circle MOBs' stats (Better AC Handling, Natural Armor).
 Wear/wield from own containers need auto open/close.
+Intelligent stashing needs auto open/close.
 Add better ninja detection to commands handler.
 Show armor messages in ninja display.
 Get it to understand two-handed weapons and shield use.
