@@ -1,6 +1,6 @@
-Better handle shield use during non-combat (auto unhold, etc...).
+Get it to understand offhand weapon use.
 Get it to understand two-handed weapon use.
-Get it to understand offhand and mounted weapon use.
+Get it to understand mounted weapon use.
 Enhance "consider" command.
 Let "remove" command also handle unwielding?
 Implement "all of " target for all within.
@@ -20,6 +20,7 @@ Make all plural commands see pluralized items correctly.
 Fix exchange system handling odd cases (including sell/buy).
 Follower should look like he gets there after folowee to those already there.
 Should not be able to wear/wield multiple (ie: pluralized) items in any location.
+Better handle shield use (auto unhold for unwield, remove, etc...).
 Cleanup item manipulation commands.
 Cleanup and secure shopkeeper vortex objects.
 Improve character creation interface.
