@@ -727,7 +727,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     }
 
-  int stealth_t = ALL, stealth_s = 0;
+  int stealth_t = 0, stealth_s = 0;
 
   if(body && body->Skill("Stealth") > 0) {
     stealth_t = body->Skill("Stealth");

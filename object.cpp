@@ -268,7 +268,7 @@ void Object::Tick() {
       AddAct(ACT_SPECIAL_MONITOR, obj);
       obj->Attach(get_mob_mind());
       obj->Activate();
-      parent->SendOut(ALL, 0, ";s arrives.\n", "", obj, NULL);
+      parent->SendOut(ALL, -1, ";s arrives.\n", "", obj, NULL);
       }
     else if(ActTarg(ACT_SPECIAL_MONITOR)->IsAct(ACT_DEAD)) {
       if(ActTarg(ACT_SPECIAL_OLDMONITOR))
@@ -281,7 +281,7 @@ void Object::Tick() {
       AddAct(ACT_SPECIAL_MONITOR, obj);
       obj->Attach(get_mob_mind());
       obj->Activate();
-      parent->SendOut(ALL, 0, ";s arrives.\n", "", obj, NULL);
+      parent->SendOut(ALL, -1, ";s arrives.\n", "", obj, NULL);
       }
     }
   if(Skill("CirclePopper") > 0) {	// Only pop-check once per minute!
@@ -1550,9 +1550,9 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
       if(act != ACT_FOLLOW || (!newloc)) { StopAct(act); }
       else if(parent == newloc) { } // Do nothing - didn't leave!
       else {
-	parent->SendOut(ALL, 0, ";s follows ;s.\n", "You follow ;s.\n", this, obj);
+	parent->SendOut(ALL, -1, ";s follows ;s.\n", "You follow ;s.\n", this, obj);
 	Travel(newloc);
-	parent->SendOut(ALL, 0, ";s follows ;s.\n", "", this, obj);
+	parent->SendOut(ALL, -1, ";s follows ;s.\n", "", this, obj);
 	AddAct(ACT_FOLLOW, obj);
 	}
       }
@@ -1603,21 +1603,21 @@ void Object::Collapse() {
   StopAct(ACT_FIGHT);
   if(parent) {
     if(pos != POS_LIE) {
-      parent->SendOut(ALL, 0, ";s collapses!\n", "You collapse!\n", this, NULL);
+      parent->SendOut(ALL, -1, ";s collapses!\n", "You collapse!\n", this, NULL);
       pos = POS_LIE;
       }
     if(IsAct(ACT_HOLD) && ActTarg(ACT_HOLD) != ActTarg(ACT_WEAR_SHIELD)) {
-      parent->SendOut(ALL, 0, ";s drops %s!\n", "You drop %s!\n",
+      parent->SendOut(ALL, -1, ";s drops %s!\n", "You drop %s!\n",
 		this, NULL, ActTarg(ACT_HOLD)->ShortDesc());
       ActTarg(ACT_HOLD)->Travel(parent);
       }
     else if(IsAct(ACT_HOLD)) {
-      parent->SendOut(ALL, 0, ";s stops holding %s.\n", "You stop holding %s!\n",
+      parent->SendOut(ALL, -1, ";s stops holding %s.\n", "You stop holding %s!\n",
 		this, NULL, ActTarg(ACT_HOLD)->ShortDesc());
       StopAct(ACT_HOLD);
       }
     if(IsAct(ACT_WIELD)) {
-      parent->SendOut(ALL, 0, ";s drops %s!\n", "You drop %s!\n",
+      parent->SendOut(ALL, -1, ";s drops %s!\n", "You drop %s!\n",
 		this, NULL, ActTarg(ACT_WIELD)->ShortDesc());
       ActTarg(ACT_WIELD)->Travel(parent);
       }
@@ -1633,7 +1633,7 @@ void Object::UpdateDamage() {
     phys = 10+Attribute(0)+1;
 
     if(IsAct(ACT_DEAD) == 0) {
-      parent->SendOut(ALL, 0, 
+      parent->SendOut(ALL, -1, 
 	";s expires from its wounds.\n", "You expire, sorry.\n", this, NULL);
       stun = 10;
       Collapse();
@@ -1651,7 +1651,7 @@ void Object::UpdateDamage() {
     }
   else if(phys >= 10) {
     if(IsAct(ACT_DYING)+IsAct(ACT_DEAD) == 0) {
-      parent->SendOut(ALL, 0, 
+      parent->SendOut(ALL, -1, 
 	";s collapses, bleeding and dying!\n",
 	"You collapse, bleeding and dying!\n",
 	this, NULL);
@@ -1660,7 +1660,7 @@ void Object::UpdateDamage() {
       AddAct(ACT_DYING);
       }
     else if(IsAct(ACT_DEAD) == 0) {
-      parent->SendOut(ALL, 0, 
+      parent->SendOut(ALL, -1, 
 	";s isn't quite dead yet!\n", "You aren't quite dead yet!\n",
 	this, NULL);
       StopAct(ACT_DEAD);
@@ -1670,13 +1670,13 @@ void Object::UpdateDamage() {
     }
   else if(stun >= 10) {
     if(IsAct(ACT_UNCONSCIOUS)+IsAct(ACT_DYING)+IsAct(ACT_DEAD)==0) {
-      parent->SendOut(ALL, 0, 
+      parent->SendOut(ALL, -1, 
 	";s falls unconscious!\n", "You fall unconscious!\n", this, NULL);
       Collapse();
       AddAct(ACT_UNCONSCIOUS);
       }
     else if(IsAct(ACT_DEAD)+IsAct(ACT_DYING) != 0) {
-      parent->SendOut(ALL, 0, 
+      parent->SendOut(ALL, -1, 
 	";s isn't dead, just out cold.\n", "You aren't dead, just unconscious.",
 	this, NULL);
       StopAct(ACT_DEAD);
@@ -1687,7 +1687,7 @@ void Object::UpdateDamage() {
     }
   else if(stun > 0) {
     if(IsAct(ACT_DEAD)+IsAct(ACT_DYING)+IsAct(ACT_UNCONSCIOUS) != 0) {
-      parent->SendOut(ALL, 0, 
+      parent->SendOut(ALL, -1, 
 	";s wakes up, a little groggy.\n", "You wake up, a little groggy.",
 	this, NULL);
       StopAct(ACT_DEAD);
@@ -1697,7 +1697,7 @@ void Object::UpdateDamage() {
     }
   else {
     if(IsAct(ACT_DEAD)+IsAct(ACT_DYING)+IsAct(ACT_UNCONSCIOUS) != 0) {
-      parent->SendOut(ALL, 0, 
+      parent->SendOut(ALL, -1, 
 	";s wakes up, feeling fine!\n", "You wake up, feeling fine!\n",
 	this, NULL);
       StopAct(ACT_DEAD);
@@ -1776,7 +1776,7 @@ void Object::Send(int tnum, int rsucc, const char *mes, ...) {
 
   if(mes[0] == 0) return;
 
-  if(tnum != ALL && rsucc > 0 && (!Roll("Perception", tnum))) {
+  if(tnum != ALL && rsucc >= 0 && Roll("Perception", tnum) <= rsucc) {
     return;
     }
 
@@ -1826,22 +1826,22 @@ void Object::SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
   for(char *ctr=youbuf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
 
   if(youmes && youbuf[0] == '*' && this == actor) {
-    Send(ALL, 0, CGRN);
-    Send(ALL, 0, youbuf+1, tstr.c_str());
-    Send(ALL, 0, CNRM);
+    Send(ALL, -1, CYEL);
+    Send(ALL, -1, youbuf+1, tstr.c_str());
+    Send(ALL, -1, CNRM);
     }
   else if(buf[0] == '*' && targ == this) {
-    Send(ALL, 0, CRED);
+    Send(ALL, -1, CRED);
     Send(tnum, rsucc, buf+1, astr.c_str(), tstr.c_str());
-    Send(ALL, 0, CNRM);
+    Send(ALL, -1, CNRM);
     }
   else if(buf[0] == '*') {
-    Send(ALL, 0, CMAG);
+    Send(ALL, -1, CMAG);
     Send(tnum, rsucc, buf+1, astr.c_str(), tstr.c_str());
-    Send(ALL, 0, CNRM);
+    Send(ALL, -1, CNRM);
     }
   else if(youmes && this == actor) {
-    Send(ALL, 0, youbuf, tstr.c_str());
+    Send(ALL, -1, youbuf, tstr.c_str());
     }
   else {
     Send(tnum, rsucc, buf, astr.c_str(), tstr.c_str());
@@ -1886,17 +1886,17 @@ void Object::SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
   for(char *ctr=youbuf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
 
   if(youmes && youbuf[0] == '*' && this == actor) {
-    Send(ALL, 0, CGRN);
-    Send(ALL, 0, youbuf+1, tstr.c_str());
-    Send(ALL, 0, CNRM);
+    Send(ALL, -1, CGRN);
+    Send(ALL, -1, youbuf+1, tstr.c_str());
+    Send(ALL, -1, CNRM);
     }
   else if(buf[0] == '*') {
-    Send(ALL, 0, CRED);
+    Send(ALL, -1, CRED);
     Send(tnum, rsucc, buf+1, astr.c_str(), tstr.c_str());
-    Send(ALL, 0, CNRM);
+    Send(ALL, -1, CNRM);
     }
   else if(youmes && this == actor) {
-    Send(ALL, 0, youbuf, tstr.c_str());
+    Send(ALL, -1, youbuf, tstr.c_str());
     }
   else {
     Send(tnum, rsucc, buf, astr.c_str(), tstr.c_str());
