@@ -79,7 +79,7 @@ public:
   ~Object();
 
   Object *Next(string &);
-  const char *Name(int definite = 0, Object *rel = NULL);
+  const char *Name(int definite = 0, Object *rel = NULL, Object *sub = NULL);
   const char *ShortDesc();
   const char *Desc();
   const char *LongDesc();

@@ -344,10 +344,17 @@ Object::Object(const Object &o) {
   no_seek = 0;
   }
 
-const char *Object::Name(int definite, Object *rel) { // Truly-formatted name
+// Generate truly-formatted name
+const char *Object::Name(int definite, Object *rel, Object *sub) {
   static string local;
   int proper = 0;
   string ret;
+
+  if(rel == this && sub == this) return "yourself";
+  else if(rel == this) return "you";
+  else if(sub == this && sub->Gender() == 'F') return "herself";
+  else if(sub == this && sub->Gender() == 'M') return "himself";
+  else if(sub == this) return "itself";
 
   if(!strncasecmp(short_desc.c_str(), "a ", 2)) {
     ret = (short_desc.c_str()+2);
@@ -367,8 +374,17 @@ const char *Object::Name(int definite, Object *rel) { // Truly-formatted name
     if(pos && pos == rel) {
       ret = string("your ") + ret;
       }
+    else if(pos && pos == sub && pos->Gender() == 'F') {
+      ret = string("her ") + ret;
+      }
+    else if(pos && pos == sub && pos->Gender() == 'M') {
+      ret = string("his ") + ret;
+      }
+    else if(pos && pos == sub) {
+      ret = string("its ") + ret;
+      }
     else if(pos) {
-      ret = string(pos->ShortDesc()) + "'s " + ret;
+      ret = string(pos->Name()) + "'s " + ret;
       }
     else if(definite) {
       ret = string("the ") + ret;
@@ -494,13 +510,7 @@ void Object::SendActions(Mind *m) {
       char *targ, *dirn = "", *dirp = "";
 
       if(!cur->second) targ = "";
-      else if(cur->second == this && cur->second->Gender() == 'M')
-	targ = "himself";
-      else if(cur->second == this && cur->second->Gender() == 'F')
-	targ = "herself";
-      else if(cur->second == this) targ = "itself";
-      else if(cur->second == m->Body()) targ = "you";
-      else targ = (char*) cur->second->ShortDesc();
+      else targ = (char*) cur->second->Name(0, m->Body(), this);
 
       map<string,Object*>::iterator dir = connections.begin();
       for(; dir != connections.end(); ++dir) {
@@ -548,15 +558,14 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
 
     char *targ;
     if(!cur->second) targ = "";
-    else if(cur->second == this && cur->second->Gender() == 'M')
-      targ = "himself";
-    else if(cur->second == this && cur->second->Gender() == 'F')
-      targ = "herself";
-    else if((cur->second) == this) targ = "itself";
-    else if((cur->second) == m->Body()) targ = "you";
-    else targ = (char*) cur->second->ShortDesc();
+    else targ = (char*) cur->second->Name(0, m->Body(), this);
+    targ[0] = toupper(targ[0]);
 
-    m->Send("%s%s.\n%s", CGRN, targ, CNRM);
+    char qty[256] = { 0 };
+    if(cur->second->Skill("Quantity") > 1)
+      sprintf(qty, " (x%d)", cur->second->Skill("Quantity"));
+
+    m->Send("%s%s%s.\n%s", CGRN, targ, qty, CNRM);
 
     if(seeinside || cur->second->Skill("Transparent")) {
       sprintf(buf, "%16s  %c", " ", 0);
@@ -610,7 +619,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside) {
 
       if(qty > 1) m->Send("(x%d) ", qty);
 
-      sprintf(buf, "%s %s%c", (*ind)->ShortDesc(), (*ind)->PosString(), 0);
+      sprintf(buf, "%s %s%c", (*ind)->Name(), (*ind)->PosString(), 0);
       buf[0] = toupper(buf[0]);
       m->Send(buf);
 
@@ -764,15 +773,10 @@ void Object::SendDesc(Mind *m, Object *o) {
     SendExtendedActions(m, 0);
     }
 
-//  if(m->Body() == this) {
-//    SendContents(m, o, 1);
-//    }
-//  else 
   if((!parent) || Contains(o) || Skill("Transparent")) {
     SendContents(m, o);
     }
 
-//  m->Send("%s", CMAG);
   m->Send("%s", CNRM);
   }
 
@@ -813,10 +817,6 @@ void Object::SendDescSurround(Mind *m, Object *o) {
     SendExtendedActions(m, 0);
     }
 
-//  if(m->Body() == this) {
-//    SendContents(m, o, 1);
-//    }
-//  else 
   if((!parent) || Contains(o) || Skill("Transparent")) {
     SendContents(m, o);
     }
@@ -829,7 +829,6 @@ void Object::SendDescSurround(Mind *m, Object *o) {
     no_seek = 0;
     }
 
-//  m->Send("%s", CMAG);
   m->Send("%s", CNRM);
   }
 
@@ -1629,10 +1628,8 @@ void Object::SendIn(const char *mes, const char *youmes,
   static char buf[65536];
   static char youbuf[65536];
 
-  string tstr = "";
-  if(targ) tstr = (char*)targ->Name(0, this);
-  string astr = "";
-  if(actor) astr = (char*)actor->Name(0, this);
+  string tstr = "";  if(targ) tstr = (char*)targ->Name(0, this, actor);
+  string astr = "";  if(actor) astr = (char*)actor->Name(0, this);
 
   memset(buf, 0, 65536);
   memset(youbuf, 0, 65536);
@@ -1650,14 +1647,7 @@ void Object::SendIn(const char *mes, const char *youmes,
   for(char *ctr=buf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
   for(char *ctr=youbuf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
 
-  if(youmes && this == actor && this == targ) Send(youbuf, "yourself");
-  else if(youmes && this == actor) Send(youbuf, tstr.c_str());
-  else if(this == targ) Send(buf, astr.c_str(), "you");
-  else if(actor == targ && actor->Gender() == 'M')
-    Send(buf, astr.c_str(), "himself");
-  else if(actor == targ && actor->Gender() == 'F')
-    Send(buf, astr.c_str(), "herself");
-  else if(actor == targ) Send(buf, astr.c_str(), "itself");
+  if(youmes && this == actor) Send(youbuf, tstr.c_str());
   else Send(buf, astr.c_str(), tstr.c_str());
 
   typeof(contents.begin()) ind;
@@ -1679,7 +1669,7 @@ void Object::SendOut(const char *mes, const char *youmes,
   static char buf[65536];
   static char youbuf[65536];
 
-  string tstr = "";  if(targ) tstr = (char*)targ->Name(0, this);
+  string tstr = "";  if(targ) tstr = (char*)targ->Name(0, this, actor);
   string astr = "";  if(actor) astr = (char*)actor->Name(0, this);
 
   memset(buf, 0, 65536);
@@ -1698,14 +1688,7 @@ void Object::SendOut(const char *mes, const char *youmes,
   for(char *ctr=buf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
   for(char *ctr=youbuf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
 
-  if(youmes && this == actor && this == targ) Send(youbuf, "yourself");
-  else if(youmes && this == actor) Send(youbuf, tstr.c_str());
-  else if(this == targ) Send(buf, astr.c_str(), "you");
-  else if(actor == targ && actor->Gender() == 'M')
-    Send(buf, astr.c_str(), "himself");
-  else if(actor == targ && actor->Gender() == 'F')
-    Send(buf, astr.c_str(), "herself");
-  else if(actor == targ) Send(buf, astr.c_str(), "itself");
+  if(youmes && this == actor) Send(youbuf, tstr.c_str());
   else Send(buf, astr.c_str(), tstr.c_str());
 
   typeof(contents.begin()) ind;
@@ -1930,7 +1913,7 @@ void Object::operator = (const Object &in) {
 
   pos = in.pos;
 
-//  contents = in.contents;
+//  contents = in.contents;	// NOT doing this for deep/shallow reasons.
 //  act = in.act;
   }
 

@@ -1789,9 +1789,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else {
       vector<Object *>::iterator targ;
       for(targ = targs.begin(); targ != targs.end(); ++targ) {
-	(*targ)->Travel(body->Parent());
 	body->Parent()->SendOut(
 	  ";s drops ;s.\n", "You drop ;s.\n", body, *targ);
+	(*targ)->Travel(body->Parent());
 	}
       }
     return 0;
