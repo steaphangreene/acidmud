@@ -284,39 +284,55 @@ void Mind::Think(int istick) {
     if(body && body->Parent() && (body->Skill("CircleAction") & 2) == 0
 	&& (!body->IsAct(ACT_FIGHT)) && istick && (!body->StillBusy())
 	&& (!body->IsAct(ACT_REST)) && (!body->IsAct(ACT_SLEEP))
-	&& body->Stun() < 6 && body->Phys() < 6) {
-      //FIXME: Uses connections!
-      map<string,Object*> cons = body->Parent()->Connections();
+	&& body->Stun() < 6 && body->Phys() < 6
+	&& body->Roll("Willpower", 9)) {
 
-      map<string,Object*> cons2 = cons;
-      map<string,Object*>::iterator dir = cons2.begin();
+
+      map<Object*, char*> cons;
+      cons[body->PickObject("north", LOC_NEARBY)] = "north";
+      cons[body->PickObject("south", LOC_NEARBY)] = "south";
+      cons[body->PickObject("east",  LOC_NEARBY)] = "east";
+      cons[body->PickObject("west",  LOC_NEARBY)] = "west";
+      cons[body->PickObject("up",    LOC_NEARBY)] = "up";
+      cons[body->PickObject("down",  LOC_NEARBY)] = "down";
+      cons.erase(NULL);
+
+      map<Object*, char*> cons2 = cons;
+      map<Object*, char*>::iterator dir = cons2.begin();
       for(; dir != cons2.end(); ++dir) {
-	if(dir->second->Skill("CircleZone") == 999999) { //NO_MOBS Circle Zone
+	if((!dir->first->ActTarg(ACT_SPECIAL_LINKED))
+		|| (!dir->first->ActTarg(ACT_SPECIAL_LINKED)->Parent())) {
+	  cons.erase(dir->first);
+	  continue;
+	  }
+
+	Object *dest = dir->first->ActTarg(ACT_SPECIAL_LINKED)->Parent();
+	if(dest->Skill("CircleZone") == 999999) { //NO_MOBS Circle Zone
 	  cons.erase(dir->first); //Don't Enter NO_MOBS Zone!
 	  }
 	else if(body->Skill("CircleAction") & 64) {	//STAY_ZONE Circle MOBs
-	  if(dir->second->Skill("CircleZone")
+	  if(dest->Skill("CircleZone")
 			!= body->Parent()->Skill("CircleZone")) {
 	    cons.erase(dir->first);			//Don't Leave Zone!
 	    }
 	  }
 	else if(body->Skill("Swimming") == 0) {		//Can't Swim?
-	  if(dir->second->Skill("WaterDepth") == 1) {
+	  if(dest->Skill("WaterDepth") == 1) {
 	    cons.erase(dir->first);			//Can't swim!
 	    }
 	  }
 	else if(!(body->Skill("CircleAffection")&64)) {	//Can't Waterwalk?
-	  if(dir->second->Skill("WaterDepth") >= 1) {	//Need boat!
+	  if(dest->Skill("WaterDepth") >= 1) {	//Need boat!
 	    cons.erase(dir->first);			//FIXME: Have boat?
 	    }
 	  }
 	}
 
-      if(cons.size() && body->Roll("Willpower", 9)) {
+      if(cons.size()) {
 	int res = rand() % cons.size();
-	map<string,Object*>::iterator dir = cons.begin();
+	map<Object*, char*>::iterator dir = cons.begin();
 	while(res > 0) { ++dir; --res; }
-	body->BusyFor(500, dir->first.c_str());
+	body->BusyFor(500, dir->second);
 	return;
 	}
       }

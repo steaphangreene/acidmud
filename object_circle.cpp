@@ -1094,9 +1094,6 @@ void Object::CircleLoad(const char *fn) {
 	if(tonum[dir].count(*ob)) {
 	  int tnum = tonum[dir][*ob];
 	  if(bynum.count(tnum)) {
-	    (*ob)->connections[dirname[dir]] = bynum[tnum];
-	    tonum[dir].erase(*ob);
-
 	    Object *nobj = new Object;
 	    Object *nobj2 = new Object;
 

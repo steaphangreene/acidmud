@@ -60,8 +60,6 @@ enum {	COM_HELP=0,
 	COM_WEST,
 	COM_UP,
 	COM_DOWN,
-	COM_LEAVE,
-	COM_ENTER,
 
 	COM_LOOK,
 	COM_EXAMINE,
@@ -69,6 +67,9 @@ enum {	COM_HELP=0,
 	COM_CONSIDER,
 	COM_INVENTORY,
 	COM_EQUIPMENT,
+
+	COM_LEAVE,
+	COM_ENTER,
 
 	COM_OPEN,
 	COM_CLOSE,
@@ -192,16 +193,6 @@ Command comlist[] = {
     "Travel down.",
     (REQ_ALERT|REQ_STAND|REQ_ACTION)
     },
-  { COM_LEAVE, "leave",
-    "Leave an object.",
-    "Leave an object.",
-    (REQ_ALERT|REQ_STAND|REQ_ACTION)
-    },
-  { COM_ENTER, "enter",
-    "Enter an object (or enter the game).",
-    "Enter an object (or enter the game).",
-    (REQ_ETHEREAL|REQ_ALERT|REQ_STAND|REQ_ACTION)
-    },
 
   { COM_LOOK, "look",
     "Look around, look in a direction, or look at an object or creature.",
@@ -232,6 +223,17 @@ Command comlist[] = {
     "Check what you are wearing and using.",
     "Check what you are wearing and using.",
     (REQ_AWAKE|REQ_ACTION)
+    },
+
+  { COM_LEAVE, "leave",
+    "Leave an object.",
+    "Leave an object.",
+    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    },
+  { COM_ENTER, "enter",
+    "Enter an object (or enter the game).",
+    "Enter an object (or enter the game).",
+    (REQ_ETHEREAL|REQ_ALERT|REQ_STAND|REQ_ACTION)
     },
 
   { COM_OPEN, "open",

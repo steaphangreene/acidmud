@@ -1,7 +1,7 @@
 #include "object.h"
 #include "mind.h"
 
-const int SAVEFILE_VERSION = 106;
+const int SAVEFILE_VERSION = 107;
 
 static char buf[65536];
 static vector<Object*> todo;
@@ -55,12 +55,6 @@ int Object::SaveTo(FILE *fl) {
     fprintf(fl, ":%s,%d", sk->first.c_str(), sk->second);
   fprintf(fl, ";\n");
 
-  fprintf(fl, "%d\n", connections.size());
-  map<string,Object*>::iterator dind;
-  for(dind = connections.begin(); dind != connections.end(); ++dind) {
-    fprintf(fl, "%s;%d\n", dind->first.c_str(), getnum(dind->second));
-    }
-
   fprintf(fl, "%d\n", contents.size());
   typeof(contents.begin()) cind;
   for(cind = contents.begin(); cind != contents.end(); ++cind) {
@@ -98,11 +92,6 @@ int Object::Load(const char *fn) {
   
   vector<Object*>::iterator ind;
   for(ind = todo.begin(); ind != todo.end(); ++ind) {
-    map<string,Object*>::iterator dind = (*ind)->connections.begin();
-    for(; dind != (*ind)->connections.end(); ++dind) {
-      int num = int(dind->second);
-      dind->second = num2obj[num];
-      }
     map<act_t,Object*>::iterator aind = (*ind)->act.begin();
     for(; aind != (*ind)->act.end(); ++aind) {
       int num = int(aind->second);
@@ -161,11 +150,11 @@ int Object::LoadFrom(FILE *fl) {
     }
   fscanf(fl, ";\n");
 
-  fscanf(fl, "%d ", &num);
-  for(int ctr=0; ctr<num; ++ctr) {
-    memset(buf, 0, 65536);  int num2;
-    fscanf(fl, "%[^;];%d ", buf, &num2);
-    connections[buf] = (Object*)num2;
+  if(ver < 107) {	// Load, but IGNORE old connections info
+    fscanf(fl, "%d ", &num);
+    for(int ctr=0; ctr<num; ++ctr) {
+      fscanf(fl, "%*[^;];%*d ");
+      }
     }
 
   vector<Object*> toload;

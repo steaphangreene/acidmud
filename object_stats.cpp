@@ -561,7 +561,6 @@ static void init_defaults() {
   add_wts("Mounted Crushing");
   add_wts("Mounted Flails");
   add_wts("Mounted Piercing");
-  add_wts("Mounted Staves");
 
   add_wts("Archery");
   add_wts("Blowgun");
@@ -579,8 +578,7 @@ static void init_defaults() {
   add_wts("Mounted Crossbow");
   add_wts("Mounted Nets");
   add_wts("Mounted Slings");
-  add_wts("Mounted Throwing (Aero)");
-  add_wts("Mounted Throwing (Non-Aero)");
+  add_wts("Mounted Throwing");
   add_wts("Mounted Whips");
 
   add_wts("Shields");

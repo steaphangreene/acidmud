@@ -666,6 +666,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
     if((*ind)->IsAct(ACT_SPECIAL_LINKED)) {
       if((*ind)->ActTarg(ACT_SPECIAL_LINKED)
 		&& (*ind)->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
+	if(base != "") m->Send("%s%sInside: ", base.c_str(), CNRM);
 	m->Send("%s", CCYN);
 	string send = (*ind)->ShortDesc();
 	send += " you see ";
@@ -1470,20 +1471,20 @@ list<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
       }
     }
 
-  //FIXME: Uses "connections".
-  if(loc & LOC_ADJACENT) {
-    char *dir = name;
-    if(!strcasecmp(dir, "n")) dir = "north";
-    if(!strcasecmp(dir, "s")) dir = "south";
-    if(!strcasecmp(dir, "w")) dir = "west";
-    if(!strcasecmp(dir, "e")) dir = "east";
-    if(!strcasecmp(dir, "u")) dir = "up";
-    if(!strcasecmp(dir, "d")) dir = "down";
-
-    if(parent->connections.count(dir) > 0) {
-      if(tag(parent->connections[dir], ret, ordinal)) return ret;
-      }
-    }
+//  //FIXME: Uses "connections".
+//  if(loc & LOC_ADJACENT) {
+//    char *dir = name;
+//    if(!strcasecmp(dir, "n")) dir = "north";
+//    if(!strcasecmp(dir, "s")) dir = "south";
+//    if(!strcasecmp(dir, "w")) dir = "west";
+//    if(!strcasecmp(dir, "e")) dir = "east";
+//    if(!strcasecmp(dir, "u")) dir = "up";
+//    if(!strcasecmp(dir, "d")) dir = "down";
+//
+//    if(parent->connections.count(dir) > 0) {
+//      if(tag(parent->connections[dir], ret, ordinal)) return ret;
+//      }
+//    }
 
   return ret;
   }
