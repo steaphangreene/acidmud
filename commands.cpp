@@ -1682,23 +1682,27 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(!targ) {
       if(mind) mind->Send("You want to remove what?\n");
       }
-    else if(body->IsAct(ACT_HOLD)) {
-      if(mind) mind->Send("You are already holding something else, do you mean to 'drop' this?\n");
-      }
     else {
       int removed = 0;
       for(act_t act = ACT_WEAR_BACK; act < ACT_MAX; ++((int&)(act))) {
-	if(body->ActTarg(act) == targ) {
-	  body->StopAct(act);  removed = 1;
-	  }
+	if(body->ActTarg(act) == targ) { removed = 1; break; }
 	}
       if(!removed) {
-	if(mind) mind->Send("You are not wearing that!\n");
+        if(mind) mind->Send("You are not wearing %s!\n", targ->Name(0, body));
 	}
-      else {
+      else if(body->Stash(targ)) {
+	body->Parent()->SendOut(";s removes and stashes ;s.\n",
+		"You remove and stash ;s.\n", body, targ);
+	}
+     else if(body->IsAct(ACT_HOLD)) {
+	if(mind) mind->Send("You are already holding something else and "
+		"can't stash %s.\n", targ->Name(0, body));
+	}
+     else {
+	targ->Travel(body, 0);
 	body->AddAct(ACT_HOLD, targ);
-	body->Parent()->SendOut(
-		";s removes ;s.\n", "You remove ;s.\n", body, targ);
+	body->Parent()->SendOut(";s removes and holds ;s.\n",
+		"You remove and hold ;s.\n", body, targ);
 	}
       }
     return 0;
