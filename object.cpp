@@ -685,7 +685,7 @@ void Object::SendDesc(Mind *m, Object *o) {
 //    SendContents(m, o, 1);
 //    }
 //  else 
-  if(pos == POS_NONE || Skill("Transparent")) {
+  if(Contains(o) || Skill("Transparent")) {
     SendContents(m, o);
     }
 
@@ -733,7 +733,7 @@ void Object::SendDescSurround(Mind *m, Object *o) {
 //    SendContents(m, o, 1);
 //    }
 //  else 
-  if(pos == POS_NONE || Skill("Transparent")) {
+  if(Contains(o) || Skill("Transparent")) {
     SendContents(m, o);
     }
 
