@@ -3,8 +3,9 @@
 #define MIND_MORON 0
 #define MIND_REMOTE 1
 #define MIND_SLAVE 2
-#define MIND_MOB 3
-#define MIND_SYSTEM 4
+#define MIND_CIRCLEMOB 3
+#define MIND_MOB 4
+#define MIND_SYSTEM 5
 
 class Mind;
 class Object;

@@ -23,6 +23,43 @@ void Object::DynamicInit() {
   SetSkill("DynamicInit", 0);
   }
 
+static void make_dwarf_miner(Object *loc) {
+  Object *mob = new Object(loc);
+
+  mob->Attach(get_mob_mind());
+  mob->Activate();
+  mob->SetPos(POS_STAND);
+  mob->SetAttribute(0, 7+rand()%7);
+  mob->SetAttribute(1, 4+rand()%5);
+  mob->SetAttribute(2, 6+rand()%7);
+  mob->SetAttribute(3, 2+rand()%2);
+  mob->SetAttribute(4, 4+rand()%3);
+  mob->SetAttribute(5, 8+rand()%7);
+  mob->SetSkill("Two-Handed Cleaves", mob->Attribute(0) - rand()%4);
+
+  mob->SetShortDesc("a dwarf miner");
+  mob->SetDesc("He looks pissed.");
+
+  mob->SetSkill("CircleGold", 500+rand()%2001);
+  loc->CircleFinishMob(mob);
+
+  Object *obj = new Object(mob);
+  obj->SetSkill("WeaponType", get_weapon_type("Two-Handed Cleaves"));
+  obj->SetSkill("WeaponForce", 2);
+  obj->SetSkill("WeaponSeverity", 3);
+  obj->SetSkill("WeaponReach", 2);
+  obj->SetShortDesc("a dwarven mining pickaxe");
+  obj->SetDesc("A super-strong, super-sharp, super-heavy pickaxe.");
+  obj->SetWeight(20000);
+  obj->SetVolume(50);
+  obj->SetValue(2000);
+  obj->SetPos(POS_LIE);
+
+  mob->AddAct(ACT_WIELD, obj);
+  mob->AddAct(ACT_HOLD, obj);
+  }
+
+
 void Object::DynamicInit9() {
   }
 
@@ -45,43 +82,6 @@ void Object::DynamicInit3() {
   }
 
 void Object::DynamicInit2() {
-  }
-
-
-void make_dwarf(Object *loc) {
-  Object *mob = new Object(loc);
-
-	mob->Attach(get_mob_mind());
-	mob->Activate();
-	mob->SetPos(POS_STAND);
-	mob->SetAttribute(0, 9);
-	mob->SetAttribute(1, 6);
-	mob->SetAttribute(2, 9);
-	mob->SetAttribute(3, 2);
-	mob->SetAttribute(4, 5);
-	mob->SetAttribute(5, 9);
-	mob->SetSkill("Two-Handed Cleaves", 9);
-
-	mob->SetShortDesc("a dwarf miner");
-	mob->SetDesc("He looks pissed.");
-
-	mob->SetSkill("CircleGold", 1000);
-	loc->CircleFinishMob(mob);
-
-        Object *obj = new Object(mob);
-	obj->SetSkill("WeaponType", get_weapon_type("Two-Handed Cleaves"));
-	obj->SetSkill("WeaponForce", 2);
-	obj->SetSkill("WeaponSeverity", 3);
-	obj->SetSkill("WeaponReach", 2);
-	obj->SetShortDesc("a dwarven mining pickaxe");
-	obj->SetDesc("A super-strong, super-sharp, super-heavy pickaxe.");
-	obj->SetWeight(20000);
-	obj->SetVolume(50);
-	obj->SetValue(2000);
-	obj->SetPos(POS_LIE);
-
-	mob->AddAct(ACT_WIELD, obj);
-	mob->AddAct(ACT_HOLD, obj);
   }
 
 void Object::DynamicInit1() {		//Dwarven mine
@@ -133,6 +133,8 @@ void Object::DynamicInit1() {		//Dwarven mine
 
       }break;
     case(1): { //Major Shaft
+      if((rand()%100) < 30) { mojo -= 500; make_dwarf_miner(this); }
+
       if(mojo <= 0) break; //End of Tunnel
 
 //      int ntypes[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4 };
@@ -162,11 +164,10 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
       door2->SetSkill("Open", 1);
       door2->SetSkill("Enterable", 1);
-
-      if((rand()%100) < 30) make_dwarf(this);
-
       }break;
     case(2): { //Major Shaft w/ Minor Offshoot
+      if((rand()%100) < 30) { mojo -= 500; make_dwarf_miner(this); }
+
       if(mojo <= 0) break; //End of Tunnel
 
 //      int ntypes[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4 };
@@ -221,11 +222,10 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
       door2->SetSkill("Open", 1);
       door2->SetSkill("Enterable", 1);
-
-      if((rand()%100) < 30) make_dwarf(this);
-
       }break;
     case(3): { //Major Shaft w/ Secret Minor Offshoot
+      if((rand()%100) < 30) { mojo -= 500; make_dwarf_miner(this); }
+
       if(mojo <= 0) break; //End of Tunnel
 
 //      int ntypes[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4 };
@@ -281,11 +281,10 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetSkill("Open", 1);
       door2->SetSkill("Enterable", 1);
       door1->SetSkill("Hidden", 4 + rand()%13);
-
-      if((rand()%100) < 30) make_dwarf(this);
-
       }break;
     case(5): { //Minor Shaft
+      if((rand()%100) < 30) { mojo -= 500; make_dwarf_miner(this); }
+
       if(mojo <= 0) break; //End of Tunnel
 
 //      int ntypes[] = { 5, 5, 5, 5, 6, 6, 6, 7, 7, 8, 9 };
@@ -315,11 +314,10 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
       door2->SetSkill("Open", 1);
       door2->SetSkill("Enterable", 1);
-
-      if((rand()%100) < 30) make_dwarf(this);
-
       }break;
     case(6): { //Minor Shaft (Bend)
+      if((rand()%100) < 30) { mojo -= 500; make_dwarf_miner(this); }
+
 //      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7, 8, 9 };
       int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7 };
       int ntype = ntypes[rand() % (sizeof(ntypes)/sizeof(int))];
@@ -348,11 +346,10 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
       door2->SetSkill("Open", 1);
       door2->SetSkill("Enterable", 1);
-
-      if((rand()%100) < 30) make_dwarf(this);
-
       }break;
     case(7): { //Minor Shaft Fork
+      if((rand()%100) < 30) { mojo -= 500; make_dwarf_miner(this); }
+
 //      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7, 8, 9 };
       int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7 };
       int ntype = ntypes[rand() % (sizeof(ntypes)/sizeof(int))];
@@ -406,9 +403,6 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
       door2->SetSkill("Open", 1);
       door2->SetSkill("Enterable", 1);
-
-      if((rand()%100) < 30) make_dwarf(this);
-
       }break;
     default: {
       fprintf(stderr, "Unknown dynamic-phase-type (%d-%d) init requested!\n",

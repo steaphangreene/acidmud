@@ -65,7 +65,7 @@ void Mind::SetRemote(int fd) {
   }
 
 void Mind::SetMob() {
-  type = MIND_MOB;
+  type = MIND_CIRCLEMOB;
   pers = fileno(stderr);
   }
 
@@ -121,7 +121,7 @@ void Mind::Send(const char *mes, ...) {
   if(type == MIND_REMOTE) {
     SendOut(pers, buf);
     }
-  else if(type == MIND_MOB) {
+  else if(type == MIND_CIRCLEMOB) {
 //    string newmes = "";
 //    if(body) newmes += body->ShortDesc();
 //    newmes += ": ";
@@ -205,7 +205,7 @@ void Mind::SetPlayer(string pn) {
   }
 
 void Mind::Think(int istick) {
-  if(type == MIND_MOB) {
+  if(type == MIND_CIRCLEMOB) {
     if((!body) || body->StillBusy()) return;
 
     //Temporary
