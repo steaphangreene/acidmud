@@ -947,19 +947,19 @@ void Object::SendStats(Mind *m, Object *o) {
   }
 
 void Object::AddLink(Object *ob) {
-				//FIXME: Insert in smarter order?
-
-//  contents.insert(ob);   		//For set<Object*> contents.
-
-  typeof(contents.begin()) ind;		//For vector<Object*> contents.
+  typeof(contents.begin()) ind;
   ind = find(contents.begin(), contents.end(), ob);
-  if(ind == contents.end()) contents.push_back(ob);
+  if(ind == contents.end()) {
+    typeof(contents.begin()) place = contents.end();
+    for(ind = contents.begin(); ind != contents.end(); ++ind) {
+      if((*(*ind)) == (*ob)) { place = ind; ++place; }	//Likes by likes
+      }
+    contents.insert(place, ob);
+    }
   }
 
 void Object::RemoveLink(Object *ob) {
-//  contents.erase(ob);			//For set<Object*> contents.
-
-  typeof(contents.begin()) ind;		//For vector<Object*> contents.
+  typeof(contents.begin()) ind;
   ind = find(contents.begin(), contents.end(), ob);
   while(ind != contents.end()) {
     contents.erase(ind);
@@ -1922,22 +1922,6 @@ void Object::operator = (const Object &in) {
   }
 
 vector<Object *> Object::Contents() {
-/* Uncomment for auto-recombination (BROKEN?)
-  typeof(contents.begin()) i1;
-  typeof(contents.begin()) i2;
-  for(i1 = contents.begin(); i1 != contents.end(); ++i1) {
-    for(i2 = i1, ++i2; i2 != contents.end(); ++i2) {
-      if((*(*i1)) == (*(*i2))) {
-	int qty = 2;
-	if((*i1)->Skill("Quantity")) qty += ((*i1)->Skill("Quantity") - 1);
-	if((*i2)->Skill("Quantity")) qty += ((*i2)->Skill("Quantity") - 1);
-	(*i1)->SetSkill("Quantity", qty);
-	delete(*i2);
-	return Contents();
-	}
-      }
-    }
-*/
   return contents;
   }
 
