@@ -16,6 +16,7 @@ class Mind {
 public:
   Mind();
   Mind(int fd);
+  Mind(int fd, int l);
   ~Mind();
   void SetRemote(int fd);
   void SetMob();
@@ -31,6 +32,7 @@ public:
   void SetPlayer(string);
   int Type() { return type; };
   int ID() { return pers; };
+  int LogFD() { return log; };
   void Send(const char *, ...) __attribute__ ((format (printf, 2, 3)));
   void SendRaw(const char *, ...) __attribute__ ((format (printf, 2, 3)));
   void UpdatePrompt();

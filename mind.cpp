@@ -22,15 +22,22 @@ Mind::Mind() {
   body = NULL;
   player = NULL;
   type = MIND_MORON;
-  pers = 0;
   log = -1;
+  pers = 0;
   }
 
 Mind::Mind(int fd) {
   body = NULL;
   player = NULL;
-  SetRemote(fd);
   log = -1;
+  SetRemote(fd);
+  }
+
+Mind::Mind(int fd, int l) {
+  body = NULL;
+  player = NULL;
+  log = l;
+  SetRemote(fd);
   }
 
 Mind::~Mind() {
@@ -45,6 +52,8 @@ void Mind::SetRemote(int fd) {
   pers = fd;
   char buf[256];
 
+  if(log >= 0) return;
+
   static unsigned long lognum = 0;
   struct stat st;
   sprintf(buf, "logs/%.8lX.log%c", lognum, 0);
@@ -52,7 +61,7 @@ void Mind::SetRemote(int fd) {
     ++lognum;
     sprintf(buf, "logs/%.8lX.log%c", lognum, 0);
     }
-  log = open(buf, O_CREAT|O_TRUNC|O_SYNC);
+  log = open(buf, O_WRONLY|O_CREAT|O_TRUNC|O_SYNC, S_IRUSR|S_IWUSR);
   }
 
 void Mind::SetMob() {

@@ -91,6 +91,8 @@ void handle_input(socket_t in_s) {
     else if((*ind) == '\n' || (*ind) == '\r') {
       outbufs[in_s] += ""; //Make sure they still get a prompt!
       if(comlines[in_s].length() > 0) {
+	if(mind->LogFD() >= 0)
+	  write(mind->LogFD(), comlines[in_s].c_str(), comlines[in_s].length());
 	int result = handle_command(mind->Body(), comlines[in_s].c_str(), mind);
 	comlines[in_s] = "";
 	if(result < 0) return;  // Player Disconnected
@@ -160,6 +162,14 @@ void connect_sock(int newsock) {
   fds.insert(newsock);
   maxfd = maxfd >? newsock;
   Mind *mind = new Mind(newsock);
+  minds[newsock] = mind;
+  }
+
+void reconnect_sock(int newsock, int log) {
+  nonblock(newsock);
+  fds.insert(newsock);
+  maxfd = maxfd >? newsock;
+  Mind *mind = new Mind(newsock, log);
   minds[newsock] = mind;
   }
 
@@ -242,6 +252,8 @@ void update_net() {
     minds[out->first]->UpdatePrompt();
     outs += prompts[out->first];
 
+    if(minds[out->first]->LogFD() >= 0)
+      write(minds[out->first]->LogFD(), outs.c_str(), outs.length());
     write(out->first, outs.c_str(), outs.length());
     }
   outbufs.clear();
@@ -279,9 +291,18 @@ int save_net(const char *fn) {
     if(!(minds[*sk]->Owner() || minds[*sk]->Body())) {
       fprintf(fl, "%d\n", *sk);
       }
+    else if((!(minds[*sk]->Body())) && minds[*sk]->LogFD() >= 0) {
+      fprintf(fl, "%d;%d:%s\n",
+	*sk, minds[*sk]->LogFD(), minds[*sk]->Owner()->Name());
+      }
     else if(!(minds[*sk]->Body())) {
       fprintf(fl, "%d:%s\n",
 	*sk, minds[*sk]->Owner()->Name());
+      }
+    else if(minds[*sk]->LogFD() >= 0) {
+      fprintf(fl, "%d;%d:%s:%d\n",
+	*sk, minds[*sk]->LogFD(),
+	minds[*sk]->Owner()->Name(), getnum(minds[*sk]->Body()));
       }
     else {
       fprintf(fl, "%d:%s:%d\n",
@@ -312,9 +333,9 @@ int load_net(const char *fn) {
   fprintf(stderr, "Loading Net Stat: %d,%d\n", ver, num);
 
   for(int ctr=0; ctr<num; ++ctr) {
-    int newsock, bod;
-    fscanf(fl, "%d", &newsock);
-    connect_sock(newsock);
+    int newsock, bod, log = -1;
+    fscanf(fl, "%d;%d", &newsock, &log);
+    reconnect_sock(newsock, log);
 
     memset(buf, 0, 65536);
     if(fscanf(fl, ":%[^:\n]", buf) > 0) {
