@@ -311,6 +311,7 @@ void Object::CircleLoadZon(const char *fn) {
 		}
 	      case(5): { // Worn
 		lastmob->AddAct(ACT_WEAR_CHEST, obj); break;
+		lastmob->AddAct(ACT_WEAR_BACK, obj); break;
 		}
 	      case(6): { // Worn
 		lastmob->AddAct(ACT_WEAR_HEAD, obj); break;
@@ -617,6 +618,14 @@ void Object::CircleLoadObj(const char *fn) {
 	}
       if(string(buf).find('d') < strlen(buf) || (atoi(buf) & 8)) {
 	obj->SetSkill("Wearable on Chest", 1);
+	obj->SetSkill("Wearable on Back", 1);
+	if(matches(name.c_str(), "suit of")) {
+	  obj->SetSkill("Wearable on Head", 1);
+	  obj->SetSkill("Wearable on Right Leg", 1);
+	  obj->SetSkill("Wearable on Left Leg", 1);
+	  obj->SetSkill("Wearable on Right Arm", 1);
+	  obj->SetSkill("Wearable on Left Arm", 1);
+	  }
 	}
       if(string(buf).find('e') < strlen(buf) || (atoi(buf) & 16)) {
 	obj->SetSkill("Wearable on Head", 1);
