@@ -5,6 +5,7 @@ using namespace std;
 #include <crypt.h>
 
 #include "player.h"
+#include "net.h"
 
 static map<string, Player *> player_list;
 static set<Player *> non_init;
@@ -35,8 +36,11 @@ Player::Player(string nm, string ps) {
   }
 
 Player::~Player() {
+  notify_player_deleted(this);
   player_list.erase(name);
   non_init.erase(this);
+  creator = NULL;
+  if(room) delete room;
   }
 
 void Player::SetName(string nm) {

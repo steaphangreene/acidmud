@@ -1024,10 +1024,10 @@ int Object::Travel(Object *dest) {
 Object::~Object() {
   remove_tick(this);
   if(default_initial == this) default_initial = universe;
-  if(parent->ActTarg(ACT_HOLD) == this) parent->StopAct(ACT_HOLD);
-  if(parent->ActTarg(ACT_WIELD) == this) parent->StopAct(ACT_WIELD);
+  if(parent && parent->ActTarg(ACT_HOLD) == this) parent->StopAct(ACT_HOLD);
+  if(parent && parent->ActTarg(ACT_WIELD) == this) parent->StopAct(ACT_WIELD);
   for(act_t act=ACT_WEAR_BACK; act < ACT_MAX; ++((int&)(act)))
-    if(parent->ActTarg(act) == this) parent->StopAct(act);
+    if(parent && parent->ActTarg(act) == this) parent->StopAct(act);
 
   set<Object*> movers;
   set<Object*> killers;
@@ -1061,7 +1061,7 @@ Object::~Object() {
     }
   minds.clear();
 
-  parent->RemoveLink(this);
+  if(parent) parent->RemoveLink(this);
   busylist.erase(this);
   }
 

@@ -15,5 +15,7 @@ void SendOut(int, const char *);
 void SetPrompt(int, const char *);
 
 class Mind;
+class Player;
 
 vector<Mind *> get_human_minds();
+void notify_player_deleted(Player *pl);

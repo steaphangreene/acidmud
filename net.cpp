@@ -56,6 +56,16 @@ void drop_socket(socket_t d_s) {
     }
   }
 
+void notify_player_deleted(Player *pl) {
+  typeof(minds) todel;
+  typeof(minds.begin()) ind;
+  for(ind = minds.begin(); ind != minds.end(); ++ind) {
+    if(ind->second->Owner() == pl) todel.insert(*ind);
+    }
+  for(ind = todel.begin(); ind != todel.end(); ++ind) {
+    drop_socket(ind->first);
+    }
+  }
 
 void handle_input(socket_t in_s) {
   int amt;

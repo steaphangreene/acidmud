@@ -1,5 +1,9 @@
 Fix the "temporary-disabling of items causes them to be resorted" bug.
 Implement boats and boat travel.
+Implement "all of " for all within.
+Implement "everything"/"everyone".
+Implement "stuff"/"money"/"cash".
+Implement "loot" command.
 Dup shopkeeper items correctly (all gauntlets are left, etc...).
 Handle odd pluralized cases (Holding two items when one is looked at...).
 Cleanup item manipulation commands.
@@ -53,7 +57,7 @@ Add "corpse" alias for dead stuff.
 Implement AcidMail.
 Should some CircleMOBs be given "Swimming"?
 Add "bug", "feature", and "concern" commands (acidmail problems to immortals).
-User management commands (delete chars, delete users, etc...).
+User management commands (delete chars, rename users?, etc...).
 Skill defaults (to other skills).
 Case-Insensitive Playernames
 
