@@ -401,6 +401,13 @@ const char *Object::Name(int definite, Object *rel, Object *sub) {
 
   if(rel == this && sub == this) return "yourself";
   else if(rel == this) return "you";
+
+  //FIXME: Hack!  Really detect/specify reflexives?
+  else if(rel == NULL && sub == this && sub->Gender() == 'F') return "her";
+  else if(rel == NULL && sub == this && sub->Gender() == 'M') return "him";
+  else if(rel == NULL && sub == this) return "it";
+
+
   else if(sub == this && sub->Gender() == 'F') return "herself";
   else if(sub == this && sub->Gender() == 'M') return "himself";
   else if(sub == this) return "itself";

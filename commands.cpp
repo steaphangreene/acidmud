@@ -989,6 +989,31 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
     typeof(targs.begin()) targ_it;
     for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+      string denied = "";
+      for(Object *own = *targ_it; own; own = own->Parent()) {
+	if(own->Attribute(1) && own != body && (!own->IsAct(ACT_SLEEP))
+		&& (!own->IsAct(ACT_DEAD)) && (!own->IsAct(ACT_DYING))
+		&& (!own->IsAct(ACT_UNCONSCIOUS))) {
+	  denied = "You would need ";
+	  denied += own->Name(1);
+	  denied += "'s permission to search ";
+	  denied += (*targ_it)->Name(0, NULL, own);
+	  denied += ".\n";
+	  }
+	else if(own->Skill("Container") && (!own->Skill("Transparent"))
+		&& own->Skill("Locked")) {
+	  denied = own->Name(1);
+	  denied += " is closed and locked so you can't get to ";
+	  denied += (*targ_it)->Name(1);
+	  denied += ".\n";
+	  denied[0] = toupper(denied[0]);
+	  }
+	}
+      if(denied.length() > 0) {
+	if(mind) mind->Send(denied.c_str());
+	continue;
+	}
+
       body->Parent()->SendOut(
 	";s examines ;s.\n", "", body, *targ_it);
       if(mind) {
