@@ -3,6 +3,8 @@ Add more smartness for getting things from people (permission, etc.).
 Add more smartness for recursive gets (can't grab from locked items, etc...).
 Add better messages for items possessed by characters and mobs.
 Pick up a fight's other opponents after your target goes down without delay.
+Wear/wield from own containers need auto open/close.
+Get it to understand two-handed weapons and shield use.
 You should still be able to wield and hold while resting.
 Fixup "Back" slot so it makes more sense.
 Do 3-layer armor system.

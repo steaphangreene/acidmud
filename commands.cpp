@@ -921,9 +921,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("You are already holding something else!\n");
       }
     else {
-      targ->Travel(body);
       body->Parent()->SendOut(
 	";s gets ;s.\n", "You grab ;s.\n", body, targ);
+      targ->Travel(body);
       body->AddAct(ACT_HOLD, targ);
       }
     return 0;

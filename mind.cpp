@@ -95,41 +95,7 @@ void Mind::Send(const char *mes, ...) {
     SendOut(pers, buf);
     }
   else if(type == MIND_MOB) {
-    string newmes = "";
-    if(body) newmes += body->ShortDesc();
-    newmes += ": ";
-    newmes += buf;
-
-    string::iterator chr = newmes.begin();
-    for(; chr != newmes.end(); ++chr) {
-      if((*chr) == '\n' || (*chr) == '\r') (*chr) = ' ';
-      }
-    newmes += "\n";
-
-    write(pers, newmes.c_str(), newmes.length());
-
-    //AGGRESSIVE Circle Mobs
-    if(body && body->Parent() && (body->Skill("CircleAction") & 32)
-	&& (!body->IsAct(ACT_FIGHT))) {
-      set<Object*> others = body->Parent()->Contents();
-      set<Object*>::iterator other;
-      for(other = others.begin(); other != others.end(); ++other) {
-	if((!(*other)->Skill("CircleAction")) //FIXME: Other mobs?
-		&& (!body->StillBusy())                   //I'm not busy.
-		&& body->Stun() < 6                //I'm not stunned.
-		&& body->Phys() < 6                //I'm not injured.
-		&& (!body->IsAct(ACT_ASLEEP))             //I'm not asleep.
-		&& (!body->IsAct(ACT_REST))               //I'm not resting.
-		&& (*other)->Attribute(1)     //Not a rock
-		&& (!(*other)->IsAct(ACT_DEAD))           //Not a dead
-	        ) {
-	  string command = string("attack ") + (*other)->ShortDesc();
-	  body->BusyFor(500, command.c_str());
-	  fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
-	  }
-	}
-      }
-
+    Think(); //Reactionary actions.
     }
   else if(type == MIND_SYSTEM) {
     string newmes = "";
@@ -194,5 +160,44 @@ void Mind::SetPlayer(string pn) {
   if(player_exists(pn)) {
     pname = pn;
     player = get_player(pname);
+    }
+  }
+
+void Mind::Think() {
+  if(type == MIND_MOB) {
+    string newmes = "";
+    if(body) newmes += body->ShortDesc();
+    newmes += ": ";
+    newmes += buf;
+
+    string::iterator chr = newmes.begin();
+    for(; chr != newmes.end(); ++chr) {
+      if((*chr) == '\n' || (*chr) == '\r') (*chr) = ' ';
+      }
+    newmes += "\n";
+
+    write(pers, newmes.c_str(), newmes.length());
+
+    //AGGRESSIVE Circle Mobs
+    if(body && body->Parent() && (body->Skill("CircleAction") & 32)
+	&& (!body->IsAct(ACT_FIGHT))) {
+      set<Object*> others = body->Parent()->Contents();
+      set<Object*>::iterator other;
+      for(other = others.begin(); other != others.end(); ++other) {
+	if((!(*other)->Skill("CircleAction")) //FIXME: Other mobs?
+		&& (!body->StillBusy())                   //I'm not busy.
+		&& body->Stun() < 6                //I'm not stunned.
+		&& body->Phys() < 6                //I'm not injured.
+		&& (!body->IsAct(ACT_ASLEEP))             //I'm not asleep.
+		&& (!body->IsAct(ACT_REST))               //I'm not resting.
+		&& (*other)->Attribute(1)     //Not a rock
+		&& (!(*other)->IsAct(ACT_DEAD))           //Not a dead
+	        ) {
+	  string command = string("attack ") + (*other)->ShortDesc();
+	  body->BusyFor(500, command.c_str());
+	  fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
+	  }
+	}
+      }
     }
   }

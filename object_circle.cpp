@@ -375,12 +375,32 @@ void Object::CircleLoadMob(const char *fn) {
 
       int val, val2, val3;  char tp;
       memset(buf, 0, 65536);
-      fscanf(mudm, "%[^ \t\n] %[^ \t\n] %d %c\n", buf, buf+1024, &val, &tp);
+      fscanf(mudm, "%[^ \t\n]", buf); //Rest of line read below...
 
-      obj->SetSkill("CircleAction", 0);
+      if(string(buf).find('b') < strlen(buf) || (atoi(buf) & 2)) { //SENTINEL
+	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 2);
+	}
+      if(string(buf).find('c') < strlen(buf) || (atoi(buf) & 4)) { //SCAVENGER
+	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 4);
+	}
       if(string(buf).find('f') < strlen(buf) || (atoi(buf) & 32)) { //AGGRESSIVE
 	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 32);
 	}
+      if(string(buf).find('h') < strlen(buf) || (atoi(buf) & 64)) { //WIMPY
+	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 64);
+	}
+      if(string(buf).find('l') < strlen(buf) || (atoi(buf) & 2048)) { //MEMORY
+	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 2048);
+	}
+      if(string(buf).find('m') < strlen(buf) || (atoi(buf) & 4096)) { //HELPER
+	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 4096);
+	}
+      //FIXME: Add others here.
+
+      memset(buf, 0, 65536);
+      fscanf(mudm, " %[^ \t\n] %d %c\n", buf, &val, &tp);
+      //FIXME: Implement special powers of MOBs here.
+
 
       if(tp == 'E' || tp == 'S') {
 	for(int ctr=0; ctr<2; ++ctr) {

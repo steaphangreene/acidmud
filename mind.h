@@ -34,6 +34,7 @@ public:
   void Send(const char *, ...) __attribute__ ((format (printf, 2, 3)));
   void SendRaw(const char *, ...) __attribute__ ((format (printf, 2, 3)));
   void UpdatePrompt();
+  void Think();
 
 private:
   int type;
