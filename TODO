@@ -28,6 +28,7 @@ Actually "create" characters with actual stats and such.
 Case-Insensitive Playernames
 
 Add SSL support.
+Fix network-pass commandline incremental growth.
 Add gzipped worlds save/load support.
 Be sure I Handle big messages to/from users correctly.
 Pointing, etc... should expire once target leaves area.

@@ -200,12 +200,19 @@ void Object::CircleLoadZon(const char *fn) {
 	      }
 	    lastobj[num] = obj;
 
+	    int bagit = 0;
 	    switch(pos) {
 	      case(1): { // Worn
 		lastmob->AddAct(ACT_WEAR_RFINGER, obj); break;
 		}
 	      case(2): { // Worn
 		lastmob->AddAct(ACT_WEAR_LFINGER, obj); break;
+		}
+	      case(3):		//Circle MOBs have two necks
+	      case(4): { // Worn
+		if(lastmob->IsAct(ACT_WEAR_NECK)) bagit = 1;
+		else lastmob->AddAct(ACT_WEAR_NECK, obj);
+		break;
 		}
 	      case(5): { // Worn
 		lastmob->AddAct(ACT_WEAR_CHEST, obj); break;
@@ -258,28 +265,26 @@ void Object::CircleLoadZon(const char *fn) {
 	      case(17): { // Held
 		lastmob->AddAct(ACT_HOLD, obj); break;
 		}
-	      case(3):		//Circle MOBs have two necks
-	      case(4): { // Worn
-		if(lastmob->IsAct(ACT_WEAR_NECK)); // Continue on - no break
-		else { lastmob->AddAct(ACT_WEAR_NECK, obj); break; }
-		}
 	      default: {
-		if(!lastbag) {
-		  lastbag = new Object;
-		  lastbag->SetParent(lastmob);
-		  lastbag->SetShortDesc("a CircleMud bag");
-		  lastbag->SetDesc("A mysterious bag that didn't seem to need to exist before.");
-		  stats_t stats = (*(lastbag->Stats()));
-		  stats.SetSkill("Wearable on Back", 1);
-		  stats.SetSkill("Container", 1000);
-		  stats.SetSkill("Closeable", 1);
-		  lastbag->SetStats(stats);
-		  lastbag->SetPos(POS_LIE);
-		  lastmob->AddAct(ACT_WEAR_BACK, lastbag);
-		  }
-		obj->Travel(lastbag);
-		if(obj2) obj2->Travel(lastbag);
+		bagit = 1;
 		}break;
+	      }
+	    if(bagit) {
+	      if(!lastbag) {
+		lastbag = new Object;
+		lastbag->SetParent(lastmob);
+		lastbag->SetShortDesc("a CircleMud bag");
+		lastbag->SetDesc("A mysterious bag that didn't seem to need to exist before.");
+		stats_t stats = (*(lastbag->Stats()));
+		stats.SetSkill("Wearable on Back", 1);
+		stats.SetSkill("Container", 1000);
+		stats.SetSkill("Closeable", 1);
+		lastbag->SetStats(stats);
+		lastbag->SetPos(POS_LIE);
+		lastmob->AddAct(ACT_WEAR_BACK, lastbag);
+		}
+	      obj->Travel(lastbag);
+	      if(obj2) obj2->Travel(lastbag);
 	      }
 	    }
 	  } break;
