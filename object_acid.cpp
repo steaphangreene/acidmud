@@ -161,6 +161,7 @@ int Object::LoadFrom(FILE *fl) {
 
   vector<Object*> toload;
   fscanf(fl, "%d ", &num);
+  contents.reserve(num);
   for(int ctr=0; ctr<num; ++ctr) {
     int num2;
     fscanf(fl, "%d ", &num2);
