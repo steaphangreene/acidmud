@@ -137,7 +137,7 @@ void Object::AddMOB(const MOBType *type) {
     obj->SetValue(type->armed->value);
     obj->SetPos(POS_LIE);
     mob->AddAct(ACT_WIELD, obj);
-    mob->AddAct(ACT_HOLD, obj);
+    if(two_handed(type->armed->type)) mob->AddAct(ACT_HOLD, obj);
     }
   }
 

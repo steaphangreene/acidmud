@@ -300,6 +300,7 @@ list<string> get_skills(string cat = "Categories");
 int is_skill(string sk);
 string get_weapon_skill(int wtype);
 int get_weapon_type(string wskill);
+int two_handed(int wtype);
 
 void tick_world();
 

@@ -2227,3 +2227,16 @@ int Object::Exp(Player *p) {
   if(p) ret += p->Exp();
   return ret;
   }
+
+int two_handed(int wtype) {
+  static set<int> thsks;
+  if(thsks.size() == 0) {
+    thsks.insert(get_weapon_type("Two-Handed Blades"));
+    thsks.insert(get_weapon_type("Two-Handed Cleaves"));
+    thsks.insert(get_weapon_type("Two-Handed Crushing"));
+    thsks.insert(get_weapon_type("Two-Handed Flails"));
+    thsks.insert(get_weapon_type("Two-Handed Piercing"));
+    thsks.insert(get_weapon_type("Two-Handed Staves"));
+    }
+  return int(thsks.count(wtype));
+  }
