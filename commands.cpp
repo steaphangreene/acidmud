@@ -976,9 +976,16 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("What do you want to get?\n");
       return 0;
       }
-    Object *targ = body->PickObject(comline+len, LOC_NEARBY);
-    if(!targ) {
+
+    set<Object *> targs = body->PickObjects(comline+len, LOC_NEARBY);
+    if(targs.size() == 0) {
       if(mind) mind->Send("You want to get what?\n");
+      return 0;
+      }
+
+    Object *targ = *(targs.begin());
+    if(targs.size() > 1) {
+      if(mind) mind->Send("No autostashing yet - need to get only one kind of item!\n");
       }
     else if(targ->Pos() == POS_NONE) {
       if(mind) mind->Send("You can't get that, it is fixed in place!\n");
