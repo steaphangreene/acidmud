@@ -1271,9 +1271,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	";s lies down and goes to sleep.\n", "You lie down and go to sleep.\n",
 	body, NULL);
       }
-    body->StopAct(ACT_ALL);
-    body->AddAct(ACT_ASLEEP);
     body->SetPos(POS_LIE);
+    body->Collapse();
+    body->AddAct(ACT_ASLEEP);
     return 0;
     }
 
@@ -1310,8 +1310,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	";s sits down and rests.\n", "You sit down and rest.\n",
 	body, NULL);
       }
-    body->StopAct(ACT_ALL);
     body->AddAct(ACT_REST);
+    body->Collapse();
     if(body->Pos() != POS_LIE) body->SetPos(POS_SIT);
     return 0;
     }

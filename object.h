@@ -30,7 +30,6 @@ enum pos_t {
 	};
 
 enum act_t {
-	ACT_ALL=-1,
 	ACT_NONE=0,
 	ACT_DEAD,
 	ACT_DYING,
@@ -120,7 +119,7 @@ public:
 
   void StopAll();
   void AddAct(act_t a, Object *o=NULL) { act[a] = o; };
-  void StopAct(act_t a) { if(a<0) act.clear(); else act.erase(a); };
+  void StopAct(act_t a) { act.erase(a); };
   int IsAct(act_t a) const { return act.count(a); };
   Object *ActTarg(act_t a) const;
   void SetStats(const stats_t &s);
