@@ -1,5 +1,4 @@
-Better handle shield/2-handed use (auto unhold for unwield, remove, etc...).
-Get it to understand two-handed weapon use.
+Get it to understand two-handed weapon damage and such.
 Get it to understand offhand weapon use.
 Get it to understand mounted weapon use.
 Enhance "consider" command.
