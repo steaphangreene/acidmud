@@ -630,7 +630,10 @@ void Object::CircleLoadObj(const char *fn) {
 
       fscanf(mudo, "%d %d %d %d\n", val+0, val+1, val+2, val+3);
 
-      if(tp == 15) { // CONTAINER
+      if(tp == 9) { // ARMOR
+	obj->SetAttribute(0, val[0]);
+	}
+      else if(tp == 15) { // CONTAINER
 	obj->SetSkill("Container", val[0] * 454);
 	obj->SetSkill("Capacity", val[0]);
 
