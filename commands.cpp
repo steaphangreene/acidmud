@@ -2592,6 +2592,14 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	|| targ->IsAct(ACT_DYING) || targ->IsAct(ACT_UNCONSCIOUS)) {
       body->StopAct(ACT_FIGHT);
       body->BusyFor(3000);
+      if(targ->Skill("Accomplishment")) {
+	if(body->Accomplish(targ->Skill("Accomplishment"))) {
+	  if(mind) {
+	    mind->Send("%sYour character gains an experience for victory!\n%s",
+		CYEL, CNRM);
+	    }
+	  }
+	}
       }
 
     return 0;

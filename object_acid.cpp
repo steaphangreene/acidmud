@@ -46,7 +46,13 @@ int Object::SaveTo(FILE *fl) {
 
   fprintf(fl, "%d %d %d %d %c;\n", weight, size, volume, value, gender);
 
-  fprintf(fl, "%d %d\n", exp, sexp);
+  fprintf(fl, "%d", exp);
+  typeof(completed.begin()) ind;
+  for(ind=completed.begin(); ind != completed.end(); ++ind) {
+    fprintf(fl, ";%ld", *ind);
+    }
+
+  fprintf(fl, " %d\n", sexp);
 
   fprintf(fl, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d;%d\n",
 	att[0], att[1], att[2], att[3], att[4], att[5], att[6], att[7],
@@ -135,7 +141,13 @@ int Object::LoadFrom(FILE *fl) {
 
   fscanf(fl, "%d %d %d %d %c;\n", &weight, &size, &volume, &value, &gender);
 
-  fscanf(fl, "%d %d\n", &exp, &sexp);
+  fscanf(fl, "%d", &exp);
+  unsigned long accom;
+  while(fscanf(fl, ";%ld", &accom)) {
+    completed.insert(accom);
+    }
+
+  fscanf(fl, " %d\n", &sexp);
 
   fscanf(fl, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
 	&att[0], &att[1], &att[2], &att[3], &att[4], &att[5], &att[6], &att[7],
