@@ -229,6 +229,7 @@ vector<Player *> get_all_players() {
 
 int Player::Accomplish(unsigned long acc) {
   if(completed.count(acc)) return 0;
-  else completed.insert(acc);
+  completed.insert(acc);
+  ++exp;
   return 1;
   }
