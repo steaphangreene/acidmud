@@ -177,7 +177,7 @@ Object *new_body() {
   return body;
   }
 
-#define TICKSPLIT 300 //3 seconds
+#define TICKSPLIT 1500 //15 seconds
 static set<Object*> ticklist[TICKSPLIT];
 void add_tick(Object *o) {
   static int tickstage = 0;

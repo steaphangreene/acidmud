@@ -91,8 +91,12 @@ void handle_input(socket_t in_s) {
     else if((*ind) == '\n' || (*ind) == '\r') {
       outbufs[in_s] += ""; //Make sure they still get a prompt!
       if(comlines[in_s].length() > 0) {
-	if(mind->LogFD() >= 0)
+	if((mind->PName().length() <= 0 || mind->Owner()) && mind->LogFD() >= 0)
 	  write(mind->LogFD(), comlines[in_s].c_str(), comlines[in_s].length());
+	else if(mind->LogFD() >= 0)
+	  write(mind->LogFD(), "XXXXXXXXXXXXXXXX", 17);
+	write(mind->LogFD(), "\n", 1);
+
 	int result = handle_command(mind->Body(), comlines[in_s].c_str(), mind);
 	comlines[in_s] = "";
 	if(result < 0) return;  // Player Disconnected
@@ -252,9 +256,17 @@ void update_net() {
     minds[out->first]->UpdatePrompt();
     outs += prompts[out->first];
 
+    write(out->first, outs.c_str(), outs.length());
+
+    string::iterator loc = find(outs.begin(), outs.end(), (char)(255));
+    while(loc >= outs.begin() && loc < outs.end()) {
+      loc = outs.erase(loc);
+      if(loc < outs.end()) loc = outs.erase(loc);
+      if(loc < outs.end()) loc = outs.erase(loc);
+      loc = find(outs.begin(), outs.end(), (char)(255));
+      }
     if(minds[out->first]->LogFD() >= 0)
       write(minds[out->first]->LogFD(), outs.c_str(), outs.length());
-    write(out->first, outs.c_str(), outs.length());
     }
   outbufs.clear();
   }
