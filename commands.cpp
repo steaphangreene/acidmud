@@ -1114,9 +1114,14 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	else if(own->Skill("Container") && (!own->Skill("Open"))
 		&& own->Skill("Locked")) {
 	  denied = own->Name(1);
-	  denied += " is closed and locked so you can't get to ";
-	  denied += (*targ_it)->Name(1);
-	  denied += ".\n";
+	  if(own == *targ_it) {
+	    denied += " is closed and locked so you can't search it.\n";
+	    }
+	  else {
+	    denied += " is closed and locked so you can't get to ";
+	    denied += (*targ_it)->Name(1);
+	    denied += ".\n";
+	    }
 	  denied[0] = toupper(denied[0]);
 	  }
 	}
