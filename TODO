@@ -1,17 +1,20 @@
+Put away stuff when you sleep, don't drop it.
+Enhance "consider" command.
+Get it to understand shield use.
+Get it to understand two-handed weapon use.
+Get it to understand offhand and mounted weapon use.
 CircleMOB (and equipment?) repopping.
 Implement "all of " for all within.
 Implement "everything"/"everyone".
 Implement "stuff"/"money"/"cash".
 Implement "loot" command.
-Fix attribute spelling "Proffit" -> "Profit".
 Fixup shopkeepers so item numbers NEVER expire.
 Fixup shopkeepers so their vortices are not viewable.
 Make single-item commands get only single items.
 Make all plural commands see pluralized items correctly.
-Should not be able to wear multiple (ie: pluralized) items in any location.
+Should not be able to wear/wield multiple (ie: pluralized) items in any location.
 Implement boats and boat travel.
 Cleanup item manipulation commands.
-Can't wear/wield plural items.
 Cleanup and secure shopkeeper vortex objects.
 Implement experience.
 Improve character creation interface.
@@ -26,12 +29,9 @@ Wear/wield from own containers need auto open/close.
 Intelligent stashing needs auto open/close.
 Add better ninja detection to commands handler.
 Show armor messages in ninja display.
-Get it to understand two-handed weapons and shield use.
-Get it to understand offhand and mounted weapon use.
 Consistently pluralize (or don't) skill names (fix online version too!).
-Enhance "consider" command.
-Create in direction works oddly.
-Delete a direction-linked object exploderates.
+Fix create-in-direction working oddly.
+Delete a direction-linked object can exploderate if linked-to remains.
 Implement various types of armor and damage.
 Translate circle armor to various armor types.
 Do 3-layer armor system.
@@ -42,16 +42,14 @@ Implement character creation race.
 Implement character creation magic.
 Make circle MOBs do more stuff.
 Ranged Combat.
-Aggressive Circle MOBs shouldn't get a full-round first strike!
-Implement Reaction Action.
+Implement real Reaction Action.
 Create Real Tie-Breaker for Tied Initiative.
 Global Round Sync instead of Ad-Hoc Rounds?
 Doors and Locks.
 Handle Multiple Weapon Types (eg: Bastard Swords).
 Implement All Remaining Weapon Types (Guns, etc...).
 Implement the Rest of the Skills.
-Implement reserved words ('in', 'to', 'at', 'Ninja').
-Put away stuff when you sleep, don't drop it.
+Implement reserved words ('in', 'to', 'at', 'of', 'Ninja').
 See contents when you look at a nearby room (eg: "look north").
 Create "aim" command to intentionally hit certain locations.
 Add "corpse" alias for dead stuff?
