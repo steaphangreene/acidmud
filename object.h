@@ -198,16 +198,14 @@ public:
   int HealPhys(int succ);
   int HealStru(int succ);
 
-  void SendAll(const set<Object *> &excl, const char *mes, ...)
+  void Send(int targ, const char *mes, ...)
 	__attribute__ ((format (printf, 3, 4)));
-  void Send(const char *mes, ...)
-	__attribute__ ((format (printf, 2, 3)));
-  void SendOut(const char *mes, const char *youmes,
+  void SendOut(int targ, const char *mes, const char *youmes,
 	Object *actor, Object *targ, ...)
-	__attribute__ ((format (printf, 2, 6)));
-  void SendIn(const char *mes, const char *youmes,
+	__attribute__ ((format (printf, 3, 7)));
+  void SendIn(int targ, const char *mes, const char *youmes,
 	Object *actor, Object *targ, ...)
-	__attribute__ ((format (printf, 2, 6)));
+	__attribute__ ((format (printf, 3, 7)));
 
   void CircleLoad(const char *);
   void CircleLoadObj(const char *);

@@ -1,3 +1,4 @@
+Implement SNEAK and HIDE actions.
 Make auto-unwield from wielding another item also use autostashing.
 Implement scabbards and quivers.
 Get it to understand offhand weapon use.
@@ -77,7 +78,6 @@ Add gzipped worlds save/load support.
 Be sure I Handle big messages to/from users correctly.
 Clean up and sort log(s).
 Put telnet stuff ONLY in net.cpp.
-Remove Object::SendAll() - unused?
 
 Troll Reach.
 Natural Armor.
@@ -96,4 +96,3 @@ Color-code output (ask Wyatt).
 Un-Ninja Everything.
 
 CHECK FIXMEs TOO!
-

@@ -184,8 +184,6 @@ Object *dup_circle_obj(Object *obj) {
   }
 
 void Object::CircleFinishMob(Object *mob) {
-  mob->Attach(get_mob_mind());
-
   if(mob->Skill("CircleGold")) {
     Object *bag = new Object;
 
@@ -495,6 +493,7 @@ void Object::CircleLoadMob(const char *fn) {
       obj->SetAttribute(4, 3);
       obj->SetAttribute(5, 3);
 
+      int aware = 0, hidden = 0, sneak = 0;
       int val, val2, val3;  char tp;
       memset(buf, 0, 65536);
       fscanf(mudm, "%[^ \t\n]", buf); //Rest of line read below...
@@ -505,6 +504,9 @@ void Object::CircleLoadMob(const char *fn) {
 	}
       if(string(buf).find('c') < strlen(buf) || (atoi(buf) & 4)) { //SCAVENGER
 	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 4);
+	}
+      if(string(buf).find('e') < strlen(buf) || (atoi(buf) & 16)) { //AWARE
+	aware = 1;
 	}
       if(string(buf).find('f') < strlen(buf) || (atoi(buf) & 32)) { //AGGRESSIVE
 	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 32);
@@ -528,6 +530,12 @@ void Object::CircleLoadMob(const char *fn) {
       if(string(buf).find('g') < strlen(buf) || (atoi(buf) & 64)) { //WATERWALK
 	obj->SetSkill("CircleAffection", obj->Skill("CircleAffection") | 64);
 	}
+      if(string(buf).find('s') < strlen(buf) || (atoi(buf) & 262144)) { //SNEAK
+	sneak = 1;
+	}
+      if(string(buf).find('t') < strlen(buf) || (atoi(buf) & 524288)) { //HIDE
+	hidden = 1;
+	}
 
       memset(buf, 0, 65536);
       fscanf(mudm, " %d %c\n", &val, &tp);
@@ -549,6 +557,16 @@ void Object::CircleLoadMob(const char *fn) {
 	fscanf(mudm, " %dd%d+%d\n", &val, &val2, &val3);// Barehand Damage
 	val = (val*(val2+1) + 1) / 2 + val3;
 	obj->SetAttribute(2, (val+2)/3);		// Becomes Strength
+
+	if(aware) //Perception = Int
+	  obj->SetSkill("Perception", obj->Attribute(4));
+
+	if(sneak && hidden)		//Stealth = 3Q/2
+	  obj->SetSkill("Stealth", (3*obj->Attribute(1)+1)/2);
+	else if(hidden)			//Stealth = Q
+	  obj->SetSkill("Stealth", obj->Attribute(1));
+	else if(sneak)			//Stealth = Q/2
+	  obj->SetSkill("Stealth", (obj->Attribute(1)+1)/2);
 
 	fscanf(mudm, "%d", &val);  // Gold
 	obj->SetSkill("CircleGold", val);
