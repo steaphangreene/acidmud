@@ -136,30 +136,27 @@ Mind *get_mob_mind() {
 void Object::CircleFinishMob(Object *mob) {
   mob->Attach(get_mob_mind());
 
-  Object *bag = mob->ActTarg(ACT_WEAR_LSHOULDER); //CircleMud Bags Only
-  if(!bag) { //CircleMud Bags Only
-    bag = new Object;
+  if(mob->Skill("CircleGold")) {
+    Object *bag = new Object;
 
     bag->SetParent(mob);
-    bag->SetShortDesc("a CircleMud bag");
-    bag->SetDesc("A mysterious bag that didn't seem to need to exist before.");
+    bag->SetShortDesc("a CircleMud purse");
+    bag->SetDesc("A mysterious purse that didn't seem to need to exist before.");
 
-    bag->SetSkill("Wearable on Left Shoulder", 1);
-    bag->SetSkill("Wearable on Right Shoulder", 2);
-    bag->SetSkill("Container", 1000 * 454);
-    bag->SetSkill("Capacity", 1000);
+    bag->SetSkill("Wearable on Left Hip", 1);
+    bag->SetSkill("Wearable on Right Hip", 2);
+    bag->SetSkill("Container", 5 * 454);
+    bag->SetSkill("Capacity", 5);
     bag->SetSkill("Closeable", 1);
 
-    bag->SetWeight(5 * 454);
-    bag->SetSize(1000);
-    bag->SetVolume(5);
-    bag->SetValue(200);
+    bag->SetWeight(1 * 454);
+    bag->SetSize(2);
+    bag->SetVolume(1);
+    bag->SetValue(100);
 
     bag->SetPos(POS_LIE);
-    mob->AddAct(ACT_WEAR_LSHOULDER, bag);
-    }
+    mob->AddAct(ACT_WEAR_RHIP, bag);
 
-  if(mob->Skill("CircleGold")) {
     if(!gold) init_gold();
     Object *g = new Object(*gold);
     g->SetParent(bag);
@@ -172,10 +169,8 @@ void Object::CircleFinishMob(Object *mob) {
 	mob->ActTarg(ACT_WEAR_LSHOULDER)->ContainedWeight());
     mob->ActTarg(ACT_WEAR_LSHOULDER)->SetSkill("Capacity",
 	mob->ActTarg(ACT_WEAR_LSHOULDER)->ContainedVolume());
-    if(mob->ActTarg(ACT_WEAR_LSHOULDER)->Contents().size() == 0) {
-      delete mob->ActTarg(ACT_WEAR_LSHOULDER);
-      }
     }
+
   if(mob->Skill("CircleAttack")) {
     if(mob->IsAct(ACT_WIELD)) {
       mob->SetSkill(
@@ -373,8 +368,8 @@ void Object::CircleLoadZon(const char *fn) {
 	      if(!lastbag) {
 		lastbag = new Object;
 		lastbag->SetParent(lastmob);
-		lastbag->SetShortDesc("a CircleMud bag");
-		lastbag->SetDesc("A mysterious bag that didn't seem to need to exist before.");
+		lastbag->SetShortDesc("a CircleMud pack");
+		lastbag->SetDesc("A mysterious pack that didn't seem to need to exist before.");
 
 		lastbag->SetSkill("Wearable on Left Shoulder", 1);
 		lastbag->SetSkill("Wearable on Right Shoulder", 2);
