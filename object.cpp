@@ -67,6 +67,8 @@ void set_start_room(Object *o) {
 
 int matches(const char *name, const char *seek) {
   int len = strlen(seek);
+  if(len == 0) return 1;
+
   char *desc = (char*)name;
   while(*desc) {
     if((!strncasecmp(desc, seek, len)) && (!isalnum(desc[len]))) {
@@ -124,6 +126,10 @@ int matches(const char *name, const char *seek) {
   else if((!strcasecmp(seek, "staff")) && matches(name, "quarterstaff")) ret=1;
   else if((!strcasecmp(seek, "bow")) && matches(name, "longbow")) ret=1;
   else if((!strcasecmp(seek, "bow")) && matches(name, "shortbow")) ret=1;
+  else if((!strcasecmp(seek, "armor")) && matches(name, "armour")) ret=1;
+  else if((!strcasecmp(seek, "armour")) && matches(name, "armor")) ret=1;
+  else if((!strcasecmp(seek, "armorer")) && matches(name, "armourer")) ret=1;
+  else if((!strcasecmp(seek, "armourer")) && matches(name, "armorer")) ret=1;
 
   dont_recur = 0;
   return ret;
@@ -982,6 +988,7 @@ int get_ordinal(char *text) {
   else if(!strncasecmp(text, "eighth", len>?6)) ret = 8;
   else if(!strncasecmp(text, "ninth",  len>?5)) ret = 9;
   else if(!strncasecmp(text, "tenth",  len>?5)) ret = 10;
+  else if(!strncasecmp(text, "all",  len>?3)) ret = -1;
   return ret;
   }
 
@@ -1074,12 +1081,15 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
 	cont.erase(action->second);
 	if(matches(action->second->ShortDesc(), name)) {
 	  (*ordinal)--;
-	  if((*ordinal) == 0) { ret.insert(action->second); return ret; }
+	  if((*ordinal) <= 0) ret.insert(action->second);
+	  if((*ordinal) == 0) return ret;
 	  }
 	}
       if(action->second->Skill("Container")) {
-	ret = action->second->PickObjects(name, LOC_INTERNAL, ordinal);
-	if(ret.size()) return ret;
+	set<Object*> add;
+	add = action->second->PickObjects(name, LOC_INTERNAL, ordinal);
+	ret.insert(add.begin(), add.end());
+	if((*ordinal) == 0) return ret;
 	}
       }
 
@@ -1088,11 +1098,14 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
       if(matches((*ind)->ShortDesc(), name)) {
 	(*ordinal)--;
-	if((*ordinal) == 0) { ret.insert(*ind); return ret; }
+	if((*ordinal) <= 0) ret.insert(*ind);
+	if((*ordinal) == 0) return ret;
 	}
       if((*ind)->Skill("Container")) {
-	ret = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
-	if(ret.size()) return ret;
+	set<Object*> add;
+	add = action->second->PickObjects(name, LOC_INTERNAL, ordinal);
+	ret.insert(add.begin(), add.end());
+	if((*ordinal) == 0) return ret;
 	}
       }
     }
@@ -1103,19 +1116,24 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
       if(matches((*ind)->ShortDesc(), name)) {
 	(*ordinal)--;
-	if((*ordinal) == 0) { ret.insert(*ind); return ret; }
+	if((*ordinal) <= 0) ret.insert(*ind);
+	if((*ordinal) == 0) return ret;
 	}
       if((*ind)->Skill("Transparent")) {
-	ret = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
-	if(ret.size()) return ret;
+	set<Object*> add;
+	add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
+	ret.insert(add.begin(), add.end());
+	if((*ordinal) == 0) return ret;
 	}
       }
     if(parent->Skill("Transparent")) {
       if(parent->parent) {
+	set<Object*> add;
 	parent->parent->contents.erase(parent);
-	ret = parent->PickObjects(name, LOC_NEARBY, ordinal);
+	add = parent->PickObjects(name, LOC_NEARBY, ordinal);
+	ret.insert(add.begin(), add.end());
 	parent->parent->contents.insert(parent);
-	if(ret.size()) return ret;
+	if((*ordinal) == 0) return ret;
 	}
       }
     }

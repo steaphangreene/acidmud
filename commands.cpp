@@ -921,10 +921,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("You are already holding something else!\n");
       }
     else {
-      targ->Travel(body);
-      body->AddAct(ACT_HOLD, targ);
       body->Parent()->SendOut(
 	";s gets ;s.\n", "You grab ;s.\n", body, targ);
+      targ->Travel(body);
+      body->AddAct(ACT_HOLD, targ);
       }
     return 0;
     }
@@ -1164,123 +1164,132 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
-    Object *targ = body->PickObject(comline+len, LOC_INTERNAL);
-    if(!targ) {
+    set<Object*> targs = body->PickObjects(comline+len, LOC_INTERNAL);
+    if(!targs.size()) {
       if(mind) mind->Send("You want to wear what?\n");
+      return 0;
       }
-//    else if(targ->Skill("WeaponType") <= 0) {
-//      if(mind) mind->Send("You can't wear that - it's not wearable!\n");
-//      }
-    else if(body->ActTarg(ACT_WEAR_BACK) == targ
-	|| body->ActTarg(ACT_WEAR_CHEST) == targ
-	|| body->ActTarg(ACT_WEAR_HEAD) == targ
-	|| body->ActTarg(ACT_WEAR_NECK) == targ
-	|| body->ActTarg(ACT_WEAR_WAIST) == targ
-	|| body->ActTarg(ACT_WEAR_SHIELD) == targ
-	|| body->ActTarg(ACT_WEAR_LARM) == targ
-	|| body->ActTarg(ACT_WEAR_RARM) == targ
-	|| body->ActTarg(ACT_WEAR_LFINGER) == targ
-	|| body->ActTarg(ACT_WEAR_RFINGER) == targ
-	|| body->ActTarg(ACT_WEAR_LFOOT) == targ
-	|| body->ActTarg(ACT_WEAR_RFOOT) == targ
-	|| body->ActTarg(ACT_WEAR_LHAND) == targ
-	|| body->ActTarg(ACT_WEAR_RHAND) == targ
-	|| body->ActTarg(ACT_WEAR_LLEG) == targ
-	|| body->ActTarg(ACT_WEAR_RLEG) == targ
-	|| body->ActTarg(ACT_WEAR_LWRIST) == targ
-	|| body->ActTarg(ACT_WEAR_RWRIST) == targ
-	|| body->ActTarg(ACT_WEAR_LSHOULDER) == targ
-	|| body->ActTarg(ACT_WEAR_RSHOULDER) == targ
-	) {
-      if(mind) mind->Send("You are already wearing that!\n");
-      }
-    else {
-      int success = 0;
-      unsigned long mask = 1;
-      while(!success) {
-	set<act_t> locations;
+    set<Object*>::iterator targ_it;
+    for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+      Object *targ = (*targ_it);
 
-	if(targ->Skill("Wearable on Back") & mask)
+      if(mind) mind->Send("You try to wear %s!\n", targ->Name());
+      if(body->ActTarg(ACT_WEAR_BACK) == targ
+		|| body->ActTarg(ACT_WEAR_CHEST) == targ
+		|| body->ActTarg(ACT_WEAR_HEAD) == targ
+		|| body->ActTarg(ACT_WEAR_NECK) == targ
+		|| body->ActTarg(ACT_WEAR_WAIST) == targ
+		|| body->ActTarg(ACT_WEAR_SHIELD) == targ
+		|| body->ActTarg(ACT_WEAR_LARM) == targ
+		|| body->ActTarg(ACT_WEAR_RARM) == targ
+		|| body->ActTarg(ACT_WEAR_LFINGER) == targ
+		|| body->ActTarg(ACT_WEAR_RFINGER) == targ
+		|| body->ActTarg(ACT_WEAR_LFOOT) == targ
+		|| body->ActTarg(ACT_WEAR_RFOOT) == targ
+		|| body->ActTarg(ACT_WEAR_LHAND) == targ
+		|| body->ActTarg(ACT_WEAR_RHAND) == targ
+		|| body->ActTarg(ACT_WEAR_LLEG) == targ
+		|| body->ActTarg(ACT_WEAR_RLEG) == targ
+		|| body->ActTarg(ACT_WEAR_LWRIST) == targ
+		|| body->ActTarg(ACT_WEAR_RWRIST) == targ
+		|| body->ActTarg(ACT_WEAR_LSHOULDER) == targ
+		|| body->ActTarg(ACT_WEAR_RSHOULDER) == targ
+		) {
+	if(mind) mind->Send("You are already wearing that!\n");
+	}
+      else {
+	int success = 0;
+	unsigned long mask = 1;
+	while(!success) {
+	  set<act_t> locations;
+
+	  if(targ->Skill("Wearable on Back") & mask)
 		locations.insert(ACT_WEAR_BACK);
 
-	if(targ->Skill("Wearable on Chest") & mask)
+	  if(targ->Skill("Wearable on Chest") & mask)
 		locations.insert(ACT_WEAR_CHEST);
 
-	if(targ->Skill("Wearable on Head") & mask)
+	  if(targ->Skill("Wearable on Head") & mask)
 		locations.insert(ACT_WEAR_HEAD);
 
-	if(targ->Skill("Wearable on Neck") & mask)
+	  if(targ->Skill("Wearable on Neck") & mask)
 		locations.insert(ACT_WEAR_NECK);
 
-	if(targ->Skill("Wearable on Waist") & mask)
+	  if(targ->Skill("Wearable on Waist") & mask)
 		locations.insert(ACT_WEAR_WAIST);
 
-	if(targ->Skill("Wearable on Shield") & mask)
+	  if(targ->Skill("Wearable on Shield") & mask)
 		locations.insert(ACT_WEAR_SHIELD);
 
-	if(targ->Skill("Wearable on Left Arm") & mask)
+	  if(targ->Skill("Wearable on Left Arm") & mask)
 		locations.insert(ACT_WEAR_LARM);
 
-	if(targ->Skill("Wearable on Right Arm") & mask)
+	  if(targ->Skill("Wearable on Right Arm") & mask)
 		locations.insert(ACT_WEAR_RARM);
 
-	if(targ->Skill("Wearable on Left Finger") & mask)
+	  if(targ->Skill("Wearable on Left Finger") & mask)
 		locations.insert(ACT_WEAR_LFINGER);
 
-	if(targ->Skill("Wearable on Right Finger") & mask)
+	  if(targ->Skill("Wearable on Right Finger") & mask)
 		locations.insert(ACT_WEAR_RFINGER);
 
-	if(targ->Skill("Wearable on Left Foot") & mask)
+	  if(targ->Skill("Wearable on Left Foot") & mask)
 		locations.insert(ACT_WEAR_LFOOT);
 
-	if(targ->Skill("Wearable on Right Foot") & mask)
+	  if(targ->Skill("Wearable on Right Foot") & mask)
 		locations.insert(ACT_WEAR_RFOOT);
 
-	if(targ->Skill("Wearable on Left Hand") & mask)
+	  if(targ->Skill("Wearable on Left Hand") & mask)
 		locations.insert(ACT_WEAR_LHAND);
 
-	if(targ->Skill("Wearable on Right Hand") & mask)
+	  if(targ->Skill("Wearable on Right Hand") & mask)
 		locations.insert(ACT_WEAR_RHAND);
 
-	if(targ->Skill("Wearable on Left Leg") & mask)
+	  if(targ->Skill("Wearable on Left Leg") & mask)
 		locations.insert(ACT_WEAR_LLEG);
 
-	if(targ->Skill("Wearable on Right Leg") & mask)
+	  if(targ->Skill("Wearable on Right Leg") & mask)
 		locations.insert(ACT_WEAR_RLEG);
 
-	if(targ->Skill("Wearable on Left Wrist") & mask)
+	  if(targ->Skill("Wearable on Left Wrist") & mask)
 		locations.insert(ACT_WEAR_LWRIST);
 
-	if(targ->Skill("Wearable on Right Wrist") & mask)
+	  if(targ->Skill("Wearable on Right Wrist") & mask)
 		locations.insert(ACT_WEAR_RWRIST);
 
-	if(targ->Skill("Wearable on Left Shoulder") & mask)
+	  if(targ->Skill("Wearable on Left Shoulder") & mask)
 		locations.insert(ACT_WEAR_LSHOULDER);
 
-	if(targ->Skill("Wearable on Right Shoulder") & mask)
+	  if(targ->Skill("Wearable on Right Shoulder") & mask)
 		locations.insert(ACT_WEAR_RSHOULDER);
 
-	if(locations.size() < 1) break;
-	success = 1;
-	mask *= 2;
-
-	set<act_t>::iterator loc;
-	for(loc = locations.begin(); loc != locations.end(); ++loc) {
-	  if(body->IsAct(*loc)) { success = 0; break; }
-	  }
-	if(success) {
-	  targ->Travel(body); // Kills Holds and Wields on "targ"
-	  for(loc = locations.begin(); loc != locations.end(); ++loc) {
-	    body->AddAct(*loc, targ);
+	  if(locations.size() < 1) {
+	    if(mask == 1) {
+	      if(mind) mind->Send("You can't wear that - it's not wearable!\n");
+	      }
+	    break;
 	    }
-	  body->Parent()->SendOut(
-		";s puts on ;s.\n", "You put on ;s.\n", body, targ);
-	  }
-	}
+	  success = 1;
+	  mask *= 2;
 
-      if(!success) {
-	if(mind) mind->Send("You can't wear that with what you have on already!\n");
-	return 0;
+	  set<act_t>::iterator loc;
+	  for(loc = locations.begin(); loc != locations.end(); ++loc) {
+	    if(body->IsAct(*loc)) { success = 0; break; }
+	    }
+	  if(success) {
+	    targ->Travel(body); // Kills Holds and Wields on "targ"
+	    for(loc = locations.begin(); loc != locations.end(); ++loc) {
+	      body->AddAct(*loc, targ);
+	      }
+	    body->Parent()->SendOut(
+		";s puts on ;s.\n", "You put on ;s.\n", body, targ);
+	    }
+	  }
+
+	if(!success) {
+	  if(mind) mind->Send("You can't wear that with what you have on already!\n");
+	  continue;
+	  }
 	}
       }
     return 0;
