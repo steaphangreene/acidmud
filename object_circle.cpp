@@ -715,11 +715,17 @@ void Object::CircleLoadObj(const char *fn) {
 
 	if(val[2] != -1) obj->SetSkill("Lockable", 1); // Can it be locked?
 
-	if(string(obj->ShortDesc()).find("bag") < strlen(obj->ShortDesc()))
-		obj->SetSkill("Closeable", 1);  // Bags CAN be closed!
+	if(string(obj->ShortDesc()).find("bag") < strlen(obj->ShortDesc())) {
+	  obj->SetSkill("Closeable", 1);		// Bags CAN be closed
+	  obj->SetSkill("Wearable on Left Hip", 1);	// Bags CAN be belted
+	  obj->SetSkill("Wearable on Right Hip", 2);
+	  }
 
-	if(string(obj->ShortDesc()).find("pouch") < strlen(obj->ShortDesc()))
-		obj->SetSkill("Closeable", 1);  // Pouches CAN be closed!
+	if(string(obj->ShortDesc()).find("pouch") < strlen(obj->ShortDesc())) {
+	  obj->SetSkill("Closeable", 1);		// Pouches CAN be closed
+	  obj->SetSkill("Wearable on Left Hip", 1);	// Pouches CAN be belted
+	  obj->SetSkill("Wearable on Right Hip", 2);
+	  }
 
 	}
       else if(tp == 17) { // DRINKCON

@@ -1346,6 +1346,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	|| body->ActTarg(ACT_WEAR_RWRIST) == targ
 	|| body->ActTarg(ACT_WEAR_LSHOULDER) == targ
 	|| body->ActTarg(ACT_WEAR_RSHOULDER) == targ
+	|| body->ActTarg(ACT_WEAR_LHIP) == targ
+	|| body->ActTarg(ACT_WEAR_RHIP) == targ
 	) {
       if(mind) mind->Send("You are wearing that, perhaps you want to 'remove' it?\n");
       }
@@ -1417,6 +1419,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	|| body->ActTarg(ACT_WEAR_RWRIST) == targ
 	|| body->ActTarg(ACT_WEAR_LSHOULDER) == targ
 	|| body->ActTarg(ACT_WEAR_RSHOULDER) == targ
+	|| body->ActTarg(ACT_WEAR_LHIP) == targ
+	|| body->ActTarg(ACT_WEAR_RHIP) == targ
 	) {
       if(mind) mind->Send("You are wearing that, perhaps you want to 'remove' it?\n");
       }
@@ -1512,6 +1516,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		|| body->ActTarg(ACT_WEAR_RWRIST) == targ
 		|| body->ActTarg(ACT_WEAR_LSHOULDER) == targ
 		|| body->ActTarg(ACT_WEAR_RSHOULDER) == targ
+		|| body->ActTarg(ACT_WEAR_LHIP) == targ
+		|| body->ActTarg(ACT_WEAR_RHIP) == targ
 		) {
 	if(mind && targs.size() == 1)
 	  mind->Send("You are already wearing %s!\n", targ->Name(0, body));
@@ -1581,6 +1587,12 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
 	  if(targ->Skill("Wearable on Right Shoulder") & mask)
 		locations.insert(ACT_WEAR_RSHOULDER);
+
+	  if(targ->Skill("Wearable on Left Hip") & mask)
+		locations.insert(ACT_WEAR_LHIP);
+
+	  if(targ->Skill("Wearable on Right Hip") & mask)
+		locations.insert(ACT_WEAR_RHIP);
 
 	  if(locations.size() < 1) {
 	    if(mask == 1) {

@@ -53,6 +53,10 @@ const char *act_str[ACT_MAX] = {
         "wearing %1$s",
         "wearing %1$s",
         "wearing %1$s",
+        "wearing %1$s",
+        "wearing %1$s",
+        "wearing %1$s",
+        "wearing %1$s",
         };
 
 static Object *universe;
@@ -537,6 +541,8 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
     else if(cur->first == ACT_WEAR_RWRIST) m->Send("%24s", "Worn on right wrist: ");
     else if(cur->first == ACT_WEAR_LSHOULDER) m->Send("%24s", "Worn on left shoulder: ");
     else if(cur->first == ACT_WEAR_RSHOULDER) m->Send("%24s", "Worn on right shoulder: ");
+    else if(cur->first == ACT_WEAR_LHIP) m->Send("%24s", "Worn on left hip: ");
+    else if(cur->first == ACT_WEAR_RHIP) m->Send("%24s", "Worn on right hip: ");
     else continue;
 
     char *targ;
@@ -697,6 +703,12 @@ void Object::SendFullSituation(Mind *m, Object *o) {
 
   else if(parent->ActTarg(ACT_WEAR_RSHOULDER) == this)
     sprintf(buf, "%s is here on %s right shoulder%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_LHIP) == this)
+    sprintf(buf, "%s is here on %s left hip%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_RHIP) == this)
+    sprintf(buf, "%s is here on %s right hip%c", Name(), pname.c_str(), 0);
 
   else {
     pname = parent->Name();
