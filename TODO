@@ -1,3 +1,5 @@
+Locks and keys.
+Doors and Locks.
 Enhance "consider" command.
 Get it to understand shield use.
 Get it to understand two-handed weapon use.
@@ -8,6 +10,7 @@ Implement "everything"/"everyone".
 Implement "stuff"/"money"/"cash".
 Implement "loot" command.
 Add autostashing to "wield" command's unwield.
+Autowield when entering combat.
 Circle translations: backpack goes on SHOULDERS.
 Circle translations: sack/pack/bag are NOT lockable.
 Fixup shopkeepers so item numbers NEVER expire.
@@ -17,7 +20,7 @@ Make all plural commands see pluralized items correctly.
 Fix exchange system handling odd cases (including sell/buy).
 Follower should look like he gets there after folowee to those already there.
 Should not be able to wear/wield multiple (ie: pluralized) items in any location.
-Implement boats and boat travel.
+Implement boats and boat travel (and vehicles in general).
 Cleanup item manipulation commands.
 Cleanup and secure shopkeeper vortex objects.
 Improve character creation interface.
@@ -49,7 +52,6 @@ Ranged Combat.
 Implement real Reaction Action.
 Create Real Tie-Breaker for Tied Initiative.
 Global Round Sync instead of Ad-Hoc Rounds?
-Doors and Locks.
 Handle Multiple Weapon Types (eg: Bastard Swords).
 Implement All Remaining Weapon Types (Guns, etc...).
 Implement the Rest of the Skills.
