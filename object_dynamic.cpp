@@ -141,7 +141,7 @@ void Object::DynamicInit1() {		//Dwarven mine
 	"that you think it will stand as-is for another millenia.\n");
       next->SetSkill("DynamicInit", 1);
       next->SetSkill("DynamicPhase", ntype);
-      next->SetSkill("DynamicMojo", (mojo-1000) * 3 / 4);
+      next->SetSkill("DynamicMojo", (mojo-1000) * 9 / 10);
 
       Object *door1 = new Object(this);
       Object *door2 = new Object(next);
@@ -166,7 +166,7 @@ void Object::DynamicInit1() {		//Dwarven mine
 	"collapse at any moment.\n");
       next->SetSkill("DynamicInit", 1);
       next->SetSkill("DynamicPhase", 5); //Minor Shaft
-      next->SetSkill("DynamicMojo", (mojo-1000) / 4);
+      next->SetSkill("DynamicMojo", (mojo-1000) / 10);
 
       door1 = new Object(this);
       door2 = new Object(next);
@@ -273,6 +273,38 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetSkill("Open", 1);
       door2->SetSkill("Enterable", 1);
 
+      if((rand()%100) < 30) {
+        Object *mob = new Object(this);
+	
+	mob->Attach(get_mob_mind());
+	mob->Activate();
+	mob->SetPos(POS_STAND);
+	mob->SetAttribute(0, 9);
+	mob->SetAttribute(1, 6);
+	mob->SetAttribute(2, 9);
+	mob->SetAttribute(3, 2);
+	mob->SetAttribute(4, 5);
+	mob->SetAttribute(5, 9);
+	mob->SetSkill("Two-Handed Cleaves", 9);
+
+	mob->SetShortDesc("a dwarven miner");
+	mob->SetDesc("He looks pissed.");
+
+        Object *obj = new Object(mob);
+	obj->SetSkill("WeaponType", get_weapon_type("Two-Handed Cleaves"));
+	obj->SetSkill("WeaponForce", 2);
+	obj->SetSkill("WeaponSeverity", 3);
+	obj->SetSkill("WeaponReach", 2);
+	obj->SetShortDesc("a dwarven mining pickaxe");
+	obj->SetDesc("A super-strong, super-sharp, super-heavy pickaxe.");
+	obj->SetWeight(20000);
+	obj->SetVolume(50);
+	obj->SetValue(2000);
+
+	mob->AddAct(ACT_WIELD, obj);
+	mob->AddAct(ACT_HOLD, obj);
+	}
+
       }break;
     case(6): { //Minor Shaft (Bend)
 //      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7, 8, 9 };
@@ -317,7 +349,7 @@ void Object::DynamicInit1() {		//Dwarven mine
 	"collapse at any moment.\n");
       next->SetSkill("DynamicInit", 1);
       next->SetSkill("DynamicPhase", ntype);
-      next->SetSkill("DynamicMojo", mojo-100);
+      next->SetSkill("DynamicMojo", (mojo-100)/2);
 
       Object *door1 = new Object(this);
       Object *door2 = new Object(next);
@@ -343,7 +375,7 @@ void Object::DynamicInit1() {		//Dwarven mine
 	"collapse at any moment.\n");
       next->SetSkill("DynamicInit", 1);
       next->SetSkill("DynamicPhase", ntype);
-      next->SetSkill("DynamicMojo", mojo-100);
+      next->SetSkill("DynamicMojo", (mojo-100)/2);
 
       door1 = new Object(this);
       door2 = new Object(next);
