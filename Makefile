@@ -3,15 +3,15 @@ OBJS:=	main.o net.o commands.o mind.o player.o \
 	object.o object_circle.o object_acid.o object_stats.o object_dynamic.o
 
 #Production Settings
-CCC:=	gcc -s -Wall -O3
-LIBS:=	-lstdc++ -lcrypt
+CCC:=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
+LIBS:=	`gcc$(COSMOS_CTAIL) -print-file-name=libstdc++.a` -lcrypt
 
 #Debugging settings
-#CCC:=	gcc -g -Wall
+#CCC:=	gcc$(ACIDMUD_CTAIL) -g -Wall
 #LIBS:=	-lstdc++ -lcrypt -lefence
 
 #Profiling settings
-#CCC:=	gcc -g -pg -fprofile-arcs -Wall
+#CCC:=	gcc$(ACIDMUD_CTAIL) -g -pg -fprofile-arcs -Wall
 #LIBS:=	-lstdc++ -lcrypt -lefence
 
 all: acidmud
