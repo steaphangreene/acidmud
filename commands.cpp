@@ -593,7 +593,7 @@ int handle_single_command(Mind *mind, const char *cl) {
       mind->Body()->Parent()->SendOut(
 	";s arrives.\n", "", mind->Body(), NULL);
       if(mind->Type() == MIND_REMOTE)
-	mind->Body()->Parent()->SendDesc(mind->Body(), mind->Body());
+	mind->Body()->Parent()->SendDescSurround(mind->Body(), mind->Body());
       else if(mind->Type() == MIND_SYSTEM)
 	mind->Send("You enter %s\n", comline+len);
       }
@@ -634,7 +634,7 @@ int handle_single_command(Mind *mind, const char *cl) {
       else if(body->IsAct(ACT_UNCONSCIOUS))
 	mind->Send("You can see nothing, you are out cold.\n");
       else
-	body->Parent()->SendDesc(mind, body);
+	body->Parent()->SendDescSurround(mind, body);
       return 0;
       }
     Object *dest = mind->Body()->PickObject(comline+len, LOC_NEARBY);
@@ -656,7 +656,7 @@ int handle_single_command(Mind *mind, const char *cl) {
       mind->Body()->Parent()->SendOut(
 	";s arrives.\n", "", mind->Body(), NULL);
       if(mind->Type() == MIND_REMOTE)
-	mind->Body()->Parent()->SendDesc(mind->Body(), mind->Body());
+	mind->Body()->Parent()->SendDescSurround(mind->Body(), mind->Body());
       else if(mind->Type() == MIND_SYSTEM)
 	mind->Send("You enter %s\n", comline+len);
       }
@@ -756,16 +756,21 @@ int handle_single_command(Mind *mind, const char *cl) {
 		";s opens ;s.\n", "You open ;s.\n", mind->Body(), targ);
 	  }
 
-	if(strlen(comline+len) > 0 && within)
+	if(strlen(comline+len) > 0 && within) {
 		mind->Body()->Parent()->SendOut(
 		";s looks inside ;s.\n", "", mind->Body(), targ);
-	else if(strlen(comline+len) > 0)
+	  targ->SendDesc(mind, mind->Body());
+	  }
+	else if(strlen(comline+len) > 0) {
 		mind->Body()->Parent()->SendOut(
 		";s looks at ;s.\n", "", mind->Body(), targ);
-	else
+	  targ->SendDesc(mind, mind->Body());
+	  }
+	else {
 		mind->Body()->Parent()->SendOut(
 		";s looks around.\n", "", mind->Body(), targ);
-	targ->SendDesc(mind, mind->Body());
+	  targ->SendDescSurround(mind, mind->Body());
+	  }
 
 	if(must_open) {
 	  stats.SetSkill("Transparent", 0);
@@ -1232,7 +1237,7 @@ int handle_single_command(Mind *mind, const char *cl) {
     else {
       mind->Body()->Travel(mind->Body()->Parent()->Parent());
       if(oldp) oldp->SendOut(";s leaves.\n", "", mind->Body(), NULL);
-      mind->Body()->Parent()->SendDesc(mind->Body(), mind->Body());
+      mind->Body()->Parent()->SendDescSurround(mind->Body(), mind->Body());
       mind->Body()->Parent()->SendOut(
 	";s arrives.\n", "", mind->Body(), NULL);
       }

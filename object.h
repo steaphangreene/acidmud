@@ -95,7 +95,9 @@ public:
   void SendShortDesc(Mind *m, Object *o = NULL);
   void SendShortDesc(Object *m, Object *o = NULL);
   void SendDesc(Mind *m, Object *o = NULL);
+  void SendDescSurround(Mind *m, Object *o = NULL);
   void SendDesc(Object *m, Object *o = NULL);
+  void SendDescSurround(Object *m, Object *o = NULL);
   void SendLongDesc(Mind *m, Object *o = NULL);
   void SendLongDesc(Object *m, Object *o = NULL);
 

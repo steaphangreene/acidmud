@@ -276,6 +276,13 @@ void Object::SendDesc(Object *targ, Object *o) {
     }
   }
 
+void Object::SendDescSurround(Object *targ, Object *o) {
+  set<Mind*>::iterator m = targ->minds.begin();
+  for(; m != targ->minds.end(); ++m) {
+    SendDescSurround(*m, o);
+    }
+  }
+
 void Object::SendLongDesc(Object *targ, Object *o) {
   set<Mind*>::iterator m = targ->minds.begin();
   for(; m != targ->minds.end(); ++m) {
@@ -447,10 +454,63 @@ void Object::SendDesc(Mind *m, Object *o) {
     SendContents(m, o);
     }
 
+//  m->Send("%s", CMAG);
+  m->Send("%s", CNRM);
+  }
+
+void Object::SendDescSurround(Mind *m, Object *o) {
+  memset(buf, 0, 65536);
+
+  if(pos != POS_NONE) {
+    m->Send("%s", CCYN);
+    sprintf(buf, "%s %s%c", ShortDesc(), PosString(), 0);
+    buf[0] = toupper(buf[0]);
+    m->Send(buf);
+
+    SendActions(m);
+    }
+  else {
+    m->Send("%s", CCYN);
+    sprintf(buf, "%s\n%c", ShortDesc(), 0);
+    buf[0] = toupper(buf[0]);
+    m->Send(buf);
+    }
+
+  m->Send("%s   ", CNRM);
+  sprintf(buf, "%s\n%c", Desc(), 0);
+  buf[0] = toupper(buf[0]);
+  m->Send(buf);
+
+  if(pos == POS_NONE) {
+    m->Send("%s", CCYN);
+    map<string, Object*>::iterator mind;
+    for(mind = connections.begin(); mind != connections.end(); ++mind) {
+      sprintf(buf, "%s you see %s.\n%c",
+	(*mind).first.c_str(), (*mind).second->ShortDesc(), 0);
+      buf[0] = toupper(buf[0]);
+      m->Send(buf);
+      }
+    }
+
+  m->Send("%s", CNRM);
+  if(pos != POS_NONE) {
+    SendExtendedActions(m, 0);
+    }
+
+//  if(m->Body() == this) {
+//    SendContents(m, o, 1);
+//    }
+//  else 
+  if(pos == POS_NONE || Stats()->GetSkill("Transparent")) {
+    SendContents(m, o);
+    }
+
   if(parent && Stats()->GetSkill("Transparent")) {
     m->Send("%s", CCYN);
     m->Send("Outside you see: ");
-    parent->SendDesc(m, this);
+    parent->contents.erase(this);
+    parent->SendDescSurround(m, this);
+    parent->contents.insert(this);
     }
 
 //  m->Send("%s", CMAG);
