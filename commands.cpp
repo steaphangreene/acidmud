@@ -53,6 +53,7 @@ enum {	COM_HELP=0,
 	COM_LOOK,
 	COM_EXAMINE,
 	COM_INVENTORY,
+	COM_EQUIPMENT,
 
 	COM_OPEN,
 	COM_CLOSE,
@@ -146,6 +147,11 @@ Command comlist[] = {
   { COM_INVENTORY, "inventory",
     "Check what you have on you.",
     "Check what you have on you.",
+    (REQ_AWAKE|REQ_ACTION)
+    },
+  { COM_EQUIPMENT, "equipment",
+    "Check what you are wearing and using.",
+    "Check what you are wearing and using.",
     (REQ_AWAKE|REQ_ACTION)
     },
 
@@ -754,6 +760,14 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
    if(mind) {
      mind->Send("You (%s) are carrying:\n", body->ShortDesc());
      body->SendExtendedActions(mind, 1);
+     }
+   return 0;
+   }
+
+  if(com == COM_EQUIPMENT) {
+   if(mind) {
+     mind->Send("You (%s) are using:\n", body->ShortDesc());
+     body->SendExtendedActions(mind, 0);
      }
    return 0;
    }
