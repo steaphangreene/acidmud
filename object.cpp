@@ -715,9 +715,13 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
       int qty = 1;
       if(!(*ind)->Attribute(1)) { // Inanimate objects can have higher qtys
 	typeof(cont.begin()) oth = ind;
-	for(qty = 0; oth != cont.end(); ++oth) if((*(*oth)) == (*(*ind))) {
-	  master.erase(*oth);
-	  qty += 1 >? (*oth)->Skill("Quantity");
+	for(qty = 0; oth != cont.end(); ++oth) {
+	  string name1 = (*ind)->Name();
+	  string name2 = (*oth)->Name();
+	  if(name1 == name2) {
+	    master.erase(*oth);
+	    qty += 1 >? (*oth)->Skill("Quantity");
+	    }
 	  }
 	}
 
