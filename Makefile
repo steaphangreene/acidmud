@@ -17,7 +17,7 @@ LIBS:=	-lstdc++ -lcrypt
 all: acidmud
 
 clean:
-	rm -f deps.mk *.o *.da acidmud
+	rm -f gmon.out deps.mk *.o *.da acidmud
 
 backup:
 	cd ..;tar chvf ~/c/archive/acidmud.$(TSTR).tar \
