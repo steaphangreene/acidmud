@@ -8,7 +8,6 @@ Make single-item commands get only single items.
 Make all plural commands see pluralized items correctly.
 Should not be able to wear multiple (ie: pluralized) items in any location.
 Implement boats and boat travel.
-Handle odd pluralized cases (Holding two items when one is looked at...).
 Cleanup item manipulation commands.
 Can't wear/wield plural items.
 Cleanup and secure shopkeeper vortex objects.
