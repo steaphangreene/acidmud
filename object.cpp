@@ -1589,18 +1589,6 @@ Object *Object::ActTarg(act_t a) const {
   };
 
 void Object::StopAll() {
-  if(parent) {
-    if(IsAct(ACT_HOLD)) {
-      parent->SendOut(ALL, ";s drops %s!\n", "You drop %s!\n",
-		this, NULL, ActTarg(ACT_HOLD)->ShortDesc());
-      ActTarg(ACT_HOLD)->Travel(parent);
-      }
-    if(IsAct(ACT_WIELD)) {
-      parent->SendOut(ALL, ";s drops %s!\n", "You drop %s!\n",
-		this, NULL, ActTarg(ACT_WIELD)->ShortDesc());
-      ActTarg(ACT_WIELD)->Travel(parent);
-      }
-    }
   act.clear();
   }
 
@@ -1783,10 +1771,14 @@ int Object::HitStru(int force, int sev, int succ) {
   return sev;
   }
 
-void Object::Send(int targ, const char *mes, ...) {
+void Object::Send(int tnum, const char *mes, ...) {
   static char buf[65536];
 
   if(mes[0] == 0) return;
+
+  if(tnum != ALL && (!Roll("Perception", tnum))) {
+    return;
+    }
 
   memset(buf, 0, 65536);
   va_list stuff;  
@@ -1833,15 +1825,15 @@ void Object::SendIn(int tnum, const char *mes, const char *youmes,
   for(char *ctr=buf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
   for(char *ctr=youbuf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
 
-  if(youmes && this == actor) Send(ALL, youbuf, tstr.c_str());
-  else Send(ALL, buf, astr.c_str(), tstr.c_str());
+  if(youmes && this == actor) Send(tnum, youbuf, tstr.c_str());
+  else Send(tnum, buf, astr.c_str(), tstr.c_str());
 
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
     if((*ind)->Skill("Open"))
-      (*ind)->SendIn(ALL, str, youstr, actor, targ);
+      (*ind)->SendIn(tnum, str, youstr, actor, targ);
     else if((*ind)->Pos() != POS_NONE)	//FIXME - Understand Transparency
-      (*ind)->SendIn(ALL, str, youstr, actor, targ);
+      (*ind)->SendIn(tnum, str, youstr, actor, targ);
     }
 
   free(str);
@@ -1874,20 +1866,20 @@ void Object::SendOut(int tnum, const char *mes, const char *youmes,
   for(char *ctr=buf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
   for(char *ctr=youbuf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
 
-  if(youmes && this == actor) Send(ALL, youbuf, tstr.c_str());
-  else Send(ALL, buf, astr.c_str(), tstr.c_str());
+  if(youmes && this == actor) Send(tnum, youbuf, tstr.c_str());
+  else Send(tnum, buf, astr.c_str(), tstr.c_str());
 
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
     if((*ind)->Skill("Open"))
-      (*ind)->SendIn(ALL, str, youstr, actor, targ);
+      (*ind)->SendIn(tnum, str, youstr, actor, targ);
     else if((*ind)->Pos() != POS_NONE)	//FIXME - Understand Transparency
-      (*ind)->SendIn(ALL, str, youstr, actor, targ);
+      (*ind)->SendIn(tnum, str, youstr, actor, targ);
     }
 
   if(parent && Skill("Open")) {
     no_seek = 1;
-    parent->SendOut(ALL, str, youstr, actor, targ);
+    parent->SendOut(tnum, str, youstr, actor, targ);
     no_seek = 0;
     }
 
