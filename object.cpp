@@ -813,6 +813,10 @@ Object *Object::PickObject(char *name, int loc, int *ordinal) {
 	(*ordinal)--;
 	if((*ordinal) == 0) { return (*ind); }
 	}
+      if((*ind)->Stats()->GetSkill("Transparent")) {
+	Object *ret = (*ind)->PickObject(name, LOC_INTERNAL, ordinal);
+	if(ret) return ret;
+	}
       }
     }
 
