@@ -20,8 +20,7 @@ Show armor messages in ninja display.
 Get it to understand two-handed weapons and shield use.
 Get it to understand offhand and mounted weapon use.
 Consistently pluralize (or don't) skill names (fix online version too!).
-Fixup "Back" slot so it makes more sense.
-A "suit of" object should not just be on the fucking chest!
+Enhance "consider" command.
 Create in direction works oddly.
 Delete a direction-linked object exploderates.
 Implement various types of armor and damage.
