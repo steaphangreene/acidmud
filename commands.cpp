@@ -1180,7 +1180,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else {
       targs = body->PickObjects(comline+len,
-		LOC_INTERNAL|LOC_NEARBY|LOC_SELF|LOC_HERE);
+		LOC_INTERNAL|LOC_NEARBY|LOC_SELF);
       }
     if(targs.size() < 1) {
       if(mind) mind->Send("You don't see that here.\n");
