@@ -190,7 +190,16 @@ void tick_world() {
   }
 
 void Object::Tick() {
-  if(phys >= 10) {
+  set<Mind*>::iterator m;
+  for(m = minds.begin(); m != minds.end(); ++m) {
+    (*m)->Attach(this);
+    (*m)->Think(1);
+    }
+
+  if(phys > (10+Attribute(0))) {
+    // You are already dead.
+    }
+  else if(phys >= 10) {
     int rec = RollNoWounds("Body", phys - 4);
     if(!rec) ++phys;
     UpdateDamage();
@@ -221,12 +230,6 @@ void Object::Tick() {
     }
 
   //FIXME: rot, degrade, etc....
-
-  set<Mind*>::iterator m;
-  for(m = minds.begin(); m != minds.end(); ++m) {
-    (*m)->Attach(this);
-    (*m)->Think(1);
-    }
   }
 
 Object::Object() {
@@ -1275,6 +1278,8 @@ void Object::UpdateDamage() {
     stun = 10;
     }
   if(phys > 10+Attribute(0)) {
+    phys = 10+Attribute(0)+1;
+
     if(IsAct(ACT_DEAD) == 0) {
       parent->SendOut(
 	";s expires from its wounds.\n", "You expire, sorry.\n", this, NULL);
