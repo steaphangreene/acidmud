@@ -1186,9 +1186,16 @@ set<Object*> Object::PickObjects(char *name, int loc, int *ordinal) {
     else if(!keyword) keyword = keyword2;
     keyword2 = strdup(name);
     keyword2[keyword-name] = 0;
-    Object *master = PickObject(keyword2, loc);
-    if(!master) { free(keyword2); return ret; }
-    ret = master->PickObjects(keyword2 + (keyword-name)+3, LOC_INTERNAL);
+
+    set<Object *>masters = PickObjects(keyword2, loc);
+    if(!masters.size()) { free(keyword2); return ret; }
+
+    set<Object *>::iterator master;
+    for(master = masters.begin(); master != masters.end(); ++master) {
+      set<Object *> add = 
+	(*master)->PickObjects(keyword2 + (keyword-name)+3, LOC_INTERNAL);
+      ret.insert(add.begin(), add.end());
+      }
     free(keyword2);
     return ret;
     }
