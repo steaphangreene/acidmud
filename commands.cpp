@@ -63,6 +63,8 @@ enum {	COM_HELP=0,
 
 	COM_OPEN,
 	COM_CLOSE,
+	COM_UNLOCK,
+	COM_LOCK,
 
 	COM_GET,
 	COM_PUT,
@@ -194,6 +196,16 @@ Command comlist[] = {
   { COM_CLOSE, "close",
     "Close a door or container.",
     "Close a door or container.",
+    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    },
+  { COM_UNLOCK, "unlock",
+    "Unlock a door or container.",
+    "Unlock a door or container.",
+    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    },
+  { COM_LOCK, "lock",
+    "Lock a door or container.",
+    "Lock a door or container.",
     (REQ_ALERT|REQ_STAND|REQ_ACTION)
     },
 
@@ -588,21 +600,25 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     return 1;
     }
 
-  if(((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_SUPERNINJA)))
-	&& (comlist[cnum].sit & SIT_SUPERNINJA)) {
+  int ninja=0, sninja=0, nmode=0;
+
+  if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_SUPERNINJA))
+    { sninja=1; ninja=1; }
+  if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJA)) ninja=1;
+  if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJAMODE)) nmode=1;
+
+  if((!sninja) && (comlist[cnum].sit & SIT_SUPERNINJA)) {
     if(mind) mind->Send("Sorry, that command is for Super Ninjas only!\n");
     return 0;
     }
 
-  if(((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJA)))
-	&& (comlist[cnum].sit & SIT_NINJA)) {
+  if((!ninja) && (comlist[cnum].sit & SIT_NINJA)) {
     if(mind) mind->Send("Sorry, that command is for True Ninjas only!\n");
     return 0;
     }
 
-  if(((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJAMODE)))
-	&& (comlist[cnum].sit & SIT_NINJAMODE)) {
-    if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJA))
+  if((!nmode) && (comlist[cnum].sit & SIT_NINJAMODE)) {
+    if(mind && ninja)
       mind->Send("Sorry, you need to be in Ninja Mode[TM] to do that.\n");
     else if(mind)
       mind->Send("Sorry, that command is for Ninjas only!\n");
@@ -710,7 +726,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("Sorry, you need a boat to go there!\n");
       }
     else {
-      if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJAMODE)) {
+      if(nmode) {
 	//Ninja-movement can't be followed!
 	if(body->Parent()) body->Parent()->NotifyGone(body);
 	}
@@ -757,7 +773,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	return 0;
 	}
       if(body->IsAct(ACT_DEAD)) {
-	if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJAMODE)) {
+	if(nmode) {
 	  // Allow entry to ninjas - autoheal!
 	  }  
 	else {
@@ -772,7 +788,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
       mind->Attach(body);
 
-      if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJAMODE)) {
+      if(nmode) {
 	//This is ninja-healing and bypasses all healing mechanisms.
 	body->SetStun(0);
 	body->SetPhys(0);
@@ -797,12 +813,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(!dest) {
       if(mind) mind->Send("You want to go where?\n");
       }
-    else if((!dest->Skill("Enterable"))
-	&& ((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJA)))) {
+    else if((!dest->Skill("Enterable")) && (!ninja)) {
       if(mind) mind->Send("It is not possible to enter that object!\n");
       }
-    else if((!dest->Skill("Enterable"))
-	&& ((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJAMODE)))) {
+    else if((!dest->Skill("Enterable"))	&& (!nmode)) {
       if(mind) mind->Send("You need to be in ninja mode to enter that object!\n");
       }
     else if(dest->Skill("WaterDepth") == 1 && body->Skill("Swimming") == 0) {
@@ -812,7 +826,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(mind) mind->Send("Sorry, you need a boat to go there!\n");
       }
     else {
-      if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJAMODE)) {
+      if(nmode) {
 	//Ninja-movement can't be followed!
 	if(body->Parent()) body->Parent()->NotifyGone(body);
 	}
@@ -857,14 +871,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(!strcmp(comline+len, "commands")) {
       string mes = "";
       for(int ctr=0; ctr < comnum; ++ctr) {
-        if((comlist[ctr].sit & SIT_NINJAMODE)
-		&& (!mind->Owner()->Is(PLAYER_NINJAMODE))) continue;
-        if((!(comlist[ctr].sit & SIT_NINJAMODE))
-		&& (mind->Owner()->Is(PLAYER_NINJAMODE))) continue;
-        if((comlist[ctr].sit & SIT_NINJA)
-		&& (!mind->Owner()->Is(PLAYER_NINJA))) continue;
-        if((comlist[ctr].sit & SIT_SUPERNINJA)
-		&& (!mind->Owner()->Is(PLAYER_SUPERNINJA))) continue;
+        if((comlist[ctr].sit & SIT_NINJAMODE) && (!nmode)) continue;
+        if((!(comlist[ctr].sit & SIT_NINJAMODE)) && nmode) continue;
+        if((comlist[ctr].sit & SIT_NINJA) && (!ninja)) continue;
+        if((comlist[ctr].sit & SIT_SUPERNINJA) && (!sninja)) continue;
         if((!(comlist[ctr].sit & SIT_CORPOREAL)) && (body)) continue;
         if((!(comlist[ctr].sit & SIT_ETHEREAL)) && (!body)) continue;
         mes += comlist[ctr].command;
@@ -1191,6 +1201,76 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     return 0;
     }
 
+  if(com == COM_LOCK) {
+    Object *targ = NULL;
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(strlen(comline+len) <= 0) {
+      if(mind) mind->Send("You want to lock what?\n");
+      return 0;
+      }
+    targ = body->PickObject(comline+len, LOC_INTERNAL|LOC_NEARBY);
+    if(!targ) {
+      if(mind) mind->Send("You don't see that here.\n");
+      }
+    else if(targ->Skill("Locked")) {
+      if(mind) mind->Send("It is already locked!\n");
+      }
+    else if(targ->Skill("Lock") <= 0 && (!nmode)) {
+      if(mind) mind->Send("It does not seem to have a keyhole!\n");
+      }
+    else {
+      if(!nmode) {
+	typeof(body->Contents()) keys = body->PickObjects("all", LOC_INTERNAL);
+	typeof(keys.begin()) key;
+	for(key = keys.begin(); key != keys.end(); ++key) {
+	  if((*key)->Skill("Key") == targ->Skill("Lock")) break;
+	  }
+	if(key == keys.end()) {
+	  if(mind) mind->Send("You don't seem to have the right key.\n");
+	  return 0;
+	  }
+	}
+      targ->SetSkill("Locked", 1);
+      body->Parent()->SendOut(";s locks ;s.\n", "You lock ;s.\n", body, targ);
+      }
+    return 0;
+    }
+
+  if(com == COM_UNLOCK) {
+    Object *targ = NULL;
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(strlen(comline+len) <= 0) {
+      if(mind) mind->Send("You want to unlock what?\n");
+      return 0;
+      }
+    targ = body->PickObject(comline+len, LOC_INTERNAL|LOC_NEARBY);
+    if(!targ) {
+      if(mind) mind->Send("You don't see that here.\n");
+      }
+    else if(!targ->Skill("Locked")) {
+      if(mind) mind->Send("It is not locked!\n");
+      }
+    else if(targ->Skill("Lock") <= 0 && (!nmode)) {
+      if(mind) mind->Send("It does not seem to have a keyhole!\n");
+      }
+    else {
+      if(!nmode) {
+	typeof(body->Contents()) keys = body->PickObjects("all", LOC_INTERNAL);
+	typeof(keys.begin()) key;
+	for(key = keys.begin(); key != keys.end(); ++key) {
+	  if((*key)->Skill("Key") == targ->Skill("Lock")) break;
+	  }
+	if(key == keys.end()) {
+	  if(mind) mind->Send("You don't seem to have the right key.\n");
+	  return 0;
+	  }
+	}
+      targ->SetSkill("Locked", 0);
+      body->Parent()->SendOut(";s unlocks ;s.\n", "You unlock ;s.\n", body, targ);
+      }
+    return 0;
+    }
+
   if(com == COM_OPEN) {
     Object *targ = NULL;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
@@ -1213,8 +1293,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       }
     else {
       targ->SetSkill("Transparent", 1);
-      body->Parent()->SendOut(
-	";s opens ;s.\n", "You open ;s.", body, targ);
+      body->Parent()->SendOut(";s opens ;s.\n", "You open ;s.\n", body, targ);
       }
     return 0;
     }
@@ -2055,16 +2134,14 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     if(!body->Parent()->Parent()) {
       if(mind) mind->Send("It is not possible to leave this object!\n");
       }
-    else if((!body->Parent()->Skill("Enterable"))
-	&& ((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJA)))) {
+    else if((!body->Parent()->Skill("Enterable")) && (!ninja)) {
       if(mind) mind->Send("It is not possible to leave this object!\n");
       }
-    else if((!body->Parent()->Skill("Enterable"))
-	&& ((!mind) || (!mind->Owner()) || (!mind->Owner()->Is(PLAYER_NINJAMODE)))) {
+    else if((!body->Parent()->Skill("Enterable")) && (!nmode)) {
       if(mind) mind->Send("You need to be in ninja mode to leave this object!\n");
       }
     else {
-      if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJAMODE)) {
+      if(nmode) {
 	//Ninja-movement can't be followed!
 	if(body->Parent()) body->Parent()->NotifyGone(body);
 	}
