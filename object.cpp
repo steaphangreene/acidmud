@@ -387,8 +387,12 @@ void Object::SendActions(Mind *m) {
       char *targ, *dirn = "", *dirp = "";
 
       if(!cur->second) targ = "";
-      else if((cur->second) == this) targ = "itself";
-      else if((cur->second) == m->Body()) targ = "you";
+      else if(cur->second == this && cur->second->Gender() == 'M')
+	targ = "himself";
+      else if(cur->second == this && cur->second->Gender() == 'F')
+	targ = "herself";
+      else if(cur->second == this) targ = "itself";
+      else if(cur->second == m->Body()) targ = "you";
       else targ = (char*) cur->second->ShortDesc();
 
       map<string,Object*>::iterator dir = connections.begin();
@@ -435,6 +439,10 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
 
     char *targ;
     if(!cur->second) targ = "";
+    else if(cur->second == this && cur->second->Gender() == 'M')
+      targ = "himself";
+    else if(cur->second == this && cur->second->Gender() == 'F')
+      targ = "herself";
     else if((cur->second) == this) targ = "itself";
     else if((cur->second) == m->Body()) targ = "you";
     else targ = (char*) cur->second->ShortDesc();
@@ -1349,6 +1357,11 @@ void Object::SendIn(const char *mes, const char *youmes,
   if(youmes && this == actor && this == targ) Send(youbuf, "yourself");
   else if(youmes && this == actor) Send(youbuf, tstr.c_str());
   else if(this == targ) Send(buf, astr.c_str(), "you");
+  else if(actor == targ && actor->Gender() == 'M')
+    Send(buf, astr.c_str(), "himself");
+  else if(actor == targ && actor->Gender() == 'F')
+    Send(buf, astr.c_str(), "herself");
+  else if(actor == targ) Send(buf, astr.c_str(), "itself");
   else Send(buf, astr.c_str(), tstr.c_str());
 
   set<Object*>::const_iterator ind;
@@ -1390,6 +1403,11 @@ void Object::SendOut(const char *mes, const char *youmes,
   if(youmes && this == actor && this == targ) Send(youbuf, "yourself");
   else if(youmes && this == actor) Send(youbuf, tstr.c_str());
   else if(this == targ) Send(buf, astr.c_str(), "you");
+  else if(actor == targ && actor->Gender() == 'M')
+    Send(buf, astr.c_str(), "himself");
+  else if(actor == targ && actor->Gender() == 'F')
+    Send(buf, astr.c_str(), "herself");
+  else if(actor == targ) Send(buf, astr.c_str(), "itself");
   else Send(buf, astr.c_str(), tstr.c_str());
 
   set<Object*>::const_iterator ind;

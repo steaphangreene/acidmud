@@ -1,5 +1,4 @@
 Finish article substitution ("A" -> "A second" -> "The" -> "Joe's", etc...).
-Finish implementing sex distinctions ("his" / "her" / "its").
 Add more smartness for getting things from people (permission, etc.).
 Add more smartness for recursive gets (can't grab from locked items, etc...).
 Add better messages for items possessed by characters and mobs.
