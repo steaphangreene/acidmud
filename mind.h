@@ -42,6 +42,7 @@ private:
   Object *body;
   Player *player;
   string pname;
+  int log;
   };
 
 Mind *new_mind(int);

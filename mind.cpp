@@ -9,6 +9,8 @@ using namespace std;
 #include <fcntl.h>
 #include <cstdlib>
 #include <cstdarg>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "net.h"
@@ -21,23 +23,36 @@ Mind::Mind() {
   player = NULL;
   type = MIND_MORON;
   pers = 0;
+  log = -1;
   }
 
 Mind::Mind(int fd) {
   body = NULL;
   player = NULL;
   SetRemote(fd);
+  log = -1;
   }
 
 Mind::~Mind() {
   if(type == MIND_REMOTE) close_socket(pers);
   type = MIND_MORON;
   Unattach();
+  if(log >= 0) close(log);
   }
 
 void Mind::SetRemote(int fd) {
   type = MIND_REMOTE;
   pers = fd;
+  char buf[256];
+
+  static unsigned long lognum = 0;
+  struct stat st;
+  sprintf(buf, "logs/%.8lX.log%c", lognum, 0);
+  while(!stat(buf, &st)) {
+    ++lognum;
+    sprintf(buf, "logs/%.8lX.log%c", lognum, 0);
+    }
+  log = open(buf, O_CREAT|O_TRUNC|O_SYNC);
   }
 
 void Mind::SetMob() {
