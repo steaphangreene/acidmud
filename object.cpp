@@ -937,6 +937,7 @@ void Object::SendStats(Mind *m, Object *o) {
       m->Send("  Range: %d", skills["WeaponReach"]);
     else if(skills["WeaponReach"] >= 0)
       m->Send("  Reach: %d", skills["WeaponReach"]);
+    m->Send("\n");
     }
   else {
     for(skl = skills.begin(); skl != skills.end(); ++skl) {
