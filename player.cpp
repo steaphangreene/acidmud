@@ -174,7 +174,7 @@ void player_rooms_erase(Object *obj) {
   for(; pl != player_list.end(); ++pl) {
     if((*pl).second->Creator() == obj)
       (*pl).second->SetCreator(NULL);
-    (*pl).second->Room()->contents.erase(obj);
+    (*pl).second->Room()->RemoveLink(obj);
     }
   }
 

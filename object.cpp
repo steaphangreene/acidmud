@@ -581,6 +581,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside) {
   set<Object*>::iterator ind;
   for(ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
     master.erase(*ind);
+/* Comment out this block to disable 20-item limit in view */
     if(total >= 20) {
       m->Send(base.c_str());
       m->Send("...and %d more things are here too.\n",
@@ -949,6 +950,10 @@ void Object::SendStats(Mind *m, Object *o) {
 
 void Object::AddLink(Object *ob) {
   contents.insert(ob);
+  }
+
+void Object::RemoveLink(Object *ob) {
+  contents.erase(ob);
   }
 
 int Object::Travel(Object *dest) {

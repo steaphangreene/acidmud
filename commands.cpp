@@ -2522,9 +2522,9 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       mind->Send("You want to reset what?\n");
       }
     else {
-      set<Object *> contents = targ->Contents();
-      set<Object *>::iterator item = contents.begin();
-      for(; item != contents.end(); ++item) delete (*item);
+      set<Object *> cont = targ->Contents();
+      set<Object *>::iterator item = cont.begin();
+      for(; item != cont.end(); ++item) delete (*item);
       targ->Travel(get_start_room());
 
       body->Parent()->SendOut(

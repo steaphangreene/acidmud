@@ -110,6 +110,7 @@ public:
 
   int Travel(Object *);
   void AddLink(Object *);
+  void RemoveLink(Object *);
   void Attach(Mind *mind);
   void Unattach(Mind *mind);
 
