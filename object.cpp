@@ -1404,7 +1404,22 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
   if(no_seek) return;
 
   for(act_t act=ACT_NONE; act < ACT_MAX; ++((int&)(act))) {
-    if(ActTarg(act) == obj) StopAct(act);
+    if(ActTarg(act) == obj) {
+      if(act != ACT_FOLLOW || (!newloc)) { StopAct(act); }
+      else {
+	string com = "";
+	if(parent) {
+	  map<string,Object*> conns = parent->Connections();
+	  map<string,Object*>::iterator conn = conns.begin();
+	  for(; com == "" && conn != conns.end(); ++conn) {
+	    if(conn->second == newloc) com = conn->first;
+	    }
+	  }
+	if(com == "") { //FIXME: Follow ENTER and LEAVE actions.
+	  }
+	if(com != "") BusyFor(500, com.c_str());
+	}
+      }
     }
 
   typeof(contents.begin()) ind;
