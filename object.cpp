@@ -1457,11 +1457,18 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
     return;
     }
 
-  for(act_t act=ACT_NONE; act < ACT_SPECIAL_MAX; ++((int&)(act))) {
+  for(act_t act=ACT_NONE; act < ACT_MAX; ++((int&)(act))) {
     if(ActTarg(act) == obj) {
       if(act != ACT_FOLLOW || (!newloc)) { StopAct(act); }
       else if(parent == newloc) { } // Do nothing - didn't leave!
       else { Travel(newloc); AddAct(ACT_FOLLOW, obj); }
+      }
+    }
+  for(act_t act=ACT_MAX; act < ACT_SPECIAL_MAX; ++((int&)(act))) {
+    if((!newloc) && ActTarg(act) == obj) {
+      StopAct(act);
+      for(act_t act2=ACT_MAX; act2 < ACT_SPECIAL_MAX; ++((int&)(act2)))
+	if(obj->ActTarg(act2) == this) obj->StopAct(act2);
       }
     }
 
