@@ -1038,6 +1038,7 @@ void Object::AddLink(Object *ob) {
   if(ind == contents.end()) {
     typeof(contents.begin()) place = contents.end();
     for(ind = contents.begin(); ind != contents.end(); ++ind) {
+      if((*ind) == ob) return;				//Already there!
       if((*(*ind)) == (*ob)) { place = ind; ++place; }	//Likes by likes
       }
     contents.insert(place, ob);
@@ -1072,11 +1073,12 @@ int Object::Travel(Object *dest, int try_combine) {
     if(Weight() > con) return -3;
     }
 
+  Object *oldp = parent;
   parent->RemoveLink(this);
-  parent->NotifyGone(this, dest);
-
   parent = dest;
   parent->AddLink(this);
+  oldp->NotifyGone(this, dest);
+
   if(try_combine) {
     typeof(parent->contents.begin()) ind;
     for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
@@ -1502,7 +1504,12 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
     if(ActTarg(act) == obj) {
       if(act != ACT_FOLLOW || (!newloc)) { StopAct(act); }
       else if(parent == newloc) { } // Do nothing - didn't leave!
-      else { Travel(newloc); AddAct(ACT_FOLLOW, obj); }
+      else {
+	parent->SendOut(";s follows ;s.\n", "You follow ;s\n", this, obj);
+	Travel(newloc);
+	parent->SendOut(";s follows ;s.\n", "", this, obj);
+	AddAct(ACT_FOLLOW, obj);
+	}
       }
     }
   for(act_t act=ACT_MAX; act < ACT_SPECIAL_MAX; ++((int&)(act))) {
