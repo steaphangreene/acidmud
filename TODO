@@ -1,3 +1,4 @@
+Refine the fudging of circle MOBs' stats (Hit Points->Bod, Barehand->Str).
 Dup shopkeeper items correctly (all gauntlets are left, etc...).
 Fixup ("wear alll" works!!!!).
 Fixup ("get newbie's " works!!!!).
@@ -10,7 +11,6 @@ Improve character creation interface.
 Implement item "piles" "pairs", "mixtures", etc....
 Positional modifyers (sleeping/lying down/standing, etc...).
 Travel limitations (speed of movement, fleeing, sprinting, running).
-Refine the fudging of circle MOBs' stats.
 Finish article substitution ("A" -> "A second" -> "The" -> "Joe's", etc...).
 Pick up a fight's other opponents after your target goes down without delay.
 Wear/wield from own containers need auto open/close.
