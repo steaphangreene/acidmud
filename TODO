@@ -1,3 +1,4 @@
+Make some objects (such as rooms and cloners) not ever get ticked.
 Follower should get there AFTER folowee.
 Followers who lie, sit, or rest must stop following.
 Follower should see their own movements better.
@@ -68,6 +69,7 @@ Add "bug", "request", and "concern" commands (acidmail problems to ninjas).
 User management commands (delete chars, rename users?, etc...).
 Skill defaults (to other skills).
 Case-Insensitive Playernames
+Implement "save" command.
 
 Add SSL support.
 Atmoize all the strings (save rediculous amounts of memory!).

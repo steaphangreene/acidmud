@@ -390,7 +390,9 @@ void Object::CircleLoadZon(const char *fn) {
 	  fscanf(mudz, " %*d %d %*d %d %*[^\n]\n", &num, &innum);
 	  if(lastobj.count(innum) && bynumobj.count(num)) {
 	    Object *obj = new Object(*(bynumobj[num]));
+	    Object *obj2 = dup_circle_obj(obj);
 	    obj->SetParent(lastobj[innum]);
+	    if(obj2) obj2->SetParent(lastmob);
 	    //fprintf(stderr, "Put Obj \"%s\" in Obj \"%s\"\n", obj->ShortDesc(), lastobj[innum]->ShortDesc());
 	    lastobj[num] = obj;
 	    }

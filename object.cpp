@@ -193,6 +193,7 @@ void remove_tick(Object *o) {
 void tick_world() {
   static int tickstage = 0;
   set<Object*>::iterator ind = ticklist[tickstage].begin();
+//  fprintf(stderr, "Ticking %d items\n", ticklist[tickstage].size());
   for(; ind != ticklist[tickstage].end(); ++ind) {
     (*ind)->Tick();
     }
