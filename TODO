@@ -1,3 +1,4 @@
+Fix STAY_ZONE mobs so they actually do and don't cross NOMOB zones!
 Finish article substitution ("A" -> "A second" -> "The" -> "Joe's", etc...).
 Add more smartness for getting things from people (permission, etc.).
 Add more smartness for recursive gets (can't grab from locked items, etc...).

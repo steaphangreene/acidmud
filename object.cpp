@@ -298,6 +298,7 @@ Object::Object(const Object &o) {
 
 const char *Object::Name(int definite) { // Truly-formatted name
   static string local;
+  int proper = 0;
   string ret;
 
   if(!strncasecmp(short_desc.c_str(), "a ", 2)) {
@@ -309,6 +310,7 @@ const char *Object::Name(int definite) { // Truly-formatted name
     }
   else {
     ret = short_desc.c_str();
+    proper = 1;
     }
 
   if(!Attribute(1)) {
@@ -324,10 +326,10 @@ const char *Object::Name(int definite) { // Truly-formatted name
       ret = string("a ") + ret;
       }
     }
-  else if(definite) {
+  else if(definite && (!proper)) {
     ret = string("the ") + ret;
     }
-  else {
+  else if(!proper) {
     ret = string("a ") + ret;
     }
 

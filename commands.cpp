@@ -1836,7 +1836,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
   if(com == COM_CONTROL) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    Object *targ = body->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
+    Object *targ = body->PickObject(comline+len, LOC_NEARBY);
     if(!targ) {
       mind->Send("You want to control who?\n");
       }
@@ -1844,11 +1844,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       mind->Send("You can't control inanimate objects!\n");
       }
     else {
-      mind->Unattach();
-      mind->Attach(targ);
       body->Parent()->SendOut(
 	";s controls ;s with Ninja Powers[TM].\n", "You control ;s.\n",
 	body, targ);
+      mind->Unattach();
+      mind->Attach(targ);
       }
     return 0;
     }
