@@ -1463,6 +1463,7 @@ void Object::Collapse() {
   StopAct(ACT_UNCONSCIOUS);
   StopAct(ACT_SLEEP);
   StopAct(ACT_REST);
+  StopAct(ACT_FOLLOW);
   StopAct(ACT_POINT);
   StopAct(ACT_FIGHT);
   if(parent) {
