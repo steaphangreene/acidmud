@@ -1,4 +1,5 @@
 Add smartness for getting things from things (auto open/close, permission, etc.)
+Add better messages for items possessed by characters and mobs.
 Fixup "Back" slot so it makes more sense.
 Do 3-layer armor system.
 Make picks occur in display order (acted-on things should be first).
