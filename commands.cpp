@@ -1312,14 +1312,22 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     }
 
   if(com == COM_DROP) {
-    Object *targ = body->PickObject(comline+len, LOC_INTERNAL);
-    if(!targ) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(!comline[len]) {
+      if(mind) mind->Send("What do you want to drop?\n");
+      return 0;
+      }
+    set<Object *>targs = body->PickObjects(comline+len, LOC_INTERNAL);
+    if(!targs.size()) {
       if(mind) mind->Send("You want to drop what?\n");
       }
     else {
-      targ->Travel(body->Parent());
-      body->Parent()->SendOut(
-	";s drops ;s.\n", "You drop ;s.\n", body, targ);
+      set<Object *>::iterator targ;
+      for(targ = targs.begin(); targ != targs.end(); ++targ) {
+	(*targ)->Travel(body->Parent());
+	body->Parent()->SendOut(
+	  ";s drops ;s.\n", "You drop ;s.\n", body, *targ);
+	}
       }
     return 0;
     }

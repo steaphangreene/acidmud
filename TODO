@@ -1,4 +1,4 @@
-Pluralize appropriate commands (drop, rem, get?).
+Pluralize appropriate commands (rem, get?).
 Make circle MOBs fudge appropriate stats.
 Add more smartness for getting things from people (permission, etc.).
 Add more smartness for recursive gets (can't grab from locked items, etc...).
