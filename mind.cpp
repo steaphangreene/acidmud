@@ -261,8 +261,9 @@ void Mind::Think(int istick) {
 	  }
 	else if(body->Skill("CircleAction") & 64) { //STAY_ZONE Circle MOBs
 	  if(dir->second->Skill("CircleZone")
-			!= body->Parent()->Skill("CircleZone"))
+			!= body->Parent()->Skill("CircleZone")) {
 	    cons.erase(dir->first); //Don't Leave Zone!
+	    }
 	  }
 	}
 

@@ -1,5 +1,7 @@
+Implement armor and cloathing effects.
 Show armor messages in ninja display.
 Implement experience.
+Handle a MOB being placed in a NO_MOBS zone.
 Implement quantitative dispay (eg: "4 gold pieces").
 Implement quantitative plurality (eg: "offer 7 gold").
 Positional modifyers (sleeping/lying down/standing, etc...).
