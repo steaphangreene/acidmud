@@ -1,16 +1,14 @@
+Add "mirror" command (like clone, but a mirror-image).
 CircleMOB (and equipment?) repopping.
 Implement "all of " for all within.
 Implement "everything"/"everyone".
 Implement "stuff"/"money"/"cash".
 Implement "loot" command.
-Should be able to just "hold" worn items.
 Fix attribute spelling "Proffit" -> "Profit".
 Make single-item commands get only single items.
 Make all plural commands see pluralized items correctly.
 Should not be able to wear multiple (ie: pluralized) items in any location.
 Implement boats and boat travel.
-Fix the "examine one of a group of held items and get it in your rectum" bug.
-Add "mirror" command (like clone, but a mirror-image).
 Handle odd pluralized cases (Holding two items when one is looked at...).
 Cleanup item manipulation commands.
 Can't wear/wield plural items.

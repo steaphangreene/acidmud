@@ -117,6 +117,7 @@ enum {	COM_HELP=0,
 	COM_COMMAND,
 	COM_CONTROL,
 	COM_CLONE,
+	COM_MIRROR,
 	COM_JUNK,
 	COM_HEAL,
 	COM_JACK,
@@ -397,6 +398,11 @@ Command comlist[] = {
     (REQ_CORPOREAL|REQ_NINJAMODE)
     },
   { COM_CLONE, "clone",
+    "Ninja command.",
+    "Ninja command - ninjas only!",
+    (REQ_ALERT|REQ_NINJAMODE)
+    },
+  { COM_MIRROR, "mirror",
     "Ninja command.",
     "Ninja command - ninjas only!",
     (REQ_ALERT|REQ_NINJAMODE)
@@ -2733,6 +2739,72 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 
       body->Parent()->SendOut(
 	";s resets ;s with Ninja Powers[TM].\n", "You reset ;s.\n",
+	body, targ);
+      }
+    return 0;
+    }
+
+  if(com == COM_MIRROR) {
+    if(!mind) return 0;
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    Object *targ = body->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
+    if(!targ) {
+      mind->Send("You want to mirror what?\n");
+      }
+    else {
+      Object *nobj = new Object(*targ);
+      nobj->SetParent(targ->Parent());
+
+      nobj->SetSkill("Wearable on Left Arm",
+	targ->Skill("Wearable on Right Arm"));
+      nobj->SetSkill("Wearable on Left Finger",
+	targ->Skill("Wearable on Right Finger"));
+      nobj->SetSkill("Wearable on Left Foot",
+	targ->Skill("Wearable on Right Foot"));
+      nobj->SetSkill("Wearable on Left Hand",
+	targ->Skill("Wearable on Right Hand"));
+      nobj->SetSkill("Wearable on Left Leg",
+	targ->Skill("Wearable on Right Leg"));
+      nobj->SetSkill("Wearable on Left Wrist",
+	targ->Skill("Wearable on Right Wrist"));
+      nobj->SetSkill("Wearable on Left Shoulder",
+	targ->Skill("Wearable on Right Shoulder"));
+      nobj->SetSkill("Wearable on Left Hip",
+	targ->Skill("Wearable on Right Hip"));
+
+      nobj->SetSkill("Wearable on Right Arm",
+	targ->Skill("Wearable on Left Arm"));
+      nobj->SetSkill("Wearable on Right Finger",
+	targ->Skill("Wearable on Left Finger"));
+      nobj->SetSkill("Wearable on Right Foot",
+	targ->Skill("Wearable on Left Foot"));
+      nobj->SetSkill("Wearable on Right Hand",
+	targ->Skill("Wearable on Left Hand"));
+      nobj->SetSkill("Wearable on Right Leg",
+	targ->Skill("Wearable on Left Leg"));
+      nobj->SetSkill("Wearable on Right Wrist",
+	targ->Skill("Wearable on Left Wrist"));
+      nobj->SetSkill("Wearable on Right Shoulder",
+	targ->Skill("Wearable on Left Shoulder"));
+      nobj->SetSkill("Wearable on Right Hip",
+	targ->Skill("Wearable on Left Hip"));
+
+      int start;
+      string name = nobj->ShortDesc();
+      start = name.find(string("(left)"));
+      if(start < int(name.length()) && start >= 0) {
+	name = name.substr(0, start) + "(right)" + name.substr(start+6);
+	}
+      else {
+        start = name.find(string("(right)"));
+        if(start < int(name.length()) && start >= 0) {
+	  name = name.substr(0, start) + "(left)" + name.substr(start+7);
+	  }
+	}
+      nobj->SetShortDesc(name.c_str());
+
+      body->Parent()->SendOut(
+	";s mirrors ;s with Ninja Powers[TM].\n", "You mirror ;s.\n",
 	body, targ);
       }
     return 0;
