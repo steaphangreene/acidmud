@@ -115,6 +115,32 @@ void Object::CircleFinishMob(Object *mob) {
     mob->ActTarg(ACT_WEAR_LSHOULDER)->SetSkill("Capacity",
 	mob->ActTarg(ACT_WEAR_LSHOULDER)->ContainedVolume());
     }
+  if(mob->Skill("CircleAttack")) {
+    if(mob->IsAct(ACT_WIELD)) {
+      mob->SetSkill(
+	get_weapon_skill(mob->ActTarg(ACT_WIELD)->Skill("WeaponType")),
+	mob->Skill("CircleAttack")
+	);
+      }
+    else {
+      mob->SetSkill("Punching", mob->Skill("CircleAttack"));
+      }
+    mob->SetSkill("CircleAttack", 0);
+    }
+  if(mob->Skill("CircleDefense")) {
+    if(mob->IsAct(ACT_WEAR_SHIELD)) {
+      mob->SetSkill("Shields", mob->Skill("CircleDefense"));
+      }
+    else if(mob->Skill("Punching")) {
+      mob->SetSkill("Kicking", mob->Skill("CircleDefense"));
+      }
+    else {
+      mob->SetSkill("Kicking", mob->Skill("CircleDefense") / 2);
+      mob->SetSkill("Punching", 
+	mob->Skill("CircleDefense") - mob->Skill("Kicking"));
+      }
+    mob->SetSkill("CircleDefense", 0);
+    }
   }
 
 static Object *lastmob = NULL, *lastbag = NULL;
@@ -366,12 +392,12 @@ void Object::CircleLoadMob(const char *fn) {
       //fprintf(stderr, "Loaded Circle Mobile with LongDesc = %s\n", buf);
 
       obj->SetPos(POS_STAND);
-      obj->SetAttribute(0, 3);
-      obj->SetAttribute(1, 3);
-      obj->SetAttribute(2, 3);
-      obj->SetAttribute(3, 3);
-      obj->SetAttribute(4, 3);
-      obj->SetAttribute(5, 3);
+      obj->SetAttribute(0, 4);
+      obj->SetAttribute(1, 4);
+      obj->SetAttribute(2, 4);
+      obj->SetAttribute(3, 4);
+      obj->SetAttribute(4, 4);
+      obj->SetAttribute(5, 4);
 
       int val, val2, val3;  char tp;
       memset(buf, 0, 65536);
@@ -407,9 +433,17 @@ void Object::CircleLoadMob(const char *fn) {
 
 
       if(tp == 'E' || tp == 'S') {
-	for(int ctr=0; ctr<2; ++ctr) {
-          fscanf(mudm, "%*[^\n]\n");
-          }
+	fscanf(mudm, "%d %d %d", &val, &val2, &val3); // Level, THAC0, AC
+	for(int ctr=0; ctr<val; ++ctr)
+	  obj->SetAttribute(ctr%6, obj->Attribute(ctr%6)+1); // val1 = Level
+	obj->SetSkill("CircleAttack", (20 - val2) / 3); // val2 = THAC0
+	obj->SetSkill("CircleDefense", (10 - val3) / 3); // val2 = AC
+
+	fscanf(mudm, " %dd%d+%d", &val, &val2, &val3); // Hit Points
+
+	fscanf(mudm, " %dd%d+%d\n", &val, &val2, &val3); // Barehand Damage
+
+	fscanf(mudm, "%*[^\n]\n"); // Gold & XP //FIXME: Possess gold!
 
 	fscanf(mudm, "%d %d %d\n", &val, &val2, &val3);
 
@@ -898,7 +932,7 @@ void Object::CircleLoad(const char *fn) {
         obj->SetSkill("CircleZone", 999999);
 	}
       else {
-        obj->SetSkill("CircleZone", zone);
+        obj->SetSkill("CircleZone", 100000 + zone);
 	}
 
       while(1) {
