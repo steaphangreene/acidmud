@@ -1,3 +1,5 @@
+ACIDHOST:=acidmud.dyndns.org
+
 TSTR:=  $(shell date -u +"%Y%m%d%H%M")
 OBJS:=	main.o net.o commands.o mind.o player.o mob.o \
 	object.o object_circle.o object_acid.o object_stats.o object_dynamic.o
@@ -34,11 +36,11 @@ backup:
 	gzip -9 ~/c/archive/acidmud.$(TSTR).tar
 
 upload:
-	#ssh acidmud@reactor rm -f ~acidmud/acidmud
-	#scp acidmud acidmud@reactor:~acidmud/acidmud
-	scp TODO acidmud@reactor:~acidmud/public_html/todo.txt
+	#ssh acidmud@$(ACIDHOST) rm -f ~acidmud/acidmud
+	#scp acidmud acidmud@$(ACIDHOST):~acidmud/acidmud
+	scp TODO acidmud@$(ACIDHOST):~acidmud/public_html/todo.txt
 	cvs2cl.pl --hide-filenames --no-wrap --stdout | tr '\t' '@' | sed 's-^@-@* -g' | tr '@' '\t' > ChangeLog
-	scp ChangeLog acidmud@reactor:~acidmud/public_html/changes.txt
+	scp ChangeLog acidmud@$(ACIDHOST):~acidmud/public_html/changes.txt
 
 acidmud: $(OBJS)
 	$(CCC) -Wall -o acidmud $(OBJS) $(LIBS)
