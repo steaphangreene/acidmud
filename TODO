@@ -1,15 +1,23 @@
+Implement various types of armor and damage.
+Do 3-layer armor system.
+Show armor messages in ninja display.
+Crafting (weapons, armor, tools, clothes, etc...).
+Handle Multiple Weapon Types (eg: Bastard Swords).
+Implement All Remaining Weapon Types (Guns, etc...).
+Get it to understand offhand weapon use.
+Get it to understand mounted weapon use.
+Translate circle armor to various armor types.
+Refine the fudging of circle MOBs' stats (Better AC Handling, Natural Armor).
+Implement Races, Species and Materials.
+Natural Armor.
 Need a way to "find" items you've hidden on yourself.
 Pluralize "kill" command.
 Search turns things blue, or does it?
-Implement real Reaction Action.
-Create Real Tie-Breaker for Tied Initiative.
 Ranged Combat.
 Implement Roll Object for passing complete rolls.
 Handle REAL contested roll for perception/stealth in normal actions.
 Make auto-unwield from wielding another item also use autostashing.
 Implement scabbards and quivers.
-Get it to understand offhand weapon use.
-Get it to understand mounted weapon use.
 Enhance "consider" command.
 Place circle-placed objects on back if on chest (plus other corrections).
 Let "remove" command also handle unwielding?
@@ -42,16 +50,13 @@ Positional modifyers (sleeping/lying down/standing, etc...).
 Travel limitations (speed of movement, fleeing, sprinting, running).
 Finish article substitution ("A" -> "A second", etc...).
 Pick up a fight's other opponents after your target goes down without delay.
-Refine the fudging of circle MOBs' stats (Better AC Handling, Natural Armor).
 Wear/wield from own containers need auto open/close.
 Intelligent stashing needs auto open/close.
-Show armor messages in ninja display.
 Consistently pluralize (or don't) skill names (fix online version too!).
 Reimplement create-in-direction (currently disabled).
 Check for circle rooms with no exits and add one.
-Implement various types of armor and damage.
-Translate circle armor to various armor types.
-Do 3-layer armor system.
+Implement real Reaction Action.
+Create Real Tie-Breaker for Tied Initiative.
 Translate CircleMUD shopkeepers' types of purchase items.
 Handle LOC_ADJACENT correctly (eg: "look north").
 Implement equipment's magical effects.
@@ -62,8 +67,6 @@ Implement character creation magic.
 Make circle MOBs do more stuff.
 Implement full vehicle system (small unpowerd boats are done).
 Global Round Sync instead of Ad-Hoc Rounds?
-Handle Multiple Weapon Types (eg: Bastard Swords).
-Implement All Remaining Weapon Types (Guns, etc...).
 Implement the Rest of the Skills.
 Implement reserved words ("'s", "in", "to", "at", "of", "Ninja").
 See contents when you look at a nearby room (eg: "look north").
@@ -86,10 +89,8 @@ Clean up and sort log(s).
 Put telnet stuff ONLY in net.cpp.
 
 Troll Reach.
-Natural Armor.
 Wake someone else up!
 Suite of special emote/speak commands (nod, smile, stare, etc...)
-Crafting (weapons, armor, tools, clothes, etc...).
 Understand visibility and cut messages accordingly.
 Do things stealthily (not be noticed looking, pointing, etc...).
 Settings for display on go/enter/leave.
