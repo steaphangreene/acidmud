@@ -39,7 +39,7 @@ upload:
 	#ssh acidmud@$(ACIDHOST) rm -f ~acidmud/acidmud
 	#scp acidmud acidmud@$(ACIDHOST):~acidmud/acidmud
 	scp TODO acidmud@$(ACIDHOST):~acidmud/public_html/todo.txt
-	cvs2cl.pl --hide-filenames --no-wrap --stdout | tr '\t' '@' | sed 's-^@-@* -g' | tr '@' '\t' > ChangeLog
+	./scripts/cvs2cl.pl --hide-filenames --no-wrap --stdout | tr '\t' '@' | sed 's-^@-@* -g' | tr '@' '\t' > ChangeLog
 	scp ChangeLog acidmud@$(ACIDHOST):~acidmud/public_html/changes.txt
 
 acidmud: $(OBJS)
