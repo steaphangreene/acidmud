@@ -34,8 +34,8 @@ backup:
 	gzip -9 ~/c/archive/acidmud.$(TSTR).tar
 
 upload:
-	ssh acidmud@reactor rm -f ~acidmud/acidmud
-	scp acidmud acidmud@reactor:~acidmud/acidmud
+	#ssh acidmud@reactor rm -f ~acidmud/acidmud
+	#scp acidmud acidmud@reactor:~acidmud/acidmud
 	scp TODO acidmud@reactor:~acidmud/public_html/todo.txt
 	cvs2cl.pl --hide-filenames --no-wrap --stdout | tr '\t' '@' | sed 's-^@-@* -g' | tr '@' '\t' > ChangeLog
 	scp ChangeLog acidmud@reactor:~acidmud/public_html/changes.txt
