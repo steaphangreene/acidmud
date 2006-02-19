@@ -148,6 +148,8 @@ enum {	COM_HELP=0,
 	COM_SHUTDOWN,
 	COM_RESTART,
 	COM_SAVEALL,
+	COM_VERSION,
+
 	COM_MAKESTART,
 	COM_NAME,
 	COM_DESCRIBE,
@@ -567,15 +569,21 @@ Command comlist[] = {
     (REQ_ANY|REQ_NINJAMODE)
     },
   { COM_RESTART, "restart", 
-    "Ninja command: restart the entire MUD.",
-    "Ninja command: restart the entire MUD.",
+    "Ninja command: restart the entire MUD - preserving connections.",
+    "Ninja command: restart the entire MUD - preserving connections.",
     (REQ_ANY|REQ_NINJAMODE)
     },
   { COM_SAVEALL, "saveall", 
-    "Ninja command: save the entire MUD Universe- preserving connections.",
+    "Ninja command: save the entire MUD Universe - preserving connections.",
     "Ninja command: save the entire MUD Universe - preserving connections.",
     (REQ_ANY|REQ_NINJAMODE)
     },
+  { COM_VERSION, "version", 
+    "Ninja command: query the version information of running AcidMUD.",
+    "Ninja command: query the version information of running AcidMUD.",
+    (REQ_ANY|REQ_NINJAMODE)
+    },
+
   { COM_MAKESTART, "makestart",
     "Ninja command.",
     "Ninja command - ninjas only!",
@@ -761,6 +769,11 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
   if(body && body->Skill("Stealth") > 0) {
     stealth_t = body->Skill("Stealth");
     stealth_s = body->Roll("Stealth", 4);
+    }
+
+  if(com == COM_VERSION) {
+    if(mind) mind->Send("Version of this MUD is XXXX.\n");
+    return 0;
     }
 
   if(com == COM_SHUTDOWN) {
