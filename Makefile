@@ -1,7 +1,7 @@
 ACIDHOST:=acidmud.dyndns.org
 
 TSTR:=  $(shell date -u +"%Y%m%d%H%M")
-OBJS:=	main.o net.o commands.o mind.o player.o mob.o \
+OBJS:=	main.o version.o net.o commands.o mind.o player.o mob.o \
 	object.o object_circle.o object_acid.o object_stats.o object_dynamic.o
 
 #Production Settings (dynamic)
@@ -24,7 +24,7 @@ LIBS:=	-static -lstdc++ -lcrypt
 #CCC:=	gcc$(ACIDMUD_CTAIL) -g -pg -fprofile-arcs -Wall
 #LIBS:=	-lstdc++ -lcrypt -lefence
 
-all: acidmud
+all:	acidmud
 
 clean:
 	rm -f gmon.out deps.mk *.o *.da acidmud ChangeLog ChangeLog.bak
@@ -46,6 +46,9 @@ acidmud: $(OBJS)
 
 %.o: %.cpp
 	$(CCC) -c $<
+
+version.cpp:	version.cpp.template *.h [a-uw-z]*.cpp
+	cat version.cpp.template | sed s-DATE_STAMP-$(TSTR)-g > version.cpp
 
 include deps.mk
 

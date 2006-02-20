@@ -12,6 +12,7 @@ using namespace std;
 #include "object.h"
 #include "commands.h"
 #include "color.h"
+#include "version.h"
 
 #define SIT_ETHEREAL	1
 #define SIT_CORPOREAL	2
@@ -772,7 +773,10 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     }
 
   if(com == COM_VERSION) {
-    if(mind) mind->Send("Version of this MUD is XXXX.\n");
+    if(mind) mind->Send("Version of this MUD is %d.%d.%d-%d: %s.\n",
+	CurrentVersion.acidmud_version[0], CurrentVersion.acidmud_version[1],
+	CurrentVersion.acidmud_version[2], CurrentVersion.acidmud_version[3],
+	CurrentVersion.acidmud_datestamp.c_str());
     return 0;
     }
 

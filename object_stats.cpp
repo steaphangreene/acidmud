@@ -3,8 +3,6 @@
 #include "object.h"
 #include "object_stats.h"
 
-const int SAVEFILE_VERSION=104;
-
 static map<string,int> defaults;
 static map<int,string> weaponskills;
 static map<string,int> weapontypes;

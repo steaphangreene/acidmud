@@ -1,0 +1,11 @@
+#define VERSION_DEFINED
+
+#include "version.h"
+
+VersionInformation CurrentVersion = {
+	102,
+	102,
+	0x00000012UL,
+	0, 0, 0, 1,
+	"DATE_STAMP"
+	};
