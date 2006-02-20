@@ -1,8 +1,6 @@
-
 #include "object.h"
 #include "mind.h"
-
-const unsigned int SAVEFILE_VERSION = 0x00000012UL;
+#include "version.h"
 
 static char buf[65536];
 static vector<Object*> todo;
@@ -27,7 +25,7 @@ int Object::Save(const char *filename) {
   FILE *fl = fopen(filename, "w");
   if(!fl) return -1;
 
-  fprintf(fl, "%.8X\n", SAVEFILE_VERSION);
+  fprintf(fl, "%.8X\n", CurrentVersion.savefile_version_object);
 
   if(SaveTo(fl)) { fclose(fl); return -1; }
 

@@ -23,6 +23,7 @@ typedef int socket_t;
 #include "mind.h"
 #include "object.h"
 #include "commands.h"
+#include "version.h"
 
 static set<socket_t> fds;
 static map<socket_t, Mind *> minds;
@@ -323,14 +324,13 @@ int suspend_net() {
   return acceptor;
   }
 
-const int SAVEFILE_VERSION = 102;
 int save_net(const char *fn) {
   fprintf(stderr, "Saving Network Stat.\n");
 
   FILE *fl = fopen(fn, "w");
   if(!fl) return -1;
 
-  fprintf(fl, "%d\n", SAVEFILE_VERSION);
+  fprintf(fl, "%.8X\n", CurrentVersion.savefile_version_net);
 
   fprintf(fl, "%d\n", fds.size());
 
@@ -374,10 +374,11 @@ int load_net(const char *fn) {
   FILE *fl = fopen(fn, "r");
   if(!fl) return -1;
 
-  int ver, num;
-  fscanf(fl, "%d\n%d\n", &ver, &num);
+  int num;
+  unsigned int ver;
+  fscanf(fl, "%X\n%d\n", &ver, &num);
 
-  fprintf(stderr, "Loading Net Stat: %d,%d\n", ver, num);
+  fprintf(stderr, "Loading Net Stat: %.8X,%d\n", ver, num);
 
   for(int ctr=0; ctr<num; ++ctr) {
     int newsock, bod, log = -1;

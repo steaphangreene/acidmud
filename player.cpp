@@ -6,6 +6,7 @@ using namespace std;
 
 #include "player.h"
 #include "net.h"
+#include "version.h"
 
 static map<string, Player *> player_list;
 static set<Player *> non_init;
@@ -107,7 +108,6 @@ Player *player_login(string name, string pass) {
   }
 
 static char buf[65536];
-const int SAVEFILE_VERSION=102;
 int Player::LoadFrom(FILE *fl) {
   memset(buf, 0, 65536);
   fscanf(fl, "%s\n", buf);
@@ -138,8 +138,9 @@ int load_players(const char *fn) {
   FILE *fl = fopen(fn, "r");
   if(!fl) return -1;
 
-  int ver, num;
-  fscanf(fl, "%d\n%d\n", &ver, &num);
+  int num;
+  unsigned int ver;
+  fscanf(fl, "%X\n%d\n", &ver, &num);
 
   fprintf(stderr, "Loading Players: %d,%d\n", ver, num);
 
@@ -174,7 +175,7 @@ int save_players(const char *fn) {
   FILE *fl = fopen(fn, "w");
   if(!fl) return -1;
 
-  fprintf(fl, "%d\n", SAVEFILE_VERSION);
+  fprintf(fl, "%.8X\n", CurrentVersion.savefile_version_player);
 
   fprintf(fl, "%d\n", player_list.size() - non_init.size());
 
