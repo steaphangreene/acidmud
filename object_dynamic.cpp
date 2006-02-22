@@ -32,7 +32,7 @@ void Object::DynamicInit4() {
 void Object::DynamicInit3() {
   }
 
-void Object::DynamicInit2() {
+void Object::DynamicInit2() {		//Cuberpunk City
   }
 
 void Object::DynamicInit1() {		//Dwarven mine
@@ -599,7 +599,10 @@ void Object::DynamicInit1() {		//Dwarven mine
 
 void Object::DynamicInit() {
   switch(Skill("DynamicInit")) {
-    case(1): {
+    case(2): {		// Cyberpunk City
+      DynamicInit2();
+      }break;
+    case(1): {		// Dwarven Mine
       DynamicInit1();
       }break;
     default: {

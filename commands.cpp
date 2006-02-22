@@ -130,6 +130,7 @@ enum {	COM_HELP=0,
 	COM_RESET,
 	COM_CREATE,
 	COM_DCREATE,
+	COM_CCREATE,
 	COM_ANCHOR,
 	COM_LINK,
 	COM_COMMAND,
@@ -477,6 +478,11 @@ Command comlist[] = {
     (REQ_ALERT|REQ_NINJAMODE)
     },
   { COM_DCREATE, "dcreate",
+    "Ninja command.",
+    "Ninja command - ninjas only!",
+    (REQ_ALERT|REQ_NINJAMODE)
+    },
+  { COM_CCREATE, "ccreate",
     "Ninja command.",
     "Ninja command - ninjas only!",
     (REQ_ALERT|REQ_NINJAMODE)
@@ -3492,7 +3498,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       next->SetShortDesc("An Entrance to a Large Mining Tunnel");
       next->SetDesc(
         "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
-        "that you think it will stand as-is for another millenia.\n");
+        "that you think it will stand as-is for another millenium.\n");
       next->SetSkill("DynamicInit", 1);
       next->SetSkill("DynamicPhase", 0); //Entrance
       next->SetSkill("DynamicMojo", 1000000);
@@ -3515,6 +3521,31 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s creates a new dynamic dungeon '%s' with Ninja Powers[TM].\n",
 	"You create a new dynamic dungeon '%s'.\n", body, NULL, dir);
+      }
+    return 0;
+    }
+
+  if(com == COM_CCREATE) {
+    if(!mind) return 0;
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(comline[len] == 0) {
+      mind->Send("You need to specify the name of the city!\n");
+      }
+    else {
+      Object *box = new Object(body->Parent());
+      Object *next = new Object(box);
+
+      box->SetShortDesc(comline+len);
+      next->SetShortDesc((string("Museum of ") + (comline+len)).c_str());
+      next->SetDesc((string("The oldest building in ") + (comline+len)
+	+ ", this is a really nice place.\n").c_str());
+      next->SetSkill("DynamicInit", 2);
+      next->SetSkill("DynamicPhase", 0); //Museum
+      next->SetSkill("DynamicMojo", 1000000);
+
+      body->Parent()->SendOut(stealth_t, stealth_s, 
+	";s creates a new city '%s' with Ninja Powers[TM].\n",
+	"You create a new city '%s'.\n", body, NULL, comline+len);
       }
     return 0;
     }
