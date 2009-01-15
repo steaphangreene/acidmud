@@ -5,6 +5,9 @@
 #include <cctype>
 #include <cmath>
 
+using namespace std;
+
+#include "utils.h"
 #include "commands.h"
 #include "object.h"
 #include "color.h"
@@ -95,19 +98,19 @@ MOBType::MOBType(const char *nm, const char *ds, const char *lds,
   long_desc = lds;
   genders = gens;
   b = ib;
-  bm = ibm >? 1;
+  bm = MAX(ibm, 1);
   q = iq;
-  qm = iqm >? 1;
+  qm = MAX(iqm, 1);
   s = is;
-  sm = ism >? 1;
+  sm = MAX(ism, 1);
   c = ic;
-  cm = icm >? 1;
+  cm = MAX(icm, 1);
   i = ii;
-  im = iim >? 1;
+  im = MAX(iim, 1);
   w = iw;
-  wm = iwm >? 1;
+  wm = MAX(iwm, 1);
   g = ig;
-  gm = igm >? 1;
+  gm = MAX(igm, 1);
 
   armed = NULL;
   }
@@ -222,9 +225,9 @@ WeaponType::WeaponType(const char *nm, const char *ds, const char *lds,
   type = get_weapon_type(t);
   reach = r;
   force = f;
-  forcem = fm >? 1;
+  forcem = MAX(fm, 1);
   sev = s;
-  sevm = sm >? 1;
+  sevm = MAX(sm, 1);
   weight = w;
   volume = vol;
   value = val;
@@ -240,13 +243,13 @@ ArmorType::ArmorType(const char *nm, const char *ds, const char *lds,
   long_desc = lds;
 
   bulk = b;
-  bulkm = bm >? 1;
+  bulkm = MAX(bm, 1);
   impact = i;
-  impactm = im >? 1;
+  impactm = MAX(im, 1);
   thread = t;
-  threadm = tm >? 1;
+  threadm = MAX(tm, 1);
   planar = p;
-  planarm = pm >? 1;
+  planarm = MAX(pm, 1);
 
   if(l1 != ACT_NONE) loc.push_back(l1);
   if(l2 != ACT_NONE) loc.push_back(l2);
@@ -260,7 +263,7 @@ ArmorType::ArmorType(const char *nm, const char *ds, const char *lds,
   value = val;
   }
 
-static char *gen_replace[][4] = {
+static const char *gen_replace[][4] = {
   { "{He}",  "She",  "He",  "It"  },
   { "{Him}", "Her",  "Him", "It"  },
   { "{His}", "Hers", "His", "Its" },

@@ -6,6 +6,7 @@
 
 using namespace std;
 
+#include "utils.h"
 #include "net.h"
 #include "main.h"
 #include "mind.h"
@@ -46,9 +47,9 @@ using namespace std;
 
 struct Command {
   int id;
-  char *command;
-  char *shortdesc;
-  char *longdesc;
+  const char *command;
+  const char *shortdesc;
+  const char *longdesc;
   int sit;
   };
 
@@ -632,7 +633,7 @@ static const int comnum = sizeof(comlist)/sizeof(Command);
 //                2: Command Understood - No More Actions This Round
 int handle_single_command(Object *body, const char *cl, Mind *mind) {
   int len;
-  char *comline = (char*)cl;
+  const char *comline = (const char*)cl;
   static char buf[2048];
 
   if((!body) && (!mind)) { // Nobody doing something?
@@ -1653,7 +1654,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	for(targ_i = targs.begin(); targ_i != targs.end(); ++targ_i) {
 	  Object *targ = (*targ_i);
 
-	  int price = targ->Value() * (1 >? targ->Skill("Quantity"));
+	  int price = targ->Value() * MAX(1, targ->Skill("Quantity"));
 	  if(price < 0) {
 	    if(mind) mind->Send("You can't sell %s.\n", targ->Name(0, body));
 	    continue;
@@ -1677,7 +1678,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		= body->PickObjects("a gold piece", LOC_INTERNAL, &ord);
 	  typeof(pay.begin()) coin;
 	  for(coin = pay.begin(); coin != pay.end(); ++coin) {
-	    togo -= (1 >? (*coin)->Skill("Quantity"));
+	    togo -= MAX(1, (*coin)->Skill("Quantity"));
 	    }
 
 	  if(togo > 0) {
@@ -1763,7 +1764,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	typeof(targs.begin()) targ_i;
 	for(targ_i = targs.begin(); targ_i != targs.end(); ++targ_i) {
 	  Object *targ = (*targ_i);
-	  int price = targ->Value() * (1 >? targ->Skill("Quantity"));
+	  int price = targ->Value() * MAX(1, targ->Skill("Quantity"));
 	  if(price < 0) {
 	    if(mind) mind->Send("You can't sell %s.\n", targ->Name(0, body));
 	    continue;
@@ -1861,7 +1862,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	    continue;
 	    }
 
-	  int price = targ->Value() * (1 >? targ->Skill("Quantity"));
+	  int price = targ->Value() * MAX(1, targ->Skill("Quantity"));
 	  if(price < 0) {
 	    if(mind) mind->Send("You can't sell %s.\n", targ->Name(0, body));
 	    continue;
@@ -1885,7 +1886,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		= shpkp->PickObjects("a gold piece", LOC_INTERNAL, &ord);
 	  typeof(pay.begin()) coin;
 	  for(coin = pay.begin(); coin != pay.end(); ++coin) {
-	    togo -= (1 >? (*coin)->Skill("Quantity"));
+	    togo -= MAX(1, (*coin)->Skill("Quantity"));
 	    }
 
 	  if(togo <= 0) {
@@ -2205,7 +2206,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       Object *targ = (*targ_it);
     
       int removed = 0;
-      for(act_t act = ACT_WEAR_BACK; act < ACT_MAX; ++((int&)(act))) {
+      for(act_t act = ACT_WEAR_BACK; act < ACT_MAX; act = act_t(int(act)+1)) {
 	if(body->ActTarg(act) == targ) { removed = 1; break; }
 	}
       if(!removed) {
@@ -2799,7 +2800,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       if(body->IsAct(ACT_WIELD)) {
         sk1 = get_weapon_skill(body->ActTarg(ACT_WIELD)
 		->Skill("WeaponType"));
-	reachmod += (0 >? body->ActTarg(ACT_WIELD)
+	reachmod += MAX(0, body->ActTarg(ACT_WIELD)
 		->Skill("WeaponReach"));
 	}
       if(body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)
@@ -2814,7 +2815,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       else if(targ->ActTarg(ACT_WIELD)) {
 	if(sk2 == "Punching") sk2 = get_weapon_skill(targ->ActTarg(ACT_WIELD)
 		->Skill("WeaponType"));
-	reachmod -= (0 >? targ->ActTarg(ACT_WIELD)
+	reachmod -= MAX(0, targ->ActTarg(ACT_WIELD)
 		->Skill("WeaponReach"));
 	}
       }
@@ -2912,17 +2913,17 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  succ -= roll(
 		targ->ActTarg(loca)->Attribute(0),
 		body->Attribute(2)
-			+ (0 >? body->ActTarg(ACT_WIELD)->Skill("WeaponForce"))
+			+ MAX(0, body->ActTarg(ACT_WIELD)->Skill("WeaponForce"))
 		);
 	int force = body->Attribute(2)
-		+ (0 >? body->ActTarg(ACT_WIELD)->Skill("WeaponForce"));
+		+ MAX(0, body->ActTarg(ACT_WIELD)->Skill("WeaponForce"));
 
 	if(two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType"))) {
 	  force += body->Attribute(2);
 	  }
 
 	sev = targ->HitPhys(force,
-	  stage + (0 >? body->ActTarg(ACT_WIELD)->Skill("WeaponSeverity")),
+	  stage + MAX(0, body->ActTarg(ACT_WIELD)->Skill("WeaponSeverity")),
 	  succ);
 	}
       else {
@@ -3122,7 +3123,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       return 0;
       }
 
-    char *ch = comline+len;
+    const char *ch = comline+len;
     while((*ch) && isalpha(*ch)) ++ch;
     if(*ch) {
       mind->Send("Sorry, character names can only contain letters.\n"
@@ -3471,7 +3472,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
     else {
       Object *box = new Object(body->Parent()->Parent());
       Object *next = new Object(box);
-      char *dirb="south", *dir="north";
+      const char *dirb="south";
+      const char *dir="north";
       if(!strcmp(comline+len, "north")) {
 	}
       else if(!strcmp(comline+len, "south")) {
@@ -3890,7 +3892,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       mind->Send("Warning, '%s' is not a real skill name!\n", comline+len);
       }
 
-    targ->SetSkill(comline+len, (targ->Skill(comline+len)>?0) + 1);
+    targ->SetSkill(comline+len, MAX(targ->Skill(comline+len), 0) + 1);
 
     body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s increments the %s of ;s with Ninja Powers[TM].\n",

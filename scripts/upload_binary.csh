@@ -2,7 +2,7 @@
 
 set acidhost="acidmud.dyndns.org"
 
-if("`file acidmud | grep 'ELF 32-bit MSB executable, PowerPC'`" == "") then
+if("`file acidmud | grep 'ELF 32-bit LSB executable, Intel 80386'`" == "") then
   echo ERROR: acidmud is the wrong kind of executable for host.
   exit
 endif

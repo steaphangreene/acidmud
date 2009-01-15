@@ -1,3 +1,6 @@
+#include <cstdlib>
+#include <cstring>
+
 #include "object.h"
 #include "mind.h"
 #include "version.h"

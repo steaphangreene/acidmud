@@ -180,7 +180,10 @@ void Object::DynamicInit1() {		//Dwarven mine
   SetSkill("DynamicMojo", 0);
 
   //Tree structure, start with one door - dir of travel is opposite it.
-  char *dirb="south", *dir="north", *dir2="west", *dir3="east";
+  const char *dirb="south";
+  const char *dir="north";
+  const char *dir2="west";
+  const char *dir3="east";
 
   if(PickObject("north", LOC_INTERNAL) != NULL) {
     dirb = "north"; dir = "south"; dir2 = "east"; dir3 = "west";

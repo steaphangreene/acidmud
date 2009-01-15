@@ -6,6 +6,9 @@
 #include <cmath>
 #include <fcntl.h>
 
+using namespace std;
+
+#include "utils.h"
 #include "commands.h"
 #include "object.h"
 #include "color.h"
@@ -594,22 +597,22 @@ void Object::CircleLoadMob(const char *fn) {
       memset(buf, 0, 65536);
       while(tp == 'E') {  // Basically an if with an infinite loop ;)
 	if(fscanf(mudm, "Con: %d\n", &val))
-	  obj->SetAttribute(0, obj->Attribute(0) >? ((val+2)/3));
+	  obj->SetAttribute(0, MAX(obj->Attribute(0), ((val+2)/3)));
 
 	else if(fscanf(mudm, "Dex: %d\n", &val))
-	  obj->SetAttribute(1, obj->Attribute(1) >? ((val+2)/3));
+	  obj->SetAttribute(1, MAX(obj->Attribute(1), ((val+2)/3)));
 
 	else if(fscanf(mudm, "Str: %d\n", &val))
-	  obj->SetAttribute(2, obj->Attribute(2) >? ((val+2)/3));
+	  obj->SetAttribute(2, MAX(obj->Attribute(2), ((val+2)/3)));
 
 	else if(fscanf(mudm, "ha: %d\n", &val)) //'Cha' minus 'Con' Conflict!
-	  obj->SetAttribute(3, obj->Attribute(3) >? ((val+2)/3));
+	  obj->SetAttribute(3, MAX(obj->Attribute(3), ((val+2)/3)));
 
 	else if(fscanf(mudm, "Int: %d\n", &val))
-	  obj->SetAttribute(4, obj->Attribute(4) >? ((val+2)/3));
+	  obj->SetAttribute(4, MAX(obj->Attribute(4), ((val+2)/3)));
 
 	else if(fscanf(mudm, "Wis: %d\n", &val))
-	  obj->SetAttribute(5, obj->Attribute(5) >? ((val+2)/3));
+	  obj->SetAttribute(5, MAX(obj->Attribute(5), ((val+2)/3)));
 
 	else if(fscanf(mudm, "Add: %d\n", &val)); //'StrAdd' - Do Nothing
 

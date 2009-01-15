@@ -3,6 +3,8 @@
 using namespace std;
 
 #include <crypt.h>
+#include <cstdlib>
+#include <cstring>
 
 #include "player.h"
 #include "net.h"

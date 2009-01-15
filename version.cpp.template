@@ -6,6 +6,6 @@ VersionInformation CurrentVersion = {
 	0x00000001UL,	// Net Save Version
 	0x00000001UL,	// Player Save Version
 	0x00000012UL,	// Object/World Save Version
-	0, 0, 0, 1,	// AcidMUD Version (X.X.X-X)
+	{ 0, 0, 0, 1 },	// AcidMUD Version (X.X.X-X)
 	"DATE_STAMP"	// Dynamically Filled by Makefile
 	};

@@ -38,7 +38,7 @@ backup:
 upload:
 	./scripts/upload_binary.csh
 	scp TODO acidmud@$(ACIDHOST):~acidmud/public_html/todo.txt
-	./scripts/cvs2cl.pl --hide-filenames --no-wrap --stdout | tr '\t' '@' | sed 's-^@-@* -g' | tr '@' '\t' > ChangeLog
+	./scripts/svn2cl.sh > ChangeLog
 	scp ChangeLog acidmud@$(ACIDHOST):~acidmud/public_html/changes.txt
 
 acidmud: $(OBJS)

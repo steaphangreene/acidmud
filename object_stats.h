@@ -1,6 +1,6 @@
 struct skill_entry {
-  char *skcatname;
-  char *skname;
+  const char *skcatname;
+  const char *skname;
   int linked_attr;
   };
 

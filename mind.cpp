@@ -9,10 +9,12 @@ using namespace std;
 #include <fcntl.h>
 #include <cstdlib>
 #include <cstdarg>
+#include <cstring>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "utils.h"
 #include "net.h"
 #include "mind.h"
 #include "object.h"
@@ -97,7 +99,7 @@ void Mind::UpdatePrompt() {
   else if(Body()) {
     static char buf[65536];  //null-termed by sprintf below.
     sprintf(buf, "[%s][%s] %s> %c",
-	sevs_p[10<?Body()->Phys()], sevs_s[10<?Body()->Stun()],
+	sevs_p[MIN(10, Body()->Phys())], sevs_s[MIN(10, Body()->Stun())],
 	Body()->ShortDesc(), 0);
     SetPrompt(pers, buf);
     }
@@ -316,7 +318,7 @@ void Mind::Think(int istick) {
 	&& body->Roll("Willpower", 9)) {
 
 
-      map<Object*, char*> cons;
+      map<Object*, const char*> cons;
       cons[body->PickObject("north", LOC_NEARBY)] = "north";
       cons[body->PickObject("south", LOC_NEARBY)] = "south";
       cons[body->PickObject("east",  LOC_NEARBY)] = "east";
@@ -325,8 +327,8 @@ void Mind::Think(int istick) {
       cons[body->PickObject("down",  LOC_NEARBY)] = "down";
       cons.erase(NULL);
 
-      map<Object*, char*> cons2 = cons;
-      map<Object*, char*>::iterator dir = cons2.begin();
+      map<Object*, const char*> cons2 = cons;
+      map<Object*, const char*>::iterator dir = cons2.begin();
       for(; dir != cons2.end(); ++dir) {
 	if((!dir->first->ActTarg(ACT_SPECIAL_LINKED))
 		|| (!dir->first->ActTarg(ACT_SPECIAL_LINKED)->Parent())) {
@@ -358,7 +360,7 @@ void Mind::Think(int istick) {
 
       if(cons.size()) {
 	int res = rand() % cons.size();
-	map<Object*, char*>::iterator dir = cons.begin();
+	map<Object*, const char*>::iterator dir = cons.begin();
 	while(res > 0) { ++dir; --res; }
 	body->BusyFor(500, dir->second);
 	return;

@@ -9,6 +9,7 @@
 
 using namespace std;
 
+#include "utils.h"
 #include "commands.h"
 #include "object.h"
 #include "color.h"
@@ -240,13 +241,13 @@ void Object::Tick() {
     else if(!IsAct(ACT_FIGHT)) rec = Roll("Body", 6);
     if(phys >= 6 && (!rec)) ++phys;
     else phys -= rec/2;
-    phys = 0 >? phys;
+    phys = MAX(0, phys);
     UpdateDamage();
     }
   if(phys < 10 && stun >= 10) {
     int rec = 0;
     rec = RollNoWounds("Willpower", 12);
-    stun -= rec;  stun = 0 >? stun;
+    stun -= rec;  stun = MAX(0, stun);
     UpdateDamage();
     }
   else if(phys < 6 && stun > 0) {
@@ -254,7 +255,7 @@ void Object::Tick() {
     if(IsAct(ACT_SLEEP)) rec = Roll("Willpower", 2);
     else if(IsAct(ACT_REST)) rec = Roll("Willpower", 4);
     else if(!IsAct(ACT_FIGHT)) rec = Roll("Willpower", 6);
-    stun -= rec;  stun = 0 >? stun;
+    stun -= rec;  stun = MAX(0, stun);
     UpdateDamage();
     }
 
@@ -393,7 +394,7 @@ Object::Object(const Object &o) {
     nobj->SetParent(this);
     if(o.ActTarg(ACT_HOLD) == (*ind)) AddAct(ACT_HOLD, nobj);
     if(o.ActTarg(ACT_WIELD) == (*ind)) AddAct(ACT_WIELD, nobj);
-    for(act_t act=ACT_WEAR_BACK; act < ACT_MAX; ++((int&)(act)))
+    for(act_t act=ACT_WEAR_BACK; act < ACT_MAX; act = act_t(int(act)+1))
       if(o.ActTarg(act) == (*ind)) AddAct(act, nobj);
     }
   if(o.IsAct(ACT_DEAD)) AddAct(ACT_DEAD);
@@ -570,7 +571,9 @@ void Object::SendActions(Mind *m) {
   map<act_t,Object*>::iterator cur;
   for(cur = act.begin(); cur != act.end(); ++cur) {
     if(cur->first < ACT_WEAR_BACK) {
-      char *targ, *dirn = "", *dirp = "";
+      const char *targ;
+      const char *dirn = "";
+      const char *dirp = "";
 
       if(!cur->second) targ = "";
       else targ = (char*) cur->second->Name(0, m->Body(), this);
@@ -620,7 +623,7 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
     else if(cur->first == ACT_WEAR_RHIP) m->Send("%24s", "Worn on right hip: ");
     else continue;
 
-    char *targ;
+    const char *targ;
     if(!cur->second) targ = "";
     else targ = (char*) cur->second->Name(0, m->Body(), this);
 
@@ -662,7 +665,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
   set<Object*> master;
   master.insert(cont.begin(), cont.end());
 
-  for(act_t act = ACT_HOLD; act < ACT_MAX; ++((int&)(act))) {
+  for(act_t act = ACT_HOLD; act < ACT_MAX; act = act_t(int(act)+1)) {
     master.erase(ActTarg(act));  //Don't show worn/wielded stuff.
     }
 
@@ -710,7 +713,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
       if(base != "") m->Send("%s%sInside:%s ", base.c_str(), CNRM, CGRN);
 
 /*	Uncomment this and comment the block below to disable auto-pluralizing.
-      int qty = (1 >? (*ind)->Skill("Quantity"));
+      int qty = MAX(1, (*ind)->Skill("Quantity"));
 */
       int qty = 1;
       if(!(*ind)->Attribute(1)) { // Inanimate objects can have higher qtys
@@ -720,7 +723,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 	  string name2 = (*oth)->Name();
 	  if(name1 == name2 && (*ind)->Pos() == (*oth)->Pos()) {
 	    master.erase(*oth);
-	    qty += 1 >? (*oth)->Skill("Quantity");
+	    qty += MAX(1, (*oth)->Skill("Quantity"));
 	    }
 	  }
 	}
@@ -940,9 +943,9 @@ void Object::SendLongDesc(Mind *m, Object *o) {
 void Object::SendScore(Mind *m, Object *o) {
   if(!m) return;
   m->Send("\n%s", CNRM);
-  m->Send("Bod: %2d", Attribute(0) <? 99);
+  m->Send("Bod: %2d", MIN(Attribute(0), 99));
   m->Send("           L     M        S           D\n");
-  m->Send("Qui: %2d", Attribute(1) <? 99);
+  m->Send("Qui: %2d", MIN(Attribute(1), 99));
   m->Send("    Stun: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
 	stun <= 0 ? ' ' : 'X',
 	stun <= 1 ? ' ' : 'X',
@@ -956,7 +959,7 @@ void Object::SendScore(Mind *m, Object *o) {
 	stun <= 9 ? ' ' : 'X'
 	);
   m->Send("\n");
-  m->Send("Str: %2d", Attribute(2) <? 99);
+  m->Send("Str: %2d", MIN(Attribute(2), 99));
   m->Send("    Phys: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
 	phys <= 0 ? ' ' : 'X',
 	phys <= 1 ? ' ' : 'X',
@@ -973,7 +976,7 @@ void Object::SendScore(Mind *m, Object *o) {
     m->Send(" Overflow: %d", phys-10);
     }
   m->Send("\n");
-  m->Send("Cha: %2d", Attribute(3) <? 99);
+  m->Send("Cha: %2d", MIN(Attribute(3), 99));
   m->Send("    Stru: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
 	stru <= 0 ? ' ' : 'X',
 	stru <= 1 ? ' ' : 'X',
@@ -987,9 +990,9 @@ void Object::SendScore(Mind *m, Object *o) {
 	stru <= 9 ? ' ' : 'X'
 	);
   m->Send("\n");
-  m->Send("Int: %2d", Attribute(4) <? 99);
+  m->Send("Int: %2d", MIN(Attribute(4), 99));
   m->Send("\n");
-  m->Send("Wil: %2d", Attribute(5) <? 99);
+  m->Send("Wil: %2d", MIN(Attribute(5), 99));
 
   m->Send("    Sex: %c, %d.%.3dkg, %d.%.3dm, %dv, %dY\n\n",
 	gender, weight / 1000, weight % 1000,
@@ -1010,7 +1013,7 @@ void Object::SendScore(Mind *m, Object *o) {
     nskl = nsks.begin();
     while(nskl != nsks.end() || skl != sks.end()) {
       if(skl != sks.end()) {
-	m->Send("%25s: %2d ", skl->first.c_str(), (99 <? skl->second));
+	m->Send("%25s: %2d ", skl->first.c_str(), MIN(99, skl->second));
 	++skl;
 	}
       else {
@@ -1043,7 +1046,7 @@ void Object::SendStats(Mind *m, Object *o) {
     static char sevs[] = { '-', 'L', 'M', 'S', 'D' };
     m->Send("    %s: (Str+%d)%c",
 	get_weapon_skill(skills["WeaponType"]).c_str(),
-	skills["WeaponForce"], sevs[4 <? skills["WeaponSeverity"]]);
+	skills["WeaponForce"], sevs[MIN(4, skills["WeaponSeverity"])]);
     if(skills["WeaponSeverity"] > 4)
       m->Send("%d", (skills["WeaponSeverity"]-4)*2);
     if(skills["WeaponReach"] > 4)
@@ -1053,7 +1056,7 @@ void Object::SendStats(Mind *m, Object *o) {
     m->Send("\n");
     }
 
-  for(act_t act = ACT_MAX; act < ACT_SPECIAL_MAX; ++((int&)(act))) {
+  for(act_t act = ACT_MAX; act < ACT_SPECIAL_MAX; act = act_t(int(act)+1)) {
     if(ActTarg(act)) m->Send("  %s -> %s\n", act_str[act], ActTarg(act)->Name());
     else if(IsAct(act)) m->Send("  %s\n", act_str[act]);
     }
@@ -1280,12 +1283,12 @@ int Object::ContainedVolume() {
   return ret;
   }
 
-int get_ordinal(char *text) {
+int get_ordinal(const char *text) {
   int ret = 0, len = 0;
   while((!isgraph(*text)) && (*text)) ++text;
   while(isgraph(text[len])) ++len;
   if(isdigit(*text)) {
-    char *suf = text;
+    const char *suf = text;
     while(isdigit(*suf)) ++suf;
     if(!strncasecmp(suf, "st", 2)) ret = atoi(text);
     else if(!strncasecmp(suf, "nd", 2)) ret = atoi(text);
@@ -1408,7 +1411,7 @@ list<Object*> Object::PickObjects(const char *nm, int loc, int *ordinal) {
   char *keyword = NULL;
   char *keyword2 = NULL;
   if((keyword = strstr(name, "'s ")) || (keyword2 = strstr(name, "'S "))) {
-    if(keyword && keyword2) keyword = keyword <? keyword2;
+    if(keyword && keyword2) keyword = MIN(keyword, keyword2);
     else if(!keyword) keyword = keyword2;
     keyword2 = strdup(name);
     keyword2[keyword-name] = 0;
@@ -1558,7 +1561,7 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
     return;
     }
 
-  for(act_t act=ACT_NONE; act < ACT_MAX; ++((int&)(act))) {
+  for(act_t act=ACT_NONE; act < ACT_MAX; act = act_t(int(act)+1)) {
     if(ActTarg(act) == obj) {
       if(act != ACT_FOLLOW || (!newloc)) { StopAct(act); }
       else if(parent == newloc) { } // Do nothing - didn't leave!
@@ -1570,10 +1573,10 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
 	}
       }
     }
-  for(act_t act=ACT_MAX; act < ACT_SPECIAL_MAX; ++((int&)(act))) {
+  for(act_t act=ACT_MAX; act < ACT_SPECIAL_MAX; act = act_t(int(act)+1)) {
     if((!newloc) && ActTarg(act) == obj) {
       StopAct(act);
-      for(act_t act2=ACT_MAX; act2 < ACT_SPECIAL_MAX; ++((int&)(act2)))
+      for(act_t act2=ACT_MAX; act2 < ACT_SPECIAL_MAX; act2 = act_t(int(act2)+1))
 	if(obj->ActTarg(act2) == this) obj->StopAct(act2);
       }
     }
@@ -2092,7 +2095,7 @@ void FreeActions() {
     if(!(*busy)->StillBusy()) {
       initlist[*busy] = (*busy)->RollInitiative();
 //      fprintf(stderr, "Initiative = %d\n", initlist[*busy]);
-      maxinit = maxinit >? initlist[*busy];
+      maxinit = MAX(maxinit, initlist[*busy]);
       }
     }
   for(int phase = maxinit; phase > 0; --phase) {

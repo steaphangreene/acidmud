@@ -212,10 +212,10 @@ public:
 
   void Send(int targ, int rsucc, const char *mes, ...)
 	__attribute__ ((format (printf, 4, 5)));
-  void SendOut(int targ, int rsucc, const char *mes, const char *youmes,
+  void SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
 	Object *actor, Object *targ, ...)
 	__attribute__ ((format (printf, 4, 8)));
-  void SendIn(int targ, int rsucc, const char *mes, const char *youmes,
+  void SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
 	Object *actor, Object *targ, ...)
 	__attribute__ ((format (printf, 4, 8)));
 
