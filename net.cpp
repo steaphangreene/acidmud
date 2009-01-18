@@ -333,7 +333,7 @@ int save_net(const char *fn) {
 
   fprintf(fl, "%.8X\n", CurrentVersion.savefile_version_net);
 
-  fprintf(fl, "%d\n", fds.size());
+  fprintf(fl, "%d\n", (int)(fds.size()));
 
   set<socket_t>::iterator sk;
   for(sk = fds.begin(); sk != fds.end(); ++sk) {

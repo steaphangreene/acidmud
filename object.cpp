@@ -704,7 +704,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
     if(total >= 20) {
       m->Send(base.c_str());
       m->Send("...and %d more things are here too.\n",
-	cont.size() - total);
+		((int)(cont.size())) - total);
       break;
       }
 

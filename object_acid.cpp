@@ -65,7 +65,7 @@ int Object::SaveTo(FILE *fl) {
     fprintf(fl, "|%s|%d", sk->first.c_str(), sk->second);
   fprintf(fl, ";\n");
 
-  fprintf(fl, "%d\n", contents.size());
+  fprintf(fl, "%d\n", (int)(contents.size()));
   typeof(contents.begin()) cind;
   for(cind = contents.begin(); cind != contents.end(); ++cind) {
     fprintf(fl, "%d\n", getnum(*cind));
@@ -73,7 +73,7 @@ int Object::SaveTo(FILE *fl) {
 
   fprintf(fl, "%d\n", pos);
 
-  fprintf(fl, "%d\n", act.size());
+  fprintf(fl, "%d\n", (int)(act.size()));
   map<act_t,Object*>::iterator aind;
   for(aind = act.begin(); aind != act.end(); ++aind) {
     fprintf(fl, "%d;%d\n", aind->first, getnum(aind->second));
@@ -106,7 +106,8 @@ int Object::Load(const char *fn) {
   for(ind = todo.begin(); ind != todo.end(); ++ind) {
     map<act_t,Object*>::iterator aind = (*ind)->act.begin();
     for(; aind != (*ind)->act.end(); ++aind) {
-      int num = int(aind->second);
+      /* Decode the Object Number from a pointer, Encoded in LoadFrom() */
+      int num = int(aind->second - ((Object *)(NULL)));
       aind->second = num2obj[num];
       if(aind->first == ACT_FIGHT) (*ind)->BusyFor(500, "attack");
       }
@@ -203,7 +204,9 @@ int Object::LoadFrom(FILE *fl) {
   for(int ctr=0; ctr<num; ++ctr) {
     int anum, num2;
     fscanf(fl, "%d;%d ", &anum, &num2);
-    act[(act_t)anum] = (Object*)num2;
+
+    /* Encode the Object Number as a pointer, Decoded in Load() */
+    act[(act_t)anum] = (Object *)((Object *)(NULL) + num2);
     }
 
   if(Skill("CircleAction")) get_circle_mob_mind()->Attach(this);

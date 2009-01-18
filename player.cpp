@@ -179,7 +179,7 @@ int save_players(const char *fn) {
 
   fprintf(fl, "%.8X\n", CurrentVersion.savefile_version_player);
 
-  fprintf(fl, "%d\n", player_list.size() - non_init.size());
+  fprintf(fl, "%d\n", (int)(player_list.size() - non_init.size()));
 
   map<string, Player *>::iterator pl = player_list.begin();
   for(; pl != player_list.end(); ++pl) {
