@@ -154,12 +154,22 @@ list<string> get_skills(string cat) {
   return ret;
   }
 
-int roll(int ndice, int targ) {
+int roll(int ndice, int targ, list<int> *wraps) {
   int ret = 0, ctr;
   for(ctr=0; ctr<ndice; ++ctr) {
     int val = 1+(rand()%6);
     while((val%6) == 0) val += (1+rand()%6);
-    while(val > 1 && val >= targ) { ++ret; val -= 12; }
+    if(val > 1 && val >= targ) {
+      unsigned int numwrap = (unsigned int)((val - targ) / 12);
+      ret += (1 + int(numwrap));
+      if(wraps && numwrap > 0) {
+	if(wraps->size() < numwrap) wraps->resize(numwrap, 0);
+	list<int>::iterator wit = wraps->begin();
+	for(unsigned int i=0; i < numwrap; ++i, ++wit) {
+	  (*wit) += numwrap - i;
+	  }
+	}
+      }
     }
   return ret;
   }
@@ -185,6 +195,7 @@ int Object::Skill(const string &s, int *tnum) const {
   if(!strncasecmp(s.c_str(), "Charisma", s.length())) return att[3];
   if(!strncasecmp(s.c_str(), "Intelligence", s.length())) return att[4];
   if(!strncasecmp(s.c_str(), "Willpower", s.length())) return att[5];
+  if(!strncasecmp(s.c_str(), "Reaction", s.length())) return (att[1]+att[4])/2;
   if(!defaults_init) init_defaults();
   if(skills.count(s)) return (skills.find(s))->second;  //const for 'skills[s]'
   if(tnum) {
@@ -195,34 +206,46 @@ int Object::Skill(const string &s, int *tnum) const {
   }
 
 int Object::Roll(const string &s1, const Object *p2, const string &s2, int bias, string *res) const {
+  return Roll(s1, p2, s2, bias, NULL, res);
+  }
+
+int Object::Roll(const string &s1, const Object *p2, const string &s2, int bias, list<int> *wraps, string *res) const {
   int succ = 0;
 
   int t1 = p2->Skill(s2) - bias;
   int t2 = Skill(s1) + bias;
 
   if(res) (*res) += "(";
-  succ = Roll(s1, t1, res);
+  succ = Roll(s1, t1, wraps, res);
   if(s2 != "") {
     if(res) (*res) += " - ";
-    succ -= p2->Roll(s2, t2, res);
+    succ -= p2->Roll(s2, t2, res);	//FIXME: Contested Wraps!
     }
   if(res) (*res) += ")";
   return succ;
   }
 
 int Object::Roll(const string &s1, int targ, string *res) const {
+  return Roll(s1, targ, NULL, res);
+  }
+
+int Object::Roll(const string &s1, int targ, list<int> *wraps, string *res) const {
   if(phys>=10 || stun>=10 || (!(att[0]*att[1]*att[2]*att[3]*att[4]*att[5]))) {
     if(res) (*res) += "N/A";
     return 0;
     }
   targ += WoundPenalty();
-  return RollNoWounds(s1, targ, res);
+  return RollNoWounds(s1, targ, wraps, res);
   }
 
 int Object::RollNoWounds(const string &s1, int targ, string *res) const {
+  return RollNoWounds(s1, targ, NULL, res);
+  }
+
+int Object::RollNoWounds(const string &s1, int targ, list<int> *wraps, string *res) const {
   int succ = 0;
   int d1 = Skill(s1, &targ);
-  succ = roll(abs(d1), targ);
+  succ = roll(abs(d1), targ, wraps);
 
   if(res) {
     char buffer[256];
@@ -253,12 +276,22 @@ int Object::WoundPenalty() const {
   return ret;
   }
 
-int Object::RollInitiative() const {
-  int ret = 1+(rand()%6);
-  ret += 1+(rand()%6);
-  ret += att[1];
-  ret += att[4];
-  ret -= WoundPenalty();
+list<int> Object::RollInitiative() const {
+  list<int> ret;
+  int start = Roll("Reaction", 6 - att[5], &ret);
+  ret.push_front(start);
+
+  /* Begin Debug Output */
+  if(IsAct(ACT_FIGHT)) {
+    fprintf(stderr, "Initiative: [");
+    for(list<int>::iterator it = ret.begin(); it != ret.end();) {
+      fprintf(stderr, "%d", *it);
+      ++it;
+      if(it != ret.end()) fprintf(stderr, ", ");
+      }
+    fprintf(stderr, "] (%s)\n", Name());
+    }
+  /* End Debug Output */
 
   return ret;
   }

@@ -411,7 +411,7 @@ Object::Object(const Object &o) {
   }
 
 // Generate truly-formatted name
-const char *Object::Name(int definite, Object *rel, Object *sub) {
+const char *Object::Name(int definite, Object *rel, Object *sub) const {
   static string local;
   int need_an = 0;
   int proper = 0;
@@ -489,16 +489,16 @@ const char *Object::Name(int definite, Object *rel, Object *sub) {
   return local.c_str();
   }
 
-const char *Object::ShortDesc() {
+const char *Object::ShortDesc() const {
   return short_desc.c_str();
   }
 
-const char *Object::Desc() {
+const char *Object::Desc() const {
   if(desc.length() <= 0) return ShortDesc();
   return desc.c_str();
   }
 
-const char *Object::LongDesc() {
+const char *Object::LongDesc() const {
   if(long_desc.length() <= 0) return Desc();
   return long_desc.c_str();
   }
@@ -2064,14 +2064,15 @@ int Object::BusyAct() {
 //  fprintf(stderr, "Taking busyact %p!\n", this);
   busylist.erase(this);
 
-  busytill = current_time;  //FIXME: THIS IS A HACK TO GET MULTI-ACTION ROUNDS
+  //FIXME: THIS IS A HACK TO GET MULTI-ACTION ROUNDS
+  busytill = current_time;
 
   string comm = dowhenfree;
   string def = defact;
   dowhenfree = "";
   defact = "";
 
-//  fprintf(stderr, "Act is %s!\n", comm.c_str());
+//  fprintf(stderr, "Act is %s [%s]!\n", comm.c_str(), def.c_str());
 
   int ret;
   if(minds.size()) {
@@ -2089,26 +2090,34 @@ int Object::BusyAct() {
 
 void FreeActions() {
   int maxinit = 0;
-  map<Object *,int> initlist;
+  map<Object *, list<int> > initlist;
   for(set<Object *>::iterator busy = busylist.begin();
 		busy != busylist.end(); ++busy) {
     if(!(*busy)->StillBusy()) {
       initlist[*busy] = (*busy)->RollInitiative();
-//      fprintf(stderr, "Initiative = %d\n", initlist[*busy]);
-      maxinit = MAX(maxinit, initlist[*busy]);
+      if(maxinit < initlist[*busy].front()) {
+	maxinit = initlist[*busy].front();
+	}
       }
     }
   for(int phase = maxinit; phase > 0; --phase) {
-    for(map<Object *,int>::iterator init = initlist.begin();
+    for(map<Object *,list<int> >::iterator init = initlist.begin();
 		init != initlist.end(); ++init) {
 				// Make sure it's still in busylist
 				// (hasn't been deleted by another's BusyAct)!
-      if(init->second == phase && busylist.count(init->first)) {
-//	fprintf(stderr, "Going at %d\n", phase);
-	int ret = (init->first)->BusyAct();
-	if(ret) init->second = 0;
-	else init->second -= 10;
+      if(init->second.front() == phase && busylist.count(init->first)) {
+	if(init->first->IsAct(ACT_FIGHT))
+	  fprintf(stderr, "Going at %d (%s)\n", phase, init->first->Name());
+	int ret = init->first->BusyAct();
+	if(ret || init->second.size() <= 1) init->second.front() = 0;
+	else init->second.pop_front();
 	}
+      }
+    }
+  for(map<Object *,list<int> >::iterator init = initlist.begin();
+	init != initlist.end(); ++init) {
+    if(init->first->IsAct(ACT_FIGHT) && (!init->first->StillBusy())) {
+      init->first->BusyFor(3000, "attack");	// Still in combat!
       }
     }
   }

@@ -5,6 +5,7 @@
 
 #include <ctime>
 #include <cstdio>
+#include <list>
 #include <fcntl.h>
 #include <sys/time.h>
 
@@ -93,10 +94,10 @@ public:
   void Deactivate();
 
   Object *Next(string &);
-  const char *Name(int definite = 0, Object *rel = NULL, Object *sub = NULL);
-  const char *ShortDesc();
-  const char *Desc();
-  const char *LongDesc();
+  const char *Name(int definite = 0, Object *rel = NULL, Object *sub = NULL) const;
+  const char *ShortDesc() const;
+  const char *Desc() const;
+  const char *LongDesc() const;
   void SetShortDesc(const char *);
   void SetDesc(const char *);
   void SetLongDesc(const char *);
@@ -183,10 +184,16 @@ public:
   void DynamicInit8();
   void DynamicInit9();
 
-  int RollInitiative() const;
-  int Roll(const string &, const Object *, const string &, int bias = 0, string *res=NULL) const;
+  list<int> RollInitiative() const;
+  int Roll(const string &, const Object *, const string &, int bias = 0,
+	string *res=NULL) const;
+  int Roll(const string &, const Object *, const string &, int bias = 0,
+	list<int> *wraps = NULL, string *res = NULL) const;
+  int Roll(const string &, int, list<int> *wraps, string *res=NULL) const;
   int Roll(const string &, int, string *res=NULL) const;
-  int RollNoWounds(const string &, int, string *res=NULL) const;
+  int RollNoWounds(const string &, int, list<int> *wraps,
+	string *res = NULL) const;
+  int RollNoWounds(const string &, int, string *res = NULL) const;
 
   int WoundPenalty() const;
 
@@ -278,7 +285,7 @@ private:
   friend void player_rooms_erase(Object *);
   };
 
-int roll(int ndice, int targ);
+int roll(int ndice, int targ, list<int> *wraps = NULL);
 
 void init_world();
 void save_world(int with_net=0);
