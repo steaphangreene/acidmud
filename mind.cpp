@@ -256,7 +256,7 @@ void Mind::Think(int istick) {
 	        ) {
 	  string command = string("attack ") + (*other)->ShortDesc();
 	  body->BusyFor(500, command.c_str());
-	  fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
+	  //fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
 	  return;
 	  }
 	}
@@ -280,7 +280,7 @@ void Mind::Think(int istick) {
 	        ) {
 	  string command = string("attack ") + (*other)->ShortDesc();
 	  body->BusyFor(500, command.c_str());
-	  fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
+	  //fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
 	  return;
 	  }
 	}
