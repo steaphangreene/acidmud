@@ -2106,8 +2106,8 @@ void FreeActions() {
 				// Make sure it's still in busylist
 				// (hasn't been deleted by another's BusyAct)!
       if(init->second.front() == phase && busylist.count(init->first)) {
-	if(init->first->IsAct(ACT_FIGHT))
-	  fprintf(stderr, "Going at %d (%s)\n", phase, init->first->Name());
+//	if(init->first->IsAct(ACT_FIGHT))
+//	  fprintf(stderr, "Going at %d (%s)\n", phase, init->first->Name());
 	int ret = init->first->BusyAct();
 	if(ret || init->second.size() <= 1) init->second.front() = 0;
 	else init->second.pop_front();

@@ -282,15 +282,15 @@ list<int> Object::RollInitiative() const {
   ret.push_front(start);
 
   /* Begin Debug Output */
-  if(IsAct(ACT_FIGHT)) {
-    fprintf(stderr, "Initiative: [");
-    for(list<int>::iterator it = ret.begin(); it != ret.end();) {
-      fprintf(stderr, "%d", *it);
-      ++it;
-      if(it != ret.end()) fprintf(stderr, ", ");
-      }
-    fprintf(stderr, "] (%s)\n", Name());
-    }
+//  if(IsAct(ACT_FIGHT)) {
+//    fprintf(stderr, "Initiative: [");
+//    for(list<int>::iterator it = ret.begin(); it != ret.end();) {
+//      fprintf(stderr, "%d", *it);
+//      ++it;
+//      if(it != ret.end()) fprintf(stderr, ", ");
+//      }
+//    fprintf(stderr, "] (%s)\n", Name());
+//    }
   /* End Debug Output */
 
   return ret;
