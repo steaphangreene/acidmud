@@ -226,7 +226,7 @@ void Object::Tick() {
     (*m)->Think(1);
     }
 
-  if(phys > (10+Attribute(0))) {
+  if(phys > (10+Attribute(2))) {
     // You are already dead.
     }
   else if(phys >= 10) {
@@ -1645,8 +1645,8 @@ void Object::UpdateDamage() {
     phys += stun-10;
     stun = 10;
     }
-  if(phys > 10+Attribute(0)) {
-    phys = 10+Attribute(0)+1;
+  if(phys > 10+Attribute(2)) {
+    phys = 10+Attribute(2)+1;
 
     if(IsAct(ACT_DEAD) == 0) {
       parent->SendOut(ALL, -1, 
