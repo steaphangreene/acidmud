@@ -75,8 +75,8 @@ static void init_defaults() {
   add_wts("Nets");
   add_wts("Slings");
   add_wts("Staff Slings");
-  add_wts("Throwing (Aero)");
-  add_wts("Throwing (Non-Aero)");
+  add_wts("Throwing, Aero");
+  add_wts("Throwing, Non-Aero");
   add_wts("Whips");
 
   add_wts("Mounted Archery");
