@@ -669,7 +669,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
     master.erase(ActTarg(act));  //Don't show worn/wielded stuff.
     }
 
-  int total = 0;
+  int tlines = 0, total = 0;
   typeof(cont.begin()) ind;
   for(ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
     if((*ind)->IsAct(ACT_SPECIAL_NOTSHOWN)) continue;
@@ -700,16 +700,17 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
     m->Send("%s", CGRN);
     master.erase(*ind);
 
-/* Comment out this block to disable 20-item limit in view */
-    if(total >= 20) {
-      m->Send(base.c_str());
-      m->Send("...and %d more things are here too.\n",
-		((int)(cont.size())) - total);
-      break;
-      }
-
-    ++total;
     if((*ind) != o) {
+      /* Comment out this block to disable 20-item limit in view */
+      if(tlines >= 20) {
+	int ignore = 0;
+	if(o && o->Parent() == this) ignore = 1;
+	m->Send(base.c_str());
+	m->Send("...and %d more things are here too.\n",
+		((int)(cont.size())) - total - ignore);
+	break;
+	}
+
       if(base != "") m->Send("%s%sInside:%s ", base.c_str(), CNRM, CGRN);
 
 /*	Uncomment this and comment the block below to disable auto-pluralizing.
@@ -729,6 +730,8 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 	}
 
       if(qty > 1) m->Send("(x%d) ", qty);
+      total += qty;
+      ++tlines;
 
       if((*ind)->parent && (*ind)->parent->Skill("Container"))
 	sprintf(buf, "%s%c", (*ind)->ShortDesc(), 0);
