@@ -460,7 +460,7 @@ Command comlist[] = {
   { COM_NINJAMODE, "ninjamode", 
     "Ninja command: run a command in Ninja Mode[TM].",
     "Ninja command: run a command in Ninja Mode[TM].",
-    (REQ_ANY|REQ_ACTION|REQ_NINJA)
+    (REQ_ETHEREAL|REQ_ANY|REQ_ACTION|REQ_NINJA)
     },
   { COM_MAKENINJA, "makeninja", 
     "Ninja command: make (or unmake) another player into a True Ninja[TM].",
