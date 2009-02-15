@@ -25,4 +25,4 @@ cat skills.txt | tr '\t' '@' | uniq \
 echo '  { NULL, NULL, 0 }'
 echo '  };'
 
-#rm -f skills.txt
+rm -f skills.txt
