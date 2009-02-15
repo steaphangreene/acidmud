@@ -187,7 +187,9 @@ void update_net() {
   FD_SET(acceptor, &input_set);
 
   if(fds.empty()) {
-    if(select(acceptor+1, &input_set, NULL, NULL, NULL) < 0) {
+    null_time.tv_sec = 0;
+    null_time.tv_usec = 0;
+    if(select(acceptor+1, &input_set, NULL, NULL, &null_time) < 0) {
       if(errno != EINTR) {
 	perror("ERROR in select()");
 	} 
@@ -206,6 +208,8 @@ void update_net() {
     FD_SET((*sock), &exc_set);
     }
 
+  null_time.tv_sec = 0;
+  null_time.tv_usec = 0;
   if(select(maxfd+1, &input_set, &output_set, &exc_set, &null_time) < 0) {
     perror("ERROR in main select()");
     }
