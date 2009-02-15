@@ -187,14 +187,18 @@ void update_net() {
   FD_SET(acceptor, &input_set);
 
   if(fds.empty()) {
+    int ret;
     null_time.tv_sec = 0;
     null_time.tv_usec = 0;
-    if(select(acceptor+1, &input_set, NULL, NULL, &null_time) < 0) {
+    ret = select(acceptor+1, &input_set, NULL, NULL, &null_time);
+    if(ret < 0) {
       if(errno != EINTR) {
 	perror("ERROR in select()");
-	} 
+	}
+      }
+    else if(ret < 1) {	// Timout, no errro (just nobody connecting)
+      return;
       } 
-    return;
     }
 
   FD_ZERO(&input_set);
