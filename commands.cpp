@@ -3539,21 +3539,21 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
       Object *city = new Object(body->Parent());
       city->SetShortDesc(comline+len);
 
-      Object *ocean = new Object(city);
-      ocean->SetShortDesc("Ocean");
-      ocean->SetDesc("The Atcific Ocean.");
+//      Object *ocean = new Object(city);
+//      ocean->SetShortDesc("Ocean");
+//      ocean->SetDesc("The Atcific Ocean.");
 
-      Object *bay = new Object(city);
-      bay->SetShortDesc("Bay");
-      bay->SetDesc((string("The ") + (comline+len) + " Bay.").c_str());
+//      Object *bay = new Object(city);
+//      bay->SetShortDesc("Bay");
+//      bay->SetDesc((string("The ") + (comline+len) + " Bay.").c_str());
 
-      Object *inlet = new Object(city);
-      inlet->SetShortDesc("Inlet");
-      inlet->SetDesc((string("The ") + (comline+len) + " Inlet.").c_str());
+//      Object *inlet = new Object(city);
+//      inlet->SetShortDesc("Inlet");
+//      inlet->SetDesc((string("The ") + (comline+len) + " Inlet.").c_str());
 
-      Object *wall = new Object(city);
-      wall->SetShortDesc("North Wall");
-      wall->SetDesc("The North Wall.");
+//      Object *wall = new Object(city);
+//      wall->SetShortDesc("North Wall");
+//      wall->SetDesc("The North Wall.");
 
       char alist[][8] = {
 	"West", "Apple", "Breeze", "Coconut", "Drury", "Earl",
@@ -3580,7 +3580,7 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	  sprintf(iname, sname);
 	  sprintf(iname + strlen(iname) - 6, "and %s", alist[east]);
 
-	  for(int off=-8; off <= 100; off += 2) {
+	  for(int off=-10; off <= 100; off += 2) {
 	    if(off == 0) off += 2;	// Skip first zero
 
 	    if(off == 100) off = 0;	// Create a second zero
@@ -3591,15 +3591,15 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	    Object *cur = new Object(city);
 	    if(off == 0) {
 	      cur->SetShortDesc(iname);
-	      cur->SetDesc("A street intersection.\n");
+	      cur->SetDesc("A busy intersection.\n");
 	      }
 	    else if(off > 0) {
 	      cur->SetShortDesc(sname);
-	      cur->SetDesc("A nice street.\n");
+	      cur->SetDesc("A nice street, running east and west.\n");
 	      }
 	    else /* if(off < 0) */ {
 	      cur->SetShortDesc(aname);
-	      cur->SetDesc("A nice avenue.\n");
+	      cur->SetDesc("A nice avenue, running north and south.\n");
 	      }
 
 	    if(off >= 0) {
@@ -3639,6 +3639,45 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		door2->SetSkill("Enterable", 1);
 		}
 	      ave[east] = cur;
+	      }
+
+	    if(off != 0) {
+	      Object *places[3] = {NULL, cur, NULL};
+	      const char *dir[2] = {"south", "north"};
+	      if(off < 0) {
+		dir[0] = "west"; dir[1] = "east";
+		}
+	      for(int i = 0; i < 2; ++i) {
+		char addr[32];
+		if(off > 0) {
+		  sprintf(addr, "%d %s - Vacant Lot",
+			(east+1)*100 + off + i, sname);
+		  }
+		else {
+		  sprintf(addr, "%d %s - Vacant Lot",
+			(north+1)*10 + 10 + off + i, aname);
+		  }
+		places[i*2] = new Object(city);
+		places[i*2]->SetShortDesc(addr);
+		places[i*2]->SetSkill("DynamicInit", 2);  //City
+		places[i*2]->SetSkill("DynamicPhase", 0); //Lot
+		places[i*2]->SetSkill("DynamicMojo", 1000);
+
+		Object *door1 = new Object(places[i+1]);
+		Object *door2 = new Object(places[i]);
+		door1->SetShortDesc(dir[0]);
+		door2->SetShortDesc(dir[1]);
+		door1->SetDesc("A streetside door.\n");
+		door2->SetDesc("A streetside door.\n");
+		door1->AddAct(ACT_SPECIAL_LINKED, door2);
+		door1->AddAct(ACT_SPECIAL_MASTER, door2);
+		door1->SetSkill("Open", 1);
+		door1->SetSkill("Enterable", 1);
+		door2->AddAct(ACT_SPECIAL_LINKED, door1);
+		door2->AddAct(ACT_SPECIAL_MASTER, door1);
+		door2->SetSkill("Open", 1);
+		door2->SetSkill("Enterable", 1);
+		}
 	      }
 
 	    if(off == 0) off = 100;	// Zero really was 100
