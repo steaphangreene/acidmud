@@ -194,6 +194,7 @@ void update_net() {
 	perror("ERROR in select()");
 	} 
       } 
+    return;
     }
 
   FD_ZERO(&input_set);
