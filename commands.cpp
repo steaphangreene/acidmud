@@ -1089,8 +1089,27 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		";s opens ;s.\n", "You open ;s.\n", body, (*targ_it));
 	  }
 
-	if(strlen(comline+len) > 0 && within) {
+	if(strlen(comline+len) <= 0) {
 		body->Parent()->SendOut(stealth_t, stealth_s, 
+		";s looks around.\n", "", body, (*targ_it));
+	  if(mind) (*targ_it)->SendDescSurround(mind, body);
+	  }
+	else if((!strcasecmp(comline+len, "north"))
+		|| (!strcasecmp(comline+len, "south"))
+		|| (!strcasecmp(comline+len, "east"))
+		|| (!strcasecmp(comline+len, "west"))
+		|| (!strcasecmp(comline+len, "up"))
+		|| (!strcasecmp(comline+len, "down"))
+		) {
+	  body->Parent()->SendOut(stealth_t, stealth_s, 
+		";s looks ;s.\n", "", body, (*targ_it));
+	  if(mind) {
+	    (*targ_it)->SendDesc(mind, body);
+	    (*targ_it)->SendExtendedActions(mind);
+	    }
+	  }
+	else if(within) {
+	  body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s looks inside ;s.\n", "", body, (*targ_it));
 	  if(mind) {
 	    (*targ_it)->SendDesc(mind, body);
@@ -1098,18 +1117,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	    (*targ_it)->SendContents(mind);
 	    }
 	  }
-	else if(strlen(comline+len) > 0) {
-		body->Parent()->SendOut(stealth_t, stealth_s, 
+	else {
+	  body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s looks at ;s.\n", "", body, (*targ_it));
 	  if(mind) {
 	    (*targ_it)->SendDesc(mind, body);
 	    (*targ_it)->SendExtendedActions(mind);
 	    }
-	  }
-	else {
-		body->Parent()->SendOut(stealth_t, stealth_s, 
-		";s looks around.\n", "", body, (*targ_it));
-	  if(mind) (*targ_it)->SendDescSurround(mind, body);
 	  }
 
 	if(must_open) {
@@ -3577,8 +3591,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	Object *street = NULL;
 	for(int east = 0; east < NUM_AVS; ++east) {
 	  sprintf(aname, "%s Avenue", alist[east]);
-	  sprintf(iname, sname);
-	  sprintf(iname + strlen(iname) - 6, "and %s", alist[east]);
+	  sprintf(iname, "%s and %s", alist[east], sname);
+	  iname[strlen(iname) - 7] = 0;
 
 	  for(int off=-10; off <= 100; off += 2) {
 	    if(off == 0) off += 2;	// Skip first zero
@@ -3650,15 +3664,13 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 	      for(int i = 0; i < 2; ++i) {
 		char addr[32];
 		if(off > 0) {
-		  sprintf(addr, "%d %s - Vacant Lot",
-			(east+1)*100 + off + i, sname);
+		  sprintf(addr, "%d %s", (east+1)*100 + off + i, sname);
 		  }
 		else {
-		  sprintf(addr, "%d %s - Vacant Lot",
-			(north+1)*10 + 10 + off + i, aname);
+		  sprintf(addr, "%d %s", (north+1)*10 + 10 + off + i, aname);
 		  }
 		places[i*2] = new Object(city);
-		places[i*2]->SetShortDesc(addr);
+		places[i*2]->SetShortDesc("Vacant Lot");
 		places[i*2]->SetSkill("DynamicInit", 2);  //City
 		places[i*2]->SetSkill("DynamicPhase", 0); //Lot
 		places[i*2]->SetSkill("DynamicMojo", 1000);
@@ -3667,8 +3679,8 @@ int handle_single_command(Object *body, const char *cl, Mind *mind) {
 		Object *door2 = new Object(places[i]);
 		door1->SetShortDesc(dir[0]);
 		door2->SetShortDesc(dir[1]);
-		door1->SetDesc("A streetside door.\n");
-		door2->SetDesc("A streetside door.\n");
+		door1->SetDesc(addr);
+		door2->SetDesc(addr);
 		door1->AddAct(ACT_SPECIAL_LINKED, door2);
 		door1->AddAct(ACT_SPECIAL_MASTER, door2);
 		door1->SetSkill("Open", 1);
