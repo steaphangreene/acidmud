@@ -781,6 +781,11 @@ void Object::SendFullSituation(Mind *m, Object *o) {
   if(parent && parent->Gender() == 'M') pname = "his";
   else if(parent && parent->Gender() == 'F') pname = "her";
 
+  if(Skill("Quantity") > 1) {
+    sprintf(buf, "(x%d) ", Skill("Quantity"));
+    m->Send(buf);
+    }
+
   if(!parent)
     sprintf(buf, "%s is here%c", Name(), 0);
 
