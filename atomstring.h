@@ -1,50 +1,45 @@
 #ifndef ATOMSTRING_H
 #define ATOMSTRING_H
 
+#include <set>
 #include <string>
 using namespace std;
 
 class AtomString {
 public:
-  AtomString() {};
-  AtomString(const char *other) { val = other; };
-  AtomString(const string &other) { val = other; };
+  AtomString() { val = strlist.insert("").first; };
+  AtomString(const char *other) { val = strlist.insert(other).first; };
+  AtomString(const string &other) { val = strlist.insert(other).first; };
   AtomString(const AtomString &other) { val = other.val; };
-  operator const string &() const { return val; };
+  operator const string &() const { return *val; };
 
-  bool operator == (const string &in) const {
-    return (val == in);
+  bool operator == (const AtomString &in) const {
+    return ((*val) == (*(in.val)));
     };
-
-  bool operator != (const string &in) const {
-    return (val != in);
+  bool operator != (const AtomString &in) const {
+    return ((*val) != (*(in.val)));
     };
-
-  bool operator < (const string &in) const {
-    return (val < in);
+  bool operator < (const AtomString &in) const {
+    return ((*val) < (*(in.val)));
     };
-
-  bool operator <= (const string &in) const {
-    return (val <= in);
+  bool operator <= (const AtomString &in) const {
+    return ((*val) <= (*(in.val)));
     };
-
-  bool operator > (const string &in) const {
-    return (val > in);
+  bool operator > (const AtomString &in) const {
+    return ((*val) > (*(in.val)));
     };
-
-  bool operator >= (const string &in) const {
-    return (val >= in);
+  bool operator >= (const AtomString &in) const {
+    return ((*val) >= (*(in.val)));
     };
-
-  const string &operator = (const AtomString &in) {
-    return (val = in.val);
+  void operator = (const AtomString &in) {	// Returns VOID!
+    val = in.val;
     };
-
-  unsigned int length() const { return val.length(); }
-  const char *c_str() const { return val.c_str(); }
+  unsigned int length() const { return val->length(); }
+  const char *c_str() const { return val->c_str(); }
 
 private:
-  string val;
+  set<string>::iterator val;
+  static set<string> strlist;
   };
 
 #endif	// ATOMSTRING_H

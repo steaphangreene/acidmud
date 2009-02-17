@@ -1,7 +1,7 @@
 ACIDHOST:=acidmud.dyndns.org
 
 TSTR:=  $(shell date -u +"%Y%m%d%H%M")
-OBJS:=	main.o version.o net.o commands.o mind.o player.o mob.o \
+OBJS:=	main.o version.o net.o commands.o mind.o player.o mob.o atomstring.o \
 	object.o object_circle.o object_acid.o object_stats.o object_dynamic.o \
 	command_ccreate.o
 
