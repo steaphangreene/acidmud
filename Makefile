@@ -6,16 +6,16 @@ OBJS:=	main.o version.o net.o commands.o mind.o player.o mob.o atomstring.o \
 	command_ccreate.o
 
 #Production Settings (dynamic)
-#CCC:=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
-#LIBS:=	-static -lstdc++ -lcrypt
+CCC:=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
+LIBS:=	-static -lstdc++ -lcrypt
 
 #Production Settings (dynamic, except libstdc++)
 #CCC:=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
 #LIBS:=	-static `gcc$(ACIDMUD_CTAIL) -print-file-name=libstdc++.a` -lcrypt
 
 #Production Settings (static)
-CCC:=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
-LIBS:=	-static -lstdc++ -lcrypt
+#CCC:=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
+#LIBS:=	-static -lstdc++ -lcrypt
 
 #Debugging settings
 #CCC:=	gcc$(ACIDMUD_CTAIL) -g -Wall
