@@ -3,11 +3,9 @@
 rm -f skills.txt
 wget http://www.cs.binghamton.edu/~stea/gaming/data/skills.txt
 
-echo '#include "atomstring.h"'
-echo ''
 echo 'struct skill_entry {'
-echo '  AtomString skcatname;'
-echo '  AtomString skname;'
+echo '  const char *skcatname;'
+echo '  const char *skname;'
 echo '  int linked_attr;'
 echo '  };'
 

@@ -1,8 +1,6 @@
-#include "atomstring.h"
-
 struct skill_entry {
-  AtomString skcatname;
-  AtomString skname;
+  const char *skcatname;
+  const char *skname;
   int linked_attr;
   };
 
