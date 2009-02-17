@@ -4,6 +4,7 @@ using namespace std;
 
 #include "mind.h"
 #include "object.h"
+#include "commands.h"
 
 #define NUM_AVS	5	// 28 Max!
 #define NUM_STS	5	// No Max
@@ -81,39 +82,19 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 
 	  if(off >= 0) {
 	    if(street) {
-	      Object *door1 = new Object(cur);
-	      Object *door2 = new Object(street);
-	      door1->SetShortDesc("west");
-	      door2->SetShortDesc("east");
-	      door1->SetDesc("The street continues west.\n");
-	      door2->SetDesc("The street continues east.\n");
-	      door1->AddAct(ACT_SPECIAL_LINKED, door2);
-	      door1->AddAct(ACT_SPECIAL_MASTER, door2);
-	      door1->SetSkill("Open", 1);
-	      door1->SetSkill("Enterable", 1);
-	      door2->AddAct(ACT_SPECIAL_LINKED, door1);
-	      door2->AddAct(ACT_SPECIAL_MASTER, door1);
-	      door2->SetSkill("Open", 1);
-	      door2->SetSkill("Enterable", 1);
+	      cur->Link(street,
+		"west", "The street continues west.\n",
+		"east", "The street continues east.\n"
+		);
 	      }
 	    street = cur;
 	    }
 	  if(off <= 0) {
 	    if(ave[east]) {
-	      Object *door1 = new Object(cur);
-	      Object *door2 = new Object(ave[east]);
-	      door1->SetShortDesc("south");
-	      door2->SetShortDesc("north");
-	      door1->SetDesc("The avenue continues south.\n");
-	      door2->SetDesc("The avenue continues north.\n");
-	      door1->AddAct(ACT_SPECIAL_LINKED, door2);
-	      door1->AddAct(ACT_SPECIAL_MASTER, door2);
-	      door1->SetSkill("Open", 1);
-	      door1->SetSkill("Enterable", 1);
-	      door2->AddAct(ACT_SPECIAL_LINKED, door1);
-	      door2->AddAct(ACT_SPECIAL_MASTER, door1);
-	      door2->SetSkill("Open", 1);
-	      door2->SetSkill("Enterable", 1);
+	      cur->Link(ave[east],
+		"south", "The avenue continues south.\n",
+		"north", "The avenue continues north.\n"
+		);
 	      }
 	    ave[east] = cur;
 	    }
@@ -138,20 +119,7 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 	      places[i*2]->SetSkill("DynamicPhase", 0); //Lot
 	      places[i*2]->SetSkill("DynamicMojo", 1000);
 
-	      Object *door1 = new Object(places[i+1]);
-	      Object *door2 = new Object(places[i]);
-	      door1->SetShortDesc(dir[0]);
-	      door2->SetShortDesc(dir[1]);
-	      door1->SetDesc(addr);
-	      door2->SetDesc(addr);
-	      door1->AddAct(ACT_SPECIAL_LINKED, door2);
-	      door1->AddAct(ACT_SPECIAL_MASTER, door2);
-	      door1->SetSkill("Open", 1);
-	      door1->SetSkill("Enterable", 1);
-	      door2->AddAct(ACT_SPECIAL_LINKED, door1);
-	      door2->AddAct(ACT_SPECIAL_MASTER, door1);
-	      door2->SetSkill("Open", 1);
-	      door2->SetSkill("Enterable", 1);
+	      places[i+1]->Link(places[i], dir[0], addr, dir[1], addr);
 	      }
 	    }
 

@@ -3520,20 +3520,10 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       next->SetSkill("DynamicPhase", 0); //Entrance
       next->SetSkill("DynamicMojo", 1000000);
 
-      Object *door1 = new Object(body->Parent());
-      Object *door2 = new Object(next);
-      door1->SetShortDesc(dir);
-      door2->SetShortDesc(dirb);
-      door1->SetDesc((string("You see a solid passage leading ") + dir + ".\n").c_str());
-      door2->SetDesc((string("You see a solid passage leading ") + dirb + ".\n").c_str());
-      door1->AddAct(ACT_SPECIAL_LINKED, door2);
-      door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1);
-      door1->SetSkill("Enterable", 1);
-      door2->AddAct(ACT_SPECIAL_LINKED, door1);
-      door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1);
-      door2->SetSkill("Enterable", 1);
+      body->Parent()->Link(next,
+	dir, string("You see a solid passage leading ") + dir + ".\n",
+	dirb, string("You see a solid passage leading ") + dirb + ".\n"
+	);
 
       body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s creates a new dynamic dungeon '%s' with Ninja Powers[TM].\n",

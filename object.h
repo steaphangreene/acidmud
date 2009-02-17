@@ -121,6 +121,8 @@ public:
   void SendScore(Mind *m, Object *o = NULL);
   void SendStats(Mind *m, Object *o = NULL);
 
+  void Link(Object *other, const string &name, const string &desc,
+        const string &oname, const string &odesc);
   int Travel(Object *, int try_combine = 1);
   void AddLink(Object *);
   void RemoveLink(Object *);
