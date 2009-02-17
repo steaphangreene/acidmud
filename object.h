@@ -11,6 +11,8 @@
 
 using namespace std;
 
+#include "atomstring.h"
+
 class Object;
 class Player;
 class Mind;
@@ -170,7 +172,7 @@ public:
 
   int Attribute(int) const;
   int Skill(const string &, int *tnum = NULL) const;
-  map<string,int> GetSkills() const { return skills; }
+  map<AtomString,int> GetSkills() const { return skills; }
 
   void SetAttribute(int, int);
   void SetSkill(const string &, int);
@@ -260,9 +262,9 @@ public:
   void AddMOB(const MOBType *);
 
 private:
-  string short_desc;
-  string desc;
-  string long_desc;
+  AtomString short_desc;
+  AtomString desc;
+  AtomString long_desc;
   list<Object*> contents;
   Object *parent;
   set<Mind*> minds;
@@ -277,7 +279,7 @@ private:
 
   int phys, stun, stru;
   int att[8];
-  map<string,int> skills;
+  map<AtomString,int> skills;
 
   int no_seek; //Recursion protection
 

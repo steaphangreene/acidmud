@@ -60,7 +60,7 @@ int Object::SaveTo(FILE *fl) {
 	att[0], att[1], att[2], att[3], att[4], att[5], att[6], att[7],
 	phys, stun, stru, IsActive());
 
-  map<string,int>::const_iterator sk = skills.begin();
+  map<AtomString,int>::const_iterator sk = skills.begin();
   for(; sk != skills.end(); ++sk)
     fprintf(fl, "|%s|%d", sk->first.c_str(), sk->second);
   fprintf(fl, ";\n");

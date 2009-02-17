@@ -510,18 +510,21 @@ static void trim(string &s) {
   }
 
 void Object::SetShortDesc(const char *d) {
-  short_desc = d;
-  trim(short_desc);
+  string s = d;
+  trim(s);
+  short_desc = s;
   }
 
 void Object::SetDesc(const char *d) {
-  desc = d;
-  trim(desc);
+  string s = d;
+  trim(s);
+  desc = s;
   }
 
 void Object::SetLongDesc(const char *d) {
-  long_desc = d;
-  trim(long_desc);
+  string s = d;
+  trim(s);
+  long_desc = s;
   }
 
 void Object::SetParent(Object *o) {
@@ -1001,11 +1004,11 @@ void Object::SendScore(Mind *m, Object *o) {
 	gender, weight / 1000, weight % 1000,
 	size / 1000, size % 1000, volume, value);
 
-  map<string,int> skills = GetSkills();
-  map<string,int> sks;
-  map<string,int>::iterator skl;
-  map<string,int> nsks;
-  map<string,int>::iterator nskl;
+  map<AtomString,int> skills = GetSkills();
+  map<AtomString,int> sks;
+  map<AtomString,int>::iterator skl;
+  map<AtomString,int> nsks;
+  map<AtomString,int>::iterator nskl;
 
   if(skills.count("WeaponType") == 0) {
     for(skl = skills.begin(); skl != skills.end(); ++skl) {
