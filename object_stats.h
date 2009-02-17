@@ -1,6 +1,8 @@
+#include "atomstring.h"
+
 struct skill_entry {
-  const char *skcatname;
-  const char *skname;
+  AtomString skcatname;
+  AtomString skname;
   int linked_attr;
   };
 
@@ -299,5 +301,5 @@ static skill_entry skill_data[] = {
   { CUR_CAT, "Surgery", 4 },
   { CUR_CAT, "Security", 4 },
   { CUR_CAT, "Communications", 4 },
-  { NULL, NULL, 0 }
+  { NULL, NULL, -1 }
   };

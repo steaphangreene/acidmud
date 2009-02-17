@@ -3,9 +3,11 @@
 rm -f skills.txt
 wget http://www.cs.binghamton.edu/~stea/gaming/data/skills.txt
 
+echo '#include "atomstring.h"'
+echo ''
 echo 'struct skill_entry {'
-echo '  const char *skcatname;'
-echo '  const char *skname;'
+echo '  AtomString skcatname;'
+echo '  AtomString skname;'
 echo '  int linked_attr;'
 echo '  };'
 
@@ -22,7 +24,7 @@ cat skills.txt | tr '\t' '@' | uniq \
 	| sed 's-^S@[A-Za-z0-9]*@W@\(.*\)-  { CUR_CAT, "\1", 5 },-g' \
 	| sed 's-^C.*@\(.*\)$-  #undef CUR_CAT@  #define CUR_CAT "\1"-' \
 	| grep '^  ' | tr '@' '\n'
-echo '  { NULL, NULL, 0 }'
+echo '  { NULL, NULL, -1 }'
 echo '  };'
 
 rm -f skills.txt

@@ -4,10 +4,10 @@
 #include "object.h"
 #include "object_stats.h"
 
-static map<string,int> defaults;
-static map<int,string> weaponskills;
-static map<string,int> weapontypes;
-static map<string,list<string> > skcat;
+static map<AtomString,int> defaults;
+static map<int,AtomString> weaponskills;
+static map<AtomString,int> weapontypes;
+static map<AtomString,list<AtomString> > skcat;
 
 static int last_wtype = 0;
 static void add_wts(const string &sk) {
@@ -28,13 +28,12 @@ static void init_defaults() {
   defaults_init = 1;
 
   skill_entry *cur = skill_data;
-  while(cur->skcatname) {
+  while(cur->linked_attr >= 0) {
     defaults[cur->skname] = cur->linked_attr;
     skcat[cur->skcatname].push_back(cur->skname);
     ++cur;
     }
 
-  //Now back to non-automatically generated code
   add_wts("Grappling");
   add_wts("Kicking");
   add_wts("Punching");
