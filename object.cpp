@@ -1334,10 +1334,12 @@ int get_ordinal(const char *text) {
   else if(!strncasecmp(text, "tenth ",  6)) ret = 10;
   else if(!strncasecmp(text, "all ",  4)) ret = ALL;
   else if(!strncasecmp(text, "all.",  4)) ret = ALL;
+  else if(!strncasecmp(text, "some ",  4)) ret = SOME;
+  else if(!strncasecmp(text, "some.",  4)) ret = SOME;
   return ret;
   }
 
-int strip_ordinal(char **text) {
+int strip_ordinal(const char **text) {
   int ret = get_ordinal(*text);
   if(ret) {
     while((!isgraph(**text)) && (**text)) ++(*text);
@@ -1392,6 +1394,7 @@ static int tag(Object *obj, list<Object *> &ret, int *ordinal) {
     }
 
   else if(*ordinal == ALL) rqty = cqty + 1;
+  else if(*ordinal == SOME) rqty = cqty;
 
   else if(*ordinal < -1) rqty = -(*ordinal);
 
@@ -1418,10 +1421,9 @@ static int tag(Object *obj, list<Object *> &ret, int *ordinal) {
   return 0;
   }
 
-list<Object*> Object::PickObjects(const char *nm, int loc, int *ordinal) {
+list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
   typeof(contents) ret;
 
-  char *name = (char*)nm;
   while((!isgraph(*name)) && (*name)) ++name;
 
   int ordcontainer;
@@ -1457,7 +1459,10 @@ list<Object*> Object::PickObjects(const char *nm, int loc, int *ordinal) {
   while(!isgraph(name[len-1])) --len;
 
   if(loc & LOC_SELF) {
-    if((!strcasecmp(name, "self")) || (!strcasecmp(name, "myself"))) {
+    if((!strcasecmp(name, "self"))
+	|| (!strcasecmp(name, "myself"))
+	|| (!strcasecmp(name, "me"))
+	) {
       if((*ordinal) != 1) return ret;
       ret.push_back(this);
       return ret;
@@ -2175,7 +2180,11 @@ int Object::operator == (const Object &in) const {
 
   if(contents.size() != 0 || in.contents.size() != 0) return 0;
 
-  if(skills != in.skills) return 0;
+  map<AtomString,int> sk1 = skills;
+  map<AtomString,int> sk2 = in.skills;
+  sk1.erase("Quantity");
+  sk2.erase("Quantity");
+  if(sk1 != sk2) return 0;
 
   return 1;
   }

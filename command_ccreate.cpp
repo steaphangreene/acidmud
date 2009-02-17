@@ -120,6 +120,25 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 	      places[i*2]->SetSkill("DynamicMojo", 1000);
 
 	      places[i+1]->Link(places[i], dir[0], addr, dir[1], addr);
+
+	      Object *people;
+	      people = new Object(places[i*2]);
+	      people->SetShortDesc("person");
+	      people->SetDesc("an upstanding citizen.");
+	      people->SetSkill("Quantity", 100);
+	      people->SetPos(POS_STAND);
+
+	      people = new Object(places[i*2]);
+	      people->SetShortDesc("person");
+	      people->SetDesc("a wealthy citizen.");
+	      people->SetSkill("Quantity", 10);
+	      people->SetPos(POS_STAND);
+
+	      people = new Object(places[i*2]);
+	      people->SetShortDesc("person");
+	      people->SetDesc("a sketchy-looking punk.");
+	      people->SetSkill("Quantity", 10);
+	      people->SetPos(POS_STAND);
 	      }
 	    }
 

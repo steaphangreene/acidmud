@@ -79,7 +79,8 @@ enum act_t {
 	ACT_SPECIAL_MAX
 	};
 
-#define ALL (-2147483647-1)
+#define ALL	(-0x7FFFFFFF)
+#define SOME	(-0x7FFFFFFE)
 
 extern const char *pos_str[POS_MAX];
 extern const char *act_str[ACT_SPECIAL_MAX];
