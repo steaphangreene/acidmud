@@ -1134,6 +1134,10 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	  }
 	}
       }
+
+    if(targs.size() == 1 && targs.front() != body->Parent()) {
+      targs.front()->TryCombine();
+      }
     return 0;
     }
 

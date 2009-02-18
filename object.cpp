@@ -1123,6 +1123,7 @@ void Object::Link(Object *other, const string &name, const string &desc,
   }
 
 void Object::TryCombine() {
+  if(!parent) return;
   typeof(parent->contents.begin()) ind;
   for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
     if((*ind) == this) continue;	//Skip self
