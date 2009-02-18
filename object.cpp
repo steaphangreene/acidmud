@@ -408,6 +408,8 @@ Object::Object(const Object &o) {
   no_seek = 0;
 
   if(o.IsActive()) Activate();
+
+  minds = o.minds;	// Transmit Attached Minds
   }
 
 // Generate truly-formatted name

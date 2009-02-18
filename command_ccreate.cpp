@@ -127,6 +127,10 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 	      people->SetDesc("an upstanding citizen.");
 	      people->SetSkill("Quantity", 100);
 	      people->SetSkill("Personality", 9);
+	      people->SetSkill("Hungry", 10000);
+	      people->SetSkill("Bored", 100000);
+	      people->SetSkill("Tired", 10000);
+	      people->SetSkill("Needy", 1000);
 	      people->SetPos(POS_STAND);
 	      people->Attach(get_mob_mind());
 	      people->Activate();
@@ -142,6 +146,10 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 	      people->SetDesc("a wealthy citizen.");
 	      people->SetSkill("Quantity", 10);
 	      people->SetSkill("Personality", 13);
+	      people->SetSkill("Hungry", 10000);
+	      people->SetSkill("Bored", 100000);
+	      people->SetSkill("Tired", 10000);
+	      people->SetSkill("Needy", 1000);
 	      people->SetPos(POS_STAND);
 	      people->Attach(get_mob_mind());
 	      people->Activate();
@@ -157,6 +165,10 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 	      people->SetDesc("a sketchy-looking punk.");
 	      people->SetSkill("Quantity", 10);
 	      people->SetSkill("Personality", 3);
+	      people->SetSkill("Hungry", 10000);
+	      people->SetSkill("Bored", 100000);
+	      people->SetSkill("Tired", 10000);
+	      people->SetSkill("Needy", 1000);
 	      people->SetPos(POS_STAND);
 	      people->Attach(get_mob_mind());
 	      people->Activate();

@@ -178,10 +178,14 @@ int Object::Attribute(int a) const {
   }
 
 void Object::SetAttribute(int a, int v) {
+  if(v > 1000000000) v = 1000000000;
+  else if(v < -1000000000) v = -1000000000;
   att[a] = v;
   }
 
 void Object::SetSkill(const string &s, int v) {
+  if(v > 1000000000) v = 1000000000;
+  else if(v < -1000000000) v = -1000000000;
   skills[s] = v;
   if(v <= 0) skills.erase(s);
   }

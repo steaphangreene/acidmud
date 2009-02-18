@@ -217,6 +217,12 @@ void Mind::SetPlayer(string pn) {
 void Mind::Think(int istick) {
   if(type == MIND_MOB) {
     if(body->Skill("Personality") & 1) {		// Group Mind
+      int qty = body->Skill("Quantity");
+      body->SetSkill("Hungry", body->Skill("Hungry") + qty*10);
+      body->SetSkill("Bored", body->Skill("Bored") + qty*10);
+      body->SetSkill("Tired", body->Skill("Tired") + qty);
+      body->SetSkill("Needy", body->Skill("Needy") + qty);
+      body->BusyFor(1000);
       if(body->Skill("Personality") & 2) {		// Punk
 	//body->BusyFor(500, "say Yo yo!");
 	}
