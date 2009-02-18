@@ -132,6 +132,8 @@ public:
   void Attach(Mind *mind);
   void Unattach(Mind *mind);
 
+  void TryCombine();
+
   Object *Stash(Object *);
 
   Object *PickObject(const char *, int loc, int *ordinal=NULL);

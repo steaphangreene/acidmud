@@ -1122,6 +1122,31 @@ void Object::Link(Object *other, const string &name, const string &desc,
   door2->SetSkill("Enterable", 1);
   }
 
+void Object::TryCombine() {
+  typeof(parent->contents.begin()) ind;
+  for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
+    if((*ind) == this) continue;	//Skip self
+
+	// Never combine with an actee.
+    map<act_t, Object *>::iterator a = parent->act.begin();
+    for(;a != parent->act.end(); ++a) {
+      if(a->second == (*ind)) break;
+      }
+    if(a != parent->act.end()) continue;
+
+    if((*this) == (*(*ind))) {
+	//fprintf(stderr, "Combining '%s'\n", Name());
+      int q = 1;
+      if(Skill("Quantity")) q = Skill("Quantity");
+      if((*ind)->Skill("Quantity")) q += (*ind)->Skill("Quantity");
+      else q += 1;
+      SetSkill("Quantity", q);
+      delete(*ind);
+      break;
+      }
+    }
+  }
+
 int Object::Travel(Object *dest, int try_combine) {
   if((!parent) || (!dest)) return -1;
 
@@ -1147,30 +1172,7 @@ int Object::Travel(Object *dest, int try_combine) {
   parent->AddLink(this);
   oldp->NotifyGone(this, dest);
 
-  if(try_combine) {
-    typeof(parent->contents.begin()) ind;
-    for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
-      if((*ind) == this) continue;	//Skip self
-
-      // Never combine with an actee.
-      map<act_t, Object *>::iterator a = parent->act.begin();
-      for(;a != parent->act.end(); ++a) {
-	if(a->second == (*ind)) break;
-	}
-      if(a != parent->act.end()) continue;
-
-      if((*this) == (*(*ind))) {
-	//fprintf(stderr, "Combining '%s'\n", Name());
-	int q = 1;
-	if(Skill("Quantity")) q = Skill("Quantity");
-	if((*ind)->Skill("Quantity")) q += (*ind)->Skill("Quantity");
-	else q += 1;
-	SetSkill("Quantity", q);
-	delete(*ind);
-	break;
-	}
-      }
-    }
+  if(try_combine) TryCombine();
 
   StopAct(ACT_POINT);
   StopAct(ACT_FOLLOW);
