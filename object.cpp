@@ -1139,11 +1139,23 @@ void Object::TryCombine() {
 
     if((*this) == (*(*ind))) {
 	//fprintf(stderr, "Combining '%s'\n", Name());
-      int q = 1;
-      if(Skill("Quantity")) q = Skill("Quantity");
-      if((*ind)->Skill("Quantity")) q += (*ind)->Skill("Quantity");
-      else q += 1;
-      SetSkill("Quantity", q);
+      int val;
+
+      val = MAX(1, Skill("Quantity")) + MAX(1, (*ind)->Skill("Quantity"));
+      SetSkill("Quantity", val);
+
+      val = MAX(1, Skill("Hungry")) + MAX(1, (*ind)->Skill("Hungry"));
+      SetSkill("Hungry", val);
+
+      val = MAX(1, Skill("Bored")) + MAX(1, (*ind)->Skill("Bored"));
+      SetSkill("Bored", val);
+
+      val = MAX(1, Skill("Needy")) + MAX(1, (*ind)->Skill("Needy"));
+      SetSkill("Needy", val);
+
+      val = MAX(1, Skill("Tired")) + MAX(1, (*ind)->Skill("Tired"));
+      SetSkill("Tired", val);
+
       delete(*ind);
       break;
       }
@@ -1365,6 +1377,29 @@ Object *Object::PickObject(const char *name, int loc, int *ordinal) {
   return (*(ret.begin()));
   }
 
+static const char *splits[4] = {"Hungry", "Bored", "Tired", "Needy"};
+static Object *split(Object *obj, int nqty) {
+  if(nqty < 1) nqty = 1;
+  int qty = obj->Skill("Quantity") - nqty;
+  if(qty < 1) qty = 1;
+
+  Object *nobj = new Object(*obj);
+  nobj->SetParent(obj->Parent());
+  nobj->SetSkill("Quantity", (nqty <= 1) ? 0 : nqty);
+
+  obj->SetSkill("Quantity", (qty <= 1) ? 0 : qty);
+
+  for(int ctr = 0; ctr < 4; ++ctr) {
+    int val = obj->Skill(splits[ctr]);
+    int nval = val / (qty + nqty) * nqty;
+    val -= nval;
+    obj->SetSkill(splits[ctr], val);
+    nobj->SetSkill(splits[ctr], nval);
+    }
+
+  return nobj;
+  }
+
 static int tag(Object *obj, list<Object *> &ret, int *ordinal) {
   if(obj->IsAct(ACT_SPECIAL_NOTSHOWN)) return 0;	//Shouldn't be detected.
   if(obj->Skill("Hidden") > 0) return 0;		//Can't be seen/affected
@@ -1391,12 +1426,8 @@ static int tag(Object *obj, list<Object *> &ret, int *ordinal) {
       }
     else {				// One of this set.
       *ordinal = 0;
-      nobj = new Object(*obj);
-      nobj->SetParent(obj->Parent());
-      nobj->SetSkill("Quantity", 0);
+      nobj = split(obj, 1);
       ret.push_back(nobj);
-      --cqty;
-      obj->SetSkill("Quantity", (cqty == 1) ? 0 : cqty);
       return 1;
       }
     }
@@ -1417,13 +1448,8 @@ static int tag(Object *obj, list<Object *> &ret, int *ordinal) {
     return 0;
     }
   else {				// Some of this set.
-    nobj = new Object(*obj);
-    nobj->SetParent(obj->Parent());
-    nobj->SetSkill("Quantity", rqty);
+    nobj = split(obj, rqty);
     ret.push_back(nobj);
-
-    cqty -= rqty;
-    obj->SetSkill("Quantity", (cqty == 1) ? 0 : cqty);
     return 1;
     }
   return 0;
@@ -2192,6 +2218,14 @@ int Object::operator == (const Object &in) const {
   map<AtomString,int> sk2 = in.skills;
   sk1.erase("Quantity");
   sk2.erase("Quantity");
+  sk1.erase("Hungry");
+  sk2.erase("Hungry");
+  sk1.erase("Bored");
+  sk2.erase("Bored");
+  sk1.erase("Needy");
+  sk2.erase("Needy");
+  sk1.erase("Tired");
+  sk2.erase("Tired");
   if(sk1 != sk2) return 0;
 
   return 1;
