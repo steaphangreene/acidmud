@@ -719,16 +719,14 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 /*	Uncomment this and comment the block below to disable auto-pluralizing.
       int qty = MAX(1, (*ind)->Skill("Quantity"));
 */
-      int qty = 1;
-      if(!(*ind)->Attribute(1)) { // Inanimate objects can have higher qtys
-	typeof(cont.begin()) oth = ind;
-	for(qty = 0; oth != cont.end(); ++oth) {
-	  string name1 = (*ind)->Name();
-	  string name2 = (*oth)->Name();
-	  if(name1 == name2 && (*ind)->Pos() == (*oth)->Pos()) {
-	    master.erase(*oth);
-	    qty += MAX(1, (*oth)->Skill("Quantity"));
-	    }
+      int qty = 1;	// Even animate objects can have higher quantities.
+      typeof(cont.begin()) oth = ind;
+      for(qty = 0; oth != cont.end(); ++oth) {
+	string name1 = (*ind)->Name();
+	string name2 = (*oth)->Name();
+	if(name1 == name2 && (*ind)->Pos() == (*oth)->Pos()) {
+	  master.erase(*oth);
+	  qty += MAX(1, (*oth)->Skill("Quantity"));
 	  }
 	}
 
