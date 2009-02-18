@@ -126,19 +126,46 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 	      people->SetShortDesc("person");
 	      people->SetDesc("an upstanding citizen.");
 	      people->SetSkill("Quantity", 100);
+	      people->SetSkill("Personality", 9);
 	      people->SetPos(POS_STAND);
+	      people->Attach(get_mob_mind());
+	      people->Activate();
+	      people->SetAttribute(0, 3);
+	      people->SetAttribute(1, 3);
+	      people->SetAttribute(2, 3);
+	      people->SetAttribute(3, 3);
+	      people->SetAttribute(4, 3);
+	      people->SetAttribute(5, 3);
 
 	      people = new Object(places[i*2]);
 	      people->SetShortDesc("person");
 	      people->SetDesc("a wealthy citizen.");
 	      people->SetSkill("Quantity", 10);
+	      people->SetSkill("Personality", 13);
 	      people->SetPos(POS_STAND);
+	      people->Attach(get_mob_mind());
+	      people->Activate();
+	      people->SetAttribute(0, 3);
+	      people->SetAttribute(1, 3);
+	      people->SetAttribute(2, 3);
+	      people->SetAttribute(3, 3);
+	      people->SetAttribute(4, 3);
+	      people->SetAttribute(5, 3);
 
 	      people = new Object(places[i*2]);
 	      people->SetShortDesc("person");
 	      people->SetDesc("a sketchy-looking punk.");
 	      people->SetSkill("Quantity", 10);
+	      people->SetSkill("Personality", 3);
 	      people->SetPos(POS_STAND);
+	      people->Attach(get_mob_mind());
+	      people->Activate();
+	      people->SetAttribute(0, 3);
+	      people->SetAttribute(1, 3);
+	      people->SetAttribute(2, 3);
+	      people->SetAttribute(3, 3);
+	      people->SetAttribute(4, 3);
+	      people->SetAttribute(5, 3);
 	      }
 	    }
 

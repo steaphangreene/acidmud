@@ -128,6 +128,9 @@ void Mind::Send(const char *mes, ...) {
   if(type == MIND_REMOTE) {
     SendOut(pers, buf);
     }
+  else if(type == MIND_MOB) {
+    Think(); //Reactionary actions.
+    }
   else if(type == MIND_CIRCLEMOB) {
 //    string newmes = "";
 //    if(body) newmes += body->ShortDesc();
@@ -212,7 +215,20 @@ void Mind::SetPlayer(string pn) {
   }
 
 void Mind::Think(int istick) {
-  if(type == MIND_CIRCLEMOB) {
+  if(type == MIND_MOB) {
+    if(body->Skill("Personality") & 1) {		// Group Mind
+      if(body->Skill("Personality") & 2) {		// Punk
+	//body->BusyFor(500, "say Yo yo!");
+	}
+      else if(body->Skill("Personality") & 4) {		// Rich
+	//body->BusyFor(500, "say How do you do?");
+	}
+      else if(body->Skill("Personality") & 8) {		// Consumer
+	//body->BusyFor(500, "say Hi.");
+	}
+      }
+    }
+  else if(type == MIND_CIRCLEMOB) {
     if((!body) || body->StillBusy()) return;
 
     //Temporary
