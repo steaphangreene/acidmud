@@ -1080,6 +1080,12 @@ void Object::SendStats(Mind *m, Object *o) {
       m->Send("->Player Connected: %s (%d exp)\n",
 	(*mind)->Owner()->Name(), (*mind)->Owner()->Exp());
       }
+    else if((*mind) == get_mob_mind()) {
+      m->Send("->MOB_MIND\n");
+      }
+    else if((*mind) == get_circle_mob_mind()) {
+      m->Send("->CIRCLE_MOB_MIND\n");
+      }
     }
   m->Send("%s", CNRM);
   }
