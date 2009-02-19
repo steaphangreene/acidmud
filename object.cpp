@@ -1384,22 +1384,22 @@ Object *Object::PickObject(const char *name, int loc, int *ordinal) {
   }
 
 static const char *splits[4] = {"Hungry", "Bored", "Tired", "Needy"};
-static Object *split(Object *obj, int nqty) {
+Object *Object::Split(int nqty) {
   if(nqty < 1) nqty = 1;
-  int qty = obj->Skill("Quantity") - nqty;
+  int qty = Skill("Quantity") - nqty;
   if(qty < 1) qty = 1;
 
-  Object *nobj = new Object(*obj);
-  nobj->SetParent(obj->Parent());
+  Object *nobj = new Object(*this);
+  nobj->SetParent(Parent());
   nobj->SetSkill("Quantity", (nqty <= 1) ? 0 : nqty);
 
-  obj->SetSkill("Quantity", (qty <= 1) ? 0 : qty);
+  SetSkill("Quantity", (qty <= 1) ? 0 : qty);
 
   for(int ctr = 0; ctr < 4; ++ctr) {
-    int val = obj->Skill(splits[ctr]);
+    int val = Skill(splits[ctr]);
     int nval = val / (qty + nqty) * nqty;
     val -= nval;
-    obj->SetSkill(splits[ctr], val);
+    SetSkill(splits[ctr], val);
     nobj->SetSkill(splits[ctr], nval);
     }
 
@@ -1432,7 +1432,7 @@ static int tag(Object *obj, list<Object *> &ret, int *ordinal) {
       }
     else {				// One of this set.
       *ordinal = 0;
-      nobj = split(obj, 1);
+      nobj = obj->Split(1);
       ret.push_back(nobj);
       return 1;
       }
@@ -1454,7 +1454,7 @@ static int tag(Object *obj, list<Object *> &ret, int *ordinal) {
     return 0;
     }
   else {				// Some of this set.
-    nobj = split(obj, rqty);
+    nobj = obj->Split(rqty);
     ret.push_back(nobj);
     return 1;
     }

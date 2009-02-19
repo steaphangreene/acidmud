@@ -97,6 +97,7 @@ public:
   void Deactivate();
 
   Object *Next(string &);
+  Object *Split(int nqty);
   const char *Name(int definite = 0, Object *rel = NULL, Object *sub = NULL) const;
   const char *ShortDesc() const;
   const char *Desc() const;
