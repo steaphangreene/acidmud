@@ -1,4 +1,5 @@
 #include <cstring>
+#include <cstdlib>
 
 using namespace std;
 
@@ -41,6 +42,43 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 	"X-Ray", "Yeller", "Zebra", ""
 	};
     sprintf(alist[NUM_AVS - 1], "East");
+
+    list<Object *> bldg;
+    bldg.push_back(new Object(city));
+    bldg.back()->SetShortDesc("Building #1");
+    bldg.back()->SetSkill("DynamicInit", 2);	//City
+    bldg.back()->SetSkill("DynamicPhase", 1);
+    bldg.back()->SetSkill("DynamicMojo", 1000);
+
+    bldg.push_back(new Object(city));
+    bldg.back()->SetShortDesc("Building #2");
+    bldg.back()->SetSkill("DynamicInit", 2);	//City
+    bldg.back()->SetSkill("DynamicPhase", 2);
+    bldg.back()->SetSkill("DynamicMojo", 1000);
+
+    bldg.push_back(new Object(city));
+    bldg.back()->SetShortDesc("Building #3");
+    bldg.back()->SetSkill("DynamicInit", 2);	//City
+    bldg.back()->SetSkill("DynamicPhase", 3);
+    bldg.back()->SetSkill("DynamicMojo", 1000);
+
+    bldg.push_back(new Object(city));
+    bldg.back()->SetShortDesc("Building #4");
+    bldg.back()->SetSkill("DynamicInit", 2);	//City
+    bldg.back()->SetSkill("DynamicPhase", 4);
+    bldg.back()->SetSkill("DynamicMojo", 1000);
+
+    bldg.push_back(new Object(city));
+    bldg.back()->SetShortDesc("Building #5");
+    bldg.back()->SetSkill("DynamicInit", 2);	//City
+    bldg.back()->SetSkill("DynamicPhase", 5);
+    bldg.back()->SetSkill("DynamicMojo", 1000);
+
+    bldg.push_back(new Object(city));
+    bldg.back()->SetShortDesc("Building #6");
+    bldg.back()->SetSkill("DynamicInit", 2);	//City
+    bldg.back()->SetSkill("DynamicPhase", 6);
+    bldg.back()->SetSkill("DynamicMojo", 1000);
 
     char sname[32], aname[32], iname[32];
     Object *ave[NUM_AVS] = {NULL};
@@ -106,6 +144,22 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 	      dir[0] = "west"; dir[1] = "east";
 	      }
 	    for(int i = 0; i < 2; ++i) {
+
+	      static int vacants = 0;
+	      if(bldg.size() > 0 && vacants <= 0) {
+		vacants = rand() & 0x0FF;
+		places[i*2] = bldg.front();
+		bldg.pop_front();
+		}
+	      else {
+		places[i*2] = new Object(city);
+		places[i*2]->SetShortDesc("Vacant Lot");
+		places[i*2]->SetSkill("DynamicInit", 2);	//City
+		places[i*2]->SetSkill("DynamicPhase", 0);	//Lot
+		places[i*2]->SetSkill("DynamicMojo", 1000);
+		}
+	      --vacants;
+
 	      char addr[32];
 	      if(off > 0) {
 		sprintf(addr, "%d %s", (east+1)*100 + off + i, sname);
@@ -113,11 +167,6 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 	      else {
 		sprintf(addr, "%d %s", (north+1)*10 + 10 + off + i, aname);
 		}
-	      places[i*2] = new Object(city);
-	      places[i*2]->SetShortDesc("Vacant Lot");
-	      places[i*2]->SetSkill("DynamicInit", 2);  //City
-	      places[i*2]->SetSkill("DynamicPhase", 0); //Lot
-	      places[i*2]->SetSkill("DynamicMojo", 1000);
 
 	      places[i+1]->Link(places[i], dir[0], addr, dir[1], addr);
 
