@@ -1,5 +1,6 @@
 #include <cstring>
 #include <cstdlib>
+#include <algorithm>
 
 using namespace std;
 
@@ -43,42 +44,167 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 	};
     sprintf(alist[NUM_AVS - 1], "East");
 
-    list<Object *> bldg;
+    vector<Object *> bldg;
+
     bldg.push_back(new Object(city));
-    bldg.back()->SetShortDesc("Building #1");
+    bldg.back()->SetShortDesc("Municipal Building");
     bldg.back()->SetSkill("DynamicInit", 2);	//City
-    bldg.back()->SetSkill("DynamicPhase", 1);
+    bldg.back()->SetSkill("DynamicPhase", 10);	//Courthouse
+    bldg.back()->SetSkill("DynamicMojo", 1000);
+    for(int n=0; n<5; ++n) {
+      bldg.push_back(new Object(city));
+      bldg.back()->SetShortDesc("Fire Station");
+      bldg.back()->SetSkill("DynamicInit", 2);	//City
+      bldg.back()->SetSkill("DynamicPhase", 20);	//Fire House
+      bldg.back()->SetSkill("DynamicMojo", 1000);
+      bldg.back()->SetSkill("Healing", 100);
+      }
+    for(int n=0; n<8; ++n) {
+      bldg.push_back(new Object(city));
+      bldg.back()->SetShortDesc("Police Station");
+      bldg.back()->SetSkill("DynamicInit", 2);	//City
+      bldg.back()->SetSkill("DynamicPhase", 30);	//Police Station
+      bldg.back()->SetSkill("DynamicMojo", 1000);
+      bldg.back()->SetSkill("Healing", 100);
+      }
+    for(int n=0; n<4; ++n) {
+      bldg.push_back(new Object(city));
+      bldg.back()->SetShortDesc("Hospital");
+      bldg.back()->SetSkill("DynamicInit", 2);	//City
+      bldg.back()->SetSkill("DynamicPhase", 40);	//City Hospital
+      bldg.back()->SetSkill("DynamicMojo", 1000);
+      bldg.back()->SetSkill("Healing", 1000);
+      }
+    for(int n=0; n<25; ++n) {
+      bldg.push_back(new Object(city));
+      bldg.back()->SetShortDesc("Coffin Motel");
+      bldg.back()->SetSkill("DynamicInit", 2);	//City
+      bldg.back()->SetSkill("DynamicPhase", 50);	//Coffin Motel
+      bldg.back()->SetSkill("DynamicMojo", 1000);
+      bldg.back()->SetSkill("Rest", 1000);
+      }
+    for(int n=0; n<12; ++n) {
+      bldg.push_back(new Object(city));
+      bldg.back()->SetShortDesc("Seedy Motel");
+      bldg.back()->SetSkill("DynamicInit", 2);	//City
+      bldg.back()->SetSkill("DynamicPhase", 60);	//Seedy Motel
+      bldg.back()->SetSkill("DynamicMojo", 1000);
+      bldg.back()->SetSkill("Rest", 500);
+      }
+    for(int n=0; n<8; ++n) {
+      bldg.push_back(new Object(city));
+      bldg.back()->SetShortDesc("Nice Motel");
+      bldg.back()->SetSkill("DynamicInit", 2);	//City
+      bldg.back()->SetSkill("DynamicPhase", 70);	//Nice Motel
+      bldg.back()->SetSkill("DynamicMojo", 1000);
+      bldg.back()->SetSkill("Rest", 200);
+      }
+    for(int n=0; n<5; ++n) {
+      bldg.push_back(new Object(city));
+      bldg.back()->SetShortDesc("Nice Hotel");
+      bldg.back()->SetSkill("DynamicInit", 2);	//City
+      bldg.back()->SetSkill("DynamicPhase", 80);	//Nice Hotel
+      bldg.back()->SetSkill("DynamicMojo", 1000);
+      bldg.back()->SetSkill("Rest", 100);
+      }
+    for(int n=0; n<4; ++n) {
+      bldg.push_back(new Object(city));
+      bldg.back()->SetShortDesc("Luxury Hotel");
+      bldg.back()->SetSkill("DynamicInit", 2);	//City
+      bldg.back()->SetSkill("DynamicPhase", 90);	//Luxury Hotel
+      bldg.back()->SetSkill("DynamicMojo", 1000);
+      bldg.back()->SetSkill("Rest", 100);
+      }
+    bldg.push_back(new Object(city));
+    bldg.back()->SetShortDesc("Renraku Archology");
+    bldg.back()->SetSkill("DynamicInit", 2);	//City
+    bldg.back()->SetSkill("DynamicPhase", 100);	//Archology
+    bldg.back()->SetSkill("DynamicMojo", 1000);
+    bldg.back()->SetSkill("Food", 100);
+
+    bldg.push_back(new Object(city));
+    bldg.back()->SetShortDesc("Disney Archology");
+    bldg.back()->SetSkill("DynamicInit", 2);	//City
+    bldg.back()->SetSkill("DynamicPhase", 100);	//Archology
+    bldg.back()->SetSkill("DynamicMojo", 1000);
+    bldg.back()->SetSkill("Food", 100);
+
+    bldg.push_back(new Object(city));
+    bldg.back()->SetShortDesc("IBM Archology");
+    bldg.back()->SetSkill("DynamicInit", 2);	//City
+    bldg.back()->SetSkill("DynamicPhase", 100);	//Archology
+    bldg.back()->SetSkill("DynamicMojo", 1000);
+    bldg.back()->SetSkill("Food", 100);
+
+    bldg.push_back(new Object(city));
+    bldg.back()->SetShortDesc("CLA Archology");
+    bldg.back()->SetSkill("DynamicInit", 2);	//City
+    bldg.back()->SetSkill("DynamicPhase", 100);	//Archology
+    bldg.back()->SetSkill("DynamicMojo", 1000);
+    bldg.back()->SetSkill("Food", 100);
+
+    bldg.push_back(new Object(city));
+    bldg.back()->SetShortDesc("Fidget Technology Center");
+    bldg.back()->SetSkill("DynamicInit", 2);	//City
+    bldg.back()->SetSkill("DynamicPhase", 110);	//Research Facility
     bldg.back()->SetSkill("DynamicMojo", 1000);
 
     bldg.push_back(new Object(city));
-    bldg.back()->SetShortDesc("Building #2");
+    bldg.back()->SetShortDesc("Lone Star Station");
     bldg.back()->SetSkill("DynamicInit", 2);	//City
-    bldg.back()->SetSkill("DynamicPhase", 2);
+    bldg.back()->SetSkill("DynamicPhase", 120);	//Security Facility
     bldg.back()->SetSkill("DynamicMojo", 1000);
 
     bldg.push_back(new Object(city));
-    bldg.back()->SetShortDesc("Building #3");
+    bldg.back()->SetShortDesc("Doc-Wagon Hospital");
     bldg.back()->SetSkill("DynamicInit", 2);	//City
-    bldg.back()->SetSkill("DynamicPhase", 3);
+    bldg.back()->SetSkill("DynamicPhase", 130);	//Corp Hospital
     bldg.back()->SetSkill("DynamicMojo", 1000);
+    bldg.back()->SetSkill("Healing", 1000000);
+    for(int n=0; n<10; ++n) {
+      bldg.push_back(new Object(city));
+      bldg.back()->SetShortDesc("McHugh's Burgers");
+      bldg.back()->SetSkill("DynamicInit", 2);	//City
+      bldg.back()->SetSkill("DynamicPhase", 200);	//McHugh's
+      bldg.back()->SetSkill("DynamicMojo", 1000);
+      bldg.back()->SetSkill("Food", 1000);
+      }
+    for(int n=0; n<4; ++n) {
+      bldg.push_back(new Object(city));
+      bldg.back()->SetShortDesc("Super-Shopper Mall");
+      bldg.back()->SetSkill("DynamicInit", 2);	//City
+      bldg.back()->SetSkill("DynamicPhase", 300);	//Shopping Mall
+      bldg.back()->SetSkill("DynamicMojo", 1000);
+      bldg.back()->SetSkill("Food", 200);
+      bldg.back()->SetSkill("Stuff", 500);
+      bldg.back()->SetSkill("Fun", 100);
+      }
+    for(int n=0; n<2; ++n) {
+      bldg.push_back(new Object(city));
+      bldg.back()->SetShortDesc("Sam's Locker");
+      bldg.back()->SetSkill("DynamicInit", 2);	//City
+      bldg.back()->SetSkill("DynamicPhase", 310);	//Sam's Locker
+      bldg.back()->SetSkill("DynamicMojo", 1000);
+      bldg.back()->SetSkill("Stuff", 1000);
+      }
+    for(int n=0; n<4; ++n) {
+      bldg.push_back(new Object(city));
+      bldg.back()->SetShortDesc("Disney Entertainment Center");
+      bldg.back()->SetSkill("DynamicInit", 2);	//City
+      bldg.back()->SetSkill("DynamicPhase", 400);	//Cinema
+      bldg.back()->SetSkill("DynamicMojo", 1000);
+      bldg.back()->SetSkill("Fun", 1000);
+      }
+    for(int n=0; n<2; ++n) {
+      bldg.push_back(new Object(city));
+      bldg.back()->SetShortDesc("Disney Park");
+      bldg.back()->SetSkill("DynamicInit", 2);	//City
+      bldg.back()->SetSkill("DynamicPhase", 410);	//Amusement Park
+      bldg.back()->SetSkill("DynamicMojo", 1000);
+      bldg.back()->SetSkill("Fun", 1000);
+      }
 
-    bldg.push_back(new Object(city));
-    bldg.back()->SetShortDesc("Building #4");
-    bldg.back()->SetSkill("DynamicInit", 2);	//City
-    bldg.back()->SetSkill("DynamicPhase", 4);
-    bldg.back()->SetSkill("DynamicMojo", 1000);
-
-    bldg.push_back(new Object(city));
-    bldg.back()->SetShortDesc("Building #5");
-    bldg.back()->SetSkill("DynamicInit", 2);	//City
-    bldg.back()->SetSkill("DynamicPhase", 5);
-    bldg.back()->SetSkill("DynamicMojo", 1000);
-
-    bldg.push_back(new Object(city));
-    bldg.back()->SetShortDesc("Building #6");
-    bldg.back()->SetSkill("DynamicInit", 2);	//City
-    bldg.back()->SetSkill("DynamicPhase", 6);
-    bldg.back()->SetSkill("DynamicMojo", 1000);
+    random_shuffle(bldg.begin(), bldg.end());
 
     char sname[32], aname[32], iname[32];
     Object *ave[NUM_AVS] = {NULL};
@@ -147,9 +273,9 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 
 	      static int vacants = 0;
 	      if(bldg.size() > 0 && vacants <= 0) {
-		vacants = rand() & 0x0FF;
-		places[i*2] = bldg.front();
-		bldg.pop_front();
+		vacants = rand() & 0x0F;
+		places[i*2] = bldg.back();
+		bldg.pop_back();
 		}
 	      else {
 		places[i*2] = new Object(city);
@@ -173,9 +299,28 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 	      Object *people;
 	      people = new Object(places[i*2]);
 	      people->SetShortDesc("person");
+	      people->SetDesc("a sketchy-looking punk.");
+	      people->SetSkill("Quantity", 10);
+	      people->SetSkill("Personality", 3);
+	      people->SetSkill("Hungry", 10000);
+	      people->SetSkill("Bored", 100000);
+	      people->SetSkill("Tired", 10000);
+	      people->SetSkill("Needy", 1000);
+	      people->SetPos(POS_STAND);
+	      people->Attach(get_mob_mind());
+	      people->Activate();
+	      people->SetAttribute(0, 3);
+	      people->SetAttribute(1, 3);
+	      people->SetAttribute(2, 3);
+	      people->SetAttribute(3, 3);
+	      people->SetAttribute(4, 3);
+	      people->SetAttribute(5, 3);
+
+	      people = new Object(places[i*2]);
+	      people->SetShortDesc("person");
 	      people->SetDesc("an upstanding citizen.");
 	      people->SetSkill("Quantity", 100);
-	      people->SetSkill("Personality", 9);
+	      people->SetSkill("Personality", 5);
 	      people->SetSkill("Hungry", 10000);
 	      people->SetSkill("Bored", 100000);
 	      people->SetSkill("Tired", 10000);
@@ -194,26 +339,7 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 	      people->SetShortDesc("person");
 	      people->SetDesc("a wealthy citizen.");
 	      people->SetSkill("Quantity", 10);
-	      people->SetSkill("Personality", 13);
-	      people->SetSkill("Hungry", 10000);
-	      people->SetSkill("Bored", 100000);
-	      people->SetSkill("Tired", 10000);
-	      people->SetSkill("Needy", 1000);
-	      people->SetPos(POS_STAND);
-	      people->Attach(get_mob_mind());
-	      people->Activate();
-	      people->SetAttribute(0, 3);
-	      people->SetAttribute(1, 3);
-	      people->SetAttribute(2, 3);
-	      people->SetAttribute(3, 3);
-	      people->SetAttribute(4, 3);
-	      people->SetAttribute(5, 3);
-
-	      people = new Object(places[i*2]);
-	      people->SetShortDesc("person");
-	      people->SetDesc("a sketchy-looking punk.");
-	      people->SetSkill("Quantity", 10);
-	      people->SetSkill("Personality", 3);
+	      people->SetSkill("Personality", 9);
 	      people->SetSkill("Hungry", 10000);
 	      people->SetSkill("Bored", 100000);
 	      people->SetSkill("Tired", 10000);

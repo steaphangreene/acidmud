@@ -214,24 +214,39 @@ void Mind::SetPlayer(string pn) {
     }
   }
 
+static const char *items[8] = {
+  "Food", "Hungry",
+  "Fun", "Bored",
+  "Rest", "Tired",
+  "Stuff", "Needy",
+  };
 void Mind::Think(int istick) {
   if(type == MIND_MOB) {
     if(body->Skill("Personality") & 1) {		// Group Mind
       int qty = body->Skill("Quantity");
-      body->SetSkill("Hungry", body->Skill("Hungry") + qty*10);
-      body->SetSkill("Bored", body->Skill("Bored") + qty*10);
-      body->SetSkill("Tired", body->Skill("Tired") + qty);
-      body->SetSkill("Needy", body->Skill("Needy") + qty);
+      for(int item=0; item < 8; item += 2) {
+	if(body->Parent()->Skill(items[item])) {
+	  body->SetSkill(items[item+1], body->Skill(items[item+1])
+		- body->Parent()->Skill(items[item]));
+	  }
+	else if(item < 4) {
+	  body->SetSkill(items[item+1], body->Skill(items[item+1]) + qty*10);
+	  }
+	else {
+	  body->SetSkill(items[item+1], body->Skill(items[item+1]) + qty);
+	  }
+	}
       body->BusyFor(1000);
-      if(body->Skill("Personality") & 2) {		// Punk
-	//body->BusyFor(500, "say Yo yo!");
-	}
-      else if(body->Skill("Personality") & 4) {		// Rich
-	//body->BusyFor(500, "say How do you do?");
-	}
-      else if(body->Skill("Personality") & 8) {		// Consumer
-	//body->BusyFor(500, "say Hi.");
-	}
+
+//      if(body->Skill("Personality") & 2) {		// Punk
+//	//body->BusyFor(500, "say Yo yo!");
+//	}
+//      else if(body->Skill("Personality") & 4) {		// Normal
+//	//body->BusyFor(500, "say How do you do?");
+//	}
+//      else if(body->Skill("Personality") & 8) {		// Rich
+//	//body->BusyFor(500, "say Hi.");
+//	}
       }
     }
   else if(type == MIND_CIRCLEMOB) {
