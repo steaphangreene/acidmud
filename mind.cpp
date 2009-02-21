@@ -10,6 +10,7 @@ using namespace std;
 #include <cstdlib>
 #include <cstdarg>
 #include <cstring>
+#include <algorithm>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -129,7 +130,7 @@ void Mind::Send(const char *mes, ...) {
     SendOut(pers, buf);
     }
   else if(type == MIND_MOB) {
-    Think(); //Reactionary actions.
+    //Think(); //Reactionary actions (NO!).
     }
   else if(type == MIND_CIRCLEMOB) {
 //    string newmes = "";
@@ -145,7 +146,7 @@ void Mind::Send(const char *mes, ...) {
 //
 //    write(pers, newmes.c_str(), newmes.length());
 
-    Think(); //Reactionary actions.
+    Think(); //Reactionary actions (HACK!).
     }
   else if(type == MIND_SYSTEM) {
     string newmes = "";
@@ -215,28 +216,72 @@ void Mind::SetPlayer(string pn) {
   }
 
 static const char *items[8] = {
-  "Food", "Hungry",
-  "Fun", "Bored",
+  "Food", "Hungry",	//Order is Most to Least Important
   "Rest", "Tired",
-  "Stuff", "Needy",
+  "Fun", "Bored",
+  "Stuff", "Needy"
   };
 void Mind::Think(int istick) {
   if(type == MIND_MOB) {
     if(body->Skill("Personality") & 1) {		// Group Mind
-      int qty = body->Skill("Quantity");
+//      body->TryCombine();	// I AM a group, after all.
+      int qty = body->Skill("Quantity"), req = -1;
+      if(qty < 1) qty = 1;
       for(int item=0; item < 8; item += 2) {
 	if(body->Parent()->Skill(items[item])) {
-	  body->SetSkill(items[item+1], body->Skill(items[item+1])
-		- body->Parent()->Skill(items[item]));
-	  }
-	else if(item < 4) {
-	  body->SetSkill(items[item+1], body->Skill(items[item+1]) + qty*10);
+	  int val = body->Skill(items[item+1]);
+	  val -= body->Parent()->Skill(items[item]) * qty * 100;
+	  if(val < 0) val = 0;
+	  body->SetSkill(items[item+1], val);
 	  }
 	else {
-	  body->SetSkill(items[item+1], body->Skill(items[item+1]) + qty);
+	  if((item & 2) == 0) {		// Food & Fun grow faster
+	    body->SetSkill(items[item+1], body->Skill(items[item+1]) + qty*2);
+	    }
+	  else {
+	    body->SetSkill(items[item+1], body->Skill(items[item+1]) + qty);
+	    }
+	  }
+	if(req < 0 && body->Skill(items[item+1]) >= 10000) {
+	  req = item;
 	  }
 	}
-      body->BusyFor(1000);
+      if(req >= 0) {	// Am I already getting what I most need?
+	if(body->Parent()->Skill(items[req]) > 0) req = -1;
+	}
+      if(req >= 0) {
+	vector<const char*> dirs;
+//	if(body->PickObject("north", LOC_NEARBY)) { dirs.push_back("north"); }
+//	if(body->PickObject("south", LOC_NEARBY)) { dirs.push_back("south"); }
+//	if(body->PickObject("east",  LOC_NEARBY)) { dirs.push_back("east");  }
+//	if(body->PickObject("west",  LOC_NEARBY)) { dirs.push_back("west");  }
+//	if(body->PickObject("up",    LOC_NEARBY)) { dirs.push_back("up");    }
+//	if(body->PickObject("down",  LOC_NEARBY)) { dirs.push_back("down");  }
+////	random_shuffle(dirs.begin(), dirs.end());
+	dirs.push_back("north");
+	dirs.push_back("south");
+	dirs.push_back("east");
+	dirs.push_back("west");
+	random_shuffle(dirs.begin(), dirs.end());
+
+	int orig = body->Skill(items[req+1]);
+	int leave = orig/10000;
+	if(dirs.size() > 0 && leave >= qty) {
+	  body->BusyFor(2500, dirs.front());
+	  }
+	else {
+	  if(dirs.size() > 0) {
+	    Object *trav = body->Split(leave);
+	    trav->SetSkill(items[req+1], leave*10000);
+	    body->SetSkill(items[req+1], orig - leave*10000);
+	    trav->BusyFor(2500, dirs.front());
+	    }
+	  body->BusyFor(10000);
+	  }
+	}
+      else {
+	body->BusyFor(10000);
+	}
 
 //      if(body->Skill("Personality") & 2) {		// Punk
 //	//body->BusyFor(500, "say Yo yo!");
