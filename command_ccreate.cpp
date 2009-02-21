@@ -244,6 +244,35 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 	    cur->SetDesc("A nice avenue, running north and south.\n");
 	    }
 
+
+	  for(int i = 0; i < 3; ++i) {
+	    Object *people;
+	    people = new Object(cur);
+	    people->SetShortDesc("person");
+	    if(i <= 0) {
+	      people->SetDesc("a sketchy-looking punk.");
+	      people->SetSkill("Quantity", 10);
+	      people->SetSkill("Personality", 3);
+	      }
+	    else if(i == 1) {
+	      people->SetDesc("an upstanding citizen.");
+	      people->SetSkill("Quantity", 100);
+	      people->SetSkill("Personality", 5);
+	      }
+	    else if(i >= 2) {
+	      people->SetDesc("a wealthy citizen.");
+	      people->SetSkill("Quantity", 10);
+	      people->SetSkill("Personality", 9);
+	      }
+	    people->SetSkill("Hungry", 10000);
+	    people->SetSkill("Bored", 100000);
+	    people->SetSkill("Tired", 10000);
+	    people->SetSkill("Needy", 1000);
+	    people->SetPos(POS_STAND);
+	    people->Attach(get_mob_mind());
+	    for(int a=0; a < 6; ++a) people->SetAttribute(a, 3);
+	    people->Activate();
+	    }
 	  if(off >= 0) {
 	    if(street) {
 	      cur->Link(street,
@@ -270,22 +299,6 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 	      dir[0] = "west"; dir[1] = "east";
 	      }
 	    for(int i = 0; i < 2; ++i) {
-
-	      static int vacants = 0;
-	      if(bldg.size() > 0 && vacants <= 0) {
-		vacants = rand() & 0x0F;
-		places[i*2] = bldg.back();
-		bldg.pop_back();
-		}
-	      else {
-		places[i*2] = new Object(city);
-		places[i*2]->SetShortDesc("Vacant Lot");
-		places[i*2]->SetSkill("DynamicInit", 2);	//City
-		places[i*2]->SetSkill("DynamicPhase", 0);	//Lot
-		places[i*2]->SetSkill("DynamicMojo", 1000);
-		}
-	      --vacants;
-
 	      char addr[32];
 	      if(off > 0) {
 		sprintf(addr, "%d %s", (east+1)*100 + off + i, sname);
@@ -294,65 +307,22 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 		sprintf(addr, "%d %s", (north+1)*10 + 10 + off + i, aname);
 		}
 
-	      places[i+1]->Link(places[i], dir[0], addr, dir[1], addr);
-
-	      Object *people;
-	      people = new Object(places[i*2]);
-	      people->SetShortDesc("person");
-	      people->SetDesc("a sketchy-looking punk.");
-	      people->SetSkill("Quantity", 10);
-	      people->SetSkill("Personality", 3);
-	      people->SetSkill("Hungry", 10000);
-	      people->SetSkill("Bored", 100000);
-	      people->SetSkill("Tired", 10000);
-	      people->SetSkill("Needy", 1000);
-	      people->SetPos(POS_STAND);
-	      people->Attach(get_mob_mind());
-	      people->Activate();
-	      people->SetAttribute(0, 3);
-	      people->SetAttribute(1, 3);
-	      people->SetAttribute(2, 3);
-	      people->SetAttribute(3, 3);
-	      people->SetAttribute(4, 3);
-	      people->SetAttribute(5, 3);
-
-	      people = new Object(places[i*2]);
-	      people->SetShortDesc("person");
-	      people->SetDesc("an upstanding citizen.");
-	      people->SetSkill("Quantity", 100);
-	      people->SetSkill("Personality", 5);
-	      people->SetSkill("Hungry", 10000);
-	      people->SetSkill("Bored", 100000);
-	      people->SetSkill("Tired", 10000);
-	      people->SetSkill("Needy", 1000);
-	      people->SetPos(POS_STAND);
-	      people->Attach(get_mob_mind());
-	      people->Activate();
-	      people->SetAttribute(0, 3);
-	      people->SetAttribute(1, 3);
-	      people->SetAttribute(2, 3);
-	      people->SetAttribute(3, 3);
-	      people->SetAttribute(4, 3);
-	      people->SetAttribute(5, 3);
-
-	      people = new Object(places[i*2]);
-	      people->SetShortDesc("person");
-	      people->SetDesc("a wealthy citizen.");
-	      people->SetSkill("Quantity", 10);
-	      people->SetSkill("Personality", 9);
-	      people->SetSkill("Hungry", 10000);
-	      people->SetSkill("Bored", 100000);
-	      people->SetSkill("Tired", 10000);
-	      people->SetSkill("Needy", 1000);
-	      people->SetPos(POS_STAND);
-	      people->Attach(get_mob_mind());
-	      people->Activate();
-	      people->SetAttribute(0, 3);
-	      people->SetAttribute(1, 3);
-	      people->SetAttribute(2, 3);
-	      people->SetAttribute(3, 3);
-	      people->SetAttribute(4, 3);
-	      people->SetAttribute(5, 3);
+	      static int vacants = 0;
+	      if(bldg.size() > 0 && vacants <= 0) {
+		vacants = rand() & 0x0F;
+		places[i*2] = bldg.back();
+		bldg.pop_back();
+		places[i+1]->Link(places[i], dir[0], addr, dir[1], addr);
+		}
+	      else {
+		places[i*2] = new Object(city);
+		places[i*2]->SetShortDesc("Vacant Lot");
+		places[i*2]->SetSkill("DynamicInit", 2);	//City
+		places[i*2]->SetSkill("DynamicPhase", 0);	//Lot
+		places[i*2]->SetSkill("DynamicMojo", 1000);
+		places[i+1]->LinkClosed(places[i], dir[0], addr, dir[1], addr);
+		}
+	      --vacants;
 	      }
 	    }
 
