@@ -1130,6 +1130,24 @@ void Object::Link(Object *other, const string &name, const string &desc,
   door2->SetSkill("Enterable", 1);
   }
 
+void Object::LinkClosed(Object *other, const string &name, const string &desc,
+	const string &oname, const string &odesc) {
+  Object *door1 = new Object(this);
+  Object *door2 = new Object(other);
+  door1->SetShortDesc(name.c_str());
+  door2->SetShortDesc(oname.c_str());
+  door1->SetDesc(desc.c_str());
+  door2->SetDesc(odesc.c_str());
+  door1->AddAct(ACT_SPECIAL_LINKED, door2);
+  door1->AddAct(ACT_SPECIAL_MASTER, door2);
+  door1->SetSkill("Closeable", 1);
+  door1->SetSkill("Enterable", 1);
+  door2->AddAct(ACT_SPECIAL_LINKED, door1);
+  door2->AddAct(ACT_SPECIAL_MASTER, door1);
+  door2->SetSkill("Closeable", 1);
+  door2->SetSkill("Enterable", 1);
+  }
+
 void Object::TryCombine() {
   if(!parent) return;
   typeof(parent->contents.begin()) ind;

@@ -127,6 +127,8 @@ public:
 
   void Link(Object *other, const string &name, const string &desc,
         const string &oname, const string &odesc);
+  void LinkClosed(Object *other, const string &name, const string &desc,
+        const string &oname, const string &odesc);
   int Travel(Object *, int try_combine = 1);
   void AddLink(Object *);
   void RemoveLink(Object *);
