@@ -170,19 +170,19 @@ int Object::LoadFrom(FILE *fl) {
   if(ver <= 0x0010) {
     while(fscanf(fl, ":%[^\n,:],%d", buf, &val)) {
       //fprintf(stderr, "Loaded %s: %d\n", buf, val);
-      skills[buf] = val;
+      SetSkill(buf, val);
       }
     }
   else if(ver <= 0x0011) {
     while(fscanf(fl, ":%[^\n:|]|%d", buf, &val)) {
       //fprintf(stderr, "Loaded %s: %d\n", buf, val);
-      skills[buf] = val;
+      SetSkill(buf, val);
       }
     }
   else {
     while(fscanf(fl, "|%[^\n|]|%d", buf, &val)) {
       //fprintf(stderr, "Loaded %s: %d\n", buf, val);
-      skills[buf] = val;
+      SetSkill(buf, val);
       }
     }
   fscanf(fl, ";\n");

@@ -186,8 +186,8 @@ void Object::SetAttribute(int a, int v) {
 void Object::SetSkill(const string &s, int v) {
   if(v > 1000000000) v = 1000000000;
   else if(v < -1000000000) v = -1000000000;
-  skills[s] = v;
   if(v <= 0) skills.erase(s);
+  else skills[s] = v;
   }
 
 int Object::Skill(const string &s, int *tnum) const {

@@ -178,7 +178,7 @@ public:
 
   int Attribute(int) const;
   int Skill(const string &, int *tnum = NULL) const;
-  map<AtomString,int> GetSkills() const { return skills; }
+  const map<AtomString,int> &GetSkills() const { return skills; }
 
   void SetAttribute(int, int);
   void SetSkill(const string &, int);
