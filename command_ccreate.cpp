@@ -248,7 +248,7 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 	  for(int i = 0; i < 3; ++i) {
 	    Object *people;
 	    people = new Object(cur);
-	    people->SetShortDesc("person");
+	    people->SetShortDesc("a person");
 	    if(i <= 0) {
 	      people->SetDesc("a sketchy-looking punk.");
 	      people->SetSkill("Quantity", 10);
@@ -316,7 +316,7 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 		}
 	      else {
 		places[i*2] = new Object(city);
-		places[i*2]->SetShortDesc("Vacant Lot");
+		places[i*2]->SetShortDesc("a vacant lot");
 		places[i*2]->SetSkill("DynamicInit", 2);	//City
 		places[i*2]->SetSkill("DynamicPhase", 0);	//Lot
 		places[i*2]->SetSkill("DynamicMojo", 1000);
