@@ -952,7 +952,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	body->Parent()->SendOut(stealth_t, stealth_s, ";s enters ;s.\n", "", body, dest);
 	}
 
-      if(veh->Travel(dest, 1)) {
+      if(veh->Travel(dest)) {
 	body->Parent()->SendOut(stealth_t, stealth_s, "...but ;s didn't seem to fit!\n",
 		"You could not fit!\n", body, NULL);
 	}
@@ -2453,7 +2453,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	//Ninja-movement can't be followed!
 	if(body->Parent()) body->Parent()->NotifyGone(body);
 	}
-      body->Travel(body->Parent()->Parent(), 0);
+      body->Travel(body->Parent()->Parent());
       if(oldp) oldp->SendOut(stealth_t, stealth_s, ";s leaves.\n", "", body, NULL);
       body->Parent()->SendDescSurround(body, body);
       body->Parent()->SendOut(stealth_t, stealth_s, 
