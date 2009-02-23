@@ -245,7 +245,8 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 	    }
 
 
-	  for(int i = 0; i < 3; ++i) {
+	  //for(int i = 0; i < 3; ++i) {
+	  for(int i = 1; i < 2; ++i) {	//Only one kind for now
 	    Object *people;
 	    people = new Object(cur);
 	    people->SetShortDesc("a person");

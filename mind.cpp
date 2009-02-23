@@ -267,14 +267,14 @@ void Mind::Think(int istick) {
 	int orig = body->Skill(items[req+1]);
 	int leave = orig/10000;
 	if(dirs.size() > 0 && leave >= qty) {
-	  body->BusyFor(8000 + (rand() & 0xFFF), dirs.front());
+	  body->BusyFor(0, dirs.front());
 	  }
 	else {
 	  if(dirs.size() > 0) {
 	    Object *trav = body->Split(leave);
 	    trav->SetSkill(items[req+1], leave*10000);
 	    body->SetSkill(items[req+1], orig - leave*10000);
-	    trav->BusyFor(8000 + (rand() & 0xFFF), dirs.front());
+	    trav->BusyFor(0, dirs.front());
 	    }
 	  body->BusyFor(8000 + (rand() & 0xFFF));
 	  }

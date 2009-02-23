@@ -188,7 +188,7 @@ Object *new_body() {
   return body;
   }
 
-#define TICKSPLIT 1500 //15 seconds
+#define TICKSPLIT 6000 //60 seconds
 static set<Object*> ticklist[TICKSPLIT];
 void add_tick(Object *o) {
   static int tickstage = 0;
@@ -1056,14 +1056,14 @@ void Object::SendStats(Mind *m, Object *o) {
   if(Skill("WeaponType") >= 0) {
     static char sevs[] = { '-', 'L', 'M', 'S', 'D' };
     m->Send("    %s: (Str+%d)%c",
-	get_weapon_skill(skills["WeaponType"]).c_str(),
-	skills["WeaponForce"], sevs[MIN(4, skills["WeaponSeverity"])]);
-    if(skills["WeaponSeverity"] > 4)
-      m->Send("%d", (skills["WeaponSeverity"]-4)*2);
-    if(skills["WeaponReach"] > 4)
-      m->Send("  Range: %d", skills["WeaponReach"]);
-    else if(skills["WeaponReach"] >= 0)
-      m->Send("  Reach: %d", skills["WeaponReach"]);
+	get_weapon_skill(Skill("WeaponType")).c_str(),
+	Skill("WeaponForce"), sevs[MIN(4, Skill("WeaponSeverity"))]);
+    if(Skill("WeaponSeverity") > 4)
+      m->Send("%d", (Skill("WeaponSeverity")-4)*2);
+    if(Skill("WeaponReach") > 4)
+      m->Send("  Range: %d", Skill("WeaponReach"));
+    else if(Skill("WeaponReach") >= 0)
+      m->Send("  Reach: %d", Skill("WeaponReach"));
     m->Send("\n");
     }
 
@@ -2235,6 +2235,8 @@ int Object::operator == (const Object &in) const {
   if(att[7] != in.att[7]) return 0;
 
   if(pos != in.pos) return 0;
+
+  if(minds != in.minds) return 0;	//Only no-mind or same-group-minds
 
   if(act.size() != 0 || in.act.size() != 0) return 0;
 

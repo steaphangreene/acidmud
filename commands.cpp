@@ -952,7 +952,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	body->Parent()->SendOut(stealth_t, stealth_s, ";s enters ;s.\n", "", body, dest);
 	}
 
-      if(veh->Travel(dest, 0)) {
+      if(veh->Travel(dest, 1)) {
 	body->Parent()->SendOut(stealth_t, stealth_s, "...but ;s didn't seem to fit!\n",
 		"You could not fit!\n", body, NULL);
 	}
