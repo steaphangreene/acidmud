@@ -215,6 +215,7 @@ void Mind::SetPlayer(string pn) {
     }
   }
 
+static const char *dirnames[4] = { "north", "south", "east", "west" };
 static const char *items[8] = {
   "Food", "Hungry",	//Order is Most to Least Important
   "Rest", "Tired",
@@ -251,17 +252,12 @@ void Mind::Think(int istick) {
 	}
       if(req >= 0) {
 	vector<const char*> dirs;
-//	if(body->PickObject("north", LOC_NEARBY)) { dirs.push_back("north"); }
-//	if(body->PickObject("south", LOC_NEARBY)) { dirs.push_back("south"); }
-//	if(body->PickObject("east",  LOC_NEARBY)) { dirs.push_back("east");  }
-//	if(body->PickObject("west",  LOC_NEARBY)) { dirs.push_back("west");  }
-//	if(body->PickObject("up",    LOC_NEARBY)) { dirs.push_back("up");    }
-//	if(body->PickObject("down",  LOC_NEARBY)) { dirs.push_back("down");  }
-////	random_shuffle(dirs.begin(), dirs.end());
-	dirs.push_back("north");
-	dirs.push_back("south");
-	dirs.push_back("east");
-	dirs.push_back("west");
+	for(int i = 0; i < 4; ++i) {
+	  Object *dir = body->PickObject(dirnames[i], LOC_NEARBY);
+	  if(dir && dir->Skill("Closed") <= 0) {
+	    dirs.push_back(dirnames[i]);
+	    }
+	  }
 	random_shuffle(dirs.begin(), dirs.end());
 
 	int orig = body->Skill(items[req+1]);
