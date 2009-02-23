@@ -254,7 +254,7 @@ void Mind::Think(int istick) {
 	vector<const char*> dirs;
 	for(int i = 0; i < 4; ++i) {
 	  Object *dir = body->PickObject(dirnames[i], LOC_NEARBY);
-	  if(dir && dir->Skill("Closed") <= 0) {
+	  if(dir && dir->Skill("Open") > 0) {
 	    dirs.push_back(dirnames[i]);
 	    }
 	  }
