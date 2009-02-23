@@ -1170,16 +1170,16 @@ void Object::TryCombine() {
       val = MAX(1, Skill("Quantity")) + MAX(1, (*ind)->Skill("Quantity"));
       SetSkill("Quantity", val);
 
-      val = MAX(1, Skill("Hungry")) + MAX(1, (*ind)->Skill("Hungry"));
+      val = Skill("Hungry") + (*ind)->Skill("Hungry");
       SetSkill("Hungry", val);
 
-      val = MAX(1, Skill("Bored")) + MAX(1, (*ind)->Skill("Bored"));
+      val = Skill("Bored") + (*ind)->Skill("Bored");
       SetSkill("Bored", val);
 
-      val = MAX(1, Skill("Needy")) + MAX(1, (*ind)->Skill("Needy"));
+      val = Skill("Needy") + (*ind)->Skill("Needy");
       SetSkill("Needy", val);
 
-      val = MAX(1, Skill("Tired")) + MAX(1, (*ind)->Skill("Tired"));
+      val = Skill("Tired") + (*ind)->Skill("Tired");
       SetSkill("Tired", val);
 
       delete(*ind);
