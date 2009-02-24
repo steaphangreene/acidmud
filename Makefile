@@ -6,23 +6,23 @@ OBJS:=	main.o version.o net.o commands.o mind.o player.o mob.o atomstring.o \
 	command_ccreate.o
 
 #Production Settings (dynamic)
-CCC:=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
+CXX=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
 LIBS:=	-static -lstdc++ -lcrypt
 
 #Production Settings (dynamic, except libstdc++)
-#CCC:=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
+#CXX=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
 #LIBS:=	-static `gcc$(ACIDMUD_CTAIL) -print-file-name=libstdc++.a` -lcrypt
 
 #Production Settings (static)
-#CCC:=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
+#CXX=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
 #LIBS:=	-static -lstdc++ -lcrypt
 
 #Debugging settings
-#CCC:=	gcc$(ACIDMUD_CTAIL) -g -Wall
+#CXX=	gcc$(ACIDMUD_CTAIL) -g -Wall
 #LIBS:=	-lstdc++ -lcrypt -lefence
 
 #Profiling settings
-#CCC:=	gcc$(ACIDMUD_CTAIL) -g -pg -fprofile-arcs -Wall
+#CXX=	gcc$(ACIDMUD_CTAIL) -g -pg -fprofile-arcs -Wall
 #LIBS:=	-lstdc++ -lcrypt -lefence
 
 all:	acidmud
@@ -43,10 +43,10 @@ upload:
 	scp ChangeLog acidmud@$(ACIDHOST):~acidmud/public_html/changes.txt
 
 acidmud: $(OBJS)
-	$(CCC) -Wall -o acidmud $(OBJS) $(LIBS)
+	$(CXX) -Wall -o acidmud $(OBJS) $(LIBS)
 
 %.o: %.cpp
-	$(CCC) -c $<
+	$(CXX) -c $<
 
 version.cpp:	version.cpp.template *.h [a-uw-z]*.cpp
 	cat version.cpp.template | sed s-DATE_STAMP-$(TSTR)-g > version.cpp
@@ -54,4 +54,4 @@ version.cpp:	version.cpp.template *.h [a-uw-z]*.cpp
 include deps.mk
 
 deps.mk:	*.cpp *.h
-	$(CCC) -MM *.cpp > deps.mk
+	$(CXX) -MM *.cpp > deps.mk
