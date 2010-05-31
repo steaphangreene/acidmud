@@ -2,7 +2,7 @@
 #include <cstdlib>
 
 #include "object.h"
-#include "object_stats.h"
+#include "stats.h"
 
 static map<AtomString,int> defaults;
 static map<int,AtomString> weaponskills;
