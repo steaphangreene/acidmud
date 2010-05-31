@@ -1494,24 +1494,24 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
   if(!strcasecmp(name, "everything")) (*ordinal) = ALL;
   if(!(*ordinal)) (*ordinal) = 1;
 
-  char *keyword = NULL;
-  char *keyword2 = NULL;
+  const char *keyword = NULL;
+  const char *keyword2 = NULL;
   if((keyword = strstr(name, "'s ")) || (keyword2 = strstr(name, "'S "))) {
     if(keyword && keyword2) keyword = MIN(keyword, keyword2);
     else if(!keyword) keyword = keyword2;
-    keyword2 = strdup(name);
-    keyword2[keyword-name] = 0;
+    char *keyword3 = strdup(name);
+    keyword3[keyword-name] = 0;
 
-    typeof(contents) masters = PickObjects(keyword2, loc, ordinal);
-    if(!masters.size()) { free(keyword2); return ret; }
+    typeof(contents) masters = PickObjects(keyword3, loc, ordinal);
+    if(!masters.size()) { free(keyword3); return ret; }
 
     typeof(masters.begin()) master;
     for(master = masters.begin(); master != masters.end(); ++master) {
       typeof(contents) add = 
-	(*master)->PickObjects(keyword2 + (keyword-name)+3, LOC_INTERNAL);
+	(*master)->PickObjects(keyword3 + (keyword-name)+3, LOC_INTERNAL);
       ret.insert(ret.end(), add.begin(), add.end());
       }
-    free(keyword2);
+    free(keyword3);
     return ret;
     }
 
