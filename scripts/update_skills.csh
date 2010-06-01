@@ -15,7 +15,21 @@ foreach sk (`grep '.*|.*|.*|' /tmp/skills | cut -f1 -d\| | sed 's- -_-g'`)
   echo ''
   echo "  //Skill Definition: $sk"
   set skname="`echo '$sk' | sed 's-_- -g'`"
-  echo "  defaults["'"'"${skname}"'"'"] = 1;"
+  if("`grep '^${skname}|' /tmp/skills | cut -f2 -d'|'`" == "B") then
+    echo "  defaults["'"'"${skname}"'"'"] = 0;"
+  else if("`grep '^${skname}|' /tmp/skills | cut -f2 -d'|'`" == "Q") then
+    echo "  defaults["'"'"${skname}"'"'"] = 1;"
+  else if("`grep '^${skname}|' /tmp/skills | cut -f2 -d'|'`" == "S") then
+    echo "  defaults["'"'"${skname}"'"'"] = 2;"
+  else if("`grep '^${skname}|' /tmp/skills | cut -f2 -d'|'`" == "C") then
+    echo "  defaults["'"'"${skname}"'"'"] = 3;"
+  else if("`grep '^${skname}|' /tmp/skills | cut -f2 -d'|'`" == "I") then
+    echo "  defaults["'"'"${skname}"'"'"] = 4;"
+  else if("`grep '^${skname}|' /tmp/skills | cut -f2 -d'|'`" == "W") then
+    echo "  defaults["'"'"${skname}"'"'"] = 5;"
+  else if("`grep '^${skname}|' /tmp/skills | cut -f2 -d'|'`" == "R") then
+    echo "  defaults["'"'"${skname}"'"'"] = 6;"
+  endif
   foreach skcat (`wget \
 	https://www.cs.binghamton.edu/~stea/gaming/wiki/index.php/Skill:${sk} \
 	-q -O - | sed 's/title=Category:\([A-Za-z0-9_/\-]*\)&/@\1@/g' \
