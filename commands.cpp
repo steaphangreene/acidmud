@@ -1417,7 +1417,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	targ->SendStats(mind, body);
 	}
       }
-    if(targ && targ != body && targ != body->Parent()) {
+    if(targ && body && targ != body && targ != body->Parent()) {
       targ->TryCombine();
       }
     return 0;
