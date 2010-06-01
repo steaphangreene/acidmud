@@ -11,6 +11,7 @@ echo '  if(defaults_init) return;'
 echo '  defaults_init = 1;'
 
 foreach sk (`grep '.*|.*|.*|' /tmp/skills | cut -f1 -d\| | sed 's- -_-g'`)
+  set weapon=0
   echo ''
   echo "  //Skill Definition: $sk"
   set skname="`echo '$sk' | sed 's-_- -g'`"
@@ -21,6 +22,15 @@ foreach sk (`grep '.*|.*|.*|' /tmp/skills | cut -f1 -d\| | sed 's- -_-g'`)
 	| tr '\n' '?' | tr @ '\n' | grep -v '\?'`)
     set catname="`echo '$skcat' | sed 's-_- -g'`"
     echo "  skcat["'"'"${catname}"'"'"].push_back("'"'"${skname}"'"'");"
+    if("`echo '$catname' | \
+	grep -E '(Combat|Pistol|Rifle|Weapon) Skills'`" != "" \
+	) then
+      set weapon=1
+    endif
   end
+  if($weapon != 0) then
+    echo "  add_wts("'"'"${skname}"'"'");"
+    set weapon=1
+  endif
 end
 echo '  }'
