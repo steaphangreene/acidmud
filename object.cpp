@@ -1015,7 +1015,7 @@ void Object::SendScore(Mind *m, Object *o) {
   map<AtomString,int> nsks;
   map<AtomString,int>::iterator nskl;
 
-  if(Skill("WeaponType") <= 0) {
+  if(!HasSkill("WeaponType")) {
     for(skl = skills.begin(); skl != skills.end(); ++skl) {
       if(is_skill(skl->first)) sks[skl->first] = skl->second;
       else nsks[skl->first] = skl->second;
@@ -1053,7 +1053,7 @@ void Object::SendStats(Mind *m, Object *o) {
 
   m->Send("\n");
 
-  if(Skill("WeaponType") >= 0) {
+  if(HasSkill("WeaponType")) {
     static char sevs[] = { '-', 'L', 'M', 'S', 'D' };
     m->Send("    %s: (Str+%d)%c",
 	get_weapon_skill(Skill("WeaponType")).c_str(),

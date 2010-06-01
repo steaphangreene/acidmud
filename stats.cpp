@@ -2558,6 +2558,12 @@ void Object::SetSkill(const string &s, int v) {
   else skills[s] = v;
   }
 
+int Object::HasSkill(const string &s) const {
+  if(strlen(s.c_str()) == 0) return 0;
+  if(skills.count(s)) return 1;
+  return 0;
+  }
+
 int Object::Skill(const string &s, int *tnum) const {
   if(strlen(s.c_str()) == 0) return 0;
   if(!strncasecmp(s.c_str(), "Body", s.length())) return att[0];
