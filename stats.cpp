@@ -868,6 +868,16 @@ static void init_defaults() {
   skcat["Skills"].push_back("Long Piercing");
   add_wts("Long Piercing");
 
+  //Skill Definition: Long_Staves
+  defaults["Long Staves"] = 1;
+  skcat["Melee-Combat Skills"].push_back("Long Staves");
+  skcat["Medieval Skills"].push_back("Long Staves");
+  skcat["Cyberpunk Skills"].push_back("Long Staves");
+  skcat["Modern Skills"].push_back("Long Staves");
+  skcat["Shadowrun Skills"].push_back("Long Staves");
+  skcat["Skills"].push_back("Long Staves");
+  add_wts("Long Staves");
+
   //Skill Definition: Low-G_Combat
   defaults["Low-G Combat"] = 4;
   skcat["Combat Environment Skills"].push_back("Low-G Combat");
@@ -1720,6 +1730,16 @@ static void init_defaults() {
   skcat["Skills"].push_back("Short Piercing");
   add_wts("Short Piercing");
 
+  //Skill Definition: Short_Staves
+  defaults["Short Staves"] = 1;
+  skcat["Melee-Combat Skills"].push_back("Short Staves");
+  skcat["Medieval Skills"].push_back("Short Staves");
+  skcat["Cyberpunk Skills"].push_back("Short Staves");
+  skcat["Modern Skills"].push_back("Short Staves");
+  skcat["Shadowrun Skills"].push_back("Short Staves");
+  skcat["Skills"].push_back("Short Staves");
+  add_wts("Short Staves");
+
   //Skill Definition: Shot_Pistols
   defaults["Shot Pistols"] = 1;
   skcat["Pistol Skills"].push_back("Shot Pistols");
@@ -1841,16 +1861,6 @@ static void init_defaults() {
   skcat["Magical Skills"].push_back("Staff Targeting");
   skcat["Medieval Skills"].push_back("Staff Targeting");
   skcat["Skills"].push_back("Staff Targeting");
-
-  //Skill Definition: Staves
-  defaults["Staves"] = 1;
-  skcat["Melee-Combat Skills"].push_back("Staves");
-  skcat["Medieval Skills"].push_back("Staves");
-  skcat["Cyberpunk Skills"].push_back("Staves");
-  skcat["Modern Skills"].push_back("Staves");
-  skcat["Shadowrun Skills"].push_back("Staves");
-  skcat["Skills"].push_back("Staves");
-  add_wts("Staves");
 
   //Skill Definition: Stealth
   defaults["Stealth"] = 1;

@@ -983,6 +983,12 @@ void Object::CircleLoadObj(const char *fn) {
 	else if(matches(obj->ShortDesc(), "hammer")) {
 	  skmatch = get_weapon_type("Long Crushing");
 	  }
+	else if(matches(obj->ShortDesc(), "baton")) {
+	  skmatch = get_weapon_type("Short Staves");
+	  }
+	else if(matches(obj->ShortDesc(), "quarterstaff")) {
+	  skmatch = get_weapon_type("Long Staves");
+	  }
 	else if(matches(obj->ShortDesc(), "staff")) {
 	  skmatch = get_weapon_type("Two-Handed Staves");
 	  }
@@ -1031,7 +1037,10 @@ void Object::CircleLoadObj(const char *fn) {
 	  else if(skmatch == get_weapon_type("Long Flails"))
 	    skmatch = get_weapon_type("Two-Handed Flails");
 
-	  else if(skmatch == get_weapon_type("Staves"))
+	  else if(skmatch == get_weapon_type("Short Staves"))
+	    skmatch = get_weapon_type("Two-Handed Staves");
+
+	  else if(skmatch == get_weapon_type("Long Staves"))
 	    skmatch = get_weapon_type("Two-Handed Staves");
 
 	  else if(skmatch == get_weapon_type("Long Crushing"))
@@ -1063,8 +1072,9 @@ void Object::CircleLoadObj(const char *fn) {
 	  else if(skmatch == get_weapon_type("Short Flails")) wreach = 0;
 	  else if(skmatch == get_weapon_type("Long Flails")) wreach = 1;
 	  else if(skmatch == get_weapon_type("Two-Handed Flails")) wreach = 2;
-	  else if(skmatch == get_weapon_type("Staves")) wreach = 0;
-	  else if(skmatch == get_weapon_type("Two-Handed Staves")) wreach = 1;
+	  else if(skmatch == get_weapon_type("Short Staves")) wreach = 0;
+	  else if(skmatch == get_weapon_type("Long Staves")) wreach = 1;
+	  else if(skmatch == get_weapon_type("Two-Handed Staves")) wreach = 2;
 	  else if(skmatch == get_weapon_type("Whips")) wreach = 3;
 	  else if(skmatch == get_weapon_type("Archery")) wreach = 100;
 	  else {
