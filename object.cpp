@@ -1024,7 +1024,7 @@ void Object::SendScore(Mind *m, Object *o) {
     nskl = nsks.begin();
     while(nskl != nsks.end() || skl != sks.end()) {
       if(skl != sks.end()) {
-	m->Send("%25s: %2d ", skl->first.c_str(), MIN(99, skl->second));
+	m->Send("%28s: %2d ", skl->first.c_str(), MIN(99, skl->second));
 	++skl;
 	}
       else {
@@ -1032,7 +1032,7 @@ void Object::SendScore(Mind *m, Object *o) {
 	}
 
       if(nskl != nsks.end()) {
-	m->Send("%30s: %7d ", nskl->first.c_str(), nskl->second);
+	m->Send("%28s: %7d", nskl->first.c_str(), nskl->second);
 	++nskl;
 	}
 
