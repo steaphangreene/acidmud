@@ -18,7 +18,7 @@ foreach sk (`grep '.*|.*|.*|' /tmp/skills | cut -f1 -d\| | sed 's- -_-g'`)
   echo "  defaults["'"'"${skname}"'"'"] = 1;"
   foreach skcat (`wget \
 	https://www.cs.binghamton.edu/~stea/gaming/wiki/index.php/Skill:${sk} \
-	-q -O - | sed 's/title=Category:\([A-Za-z0-9_-]*\)&/@\1@/g' \
+	-q -O - | sed 's/title=Category:\([A-Za-z0-9_/\-]*\)&/@\1@/g' \
 	| tr '\n' '?' | tr @ '\n' | grep -v '\?'`)
     set catname="`echo '$skcat' | sed 's-_- -g'`"
     echo "  skcat["'"'"${catname}"'"'"].push_back("'"'"${skname}"'"'");"

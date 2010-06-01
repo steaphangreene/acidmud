@@ -296,12 +296,13 @@ static void init_defaults() {
   skcat["Shadowrun Skills"].push_back("Computer");
   skcat["Skills"].push_back("Computer");
 
-  //Skill Definition: Computer_B/R
-  defaults["Computer B/R"] = 1;
-  skcat["Cyberpunk Skills"].push_back("Computer B/R");
-  skcat["Modern Skills"].push_back("Computer B/R");
-  skcat["Shadowrun Skills"].push_back("Computer B/R");
-  skcat["Skills"].push_back("Computer B/R");
+  //Skill Definition: Computer_Build/Repair
+  defaults["Computer Build/Repair"] = 1;
+  skcat["Build/Repair Skills"].push_back("Computer Build/Repair");
+  skcat["Cyberpunk Skills"].push_back("Computer Build/Repair");
+  skcat["Modern Skills"].push_back("Computer Build/Repair");
+  skcat["Shadowrun Skills"].push_back("Computer Build/Repair");
+  skcat["Skills"].push_back("Computer Build/Repair");
 
   //Skill Definition: Conjuring
   defaults["Conjuring"] = 1;
@@ -411,12 +412,13 @@ static void init_defaults() {
   skcat["Medieval Skills"].push_back("Eastern Etiquette");
   skcat["Skills"].push_back("Eastern Etiquette");
 
-  //Skill Definition: Electrical_B/R
-  defaults["Electrical B/R"] = 1;
-  skcat["Cyberpunk Skills"].push_back("Electrical B/R");
-  skcat["Modern Skills"].push_back("Electrical B/R");
-  skcat["Shadowrun Skills"].push_back("Electrical B/R");
-  skcat["Skills"].push_back("Electrical B/R");
+  //Skill Definition: Electrical_Build/Repair
+  defaults["Electrical Build/Repair"] = 1;
+  skcat["Build/Repair Skills"].push_back("Electrical Build/Repair");
+  skcat["Cyberpunk Skills"].push_back("Electrical Build/Repair");
+  skcat["Modern Skills"].push_back("Electrical Build/Repair");
+  skcat["Shadowrun Skills"].push_back("Electrical Build/Repair");
+  skcat["Skills"].push_back("Electrical Build/Repair");
 
   //Skill Definition: Electronics
   defaults["Electronics"] = 1;
@@ -912,12 +914,13 @@ static void init_defaults() {
   skcat["Shadowrun Skills"].push_back("Matrix Etiquette");
   skcat["Skills"].push_back("Matrix Etiquette");
 
-  //Skill Definition: Mechanical_B/R
-  defaults["Mechanical B/R"] = 1;
-  skcat["Cyberpunk Skills"].push_back("Mechanical B/R");
-  skcat["Modern Skills"].push_back("Mechanical B/R");
-  skcat["Shadowrun Skills"].push_back("Mechanical B/R");
-  skcat["Skills"].push_back("Mechanical B/R");
+  //Skill Definition: Mechanical_Build/Repair
+  defaults["Mechanical Build/Repair"] = 1;
+  skcat["Build/Repair Skills"].push_back("Mechanical Build/Repair");
+  skcat["Cyberpunk Skills"].push_back("Mechanical Build/Repair");
+  skcat["Modern Skills"].push_back("Mechanical Build/Repair");
+  skcat["Shadowrun Skills"].push_back("Mechanical Build/Repair");
+  skcat["Skills"].push_back("Mechanical Build/Repair");
 
   //Skill Definition: Mechanics
   defaults["Mechanics"] = 1;
