@@ -28,6 +28,7 @@ static void init_defaults() {
 
   //Skill Definition: Acrobatics
   defaults["Acrobatics"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Acrobatics");
   skcat["Athletic Skills"].push_back("Acrobatics");
   skcat["Medieval Skills"].push_back("Acrobatics");
   skcat["Cyberpunk Skills"].push_back("Acrobatics");
@@ -37,6 +38,7 @@ static void init_defaults() {
 
   //Skill Definition: Acting
   defaults["Acting"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Acting");
   skcat["Social Skills"].push_back("Acting");
   skcat["Medieval Skills"].push_back("Acting");
   skcat["Cyberpunk Skills"].push_back("Acting");
@@ -46,6 +48,7 @@ static void init_defaults() {
 
   //Skill Definition: Activist_Etiquette
   defaults["Activist Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Activist Etiquette");
   skcat["Etiquette Skills"].push_back("Activist Etiquette");
   skcat["Cyberpunk Skills"].push_back("Activist Etiquette");
   skcat["Modern Skills"].push_back("Activist Etiquette");
@@ -54,6 +57,7 @@ static void init_defaults() {
 
   //Skill Definition: Aikido
   defaults["Aikido"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Aikido");
   skcat["Martial Arts Skills"].push_back("Aikido");
   skcat["Cyberpunk Skills"].push_back("Aikido");
   skcat["Modern Skills"].push_back("Aikido");
@@ -62,6 +66,7 @@ static void init_defaults() {
 
   //Skill Definition: Air_Pistols
   defaults["Air Pistols"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Air Pistols");
   skcat["Pistol Skills"].push_back("Air Pistols");
   skcat["Cyberpunk Skills"].push_back("Air Pistols");
   skcat["Modern Skills"].push_back("Air Pistols");
@@ -71,6 +76,7 @@ static void init_defaults() {
 
   //Skill Definition: Air_Rifles
   defaults["Air Rifles"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Air Rifles");
   skcat["Rifle Skills"].push_back("Air Rifles");
   skcat["Cyberpunk Skills"].push_back("Air Rifles");
   skcat["Modern Skills"].push_back("Air Rifles");
@@ -80,6 +86,7 @@ static void init_defaults() {
 
   //Skill Definition: Alchemy
   defaults["Alchemy"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Alchemy");
   skcat["Magical Skills"].push_back("Alchemy");
   skcat["Medieval Skills"].push_back("Alchemy");
   skcat["Shadowrun Skills"].push_back("Alchemy");
@@ -87,6 +94,7 @@ static void init_defaults() {
 
   //Skill Definition: Amphibious_Combat
   defaults["Amphibious Combat"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Amphibious Combat");
   skcat["Combat Environment Skills"].push_back("Amphibious Combat");
   skcat["Medieval Skills"].push_back("Amphibious Combat");
   skcat["Cyberpunk Skills"].push_back("Amphibious Combat");
@@ -96,6 +104,7 @@ static void init_defaults() {
 
   //Skill Definition: Archery
   defaults["Archery"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Archery");
   skcat["Ranged-Combat Skills"].push_back("Archery");
   skcat["Medieval Skills"].push_back("Archery");
   skcat["Cyberpunk Skills"].push_back("Archery");
@@ -106,12 +115,14 @@ static void init_defaults() {
 
   //Skill Definition: Armoring
   defaults["Armoring"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Armoring");
   skcat["Creation Skills"].push_back("Armoring");
   skcat["Medieval Skills"].push_back("Armoring");
   skcat["Skills"].push_back("Armoring");
 
   //Skill Definition: Art,_(Type)
   defaults["Art, (Type)"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Art, (Type)");
   skcat["Social Skills"].push_back("Art, (Type)");
   skcat["Medieval Skills"].push_back("Art, (Type)");
   skcat["Cyberpunk Skills"].push_back("Art, (Type)");
@@ -121,6 +132,7 @@ static void init_defaults() {
 
   //Skill Definition: Assault_Rifles
   defaults["Assault Rifles"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Assault Rifles");
   skcat["Rifle Skills"].push_back("Assault Rifles");
   skcat["Cyberpunk Skills"].push_back("Assault Rifles");
   skcat["Modern Skills"].push_back("Assault Rifles");
@@ -130,6 +142,7 @@ static void init_defaults() {
 
   //Skill Definition: Bike
   defaults["Bike"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Bike");
   skcat["Piloting Skills"].push_back("Bike");
   skcat["Cyberpunk Skills"].push_back("Bike");
   skcat["Modern Skills"].push_back("Bike");
@@ -138,12 +151,14 @@ static void init_defaults() {
 
   //Skill Definition: Blacksmithing
   defaults["Blacksmithing"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Blacksmithing");
   skcat["Creation Skills"].push_back("Blacksmithing");
   skcat["Medieval Skills"].push_back("Blacksmithing");
   skcat["Skills"].push_back("Blacksmithing");
 
   //Skill Definition: Blowgun
   defaults["Blowgun"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Blowgun");
   skcat["Ranged-Combat Skills"].push_back("Blowgun");
   skcat["Medieval Skills"].push_back("Blowgun");
   skcat["Cyberpunk Skills"].push_back("Blowgun");
@@ -154,6 +169,7 @@ static void init_defaults() {
 
   //Skill Definition: Boat
   defaults["Boat"] = 2;
+  skcat["Strength-Based Skills"].push_back("Boat");
   skcat["Piloting Skills"].push_back("Boat");
   skcat["Medieval Skills"].push_back("Boat");
   skcat["Cyberpunk Skills"].push_back("Boat");
@@ -163,6 +179,7 @@ static void init_defaults() {
 
   //Skill Definition: Boat,_Powered
   defaults["Boat, Powered"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Boat, Powered");
   skcat["Piloting Skills"].push_back("Boat, Powered");
   skcat["Cyberpunk Skills"].push_back("Boat, Powered");
   skcat["Modern Skills"].push_back("Boat, Powered");
@@ -171,12 +188,14 @@ static void init_defaults() {
 
   //Skill Definition: Bowyer
   defaults["Bowyer"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Bowyer");
   skcat["Creation Skills"].push_back("Bowyer");
   skcat["Medieval Skills"].push_back("Bowyer");
   skcat["Skills"].push_back("Bowyer");
 
   //Skill Definition: Boxing
   defaults["Boxing"] = 2;
+  skcat["Strength-Based Skills"].push_back("Boxing");
   skcat["Sport Martial Arts Skills"].push_back("Boxing");
   skcat["Cyberpunk Skills"].push_back("Boxing");
   skcat["Modern Skills"].push_back("Boxing");
@@ -185,6 +204,7 @@ static void init_defaults() {
 
   //Skill Definition: Brawling
   defaults["Brawling"] = 5;
+  skcat["Willpower-Based Skills"].push_back("Brawling");
   skcat["Specialized Hand-to-Hand Skills"].push_back("Brawling");
   skcat["Medieval Skills"].push_back("Brawling");
   skcat["Cyberpunk Skills"].push_back("Brawling");
@@ -194,6 +214,7 @@ static void init_defaults() {
 
   //Skill Definition: Car
   defaults["Car"] = 6;
+  skcat["Reaction-Based Skills"].push_back("Car");
   skcat["Piloting Skills"].push_back("Car");
   skcat["Cyberpunk Skills"].push_back("Car");
   skcat["Modern Skills"].push_back("Car");
@@ -202,12 +223,14 @@ static void init_defaults() {
 
   //Skill Definition: Carpentry
   defaults["Carpentry"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Carpentry");
   skcat["Creation Skills"].push_back("Carpentry");
   skcat["Medieval Skills"].push_back("Carpentry");
   skcat["Skills"].push_back("Carpentry");
 
   //Skill Definition: Carromeleg_-_Tier_I
   defaults["Carromeleg - Tier I"] = 0;
+  skcat["Body-Based Skills"].push_back("Carromeleg - Tier I");
   skcat["Elven Martial Arts Skills"].push_back("Carromeleg - Tier I");
   skcat["Medieval Skills"].push_back("Carromeleg - Tier I");
   skcat["Shadowrun Skills"].push_back("Carromeleg - Tier I");
@@ -215,6 +238,7 @@ static void init_defaults() {
 
   //Skill Definition: Carromeleg_-_Tier_II
   defaults["Carromeleg - Tier II"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Carromeleg - Tier II");
   skcat["Elven Martial Arts Skills"].push_back("Carromeleg - Tier II");
   skcat["Medieval Skills"].push_back("Carromeleg - Tier II");
   skcat["Shadowrun Skills"].push_back("Carromeleg - Tier II");
@@ -222,6 +246,7 @@ static void init_defaults() {
 
   //Skill Definition: Carromeleg_-_Tier_III
   defaults["Carromeleg - Tier III"] = 2;
+  skcat["Strength-Based Skills"].push_back("Carromeleg - Tier III");
   skcat["Elven Martial Arts Skills"].push_back("Carromeleg - Tier III");
   skcat["Medieval Skills"].push_back("Carromeleg - Tier III");
   skcat["Shadowrun Skills"].push_back("Carromeleg - Tier III");
@@ -229,6 +254,7 @@ static void init_defaults() {
 
   //Skill Definition: Carromeleg_-_Tier_IV
   defaults["Carromeleg - Tier IV"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Carromeleg - Tier IV");
   skcat["Elven Martial Arts Skills"].push_back("Carromeleg - Tier IV");
   skcat["Medieval Skills"].push_back("Carromeleg - Tier IV");
   skcat["Shadowrun Skills"].push_back("Carromeleg - Tier IV");
@@ -236,6 +262,7 @@ static void init_defaults() {
 
   //Skill Definition: Carromeleg_-_Tier_V
   defaults["Carromeleg - Tier V"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Carromeleg - Tier V");
   skcat["Elven Martial Arts Skills"].push_back("Carromeleg - Tier V");
   skcat["Medieval Skills"].push_back("Carromeleg - Tier V");
   skcat["Shadowrun Skills"].push_back("Carromeleg - Tier V");
@@ -243,6 +270,7 @@ static void init_defaults() {
 
   //Skill Definition: Carromeleg_-_Tier_VI
   defaults["Carromeleg - Tier VI"] = 5;
+  skcat["Willpower-Based Skills"].push_back("Carromeleg - Tier VI");
   skcat["Elven Martial Arts Skills"].push_back("Carromeleg - Tier VI");
   skcat["Medieval Skills"].push_back("Carromeleg - Tier VI");
   skcat["Shadowrun Skills"].push_back("Carromeleg - Tier VI");
@@ -250,6 +278,7 @@ static void init_defaults() {
 
   //Skill Definition: Cart
   defaults["Cart"] = 6;
+  skcat["Reaction-Based Skills"].push_back("Cart");
   skcat["Piloting Skills"].push_back("Cart");
   skcat["Cyberpunk Skills"].push_back("Cart");
   skcat["Modern Skills"].push_back("Cart");
@@ -258,6 +287,7 @@ static void init_defaults() {
 
   //Skill Definition: Catching
   defaults["Catching"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Catching");
   skcat["Athletic Skills"].push_back("Catching");
   skcat["Medieval Skills"].push_back("Catching");
   skcat["Cyberpunk Skills"].push_back("Catching");
@@ -267,6 +297,7 @@ static void init_defaults() {
 
   //Skill Definition: Climbing
   defaults["Climbing"] = 2;
+  skcat["Strength-Based Skills"].push_back("Climbing");
   skcat["Athletic Skills"].push_back("Climbing");
   skcat["Medieval Skills"].push_back("Climbing");
   skcat["Cyberpunk Skills"].push_back("Climbing");
@@ -276,12 +307,14 @@ static void init_defaults() {
 
   //Skill Definition: Clothier
   defaults["Clothier"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Clothier");
   skcat["Creation Skills"].push_back("Clothier");
   skcat["Medieval Skills"].push_back("Clothier");
   skcat["Skills"].push_back("Clothier");
 
   //Skill Definition: Communications
   defaults["Communications"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Communications");
   skcat["Technical Skills"].push_back("Communications");
   skcat["Cyberpunk Skills"].push_back("Communications");
   skcat["Modern Skills"].push_back("Communications");
@@ -290,6 +323,7 @@ static void init_defaults() {
 
   //Skill Definition: Computer
   defaults["Computer"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Computer");
   skcat["Technical Skills"].push_back("Computer");
   skcat["Cyberpunk Skills"].push_back("Computer");
   skcat["Modern Skills"].push_back("Computer");
@@ -298,6 +332,7 @@ static void init_defaults() {
 
   //Skill Definition: Computer_Build/Repair
   defaults["Computer Build/Repair"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Computer Build/Repair");
   skcat["Build/Repair Skills"].push_back("Computer Build/Repair");
   skcat["Cyberpunk Skills"].push_back("Computer Build/Repair");
   skcat["Modern Skills"].push_back("Computer Build/Repair");
@@ -306,6 +341,7 @@ static void init_defaults() {
 
   //Skill Definition: Conjuring
   defaults["Conjuring"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Conjuring");
   skcat["Magical Skills"].push_back("Conjuring");
   skcat["Medieval Skills"].push_back("Conjuring");
   skcat["Shadowrun Skills"].push_back("Conjuring");
@@ -313,6 +349,7 @@ static void init_defaults() {
 
   //Skill Definition: Corporate_Etiquette
   defaults["Corporate Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Corporate Etiquette");
   skcat["Etiquette Skills"].push_back("Corporate Etiquette");
   skcat["Cyberpunk Skills"].push_back("Corporate Etiquette");
   skcat["Modern Skills"].push_back("Corporate Etiquette");
@@ -321,6 +358,7 @@ static void init_defaults() {
 
   //Skill Definition: Craftsman_Etiquette
   defaults["Craftsman Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Craftsman Etiquette");
   skcat["Etiquette Skills"].push_back("Craftsman Etiquette");
   skcat["Medieval Skills"].push_back("Craftsman Etiquette");
   skcat["Cyberpunk Skills"].push_back("Craftsman Etiquette");
@@ -330,6 +368,7 @@ static void init_defaults() {
 
   //Skill Definition: Crossbow
   defaults["Crossbow"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Crossbow");
   skcat["Ranged-Combat Skills"].push_back("Crossbow");
   skcat["Medieval Skills"].push_back("Crossbow");
   skcat["Cyberpunk Skills"].push_back("Crossbow");
@@ -340,6 +379,7 @@ static void init_defaults() {
 
   //Skill Definition: Cycling
   defaults["Cycling"] = 6;
+  skcat["Reaction-Based Skills"].push_back("Cycling");
   skcat["Piloting Skills"].push_back("Cycling");
   skcat["Cyberpunk Skills"].push_back("Cycling");
   skcat["Modern Skills"].push_back("Cycling");
@@ -348,6 +388,7 @@ static void init_defaults() {
 
   //Skill Definition: Damage_Control
   defaults["Damage Control"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Damage Control");
   skcat["Technical Skills"].push_back("Damage Control");
   skcat["Cyberpunk Skills"].push_back("Damage Control");
   skcat["Modern Skills"].push_back("Damage Control");
@@ -356,18 +397,21 @@ static void init_defaults() {
 
   //Skill Definition: Dark_Elf_Etiquette
   defaults["Dark Elf Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Dark Elf Etiquette");
   skcat["Etiquette Skills"].push_back("Dark Elf Etiquette");
   skcat["Medieval Skills"].push_back("Dark Elf Etiquette");
   skcat["Skills"].push_back("Dark Elf Etiquette");
 
   //Skill Definition: Decker_Etiquette
   defaults["Decker Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Decker Etiquette");
   skcat["Etiquette Skills"].push_back("Decker Etiquette");
   skcat["Shadowrun Skills"].push_back("Decker Etiquette");
   skcat["Skills"].push_back("Decker Etiquette");
 
   //Skill Definition: Demolitions
   defaults["Demolitions"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Demolitions");
   skcat["Technical Skills"].push_back("Demolitions");
   skcat["Cyberpunk Skills"].push_back("Demolitions");
   skcat["Modern Skills"].push_back("Demolitions");
@@ -376,6 +420,7 @@ static void init_defaults() {
 
   //Skill Definition: Diplomacy
   defaults["Diplomacy"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Diplomacy");
   skcat["Social Skills"].push_back("Diplomacy");
   skcat["Medieval Skills"].push_back("Diplomacy");
   skcat["Cyberpunk Skills"].push_back("Diplomacy");
@@ -385,6 +430,7 @@ static void init_defaults() {
 
   //Skill Definition: Diving
   defaults["Diving"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Diving");
   skcat["Athletic Skills"].push_back("Diving");
   skcat["Medieval Skills"].push_back("Diving");
   skcat["Cyberpunk Skills"].push_back("Diving");
@@ -394,6 +440,7 @@ static void init_defaults() {
 
   //Skill Definition: Dueling
   defaults["Dueling"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Dueling");
   skcat["Martial Arts Skills"].push_back("Dueling");
   skcat["Cyberpunk Skills"].push_back("Dueling");
   skcat["Modern Skills"].push_back("Dueling");
@@ -402,18 +449,21 @@ static void init_defaults() {
 
   //Skill Definition: Dwarf_Etiquette
   defaults["Dwarf Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Dwarf Etiquette");
   skcat["Etiquette Skills"].push_back("Dwarf Etiquette");
   skcat["Medieval Skills"].push_back("Dwarf Etiquette");
   skcat["Skills"].push_back("Dwarf Etiquette");
 
   //Skill Definition: Eastern_Etiquette
   defaults["Eastern Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Eastern Etiquette");
   skcat["Etiquette Skills"].push_back("Eastern Etiquette");
   skcat["Medieval Skills"].push_back("Eastern Etiquette");
   skcat["Skills"].push_back("Eastern Etiquette");
 
   //Skill Definition: Electrical_Build/Repair
   defaults["Electrical Build/Repair"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Electrical Build/Repair");
   skcat["Build/Repair Skills"].push_back("Electrical Build/Repair");
   skcat["Cyberpunk Skills"].push_back("Electrical Build/Repair");
   skcat["Modern Skills"].push_back("Electrical Build/Repair");
@@ -422,6 +472,7 @@ static void init_defaults() {
 
   //Skill Definition: Electronics
   defaults["Electronics"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Electronics");
   skcat["Technical Skills"].push_back("Electronics");
   skcat["Cyberpunk Skills"].push_back("Electronics");
   skcat["Modern Skills"].push_back("Electronics");
@@ -430,6 +481,7 @@ static void init_defaults() {
 
   //Skill Definition: Enchanting
   defaults["Enchanting"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Enchanting");
   skcat["Magical Skills"].push_back("Enchanting");
   skcat["Medieval Skills"].push_back("Enchanting");
   skcat["Shadowrun Skills"].push_back("Enchanting");
@@ -437,6 +489,7 @@ static void init_defaults() {
 
   //Skill Definition: Engineering
   defaults["Engineering"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Engineering");
   skcat["Technical Skills"].push_back("Engineering");
   skcat["Medieval Skills"].push_back("Engineering");
   skcat["Cyberpunk Skills"].push_back("Engineering");
@@ -446,6 +499,7 @@ static void init_defaults() {
 
   //Skill Definition: Farmer_Etiquette
   defaults["Farmer Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Farmer Etiquette");
   skcat["Etiquette Skills"].push_back("Farmer Etiquette");
   skcat["Cyberpunk Skills"].push_back("Farmer Etiquette");
   skcat["Modern Skills"].push_back("Farmer Etiquette");
@@ -454,6 +508,7 @@ static void init_defaults() {
 
   //Skill Definition: Fencing
   defaults["Fencing"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Fencing");
   skcat["Sport Martial Arts Skills"].push_back("Fencing");
   skcat["Cyberpunk Skills"].push_back("Fencing");
   skcat["Modern Skills"].push_back("Fencing");
@@ -462,12 +517,14 @@ static void init_defaults() {
 
   //Skill Definition: Find_Juju
   defaults["Find Juju"] = 5;
+  skcat["Willpower-Based Skills"].push_back("Find Juju");
   skcat["Shamanistic Skills"].push_back("Find Juju");
   skcat["Medieval Skills"].push_back("Find Juju");
   skcat["Skills"].push_back("Find Juju");
 
   //Skill Definition: First_Aid
   defaults["First Aid"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("First Aid");
   skcat["Technical Skills"].push_back("First Aid");
   skcat["Cyberpunk Skills"].push_back("First Aid");
   skcat["Modern Skills"].push_back("First Aid");
@@ -476,12 +533,14 @@ static void init_defaults() {
 
   //Skill Definition: Fixed-Wing_Drone
   defaults["Fixed-Wing Drone"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Fixed-Wing Drone");
   skcat["Drone Piloting Skills"].push_back("Fixed-Wing Drone");
   skcat["Shadowrun Skills"].push_back("Fixed-Wing Drone");
   skcat["Skills"].push_back("Fixed-Wing Drone");
 
   //Skill Definition: Fixed-wing_Craft
   defaults["Fixed-wing Craft"] = 6;
+  skcat["Reaction-Based Skills"].push_back("Fixed-wing Craft");
   skcat["Piloting Skills"].push_back("Fixed-wing Craft");
   skcat["Cyberpunk Skills"].push_back("Fixed-wing Craft");
   skcat["Modern Skills"].push_back("Fixed-wing Craft");
@@ -490,12 +549,14 @@ static void init_defaults() {
 
   //Skill Definition: Fletcher
   defaults["Fletcher"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Fletcher");
   skcat["Creation Skills"].push_back("Fletcher");
   skcat["Medieval Skills"].push_back("Fletcher");
   skcat["Skills"].push_back("Fletcher");
 
   //Skill Definition: Flight
   defaults["Flight"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Flight");
   skcat["Athletic Skills"].push_back("Flight");
   skcat["Medieval Skills"].push_back("Flight");
   skcat["Cyberpunk Skills"].push_back("Flight");
@@ -505,6 +566,7 @@ static void init_defaults() {
 
   //Skill Definition: Gang_Etiquette
   defaults["Gang Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Gang Etiquette");
   skcat["Etiquette Skills"].push_back("Gang Etiquette");
   skcat["Cyberpunk Skills"].push_back("Gang Etiquette");
   skcat["Modern Skills"].push_back("Gang Etiquette");
@@ -513,12 +575,14 @@ static void init_defaults() {
 
   //Skill Definition: Goblin_Etiquette
   defaults["Goblin Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Goblin Etiquette");
   skcat["Etiquette Skills"].push_back("Goblin Etiquette");
   skcat["Medieval Skills"].push_back("Goblin Etiquette");
   skcat["Skills"].push_back("Goblin Etiquette");
 
   //Skill Definition: Government_Etiquette
   defaults["Government Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Government Etiquette");
   skcat["Etiquette Skills"].push_back("Government Etiquette");
   skcat["Cyberpunk Skills"].push_back("Government Etiquette");
   skcat["Modern Skills"].push_back("Government Etiquette");
@@ -527,6 +591,7 @@ static void init_defaults() {
 
   //Skill Definition: Grappling
   defaults["Grappling"] = 2;
+  skcat["Strength-Based Skills"].push_back("Grappling");
   skcat["Hand-to-Hand Combat Skills"].push_back("Grappling");
   skcat["Medieval Skills"].push_back("Grappling");
   skcat["Cyberpunk Skills"].push_back("Grappling");
@@ -537,12 +602,14 @@ static void init_defaults() {
 
   //Skill Definition: Grey_Elf_Etiquette
   defaults["Grey Elf Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Grey Elf Etiquette");
   skcat["Etiquette Skills"].push_back("Grey Elf Etiquette");
   skcat["Medieval Skills"].push_back("Grey Elf Etiquette");
   skcat["Skills"].push_back("Grey Elf Etiquette");
 
   //Skill Definition: Gunnery
   defaults["Gunnery"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Gunnery");
   skcat["Heavy Firearm Skills"].push_back("Gunnery");
   skcat["Cyberpunk Skills"].push_back("Gunnery");
   skcat["Modern Skills"].push_back("Gunnery");
@@ -551,6 +618,7 @@ static void init_defaults() {
 
   //Skill Definition: Half-Track
   defaults["Half-Track"] = 6;
+  skcat["Reaction-Based Skills"].push_back("Half-Track");
   skcat["Piloting Skills"].push_back("Half-Track");
   skcat["Cyberpunk Skills"].push_back("Half-Track");
   skcat["Modern Skills"].push_back("Half-Track");
@@ -559,6 +627,7 @@ static void init_defaults() {
 
   //Skill Definition: Hapkido
   defaults["Hapkido"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Hapkido");
   skcat["Martial Arts Skills"].push_back("Hapkido");
   skcat["Cyberpunk Skills"].push_back("Hapkido");
   skcat["Modern Skills"].push_back("Hapkido");
@@ -567,6 +636,7 @@ static void init_defaults() {
 
   //Skill Definition: Healing
   defaults["Healing"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Healing");
   skcat["Nature Skills"].push_back("Healing");
   skcat["Medieval Skills"].push_back("Healing");
   skcat["Cyberpunk Skills"].push_back("Healing");
@@ -576,6 +646,7 @@ static void init_defaults() {
 
   //Skill Definition: Heavy_Firearms
   defaults["Heavy Firearms"] = 2;
+  skcat["Strength-Based Skills"].push_back("Heavy Firearms");
   skcat["Heavy Firearm Skills"].push_back("Heavy Firearms");
   skcat["Cyberpunk Skills"].push_back("Heavy Firearms");
   skcat["Modern Skills"].push_back("Heavy Firearms");
@@ -584,6 +655,7 @@ static void init_defaults() {
 
   //Skill Definition: Heavy_Lasers
   defaults["Heavy Lasers"] = 2;
+  skcat["Strength-Based Skills"].push_back("Heavy Lasers");
   skcat["Heavy Firearm Skills"].push_back("Heavy Lasers");
   skcat["Cyberpunk Skills"].push_back("Heavy Lasers");
   skcat["Modern Skills"].push_back("Heavy Lasers");
@@ -592,18 +664,21 @@ static void init_defaults() {
 
   //Skill Definition: Helmsman,_Star
   defaults["Helmsman, Star"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Helmsman, Star");
   skcat["Magical Skills"].push_back("Helmsman, Star");
   skcat["Medieval Skills"].push_back("Helmsman, Star");
   skcat["Skills"].push_back("Helmsman, Star");
 
   //Skill Definition: High_Elf_Etiquette
   defaults["High Elf Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("High Elf Etiquette");
   skcat["Etiquette Skills"].push_back("High Elf Etiquette");
   skcat["Medieval Skills"].push_back("High Elf Etiquette");
   skcat["Skills"].push_back("High Elf Etiquette");
 
   //Skill Definition: High_Society_Etiquette
   defaults["High Society Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("High Society Etiquette");
   skcat["Etiquette Skills"].push_back("High Society Etiquette");
   skcat["Cyberpunk Skills"].push_back("High Society Etiquette");
   skcat["Modern Skills"].push_back("High Society Etiquette");
@@ -612,6 +687,7 @@ static void init_defaults() {
 
   //Skill Definition: High-G_Combat
   defaults["High-G Combat"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("High-G Combat");
   skcat["Combat Environment Skills"].push_back("High-G Combat");
   skcat["Medieval Skills"].push_back("High-G Combat");
   skcat["Cyberpunk Skills"].push_back("High-G Combat");
@@ -621,21 +697,22 @@ static void init_defaults() {
 
   //Skill Definition: High-G_Ops
   defaults["High-G Ops"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("High-G Ops");
   skcat["Specialized Skills"].push_back("High-G Ops");
-  skcat["Medieval Skills"].push_back("High-G Ops");
   skcat["Cyberpunk Skills"].push_back("High-G Ops");
-  skcat["Modern Skills"].push_back("High-G Ops");
   skcat["Shadowrun Skills"].push_back("High-G Ops");
   skcat["Skills"].push_back("High-G Ops");
 
   //Skill Definition: Hover_Drone
   defaults["Hover Drone"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Hover Drone");
   skcat["Drone Piloting Skills"].push_back("Hover Drone");
   skcat["Shadowrun Skills"].push_back("Hover Drone");
   skcat["Skills"].push_back("Hover Drone");
 
   //Skill Definition: Hovercraft
   defaults["Hovercraft"] = 6;
+  skcat["Reaction-Based Skills"].push_back("Hovercraft");
   skcat["Piloting Skills"].push_back("Hovercraft");
   skcat["Cyberpunk Skills"].push_back("Hovercraft");
   skcat["Modern Skills"].push_back("Hovercraft");
@@ -644,12 +721,14 @@ static void init_defaults() {
 
   //Skill Definition: Human_Etiquette
   defaults["Human Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Human Etiquette");
   skcat["Etiquette Skills"].push_back("Human Etiquette");
   skcat["Medieval Skills"].push_back("Human Etiquette");
   skcat["Skills"].push_back("Human Etiquette");
 
   //Skill Definition: Hurling
   defaults["Hurling"] = 2;
+  skcat["Strength-Based Skills"].push_back("Hurling");
   skcat["Ranged-Combat Skills"].push_back("Hurling");
   skcat["Medieval Skills"].push_back("Hurling");
   skcat["Cyberpunk Skills"].push_back("Hurling");
@@ -660,12 +739,14 @@ static void init_defaults() {
 
   //Skill Definition: Identify_Juju
   defaults["Identify Juju"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Identify Juju");
   skcat["Shamanistic Skills"].push_back("Identify Juju");
   skcat["Medieval Skills"].push_back("Identify Juju");
   skcat["Skills"].push_back("Identify Juju");
 
   //Skill Definition: Instruction
   defaults["Instruction"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Instruction");
   skcat["Social Skills"].push_back("Instruction");
   skcat["Medieval Skills"].push_back("Instruction");
   skcat["Cyberpunk Skills"].push_back("Instruction");
@@ -675,6 +756,7 @@ static void init_defaults() {
 
   //Skill Definition: Interrogation
   defaults["Interrogation"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Interrogation");
   skcat["Social Skills"].push_back("Interrogation");
   skcat["Medieval Skills"].push_back("Interrogation");
   skcat["Cyberpunk Skills"].push_back("Interrogation");
@@ -684,6 +766,7 @@ static void init_defaults() {
 
   //Skill Definition: Intimidation
   defaults["Intimidation"] = 5;
+  skcat["Willpower-Based Skills"].push_back("Intimidation");
   skcat["Social Skills"].push_back("Intimidation");
   skcat["Medieval Skills"].push_back("Intimidation");
   skcat["Cyberpunk Skills"].push_back("Intimidation");
@@ -693,6 +776,7 @@ static void init_defaults() {
 
   //Skill Definition: Judo
   defaults["Judo"] = 2;
+  skcat["Strength-Based Skills"].push_back("Judo");
   skcat["Sport Martial Arts Skills"].push_back("Judo");
   skcat["Cyberpunk Skills"].push_back("Judo");
   skcat["Modern Skills"].push_back("Judo");
@@ -701,6 +785,7 @@ static void init_defaults() {
 
   //Skill Definition: Jujitsu
   defaults["Jujitsu"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Jujitsu");
   skcat["Martial Arts Skills"].push_back("Jujitsu");
   skcat["Cyberpunk Skills"].push_back("Jujitsu");
   skcat["Modern Skills"].push_back("Jujitsu");
@@ -709,6 +794,7 @@ static void init_defaults() {
 
   //Skill Definition: Jumping
   defaults["Jumping"] = 2;
+  skcat["Strength-Based Skills"].push_back("Jumping");
   skcat["Athletic Skills"].push_back("Jumping");
   skcat["Medieval Skills"].push_back("Jumping");
   skcat["Cyberpunk Skills"].push_back("Jumping");
@@ -718,6 +804,7 @@ static void init_defaults() {
 
   //Skill Definition: Karate
   defaults["Karate"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Karate");
   skcat["Martial Arts Skills"].push_back("Karate");
   skcat["Cyberpunk Skills"].push_back("Karate");
   skcat["Modern Skills"].push_back("Karate");
@@ -726,6 +813,7 @@ static void init_defaults() {
 
   //Skill Definition: Kicking
   defaults["Kicking"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Kicking");
   skcat["Hand-to-Hand Combat Skills"].push_back("Kicking");
   skcat["Medieval Skills"].push_back("Kicking");
   skcat["Cyberpunk Skills"].push_back("Kicking");
@@ -736,6 +824,7 @@ static void init_defaults() {
 
   //Skill Definition: Knowledge
   defaults["Knowledge"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Knowledge");
   skcat["Specialized Skills"].push_back("Knowledge");
   skcat["Medieval Skills"].push_back("Knowledge");
   skcat["Cyberpunk Skills"].push_back("Knowledge");
@@ -745,6 +834,7 @@ static void init_defaults() {
 
   //Skill Definition: Kung_Fu
   defaults["Kung Fu"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Kung Fu");
   skcat["Sport Martial Arts Skills"].push_back("Kung Fu");
   skcat["Cyberpunk Skills"].push_back("Kung Fu");
   skcat["Modern Skills"].push_back("Kung Fu");
@@ -753,6 +843,7 @@ static void init_defaults() {
 
   //Skill Definition: Laser_Pistols
   defaults["Laser Pistols"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Laser Pistols");
   skcat["Pistol Skills"].push_back("Laser Pistols");
   skcat["Cyberpunk Skills"].push_back("Laser Pistols");
   skcat["Modern Skills"].push_back("Laser Pistols");
@@ -762,6 +853,7 @@ static void init_defaults() {
 
   //Skill Definition: Laser_Rifles
   defaults["Laser Rifles"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Laser Rifles");
   skcat["Rifle Skills"].push_back("Laser Rifles");
   skcat["Cyberpunk Skills"].push_back("Laser Rifles");
   skcat["Modern Skills"].push_back("Laser Rifles");
@@ -771,6 +863,7 @@ static void init_defaults() {
 
   //Skill Definition: Lasso
   defaults["Lasso"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Lasso");
   skcat["Ranged-Combat Skills"].push_back("Lasso");
   skcat["Medieval Skills"].push_back("Lasso");
   skcat["Cyberpunk Skills"].push_back("Lasso");
@@ -781,6 +874,7 @@ static void init_defaults() {
 
   //Skill Definition: Launch_Weapons
   defaults["Launch Weapons"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Launch Weapons");
   skcat["Heavy Firearm Skills"].push_back("Launch Weapons");
   skcat["Cyberpunk Skills"].push_back("Launch Weapons");
   skcat["Modern Skills"].push_back("Launch Weapons");
@@ -789,6 +883,7 @@ static void init_defaults() {
 
   //Skill Definition: Leadership
   defaults["Leadership"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Leadership");
   skcat["Social Skills"].push_back("Leadership");
   skcat["Medieval Skills"].push_back("Leadership");
   skcat["Cyberpunk Skills"].push_back("Leadership");
@@ -798,12 +893,14 @@ static void init_defaults() {
 
   //Skill Definition: Leatherworking
   defaults["Leatherworking"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Leatherworking");
   skcat["Creation Skills"].push_back("Leatherworking");
   skcat["Medieval Skills"].push_back("Leatherworking");
   skcat["Skills"].push_back("Leatherworking");
 
   //Skill Definition: Lifting
   defaults["Lifting"] = 2;
+  skcat["Strength-Based Skills"].push_back("Lifting");
   skcat["Athletic Skills"].push_back("Lifting");
   skcat["Medieval Skills"].push_back("Lifting");
   skcat["Cyberpunk Skills"].push_back("Lifting");
@@ -813,6 +910,7 @@ static void init_defaults() {
 
   //Skill Definition: Lone_Star_Etiquette
   defaults["Lone Star Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Lone Star Etiquette");
   skcat["Etiquette Skills"].push_back("Lone Star Etiquette");
   skcat["Cyberpunk Skills"].push_back("Lone Star Etiquette");
   skcat["Shadowrun Skills"].push_back("Lone Star Etiquette");
@@ -820,6 +918,7 @@ static void init_defaults() {
 
   //Skill Definition: Long_Blades
   defaults["Long Blades"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Long Blades");
   skcat["Melee-Combat Skills"].push_back("Long Blades");
   skcat["Medieval Skills"].push_back("Long Blades");
   skcat["Cyberpunk Skills"].push_back("Long Blades");
@@ -830,6 +929,7 @@ static void init_defaults() {
 
   //Skill Definition: Long_Cleaves
   defaults["Long Cleaves"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Long Cleaves");
   skcat["Melee-Combat Skills"].push_back("Long Cleaves");
   skcat["Medieval Skills"].push_back("Long Cleaves");
   skcat["Cyberpunk Skills"].push_back("Long Cleaves");
@@ -840,6 +940,7 @@ static void init_defaults() {
 
   //Skill Definition: Long_Crushing
   defaults["Long Crushing"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Long Crushing");
   skcat["Melee-Combat Skills"].push_back("Long Crushing");
   skcat["Medieval Skills"].push_back("Long Crushing");
   skcat["Cyberpunk Skills"].push_back("Long Crushing");
@@ -850,6 +951,7 @@ static void init_defaults() {
 
   //Skill Definition: Long_Flails
   defaults["Long Flails"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Long Flails");
   skcat["Melee-Combat Skills"].push_back("Long Flails");
   skcat["Medieval Skills"].push_back("Long Flails");
   skcat["Cyberpunk Skills"].push_back("Long Flails");
@@ -860,6 +962,7 @@ static void init_defaults() {
 
   //Skill Definition: Long_Piercing
   defaults["Long Piercing"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Long Piercing");
   skcat["Melee-Combat Skills"].push_back("Long Piercing");
   skcat["Medieval Skills"].push_back("Long Piercing");
   skcat["Cyberpunk Skills"].push_back("Long Piercing");
@@ -870,6 +973,7 @@ static void init_defaults() {
 
   //Skill Definition: Long_Staves
   defaults["Long Staves"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Long Staves");
   skcat["Melee-Combat Skills"].push_back("Long Staves");
   skcat["Medieval Skills"].push_back("Long Staves");
   skcat["Cyberpunk Skills"].push_back("Long Staves");
@@ -880,6 +984,7 @@ static void init_defaults() {
 
   //Skill Definition: Low-G_Combat
   defaults["Low-G Combat"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Low-G Combat");
   skcat["Combat Environment Skills"].push_back("Low-G Combat");
   skcat["Medieval Skills"].push_back("Low-G Combat");
   skcat["Cyberpunk Skills"].push_back("Low-G Combat");
@@ -889,15 +994,15 @@ static void init_defaults() {
 
   //Skill Definition: Low-G_Ops
   defaults["Low-G Ops"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Low-G Ops");
   skcat["Specialized Skills"].push_back("Low-G Ops");
-  skcat["Medieval Skills"].push_back("Low-G Ops");
   skcat["Cyberpunk Skills"].push_back("Low-G Ops");
-  skcat["Modern Skills"].push_back("Low-G Ops");
   skcat["Shadowrun Skills"].push_back("Low-G Ops");
   skcat["Skills"].push_back("Low-G Ops");
 
   //Skill Definition: Machine_Pistols
   defaults["Machine Pistols"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Machine Pistols");
   skcat["Pistol Skills"].push_back("Machine Pistols");
   skcat["Cyberpunk Skills"].push_back("Machine Pistols");
   skcat["Modern Skills"].push_back("Machine Pistols");
@@ -907,6 +1012,7 @@ static void init_defaults() {
 
   //Skill Definition: Mage_Etiquette
   defaults["Mage Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Mage Etiquette");
   skcat["Etiquette Skills"].push_back("Mage Etiquette");
   skcat["Medieval Skills"].push_back("Mage Etiquette");
   skcat["Shadowrun Skills"].push_back("Mage Etiquette");
@@ -914,18 +1020,21 @@ static void init_defaults() {
 
   //Skill Definition: Masonry
   defaults["Masonry"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Masonry");
   skcat["Creation Skills"].push_back("Masonry");
   skcat["Medieval Skills"].push_back("Masonry");
   skcat["Skills"].push_back("Masonry");
 
   //Skill Definition: Matrix_Etiquette
   defaults["Matrix Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Matrix Etiquette");
   skcat["Etiquette Skills"].push_back("Matrix Etiquette");
   skcat["Shadowrun Skills"].push_back("Matrix Etiquette");
   skcat["Skills"].push_back("Matrix Etiquette");
 
   //Skill Definition: Mechanical_Build/Repair
   defaults["Mechanical Build/Repair"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Mechanical Build/Repair");
   skcat["Build/Repair Skills"].push_back("Mechanical Build/Repair");
   skcat["Cyberpunk Skills"].push_back("Mechanical Build/Repair");
   skcat["Modern Skills"].push_back("Mechanical Build/Repair");
@@ -934,6 +1043,7 @@ static void init_defaults() {
 
   //Skill Definition: Mechanics
   defaults["Mechanics"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Mechanics");
   skcat["Technical Skills"].push_back("Mechanics");
   skcat["Medieval Skills"].push_back("Mechanics");
   skcat["Cyberpunk Skills"].push_back("Mechanics");
@@ -943,6 +1053,7 @@ static void init_defaults() {
 
   //Skill Definition: Mercenary_Etiquette
   defaults["Mercenary Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Mercenary Etiquette");
   skcat["Etiquette Skills"].push_back("Mercenary Etiquette");
   skcat["Medieval Skills"].push_back("Mercenary Etiquette");
   skcat["Cyberpunk Skills"].push_back("Mercenary Etiquette");
@@ -952,6 +1063,7 @@ static void init_defaults() {
 
   //Skill Definition: Merchant_Etiquette
   defaults["Merchant Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Merchant Etiquette");
   skcat["Etiquette Skills"].push_back("Merchant Etiquette");
   skcat["Medieval Skills"].push_back("Merchant Etiquette");
   skcat["Cyberpunk Skills"].push_back("Merchant Etiquette");
@@ -961,12 +1073,14 @@ static void init_defaults() {
 
   //Skill Definition: Metalworking
   defaults["Metalworking"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Metalworking");
   skcat["Creation Skills"].push_back("Metalworking");
   skcat["Medieval Skills"].push_back("Metalworking");
   skcat["Skills"].push_back("Metalworking");
 
   //Skill Definition: Military_Etiquette
   defaults["Military Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Military Etiquette");
   skcat["Etiquette Skills"].push_back("Military Etiquette");
   skcat["Medieval Skills"].push_back("Military Etiquette");
   skcat["Cyberpunk Skills"].push_back("Military Etiquette");
@@ -976,6 +1090,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Air_Pistols
   defaults["Mounted Air Pistols"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Air Pistols");
   skcat["Mounted Pistol Skills"].push_back("Mounted Air Pistols");
   skcat["Cyberpunk Skills"].push_back("Mounted Air Pistols");
   skcat["Modern Skills"].push_back("Mounted Air Pistols");
@@ -985,6 +1100,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Archery
   defaults["Mounted Archery"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Archery");
   skcat["Mounted Ranged-Combat Skills"].push_back("Mounted Archery");
   skcat["Medieval Skills"].push_back("Mounted Archery");
   skcat["Cyberpunk Skills"].push_back("Mounted Archery");
@@ -995,6 +1111,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Blades
   defaults["Mounted Blades"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Blades");
   skcat["Mounted Melee-Combat Skills"].push_back("Mounted Blades");
   skcat["Medieval Skills"].push_back("Mounted Blades");
   skcat["Cyberpunk Skills"].push_back("Mounted Blades");
@@ -1005,6 +1122,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Blowgun
   defaults["Mounted Blowgun"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Blowgun");
   skcat["Mounted Ranged-Combat Skills"].push_back("Mounted Blowgun");
   skcat["Medieval Skills"].push_back("Mounted Blowgun");
   skcat["Cyberpunk Skills"].push_back("Mounted Blowgun");
@@ -1015,6 +1133,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Cleaves
   defaults["Mounted Cleaves"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Cleaves");
   skcat["Mounted Melee-Combat Skills"].push_back("Mounted Cleaves");
   skcat["Medieval Skills"].push_back("Mounted Cleaves");
   skcat["Cyberpunk Skills"].push_back("Mounted Cleaves");
@@ -1025,6 +1144,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Crossbow
   defaults["Mounted Crossbow"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Crossbow");
   skcat["Mounted Ranged-Combat Skills"].push_back("Mounted Crossbow");
   skcat["Medieval Skills"].push_back("Mounted Crossbow");
   skcat["Cyberpunk Skills"].push_back("Mounted Crossbow");
@@ -1035,6 +1155,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Crushing
   defaults["Mounted Crushing"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Crushing");
   skcat["Mounted Melee-Combat Skills"].push_back("Mounted Crushing");
   skcat["Medieval Skills"].push_back("Mounted Crushing");
   skcat["Cyberpunk Skills"].push_back("Mounted Crushing");
@@ -1045,6 +1166,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Flails
   defaults["Mounted Flails"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Flails");
   skcat["Mounted Melee-Combat Skills"].push_back("Mounted Flails");
   skcat["Medieval Skills"].push_back("Mounted Flails");
   skcat["Cyberpunk Skills"].push_back("Mounted Flails");
@@ -1055,6 +1177,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Hurling
   defaults["Mounted Hurling"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Hurling");
   skcat["Mounted Ranged-Combat Skills"].push_back("Mounted Hurling");
   skcat["Medieval Skills"].push_back("Mounted Hurling");
   skcat["Cyberpunk Skills"].push_back("Mounted Hurling");
@@ -1065,6 +1188,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Laser_Pistols
   defaults["Mounted Laser Pistols"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Laser Pistols");
   skcat["Mounted Pistol Skills"].push_back("Mounted Laser Pistols");
   skcat["Cyberpunk Skills"].push_back("Mounted Laser Pistols");
   skcat["Modern Skills"].push_back("Mounted Laser Pistols");
@@ -1074,6 +1198,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Machine_Pistols
   defaults["Mounted Machine Pistols"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Machine Pistols");
   skcat["Mounted Pistol Skills"].push_back("Mounted Machine Pistols");
   skcat["Cyberpunk Skills"].push_back("Mounted Machine Pistols");
   skcat["Modern Skills"].push_back("Mounted Machine Pistols");
@@ -1083,6 +1208,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Nets
   defaults["Mounted Nets"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Nets");
   skcat["Mounted Ranged-Combat Skills"].push_back("Mounted Nets");
   skcat["Medieval Skills"].push_back("Mounted Nets");
   skcat["Cyberpunk Skills"].push_back("Mounted Nets");
@@ -1093,6 +1219,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Piercing
   defaults["Mounted Piercing"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Piercing");
   skcat["Mounted Melee-Combat Skills"].push_back("Mounted Piercing");
   skcat["Medieval Skills"].push_back("Mounted Piercing");
   skcat["Cyberpunk Skills"].push_back("Mounted Piercing");
@@ -1103,6 +1230,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Pistols
   defaults["Mounted Pistols"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Pistols");
   skcat["Mounted Pistol Skills"].push_back("Mounted Pistols");
   skcat["Cyberpunk Skills"].push_back("Mounted Pistols");
   skcat["Modern Skills"].push_back("Mounted Pistols");
@@ -1112,6 +1240,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Plasma_Pistols
   defaults["Mounted Plasma Pistols"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Plasma Pistols");
   skcat["Mounted Pistol Skills"].push_back("Mounted Plasma Pistols");
   skcat["Cyberpunk Skills"].push_back("Mounted Plasma Pistols");
   skcat["Modern Skills"].push_back("Mounted Plasma Pistols");
@@ -1121,6 +1250,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_SMGs
   defaults["Mounted SMGs"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted SMGs");
   skcat["Mounted Pistol Skills"].push_back("Mounted SMGs");
   skcat["Cyberpunk Skills"].push_back("Mounted SMGs");
   skcat["Modern Skills"].push_back("Mounted SMGs");
@@ -1130,6 +1260,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Shot_Pistols
   defaults["Mounted Shot Pistols"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Shot Pistols");
   skcat["Mounted Pistol Skills"].push_back("Mounted Shot Pistols");
   skcat["Cyberpunk Skills"].push_back("Mounted Shot Pistols");
   skcat["Modern Skills"].push_back("Mounted Shot Pistols");
@@ -1139,6 +1270,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Slings
   defaults["Mounted Slings"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Slings");
   skcat["Mounted Ranged-Combat Skills"].push_back("Mounted Slings");
   skcat["Medieval Skills"].push_back("Mounted Slings");
   skcat["Cyberpunk Skills"].push_back("Mounted Slings");
@@ -1149,6 +1281,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Throwing,_Aero
   defaults["Mounted Throwing, Aero"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Throwing, Aero");
   skcat["Mounted Ranged-Combat Skills"].push_back("Mounted Throwing, Aero");
   skcat["Medieval Skills"].push_back("Mounted Throwing, Aero");
   skcat["Cyberpunk Skills"].push_back("Mounted Throwing, Aero");
@@ -1159,6 +1292,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Throwing,_Non-Aero
   defaults["Mounted Throwing, Non-Aero"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Throwing, Non-Aero");
   skcat["Mounted Ranged-Combat Skills"].push_back("Mounted Throwing, Non-Aero");
   skcat["Medieval Skills"].push_back("Mounted Throwing, Non-Aero");
   skcat["Cyberpunk Skills"].push_back("Mounted Throwing, Non-Aero");
@@ -1169,6 +1303,7 @@ static void init_defaults() {
 
   //Skill Definition: Mounted_Whips
   defaults["Mounted Whips"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Mounted Whips");
   skcat["Mounted Ranged-Combat Skills"].push_back("Mounted Whips");
   skcat["Medieval Skills"].push_back("Mounted Whips");
   skcat["Cyberpunk Skills"].push_back("Mounted Whips");
@@ -1179,6 +1314,7 @@ static void init_defaults() {
 
   //Skill Definition: Muay_Thai
   defaults["Muay Thai"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Muay Thai");
   skcat["Sport Martial Arts Skills"].push_back("Muay Thai");
   skcat["Cyberpunk Skills"].push_back("Muay Thai");
   skcat["Modern Skills"].push_back("Muay Thai");
@@ -1187,6 +1323,7 @@ static void init_defaults() {
 
   //Skill Definition: Navigation
   defaults["Navigation"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Navigation");
   skcat["Nature Skills"].push_back("Navigation");
   skcat["Medieval Skills"].push_back("Navigation");
   skcat["Cyberpunk Skills"].push_back("Navigation");
@@ -1196,6 +1333,7 @@ static void init_defaults() {
 
   //Skill Definition: Negotiation
   defaults["Negotiation"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Negotiation");
   skcat["Social Skills"].push_back("Negotiation");
   skcat["Medieval Skills"].push_back("Negotiation");
   skcat["Cyberpunk Skills"].push_back("Negotiation");
@@ -1205,6 +1343,7 @@ static void init_defaults() {
 
   //Skill Definition: Netiquette
   defaults["Netiquette"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Netiquette");
   skcat["Etiquette Skills"].push_back("Netiquette");
   skcat["Cyberpunk Skills"].push_back("Netiquette");
   skcat["Modern Skills"].push_back("Netiquette");
@@ -1212,6 +1351,7 @@ static void init_defaults() {
 
   //Skill Definition: Nets
   defaults["Nets"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Nets");
   skcat["Ranged-Combat Skills"].push_back("Nets");
   skcat["Medieval Skills"].push_back("Nets");
   skcat["Cyberpunk Skills"].push_back("Nets");
@@ -1222,18 +1362,21 @@ static void init_defaults() {
 
   //Skill Definition: Noble_Etiquette
   defaults["Noble Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Noble Etiquette");
   skcat["Etiquette Skills"].push_back("Noble Etiquette");
   skcat["Medieval Skills"].push_back("Noble Etiquette");
   skcat["Skills"].push_back("Noble Etiquette");
 
   //Skill Definition: Oceanic_Etiquette
   defaults["Oceanic Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Oceanic Etiquette");
   skcat["Etiquette Skills"].push_back("Oceanic Etiquette");
   skcat["Medieval Skills"].push_back("Oceanic Etiquette");
   skcat["Skills"].push_back("Oceanic Etiquette");
 
   //Skill Definition: Offhand_Air_Pistols
   defaults["Offhand Air Pistols"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Offhand Air Pistols");
   skcat["Pistol Skills"].push_back("Offhand Air Pistols");
   skcat["Cyberpunk Skills"].push_back("Offhand Air Pistols");
   skcat["Modern Skills"].push_back("Offhand Air Pistols");
@@ -1243,6 +1386,7 @@ static void init_defaults() {
 
   //Skill Definition: Offhand_Blades
   defaults["Offhand Blades"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Offhand Blades");
   skcat["Melee-Combat Skills"].push_back("Offhand Blades");
   skcat["Medieval Skills"].push_back("Offhand Blades");
   skcat["Cyberpunk Skills"].push_back("Offhand Blades");
@@ -1253,6 +1397,7 @@ static void init_defaults() {
 
   //Skill Definition: Offhand_Cleaves
   defaults["Offhand Cleaves"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Offhand Cleaves");
   skcat["Melee-Combat Skills"].push_back("Offhand Cleaves");
   skcat["Medieval Skills"].push_back("Offhand Cleaves");
   skcat["Cyberpunk Skills"].push_back("Offhand Cleaves");
@@ -1263,6 +1408,7 @@ static void init_defaults() {
 
   //Skill Definition: Offhand_Crossbow
   defaults["Offhand Crossbow"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Offhand Crossbow");
   skcat["Ranged-Combat Skills"].push_back("Offhand Crossbow");
   skcat["Medieval Skills"].push_back("Offhand Crossbow");
   skcat["Cyberpunk Skills"].push_back("Offhand Crossbow");
@@ -1273,6 +1419,7 @@ static void init_defaults() {
 
   //Skill Definition: Offhand_Crushing
   defaults["Offhand Crushing"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Offhand Crushing");
   skcat["Melee-Combat Skills"].push_back("Offhand Crushing");
   skcat["Medieval Skills"].push_back("Offhand Crushing");
   skcat["Cyberpunk Skills"].push_back("Offhand Crushing");
@@ -1283,6 +1430,7 @@ static void init_defaults() {
 
   //Skill Definition: Offhand_Flails
   defaults["Offhand Flails"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Offhand Flails");
   skcat["Melee-Combat Skills"].push_back("Offhand Flails");
   skcat["Medieval Skills"].push_back("Offhand Flails");
   skcat["Cyberpunk Skills"].push_back("Offhand Flails");
@@ -1293,6 +1441,7 @@ static void init_defaults() {
 
   //Skill Definition: Offhand_Hurling
   defaults["Offhand Hurling"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Offhand Hurling");
   skcat["Ranged-Combat Skills"].push_back("Offhand Hurling");
   skcat["Medieval Skills"].push_back("Offhand Hurling");
   skcat["Cyberpunk Skills"].push_back("Offhand Hurling");
@@ -1303,6 +1452,7 @@ static void init_defaults() {
 
   //Skill Definition: Offhand_Laser_Pistols
   defaults["Offhand Laser Pistols"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Offhand Laser Pistols");
   skcat["Pistol Skills"].push_back("Offhand Laser Pistols");
   skcat["Cyberpunk Skills"].push_back("Offhand Laser Pistols");
   skcat["Modern Skills"].push_back("Offhand Laser Pistols");
@@ -1312,6 +1462,7 @@ static void init_defaults() {
 
   //Skill Definition: Offhand_Machine_Pistols
   defaults["Offhand Machine Pistols"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Offhand Machine Pistols");
   skcat["Pistol Skills"].push_back("Offhand Machine Pistols");
   skcat["Cyberpunk Skills"].push_back("Offhand Machine Pistols");
   skcat["Modern Skills"].push_back("Offhand Machine Pistols");
@@ -1321,6 +1472,7 @@ static void init_defaults() {
 
   //Skill Definition: Offhand_Piercing
   defaults["Offhand Piercing"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Offhand Piercing");
   skcat["Melee-Combat Skills"].push_back("Offhand Piercing");
   skcat["Medieval Skills"].push_back("Offhand Piercing");
   skcat["Cyberpunk Skills"].push_back("Offhand Piercing");
@@ -1331,6 +1483,7 @@ static void init_defaults() {
 
   //Skill Definition: Offhand_Pistols
   defaults["Offhand Pistols"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Offhand Pistols");
   skcat["Pistol Skills"].push_back("Offhand Pistols");
   skcat["Cyberpunk Skills"].push_back("Offhand Pistols");
   skcat["Modern Skills"].push_back("Offhand Pistols");
@@ -1340,6 +1493,7 @@ static void init_defaults() {
 
   //Skill Definition: Offhand_Plasma_Pistols
   defaults["Offhand Plasma Pistols"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Offhand Plasma Pistols");
   skcat["Pistol Skills"].push_back("Offhand Plasma Pistols");
   skcat["Cyberpunk Skills"].push_back("Offhand Plasma Pistols");
   skcat["Modern Skills"].push_back("Offhand Plasma Pistols");
@@ -1349,6 +1503,7 @@ static void init_defaults() {
 
   //Skill Definition: Offhand_SMGs
   defaults["Offhand SMGs"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Offhand SMGs");
   skcat["Pistol Skills"].push_back("Offhand SMGs");
   skcat["Cyberpunk Skills"].push_back("Offhand SMGs");
   skcat["Modern Skills"].push_back("Offhand SMGs");
@@ -1358,6 +1513,7 @@ static void init_defaults() {
 
   //Skill Definition: Offhand_Shot_Pistols
   defaults["Offhand Shot Pistols"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Offhand Shot Pistols");
   skcat["Pistol Skills"].push_back("Offhand Shot Pistols");
   skcat["Cyberpunk Skills"].push_back("Offhand Shot Pistols");
   skcat["Modern Skills"].push_back("Offhand Shot Pistols");
@@ -1367,6 +1523,7 @@ static void init_defaults() {
 
   //Skill Definition: Offhand_Staves
   defaults["Offhand Staves"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Offhand Staves");
   skcat["Melee-Combat Skills"].push_back("Offhand Staves");
   skcat["Medieval Skills"].push_back("Offhand Staves");
   skcat["Cyberpunk Skills"].push_back("Offhand Staves");
@@ -1377,6 +1534,7 @@ static void init_defaults() {
 
   //Skill Definition: Offhand_Throwing,_Aero
   defaults["Offhand Throwing, Aero"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Offhand Throwing, Aero");
   skcat["Ranged-Combat Skills"].push_back("Offhand Throwing, Aero");
   skcat["Medieval Skills"].push_back("Offhand Throwing, Aero");
   skcat["Cyberpunk Skills"].push_back("Offhand Throwing, Aero");
@@ -1387,6 +1545,7 @@ static void init_defaults() {
 
   //Skill Definition: Offhand_Throwing,_Non-Aero
   defaults["Offhand Throwing, Non-Aero"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Offhand Throwing, Non-Aero");
   skcat["Ranged-Combat Skills"].push_back("Offhand Throwing, Non-Aero");
   skcat["Medieval Skills"].push_back("Offhand Throwing, Non-Aero");
   skcat["Cyberpunk Skills"].push_back("Offhand Throwing, Non-Aero");
@@ -1397,6 +1556,7 @@ static void init_defaults() {
 
   //Skill Definition: Offhand_Whips
   defaults["Offhand Whips"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Offhand Whips");
   skcat["Ranged-Combat Skills"].push_back("Offhand Whips");
   skcat["Medieval Skills"].push_back("Offhand Whips");
   skcat["Cyberpunk Skills"].push_back("Offhand Whips");
@@ -1407,6 +1567,7 @@ static void init_defaults() {
 
   //Skill Definition: Organized_Crime_Etiquette
   defaults["Organized Crime Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Organized Crime Etiquette");
   skcat["Etiquette Skills"].push_back("Organized Crime Etiquette");
   skcat["Cyberpunk Skills"].push_back("Organized Crime Etiquette");
   skcat["Modern Skills"].push_back("Organized Crime Etiquette");
@@ -1415,18 +1576,21 @@ static void init_defaults() {
 
   //Skill Definition: Ork_Etiquette
   defaults["Ork Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Ork Etiquette");
   skcat["Etiquette Skills"].push_back("Ork Etiquette");
   skcat["Medieval Skills"].push_back("Ork Etiquette");
   skcat["Skills"].push_back("Ork Etiquette");
 
   //Skill Definition: Peasant_Etiquette
   defaults["Peasant Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Peasant Etiquette");
   skcat["Etiquette Skills"].push_back("Peasant Etiquette");
   skcat["Medieval Skills"].push_back("Peasant Etiquette");
   skcat["Skills"].push_back("Peasant Etiquette");
 
   //Skill Definition: Perception
   defaults["Perception"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Perception");
   skcat["Specialized Skills"].push_back("Perception");
   skcat["Medieval Skills"].push_back("Perception");
   skcat["Cyberpunk Skills"].push_back("Perception");
@@ -1437,6 +1601,7 @@ static void init_defaults() {
 
   //Skill Definition: Performance,_(Type)
   defaults["Performance, (Type)"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Performance, (Type)");
   skcat["Social Skills"].push_back("Performance, (Type)");
   skcat["Medieval Skills"].push_back("Performance, (Type)");
   skcat["Cyberpunk Skills"].push_back("Performance, (Type)");
@@ -1446,6 +1611,7 @@ static void init_defaults() {
 
   //Skill Definition: Pistols
   defaults["Pistols"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Pistols");
   skcat["Pistol Skills"].push_back("Pistols");
   skcat["Cyberpunk Skills"].push_back("Pistols");
   skcat["Modern Skills"].push_back("Pistols");
@@ -1455,6 +1621,7 @@ static void init_defaults() {
 
   //Skill Definition: Plasma_Pistols
   defaults["Plasma Pistols"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Plasma Pistols");
   skcat["Pistol Skills"].push_back("Plasma Pistols");
   skcat["Cyberpunk Skills"].push_back("Plasma Pistols");
   skcat["Modern Skills"].push_back("Plasma Pistols");
@@ -1464,6 +1631,7 @@ static void init_defaults() {
 
   //Skill Definition: Plasma_Rifles
   defaults["Plasma Rifles"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Plasma Rifles");
   skcat["Rifle Skills"].push_back("Plasma Rifles");
   skcat["Cyberpunk Skills"].push_back("Plasma Rifles");
   skcat["Modern Skills"].push_back("Plasma Rifles");
@@ -1473,6 +1641,7 @@ static void init_defaults() {
 
   //Skill Definition: Police_Etiquette
   defaults["Police Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Police Etiquette");
   skcat["Etiquette Skills"].push_back("Police Etiquette");
   skcat["Cyberpunk Skills"].push_back("Police Etiquette");
   skcat["Modern Skills"].push_back("Police Etiquette");
@@ -1481,6 +1650,7 @@ static void init_defaults() {
 
   //Skill Definition: Pop_Culture_Etiquette
   defaults["Pop Culture Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Pop Culture Etiquette");
   skcat["Etiquette Skills"].push_back("Pop Culture Etiquette");
   skcat["Cyberpunk Skills"].push_back("Pop Culture Etiquette");
   skcat["Modern Skills"].push_back("Pop Culture Etiquette");
@@ -1489,6 +1659,7 @@ static void init_defaults() {
 
   //Skill Definition: Punching
   defaults["Punching"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Punching");
   skcat["Hand-to-Hand Combat Skills"].push_back("Punching");
   skcat["Medieval Skills"].push_back("Punching");
   skcat["Cyberpunk Skills"].push_back("Punching");
@@ -1499,6 +1670,7 @@ static void init_defaults() {
 
   //Skill Definition: Quick-draw
   defaults["Quick-draw"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Quick-draw");
   skcat["Specialized Skills"].push_back("Quick-draw");
   skcat["Medieval Skills"].push_back("Quick-draw");
   skcat["Cyberpunk Skills"].push_back("Quick-draw");
@@ -1508,12 +1680,14 @@ static void init_defaults() {
 
   //Skill Definition: Refine_Juju
   defaults["Refine Juju"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Refine Juju");
   skcat["Shamanistic Skills"].push_back("Refine Juju");
   skcat["Medieval Skills"].push_back("Refine Juju");
   skcat["Skills"].push_back("Refine Juju");
 
   //Skill Definition: Religion_Etiquette
   defaults["Religion Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Religion Etiquette");
   skcat["Etiquette Skills"].push_back("Religion Etiquette");
   skcat["Cyberpunk Skills"].push_back("Religion Etiquette");
   skcat["Modern Skills"].push_back("Religion Etiquette");
@@ -1522,6 +1696,7 @@ static void init_defaults() {
 
   //Skill Definition: Research
   defaults["Research"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Research");
   skcat["Specialized Skills"].push_back("Research");
   skcat["Medieval Skills"].push_back("Research");
   skcat["Cyberpunk Skills"].push_back("Research");
@@ -1532,6 +1707,7 @@ static void init_defaults() {
 
   //Skill Definition: Riding
   defaults["Riding"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Riding");
   skcat["Athletic Skills"].push_back("Riding");
   skcat["Medieval Skills"].push_back("Riding");
   skcat["Cyberpunk Skills"].push_back("Riding");
@@ -1541,6 +1717,7 @@ static void init_defaults() {
 
   //Skill Definition: Rifles
   defaults["Rifles"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Rifles");
   skcat["Rifle Skills"].push_back("Rifles");
   skcat["Cyberpunk Skills"].push_back("Rifles");
   skcat["Modern Skills"].push_back("Rifles");
@@ -1550,12 +1727,14 @@ static void init_defaults() {
 
   //Skill Definition: Rigger_Etiquette
   defaults["Rigger Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Rigger Etiquette");
   skcat["Etiquette Skills"].push_back("Rigger Etiquette");
   skcat["Shadowrun Skills"].push_back("Rigger Etiquette");
   skcat["Skills"].push_back("Rigger Etiquette");
 
   //Skill Definition: Ritual_Conjuring
   defaults["Ritual Conjuring"] = 5;
+  skcat["Willpower-Based Skills"].push_back("Ritual Conjuring");
   skcat["Magical Skills"].push_back("Ritual Conjuring");
   skcat["Medieval Skills"].push_back("Ritual Conjuring");
   skcat["Shadowrun Skills"].push_back("Ritual Conjuring");
@@ -1563,6 +1742,7 @@ static void init_defaults() {
 
   //Skill Definition: Ritual_Spellcasting
   defaults["Ritual Spellcasting"] = 5;
+  skcat["Willpower-Based Skills"].push_back("Ritual Spellcasting");
   skcat["Magical Skills"].push_back("Ritual Spellcasting");
   skcat["Medieval Skills"].push_back("Ritual Spellcasting");
   skcat["Shadowrun Skills"].push_back("Ritual Spellcasting");
@@ -1570,18 +1750,21 @@ static void init_defaults() {
 
   //Skill Definition: Rod_Targeting
   defaults["Rod Targeting"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Rod Targeting");
   skcat["Magical Skills"].push_back("Rod Targeting");
   skcat["Medieval Skills"].push_back("Rod Targeting");
   skcat["Skills"].push_back("Rod Targeting");
 
   //Skill Definition: Rotor_Drone
   defaults["Rotor Drone"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Rotor Drone");
   skcat["Drone Piloting Skills"].push_back("Rotor Drone");
   skcat["Shadowrun Skills"].push_back("Rotor Drone");
   skcat["Skills"].push_back("Rotor Drone");
 
   //Skill Definition: Rotorcraft
   defaults["Rotorcraft"] = 6;
+  skcat["Reaction-Based Skills"].push_back("Rotorcraft");
   skcat["Piloting Skills"].push_back("Rotorcraft");
   skcat["Cyberpunk Skills"].push_back("Rotorcraft");
   skcat["Modern Skills"].push_back("Rotorcraft");
@@ -1590,6 +1773,7 @@ static void init_defaults() {
 
   //Skill Definition: Running
   defaults["Running"] = 2;
+  skcat["Strength-Based Skills"].push_back("Running");
   skcat["Athletic Skills"].push_back("Running");
   skcat["Medieval Skills"].push_back("Running");
   skcat["Cyberpunk Skills"].push_back("Running");
@@ -1599,6 +1783,7 @@ static void init_defaults() {
 
   //Skill Definition: SMGs
   defaults["SMGs"] = 1;
+  skcat["Quickness-Based Skills"].push_back("SMGs");
   skcat["Pistol Skills"].push_back("SMGs");
   skcat["Cyberpunk Skills"].push_back("SMGs");
   skcat["Modern Skills"].push_back("SMGs");
@@ -1608,6 +1793,7 @@ static void init_defaults() {
 
   //Skill Definition: Science_Etiquette
   defaults["Science Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Science Etiquette");
   skcat["Etiquette Skills"].push_back("Science Etiquette");
   skcat["Cyberpunk Skills"].push_back("Science Etiquette");
   skcat["Modern Skills"].push_back("Science Etiquette");
@@ -1616,6 +1802,7 @@ static void init_defaults() {
 
   //Skill Definition: Security
   defaults["Security"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Security");
   skcat["Technical Skills"].push_back("Security");
   skcat["Medieval Skills"].push_back("Security");
   skcat["Cyberpunk Skills"].push_back("Security");
@@ -1625,6 +1812,7 @@ static void init_defaults() {
 
   //Skill Definition: Seduction
   defaults["Seduction"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Seduction");
   skcat["Social Skills"].push_back("Seduction");
   skcat["Medieval Skills"].push_back("Seduction");
   skcat["Cyberpunk Skills"].push_back("Seduction");
@@ -1634,6 +1822,7 @@ static void init_defaults() {
 
   //Skill Definition: Separatist_Etiquette
   defaults["Separatist Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Separatist Etiquette");
   skcat["Etiquette Skills"].push_back("Separatist Etiquette");
   skcat["Cyberpunk Skills"].push_back("Separatist Etiquette");
   skcat["Modern Skills"].push_back("Separatist Etiquette");
@@ -1642,6 +1831,7 @@ static void init_defaults() {
 
   //Skill Definition: Shaman_Etiquette
   defaults["Shaman Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Shaman Etiquette");
   skcat["Etiquette Skills"].push_back("Shaman Etiquette");
   skcat["Medieval Skills"].push_back("Shaman Etiquette");
   skcat["Shadowrun Skills"].push_back("Shaman Etiquette");
@@ -1649,6 +1839,7 @@ static void init_defaults() {
 
   //Skill Definition: Shields
   defaults["Shields"] = 2;
+  skcat["Strength-Based Skills"].push_back("Shields");
   skcat["Melee-Combat Skills"].push_back("Shields");
   skcat["Medieval Skills"].push_back("Shields");
   skcat["Cyberpunk Skills"].push_back("Shields");
@@ -1659,6 +1850,7 @@ static void init_defaults() {
 
   //Skill Definition: Ship
   defaults["Ship"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Ship");
   skcat["Piloting Skills"].push_back("Ship");
   skcat["Medieval Skills"].push_back("Ship");
   skcat["Cyberpunk Skills"].push_back("Ship");
@@ -1668,6 +1860,7 @@ static void init_defaults() {
 
   //Skill Definition: Ship,_Powered
   defaults["Ship, Powered"] = 6;
+  skcat["Reaction-Based Skills"].push_back("Ship, Powered");
   skcat["Piloting Skills"].push_back("Ship, Powered");
   skcat["Cyberpunk Skills"].push_back("Ship, Powered");
   skcat["Modern Skills"].push_back("Ship, Powered");
@@ -1676,12 +1869,14 @@ static void init_defaults() {
 
   //Skill Definition: Shipwright
   defaults["Shipwright"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Shipwright");
   skcat["Creation Skills"].push_back("Shipwright");
   skcat["Medieval Skills"].push_back("Shipwright");
   skcat["Skills"].push_back("Shipwright");
 
   //Skill Definition: Short_Blades
   defaults["Short Blades"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Short Blades");
   skcat["Melee-Combat Skills"].push_back("Short Blades");
   skcat["Medieval Skills"].push_back("Short Blades");
   skcat["Cyberpunk Skills"].push_back("Short Blades");
@@ -1692,6 +1887,7 @@ static void init_defaults() {
 
   //Skill Definition: Short_Cleaves
   defaults["Short Cleaves"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Short Cleaves");
   skcat["Melee-Combat Skills"].push_back("Short Cleaves");
   skcat["Medieval Skills"].push_back("Short Cleaves");
   skcat["Cyberpunk Skills"].push_back("Short Cleaves");
@@ -1702,6 +1898,7 @@ static void init_defaults() {
 
   //Skill Definition: Short_Crushing
   defaults["Short Crushing"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Short Crushing");
   skcat["Melee-Combat Skills"].push_back("Short Crushing");
   skcat["Medieval Skills"].push_back("Short Crushing");
   skcat["Cyberpunk Skills"].push_back("Short Crushing");
@@ -1712,6 +1909,7 @@ static void init_defaults() {
 
   //Skill Definition: Short_Flails
   defaults["Short Flails"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Short Flails");
   skcat["Melee-Combat Skills"].push_back("Short Flails");
   skcat["Medieval Skills"].push_back("Short Flails");
   skcat["Cyberpunk Skills"].push_back("Short Flails");
@@ -1722,6 +1920,7 @@ static void init_defaults() {
 
   //Skill Definition: Short_Piercing
   defaults["Short Piercing"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Short Piercing");
   skcat["Melee-Combat Skills"].push_back("Short Piercing");
   skcat["Medieval Skills"].push_back("Short Piercing");
   skcat["Cyberpunk Skills"].push_back("Short Piercing");
@@ -1732,6 +1931,7 @@ static void init_defaults() {
 
   //Skill Definition: Short_Staves
   defaults["Short Staves"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Short Staves");
   skcat["Melee-Combat Skills"].push_back("Short Staves");
   skcat["Medieval Skills"].push_back("Short Staves");
   skcat["Cyberpunk Skills"].push_back("Short Staves");
@@ -1742,6 +1942,7 @@ static void init_defaults() {
 
   //Skill Definition: Shot_Pistols
   defaults["Shot Pistols"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Shot Pistols");
   skcat["Pistol Skills"].push_back("Shot Pistols");
   skcat["Cyberpunk Skills"].push_back("Shot Pistols");
   skcat["Modern Skills"].push_back("Shot Pistols");
@@ -1751,6 +1952,7 @@ static void init_defaults() {
 
   //Skill Definition: Shotguns
   defaults["Shotguns"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Shotguns");
   skcat["Rifle Skills"].push_back("Shotguns");
   skcat["Cyberpunk Skills"].push_back("Shotguns");
   skcat["Modern Skills"].push_back("Shotguns");
@@ -1760,6 +1962,7 @@ static void init_defaults() {
 
   //Skill Definition: Skiing
   defaults["Skiing"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Skiing");
   skcat["Athletic Skills"].push_back("Skiing");
   skcat["Medieval Skills"].push_back("Skiing");
   skcat["Cyberpunk Skills"].push_back("Skiing");
@@ -1769,6 +1972,7 @@ static void init_defaults() {
 
   //Skill Definition: Sled
   defaults["Sled"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Sled");
   skcat["Piloting Skills"].push_back("Sled");
   skcat["Medieval Skills"].push_back("Sled");
   skcat["Cyberpunk Skills"].push_back("Sled");
@@ -1778,6 +1982,7 @@ static void init_defaults() {
 
   //Skill Definition: Slings
   defaults["Slings"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Slings");
   skcat["Ranged-Combat Skills"].push_back("Slings");
   skcat["Medieval Skills"].push_back("Slings");
   skcat["Cyberpunk Skills"].push_back("Slings");
@@ -1788,12 +1993,14 @@ static void init_defaults() {
 
   //Skill Definition: Smelting
   defaults["Smelting"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Smelting");
   skcat["Creation Skills"].push_back("Smelting");
   skcat["Medieval Skills"].push_back("Smelting");
   skcat["Skills"].push_back("Smelting");
 
   //Skill Definition: Snowmobile
   defaults["Snowmobile"] = 6;
+  skcat["Reaction-Based Skills"].push_back("Snowmobile");
   skcat["Piloting Skills"].push_back("Snowmobile");
   skcat["Cyberpunk Skills"].push_back("Snowmobile");
   skcat["Modern Skills"].push_back("Snowmobile");
@@ -1802,6 +2009,7 @@ static void init_defaults() {
 
   //Skill Definition: Spacecraft
   defaults["Spacecraft"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Spacecraft");
   skcat["Piloting Skills"].push_back("Spacecraft");
   skcat["Cyberpunk Skills"].push_back("Spacecraft");
   skcat["Modern Skills"].push_back("Spacecraft");
@@ -1810,6 +2018,7 @@ static void init_defaults() {
 
   //Skill Definition: Spell_Targeting
   defaults["Spell Targeting"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Spell Targeting");
   skcat["Magical Skills"].push_back("Spell Targeting");
   skcat["Medieval Skills"].push_back("Spell Targeting");
   skcat["Shadowrun Skills"].push_back("Spell Targeting");
@@ -1817,6 +2026,7 @@ static void init_defaults() {
 
   //Skill Definition: Spellcasting
   defaults["Spellcasting"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Spellcasting");
   skcat["Magical Skills"].push_back("Spellcasting");
   skcat["Medieval Skills"].push_back("Spellcasting");
   skcat["Shadowrun Skills"].push_back("Spellcasting");
@@ -1824,6 +2034,7 @@ static void init_defaults() {
 
   //Skill Definition: Spellcraft
   defaults["Spellcraft"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Spellcraft");
   skcat["Magical Skills"].push_back("Spellcraft");
   skcat["Medieval Skills"].push_back("Spellcraft");
   skcat["Shadowrun Skills"].push_back("Spellcraft");
@@ -1831,6 +2042,7 @@ static void init_defaults() {
 
   //Skill Definition: Sport_Wrestling
   defaults["Sport Wrestling"] = 2;
+  skcat["Strength-Based Skills"].push_back("Sport Wrestling");
   skcat["Sport Martial Arts Skills"].push_back("Sport Wrestling");
   skcat["Cyberpunk Skills"].push_back("Sport Wrestling");
   skcat["Modern Skills"].push_back("Sport Wrestling");
@@ -1839,6 +2051,7 @@ static void init_defaults() {
 
   //Skill Definition: Sprinting
   defaults["Sprinting"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Sprinting");
   skcat["Athletic Skills"].push_back("Sprinting");
   skcat["Medieval Skills"].push_back("Sprinting");
   skcat["Cyberpunk Skills"].push_back("Sprinting");
@@ -1848,6 +2061,7 @@ static void init_defaults() {
 
   //Skill Definition: Staff_Slings
   defaults["Staff Slings"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Staff Slings");
   skcat["Ranged-Combat Skills"].push_back("Staff Slings");
   skcat["Medieval Skills"].push_back("Staff Slings");
   skcat["Cyberpunk Skills"].push_back("Staff Slings");
@@ -1858,12 +2072,14 @@ static void init_defaults() {
 
   //Skill Definition: Staff_Targeting
   defaults["Staff Targeting"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Staff Targeting");
   skcat["Magical Skills"].push_back("Staff Targeting");
   skcat["Medieval Skills"].push_back("Staff Targeting");
   skcat["Skills"].push_back("Staff Targeting");
 
   //Skill Definition: Stealth
   defaults["Stealth"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Stealth");
   skcat["Athletic Skills"].push_back("Stealth");
   skcat["Medieval Skills"].push_back("Stealth");
   skcat["Cyberpunk Skills"].push_back("Stealth");
@@ -1873,6 +2089,7 @@ static void init_defaults() {
 
   //Skill Definition: Street_Etiquette
   defaults["Street Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Street Etiquette");
   skcat["Etiquette Skills"].push_back("Street Etiquette");
   skcat["Cyberpunk Skills"].push_back("Street Etiquette");
   skcat["Modern Skills"].push_back("Street Etiquette");
@@ -1881,6 +2098,7 @@ static void init_defaults() {
 
   //Skill Definition: Style
   defaults["Style"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Style");
   skcat["Social Skills"].push_back("Style");
   skcat["Medieval Skills"].push_back("Style");
   skcat["Cyberpunk Skills"].push_back("Style");
@@ -1890,6 +2108,7 @@ static void init_defaults() {
 
   //Skill Definition: Submission_Wrestling
   defaults["Submission Wrestling"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Submission Wrestling");
   skcat["Specialized Hand-to-Hand Skills"].push_back("Submission Wrestling");
   skcat["Medieval Skills"].push_back("Submission Wrestling");
   skcat["Cyberpunk Skills"].push_back("Submission Wrestling");
@@ -1899,6 +2118,7 @@ static void init_defaults() {
 
   //Skill Definition: Sumo-Wrestling
   defaults["Sumo-Wrestling"] = 0;
+  skcat["Body-Based Skills"].push_back("Sumo-Wrestling");
   skcat["Sport Martial Arts Skills"].push_back("Sumo-Wrestling");
   skcat["Cyberpunk Skills"].push_back("Sumo-Wrestling");
   skcat["Modern Skills"].push_back("Sumo-Wrestling");
@@ -1907,6 +2127,7 @@ static void init_defaults() {
 
   //Skill Definition: Surgery
   defaults["Surgery"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Surgery");
   skcat["Technical Skills"].push_back("Surgery");
   skcat["Cyberpunk Skills"].push_back("Surgery");
   skcat["Modern Skills"].push_back("Surgery");
@@ -1915,6 +2136,7 @@ static void init_defaults() {
 
   //Skill Definition: Survival
   defaults["Survival"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Survival");
   skcat["Nature Skills"].push_back("Survival");
   skcat["Medieval Skills"].push_back("Survival");
   skcat["Cyberpunk Skills"].push_back("Survival");
@@ -1924,6 +2146,7 @@ static void init_defaults() {
 
   //Skill Definition: Swimming
   defaults["Swimming"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Swimming");
   skcat["Athletic Skills"].push_back("Swimming");
   skcat["Medieval Skills"].push_back("Swimming");
   skcat["Cyberpunk Skills"].push_back("Swimming");
@@ -1933,12 +2156,14 @@ static void init_defaults() {
 
   //Skill Definition: Swordsmithing
   defaults["Swordsmithing"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Swordsmithing");
   skcat["Creation Skills"].push_back("Swordsmithing");
   skcat["Medieval Skills"].push_back("Swordsmithing");
   skcat["Skills"].push_back("Swordsmithing");
 
   //Skill Definition: Tactics
   defaults["Tactics"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Tactics");
   skcat["Specialized Skills"].push_back("Tactics");
   skcat["Medieval Skills"].push_back("Tactics");
   skcat["Cyberpunk Skills"].push_back("Tactics");
@@ -1948,6 +2173,7 @@ static void init_defaults() {
 
   //Skill Definition: Tae_Kwon_Do
   defaults["Tae Kwon Do"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Tae Kwon Do");
   skcat["Martial Arts Skills"].push_back("Tae Kwon Do");
   skcat["Cyberpunk Skills"].push_back("Tae Kwon Do");
   skcat["Modern Skills"].push_back("Tae Kwon Do");
@@ -1956,6 +2182,7 @@ static void init_defaults() {
 
   //Skill Definition: Talismongery
   defaults["Talismongery"] = 5;
+  skcat["Willpower-Based Skills"].push_back("Talismongery");
   skcat["Magical Skills"].push_back("Talismongery");
   skcat["Medieval Skills"].push_back("Talismongery");
   skcat["Shadowrun Skills"].push_back("Talismongery");
@@ -1963,6 +2190,7 @@ static void init_defaults() {
 
   //Skill Definition: Teamster
   defaults["Teamster"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Teamster");
   skcat["Piloting Skills"].push_back("Teamster");
   skcat["Medieval Skills"].push_back("Teamster");
   skcat["Cyberpunk Skills"].push_back("Teamster");
@@ -1972,12 +2200,14 @@ static void init_defaults() {
 
   //Skill Definition: Thief_Etiquette
   defaults["Thief Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Thief Etiquette");
   skcat["Etiquette Skills"].push_back("Thief Etiquette");
   skcat["Medieval Skills"].push_back("Thief Etiquette");
   skcat["Skills"].push_back("Thief Etiquette");
 
   //Skill Definition: Throwing,_Aero
   defaults["Throwing, Aero"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Throwing, Aero");
   skcat["Ranged-Combat Skills"].push_back("Throwing, Aero");
   skcat["Medieval Skills"].push_back("Throwing, Aero");
   skcat["Cyberpunk Skills"].push_back("Throwing, Aero");
@@ -1988,6 +2218,7 @@ static void init_defaults() {
 
   //Skill Definition: Throwing,_Non-Aero
   defaults["Throwing, Non-Aero"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Throwing, Non-Aero");
   skcat["Ranged-Combat Skills"].push_back("Throwing, Non-Aero");
   skcat["Medieval Skills"].push_back("Throwing, Non-Aero");
   skcat["Cyberpunk Skills"].push_back("Throwing, Non-Aero");
@@ -1998,12 +2229,14 @@ static void init_defaults() {
 
   //Skill Definition: Tracked_Drone
   defaults["Tracked Drone"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Tracked Drone");
   skcat["Drone Piloting Skills"].push_back("Tracked Drone");
   skcat["Shadowrun Skills"].push_back("Tracked Drone");
   skcat["Skills"].push_back("Tracked Drone");
 
   //Skill Definition: Tracked_Vehicle
   defaults["Tracked Vehicle"] = 6;
+  skcat["Reaction-Based Skills"].push_back("Tracked Vehicle");
   skcat["Piloting Skills"].push_back("Tracked Vehicle");
   skcat["Cyberpunk Skills"].push_back("Tracked Vehicle");
   skcat["Modern Skills"].push_back("Tracked Vehicle");
@@ -2012,6 +2245,7 @@ static void init_defaults() {
 
   //Skill Definition: Tracking
   defaults["Tracking"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Tracking");
   skcat["Specialized Skills"].push_back("Tracking");
   skcat["Medieval Skills"].push_back("Tracking");
   skcat["Cyberpunk Skills"].push_back("Tracking");
@@ -2021,6 +2255,7 @@ static void init_defaults() {
 
   //Skill Definition: Tractor
   defaults["Tractor"] = 6;
+  skcat["Reaction-Based Skills"].push_back("Tractor");
   skcat["Piloting Skills"].push_back("Tractor");
   skcat["Cyberpunk Skills"].push_back("Tractor");
   skcat["Modern Skills"].push_back("Tractor");
@@ -2029,6 +2264,7 @@ static void init_defaults() {
 
   //Skill Definition: Treatment
   defaults["Treatment"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Treatment");
   skcat["Technical Skills"].push_back("Treatment");
   skcat["Cyberpunk Skills"].push_back("Treatment");
   skcat["Modern Skills"].push_back("Treatment");
@@ -2037,6 +2273,7 @@ static void init_defaults() {
 
   //Skill Definition: Trike
   defaults["Trike"] = 6;
+  skcat["Reaction-Based Skills"].push_back("Trike");
   skcat["Piloting Skills"].push_back("Trike");
   skcat["Cyberpunk Skills"].push_back("Trike");
   skcat["Modern Skills"].push_back("Trike");
@@ -2045,6 +2282,7 @@ static void init_defaults() {
 
   //Skill Definition: Trucker_Etiquette
   defaults["Trucker Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Trucker Etiquette");
   skcat["Etiquette Skills"].push_back("Trucker Etiquette");
   skcat["Cyberpunk Skills"].push_back("Trucker Etiquette");
   skcat["Modern Skills"].push_back("Trucker Etiquette");
@@ -2052,6 +2290,7 @@ static void init_defaults() {
 
   //Skill Definition: Two-Handed_Blades
   defaults["Two-Handed Blades"] = 2;
+  skcat["Strength-Based Skills"].push_back("Two-Handed Blades");
   skcat["Melee-Combat Skills"].push_back("Two-Handed Blades");
   skcat["Medieval Skills"].push_back("Two-Handed Blades");
   skcat["Cyberpunk Skills"].push_back("Two-Handed Blades");
@@ -2062,6 +2301,7 @@ static void init_defaults() {
 
   //Skill Definition: Two-Handed_Cleaves
   defaults["Two-Handed Cleaves"] = 2;
+  skcat["Strength-Based Skills"].push_back("Two-Handed Cleaves");
   skcat["Melee-Combat Skills"].push_back("Two-Handed Cleaves");
   skcat["Medieval Skills"].push_back("Two-Handed Cleaves");
   skcat["Cyberpunk Skills"].push_back("Two-Handed Cleaves");
@@ -2072,6 +2312,7 @@ static void init_defaults() {
 
   //Skill Definition: Two-Handed_Crushing
   defaults["Two-Handed Crushing"] = 2;
+  skcat["Strength-Based Skills"].push_back("Two-Handed Crushing");
   skcat["Melee-Combat Skills"].push_back("Two-Handed Crushing");
   skcat["Medieval Skills"].push_back("Two-Handed Crushing");
   skcat["Cyberpunk Skills"].push_back("Two-Handed Crushing");
@@ -2082,6 +2323,7 @@ static void init_defaults() {
 
   //Skill Definition: Two-Handed_Flails
   defaults["Two-Handed Flails"] = 2;
+  skcat["Strength-Based Skills"].push_back("Two-Handed Flails");
   skcat["Melee-Combat Skills"].push_back("Two-Handed Flails");
   skcat["Medieval Skills"].push_back("Two-Handed Flails");
   skcat["Cyberpunk Skills"].push_back("Two-Handed Flails");
@@ -2092,6 +2334,7 @@ static void init_defaults() {
 
   //Skill Definition: Two-Handed_Piercing
   defaults["Two-Handed Piercing"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Two-Handed Piercing");
   skcat["Melee-Combat Skills"].push_back("Two-Handed Piercing");
   skcat["Medieval Skills"].push_back("Two-Handed Piercing");
   skcat["Cyberpunk Skills"].push_back("Two-Handed Piercing");
@@ -2102,6 +2345,7 @@ static void init_defaults() {
 
   //Skill Definition: Two-Handed_Staves
   defaults["Two-Handed Staves"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Two-Handed Staves");
   skcat["Melee-Combat Skills"].push_back("Two-Handed Staves");
   skcat["Medieval Skills"].push_back("Two-Handed Staves");
   skcat["Cyberpunk Skills"].push_back("Two-Handed Staves");
@@ -2112,6 +2356,7 @@ static void init_defaults() {
 
   //Skill Definition: Underwater_Combat
   defaults["Underwater Combat"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Underwater Combat");
   skcat["Combat Environment Skills"].push_back("Underwater Combat");
   skcat["Medieval Skills"].push_back("Underwater Combat");
   skcat["Cyberpunk Skills"].push_back("Underwater Combat");
@@ -2121,12 +2366,14 @@ static void init_defaults() {
 
   //Skill Definition: Underworld_Etiquette
   defaults["Underworld Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Underworld Etiquette");
   skcat["Etiquette Skills"].push_back("Underworld Etiquette");
   skcat["Medieval Skills"].push_back("Underworld Etiquette");
   skcat["Skills"].push_back("Underworld Etiquette");
 
   //Skill Definition: University_Etiquette
   defaults["University Etiquette"] = 3;
+  skcat["Charisma-Based Skills"].push_back("University Etiquette");
   skcat["Etiquette Skills"].push_back("University Etiquette");
   skcat["Cyberpunk Skills"].push_back("University Etiquette");
   skcat["Modern Skills"].push_back("University Etiquette");
@@ -2135,6 +2382,7 @@ static void init_defaults() {
 
   //Skill Definition: Vectored_Thrust
   defaults["Vectored Thrust"] = 6;
+  skcat["Reaction-Based Skills"].push_back("Vectored Thrust");
   skcat["Piloting Skills"].push_back("Vectored Thrust");
   skcat["Cyberpunk Skills"].push_back("Vectored Thrust");
   skcat["Modern Skills"].push_back("Vectored Thrust");
@@ -2143,24 +2391,28 @@ static void init_defaults() {
 
   //Skill Definition: Vectored_Thrust_Drone
   defaults["Vectored Thrust Drone"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Vectored Thrust Drone");
   skcat["Drone Piloting Skills"].push_back("Vectored Thrust Drone");
   skcat["Shadowrun Skills"].push_back("Vectored Thrust Drone");
   skcat["Skills"].push_back("Vectored Thrust Drone");
 
   //Skill Definition: Wand_Targeting
   defaults["Wand Targeting"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Wand Targeting");
   skcat["Magical Skills"].push_back("Wand Targeting");
   skcat["Medieval Skills"].push_back("Wand Targeting");
   skcat["Skills"].push_back("Wand Targeting");
 
   //Skill Definition: Wheeled_Drone
   defaults["Wheeled Drone"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Wheeled Drone");
   skcat["Drone Piloting Skills"].push_back("Wheeled Drone");
   skcat["Shadowrun Skills"].push_back("Wheeled Drone");
   skcat["Skills"].push_back("Wheeled Drone");
 
   //Skill Definition: Whips
   defaults["Whips"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Whips");
   skcat["Ranged-Combat Skills"].push_back("Whips");
   skcat["Medieval Skills"].push_back("Whips");
   skcat["Cyberpunk Skills"].push_back("Whips");
@@ -2171,6 +2423,7 @@ static void init_defaults() {
 
   //Skill Definition: Wildcat
   defaults["Wildcat"] = 1;
+  skcat["Quickness-Based Skills"].push_back("Wildcat");
   skcat["Martial Arts Skills"].push_back("Wildcat");
   skcat["Cyberpunk Skills"].push_back("Wildcat");
   skcat["Modern Skills"].push_back("Wildcat");
@@ -2179,12 +2432,14 @@ static void init_defaults() {
 
   //Skill Definition: Woodworking
   defaults["Woodworking"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Woodworking");
   skcat["Creation Skills"].push_back("Woodworking");
   skcat["Medieval Skills"].push_back("Woodworking");
   skcat["Skills"].push_back("Woodworking");
 
   //Skill Definition: Zero-G_Combat
   defaults["Zero-G Combat"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Zero-G Combat");
   skcat["Combat Environment Skills"].push_back("Zero-G Combat");
   skcat["Medieval Skills"].push_back("Zero-G Combat");
   skcat["Cyberpunk Skills"].push_back("Zero-G Combat");
@@ -2194,8 +2449,8 @@ static void init_defaults() {
 
   //Skill Definition: Zero-G_Ops
   defaults["Zero-G Ops"] = 4;
+  skcat["Intelligence-Based Skills"].push_back("Zero-G Ops");
   skcat["Specialized Skills"].push_back("Zero-G Ops");
-  skcat["Medieval Skills"].push_back("Zero-G Ops");
   skcat["Cyberpunk Skills"].push_back("Zero-G Ops");
   skcat["Modern Skills"].push_back("Zero-G Ops");
   skcat["Shadowrun Skills"].push_back("Zero-G Ops");
