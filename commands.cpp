@@ -96,6 +96,9 @@ enum {	COM_HELP=0,
 	COM_SIT,
 	COM_STAND,
 
+	COM_SHOUT,
+	COM_YELL,
+	COM_CALL,
 	COM_SAY,
 	COM_EMOTE,
 
@@ -342,6 +345,21 @@ Command comlist[] = {
     (REQ_CONSCIOUS|REQ_ACTION)
     },
 
+  { COM_SHOUT, "shout",
+    "Shout something to all nearby.",
+    "Shout something to all nearby.",
+    (REQ_AWAKE)
+    },
+  { COM_YELL, "yell",
+    "Shout something to all nearby.",
+    "Shout something to all nearby.",
+    (REQ_AWAKE)
+    },
+  { COM_CALL, "call",
+    "Shout something to all nearby.",
+    "Shout something to all nearby.",
+    (REQ_AWAKE)
+    },
   { COM_SAY, "say",
     "Say something.",
     "Say something.",
@@ -1008,6 +1026,42 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       }
     mind->Send("Well, the help command's not yet implemented :P\n"
 	"Try 'help commands' command for a list of commands at least.\n");
+    return 0;
+    }
+
+  if(com == COM_SHOUT || com == COM_YELL || com == COM_CALL) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(!strncasecmp(comline+len, "for ", 4)) len += 4;
+
+    body->Parent()->SendOut(0, 0, ";s shouts '%s'!!!\n", "You shout '%s'!!!\n",
+	body, body, comline+len);
+
+    typeof(body->Contents()) targs;
+    targs = body->PickObjects("all", LOC_NEARBY|LOC_ADJACENT);
+
+    int str=body->Skill("Strength");
+    typeof(targs.begin()) targ_it;
+    for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+      Object *dest = *targ_it;
+      if(dest->HasSkill("Enterable")) {
+	int ostr=str;
+	--str;
+	if(dest->Skill("Open") < 1 && (!nmode)) {
+	  --str;
+	  }
+	if(str > 0) {
+	  if(dest->ActTarg(ACT_SPECIAL_LINKED)
+                && dest->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
+	    dest = dest->ActTarg(ACT_SPECIAL_LINKED);
+	    dest->Parent()->SendOut(0, 0,
+		"From ;s you hear someone shout '%s'!!!\n", "",
+		dest, dest, comline+len);
+	    }
+	  }
+	str=ostr;
+	}
+      }
+    body->SetSkill("Hidden", 0);
     return 0;
     }
 
