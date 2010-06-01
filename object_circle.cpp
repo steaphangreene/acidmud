@@ -863,6 +863,12 @@ void Object::CircleLoadObj(const char *fn) {
 	else if(matches(obj->ShortDesc(), "spear")) {
 	  skmatch = get_weapon_type("Two-Handed Piercing");
 	  }
+	else if(matches(obj->ShortDesc(), "bolg")) {
+	  skmatch = get_weapon_type("Two-Handed Piercing");
+	  }
+	else if(matches(obj->ShortDesc(), "bulg")) {
+	  skmatch = get_weapon_type("Two-Handed Piercing");
+	  }
 	else if(matches(obj->ShortDesc(), "pike")) {
 	  skmatch = get_weapon_type("Two-Handed Piercing");
 	  }
@@ -872,8 +878,11 @@ void Object::CircleLoadObj(const char *fn) {
 	else if(matches(obj->ShortDesc(), "sickle")) {
 	  skmatch = get_weapon_type("Two-Handed Piercing");
 	  }
+	else if(matches(obj->ShortDesc(), "sap")) {
+	  skmatch = get_weapon_type("Short Flails");
+	  }
 	else if(matches(obj->ShortDesc(), "flail")) {
-	  skmatch = get_weapon_type("Flails");
+	  skmatch = get_weapon_type("Long Flails");
 	  }
 	else if(matches(obj->ShortDesc(), "whip")) {
 	  skmatch = get_weapon_type("Whips");
@@ -941,6 +950,9 @@ void Object::CircleLoadObj(const char *fn) {
 	else if(matches(obj->ShortDesc(), "club")) {
 	  skmatch = get_weapon_type("Long Crushing");
 	  }
+	else if(matches(obj->ShortDesc(), "rod")) {
+	  skmatch = get_weapon_type("Long Crushing");
+	  }
 	else if(matches(obj->ShortDesc(), "mace")) {
 	  skmatch = get_weapon_type("Long Crushing");
 	  }
@@ -980,6 +992,21 @@ void Object::CircleLoadObj(const char *fn) {
 	else if(matches(obj->ShortDesc(), "blade")) {
 	  skmatch = get_weapon_type("Long Blades");
 	  }
+	else if(matches(obj->ShortDesc(), "bone")) {
+	  skmatch = get_weapon_type("Long Crushing");
+	  }
+	else if(matches(obj->ShortDesc(), "branch")) {
+	  skmatch = get_weapon_type("Long Crushing");
+	  }
+	else if(matches(obj->ShortDesc(), "pen")) {
+	  skmatch = get_weapon_type("Short Piercing");
+	  }
+	else if(matches(obj->ShortDesc(), "shears")) {
+	  skmatch = get_weapon_type("Short Piercing");
+	  }
+	else if(matches(obj->ShortDesc(), "stakes")) {
+	  skmatch = get_weapon_type("Short Piercing");
+	  }
 	else {
 	  fprintf(stderr, "Warning: Using Default of '%s' for '%s'!\n",
 		get_weapon_skill(skmatch).c_str(), obj->ShortDesc());
@@ -998,7 +1025,10 @@ void Object::CircleLoadObj(const char *fn) {
 	  else if(skmatch == get_weapon_type("Long Piercing"))
 	    skmatch = get_weapon_type("Two-Handed Piercing");
 
-	  else if(skmatch == get_weapon_type("Flails"))
+	  else if(skmatch == get_weapon_type("Short Flails"))
+	    skmatch = get_weapon_type("Two-Handed Flails");
+
+	  else if(skmatch == get_weapon_type("Long Flails"))
 	    skmatch = get_weapon_type("Two-Handed Flails");
 
 	  else if(skmatch == get_weapon_type("Staves"))
@@ -1030,7 +1060,8 @@ void Object::CircleLoadObj(const char *fn) {
 	  else if(skmatch == get_weapon_type("Short Cleaves")) wreach = 0;
 	  else if(skmatch == get_weapon_type("Long Cleaves")) wreach = 1;
 	  else if(skmatch == get_weapon_type("Two-Handed Cleaves")) wreach = 2;
-	  else if(skmatch == get_weapon_type("Flails")) wreach = 1;
+	  else if(skmatch == get_weapon_type("Short Flails")) wreach = 0;
+	  else if(skmatch == get_weapon_type("Long Flails")) wreach = 1;
 	  else if(skmatch == get_weapon_type("Two-Handed Flails")) wreach = 2;
 	  else if(skmatch == get_weapon_type("Staves")) wreach = 0;
 	  else if(skmatch == get_weapon_type("Two-Handed Staves")) wreach = 1;
