@@ -1036,31 +1036,8 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     body->Parent()->SendOut(0, 0, ";s shouts '%s'!!!\n", "You shout '%s'!!!\n",
 	body, body, comline+len);
 
-    typeof(body->Contents()) targs;
-    targs = body->PickObjects("all", LOC_NEARBY|LOC_ADJACENT);
+    body->Parent()->Loud(body->Skill("Strength"), comline+len);
 
-    int str=body->Skill("Strength");
-    typeof(targs.begin()) targ_it;
-    for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
-      Object *dest = *targ_it;
-      if(dest->HasSkill("Enterable")) {
-	int ostr=str;
-	--str;
-	if(dest->Skill("Open") < 1 && (!nmode)) {
-	  --str;
-	  }
-	if(str > 0) {
-	  if(dest->ActTarg(ACT_SPECIAL_LINKED)
-                && dest->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
-	    dest = dest->ActTarg(ACT_SPECIAL_LINKED);
-	    dest->Parent()->SendOut(0, 0,
-		"From ;s you hear someone shout '%s'!!!\n", "",
-		dest, dest, comline+len);
-	    }
-	  }
-	str=ostr;
-	}
-      }
     body->SetSkill("Hidden", 0);
     return 0;
     }

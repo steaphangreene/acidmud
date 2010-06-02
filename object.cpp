@@ -2369,3 +2369,38 @@ int two_handed(int wtype) {
     }
   return int(thsks.count(wtype));
   }
+
+void Object::Loud(int str, const char *mes) {
+  set<Object*> visited;
+  Loud(visited, str, mes);
+  }
+
+void Object::Loud(set<Object*> &visited, int str, const char *mes) {
+  visited.insert(this);
+  typeof(Contents()) targs;
+  typeof(targs.begin()) targ_it;
+  targs = PickObjects("all", LOC_INTERNAL);
+  for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+    Object *dest = *targ_it;
+    if(dest->HasSkill("Enterable")) {
+      int ostr=str;
+      --str;
+      if(dest->Skill("Open") < 1) {
+	--str;
+	}
+      if(str > 0) {
+	if(dest->ActTarg(ACT_SPECIAL_LINKED)
+                && dest->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
+	  dest = dest->ActTarg(ACT_SPECIAL_LINKED);
+	  if(visited.count(dest->Parent()) < 1) {
+	    dest->Parent()->SendOut(0, 0,
+		"From ;s you hear someone shout '%s'!!!\n", "",
+		dest, dest, mes);
+	    dest->Parent()->Loud(visited, str, mes);
+	    }
+	  }
+	}
+      str=ostr;
+      }
+    }
+  }

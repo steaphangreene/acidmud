@@ -236,6 +236,7 @@ public:
   void SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
 	Object *actor, Object *targ, ...)
 	__attribute__ ((format (printf, 4, 8)));
+  void Loud(int str, const char *mes);
 
   void CircleLoad(const char *);
   void CircleLoadObj(const char *);
@@ -269,6 +270,8 @@ public:
   void AddMOB(const MOBType *);
 
 private:
+  void Loud(set<Object*> &visited, int str, const char *mes);
+
   AtomString short_desc;
   AtomString desc;
   AtomString long_desc;
