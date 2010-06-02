@@ -1359,7 +1359,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	else if(diff < -2) mind->Send("   ...is much faster than you.\n");
 	else if(diff < -1) mind->Send("   ...is faster than you.\n");
 	else if(diff < 0)  mind->Send("   ...is a bit faster than you.\n");
-	else if(diff > 10) mind->Send("   ...is turtle on valium.\n");
+	else if(diff > 10) mind->Send("   ...is a turtle on valium.\n");
 	else if(diff > 5)  mind->Send("   ...is slower than dial-up.\n");
 	else if(diff > 2)  mind->Send("   ...is much slower than you.\n");
 	else if(diff > 1)  mind->Send("   ...is slower than you.\n");
@@ -1372,7 +1372,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	else if(diff < -2) mind->Send("   ...is much stronger than you.\n");
 	else if(diff < -1) mind->Send("   ...is stronger than you.\n");
 	else if(diff < 0)  mind->Send("   ...is a bit stronger than you.\n");
-	else if(diff > 10) mind->Send("   ...is a girly-man.\n");
+	else if(diff > 10) mind->Send("   ...is a complete push-over.\n");
 	else if(diff > 5)  mind->Send("   ...is a wuss compared to you.\n");
 	else if(diff > 2)  mind->Send("   ...is much weaker than you.\n");
 	else if(diff > 1)  mind->Send("   ...is weaker than you.\n");
@@ -1403,6 +1403,22 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	else if(diff > 1)  mind->Send("   ...has less reach than you.\n");
 	else if(diff > 0)  mind->Send("   ...has a bit less reach than you.\n");
 	else               mind->Send("   ...has about your reach.\n");
+
+	if((targ->Skill("CircleAction") & 4128) == 0) {
+	  mind->Send("   ...does not seem threatening.\n");
+	  }
+	else if((targ->Skill("CircleAction") & 160) == 32) {
+	  mind->Send("   ...is spoiling for a fight.\n");
+	  }
+	else if((targ->Skill("CircleAction") & 160) == 160) {
+	  mind->Send("   ...seems to be trolling for victems.\n");
+	  }
+	else if(targ->Skill("CircleAction") & 4096) {
+	  mind->Send("   ...seems to be on the look-out for trouble.\n");
+	  }
+	else {
+	  mind->Send("   ...is impossible - tell the Ninjas[TM].\n");
+	  }
 	}
       }
     return 0;
