@@ -1033,7 +1033,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!strncasecmp(comline+len, "for ", 4)) len += 4;
 
-    body->Parent()->SendOut(0, 0, ";s shouts '%s'!!!\n", "You shout '%s'!!!\n",
+    body->Parent()->SendOut(ALL, 0, ";s shouts '%s'!!!\n", "You shout '%s'!!!\n",
 	body, body, comline+len);
 
     body->Parent()->Loud(body->Skill("Strength"), comline+len);
@@ -1044,7 +1044,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 
   if(com == COM_SAY) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    body->Parent()->SendOut(0, 0, ";s says '%s'\n", "You say '%s'\n",
+    body->Parent()->SendOut(ALL, 0, ";s says '%s'\n", "You say '%s'\n",
 	body, body, comline+len);
     body->SetSkill("Hidden", 0);
     return 0;
@@ -1052,7 +1052,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 
   if(com == COM_EMOTE) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    body->Parent()->SendOut(0, 0, ";s %s\n", "Your character %s\n",
+    body->Parent()->SendOut(ALL, 0, ";s %s\n", "Your character %s\n",
 	body, body, comline+len);
     body->SetSkill("Hidden", 0);
     return 0;
@@ -2775,13 +2775,13 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     if(!(targ->Attribute(1) <= 0 || targ->IsAct(ACT_DEAD)
 	|| targ->IsAct(ACT_DYING) || targ->IsAct(ACT_UNCONSCIOUS))) {
       body->AddAct(ACT_FIGHT, targ);
-      body->BusyFor(3000, "attack");
+      body->BusyFor(3000, body->Tactics().c_str());
       if(!targ->IsAct(ACT_FIGHT)) {
-	targ->BusyFor(3000, "attack");
+	targ->BusyFor(3000, body->Tactics().c_str());
 	targ->AddAct(ACT_FIGHT, body);
 	}
       else if(targ->StillBusy()) {
-	body->BusyWith(targ, "attack");
+	body->BusyWith(targ, body->Tactics().c_str());
 	}
       }
     else {

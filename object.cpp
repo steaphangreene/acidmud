@@ -2177,7 +2177,7 @@ int Object::BusyAct() {
   return (ret == 2); //Return 1 if no more actions this round!
   }
 
-void FreeActions() {
+void Object::FreeActions() {
   int maxinit = 0;
   map<Object *, list<int> > initlist;
   for(set<Object *>::iterator busy = busylist.begin();
@@ -2205,10 +2205,18 @@ void FreeActions() {
     }
   for(map<Object *,list<int> >::iterator init = initlist.begin();
 	init != initlist.end(); ++init) {
+
+    // Still in combat!
     if(init->first->IsAct(ACT_FIGHT) && (!init->first->StillBusy())) {
-      init->first->BusyFor(3000, "attack");	// Still in combat!
+      string ret = init->first->Tactics();
+      init->first->BusyFor(3000, ret.c_str());
       }
     }
+  }
+
+string Object::Tactics(int phase) {
+  string ret = (*(minds.begin()))->Tactics();	//FIXME: Handle Multiple Minds
+  return ret;
   }
 
 int Object::operator != (const Object &in) const {
@@ -2393,7 +2401,7 @@ void Object::Loud(set<Object*> &visited, int str, const char *mes) {
                 && dest->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
 	  dest = dest->ActTarg(ACT_SPECIAL_LINKED);
 	  if(visited.count(dest->Parent()) < 1) {
-	    dest->Parent()->SendOut(0, 0,
+	    dest->Parent()->SendOut(ALL, 0,
 		"From ;s you hear someone shout '%s'!!!\n", "",
 		dest, dest, mes);
 	    dest->Parent()->Loud(visited, str, mes);

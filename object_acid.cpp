@@ -109,7 +109,7 @@ int Object::Load(const char *fn) {
       /* Decode the Object Number from a pointer, Encoded in LoadFrom() */
       int num = int(aind->second - ((Object *)(NULL)));
       aind->second = num2obj[num];
-      if(aind->first == ACT_FIGHT) (*ind)->BusyFor(500, "attack");
+      if(aind->first == ACT_FIGHT) (*ind)->BusyFor(500, (*ind)->Tactics().c_str());
       }
     }
   todo.clear();

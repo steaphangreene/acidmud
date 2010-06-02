@@ -215,6 +215,18 @@ void Mind::SetPlayer(string pn) {
     }
   }
 
+string Mind::Tactics(int phase) {
+  if(type == MIND_CIRCLEMOB) {
+    //NON-HELPER and NON-AGGRESSIVE Circle Mobs (Innocent MOBs)
+    if(body && (body->Skill("CircleAction") & 4128) == 0) {
+      if(phase == -1) {
+	return "call HELP; attack";
+	}
+      }
+    }
+  return "attack";
+  }
+
 static const char *dirnames[4] = { "north", "south", "east", "west" };
 static const char *items[8] = {
   "Food", "Hungry",	//Order is Most to Least Important
@@ -291,7 +303,7 @@ void Mind::Think(int istick) {
       }
     }
   else if(type == MIND_CIRCLEMOB) {
-    if((!body) || body->StillBusy()) return;
+    if((!body) || (istick >= 0 && body->StillBusy())) return;
 
     //Temporary
     if(body && body->ActTarg(ACT_WEAR_SHIELD) && (!body->IsAct(ACT_HOLD))) {
@@ -378,10 +390,10 @@ void Mind::Think(int istick) {
 		&& (*other)->Attribute(1)		//It's not a rock
 		&& (!(*other)->IsAct(ACT_DEAD))		//It's not already dead
 		&& (*other)->IsAct(ACT_FIGHT)		//It's figting someone
-		&& (*other)->ActTarg(ACT_FIGHT)->Skill("CircleAction")
+		&& (*other)->ActTarg(ACT_FIGHT)->HasSkill("CircleAction")
 							//...against another MOB
 	        ) {
-	  string command = string("attack ") + (*other)->ShortDesc();
+	  string command = string("call ALARM; attack ") + (*other)->ShortDesc();
 	  body->BusyFor(500, command.c_str());
 	  //fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
 	  return;
@@ -390,7 +402,7 @@ void Mind::Think(int istick) {
       }
     //NON-SENTINEL Circle Mobs
     if(body && body->Parent() && (body->Skill("CircleAction") & 2) == 0
-	&& (!body->IsAct(ACT_FIGHT)) && istick
+	&& (!body->IsAct(ACT_FIGHT)) && (istick == 1)
 	&& (!body->IsAct(ACT_REST)) && (!body->IsAct(ACT_SLEEP))
 	&& body->Stun() < 6 && body->Phys() < 6
 	&& body->Roll("Willpower", 9)) {

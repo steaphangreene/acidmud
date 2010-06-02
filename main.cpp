@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
 
 	//static long long diff2;
 	//gettimeofday(&now_time, NULL);
-    FreeActions();
+    Object::FreeActions();
 	//gettimeofday(&then_time, NULL);
 	//diff2 = (long long)(then_time.tv_usec - now_time.tv_usec);
 	//diff2 += (long long)(1000000) * (long long)(then_time.tv_sec - now_time.tv_sec);

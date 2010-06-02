@@ -261,6 +261,8 @@ public:
   void BusyWith(Object *other, const char *default_next = "");
   void DoWhenFree(const char *);
 
+  string Tactics(int phase = -1);
+
   void operator = (const Object &in);
   int operator == (const Object &in) const;
   int operator != (const Object &in) const;
@@ -268,6 +270,8 @@ public:
   int Matches(const char *seek);
 
   void AddMOB(const MOBType *);
+
+  static void FreeActions();
 
 private:
   void Loud(set<Object*> &visited, int str, const char *mes);
@@ -311,8 +315,6 @@ int getnum(Object *);
 int matches(const char *name, const char *seek);
 Mind *get_mob_mind();
 Mind *get_circle_mob_mind();
-
-void FreeActions();
 
 string get_skill(string sk);
 string get_skill_cat(string cat);

@@ -39,6 +39,7 @@ public:
   void SendRaw(const char *, ...) __attribute__ ((format (printf, 2, 3)));
   void UpdatePrompt();
   void Think(int istick = 0);
+  string Tactics(int phase = -1);
 
 private:
   int type;
