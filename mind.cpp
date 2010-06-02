@@ -146,6 +146,38 @@ void Mind::Send(const char *mes, ...) {
 //
 //    write(pers, newmes.c_str(), newmes.length());
 
+    //HELPER Circle Mobs
+    if(body && body->Parent()
+	&& (body->Skill("CircleAction") & 4096)		//Helpers
+	&& ((body->Skill("CircleAction") & 2) == 0)	//NON-SENTINEL
+	&& body->Stun() < 6			//I'm not stunned
+	&& body->Phys() < 6			//I'm not injured
+	&& (!body->IsAct(ACT_SLEEP))		//I'm not asleep
+	&& (!body->IsAct(ACT_REST))		//I'm not resting
+	&& (!body->IsAct(ACT_FIGHT))		//I'm not already fighting
+	) {
+      if((!strncasecmp(mes, "From ", 5))
+		&& (strcasestr(mes, " you hear someone shout '") != NULL)
+		&& ((strstr(mes, "HELP")) || (strstr(mes, "ALARM")))
+		) {
+	char buf[256] = "                                               ";
+	sscanf(mes+4, "%128s", buf);
+
+	Object *door = body->PickObject(buf, LOC_NEARBY);
+
+	if(door->ActTarg(ACT_SPECIAL_LINKED)
+                && door->ActTarg(ACT_SPECIAL_LINKED)->Parent()
+		&& CircleCanWanderTo(
+			door->ActTarg(ACT_SPECIAL_LINKED)->Parent()
+			)
+		) {
+	  char buf[256] = "enter                                          ";
+	  sscanf(mes+4, "%128s", buf+6);
+	  body->BusyFor(500, buf);
+	  }
+	return;
+	}
+      }
     Think(); //Reactionary actions (HACK!).
     }
   else if(type == MIND_SYSTEM) {
@@ -401,7 +433,7 @@ void Mind::Think(int istick) {
 	}
       }
     //NON-SENTINEL Circle Mobs
-    if(body && body->Parent() && (body->Skill("CircleAction") & 2) == 0
+    if(body && body->Parent() && ((body->Skill("CircleAction") & 2) == 0)
 	&& (!body->IsAct(ACT_FIGHT)) && (istick == 1)
 	&& (!body->IsAct(ACT_REST)) && (!body->IsAct(ACT_SLEEP))
 	&& body->Stun() < 6 && body->Phys() < 6
@@ -427,24 +459,8 @@ void Mind::Think(int istick) {
 	  }
 
 	Object *dest = dir->first->ActTarg(ACT_SPECIAL_LINKED)->Parent();
-	if(dest->Skill("CircleZone") == 999999) { //NO_MOBS Circle Zone
-	  cons.erase(dir->first); //Don't Enter NO_MOBS Zone!
-	  }
-	else if(body->Skill("CircleAction") & 64) {	//STAY_ZONE Circle MOBs
-	  if(dest->Skill("CircleZone")
-			!= body->Parent()->Skill("CircleZone")) {
-	    cons.erase(dir->first);			//Don't Leave Zone!
-	    }
-	  }
-	else if(body->Skill("Swimming") == 0) {		//Can't Swim?
-	  if(dest->Skill("WaterDepth") == 1) {
-	    cons.erase(dir->first);			//Can't swim!
-	    }
-	  }
-	else if(!(body->Skill("CircleAffection")&64)) {	//Can't Waterwalk?
-	  if(dest->Skill("WaterDepth") >= 1) {	//Need boat!
-	    cons.erase(dir->first);			//FIXME: Have boat?
-	    }
+	if(!CircleCanWanderTo(dest)) {
+	  cons.erase(dir->first);
 	  }
 	}
 
@@ -457,4 +473,27 @@ void Mind::Think(int istick) {
 	}
       }
     }
+  }
+
+
+int Mind::CircleCanWanderTo(Object *dest) {
+  if(dest->Skill("CircleZone") == 999999) { //NO_MOBS Circle Zone
+    return 0;				//Don't Enter NO_MOBS Zone!
+    }
+  else if(body->Skill("CircleAction") & 64) {	//STAY_ZONE Circle MOBs
+    if(dest->Skill("CircleZone") != body->Parent()->Skill("CircleZone")) {
+      return 0;				//Don't Leave Zone!
+      }
+    }
+  else if(body->Skill("Swimming") == 0) {		//Can't Swim?
+    if(dest->Skill("WaterDepth") == 1) {
+      return 0;				//Can't swim!
+      }
+    }
+  else if(!(body->Skill("CircleAffection")&64)) {	//Can't Waterwalk?
+    if(dest->Skill("WaterDepth") >= 1) {	//Need boat!
+      return 0;				//FIXME: Have boat?
+      }
+    }
+  return 1;
   }

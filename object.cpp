@@ -2215,7 +2215,11 @@ void Object::FreeActions() {
   }
 
 string Object::Tactics(int phase) {
-  string ret = (*(minds.begin()))->Tactics();	//FIXME: Handle Multiple Minds
+  Mind *mind = (*(minds.begin()));	//FIXME: Handle Multiple Minds
+  Object *body = mind->Body();
+  mind->Attach(this);
+  string ret = mind->Tactics();
+  mind->Attach(body);
   return ret;
   }
 

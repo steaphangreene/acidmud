@@ -42,6 +42,8 @@ public:
   string Tactics(int phase = -1);
 
 private:
+  int CircleCanWanderTo(Object *dest);
+
   int type;
   int pers;
   Object *body;
