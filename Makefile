@@ -43,6 +43,7 @@ upload:
 	scp ChangeLog acidmud@$(ACIDHOST):~acidmud/public_html/changes.txt
 
 acidmud: $(OBJS)
+	rm -f acidmud
 	$(CXX) -Wall -o acidmud $(OBJS) $(LIBS)
 
 %.o: %.cpp
