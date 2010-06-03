@@ -1,5 +1,5 @@
 #!/bin/csh -f
-wget https://www.cs.binghamton.edu/~stea/gaming/wiki/index.php/SkillsData \
+wget 'https://www.cs.binghamton.edu/~stea/gaming/wiki/index.php/SkillsData' \
 	-o /dev/null -O - \
 	| csplit -n 1 -f /tmp/skills -q - %START% /END/ %Served\ in%
 tail -n +3 /tmp/skills0 | cut -c8- > /tmp/skills

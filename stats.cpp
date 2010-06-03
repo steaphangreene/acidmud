@@ -226,6 +226,7 @@ static void init_defaults() {
   skcat["Intelligence-Based Skills"].push_back("Carpentry");
   skcat["Creation Skills"].push_back("Carpentry");
   skcat["Medieval Skills"].push_back("Carpentry");
+  skcat["Modern Skills"].push_back("Carpentry");
   skcat["Skills"].push_back("Carpentry");
 
   //Skill Definition: Carromeleg_-_Tier_I
@@ -999,6 +1000,14 @@ static void init_defaults() {
   skcat["Cyberpunk Skills"].push_back("Low-G Ops");
   skcat["Shadowrun Skills"].push_back("Low-G Ops");
   skcat["Skills"].push_back("Low-G Ops");
+
+  //Skill Definition: Lumberjack
+  defaults["Lumberjack"] = 2;
+  skcat["Strength-Based Skills"].push_back("Lumberjack");
+  skcat["Creation Skills"].push_back("Lumberjack");
+  skcat["Medieval Skills"].push_back("Lumberjack");
+  skcat["Modern Skills"].push_back("Lumberjack");
+  skcat["Skills"].push_back("Lumberjack");
 
   //Skill Definition: Machine_Pistols
   defaults["Machine Pistols"] = 1;
