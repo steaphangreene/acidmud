@@ -37,8 +37,8 @@ backup:
 	gzip -9 ~/c/archive/acidmud.$(TSTR).tar
 
 upload:
-	./scripts/upload_binary.csh
-	scp TODO acidmud@$(ACIDHOST):~acidmud/public_html/todo.txt
+#	./scripts/upload_binary.csh
+#	scp TODO acidmud@$(ACIDHOST):~acidmud/public_html/todo.txt
 	./scripts/svn2cl.sh > ChangeLog
 	scp ChangeLog acidmud@$(ACIDHOST):~acidmud/public_html/changes.txt
 
