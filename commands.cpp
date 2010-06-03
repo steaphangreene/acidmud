@@ -688,7 +688,12 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 
   //fprintf(stderr, "Handling command from %p[%p] of '%s'\n", mind, body, comline);
 
-  for(len=0; isgraph(comline[len]); ++len); 
+  if(comline[0] == '\'' || comline[0] == '"') {	//Command Alias: "say"
+    len = 1;
+    }
+  else {
+    for(len=0; isgraph(comline[len]); ++len); 
+    }
 
   if(len == 0) return 0;
 
@@ -696,6 +701,11 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
   for(int ctr=0; ctr < comnum; ++ctr) {
     if(!strncasecmp(comline, comlist[ctr].command, len))
       { com = comlist[ctr].id; cnum = ctr; break; }
+
+    //Command Aliases
+    if(comlist[ctr].id == COM_SAY && (comline[0]=='\'' || comline[0]=='"')) {
+      com = comlist[ctr].id; cnum = ctr; break;
+      }
     }
   if(com == -1) {
     if(mind) mind->Send("Command NOT understood - type 'help' for assistance.\n");
@@ -1050,6 +1060,14 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     return 0;
     }
 
+  if(com == COM_SAY) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    body->Parent()->SendOut(ALL, 0, ";s says '%s'\n", "You say '%s'\n",
+	body, body, comline+len);
+    body->SetSkill("Hidden", 0);
+    return 0;
+    }
+
   if(com == COM_SHOUT || com == COM_YELL || com == COM_CALL) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!strncasecmp(comline+len, "for ", 4)) len += 4;
@@ -1063,14 +1081,6 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 
     body->Parent()->Loud(body->Skill("Strength"), comline+len);
 
-    body->SetSkill("Hidden", 0);
-    return 0;
-    }
-
-  if(com == COM_SAY) {
-    while((!isgraph(comline[len])) && (comline[len])) ++len;
-    body->Parent()->SendOut(ALL, 0, ";s says '%s'\n", "You say '%s'\n",
-	body, body, comline+len);
     body->SetSkill("Hidden", 0);
     return 0;
     }
