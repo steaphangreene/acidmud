@@ -1054,8 +1054,12 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!strncasecmp(comline+len, "for ", 4)) len += 4;
 
+    char *mes = strdup(comline+len);
+    for(char *chr = mes; *chr != 0; ++chr) {
+      *chr = toupper(*chr);
+      }
     body->Parent()->SendOut(ALL, 0, ";s shouts '%s'!!!\n", "You shout '%s'!!!\n",
-	body, body, comline+len);
+	body, body, mes);
 
     body->Parent()->Loud(body->Skill("Strength"), comline+len);
 
