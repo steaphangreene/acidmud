@@ -75,6 +75,7 @@ enum {	COM_HELP=0,
 
 	COM_LEAVE,
 	COM_ENTER,
+	COM_SELECT,
 
 	COM_OPEN,
 	COM_CLOSE,
@@ -255,6 +256,11 @@ Command comlist[] = {
     "Enter an object (or enter the game).",
     "Enter an object (or enter the game).",
     (REQ_ETHEREAL|REQ_ALERT|REQ_STAND|REQ_ACTION)
+    },
+  { COM_SELECT, "select",
+    "Select an unfinished character.",
+    "Select an unfinished character.",
+    (REQ_ETHEREAL)
     },
 
   { COM_OPEN, "open",
@@ -824,6 +830,21 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     return 0;
     }
 
+  if(com == COM_SELECT) {
+    Object *body = mind->Owner()->Room()->PickObject(comline+len, LOC_INTERNAL);
+    if(!body) {
+      mind->Send("Sorry, that character doesn't exist.\n"
+		"Use the 'newcharacter' command to create a new character.\n");
+      return 0;
+      }
+    else {
+      mind->Send("'%s' is now selected as your currect character to work on.\n",
+		body->Name());
+      mind->Owner()->SetCreator(body);
+      return 0;
+      }
+    }
+
   if(com == COM_NORTH)	{ com = COM_ENTER; len = 6; comline = "enter north"; }
   if(com == COM_SOUTH)	{ com = COM_ENTER; len = 6; comline = "enter south"; }
   if(com == COM_EAST)	{ com = COM_ENTER; len = 6; comline = "enter east"; }
@@ -862,7 +883,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       if(body->IsAct(ACT_DEAD)) {
 	if(nmode) {
 	  // Allow entry to ninjas - autoheal!
-	  }  
+	  }
 	else {
 	  mind->Send("Sorry, that character is dead.\n"
 		"Use the 'newcharacter' command to create a new character.\n");
@@ -3048,7 +3069,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 
     Object *chr = mind->Owner()->Creator();
     if(!chr) {
-      mind->Send("You need to be working on a character first (use 'enter <character>'.\n");
+      mind->Send("You need to be working on a character first (use 'select <character>'.\n");
       return 0;
       }
     else if(strlen(comline+len) > 0) {
@@ -3086,7 +3107,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     if(!chr) {
       chr = mind->Owner()->Creator();
       if(!chr) {
-	mind->Send("You need to be working on a character first (use 'enter <character>'.\n");
+	mind->Send("You need to be working on a character first (use 'select <character>'.\n");
 	return 0;
 	}
       }

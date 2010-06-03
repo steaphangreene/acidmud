@@ -55,7 +55,7 @@ void Player::SetName(string nm) {
   room->SetShortDesc(desc.c_str());
   desc = "Available commands:\n";
   desc += "     enter <character_name>: Enter a finished character.\n";
-  desc += "     enter <character_name>: Select an unfinished character.\n";
+  desc += "     select <character_name>: Select an unfinished character.\n";
   desc += "     newcharacter <character_name>: Create a new character.\n";
   desc += "     raise <stat>: Raise a stat of the currently selected character.\n";
   desc += "     randomize: Randomly spend all remaining points of current character.\n";
