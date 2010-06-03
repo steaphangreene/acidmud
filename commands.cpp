@@ -1062,10 +1062,20 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 
   if(com == COM_SAY) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    body->Parent()->SendOut(ALL, 0, ";s says '%s'\n", "You say '%s'\n",
+    int shouting = 1;
+    if(strlen(comline+len) < 4) shouting = 0;
+    for(const char *chr = comline+len; shouting && *chr != 0; ++chr) {
+      if(islower(*chr)) shouting = 0;
+      }
+    if(!shouting) {
+      body->Parent()->SendOut(ALL, 0, ";s says '%s'\n", "You say '%s'\n",
 	body, body, comline+len);
-    body->SetSkill("Hidden", 0);
-    return 0;
+      body->SetSkill("Hidden", 0);
+      return 0;
+      }
+    else {
+      com = COM_SHOUT;
+      }
     }
 
   if(com == COM_SHOUT || com == COM_YELL || com == COM_CALL) {
