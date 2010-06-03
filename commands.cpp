@@ -3114,12 +3114,16 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       else if(toupper(*(comline+len)) == 'I') attr = 4;
       else if(toupper(*(comline+len)) == 'W') attr = 5;
 
-      cost = (chr->Attribute(attr) + 1) * 4;
+      cost = chr->Attribute(attr) + 1;
 
-      if(body && chr->Exp(mind->Owner()) < cost) {
+      if(body && chr->Exp(mind->Owner()) < (cost * 4)) {
 	mind->Send("You don't have enough experience to raise your %s.\n"
 		"You need %d, but you only have %d\n",
-		statnames[attr], cost, chr->Exp(mind->Owner()));
+		statnames[attr], cost * 4, chr->Exp(mind->Owner()));
+	return 0;
+	}
+      if((!body) && (chr->Skill("Attributes") < cost)) {
+	mind->Send("You don't have enough free attribute points left.\n");
 	return 0;
 	}
 
@@ -3138,11 +3142,21 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	mind->Send("Your %s is already at the maximum.\n", statnames[attr]);
 	}
       else {
-	if(!body) chr->SetSkill("Attributes", chr->Skill("Attributes") - 1);
-	else chr->SpendExp(cost);
+	if(!body) chr->SetSkill("Attributes", chr->Skill("Attributes") - cost);
+	else chr->SpendExp(cost * 4);
 	chr->SetAttribute(attr, chr->Attribute(attr) + 1);
 	mind->Send("You raise your %s.\n", statnames[attr]);
 	}
+      }
+    else if((!body)
+	&& (!strncasecmp(comline+len, "senses", strlen(comline+len)))) {
+      if(!chr->Skill("Attributes")) {
+	mind->Send("You have no free attribute points left.\n");
+	return 0;
+	}
+      chr->SetSkill("Attributes", chr->Skill("Attributes") - 1);
+      chr->SetSkill("Senses", chr->Skill("Senses") + 1);
+      mind->Send("You set aside an attribute point for senses.\n");
       }
     else {
       string skill = get_skill(comline+len);
@@ -3158,13 +3172,13 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	  mind->Send("Your %s is already at the maximum.\n", skill.c_str());
 	  return 0;
 	  }
+	cost = (chr->Skill(skill) + 1);
         if(body) {
-	  cost = (chr->Skill(skill) + 1) * 2;
-	  if(cost/2 > chr->Attribute(get_linked(skill))) cost *= 2;
-	  if(chr->Exp(mind->Owner()) < cost) {
+	  if(cost > chr->Attribute(get_linked(skill))) cost *= 2;
+	  if(chr->Exp(mind->Owner()) < (cost * 2)) {
 	    mind->Send("You don't have enough experience to raise your %s.\n"
 		"You need %d, but you only have %d\n",
-		skill.c_str(), cost, chr->Exp(mind->Owner()));
+		skill.c_str(), cost * 2, chr->Exp(mind->Owner()));
 	    return 0;
 	    }
 	  }
@@ -3172,8 +3186,12 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	  mind->Send("You have no free skill points left.\n");
 	  return 0;
 	  }
-	if(body) chr->SpendExp(cost);
-	else chr->SetSkill("Skills", chr->Skill("Skills") - 1);
+        else if(chr->Skill("Skills") < cost) {
+	  mind->Send("You don't have enough free skill points left.\n");
+	  return 0;
+	  }
+	if(body) chr->SpendExp(cost * 2);
+	else chr->SetSkill("Skills", chr->Skill("Skills") - cost);
 	chr->SetSkill(skill, chr->Skill(skill) + 1);
 	mind->Send("You raise your %s skill.\n", skill.c_str());
 	}

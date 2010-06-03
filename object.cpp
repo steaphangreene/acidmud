@@ -177,8 +177,8 @@ Object *new_body() {
   body->SetWeight(80000);
   body->SetGender('M');
 
-  body->SetSkill("Attributes", 12);
-  body->SetSkill("Skills", 40);
+  body->SetSkill("Attributes", 59);
+  body->SetSkill("Skills", 60);
   body->SetSkill("Resources", 90000);
 
   body->SetPos(POS_STAND);
