@@ -24,6 +24,7 @@ using namespace std;
 #define SIT_LIE		64
 #define SIT_SIT		128
 #define SIT_STAND	256
+#define SIT_USE		512
 #define SIT_ACTION	4096
 #define SIT_NINJAMODE	8192
 #define SIT_NINJA	16384
@@ -38,7 +39,10 @@ using namespace std;
 #define REQ_LIE		(SIT_LIE | REQ_CORPOREAL)
 #define REQ_SIT		(SIT_SIT | REQ_CORPOREAL)
 #define REQ_STAND	(SIT_STAND | REQ_CORPOREAL)
+#define REQ_UP		(SIT_STAND | SIT_USE | REQ_CORPOREAL)
+
 #define REQ_ACTION	(SIT_ACTION | REQ_CORPOREAL)
+
 #define REQ_NINJAMODE	(SIT_NINJAMODE)
 #define REQ_NINJA	(SIT_NINJA)
 #define REQ_SUPERNINJA	(SIT_SUPERNINJA|SIT_NINJA)
@@ -96,6 +100,7 @@ enum {	COM_HELP=0,
 	COM_REST,
 	COM_SIT,
 	COM_STAND,
+	COM_USE,
 
 	COM_SHOUT,
 	COM_YELL,
@@ -183,32 +188,32 @@ Command comlist[] = {
   { COM_NORTH, "north",
     "Travel north.",
     "Travel north.",
-    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
   { COM_SOUTH, "south",
     "Travel south.",
     "Travel south.",
-    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
   { COM_EAST, "east",
     "Travel east.",
     "Travel east.",
-    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
   { COM_WEST, "west",
     "Travel west.",
     "Travel west.",
-    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
   { COM_UP, "up",
     "Travel up.",
     "Travel up.",
-    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
   { COM_DOWN, "down",
     "Travel down.",
     "Travel down.",
-    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
 
   { COM_LOOK, "look",
@@ -349,6 +354,11 @@ Command comlist[] = {
     "Stand up.",
     "Stand up.",
     (REQ_CONSCIOUS|REQ_ACTION)
+    },
+  { COM_USE, "use",
+    "Use a skill, or us current skill on something.",
+    "Use a skill, or us current skill on something.",
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
 
   { COM_SHOUT, "shout",
@@ -764,16 +774,34 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
         return 0;
         }
       }
-    if((comlist[cnum].sit & (SIT_STAND|SIT_SIT)) == (SIT_STAND|SIT_SIT)) {
-      if(body->Pos() != POS_SIT && body->Pos() != POS_STAND) {
+    if((comlist[cnum].sit & (SIT_STAND|SIT_USE)) == (SIT_STAND|SIT_USE)) {
+      if(body->Pos() != POS_STAND && body->Pos() != POS_USE) {
+        if(mind) mind->Send("You must stand up to use that command.\n");
+	handle_single_command(body, "stand", mind);
+	if(body->Pos() != POS_STAND && body->Pos() != POS_USE)
+	  return 0;
+        }
+      }
+    else if((comlist[cnum].sit & (SIT_STAND|SIT_SIT)) == (SIT_STAND|SIT_SIT)) {
+      if(body->Pos() == POS_USE) {
+        if(mind) mind->Send("You must stop using this skill to do that.\n");
+	handle_single_command(body, "use", mind);
+	if(body->Pos() != POS_STAND) return 0;
+	}
+      else if(body->Pos() != POS_SIT && body->Pos() != POS_STAND) {
         if(mind) mind->Send("You must at least sit up to use that command.\n");
 	handle_single_command(body, "sit", mind);
 	if(body->Pos() != POS_SIT && body->Pos() != POS_STAND)
 	  return 0;
         }
       }
-    if(comlist[cnum].sit & SIT_STAND) {
-      if(body->Pos() != POS_STAND) {
+    else if(comlist[cnum].sit & SIT_STAND) {
+      if(body->Pos() == POS_USE) {
+        if(mind) mind->Send("You must stop using this skill to do that.\n");
+	handle_single_command(body, "use", mind);
+	if(body->Pos() != POS_STAND) return 0;
+	}
+      else if(body->Pos() != POS_STAND) {
         if(mind) mind->Send("You must stand up to use that command.\n");
 	handle_single_command(body, "stand", mind);
 	if(body->Pos() != POS_STAND) return 0;
@@ -2664,7 +2692,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     }
 
   if(com == COM_STAND) {
-    if(body->Pos() == POS_STAND) {
+    if(body->Pos() == POS_STAND || body->Pos() == POS_USE) {
       if(mind) mind->Send("But you are already standing!\n");
       }
     else if(body->IsAct(ACT_SLEEP)) {
@@ -2728,6 +2756,58 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       body->SetPos(POS_LIE);
       body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s lies down.\n", "You lie down.\n", body, NULL);
+      }
+    if(body->IsAct(ACT_FOLLOW)) {
+      if(body->ActTarg(ACT_FOLLOW) && mind)
+	body->Parent()->SendOut(stealth_t, stealth_s, 
+		";s stop following ;s.\n", "You stop following ;s.\n",
+		body, body->ActTarg(ACT_FOLLOW));
+      body->StopAct(ACT_FOLLOW);
+      }
+    return 0;
+    }
+
+  if(com == COM_USE) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(strlen(comline+len) == 0) {
+      if(body->Pos() != POS_USE) {
+	mind->Send("You're not using a skill.  Try 'use <skillname>' to start.\n");
+	}
+      else {
+	body->Parent()->SendOut(stealth_t, stealth_s, 
+	  ";s stops using the %s skill.\n", "You stop using the %s skill.\n",
+	  body, NULL, body->Using()
+	  );
+	body->SetPos(POS_STAND);
+	}
+      return 0;
+      }
+
+    string skill = get_skill(comline+len);
+    if(skill == "") {
+      mind->Send("Don't know what skill you're trying to use.\n");
+      return 0;
+      }
+    if(body->Pos() != POS_STAND && body->Pos() != POS_USE) {
+      body->Parent()->SendOut(stealth_t, stealth_s, 
+	";s stands and starts using the %s skill.\n",
+	"You stand up and start using the %s skill.\n",
+	body, NULL, skill.c_str()
+	);
+      }
+    else {
+      body->Parent()->SendOut(stealth_t, stealth_s, 
+	";s starts using the %s skill.\n",
+	"You start using the %s skill.\n",
+	body, NULL, skill.c_str()
+	);
+      }
+    body->StartUsing(skill);
+    if(!body->HasSkill(skill)) {
+      mind->Send(
+	"%s...you don't have the '%s' skill, so you're bad at this.%s\n",
+	CYEL, skill.c_str(), CNRM
+	);
       }
     if(body->IsAct(ACT_FOLLOW)) {
       if(body->ActTarg(ACT_FOLLOW) && mind)

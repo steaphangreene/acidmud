@@ -32,6 +32,7 @@ enum pos_t {
 	POS_LIE,
 	POS_SIT,
 	POS_STAND,
+	POS_USE,
 	POS_MAX
 	};
 
@@ -208,9 +209,12 @@ public:
 
   int WoundPenalty() const;
 
-  pos_t Pos() { return pos; };
-  void SetPos(pos_t p) { pos = p; };
-  const char *PosString() { return pos_str[pos]; };
+  pos_t Pos();
+  void SetPos(pos_t p);
+  const char *PosString();
+  void StartUsing(const string &skill);
+  void StopUsing();
+  const char *Using();
 
   void Collapse();
 
@@ -283,6 +287,7 @@ private:
   Object *parent;
   set<Mind*> minds;
   pos_t pos;
+  AtomString cur_skill;
 
   int weight, volume, size;
   int value;

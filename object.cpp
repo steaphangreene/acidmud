@@ -21,6 +21,7 @@ const char *pos_str[POS_MAX] = {
         "is lying here",
         "is sitting here",
         "is standing here",
+        "is using a skill",
         };
 
 const char *act_str[ACT_SPECIAL_MAX] = {
@@ -2416,3 +2417,42 @@ void Object::Loud(set<Object*> &visited, int str, const char *mes) {
       }
     }
   }
+
+const char *Object::PosString() {
+  static char buf[128];
+  if(pos == POS_USE) {
+    if(cur_skill == AtomString("Stealth")) {
+      sprintf(buf, "is sneaking around here");
+      }
+    else {
+      sprintf(buf, "is using the %s skill here", Using());
+      }
+    return buf;
+    }
+  return pos_str[pos];
+  }
+
+
+void Object::StartUsing(const string &skill) {
+  cur_skill = AtomString(skill);
+  pos = POS_USE;
+  }
+
+void Object::StopUsing() {
+  if(pos == POS_USE) pos = POS_STAND;
+  cur_skill = AtomString("");
+  }
+
+const char *Object::Using() {
+  return cur_skill.c_str();
+  }
+
+pos_t Object::Pos() {
+  return pos;
+  }
+
+void Object::SetPos(pos_t p) {
+  if(pos == POS_USE && p != POS_USE) StopUsing();
+  pos = p;
+  }
+
