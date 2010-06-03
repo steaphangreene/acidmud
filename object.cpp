@@ -2447,6 +2447,10 @@ const char *Object::Using() {
   return cur_skill.c_str();
   }
 
+int Object::IsUsing(const string &skill) {
+  return (string(skill) == string(cur_skill));
+  }
+
 pos_t Object::Pos() {
   return pos;
   }

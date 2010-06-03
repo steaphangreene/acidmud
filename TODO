@@ -1,3 +1,5 @@
+Add stealthy hiding (now "hide" removes stealth).
+
 Implement dynamic city test.
 
 Redesign full command structure and reimplement/replace.
@@ -99,7 +101,6 @@ Troll Reach.
 Wake someone else up!
 Suite of special emote/speak commands (nod, smile, stare, etc...)
 Understand visibility and cut messages accordingly.
-Do things stealthily (not be noticed looking, pointing, etc...).
 Settings for display on go/enter/leave.
 Autostash enable/disable?
 Non-ninja healing skills?

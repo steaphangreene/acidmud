@@ -215,6 +215,7 @@ public:
   void StartUsing(const string &skill);
   void StopUsing();
   const char *Using();
+  int IsUsing(const string &skill);
 
   void Collapse();
 

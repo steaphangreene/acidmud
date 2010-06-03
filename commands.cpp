@@ -837,9 +837,9 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 
   int stealth_t = 0, stealth_s = 0;
 
-  if(body && body->Skill("Stealth") > 0) {
+  if(body && body->IsUsing("Stealth") && body->Skill("Stealth") > 0) {
     stealth_t = body->Skill("Stealth");
-    stealth_s = body->Roll("Stealth", 4);
+    stealth_s = body->Roll("Stealth", 2);
     }
 
   if(com == COM_VERSION) {
@@ -2788,6 +2788,16 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       mind->Send("Don't know what skill you're trying to use.\n");
       return 0;
       }
+    body->StartUsing(skill);
+
+    //In case Stealth was started, re-calc (to hide going into stealth).
+    stealth_t = 0;
+    stealth_s = 0;
+    if(body->IsUsing("Stealth") && body->Skill("Stealth") > 0) {
+      stealth_t = body->Skill("Stealth");
+      stealth_s = body->Roll("Stealth", 2);
+      }
+
     if(body->Pos() != POS_STAND && body->Pos() != POS_USE) {
       body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s stands and starts using the %s skill.\n",
@@ -2802,7 +2812,6 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	body, NULL, skill.c_str()
 	);
       }
-    body->StartUsing(skill);
     if(!body->HasSkill(skill)) {
       mind->Send(
 	"%s...you don't have the '%s' skill, so you're bad at this.%s\n",
