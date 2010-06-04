@@ -2166,8 +2166,9 @@ int Object::BusyAct() {
 //  fprintf(stderr, "Taking busyact %p!\n", this);
   busylist.erase(this);
 
-  //FIXME: THIS IS A HACK TO GET MULTI-ACTION ROUNDS
-  busytill = current_time;
+  if(StillBusy()) {		//Should only be true on non-first round action
+    busytill.tv_sec -= 3;	//So remove the time used of last action
+    }
 
   string comm = dowhenfree;
   string def = defact;
