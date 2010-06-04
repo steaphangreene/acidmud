@@ -1040,6 +1040,10 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	  body->Parent()->SendDescSurround(body, body);
 	else if(mind && mind->Type() == MIND_SYSTEM)
 	  mind->Send("You enter %s\n", comline+len);
+
+	if(stealth_t > 0) {
+	  body->SetSkill("Hidden", body->Roll("Stealth", 2) * 2);
+	  }
 	}
       }
     return 0;
@@ -1367,8 +1371,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s hides ;s.\n", "you hide ;s.\n", body, *targ_it);
 
-      int suc = body->Roll("Stealth", 4);
-      (*targ_it)->SetSkill("Hidden", suc * 2);
+      (*targ_it)->SetSkill("Hidden", body->Roll("Stealth", 2) * 2);
       }
     return 0;
     }

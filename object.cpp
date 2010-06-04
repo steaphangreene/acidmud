@@ -1658,10 +1658,20 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
       if(act != ACT_FOLLOW || (!newloc)) { StopAct(act); }
       else if(parent == newloc) { } // Do nothing - didn't leave!
       else {
-	parent->SendOut(ALL, -1, ";s follows ;s.\n", "You follow ;s.\n", this, obj);
+	int stealth_t = 0, stealth_s = 0;
+	if(IsUsing("Stealth") && Skill("Stealth") > 0) {
+	  stealth_t = Skill("Stealth");
+	  stealth_s = Roll("Stealth", 2);
+	  }
+	parent->SendOut(stealth_t, stealth_s,
+		";s follows ;s.\n", "You follow ;s.\n", this, obj);
 	Travel(newloc);
-	parent->SendOut(ALL, -1, ";s follows ;s.\n", "", this, obj);
+	parent->SendOut(stealth_t, stealth_s,
+		";s follows ;s.\n", "", this, obj);
 	AddAct(ACT_FOLLOW, obj);
+	if(stealth_t > 0) {
+          SetSkill("Hidden", Roll("Stealth", 2) * 2);
+          }
 	}
       }
     }
