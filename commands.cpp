@@ -2813,6 +2813,18 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       else {
 	longterm = 1000;	//FIXME: Temporary - should take longer!
 	}
+      if(body->IsUsing("Lumberjack")) {	//Already been doing it (finished!)
+	Object * log = new Object(body->Parent());
+	log->SetShortDesc("a log");
+	log->SetDesc("a fallen tree.");
+	log->SetLongDesc("This is a tree that has recently been cut down.");
+	log->SetPos(POS_LIE);
+	log->SetValue(10);
+	log->SetVolume(1000);
+	log->SetWeight(220000);
+	log->SetSize(8000);
+	log->SetSkill("Made of Wood", 200000);
+	}
       }
 
     body->StartUsing(skill);
@@ -2851,7 +2863,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	}
       else {
 	int dur = longterm / suc;
-	body->BusyFor(dur, "use Lumberjack");	//FIXME: Temporary!
+	body->BusyFor(dur, "shout TIMBER; use Lumberjack");	//FIXME: Temporary!
 	}
       return 2;		//Full-round (and more) action!
       }
