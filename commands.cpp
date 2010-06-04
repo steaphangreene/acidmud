@@ -2802,7 +2802,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       stealth_s = body->Roll("Stealth", 2);
       }
 
-    if(body->Pos() != POS_STAND && body->Pos() != POS_USE) {
+    if(body->Pos() != POS_STAND && body->Pos() != POS_USE) {	//FIXME: Unused
       body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s stands and starts using the %s skill.\n",
 	"You stand up and start using the %s skill.\n",

@@ -2492,6 +2492,14 @@ int get_weapon_type(string wskill) {
 string get_skill(string sk) {
   while(isspace(sk[sk.length()-1])) sk = sk.substr(0, sk.length()-1);
   if(defaults.count(sk)) return sk;
+  if(sk.length() < 2) return "";
+
+  typeof(defaults.begin()) itr = defaults.begin();
+  for(; itr != defaults.end(); ++itr) {
+    if(!strncasecmp(sk.c_str(), itr->first.c_str(), sk.length())) {
+      return itr->first;
+      }
+    }
   return "";
   }
 
