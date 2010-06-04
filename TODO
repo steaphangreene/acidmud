@@ -1,4 +1,4 @@
-Add stealthy hiding (now "hide" removes stealth).
+Kill trailing whitespace in commandline targets.
 
 Implement dynamic city test.
 

@@ -1116,6 +1116,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       }
     body->Parent()->SendOut(ALL, 0, ";s shouts '%s'!!!\n", "You shout '%s'!!!\n",
 	body, body, mes);
+    free(mes);
 
     body->Parent()->Loud(body->Skill("Strength"), comline+len);
 
