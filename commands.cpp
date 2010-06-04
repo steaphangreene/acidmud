@@ -101,6 +101,7 @@ enum {	COM_HELP=0,
 	COM_SIT,
 	COM_STAND,
 	COM_USE,
+	COM_STOP,
 
 	COM_SHOUT,
 	COM_YELL,
@@ -358,6 +359,11 @@ Command comlist[] = {
   { COM_USE, "use",
     "Start, or stop using a skill.",
     "Start, or stop using a skill.",
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
+    },
+  { COM_STOP, "stop",
+    "Stop using a skill.",
+    "Stop using a skill.",
     (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
 
@@ -785,7 +791,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     else if((comlist[cnum].sit & (SIT_STAND|SIT_SIT)) == (SIT_STAND|SIT_SIT)) {
       if(body->Pos() == POS_USE) {
         if(mind) mind->Send("You must stop using this skill to do that.\n");
-	handle_single_command(body, "use", mind);
+	handle_single_command(body, "stop", mind);
 	if(body->Pos() != POS_STAND) return 0;
 	}
       else if(body->Pos() != POS_SIT && body->Pos() != POS_STAND) {
@@ -798,7 +804,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     else if(comlist[cnum].sit & SIT_STAND) {
       if(body->Pos() == POS_USE) {
         if(mind) mind->Send("You must stop using this skill to do that.\n");
-	handle_single_command(body, "use", mind);
+	handle_single_command(body, "stop", mind);
 	if(body->Pos() != POS_STAND) return 0;
 	}
       else if(body->Pos() != POS_STAND) {
@@ -2771,6 +2777,11 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     return 0;
     }
 
+  if(com == COM_STOP) {		//Alias "stop" to "use"
+    com = COM_USE;
+    comline = "";
+    len = 0;
+    }
   if(com == COM_USE) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(strlen(comline+len) == 0) {
@@ -2779,19 +2790,31 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	}
       else {
 	body->Parent()->SendOut(stealth_t, stealth_s, 
-	  ";s stops using the %s skill.\n", "You stop using the %s skill.\n",
-	  body, NULL, body->Using()
-	  );
+		";s stops %s.\n", "You stop %s.\n",
+		body, NULL, body->UsingString()
+		);
 	body->SetPos(POS_STAND);
 	}
       return 0;
       }
 
+    int longterm = 0;	//Long-running skills for results
     string skill = get_skill(comline+len);
     if(skill == "") {
       mind->Send("Don't know what skill you're trying to use.\n");
       return 0;
       }
+
+    if(skill == "Lumberjack") {
+      if((!body->Parent()) || (!strcasestr(body->Parent()->Name(), "forest"))) {
+	mind->Send("%sThere are no trees here.%s\n", CYEL, CNRM);
+	return 0;
+	}
+      else {
+	longterm = 1000;	//FIXME: Temporary - should take longer!
+	}
+      }
+
     body->StartUsing(skill);
 
     //In case Stealth was started, re-calc (to hide going into stealth).
@@ -2804,16 +2827,14 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 
     if(body->Pos() != POS_STAND && body->Pos() != POS_USE) {	//FIXME: Unused
       body->Parent()->SendOut(stealth_t, stealth_s, 
-	";s stands and starts using the %s skill.\n",
-	"You stand up and start using the %s skill.\n",
-	body, NULL, skill.c_str()
+	";s stands and starts %s.\n", "You stand up and start %s.\n",
+	body, NULL, body->UsingString()
 	);
       }
     else {
       body->Parent()->SendOut(stealth_t, stealth_s, 
-	";s starts using the %s skill.\n",
-	"You start using the %s skill.\n",
-	body, NULL, skill.c_str()
+	";s starts %s.\n", "You start %s.\n",
+	body, NULL, body->UsingString()
 	);
       }
     if(!body->HasSkill(skill)) {
@@ -2821,6 +2842,18 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	"%s...you don't have the '%s' skill, so you're bad at this.%s\n",
 	CYEL, skill.c_str(), CNRM
 	);
+      }
+
+    if(longterm > 0) {	//Long-running skills for results
+      int suc = body->Roll(skill, 4);
+      if(suc <= 0) {
+	body->BusyFor(longterm, "stop");
+	}
+      else {
+	int dur = longterm / suc;
+	body->BusyFor(dur, "use Lumberjack");	//FIXME: Temporary!
+	}
+      return 2;		//Full-round (and more) action!
       }
     return 0;
     }

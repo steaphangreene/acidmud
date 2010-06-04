@@ -2167,7 +2167,9 @@ int Object::BusyAct() {
   busylist.erase(this);
 
   if(StillBusy()) {		//Should only be true on non-first round action
-    busytill.tv_sec -= 3;	//So remove the time used of last action
+    if(IsAct(ACT_FIGHT)) {	//If in actual combat (real rounds)
+      busytill.tv_sec -= 3;	//...remove the time used of last action
+      }
     }
 
   string comm = dowhenfree;
@@ -2434,17 +2436,28 @@ void Object::Loud(set<Object*> &visited, int str, const char *mes) {
 const char *Object::PosString() {
   static char buf[128];
   if(pos == POS_USE) {
-    if(cur_skill == AtomString("Stealth")) {
-      sprintf(buf, "is sneaking around here");
-      }
-    else {
-      sprintf(buf, "is using the %s skill here", Using());
-      }
+    sprintf(buf, "is %s here", UsingString());
     return buf;
     }
   return pos_str[pos];
   }
 
+const char *Object::UsingString() {
+  static char buf[128];
+  if(pos == POS_USE) {
+    if(cur_skill == AtomString("Stealth")) {
+      sprintf(buf, "sneaking around");
+      }
+    else if(cur_skill == AtomString("Lumberjack")) {
+      sprintf(buf, "chopping down trees");
+      }
+    else {
+      sprintf(buf, "using the %s skill", Using());
+      }
+    return buf;
+    }
+  return "doing nothing";
+  }
 
 void Object::StartUsing(const string &skill) {
   cur_skill = AtomString(skill);
