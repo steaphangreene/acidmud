@@ -2490,16 +2490,19 @@ int get_weapon_type(string wskill) {
   }
 
 string get_skill(string sk) {
+  while(isspace(sk[sk.length()-1])) sk = sk.substr(0, sk.length()-1);
   if(defaults.count(sk)) return sk;
   return "";
   }
 
 string get_skill_cat(string cat) {
+  while(isspace(cat[cat.length()-1])) cat = cat.substr(0, cat.length()-1);
   if(skcat.count(cat)) return cat;
   return "";
   }
 
 int get_linked(string sk) {
+  while(isspace(sk[sk.length()-1])) sk = sk.substr(0, sk.length()-1);
   if(defaults.count(sk)) return defaults[sk];
   return 4; // Default to Int for knowledges
   }
@@ -2507,6 +2510,8 @@ int get_linked(string sk) {
 list<string> get_skills(string cat) {
   if(!defaults_init) init_defaults();
   list<string> ret;
+
+  while(isspace(cat[cat.length()-1])) cat = cat.substr(0, cat.length()-1);
 
   if(cat == "Categories") {
     typeof(skcat.begin()) ind;

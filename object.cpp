@@ -151,8 +151,10 @@ int matches(const char *name, const char *seek) {
   }
 
 int Object::Matches(const char *seek) {
-  if(!strcasecmp(seek, "everyone")) return (Attribute(1) > 0);
-  return matches(ShortDesc(), seek);
+  string targ = seek;
+  while(isspace(targ[targ.length()-1])) targ=targ.substr(0, targ.length()-1);
+  if(!strcasecmp(targ.c_str(), "everyone")) return (Attribute(1) > 0);
+  return matches(ShortDesc(), targ.c_str());
   }
 
 Object *get_start_room() {
