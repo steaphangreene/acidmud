@@ -356,8 +356,8 @@ Command comlist[] = {
     (REQ_CONSCIOUS|REQ_ACTION)
     },
   { COM_USE, "use",
-    "Use a skill, or us current skill on something.",
-    "Use a skill, or us current skill on something.",
+    "Start, or stop using a skill.",
+    "Start, or stop using a skill.",
     (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
 
