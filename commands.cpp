@@ -249,7 +249,7 @@ Command comlist[] = {
   { COM_HIDE, "hide",
     "Hide an object, or yourself.",
     "Hide an object, or yourself.",
-    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
 
   { COM_LEAVE, "leave",
@@ -395,7 +395,7 @@ Command comlist[] = {
   { COM_FOLLOW, "follow",
     "Follow someone, or stop following someone.",
     "Follow someone, or stop following someone.",
-    (REQ_ALERT|REQ_STAND)
+    (REQ_ALERT|REQ_UP)
     },
   { COM_ATTACK, "attack",
     "Attack somebody, or an object.",
@@ -2817,13 +2817,6 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	"%s...you don't have the '%s' skill, so you're bad at this.%s\n",
 	CYEL, skill.c_str(), CNRM
 	);
-      }
-    if(body->IsAct(ACT_FOLLOW)) {
-      if(body->ActTarg(ACT_FOLLOW) && mind)
-	body->Parent()->SendOut(stealth_t, stealth_s, 
-		";s stop following ;s.\n", "You stop following ;s.\n",
-		body, body->ActTarg(ACT_FOLLOW));
-      body->StopAct(ACT_FOLLOW);
       }
     return 0;
     }

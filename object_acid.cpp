@@ -63,6 +63,9 @@ int Object::SaveTo(FILE *fl) {
   map<AtomString,int>::const_iterator sk = skills.begin();
   for(; sk != skills.end(); ++sk)
     fprintf(fl, "|%s|%d", sk->first.c_str(), sk->second);
+  if(cur_skill != AtomString("")) {	//Added current skill to end in v0x13
+    fprintf(fl, "|%s", cur_skill.c_str());
+    }
   fprintf(fl, ";\n");
 
   fprintf(fl, "%d\n", (int)(contents.size()));
@@ -179,10 +182,16 @@ int Object::LoadFrom(FILE *fl) {
       SetSkill(buf, val);
       }
     }
-  else {
-    while(fscanf(fl, "|%[^\n|]|%d", buf, &val)) {
+  else {	//Backward compatible load between v0x12 and v0x13
+    int ret;
+    ret = fscanf(fl, "|%[^\n|;]|%d", buf, &val);
+    while(ret > 1) {
       //fprintf(stderr, "Loaded %s: %d\n", buf, val);
       SetSkill(buf, val);
+      ret = fscanf(fl, "|%[^\n|;]|%d", buf, &val);
+      }
+    if(ret > 0) {	//Added the currently used skill to the end in v0x13
+      StartUsing(buf);
       }
     }
   fscanf(fl, ";\n");
