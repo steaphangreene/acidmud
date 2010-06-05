@@ -681,7 +681,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
   typeof(cont.begin()) ind;
   for(ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
     if((*ind)->IsAct(ACT_SPECIAL_NOTSHOWN)) continue;
-    if((*ind)->Skill("Hidden") > 0) continue;
+    if((*ind)->Skill("Hidden") > 0 && Parent() != NULL) continue;
 
     if((*ind)->IsAct(ACT_SPECIAL_LINKED)) {
       if((*ind)->ActTarg(ACT_SPECIAL_LINKED)
@@ -1220,6 +1220,9 @@ int Object::Travel(Object *dest, int try_combine) {
 
   StopAct(ACT_POINT);
   StopAct(ACT_FOLLOW);
+  if(IsAct(ACT_HOLD) && ActTarg(ACT_HOLD)->Parent() != this) {
+    StopAct(ACT_HOLD);
+    }
   SetSkill("Hidden", 0);
 
   if(parent->Skill("DynamicInit") > 0) {  //Room is dynamic, but uninitialized
