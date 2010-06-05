@@ -154,6 +154,11 @@ int Object::Matches(const char *seek) {
   string targ = seek;
   while(isspace(targ[targ.length()-1])) targ=targ.substr(0, targ.length()-1);
   if(!strcasecmp(targ.c_str(), "everyone")) return (Attribute(1) > 0);
+  if(!strcasecmp(targ.c_str(), "someone")) return (Attribute(1) > 0);
+  if(!strcasecmp(targ.c_str(), "anyone")) return (Attribute(1) > 0);
+  if(!strcasecmp(targ.c_str(), "everything")) return (Attribute(1) == 0);
+  if(!strcasecmp(targ.c_str(), "something")) return (Attribute(1) == 0);
+  if(!strcasecmp(targ.c_str(), "anything")) return (Attribute(1) == 0);
   return matches(ShortDesc(), targ.c_str());
   }
 
@@ -1386,8 +1391,8 @@ int get_ordinal(const char *text) {
   else if(!strncasecmp(text, "tenth ",  6)) ret = 10;
   else if(!strncasecmp(text, "all ",  4)) ret = ALL;
   else if(!strncasecmp(text, "all.",  4)) ret = ALL;
-  else if(!strncasecmp(text, "some ",  4)) ret = SOME;
-  else if(!strncasecmp(text, "some.",  4)) ret = SOME;
+  else if(!strncasecmp(text, "some ",  5)) ret = SOME;
+  else if(!strncasecmp(text, "some.",  5)) ret = SOME;
   return ret;
   }
 
