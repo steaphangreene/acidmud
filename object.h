@@ -29,9 +29,9 @@ class MOBType;
 #define LOC_LOCATIONS	0xFFFF
 
 //Filters
-#define	LOC_NOTWORN	0x10000
-#define	LOC_ALIVE	0x20000
-#define	LOC_CONSCIOUS	(0x40000 | LOC_ALIVE)
+#define	LOC_NOTWORN	0x00010000
+#define	LOC_ALIVE	0x00020000
+#define	LOC_CONSCIOUS	0x00040000
 #define LOC_FILTERS	0xFFFF0000
 
 enum pos_t {
