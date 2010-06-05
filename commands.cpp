@@ -2121,18 +2121,14 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       return 0;
       }
 
-    typeof(body->Contents()) targs = body->PickObjects(comline+len, LOC_NEARBY);
-    if(targs.size() == 0) {
-      if(mind) mind->Send("You want to drag what?\n");
-      return 0;
-      }
-    Object *targ = (*(targs.begin()));
-    if(targs.size() > 1 || targ->HasSkill("Quantity")) {
-      if(mind) mind->Send("You can only drag one thing at a time.\n");
-      return 0;
-      }
     if(body->IsAct(ACT_HOLD)) {
       if(mind) mind->Send("You are already holding something.  Drop it first.\n");
+      return 0;
+      }
+
+    Object *targ = body->PickObject(comline+len, LOC_NEARBY);
+    if(!targ) {
+      if(mind) mind->Send("You want to drag what?\n");
       return 0;
       }
 
@@ -2155,7 +2151,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     else {
       body->AddAct(ACT_HOLD, targ);
       body->Parent()->SendOut(stealth_t, stealth_s,
-	";s starts draggin ;s.\n", "You start dragging ;s.\n",
+	";s starts dragging ;s.\n", "You start dragging ;s.\n",
 	body, targ
 	);
       }
@@ -2668,6 +2664,11 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       }
     typeof(body->Contents()) targs
 	= body->PickObjects(comline+len, LOC_INTERNAL);
+    if(body->ActTarg(ACT_HOLD)
+	&& body->ActTarg(ACT_HOLD)->Parent() != body	//Dragging
+	&& body->ActTarg(ACT_HOLD)->Matches(comline+len)) {
+      targs.push_back(body->ActTarg(ACT_HOLD));
+      }
     if(!targs.size()) {
       if(mind) mind->Send("You want to drop what?\n");
       }
@@ -2710,60 +2711,63 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
   if(com == COM_SLEEP) {
     if(body->IsAct(ACT_SLEEP)) {
       if(mind) mind->Send("You are already sleeping!\n");
+      return 0;
       }
-    else if(body->Pos() == POS_LIE) {
-      if(body->ActTarg(ACT_WIELD)) {
-	Object *tostash = body->ActTarg(ACT_WIELD);
-	if(body->Stash(tostash)) {
-	  body->Parent()->SendOut(stealth_t, stealth_s, 
-		";s stashes ;s.\n", "You stash ;s.\n", body, tostash);
-	  }
-	}
-      if(body->ActTarg(ACT_HOLD)
-		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)) {
-	Object *tostash = body->ActTarg(ACT_HOLD);
-	if(body->Stash(tostash)) {
-	  body->Parent()->SendOut(stealth_t, stealth_s, 
-		";s stashes ;s.\n", "You stash ;s.\n", body, tostash);
-	  }
-	}
-      else if(body->ActTarg(ACT_HOLD)) {
-	body->Parent()->SendOut(stealth_t, stealth_s, ";s stops holding ;s.\n",
-		"You stop holding ;s.\n", body, body->ActTarg(ACT_HOLD));
-	body->StopAct(ACT_HOLD);
-	}
-      body->Collapse();
-      body->AddAct(ACT_SLEEP);
-      body->Parent()->SendOut(stealth_t, stealth_s, 
-	";s goes to sleep.\n", "You go to sleep.\n", body, NULL);
-      }
-    else {
+    int lied = 0;
+    if(body->Pos() != POS_LIE) {
       body->SetPos(POS_LIE);
-      if(body->ActTarg(ACT_WIELD)) {
-	Object *tostash = body->ActTarg(ACT_WIELD);
-	if(body->Stash(tostash)) {
-	  body->Parent()->SendOut(stealth_t, stealth_s, 
-		";s stashes ;s.\n", "You stash ;s.\n", body, tostash);
-	  }
+      lied = 1;
+      }
+    if(body->ActTarg(ACT_WIELD)) {
+      Object *item = body->ActTarg(ACT_WIELD);
+      if(body->Stash(item)) {		//Can stash you weapon
+	body->Parent()->SendOut(stealth_t, stealth_s, 
+		";s stashes ;s.\n", "You stash ;s.\n", body, item);
 	}
-      if(body->ActTarg(ACT_HOLD)
-		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)) {
-	Object *tostash = body->ActTarg(ACT_HOLD);
-	if(body->Stash(tostash)) {
-	  body->Parent()->SendOut(stealth_t, stealth_s, 
-		";s stashes ;s.\n", "You stash ;s.\n", body, tostash);
-	  }
+      else {				//Can't stash your weapon
+	item->Travel(body->Parent());
+	body->Parent()->SendOut(stealth_t, stealth_s, 
+		";s drops ;s.\n", "You drop ;s.\n", body, item);
 	}
-      else if(body->ActTarg(ACT_HOLD)) {
-	body->Parent()->SendOut(stealth_t, stealth_s, ";s stops holding ;s.\n",
+      }
+    if(body->ActTarg(ACT_HOLD)		//Shield held & worn
+		&& body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)) {
+      body->Parent()->SendOut(stealth_t, stealth_s, ";s stops holding ;s.\n",
 		"You stop holding ;s.\n", body, body->ActTarg(ACT_HOLD));
-	body->StopAct(ACT_HOLD);
+      body->StopAct(ACT_HOLD);
+      }
+    else if(body->ActTarg(ACT_HOLD)		//Dragging an item
+		&& body->ActTarg(ACT_HOLD)->Parent() != body) {
+      Object *item = body->ActTarg(ACT_HOLD);
+      item->Travel(body->Parent());
+      body->Parent()->SendOut(stealth_t, stealth_s, 
+		";s drops ;s.\n", "You drop ;s.\n", body, item);
+      }
+    else if(body->ActTarg(ACT_HOLD)) {	//Regular held item
+      Object *item = body->ActTarg(ACT_HOLD);
+      if(body->Stash(item)) {		//Successfully stashed
+	body->Parent()->SendOut(stealth_t, stealth_s, 
+		";s stashes ;s.\n", "You stash ;s.\n", body, item);
 	}
-      body->Collapse();
-      body->AddAct(ACT_SLEEP);
+      else {				//Can't be stashed
+	item->Travel(body->Parent());
+	body->Parent()->SendOut(stealth_t, stealth_s, 
+		";s drops ;s.\n", "You drop ;s.\n", body, item);
+	}
+      }
+    body->Collapse();
+    body->AddAct(ACT_SLEEP);
+    if(lied) {
       body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s lies down and goes to sleep.\n", "You lie down and go to sleep.\n",
-	body, NULL);
+	body, NULL
+	);
+      }
+    else {
+      body->Parent()->SendOut(stealth_t, stealth_s, 
+	";s goes to sleep.\n", "You go to sleep.\n",
+	body, NULL
+	);
       }
     return 0;
     }

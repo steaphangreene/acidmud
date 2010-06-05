@@ -1226,7 +1226,9 @@ int Object::Travel(Object *dest, int try_combine) {
   StopAct(ACT_POINT);
   StopAct(ACT_FOLLOW);
   if(IsAct(ACT_HOLD) && ActTarg(ACT_HOLD)->Parent() != this) {	//Dragging
-    StopAct(ACT_HOLD);
+    if(ActTarg(ACT_HOLD)->Parent() != Parent()) {	//Didn't come with me!
+      StopAct(ACT_HOLD);
+      }
     }
   SetSkill("Hidden", 0);
 
@@ -1687,14 +1689,13 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
 	}
       }
     }
-  if(obj->ActTarg(ACT_HOLD) == this) {
+  if(obj->ActTarg(ACT_HOLD) == this) {		//Dragging
     if(parent != newloc) {	// Actually went somewhere
       parent->SendOut(ALL, -1,
 	";s drags ;s along.\n", "You drag ;s along with you.\n",
 	obj, this);
       Travel(newloc);
       parent->SendOut(ALL, -1, ";s drags ;s along.\n", "", obj, this);
-      //obj->AddAct(ACT_HOLD, this);
       }
     }
   for(act_t act=ACT_MAX; act < ACT_SPECIAL_MAX; act = act_t(int(act)+1)) {
@@ -1746,6 +1747,11 @@ void Object::Collapse() {
       parent->SendOut(ALL, -1, ";s collapses!\n", "You collapse!\n", this, NULL);
       pos = POS_LIE;
       }
+    if(IsAct(ACT_WIELD)) {
+      parent->SendOut(ALL, -1, ";s drops %s!\n", "You drop %s!\n",
+		this, NULL, ActTarg(ACT_WIELD)->ShortDesc());
+      ActTarg(ACT_WIELD)->Travel(parent);
+      }
     if(IsAct(ACT_HOLD) && ActTarg(ACT_HOLD) != ActTarg(ACT_WEAR_SHIELD)) {
       parent->SendOut(ALL, -1, ";s drops %s!\n", "You drop %s!\n",
 		this, NULL, ActTarg(ACT_HOLD)->ShortDesc());
@@ -1755,11 +1761,6 @@ void Object::Collapse() {
       parent->SendOut(ALL, -1, ";s stops holding %s.\n", "You stop holding %s!\n",
 		this, NULL, ActTarg(ACT_HOLD)->ShortDesc());
       StopAct(ACT_HOLD);
-      }
-    if(IsAct(ACT_WIELD)) {
-      parent->SendOut(ALL, -1, ";s drops %s!\n", "You drop %s!\n",
-		this, NULL, ActTarg(ACT_WIELD)->ShortDesc());
-      ActTarg(ACT_WIELD)->Travel(parent);
       }
     }
   }
