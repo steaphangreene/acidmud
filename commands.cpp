@@ -2476,11 +2476,6 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
       Object *targ = (*targ_it);
 
-      if(targ->Skill("Quantity") > 1) {	//One at a time!
-	--targ_it;
-	targ = targ->Split(1);
-	}
-
       //fprintf(stderr, "You try to wear %s!\n", targ->Name(0, body));
       //if(mind) mind->Send("You try to wear %s!\n", targ->Name(0, body));
       if(body->ActTarg(ACT_WEAR_BACK) == targ
@@ -2596,6 +2591,11 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	    }
 	  success = 1;
 	  mask *= 2;
+
+	  if(targ->Skill("Quantity") > 1) {	//One at a time!
+	    --targ_it;
+	    targ = targ->Split(1);
+	    }
 
 	  set<act_t>::iterator loc;
 	  for(loc = locations.begin(); loc != locations.end(); ++loc) {
