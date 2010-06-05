@@ -1225,7 +1225,7 @@ int Object::Travel(Object *dest, int try_combine) {
 
   StopAct(ACT_POINT);
   StopAct(ACT_FOLLOW);
-  if(IsAct(ACT_HOLD) && ActTarg(ACT_HOLD)->Parent() != this) {
+  if(IsAct(ACT_HOLD) && ActTarg(ACT_HOLD)->Parent() != this) {	//Dragging
     StopAct(ACT_HOLD);
     }
   SetSkill("Hidden", 0);
@@ -1687,6 +1687,16 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
 	}
       }
     }
+  if(obj->ActTarg(ACT_HOLD) == this) {
+    if(parent != newloc) {	// Actually went somewhere
+      parent->SendOut(ALL, -1,
+	";s drags ;s along.\n", "You drag ;s along with you.\n",
+	obj, this);
+      Travel(newloc);
+      parent->SendOut(ALL, -1, ";s drags ;s along.\n", "", obj, this);
+      //obj->AddAct(ACT_HOLD, this);
+      }
+    }
   for(act_t act=ACT_MAX; act < ACT_SPECIAL_MAX; act = act_t(int(act)+1)) {
     if((!newloc) && ActTarg(act) == obj) {
       StopAct(act);
@@ -1699,7 +1709,7 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
 
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
-    if((*ind)->Skill("Open") || (*ind)->Skill("Open")) {
+    if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
       tonotify[*ind] = 0;
       }
     else if(up >= 0) {
