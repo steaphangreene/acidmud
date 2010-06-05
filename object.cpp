@@ -1694,7 +1694,7 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
       parent->SendOut(ALL, -1,
 	";s drags ;s along.\n", "You drag ;s along with you.\n",
 	obj, this);
-      Travel(newloc);
+      Travel(newloc, 0);
       parent->SendOut(ALL, -1, ";s drags ;s along.\n", "", obj, this);
       }
     }
