@@ -1588,7 +1588,9 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
       typeof(cont.begin()) ind = find(cont.begin(), cont.end(), action->second);
       if(ind != cont.end()) {		// IE: Is action->second within cont
 	cont.erase(ind);
-	if(action->second->Matches(name) && (loc & LOC_NOTWORN) == 0) {
+	if(action->second->Matches(name)
+		&& ((loc & LOC_NOTWORN) == 0 || action->first <= ACT_HOLD)
+		) {
 	  if(tag(action->second, ret, ordinal, Parent() != NULL)) return ret;
 	  }
 	if(action->second->HasSkill("Container")) {
