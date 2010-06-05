@@ -2506,6 +2506,14 @@ string get_skill(string sk) {
 string get_skill_cat(string cat) {
   while(isspace(cat[cat.length()-1])) cat = cat.substr(0, cat.length()-1);
   if(skcat.count(cat)) return cat;
+  if(cat.length() < 2) return "";
+
+  typeof(skcat.begin()) itr = skcat.begin();
+  for(; itr != skcat.end(); ++itr) {
+    if(!strncasecmp(cat.c_str(), itr->first.c_str(), cat.length())) {
+      return itr->first;
+      }
+    }
   return "";
   }
 
