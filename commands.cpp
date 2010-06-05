@@ -1992,7 +1992,8 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       }
     else {
       Object *shpkp = shpkps.front();
-      typeof(body->Contents()) targs = body->PickObjects(comline+len, LOC_INTERNAL);
+      typeof(body->Contents())
+	targs = body->PickObjects(comline+len, LOC_NOTWORN|LOC_INTERNAL);
       if(!targs.size()) {
 	if(mind) mind->Send("You want to sell what?\n");
 	}
