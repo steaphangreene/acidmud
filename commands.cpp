@@ -1843,7 +1843,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	    if(mind) mind->Send("You can't afford the %d gold (short %d).\n",
 		price, togo);
 	    }
-	  else if(body->Stash(targ)) {
+	  else if(body->Stash(targ, 0)) {
 	    body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s buys and stashes ;s.\n", "You buy and stash ;s.\n", body, targ);
 	    for(coin = pay.begin(); coin != pay.end(); ++coin) {
@@ -2421,7 +2421,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     typeof(targs.begin()) targ_it;
     for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
       Object *targ = (*targ_it);
-    
+
       int removed = 0;
       for(act_t act = ACT_WEAR_BACK; act < ACT_MAX; act = act_t(int(act)+1)) {
 	if(body->ActTarg(act) == targ) { removed = 1; break; }
@@ -2429,15 +2429,18 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       if(!removed) {
         if(mind) mind->Send("You are not wearing %s!\n", targ->Name(0, body));
 	}
-      else if(body->Stash(targ)) {
-	body->Parent()->SendOut(stealth_t, stealth_s, ";s removes and stashes ;s.\n",
-		"You remove and stash ;s.\n", body, targ);
+      else if(body->Stash(targ, 0)) {
+	body->Parent()->SendOut(stealth_t, stealth_s,
+		";s removes and stashes ;s.\n", "You remove and stash ;s.\n",
+		body, targ);
 	}
       else if(body->IsAct(ACT_HOLD)
 		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)
 		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)) {
-	if(mind) mind->Send("You are already holding something else and "
-		"can't stash %s.\n", targ->Name(0, body));
+	if(mind) mind->Send(
+		"You are already holding something else and can't stash %s.\n",
+		targ->Name(0, body)
+		);
 	}
       else {
 	if(body->IsAct(ACT_HOLD)) {
