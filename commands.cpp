@@ -2913,6 +2913,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 		body, NULL, body->UsingString()
 		);
 	body->SetPos(POS_STAND);
+	return 2;
 	}
       return 0;
       }
