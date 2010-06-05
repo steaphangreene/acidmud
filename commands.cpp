@@ -157,6 +157,7 @@ enum {	COM_HELP=0,
 	COM_CHUMP,
 	COM_INCREMENT,
 	COM_DECREMENT,
+	COM_DOUBLE,
 
 	COM_SCORE,
 	COM_STATS,
@@ -614,6 +615,11 @@ Command comlist[] = {
     (REQ_ALERT|REQ_NINJAMODE)
     },
   { COM_DECREMENT, "decrement",
+    "Ninja command.",
+    "Ninja command - ninjas only!",
+    (REQ_ALERT|REQ_NINJAMODE)
+    },
+  { COM_DOUBLE, "double",
     "Ninja command.",
     "Ninja command - ninjas only!",
     (REQ_ALERT|REQ_NINJAMODE)
@@ -4227,6 +4233,31 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	"You decrement the %s of ;s.\n",
 	body, targ, comline+len);
 
+    return 0;
+    }
+
+  if(com == COM_DOUBLE) {
+    if(!mind) return 0;
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    typeof(body->Contents()) targs
+	= body->PickObjects(comline+len, LOC_NEARBY|LOC_INTERNAL);
+    if(targs.size() == 0) {
+      mind->Send("You want to double what?\n");
+      return 0;
+      }
+    typeof(targs.begin()) targ_it;
+    for(targ_it = targs.begin(); targ_it != targs.end(); ++ targ_it) {
+      Object *targ = (*targ_it);
+      body->Parent()->SendOut(stealth_t, stealth_s, 
+	";s doubles ;s with Ninja Powers[TM].\n", "You double ;s.\n",
+	body, targ);
+      if(targ->Skill("Quantity") > 1) {
+	targ->SetSkill("Quantity", targ->Skill("Quantity") * 2);
+	}
+      else {
+	targ->SetSkill("Quantity", 2);
+	}
+      }
     return 0;
     }
 
