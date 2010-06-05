@@ -1432,9 +1432,11 @@ Object *Object::Split(int nqty) {
   return nobj;
   }
 
-static int tag(Object *obj, list<Object *> &ret, int *ordinal) {
+static int tag(Object *obj, list<Object *> &ret, int *ordinal, int hide = 1) {
   if(obj->IsAct(ACT_SPECIAL_NOTSHOWN)) return 0;	//Shouldn't be detected.
-  if(obj->Skill("Hidden") > 0) return 0;		//Can't be seen/affected
+
+  //Can't be seen/affected (except in char rooms)
+  if(obj->Skill("Hidden") > 0 && hide) return 0;
 
   Object *nobj = NULL;
 
@@ -1556,7 +1558,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
     for(ind = cont.begin(); ind != cont.end(); ++ind) if(!(*ind)->no_seek) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
       if((*ind)->Matches(name)) {
-	if(tag(*ind, ret, ordinal)) return ret;
+	if(tag(*ind, ret, ordinal, parent->Parent() != NULL)) return ret;
 	}
       if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
 	typeof(contents) add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
@@ -1587,7 +1589,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
       if(ind != cont.end()) {		// IE: Is action->second within cont
 	cont.erase(ind);
 	if(action->second->Matches(name)) {
-	  if(tag(action->second, ret, ordinal)) return ret;
+	  if(tag(action->second, ret, ordinal, Parent() != NULL)) return ret;
 	  }
 	if(action->second->Skill("Container")) {
 	  typeof(contents) add
@@ -1603,7 +1605,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
     for(ind = cont.begin(); ind != cont.end(); ++ind) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
       if((*ind)->Matches(name)) {
-	if(tag(*ind, ret, ordinal)) return ret;
+	if(tag(*ind, ret, ordinal, Parent() != NULL)) return ret;
 	}
       if((*ind)->Skill("Container")) {
 	typeof(contents) add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
@@ -2326,7 +2328,7 @@ int Object::Contains(Object *obj) {
   return (find(contents.begin(), contents.end(), obj) != contents.end());
   }
 
-Object *Object::Stash(Object *obj) {
+Object *Object::Stash(Object *obj, int try_combine) {
   list<Object*> containers, my_cont;
   my_cont = PickObjects("all", LOC_INTERNAL);
   typeof(my_cont.begin()) ind;
@@ -2351,7 +2353,9 @@ Object *Object::Stash(Object *obj) {
       }
     }
 
-  if(dest && (obj->Travel(dest))) dest = NULL;	//See if it actually makes it!
+  //See if it actually makes it!
+  if(dest && (obj->Travel(dest, try_combine))) dest = NULL;
+
   return dest;
   }
 

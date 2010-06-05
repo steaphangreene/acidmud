@@ -138,7 +138,7 @@ public:
 
   void TryCombine();
 
-  Object *Stash(Object *);
+  Object *Stash(Object *, int try_combine = 1);
 
   Object *PickObject(const char *, int loc, int *ordinal=NULL);
   list<Object *> PickObjects(const char *, int loc, int *ordinal=NULL);
