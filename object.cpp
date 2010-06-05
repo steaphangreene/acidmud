@@ -1922,7 +1922,7 @@ void Object::Send(int tnum, int rsucc, const char *mes, ...) {
     }
 
   memset(buf, 0, 65536);
-  va_list stuff;  
+  va_list stuff;
   va_start(stuff, mes);
   vsprintf(buf, mes, stuff);
   va_end(stuff);
@@ -1952,7 +1952,7 @@ void Object::SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
 
   memset(buf, 0, 65536);
   memset(youbuf, 0, 65536);
-  va_list stuff;  
+  va_list stuff;
   va_start(stuff, targ);
   vsprintf(buf, mes, stuff);
   va_end(stuff);
@@ -2012,7 +2012,7 @@ void Object::SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
 
   memset(buf, 0, 65536);
   memset(youbuf, 0, 65536);
-  va_list stuff;  
+  va_list stuff;
   va_start(stuff, targ);
   vsprintf(buf, mes, stuff);
   va_end(stuff);
@@ -2423,9 +2423,19 @@ int two_handed(int wtype) {
   return int(thsks.count(wtype));
   }
 
-void Object::Loud(int str, const char *mes) {
+void Object::Loud(int str, const char *mes, ...) {
+  static char buf[65536];
+
+  if(mes[0] == 0) return;
+
+  memset(buf, 0, 65536);
+  va_list stuff;
+  va_start(stuff, mes);
+  vsprintf(buf, mes, stuff);
+  va_end(stuff);
+
   set<Object*> visited;
-  Loud(visited, str, mes);
+  Loud(visited, str, buf);
   }
 
 void Object::Loud(set<Object*> &visited, int str, const char *mes) {
@@ -2447,7 +2457,7 @@ void Object::Loud(set<Object*> &visited, int str, const char *mes) {
 	  dest = dest->ActTarg(ACT_SPECIAL_LINKED);
 	  if(visited.count(dest->Parent()) < 1) {
 	    dest->Parent()->SendOut(ALL, 0,
-		"From ;s you hear someone shout '%s'!!!\n", "",
+		"From ;s you hear %s\n", "",
 		dest, dest, mes);
 	    dest->Parent()->Loud(visited, str, mes);
 	    }

@@ -249,7 +249,8 @@ public:
   void SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
 	Object *actor, Object *targ, ...)
 	__attribute__ ((format (printf, 4, 8)));
-  void Loud(int str, const char *mes);
+  void Loud(int str, const char *mes, ...)
+	__attribute__ ((format (printf, 3, 4)));
 
   void CircleLoad(const char *);
   void CircleLoadObj(const char *);

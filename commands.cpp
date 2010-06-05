@@ -1136,11 +1136,11 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     for(char *chr = mes; *chr != 0; ++chr) {
       *chr = toupper(*chr);
       }
-    body->Parent()->SendOut(ALL, 0, ";s shouts '%s'!!!\n", "You shout '%s'!!!\n",
+    body->Parent()->SendOut(ALL, 0,
+	";s shouts '%s'!!!\n", "You shout '%s'!!!\n",
 	body, body, mes);
+    body->Parent()->Loud(body->Skill("Strength"), "someone shout '%s'!!!", mes);
     free(mes);
-
-    body->Parent()->Loud(body->Skill("Strength"), comline+len);
 
     body->SetSkill("Hidden", 0);
     return 0;
@@ -2930,60 +2930,71 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	return 0;
 	}
       else {
-	longterm = 1000;	//FIXME: Temporary - should take longer!
+	longterm = 3000;	//FIXME: Temporary - should take longer!
 	}
-      if(body->IsUsing("Lumberjack")) {	//Already been doing it (finished!)
-	Object * log = new Object(body->Parent());
-	log->SetShortDesc("a log");
-	log->SetDesc("a fallen tree.");
-	log->SetLongDesc("This is a tree that has recently been cut down.");
-	log->SetPos(POS_LIE);
-	log->SetValue(10);
-	log->SetVolume(1000);
-	log->SetWeight(220000);
-	log->SetSize(8000);
-	log->SetSkill("Made of Wood", 200000);
+      if(body->IsUsing("Lumberjack")) {		//Already been doing it
+	if(body->Roll(skill, 10) > 0) {		//Succeeded!
+	  body->Parent()->SendOut(ALL, 0,
+		";s shouts 'TIMBER'!!!\n", "You shout 'TIMBER'!!!\n",
+		body, body);
+	  body->Parent()->Loud(body->Skill("Strength"),
+		"someone shout 'TIMBER'!!!");
+	  body->SetSkill("Hidden", 0);
+
+	  Object * log = new Object(body->Parent());
+	  log->SetShortDesc("a log");
+	  log->SetDesc("a fallen tree.");
+	  log->SetLongDesc("This is a tree that has recently been cut down.");
+	  log->SetPos(POS_LIE);
+	  log->SetValue(10);
+	  log->SetVolume(1000);
+	  log->SetWeight(220000);
+	  log->SetSize(8000);
+	  log->SetSkill("Made of Wood", 200000);
+	  }
+	body->Parent()->SendOut(ALL, 0,
+		";s continues chopping down trees.\n",
+		"You continue chopping down trees.\n",
+		body, body);
+	body->Parent()->Loud(body->Skill("Strength") / 2,
+		"loud chopping sounds.");
+	body->SetSkill("Hidden", 0);
 	}
       }
 
-    body->StartUsing(skill);
+    if(!body->IsUsing(skill)) {		//Only if really STARTING to use skill.
+      body->StartUsing(skill);
 
-    //In case Stealth was started, re-calc (to hide going into stealth).
-    stealth_t = 0;
-    stealth_s = 0;
-    if(body->IsUsing("Stealth") && body->Skill("Stealth") > 0) {
-      stealth_t = body->Skill("Stealth");
-      stealth_s = body->Roll("Stealth", 2);
-      }
+      //In case Stealth was started, re-calc (to hide going into stealth).
+      stealth_t = 0;
+      stealth_s = 0;
+      if(body->IsUsing("Stealth") && body->Skill("Stealth") > 0) {
+	stealth_t = body->Skill("Stealth");
+	stealth_s = body->Roll("Stealth", 2);
+	}
 
-    if(body->Pos() != POS_STAND && body->Pos() != POS_USE) {	//FIXME: Unused
-      body->Parent()->SendOut(stealth_t, stealth_s, 
-	";s stands and starts %s.\n", "You stand up and start %s.\n",
-	body, NULL, body->UsingString()
-	);
-      }
-    else {
-      body->Parent()->SendOut(stealth_t, stealth_s, 
-	";s starts %s.\n", "You start %s.\n",
-	body, NULL, body->UsingString()
-	);
-      }
-    if(!body->HasSkill(skill)) {
-      mind->Send(
-	"%s...you don't have the '%s' skill, so you're bad at this.%s\n",
-	CYEL, skill.c_str(), CNRM
-	);
+      if(body->Pos() != POS_STAND && body->Pos() != POS_USE) {	//FIXME: Unused
+	body->Parent()->SendOut(stealth_t, stealth_s, 
+		";s stands and starts %s.\n", "You stand up and start %s.\n",
+		body, NULL, body->UsingString()
+		);
+	}
+      else {
+	body->Parent()->SendOut(stealth_t, stealth_s, 
+		";s starts %s.\n", "You start %s.\n",
+		body, NULL, body->UsingString()
+		);
+	}
+      if(!body->HasSkill(skill)) {
+	mind->Send(
+		"%s...you don't have the '%s' skill, so you're bad at this.%s\n",
+		CYEL, skill.c_str(), CNRM
+		);
+	}
       }
 
     if(longterm > 0) {	//Long-running skills for results
-      int suc = body->Roll(skill, 4);
-      if(suc <= 0) {
-	body->BusyFor(longterm, "stop");
-	}
-      else {
-	int dur = longterm / suc;
-	body->BusyFor(dur, "shout TIMBER; use Lumberjack");	//FIXME: Temporary!
-	}
+      body->BusyFor(longterm, "use Lumberjack");	//FIXME: Temporary!
       return 2;		//Full-round (and more) action!
       }
     return 0;
