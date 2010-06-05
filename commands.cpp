@@ -87,6 +87,7 @@ enum {	COM_HELP=0,
 	COM_LOCK,
 
 	COM_GET,
+	COM_DRAG,
 	COM_PUT,
 	COM_DROP,
 	COM_WIELD,
@@ -293,6 +294,11 @@ Command comlist[] = {
   { COM_GET, "get",
     "Get an item from your surroundings.",
     "Get an item from your surroundings.",
+    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    },
+  { COM_DRAG, "drag",
+    "Drag a heavy item with you when you next move.",
+    "Drag a heavy item with you when you next move.",
     (REQ_ALERT|REQ_STAND|REQ_ACTION)
     },
   { COM_PUT, "put",
@@ -2066,6 +2072,54 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     return 0;
     }
 
+  if(com == COM_DRAG) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(!comline[len]) {
+      if(mind) mind->Send("What do you want to drag?\n");
+      return 0;
+      }
+
+    typeof(body->Contents()) targs = body->PickObjects(comline+len, LOC_NEARBY);
+    if(targs.size() == 0) {
+      if(mind) mind->Send("You want to drag what?\n");
+      return 0;
+      }
+    Object *targ = (*(targs.begin()));
+    if(targs.size() > 1 || targ->HasSkill("Quantity")) {
+      if(mind) mind->Send("You can only drag one thing at a time.\n");
+      return 0;
+      }
+    if(body->IsAct(ACT_HOLD)) {
+      if(mind) mind->Send("You are already holding something.  Drop it first.\n");
+      return 0;
+      }
+
+    if(targ->Pos() == POS_NONE) {
+      if(mind) mind->Send("You can't drag %s, it is fixed in place!\n",
+		targ->Name());
+      }
+    else if(targ->Attribute(1)) {
+      string denied = "You would need ";
+      denied += targ->Name(1);
+      denied += "'s permission to drag ";
+      denied += targ->Name(0, NULL, targ);
+      denied += ".\n";
+      if(mind) mind->Send(denied.c_str(), targ->Name());
+      }
+    else if(targ->Weight() > body->Attribute(2) * 50000) {
+      if(mind) mind->Send("You could never lift %s, it is too heavy.\n",
+		targ->Name());
+      }
+    else {
+      body->AddAct(ACT_HOLD, targ);
+      body->Parent()->SendOut(stealth_t, stealth_s,
+	";s starts draggin ;s.\n", "You start dragging ;s.\n",
+	body, targ
+	);
+      }
+    return 0;
+    }
+
   if(com == COM_GET) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
@@ -2089,6 +2143,15 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	}
       else if(targ->Attribute(1)) {
 	if(mind) mind->Send("You can't get %s, it is not inanimate.\n",
+		targ->Name());
+	}
+      else if(targ->Weight() > body->Attribute(2) * 50000) {
+	if(mind) mind->Send("You could never lift %s, it is too heavy.\n",
+		targ->Name());
+	}
+      else if(targ->Weight() > body->Attribute(2) * 10000) {
+	if(mind) mind->Send(
+		"You can't carry %s, it is too heavy.  Try 'drag' instead.\n",
 		targ->Name());
 	}
       else {
@@ -2130,14 +2193,16 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	  }
 	else {
 	  if(body->IsAct(ACT_HOLD)) {
-	    body->Parent()->SendOut(stealth_t, stealth_s, ";s stops holding ;s.\n",
-		"You stop holding ;s.\n", body, body->ActTarg(ACT_HOLD));
+	    body->Parent()->SendOut(stealth_t, stealth_s,
+		";s stops holding ;s.\n", "You stop holding ;s.\n",
+		body, body->ActTarg(ACT_HOLD));
 	    body->StopAct(ACT_HOLD);
 	    }
 	  targ->Travel(body);
 	  body->AddAct(ACT_HOLD, targ);
-	  body->Parent()->SendOut(stealth_t, stealth_s, ";s gets and holds ;s.\n",
-		"You get and hold ;s.\n", body, targ);
+	  body->Parent()->SendOut(stealth_t, stealth_s,
+		";s gets and holds ;s.\n", "You get and hold ;s.\n",
+		body, targ);
 	  }
 	}
       }
