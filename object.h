@@ -21,12 +21,18 @@ class MOBType;
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#define	LOC_SELF	1
-#define	LOC_HERE	2
-#define	LOC_INTERNAL	4
-#define	LOC_NEARBY	8
-#define	LOC_ADJACENT	16
-#define	LOC_NOTWORN	32
+#define	LOC_SELF	0x0001
+#define	LOC_HERE	0x0002
+#define	LOC_INTERNAL	0x0004
+#define	LOC_NEARBY	0x0008
+#define	LOC_ADJACENT	0x0010
+#define LOC_LOCATIONS	0xFFFF
+
+//Filters
+#define	LOC_NOTWORN	0x10000
+#define	LOC_ALIVE	0x20000
+#define	LOC_CONSCIOUS	(0x40000 | LOC_ALIVE)
+#define LOC_FILTERS	0xFFFF0000
 
 enum pos_t {
 	POS_NONE=0,
@@ -282,6 +288,8 @@ public:
 
 private:
   void Loud(set<Object*> &visited, int str, const char *mes);
+
+  int Filter(int loc);
 
   AtomString short_desc;
   AtomString desc;

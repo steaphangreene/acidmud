@@ -1562,7 +1562,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
     typeof(cont.begin()) ind;
     for(ind = cont.begin(); ind != cont.end(); ++ind) if(!(*ind)->no_seek) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
-      if((*ind)->Matches(name)) {
+      if((*ind)->Filter(loc) && (*ind)->Matches(name)) {
 	if(tag(*ind, ret, ordinal, parent->Parent() != NULL)) return ret;
 	}
       if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
@@ -1593,7 +1593,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
       typeof(cont.begin()) ind = find(cont.begin(), cont.end(), action->second);
       if(ind != cont.end()) {		// IE: Is action->second within cont
 	cont.erase(ind);
-	if(action->second->Matches(name)
+	if(action->second->Filter(loc) && action->second->Matches(name)
 		&& ((loc & LOC_NOTWORN) == 0 || action->first <= ACT_HOLD)
 		) {
 	  if(tag(action->second, ret, ordinal, Parent() != NULL)) return ret;
@@ -1611,7 +1611,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
     typeof(cont.begin()) ind;
     for(ind = cont.begin(); ind != cont.end(); ++ind) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
-      if((*ind)->Matches(name)) {
+      if((*ind)->Filter(loc) && (*ind)->Matches(name)) {
 	if(tag(*ind, ret, ordinal, Parent() != NULL)) return ret;
 	}
       if((*ind)->Skill("Container")) {
@@ -2500,3 +2500,12 @@ void Object::SetPos(pos_t p) {
   pos = p;
   }
 
+int Object::Filter(int loc) {
+  if(loc & (LOC_ALIVE|LOC_CONSCIOUS)) {
+    if(Attribute(1) <= 0 || IsAct(ACT_DEAD)) return 0;
+    }
+  if(loc & LOC_CONSCIOUS) {
+    if(IsAct(ACT_DYING) || IsAct(ACT_UNCONSCIOUS)) return 0;
+    }
+  return 1;
+  }
