@@ -2460,12 +2460,12 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
   if(com == COM_WEAR) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
-      if(mind) mind->Send("You want to wear what?\n");
+      if(mind) mind->Send("What do you want to wear?\n");
       return 0;
       }
 
     typeof(body->Contents()) targs
-	= body->PickObjects(comline+len, LOC_INTERNAL);
+	= body->PickObjects(comline+len, LOC_NOTWORN|LOC_INTERNAL);
     if(!targs.size()) {
       if(mind) mind->Send("You want to wear what?\n");
       return 0;

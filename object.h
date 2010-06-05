@@ -26,6 +26,7 @@ class MOBType;
 #define	LOC_INTERNAL	4
 #define	LOC_NEARBY	8
 #define	LOC_ADJACENT	16
+#define	LOC_NOTWORN	32
 
 enum pos_t {
 	POS_NONE=0,

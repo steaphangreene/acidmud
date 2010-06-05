@@ -1588,10 +1588,10 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
       typeof(cont.begin()) ind = find(cont.begin(), cont.end(), action->second);
       if(ind != cont.end()) {		// IE: Is action->second within cont
 	cont.erase(ind);
-	if(action->second->Matches(name)) {
+	if(action->second->Matches(name) && (loc & LOC_NOTWORN) == 0) {
 	  if(tag(action->second, ret, ordinal, Parent() != NULL)) return ret;
 	  }
-	if(action->second->Skill("Container")) {
+	if(action->second->HasSkill("Container")) {
 	  typeof(contents) add
 		= action->second->PickObjects(name, LOC_INTERNAL, ordinal);
 	  ret.insert(ret.end(), add.begin(), add.end());
