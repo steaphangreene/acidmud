@@ -328,30 +328,23 @@ int Object::Tick() {
       }
     else if(stru == 6) {
       parent->SendOut(ALL, 0,
-	";s's corpse starts to come apart.\n", "",
+	";s's corpse starts to fall apart.\n", "",
 	this, NULL
 	);
       }
     else if(stru >= 10) {
-      SetShortDesc("an unidentifiable corpse");
-      SetDesc("A pile of rotting remains.");
-      SetLongDesc("");
-      SetPos(POS_LIE);
-      StopAct(ACT_DEAD);
+      Object *corpse = new Object(parent);
 
-      SetAttribute(0, 0);
-      SetAttribute(1, 0);
-      SetAttribute(2, 0);
-      SetAttribute(3, 0);
-      SetAttribute(4, 0);
-      SetAttribute(5, 0);
+      corpse->SetShortDesc("an unidentifiable corpse");
+      corpse->SetDesc("A pile of rotting remains.");
+      corpse->SetPos(POS_LIE);
 
-      stun = 0;
-      phys = 0;
-      stru = 0;
+      corpse->SetSkill("Perishable", 1);
+      corpse->SetSkill("Rot", 1);
 
-      SetSkill("Perishable", 1);
-      SetSkill("Rot", 1);
+      corpse->SetWeight(Weight());
+      corpse->SetSize(Size());
+      corpse->SetVolume(Volume());
 
       set<Object*> todrop;
       list<Object*> todropfrom;
@@ -397,6 +390,14 @@ int Object::Tick() {
 	";s's corpse completely falls apart.\n", "",
 	this, NULL
 	);
+
+      if(is_pc(this)) {	//Hide me in the VOID!
+	Travel(default_initial);
+	SetSkill("Hidden", 65535);
+	}
+      else {
+	return 1;	//Delete Me!
+	}
       }
     }
 
