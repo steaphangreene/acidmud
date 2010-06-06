@@ -382,7 +382,11 @@ void Mind::Think(int istick) {
 	  return;
 	  }
 	}
-      if((istick == 1 || (!body->IsUsing("Perception")))//Not already searching
+      if(istick == 1 && body->IsUsing("Perception")) {
+	body->BusyFor(500, "stop");
+	}
+      else if(istick == 0				//Triggered Only
+		&& (!body->IsUsing("Perception"))	//Not already searching
 		&& (!body->StillBusy())			//Not already responding
 		&& body->Stun() < 6			//I'm not stunned
 		&& body->Phys() < 6			//I'm not injured
@@ -415,7 +419,11 @@ void Mind::Think(int istick) {
 	  return;
 	  }
 	}
-      if((istick == 1 || (!body->IsUsing("Perception")))//Not already searching
+      if(istick == 1 && body->IsUsing("Perception")) {
+	body->BusyFor(500, "stop");
+	}
+      else if(istick == 0				//Triggered Only
+		&& (!body->IsUsing("Perception"))	//Not already searching
 		&& (!body->StillBusy())			//Not already responding
 		&& body->Stun() < 6			//I'm not stunned
 		&& body->Phys() < 6			//I'm not injured
@@ -449,7 +457,10 @@ void Mind::Think(int istick) {
 	  return;
 	  }
 	}
-      if((istick == 1 || (!body->IsUsing("Perception")))//Not already searching
+      if(!body->IsUsing("Perception")) {		//Don't let guard down!
+	body->BusyFor(500, "search");
+	}
+      else if(istick == 1				//Perioidic searching
 		&& (!body->StillBusy())			//Not already responding
 		&& body->Stun() < 6			//I'm not stunned
 		&& body->Phys() < 6			//I'm not injured
@@ -495,7 +506,12 @@ void Mind::Think(int istick) {
 	int res = rand() % cons.size();
 	map<Object*, const char*>::iterator dir = cons.begin();
 	while(res > 0) { ++dir; --res; }
-	body->BusyFor(500, dir->second);
+	if(body->StillBusy()) {		//Already doing something (from above)
+	  body->DoWhenFree(dir->second);
+	  }
+	else {
+	  body->BusyFor(500, dir->second);
+	  }
 	return;
 	}
       }
