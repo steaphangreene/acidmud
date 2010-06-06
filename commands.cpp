@@ -2826,7 +2826,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	  }
 
 	body->SetSkill("Hungry", body->Skill("Hungry") - obj->Skill("Food"));
-	body->SetSkill("Thirsty", body->Skill("Thursty") - obj->Skill("Drink"));
+	body->SetSkill("Thirsty", body->Skill("Thirsty") - obj->Skill("Drink"));
 	body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s drinks some liquid out of ;s.\n",
 		"You drink some liquid out of ;s.\n",
