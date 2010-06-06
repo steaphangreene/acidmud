@@ -2723,6 +2723,43 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     return 0;
     }
 
+  if(com == COM_EAT) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(!comline[len]) {
+      if(mind) mind->Send("What do you want to eat?\n");
+      return 0;
+      }
+    typeof(body->Contents()) targs
+	= body->PickObjects(comline+len, LOC_NOTWORN|LOC_INTERNAL);
+    if(body->ActTarg(ACT_HOLD)
+	&& body->ActTarg(ACT_HOLD)->Parent() != body	//Dragging
+	&& body->ActTarg(ACT_HOLD)->Matches(comline+len)) {
+      targs.push_back(body->ActTarg(ACT_HOLD));
+      }
+    if(!targs.size()) {
+      if(mind) mind->Send("You want to eat what?\n");
+      }
+    else {
+      typeof(targs.begin()) targ;
+      for(targ = targs.begin(); targ != targs.end(); ++targ) {
+	if(!((*targ)->HasSkill("Ingestible"))) {
+	  if(mind) mind->Send(
+		"You don't want to eat %s.\n", (*targ)->Name(0, body)
+		);
+	  }
+	else {
+	  body->Parent()->SendOut(stealth_t, stealth_s, 
+	  	";s eats ;s.\n", "You eat ;s.\n", body, *targ);
+	  body->SetSkill("Hungry",
+		body->Skill("Hungry") - (*targ)->Skill("Food")
+		);
+	  delete (*targ);
+	  }
+	}
+      }
+    return 0;
+    }
+
   if(com == COM_DROP) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
