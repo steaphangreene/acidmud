@@ -2936,6 +2936,10 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       }
 
     if(skill == "Lumberjack") {
+      if(!body->HasSkill(skill)) {
+	mind->Send("%sYou don't know how to do that.%s\n", CYEL, CNRM);
+	return 0;
+	}
       if((!body->Parent()) || (!strcasestr(body->Parent()->Name(), "forest"))) {
 	mind->Send("%sThere are no trees here.%s\n", CYEL, CNRM);
 	return 0;
