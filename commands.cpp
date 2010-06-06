@@ -2313,23 +2313,26 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 
     while((!isgraph(comline[len])) && (comline[len])) ++len;
 
+    if(!body->IsAct(ACT_HOLD)) {
+      if(mind) mind->Send("You must first 'hold' the object you want to 'put'.\n");
+      return 0;
+      }
+    else if(!body->ActTarg(ACT_HOLD)) {
+      if(mind) mind->Send("What!?!?!  You are holding nothing?\n");
+      return 0;
+      }
+
     if(!comline[len]) {
-      if(mind) mind->Send("What do you want to put '%s' in?\n",
-	body->ActTarg(ACT_HOLD)->ShortDesc());
+      if(mind) mind->Send("What do you want to put %s in?\n",
+	body->ActTarg(ACT_HOLD)->Name(0, body));
       return 0;
       }
 
     Object *targ =
 	body->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
-    if(!body->IsAct(ACT_HOLD)) {
-      if(mind) mind->Send("You must first 'hold' the object you want to 'put'.\n");
-      }
-    else if(!body->ActTarg(ACT_HOLD)) {
-      if(mind) mind->Send("What!?!?!  You are holding nothing?\n");
-      }
-    else if(!targ) {
+    if(!targ) {
       if(mind) mind->Send("I don't see '%s' to put '%s' in!\n", comline+len,
-	body->ActTarg(ACT_HOLD)->ShortDesc());
+	body->ActTarg(ACT_HOLD)->Name(0, body));
       }
     else if(targ->Attribute(1)) {
       if(mind) mind->Send("You can only put things in inanimate objects!\n");
@@ -2339,6 +2342,10 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       }
     else if(targ->Skill("Locked")) {
       if(mind) mind->Send("You can't put anything in that, it is locked.\n");
+      }
+    else if(targ == body->ActTarg(ACT_HOLD)) {
+      if(mind) mind->Send("You can't put %s into itself.\n",
+	body->ActTarg(ACT_HOLD)->Name(0, body));
       }
     else {
       int closed = 0, res = 0;
@@ -2357,9 +2364,10 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	if(!targ->Skill("Open")) closed = 1;
 	if(closed) body->Parent()->SendOut(stealth_t, stealth_s,  //FIXME: Really open/close stuff!
 		";s opens ;s.\n", "You open ;s.\n", body, targ);
+	string safety = obj->Name(0, body);
 	body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s puts %s into ;s.\n", "You put %s into ;s.\n",
-		body, targ, obj->ShortDesc());
+		body, targ, safety.c_str());
 	if(closed) body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s close ;s.\n", "You close ;s.\n", body, targ);
 	}
@@ -2738,6 +2746,142 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	  ";s drops ;s.\n", "You drop ;s.\n", body, *targ);
 	(*targ)->Travel(body->Parent());
 	}
+      }
+    return 0;
+    }
+
+  if(com == COM_DUMP) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(!comline[len]) {
+      if(mind) mind->Send("What do you want to dump?\n");
+      return 0;
+      }
+    typeof(body->Contents()) targs
+	= body->PickObjects(comline+len, LOC_NOTWORN|LOC_INTERNAL);
+    if(body->ActTarg(ACT_HOLD)
+	&& body->ActTarg(ACT_HOLD)->Parent() != body	//Dragging
+	&& body->ActTarg(ACT_HOLD)->Matches(comline+len)) {
+      targs.push_back(body->ActTarg(ACT_HOLD));
+      }
+    if(!targs.size()) {
+      if(mind) mind->Send("You want to dump what?\n");
+      }
+    else {
+      typeof(targs.begin()) targ;
+      for(targ = targs.begin(); targ != targs.end(); ++targ) {
+	if(!((*targ)->HasSkill("Liquid Container"))) {
+	  if(mind) mind->Send(
+		"%s is not a liquid container.  It can't be dumped.\n",
+		(*targ)->Name(0, body)
+		);
+	  continue;
+	  }
+	if((*targ)->Contents().size() < 1) {
+	  if(mind) mind->Send("%s is empty.  There is nothing to dump\n",
+		(*targ)->Name(0, body));
+	  continue;
+	  }
+	body->Parent()->SendOut(stealth_t, stealth_s, 
+		";s dumps all the liquid out of ;s.\n",
+		"You dump all the liquid out of ;s.\n",
+		body, *targ
+		);
+	while((*targ)->Contents().size() >= 1) {
+	  Object *nuke = (*targ)->Contents().front();
+	  delete nuke;
+	  }
+	}
+      }
+    return 0;
+    }
+
+  if(com == COM_FILL) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+
+    if(!strncasecmp(comline+len, "from ", 5)) len += 5;
+
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+
+    if(!body->IsAct(ACT_HOLD)) {
+      if(mind) mind->Send("You must first 'hold' the object you want to 'fill'.\n");
+      return 0;
+      }
+    else if(!body->ActTarg(ACT_HOLD)) {
+      if(mind) mind->Send("What!?!?!  You are holding nothing?\n");
+      return 0;
+      }
+
+    if(!comline[len]) {
+      if(mind) mind->Send("Where do you want to fill %s from?\n",
+	body->ActTarg(ACT_HOLD)->Name(0, body));
+      return 0;
+      }
+
+    Object *targ =
+	body->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
+    if(!targ) {
+      if(mind) mind->Send("I don't see '%s' to fill %s from!\n",
+	comline+len, body->ActTarg(ACT_HOLD)->Name(0, body));
+      }
+    else if(!body->ActTarg(ACT_HOLD)->HasSkill("Liquid Container")) {
+      if(mind) mind->Send(
+	"You can not fill %s, it is not a liquid container.\n",
+	body->ActTarg(ACT_HOLD)->Name(0, body));
+      }
+    else if(targ->Attribute(1)) {
+      if(mind) mind->Send("You can only fill things from inanimate objects!\n");
+      }
+    else if(!targ->HasSkill("Liquid Container")) {
+      if(mind) mind->Send("You can't fill anything from that, it's not a liquid container.\n");
+      }
+    else if(body->ActTarg(ACT_HOLD)->Skill("Locked")) {
+      if(mind) mind->Send("You can't fill %s, it is locked.\n",
+	body->ActTarg(ACT_HOLD)->Name(0, body));
+      }
+    else if(targ->Skill("Locked")) {
+      if(mind) mind->Send("You can't fill anything from that, it is locked.\n");
+      }
+    else if(targ == body->ActTarg(ACT_HOLD)) {
+      if(mind) mind->Send("You can't fill %s from itself.\n",
+	body->ActTarg(ACT_HOLD)->Name(0, body));
+      }
+    else {
+      int myclosed = 0, itclosed = 0;
+      Object *obj = body->ActTarg(ACT_HOLD);
+
+      Object *liq;
+      if(obj->Contents().size() > 0) {
+	liq = obj->Contents().front();
+	}
+      else {
+	liq = new Object(obj);
+	}
+      (*liq) = (*(targ->Contents().front()));
+      liq->SetSkill("Quantity", obj->Skill("Capacity"));
+      targ->Contents().front()->SetSkill("Quantity",
+	targ->Contents().front()->Skill("Quantity") - obj->Skill("Capacity")
+	);
+
+      if(!targ->Skill("Open")) itclosed = 1;
+      if(!obj->Skill("Open")) myclosed = 1;
+
+	//FIXME: Really open/close stuff!
+      if(itclosed) body->Parent()->SendOut(stealth_t, stealth_s,
+	";s opens ;s.\n", "You open ;s.\n", body, targ);
+      if(myclosed) body->Parent()->SendOut(stealth_t, stealth_s,
+	";s opens ;s.\n", "You open ;s.\n", body, obj);
+
+      string safety = obj->Name(0, body);
+      body->Parent()->SendOut(stealth_t, stealth_s, 
+	";s dumps out and fills %s from ;s.\n",
+	"You dump out and fill %s from ;s.\n",
+	body, targ, safety.c_str());
+
+	//FIXME: Really open/close stuff!
+      if(myclosed) body->Parent()->SendOut(stealth_t, stealth_s, 
+	";s close ;s.\n", "You close ;s.\n", body, obj);
+      if(itclosed) body->Parent()->SendOut(stealth_t, stealth_s, 
+	";s close ;s.\n", "You close ;s.\n", body, targ);
       }
     return 0;
     }
