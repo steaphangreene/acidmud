@@ -297,6 +297,11 @@ void Object::Tick() {
     SetSkill("CirclePopper", (Skill("CirclePopper")%20)+1);
     }
 
+  //Grow Trees (Silently)
+  if(HasSkill("Mature Trees") && Skill("Mature Trees") < 100) {
+    SetSkill("Mature Trees", Skill("Mature Trees") + 1);
+    }
+
   //FIXME: rot, degrade, etc....
   }
 

@@ -2958,8 +2958,22 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	mind->Send("%sYou don't know how to do that.%s\n", CYEL, CNRM);
 	return 0;
 	}
-      if((!body->Parent()) || (!strcasestr(body->Parent()->Name(), "forest"))) {
+      if(!body->Parent()) {		//You're nowhere?!?
 	mind->Send("%sThere are no trees here.%s\n", CYEL, CNRM);
+	return 0;
+	}
+      if(strcasestr(body->Parent()->Name(), "forest")
+		&& body->Parent()->HasSkill("CircleZone")
+		&& (!body->Parent()->HasSkill("Mature Trees"))) {
+	body->Parent()->SetSkill("Mature Trees", 100);
+	body->Parent()->Activate();
+	}
+      if(!body->Parent()->HasSkill("Mature Trees")) {
+	mind->Send("%sThere are no trees here.%s\n", CYEL, CNRM);
+	return 0;
+	}
+      else if(body->Parent()->Skill("Mature Trees") < 10) {
+	mind->Send("%sThere are too few trees to harvest here.%s\n", CYEL, CNRM);
 	return 0;
 	}
       else {
@@ -2972,6 +2986,8 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 		body, body);
 	  body->Parent()->Loud(body->Skill("Strength"),
 		"someone shout 'TIMBER'!!!");
+	  body->Parent()->SetSkill("Mature Trees",
+		body->Parent()->Skill("Mature Trees") - 1);
 	  body->SetSkill("Hidden", 0);
 
 	  Object * log = new Object(body->Parent());
