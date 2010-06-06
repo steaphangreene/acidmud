@@ -4508,12 +4508,13 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       mind->Send("You want to destroy what?\n");
       return 0;
       }
-    typeof(targs.begin()) targ_it;
-    for(targ_it = targs.begin(); targ_it != targs.end(); ++ targ_it) {
+    while(targs.size() > 0) {
+      Object *targ = targs.front();
       body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s destroys ;s with Ninja Powers[TM].\n", "You destroy ;s.\n",
-	body, *targ_it);
-      delete(*targ_it);
+	body, targ);
+      delete(targ);
+      targs = body->PickObjects(comline+len, LOC_NEARBY|LOC_INTERNAL);
       }
     return 0;
     }
