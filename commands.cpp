@@ -4533,7 +4533,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     typeof(body->Contents()) targs
-	= body->PickObjects(comline+len, LOC_NEARBY|LOC_INTERNAL);
+	= body->PickObjects(comline+len, LOC_NEARBY);
     if(targs.size() == 0) {
       mind->Send("You want to destroy what?\n");
       return 0;
@@ -4544,7 +4544,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	";s destroys ;s with Ninja Powers[TM].\n", "You destroy ;s.\n",
 	body, targ);
       delete(targ);
-      targs = body->PickObjects(comline+len, LOC_NEARBY|LOC_INTERNAL);
+      targs = body->PickObjects(comline+len, LOC_NEARBY);
       }
     return 0;
     }
