@@ -2437,6 +2437,8 @@ int Object::operator == (const Object &in) const {
   }
 
 void Object::operator = (const Object &in) {
+  fprintf(stderr, "USING IT!\n");
+
   short_desc = in.short_desc;
   desc = in.desc;
   long_desc = in.long_desc;
@@ -2454,6 +2456,8 @@ void Object::operator = (const Object &in) {
   att[5] = in.att[5];
   att[6] = in.att[6];
   att[7] = in.att[7];
+
+  skills = in.skills;
 
   pos = in.pos;
 
