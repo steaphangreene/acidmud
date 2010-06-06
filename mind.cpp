@@ -382,6 +382,15 @@ void Mind::Think(int istick) {
 	  return;
 	  }
 	}
+      if((istick == 1 || (!body->IsUsing("Perception")))//Not already searching
+		&& (!body->StillBusy())			//Not already responding
+		&& body->Stun() < 6			//I'm not stunned
+		&& body->Phys() < 6			//I'm not injured
+		&& (!body->IsAct(ACT_SLEEP))		//I'm not asleep
+		&& (!body->IsAct(ACT_REST))		//I'm not resting
+		) {
+	body->BusyFor(500, "search");
+	}
       }
     //AGGRESSIVE and (!WIMPY) Circle Mobs
     else if(body && body->Parent() && (body->Skill("CircleAction") & 160) == 32
@@ -405,6 +414,15 @@ void Mind::Think(int istick) {
 	  //fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
 	  return;
 	  }
+	}
+      if((istick == 1 || (!body->IsUsing("Perception")))//Not already searching
+		&& (!body->StillBusy())			//Not already responding
+		&& body->Stun() < 6			//I'm not stunned
+		&& body->Phys() < 6			//I'm not injured
+		&& (!body->IsAct(ACT_SLEEP))		//I'm not asleep
+		&& (!body->IsAct(ACT_REST))		//I'm not resting
+		) {
+	body->BusyFor(500, "search");
 	}
       }
     //HELPER Circle Mobs
@@ -430,6 +448,15 @@ void Mind::Think(int istick) {
 	  //fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
 	  return;
 	  }
+	}
+      if((istick == 1 || (!body->IsUsing("Perception")))//Not already searching
+		&& (!body->StillBusy())			//Not already responding
+		&& body->Stun() < 6			//I'm not stunned
+		&& body->Phys() < 6			//I'm not injured
+		&& (!body->IsAct(ACT_SLEEP))		//I'm not asleep
+		&& (!body->IsAct(ACT_REST))		//I'm not resting
+		) {
+	body->BusyFor(500, "search");
 	}
       }
     //NON-SENTINEL Circle Mobs

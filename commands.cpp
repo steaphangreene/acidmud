@@ -247,7 +247,7 @@ Command comlist[] = {
   { COM_SEARCH, "search",
     "Search an area, object or creature.",
     "Search an area, object or creature.",
-    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
   { COM_HIDE, "hide",
     "Hide an object, or yourself.",
@@ -1285,6 +1285,16 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       targs.push_back(body->Parent());
       }
 
+    stealth_t = 0;
+    stealth_s = 0;
+    if(body->Using() && (!body->IsUsing("Perception"))) {
+      body->Parent()->SendOut(stealth_t, stealth_s,
+	";s stops %s.\n", "You stop %s.\n",
+	body, NULL, body->UsingString()
+	);
+      }
+    body->StartUsing("Perception");
+    body->SetSkill("Hidden", 0);
     typeof(targs.begin()) targ_it;
     for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
       string denied = "";
@@ -2992,6 +3002,9 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 		CYEL, skill.c_str(), CNRM
 		);
 	}
+      }
+    else if(longterm == 0) {
+      mind->Send("You are already using %s\n", skill.c_str());
       }
 
     if(longterm > 0) {	//Long-running skills for results
