@@ -1806,6 +1806,8 @@ int Object::IsNearBy(Object *obj) {
   }
 
 void Object::NotifyGone(Object *obj, Object *newloc, int up) {
+  if(obj == this) return;	//Never notify self or sub-self objects.
+
   //Climb to top first!
   if(up == 1 && parent && (Skill("Open") || Skill("Transparent"))) {
     parent->NotifyGone(obj, newloc, 1);
