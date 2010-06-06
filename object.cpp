@@ -1332,8 +1332,8 @@ int Object::Travel(Object *dest, int try_combine) {
   Object *oldp = parent;
   parent->RemoveLink(this);
   parent = dest;
-  parent->AddLink(this);
   oldp->NotifyGone(this, dest);
+  parent->AddLink(this);
 
   if(try_combine) TryCombine();
 
