@@ -2787,6 +2787,63 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     return 0;
     }
 
+  if(com == COM_DRINK) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(!comline[len]) {
+      if(mind) mind->Send("What do you want to drink from?\n");
+      return 0;
+      }
+    typeof(body->Contents()) targs
+	= body->PickObjects(comline+len, LOC_NOTWORN|LOC_INTERNAL);
+    if(body->ActTarg(ACT_HOLD)
+	&& body->ActTarg(ACT_HOLD)->Parent() != body	//Dragging
+	&& body->ActTarg(ACT_HOLD)->Matches(comline+len)) {
+      targs.push_back(body->ActTarg(ACT_HOLD));
+      }
+    if(!targs.size()) {
+      if(mind) mind->Send("You want to drink from what?\n");
+      }
+    else {
+      typeof(targs.begin()) targ;
+      for(targ = targs.begin(); targ != targs.end(); ++targ) {
+	if(!((*targ)->HasSkill("Liquid Container"))) {
+	  if(mind) mind->Send(
+		"%s is not a liquid container.  You can't drink from it.\n",
+		(*targ)->Name(0, body)
+		);
+	  continue;
+	  }
+	if((*targ)->Contents().size() < 1) {
+	  if(mind) mind->Send("%s is empty.  There is nothing to drink\n",
+		(*targ)->Name(0, body));
+	  continue;
+	  }
+	Object *obj = (*targ)->Contents().front();
+	if((!(obj->HasSkill("Ingestible")))) {
+	  if(mind) mind->Send("You don't want to drink what's in %s.\n",
+		(*targ)->Name(0, body));
+	  continue;
+	  }
+
+	body->SetSkill("Hungry", body->Skill("Hungry") - obj->Skill("Food"));
+	body->SetSkill("Thirsty", body->Skill("Thursty") - obj->Skill("Drink"));
+	body->Parent()->SendOut(stealth_t, stealth_s, 
+		";s drinks some liquid out of ;s.\n",
+		"You drink some liquid out of ;s.\n",
+		body, *targ
+		);
+	if(obj->Skill("Quantity") < 2) {
+	  Object *nuke = (*targ)->Contents().front();
+	  delete nuke;
+	  }
+	else {
+	  obj->SetSkill("Quantity", obj->Skill("Quantity") - 1);
+	  }
+	}
+      }
+    return 0;
+    }
+
   if(com == COM_DUMP) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
