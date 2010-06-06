@@ -1275,7 +1275,8 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
 
     if(strlen(comline+len) > 0) {
-      targs = body->PickObjects(comline+len, LOC_NEARBY);
+      targs = body->PickObjects(comline+len,
+	LOC_NEARBY|LOC_ADJACENT|LOC_SELF|LOC_INTERNAL);
       if(targs.size() == 0) {
 	if(mind) mind->Send("You don't see that here.\n");
 	return 0;
