@@ -104,7 +104,7 @@ int Object::Load(const char *fn) {
 
   todo.clear();
   if(LoadFrom(fl)) { fclose(fl); return -1; }
-  
+
   vector<Object*>::iterator ind;
   for(ind = todo.begin(); ind != todo.end(); ++ind) {
     map<act_t,Object*>::iterator aind = (*ind)->act.begin();
