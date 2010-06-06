@@ -95,6 +95,11 @@ enum {	COM_HELP=0,
 	COM_WEAR,
 	COM_REMOVE,
 
+	COM_EAT,
+	COM_DRINK,
+	COM_FILL,
+	COM_DUMP,
+
 	COM_SLEEP,
 	COM_WAKE,
 	COM_LIE,
@@ -310,6 +315,26 @@ Command comlist[] = {
   { COM_DROP, "drop",
     "Drop an item you are carrying.",
     "Drop an item you are carrying.",
+    (REQ_ALERT|REQ_ACTION)
+    },
+  { COM_DUMP, "dump",
+    "Dump all liquid out of a container you are carrying.",
+    "Dump all liquid out of a container you are carrying.",
+    (REQ_ALERT|REQ_ACTION)
+    },
+  { COM_FILL, "fill",
+    "Fill a held liquid container from another.",
+    "Fill a held liquid container from another.",
+    (REQ_ALERT|REQ_ACTION)
+    },
+  { COM_EAT, "eat",
+    "Eat an item you are carrying.",
+    "Eat an item you are carrying.",
+    (REQ_ALERT|REQ_ACTION)
+    },
+  { COM_DRINK, "drink",
+    "Drink from an item you are carrying.",
+    "Drink from an item you are carrying.",
     (REQ_ALERT|REQ_ACTION)
     },
   { COM_WIELD, "wield",
@@ -1199,9 +1224,14 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 
     typeof(targs.begin()) targ_it;
     for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
-      if(within && (!(*targ_it)->Skill("Container"))) {
-	if(mind) mind->Send("You can't look inside %s, it is not a container.\n",
-		(*targ_it)->Name());
+      if(within
+		&& (!(*targ_it)->Skill("Container"))
+		&& (!(*targ_it)->Skill("Liquid Container"))
+		) {
+	if(mind) mind->Send(
+		"You can't look inside %s, it is not a container.\n",
+		(*targ_it)->Name()
+		);
 	}
       else if(within && ((*targ_it)->Skill("Locked"))) {
 	if(mind) mind->Send("You can't look inside %s, it is locked.\n",
@@ -2080,7 +2110,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	    continue;
 	    }
 
-	  if(targ->Skill("Container")) {
+	  if(targ->Skill("Container") || targ->Skill("Liquid Container")) {
 	    if(mind) {
 	      string mes = targ->Name(0, body);
 	      mes += " is a container.";
