@@ -859,7 +859,7 @@ void Object::CircleLoadObj(const char *fn) {
 	    }
 	  }
 	}
-      else if(tp == 17) { // DRINKCON
+      else if(tp == 17 || tp == 23) { // DRINKCON/FOUNTAIN
 	obj->SetSkill("Liquid Container", val[0]);
 	obj->SetSkill("Capacity", val[0]);
 	obj->SetSkill("Closeable", 1);
