@@ -2486,6 +2486,9 @@ const char *Object::UsingString() {
     else if(cur_skill == AtomString("Lumberjack")) {
       sprintf(buf, "chopping down trees");
       }
+    else if(cur_skill == AtomString("Perception")) {
+      sprintf(buf, "keeping an eye out");
+      }
     else {
       sprintf(buf, "using the %s skill", Using());
       }
