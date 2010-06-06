@@ -3215,6 +3215,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 		->Skill("WeaponType"));
 	reachmod += MAX(0, body->ActTarg(ACT_WIELD)
 		->Skill("WeaponReach"));
+	if(reachmod > 9) reachmod = 0;
 	}
       if(body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)
 		&& body->ActTarg(ACT_HOLD)) {
@@ -3230,6 +3231,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 		->Skill("WeaponType"));
 	reachmod -= MAX(0, targ->ActTarg(ACT_WIELD)
 		->Skill("WeaponReach"));
+	if(reachmod < -9) reachmod = 0;
 	}
       }
 
@@ -3300,20 +3302,33 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 
     if(succ > 0) {
       //FIXME: Remove debugging stuff ("succ" and "res") from these messages.
-      if(com == COM_KICK)
-	body->Parent()->SendOut(stealth_t, stealth_s, 
+      if(com == COM_KICK) {		//Kicking Action
+	body->Parent()->SendOut(ALL, -1,
 		"*;s kicks ;s%s. [%d] %s\n", "*You kick ;s%s. [%d] %s\n",
 		body, targ, locm.c_str(), succ, res.c_str());
-      else if(body->IsAct(ACT_WIELD))
-	body->Parent()->SendOut(stealth_t, stealth_s,
+	}
+      else if(body->IsAct(ACT_WIELD)	//Ranged Weapon
+		&& body->ActTarg(ACT_WIELD)->Skill("WeaponReach") > 9) {
+	body->Parent()->SendOut(ALL, -1,
+		"*;s throws %s and hits ;s%s. [%d] %s\n",
+		"*You throw %s and hit ;s%s. [%d] %s\n", body, targ,
+		body->ActTarg(ACT_WIELD)->ShortDesc(), locm.c_str(),
+		succ, res.c_str());
+	body->ActTarg(ACT_WIELD)->Travel(body->Parent());//FIXME: Get Another
+	body->StopAct(ACT_WIELD);			//FIXME: Bows/Guns!
+	}
+      else if(body->IsAct(ACT_WIELD)) {	//Melee Weapon
+	body->Parent()->SendOut(ALL, -1,
 		"*;s hits ;s%s with %s. [%d] %s\n",
 		"*You hit ;s%s with %s. [%d] %s\n", body, targ,
 		locm.c_str(), body->ActTarg(ACT_WIELD)->ShortDesc(),
 		succ, res.c_str());
-      else
-	body->Parent()->SendOut(stealth_t, stealth_s, 
+	}
+      else {				//No Weapon
+	body->Parent()->SendOut(ALL, -1,
 		"*;s punches ;s%s. [%d] %s\n", "*You punch ;s%s. [%d] %s\n",
 		body, targ, locm.c_str(), succ, res.c_str());
+	}
       int sev = 0;
 
       if(com == COM_KICK) {
@@ -3350,18 +3365,38 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	}
       }
     else {
-      if(com == COM_KICK) body->Parent()->SendOut(stealth_t, stealth_s, 
-	";s tries to kick ;s, but misses. [%d] %s\n",
-	"You try to kick ;s, but miss. [%d] %s\n",
-	body, targ, succ, res.c_str());
-      else if(body->IsAct(ACT_WIELD))body->Parent()->SendOut(stealth_t, stealth_s, 
-	";s tries to attack ;s, but misses. [%d] %s\n",
-	"You try to attack ;s, but miss. [%d] %s\n",
-	body, targ, succ, res.c_str());
-      else body->Parent()->SendOut(stealth_t, stealth_s, 
-	";s tries to punch ;s, but misses. [%d] %s\n",
-	"You try to punch ;s, but miss. [%d] %s\n",
-	body, targ, succ, res.c_str());
+      if(com == COM_KICK) {		//Kicking Action
+	body->Parent()->SendOut(ALL, -1,
+		";s tries to kick ;s, but misses. [%d] %s\n",
+		"You try to kick ;s, but miss. [%d] %s\n",
+		body, targ, succ, res.c_str()
+		);
+	}
+      else if(body->IsAct(ACT_WIELD)	//Ranged Weapon
+		&& body->ActTarg(ACT_WIELD)->Skill("WeaponReach") > 9) {
+	body->Parent()->SendOut(ALL, -1,
+		"*;s throws %s at ;s, but misses. [%d] %s\n",
+		"*You throw %s at ;s, but miss. [%d] %s\n",
+		body, targ, body->ActTarg(ACT_WIELD)->ShortDesc(),
+		succ, res.c_str()
+		);
+	body->ActTarg(ACT_WIELD)->Travel(body->Parent());//FIXME: Get Another
+	body->StopAct(ACT_WIELD);			//FIXME: Bows/Guns!
+	}
+      else if(body->IsAct(ACT_WIELD)) {	//Melee Weapon
+	body->Parent()->SendOut(ALL, -1,
+		";s tries to attack ;s, but misses. [%d] %s\n",
+		"You try to attack ;s, but miss. [%d] %s\n",
+		body, targ, succ, res.c_str()
+		);
+	}
+      else {				//Unarmed
+	body->Parent()->SendOut(ALL, -1,
+		";s tries to punch ;s, but misses. [%d] %s\n",
+		"You try to punch ;s, but miss. [%d] %s\n",
+		body, targ, succ, res.c_str()
+		);
+	}
       }
 
     if(targ->Attribute(1) <= 0 || targ->IsAct(ACT_DEAD)
