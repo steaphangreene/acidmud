@@ -820,12 +820,170 @@ void Object::CircleLoadObj(const char *fn) {
 	  }
 
 	}
+      else if(tp == 10) { // POTION
+	obj->SetSkill("Liquid Container", 1);
+	obj->SetSkill("Capacity", 1);
+	obj->SetSkill("Closeable", 1);
+
+	Object *liq = new Object(obj);
+	liq->SetSkill("Liquid", 1);
+	liq->SetSkill("Ingestible", 1);
+	liq->SetWeight(10);
+	liq->SetVolume(1);
+	liq->SetSkill("Quantity", 1);
+	liq->SetSkill("Magical", val[0]);
+	for(int idx=1; idx < 4; ++idx) {
+	  switch(val[idx]) {
+	    case(16): {		// CURE_LIGHT
+	      liq->SetShortDesc("white");
+	      liq->SetSkill("Heal Effect", 6);
+	      } break;
+	    case(15): {		// CURE_CRITIC
+	      liq->SetShortDesc("blue");
+	      liq->SetSkill("Heal Effect", 4);
+	      } break;
+	    case(28): {		// HEAL
+	      liq->SetShortDesc("black");
+	      liq->SetSkill("Heal Effect", 2);
+	      } break;
+	    case(33): {		// POISON
+	      liq->SetShortDesc("red");
+	      liq->SetSkill("Poisonous", val[0]);
+	      } break;
+	    case(43): {		// REMOVE_POISON
+	      liq->SetShortDesc("silver");
+	      liq->SetSkill("Cure Effect", 2);
+	      } break;
+	    }
+	  }
+	}
       else if(tp == 17) { // DRINKCON
 	obj->SetSkill("Liquid Container", val[0]);
 	obj->SetSkill("Capacity", val[0]);
-	obj->SetSkill("Open", 1);
 	obj->SetSkill("Closeable", 1);
-	//FIXME: Put the liquid in it if it's supposed to start with it!
+	if(val[1] > 0) {
+	  Object *liq = new Object(obj);
+	  liq->SetSkill("Liquid", 1);
+	  liq->SetSkill("Ingestible", 1);
+	  liq->SetWeight(20);
+	  liq->SetVolume(2);
+	  switch(val[2]) {
+	    case(0): {		// WATER
+	      liq->SetShortDesc("water");
+	      liq->SetSkill("Drink", 10);
+	      liq->SetSkill("Food", 1);
+	      //liq->SetSkill("Alcohol", 0);
+	      } break;
+	    case(1): {		// BEER
+	      liq->SetShortDesc("beer");
+	      liq->SetSkill("Drink", 5);
+	      liq->SetSkill("Food", 2);
+	      liq->SetSkill("Alcohol", 3);
+	      liq->SetSkill("Perishable", val[0] * 32);
+	      } break;
+	    case(2): {		// WINE
+	      liq->SetShortDesc("wine");
+	      liq->SetSkill("Drink", 5);
+	      liq->SetSkill("Food", 2);
+	      liq->SetSkill("Alcohol", 5);
+	      } break;
+	    case(3): {		// ALE
+	      liq->SetShortDesc("ale");
+	      liq->SetSkill("Drink", 5);
+	      liq->SetSkill("Food", 2);
+	      liq->SetSkill("Alcohol", 2);
+	      liq->SetSkill("Perishable", val[0] * 16);
+	      } break;
+	    case(4): {		// DARKALE
+	      liq->SetShortDesc("dark ale");
+	      liq->SetSkill("Drink", 5);
+	      liq->SetSkill("Food", 2);
+	      liq->SetSkill("Alcohol", 1);
+	      liq->SetSkill("Perishable", val[0] * 8);
+	      } break;
+	    case(5): {		// WHISKY
+	      liq->SetShortDesc("whisky");
+	      liq->SetSkill("Drink", 4);
+	      liq->SetSkill("Food", 1);
+	      liq->SetSkill("Alcohol", 6);
+	      } break;
+	    case(6): {		// LEMONADE
+	      liq->SetShortDesc("lemonaid");
+	      liq->SetSkill("Drink", 8);
+	      liq->SetSkill("Food", 1);
+	      //liq->SetSkill("Alcohol", 0);
+	      liq->SetSkill("Perishable", val[0] * 4);
+	      } break;
+	    case(7): {		// FIREBRT
+	      liq->SetShortDesc("firebreather");
+	      //liq->SetSkill("Drink", 0);
+	      //liq->SetSkill("Food", 0);
+	      liq->SetSkill("Alcohol", 10);
+	      } break;
+	    case(8): {		// LOCALSPC
+	      liq->SetShortDesc("local brew");
+	      liq->SetSkill("Drink", 3);
+	      liq->SetSkill("Food", 3);
+	      liq->SetSkill("Alcohol", 3);
+	      } break;
+	    case(9): {		// SLIME
+	      liq->SetShortDesc("slime");
+	      liq->SetSkill("Drink", -8);
+	      liq->SetSkill("Food", 4);
+	      //liq->SetSkill("Alcohol", 0);
+	      } break;
+	    case(10): {		// MILK
+	      liq->SetShortDesc("milk");
+	      liq->SetSkill("Drink", 6);
+	      liq->SetSkill("Food", 3);
+	      //liq->SetSkill("Alcohol", 0);
+	      liq->SetSkill("Perishable", val[0]);
+	      } break;
+	    case(11): {		// TEA
+	      liq->SetShortDesc("tea");
+	      liq->SetSkill("Drink", 6);
+	      liq->SetSkill("Food", 1);
+	      //liq->SetSkill("Alcohol", 0);
+	      } break;
+	    case(12): {		// COFFE
+	      liq->SetShortDesc("coffee");
+	      liq->SetSkill("Drink", 6);
+	      liq->SetSkill("Food", 1);
+	      //liq->SetSkill("Alcohol", 0);
+	      } break;
+	    case(13): {		// BLOOD
+	      liq->SetShortDesc("blood");
+	      liq->SetSkill("Drink", -1);
+	      liq->SetSkill("Food", 2);
+	      //liq->SetSkill("Alcohol", 0);
+	      liq->SetSkill("Perishable", val[0] * 2);
+	      } break;
+	    case(14): {		// SALTWATER
+	      liq->SetShortDesc("salt water");
+	      liq->SetSkill("Drink", -2);
+	      liq->SetSkill("Food", 1);
+	      //liq->SetSkill("Alcohol", 0);
+	      } break;
+	    case(15): {		// CLEARWATER
+	      liq->SetShortDesc("clear water");
+	      liq->SetSkill("Drink", 13);
+	      //liq->SetSkill("Food", 0);
+	      //liq->SetSkill("Alcohol", 0);
+	      } break;
+	    }
+	  if(val[3] != 0) {
+	    liq->SetSkill("Poisionous", val[3]);
+	    }
+	  liq->SetSkill("Quantity", val[1]);
+	  }
+	}
+      else if(tp == 19) { // FOOD
+	obj->SetSkill("Ingestible", 1);
+	obj->SetSkill("Perishable", val[0]);
+	obj->SetSkill("Food", val[0]);
+	if(val[3] != 0) {
+	  obj->SetSkill("Poisionous", val[3]);
+	  }
 	}
       else if(tp == 22) { // BOAT
 	obj->SetSkill("Enterable", 1);
