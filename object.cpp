@@ -153,12 +153,18 @@ int matches(const char *name, const char *seek) {
 int Object::Matches(const char *seek) {
   string targ = seek;
   while(isspace(targ[targ.length()-1])) targ=targ.substr(0, targ.length()-1);
+
+  //Keywords Only
   if(!strcasecmp(targ.c_str(), "everyone")) return (Attribute(1) > 0);
   if(!strcasecmp(targ.c_str(), "someone")) return (Attribute(1) > 0);
   if(!strcasecmp(targ.c_str(), "anyone")) return (Attribute(1) > 0);
   if(!strcasecmp(targ.c_str(), "everything")) return (Attribute(1) == 0);
   if(!strcasecmp(targ.c_str(), "something")) return (Attribute(1) == 0);
   if(!strcasecmp(targ.c_str(), "anything")) return (Attribute(1) == 0);
+
+  //Keywords which can also be things
+  if((!strcasecmp(targ.c_str(), "corpse")) && IsAct(ACT_DEAD)) return 1;
+
   return matches(ShortDesc(), targ.c_str());
   }
 
@@ -218,16 +224,20 @@ int has_tick(const Object *o) {
 
 void tick_world() {
   static int tickstage = 0;
+  set<Object*> todel;
   set<Object*>::iterator ind = ticklist[tickstage].begin();
 //  fprintf(stderr, "Ticking %d items\n", ticklist[tickstage].size());
   for(; ind != ticklist[tickstage].end(); ++ind) {
-    (*ind)->Tick();
+    if((*ind)->Tick()) { todel.insert(*ind); }
+    }
+  for(ind = todel.begin(); ind != todel.end(); ++ind) {
+    delete (*ind);
     }
   ++tickstage;
   if(tickstage >= TICKSPLIT) tickstage = 0;
   }
 
-void Object::Tick() {
+int Object::Tick() {
   set<Mind*>::iterator m;
   for(m = minds.begin(); m != minds.end(); ++m) {
     (*m)->Attach(this);
@@ -302,7 +312,107 @@ void Object::Tick() {
     SetSkill("Mature Trees", Skill("Mature Trees") + 1);
     }
 
-  //FIXME: rot, degrade, etc....
+  if(IsAct(ACT_DEAD)) {		//Rotting corpses
+    ++stru;
+    if(stru == 1) {
+      parent->SendOut(ALL, 0,
+	";s's corpse starts to smell.\n", "",
+	this, NULL
+	);
+      }
+    else if(stru == 3) {
+      parent->SendOut(ALL, 0,
+	";s's corpse starts to rot.\n", "",
+	this, NULL
+	);
+      }
+    else if(stru == 6) {
+      parent->SendOut(ALL, 0,
+	";s's corpse starts to come apart.\n", "",
+	this, NULL
+	);
+      }
+    else if(stru >= 10) {
+      SetShortDesc("an unidentifiable corpse");
+      SetDesc("A pile of rotting remains.");
+      SetLongDesc("");
+      SetPos(POS_LIE);
+      StopAct(ACT_DEAD);
+
+      SetAttribute(0, 0);
+      SetAttribute(1, 0);
+      SetAttribute(2, 0);
+      SetAttribute(3, 0);
+      SetAttribute(4, 0);
+      SetAttribute(5, 0);
+
+      stun = 0;
+      phys = 0;
+      stru = 0;
+
+      SetSkill("Perishable", 1);
+      SetSkill("Rot", 1);
+
+      set<Object*> todrop;
+      list<Object*> todropfrom;
+
+      typeof(contents.begin()) cur;
+      for(cur = contents.begin(); cur != contents.end(); ++cur) {
+	Object *item = (*cur);
+	if(item->contents.size() > 0 && item->Matches("CircleMUD")) {
+	  todropfrom.push_back(item);
+	  }
+	else {
+	  todrop.insert(item);
+	  }
+	}
+
+      list<Object*>::iterator tdf;
+      for(tdf = todropfrom.begin(); tdf != todropfrom.end(); ++tdf) {
+	Object *con = (*tdf);
+	for(cur = con->contents.begin(); cur != con->contents.end(); ++cur) {
+	  Object *item = (*cur);
+	  if(item->contents.size() > 0 && item->Matches("CircleMUD")) {
+	    todropfrom.push_back(item);
+	    }
+	  else {
+	    todrop.insert(item);
+	    }
+	  }
+	}
+
+      set<Object*>::iterator td;
+      for(td = todrop.begin(); td != todrop.end(); ++td) {
+	if(Parent()) (*td)->Travel(Parent());
+	else delete (*td);
+	}
+
+      typeof(contents) cont = contents;
+      typeof(cont.begin()) todel;
+      for(todel = cont.begin(); todel != cont.end(); ++todel) {
+	delete (*todel);
+	}
+
+      parent->SendOut(ALL, 0,
+	";s's corpse completely falls apart.\n", "",
+	this, NULL
+	);
+      }
+    }
+
+  if(HasSkill("Perishable")) {		//Degrading Items
+    SetSkill("Rot", Skill("Rot") - 1);
+    if(Skill("Rot") < 1) {
+      ++stru;
+      if(stru < 10) {
+	SetSkill("Rot", Skill("Perishable"));
+	}
+      else {
+	return 1;	//Delete Me!
+	}
+      }
+    }
+  return 0;
   }
 
 Object::Object() {

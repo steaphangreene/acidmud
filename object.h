@@ -267,7 +267,7 @@ public:
   int SaveTo(FILE *);
   int WriteContentsTo(FILE *);
 
-  void Tick();
+  int Tick();
 
   int BusyAct();
   int StillBusy();
