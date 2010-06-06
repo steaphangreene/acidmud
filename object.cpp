@@ -2437,8 +2437,6 @@ int Object::operator == (const Object &in) const {
   }
 
 void Object::operator = (const Object &in) {
-  fprintf(stderr, "USING IT!\n");
-
   short_desc = in.short_desc;
   desc = in.desc;
   long_desc = in.long_desc;
