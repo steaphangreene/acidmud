@@ -1287,7 +1287,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 
     stealth_t = 0;
     stealth_s = 0;
-    if(body->Using() && (!body->IsUsing("Perception"))) {
+    if(body->Pos() == POS_USE && (!body->IsUsing("Perception"))) {
       body->Parent()->SendOut(stealth_t, stealth_s,
 	";s stops %s.\n", "You stop %s.\n",
 	body, NULL, body->UsingString()
