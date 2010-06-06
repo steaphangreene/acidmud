@@ -1668,7 +1668,7 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
     }
 
   for(act_t act=ACT_NONE; act < ACT_MAX; act = act_t(int(act)+1)) {
-    if(ActTarg(act) == obj) {
+    if(ActTarg(act) == obj || obj->IsWithin(ActTarg(act))) {
       if(act != ACT_FOLLOW || (!newloc)) { StopAct(act); }
       else if(parent == newloc) { } // Do nothing - didn't leave!
       else {
