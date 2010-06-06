@@ -282,6 +282,7 @@ public:
   int operator != (const Object &in) const;
 
   int Matches(const char *seek);
+  int LooksLike(Object *other);
 
   void AddMOB(const MOBType *);
 

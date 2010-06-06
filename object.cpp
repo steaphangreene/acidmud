@@ -732,9 +732,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
       int qty = 1;	// Even animate objects can have higher quantities.
       typeof(cont.begin()) oth = ind;
       for(qty = 0; oth != cont.end(); ++oth) {
-	string name1 = (*ind)->Name();
-	string name2 = (*oth)->Name();
-	if(name1 == name2 && (*ind)->Pos() == (*oth)->Pos()) {
+	if((*ind)->LooksLike(*oth)) {
 	  master.erase(*oth);
 	  qty += MAX(1, (*oth)->Skill("Quantity"));
 	  }
@@ -2530,6 +2528,24 @@ int Object::Filter(int loc) {
     }
   if(loc & LOC_CONSCIOUS) {
     if(IsAct(ACT_DYING) || IsAct(ACT_UNCONSCIOUS)) return 0;
+    }
+  return 1;
+  }
+
+int Object::LooksLike(Object *other) {
+  if(string(Name()) != string(other->Name())) return 0;
+  if(Pos() != other->Pos()) return 0;
+  if(string(Using()) != string(other->Using())) return 0;
+  for(act_t act = ACT_NONE; act < ACT_WIELD;) {		//Off-By-One!
+    act = act_t(int(act)+1);				//Increments First!
+    if(IsAct(act) != other->IsAct(act)) return 0;
+    if(ActTarg(act) != other->ActTarg(act)) {
+      string s1 = "";
+      if(ActTarg(act)) s1 = ActTarg(act)->Name(0, this);
+      string s2 = "";
+      if(ActTarg(act)) s2 = other->ActTarg(act)->Name(0, other);
+      if(s1 != s2) return 0;
+      }
     }
   return 1;
   }
