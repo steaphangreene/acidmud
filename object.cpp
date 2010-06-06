@@ -341,6 +341,7 @@ int Object::Tick() {
 
       corpse->SetSkill("Perishable", 1);
       corpse->SetSkill("Rot", 1);
+      corpse->Activate();
 
       corpse->SetWeight(Weight());
       corpse->SetSize(Size());
