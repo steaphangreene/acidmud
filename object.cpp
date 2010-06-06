@@ -414,6 +414,17 @@ int Object::Tick() {
 	}
       }
     }
+
+
+  if(Attribute(2) > 0 && (!HasSkill("CircleAction"))) {	//Needs Food & Water
+    //Get Hungrier
+    if(Skill("Hungry") < 1) { SetSkill("Hungry", 1); }
+    else { SetSkill("Hungry", Skill("Hungry") + 1); }
+
+    //Get Thurstier
+    if(Skill("Thirsty") < 1) { SetSkill("Thirsty", 1); }
+    else { SetSkill("Thirsty", Skill("Thirsty") + 1); }
+    }
   return 0;
   }
 
