@@ -425,6 +425,25 @@ int Object::Tick() {
     if(Skill("Thirsty") < 1) { SetSkill("Thirsty", 1); }
     else { SetSkill("Thirsty", Skill("Thirsty") + 1); }
     }
+
+  if(HasSkill("Liquid Source")) {		//Refills Itself
+    if(contents.size() > 0) {
+      int qty = 1;
+      if(contents.front()->Skill("Quantity") > 1) {
+	qty = contents.front()->Skill("Quantity");
+	}
+      if(qty < Skill("Capacity")) {
+	contents.front()->SetSkill("Quantity", qty + Skill("Liquid Source"));
+	if(contents.front()->Skill("Quantity") > Skill("Capacity")) {
+	  contents.front()->SetSkill("Quantity", Skill("Capacity"));
+	  }
+	}
+      }
+    else {
+      fprintf(stderr, "Warning: Fountain completely out of liquid!\n");
+      }
+    }
+
   return 0;
   }
 
