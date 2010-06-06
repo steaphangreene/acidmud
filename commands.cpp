@@ -2037,8 +2037,13 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       }
     else {
       Object *shpkp = shpkps.front();
-      typeof(body->Contents())
-	targs = body->PickObjects(comline+len, LOC_NOTWORN|LOC_INTERNAL);
+      typeof(body->Contents()) targs =
+		body->PickObjects(comline+len, LOC_NOTWORN|LOC_INTERNAL);
+      if(body->ActTarg(ACT_HOLD)
+		&& body->ActTarg(ACT_HOLD)->Parent() != body	//Dragging
+		&& body->ActTarg(ACT_HOLD)->Matches(comline+len)) {
+	targs.push_back(body->ActTarg(ACT_HOLD));
+	}
       if(!targs.size()) {
 	if(mind) mind->Send("You want to sell what?\n");
 	}
@@ -2673,7 +2678,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       return 0;
       }
     typeof(body->Contents()) targs
-	= body->PickObjects(comline+len, LOC_INTERNAL);
+	= body->PickObjects(comline+len, LOC_NOTWORN|LOC_INTERNAL);
     if(body->ActTarg(ACT_HOLD)
 	&& body->ActTarg(ACT_HOLD)->Parent() != body	//Dragging
 	&& body->ActTarg(ACT_HOLD)->Matches(comline+len)) {
