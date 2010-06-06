@@ -769,6 +769,8 @@ void Object::CircleLoadObj(const char *fn) {
 	}
       if(string(buf).find('k') < strlen(buf) || (atoi(buf) & 1024)) {
 	obj->SetSkill("Wearable on Back", 1);		// "WEAR_ABOUT"
+	obj->SetSkill("Wearable on Left Shoulder", 2);
+	obj->SetSkill("Wearable on Right Shoulder", 2);
 	}
       if(string(buf).find('l') < strlen(buf) || (atoi(buf) & 2048)) {
 	obj->SetSkill("Wearable on Waist", 1);
