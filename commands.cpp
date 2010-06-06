@@ -1457,18 +1457,31 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 
 	diff = 0;
 	if(body->ActTarg(ACT_WIELD))
-	  diff += body->ActTarg(ACT_WIELD)->Skill("WeaponReach");
-	if(targ->ActTarg(ACT_WIELD))
-	  diff -= targ->ActTarg(ACT_WIELD)->Skill("WeaponReach");
-	if(diff < -5)      mind->Send("   ...outreaches you by a mile.\n");
-	else if(diff < -2) mind->Send("   ...has much greater reach than you.\n");
-	else if(diff < -1) mind->Send("   ...has greater reach than you.\n");
-	else if(diff < 0)  mind->Send("   ...has a bit greater reach than you.\n");
-	else if(diff > 5)  mind->Send("   ...has a mile less reach than you.\n");
-	else if(diff > 2)  mind->Send("   ...has much less reach than you.\n");
-	else if(diff > 1)  mind->Send("   ...has less reach than you.\n");
-	else if(diff > 0)  mind->Send("   ...has a bit less reach than you.\n");
-	else               mind->Send("   ...has about your reach.\n");
+	  diff = (body->ActTarg(ACT_WIELD)->Skill("WeaponReach") > 9);
+	if(targ->ActTarg(ACT_WIELD)
+		&& targ->ActTarg(ACT_WIELD)->Skill("WeaponReach") > 9) {
+	  if(diff) mind->Send("   ...has a ranged weapon, and so do you!\n");
+	  else mind->Send("   ...has a ranged weapon!\n");
+	  }
+	else if(diff) {
+	  mind->Send("   ...doesn't have a ranged weapon, and you do!\n");
+	  }
+	else {
+	  diff = 0;
+	  if(body->ActTarg(ACT_WIELD))
+	    diff += body->ActTarg(ACT_WIELD)->Skill("WeaponReach");
+	  if(targ->ActTarg(ACT_WIELD))
+	    diff -= targ->ActTarg(ACT_WIELD)->Skill("WeaponReach");
+	  if(diff < -5)      mind->Send("   ...outreaches you by a mile.\n");
+	  else if(diff < -2) mind->Send("   ...has much greater reach than you.\n");
+	  else if(diff < -1) mind->Send("   ...has greater reach than you.\n");
+	  else if(diff < 0)  mind->Send("   ...has a bit greater reach than you.\n");
+	  else if(diff > 5)  mind->Send("   ...has a mile less reach than you.\n");
+	  else if(diff > 2)  mind->Send("   ...has much less reach than you.\n");
+	  else if(diff > 1)  mind->Send("   ...has less reach than you.\n");
+	  else if(diff > 0)  mind->Send("   ...has a bit less reach than you.\n");
+	  else               mind->Send("   ...has about your reach.\n");
+	  }
 
 	if((!targ->ActTarg(ACT_WEAR_SHIELD)) && (!body->ActTarg(ACT_WEAR_SHIELD))) {
 	  mind->Send("   ...has no shield, but neither do you.\n");
