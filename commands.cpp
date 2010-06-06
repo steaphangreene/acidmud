@@ -2911,71 +2911,101 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       return 0;
       }
 
-    Object *targ =
-	body->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
-    if(!targ) {
+    Object *src = body->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL);
+    Object *dst = body->ActTarg(ACT_HOLD);
+    if(!src) {
       if(mind) mind->Send("I don't see '%s' to fill %s from!\n",
-	comline+len, body->ActTarg(ACT_HOLD)->Name(0, body));
+	comline+len, dst->Name(0, body));
       }
-    else if(!body->ActTarg(ACT_HOLD)->HasSkill("Liquid Container")) {
+    else if(!dst->HasSkill("Liquid Container")) {
       if(mind) mind->Send(
 	"You can not fill %s, it is not a liquid container.\n",
-	body->ActTarg(ACT_HOLD)->Name(0, body));
+	dst->Name(0, body));
       }
-    else if(targ->Attribute(1)) {
-      if(mind) mind->Send("You can only fill things from inanimate objects!\n");
+    else if(src->Attribute(1)) {
+      if(mind) mind->Send(
+	"You can only fill things from inanimate objects!\n");
       }
-    else if(!targ->HasSkill("Liquid Container")) {
-      if(mind) mind->Send("You can't fill anything from that, it's not a liquid container.\n");
+    else if(!src->HasSkill("Liquid Container")) {
+      if(mind) mind->Send(
+	"You can't fill anything from that, it's not a liquid container.\n");
       }
-    else if(body->ActTarg(ACT_HOLD)->Skill("Locked")) {
-      if(mind) mind->Send("You can't fill %s, it is locked.\n",
-	body->ActTarg(ACT_HOLD)->Name(0, body));
+    else if(dst->Skill("Locked")) {
+      if(mind) mind->Send(
+	"You can't fill %s, it is locked.\n",
+	dst->Name(0, body));
       }
-    else if(targ->Skill("Locked")) {
-      if(mind) mind->Send("You can't fill anything from that, it is locked.\n");
+    else if(src->Skill("Locked")) {
+      if(mind) mind->Send(
+	"You can't fill anything from that, it is locked.\n");
       }
-    else if(targ == body->ActTarg(ACT_HOLD)) {
-      if(mind) mind->Send("You can't fill %s from itself.\n",
-	body->ActTarg(ACT_HOLD)->Name(0, body));
+    else if(src == dst) {
+      if(mind) mind->Send(
+	"You can't fill %s from itself.\n",
+	dst->Name(0, body));
+      }
+    else if(src->Contents().size() < 1) {
+      if(mind) mind->Send(
+	"You can't fill anything from that, it is empty.\n");
+      }
+    else if(src->HasSkill("Liquid Source")
+		&& src->Contents().front()->Skill("Quantity") < 2) {
+      if(mind) mind->Send(
+	"You can't fill anything from that, it is almost empty.\n");
       }
     else {
       int myclosed = 0, itclosed = 0;
-      Object *obj = body->ActTarg(ACT_HOLD);
 
-      Object *liq;
-      if(obj->Contents().size() > 0) {
-	liq = obj->Contents().front();
+      int sqty = 1;
+      int dqty = dst->Skill("Capacity");
+      if(src->Contents().front()->Skill("Quantity") > 0) {
+	sqty = src->Contents().front()->Skill("Quantity");
+	}
+
+      if(src->HasSkill("Liquid Source")) {
+	if(dqty > (sqty-1)) dqty = (sqty-1);
 	}
       else {
-	liq = new Object(obj);
+	if(dqty > sqty) dqty = sqty;
 	}
-      (*liq) = (*(targ->Contents().front()));
-      liq->SetSkill("Quantity", obj->Skill("Capacity"));
-      targ->Contents().front()->SetSkill("Quantity",
-	targ->Contents().front()->Skill("Quantity") - obj->Skill("Capacity")
-	);
+      sqty -= dqty;
 
-      if(!targ->Skill("Open")) itclosed = 1;
-      if(!obj->Skill("Open")) myclosed = 1;
+      Object *liq;
+      if(dst->Contents().size() > 0) {
+	liq = dst->Contents().front();
+	}
+      else {
+	liq = new Object(dst);
+	}
+      (*liq) = (*(src->Contents().front()));
+      liq->SetSkill("Quantity", dqty);
+      if(sqty > 0) {
+	src->Contents().front()->SetSkill("Quantity", sqty);
+	}
+      else {
+	delete(src->Contents().front());
+	}
+
+      if(!src->Skill("Open")) itclosed = 1;
+      if(!dst->Skill("Open")) myclosed = 1;
 
 	//FIXME: Really open/close stuff!
       if(itclosed) body->Parent()->SendOut(stealth_t, stealth_s,
-	";s opens ;s.\n", "You open ;s.\n", body, targ);
+	";s opens ;s.\n", "You open ;s.\n", body, src);
       if(myclosed) body->Parent()->SendOut(stealth_t, stealth_s,
-	";s opens ;s.\n", "You open ;s.\n", body, obj);
+	";s opens ;s.\n", "You open ;s.\n", body, dst);
 
-      string safety = obj->Name(0, body);
+      string safety = dst->Name(0, body);
       body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s dumps out and fills %s from ;s.\n",
 	"You dump out and fill %s from ;s.\n",
-	body, targ, safety.c_str());
+	body, src, safety.c_str());
 
 	//FIXME: Really open/close stuff!
       if(myclosed) body->Parent()->SendOut(stealth_t, stealth_s, 
-	";s close ;s.\n", "You close ;s.\n", body, obj);
+	";s close ;s.\n", "You close ;s.\n", body, dst);
       if(itclosed) body->Parent()->SendOut(stealth_t, stealth_s, 
-	";s close ;s.\n", "You close ;s.\n", body, targ);
+	";s close ;s.\n", "You close ;s.\n", body, src);
       }
     return 0;
     }
