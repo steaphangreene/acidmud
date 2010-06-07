@@ -1,3 +1,5 @@
+Translate CircleMUD shopkeepers' types of purchase items.
+
 Handle liquids mixing?
 
 Kill trailing whitespace in ALL commandline targets.
@@ -10,6 +12,7 @@ Redesign full battle system and reimplement/replace.
 Implement various types of armor and damage.
 Do 3-layer armor system.
 Show armor messages in ninja display.
+Implement more equipment's magical effects.
 Crafting (weapons, armor, tools, clothes, etc...).
 Handle Multiple Weapon Types (eg: Bastard Swords).
 Implement All Remaining Weapon Types (Guns, etc...).
@@ -20,36 +23,30 @@ Refine the fudging of circle MOBs' stats (Better AC Handling, Natural Armor).
 Implement Races, Species and Materials.
 Natural Armor.
 Need a way to "find" items you've hidden on yourself.
-Pluralize "kill" command.
 Search turns things blue, or does it?
 Ranged Combat.
 Implement Roll Object for passing complete rolls.
 Handle REAL contested roll for perception/stealth in normal actions.
 Make auto-unwield from wielding another item also use autostashing.
 Implement scabbards and quivers.
-Enhance "consider" command.
 Place circle-placed objects on back if on chest (plus other corrections).
 Let "remove" command also handle unwielding?
 Implement "all of " target for all within.
 Implement "stuff"/"money"/"cash" target.
-Implement "everything" target.
 Implement "loot" command.
-Allow carrying of corpses and KOed creatures.
+Allow carrying of dying and KOed creatures.
 Add autostashing to "wield" command's unwield.
 Make CircleMUD packs and purses non-stealable?
 Give starting players a purse and a bag?
 Autowield when entering combat.
-Implement movement settings (walk, run, explore, etc...).
-Circle translations: backpack goes on SHOULDERS?
+Implement movement settings using skills (walk, run, explore, etc...).
 Fixup shopkeepers so item numbers NEVER expire.
 Fixup shopkeepers so their vortices are not viewable.
 Make single-item commands get only single items.
 Make all plural commands see pluralized items correctly.
 Fix exchange system handling odd cases (including sell/buy).
 Follower should look like he gets there after folowee to those already there.
-Should not be able to wear/wield multiple (ie: pluralized) items in any location.
 Cleanup item manipulation commands.
-Implement SNEAK and HIDE actions.
 Cleanup the remaining Object::Send*(ALL, 0, ...) hacks.
 Cleanup and secure shopkeeper vortex objects.
 Improve character creation interface.
@@ -61,14 +58,12 @@ Finish article substitution ("A" -> "A second", etc...).
 Pick up a fight's other opponents after your target goes down without delay.
 Wear/wield from own containers need auto open/close.
 Intelligent stashing needs auto open/close.
-Consistently pluralize (or don't) skill names (fix online version too!).
+Consistently pluralize (or don't) skill names (fix wiki version too!).
 Reimplement create-in-direction (currently disabled).
 Check for circle rooms with no exits and add one.
 Implement real Reaction Action.
 Create Real Tie-Breaker for Tied Initiative.
-Translate CircleMUD shopkeepers' types of purchase items.
 Handle LOC_ADJACENT correctly (eg: "look north").
-Implement equipment's magical effects.
 Implement character creation priorities.
 Implement character creation resources.
 Implement character creation race.
@@ -80,18 +75,15 @@ Implement the Rest of the Skills.
 Implement reserved words ("'s", "in", "to", "at", "of", "Ninja").
 See contents when you look at a nearby room (eg: "look north").
 Create "aim" command to intentionally hit certain locations.
-Add "corpse" alias for dead stuff?
-
 
 Implement AcidMail.
 Should some CircleMOBs be given "Swimming"?
 Add "bug", "request", and "concern" commands (acidmail problems to ninjas).
 User management commands (delete chars, rename users?, etc...).
-Skill defaults (to other skills).
-Case-Insensitive Playernames
+Implement skill-to-skill defaults (needs wiki support).
+Case-Insensitive Playernames?
 
 Add SSL support.
-Atmoize all the strings (save rediculous amounts of memory!).
 Add gzipped worlds save/load support.
 Be sure I Handle big messages to/from users correctly.
 Clean up and sort log(s).
@@ -105,7 +97,7 @@ Settings for display on go/enter/leave.
 Autostash enable/disable?
 Non-ninja healing skills?
 Gossip?
-Encumbrance.  Dragging heavy objects.
+Encumbrance.
 Color-code output (ask Wyatt).
 
 Un-Ninja Everything.
