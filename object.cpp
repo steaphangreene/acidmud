@@ -2721,4 +2721,22 @@ void Object::Consume(const Object *item) {
     UpdateDamage();
     }
 
+  //Special effect: HEAL
+  if(item->Skill("Heal Effect") > 0) {
+    int succ = Roll("Strength", 12 - item->Skill("Heal Effect"));
+    if(phys > 0 && succ > 0) Send(ALL, 0, "You feel a bit less pain.\n");
+    phys -= succ;
+    if(phys < 0) phys = 0;
+    UpdateDamage();
+    }
+
+  //Special effect: REJUVINATE
+  if(item->Skill("Rejuvinate Effect") > 0) {
+    int succ = Roll("Strength", 12 - item->Skill("Rejuvinate Effect"));
+    if(stun > 0 && succ > 0) Send(ALL, 0, "You feel a bit more rested.\n");
+    stun -= succ;
+    if(stun < 0) stun = 0;
+    UpdateDamage();
+    }
+
   }
