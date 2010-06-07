@@ -435,12 +435,11 @@ int Object::Tick() {
     else if(level == 800) Send(ALL, -1, "You are really dying for food.\n");
     else if(level == 900) Send(ALL, -1, "You need to get some food soon!\n");
     else if(level == 1000) Send(ALL, -1, "You are starting to starve!\n");
-    else if(level > 1000 && level % 10 == 0) {
-      Send(ALL, -1, "You are starving!\n");
-      if(stun < level/1000) {
-	++stun;
-	UpdateDamage();
+    else if(level > 1000) {
+      if(level % 10 == 0) {
+	Send(ALL, -1, "You are starving!\n");
 	}
+      UpdateDamage();
       }
 
     //Get Thurstier
@@ -459,12 +458,11 @@ int Object::Tick() {
     else if(level == 800) Send(ALL, -1, "You are really dying for water.\n");
     else if(level == 900) Send(ALL, -1, "You need to get some water soon!\n");
     else if(level == 1000) Send(ALL, -1, "You are starting to dehydrate!\n");
-    else if(level > 1000 && level % 10 == 0) {
-      Send(ALL, -1, "You are dehydrated!\n");
-      if(phys < level/1000) {
-	++phys;
-	UpdateDamage();
+    else if(level > 1000) {
+      if(level % 10 == 0) {
+	Send(ALL, -1, "You are dehydrated!\n");
 	}
+      UpdateDamage();
       }
 
     }
@@ -1956,9 +1954,15 @@ void Object::Collapse() {
   }
 
 void Object::UpdateDamage() {
-  if(stun > 10) {
+  if(stun > 10) {	//Overflow
     phys += stun-10;
     stun = 10;
+    }
+  if(stun < Skill("Hungry") / 1000) {	//Hungry Stuns
+    stun = Skill("Hungry") / 1000;
+    }
+  if(phys < Skill("Thirsty") / 1000) {	//Thirsty Wounds
+    phys = Skill("Thirsty") / 1000;
     }
   if(phys > 10+Attribute(2)) {
     phys = 10+Attribute(2)+1;
