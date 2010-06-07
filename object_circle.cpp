@@ -838,15 +838,16 @@ void Object::CircleLoadObj(const char *fn) {
 	  switch(val[idx]) {
 	    case(16): {		// CURE_LIGHT
 	      liq->SetShortDesc("white");
-	      liq->SetSkill("Heal Effect", 6);
+	      liq->SetSkill("Rejuvinate Effect", val[0]);
 	      } break;
 	    case(15): {		// CURE_CRITIC
 	      liq->SetShortDesc("blue");
-	      liq->SetSkill("Heal Effect", 4);
+	      liq->SetSkill("Heal Effect", val[0]);
 	      } break;
 	    case(28): {		// HEAL
 	      liq->SetShortDesc("black");
-	      liq->SetSkill("Heal Effect", 2);
+	      liq->SetSkill("Heal Effect", val[0]);
+	      liq->SetSkill("Rejuvinate Effect", val[0]);
 	      } break;
 	    case(33): {		// POISON
 	      liq->SetShortDesc("red");
@@ -854,7 +855,7 @@ void Object::CircleLoadObj(const char *fn) {
 	      } break;
 	    case(43): {		// REMOVE_POISON
 	      liq->SetShortDesc("silver");
-	      liq->SetSkill("Cure Effect", 2);
+	      liq->SetSkill("Cure Effect", val[0]);
 	      } break;
 	    }
 	  }
