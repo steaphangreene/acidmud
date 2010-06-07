@@ -4679,11 +4679,18 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       return 0;
       }
 
+    int amt = 1;
+    if(isdigit(comline[len])) {
+      amt = atoi(comline+len);
+      while(isdigit(comline[len])) ++len;
+      while((!isgraph(comline[len])) && (comline[len])) ++len;
+      }
+
     if(!is_skill(comline+len)) {
       mind->Send("Warning, '%s' is not a real skill name!\n", comline+len);
       }
 
-    targ->SetSkill(comline+len, MAX(targ->Skill(comline+len), 0) + 1);
+    targ->SetSkill(comline+len, MAX(targ->Skill(comline+len), 0) + amt);
 
     body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s increments the %s of ;s with Ninja Powers[TM].\n",
@@ -4702,7 +4709,14 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       return 0;
       }
 
-    targ->SetSkill(comline+len, targ->Skill(comline+len) - 1);
+    int amt = 1;
+    if(isdigit(comline[len])) {
+      amt = atoi(comline+len);
+      while(isdigit(comline[len])) ++len;
+      while((!isgraph(comline[len])) && (comline[len])) ++len;
+      }
+
+    targ->SetSkill(comline+len, targ->Skill(comline+len) - amt);
 
     body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s decrements the %s of ;s with Ninja Powers[TM].\n",
