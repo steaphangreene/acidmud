@@ -838,7 +838,7 @@ void Object::CircleLoadObj(const char *fn) {
 	  switch(val[idx]) {
 	    case(16): {		// CURE_LIGHT
 	      liq->SetShortDesc("white");
-	      liq->SetSkill("Rejuvenate Effect", val[0]);
+	      liq->SetSkill("Energize Effect", val[0]);
 	      } break;
 	    case(15): {		// CURE_CRITIC
 	      liq->SetShortDesc("blue");
@@ -847,7 +847,7 @@ void Object::CircleLoadObj(const char *fn) {
 	    case(28): {		// HEAL
 	      liq->SetShortDesc("black");
 	      liq->SetSkill("Heal Effect", val[0]);
-	      liq->SetSkill("Rejuvenate Effect", val[0]);
+	      liq->SetSkill("Energize Effect", val[0]);
 	      } break;
 	    case(33): {		// POISON
 	      liq->SetShortDesc("red");
@@ -875,108 +875,108 @@ void Object::CircleLoadObj(const char *fn) {
 	  liq->SetSkill("Ingestible", 1);
 	  liq->SetWeight(20);
 	  liq->SetVolume(2);
-	  switch(val[2]) {
+	  switch(val[2]) {	// Note: *15 is correct for CircleMUD's hours/4
 	    case(0): {		// WATER
 	      liq->SetShortDesc("water");
-	      liq->SetSkill("Drink", 10);
-	      liq->SetSkill("Food", 1);
-	      //liq->SetSkill("Alcohol", 0);
+	      liq->SetSkill("Drink", 10 * 15);
+	      liq->SetSkill("Food", 1 * 15);
+	      //liq->SetSkill("Alcohol", 0 * 15);
 	      } break;
 	    case(1): {		// BEER
 	      liq->SetShortDesc("beer");
-	      liq->SetSkill("Drink", 5);
-	      liq->SetSkill("Food", 2);
-	      liq->SetSkill("Alcohol", 3);
+	      liq->SetSkill("Drink", 5 * 15);
+	      liq->SetSkill("Food", 2 * 15);
+	      liq->SetSkill("Alcohol", 3 * 15);
 	      liq->SetSkill("Perishable", val[0] * 32);
 	      } break;
 	    case(2): {		// WINE
 	      liq->SetShortDesc("wine");
-	      liq->SetSkill("Drink", 5);
-	      liq->SetSkill("Food", 2);
-	      liq->SetSkill("Alcohol", 5);
+	      liq->SetSkill("Drink", 5 * 15);
+	      liq->SetSkill("Food", 2 * 15);
+	      liq->SetSkill("Alcohol", 5 * 15);
 	      } break;
 	    case(3): {		// ALE
 	      liq->SetShortDesc("ale");
-	      liq->SetSkill("Drink", 5);
-	      liq->SetSkill("Food", 2);
-	      liq->SetSkill("Alcohol", 2);
+	      liq->SetSkill("Drink", 5 * 15);
+	      liq->SetSkill("Food", 2 * 15);
+	      liq->SetSkill("Alcohol", 2 * 15);
 	      liq->SetSkill("Perishable", val[0] * 16);
 	      } break;
 	    case(4): {		// DARKALE
 	      liq->SetShortDesc("dark ale");
-	      liq->SetSkill("Drink", 5);
-	      liq->SetSkill("Food", 2);
-	      liq->SetSkill("Alcohol", 1);
+	      liq->SetSkill("Drink", 5 * 15);
+	      liq->SetSkill("Food", 2 * 15);
+	      liq->SetSkill("Alcohol", 1 * 15);
 	      liq->SetSkill("Perishable", val[0] * 8);
 	      } break;
 	    case(5): {		// WHISKY
 	      liq->SetShortDesc("whisky");
-	      liq->SetSkill("Drink", 4);
-	      liq->SetSkill("Food", 1);
-	      liq->SetSkill("Alcohol", 6);
+	      liq->SetSkill("Drink", 4 * 15);
+	      liq->SetSkill("Food", 1 * 15);
+	      liq->SetSkill("Alcohol", 6 * 15);
 	      } break;
 	    case(6): {		// LEMONADE
 	      liq->SetShortDesc("lemonaid");
-	      liq->SetSkill("Drink", 8);
-	      liq->SetSkill("Food", 1);
-	      //liq->SetSkill("Alcohol", 0);
+	      liq->SetSkill("Drink", 8 * 15);
+	      liq->SetSkill("Food", 1 * 15);
+	      //liq->SetSkill("Alcohol", 0 * 15);
 	      liq->SetSkill("Perishable", val[0] * 4);
 	      } break;
 	    case(7): {		// FIREBRT
 	      liq->SetShortDesc("firebreather");
-	      //liq->SetSkill("Drink", 0);
-	      //liq->SetSkill("Food", 0);
-	      liq->SetSkill("Alcohol", 10);
+	      //liq->SetSkill("Drink", 0 * 15);
+	      //liq->SetSkill("Food", 0 * 15);
+	      liq->SetSkill("Alcohol", 10 * 15);
 	      } break;
 	    case(8): {		// LOCALSPC
 	      liq->SetShortDesc("local brew");
-	      liq->SetSkill("Drink", 3);
-	      liq->SetSkill("Food", 3);
-	      liq->SetSkill("Alcohol", 3);
+	      liq->SetSkill("Drink", 3 * 15);
+	      liq->SetSkill("Food", 3 * 15);
+	      liq->SetSkill("Alcohol", 3 * 15);
 	      } break;
 	    case(9): {		// SLIME
 	      liq->SetShortDesc("slime");
-	      liq->SetSkill("Drink", -8);
-	      liq->SetSkill("Food", 4);
-	      //liq->SetSkill("Alcohol", 0);
+	      liq->SetSkill("Dehydrate Effect", 8 * 15);
+	      liq->SetSkill("Food", 4 * 15);
+	      //liq->SetSkill("Alcohol", 0 * 15);
 	      } break;
 	    case(10): {		// MILK
 	      liq->SetShortDesc("milk");
-	      liq->SetSkill("Drink", 6);
-	      liq->SetSkill("Food", 3);
-	      //liq->SetSkill("Alcohol", 0);
+	      liq->SetSkill("Drink", 6 * 15);
+	      liq->SetSkill("Food", 3 * 15);
+	      //liq->SetSkill("Alcohol", 0 * 15);
 	      liq->SetSkill("Perishable", val[0]);
 	      } break;
 	    case(11): {		// TEA
 	      liq->SetShortDesc("tea");
-	      liq->SetSkill("Drink", 6);
-	      liq->SetSkill("Food", 1);
-	      //liq->SetSkill("Alcohol", 0);
+	      liq->SetSkill("Drink", 6 * 15);
+	      liq->SetSkill("Food", 1 * 15);
+	      //liq->SetSkill("Alcohol", 0 * 15);
 	      } break;
 	    case(12): {		// COFFE
 	      liq->SetShortDesc("coffee");
-	      liq->SetSkill("Drink", 6);
-	      liq->SetSkill("Food", 1);
-	      //liq->SetSkill("Alcohol", 0);
+	      liq->SetSkill("Drink", 6 * 15);
+	      liq->SetSkill("Food", 1 * 15);
+	      //liq->SetSkill("Alcohol", 0 * 15);
 	      } break;
 	    case(13): {		// BLOOD
 	      liq->SetShortDesc("blood");
-	      liq->SetSkill("Drink", -1);
-	      liq->SetSkill("Food", 2);
-	      //liq->SetSkill("Alcohol", 0);
+	      liq->SetSkill("Dehydrate Effect", 1 * 15);
+	      liq->SetSkill("Food", 2 * 15);
+	      //liq->SetSkill("Alcohol", 0 * 15);
 	      liq->SetSkill("Perishable", val[0] * 2);
 	      } break;
 	    case(14): {		// SALTWATER
 	      liq->SetShortDesc("salt water");
-	      liq->SetSkill("Drink", -2);
-	      liq->SetSkill("Food", 1);
-	      //liq->SetSkill("Alcohol", 0);
+	      liq->SetSkill("Dehydrate Effect", 2 * 15);
+	      liq->SetSkill("Food", 1 * 15);
+	      //liq->SetSkill("Alcohol", 0 * 15);
 	      } break;
 	    case(15): {		// CLEARWATER
 	      liq->SetShortDesc("clear water");
-	      liq->SetSkill("Drink", 13);
-	      //liq->SetSkill("Food", 0);
-	      //liq->SetSkill("Alcohol", 0);
+	      liq->SetSkill("Drink", 13 * 15);
+	      //liq->SetSkill("Food", 0 * 15);
+	      //liq->SetSkill("Alcohol", 0 * 15);
 	      } break;
 	    }
 	  if(val[3] != 0) {
@@ -988,7 +988,7 @@ void Object::CircleLoadObj(const char *fn) {
       else if(tp == 19) { // FOOD
 	obj->SetSkill("Ingestible", 1);
 	obj->SetSkill("Perishable", val[0]);
-	obj->SetSkill("Food", val[0]);
+	obj->SetSkill("Food", val[0] * 60);
 	if(val[3] != 0) {
 	  obj->SetSkill("Poisionous", val[3]);
 	  }

@@ -2753,6 +2753,7 @@ void Object::Consume(const Object *item) {
   //Standard food/drink effects
   SetSkill("Hungry", Skill("Hungry") - item->Skill("Food"));
   SetSkill("Thirsty", Skill("Thirsty") - item->Skill("Drink"));
+  SetSkill("Thirsty", Skill("Thirsty") + item->Skill("Dehydrate Effect"));
 
   //Special effect: Poisonous
   if(item->Skill("Poisonous") > 0) {
@@ -2779,8 +2780,8 @@ void Object::Consume(const Object *item) {
     }
 
   //Special effect: REJUVENATE
-  if(item->Skill("Rejuvenate Effect") > 0) {
-    int succ = Roll("Strength", 12 - item->Skill("Rejuvenate Effect"));
+  if(item->Skill("Energize Effect") > 0) {
+    int succ = Roll("Strength", 12 - item->Skill("Energize Effect"));
     if(stun > 0 && succ > 0) Send(ALL, 0, "You feel a bit more rested.\n");
     stun -= succ;
     if(stun < 0) stun = 0;
