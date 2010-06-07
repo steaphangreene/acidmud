@@ -2794,54 +2794,87 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       if(mind) mind->Send("What do you want to drink from?\n");
       return 0;
       }
-    typeof(body->Contents()) targs
-	= body->PickObjects(comline+len, LOC_NOTWORN|LOC_INTERNAL);
-    if(body->ActTarg(ACT_HOLD)
+    Object *targ = body->PickObject(comline+len, LOC_NOTWORN|LOC_INTERNAL);
+    if((!targ) && body->ActTarg(ACT_HOLD)
 	&& body->ActTarg(ACT_HOLD)->Parent() != body	//Dragging
 	&& body->ActTarg(ACT_HOLD)->Matches(comline+len)) {
-      targs.push_back(body->ActTarg(ACT_HOLD));
+      targ = body->ActTarg(ACT_HOLD);
       }
-    if(!targs.size()) {
+    if(!targ) {
+      targ = body->PickObject(comline+len, LOC_NEARBY);
+      }
+    if(!targ) {
       if(mind) mind->Send("You want to drink from what?\n");
       }
     else {
-      typeof(targs.begin()) targ;
-      for(targ = targs.begin(); targ != targs.end(); ++targ) {
-	if(!((*targ)->HasSkill("Liquid Container"))) {
-	  if(mind) mind->Send(
+      string denied = "";
+      for(Object *own = targ; own; own = own->Parent()) {
+	if(own->Attribute(1) && own != body && (!own->IsAct(ACT_SLEEP))
+		&& (!own->IsAct(ACT_DEAD)) && (!own->IsAct(ACT_DYING))
+		&& (!own->IsAct(ACT_UNCONSCIOUS))) {
+	  denied = "You would need ";
+	  denied += own->Name(1);
+	  denied += "'s permission to drink from ";
+	  denied += targ->Name(0, NULL, own);
+	  denied += ".\n";
+	  }
+	else if(own->Skill("Container") && (!own->Skill("Open"))
+		&& own->Skill("Locked")) {
+	  denied = own->Name(1);
+	  if(own == targ) {
+	    denied += " is closed and locked so you can't drink from it.\n";
+	    }
+	  else {
+	    denied += " is closed and locked so you can't get to ";
+	    denied += targ->Name(1);
+	    denied += ".\n";
+	    }
+	  denied[0] = toupper(denied[0]);
+	  }
+	}
+      if(denied.length() > 0) {
+	if(mind) mind->Send(denied.c_str());
+	return 0;
+	}
+      if(!(targ->HasSkill("Liquid Container"))) {
+	if(mind) mind->Send(
 		"%s is not a liquid container.  You can't drink from it.\n",
-		(*targ)->Name(0, body)
+		targ->Name(0, body)
 		);
-	  continue;
-	  }
-	if((*targ)->Contents().size() < 1) {
-	  if(mind) mind->Send("%s is empty.  There is nothing to drink\n",
-		(*targ)->Name(0, body));
-	  continue;
-	  }
-	Object *obj = (*targ)->Contents().front();
-	if((!(obj->HasSkill("Ingestible")))) {
-	  if(mind) mind->Send("You don't want to drink what's in %s.\n",
-		(*targ)->Name(0, body));
-	  continue;
-	  }
+	return 0;
+	}
+      if(targ->Contents().size() < 1) {
+	if(mind) mind->Send("%s is empty.  There is nothing to drink\n",
+		targ->Name(0, body));
+	return 0;
+	}
+      Object *obj = targ->Contents().front();
+      if(targ->HasSkill("Liquid Container") && obj->Skill("Quantity") < 2) {
+	if(mind) mind->Send("%s is almost empty.  There is nothing to drink\n",
+		targ->Name(0, body));
+	return 0;
+	}
+      if((!(obj->HasSkill("Ingestible")))) {
+	if(mind) mind->Send("You don't want to drink what's in %s.\n",
+		targ->Name(0, body));
+	return 0;
+	}
 
-	body->Parent()->SendOut(stealth_t, stealth_s, 
+      body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s drinks some liquid out of ;s.\n",
 		"You drink some liquid out of ;s.\n",
-		body, *targ
+		body, targ
 		);
 
-	//Hunger/Thirst/Posion/Potion Effects
-	body->Consume(obj);
+      //Hunger/Thirst/Posion/Potion Effects
+      body->Consume(obj);
 
-	if(obj->Skill("Quantity") < 2) {
-	  Object *nuke = (*targ)->Contents().front();
-	  delete nuke;
-	  }
-	else {
-	  obj->SetSkill("Quantity", obj->Skill("Quantity") - 1);
-	  }
+      if(obj->Skill("Quantity") < 2) {
+	Object *nuke = targ->Contents().front();
+	delete nuke;
+	}
+      else {
+	obj->SetSkill("Quantity", obj->Skill("Quantity") - 1);
 	}
       }
     return 0;
