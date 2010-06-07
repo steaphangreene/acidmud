@@ -863,11 +863,13 @@ void Object::CircleLoadObj(const char *fn) {
       else if(tp == 17 || tp == 23) { // DRINKCON/FOUNTAIN
 	obj->SetSkill("Liquid Container", val[0]);
 	obj->SetSkill("Capacity", val[0]);
-	obj->SetSkill("Closeable", 1);
 	if(tp == 23) {	//FOUNTAIN only
 	  obj->SetSkill("Open", 1);
 	  obj->SetSkill("Liquid Source", 1);
 	  obj->Activate();
+	  }
+	else {		//DRINKCON only
+	  obj->SetSkill("Closeable", 1);
 	  }
 	if(val[1] > 0) {
 	  Object *liq = new Object(obj);
