@@ -417,13 +417,56 @@ int Object::Tick() {
 
 
   if(Attribute(2) > 0 && (!HasSkill("CircleAction"))) {	//Needs Food & Water
+    int level;
+
     //Get Hungrier
-    if(Skill("Hungry") < 1) { SetSkill("Hungry", 1); }
-    else { SetSkill("Hungry", Skill("Hungry") + 1); }
+    level = Skill("Hungry");
+    if(level < 1) level = 1;
+    else ++level;
+    if(level > 5000) level = 5000;
+    SetSkill("Hungry", level);
+
+    if(level == 200) Send(ALL, -1, "You could use a snack.\n");
+    else if(level == 300) Send(ALL, -1, "You officially have the munchies.\n");
+    else if(level == 400) Send(ALL, -1, "You really could go for a snack.\n");
+    else if(level == 500) Send(ALL, -1, "You are getting hungry.\n");
+    else if(level == 600) Send(ALL, -1, "You are getting very hungry.\n");
+    else if(level == 700) Send(ALL, -1, "You are really quite hungry.\n");
+    else if(level == 800) Send(ALL, -1, "You are really dying for food.\n");
+    else if(level == 900) Send(ALL, -1, "You need to get some food soon!\n");
+    else if(level == 1000) Send(ALL, -1, "You are starting to starve!\n");
+    else if(level > 1000 && level % 10 == 0) {
+      Send(ALL, -1, "You are starving!\n");
+      if(stun < level/1000) {
+	++stun;
+	UpdateDamage();
+	}
+      }
 
     //Get Thurstier
-    if(Skill("Thirsty") < 1) { SetSkill("Thirsty", 1); }
-    else { SetSkill("Thirsty", Skill("Thirsty") + 1); }
+    level = Skill("Thirsty");
+    if(level < 1) level = 1;
+    else ++level;
+    if(level > 5000) level = 5000;
+    SetSkill("Thirsty", level);
+
+    if(level == 200) Send(ALL, -1, "You could use a drink.\n");
+    else if(level == 300) Send(ALL, -1, "Your mouth is getting dry.\n");
+    else if(level == 400) Send(ALL, -1, "You really could go for a drink.\n");
+    else if(level == 500) Send(ALL, -1, "You are getting thirsty.\n");
+    else if(level == 600) Send(ALL, -1, "You are getting very thirsty.\n");
+    else if(level == 700) Send(ALL, -1, "You are really quite thirsty.\n");
+    else if(level == 800) Send(ALL, -1, "You are really dying for water.\n");
+    else if(level == 900) Send(ALL, -1, "You need to get some water soon!\n");
+    else if(level == 1000) Send(ALL, -1, "You are starting to dehydrate!\n");
+    else if(level > 1000 && level % 10 == 0) {
+      Send(ALL, -1, "You are dehydrated!\n");
+      if(phys < level/1000) {
+	++phys;
+	UpdateDamage();
+	}
+      }
+
     }
 
   if(HasSkill("Liquid Source")) {		//Refills Itself
