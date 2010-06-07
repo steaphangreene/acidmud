@@ -184,6 +184,8 @@ public:
   void SetStru(int s)	{ stru = s; };
   void UpdateDamage();
 
+  void Consume(const Object *item);	//Eat/Drink/Potions/Poison/etc....
+
   int Attribute(int) const;
   int Skill(const string &, int *tnum = NULL) const;
   int HasSkill(const string &) const;

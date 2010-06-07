@@ -165,8 +165,8 @@ enum {	COM_HELP=0,
 	COM_DOUBLE,
 
 	COM_SCORE,
-	COM_STATS,
 
+	COM_STATS,
 	COM_SHUTDOWN,
 	COM_RESTART,
 	COM_SAVEALL,
@@ -513,11 +513,6 @@ Command comlist[] = {
     "Get your current character and/or player's stats and score.",
     (REQ_CORPOREAL)
     },
-  { COM_STATS, "stats",
-    "Get stats of a character, object or creature.",
-    "Get stats of a character, object or creature.",
-    (REQ_ANY|REQ_ACTION)
-    },
 
   { COM_SKILLLIST, "skilllist",
     "List all available skill categories, or all skills in a category.",
@@ -547,6 +542,11 @@ Command comlist[] = {
     (REQ_ANY|REQ_SUPERNINJA|REQ_NINJAMODE)
     },
 
+  { COM_STATS, "stats",
+    "Ninja command: Get stats of a character, object or creature.",
+    "Ninja command: Get stats of a character, object or creature.",
+    (REQ_ALERT|REQ_NINJAMODE)
+    },
   { COM_CREATE, "create",
     "Ninja command.",
     "Ninja command - ninjas only!",
@@ -2750,9 +2750,10 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	else {
 	  body->Parent()->SendOut(stealth_t, stealth_s, 
 	  	";s eats ;s.\n", "You eat ;s.\n", body, *targ);
-	  body->SetSkill("Hungry",
-		body->Skill("Hungry") - (*targ)->Skill("Food")
-		);
+
+	  //Hunger/Thirst/Posion/Potion Effects
+	  body->Consume(*targ);
+
 	  delete (*targ);
 	  }
 	}
@@ -2825,27 +2826,14 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	  continue;
 	  }
 
-	body->SetSkill("Hungry", body->Skill("Hungry") - obj->Skill("Food"));
-	body->SetSkill("Thirsty", body->Skill("Thirsty") - obj->Skill("Drink"));
 	body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s drinks some liquid out of ;s.\n",
 		"You drink some liquid out of ;s.\n",
 		body, *targ
 		);
-	//Special effects!
-	if(obj->Skill("Poisonous") > 0) {
-	  int succ = body->Roll("Strength", obj->Skill("Poisonous"));
-	  body->Parent()->SendOut(stealth_t, stealth_s,
-		";s chokes and writhes in pain. %d[%d]\n",
-		"You choke and writhe in pain.  POISON!!!! %d[%d]\n",
-		body, NULL, succ, obj->Skill("Poisonous")
-		);
-	  if(succ < 2) body->SetPhys(body->Phys() + 10);
-	  else if(succ < 4) body->SetPhys(body->Phys() + 6);
-	  else if(succ < 6) body->SetPhys(body->Phys() + 3);
-	  else if(succ < 8) body->SetPhys(body->Phys() + 1);
-	  body->UpdateDamage();
-	  }
+
+	//Hunger/Thirst/Posion/Potion Effects
+	body->Consume(obj);
 
 	if(obj->Skill("Quantity") < 2) {
 	  Object *nuke = (*targ)->Contents().front();

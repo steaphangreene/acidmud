@@ -2700,3 +2700,25 @@ int Object::LooksLike(Object *other) {
     }
   return 1;
   }
+
+void Object::Consume(const Object *item) {
+  //Standard food/drink effects
+  SetSkill("Hungry", Skill("Hungry") - item->Skill("Food"));
+  SetSkill("Thirsty", Skill("Thirsty") - item->Skill("Drink"));
+
+  //Special effect: Poisonous
+  if(item->Skill("Poisonous") > 0) {
+    int succ = Roll("Strength", item->Skill("Poisonous"));
+    Parent()->SendOut(0, 0,
+	";s chokes and writhes in pain.\n",
+	"You choke and writhe in pain.  POISON!!!!\n",
+	this, NULL
+	);
+    if(succ < 2) phys += 10;
+    else if(succ < 4) phys += 6;
+    else if(succ < 6) phys += 3;
+    else if(succ < 8) phys += 1;
+    UpdateDamage();
+    }
+
+  }
