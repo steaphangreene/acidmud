@@ -2729,6 +2729,10 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       if(mind) mind->Send("What do you want to eat?\n");
       return 0;
       }
+    if(!body->HasSkill("Hungry")) {
+      if(mind) mind->Send("You are not hungry, you can't eat any more.\n");
+      return 0;
+      }
     typeof(body->Contents()) targs
 	= body->PickObjects(comline+len, LOC_NOTWORN|LOC_INTERNAL);
     if(body->ActTarg(ACT_HOLD)
@@ -2792,6 +2796,10 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
       if(mind) mind->Send("What do you want to drink from?\n");
+      return 0;
+      }
+    if(!body->HasSkill("Thirsty")) {
+      if(mind) mind->Send("You are not thirsty, you can't drink any more.\n");
       return 0;
       }
     Object *targ = body->PickObject(comline+len, LOC_NOTWORN|LOC_INTERNAL);
