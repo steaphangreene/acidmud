@@ -2711,7 +2711,7 @@ void Object::Consume(const Object *item) {
     int succ = Roll("Strength", item->Skill("Poisonous"));
     Parent()->SendOut(0, 0,
 	";s chokes and writhes in pain.\n",
-	"You choke and writhe in pain.  POISON!!!!\n",
+	CRED "You choke and writhe in pain.  POISON!!!!\n" CNRM,
 	this, NULL
 	);
     if(succ < 2) phys += 10;
