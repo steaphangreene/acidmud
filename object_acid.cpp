@@ -200,6 +200,19 @@ int Object::LoadFrom(FILE *fl) {
     }
   fscanf(fl, ";\n");
 
+//  if(HasSkill("Drink")) {
+//    SetSkill("Drink", Skill("Drink") * 15);
+//    SetSkill("Food", Skill("Food") * 15);
+//    }
+//  else if(HasSkill("Food")) {
+//    SetSkill("Food", Skill("Food") * 60);
+//    }
+
+//  if(HasSkill("Rejuvenate Effect")) {
+//    SetSkill("Energize Effect", Skill("Rejuvenate Effect"));
+//    SetSkill("Rejuvenate Effect", 0);
+//    }
+
   vector<Object*> toload;
   fscanf(fl, "%d ", &num);
   //contents.reserve(num); // This was for vectors.
