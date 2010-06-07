@@ -145,6 +145,7 @@ int matches(const char *name, const char *seek) {
   else if((!strcasecmp(seek, "armourer")) && matches(name, "armorer")) ret=1;
   else if((!strcasecmp(seek, "grey")) && matches(name, "gray")) ret=1;
   else if((!strcasecmp(seek, "gray")) && matches(name, "grey")) ret=1;
+  else if((!strcasecmp(seek, "bread")) && matches(name, "waybread")) ret=1;
 
   dont_recur = 0;
   return ret;
