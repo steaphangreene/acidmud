@@ -2832,6 +2832,21 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 		"You drink some liquid out of ;s.\n",
 		body, *targ
 		);
+	//Special effects!
+	if(obj->Skill("Poisonous") > 0) {
+	  int succ = body->Roll("Strength", obj->Skill("Poisonous"));
+	  body->Parent()->SendOut(stealth_t, stealth_s,
+		";s chokes and writhes in pain. %d[%d]\n",
+		"You choke and writhe in pain.  POISON!!!! %d[%d]\n",
+		body, NULL, succ, obj->Skill("Poisonous")
+		);
+	  if(succ < 2) body->SetPhys(body->Phys() + 10);
+	  else if(succ < 4) body->SetPhys(body->Phys() + 6);
+	  else if(succ < 6) body->SetPhys(body->Phys() + 3);
+	  else if(succ < 8) body->SetPhys(body->Phys() + 1);
+	  body->UpdateDamage();
+	  }
+
 	if(obj->Skill("Quantity") < 2) {
 	  Object *nuke = (*targ)->Contents().front();
 	  delete nuke;
