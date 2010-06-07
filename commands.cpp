@@ -2849,7 +2849,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	return 0;
 	}
       Object *obj = targ->Contents().front();
-      if(targ->HasSkill("Liquid Container") && obj->Skill("Quantity") < 2) {
+      if(targ->HasSkill("Liquid Source") && obj->Skill("Quantity") < 2) {
 	if(mind) mind->Send("%s is almost empty.  There is nothing to drink\n",
 		targ->Name(0, body));
 	return 0;
