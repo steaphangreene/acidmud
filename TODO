@@ -1,3 +1,5 @@
+Handle liquids mixing?
+
 Kill trailing whitespace in ALL commandline targets.
 
 Implement dynamic city test.
@@ -5,8 +7,6 @@ Implement dynamic city test.
 Redesign full command structure and reimplement/replace.
 Redesign full battle system and reimplement/replace.
 
-
--=FORMER DESIGN TODO=-
 Implement various types of armor and damage.
 Do 3-layer armor system.
 Show armor messages in ninja display.
