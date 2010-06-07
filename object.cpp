@@ -2730,9 +2730,9 @@ void Object::Consume(const Object *item) {
     UpdateDamage();
     }
 
-  //Special effect: REJUVINATE
-  if(item->Skill("Rejuvinate Effect") > 0) {
-    int succ = Roll("Strength", 12 - item->Skill("Rejuvinate Effect"));
+  //Special effect: REJUVENATE
+  if(item->Skill("Rejuvenate Effect") > 0) {
+    int succ = Roll("Strength", 12 - item->Skill("Rejuvenate Effect"));
     if(stun > 0 && succ > 0) Send(ALL, 0, "You feel a bit more rested.\n");
     stun -= succ;
     if(stun < 0) stun = 0;
