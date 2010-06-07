@@ -51,6 +51,11 @@ using namespace std;
 
 int handle_command_ccreate(Object *, Mind *, const char *, int, int, int);
 
+static void trim_string(string &str) {	//Remove extra whitespace from string
+  while(isspace(str[0])) str = str.substr(1);
+  while(isspace(str[str.length()-1])) str = str.substr(0, str.length()-1);
+  }
+
 struct Command {
   int id;
   const char *command;
@@ -94,6 +99,8 @@ enum {	COM_HELP=0,
 	COM_HOLD,
 	COM_WEAR,
 	COM_REMOVE,
+	COM_LABEL,
+	COM_UNLABEL,
 
 	COM_EAT,
 	COM_DRINK,
@@ -355,6 +362,16 @@ Command comlist[] = {
   { COM_REMOVE, "remove",
     "Remove an item you are wearing.",
     "Remove an item you are wearing.",
+    (REQ_ALERT|REQ_ACTION)
+    },
+  { COM_LABEL, "label",
+    "Label, or read the label of, an item you are holding.",
+    "Label, or read the label of, an item you are holding.",
+    (REQ_ALERT|REQ_ACTION)
+    },
+  { COM_UNLABEL, "unlabel",
+    "Remove the label the item you are holding.",
+    "Remove the label the item you are holding.",
     (REQ_ALERT|REQ_ACTION)
     },
 
@@ -2303,6 +2320,106 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	  }
 	}
       }
+    return 0;
+    }
+
+  if(com == COM_UNLABEL) {
+    if(!body->IsAct(ACT_HOLD)) {
+      if(mind) mind->Send("You must first 'hold' the object you want label.\n");
+      return 0;
+      }
+    else if(!body->ActTarg(ACT_HOLD)) {
+      if(mind) mind->Send("What!?!?!  You are holding nothing?\n");
+      return 0;
+      }
+
+    string name = body->ActTarg(ACT_HOLD)->ShortDesc();
+    size_t start = name.find_first_of('(');
+    if(start != name.npos) {
+      name = name.substr(0, start);
+      trim_string(name);
+      body->ActTarg(ACT_HOLD)->SetShortDesc(name.c_str());
+      if(mind) mind->Send("%s is now unlabeled.\n",
+	body->ActTarg(ACT_HOLD)->Name(1, body)
+	);
+      }
+    else {
+      if(mind) mind->Send("%s does not have a label to remove.\n",
+	body->ActTarg(ACT_HOLD)->Name(1, body)
+	);
+      }
+    return 0;
+    }
+
+  if(com == COM_LABEL) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+
+    if(!body->IsAct(ACT_HOLD)) {
+      if(mind) mind->Send("You must first 'hold' the object you want label.\n");
+      return 0;
+      }
+    else if(!body->ActTarg(ACT_HOLD)) {
+      if(mind) mind->Send("What!?!?!  You are holding nothing?\n");
+      return 0;
+      }
+
+    if(comline[len] == 0) {		// Just Checking Label
+      string label = body->ActTarg(ACT_HOLD)->ShortDesc();
+      size_t start = label.find_first_of('(');
+      if(start == label.npos) {
+	if(mind) mind->Send("%s has no label.\n",
+		body->ActTarg(ACT_HOLD)->Name(1, body)
+		);
+	}
+      else {
+	label = label.substr(start + 1);
+	trim_string(label);
+	size_t end = label.find_last_of(')');
+	if(end != label.npos) {
+	  label = label.substr(0, end);
+	  trim_string(label);
+	  }
+	if(mind) mind->Send("%s is labeled '%s'.\n",
+		body->ActTarg(ACT_HOLD)->Name(1, body), label.c_str()
+		);
+	}
+      }
+    else {				// Adding to Label
+      string name = body->ActTarg(ACT_HOLD)->ShortDesc();
+      string label = name;
+      size_t start = label.find_first_of('(');
+      if(start == label.npos) {
+	label = (comline+len);
+	trim_string(label);
+	}
+      else {
+	name = label.substr(0, start);
+	trim_string(name);
+	label = label.substr(start + 1);
+	size_t end = label.find_last_of(')');
+	if(end != label.npos) label = label.substr(0, end);
+	trim_string(label);
+	if(matches(label.c_str(), comline+len)) {
+	   if(mind) mind->Send("%s already has that on the label.\n",
+		body->ActTarg(ACT_HOLD)->Name(1, body)
+		);
+	  return 0;
+	  }
+	else {
+	  label += " ";
+	  label += (comline+len);
+	  trim_string(label);
+	  }
+	}
+      body->ActTarg(ACT_HOLD)->SetShortDesc(name.c_str());
+      if(mind) mind->Send("%s is now labeled '%s'.\n",
+	body->ActTarg(ACT_HOLD)->Name(1, body), label.c_str()
+	);
+      body->ActTarg(ACT_HOLD)->SetShortDesc(
+	(name + " (" + label + ")").c_str()
+	);
+      }
+
     return 0;
     }
 
