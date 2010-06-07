@@ -1,4 +1,7 @@
 Translate CircleMUD shopkeepers' types of purchase items.
+Fix exchange system handling odd cases (including sell/buy).
+Selling of containers.
+
 Darkness, light sources, light spells, night vision and dark vision.
 
 Handle liquids mixing?
@@ -45,7 +48,6 @@ Fixup shopkeepers so item numbers NEVER expire.
 Fixup shopkeepers so their vortices are not viewable.
 Make single-item commands get only single items.
 Make all plural commands see pluralized items correctly.
-Fix exchange system handling odd cases (including sell/buy).
 Follower should look like he gets there after folowee to those already there.
 Cleanup item manipulation commands.
 Cleanup the remaining Object::Send*(ALL, 0, ...) hacks.
