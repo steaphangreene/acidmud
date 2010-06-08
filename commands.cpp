@@ -137,7 +137,7 @@ enum {	COM_HELP=0,
 
 	COM_PLAYERS,
 	COM_DELPLAYER,
-	COM_CHARS,
+	COM_CHARACTERS,
 	COM_WHO,
 	COM_OOC,
 	COM_NEWBIE,
@@ -636,7 +636,7 @@ Command comlist[] = {
     "Ninja command - ninjas only!",
     (REQ_ANY|REQ_NINJAMODE)
     },
-  { COM_CHARS, "chars",
+  { COM_CHARACTERS, "characters",
     "Ninja command.",
     "Ninja command - ninjas only!",
     (REQ_ANY|REQ_NINJAMODE)
@@ -783,6 +783,10 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       com = comlist[ctr].id; cnum = ctr; break;
       }
     if(comlist[ctr].id == COM_DUMP && (!strncasecmp(comline, "empty", len))) {
+      com = comlist[ctr].id; cnum = ctr; break;
+      }
+    if(comlist[ctr].id == COM_CHARACTERS
+	&& (!strncasecmp(comline, "chars", len))) {
       com = comlist[ctr].id; cnum = ctr; break;
       }
     }
@@ -4647,7 +4651,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     return 0;
     }
 
-  if(com == COM_CHARS) {
+  if(com == COM_CHARACTERS) {
     if(!mind) return 0;
     string chars = "Current characters on this MUD:\n";
     vector<Player *> pls = get_all_players();
@@ -4660,7 +4664,11 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	chars += (*pl)->Name();
 	chars += ": ";
 	chars += (*ch)->ShortDesc();
-	chars += "\n";
+	chars += " (";
+	Object *top = (*ch);
+	while(top->Parent() && top->Parent()->Parent()) top = top->Parent();
+	chars += top->ShortDesc();
+	chars += ")\n";
 	}
       }
     mind->Send(chars.c_str());
