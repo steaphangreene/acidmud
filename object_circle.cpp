@@ -838,6 +838,60 @@ void Object::CircleLoadObj(const char *fn) {
 	liq->SetShortDesc("clear");
 	for(int idx=1; idx < 4; ++idx) {
 	  switch(val[idx]) {
+		/*
+		1	armor
+		2	teleport
+		3	bless
+		4	blindness
+		5	burning hands
+		6	call lightning
+		7	charm
+		8	chill touch
+		9	clone
+		10	color spray
+		11	control weather
+		12	create food
+		13	create water
+		14	cure blind
+		15	cure critic
+		16	cure light
+		17	curse
+		18	detect align
+		19	detect invis
+		20	detect magic
+		21	detect poison
+		22	dispel evil
+		23	earthquake
+		24	enchant weapon
+		25	energy drain
+		26	fireball
+		27	harm
+		28	heal
+		29	invisible
+		30	lightning bolt
+		31	locate object
+		32	magic missile
+		33	poison
+		34	prot from evil
+		35	remove curse
+		36	sanctuary
+		37	shocking grasp
+		38	sleep
+		39	strength
+		40	summon
+		41	ventriloquate
+		42	word of recall
+		43	remove poison
+		44	sense life
+		45	animate dead
+		46	dispel good
+		47	group armor
+		48	group heal
+		49	group recall
+		50	infravision
+		51	waterwalk
+		201	identify
+		*/
 	    case(16): {		// CURE_LIGHT
 	      liq->SetShortDesc("white");
 	      liq->SetSkill("Energize Effect", val[0]);
