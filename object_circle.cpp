@@ -826,6 +826,7 @@ void Object::CircleLoadObj(const char *fn) {
 	obj->SetSkill("Liquid Container", 1);
 	obj->SetSkill("Capacity", 1);
 	obj->SetSkill("Closeable", 1);
+	obj->SetSkill("Perishable", 1);
 
 	Object *liq = new Object(obj);
 	liq->SetSkill("Liquid", 1);
