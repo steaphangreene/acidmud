@@ -1250,12 +1250,18 @@ void Object::SendScore(Mind *m, Object *o) {
       }
     }
 
-  m->Send("%s", CYEL);
-  m->Send("\nEarned Exp: %4d  Player Exp: %4d  Unspent Exp: %4d\n", exp,
+  if(Attribute(1) > 0) {
+    m->Send("%s", CYEL);
+    m->Send("\nEarned Exp: %4d  Player Exp: %4d  Unspent Exp: %4d\n", exp,
 	(minds.count(m) && m->Owner()) ? m->Owner()->Exp() : -1,
 	(minds.count(m) && m->Owner()) ? Exp(m->Owner()) : 0);
-
-  m->Send("%s", CNRM);
+    m->Send("%s", CNRM);
+    }
+  else {
+    m->Send(CYEL "\n  Light Level: %d (%d)",
+	Skill("Light Source"), LightLevel()
+	);
+    }
   }
 
 void Object::SendStats(Mind *m, Object *o) {
@@ -2803,4 +2809,32 @@ void Object::Consume(const Object *item) {
     UpdateDamage();
     }
 
+  }
+
+int Object::LightLevel(int updown) {
+  int level = 0;
+
+  if(updown != -1 && Parent()) {	//Go Up
+    int fac = Skill("Open") + Skill("Transparent") + Skill("Translucent");
+    if(fac > 1000) fac = 1000;
+    if(fac > 0) {
+      level += (fac * Parent()->LightLevel(1));
+      }
+    }
+  if(updown != 1) {	//Go Down
+    typeof(contents.begin()) item = contents.begin();
+    for(; item != contents.end(); ++item) {
+      int fac = (*item)->Skill("Open")
+		+ (*item)->Skill("Transparent")
+		+ (*item)->Skill("Translucent");
+      if(fac > 1000) fac = 1000;
+      if(fac > 0) {
+	level += (fac * (*item)->LightLevel(-1));
+	}
+      }
+    }
+  level /= 1000;
+  level += Skill("Light Source");
+  if(level > 1000) level = 1000;
+  return level;
   }

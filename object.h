@@ -170,6 +170,8 @@ public:
   void SetValue(int v)	{ value = v; };
   void SetGender(char g){ gender = g; };
 
+  int LightLevel(int updown=0);
+
   void EarnExp(int);
   void SpendExp(int);
   int Accomplish(unsigned long);
