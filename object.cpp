@@ -797,6 +797,7 @@ void Object::SendActions(Mind *m) {
   }
 
 void Object::SendExtendedActions(Mind *m, int seeinside) {
+  map<Object*,string> shown;
   map<act_t,Object*>::iterator cur;
   for(cur = act.begin(); cur != act.end(); ++cur) {
     if(cur->first == ACT_HOLD) m->Send("%24s", "Held: ");
@@ -833,29 +834,34 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
     if(cur->second->Skill("Quantity") > 1)
       sprintf(qty, "(x%d) ", cur->second->Skill("Quantity"));
 
-    m->Send("%s%s%s.\n%s", CGRN, qty, targ, CNRM);
-
-    if(cur->second->Skill("Open") || cur->second->Skill("Transparent")) {
-      sprintf(buf, "%16s  %c", " ", 0);
-      base = buf;
-      cur->second->SendContents(m, NULL, seeinside);
-      base = "";
-      m->Send("%s", CNRM);
+    if(shown.count(cur->second) > 0) {
+      m->Send("%s%s (%s).\n", qty, targ, shown[cur->second].c_str());
       }
-    else if(cur->second->Skill("Container")) {
-      if(seeinside && (!cur->second->Skill("Locked"))) {
+    else {
+      m->Send(CGRN "%s%s.\n" CNRM, qty, targ);
+      if(cur->second->Skill("Open") || cur->second->Skill("Transparent")) {
 	sprintf(buf, "%16s  %c", " ", 0);
 	base = buf;
 	cur->second->SendContents(m, NULL, seeinside);
 	base = "";
 	m->Send("%s", CNRM);
 	}
-      else if(seeinside && cur->second->Skill("Locked")) {
-	string mes = base + CNRM + "                "
+      else if(cur->second->Skill("Container")) {
+	if(seeinside && (!cur->second->Skill("Locked"))) {
+	  sprintf(buf, "%16s  %c", " ", 0);
+	  base = buf;
+	  cur->second->SendContents(m, NULL, seeinside);
+	  base = "";
+	  m->Send("%s", CNRM);
+	  }
+	else if(seeinside && cur->second->Skill("Locked")) {
+	  string mes = base + CNRM + "                "
 		+ "  It is closed and locked.\n" + CGRN;
-	m->Send(mes.c_str());
+	  m->Send(mes.c_str());
+	  }
 	}
       }
+    shown[cur->second] = "already listed";
     }
   }
 
