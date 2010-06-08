@@ -1376,12 +1376,41 @@ void Object::CircleLoad(const char *fn) {
         obj->SetSkill("Secret", 100000+onum);
 	}
 
+      obj->SetSkill("Translucent", 1000);	// Full sky, by default
+      if(string(buf).find('d') < strlen(buf) || (atoi(buf) & 8)) { //INDOORS
+	obj->SetSkill("Translucent", 200);	// Windows (unless DARK)
+	}
+      if(string(buf).find('a') < strlen(buf) || (atoi(buf) & 1)) { //DARK
+	obj->SetSkill("Translucent", 0);	// No sky, no windows
+	}
       if(string(buf).find('b') < strlen(buf) || (atoi(buf) & 2)) { //DEATH
-        obj->SetSkill("Hazardous", 2);
+	obj->SetSkill("Secret", 100000+onum);
+//	obj->SetSkill("Hazardous", 2);		//FIXME: Actually Dangerous?
 	}
       if(string(buf).find('c') < strlen(buf) || (atoi(buf) & 4)) { //NOMOB
         obj->SetSkill("CircleZone", 999999);
 	}
+      if(string(buf).find('e') < strlen(buf) || (atoi(buf) & 16)) { //PEACEFUL
+        obj->SetSkill("Peaceful", 1000);
+	}
+      if(string(buf).find('f') < strlen(buf) || (atoi(buf) & 32)) { //SOUNDPROOF
+        obj->SetSkill("Soundproof", 1000);
+	}
+//      if(string(buf).find('g') < strlen(buf) || (atoi(buf) & 64)) { //NOTRACK
+//	//FIXME: Implement
+//	}
+      if(string(buf).find('h') < strlen(buf) || (atoi(buf) & 128)) { //NOMAGIC
+        obj->SetSkill("Magic Dead", 1000);
+	}
+//      if(string(buf).find('i') < strlen(buf) || (atoi(buf) & 256)) { //TUNNEL
+//	//FIXME: Implement
+//	}
+//      if(string(buf).find('j') < strlen(buf) || (atoi(buf) & 512)) { //PRIVATE
+//	//FIXME: Implement
+//	}
+//      if(string(buf).find('k') < strlen(buf) || (atoi(buf) & 1024)) { //GODROOM
+//	//FIXME: Implement
+//	}
       else {
         obj->SetSkill("CircleZone", 100000 + zone);
 	}
