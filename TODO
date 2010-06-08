@@ -1,6 +1,6 @@
 Translate CircleMUD shopkeepers' types of purchase items.
 Fix exchange system handling odd cases (including sell/buy).
-Selling of containers.
+Selling of containers, or not (contents -vs- container value!).
 
 Darkness, light sources, light spells, night vision and dark vision.
 
