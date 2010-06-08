@@ -4964,7 +4964,12 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
-      body->Parent()->CircleLoadAll();
+      Object *world = new Object(body->Parent());
+      world->SetShortDesc("CircleMUD World");
+      world->SetSkill("Light Source", 1000);
+      world->SetSkill("Day Length", 240);
+      world->SetSkill("Day Time", 120);
+      world->CircleLoadAll();
       body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s loads the entire Circle world with Ninja Powers[TM].\n",
 	"You load the entire Circle world.\n", body, NULL);
