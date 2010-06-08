@@ -213,6 +213,10 @@ int Object::LoadFrom(FILE *fl) {
 //    SetSkill("Rejuvenate Effect", 0);
 //    }
 
+//  if(HasSkill("Open")) {
+//    SetSkill("Open", 1000);
+//    }
+
   vector<Object*> toload;
   fscanf(fl, "%d ", &num);
   //contents.reserve(num); // This was for vectors.

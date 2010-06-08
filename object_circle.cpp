@@ -275,7 +275,7 @@ void Object::CircleLoadZon(const char *fn) {
 	  if(bynum[room])
 	    door = bynum[room]->PickObject(dirname[dnum], LOC_INTERNAL);
 	  if(door && state == 0) {
-	    door->SetSkill("Open", 1);
+	    door->SetSkill("Open", 1000);
 	    door->SetSkill("Locked", 0);
 	    }
 	  else if(door && state == 1) {
@@ -798,7 +798,7 @@ void Object::CircleLoadObj(const char *fn) {
 	obj->SetSkill("Container", val[0] * 454);
 	obj->SetSkill("Capacity", val[0]);
 
-	if(!(val[1] & 4)) obj->SetSkill("Open", 1);	//Start open?
+	if(!(val[1] & 4)) obj->SetSkill("Open", 1000);	//Start open?
 	if(val[1] & 8) {
 	  obj->SetSkill("Locked", 1);			//Start locked?
 	  obj->SetSkill("Lockable", 1);			// Can it be locked?
@@ -920,7 +920,7 @@ void Object::CircleLoadObj(const char *fn) {
 	obj->SetSkill("Liquid Container", val[0]);
 	obj->SetSkill("Capacity", val[0]);
 	if(tp == 23) {	//FOUNTAIN only
-	  obj->SetSkill("Open", 1);
+	  obj->SetSkill("Open", 1000);
 	  obj->SetSkill("Liquid Source", 1);
 	  obj->Activate();
 	  }
@@ -1053,7 +1053,7 @@ void Object::CircleLoadObj(const char *fn) {
 	}
       else if(tp == 22) { // BOAT
 	obj->SetSkill("Enterable", 1);
-	obj->SetSkill("Open", 1);
+	obj->SetSkill("Open", 1000);
 	obj->SetSkill("Vehicle", 4); //Unpowered (1=0), Calm Water (4=1).
 	}
       else if(tp == 5) { // WEAPON
@@ -1484,7 +1484,7 @@ void Object::CircleLoad(const char *fn) {
 	      }
 	    nobj->SetShortDesc(nm.c_str());
 	    nobj->SetDesc(des.c_str());
-	    nobj->SetSkill("Open", 1);
+	    nobj->SetSkill("Open", 1000);
 	    nobj->SetSkill("Enterable", 1);
 	    nobj->AddAct(ACT_SPECIAL_LINKED, nobj2);
 	    nobj2->AddAct(ACT_SPECIAL_MASTER, nobj);

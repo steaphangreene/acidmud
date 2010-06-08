@@ -216,11 +216,11 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetDesc((string("You see a solid passage leading ") + dirb + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1);
+      door1->SetSkill("Open", 1000);
       door1->SetSkill("Enterable", 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1);
+      door2->SetSkill("Open", 1000);
       door2->SetSkill("Enterable", 1);
 
       }break;
@@ -250,11 +250,11 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetDesc((string("You see a solid passage leading ") + dirb + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1);
+      door1->SetSkill("Open", 1000);
       door1->SetSkill("Enterable", 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1);
+      door2->SetSkill("Open", 1000);
       door2->SetSkill("Enterable", 1);
       }break;
     case(2): { //Major Shaft w/ Minor Offshoot
@@ -283,11 +283,11 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetDesc((string("You see a solid passage leading ") + dirb + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1);
+      door1->SetSkill("Open", 1000);
       door1->SetSkill("Enterable", 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1);
+      door2->SetSkill("Open", 1000);
       door2->SetSkill("Enterable", 1);
 
       if(rand()%2) swap(dir2, dir3);	// Half left, half right
@@ -306,11 +306,11 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetDesc((string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1);
+      door1->SetSkill("Open", 1000);
       door1->SetSkill("Enterable", 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1);
+      door2->SetSkill("Open", 1000);
       door2->SetSkill("Enterable", 1);
       }break;
     case(3): { //Major Shaft w/ Secret Minor Offshoot
@@ -339,11 +339,11 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetDesc((string("You see a solid passage leading ") + dirb + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1);
+      door1->SetSkill("Open", 1000);
       door1->SetSkill("Enterable", 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1);
+      door2->SetSkill("Open", 1000);
       door2->SetSkill("Enterable", 1);
 
       if(rand()%2) swap(dir2, dir3);	// Half left, half right
@@ -362,11 +362,11 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetDesc((string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1);
+      door1->SetSkill("Open", 1000);
       door1->SetSkill("Enterable", 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1);
+      door2->SetSkill("Open", 1000);
       door2->SetSkill("Enterable", 1);
       door1->SetSkill("Hidden", 4 + rand()%13);
       }break;
@@ -413,11 +413,11 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetDesc((string("You see a solid passage leading ") + dirb + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1);
+      door1->SetSkill("Open", 1000);
       door1->SetSkill("Enterable", 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1);
+      door2->SetSkill("Open", 1000);
       door2->SetSkill("Enterable", 1);
       }break;
     case(5): { //Minor Shaft
@@ -447,11 +447,11 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetDesc((string("You see a crumbling passage leading ") + dirb + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1);
+      door1->SetSkill("Open", 1000);
       door1->SetSkill("Enterable", 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1);
+      door2->SetSkill("Open", 1000);
       door2->SetSkill("Enterable", 1);
       }break;
     case(6): { //Minor Shaft (Bend)
@@ -480,11 +480,11 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetDesc((string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1);
+      door1->SetSkill("Open", 1000);
       door1->SetSkill("Enterable", 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1);
+      door2->SetSkill("Open", 1000);
       door2->SetSkill("Enterable", 1);
       }break;
     case(7): { //Minor Shaft Fork
@@ -512,11 +512,11 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetDesc((string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1);
+      door1->SetSkill("Open", 1000);
       door1->SetSkill("Enterable", 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1);
+      door2->SetSkill("Open", 1000);
       door2->SetSkill("Enterable", 1);
 
       ntype = ntypes[rand() % (sizeof(ntypes)/sizeof(int))];
@@ -536,11 +536,11 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetDesc((string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1);
+      door1->SetSkill("Open", 1000);
       door1->SetSkill("Enterable", 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1);
+      door2->SetSkill("Open", 1000);
       door2->SetSkill("Enterable", 1);
       }break;
     case(8): { //Minor Shaft Alcove
@@ -584,11 +584,11 @@ void Object::DynamicInit1() {		//Dwarven mine
       door2->SetDesc((string("You see a crumbling passage leading ") + dirb + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1);
+      door1->SetSkill("Open", 1000);
       door1->SetSkill("Enterable", 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1);
+      door2->SetSkill("Open", 1000);
       door2->SetSkill("Enterable", 1);
       door1->SetSkill("Hidden", 4 + rand()%13);
       }break;

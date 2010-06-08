@@ -1332,11 +1332,11 @@ void Object::Link(Object *other, const string &name, const string &desc,
   door2->SetDesc(odesc.c_str());
   door1->AddAct(ACT_SPECIAL_LINKED, door2);
   door1->AddAct(ACT_SPECIAL_MASTER, door2);
-  door1->SetSkill("Open", 1);
+  door1->SetSkill("Open", 1000);
   door1->SetSkill("Enterable", 1);
   door2->AddAct(ACT_SPECIAL_LINKED, door1);
   door2->AddAct(ACT_SPECIAL_MASTER, door1);
-  door2->SetSkill("Open", 1);
+  door2->SetSkill("Open", 1000);
   door2->SetSkill("Enterable", 1);
   }
 

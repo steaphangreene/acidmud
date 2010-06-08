@@ -1268,7 +1268,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	if(within && (*targ_it)->Skill("Open")) must_open = 0;
 
 	if(must_open) {
-	  (*targ_it)->SetSkill("Open", 1);
+	  (*targ_it)->SetSkill("Open", 1000);
 	  body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s opens ;s.\n", "You open ;s.\n", body, (*targ_it));
 	  }
@@ -1789,12 +1789,12 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       if(mind) mind->Send("It is locked!\n");
       }
     else {
-      targ->SetSkill("Open", 1);
+      targ->SetSkill("Open", 1000);
       body->Parent()->SendOut(stealth_t, stealth_s, ";s opens ;s.\n", "You open ;s.\n", body, targ);
       if(targ->ActTarg(ACT_SPECIAL_MASTER)) {
 	Object *targ2 = targ->ActTarg(ACT_SPECIAL_MASTER);
 	targ2->Parent()->SendOut(stealth_t, stealth_s, ";s opens.\n", "", targ2, NULL);
-	targ2->SetSkill("Open", 1);
+	targ2->SetSkill("Open", 1000);
 	targ2->SetSkill("Locked", 0);	//FIXME: Do I want to do this?
 	}
       }
@@ -4583,11 +4583,11 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       link->SetShortDesc(comline+len);
       link->AddAct(ACT_SPECIAL_LINKED, anchor);
       link->AddAct(ACT_SPECIAL_MASTER, anchor);
-      link->SetSkill("Open", 1);
+      link->SetSkill("Open", 1000);
       link->SetSkill("Enterable", 1);
       anchor->AddAct(ACT_SPECIAL_LINKED, link);
       anchor->AddAct(ACT_SPECIAL_MASTER, link);
-      anchor->SetSkill("Open", 1);
+      anchor->SetSkill("Open", 1000);
       anchor->SetSkill("Enterable", 1);
       string other = comline+len;
       if(!strncmp(comline+len, "east", 4)) {
