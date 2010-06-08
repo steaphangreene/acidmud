@@ -2326,6 +2326,9 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	  body->Parent()->SendOut(stealth_t, stealth_s,
 		";s gets and holds ;s.\n", "You get and hold ;s.\n",
 		body, targ);
+	  if(targ->HasSkill("Perishable")) {
+	    targ->Deactivate();
+	    }
 	  }
 	}
       }
@@ -2922,6 +2925,9 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	body->Parent()->SendOut(stealth_t, stealth_s, 
 	  ";s drops ;s.\n", "You drop ;s.\n", body, *targ);
 	(*targ)->Travel(body->Parent());
+	if((*targ)->HasSkill("Perishable")) {
+	  (*targ)->Activate();
+	  }
 	}
       }
     return 0;
@@ -3015,6 +3021,15 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       if(obj->Skill("Quantity") < 2) {
 	Object *nuke = targ->Contents().front();
 	delete nuke;
+
+	if(targ->HasSkill("Perishable")) {
+	  targ->Travel(body->Parent());
+	  body->Parent()->SendOut(stealth_t, stealth_s, 
+		";s drops ;s.\n", "You drop ;s.\n",
+		body, targ
+		);
+	  targ->Activate();
+	  }
 	}
       else {
 	obj->SetSkill("Quantity", obj->Skill("Quantity") - 1);
@@ -3234,6 +3249,9 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	item->Travel(body->Parent());
 	body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s drops ;s.\n", "You drop ;s.\n", body, item);
+	if(item->HasSkill("Perishable")) {
+	  item->Activate();
+	  }
 	}
       }
     if(body->ActTarg(ACT_HOLD)		//Shield held & worn
@@ -3248,6 +3266,9 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       item->Travel(body->Parent());
       body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s drops ;s.\n", "You drop ;s.\n", body, item);
+      if(item->HasSkill("Perishable")) {
+	item->Activate();
+	}
       }
     else if(body->ActTarg(ACT_HOLD)) {	//Regular held item
       Object *item = body->ActTarg(ACT_HOLD);
@@ -3259,6 +3280,9 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	item->Travel(body->Parent());
 	body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s drops ;s.\n", "You drop ;s.\n", body, item);
+	if(item->HasSkill("Perishable")) {
+	  item->Activate();
+	  }
 	}
       }
     body->Collapse();
@@ -3649,6 +3673,9 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       body->Parent()->SendOut(stealth_t, stealth_s, 
 	  ";s drops ;s.\n", "You drop ;s.\n", body, targ);
       targ->Travel(body->Parent());
+      if(targ->HasSkill("Perishable")) {
+	targ->Activate();
+	}
       }
 
     if(body->ActTarg(ACT_WIELD)
@@ -3665,6 +3692,9 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	  body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s drops ;s.\n", "You drop ;s.\n", body, body->ActTarg(ACT_HOLD));
 	  body->ActTarg(ACT_HOLD)->Travel(body->Parent());
+	  if(body->ActTarg(ACT_HOLD)->HasSkill("Perishable")) {
+	    body->ActTarg(ACT_HOLD)->Activate();
+	    }
 	  }
 	}
       Object *targ = body->ActTarg(ACT_WIELD);
