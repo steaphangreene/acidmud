@@ -1996,176 +1996,199 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     return 0;
     }
 
-  if(com == COM_VALUE) {
-    while((!isgraph(comline[len])) && (comline[len])) ++len;
-    if(!comline[len]) {
-      if(mind) mind->Send("What do you want to value?\n");
-      return 0;
-      }
-
-    typeof(body->Parent()->Contents()) objs = body->Parent()->Contents();
-    typeof(objs.begin()) shpkp_i;
-    typeof(body->Parent()->Contents()) shpkps;
-    string reason = "";
-    for(shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
-      if((*shpkp_i)->Skill("Sell Profit")) {
-	if((*shpkp_i)->IsAct(ACT_DEAD)) {
-	  reason = "Sorry, the shopkeeper is dead!\n";
-	  }
-	else if((*shpkp_i)->IsAct(ACT_DYING)) {
-	  reason = "Sorry, the shopkeeper is dying!\n";
-	  }
-	else if((*shpkp_i)->IsAct(ACT_UNCONSCIOUS)) {
-	  reason = "Sorry, the shopkeeper is unconscious!\n";
-	  }
-	else if((*shpkp_i)->IsAct(ACT_SLEEP)) {
-	  reason = "Sorry, the shopkeeper is asleep!\n";
-	  }
-	else {
-	  shpkps.push_back(*shpkp_i);
-	  }
-	}
-      }
-    if(shpkps.size() == 0) {
-      if(mind) {
-	mind->Send("%s", reason.c_str());
-	mind->Send("You can only do that around a shopkeeper.\n");
-	}
-      }
-    else {
-      Object *shpkp = shpkps.front();
-      typeof(body->Contents()) targs = body->PickObjects(comline+len, LOC_INTERNAL);
-      if(!targs.size()) {
-	if(mind) mind->Send("You want to value what?\n");
-	}
-      else if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)
-		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
-	typeof(targs.begin()) targ_i;
-	for(targ_i = targs.begin(); targ_i != targs.end(); ++targ_i) {
-	  Object *targ = (*targ_i);
-	  int price = targ->Value() * MAX(1, targ->Skill("Quantity"));
-	  if(price < 0) {
-	    if(mind) mind->Send("You can't sell %s.\n", targ->Name(0, body));
-	    continue;
-	    }
-	  else if(price == 0) {
-	    if(mind) {
-	      string mes = targ->Name(0, body);
-	      mes += " is worthless.\n";
-	      mes[0] = toupper(mes[0]);
-	      mind->Send(mes.c_str());
-	      }
-	    continue;
-	    }
- 	  price *= shpkp->Skill("Buy Profit");
-	  price += 0;  price /= 1000;
-	  string mes = targ->Name(0, body);
-	  mes[0] = toupper(mes[0]);
-	  mind->Send(mes.c_str());
-	  mind->Send(" is worth %d gp here.\n", price);
-	  }
-	}
-      }
-    return 0;
-    }
-
-  if(com == COM_SELL) {
+  if(com == COM_VALUE || com == COM_SELL) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
       if(mind) mind->Send("What do you want to sell?\n");
       return 0;
       }
 
+    Object *targ = body->PickObject(comline+len, LOC_NOTWORN|LOC_INTERNAL);
+    if((!targ) && body->ActTarg(ACT_HOLD)
+	&& body->ActTarg(ACT_HOLD)->Parent() != body		//Dragging
+	&& body->ActTarg(ACT_HOLD)->Matches(comline+len)) {
+      targ = body->ActTarg(ACT_HOLD);
+      }
+
+    if(!targ) {
+      if(mind) mind->Send("You want to sell what?\n");
+      return 0;
+      }
+
+    if(targ->Skill("Container") || targ->Skill("Liquid Container")) {
+      if(mind) {
+	string mes = targ->Name(0, body);
+	mes += " is a container.";
+	mes += "  You can't sell containers (yet).\n";
+	mes[0] = toupper(mes[0]);
+	mind->Send(mes.c_str());
+	}
+      return 0;
+      }
+
+    if(targ->Contents().size() > 0) {
+      if(mind) {
+	string mes = targ->Name(0, body);
+	mes += " is not empty.";
+	mes += "  You must empty it before you can sell it.\n";
+	mes[0] = toupper(mes[0]);
+	mind->Send(mes.c_str());
+	}
+      return 0;
+      }
+
+    int price = targ->Value() * MAX(1, targ->Skill("Quantity"));
+    if(price < 0) {
+      if(mind) mind->Send("You can't sell %s.\n", targ->Name(0, body));
+      return 0;
+      }
+    if(price == 0) {
+      if(mind) mind->Send("%s is worthless.\n", targ->Name(0, body));
+      return 0;
+      }
+
+    int wearable = 0;
+    if(targ->HasSkill("Wearable on Back")) wearable = 1;
+    if(targ->HasSkill("Wearable on Chest")) wearable = 1;
+    if(targ->HasSkill("Wearable on Head")) wearable = 1;
+    if(targ->HasSkill("Wearable on Neck")) wearable = 1;
+    if(targ->HasSkill("Wearable on Waist")) wearable = 1;
+    if(targ->HasSkill("Wearable on Shield")) wearable = 1;
+    if(targ->HasSkill("Wearable on Left Arm")) wearable = 1;
+    if(targ->HasSkill("Wearable on Right Arm")) wearable = 1;
+    if(targ->HasSkill("Wearable on Left Finger")) wearable = 1;
+    if(targ->HasSkill("Wearable on Right Finger")) wearable = 1;
+    if(targ->HasSkill("Wearable on Left Foot")) wearable = 1;
+    if(targ->HasSkill("Wearable on Right Foot")) wearable = 1;
+    if(targ->HasSkill("Wearable on Left Hand")) wearable = 1;
+    if(targ->HasSkill("Wearable on Right Hand")) wearable = 1;
+    if(targ->HasSkill("Wearable on Left Leg")) wearable = 1;
+    if(targ->HasSkill("Wearable on Right Leg")) wearable = 1;
+    if(targ->HasSkill("Wearable on Left Wrist")) wearable = 1;
+    if(targ->HasSkill("Wearable on Right Wrist")) wearable = 1;
+    if(targ->HasSkill("Wearable on Left Shoulder")) wearable = 1;
+    if(targ->HasSkill("Wearable on Right Shoulder")) wearable = 1;
+    if(targ->HasSkill("Wearable on Left Hip")) wearable = 1;
+    if(targ->HasSkill("Wearable on Right Hip")) wearable = 1;
+
     typeof(body->Parent()->Contents()) objs = body->Parent()->Contents();
     typeof(objs.begin()) shpkp_i;
     typeof(body->Parent()->Contents()) shpkps;
-    string reason = "";
+    string reason = "Sorry, nobody is buying that sort of thing here.\n";
+    string skill = "";
     for(shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
-      if((*shpkp_i)->Skill("Sell Profit")) {
-	if((*shpkp_i)->IsAct(ACT_DEAD)) {
-	  reason = "Sorry, the shopkeeper is dead!\n";
+      if((*shpkp_i)->IsAct(ACT_DEAD)) {
+	reason = "Sorry, the shopkeeper is dead!\n";
+	}
+      else if((*shpkp_i)->IsAct(ACT_DYING)) {
+	reason = "Sorry, the shopkeeper is dying!\n";
+	}
+      else if((*shpkp_i)->IsAct(ACT_UNCONSCIOUS)) {
+	reason = "Sorry, the shopkeeper is unconscious!\n";
+	}
+      else if((*shpkp_i)->IsAct(ACT_SLEEP)) {
+	reason = "Sorry, the shopkeeper is asleep!\n";
+	}
+      else if(wearable && targ->Attribute(0) > 0) {
+	if((*shpkp_i)->HasSkill("Buy Armor")) {
+	  skill = "Buy Armor";
 	  }
-	else if((*shpkp_i)->IsAct(ACT_DYING)) {
-	  reason = "Sorry, the shopkeeper is dying!\n";
+	}
+      else if(targ->Skill("Vehicle") == 4) {
+	if((*shpkp_i)->HasSkill("Buy Boat")) {
+	  skill = "Buy Boat";
 	  }
-	else if((*shpkp_i)->IsAct(ACT_UNCONSCIOUS)) {
-	  reason = "Sorry, the shopkeeper is unconscious!\n";
+	}
+      else if(targ->HasSkill("Container")) {
+	if((*shpkp_i)->HasSkill("Buy Container")) {
+	  skill = "Buy Container";
 	  }
-	else if((*shpkp_i)->IsAct(ACT_SLEEP)) {
-	  reason = "Sorry, the shopkeeper is asleep!\n";
+	}
+      else if(targ->HasSkill("Food") && (!targ->HasSkill("Drink"))) {
+	if((*shpkp_i)->HasSkill("Buy Food")) {
+	  skill = "Buy Food";
 	  }
-	else {
-	  shpkps.push_back(*shpkp_i);
+	}
+//      else if(false) {				//FIXME: Implement
+//	if((*shpkp_i)->HasSkill("Buy Light")) {
+//	  skill = "Buy Light";
+//	  }
+//	}
+      else if(targ->HasSkill("Liquid Container")) {	//FIXME: Not Potions?
+	if((*shpkp_i)->HasSkill("Buy Liquid Container")) {
+	  skill = "Buy Liquid Container";
 	  }
+	}
+      else if(targ->HasSkill("Liquid Container")) {	//FIXME: Not Bottles?
+	if((*shpkp_i)->HasSkill("Buy Potion")) {
+	  skill = "Buy Potion";
+	  }
+	}
+//      else if(false) {				//FIXME: Implement
+//	if((*shpkp_i)->HasSkill("Buy Scroll")) {
+//	  skill = "Buy Scroll";
+//	  }
+//	}
+//      else if(false) {				//FIXME: Implement
+//	if((*shpkp_i)->HasSkill("Buy Staff")) {
+//	  skill = "Buy Staff";
+//	  }
+//	}
+//      else if(false) {				//FIXME: Implement
+//	if((*shpkp_i)->HasSkill("Buy Trash")) {
+//	  skill = "Buy Trash";
+//	  }
+//	}
+//      else if(false) {				//FIXME: Implement
+//	if((*shpkp_i)->HasSkill("Buy Treasure")) {
+//	  skill = "Buy Treasure";
+//	  }
+//	}
+//      else if(false) {				//FIXME: Implement
+//	if((*shpkp_i)->HasSkill("Buy Wand")) {
+//	  skill = "Buy Wand";
+//	  }
+//	}
+      else if(targ->HasSkill("WeaponReach")) {
+	if((*shpkp_i)->HasSkill("Buy Weapon")) {
+	  skill = "Buy Weapon";
+	  }
+	}
+      else if(wearable && targ->Attribute(0) < 0) {
+	if((*shpkp_i)->HasSkill("Buy Worn")) {
+	  skill = "Buy Worn";
+	  }
+	}
+//      else if(false) {					//FIXME: Implement
+//	if((*shpkp_i)->HasSkill("Buy Other")) {
+//	  skill = "Buy Other";
+//	  }
+//	}
+
+      if(skill.length() <= 0 && (*shpkp_i)->HasSkill("Buy All")) {
+	skill = "Buy All";
+	}
+
+      if(skill.length() > 0) {
+	shpkps.push_back(*shpkp_i);
 	}
       }
     if(shpkps.size() == 0) {
       if(mind) {
 	mind->Send("%s", reason.c_str());
-	mind->Send("You can only do that around a shopkeeper.\n");
 	}
       }
     else {
       Object *shpkp = shpkps.front();
-      typeof(body->Contents()) targs =
-		body->PickObjects(comline+len, LOC_NOTWORN|LOC_INTERNAL);
-      if(body->ActTarg(ACT_HOLD)
-		&& body->ActTarg(ACT_HOLD)->Parent() != body	//Dragging
-		&& body->ActTarg(ACT_HOLD)->Matches(comline+len)) {
-	targs.push_back(body->ActTarg(ACT_HOLD));
-	}
-      if(!targs.size()) {
-	if(mind) mind->Send("You want to sell what?\n");
-	}
-      else if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)
+      if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)
 		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
 	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 
-	typeof(targs.begin()) targ_i;
-	for(targ_i = targs.begin(); targ_i != targs.end(); ++targ_i) {
-	  Object *targ = (*targ_i);
+ 	price *= shpkp->Skill(skill);
+	price += 0;  price /= 1000;
+	mind->Send("I'll give you %dgp for %s\n", price, targ->ShortDesc());
 
-	  if(targ->Contents().size() > 0) {
-	    if(mind) {
-	      string mes = targ->Name(0, body);
-	      mes += " is not empty.";
-	      mes += "  You must empty it before you can sell it.\n";
-	      mes[0] = toupper(mes[0]);
-	      mind->Send(mes.c_str());
-	      }
-	    continue;
-	    }
-
-	  if(targ->Skill("Container") || targ->Skill("Liquid Container")) {
-	    if(mind) {
-	      string mes = targ->Name(0, body);
-	      mes += " is a container.";
-	      mes += "  You can't sell containers.\n";
-	      mes[0] = toupper(mes[0]);
-	      mind->Send(mes.c_str());
-	      }
-	    continue;
-	    }
-
-	  int price = targ->Value() * MAX(1, targ->Skill("Quantity"));
-	  if(price < 0) {
-	    if(mind) mind->Send("You can't sell %s.\n", targ->Name(0, body));
-	    continue;
-	    }
-	  else if(price == 0) {
-	    if(mind) {
-	      string mes = targ->Name(0, body);
-	      mes += " is worthless.\n";
-	      mes[0] = toupper(mes[0]);
-	      mind->Send(mes.c_str());
-	      }
-	    continue;
-	    }
-
- 	  price *= shpkp->Skill("Buy Profit");
-	  price += 0;  price /= 1000;
-	  mind->Send("%d gp: %s\n", price, targ->ShortDesc());
-
+	if(com == COM_SELL) {
 	  int togo = price, ord = -price;
 	  typeof(body->Contents()) pay
 		= shpkp->PickObjects("a gold piece", LOC_INTERNAL, &ord);
@@ -2260,19 +2283,19 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     for(ind = targs.begin(); ind != targs.end(); ++ind) {
       Object *targ = *ind;
 
-      if(targ->Pos() == POS_NONE) {
+      if((!nmode) && targ->Pos() == POS_NONE) {
 	if(mind) mind->Send("You can't get %s, it is fixed in place!\n",
 		targ->Name());
 	}
-      else if(targ->Attribute(1)) {
+      else if((!nmode) && targ->Attribute(1)) {
 	if(mind) mind->Send("You can't get %s, it is not inanimate.\n",
 		targ->Name());
 	}
-      else if(targ->Weight() > body->Attribute(2) * 50000) {
+      else if((!nmode) && targ->Weight() > body->Attribute(2) * 50000) {
 	if(mind) mind->Send("You could never lift %s, it is too heavy.\n",
 		targ->Name());
 	}
-      else if(targ->Weight() > body->Attribute(2) * 10000) {
+      else if((!nmode) && targ->Weight() > body->Attribute(2) * 10000) {
 	if(mind) mind->Send(
 		"You can't carry %s, it is too heavy.  Try 'drag' instead.\n",
 		targ->Name());
