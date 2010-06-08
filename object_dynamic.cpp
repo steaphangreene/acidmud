@@ -385,7 +385,7 @@ void Object::DynamicInit1() {		//Dwarven mine
       Object *cage = new Object(this);
       cage->SetShortDesc("an old strong cage");
       cage->SetDesc("This is a very old, large, rugged cage - probably built by dwarves.\n");
-      cage->SetSkill("Transparent", 1);
+      cage->SetSkill("Transparent", 900);
       cage->SetSkill("Container", 100000);
       cage->SetSkill("Locked", 1);
       cage->SetSkill("Closeable", 1);

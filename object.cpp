@@ -1352,12 +1352,12 @@ void Object::LinkClosed(Object *other, const string &name, const string &desc,
   door1->AddAct(ACT_SPECIAL_MASTER, door2);
   door1->SetSkill("Closeable", 1);
   door1->SetSkill("Enterable", 1);
-  door1->SetSkill("Transparent", 1);
+  door1->SetSkill("Transparent", 1000);
   door2->AddAct(ACT_SPECIAL_LINKED, door1);
   door2->AddAct(ACT_SPECIAL_MASTER, door1);
   door2->SetSkill("Closeable", 1);
   door2->SetSkill("Enterable", 1);
-  door2->SetSkill("Transparent", 1);
+  door2->SetSkill("Transparent", 1000);
   }
 
 void Object::TryCombine() {
