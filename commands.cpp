@@ -2140,7 +2140,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	    if(mind) {
 	      string mes = targ->Name(0, body);
 	      mes += " is a container.";
-	      mes += "  You can't sell containers because Stea is a lazy bitch.\n";
+	      mes += "  You can't sell containers.\n";
 	      mes[0] = toupper(mes[0]);
 	      mind->Send(mes.c_str());
 	      }
