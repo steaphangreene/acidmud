@@ -782,6 +782,9 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     if(comlist[ctr].id == COM_SAY && (comline[0]=='\'' || comline[0]=='"')) {
       com = comlist[ctr].id; cnum = ctr; break;
       }
+    if(comlist[ctr].id == COM_DUMP && (!strncasecmp(comline, "empty", len))) {
+      com = comlist[ctr].id; cnum = ctr; break;
+      }
     }
   if(com == -1) {
     if(mind) mind->Send("Command NOT understood - type 'help' for assistance.\n");
