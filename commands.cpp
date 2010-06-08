@@ -534,7 +534,7 @@ Command comlist[] = {
   { COM_SCORE, "score",
     "Get your current character and/or player's stats and score.",
     "Get your current character and/or player's stats and score.",
-    (REQ_CORPOREAL)
+    (REQ_ETHEREAL|REQ_CORPOREAL)
     },
 
   { COM_SKILLLIST, "skilllist",
@@ -1636,11 +1636,19 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 
   if(com == COM_SCORE) {
     if(mind) {
-      mind->Send("%s", CCYN);
-      body->SendFullSituation(mind, body);
-      body->SendActions(mind);
-      mind->Send("%s", CNRM);
-      body->SendScore(mind, body);
+      if(!body) {
+	body = mind->Owner()->Creator();
+	}
+      if(body) {
+	mind->Send("%s", CCYN);
+	body->SendFullSituation(mind, body);
+	body->SendActions(mind);
+	mind->Send("%s", CNRM);
+	body->SendScore(mind, body);
+	}
+      else {
+	mind->Send("You need to select a character first.\n");
+	}
       }
     return 0;
     }
