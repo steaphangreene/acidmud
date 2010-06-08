@@ -225,14 +225,22 @@ int has_tick(const Object *o) {
 
 void tick_world() {
   static int tickstage = 0;
-  set<Object*> todel;
+  set<Object*> todel, todeact;
   set<Object*>::iterator ind = ticklist[tickstage].begin();
 //  fprintf(stderr, "Ticking %d items\n", ticklist[tickstage].size());
   for(; ind != ticklist[tickstage].end(); ++ind) {
-    if((*ind)->Tick()) { todel.insert(*ind); }
+    int res = (*ind)->Tick();
+    if(res != 0) {
+      if(res == 1) { todel.insert(*ind); }
+      else if(res == -1) { todeact.insert(*ind); }
+      }
     }
   for(ind = todel.begin(); ind != todel.end(); ++ind) {
+    todeact.erase(*ind);
     delete (*ind);
+    }
+  for(ind = todeact.begin(); ind != todeact.end(); ++ind) {
+    (*ind)->Deactivate();
     }
   ++tickstage;
   if(tickstage >= TICKSPLIT) tickstage = 0;
@@ -396,6 +404,7 @@ int Object::Tick() {
       if(is_pc(this)) {	//Hide me in the VOID!
 	Travel(default_initial);
 	SetSkill("Hidden", 65535);
+	return -1;	//Deactivate Me!
 	}
       else {
 	return 1;	//Delete Me!
