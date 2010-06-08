@@ -2305,6 +2305,9 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	else if(body->Stash(targ)) {
 	  body->Parent()->SendOut(stealth_t, stealth_s, ";s gets and stashes ;s.\n",
 		"You get and stash ;s.\n", body, targ);
+	  if(targ->HasSkill("Perishable")) {
+	    targ->Deactivate();
+	    }
 	  }
 	else if(body->IsAct(ACT_HOLD)
 		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)

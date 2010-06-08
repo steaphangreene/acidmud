@@ -2776,7 +2776,7 @@ void Object::Consume(const Object *item) {
     UpdateDamage();
     }
 
-  //Special effect: HEAL
+  //Special effect: Heal
   if(item->Skill("Heal Effect") > 0) {
     int succ = Roll("Strength", 12 - item->Skill("Heal Effect"));
     if(phys > 0 && succ > 0) Send(ALL, 0, "You feel a bit less pain.\n");
@@ -2785,7 +2785,7 @@ void Object::Consume(const Object *item) {
     UpdateDamage();
     }
 
-  //Special effect: REJUVENATE
+  //Special effect: Energize
   if(item->Skill("Energize Effect") > 0) {
     int succ = Roll("Strength", 12 - item->Skill("Energize Effect"));
     if(stun > 0 && succ > 0) Send(ALL, 0, "You feel a bit more rested.\n");
