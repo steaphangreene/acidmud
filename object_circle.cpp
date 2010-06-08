@@ -1459,7 +1459,7 @@ void Object::CircleLoadShp(const char *fn) {
       }
     else {
       while(1) {
-	int val;
+	int val, kpr;
 	if(!fscanf(mud, "#%d~\n", &val)) break;  // Shop Number
 
 	vortex = new Object;
@@ -1495,7 +1495,9 @@ void Object::CircleLoadShp(const char *fn) {
 	memset(buf, 0, 65536);
 	fscanf(mud, "%[^\n]\n", buf);  // Item types bought
 	val = atoi(buf);
+	list<string> types;
 	while(val >= 0) {
+	  types.push_back(string(buf));
 	  memset(buf, 0, 65536);
 	  fscanf(mud, "%[^\n]\n", buf);  // Item types bought
 	  val = atoi(buf);
@@ -1508,9 +1510,9 @@ void Object::CircleLoadShp(const char *fn) {
 	memset(buf, 0, 65536);
 	fscanf(mud, "%[^\n]\n", buf+strlen(buf));  // Shop Bitvectors
 
-	fscanf(mud, "%d\n", &val);  // Shopkeeper!
+	fscanf(mud, "%d\n", &kpr);  // Shopkeeper!
 	Object *keeper = NULL;
-	if(bynummobinst.count(val)) keeper = bynummobinst[val];
+	if(bynummobinst.count(kpr)) keeper = bynummobinst[kpr];
 
 	memset(buf, 0, 65536);
 	fscanf(mud, "%[^\n]\n", buf+strlen(buf));  // With Bitvectors
@@ -1527,9 +1529,22 @@ void Object::CircleLoadShp(const char *fn) {
 
 	if(keeper) {
 	  keeper->SetSkill("Sell Profit", (int)(num*1000.0+0.5));
-	  keeper->SetSkill("Buy Profit", (int)(num2*1000.0+0.5));
+
+	  list<string>::iterator type = types.begin();	//Buy Types
+	  for(; type != types.end(); ++type) {
+	    for(unsigned int ctr=1; ctr < type->length(); ++ctr) {
+	      (*type)[ctr] = tolower((*type)[ctr]);
+	      }
+	    if((*type) == "Liq container") (*type) = "Liquid Container";
+	    keeper->SetSkill(string("Buy ") + (*type), (int)(num2*1000.0+0.5));
+	    }
+
 	  vortex->SetParent(keeper);
 	  keeper->AddAct(ACT_WEAR_RSHOULDER, vortex);
+	  }
+	else {
+	  delete vortex;
+	  fprintf(stderr, "Warning: Can't find shopkeeper #%d!\n", kpr);
 	  }
 	}
       }
