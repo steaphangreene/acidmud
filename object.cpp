@@ -82,7 +82,7 @@ int matches(const char *name, const char *seek) {
   if(len == 0) return 0;
   if(!strcasecmp(seek, "all")) return 1;
 
-  char *desc = (char*)name;
+  const char *desc = name;
   while(*desc) {
     if((!strncasecmp(desc, seek, len)) && (!isalnum(desc[len]))) {
       return 1;
