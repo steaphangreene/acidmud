@@ -1379,7 +1379,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	  denied[0] = toupper(denied[0]);
 	  }
 	}
-      if(denied.length() > 0) {
+      if((!nmode) && denied.length() > 0) {
 	if(mind) mind->Send(denied.c_str());
 	continue;
 	}
@@ -1448,7 +1448,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	    }
 	  }
 	}
-      if(denied.length() > 0) {
+      if((!nmode) && denied.length() > 0) {
 	if(mind) mind->Send(denied.c_str());
 	continue;
 	}
@@ -2299,7 +2299,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	    }
 	  }
 
-	if(denied != "") {
+	if((!nmode) && denied != "") {
 	  if(mind) mind->Send(denied.c_str());
 	  }
 	else if(body->Stash(targ)) {
@@ -2984,7 +2984,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	  denied[0] = toupper(denied[0]);
 	  }
 	}
-      if(denied.length() > 0) {
+      if((!nmode) && denied.length() > 0) {
 	if(mind) mind->Send(denied.c_str());
 	return 0;
 	}
