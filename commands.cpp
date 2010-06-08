@@ -2149,7 +2149,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 //	  skill = "Buy Wand";
 //	  }
 //	}
-      else if(targ->HasSkill("WeaponReach")) {
+      else if(targ->Skill("WeaponType") > 0) {
 	if((*shpkp_i)->HasSkill("Buy Weapon")) {
 	  skill = "Buy Weapon";
 	  }
@@ -2565,7 +2565,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	}
       else {
 	if(mind) mind->Send("You are not wielding anything.\n");
-	}      
+	}
       return 0;
       }
 
