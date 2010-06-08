@@ -671,10 +671,6 @@ void Object::CircleLoadObj(const char *fn) {
 	obj->SetPos(POS_LIE);
 	}
 
-      if(tp == 1) { //LIGHTS - Their circle stats are all fuxxed up.
-	buf[0] = '0';  buf[1] = 0;
-        }
-
       int sf = 0;
       if(!strncasecmp(obj->ShortDesc(), "a pair of ", 10)) sf = 9;
       else if(!strncasecmp(obj->ShortDesc(), "some ", 5)) sf = 4;
@@ -783,7 +779,16 @@ void Object::CircleLoadObj(const char *fn) {
 
       fscanf(mudo, "%d %d %d %d\n", val+0, val+1, val+2, val+3);
 
-      if(tp == 9) { // ARMOR
+      if(tp == 1) { //LIGHTS
+	if(val[2] > 1) {
+	  obj->SetSkill("Lightable", val[2] * 60);	// Total Lit Minutes
+	  obj->SetSkill("Brightness", 100);		// All CircleMUD Lights
+	  }
+	else {
+	  obj->SetSkill("Light Source", 100);		// All CircleMUD Lights
+	  }
+        }
+      else if(tp == 9) { // ARMOR
 	obj->SetAttribute(0, val[0]);
 	}
       else if(tp == 20) { // MONEY
