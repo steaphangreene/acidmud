@@ -96,6 +96,7 @@ enum {	COM_HELP=0,
 	COM_PUT,
 	COM_DROP,
 	COM_WIELD,
+	COM_UNWIELD,
 	COM_HOLD,
 	COM_WEAR,
 	COM_REMOVE,
@@ -347,6 +348,11 @@ Command comlist[] = {
   { COM_WIELD, "wield",
     "Wield a weapon you are carrying.",
     "Wield a weapon you are carrying.",
+    (REQ_ALERT|REQ_ACTION)
+    },
+  { COM_UNWIELD, "unwield",
+    "Unwield the weapon you are currently wielding.",
+    "Unwield the weapon you are currently wielding.",
     (REQ_ALERT|REQ_ACTION)
     },
   { COM_HOLD, "hold",
@@ -2492,14 +2498,23 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     return 0;
     }
 
+  if(com == COM_UNWIELD) {
+    com = COM_WIELD;
+    comline = "wield";
+    len = 5;
+    }
+
   if(com == COM_WIELD) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
       if(body->IsAct(ACT_WIELD)) {
 	Object *wield = body->ActTarg(ACT_WIELD);
 	if(wield && body->Stash(wield)) {
-	  body->Parent()->SendOut(stealth_t, stealth_s, ";s stops wielding and stash ;s.\n",
-		"You stop wielding and stash ;s.\n", body, wield);
+	  body->Parent()->SendOut(stealth_t, stealth_s,
+		";s stops wielding and stashes ;s.\n",
+		"You stop wielding and stash ;s.\n",
+		body, wield
+		);
 	  }
 	else if(body->IsAct(ACT_HOLD)
 		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)
