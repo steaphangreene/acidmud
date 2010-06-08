@@ -834,6 +834,7 @@ void Object::CircleLoadObj(const char *fn) {
 	liq->SetVolume(1);
 	liq->SetSkill("Quantity", 1);
 	liq->SetSkill("Magical", val[0]);
+	liq->SetShortDesc("clear");
 	for(int idx=1; idx < 4; ++idx) {
 	  switch(val[idx]) {
 	    case(16): {		// CURE_LIGHT
