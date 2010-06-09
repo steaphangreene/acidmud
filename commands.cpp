@@ -1115,7 +1115,10 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       else {
 	body->Parent()->SendOut(stealth_t, stealth_s, 
 		";s arrives.\n", "", body, NULL);
-	if(mind && mind->Type() == MIND_REMOTE)
+	if((!nmode) && mind && body->Parent()->LightLevel() < 100) {
+	  mind->Send("It's too dark, you can't see anything.\n");
+	  }
+	else if(mind && mind->Type() == MIND_REMOTE)
 	  body->Parent()->SendDescSurround(body, body);
 	else if(mind && mind->Type() == MIND_SYSTEM)
 	  mind->Send("You enter %s\n", comline+len);
@@ -1239,6 +1242,15 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       return 0;
       }
 
+    if(!body->Parent()) {
+      return 0;
+      }
+
+    if((!nmode) && body->Parent()->LightLevel() < 100) {
+      if(mind) mind->Send("It's too dark, you can't see anything.\n");
+      return 0;
+      }
+
     typeof(body->Contents()) targs;
     int within = 0;
 
@@ -1336,6 +1348,11 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 
   if(com == COM_SEARCH) {
     if(!body->Parent()) return 0;
+
+    if((!nmode) && body->Parent()->LightLevel() < 100) {
+      if(mind) mind->Send("It's too dark, you can't see anything.\n");
+      return 0;
+      }
 
     typeof(body->Contents()) targs;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
