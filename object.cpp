@@ -496,9 +496,9 @@ int Object::Tick() {
     }
 
   //Lit Torches/Lanterns
-  if(HasSkill("Lightable") && HasSkill("Light Source")) {
+  if(HasSkill("Brightness") && HasSkill("Light Source")) {
     SetSkill("Lightable", Skill("Lightable") - 1);
-    if(Skill("Lightable") < 0) {
+    if(Skill("Lightable") < 1) {
       SetSkill("Light Source", 0);
       return -1;		//Deactivate Me!
       }
@@ -2871,7 +2871,7 @@ void Object::StopAct(act_t a) {
     obj = ActTarg(ACT_HOLD);
     }
   act.erase(a);
-  if(obj && obj->HasSkill("Lightable") && obj->HasSkill("Light Source")) {
+  if(obj && obj->HasSkill("Brightness") && obj->HasSkill("Light Source")) {
     obj->SetSkill("Light Source", 0);
     //obj->SendOut(0, 0, ";s goes out.\n", "", obj, NULL);
     obj->Deactivate();
