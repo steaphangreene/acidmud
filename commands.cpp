@@ -1182,36 +1182,64 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
   if(com == COM_SAY) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    int shouting = 1;
-    if(strlen(comline+len) < 4) shouting = 0;
-    for(const char *chr = comline+len; shouting && *chr != 0; ++chr) {
-      if(islower(*chr)) shouting = 0;
-      }
-    if(!shouting) {
-      body->Parent()->SendOut(ALL, 0, ";s says '%s'\n", "You say '%s'\n",
-	body, body, comline+len);
-      body->SetSkill("Hidden", 0);
+    if(strlen(comline+len) <= 0) {
+      if(strncmp(mind->SpecialPrompt(), "say", 3)) {
+	mind->SetSpecialPrompt("say");
+	mind->Send(
+		"Type what your character will say - exit by just hitting ENTER:"
+		);
+	}
+      else {
+	mind->SetSpecialPrompt("");
+	mind->Send("Exiting out of say mode.");
+	}
       return 0;
       }
     else {
-      com = COM_SHOUT;
+      int shouting = 1;
+      if(strlen(comline+len) < 4) shouting = 0;
+      for(const char *chr = comline+len; shouting && *chr != 0; ++chr) {
+	if(islower(*chr)) shouting = 0;
+	}
+      if(!shouting) {
+	body->Parent()->SendOut(ALL, 0, ";s says '%s'\n", "You say '%s'\n",
+		body, body, comline+len);
+	body->SetSkill("Hidden", 0);
+	return 0;
+	}
+      else {
+	com = COM_SHOUT;
+	}
       }
     }
 
   if(com == COM_SHOUT || com == COM_YELL || com == COM_CALL) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    if(!strncasecmp(comline+len, "for ", 4)) len += 4;
-
-    char *mes = strdup(comline+len);
-    for(char *chr = mes; *chr != 0; ++chr) {
-      *chr = toupper(*chr);
+    if(strlen(comline+len) <= 0) {
+      if(strncmp(mind->SpecialPrompt(), "shout", 3)) {
+	mind->SetSpecialPrompt("shout");
+	mind->Send(
+		"Type what your character will shout - exit by just hitting ENTER:"
+		);
+	}
+      else {
+	mind->SetSpecialPrompt("");
+	mind->Send("Exiting out of shout mode.");
+	}
       }
-    body->Parent()->SendOut(ALL, 0,
+    else {
+      if(!strncasecmp(comline+len, "for ", 4)) len += 4;
+
+      char *mes = strdup(comline+len);
+      for(char *chr = mes; *chr != 0; ++chr) {
+	*chr = toupper(*chr);
+	}
+      body->Parent()->SendOut(ALL, 0,
 	";s shouts '%s'!!!\n", "You shout '%s'!!!\n",
 	body, body, mes);
-    body->Parent()->Loud(body->Skill("Strength"), "someone shout '%s'!!!", mes);
-    free(mes);
-
+      body->Parent()->Loud(body->Skill("Strength"), "someone shout '%s'!!!", mes);
+      free(mes);
+      }
     body->SetSkill("Hidden", 0);
     return 0;
     }
@@ -4336,7 +4364,16 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(strlen(comline+len) <= 0) {
-      mind->Send("Toggling NEWBIE doesn't work yet, you MUST LISTEN!!!\n");
+      if(strncmp(mind->SpecialPrompt(), "newbie", 3)) {
+	mind->SetSpecialPrompt("newbie");
+	mind->Send(
+		"Type your newbie-chat text - exit by just hitting ENTER:"
+		);
+	}
+      else {
+	mind->SetSpecialPrompt("");
+	mind->Send("Exiting out of newbie-chat mode.");
+	}
       }
     else {
       string name = "Unknown";
