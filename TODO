@@ -1,4 +1,4 @@
-Implement more equipment's magical effects.
+Implement drop-object handling code to catch all the odd cases in one place.
 
 Fix exchange system handling odd cases (including sell/buy).
 Selling of containers, or not (contents -vs- container value!).
@@ -30,6 +30,7 @@ Handle Multiple Weapon Types (eg: Bastard Swords).
 
 Do full code constification review.
 
+Implement the rest of the magical effects.
 Implement All Remaining Weapon Types (Guns, etc...).
 Get it to understand offhand weapon use.
 Get it to understand mounted weapon use.

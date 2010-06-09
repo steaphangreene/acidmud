@@ -2745,6 +2745,10 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       Object *targ = (*targ_it);
 
       int removed = 0;
+      if((!nmode) && targ->HasSkill("Cursed")) {
+	if(mind) mind->Send("%s won't come off!\n", targ->Name(0, body));
+	return 0;
+	}
       for(act_t act = ACT_WEAR_BACK; act < ACT_MAX; act = act_t(int(act)+1)) {
 	if(body->ActTarg(act) == targ) { removed = 1; break; }
 	}
@@ -3001,11 +3005,17 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     else {
       typeof(targs.begin()) targ;
       for(targ = targs.begin(); targ != targs.end(); ++targ) {
-	body->Parent()->SendOut(stealth_t, stealth_s,
-	  ";s drops ;s.\n", "You drop ;s.\n", body, *targ);
-	(*targ)->Travel(body->Parent());
-	if((*targ)->HasSkill("Perishable")) {
-	  (*targ)->Activate();
+	if((!nmode) && (*targ)->HasSkill("Cursed")) {
+	  if(mind) mind->Send("You can't seem to drop %s!\n",
+		(*targ)->Name(0, body));
+	  }
+	else {
+	  body->Parent()->SendOut(stealth_t, stealth_s,
+		";s drops ;s.\n", "You drop ;s.\n", body, *targ);
+	  (*targ)->Travel(body->Parent());
+	  if((*targ)->HasSkill("Perishable")) {
+	    (*targ)->Activate();
+	    }
 	  }
 	}
       }
