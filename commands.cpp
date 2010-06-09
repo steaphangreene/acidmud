@@ -98,6 +98,7 @@ enum {	COM_HELP=0,
 	COM_WIELD,
 	COM_UNWIELD,
 	COM_HOLD,
+	COM_LIGHT,
 	COM_WEAR,
 	COM_REMOVE,
 	COM_LABEL,
@@ -358,6 +359,11 @@ Command comlist[] = {
   { COM_HOLD, "hold",
     "Hold an item you are carrying in your off-hand.",
     "Hold an item you are carrying in your off-hand.",
+    (REQ_ALERT|REQ_ACTION)
+    },
+  { COM_LIGHT, "light",
+    "Light an item you are carrying and hold it in your off-hand.",
+    "Light an item you are carrying and hold it in your off-hand.",
     (REQ_ALERT|REQ_ACTION)
     },
   { COM_WEAR, "wear",
@@ -2636,10 +2642,10 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     return 0;
     }
 
-  if(com == COM_HOLD) {
+  if(com == COM_HOLD || com == COM_LIGHT) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
-      if(mind) mind->Send("You want to hold what?\n");
+      if(mind) mind->Send("What do you want to hold?\n");
       return 0;
       }
 
@@ -2680,8 +2686,26 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	}
       targ->Travel(body, 0); // Kills Holds, Wears and Wields on "targ"
       body->AddAct(ACT_HOLD, targ);
-      body->Parent()->SendOut(stealth_t, stealth_s, 
-	";s holds ;s.\n", "You hold ;s.\n", body, targ);
+      if(com == COM_LIGHT) {
+
+	if(targ->HasSkill("Lightable")) {
+	  body->Parent()->SendOut(stealth_t, stealth_s, 
+		";s holds and lights ;s.\n", "You hold and light ;s.\n",
+		body, targ);
+	  targ->SetSkill("Lightable", targ->Skill("Lightable") - 1);
+	  targ->SetSkill("Light Source", targ->Skill("Brightness"));
+	  targ->Activate();
+	  }
+	else {
+	  body->Parent()->SendOut(stealth_t, stealth_s, 
+		";s holds ;s.\n", "You hold ;s, but it can't be lit.\n",
+		body, targ);
+	  }
+	}
+      else {
+	body->Parent()->SendOut(stealth_t, stealth_s, 
+		";s holds ;s.\n", "You hold ;s.\n", body, targ);
+	}
       }
     return 0;
     }
