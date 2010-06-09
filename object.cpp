@@ -495,6 +495,15 @@ int Object::Tick() {
       }
     }
 
+  //Lit Torches/Lanterns
+  if(HasSkill("Lightable") && HasSkill("Light Source")) {
+    SetSkill("Lightable", Skill("Lightable") - 1);
+    if(Skill("Lightable") < 0) {
+      SetSkill("Light Source", 0);
+      return -1;		//Deactivate Me!
+      }
+    }
+
   return 0;
   }
 
@@ -2824,12 +2833,22 @@ int Object::LightLevel(int updown) {
   if(updown != 1) {	//Go Down
     typeof(contents.begin()) item = contents.begin();
     for(; item != contents.end(); ++item) {
-      int fac = (*item)->Skill("Open")
+      if(!Wearing(*item)) {	//Containing it (internal)
+	int fac = (*item)->Skill("Open")
 		+ (*item)->Skill("Transparent")
 		+ (*item)->Skill("Translucent");
-      if(fac > 1000) fac = 1000;
-      if(fac > 0) {
-	level += (fac * (*item)->LightLevel(-1));
+	if(fac > 1000) fac = 1000;
+	if(fac > 0) {
+	  level += (fac * (*item)->LightLevel(-1));
+	  }
+	}
+
+      typeof(contents.begin()) subitem = (*item)->contents.begin();
+      for(; subitem != (*item)->contents.end(); ++subitem) {
+	//Wearing it (external - so reaching one level further)
+	if((*item)->Wearing(*subitem)) {
+	  level += (1000 * (*subitem)->LightLevel(-1));
+	  }
 	}
       }
     }
@@ -2837,4 +2856,24 @@ int Object::LightLevel(int updown) {
   level += Skill("Light Source");
   if(level > 1000) level = 1000;
   return level;
+  }
+
+int Object::Wearing(Object *obj) {
+  for(act_t act = ACT_HOLD; act < ACT_MAX; act = act_t(act + 1)) {
+    if(ActTarg(act) == obj) return 1;
+    }
+  return 0;
+  }
+
+void Object::StopAct(act_t a) {
+  Object *obj = NULL;
+  if(a == ACT_HOLD) {
+    obj = ActTarg(ACT_HOLD);
+    }
+  act.erase(a);
+  if(obj && obj->HasSkill("Lightable") && obj->HasSkill("Light Source")) {
+    obj->SetSkill("Light Source", 0);
+    //obj->SendOut(0, 0, ";s goes out.\n", "", obj, NULL);
+    obj->Deactivate();
+    }
   }

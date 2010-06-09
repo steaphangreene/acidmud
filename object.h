@@ -229,11 +229,13 @@ public:
   int IsUsing(const string &skill);
   const char *UsingString();
 
+  int Wearing(Object *obj);
+
   void Collapse();
 
   void StopAll();
   void AddAct(act_t a, Object *o=NULL) { act[a] = o; };
-  void StopAct(act_t a) { act.erase(a); };
+  void StopAct(act_t a);
   int IsAct(act_t a) const { return act.count(a); };
   Object *ActTarg(act_t a) const;
 
