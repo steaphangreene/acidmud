@@ -432,20 +432,20 @@ int Object::Tick() {
     //Get Hungrier
     level = Skill("Hungry");
     if(level < 1) level = 1;
-    else ++level;
-    if(level > 5000) level = 5000;
+    else level += Attribute(2);		//Strength Scales Food Req
+    if(level > 29999) level = 29999;
     SetSkill("Hungry", level);
 
-    if(level == 200) Send(ALL, -1, "You could use a snack.\n");
-    else if(level == 300) Send(ALL, -1, "You officially have the munchies.\n");
-    else if(level == 400) Send(ALL, -1, "You really could go for a snack.\n");
-    else if(level == 500) Send(ALL, -1, "You are getting hungry.\n");
-    else if(level == 600) Send(ALL, -1, "You are getting very hungry.\n");
-    else if(level == 700) Send(ALL, -1, "You are really quite hungry.\n");
-    else if(level == 800) Send(ALL, -1, "You are really dying for food.\n");
-    else if(level == 900) Send(ALL, -1, "You need to get some food soon!\n");
-    else if(level == 1000) Send(ALL, -1, "You are starting to starve!\n");
-    else if(level > 1000) {
+    if(level == 500) Send(ALL, -1, "You could use a snack.\n");
+    else if(level == 1000) Send(ALL, -1, "You officially have the munchies.\n");
+    else if(level == 1500) Send(ALL, -1, "You really could go for a snack.\n");
+    else if(level == 2000) Send(ALL, -1, "You are getting hungry.\n");
+    else if(level == 2500) Send(ALL, -1, "You are getting very hungry.\n");
+    else if(level == 3000) Send(ALL, -1, "You are really quite hungry.\n");
+    else if(level == 3500) Send(ALL, -1, "You are really dying for food.\n");
+    else if(level == 4000) Send(ALL, -1, "You need to get some food soon!\n");
+    else if(level == 4500) Send(ALL, -1, "You are starting to starve!\n");
+    else if(level >= 5000) {
       if(level % 10 == 0) {
 	Send(ALL, -1, "You are starving!\n");
 	}
@@ -455,20 +455,20 @@ int Object::Tick() {
     //Get Thurstier
     level = Skill("Thirsty");
     if(level < 1) level = 1;
-    else ++level;
-    if(level > 5000) level = 5000;
+    else level += Attribute(0);		//Body Scales Water Req
+    if(level > 29999) level = 29999;
     SetSkill("Thirsty", level);
 
-    if(level == 200) Send(ALL, -1, "You could use a drink.\n");
-    else if(level == 300) Send(ALL, -1, "Your mouth is getting dry.\n");
-    else if(level == 400) Send(ALL, -1, "You really could go for a drink.\n");
-    else if(level == 500) Send(ALL, -1, "You are getting thirsty.\n");
-    else if(level == 600) Send(ALL, -1, "You are getting very thirsty.\n");
-    else if(level == 700) Send(ALL, -1, "You are really quite thirsty.\n");
-    else if(level == 800) Send(ALL, -1, "You are really dying for water.\n");
-    else if(level == 900) Send(ALL, -1, "You need to get some water soon!\n");
-    else if(level == 1000) Send(ALL, -1, "You are starting to dehydrate!\n");
-    else if(level > 1000) {
+    if(level == 500) Send(ALL, -1, "You could use a drink.\n");
+    else if(level == 1000) Send(ALL, -1, "Your mouth is getting dry.\n");
+    else if(level == 1500) Send(ALL, -1, "You really could go for a drink.\n");
+    else if(level == 2000) Send(ALL, -1, "You are getting thirsty.\n");
+    else if(level == 2500) Send(ALL, -1, "You are getting very thirsty.\n");
+    else if(level == 3000) Send(ALL, -1, "You are really quite thirsty.\n");
+    else if(level == 3500) Send(ALL, -1, "You are really dying for water.\n");
+    else if(level == 4000) Send(ALL, -1, "You need to get some water soon!\n");
+    else if(level == 4500) Send(ALL, -1, "You are starting to dehydrate!\n");
+    else if(level >= 5000) {
       if(level % 10 == 0) {
 	Send(ALL, -1, "You are dehydrated!\n");
 	}
@@ -2002,11 +2002,11 @@ void Object::UpdateDamage() {
     phys += stun-10;
     stun = 10;
     }
-  if(stun < Skill("Hungry") / 1000) {	//Hungry Stuns
-    stun = Skill("Hungry") / 1000;
+  if(stun < Skill("Hungry") / 5000) {	//Hungry Stuns
+    stun = Skill("Hungry") / 5000;
     }
-  if(phys < Skill("Thirsty") / 1000) {	//Thirsty Wounds
-    phys = Skill("Thirsty") / 1000;
+  if(phys < Skill("Thirsty") / 5000) {	//Thirsty Wounds
+    phys = Skill("Thirsty") / 5000;
     }
   if(phys > 10+Attribute(2)) {
     phys = 10+Attribute(2)+1;
