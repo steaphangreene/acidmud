@@ -2923,6 +2923,8 @@ const char * const atpnames[] = {
 	"Willpower Penalty"
 	};
 int Object::Attribute(int a) const {
+  if(att[a] == 0) return 0;	//Can't Enhance Nothing
+
   int ret = att[a] * 1000;
   typeof(contents.begin()) item = contents.begin();
   for(; item != contents.end(); ++item) {
