@@ -431,8 +431,8 @@ int Object::Tick() {
 
     //Get Hungrier
     level = Skill("Hungry");
-    if(level < 1) level = 1;
-    else level += Attribute(2);		//Strength Scales Food Req
+    if(level < 1) level = att[2];
+    else level += att[2];		//Base Strength Scales Food Req
     if(level > 29999) level = 29999;
     SetSkill("Hungry", level);
 
@@ -454,8 +454,8 @@ int Object::Tick() {
 
     //Get Thurstier
     level = Skill("Thirsty");
-    if(level < 1) level = 1;
-    else level += Attribute(0);		//Body Scales Water Req
+    if(level < 1) level = att[0];
+    else level += att[0];		//Body Scales Water Req
     if(level > 29999) level = 29999;
     SetSkill("Thirsty", level);
 
@@ -2886,7 +2886,7 @@ int Object::LightLevel(int updown) {
   return level;
   }
 
-int Object::Wearing(Object *obj) {
+int Object::Wearing(const Object *obj) const {
   for(act_t act = ACT_HOLD; act < ACT_MAX; act = act_t(act + 1)) {
     if(ActTarg(act) == obj) return 1;
     }
@@ -2905,3 +2905,34 @@ void Object::StopAct(act_t a) {
     obj->Deactivate();
     }
   }
+
+const char * const atbnames[] = {
+	"Body Bonus",
+	"Quickness Bonus",
+	"Strength Bonus",
+	"Charisma Bonus",
+	"Intelligence Bonus",
+	"Willpower Bonus"
+	};
+const char * const atpnames[] = {
+	"Body Penalty",
+	"Quickness Penalty",
+	"Strength Penalty",
+	"Charisma Penalty",
+	"Intelligence Penalty",
+	"Willpower Penalty"
+	};
+int Object::Attribute(int a) const {
+  int ret = att[a] * 1000;
+  typeof(contents.begin()) item = contents.begin();
+  for(; item != contents.end(); ++item) {
+    if(Wearing(*item)) {
+      ret += (*item)->Skill(atbnames[a]);
+      ret -= (*item)->Skill(atpnames[a]);
+      }
+    }
+  ret += Skill(atbnames[a]);
+  ret -= Skill(atpnames[a]);
+  return (ret / 1000);
+  }
+

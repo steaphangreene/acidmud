@@ -2571,10 +2571,6 @@ int roll(int ndice, int targ, list<int> *wraps) {
   return ret;
   }
 
-int Object::Attribute(int a) const {
-  return att[a];
-  }
-
 void Object::SetAttribute(int a, int v) {
   if(v > 1000000000) v = 1000000000;
   else if(v < -1000000000) v = -1000000000;

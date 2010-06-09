@@ -229,7 +229,7 @@ public:
   int IsUsing(const string &skill);
   const char *UsingString();
 
-  int Wearing(Object *obj);
+  int Wearing(const Object *obj) const;
 
   void Collapse();
 

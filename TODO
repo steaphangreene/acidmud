@@ -28,6 +28,8 @@ Natural Armor.
 
 Handle Multiple Weapon Types (eg: Bastard Swords).
 
+Do full code constification review.
+
 Implement All Remaining Weapon Types (Guns, etc...).
 Get it to understand offhand weapon use.
 Get it to understand mounted weapon use.
