@@ -1,7 +1,9 @@
 Fix exchange system handling odd cases (including sell/buy).
 Selling of containers, or not (contents -vs- container value!).
 
-Darkness, light sources, light spells, night vision and dark vision.
+Re-enable full introduction system?
+Fully understand visibility and cut messages accordingly.
+Starlight vision, night vision, low-light vision, and dark vision.
 
 Handle liquids mixing?
 
@@ -94,7 +96,6 @@ Put telnet stuff ONLY in net.cpp.
 Troll Reach.
 Wake someone else up!
 Suite of special emote/speak commands (nod, smile, stare, etc...)
-Understand visibility and cut messages accordingly.
 Settings for display on go/enter/leave.
 Autostash enable/disable?
 Non-ninja healing skills?
