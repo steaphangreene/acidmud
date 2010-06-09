@@ -198,7 +198,7 @@ void update_net() {
       }
     else if(ret < 1) {	// Timout, no errro (just nobody connecting)
       return;
-      } 
+      }
     }
 
   FD_ZERO(&input_set);

@@ -13,7 +13,7 @@ using namespace std;
 static map<string, Player *> player_list;
 static set<Player *> non_init;
 
-static const char *salt_char = 
+static const char *salt_char =
 	"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
 
 Player::Player(string nm, string ps) {
@@ -81,7 +81,7 @@ Player *get_player(string name) {
 
   Player *pl = player_list[name];
   non_init.erase(pl);
-  
+
   return pl;
   }
 

@@ -8,7 +8,7 @@ class ArmorType {
 public:
   ArmorType(const char *nm, const char *ds, const char *lds,
 	int b, int bm, int i, int im, int t, int tm, int p, int pm,
-	int w, int vol, int val, 
+	int w, int vol, int val,
 	act_t l1 = ACT_NONE, act_t l2 = ACT_NONE, act_t l3 = ACT_NONE,
 	act_t l4 = ACT_NONE, act_t l5 = ACT_NONE, act_t l6 = ACT_NONE
 	);

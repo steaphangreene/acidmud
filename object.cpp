@@ -1196,7 +1196,7 @@ void Object::SendScore(Mind *m, Object *o) {
 	MIN(att[ctr], 99), MIN(Attribute(ctr), 99));
       }
     else {				//1 Digit!
-      m->Send("%s: %2d (%d) ", atnames[ctr], 
+      m->Send("%s: %2d (%d) ", atnames[ctr],
 	MIN(att[ctr], 99), MIN(Attribute(ctr), 99));
       }
     if(ctr == 0) {
@@ -1767,7 +1767,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
 
     typeof(masters.begin()) master;
     for(master = masters.begin(); master != masters.end(); ++master) {
-      typeof(contents) add = 
+      typeof(contents) add =
 	(*master)->PickObjects(keyword3 + (keyword-name)+3, LOC_INTERNAL);
       ret.insert(ret.end(), add.begin(), add.end());
       }
@@ -2027,7 +2027,7 @@ void Object::UpdateDamage() {
     phys = 10+Attribute(2)+1;
 
     if(IsAct(ACT_DEAD) == 0) {
-      parent->SendOut(ALL, -1, 
+      parent->SendOut(ALL, -1,
 	";s expires from its wounds.\n", "You expire, sorry.\n", this, NULL);
       stun = 10;
       Collapse();
@@ -2045,7 +2045,7 @@ void Object::UpdateDamage() {
     }
   else if(phys >= 10) {
     if(IsAct(ACT_DYING)+IsAct(ACT_DEAD) == 0) {
-      parent->SendOut(ALL, -1, 
+      parent->SendOut(ALL, -1,
 	";s collapses, bleeding and dying!\n",
 	"You collapse, bleeding and dying!\n",
 	this, NULL);
@@ -2054,7 +2054,7 @@ void Object::UpdateDamage() {
       AddAct(ACT_DYING);
       }
     else if(IsAct(ACT_DEAD) == 0) {
-      parent->SendOut(ALL, -1, 
+      parent->SendOut(ALL, -1,
 	";s isn't quite dead yet!\n", "You aren't quite dead yet!\n",
 	this, NULL);
       StopAct(ACT_DEAD);
@@ -2064,13 +2064,13 @@ void Object::UpdateDamage() {
     }
   else if(stun >= 10) {
     if(IsAct(ACT_UNCONSCIOUS)+IsAct(ACT_DYING)+IsAct(ACT_DEAD)==0) {
-      parent->SendOut(ALL, -1, 
+      parent->SendOut(ALL, -1,
 	";s falls unconscious!\n", "You fall unconscious!\n", this, NULL);
       Collapse();
       AddAct(ACT_UNCONSCIOUS);
       }
     else if(IsAct(ACT_DEAD)+IsAct(ACT_DYING) != 0) {
-      parent->SendOut(ALL, -1, 
+      parent->SendOut(ALL, -1,
 	";s isn't dead, just out cold.\n", "You aren't dead, just unconscious.",
 	this, NULL);
       StopAct(ACT_DEAD);
@@ -2081,7 +2081,7 @@ void Object::UpdateDamage() {
     }
   else if(stun > 0) {
     if(IsAct(ACT_DEAD)+IsAct(ACT_DYING)+IsAct(ACT_UNCONSCIOUS) != 0) {
-      parent->SendOut(ALL, -1, 
+      parent->SendOut(ALL, -1,
 	";s wakes up, a little groggy.\n", "You wake up, a little groggy.",
 	this, NULL);
       StopAct(ACT_DEAD);
@@ -2091,7 +2091,7 @@ void Object::UpdateDamage() {
     }
   else {
     if(IsAct(ACT_DEAD)+IsAct(ACT_DYING)+IsAct(ACT_UNCONSCIOUS) != 0) {
-      parent->SendOut(ALL, -1, 
+      parent->SendOut(ALL, -1,
 	";s wakes up, feeling fine!\n", "You wake up, feeling fine!\n",
 	this, NULL);
       StopAct(ACT_DEAD);

@@ -243,7 +243,7 @@ void Object::CircleFinishMob(Object *mob) {
       }
     else {
       mob->SetSkill("Kicking", mob->Skill("CircleDefense") / 2);
-      mob->SetSkill("Punching", 
+      mob->SetSkill("Punching",
 	mob->Skill("CircleDefense") - mob->Skill("Kicking"));
       }
     mob->SetSkill("CircleDefense", 0);
