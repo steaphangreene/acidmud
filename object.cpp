@@ -504,6 +504,19 @@ int Object::Tick() {
       }
     }
 
+  //Skys
+  if(Skill("Day Length") > 1) {	//Must be > 1 (divide by it/2 below!)
+    SetSkill("Day Time", Skill("Day Time") + 1);
+    if(Skill("Day Time") >= Skill("Day Length")) {
+      SetSkill("Day Time", 0);
+      }
+    int light = Skill("Day Time") - (Skill("Day Length") / 2);
+    if(light < 0) light = -light;
+    light *= 900;
+    light /= (Skill("Day Length") / 2);
+    SetSkill("Light Source", 1000 - light);
+    }
+
   return 0;
   }
 

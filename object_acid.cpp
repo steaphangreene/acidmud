@@ -217,6 +217,10 @@ int Object::LoadFrom(FILE *fl) {
 //    SetSkill("Open", 1000);
 //    }
 
+//  if(HasSkill("Day Time")) {
+//    Activate();
+//    }
+
   vector<Object*> toload;
   fscanf(fl, "%d ", &num);
   //contents.reserve(num); // This was for vectors.
