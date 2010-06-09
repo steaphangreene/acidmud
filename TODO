@@ -1,22 +1,4 @@
-Implement drop-object handling code to catch all the odd cases in one place.
-
-Fix exchange system handling odd cases (including sell/buy).
-Selling of containers, or not (contents -vs- container value!).
-
-Re-enable full introduction system?
-Fully understand visibility and cut messages accordingly.
-Starlight vision, night vision, low-light vision, and dark vision.
-
-Crafting (weapons, armor, tools, clothes, etc...).
-
-Handle liquids mixing?
-
-Kill trailing whitespace in ALL commandline targets.
-
-Implement dynamic city test.
-
-Redesign full command structure and reimplement/replace.
-Redesign full battle system and reimplement/replace.
+Implement use of "consider" on equipment.
 
 Do 3-layer armor system.
 Implement various types of armor and damage.
@@ -28,7 +10,28 @@ Natural Armor.
 
 Handle Multiple Weapon Types (eg: Bastard Swords).
 
+Implement drop-object handling code to catch all the odd cases in one place.
+
+Fix exchange system handling odd cases (including sell/buy).
+Selling of containers, or not (contents -vs- container value!).
+Fixup shopkeepers so item numbers NEVER expire.
+Fixup shopkeepers so their vortices are not viewable.
+Cleanup and secure shopkeeper vortex objects.
+
+Re-enable full introduction system?
+Fully understand visibility and cut messages accordingly.
+Starlight vision, night vision, low-light vision, and dark vision.
+
+Crafting (weapons, armor, tools, clothes, etc...).
+
+Handle liquids mixing?
+
+Redesign full battle system and reimplement/replace.
+
 Do full code constification review.
+
+Really implement ranged combat.
+Implement scabbards and quivers.
 
 Implement the rest of the magical effects.
 Implement All Remaining Weapon Types (Guns, etc...).
@@ -36,56 +39,54 @@ Get it to understand offhand weapon use.
 Get it to understand mounted weapon use.
 Implement Races, Species and Materials.
 Need a way to "find" items you've hidden on yourself.
-Search turns things blue, or does it?
-Ranged Combat.
 Implement Roll Object for passing complete rolls.
 Handle REAL contested roll for perception/stealth in normal actions.
+
+Cleanup item manipulation commands.
 Make auto-unwield from wielding another item also use autostashing.
-Implement scabbards and quivers.
+Add autostashing to "wield" command's unwield.
+Wear/wield from own containers need auto open/close.
+Intelligent stashing needs auto open/close.
+
+Cleanup the remaining Object::Send*(ALL, 0, ...) hacks.
+
 Place circle-placed objects on back if on chest (plus other corrections).
 Let "remove" command also handle unwielding?
 Implement "all of " target for all within.
 Implement "stuff"/"money"/"cash" target.
 Implement "loot" command.
 Allow carrying of dying and KOed creatures.
-Add autostashing to "wield" command's unwield.
 Make CircleMUD packs and purses non-stealable?
 Give starting players a purse and a bag?
 Autowield when entering combat.
 Implement movement settings using skills (walk, run, explore, etc...).
-Fixup shopkeepers so item numbers NEVER expire.
-Fixup shopkeepers so their vortices are not viewable.
-Make single-item commands get only single items.
 Make all plural commands see pluralized items correctly.
 Follower should look like he gets there after folowee to those already there.
-Cleanup item manipulation commands.
-Cleanup the remaining Object::Send*(ALL, 0, ...) hacks.
-Cleanup and secure shopkeeper vortex objects.
-Improve character creation interface.
 Implement money denominations and change.
 Implement item "piles" "pairs", "mixtures", etc....
 Positional modifyers (sleeping/lying down/standing, etc...).
 Travel limitations (speed of movement, fleeing, sprinting, running).
 Finish article substitution ("A" -> "A second", etc...).
 Pick up a fight's other opponents after your target goes down without delay.
-Wear/wield from own containers need auto open/close.
-Intelligent stashing needs auto open/close.
 Consistently pluralize (or don't) skill names (fix wiki version too!).
 Reimplement create-in-direction (currently disabled).
 Check for circle rooms with no exits and add one.
 Implement real Reaction Action.
 Create Real Tie-Breaker for Tied Initiative.
-Handle LOC_ADJACENT correctly (eg: "look north").
+
+Improve character creation interface.
 Implement character creation priorities.
 Implement character creation resources.
 Implement character creation race.
 Implement character creation magic.
+
 Make circle MOBs do more stuff.
-Implement full vehicle system (small unpowerd boats are done).
+Implement full vehicle system (small unpowered boats are done).
 Global Round Sync instead of Ad-Hoc Rounds?
 Implement the Rest of the Skills.
 Implement reserved words ("'s", "in", "to", "at", "of", "Ninja").
 See contents when you look at a nearby room (eg: "look north").
+Handle LOC_ADJACENT correctly (eg: "look north").
 Create "aim" command to intentionally hit certain locations.
 
 Implement AcidMail.
