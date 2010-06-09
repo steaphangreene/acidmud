@@ -739,16 +739,17 @@ static const int comnum = sizeof(comlist)/sizeof(Command);
 //                0: Command Understood
 //                1: Command NOT Understood
 //                2: Command Understood - No More Actions This Round
-int handle_single_command(Object *body, const char *comline, Mind *mind) {
+int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   int len;
   static char buf[2048];
+  string cmd = inpline;
+  trim_string(cmd);
+  const char *comline = cmd.c_str();
 
   if((!body) && (!mind)) { // Nobody doing something?
     fprintf(stderr, "Warning: absolutely nobody tried to '%s'.\n", comline);
     return 0;
     }
-
-  while((!isgraph(*comline)) && (*comline)) ++comline;
 
   if((*comline) == 0 || (*comline) == '#') return 0;
 
@@ -800,6 +801,11 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     if(mind) mind->Send("Command NOT understood - type 'help' for assistance.\n");
     return 1;
     }
+
+  cmd = cmd.substr(len);
+  trim_string(cmd);
+  comline = cmd.c_str();
+  len = 0;
 
   int ninja=0, sninja=0, nmode=0;
 
@@ -4302,7 +4308,16 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(strlen(comline+len) <= 0) {
-      mind->Send("Toggling OOC doesn't work yet, you MUST LISTEN!!!\n");
+      if(strncmp(mind->SpecialPrompt(), "ooc", 3)) {
+	mind->SetSpecialPrompt("ooc");
+	mind->Send(
+		"Type your out-of-character text - exit by just hitting ENTER:"
+		);
+	}
+      else {
+	mind->SetSpecialPrompt("");
+	mind->Send("Exiting out of out-of-character mode.");
+	}
       }
     else {
       string name = "Unknown";
@@ -5077,6 +5092,12 @@ int handle_command(Object *body, const char *cl, Mind *mind) {
   static int bsize = -1;
   int ret = 0;
   char *start = (char*)cl, *end = (char*)cl;
+
+  if(mind && mind->SpecialPrompt()[0] != 0) {
+    string cmd = string(mind->SpecialPrompt()) + " " + cl;
+    ret = handle_single_command(body, cmd.c_str(), mind);
+    return ret;
+    }
 
   while(1) {
     if((*end) == '\n' || (*end) == '\r' || (*end) == ';' || (*end) == 0) {

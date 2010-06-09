@@ -93,12 +93,16 @@ static const char *sevs_p[]
 static const char *sevs_s[]
 	= {"-", "l", "l", "m", "m", "m", "s", "s", "s", "s", "u"};
 void Mind::UpdatePrompt() {
+  static char buf[65536];
   if(!Owner()) {
     SetPrompt(pers, "Player Name: ");
     if(pname.length() >= 1) SetPrompt(pers, "Password: ");
     }
+  else if(prompt.length() > 0) {
+    sprintf(buf, "%s> %c", prompt.c_str(), 0);
+    SetPrompt(pers, buf);
+    }
   else if(Body()) {
-    static char buf[65536];  //null-termed by sprintf below.
     sprintf(buf, "[%s][%s] %s> %c",
 	sevs_p[MIN(10, Body()->Phys())], sevs_s[MIN(10, Body()->Stun())],
 	Body()->ShortDesc(), 0);
@@ -540,3 +544,14 @@ int Mind::CircleCanWanderTo(Object *dest) {
     }
   return 1;
   }
+
+void Mind::SetSpecialPrompt(const char *newp) {
+  prompt = string(newp);
+  UpdatePrompt();
+  }
+
+const char *Mind::SpecialPrompt() {
+  return prompt.c_str();
+  }
+
+

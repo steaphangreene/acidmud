@@ -91,22 +91,21 @@ void handle_input(socket_t in_s) {
 	mind->SendRaw("\b \b");
 	}
       }
-    else if((*ind) == '\n' || (*ind) == '\r') {
+    else if((*ind) == '\r') {
+      //Ignore these, since they mean nothing unless teamed with \n anyway.
+      }
+    else if((*ind) == '\n') {
       outbufs[in_s] += ""; //Make sure they still get a prompt!
-      if(comlines[in_s].length() > 0) {
-	if((mind->PName().length() <= 0 || mind->Owner()) && mind->LogFD() >= 0)
-	  write(mind->LogFD(), comlines[in_s].c_str(), comlines[in_s].length());
-	else if(mind->LogFD() >= 0)
-	  write(mind->LogFD(), "XXXXXXXXXXXXXXXX", 17);
-	write(mind->LogFD(), "\n", 1);
 
-	int result = handle_command(mind->Body(), comlines[in_s].c_str(), mind);
-	comlines[in_s] = "";
-	if(result < 0) return;  // Player Disconnected
-	}
-      else {
-	comlines[in_s] = "";
-	}
+      if((mind->PName().length() <= 0 || mind->Owner()) && mind->LogFD() >= 0)
+	write(mind->LogFD(), comlines[in_s].c_str(), comlines[in_s].length());
+      else if(mind->LogFD() >= 0)
+	write(mind->LogFD(), "XXXXXXXXXXXXXXXX", 17);
+      write(mind->LogFD(), "\n", 1);
+
+      int result = handle_command(mind->Body(), comlines[in_s].c_str(), mind);
+      comlines[in_s] = "";
+      if(result < 0) return;  // Player Disconnected
       }
     else if((*ind) == char(IAC)) {
       //FIXME: actually HANDLE these messages!

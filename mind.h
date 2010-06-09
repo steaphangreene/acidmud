@@ -41,6 +41,9 @@ public:
   void Think(int istick = 0);
   string Tactics(int phase = -1);
 
+  void SetSpecialPrompt(const char *newp = "");
+  const char *SpecialPrompt();
+
 private:
   int CircleCanWanderTo(Object *dest);
 
@@ -49,6 +52,7 @@ private:
   Object *body;
   Player *player;
   string pname;
+  string prompt;
   int log;
   };
 
