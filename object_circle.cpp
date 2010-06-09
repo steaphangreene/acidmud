@@ -502,41 +502,41 @@ void Object::CircleLoadMob(const char *fn) {
       fscanf(mudm, "%65535[^ \t\n]", buf); //Rest of line read below...
 
       obj->SetSkill("CircleAction", 8); //IS_NPC - I'll use it to see if(MOB)
-      if(string(buf).find('b') < strlen(buf) || (atoi(buf) & 2)) { //SENTINEL
+      if(strcasestr(buf, "b") || (atoi(buf) & 2)) { //SENTINEL
 	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 2);
 	}
-      if(string(buf).find('c') < strlen(buf) || (atoi(buf) & 4)) { //SCAVENGER
+      if(strcasestr(buf, "c") || (atoi(buf) & 4)) { //SCAVENGER
 	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 4);
 	}
-      if(string(buf).find('e') < strlen(buf) || (atoi(buf) & 16)) { //AWARE
+      if(strcasestr(buf, "e") || (atoi(buf) & 16)) { //AWARE
 	aware = 1;
 	}
-      if(string(buf).find('f') < strlen(buf) || (atoi(buf) & 32)) { //AGGRESSIVE
+      if(strcasestr(buf, "f") || (atoi(buf) & 32)) { //AGGRESSIVE
 	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 32);
 	}
-      if(string(buf).find('g') < strlen(buf) || (atoi(buf) & 64)) { //STAY_ZONE
+      if(strcasestr(buf, "g") || (atoi(buf) & 64)) { //STAY_ZONE
 	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 64);
 	}
-      if(string(buf).find('h') < strlen(buf) || (atoi(buf) & 128)) { //WIMPY
+      if(strcasestr(buf, "h") || (atoi(buf) & 128)) { //WIMPY
 	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 128);
 	}
-      if(string(buf).find('l') < strlen(buf) || (atoi(buf) & 2048)) { //MEMORY
+      if(strcasestr(buf, "l") || (atoi(buf) & 2048)) { //MEMORY
 	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 2048);
 	}
-      if(string(buf).find('m') < strlen(buf) || (atoi(buf) & 4096)) { //HELPER
+      if(strcasestr(buf, "m") || (atoi(buf) & 4096)) { //HELPER
 	obj->SetSkill("CircleAction", obj->Skill("CircleAction") | 4096);
 	}
       //FIXME: Add others here.
 
       memset(buf, 0, 65536);
       fscanf(mudm, " %65535[^ \t\n]", buf); //Rest of line read below...
-      if(string(buf).find('g') < strlen(buf) || (atoi(buf) & 64)) { //WATERWALK
+      if(strcasestr(buf, "g") || (atoi(buf) & 64)) { //WATERWALK
 	obj->SetSkill("CircleAffection", obj->Skill("CircleAffection") | 64);
 	}
-      if(string(buf).find('s') < strlen(buf) || (atoi(buf) & 262144)) { //SNEAK
+      if(strcasestr(buf, "s") || (atoi(buf) & 262144)) { //SNEAK
 	sneak = 1;
 	}
-      if(string(buf).find('t') < strlen(buf) || (atoi(buf) & 524288)) { //HIDE
+      if(strcasestr(buf, "t") || (atoi(buf) & 524288)) { //HIDE
 	hidden = 1;
 	}
 
@@ -666,8 +666,53 @@ void Object::CircleLoadObj(const char *fn) {
 
       int tp=0, val[4];
       memset(buf, 0, 65536);
-      fscanf(mudo, "%d %32767[^ \n\t] %65535[^ \n\t]%*[^\n]\n", &tp, buf+256, buf);
-      if(string(buf).find('a') < strlen(buf) || (atoi(buf) & 1)) {
+      fscanf(mudo, "%d %65535[^ \n\t]", &tp, buf);	//Effects Bitvector
+      if(strcasestr(buf, "a") || (atoi(buf) & 1)) { //GLOW
+	obj->SetSkill("Light Source", 10);
+	}
+      if(strcasestr(buf, "b") || (atoi(buf) & 2)) { //HUM
+	obj->SetSkill("Noise Source", 10);
+	}
+//      if(strcasestr(buf, "c") || (atoi(buf) & 4)) { //NORENT
+//	}
+//      if(strcasestr(buf, "d") || (atoi(buf) & 8)) { //NODONATE
+//	}
+      if(strcasestr(buf, "e") || (atoi(buf) & 16)) { //NOINVIS
+	obj->SetSkill("Obvious", 1000);
+	}
+      if(strcasestr(buf, "f") || (atoi(buf) & 32)) { //INVISIBLE
+	obj->SetSkill("Invisible", 1000);
+	}
+      if(strcasestr(buf, "g") || (atoi(buf) & 64)) { //MAGIC
+	obj->SetSkill("Magical", 30);
+	}
+      if(strcasestr(buf, "h") || (atoi(buf) & 128)) { //NODROP
+	obj->SetSkill("Cursed", 30);
+	}
+      if(strcasestr(buf, "i") || (atoi(buf) & 256)) { //BLESS
+	obj->SetSkill("Blessed", 30);
+	}
+//      if(strcasestr(buf, "j") || (atoi(buf) & 512)) { //ANTI_GOOD
+//	}
+//      if(strcasestr(buf, "k") || (atoi(buf) & 1024)) { //ANTI_EVIL
+//	}
+//      if(strcasestr(buf, "l") || (atoi(buf) & 2048)) { //ANTI_NEUTRAL
+//	}
+//      if(strcasestr(buf, "m") || (atoi(buf) & 4096)) { //ANTI_MAGIC_USER
+//	}
+//      if(strcasestr(buf, "n") || (atoi(buf) & 8192)) { //ANTI_CLERIC
+//	}
+//      if(strcasestr(buf, "o") || (atoi(buf) & 16384)) { //ANTI_THIEF
+//	}
+//      if(strcasestr(buf, "p") || (atoi(buf) & 32768)) { //ANTI_WARRIOR
+//	}
+      if(strcasestr(buf, "q") || (atoi(buf) & 65536)) { //NOSELL
+	obj->SetSkill("Priceless", 1);
+	}
+
+      memset(buf, 0, 65536);
+      fscanf(mudo, " %65535[^ \n\t]%*[^\n]\n", buf);	//Wear Bitvector
+      if(strcasestr(buf, "a") || (atoi(buf) & 1)) { //TAKE
 	obj->SetPos(POS_LIE);
 	}
 
@@ -677,14 +722,14 @@ void Object::CircleLoadObj(const char *fn) {
       else if(!strncasecmp(obj->ShortDesc(), "a set of ", 9)) sf = 8;
 
       string name = obj->ShortDesc();
-      if(string(buf).find('b') < strlen(buf) || (atoi(buf) & 2)) {
+      if(strcasestr(buf, "b") || (atoi(buf) & 2)) {
 	obj->SetSkill("Wearable on Left Finger", 1);	//Two Alternatives
 	obj->SetSkill("Wearable on Right Finger", 2);
 	}
-      if(string(buf).find('c') < strlen(buf) || (atoi(buf) & 4)) {
+      if(strcasestr(buf, "c") || (atoi(buf) & 4)) {
 	obj->SetSkill("Wearable on Neck", 1);
 	}
-      if(string(buf).find('d') < strlen(buf) || (atoi(buf) & 8)) {
+      if(strcasestr(buf, "d") || (atoi(buf) & 8)) {
 	obj->SetSkill("Wearable on Chest", 1);
 	obj->SetSkill("Wearable on Back", 1);
 	if(matches(name.c_str(), "suit of")) {
@@ -695,10 +740,10 @@ void Object::CircleLoadObj(const char *fn) {
 	  valmod *= 5;
 	  }
 	}
-      if(string(buf).find('e') < strlen(buf) || (atoi(buf) & 16)) {
+      if(strcasestr(buf, "e") || (atoi(buf) & 16)) {
 	obj->SetSkill("Wearable on Head", 1);
 	}
-      if(string(buf).find('f') < strlen(buf) || (atoi(buf) & 32)) {
+      if(strcasestr(buf, "f") || (atoi(buf) & 32)) {
 	obj->SetSkill("Wearable on Left Leg", 1);
 	if(sf) {
 	  if(!strcasecmp(name.c_str()+(name.length()-9), " leggings"))
@@ -714,7 +759,7 @@ void Object::CircleLoadObj(const char *fn) {
 	  powmod = 2;
 	  }
 	}
-      if(string(buf).find('g') < strlen(buf) || (atoi(buf) & 64)) {
+      if(strcasestr(buf, "g") || (atoi(buf) & 64)) {
 	obj->SetSkill("Wearable on Left Foot", 1);
 	if(sf) {
 	  if(!strcasecmp(name.c_str()+(name.length()-8), " sandals"))
@@ -731,7 +776,7 @@ void Object::CircleLoadObj(const char *fn) {
 	  powmod = 2;
 	  }
 	}
-      if(string(buf).find('h') < strlen(buf) || (atoi(buf) & 128)) {
+      if(strcasestr(buf, "h") || (atoi(buf) & 128)) {
 	obj->SetSkill("Wearable on Left Hand", 1);
 	if(sf) {
 	  if(!strcasecmp(name.c_str()+(name.length()-10), " gauntlets"))
@@ -746,7 +791,7 @@ void Object::CircleLoadObj(const char *fn) {
 	  powmod = 2;
 	  }
 	}
-      if(string(buf).find('i') < strlen(buf) || (atoi(buf) & 256)) {
+      if(strcasestr(buf, "i") || (atoi(buf) & 256)) {
 	obj->SetSkill("Wearable on Left Arm", 1);
 	if(sf) {
 	  if(!strcasecmp(name.c_str()+(name.length()-8), " sleeves"))
@@ -764,18 +809,18 @@ void Object::CircleLoadObj(const char *fn) {
 	  powmod = 2;
 	  }
 	}
-      if(string(buf).find('j') < strlen(buf) || (atoi(buf) & 512)) {
+      if(strcasestr(buf, "j") || (atoi(buf) & 512)) {
 	obj->SetSkill("Wearable on Shield", 1);	// FIXME: Wear Shield?
 	}
-      if(string(buf).find('k') < strlen(buf) || (atoi(buf) & 1024)) {
+      if(strcasestr(buf, "k") || (atoi(buf) & 1024)) {
 	obj->SetSkill("Wearable on Back", 1);		// "WEAR_ABOUT"
 	obj->SetSkill("Wearable on Left Shoulder", 2);
 	obj->SetSkill("Wearable on Right Shoulder", 2);
 	}
-      if(string(buf).find('l') < strlen(buf) || (atoi(buf) & 2048)) {
+      if(strcasestr(buf, "l") || (atoi(buf) & 2048)) {
 	obj->SetSkill("Wearable on Waist", 1);
 	}
-      if(string(buf).find('m') < strlen(buf) || (atoi(buf) & 4096)) {
+      if(strcasestr(buf, "m") || (atoi(buf) & 4096)) {
 	obj->SetSkill("Wearable on Left Wrist", 1);
 	obj->SetSkill("Wearable on Right Wrist", 2);
 	}
@@ -1480,38 +1525,38 @@ void Object::CircleLoad(const char *fn) {
 	}
 
       obj->SetSkill("Translucent", 1000);	// Full sky, by default
-      if(string(buf).find('d') < strlen(buf) || (atoi(buf) & 8)) { //INDOORS
+      if(strcasestr(buf, "d") || (atoi(buf) & 8)) { //INDOORS
 	obj->SetSkill("Translucent", 200);	// Windows (unless DARK)
 	}
-      if(string(buf).find('a') < strlen(buf) || (atoi(buf) & 1)) { //DARK
+      if(strcasestr(buf, "a") || (atoi(buf) & 1)) { //DARK
 	obj->SetSkill("Translucent", 0);	// No sky, no windows
 	}
-      if(string(buf).find('b') < strlen(buf) || (atoi(buf) & 2)) { //DEATH
+      if(strcasestr(buf, "b") || (atoi(buf) & 2)) { //DEATH
 	obj->SetSkill("Secret", 100000+onum);
 //	obj->SetSkill("Hazardous", 2);		//FIXME: Actually Dangerous?
 	}
-      if(string(buf).find('c') < strlen(buf) || (atoi(buf) & 4)) { //NOMOB
+      if(strcasestr(buf, "c") || (atoi(buf) & 4)) { //NOMOB
         obj->SetSkill("CircleZone", 999999);
 	}
-      if(string(buf).find('e') < strlen(buf) || (atoi(buf) & 16)) { //PEACEFUL
+      if(strcasestr(buf, "e") || (atoi(buf) & 16)) { //PEACEFUL
         obj->SetSkill("Peaceful", 1000);
 	}
-      if(string(buf).find('f') < strlen(buf) || (atoi(buf) & 32)) { //SOUNDPROOF
+      if(strcasestr(buf, "f") || (atoi(buf) & 32)) { //SOUNDPROOF
         obj->SetSkill("Soundproof", 1000);
 	}
-//      if(string(buf).find('g') < strlen(buf) || (atoi(buf) & 64)) { //NOTRACK
+//      if(strcasestr(buf, "g") || (atoi(buf) & 64)) { //NOTRACK
 //	//FIXME: Implement
 //	}
-      if(string(buf).find('h') < strlen(buf) || (atoi(buf) & 128)) { //NOMAGIC
+      if(strcasestr(buf, "h") || (atoi(buf) & 128)) { //NOMAGIC
         obj->SetSkill("Magic Dead", 1000);
 	}
-//      if(string(buf).find('i') < strlen(buf) || (atoi(buf) & 256)) { //TUNNEL
+//      if(strcasestr(buf, "i") || (atoi(buf) & 256)) { //TUNNEL
 //	//FIXME: Implement
 //	}
-//      if(string(buf).find('j') < strlen(buf) || (atoi(buf) & 512)) { //PRIVATE
+//      if(strcasestr(buf, "j") || (atoi(buf) & 512)) { //PRIVATE
 //	//FIXME: Implement
 //	}
-//      if(string(buf).find('k') < strlen(buf) || (atoi(buf) & 1024)) { //GODROOM
+//      if(strcasestr(buf, "k") || (atoi(buf) & 1024)) { //GODROOM
 //	//FIXME: Implement
 //	}
       else {
