@@ -22,12 +22,12 @@ void Object::CircleLoadAll() {
   if(mud) {
     sprintf(buf, "circle/wld/%c", 0);
     memset(buf+strlen(buf), 0, 256);
-    fscanf(mud, "%[^\n]\n", buf+strlen(buf));
+    fscanf(mud, "%255[^\n]\n", buf+strlen(buf));
     while(strlen(buf) > 13) {
       CircleLoad(buf);
       sprintf(buf, "circle/wld/%c", 0);
       memset(buf+strlen(buf), 0, 256);
-      fscanf(mud, "%[^\n]\n", buf+strlen(buf));
+      fscanf(mud, "%255[^\n]\n", buf+strlen(buf));
       }
     fclose(mud);
     }
@@ -35,12 +35,12 @@ void Object::CircleLoadAll() {
   if(mudo) {
     sprintf(buf, "circle/obj/%c", 0);
     memset(buf+strlen(buf), 0, 256);
-    fscanf(mudo, "%[^\n]\n", buf+strlen(buf));
+    fscanf(mudo, "%255[^\n]\n", buf+strlen(buf));
     while(strlen(buf) > 13) {
       CircleLoadObj(buf);
       sprintf(buf, "circle/obj/%c", 0);
       memset(buf+strlen(buf), 0, 256);
-      fscanf(mudo, "%[^\n]\n", buf+strlen(buf));
+      fscanf(mudo, "%255[^\n]\n", buf+strlen(buf));
       }
     fclose(mudo);
     }
@@ -48,12 +48,12 @@ void Object::CircleLoadAll() {
   if(mudm) {
     sprintf(buf, "circle/mob/%c", 0);
     memset(buf+strlen(buf), 0, 256);
-    fscanf(mudm, "%[^\n]\n", buf+strlen(buf));
+    fscanf(mudm, "%255[^\n]\n", buf+strlen(buf));
     while(strlen(buf) > 13) {
       CircleLoadMob(buf);
       sprintf(buf, "circle/mob/%c", 0);
       memset(buf+strlen(buf), 0, 256);
-      fscanf(mudm, "%[^\n]\n", buf+strlen(buf));
+      fscanf(mudm, "%255[^\n]\n", buf+strlen(buf));
       }
     fclose(mudm);
     }
@@ -61,12 +61,12 @@ void Object::CircleLoadAll() {
   if(mudz) {
     sprintf(buf, "circle/zon/%c", 0);
     memset(buf+strlen(buf), 0, 256);
-    fscanf(mudz, "%[^\n]\n", buf+strlen(buf));
+    fscanf(mudz, "%255[^\n]\n", buf+strlen(buf));
     while(strlen(buf) > 13) {
       CircleLoadZon(buf);
       sprintf(buf, "circle/zon/%c", 0);
       memset(buf+strlen(buf), 0, 256);
-      fscanf(mudz, "%[^\n]\n", buf+strlen(buf));
+      fscanf(mudz, "%255[^\n]\n", buf+strlen(buf));
       }
     fclose(mudz);
     }
@@ -74,12 +74,12 @@ void Object::CircleLoadAll() {
   if(muds) {
     sprintf(buf, "circle/shp/%c", 0);
     memset(buf+strlen(buf), 0, 256);
-    fscanf(muds, "%[^\n]\n", buf+strlen(buf));
+    fscanf(muds, "%255[^\n]\n", buf+strlen(buf));
     while(strlen(buf) > 13) {
       CircleLoadShp(buf);
       sprintf(buf, "circle/shp/%c", 0);
       memset(buf+strlen(buf), 0, 256);
-      fscanf(muds, "%[^\n]\n", buf+strlen(buf));
+      fscanf(muds, "%255[^\n]\n", buf+strlen(buf));
       }
     fclose(muds);
     }
@@ -464,16 +464,16 @@ void Object::CircleLoadMob(const char *fn) {
 
       //FIXME: Nicknames should not be ignored!!!
       memset(buf, 0, 65536);
-      fscanf(mudm, "%[^~\n]~\n", buf);
+      fscanf(mudm, "%65535[^~\n]~\n", buf);
 
       memset(buf, 0, 65536);
-      fscanf(mudm, "%[^~\n]~\n", buf);
+      fscanf(mudm, "%65535[^~\n]~\n", buf);
       for(char *ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
       obj->SetShortDesc(buf);
       //fprintf(stderr, "Loaded Circle Mobile with Name = %s\n", buf);
 
       memset(buf, 0, 65536);
-      if(!fscanf(mudm, "%[^~]~\n", buf)) fscanf(mudm, "%*[^\n]\n");
+      if(!fscanf(mudm, "%65535[^~]~\n", buf)) fscanf(mudm, "%*[^\n]\n");
       else {
         for(char *ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
 	obj->SetDesc(buf);
@@ -481,7 +481,7 @@ void Object::CircleLoadMob(const char *fn) {
       //fprintf(stderr, "Loaded Circle Mobile with Desc = %s\n", buf);
 
       memset(buf, 0, 65536);
-      if(!fscanf(mudm, "%[^~]~\n", buf)) fscanf(mudm, "%*[^\n]\n");
+      if(!fscanf(mudm, "%65535[^~]~\n", buf)) fscanf(mudm, "%*[^\n]\n");
       else {
         for(char *ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
 	obj->SetLongDesc(buf);
@@ -499,7 +499,7 @@ void Object::CircleLoadMob(const char *fn) {
       int aware = 0, hidden = 0, sneak = 0;
       int val, val2, val3;  char tp;
       memset(buf, 0, 65536);
-      fscanf(mudm, "%[^ \t\n]", buf); //Rest of line read below...
+      fscanf(mudm, "%65535[^ \t\n]", buf); //Rest of line read below...
 
       obj->SetSkill("CircleAction", 8); //IS_NPC - I'll use it to see if(MOB)
       if(string(buf).find('b') < strlen(buf) || (atoi(buf) & 2)) { //SENTINEL
@@ -529,7 +529,7 @@ void Object::CircleLoadMob(const char *fn) {
       //FIXME: Add others here.
 
       memset(buf, 0, 65536);
-      fscanf(mudm, " %[^ \t\n]", buf); //Rest of line read below...
+      fscanf(mudm, " %65535[^ \t\n]", buf); //Rest of line read below...
       if(string(buf).find('g') < strlen(buf) || (atoi(buf) & 64)) { //WATERWALK
 	obj->SetSkill("CircleAffection", obj->Skill("CircleAffection") | 64);
 	}
@@ -646,16 +646,16 @@ void Object::CircleLoadObj(const char *fn) {
       bynumobj[onum] = obj;
 
       memset(buf, 0, 65536);
-      fscanf(mudo, "%[^~\n]~\n", buf);
+      fscanf(mudo, "%65535[^~\n]~\n", buf);
 
       memset(buf, 0, 65536);
-      fscanf(mudo, "%[^~\n]~\n", buf);
+      fscanf(mudo, "%65535[^~\n]~\n", buf);
       for(char *ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
       obj->SetShortDesc(buf);
       //fprintf(stderr, "Loaded Circle Object with Name = %s\n", buf);
 
       memset(buf, 0, 65536);
-      if(!fscanf(mudo, "%[^~]~\n", buf)) fscanf(mudo, "%*[^\n]\n");
+      if(!fscanf(mudo, "%65535[^~]~\n", buf)) fscanf(mudo, "%*[^\n]\n");
       else {
 	for(char *ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
 	obj->SetDesc(buf);
@@ -666,7 +666,7 @@ void Object::CircleLoadObj(const char *fn) {
 
       int tp=0, val[4];
       memset(buf, 0, 65536);
-      fscanf(mudo, "%d %[^ \n\t] %[^ \n\t]%*[^\n]\n", &tp, buf+256, buf);
+      fscanf(mudo, "%d %32767[^ \n\t] %65535[^ \n\t]%*[^\n]\n", &tp, buf+256, buf);
       if(string(buf).find('a') < strlen(buf) || (atoi(buf) & 1)) {
 	obj->SetPos(POS_LIE);
 	}
@@ -1332,7 +1332,101 @@ void Object::CircleLoadObj(const char *fn) {
 	obj->SetValue((value*valmod) / 1000);
 	}
 
-      fscanf(mudo, " %*[^#$]");
+      int magresist = 0;
+      while(fscanf(mudo, "%1[AE]%*[ \t\n]", buf) > 0) {
+	if(buf[0] == 'A') {	//Extra Affects
+	  int anum, aval;
+	  fscanf(mudo, "%d %d\n", &anum, &aval);
+	  switch(anum) {
+	    case(1): {	// STR
+	      if(aval > 0) SetSkill("Strength Bonus", aval*400);
+	      else if(aval < 0) SetSkill("Strength Penalty", -aval*400);
+	      } break;
+	    case(2): {	// DEX
+	      if(aval > 0) SetSkill("Quickness Bonus", aval*400);
+	      else if(aval < 0) SetSkill("Quickness Penalty", -aval*400);
+	      } break;
+	    case(3): {	// INT
+	      if(aval > 0) SetSkill("Intelligence Bonus", aval*400);
+	      else if(aval < 0) SetSkill("Intelligence Penalty", -aval*400);
+	      } break;
+	    case(4): {	// WIS
+	      if(aval > 0) SetSkill("Willpower Bonus", aval*400);
+	      else if(aval < 0) SetSkill("Willpower Penalty", -aval*400);
+	      } break;
+	    case(5): {	// CON
+	      if(aval > 0) SetSkill("Body Bonus", aval*400);
+	      else if(aval < 0) SetSkill("Body Penalty", -aval*400);
+	      } break;
+	    case(6): {	// CHA
+	      if(aval > 0) SetSkill("Charisma Bonus", aval*400);
+	      else if(aval < 0) SetSkill("Charisma Penalty", -aval*400);
+	      } break;
+//	    case(7): {	// CLASS (Even CircleMUD Doesn't Use This!)
+//	      } break;
+//	    case(8): {	// LEVEL (Even CircleMUD Doesn't Use This!)
+//	      } break;
+	    case(9): {	// AGE
+	      if(aval > 0) SetSkill("Youth Penalty", aval);
+	      else if(aval < 0) SetSkill("Youth Bonus", -aval);
+	      } break;
+//	    case(10): {	// CHAR_WEIGHT
+//	      } break;
+//	    case(11): {	// CHAR_HEIGHT
+//	      } break;
+	    case(12): {	// MANA
+	      if(aval > 0) SetSkill("Magic Force Bonus", aval*100);
+	      else if(aval < 0) SetSkill("Magic Force Penalty", -aval*100);
+	      } break;
+	    case(13): {	// HIT
+	      if(aval > 0) SetSkill("Resilience Bonus", aval*100);
+	      else if(aval < 0) SetSkill("Resilience Penalty", -aval*100);
+	      } break;
+	    case(14): {	// MOVE
+	      if(aval > 0) SetSkill("Encumbrance Bonus", aval*20);
+	      else if(aval < 0) SetSkill("Encumbrance Penalty", -aval*20);
+	      } break;
+//	    case(15): {	// GOLD (Even CircleMUD Doesn't Use This!)
+//	      } break;
+//	    case(16): {	// EXP (Even CircleMUD Doesn't Use This!)
+//	      } break;
+	    case(17): {	// AC
+	      if(aval > 0) SetSkill("Evasion Bonus", aval*400);
+	      else if(aval < 0) SetSkill("Evasion Penalty", -aval*400);
+	      } break;
+	    case(18): {	// HITROLL
+	      if(aval > 0) SetSkill("Accuracy Bonus", aval*400);
+	      else if(aval < 0) SetSkill("Accuracy Penalty", -aval*400);
+	      } break;
+	    case(19): {	// DAMROLL
+	      if(aval > 0) SetSkill("Damage Bonus", aval*400);
+	      else if(aval < 0) SetSkill("Damage Penalty", -aval*400);
+	      } break;
+	    case(20): {	// SAVING_PARA
+	      magresist += (aval*400);
+	      } break;
+	    case(21): {	// SAVING_ROD
+	      magresist += (aval*400);
+	      } break;
+	    case(22): {	// SAVING_PETRI
+	      magresist += (aval*400);
+	      } break;
+	    case(23): {	// SAVING_BREATH
+	      magresist += (aval*400);
+	      } break;
+	    case(24): {	// SAVING_SPELL
+	      magresist += (aval*400);
+	      } break;
+	    }
+	  }
+	else {			//Extra Descriptions FIXME: Handle!
+	  fscanf(mudo, "%*[^~]\n");	//Skip these for now.
+	  }
+	}
+      if(magresist > 0) SetSkill("Magic Resistance", magresist);
+      else if(magresist < 0) SetSkill("Magic Vulnerability", -magresist);
+
+      fscanf(mudo, "%*[^#$]");
       }
     fclose(mudo);
     }
@@ -1359,19 +1453,19 @@ void Object::CircleLoad(const char *fn) {
       obj->SetValue(-1);
 
       memset(buf, 0, 65536);
-      fscanf(mud, "%[^~\n]~\n", buf);
+      fscanf(mud, "%65535[^~\n]~\n", buf);
       for(char *ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
       obj->SetShortDesc(buf);
       //fprintf(stderr, "Loaded Circle Room with Name = %s\n", buf);
 
       memset(buf, 0, 65536);
-      fscanf(mud, "%[^~]~\n", buf);
+      fscanf(mud, "%65535[^~]~\n", buf);
       for(char *ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
       obj->SetDesc(buf);
       //fprintf(stderr, "Loaded Circle Room with Desc = %s\n", buf);
 
       int val;
-      fscanf(mud, "%*d %[^ \t\n] %d\n", buf, &val);
+      fscanf(mud, "%*d %65535[^ \t\n] %d\n", buf, &val);
       if(val == 6) obj->SetSkill("WaterDepth", 1);	// WATER_SWIM
       else if(val == 7) obj->SetSkill("WaterDepth", 2);	// WATER_NOSWIM
       else if(val == 8) obj->SetSkill("WaterDepth", 3);	// UNDERWATER
@@ -1427,13 +1521,13 @@ void Object::CircleLoad(const char *fn) {
 	  fscanf(mud, "%d\n", &dnum);
 
 	  memset(buf, 0, 65536);
-	  fscanf(mud, "%[^\n]\n", buf);
+	  fscanf(mud, "%65535[^\n]\n", buf);
 	  while(strcmp(buf, "~")) {
 	    memset(buf, 0, 65536);
-	    fscanf(mud, "%[^\n]\n", buf);
+	    fscanf(mud, "%65535[^\n]\n", buf);
 	    }
 	  memset(buf, 0, 65536);
-	  if(!fscanf(mud, "%[^\n~]~\n", buf)) {
+	  if(!fscanf(mud, "%65535[^\n~]~\n", buf)) {
 	    fscanf(mud, "~\n");
 	    }
 	  nmnum[dnum][obj] = buf;
@@ -1445,12 +1539,12 @@ void Object::CircleLoad(const char *fn) {
 	  knum[dnum][obj] = tmp2;
 	  }
 	else if(buf[0] == 'E') {
-	  fscanf(mud, "\n%[^\n]\n", buf);
+	  fscanf(mud, "\n%65535[^\n]\n", buf);
 	  memset(buf, 0, 65536);
-	  fscanf(mud, "%[^\n]\n", buf);
+	  fscanf(mud, "%65535[^\n]\n", buf);
 	  while(strcmp(buf, "~")) {
 	    memset(buf, 0, 65536);
-	    fscanf(mud, "%[^\n]\n", buf);
+	    fscanf(mud, "%65535[^\n]\n", buf);
 	    }
 	  }
 	else break;
@@ -1542,7 +1636,7 @@ void Object::CircleLoadShp(const char *fn) {
   FILE *mud = fopen(fn, "r");
   if(mud) {
     Object *vortex = NULL;
-    if(!fscanf(mud, "CircleMUD v3.0 Shop File~%[\n]", buf)) {
+    if(!fscanf(mud, "CircleMUD v3.0 Shop File~%65535[\n]", buf)) {
       fprintf(stderr, "Error: '%s' is not a CircleMUD v3.0 Shop File!\n", fn);
       }
     else {
@@ -1581,29 +1675,30 @@ void Object::CircleLoadShp(const char *fn) {
 	fscanf(mud, "%lf\n", &num2);  // Profit when Buy
 
 	memset(buf, 0, 65536);
-	fscanf(mud, "%[^\n]\n", buf);  // Item types bought
+	fscanf(mud, "%65535[^\n]\n", buf);  // Item types bought
 	val = atoi(buf);
 	list<string> types;
 	while(val >= 0) {
 	  types.push_back(string(buf));
 	  memset(buf, 0, 65536);
-	  fscanf(mud, "%[^\n]\n", buf);  // Item types bought
+	  fscanf(mud, "%65535[^\n]\n", buf);  // Item types bought
 	  val = atoi(buf);
 	  }
 
+	memset(buf, 0, 65536);
 	for(int ctr=0; ctr<8; ++ctr) {
-	  fscanf(mud, "%[^\n]\n", buf+strlen(buf));
+	  fscanf(mud, "%255[^\n]\n", buf+strlen(buf));
 	  }
 
 	memset(buf, 0, 65536);
-	fscanf(mud, "%[^\n]\n", buf+strlen(buf));  // Shop Bitvectors
+	fscanf(mud, "%65535[^\n]\n", buf);  // Shop Bitvectors
 
 	fscanf(mud, "%d\n", &kpr);  // Shopkeeper!
 	Object *keeper = NULL;
 	if(bynummobinst.count(kpr)) keeper = bynummobinst[kpr];
 
 	memset(buf, 0, 65536);
-	fscanf(mud, "%[^\n]\n", buf+strlen(buf));  // With Bitvectors
+	fscanf(mud, "%65535[^\n]\n", buf);  // With Bitvectors
 
 	fscanf(mud, "%d\n", &val);  // Shop rooms
 	while(val >= 0) {
