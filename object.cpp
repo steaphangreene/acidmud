@@ -1183,13 +1183,27 @@ void Object::SendLongDesc(Mind *m, Object *o) {
   m->Send("%s", CNRM);
   }
 
+const char * const atnames[] = {"Bod", "Qui", "Str", "Cha", "Int", "Wil"};
 void Object::SendScore(Mind *m, Object *o) {
   if(!m) return;
   m->Send("\n%s", CNRM);
-  m->Send("Bod: %2d", MIN(Attribute(0), 99));
-  m->Send("           L     M        S           D\n");
-  m->Send("Qui: %2d", MIN(Attribute(1), 99));
-  m->Send("    Stun: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
+  for(int ctr = 0; ctr < 6; ++ctr) {
+    if(MIN(att[ctr], 99) == MIN(Attribute(ctr), 99)) {
+      m->Send("%s: %2d     ", atnames[ctr], MIN(Attribute(ctr), 99));
+      }
+    else if(Attribute(ctr) > 9) {	//2-Digits!
+      m->Send("%s: %2d (%d)", atnames[ctr],
+	MIN(att[ctr], 99), MIN(Attribute(ctr), 99));
+      }
+    else {				//1 Digit!
+      m->Send("%s: %2d (%d) ", atnames[ctr], 
+	MIN(att[ctr], 99), MIN(Attribute(ctr), 99));
+      }
+    if(ctr == 0) {
+      m->Send("         L     M        S           D");
+      }
+    else if(ctr == 1) {
+      m->Send("  Stun: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
 	stun <= 0 ? ' ' : 'X',
 	stun <= 1 ? ' ' : 'X',
 	stun <= 2 ? ' ' : 'X',
@@ -1201,9 +1215,9 @@ void Object::SendScore(Mind *m, Object *o) {
 	stun <= 8 ? ' ' : 'X',
 	stun <= 9 ? ' ' : 'X'
 	);
-  m->Send("\n");
-  m->Send("Str: %2d", MIN(Attribute(2), 99));
-  m->Send("    Phys: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
+      }
+    else if(ctr == 2) {
+      m->Send("  Phys: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
 	phys <= 0 ? ' ' : 'X',
 	phys <= 1 ? ' ' : 'X',
 	phys <= 2 ? ' ' : 'X',
@@ -1215,12 +1229,12 @@ void Object::SendScore(Mind *m, Object *o) {
 	phys <= 8 ? ' ' : 'X',
 	phys <= 9 ? ' ' : 'X'
 	);
-  if(phys > 10) {
-    m->Send(" Overflow: %d", phys-10);
-    }
-  m->Send("\n");
-  m->Send("Cha: %2d", MIN(Attribute(3), 99));
-  m->Send("    Stru: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
+      if(phys > 10) {
+	m->Send(" Overflow: %d", phys-10);
+	}
+      }
+    else if(ctr == 3) {
+      m->Send("  Stru: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
 	stru <= 0 ? ' ' : 'X',
 	stru <= 1 ? ' ' : 'X',
 	stru <= 2 ? ' ' : 'X',
@@ -1232,14 +1246,15 @@ void Object::SendScore(Mind *m, Object *o) {
 	stru <= 8 ? ' ' : 'X',
 	stru <= 9 ? ' ' : 'X'
 	);
-  m->Send("\n");
-  m->Send("Int: %2d", MIN(Attribute(4), 99));
-  m->Send("\n");
-  m->Send("Wil: %2d", MIN(Attribute(5), 99));
-
-  m->Send("    Sex: %c, %d.%.3dkg, %d.%.3dm, %dv, %dY\n\n",
+      }
+    else if(ctr == 5) {
+      m->Send("  Sex: %c, %d.%.3dkg, %d.%.3dm, %dv, %dY\n\n",
 	gender, weight / 1000, weight % 1000,
-	size / 1000, size % 1000, volume, value);
+	size / 1000, size % 1000, volume, value
+	);
+      }
+    m->Send("\n");
+    }
 
   map<AtomString,int> skills = GetSkills();
   map<AtomString,int> sks;
