@@ -824,6 +824,17 @@ void Object::SendActions(Mind *m) {
       m->Send(act_str[cur->first], targ, dirn, dirp);
       }
     }
+  if(HasSkill("Light Source")) {
+    if(Skill("Light Source") < 20) m->Send(", glowing");
+    else if(HasSkill("Brightness")) m->Send(", burning");
+    else if(Skill("Light Source") < 200) m->Send(", lighting the area");
+    else m->Send(", shining");
+    }
+  if(HasSkill("Noise Source")) {
+    if(Skill("Noise Source") < 20) m->Send(", humming");
+    else if(Skill("Noise Source") < 200) m->Send(", buzzing");
+    else m->Send(", roaring");
+    }
   m->Send(".\n");
   }
 
