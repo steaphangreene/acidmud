@@ -5005,6 +5005,7 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       body->Parent()->SendOut(stealth_t, stealth_s, 
 	";s loads the entire Circle world with Ninja Powers[TM].\n",
 	"You load the entire Circle world.\n", body, NULL);
+      world->Activate();
       }
     else {
       sprintf(buf, "circle/wld/%s.wld", comline+len);
