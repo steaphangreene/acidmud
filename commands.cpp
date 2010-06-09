@@ -2576,7 +2576,12 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
     if(!comline[len]) {
       if(body->IsAct(ACT_WIELD)) {
 	Object *wield = body->ActTarg(ACT_WIELD);
-	if(wield && body->Stash(wield)) {
+	if((!nmode) && wield && wield->HasSkill("Cursed")) {
+	  if(mind) mind->Send("You can't seem to stop wielding %s!\n",
+	    wield->Name(0, body)
+	    );
+	  }
+	else if(wield && body->Stash(wield)) {
 	  body->Parent()->SendOut(stealth_t, stealth_s,
 		";s stops wielding and stashes ;s.\n",
 		"You stop wielding and stash ;s.\n",
