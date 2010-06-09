@@ -4830,6 +4830,10 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
       mind->Send("You want to destroy what?\n");
       return 0;
       }
+    set<Object *> todo;
+    for(typeof(targs.begin()) itr = targs.begin(); itr != targs.end(); ++itr) {
+      todo.insert(*itr);
+      }
     while(targs.size() > 0) {
       Object *targ = targs.front();
       body->Parent()->SendOut(stealth_t, stealth_s, 
@@ -4837,6 +4841,9 @@ int handle_single_command(Object *body, const char *comline, Mind *mind) {
 	body, targ);
       delete(targ);
       targs = body->PickObjects(comline+len, LOC_NEARBY);
+      while(targs.size() > 0 && todo.count(targs.front()) < 1) {
+	targs.pop_front();
+	}
       }
     return 0;
     }
