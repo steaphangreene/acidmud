@@ -1339,68 +1339,68 @@ void Object::CircleLoadObj(const char *fn) {
 	  fscanf(mudo, "%d %d\n", &anum, &aval);
 	  switch(anum) {
 	    case(1): {	// STR
-	      if(aval > 0) SetSkill("Strength Bonus", aval*400);
-	      else if(aval < 0) SetSkill("Strength Penalty", -aval*400);
+	      if(aval > 0) obj->SetSkill("Strength Bonus", aval*400);
+	      else if(aval < 0) obj->SetSkill("Strength Penalty", -aval*400);
 	      } break;
 	    case(2): {	// DEX
-	      if(aval > 0) SetSkill("Quickness Bonus", aval*400);
-	      else if(aval < 0) SetSkill("Quickness Penalty", -aval*400);
+	      if(aval > 0) obj->SetSkill("Quickness Bonus", aval*400);
+	      else if(aval < 0) obj->SetSkill("Quickness Penalty", -aval*400);
 	      } break;
 	    case(3): {	// INT
-	      if(aval > 0) SetSkill("Intelligence Bonus", aval*400);
-	      else if(aval < 0) SetSkill("Intelligence Penalty", -aval*400);
+	      if(aval > 0) obj->SetSkill("Intelligence Bonus", aval*400);
+	      else if(aval < 0) obj->SetSkill("Intelligence Penalty", -aval*400);
 	      } break;
 	    case(4): {	// WIS
-	      if(aval > 0) SetSkill("Willpower Bonus", aval*400);
-	      else if(aval < 0) SetSkill("Willpower Penalty", -aval*400);
+	      if(aval > 0) obj->SetSkill("Willpower Bonus", aval*400);
+	      else if(aval < 0) obj->SetSkill("Willpower Penalty", -aval*400);
 	      } break;
 	    case(5): {	// CON
-	      if(aval > 0) SetSkill("Body Bonus", aval*400);
-	      else if(aval < 0) SetSkill("Body Penalty", -aval*400);
+	      if(aval > 0) obj->SetSkill("Body Bonus", aval*400);
+	      else if(aval < 0) obj->SetSkill("Body Penalty", -aval*400);
 	      } break;
 	    case(6): {	// CHA
-	      if(aval > 0) SetSkill("Charisma Bonus", aval*400);
-	      else if(aval < 0) SetSkill("Charisma Penalty", -aval*400);
+	      if(aval > 0) obj->SetSkill("Charisma Bonus", aval*400);
+	      else if(aval < 0) obj->SetSkill("Charisma Penalty", -aval*400);
 	      } break;
 //	    case(7): {	// CLASS (Even CircleMUD Doesn't Use This!)
 //	      } break;
 //	    case(8): {	// LEVEL (Even CircleMUD Doesn't Use This!)
 //	      } break;
 	    case(9): {	// AGE
-	      if(aval > 0) SetSkill("Youth Penalty", aval);
-	      else if(aval < 0) SetSkill("Youth Bonus", -aval);
+	      if(aval > 0) obj->SetSkill("Youth Penalty", aval);
+	      else if(aval < 0) obj->SetSkill("Youth Bonus", -aval);
 	      } break;
-//	    case(10): {	// CHAR_WEIGHT
+//	    case(10): {	// CHAR_WEIGHT (Unused by main CircleMUD data)
 //	      } break;
-//	    case(11): {	// CHAR_HEIGHT
+//	    case(11): {	// CHAR_HEIGHT (Unused by main CircleMUD data)
 //	      } break;
 	    case(12): {	// MANA
-	      if(aval > 0) SetSkill("Magic Force Bonus", aval*100);
-	      else if(aval < 0) SetSkill("Magic Force Penalty", -aval*100);
+	      if(aval > 0) obj->SetSkill("Magic Force Bonus", aval*100);
+	      else if(aval < 0) obj->SetSkill("Magic Force Penalty", -aval*100);
 	      } break;
 	    case(13): {	// HIT
-	      if(aval > 0) SetSkill("Resilience Bonus", aval*100);
-	      else if(aval < 0) SetSkill("Resilience Penalty", -aval*100);
+	      if(aval > 0) obj->SetSkill("Resilience Bonus", aval*100);
+	      else if(aval < 0) obj->SetSkill("Resilience Penalty", -aval*100);
 	      } break;
 	    case(14): {	// MOVE
-	      if(aval > 0) SetSkill("Encumbrance Bonus", aval*20);
-	      else if(aval < 0) SetSkill("Encumbrance Penalty", -aval*20);
+	      if(aval > 0) obj->SetSkill("Encumbrance Bonus", aval*20);
+	      else if(aval < 0) obj->SetSkill("Encumbrance Penalty", -aval*20);
 	      } break;
 //	    case(15): {	// GOLD (Even CircleMUD Doesn't Use This!)
 //	      } break;
 //	    case(16): {	// EXP (Even CircleMUD Doesn't Use This!)
 //	      } break;
 	    case(17): {	// AC
-	      if(aval > 0) SetSkill("Evasion Bonus", aval*400);
-	      else if(aval < 0) SetSkill("Evasion Penalty", -aval*400);
+	      if(aval > 0) obj->SetSkill("Evasion Bonus", aval*400);
+	      else if(aval < 0) obj->SetSkill("Evasion Penalty", -aval*400);
 	      } break;
 	    case(18): {	// HITROLL
-	      if(aval > 0) SetSkill("Accuracy Bonus", aval*400);
-	      else if(aval < 0) SetSkill("Accuracy Penalty", -aval*400);
+	      if(aval > 0) obj->SetSkill("Accuracy Bonus", aval*400);
+	      else if(aval < 0) obj->SetSkill("Accuracy Penalty", -aval*400);
 	      } break;
 	    case(19): {	// DAMROLL
-	      if(aval > 0) SetSkill("Damage Bonus", aval*400);
-	      else if(aval < 0) SetSkill("Damage Penalty", -aval*400);
+	      if(aval > 0) obj->SetSkill("Damage Bonus", aval*400);
+	      else if(aval < 0) obj->SetSkill("Damage Penalty", -aval*400);
 	      } break;
 	    case(20): {	// SAVING_PARA
 	      magresist += (aval*400);
@@ -1423,8 +1423,8 @@ void Object::CircleLoadObj(const char *fn) {
 	  fscanf(mudo, "%*[^~]\n");	//Skip these for now.
 	  }
 	}
-      if(magresist > 0) SetSkill("Magic Resistance", magresist);
-      else if(magresist < 0) SetSkill("Magic Vulnerability", -magresist);
+      if(magresist > 0) obj->SetSkill("Magic Resistance", magresist);
+      else if(magresist < 0) obj->SetSkill("Magic Vulnerability", -magresist);
 
       fscanf(mudo, "%*[^#$]");
       }
