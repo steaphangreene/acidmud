@@ -1,9 +1,13 @@
+Implement more equipment's magical effects.
+
 Fix exchange system handling odd cases (including sell/buy).
 Selling of containers, or not (contents -vs- container value!).
 
 Re-enable full introduction system?
 Fully understand visibility and cut messages accordingly.
 Starlight vision, night vision, low-light vision, and dark vision.
+
+Crafting (weapons, armor, tools, clothes, etc...).
 
 Handle liquids mixing?
 
@@ -14,19 +18,20 @@ Implement dynamic city test.
 Redesign full command structure and reimplement/replace.
 Redesign full battle system and reimplement/replace.
 
-Implement various types of armor and damage.
 Do 3-layer armor system.
+Implement various types of armor and damage.
+
 Show armor messages in ninja display.
-Implement more equipment's magical effects.
-Crafting (weapons, armor, tools, clothes, etc...).
+Translate circle armor to various armor types.
+Refine the fudging of circle MOBs' stats (Better AC Handling, Natural Armor).
+Natural Armor.
+
 Handle Multiple Weapon Types (eg: Bastard Swords).
+
 Implement All Remaining Weapon Types (Guns, etc...).
 Get it to understand offhand weapon use.
 Get it to understand mounted weapon use.
-Translate circle armor to various armor types.
-Refine the fudging of circle MOBs' stats (Better AC Handling, Natural Armor).
 Implement Races, Species and Materials.
-Natural Armor.
 Need a way to "find" items you've hidden on yourself.
 Search turns things blue, or does it?
 Ranged Combat.
