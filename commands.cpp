@@ -244,8 +244,8 @@ Command comlist[] = {
     (REQ_ALERT|REQ_ACTION)
     },
   { COM_CONSIDER, "consider",
-    "Consider attacking a person or creature and size it up.",
-    "Consider attacking a person or creature and size it up.",
+    "Consider attacking someone, or using something, and size it up.",
+    "Consider attacking someone, or using something, and size it up.",
     (REQ_ALERT|REQ_ACTION)
     },
   { COM_INVENTORY, "inventory",
@@ -1546,7 +1546,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     Object *targ = NULL;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(strlen(comline+len) <= 0) {
-      if(mind) mind->Send("You want to consider attacking what?\n");
+      if(mind) mind->Send("You want to consider what?\n");
       return 0;
       }
     targ = body->PickObject(comline+len,
@@ -1554,9 +1554,79 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     if(!targ) {
       if(mind) mind->Send("You don't see that here.\n");
       }
-    else {
-      body->Parent()->SendOut(stealth_t, stealth_s, ";s considers attacking ;s.\n",
-	"You consider attacking ;s.\n", body, targ);
+    else if(targ->Attribute(1) <= 0) {	//Inanimate Object (Consider Using)
+      body->Parent()->SendOut(stealth_t, stealth_s,
+	";s considers using ;s.\n", "You consider using ;s.\n",
+	body, targ
+	);
+      if(targ->HasSkill("WeaponType")) {	//Weapons
+	Object *base = body->ActTarg(ACT_WIELD);
+	if(base == targ) {
+	  mind->Send("%s is your current weapon!\n", base->Name(0, body));
+	  mind->Send("Consider using something else for comparison.\n");
+	  return 0;
+	  }
+	string sk = (get_weapon_skill(targ->Skill("WeaponType")));
+	if(!body->HasSkill(sk)) {
+	  if(mind) {
+	    mind->Send(
+		"You don't know much about weapons like %s.\n",
+		targ->Name(1, body)
+		);
+	    mind->Send(
+		"You would need to learn the %s skill to know more.\n",
+		sk.c_str()
+		);
+	    }
+	  }
+	else {
+	  int diff;
+	  mind->Send("Use of this weapon would use your %s skill.\n",
+		sk.c_str());
+
+	  diff = body->Skill(sk);
+	  if(base) diff -= body->Skill(get_weapon_skill(base->Skill("WeaponType")));
+	  else diff -= body->Skill("Punching");
+	  if(diff > 0) mind->Send("   ...would be a weapon you are more skilled with.\n");
+	  else if(diff < 0) mind->Send("   ...would be a weapon you are less skilled with.\n");
+	  else mind->Send("   ...would be a weapon you are similarly skilled with.\n");
+
+	  diff = targ->Skill("WeaponReach");
+	  if(base) diff -= base->Skill("WeaponReach");
+	  if(diff > 0) mind->Send("   ...would give you more reach.\n");
+	  else if(diff < 0) mind->Send("   ...would give you less reach.\n");
+	  else mind->Send("   ...would give you similar reach.\n");
+
+	  diff = targ->Skill("WeaponForce");
+	  if(base) diff -= base->Skill("WeaponForce");
+	  if(diff > 0) mind->Send("   ...would do more damage.\n");
+	  else if(diff < 0) mind->Send("   ...would do less damage.\n");
+	  else mind->Send("   ...would do similar damage.\n");
+
+	  diff = targ->Skill("WeaponSeverity");
+	  if(base) diff -= base->Skill("WeaponSeverity");
+	  if(diff > 0) mind->Send("   ...would be more likely to do damage.\n");
+	  else if(diff < 0) mind->Send("   ...would be less likely to do damage.\n");
+	  else mind->Send("   ...would be about as likely to do damage.\n");
+
+	  diff = two_handed(targ->Skill("WeaponType"));
+	  if(base) diff -= two_handed(base->Skill("WeaponType"));
+	  if(diff > 0) mind->Send("   ...would require both hands to use.\n");
+	  else if(diff < 0) mind->Send("   ...would not reqire both hands to use.\n");
+	  }
+	}
+      else {					//Other
+	if(mind) mind->Send(
+		"You really don't know what you would do with %s.\n",
+		targ->Name(1, body)
+		);
+	}
+      }
+    else {				//Animate Opponent (Consider Attacking)
+      body->Parent()->SendOut(stealth_t, stealth_s,
+	";s considers attacking ;s.\n", "You consider attacking ;s.\n",
+	body, targ
+	);
       if(mind) {
 	int diff;
 	string mes = string(targ->Name()) + "...\n";
