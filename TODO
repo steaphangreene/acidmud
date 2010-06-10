@@ -56,7 +56,6 @@ Implement "stuff"/"money"/"cash" target.
 Implement "loot" command.
 Allow carrying of dying and KOed creatures.
 Make CircleMUD packs and purses non-stealable?
-Give starting players a purse and a bag?
 Autowield when entering combat.
 Implement movement settings using skills (walk, run, explore, etc...).
 Make all plural commands see pluralized items correctly.

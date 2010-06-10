@@ -200,6 +200,26 @@ Object *new_body() {
 
   body->Activate();
 
+  Object *bag = new Object(body);
+  bag->SetSkill("Capacity", 40);
+  bag->SetSkill("Closeable", 1);
+  bag->SetSkill("Container", 20000);
+  bag->SetSkill("Open", 1000);
+  bag->SetSkill("Wearable on Left Hip", 1);
+  bag->SetSkill("Wearable on Right Hip", 2);
+
+  bag->SetShortDesc("a small bag");
+  bag->SetDesc("A small bag is here.");
+
+  bag->SetWeight(800);
+  bag->SetSize(1);
+  bag->SetVolume(2);
+  bag->SetValue(10);
+
+  bag->SetPos(POS_LIE);
+
+  body->AddAct(ACT_WEAR_RHIP, bag);
+
   return body;
   }
 
