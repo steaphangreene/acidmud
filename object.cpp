@@ -3010,7 +3010,7 @@ string Object::WearNames(int m) const {
   return WearNames(WearSlots(m));
   }
 
-Object *Object::Stash(Object *obj, int force, int message, int try_combine) {
+Object *Object::Stash(Object *item, int message, int force, int try_combine) {
   list<Object*> containers, my_cont;
   my_cont = PickObjects("all", LOC_INTERNAL);
   typeof(my_cont.begin()) ind;
@@ -3025,23 +3025,27 @@ Object *Object::Stash(Object *obj, int force, int message, int try_combine) {
   Object *dest = NULL;
   list<Object*>::iterator con;
   for(con = containers.begin(); con != containers.end(); ++con) {
-    if((*con)->Skill("Capacity") - (*con)->ContainedVolume() < obj->Volume())
+    if((*con)->Skill("Capacity") - (*con)->ContainedVolume() < item->Volume())
       continue;
-    if((*con)->Skill("Container") - (*con)->ContainedWeight() < obj->Weight())
+    if((*con)->Skill("Container") - (*con)->ContainedWeight() < item->Weight())
       continue;
     if(!dest) dest = (*con);  //It CAN go here....
     for(ind = (*con)->contents.begin(); ind != (*con)->contents.end(); ++ind) {
-      if((*obj) == (*(*ind))) { dest = (*con); break; }
+      if((*item) == (*(*ind))) { dest = (*con); break; }
       }
     }
 
   //See if it actually makes it!
-  if(dest && (obj->Travel(dest, try_combine))) dest = NULL;
+  if(dest && (item->Travel(dest, try_combine))) dest = NULL;
+
+  if(message && dest) {
+    parent->SendOut(0, 0, ";s stashes ;s.\n", "You stash ;s.\n", this, item);
+    }
 
   return dest;
   }
 
-int Object::Drop(Object *item, int force, int message, int try_combine) {
+int Object::Drop(Object *item, int message, int force, int try_combine) {
   if(!item) return 1;
   if(!parent) return 1;
 
@@ -3064,19 +3068,19 @@ int Object::Drop(Object *item, int force, int message, int try_combine) {
   return 0;
   }
 
-int Object::DropOrStash(Object *item, int force, int message, int try_combine) {
-  int ret = Drop(item, force, message, try_combine);
+int Object::DropOrStash(Object *item, int message, int force, int try_combine) {
+  int ret = Drop(item, message, force, try_combine);
   if(ret) {
-    if(!Stash(item, force, message, try_combine)) {
+    if(!Stash(item, message, force, try_combine)) {
       return ret;
       }
     }
   return 0;
   }
 
-int Object::StashOrDrop(Object *item, int force, int message, int try_combine) {
-  if(!Stash(item, force, message, try_combine)) {
-    return Drop(item, force, message, try_combine);
+int Object::StashOrDrop(Object *item, int message, int force, int try_combine) {
+  if(!Stash(item, message, force, try_combine)) {
+    return Drop(item, message, force, try_combine);
     }
   return 0;
   }

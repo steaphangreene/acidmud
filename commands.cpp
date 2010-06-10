@@ -859,7 +859,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
   if(body) {
     if(body->StillBusy() && (comlist[cnum].sit & SIT_ACTION)) {
-      body->DoWhenFree(comline);
+      body->DoWhenFree(inpline);
       return 0;
       }
     if(comlist[cnum].sit & (SIT_ALIVE|SIT_AWAKE|SIT_ALERT)) {
@@ -2175,7 +2175,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	    body->Parent()->SendOut(stealth_t, stealth_s,
 		";s buys and stashes ;s.\n", "You buy and stash ;s.\n", body, targ);
 	    for(coin = pay.begin(); coin != pay.end(); ++coin) {
-	      shpkp->Stash(*coin);
+	      shpkp->Stash(*coin, 0, 1);
 	      }
 	    }
 	  else if(((!body->IsAct(ACT_HOLD))
@@ -2191,7 +2191,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	    body->Parent()->SendOut(stealth_t, stealth_s,
 		";s buys and holds ;s.\n", "You buy and hold ;s.\n", body, targ);
 	    for(coin = pay.begin(); coin != pay.end(); ++coin) {
-	      shpkp->Stash(*coin);
+	      shpkp->Stash(*coin, 0, 1);
 	      }
 	    }
 	  else {
@@ -2414,8 +2414,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	    if(body->Stash(payment->Contents().front())) {
 	      targ->Travel(vortex);
 	      }
-	    else {
-	      shpkp->Stash(payment->Contents().front());  //Keeper gets it back
+	    else {	//Keeper gets it back
+	      shpkp->Stash(payment->Contents().front(), 0, 1);
 	      if(mind) mind->Send("You couldn't stash %d gold!\n", price);
 	      }
 	    delete payment;
@@ -2532,7 +2532,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	if((!nmode) && denied != "") {
 	  if(mind) mind->Send(denied.c_str());
 	  }
-	else if(body->Stash(targ)) {
+	else if(body->Stash(targ, 0)) {
 	  body->Parent()->SendOut(stealth_t, stealth_s, ";s gets and stashes ;s.\n",
 		"You get and stash ;s.\n", body, targ);
 	  if(targ->HasSkill("Perishable")) {
@@ -3541,18 +3541,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     if(body->ActTarg(ACT_WIELD)) {
       Object *item = body->ActTarg(ACT_WIELD);
-      if(body->Stash(item)) {		//Can stash you weapon
-	body->Parent()->SendOut(stealth_t, stealth_s,
-		";s stashes ;s.\n", "You stash ;s.\n", body, item);
-	}
-      else {				//Can't stash your weapon
-	item->Travel(body->Parent());
-	body->Parent()->SendOut(stealth_t, stealth_s,
-		";s drops ;s.\n", "You drop ;s.\n", body, item);
-	if(item->HasSkill("Perishable")) {
-	  item->Activate();
-	  }
-	}
+      body->StashOrDrop(item);
       }
     if(body->ActTarg(ACT_HOLD)		//Shield held & worn
 		&& body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)) {
@@ -3572,18 +3561,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     else if(body->ActTarg(ACT_HOLD)) {	//Regular held item
       Object *item = body->ActTarg(ACT_HOLD);
-      if(body->Stash(item)) {		//Successfully stashed
-	body->Parent()->SendOut(stealth_t, stealth_s,
-		";s stashes ;s.\n", "You stash ;s.\n", body, item);
-	}
-      else {				//Can't be stashed
-	item->Travel(body->Parent());
-	body->Parent()->SendOut(stealth_t, stealth_s,
-		";s drops ;s.\n", "You drop ;s.\n", body, item);
-	if(item->HasSkill("Perishable")) {
-	  item->Activate();
-	  }
-	}
+      body->StashOrDrop(item);
       }
     body->Collapse();
     body->AddAct(ACT_SLEEP);
@@ -3966,52 +3944,51 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       attacknow = 1; //Uncontested.
       }
 
+	//Free your off-hand (if it's not a shield)
     if(body->ActTarg(ACT_HOLD)		//FIXME: Don't drop offhand weapons?!?
 	&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)
 	&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)) {
-      Object *targ = body->ActTarg(ACT_HOLD);
-      body->Parent()->SendOut(stealth_t, stealth_s,
-	  ";s drops ;s.\n", "You drop ;s.\n", body, targ);
-      targ->Travel(body->Parent());
-      if(targ->HasSkill("Perishable")) {
-	targ->Activate();
+      if(body->DropOrStash(body->ActTarg(ACT_HOLD))) {
+        if(mind) mind->Send("Oh, no!  You can't drop or stash %s!\n",
+		body->ActTarg(ACT_HOLD)->Name(0, body)
+		);
 	}
       }
 
-    if(body->ActTarg(ACT_WIELD)
-	&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)
-	&& two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType"))
-	) {
-      if(body->ActTarg(ACT_HOLD)) {
-	if(body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)) {
-	  body->Parent()->SendOut(stealth_t, stealth_s, ";s stops holding ;s.\n",
-		"You stop holding ;s.\n", body, body->ActTarg(ACT_HOLD));
-	  body->StopAct(ACT_HOLD);
-	  }
-	else {
-	  body->Parent()->SendOut(stealth_t, stealth_s,
-		";s drops ;s.\n", "You drop ;s.\n", body, body->ActTarg(ACT_HOLD));
-	  body->ActTarg(ACT_HOLD)->Travel(body->Parent());
-	  if(body->ActTarg(ACT_HOLD)->HasSkill("Perishable")) {
-	    body->ActTarg(ACT_HOLD)->Activate();
-	    }
-	  }
-	}
-      Object *targ = body->ActTarg(ACT_WIELD);
-      body->AddAct(ACT_HOLD, targ);
-      body->Parent()->SendOut(stealth_t, stealth_s, ";s holds ;s.\n", "You hold ;s.\n", body, targ);
-      }
-
-    if(body->ActTarg(ACT_WEAR_SHIELD) && (!body->IsAct(ACT_HOLD))) {
-      Object *targ = body->ActTarg(ACT_WEAR_SHIELD);
-      if(body->Roll("Shields", 4) > 0) {
-	body->AddAct(ACT_HOLD, targ);
-	body->Parent()->SendOut(stealth_t, stealth_s, ";s holds ;s.\n", "You hold ;s.\n", body, targ);
+	//Hold your 2-hander, even if you have to let go of your shield
+    if(body->ActTarg(ACT_WIELD)		//Half-Wielding a 2-Hander
+		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)
+		&& two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType"))) {
+      if(body->ActTarg(ACT_HOLD)	//Some non-shield stuck in other hand!
+		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)) {
+	if(mind) mind->Send("Oh, no!  You can't use %s - it's two-handed!\n",
+		body->ActTarg(ACT_WIELD)->Name(0, body)
+		);
 	}
       else {
+	if(body->ActTarg(ACT_HOLD)) {	//Unhold your shield
+	  body->Parent()->SendOut(stealth_t, stealth_s,
+		";s stops holding ;s.\n", "You stop holding ;s.\n",
+		body, body->ActTarg(ACT_HOLD)
+		);
+	  body->StopAct(ACT_HOLD);
+	  }
+	Object *targ = body->ActTarg(ACT_WIELD);	//Hold your 2-hander
+	body->AddAct(ACT_HOLD, targ);
 	body->Parent()->SendOut(stealth_t, stealth_s,
-	  ";s fubmles with ;s.\n", "You fumble with ;s.\n", body, targ);
+		";s holds ;s.\n", "You hold ;s.\n", body, targ
+		);
 	}
+      }
+
+	//If you're hand's now free, and you have a shield, use it.
+    if(body->ActTarg(ACT_WEAR_SHIELD) && (!body->IsAct(ACT_HOLD))) {
+      Object *targ = body->ActTarg(ACT_WEAR_SHIELD);
+
+      body->AddAct(ACT_HOLD, targ);
+      body->Parent()->SendOut(stealth_t, stealth_s,
+	";s holds ;s.\n", "You hold ;s.\n", body, targ
+	);
       }
 
     if(!attacknow) {
@@ -4019,7 +3996,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		";s moves to attack ;s.\n",
 		"You move to attack ;s.\n",
 		body, targ);
-      body->BusyWith(body, comline); //HACK!  Make this command used first rnd!
+      body->BusyWith(body, inpline); //HACK!  Make this command used first rnd!
       return 2; //No more actions until next round!
       }
 
@@ -5301,6 +5278,8 @@ int handle_command(Object *body, const char *cl, Mind *mind) {
   static int bsize = -1;
   int ret = 0;
   char *start = (char*)cl, *end = (char*)cl;
+
+  fprintf(stderr, "comline: '%s'\n", cl);
 
   if(mind && mind->SpecialPrompt()[0] != 0) {
     string cmd = string(mind->SpecialPrompt()) + " " + cl;
