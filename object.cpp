@@ -2612,37 +2612,6 @@ int Object::Contains(Object *obj) {
   return (find(contents.begin(), contents.end(), obj) != contents.end());
   }
 
-Object *Object::Stash(Object *obj, int try_combine) {
-  list<Object*> containers, my_cont;
-  my_cont = PickObjects("all", LOC_INTERNAL);
-  typeof(my_cont.begin()) ind;
-  for(ind = my_cont.begin(); ind != my_cont.end(); ++ind) {
-    if((*ind)->Skill("Container") && (
-	(!(*ind)->Skill("Locked")) || (*ind)->Skill("Open")
-	)) {
-      containers.push_back(*ind);
-      }
-    }
-
-  Object *dest = NULL;
-  list<Object*>::iterator con;
-  for(con = containers.begin(); con != containers.end(); ++con) {
-    if((*con)->Skill("Capacity") - (*con)->ContainedVolume() < obj->Volume())
-      continue;
-    if((*con)->Skill("Container") - (*con)->ContainedWeight() < obj->Weight())
-      continue;
-    if(!dest) dest = (*con);  //It CAN go here....
-    for(ind = (*con)->contents.begin(); ind != (*con)->contents.end(); ++ind) {
-      if((*obj) == (*(*ind))) { dest = (*con); break; }
-      }
-    }
-
-  //See if it actually makes it!
-  if(dest && (obj->Travel(dest, try_combine))) dest = NULL;
-
-  return dest;
-  }
-
 int Object::IsActive() const {
   return has_tick(this);
   }
@@ -3041,7 +3010,38 @@ string Object::WearNames(int m) const {
   return WearNames(WearSlots(m));
   }
 
-int Object::Drop(Object *item, int force, int message) {
+Object *Object::Stash(Object *obj, int force, int message, int try_combine) {
+  list<Object*> containers, my_cont;
+  my_cont = PickObjects("all", LOC_INTERNAL);
+  typeof(my_cont.begin()) ind;
+  for(ind = my_cont.begin(); ind != my_cont.end(); ++ind) {
+    if((*ind)->Skill("Container") && (
+	(!(*ind)->Skill("Locked")) || (*ind)->Skill("Open")
+	)) {
+      containers.push_back(*ind);
+      }
+    }
+
+  Object *dest = NULL;
+  list<Object*>::iterator con;
+  for(con = containers.begin(); con != containers.end(); ++con) {
+    if((*con)->Skill("Capacity") - (*con)->ContainedVolume() < obj->Volume())
+      continue;
+    if((*con)->Skill("Container") - (*con)->ContainedWeight() < obj->Weight())
+      continue;
+    if(!dest) dest = (*con);  //It CAN go here....
+    for(ind = (*con)->contents.begin(); ind != (*con)->contents.end(); ++ind) {
+      if((*obj) == (*(*ind))) { dest = (*con); break; }
+      }
+    }
+
+  //See if it actually makes it!
+  if(dest && (obj->Travel(dest, try_combine))) dest = NULL;
+
+  return dest;
+  }
+
+int Object::Drop(Object *item, int force, int message, int try_combine) {
   if(!item) return 1;
   if(!parent) return 1;
 
@@ -3050,7 +3050,7 @@ int Object::Drop(Object *item, int force, int message) {
     return -4;
     }
 
-  int ret = item->Travel(parent);
+  int ret = item->Travel(parent, try_combine);
   if(ret) return ret;
 
 	//Activate perishable dropped stuff, so it will rot
@@ -3060,6 +3060,23 @@ int Object::Drop(Object *item, int force, int message) {
 
   if(message) {
     parent->SendOut(0, 0, ";s drops ;s.\n", "You drop ;s.\n", this, item);
+    }
+  return 0;
+  }
+
+int Object::DropOrStash(Object *item, int force, int message, int try_combine) {
+  int ret = Drop(item, force, message, try_combine);
+  if(ret) {
+    if(!Stash(item, force, message, try_combine)) {
+      return ret;
+      }
+    }
+  return 0;
+  }
+
+int Object::StashOrDrop(Object *item, int force, int message, int try_combine) {
+  if(!Stash(item, force, message, try_combine)) {
+    return Drop(item, force, message, try_combine);
     }
   return 0;
   }

@@ -104,6 +104,7 @@ enum {	COM_HELP=0,
 	COM_DRAG,
 	COM_PUT,
 	COM_DROP,
+	COM_STASH,
 	COM_WIELD,
 	COM_UNWIELD,
 	COM_HOLD,
@@ -333,6 +334,11 @@ Command comlist[] = {
   { COM_DROP, "drop",
     "Drop an item you are carrying.",
     "Drop an item you are carrying.",
+    (REQ_ALERT|REQ_ACTION)
+    },
+  { COM_STASH, "stash",
+    "Store an item you are holding in one of your containers.",
+    "Store an item you are holding in one of your containers.",
     (REQ_ALERT|REQ_ACTION)
     },
   { COM_DUMP, "dump",
@@ -2165,7 +2171,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	    if(mind) mind->Send("You can't afford the %d gold (short %d).\n",
 		price, togo);
 	    }
-	  else if(body->Stash(targ, 0)) {
+	  else if(body->Stash(targ, 0, 0, 0)) {
 	    body->Parent()->SendOut(stealth_t, stealth_s,
 		";s buys and stashes ;s.\n", "You buy and stash ;s.\n", body, targ);
 	    for(coin = pay.begin(); coin != pay.end(); ++coin) {
@@ -2926,7 +2932,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(!removed) {
         if(mind) mind->Send("You are not wearing %s!\n", targ->Name(0, body));
 	}
-      else if(body->Stash(targ, 0)) {
+      else if(body->Stash(targ, 0, 0, 0)) {
 	body->Parent()->SendOut(stealth_t, stealth_s,
 		";s removes and stashes ;s.\n", "You remove and stash ;s.\n",
 		body, targ);
@@ -3153,6 +3159,26 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  delete (*targ);
 	  }
 	}
+      }
+    return 0;
+    }
+
+  if(com == COM_STASH) {
+    Object *targ = body->ActTarg(ACT_HOLD);
+    if(targ && targ->Parent() == body) {
+      if(!body->Stash(targ)) {
+	if(mind) mind->Send("You have no place to stash %s.\n",
+		targ->Name(0, body)
+		);
+	}
+      else {
+	body->Parent()->SendOut(stealth_t, stealth_s,
+		";s stashes ;s.\n", "You stash ;s.\n", body, targ
+		);
+	}
+      }
+    else {
+      if(mind) mind->Send("You are not holding anything to stash.\n");
       }
     return 0;
     }
