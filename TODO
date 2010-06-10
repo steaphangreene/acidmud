@@ -8,8 +8,6 @@ Natural Armor.
 
 Handle Multiple Weapon Types (eg: Bastard Swords).
 
-Implement drop-object handling code to catch all the odd cases in one place.
-
 Fix exchange system handling odd cases (including sell/buy).
 Selling of containers, or not (contents -vs- container value!).
 Fixup shopkeepers so item numbers NEVER expire.
@@ -23,8 +21,6 @@ Starlight vision, night vision, low-light vision, and dark vision.
 Crafting (weapons, armor, tools, clothes, etc...).
 
 Handle liquids mixing?
-
-Redesign full battle system and reimplement/replace.
 
 Do full code constification review.
 
