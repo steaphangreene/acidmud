@@ -645,16 +645,37 @@ void Object::CircleLoadObj(const char *fn) {
       Object *obj = new Object(this);
       bynumobj[onum] = obj;
 
-      memset(buf, 0, 65536);
+      vector<string> aliases;
+      memset(buf, 0, 65536);	//Alias List
       fscanf(mudo, "%65535[^~\n]~\n", buf);
 
-      memset(buf, 0, 65536);
+      const char *str;
+      const char *ind = buf;
+      while(sscanf(ind, " %as", &str) > 0) {
+	ind += strlen(str) + 1;
+	aliases.push_back(string(str));
+	free((void *)(str));
+	}
+
+      memset(buf, 0, 65536);	//Short Desc
       fscanf(mudo, "%65535[^~\n]~\n", buf);
       for(char *ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
       obj->SetShortDesc(buf);
       //fprintf(stderr, "Loaded Circle Object with Name = %s\n", buf);
 
-      memset(buf, 0, 65536);
+      string label = "";
+      for(unsigned int actr = 0; actr < aliases.size(); ++actr) {
+	if(!obj->Matches(aliases[actr].c_str())) {
+	  label += " " + aliases[actr];
+	  }
+	}
+      if(label.length() > 0) {
+	label[0] = '(';
+	label += ')';
+	obj->SetShortDesc((string(obj->ShortDesc()) + " " + label).c_str());
+	}
+
+      memset(buf, 0, 65536);	//Long Desc
       if(!fscanf(mudo, "%65535[^~]~\n", buf)) fscanf(mudo, "%*[^\n]\n");
       else {
 	for(char *ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
