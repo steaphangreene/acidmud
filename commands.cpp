@@ -56,6 +56,15 @@ static void trim_string(string &str) {	//Remove extra whitespace from string
   while(isspace(str[str.length()-1])) str = str.substr(0, str.length()-1);
   }
 
+static int count_ones(int mask) {
+  int ret = 0;
+  while(mask) {
+    ++ret;
+    mask &= (mask - 1);
+    }
+  return ret ;
+  }
+
 struct Command {
   int id;
   const char *command;
@@ -1559,7 +1568,13 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	";s considers using ;s.\n", "You consider using ;s.\n",
 	body, targ
 	);
-      if(targ->HasSkill("WeaponType")) {	//Weapons
+      if(!mind) return 0;
+
+      int handled = 0;
+
+	//Weapons
+      if(targ->HasSkill("WeaponType")) {
+	handled = 1;
 	Object *base = body->ActTarg(ACT_WIELD);
 	if(base == targ) {
 	  mind->Send("%s is your current weapon!\n", base->Name(0, body));
@@ -1568,16 +1583,14 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  }
 	string sk = (get_weapon_skill(targ->Skill("WeaponType")));
 	if(!body->HasSkill(sk)) {
-	  if(mind) {
-	    mind->Send(
+	  mind->Send(
 		"You don't know much about weapons like %s.\n",
 		targ->Name(1, body)
 		);
-	    mind->Send(
+	  mind->Send(
 		"You would need to learn the %s skill to know more.\n",
 		sk.c_str()
 		);
-	    }
 	  }
 	else {
 	  int diff;
@@ -1615,8 +1628,57 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  else if(diff < 0) mind->Send("   ...would not reqire both hands to use.\n");
 	  }
 	}
-      else {					//Other
-	if(mind) mind->Send(
+
+	//Armor/Clothing
+      int all = targ->WearMask();
+      int num = count_ones(all);
+      if(num > 1) {
+	mind->Send("%s can be worn in %d different ways:\n",
+		targ->Name(0, body), num
+		);
+	}
+      else if(num == 1) {
+	mind->Send("%s can only be worn one way:\n", targ->Name(0, body));
+	}
+      for(int mask=1; mask <= all; mask <<= 1) {
+	set<act_t> locs = targ->WearSlots(mask);
+	if(locs.size() > 0) {
+	  mind->Send("It can be worn on %s.\n", targ->WearNames(locs).c_str());
+	  handled = 1;
+
+	  set<Object *> repls;
+	  set<act_t>::const_iterator loc = locs.begin();
+	  for(; loc != locs.end(); ++loc) {
+	    if(body->ActTarg(*loc)) repls.insert(body->ActTarg(*loc));
+	    }
+
+	  set<Object *>::const_iterator repl = repls.begin();
+	  for(; repl != repls.end(); ++repl) {
+	    if((*repl) != targ) {
+	      mind->Send("   ...it would replace %s.\n", (*repl)->Name(0, body));
+
+	      int diff = targ->Attribute(0);
+	      diff -= (*repl)->Attribute(0);
+	      if(diff > 0) {
+		mind->Send("      ...and would provide better protection.\n");
+		}
+	      else if(diff < 0) {
+		mind->Send("      ...and would not provide as much protection.\n");
+		}
+	      else {
+		mind->Send("      ...and would provide similar protection.\n");
+		}
+	      }
+	    else if(repls.size() == 1) {
+	      mind->Send("...it is already being worn there.\n");
+	      }
+	    }
+	  }
+	}
+
+	//Other
+      if(!handled) {
+	mind->Send(
 		"You really don't know what you would do with %s.\n",
 		targ->Name(1, body)
 		);

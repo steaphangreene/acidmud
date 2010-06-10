@@ -1942,8 +1942,8 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
 		";s follows ;s.\n", "", this, obj);
 	AddAct(ACT_FOLLOW, obj);
 	if(stealth_t > 0) {
-          SetSkill("Hidden", Roll("Stealth", 2) * 2);
-          }
+	  SetSkill("Hidden", Roll("Stealth", 2) * 2);
+	  }
 	}
       }
     }
@@ -2719,7 +2719,7 @@ void Object::Loud(set<Object*> &visited, int str, const char *mes) {
 	}
       if(str > 0) {
 	if(dest->ActTarg(ACT_SPECIAL_LINKED)
-                && dest->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
+		&& dest->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
 	  dest = dest->ActTarg(ACT_SPECIAL_LINKED);
 	  if(visited.count(dest->Parent()) < 1) {
 	    dest->Parent()->SendOut(ALL, 0,
@@ -2897,13 +2897,6 @@ int Object::LightLevel(int updown) {
   return level;
   }
 
-int Object::Wearing(const Object *obj) const {
-  for(act_t act = ACT_HOLD; act < ACT_MAX; act = act_t(act + 1)) {
-    if(ActTarg(act) == obj) return 1;
-    }
-  return 0;
-  }
-
 void Object::StopAct(act_t a) {
   Object *obj = NULL;
   if(a == ACT_HOLD) {
@@ -2947,5 +2940,104 @@ int Object::Attribute(int a) const {
   ret += Skill(atbnames[a]);
   ret -= Skill(atpnames[a]);
   return (ret / 1000);
+  }
+
+int Object::Wearing(const Object *obj) const {
+  for(act_t act = ACT_HOLD; act < ACT_MAX; act = act_t(act + 1)) {
+    if(ActTarg(act) == obj) return 1;
+    }
+  return 0;
+  }
+
+int Object::WearMask() const {
+  return(Skill("Wearable on Back")
+	| Skill("Wearable on Chest")
+	| Skill("Wearable on Head")
+	| Skill("Wearable on Neck")
+	| Skill("Wearable on Waist")
+	| Skill("Wearable on Shield")
+	| Skill("Wearable on Left Arm")
+	| Skill("Wearable on Right Arm")
+	| Skill("Wearable on Left Finger")
+	| Skill("Wearable on Right Finger")
+	| Skill("Wearable on Left Foot")
+	| Skill("Wearable on Right Foot")
+	| Skill("Wearable on Left Hand")
+	| Skill("Wearable on Right Hand")
+	| Skill("Wearable on Left Leg")
+	| Skill("Wearable on Right Leg")
+	| Skill("Wearable on Left Wrist")
+	| Skill("Wearable on Right Wrist")
+	| Skill("Wearable on Left Shoulder")
+	| Skill("Wearable on Right Shoulder")
+	| Skill("Wearable on Left Hip")
+	| Skill("Wearable on Right Hip")
+	);
+  }
+
+set<act_t> Object::WearSlots(int m) const {
+  set<act_t> locs;
+  if(Skill("Wearable on Back") & m) locs.insert(ACT_WEAR_BACK);
+  if(Skill("Wearable on Chest") & m) locs.insert(ACT_WEAR_CHEST);
+  if(Skill("Wearable on Head") & m) locs.insert(ACT_WEAR_HEAD);
+  if(Skill("Wearable on Neck") & m) locs.insert(ACT_WEAR_NECK);
+  if(Skill("Wearable on Waist") & m) locs.insert(ACT_WEAR_WAIST);
+  if(Skill("Wearable on Shield") & m) locs.insert(ACT_WEAR_SHIELD);
+  if(Skill("Wearable on Left Arm") & m) locs.insert(ACT_WEAR_LARM);
+  if(Skill("Wearable on Right Arm") & m) locs.insert(ACT_WEAR_RARM);
+  if(Skill("Wearable on Left Finger") & m) locs.insert(ACT_WEAR_LFINGER);
+  if(Skill("Wearable on Right Finger") & m) locs.insert(ACT_WEAR_RFINGER);
+  if(Skill("Wearable on Left Foot") & m) locs.insert(ACT_WEAR_LFOOT);
+  if(Skill("Wearable on Right Foot") & m) locs.insert(ACT_WEAR_RFOOT);
+  if(Skill("Wearable on Left Hand") & m) locs.insert(ACT_WEAR_LHAND);
+  if(Skill("Wearable on Right Hand") & m) locs.insert(ACT_WEAR_RHAND);
+  if(Skill("Wearable on Left Leg") & m) locs.insert(ACT_WEAR_LLEG);
+  if(Skill("Wearable on Right Leg") & m) locs.insert(ACT_WEAR_RLEG);
+  if(Skill("Wearable on Left Wrist") & m) locs.insert(ACT_WEAR_LWRIST);
+  if(Skill("Wearable on Right Wrist") & m) locs.insert(ACT_WEAR_RWRIST);
+  if(Skill("Wearable on Left Shoulder") & m) locs.insert(ACT_WEAR_LSHOULDER);
+  if(Skill("Wearable on Right Shoulder") & m) locs.insert(ACT_WEAR_RSHOULDER);
+  if(Skill("Wearable on Left Hip") & m) locs.insert(ACT_WEAR_LHIP);
+  if(Skill("Wearable on Right Hip") & m) locs.insert(ACT_WEAR_RHIP);
+  return locs;
+  }
+
+string Object::WearNames(const set<act_t> &locs) const {
+  string ret = "";
+  set<act_t>::const_iterator loc = locs.begin();
+  for(; loc != locs.end(); ++loc) {
+    if(loc != locs.begin()) {
+      typeof(loc) tmp = loc;  ++tmp;
+      if(tmp == locs.end()) ret += " and ";
+      else ret += ", ";	//I put no comma before " and "
+      }
+    if(*loc == ACT_WEAR_BACK) ret += "back";
+    else if(*loc == ACT_WEAR_CHEST) ret += "chest";
+    else if(*loc == ACT_WEAR_HEAD) ret += "head";
+    else if(*loc == ACT_WEAR_NECK) ret += "neck";
+    else if(*loc == ACT_WEAR_WAIST) ret += "waist";
+    else if(*loc == ACT_WEAR_SHIELD) ret += "shield";
+    else if(*loc == ACT_WEAR_LARM) ret += "left arm";
+    else if(*loc == ACT_WEAR_RARM) ret += "right arm";
+    else if(*loc == ACT_WEAR_LFINGER) ret += "left finger";
+    else if(*loc == ACT_WEAR_RFINGER) ret += "right finger";
+    else if(*loc == ACT_WEAR_LFOOT) ret += "left foot";
+    else if(*loc == ACT_WEAR_RFOOT) ret += "right foot";
+    else if(*loc == ACT_WEAR_LHAND) ret += "left hand";
+    else if(*loc == ACT_WEAR_RHAND) ret += "right hand";
+    else if(*loc == ACT_WEAR_LLEG) ret += "left leg";
+    else if(*loc == ACT_WEAR_RLEG) ret += "right leg";
+    else if(*loc == ACT_WEAR_LWRIST) ret += "left wrist";
+    else if(*loc == ACT_WEAR_RWRIST) ret += "right wrist";
+    else if(*loc == ACT_WEAR_LSHOULDER) ret += "left shoulder";
+    else if(*loc == ACT_WEAR_RSHOULDER) ret += "right shoulder";
+    else if(*loc == ACT_WEAR_LHIP) ret += "left hip";
+    else if(*loc == ACT_WEAR_RHIP) ret += "right hip";
+    }
+  return ret;
+  }
+
+string Object::WearNames(int m) const {
+  return WearNames(WearSlots(m));
   }
 

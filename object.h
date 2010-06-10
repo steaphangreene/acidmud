@@ -230,6 +230,10 @@ public:
   const char *UsingString();
 
   int Wearing(const Object *obj) const;
+  int WearMask() const;
+  set<act_t> WearSlots(int m = -1) const;
+  string WearNames(const set<act_t> &locs) const;
+  string WearNames(int m = -1) const;
 
   void Collapse();
 
