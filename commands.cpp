@@ -4009,7 +4009,17 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
     int reachmod = 0;
     string sk1 = "Punching", sk2 = "Punching";
+
     if(com == COM_KICK) { sk1 = "Kicking"; sk2 = "Kicking"; }
+
+    else if(body->ActTarg(ACT_WIELD)	//Not Holding your 2-Hander
+	&& two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType"))
+	&& body->ActTarg(ACT_WIELD) != body->ActTarg(ACT_HOLD)
+	) {
+      sk1 = "Kicking";
+      sk2 = "Kicking";
+      }
+
     else {
       if(body->IsAct(ACT_WIELD)) {
         sk1 = get_weapon_skill(body->ActTarg(ACT_WIELD)
@@ -4026,6 +4036,12 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		&& targ->ActTarg(ACT_HOLD)) {
         sk2 = "Shields";
 	reachmod = 0;
+	}
+      else if(targ->ActTarg(ACT_WIELD)	//Not Holding his 2-Hander
+		&& two_handed(targ->ActTarg(ACT_WIELD)->Skill("WeaponType"))
+		&& targ->ActTarg(ACT_WIELD) != targ->ActTarg(ACT_HOLD)
+		) {
+	sk2 = "";	//Can't defend himself
 	}
       else if(targ->ActTarg(ACT_WIELD)) {
 	if(sk2 == "Punching") sk2 = get_weapon_skill(targ->ActTarg(ACT_WIELD)
@@ -4103,7 +4119,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
     if(succ > 0) {
       //FIXME: Remove debugging stuff ("succ" and "res") from these messages.
-      if(com == COM_KICK) {		//Kicking Action
+      if(sk1 == "Kicking") {		//Kicking Action
 	body->Parent()->SendOut(ALL, -1,
 		"*;s kicks ;s%s. [%d] %s\n", "*You kick ;s%s. [%d] %s\n",
 		body, targ, locm.c_str(), succ, res.c_str());
