@@ -2245,7 +2245,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     int price = targ->Value() * MAX(1, targ->Skill("Quantity"));
-    if(price < 0) {
+    if(price < 0 || targ->HasSkill("Priceless") || targ->HasSkill("Cursed")) {
       if(mind) mind->Send("You can't sell %s.\n", targ->Name(0, body));
       return 0;
       }
