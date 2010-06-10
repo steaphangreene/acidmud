@@ -3202,7 +3202,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     else {
       typeof(targs.begin()) targ;
       for(targ = targs.begin(); targ != targs.end(); ++targ) {
-	int ret = body->Drop(*targ, nmode);
+	int ret = body->Drop(*targ, 1, nmode);
 	if(ret == -1) {		//Totally Failed
 	  if(mind) mind->Send("You can't drop %s here.\n",
 		(*targ)->Name(0, body)
@@ -3323,12 +3323,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	delete nuke;
 
 	if(targ->HasSkill("Perishable")) {
-	  targ->Travel(body->Parent());
-	  body->Parent()->SendOut(stealth_t, stealth_s,
-		";s drops ;s.\n", "You drop ;s.\n",
-		body, targ
-		);
-	  targ->Activate();
+	  body->Drop(targ);
 	  }
 	}
       else {
@@ -3551,13 +3546,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     else if(body->ActTarg(ACT_HOLD)		//Dragging an item
 		&& body->ActTarg(ACT_HOLD)->Parent() != body) {
-      Object *item = body->ActTarg(ACT_HOLD);
-      item->Travel(body->Parent());
-      body->Parent()->SendOut(stealth_t, stealth_s,
-		";s drops ;s.\n", "You drop ;s.\n", body, item);
-      if(item->HasSkill("Perishable")) {
-	item->Activate();
-	}
+      body->Drop(body->ActTarg(ACT_HOLD));
       }
     else if(body->ActTarg(ACT_HOLD)) {	//Regular held item
       Object *item = body->ActTarg(ACT_HOLD);
@@ -3964,6 +3953,11 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	if(mind) mind->Send("Oh, no!  You can't use %s - it's two-handed!\n",
 		body->ActTarg(ACT_WIELD)->Name(0, body)
 		);
+	if(body->DropOrStash(body->ActTarg(ACT_WIELD))) {
+	  if(mind) mind->Send("Oh, no!  You can't drop or stash %s!\n",
+		body->ActTarg(ACT_WIELD)->Name(0, body)
+		);
+	  }
 	}
       else {
 	if(body->ActTarg(ACT_HOLD)) {	//Unhold your shield
@@ -3988,6 +3982,12 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       body->AddAct(ACT_HOLD, targ);
       body->Parent()->SendOut(stealth_t, stealth_s,
 	";s holds ;s.\n", "You hold ;s.\n", body, targ
+	);
+      }
+    else if(mind && body->ActTarg(ACT_WEAR_SHIELD)
+		&& body->ActTarg(ACT_WEAR_SHIELD) != body->ActTarg(ACT_HOLD)) {
+      mind->Send("Oh, no!  You can't use %s - your off-hand is not free!\n",
+	body->ActTarg(ACT_WEAR_SHIELD)->Name(0, body)
 	);
       }
 
