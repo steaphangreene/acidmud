@@ -678,8 +678,7 @@ const char *Object::Name(int definite, Object *rel, Object *sub) const {
     }
 
   if(!Attribute(1)) {
-    Object *pos = parent;
-    while(pos && (!pos->Attribute(1))) pos = pos->Parent();
+    Object *pos = Owner();
     if(pos && pos == rel) {
       ret = string("your ") + ret;
       }
@@ -3094,3 +3093,8 @@ int Object::SubHasSkill(const string &s) const {
   return 0;
   }
 
+Object *Object::Owner() const {
+  Object *owner = parent;
+  while(owner && (!owner->Attribute(1))) owner = owner->Parent();
+  return owner;
+  }

@@ -2707,7 +2707,14 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     else if(targ == body->ActTarg(ACT_HOLD)) {
       if(mind) mind->Send("You can't put %s into itself.\n",
-	body->ActTarg(ACT_HOLD)->Name(0, body));
+	body->ActTarg(ACT_HOLD)->Name(0, body)
+	);
+      }
+    else if((!nmode) && body->ActTarg(ACT_HOLD)->SubHasSkill("Cursed")
+		&& targ->Owner() != body) {
+      if(mind) mind->Send("You can't seem to part with %s.\n",
+	body->ActTarg(ACT_HOLD)->Name(0, body)
+	);
       }
     else {
       int closed = 0, res = 0;

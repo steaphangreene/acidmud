@@ -150,6 +150,8 @@ public:
   int DropOrStash(Object *item, int message = 1, int force = 0, int try_combine = 1);
   int StashOrDrop(Object *item, int message = 1, int force = 0, int try_combine = 1);
 
+  Object *Owner() const;
+
   Object *PickObject(const char *, int loc, int *ordinal=NULL);
   list<Object *> PickObjects(const char *, int loc, int *ordinal=NULL);
   void NotifyGone(Object *obj, Object *newloc = NULL, int up = 1);
