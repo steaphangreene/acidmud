@@ -3050,7 +3050,7 @@ int Object::Drop(Object *item, int message, int force, int try_combine) {
   if(!parent) return 1;
 
 	//Can't drop cursed stuff (unless ninja or otherwise forcing)
-  if((!force) && item->HasSkill("Cursed")) {
+  if((!force) && item->SubHasSkill("Cursed")) {
     return -4;
     }
 
@@ -3084,3 +3084,13 @@ int Object::StashOrDrop(Object *item, int message, int force, int try_combine) {
     }
   return 0;
   }
+
+int Object::SubHasSkill(const string &s) const {
+  if(HasSkill(s)) return 1;
+  typeof(contents.begin()) item = contents.begin();
+  for(; item != contents.end(); ++item) {
+    if((*item)->SubHasSkill(s)) return 1;
+    }
+  return 0;
+  }
+

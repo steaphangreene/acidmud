@@ -5295,8 +5295,6 @@ int handle_command(Object *body, const char *cl, Mind *mind) {
   int ret = 0;
   char *start = (char*)cl, *end = (char*)cl;
 
-  fprintf(stderr, "comline: '%s'\n", cl);
-
   if(mind && mind->SpecialPrompt()[0] != 0) {
     string cmd = string(mind->SpecialPrompt()) + " " + cl;
     ret = handle_single_command(body, cmd.c_str(), mind);
