@@ -3041,3 +3041,25 @@ string Object::WearNames(int m) const {
   return WearNames(WearSlots(m));
   }
 
+int Object::Drop(Object *item, int force, int message) {
+  if(!item) return 1;
+  if(!parent) return 1;
+
+	//Can't drop cursed stuff (unless ninja or otherwise forcing)
+  if((!force) && item->HasSkill("Cursed")) {
+    return -4;
+    }
+
+  int ret = item->Travel(parent);
+  if(ret) return ret;
+
+	//Activate perishable dropped stuff, so it will rot
+  if(item->HasSkill("Perishable")) {
+    item->Activate();
+    }
+
+  if(message) {
+    parent->SendOut(0, 0, ";s drops ;s.\n", "You drop ;s.\n", this, item);
+    }
+  return 0;
+  }

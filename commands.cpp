@@ -3176,17 +3176,31 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     else {
       typeof(targs.begin()) targ;
       for(targ = targs.begin(); targ != targs.end(); ++targ) {
-	if((!nmode) && (*targ)->HasSkill("Cursed")) {
-	  if(mind) mind->Send("You can't seem to drop %s!\n",
-		(*targ)->Name(0, body));
+	int ret = body->Drop(*targ, nmode);
+	if(ret == -1) {		//Totally Failed
+	  if(mind) mind->Send("You can't drop %s here.\n",
+		(*targ)->Name(0, body)
+		);
 	  }
-	else {
-	  body->Parent()->SendOut(stealth_t, stealth_s,
-		";s drops ;s.\n", "You drop ;s.\n", body, *targ);
-	  (*targ)->Travel(body->Parent());
-	  if((*targ)->HasSkill("Perishable")) {
-	    (*targ)->Activate();
-	    }
+	else if(ret == -2) {	//Exceeds Capacity
+	  if(mind) mind->Send("You can't drop %s, there isn't room.\n",
+		(*targ)->Name(0, body)
+		);
+	  }
+	else if(ret == -3) {	//Exceeds Weight Limit
+	  if(mind) mind->Send("You can't drop %s, it's too heavy.\n",
+		(*targ)->Name(0, body)
+		);
+	  }
+	else if(ret == -4) {	//Cursed
+	  if(mind) mind->Send("You don't seem to be able to drop %s!\n",
+		(*targ)->Name(0, body)
+		);
+	  }
+	else if(ret != 0) {	//?
+	  if(mind) mind->Send("You can't seem to drop %s!\n",
+		(*targ)->Name(0, body)
+		);
 	  }
 	}
       }
