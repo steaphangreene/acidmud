@@ -681,10 +681,10 @@ static void add_circle_spell(Object *obj, int spell, int power) {
 	//FIXME: Translate!
       } break;
     case(15): {		// CURE_CRITIC
-      obj->SetSkill("Heal Effect", power);
+      obj->SetSkill("Heal Spell", power);
       } break;
     case(16): {		// CURE_LIGHT
-      obj->SetSkill("Energize Effect", power);
+      obj->SetSkill("Energize Spell", power);
       } break;
     case(17): {		// CURSE
 	//FIXME: Translate!
@@ -720,8 +720,8 @@ static void add_circle_spell(Object *obj, int spell, int power) {
 	//FIXME: Translate!
       } break;
     case(28): {		// HEAL
-      obj->SetSkill("Heal Effect", power);
-      obj->SetSkill("Energize Effect", power);
+      obj->SetSkill("Heal Spell", power);
+      obj->SetSkill("Energize Spell", power);
       } break;
     case(29): {		// INVISIBLE
 	//FIXME: Translate!
@@ -742,7 +742,7 @@ static void add_circle_spell(Object *obj, int spell, int power) {
 	//FIXME: Translate!
       } break;
     case(35): {		// REMOVE CURSE
-      obj->SetSkill("Remove Curse Effect", power);
+      obj->SetSkill("Remove Curse Spell", power);
       } break;
     case(36): {		// SANCTUARY
 	//FIXME: Translate!
@@ -763,10 +763,10 @@ static void add_circle_spell(Object *obj, int spell, int power) {
 	//FIXME: Translate!
       } break;
     case(42): {		// WORD OF RECALL
-      obj->SetSkill("Recall Effect", power);
+      obj->SetSkill("Recall Spell", power);
       } break;
     case(43): {		// REMOVE_POISON
-      obj->SetSkill("Cure Effect", power);
+      obj->SetSkill("Cure Spell", power);
       } break;
     case(44): {		// SENSE LIFE
 	//FIXME: Translate!

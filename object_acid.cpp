@@ -209,7 +209,7 @@ int Object::LoadFrom(FILE *fl) {
 //    }
 
 //  if(HasSkill("Rejuvenate Effect")) {
-//    SetSkill("Energize Effect", Skill("Rejuvenate Effect"));
+//    SetSkill("Energize Spell", Skill("Rejuvenate Effect"));
 //    SetSkill("Rejuvenate Effect", 0);
 //    }
 
