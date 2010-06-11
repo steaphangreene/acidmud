@@ -2884,12 +2884,12 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     if(!comline[len]) {
       if(body->IsAct(ACT_WIELD)) {
 	Object *wield = body->ActTarg(ACT_WIELD);
-	if((!nmode) && wield && wield->HasSkill("Cursed")) {
+	if((!nmode) && wield && wield->SubHasSkill("Cursed")) {
 	  if(mind) mind->Send("You can't seem to stop wielding %s!\n",
 	    wield->Name(0, body)
 	    );
 	  }
-	else if(wield && body->Stash(wield)) {
+	else if(wield && body->Stash(wield, 0)) {
 	  body->Parent()->SendOut(stealth_t, stealth_s,
 		";s stops wielding and stashes ;s.\n",
 		"You stop wielding and stash ;s.\n",
@@ -2905,10 +2905,10 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		body->ActTarg(ACT_HOLD)->Name(1, body), wield->Name(1, body));
 	  }
 	else {
-	  body->AddAct(ACT_HOLD, wield);
 	  body->StopAct(ACT_WIELD);
 	  body->Parent()->SendOut(stealth_t, stealth_s, ";s stops wielding ;s.\n",
 		"You stop wielding ;s.\n", body, wield);
+	  if(!body->Stash(wield)) body->AddAct(ACT_HOLD, wield);
 	  }
 	}
       else {
@@ -2957,13 +2957,25 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  return 0;
 	  }
 	}
+
+	//Auto-unwield (trying to wield something else)
+      Object *wield = body->ActTarg(ACT_WIELD);
+      if((!nmode) && wield && wield->SubHasSkill("Cursed")) {
+	if(mind) mind->Send("You can't seem to stop wielding %s!\n",
+	  wield->Name(0, body)
+	  );
+	return 0;
+	}
       targ->Travel(body, 0); // Kills Holds and Wields on "targ"
-      if(body->IsAct(ACT_WIELD)) {
-	Object *wield = body->ActTarg(ACT_WIELD);
-	body->AddAct(ACT_HOLD, wield);
+      if(wield) {
 	body->StopAct(ACT_WIELD);
-	body->Parent()->SendOut(stealth_t, stealth_s, ";s stops wielding ;s.\n",
-		"You stop wielding ;s.\n", body, wield);
+	body->Parent()->SendOut(stealth_t, stealth_s,
+		";s stops wielding ;s.\n", "You stop wielding ;s.\n",
+		body, wield
+		);
+	if(!body->Stash(wield)) {		//Try to stash first
+	  body->AddAct(ACT_HOLD, wield);	//If not, just hold it
+	  }
 	}
       body->AddAct(ACT_WIELD, targ);
       body->Parent()->SendOut(stealth_t, stealth_s,
@@ -3007,6 +3019,17 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       body->AddAct(ACT_HOLD, targ);
       body->Parent()->SendOut(stealth_t, stealth_s,
 	";s holds ;s.\n", "You hold ;s.\n", body, targ);
+      }
+    else if(body->Wearing(targ) && targ->SubHasSkill("Cursed")) {
+      if(mind) {
+	if(body->ActTarg(ACT_WIELD) == targ) {
+	  mind->Send("You can't seem to stop wielding %s!\n",
+		targ->Name(0, body));
+	  }
+	else {
+	  mind->Send("You can't seem to remove %s.\n", targ->Name(0, body));
+	  }
+	}
       }
     else {
       if(body->IsAct(ACT_HOLD)) { //Means it's a shield/2-h weapon due to above.

@@ -3058,8 +3058,16 @@ Object *Object::Stash(Object *item, int message, int force, int try_combine) {
   //See if it actually makes it!
   if(dest && (item->Travel(dest, try_combine))) dest = NULL;
 
+
   if(message && dest) {
+    int openclose = 0;
+    if(dest->Skill("Open") < 1) openclose = 1;
+
+    if(openclose)
+      parent->SendOut(0, 0, ";s opens ;s.\n", "You open ;s.\n", this, dest);
     parent->SendOut(0, 0, ";s stashes ;s.\n", "You stash ;s.\n", this, item);
+    if(openclose)
+      parent->SendOut(0, 0, ";s closes ;s.\n", "You close ;s.\n", this, dest);
     }
 
   return dest;

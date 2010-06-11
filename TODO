@@ -40,14 +40,9 @@ Implement Roll Object for passing complete rolls.
 Handle REAL contested roll for perception/stealth in normal actions.
 
 Cleanup item manipulation commands.
-Make auto-unwield from wielding another item also use autostashing.
-Add autostashing to "wield" command's unwield.
 Wear/wield from own containers need auto open/close.
-Intelligent stashing needs auto open/close.
 
 Cleanup the remaining Object::Send*(ALL, 0, ...) hacks.
-
-Implement more uses of "consider" command?
 
 Place circle-placed objects on back if on chest (plus other corrections).
 Let "remove" command also handle unwielding?
