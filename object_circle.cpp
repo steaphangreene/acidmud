@@ -205,7 +205,7 @@ void Object::CircleFinishMob(Object *mob) {
     bag->SetVolume(1);
     bag->SetValue(100);
 
-    bag->SetPos(POS_LIE);
+    bag->SetSkill("Perishable", 1);
     mob->AddAct(ACT_WEAR_RHIP, bag);
 
     if(!gold) init_gold();
@@ -420,7 +420,7 @@ void Object::CircleLoadZon(const char *fn) {
 		lastbag->SetVolume(5);
 		lastbag->SetValue(200);
 
-		lastbag->SetPos(POS_LIE);
+		lastbag->SetSkill("Perishable", 1);
 		lastmob->AddAct(ACT_WEAR_LSHOULDER, lastbag);
 		}
 	      obj->Travel(lastbag);
