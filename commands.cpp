@@ -127,6 +127,8 @@ enum {	COM_HELP=0,
 	COM_STAND,
 	COM_USE,
 	COM_STOP,
+	COM_CAST,
+	COM_PRAY,
 
 	COM_SHOUT,
 	COM_YELL,
@@ -440,6 +442,16 @@ Command comlist[] = {
   { COM_STOP, "stop",
     "Stop using a skill.",
     "Stop using a skill.",
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
+    },
+  { COM_CAST, "cast",
+    "Cast a spell.",
+    "Cast a spell.",
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
+    },
+  { COM_PRAY, "pray",
+    "Use faith to enhance another command.",
+    "Use faith to enhance another command.",
     (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
 
@@ -3854,6 +3866,46 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		";s stop following ;s.\n", "You stop following ;s.\n",
 		body, body->ActTarg(ACT_FOLLOW));
       body->StopAct(ACT_FOLLOW);
+      }
+    return 0;
+    }
+
+  if(com == COM_CAST) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(!comline[len]) {
+      if(mind) mind->Send("What spell you want to cast?\n");
+      return 0;
+      }
+    if(!strncasecmp("Identify", comline+len, strlen(comline+len))) {
+      if(!body->SubHasSkill("Identify Spell")) {
+	if(mind) mind->Send(
+		"You don't know the Identify Spell and have no items enchanted with it.\n"
+		);
+	}
+      else {
+	if(mind) mind->Send("Casting Identify (unimplemented!)....\n");
+	}
+      }
+    else {
+      if(mind) mind->Send("You don't know that spell.\n");
+      }
+    return 0;
+    }
+
+  if(com == COM_PRAY) {
+    if(!mind) return 0;
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+
+    if(strlen(comline+len) <= 0) {
+      mind->Send("What command do you want to pray for?\n");
+      mind->Send("You need to include the command, like 'pray kill Joe'.\n");
+      }
+    else {
+      //FIXME: Tell sub-command you're praying!
+      body->Parent()->SendOut(stealth_t, stealth_s,
+	";s prays.\n", "You pray.\n", body, NULL
+	);
+      handle_single_command(body, comline+len, mind);
       }
     return 0;
     }
