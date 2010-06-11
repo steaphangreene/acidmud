@@ -1069,9 +1069,7 @@ void Object::CircleLoadObj(const char *fn) {
 	obj->SetSkill("Magical", val[0]);
 	obj->SetSkill("Magical Scroll", val[0]);
 	for(int idx=1; idx < 4; ++idx) {
-	  switch(val[idx]) {
-	    add_circle_spell(obj, val[idx], val[0]);
-	    }
+	  add_circle_spell(obj, val[idx], val[0]);
 	  }
 	}
       else if(tp == 3) { // WAND
