@@ -639,46 +639,46 @@ static void add_circle_spell(Object *obj, int spell, int power) {
     case(-1): {		// No Effect
       } break;
     case(1): {		// ARMOR
-      obj->SetSkill("Armor Spell", power);
+      obj->SetSkill("Resilience Spell", power);
       } break;
     case(2): {		// TELEPORT
       obj->SetSkill("Teleport Spell", power);
       } break;
     case(3): {		// BLESS
-      obj->SetSkill("Bless Spell", power);
+      obj->SetSkill("Luck Spell", power);
       } break;
     case(4): {		// BLINDNESS
-      obj->SetSkill("Blindness Spell", power);
+      obj->SetSkill("Blind Spell", power);
       } break;
     case(5): {		// BURNING HANDS
-	//FIXME: Translate!
+      obj->SetSkill("Fire Dart Spell", power);
       } break;
     case(6): {		// CALL LIGHTNING
-	//FIXME: Translate!
+      obj->SetSkill("Lightning Bolt Spell", power);
       } break;
     case(7): {		// CHARM
-	//FIXME: Translate!
+      obj->SetSkill("Influence Spell", power);
       } break;
     case(8): {		// CHILL TOUCH
-	//FIXME: Translate!
+      obj->SetSkill("Injure Spell", power);
       } break;
     case(9): {		// CLONE
-	//FIXME: Translate!
+      obj->SetSkill("Copy Book Spell", power);
       } break;
     case(10): {		// COLOR SPRAY
-	//FIXME: Translate!
+      obj->SetSkill("Distract Spell", power);
       } break;
     case(11): {		// CONTROL WEATHER
-	//FIXME: Translate!
+      obj->SetSkill("Clear Weather Spell", power);
       } break;
     case(12): {		// CREATE FOOD
-	//FIXME: Translate!
+      obj->SetSkill("Create Food Spell", power);
       } break;
     case(13): {		// CREATE WATER
-	//FIXME: Translate!
+      obj->SetSkill("Create Water Spell", power);
       } break;
     case(14): {		// CURE BLIND
-	//FIXME: Translate!
+      obj->SetSkill("Cure Blindness Spell", power);
       } break;
     case(15): {		// CURE_CRITIC
       obj->SetSkill("Heal Spell", power);
@@ -687,80 +687,80 @@ static void add_circle_spell(Object *obj, int spell, int power) {
       obj->SetSkill("Energize Spell", power);
       } break;
     case(17): {		// CURSE
-	//FIXME: Translate!
+      obj->SetSkill("Misfortune Spell", power);
       } break;
     case(18): {		// DETECT ALIGN
-	//FIXME: Translate!
+      obj->SetSkill("Identify Character Spell", power);
       } break;
     case(19): {		// DETECT INVIS
-	//FIXME: Translate!
+      obj->SetSkill("Heat Vision Spell", power);
       } break;
     case(20): {		// DETECT MAGIC
-	//FIXME: Translate!
+      obj->SetSkill("Detect Cursed Items Spell", power);
       } break;
     case(21): {		// DETECT POISON
-	//FIXME: Translate!
+      obj->SetSkill("Detect Poison Spell", power);
       } break;
     case(22): {		// DETECT EVIL
-	//FIXME: Translate!
+      obj->SetSkill("Identify Person Spell", power);
       } break;
     case(23): {		// EARTHQUAKE
-	//FIXME: Translate!
+      obj->SetSkill("Earthquake Spell", power);
       } break;
     case(24): {		// ENCHANT WEAPON
-	//FIXME: Translate!
+      obj->SetSkill("Force Sword Spell", power);
       } break;
     case(25): {		// ENERGY DRAIN
-	//FIXME: Translate!
+      obj->SetSkill("Weaken Subject Spell", power);
       } break;
     case(26): {		// FIREBALL
-	//FIXME: Translate!
+      obj->SetSkill("Fireball Spell", power);
       } break;
     case(27): {		// HARM
-	//FIXME: Translate!
+      obj->SetSkill("Harm Spell", power);
       } break;
     case(28): {		// HEAL
       obj->SetSkill("Heal Spell", power);
       obj->SetSkill("Energize Spell", power);
       } break;
     case(29): {		// INVISIBLE
-	//FIXME: Translate!
+      obj->SetSkill("Invisibility Spell", power);
       } break;
     case(30): {		// LIGHTNING BOLT
-	//FIXME: Translate!
+      obj->SetSkill("Fire Burst Spell", power);
       } break;
     case(31): {		// LOCATE OBJECT
-	//FIXME: Translate!
+      obj->SetSkill("Locate Object Spell", power);
       } break;
     case(32): {		// MAGIC MISSILE
-	//FIXME: Translate!
+      obj->SetSkill("Force Arrow Spell", power);
       } break;
     case(33): {		// POISON
       obj->SetSkill("Poisonous", power);
       } break;
     case(34): {		// PROT FROM EVIL
-	//FIXME: Translate!
+      obj->SetSkill("Personal Shield Spell", power);
       } break;
     case(35): {		// REMOVE CURSE
       obj->SetSkill("Remove Curse Spell", power);
       } break;
     case(36): {		// SANCTUARY
-	//FIXME: Translate!
+      obj->SetSkill("Treatment Spell", power);
       } break;
     case(37): {		// SHOCKING GRASP
-	//FIXME: Translate!
+      obj->SetSkill("Spark Spell", power);
       } break;
     case(38): {		// SLEEP
-	//FIXME: Translate!
+      obj->SetSkill("Sleep Other Spell", power);
       } break;
     case(39): {		// STRENGTH
-	//FIXME: Translate!
+      obj->SetSkill("Strength Spell", power);
       } break;
     case(40): {		// SUMMON
-	//FIXME: Translate!
+      obj->SetSkill("Summon Creature Spell", power);
       } break;
     case(41): {		// VENTRILOQUATE
-	//FIXME: Translate!
+      obj->SetSkill("Translate Spell", power);
       } break;
     case(42): {		// WORD OF RECALL
       obj->SetSkill("Recall Spell", power);
@@ -769,28 +769,28 @@ static void add_circle_spell(Object *obj, int spell, int power) {
       obj->SetSkill("Cure Spell", power);
       } break;
     case(44): {		// SENSE LIFE
-	//FIXME: Translate!
+      obj->SetSkill("Light Spell", power);
       } break;
     case(45): {		// ANIMATE DEAD
-	//FIXME: Translate!
+      obj->SetSkill("Create Zombie Spell", power);
       } break;
-    case(46): {		// DISPEL GOOD
-	//FIXME: Translate!
+    case(46): {		// DISPEL GOOD??
+      obj->SetSkill("Bang and Puff of Smoke Spell", power);
       } break;
     case(47): {		// GROUP ARMOR
-	//FIXME: Translate!
+      obj->SetSkill("Group Resilience Spell", power);
       } break;
     case(48): {		// GROUP HEAL
-	//FIXME: Translate!
+      obj->SetSkill("Heal Group Spell", power);
       } break;
     case(49): {		// GROUP RECALL
-	//FIXME: Translate!
+      obj->SetSkill("Recall Group Spell", power);
       } break;
     case(50): {		// INFRAVISION
-	//FIXME: Translate!
+      obj->SetSkill("Dark Vision Spell", power);
       } break;
     case(51): {		// WATERWALK
-	//FIXME: Translate!
+      obj->SetSkill("Float Spell", power);
       } break;
     case(201): {	// IDENTIFY
       obj->SetSkill("Identify Spell", power);
