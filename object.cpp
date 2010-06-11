@@ -3118,3 +3118,8 @@ Object *Object::Owner() const {
   while(owner && (!owner->Attribute(1))) owner = owner->Parent();
   return owner;
   }
+
+int Object::Quantity() const {
+  if(!HasSkill("Quantity")) return 1;
+  return Skill("Quantity");
+  }

@@ -1635,6 +1635,79 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  }
 	}
 
+	//Containers
+      int wtlimit = 0;
+      int szlimit = 0;
+      if(targ->HasSkill("Container")) {
+	mind->Send("%s is a container\n", targ->Name(1, body));
+
+	wtlimit = targ->Skill("Container");
+	szlimit = targ->Skill("Capacity");
+	if(targ->Contents().size() == 0) {
+	  mind->Send("   ...it is empty.\n");
+	  }
+	else {
+	  if(targ->ContainedWeight() < wtlimit / 10) {
+	    mind->Send("   ...it is nearly unloaded.\n");
+	    }
+	  else if(targ->ContainedWeight() < wtlimit / 2) {
+	    mind->Send("   ...it is less than half loaded.\n");
+	    }
+	  else if(targ->ContainedWeight() < wtlimit * 9/10) {
+	    mind->Send("   ...it is more than half loaded.\n");
+	    }
+	  else if(targ->ContainedWeight() < wtlimit) {
+	    mind->Send("   ...it is heavily laden.\n");
+	    }
+	  else {
+	    mind->Send("   ...it can hold no more.\n");
+	    }
+
+	  if(targ->ContainedVolume() < szlimit / 10) {
+	    mind->Send("   ...it is nearly empty.\n");
+	    }
+	  else if(targ->ContainedVolume() < szlimit / 2) {
+	    mind->Send("   ...it is less than half full.\n");
+	    }
+	  else if(targ->ContainedVolume() < szlimit * 9/10) {
+	    mind->Send("   ...it is more than half full.\n");
+	    }
+	  else if(targ->ContainedVolume() < szlimit) {
+	    mind->Send("   ...it is nearly full.\n");
+	    }
+	  else {
+	    mind->Send("   ...it is full.\n");
+	    }
+	  }
+	}
+
+	//Liquid Containers
+      int volume = 0;
+      if(targ->HasSkill("Liquid Container")) {
+	mind->Send("%s is a liquid container\n", targ->Name(1, body));
+	volume = targ->Skill("Capacity");
+	if(targ->Contents().size() == 0) {
+	  mind->Send("   ...it is empty.\n");
+	  }
+	else {
+	  if(targ->Contents().front()->Quantity() < volume / 10) {
+	    mind->Send("   ...it is nearly empty.\n");
+	    }
+	  else if(targ->Contents().front()->Quantity() < volume / 2) {
+	    mind->Send("   ...it is less than half full.\n");
+	    }
+	  else if(targ->Contents().front()->Quantity() < volume * 9/10) {
+	    mind->Send("   ...it is more than half full.\n");
+	    }
+	  else if(targ->Contents().front()->Quantity() < volume) {
+	    mind->Send("   ...it is nearly full.\n");
+	    }
+	  else {
+	    mind->Send("   ...it is full.\n");
+	    }
+	  }
+	}
+
 	//Armor/Clothing
       int all = targ->WearMask();
       int num = count_ones(all);
@@ -1676,7 +1749,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		}
 	      }
 	    else if(repls.size() == 1) {
-	      mind->Send("...it is already being worn there.\n");
+	      mind->Send("   ...it is already being worn there.\n");
 	      }
 	    }
 	  }
@@ -3176,11 +3249,6 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(!body->Stash(targ)) {
 	if(mind) mind->Send("You have no place to stash %s.\n",
 		targ->Name(0, body)
-		);
-	}
-      else {
-	body->Parent()->SendOut(stealth_t, stealth_s,
-		";s stashes ;s.\n", "You stash ;s.\n", body, targ
 		);
 	}
       }

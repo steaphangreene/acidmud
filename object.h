@@ -241,6 +241,8 @@ public:
   string WearNames(const set<act_t> &locs) const;
   string WearNames(int m = -1) const;
 
+  int Quantity() const;
+
   void Collapse();
 
   void StopAll();
