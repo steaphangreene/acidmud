@@ -3097,17 +3097,28 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     }
 
   if(com == COM_WEAR) {
+    typeof(body->Contents()) targs;
+
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
-      if(mind) mind->Send("What do you want to wear?\n");
-      return 0;
+      if(body->ActTarg(ACT_HOLD)) {
+	targs.push_back(body->ActTarg(ACT_HOLD));
+	}
+      else {
+	if(mind) {
+	  mind->Send("What do you want to wear?  ");
+	  mind->Send("Use 'wear <item>' or hold the item first.\n");
+	  }
+	return 0;
+	}
       }
 
-    typeof(body->Contents()) targs
-	= body->PickObjects(comline+len, LOC_NOTWORN|LOC_INTERNAL);
-    if(!targs.size()) {
-      if(mind) mind->Send("You want to wear what?\n");
-      return 0;
+    if(targs.size() < 1) {
+      targs = body->PickObjects(comline+len, LOC_NOTWORN|LOC_INTERNAL);
+      if(!targs.size()) {
+	if(mind) mind->Send("You want to wear what?\n");
+	return 0;
+	}
       }
 
     int did_something = 0;
