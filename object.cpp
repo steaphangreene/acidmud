@@ -382,7 +382,7 @@ int Object::Tick() {
       typeof(contents.begin()) cur;
       for(cur = contents.begin(); cur != contents.end(); ++cur) {
 	Object *item = (*cur);
-	if(item->contents.size() > 0 && item->Matches("CircleMUD")) {
+	if(item->contents.size() > 0 && item->Pos() == POS_NONE) {
 	  todropfrom.push_back(item);
 	  }
 	else {
@@ -395,7 +395,7 @@ int Object::Tick() {
 	Object *con = (*tdf);
 	for(cur = con->contents.begin(); cur != con->contents.end(); ++cur) {
 	  Object *item = (*cur);
-	  if(item->contents.size() > 0 && item->Matches("CircleMUD")) {
+	  if(item->contents.size() > 0 && item->Pos() == POS_NONE) {
 	    todropfrom.push_back(item);
 	    }
 	  else {
@@ -406,7 +406,7 @@ int Object::Tick() {
 
       set<Object*>::iterator td;
       for(td = todrop.begin(); td != todrop.end(); ++td) {
-	if(Parent()) (*td)->Travel(Parent());
+	if(Parent()) Drop(*td, 0, 1);
 	else delete (*td);
 	}
 
@@ -2537,6 +2537,7 @@ void Object::FreeActions() {
   }
 
 string Object::Tactics(int phase) {
+  if(minds.size() < 1) return "attack";
   Mind *mind = (*(minds.begin()));	//FIXME: Handle Multiple Minds
   Object *body = mind->Body();
   mind->Attach(this);
