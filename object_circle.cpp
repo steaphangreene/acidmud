@@ -897,6 +897,20 @@ void Object::CircleLoadObj(const char *fn) {
 	  }
 
 	}
+      else if(tp == 2) { // SCROLL
+	obj->SetSkill("Magical Scroll", val[0]);
+	obj->SetSkill("Magical", val[0]);
+	for(int idx=1; idx < 4; ++idx) {
+	  switch(val[idx]) {
+	    case(201): {	// IDENTIFY
+	      obj->SetSkill("Identify Spell", val[0]);
+	      } break;
+	    case(42): {		// Recall
+	      obj->SetSkill("Recall Effect", val[0]);
+	      } break;
+	    }
+	  }
+	}
       else if(tp == 10) { // POTION
 	obj->SetSkill("Liquid Container", 1);
 	obj->SetSkill("Capacity", 1);
@@ -968,25 +982,29 @@ void Object::CircleLoadObj(const char *fn) {
 		201	identify
 		*/
 	    case(16): {		// CURE_LIGHT
-	      liq->SetShortDesc("white");
+	      liq->SetShortDesc("a white liquid");
 	      liq->SetSkill("Energize Effect", val[0]);
 	      } break;
 	    case(15): {		// CURE_CRITIC
-	      liq->SetShortDesc("blue");
+	      liq->SetShortDesc("a blue liquid");
 	      liq->SetSkill("Heal Effect", val[0]);
 	      } break;
 	    case(28): {		// HEAL
-	      liq->SetShortDesc("black");
+	      liq->SetShortDesc("a black liquid");
 	      liq->SetSkill("Heal Effect", val[0]);
 	      liq->SetSkill("Energize Effect", val[0]);
 	      } break;
 	    case(33): {		// POISON
-	      liq->SetShortDesc("red");
+	      liq->SetShortDesc("a red liquid");
 	      liq->SetSkill("Poisonous", val[0]);
 	      } break;
 	    case(43): {		// REMOVE_POISON
-	      liq->SetShortDesc("silver");
+	      liq->SetShortDesc("a silver liquid");
 	      liq->SetSkill("Cure Effect", val[0]);
+	      } break;
+	    case(42): {		// Recall
+	      liq->SetShortDesc("a green liquid");
+	      obj->SetSkill("Recall Effect", val[0]);
 	      } break;
 	    }
 	  }
