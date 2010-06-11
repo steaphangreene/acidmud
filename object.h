@@ -197,6 +197,7 @@ public:
   int Skill(const string &, int *tnum = NULL) const;
   int HasSkill(const string &) const;
   int SubHasSkill(const string &) const;
+  Object *FirstHasSkill(const string &);
   const map<AtomString,int> &GetSkills() const { return skills; }
 
   void SetAttribute(int, int);

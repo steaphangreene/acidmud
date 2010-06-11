@@ -3122,6 +3122,16 @@ int Object::SubHasSkill(const string &s) const {
   return 0;
   }
 
+Object *Object::FirstHasSkill(const string &s) {
+  if(HasSkill(s)) return this;
+  typeof(contents.begin()) item = contents.begin();
+  for(; item != contents.end(); ++item) {
+    Object *found = (*item)->FirstHasSkill(s);
+    if(found) return found;
+    }
+  return NULL;
+  }
+
 Object *Object::Owner() const {
   Object *owner = parent;
   while(owner && (!owner->Attribute(1))) owner = owner->Parent();
