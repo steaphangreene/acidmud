@@ -633,6 +633,174 @@ void Object::CircleLoadMob(const char *fn) {
     }
   }
 
+
+static void add_circle_spell(Object *obj, int spell, int power) {
+  switch(spell) {
+    case(-1): {		// No Effect
+      } break;
+    case(1): {		// ARMOR
+      obj->SetSkill("Armor Spell", power);
+      } break;
+    case(2): {		// TELEPORT
+      obj->SetSkill("Teleport Spell", power);
+      } break;
+    case(3): {		// BLESS
+      obj->SetSkill("Bless Spell", power);
+      } break;
+    case(4): {		// BLINDNESS
+      obj->SetSkill("Blindness Spell", power);
+      } break;
+    case(5): {		// BURNING HANDS
+	//FIXME: Translate!
+      } break;
+    case(6): {		// CALL LIGHTNING
+	//FIXME: Translate!
+      } break;
+    case(7): {		// CHARM
+	//FIXME: Translate!
+      } break;
+    case(8): {		// CHILL TOUCH
+	//FIXME: Translate!
+      } break;
+    case(9): {		// CLONE
+	//FIXME: Translate!
+      } break;
+    case(10): {		// COLOR SPRAY
+	//FIXME: Translate!
+      } break;
+    case(11): {		// CONTROL WEATHER
+	//FIXME: Translate!
+      } break;
+    case(12): {		// CREATE FOOD
+	//FIXME: Translate!
+      } break;
+    case(13): {		// CREATE WATER
+	//FIXME: Translate!
+      } break;
+    case(14): {		// CURE BLIND
+	//FIXME: Translate!
+      } break;
+    case(15): {		// CURE_CRITIC
+      obj->SetSkill("Heal Effect", power);
+      } break;
+    case(16): {		// CURE_LIGHT
+      obj->SetSkill("Energize Effect", power);
+      } break;
+    case(17): {		// CURSE
+	//FIXME: Translate!
+      } break;
+    case(18): {		// DETECT ALIGN
+	//FIXME: Translate!
+      } break;
+    case(19): {		// DETECT INVIS
+	//FIXME: Translate!
+      } break;
+    case(20): {		// DETECT MAGIC
+	//FIXME: Translate!
+      } break;
+    case(21): {		// DETECT POISON
+	//FIXME: Translate!
+      } break;
+    case(22): {		// DETECT EVIL
+	//FIXME: Translate!
+      } break;
+    case(23): {		// EARTHQUAKE
+	//FIXME: Translate!
+      } break;
+    case(24): {		// ENCHANT WEAPON
+	//FIXME: Translate!
+      } break;
+    case(25): {		// ENERGY DRAIN
+	//FIXME: Translate!
+      } break;
+    case(26): {		// FIREBALL
+	//FIXME: Translate!
+      } break;
+    case(27): {		// HARM
+	//FIXME: Translate!
+      } break;
+    case(28): {		// HEAL
+      obj->SetSkill("Heal Effect", power);
+      obj->SetSkill("Energize Effect", power);
+      } break;
+    case(29): {		// INVISIBLE
+	//FIXME: Translate!
+      } break;
+    case(30): {		// LIGHTNING BOLT
+	//FIXME: Translate!
+      } break;
+    case(31): {		// LOCATE OBJECT
+	//FIXME: Translate!
+      } break;
+    case(32): {		// MAGIC MISSILE
+	//FIXME: Translate!
+      } break;
+    case(33): {		// POISON
+      obj->SetSkill("Poisonous", power);
+      } break;
+    case(34): {		// PROT FROM EVIL
+	//FIXME: Translate!
+      } break;
+    case(35): {		// REMOVE CURSE
+      obj->SetSkill("Remove Curse Effect", power);
+      } break;
+    case(36): {		// SANCTUARY
+	//FIXME: Translate!
+      } break;
+    case(37): {		// SHOCKING GRASP
+	//FIXME: Translate!
+      } break;
+    case(38): {		// SLEEP
+	//FIXME: Translate!
+      } break;
+    case(39): {		// STRENGTH
+	//FIXME: Translate!
+      } break;
+    case(40): {		// SUMMON
+	//FIXME: Translate!
+      } break;
+    case(41): {		// VENTRILOQUATE
+	//FIXME: Translate!
+      } break;
+    case(42): {		// WORD OF RECALL
+      obj->SetSkill("Recall Effect", power);
+      } break;
+    case(43): {		// REMOVE_POISON
+      obj->SetSkill("Cure Effect", power);
+      } break;
+    case(44): {		// SENSE LIFE
+	//FIXME: Translate!
+      } break;
+    case(45): {		// ANIMATE DEAD
+	//FIXME: Translate!
+      } break;
+    case(46): {		// DISPEL GOOD
+	//FIXME: Translate!
+      } break;
+    case(47): {		// GROUP ARMOR
+	//FIXME: Translate!
+      } break;
+    case(48): {		// GROUP HEAL
+	//FIXME: Translate!
+      } break;
+    case(49): {		// GROUP RECALL
+	//FIXME: Translate!
+      } break;
+    case(50): {		// INFRAVISION
+	//FIXME: Translate!
+      } break;
+    case(51): {		// WATERWALK
+	//FIXME: Translate!
+      } break;
+    case(201): {	// IDENTIFY
+      obj->SetSkill("Identify Spell", power);
+      } break;
+    default: {
+      fprintf(stderr, "Warning: Unhandled CicleMUD Spell: %d\n", spell);
+      }
+    }
+  }
+
 void Object::CircleLoadObj(const char *fn) {
   FILE *mudo = fopen(fn, "r");
   if(mudo) {
@@ -898,21 +1066,28 @@ void Object::CircleLoadObj(const char *fn) {
 
 	}
       else if(tp == 2) { // SCROLL
-	obj->SetSkill("Magical Scroll", val[0]);
 	obj->SetSkill("Magical", val[0]);
+	obj->SetSkill("Magical Scroll", val[0]);
 	for(int idx=1; idx < 4; ++idx) {
 	  switch(val[idx]) {
-	    case(201): {	// IDENTIFY
-	      obj->SetSkill("Identify Spell", val[0]);
-	      } break;
-	    case(42): {		// Recall
-	      obj->SetSkill("Recall Effect", val[0]);
-	      } break;
+	    add_circle_spell(obj, val[idx], val[0]);
 	    }
 	  }
 	}
+      else if(tp == 3) { // WAND
+	obj->SetSkill("Magical", val[0]);
+	obj->SetSkill("Magical Wand", val[1]);
+	obj->SetSkill("Magical Charges", val[2]);
+	add_circle_spell(obj, val[3], val[0]);
+	}
+      else if(tp == 4) { // STAFF
+	obj->SetSkill("Magical", val[0]);
+	obj->SetSkill("Magical Staff", val[1]);
+	obj->SetSkill("Magical Charges", val[2]);
+	add_circle_spell(obj, val[3], val[0]);
+	}
       else if(tp == 10) { // POTION
-	obj->SetSkill("Liquid Container", 1);
+	obj->SetSkill("objuid Container", 1);
 	obj->SetSkill("Capacity", 1);
 	obj->SetSkill("Closeable", 1);
 	obj->SetSkill("Perishable", 1);
@@ -924,89 +1099,9 @@ void Object::CircleLoadObj(const char *fn) {
 	liq->SetVolume(1);
 	liq->SetSkill("Quantity", 1);
 	liq->SetSkill("Magical", val[0]);
-	liq->SetShortDesc("clear");
+	liq->SetShortDesc("some liquid");
 	for(int idx=1; idx < 4; ++idx) {
-	  switch(val[idx]) {
-		/*
-		1	armor
-		2	teleport
-		3	bless
-		4	blindness
-		5	burning hands
-		6	call lightning
-		7	charm
-		8	chill touch
-		9	clone
-		10	color spray
-		11	control weather
-		12	create food
-		13	create water
-		14	cure blind
-		15	cure critic
-		16	cure light
-		17	curse
-		18	detect align
-		19	detect invis
-		20	detect magic
-		21	detect poison
-		22	dispel evil
-		23	earthquake
-		24	enchant weapon
-		25	energy drain
-		26	fireball
-		27	harm
-		28	heal
-		29	invisible
-		30	lightning bolt
-		31	locate object
-		32	magic missile
-		33	poison
-		34	prot from evil
-		35	remove curse
-		36	sanctuary
-		37	shocking grasp
-		38	sleep
-		39	strength
-		40	summon
-		41	ventriloquate
-		42	word of recall
-		43	remove poison
-		44	sense life
-		45	animate dead
-		46	dispel good
-		47	group armor
-		48	group heal
-		49	group recall
-		50	infravision
-		51	waterwalk
-		201	identify
-		*/
-	    case(16): {		// CURE_LIGHT
-	      liq->SetShortDesc("a white liquid");
-	      liq->SetSkill("Energize Effect", val[0]);
-	      } break;
-	    case(15): {		// CURE_CRITIC
-	      liq->SetShortDesc("a blue liquid");
-	      liq->SetSkill("Heal Effect", val[0]);
-	      } break;
-	    case(28): {		// HEAL
-	      liq->SetShortDesc("a black liquid");
-	      liq->SetSkill("Heal Effect", val[0]);
-	      liq->SetSkill("Energize Effect", val[0]);
-	      } break;
-	    case(33): {		// POISON
-	      liq->SetShortDesc("a red liquid");
-	      liq->SetSkill("Poisonous", val[0]);
-	      } break;
-	    case(43): {		// REMOVE_POISON
-	      liq->SetShortDesc("a silver liquid");
-	      liq->SetSkill("Cure Effect", val[0]);
-	      } break;
-	    case(42): {		// Recall
-	      liq->SetShortDesc("a green liquid");
-	      obj->SetSkill("Recall Effect", val[0]);
-	      } break;
-	    }
+	  add_circle_spell(liq, val[idx], val[0]);
 	  }
 	}
       else if(tp == 17 || tp == 23) { // DRINKCON/FOUNTAIN
