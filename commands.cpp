@@ -3877,13 +3877,33 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
     if(!strncasecmp("Identify", comline+len, strlen(comline+len))) {
-      if(!body->SubHasSkill("Identify Spell")) {
+      Object *scroll = body->FirstHasSkill("Identify Spell");
+      if(!scroll) {
 	if(mind) mind->Send(
-		"You don't know the Identify Spell and have no items enchanted with it.\n"
+		"You don't know the Identify Spell"
+		" and have no items enchanted with it.\n"
+		);
+	}
+      else if(!body->ActTarg(ACT_POINT)) {
+	if(mind) mind->Send(
+		"That spell requires you to first point at your target.\n"
 		);
 	}
       else {
-	if(mind) mind->Send("Casting Identify (unimplemented!)....\n");
+	body->Parent()->SendOut(stealth_t, stealth_s,
+	  ";s uses ;s to cast a spell.\n", "You use ;s to cast Identify.\n",
+	  body, scroll
+	  );
+	if(mind) {
+	  Object *targ = body->ActTarg(ACT_POINT);
+	  mind->Send("%s", CCYN);
+	  targ->SendFullSituation(mind, body);
+	  targ->SendActions(mind);
+	  mind->Send("%s", CNRM);
+	  targ->SendScore(mind, body);
+	  targ->SendStats(mind, body);
+	  }
+	delete(scroll);
 	}
       }
     else {
