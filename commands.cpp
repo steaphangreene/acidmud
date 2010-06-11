@@ -1647,36 +1647,36 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  mind->Send("   ...it is empty.\n");
 	  }
 	else {
-	  if(targ->ContainedWeight() < wtlimit / 10) {
-	    mind->Send("   ...it is nearly unloaded.\n");
-	    }
-	  else if(targ->ContainedWeight() < wtlimit / 2) {
-	    mind->Send("   ...it is less than half loaded.\n");
-	    }
-	  else if(targ->ContainedWeight() < wtlimit * 9/10) {
-	    mind->Send("   ...it is more than half loaded.\n");
-	    }
-	  else if(targ->ContainedWeight() < wtlimit) {
-	    mind->Send("   ...it is heavily laden.\n");
-	    }
-	  else {
-	    mind->Send("   ...it can hold no more.\n");
-	    }
-
 	  if(targ->ContainedVolume() < szlimit / 10) {
-	    mind->Send("   ...it is nearly empty.\n");
+	    mind->Send("   ...it is nearly empty, ");
 	    }
 	  else if(targ->ContainedVolume() < szlimit / 2) {
-	    mind->Send("   ...it is less than half full.\n");
+	    mind->Send("   ...it is less than half full, ");
 	    }
 	  else if(targ->ContainedVolume() < szlimit * 9/10) {
-	    mind->Send("   ...it is more than half full.\n");
+	    mind->Send("   ...it is more than half full, ");
 	    }
 	  else if(targ->ContainedVolume() < szlimit) {
-	    mind->Send("   ...it is nearly full.\n");
+	    mind->Send("   ...it is nearly full, ");
 	    }
 	  else {
-	    mind->Send("   ...it is full.\n");
+	    mind->Send("   ...it is full, ");
+	    }
+
+	  if(targ->ContainedWeight() < wtlimit / 10) {
+	    mind->Send("and is nearly unloaded.\n");
+	    }
+	  else if(targ->ContainedWeight() < wtlimit / 2) {
+	    mind->Send("and is less than half loaded.\n");
+	    }
+	  else if(targ->ContainedWeight() < wtlimit * 9/10) {
+	    mind->Send("and is more than half loaded.\n");
+	    }
+	  else if(targ->ContainedWeight() < wtlimit) {
+	    mind->Send("and is heavily laden.\n");
+	    }
+	  else {
+	    mind->Send("and can hold no more.\n");
 	    }
 	  }
 	}
@@ -1685,7 +1685,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       int volume = 0;
       if(targ->HasSkill("Liquid Container")) {
 	mind->Send("%s is a liquid container\n", targ->Name(1, body));
-	volume = targ->Skill("Capacity");
+	volume = targ->Skill("Liquid Container");
 	if(targ->Contents().size() == 0) {
 	  mind->Send("   ...it is empty.\n");
 	  }
@@ -1706,6 +1706,58 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	    mind->Send("   ...it is full.\n");
 	    }
 	  }
+	}
+
+      Object *other = body->ActTarg(ACT_HOLD);
+      if((volume || wtlimit || szlimit) && other && other != targ) {
+	//Containers
+	if(szlimit && other->HasSkill("Capacity")) {
+	  if(szlimit < other->Skill("Capacity")) {
+	    mind->Send("   ...it can't fit as much, ");
+	    }
+	  else if(szlimit > other->Skill("Capacity")) {
+	    mind->Send("   ...it can fit more, ");
+	    }
+	  else {
+	    mind->Send("   ...it can fit the same, ");
+	    }
+	  }
+	if(wtlimit && other->HasSkill("Container")) {
+	  if(wtlimit < other->Skill("Container")) {
+	    mind->Send("and can't carry as much as %s.\n",
+		other->Name(0, body));
+	    }
+	  else if(wtlimit > other->Skill("Container")) {
+	    mind->Send("and can carry more than %s.\n",
+		other->Name(0, body));
+	    }
+	  else {
+	    mind->Send("and can carry the same as %s.\n",
+		other->Name(0, body));
+	    }
+	  }
+
+	//Liquid Containers
+	if(volume && other->HasSkill("Liquid Container")) {
+	  if(volume < other->Skill("Liquid Container")) {
+	    mind->Send("   ...it can't hold as much as %s.\n",
+		other->Name(0, body));
+	    }
+	  else if(volume > other->Skill("Liquid Container")) {
+	    mind->Send("   ...it can hold more than %s.\n",
+		other->Name(0, body));
+	    }
+	  else {
+	    mind->Send("   ...it can hold about the same amount as %s.\n",
+		other->Name(0, body));
+	    }
+	  }
+	}
+      else if((volume || wtlimit || szlimit) && other) {
+	mind->Send("   (hold another of your containers to compare it with)\n");
+	}
+      else if(volume || wtlimit || szlimit) {
+	mind->Send("   (hold one of your containers to compare it with)\n");
 	}
 
 	//Armor/Clothing
