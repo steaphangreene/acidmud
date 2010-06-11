@@ -6,39 +6,47 @@ Implement various types of armor and damage.
 
 Implement real poisoning/diseasing/cursing.
 
-Implement effects of the Blind Spell
 Implement effects of the Create Food Spell
 Implement effects of the Cure Blindness Spell
 Implement effects of the Cure Spell
-Implement effects of the Dark Vision Spell
 Implement effects of the Detect Cursed Items Spell
-Implement effects of the Distract Spell
-Implement effects of the Earthquake Spell
-Implement effects of the Fireball Spell
-Implement effects of the Fire Burst Spell
-Implement effects of the Fire Dart Spell
-Implement effects of the Float Spell
-Implement effects of the Force Arrow Spell
-Implement effects of the Force Sword Spell
-Implement effects of the Harm Spell
-Implement effects of the Heat Vision Spell
 Implement effects of the Identify Character Spell
 Implement effects of the Identify Person Spell
-Implement effects of the Influence Spell
-Implement effects of the Invisibility Spell
-Implement effects of the Lightning Bolt Spell
-Implement effects of the Light Spell
-Implement effects of the Luck Spell
-Implement effects of the Misfortune Spell
-Implement effects of the Personal Shield Spell
 Implement effects of the Recall Spell
 Implement effects of the Remove Curse Spell
-Implement effects of the Resilience Spell
-Implement effects of the Sleep Other Spell
-Implement effects of the Strength Spell
 Implement effects of the Teleport Spell
-Implement effects of the Treatment Spell
-Implement effects of the Weaken Subject Spell
+
+Implement sustained detrimental spell effect system.
+	Implement effects of the Blind Spell
+	Implement effects of the Distract Spell
+	Implement effects of the Influence Spell
+	Implement effects of the Misfortune Spell
+	Implement effects of the Sleep Other Spell
+	Implement effects of the Weaken Subject Spell
+
+Implement sustained beneficial spell effect system.
+	Implement effects of the Dark Vision Spell
+	Implement effects of the Float Spell
+	Implement effects of the Heat Vision Spell
+	Implement effects of the Invisibility Spell
+	Implement effects of the Light Spell
+	Implement effects of the Luck Spell
+	Implement effects of the Resilience Spell
+	Implement effects of the Strength Spell
+	Implement effects of the Treatment Spell
+
+Implement sustained object spell effect system.
+	Implement effects of the Force Sword Spell
+	Implement effects of the Personal Shield Spell
+
+Implement combat spell system.
+	Implement effects of the Earthquake Spell
+	Implement effects of the Fireball Spell
+	Implement effects of the Fire Burst Spell
+	Implement effects of the Fire Dart Spell
+	Implement effects of the Force Arrow Spell
+	Implement effects of the Harm Spell
+	Implement effects of the Lightning Bolt Spell
 
 Implement full spellcasting system.
 Implement prayer system.
