@@ -1754,10 +1754,14 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  }
 	}
       else if((volume || wtlimit || szlimit) && other) {
-	mind->Send("   (hold another of your containers to compare it with)\n");
+	mind->Send(
+		"      (hold another of your containers to compare it with)\n"
+		);
 	}
       else if(volume || wtlimit || szlimit) {
-	mind->Send("   (hold one of your containers to compare it with)\n");
+	mind->Send(
+		"      (hold one of your containers to compare it with)\n"
+		);
 	}
 
 	//Armor/Clothing
