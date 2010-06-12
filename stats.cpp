@@ -120,15 +120,15 @@ static void init_defaults() {
   skcat["Medieval Skills"].push_back("Armoring");
   skcat["Skills"].push_back("Armoring");
 
-  //Skill Definition: Art,_(Type)
-  defaults["Art, (Type)"] = 3;
-  skcat["Charisma-Based Skills"].push_back("Art, (Type)");
-  skcat["Social Skills"].push_back("Art, (Type)");
-  skcat["Medieval Skills"].push_back("Art, (Type)");
-  skcat["Cyberpunk Skills"].push_back("Art, (Type)");
-  skcat["Modern Skills"].push_back("Art, (Type)");
-  skcat["Shadowrun Skills"].push_back("Art, (Type)");
-  skcat["Skills"].push_back("Art, (Type)");
+  //Skill Definition: Art
+  defaults["Art"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Art");
+  skcat["Social Skills"].push_back("Art");
+  skcat["Medieval Skills"].push_back("Art");
+  skcat["Cyberpunk Skills"].push_back("Art");
+  skcat["Modern Skills"].push_back("Art");
+  skcat["Shadowrun Skills"].push_back("Art");
+  skcat["Skills"].push_back("Art");
 
   //Skill Definition: Assault_Rifles
   defaults["Assault Rifles"] = 1;
@@ -1608,15 +1608,15 @@ static void init_defaults() {
   skcat["Expert Skills"].push_back("Perception");
   skcat["Skills"].push_back("Perception");
 
-  //Skill Definition: Performance,_(Type)
-  defaults["Performance, (Type)"] = 3;
-  skcat["Charisma-Based Skills"].push_back("Performance, (Type)");
-  skcat["Social Skills"].push_back("Performance, (Type)");
-  skcat["Medieval Skills"].push_back("Performance, (Type)");
-  skcat["Cyberpunk Skills"].push_back("Performance, (Type)");
-  skcat["Modern Skills"].push_back("Performance, (Type)");
-  skcat["Shadowrun Skills"].push_back("Performance, (Type)");
-  skcat["Skills"].push_back("Performance, (Type)");
+  //Skill Definition: Performance
+  defaults["Performance"] = 3;
+  skcat["Charisma-Based Skills"].push_back("Performance");
+  skcat["Social Skills"].push_back("Performance");
+  skcat["Medieval Skills"].push_back("Performance");
+  skcat["Cyberpunk Skills"].push_back("Performance");
+  skcat["Modern Skills"].push_back("Performance");
+  skcat["Shadowrun Skills"].push_back("Performance");
+  skcat["Skills"].push_back("Performance");
 
   //Skill Definition: Pistols
   defaults["Pistols"] = 1;
