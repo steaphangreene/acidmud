@@ -3890,12 +3890,16 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		);
 	}
       else {
+	Object *targ = body->ActTarg(ACT_POINT);
 	body->Parent()->SendOut(stealth_t, stealth_s,
 	  ";s uses ;s to cast a spell.\n", "You use ;s to cast Identify.\n",
 	  body, scroll
 	  );
+	body->Parent()->SendOut(stealth_t, stealth_s,
+	  ";s casts a spell on ;s.\n", "You cast Identify on ;s.\n",
+	  body, targ
+	  );
 	if(mind) {
-	  Object *targ = body->ActTarg(ACT_POINT);
 	  mind->Send("%s", CCYN);
 	  targ->SendFullSituation(mind, body);
 	  targ->SendActions(mind);
@@ -3903,6 +3907,33 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  targ->SendScore(mind, body);
 	  targ->SendStats(mind, body);
 	  }
+	delete(scroll);
+	}
+      }
+    if(!strncasecmp("Recall", comline+len, strlen(comline+len))) {
+      Object *scroll = body->NextHasSkill("Recall Spell");
+      if(!scroll) {
+	if(mind) mind->Send(
+		"You don't know the Recall Spell"
+		" and have no items enchanted with it.\n"
+		);
+	}
+      else {
+	Object *targ = body->ActTarg(ACT_POINT);
+        if(!targ) targ = body;	//Defaults to SELF
+	body->Parent()->SendOut(stealth_t, stealth_s,
+	  ";s uses ;s to cast a spell.\n", "You use ;s to cast Recall.\n",
+	  body, scroll
+	  );
+	body->Parent()->SendOut(stealth_t, stealth_s,
+	  ";s casts a spell on ;s.\n", "You cast Recall on ;s.\n",
+	  body, targ
+	  );
+
+	Object *spell = new Object();
+	spell->SetSkill("Recall Spell", scroll->Skill("Recall Spell"));
+	body->Consume(spell);
+        delete(spell);
 	delete(scroll);
 	}
       }
