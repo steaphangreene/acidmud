@@ -873,13 +873,13 @@ void Object::CircleLoadObj(const char *fn) {
 	obj->SetSkill("Invisible", 1000);
 	}
       if(strcasestr(buf, "g") || (atoi(buf) & 64)) { //MAGIC
-	obj->SetSkill("Magical", 30);
+	obj->SetSkill("Magical", 10);
 	}
       if(strcasestr(buf, "h") || (atoi(buf) & 128)) { //NODROP
-	obj->SetSkill("Cursed", 30);
+	obj->SetSkill("Cursed", 10);
 	}
       if(strcasestr(buf, "i") || (atoi(buf) & 256)) { //BLESS
-	obj->SetSkill("Blessed", 30);
+	obj->SetSkill("Blessed", 10);
 	}
 //      if(strcasestr(buf, "j") || (atoi(buf) & 512)) { //ANTI_GOOD
 //	}
