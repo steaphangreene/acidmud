@@ -2860,6 +2860,20 @@ void Object::Consume(const Object *item) {
       }
     }
 
+  //Special effect: Recall
+  if(item->Skill("Recall Spell") > 0) {
+    if(parent) {
+      parent->SendOut(0, 0,
+	"BAMF! ;s teleports away.\n", "BAMF! You teleport home.\n", this, NULL
+	);
+      }
+    Travel(get_start_room(), 0);
+    if(parent) {
+      parent->SendOut(0, 0, "BAMF! ;s teleports here.\n", "", this, NULL);
+      parent->SendDescSurround(this, this);
+      }
+    }
+
   }
 
 int Object::LightLevel(int updown) {
