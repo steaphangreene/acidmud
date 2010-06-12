@@ -1902,7 +1902,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
   return ret;
   }
 
-int Object::IsWithin(Object *obj) {
+int Object::IsWithin(const Object *obj) {
   if(no_seek) return 0;
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
@@ -1915,7 +1915,7 @@ int Object::IsWithin(Object *obj) {
   return 0;
   }
 
-int Object::IsNearBy(Object *obj) {
+int Object::IsNearBy(const Object *obj) {
   if(no_seek || (!parent)) return 0;
   typeof(contents.begin()) ind;
   for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
@@ -2628,7 +2628,7 @@ list<Object *> Object::Contents() {
   return contents;
   }
 
-int Object::Contains(Object *obj) {
+int Object::Contains(const Object *obj) {
   return (find(contents.begin(), contents.end(), obj) != contents.end());
   }
 
@@ -2844,6 +2844,20 @@ void Object::Consume(const Object *item) {
     stun -= succ;
     if(stun < 0) stun = 0;
     UpdateDamage();
+    }
+
+  //Special effect: Remove Curse
+  if(item->Skill("Remove Curse Spell") > 0) {
+    Object *cursed = NextHasSkill("Cursed");
+    while(cursed) {
+      if(cursed->Skill("Cursed") <= item->Skill("Remove Curse Spell")) {
+	Drop(cursed, 1, 1);
+        cursed = NextHasSkill("Cursed");
+	}
+      else {
+	cursed = NextHasSkill("Cursed", cursed);
+	}
+      }
     }
 
   }
@@ -3122,12 +3136,13 @@ int Object::SubHasSkill(const string &s) const {
   return 0;
   }
 
-Object *Object::FirstHasSkill(const string &s) {
-  if(HasSkill(s)) return this;
+Object *Object::NextHasSkill(const string &s, const Object *last) {
+  if(HasSkill(s) && (!last)) return this;
   typeof(contents.begin()) item = contents.begin();
   for(; item != contents.end(); ++item) {
-    Object *found = (*item)->FirstHasSkill(s);
+    Object *found = (*item)->NextHasSkill(s, last);
     if(found) return found;
+    if(last && (*item)->IsWithin(last)) last = NULL;	//Was last in sub-item
     }
   return NULL;
   }

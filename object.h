@@ -155,9 +155,9 @@ public:
   Object *PickObject(const char *, int loc, int *ordinal=NULL);
   list<Object *> PickObjects(const char *, int loc, int *ordinal=NULL);
   void NotifyGone(Object *obj, Object *newloc = NULL, int up = 1);
-  int IsNearBy(Object *obj);
-  int IsWithin(Object *obj);
-  int Contains(Object *obj);
+  int IsNearBy(const Object *obj);
+  int IsWithin(const Object *obj);	//Recursive
+  int Contains(const Object *obj);	//Only Immediately (No Recursion)
   list<Object *> Contents();
 
   int ContainedWeight();
@@ -197,7 +197,7 @@ public:
   int Skill(const string &, int *tnum = NULL) const;
   int HasSkill(const string &) const;
   int SubHasSkill(const string &) const;
-  Object *FirstHasSkill(const string &);
+  Object *NextHasSkill(const string &, const Object *last = NULL);
   const map<AtomString,int> &GetSkills() const { return skills; }
 
   void SetAttribute(int, int);

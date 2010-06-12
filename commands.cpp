@@ -3877,7 +3877,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
     if(!strncasecmp("Identify", comline+len, strlen(comline+len))) {
-      Object *scroll = body->FirstHasSkill("Identify Spell");
+      Object *scroll = body->NextHasSkill("Identify Spell");
       if(!scroll) {
 	if(mind) mind->Send(
 		"You don't know the Identify Spell"
