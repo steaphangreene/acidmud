@@ -3881,15 +3881,22 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     int special = 0;
     string spname = "";
     if(!strncasecmp("Identify", comline+len, strlen(comline+len))) {
+      defself = 0;
       special = 1;
       spname = "Identify";
       }
     else if(!strncasecmp("Recall", comline+len, strlen(comline+len))) {
       defself = 1;
+      special = 0;
       spname = "Recall";
       }
+    else if(!strncasecmp("Remove Curse", comline+len, strlen(comline+len))) {
+      defself = 1;
+      special = 0;
+      spname = "Remove Curse";
+      }
     else {
-      if(mind) mind->Send("You don't know that spell.\n");
+      if(mind) mind->Send("Never heard of that spell.\n");
       return 0;
       }
 
@@ -3929,7 +3936,9 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(scroll) {
 	spell->SetSkill(spname + " Spell", scroll->Skill(spname + " Spell"));
 	}
-      else spell->SetSkill(spname + " Spell", 1000);	//FIXME: Magic Force!
+      else {
+	spell->SetSkill(spname + " Spell", 1000);	//FIXME: Magic Force!
+	}
       targ->Consume(spell);
       delete(spell);
       }
