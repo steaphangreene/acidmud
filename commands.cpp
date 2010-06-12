@@ -3876,70 +3876,78 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(mind) mind->Send("What spell you want to cast?\n");
       return 0;
       }
-    if(!strncasecmp("Identify", comline+len, strlen(comline+len))) {
-      Object *scroll = body->NextHasSkill("Identify Spell");
-      if(!scroll) {
-	if(mind) mind->Send(
-		"You don't know the Identify Spell"
-		" and have no items enchanted with it.\n"
-		);
-	}
-      else if(!body->ActTarg(ACT_POINT)) {
-	if(mind) mind->Send(
-		"That spell requires you to first point at your target.\n"
-		);
-	}
-      else {
-	Object *targ = body->ActTarg(ACT_POINT);
-	body->Parent()->SendOut(stealth_t, stealth_s,
-	  ";s uses ;s to cast a spell.\n", "You use ;s to cast Identify.\n",
-	  body, scroll
-	  );
-	body->Parent()->SendOut(stealth_t, stealth_s,
-	  ";s casts a spell on ;s.\n", "You cast Identify on ;s.\n",
-	  body, targ
-	  );
-	if(mind) {
-	  mind->Send("%s", CCYN);
-	  targ->SendFullSituation(mind, body);
-	  targ->SendActions(mind);
-	  mind->Send("%s", CNRM);
-	  targ->SendScore(mind, body);
-	  targ->SendStats(mind, body);
-	  }
-	delete(scroll);
-	}
-      }
-    if(!strncasecmp("Recall", comline+len, strlen(comline+len))) {
-      Object *scroll = body->NextHasSkill("Recall Spell");
-      if(!scroll) {
-	if(mind) mind->Send(
-		"You don't know the Recall Spell"
-		" and have no items enchanted with it.\n"
-		);
-	}
-      else {
-	Object *targ = body->ActTarg(ACT_POINT);
-        if(!targ) targ = body;	//Defaults to SELF
-	body->Parent()->SendOut(stealth_t, stealth_s,
-	  ";s uses ;s to cast a spell.\n", "You use ;s to cast Recall.\n",
-	  body, scroll
-	  );
-	body->Parent()->SendOut(stealth_t, stealth_s,
-	  ";s casts a spell on ;s.\n", "You cast Recall on ;s.\n",
-	  body, targ
-	  );
 
-	Object *spell = new Object();
-	spell->SetSkill("Recall Spell", scroll->Skill("Recall Spell"));
-	body->Consume(spell);
-        delete(spell);
-	delete(scroll);
-	}
+    int defself = 0;
+    int special = 0;
+    string spname = "";
+    if(!strncasecmp("Identify", comline+len, strlen(comline+len))) {
+      special = 1;
+      spname = "Identify";
+      }
+    else if(!strncasecmp("Recall", comline+len, strlen(comline+len))) {
+      defself = 1;
+      spname = "Recall";
       }
     else {
       if(mind) mind->Send("You don't know that spell.\n");
+      return 0;
       }
+
+    Object *scroll = body->NextHasSkill(spname + " Spell");
+    if((!nmode) && (!scroll)) {
+      if(mind) mind->Send(
+	"You don't know the %s Spell and have no items enchanted with it.\n",
+	spname.c_str()
+	);
+      return 0;
+      }
+
+    if((!defself) && (!body->ActTarg(ACT_POINT))) {
+      if(mind) mind->Send(
+	"That spell requires you to first point at your target.\n"
+	);
+      return 0;
+      }
+
+    Object *targ = body->ActTarg(ACT_POINT);
+    if(!targ) targ = body;	//Defaults to SELF (If not, caught above!)
+    if(scroll) {
+      string youmes = "You use ;s to cast " + spname + "%s.\n";
+      body->Parent()->SendOut(stealth_t, stealth_s,
+	";s uses ;s to cast a spell.\n", youmes.c_str(),
+	body, scroll
+	);
+      }
+    string youmes = "You cast " + spname + " on ;s.\n";
+    body->Parent()->SendOut(stealth_t, stealth_s,
+	";s casts a spell on ;s.\n", youmes.c_str(),
+	body, targ
+	);
+
+    if(!special) {
+      Object *spell = new Object();
+      if(scroll) {
+	spell->SetSkill(spname + " Spell", scroll->Skill(spname + " Spell"));
+	}
+      else spell->SetSkill(spname + " Spell", 1000);	//FIXME: Magic Force!
+      targ->Consume(spell);
+      delete(spell);
+      }
+    else if(spname == "Identify") {
+      if(mind) {
+	mind->Send("%s", CCYN);
+	targ->SendFullSituation(mind, body);
+	targ->SendActions(mind);
+	mind->Send("%s", CNRM);
+	targ->SendScore(mind, body);
+	targ->SendStats(mind, body);
+	}
+      }
+
+    if(scroll) {	//FIXME: Handle Multi-Charged Items (Rod/Staff/Wand)
+      delete(scroll);
+      }
+
     return 0;
     }
 
