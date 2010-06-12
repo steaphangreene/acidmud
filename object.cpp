@@ -2846,8 +2846,8 @@ void Object::Consume(const Object *item) {
     UpdateDamage();
     }
 
-  //Special effect: Remove Curse
-  if(item->Skill("Remove Curse Spell") > 0) {
+  //Special effect: Remove Curse - Note: Can't remove curse from cursed items
+  if(item->Skill("Remove Curse Spell") > 0 && (!HasSkill("Cursed"))) {
     Object *cursed = NextHasSkill("Cursed");
     while(cursed) {
       if(cursed->Skill("Cursed") <= item->Skill("Remove Curse Spell")) {
@@ -3152,11 +3152,14 @@ int Object::SubHasSkill(const string &s) const {
 
 Object *Object::NextHasSkill(const string &s, const Object *last) {
   if(HasSkill(s) && (!last)) return this;
+  if(last == this) last = NULL;				//I was last one
   typeof(contents.begin()) item = contents.begin();
   for(; item != contents.end(); ++item) {
     Object *found = (*item)->NextHasSkill(s, last);
     if(found) return found;
-    if(last && (*item)->IsWithin(last)) last = NULL;	//Was last in sub-item
+    if(last && (last == (*item) || (*item)->IsWithin(last))) {
+      last = NULL;	//Was last item in sub-item
+      }
     }
   return NULL;
   }
