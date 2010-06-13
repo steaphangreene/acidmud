@@ -1,3 +1,9 @@
+Implement the simple, currently in-play magical Bonus/Penalty powers:
+	Accuracy
+	Damage
+	Evasion
+	Resilience
+
 Curse-ditch police: Buying with cursed gold.
 Curse-ditch police: Throwing a cursed ranged weapon in combat.
 
@@ -48,6 +54,11 @@ Implement combat spell system.
 
 Implement full spellcasting system.
 Implement prayer system.
+
+Implement other in-play magical Bonus/Penalty powers (depend on other stuff):
+	Encumbrance
+	Magic Force
+	Youth
 
 Show armor messages in ninja display.
 Translate circle armor to various armor types.
