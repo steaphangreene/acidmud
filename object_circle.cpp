@@ -305,7 +305,7 @@ void Object::CircleLoadZon(const char *fn) {
 	    lastmob->AddAct(ACT_SPECIAL_MASTER, obj);
 	    obj->SetSkill("CirclePopper", 1);
 	    obj->AddAct(ACT_SPECIAL_PREPARE, lastmob);
-	    obj->AddAct(ACT_SPECIAL_NOTSHOWN);
+	    obj->SetSkill("Invisible", 1000);
 	    obj->Activate();
 	    lastbag = NULL;
 	    }
@@ -870,7 +870,7 @@ void Object::CircleLoadObj(const char *fn) {
 	obj->SetSkill("Obvious", 1000);
 	}
       if(strcasestr(buf, "f") || (atoi(buf) & 32)) { //INVISIBLE
-	obj->SetSkill("Invisible", 1000);
+	obj->SetSkill("Invisible", 10);
 	}
       if(strcasestr(buf, "g") || (atoi(buf) & 64)) { //MAGIC
 	obj->SetSkill("Magical", 10);
@@ -1767,10 +1767,10 @@ void Object::CircleLoad(const char *fn) {
 	      nobj2->SetParent(bynum[tnum]);
 	      nobj2->SetShortDesc("A passage exit.");
 	      nobj2->SetDesc("A passage exit.");
-	      nobj2->AddAct(ACT_SPECIAL_NOTSHOWN);
+	      nobj2->SetSkill("Invisible", 1000);
 	      }
 	    else {
-	      nobj->StopAct(ACT_SPECIAL_NOTSHOWN);
+	      nobj->SetSkill("Invisible", 0);
 	      }
 
 	    if(nmnum[dir][*ob] != "") {
@@ -1829,7 +1829,7 @@ void Object::CircleLoadShp(const char *fn) {
 	vortex->SetShortDesc("A shopkeeper vortex");
 	vortex->SetDesc("An advanced wormhole that shopkeeper's use.");
 	vortex->SetSkill("Vortex", 1); // Mark it as a shopkeeper Vortex.
-	vortex->AddAct(ACT_SPECIAL_NOTSHOWN);
+	vortex->SetSkill("Invisible", 1000);
 	vortex->SetSkill("Wearable on Right Shoulder", 1);
 	vortex->SetSkill("Wearable on Left Shoulder", 2);
 

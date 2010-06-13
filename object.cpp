@@ -941,7 +941,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
   int tlines = 0, total = 0;
   typeof(cont.begin()) ind;
   for(ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
-    if((*ind)->IsAct(ACT_SPECIAL_NOTSHOWN)) continue;
+    if((*ind)->HasSkill("Invisible")) continue;
     if((*ind)->Skill("Hidden") > 0 && Parent() != NULL) continue;
 
     if((*ind)->IsAct(ACT_SPECIAL_LINKED)) {
@@ -1727,7 +1727,7 @@ Object *Object::Split(int nqty) {
   }
 
 static int tag(Object *obj, list<Object *> &ret, int *ordinal, int hide = 1) {
-  if(obj->IsAct(ACT_SPECIAL_NOTSHOWN)) return 0;	//Shouldn't be detected.
+  if(obj->HasSkill("Invisible")) return 0;	//Shouldn't be detected.
 
   //Can't be seen/affected (except in char rooms)
   if(obj->Skill("Hidden") > 0 && hide) return 0;
