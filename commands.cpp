@@ -3895,6 +3895,11 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       special = 0;
       spname = "Remove Curse";
       }
+    else if(!strncasecmp("Sleep Other", comline+len, strlen(comline+len))) {
+      defself = 0;
+      special = 0;
+      spname = "Sleep Other";
+      }
     else {
       if(mind) mind->Send("Never heard of that spell.\n");
       return 0;

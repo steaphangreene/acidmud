@@ -2920,6 +2920,23 @@ void Object::Consume(const Object *item) {
       }
     }
 
+  //Special effect: Sleep Other
+  if(item->Skill("Sleep Other Spell") > 0) {
+    int succ = Roll("Willpower", item->Skill("Sleep Other Spell"));
+    if(succ > 0) {
+      if(parent) {
+	parent->SendOut(0, 0,
+		";s looks groggy for a moment, but recovers.\n",
+		"You feel groggy for a moment, but recover.\n",
+		this, NULL
+		);
+	}
+      }
+    else {
+      DoWhenFree("sleep");
+      }
+    }
+
   }
 
 int Object::LightLevel(int updown) {
