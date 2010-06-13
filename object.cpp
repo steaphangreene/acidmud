@@ -2977,36 +2977,33 @@ int Object::LightLevel(int updown) {
   return level;
   }
 
-const char * const atbnames[] = {
-	"Body Bonus",
-	"Quickness Bonus",
-	"Strength Bonus",
-	"Charisma Bonus",
-	"Intelligence Bonus",
-	"Willpower Bonus"
-	};
-const char * const atpnames[] = {
-	"Body Penalty",
-	"Quickness Penalty",
-	"Strength Penalty",
-	"Charisma Penalty",
-	"Intelligence Penalty",
-	"Willpower Penalty"
+const char * const attnames[] = {
+	"Body",
+	"Quickness",
+	"Strength",
+	"Charisma",
+	"Intelligence",
+	"Willpower"
 	};
 int Object::Attribute(int a) const {
   if(att[a] == 0) return 0;	//Can't Enhance Nothing
+  return att[a] + Modifyer(attnames[a]);
+  }
 
-  int ret = att[a] * 1000;
+int Object::Modifyer(const string &m) const {
+  int ret = 0;
   typeof(contents.begin()) item = contents.begin();
   for(; item != contents.end(); ++item) {
     if(Wearing(*item)) {
-      ret += (*item)->Skill(atbnames[a]);
-      ret -= (*item)->Skill(atpnames[a]);
+      ret += (*item)->Skill(m + " Bonus");
+      ret -= (*item)->Skill(m + " Penalty");
       }
+    //FIXME: Spell Effects!
     }
-  ret += Skill(atbnames[a]);
-  ret -= Skill(atpnames[a]);
-  return (ret / 1000);
+  ret += Skill(m + " Bonus");
+  ret -= Skill(m + " Penalty");
+  if(ret < 0) return (ret-999)/1000;
+  return (ret/1000);
   }
 
 int Object::Wearing(const Object *obj) const {

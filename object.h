@@ -195,6 +195,7 @@ public:
   void Consume(const Object *item);	//Eat/Drink/Potions/Poison/etc....
 
   int Attribute(int) const;
+  int Modifyer(const string &m) const;
   int Skill(const string &, int *tnum = NULL) const;
   int HasSkill(const string &) const;
   int SubHasSkill(const string &) const;
