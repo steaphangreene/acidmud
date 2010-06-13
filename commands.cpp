@@ -3924,7 +3924,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     Object *targ = body->ActTarg(ACT_POINT);
     if(!targ) targ = body;	//Defaults to SELF (If not, caught above!)
     if(src) {
-      string youmes = "You use ;s to cast " + spname + "%s.\n";
+      string youmes = "You use ;s to cast " + spname + ".\n";
       body->Parent()->SendOut(stealth_t, stealth_s,
 	";s uses ;s to cast a spell.\n", youmes.c_str(),
 	body, src
