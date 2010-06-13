@@ -200,27 +200,6 @@ int Object::LoadFrom(FILE *fl) {
     }
   fscanf(fl, ";\n");
 
-//  if(HasSkill("Drink")) {
-//    SetSkill("Drink", Skill("Drink") * 15);
-//    SetSkill("Food", Skill("Food") * 15);
-//    }
-//  else if(HasSkill("Food")) {
-//    SetSkill("Food", Skill("Food") * 60);
-//    }
-
-//  if(HasSkill("Heal Effect")) {
-//    SetSkill("Heal Spell", Skill("Heal Effect"));
-//    SetSkill("Heal Effect", 0);
-//    }
-
-//  if(HasSkill("Open")) {
-//    SetSkill("Open", 1000);
-//    }
-
-//  if(HasSkill("Day Time")) {
-//    Activate();
-//    }
-
   vector<Object*> toload;
   fscanf(fl, "%d ", &num);
   //contents.reserve(num); // This was for vectors.
@@ -257,6 +236,31 @@ int Object::LoadFrom(FILE *fl) {
     }
 
   //fprintf(stderr, "%sLoaded %s\n", debug_indent.c_str(), short_desc.c_str());
+
+//  if(HasSkill("Drink")) {
+//    SetSkill("Drink", Skill("Drink") * 15);
+//    SetSkill("Food", Skill("Food") * 15);
+//    }
+//  else if(HasSkill("Food")) {
+//    SetSkill("Food", Skill("Food") * 60);
+//    }
+
+//  if(HasSkill("Heal Effect")) {
+//    SetSkill("Heal Spell", Skill("Heal Effect"));
+//    SetSkill("Heal Effect", 0);
+//    }
+
+//  if(HasSkill("Open")) {
+//    SetSkill("Open", 1000);
+//    }
+
+//  if(HasSkill("Day Time")) {
+//    Activate();
+//    }
+
+//  if(IsAct(ACT_SPECIAL_NOTSHOWN)) {
+//    SetSkill("Invisible", 1000);
+//    }
 
   return 0;
   }
