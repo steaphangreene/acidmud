@@ -2203,7 +2203,7 @@ int Object::HealStru(int boxes) {
 
 int Object::HitMent(int force, int sev, int succ) {
   if(Attribute(1) <= 0) return 0;
-  succ -= roll(Attribute(0), force);
+  succ -= roll(Attribute(0)+Modifier("Resilience"), force);
   sev *= 2;  sev += succ;
   for(int ctr=0; ctr<=(sev/2) && ctr<=4; ++ctr) stun += ctr;
   if(sev > 8) stun += (sev-8);
@@ -2214,7 +2214,7 @@ int Object::HitMent(int force, int sev, int succ) {
 
 int Object::HitStun(int force, int sev, int succ) {
   if(Attribute(1) <= 0) return 0;
-  succ -= roll(Attribute(0), force);
+  succ -= roll(Attribute(0)+Modifier("Resilience"), force);
   sev *= 2;  sev += succ;
   for(int ctr=0; ctr<=(sev/2) && ctr<=4; ++ctr) stun += ctr;
   if(sev > 8) stun += (sev-8);
@@ -2224,7 +2224,7 @@ int Object::HitStun(int force, int sev, int succ) {
 
 int Object::HitPhys(int force, int sev, int succ) {
   if(Attribute(1) <= 0) return 0;
-  succ -= roll(Attribute(0), force);
+  succ -= roll(Attribute(0)+Modifier("Resilience"), force);
   sev *= 2;  sev += succ;
   for(int ctr=0; ctr<=(sev/2) && ctr<=4; ++ctr) phys += ctr;
   if(sev > 8) phys += (sev-8);
@@ -2233,7 +2233,7 @@ int Object::HitPhys(int force, int sev, int succ) {
   }
 
 int Object::HitStru(int force, int sev, int succ) {
-  succ -= roll(Attribute(0), force);
+  succ -= roll(Attribute(0)+Modifier("Resilience"), force);
   sev *= 2;  sev += succ;
   for(int ctr=0; ctr<=(sev/2) && ctr<=4; ++ctr) stru += ctr;
   if(sev > 8) stru += (sev-8);
@@ -2987,10 +2987,10 @@ const char * const attnames[] = {
 	};
 int Object::Attribute(int a) const {
   if(att[a] == 0) return 0;	//Can't Enhance Nothing
-  return att[a] + Modifyer(attnames[a]);
+  return att[a] + Modifier(attnames[a]);
   }
 
-int Object::Modifyer(const string &m) const {
+int Object::Modifier(const string &m) const {
   int ret = 0;
   typeof(contents.begin()) item = contents.begin();
   for(; item != contents.end(); ++item) {
