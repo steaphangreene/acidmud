@@ -152,9 +152,10 @@ public:
 
   Object *Owner() const;
 
+  void NotifyGone(Object *obj, Object *newloc = NULL, int up = 1);
+
   Object *PickObject(const char *, int loc, int *ordinal=NULL);
   list<Object *> PickObjects(const char *, int loc, int *ordinal=NULL);
-  void NotifyGone(Object *obj, Object *newloc = NULL, int up = 1);
   int IsNearBy(const Object *obj);
   int IsWithin(const Object *obj);	//Recursive
   int Contains(const Object *obj);	//Only Immediately (No Recursion)
@@ -247,7 +248,7 @@ public:
   void Collapse();
 
   void StopAll();
-  void AddAct(act_t a, Object *o=NULL) { act[a] = o; };
+  void AddAct(act_t a, Object *o=NULL);
   void StopAct(act_t a);
   int IsAct(act_t a) const { return act.count(a); };
   Object *ActTarg(act_t a) const;
@@ -308,6 +309,8 @@ public:
   static void FreeActions();
 
 private:
+  void NotifyLeft(Object *obj, Object *newloc = NULL);
+
   void Loud(set<Object*> &visited, int str, const char *mes);
 
   int Filter(int loc);
@@ -335,6 +338,8 @@ private:
   int no_seek; //Recursion protection
 
   map<act_t,Object*> act;
+  set<Object*> touching_me;
+
   timeval busytill;
   string dowhenfree, defact;
   friend void player_rooms_erase(Object *);

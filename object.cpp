@@ -1496,6 +1496,12 @@ int Object::Travel(Object *dest, int try_combine) {
   oldp->NotifyGone(this, dest);
   parent->AddLink(this);
 
+  typeof(touching_me) touches = touching_me;
+  typeof(touches.begin()) touch = touches.begin();
+  for(; touch != touches.end(); ++touch) {
+    (*touch)->NotifyLeft(this, dest);
+    }
+
   if(try_combine) TryCombine();
 
   StopAct(ACT_POINT);
@@ -1580,6 +1586,12 @@ Object::~Object() {
   if(parent) {
     parent->RemoveLink(this);
     parent->NotifyGone(this);
+    }
+
+  typeof(touching_me) touches = touching_me;
+  typeof(touches.begin()) touch = touches.begin();
+  for(; touch != touches.end(); ++touch) {
+    (*touch)->NotifyLeft(this);
     }
 
   //Actions over long distances must be notified!
@@ -1935,15 +1947,7 @@ int Object::IsNearBy(const Object *obj) {
   return 0;
   }
 
-void Object::NotifyGone(Object *obj, Object *newloc, int up) {
-  if(obj == this) return;	//Never notify self or sub-self objects.
-
-  //Climb to top first!
-  if(up == 1 && parent && (Skill("Open") || Skill("Transparent"))) {
-    parent->NotifyGone(obj, newloc, 1);
-    return;
-    }
-
+void Object::NotifyLeft(Object *obj, Object *newloc) {
   for(act_t act=ACT_NONE; act < ACT_MAX; act = act_t(int(act)+1)) {
     if(ActTarg(act) == obj || obj->IsWithin(ActTarg(act))) {
       if(act != ACT_FOLLOW || (!newloc)) { StopAct(act); }
@@ -1982,6 +1986,18 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
 	if(obj->ActTarg(act2) == this) obj->StopAct(act2);
       }
     }
+  }
+
+void Object::NotifyGone(Object *obj, Object *newloc, int up) {
+  if(obj == this) return;	//Never notify self or sub-self objects.
+
+  //Climb to top first!
+  if(up == 1 && parent && (Skill("Open") || Skill("Transparent"))) {
+    parent->NotifyGone(obj, newloc, 1);
+    return;
+    }
+
+  NotifyLeft(obj, newloc);
 
   map<Object *, int> tonotify;
 
@@ -2006,8 +2022,38 @@ Object *Object::ActTarg(act_t a) const {
   return NULL;
   };
 
+void Object::AddAct(act_t a, Object *o) {
+  if(o) {
+    o->touching_me.insert(this);
+    }
+  act[a] = o;
+  }
+
+void Object::StopAct(act_t a) {
+  Object *obj = act[a];
+  act.erase(a);
+  if(obj && obj->HasSkill("Brightness") && obj->HasSkill("Light Source")) {
+    obj->SetSkill("Light Source", 0);
+    //obj->SendOut(0, 0, ";s goes out.\n", "", obj, NULL);
+    obj->Deactivate();
+    }
+  if(obj) {
+    typeof(act.begin()) opt = act.begin();
+    for(; opt != act.end(); ++opt) {
+      if(opt->second == obj) {
+	return;				//Still touching it 
+	}
+      }
+    obj->touching_me.erase(this);	//No longer touching it
+    }
+  }
+
 void Object::StopAll() {
-  act.clear();
+  typeof(act) oldact = act;
+  typeof(oldact.begin()) opt = oldact.begin();
+  for(; opt != oldact.end(); ++opt) {
+    StopAct(opt->first);
+    }
   }
 
 void Object::Collapse() {
@@ -2912,19 +2958,6 @@ int Object::LightLevel(int updown) {
   level += Skill("Light Source");
   if(level > 1000) level = 1000;
   return level;
-  }
-
-void Object::StopAct(act_t a) {
-  Object *obj = NULL;
-  if(a == ACT_HOLD) {
-    obj = ActTarg(ACT_HOLD);
-    }
-  act.erase(a);
-  if(obj && obj->HasSkill("Brightness") && obj->HasSkill("Light Source")) {
-    obj->SetSkill("Light Source", 0);
-    //obj->SendOut(0, 0, ";s goes out.\n", "", obj, NULL);
-    obj->Deactivate();
-    }
   }
 
 const char * const atbnames[] = {
