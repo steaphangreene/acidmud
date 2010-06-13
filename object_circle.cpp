@@ -1085,7 +1085,7 @@ void Object::CircleLoadObj(const char *fn) {
 	add_circle_spell(obj, val[3], val[0]);
 	}
       else if(tp == 10) { // POTION
-	obj->SetSkill("objuid Container", 1);
+	obj->SetSkill("Liquid Container", 1);
 	obj->SetSkill("Capacity", 1);
 	obj->SetSkill("Closeable", 1);
 	obj->SetSkill("Perishable", 1);
