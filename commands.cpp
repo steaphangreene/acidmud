@@ -2472,16 +2472,21 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  skill = "Buy Potion";
 	  }
 	}
-//      else if(false) {				//FIXME: Implement
-//	if((*shpkp_i)->HasSkill("Buy Scroll")) {
-//	  skill = "Buy Scroll";
-//	  }
-//	}
-//      else if(false) {				//FIXME: Implement
-//	if((*shpkp_i)->HasSkill("Buy Staff")) {
-//	  skill = "Buy Staff";
-//	  }
-//	}
+      else if(targ->HasSkill("Magical Scroll")) {
+	if((*shpkp_i)->HasSkill("Buy Scroll")) {
+	  skill = "Buy Scroll";
+	  }
+	}
+      else if(targ->HasSkill("Magical Staff")) {
+	if((*shpkp_i)->HasSkill("Buy Staff")) {
+	  skill = "Buy Staff";
+	  }
+	}
+      else if(targ->HasSkill("Magical Wand")) {
+	if((*shpkp_i)->HasSkill("Buy Wand")) {
+	  skill = "Buy Wand";
+	  }
+	}
 //      else if(false) {				//FIXME: Implement
 //	if((*shpkp_i)->HasSkill("Buy Trash")) {
 //	  skill = "Buy Trash";
@@ -2490,11 +2495,6 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 //      else if(false) {				//FIXME: Implement
 //	if((*shpkp_i)->HasSkill("Buy Treasure")) {
 //	  skill = "Buy Treasure";
-//	  }
-//	}
-//      else if(false) {				//FIXME: Implement
-//	if((*shpkp_i)->HasSkill("Buy Wand")) {
-//	  skill = "Buy Wand";
 //	  }
 //	}
       else if(targ->Skill("WeaponType") > 0) {
