@@ -4442,35 +4442,39 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		"*;s punches ;s%s.\n", "*You punch ;s%s.\n",
 		body, targ, locm.c_str());
 	}
+
       int sev = 0;
+      int stun = 0;
+      int force = body->Attribute(2);
 
       if(com == COM_KICK) {
-	if(targ->ActTarg(loca))
-	  succ -= roll(targ->ActTarg(loca)->Attribute(0), body->Attribute(2));
-	sev = targ->HitStun(body->Attribute(2), stage+2, succ);
+	stun = 1;
+	force -= 2;
+	stage += 2;
 	}
-      else if(body->IsAct(ACT_WIELD)) {
-	if(targ->ActTarg(loca))
-	  succ -= roll(
-		targ->ActTarg(loca)->Attribute(0),
-		body->Attribute(2)
-			+ MAX(0, body->ActTarg(ACT_WIELD)->Skill("WeaponForce"))
-		);
-	int force = body->Attribute(2)
-		+ MAX(0, body->ActTarg(ACT_WIELD)->Skill("WeaponForce"));
-
+      if(body->IsAct(ACT_WIELD)) {
+	force += body->ActTarg(ACT_WIELD)->Skill("WeaponForce");
 	if(two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType"))) {
 	  force += body->Attribute(2);
 	  }
-
-	sev = targ->HitPhys(force,
-	  stage + MAX(0, body->ActTarg(ACT_WIELD)->Skill("WeaponSeverity")),
-	  succ);
+	stage += body->ActTarg(ACT_WIELD)->Skill("WeaponSeverity");
 	}
       else {
-	if(targ->ActTarg(loca))
-	  succ -= roll(targ->ActTarg(loca)->Attribute(0), body->Attribute(2));
-	sev = targ->HitStun(body->Attribute(2), stage+1, succ);
+	stun = 1;
+	force -= 1;
+	stage += 1;
+	}
+
+      if(targ->ActTarg(loca)) {
+	//FIXME: Implement the rest of the Armor Effect types
+	succ -= roll(targ->ActTarg(loca)->Attribute(0), force);
+	}
+
+      if(stun) {
+	sev = targ->HitStun(force, stage, succ);
+	}
+      else {
+	sev = targ->HitPhys(force, stage, succ);
 	}
 
       if(sev <= 0) {
