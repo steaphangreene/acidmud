@@ -169,7 +169,7 @@ void Mind::Send(const char *mes, ...) {
 
 	Object *door = body->PickObject(buf, LOC_NEARBY);
 
-	if(door->ActTarg(ACT_SPECIAL_LINKED)
+	if(door && door->ActTarg(ACT_SPECIAL_LINKED)
                 && door->ActTarg(ACT_SPECIAL_LINKED)->Parent()
 		&& CircleCanWanderTo(
 			door->ActTarg(ACT_SPECIAL_LINKED)->Parent()
