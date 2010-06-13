@@ -4304,9 +4304,6 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     body->SetSkill("Hidden", 0);
     targ->SetSkill("Hidden", 0);
 
-//    int succ = roll(body->att[1], targ->att[1]);
-    int succ; string res;  //FIXME: res is ONLY for debugging!
-
     int reachmod = 0;
     string sk1 = "Punching", sk2 = "Punching";
 
@@ -4352,7 +4349,9 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	}
       }
 
-    succ = body->Roll(sk1, targ, sk2, reachmod, &res);
+    int succ = 0;
+    succ = body->Roll(sk1, targ->Skill(sk2) - reachmod);
+    succ -= targ->Roll(sk2, body->Skill(sk1) + reachmod);
 
     int loc = rand()%100;
     act_t loca = ACT_WEAR_CHEST;
@@ -4418,33 +4417,30 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     if(succ > 0) {
-      //FIXME: Remove debugging stuff ("succ" and "res") from these messages.
       if(sk1 == "Kicking") {		//Kicking Action
 	body->Parent()->SendOut(ALL, -1,
-		"*;s kicks ;s%s. [%d] %s\n", "*You kick ;s%s. [%d] %s\n",
-		body, targ, locm.c_str(), succ, res.c_str());
+		"*;s kicks ;s%s.\n", "*You kick ;s%s.\n",
+		body, targ, locm.c_str());
 	}
       else if(body->IsAct(ACT_WIELD)	//Ranged Weapon
 		&& body->ActTarg(ACT_WIELD)->Skill("WeaponReach") > 9) {
 	body->Parent()->SendOut(ALL, -1,
-		"*;s throws %s and hits ;s%s. [%d] %s\n",
-		"*You throw %s and hit ;s%s. [%d] %s\n", body, targ,
-		body->ActTarg(ACT_WIELD)->ShortDesc(), locm.c_str(),
-		succ, res.c_str());
+		"*;s throws %s and hits ;s%s.\n",
+		"*You throw %s and hit ;s%s.\n", body, targ,
+		body->ActTarg(ACT_WIELD)->ShortDesc(), locm.c_str());
 	body->ActTarg(ACT_WIELD)->Travel(body->Parent());//FIXME: Get Another
 	body->StopAct(ACT_WIELD);			//FIXME: Bows/Guns!
 	}
       else if(body->IsAct(ACT_WIELD)) {	//Melee Weapon
 	body->Parent()->SendOut(ALL, -1,
-		"*;s hits ;s%s with %s. [%d] %s\n",
-		"*You hit ;s%s with %s. [%d] %s\n", body, targ,
-		locm.c_str(), body->ActTarg(ACT_WIELD)->ShortDesc(),
-		succ, res.c_str());
+		"*;s hits ;s%s with %s.\n",
+		"*You hit ;s%s with %s.\n", body, targ,
+		locm.c_str(), body->ActTarg(ACT_WIELD)->ShortDesc());
 	}
       else {				//No Weapon
 	body->Parent()->SendOut(ALL, -1,
-		"*;s punches ;s%s. [%d] %s\n", "*You punch ;s%s. [%d] %s\n",
-		body, targ, locm.c_str(), succ, res.c_str());
+		"*;s punches ;s%s.\n", "*You punch ;s%s.\n",
+		body, targ, locm.c_str());
 	}
       int sev = 0;
 
@@ -4484,34 +4480,33 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     else {
       if(com == COM_KICK) {		//Kicking Action
 	body->Parent()->SendOut(ALL, -1,
-		";s tries to kick ;s, but misses. [%d] %s\n",
-		"You try to kick ;s, but miss. [%d] %s\n",
-		body, targ, succ, res.c_str()
+		";s tries to kick ;s, but misses.\n",
+		"You try to kick ;s, but miss.\n",
+		body, targ
 		);
 	}
       else if(body->IsAct(ACT_WIELD)	//Ranged Weapon
 		&& body->ActTarg(ACT_WIELD)->Skill("WeaponReach") > 9) {
 	body->Parent()->SendOut(ALL, -1,
-		"*;s throws %s at ;s, but misses. [%d] %s\n",
-		"*You throw %s at ;s, but miss. [%d] %s\n",
-		body, targ, body->ActTarg(ACT_WIELD)->ShortDesc(),
-		succ, res.c_str()
+		"*;s throws %s at ;s, but misses.\n",
+		"*You throw %s at ;s, but miss.\n",
+		body, targ, body->ActTarg(ACT_WIELD)->ShortDesc()
 		);
 	body->ActTarg(ACT_WIELD)->Travel(body->Parent());//FIXME: Get Another
 	body->StopAct(ACT_WIELD);			//FIXME: Bows/Guns!
 	}
       else if(body->IsAct(ACT_WIELD)) {	//Melee Weapon
 	body->Parent()->SendOut(ALL, -1,
-		";s tries to attack ;s, but misses. [%d] %s\n",
-		"You try to attack ;s, but miss. [%d] %s\n",
-		body, targ, succ, res.c_str()
+		";s tries to attack ;s, but misses.\n",
+		"You try to attack ;s, but miss.\n",
+		body, targ
 		);
 	}
       else {				//Unarmed
 	body->Parent()->SendOut(ALL, -1,
-		";s tries to punch ;s, but misses. [%d] %s\n",
-		"You try to punch ;s, but miss. [%d] %s\n",
-		body, targ, succ, res.c_str()
+		";s tries to punch ;s, but misses.\n",
+		"You try to punch ;s, but miss.\n",
+		body, targ
 		);
 	}
       }
