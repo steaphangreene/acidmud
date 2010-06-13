@@ -3959,7 +3959,17 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     if(scroll) {	//FIXME: Handle Multi-Charged Items (Rod/Staff/Wand)
-      delete(scroll);
+      if(scroll->Skill("Quantity") > 1) {
+	scroll = scroll->Split(1);
+	}
+      if(scroll->Skill("Magical Charges") > 1) {
+	scroll->SetSkill("Magical Charges",
+		scroll->Skill("Magical Charges") - 1
+		);
+	}
+      else {
+	delete(scroll);
+	}
       }
 
     return 0;
