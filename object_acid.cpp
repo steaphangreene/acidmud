@@ -266,5 +266,14 @@ int Object::LoadFrom(FILE *fl) {
 //    short_desc = "a passage exit";
 //    }
 
+//  if(HasSkill("Evasion Penalty")) {
+//    SetSkill("Evasion Bonus", Skill("Evasion Penalty"));
+//    SetSkill("Evasion Penalty", 0);
+//    }
+//  else if(HasSkill("Evasion Bonus")) {
+//    SetSkill("Evasion Penalty", Skill("Evasion Bonus"));
+//    SetSkill("Evasion Bonus", 0);
+//    }
+
   return 0;
   }

@@ -1572,8 +1572,8 @@ void Object::CircleLoadObj(const char *fn) {
 //	    case(16): {	// EXP (Even CircleMUD Doesn't Use This!)
 //	      } break;
 	    case(17): {	// AC
-	      if(aval > 0) obj->SetSkill("Evasion Bonus", aval*400/powmod);
-	      else if(aval < 0) obj->SetSkill("Evasion Penalty", -aval*400/powmod);
+	      if(aval > 0) obj->SetSkill("Evasion Penalty", aval*400/powmod);
+	      else if(aval < 0) obj->SetSkill("Evasion Bonus", -aval*400/powmod);
 	      } break;
 	    case(18): {	// HITROLL
 	      if(aval > 0) obj->SetSkill("Accuracy Bonus", aval*400/powmod);
