@@ -766,7 +766,7 @@ static void add_circle_spell(Object *obj, int spell, int power) {
       obj->SetSkill("Recall Spell", power);
       } break;
     case(43): {		// REMOVE_POISON
-      obj->SetSkill("Cure Spell", power);
+      obj->SetSkill("Cure Poison Spell", power);
       } break;
     case(44): {		// SENSE LIFE
       obj->SetSkill("Light Spell", power);
