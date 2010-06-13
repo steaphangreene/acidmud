@@ -4350,8 +4350,14 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     int succ = 0;
-    succ = body->Roll(sk1, targ->Skill(sk2) - reachmod);
-    succ -= targ->Roll(sk2, body->Skill(sk1) + reachmod);
+    succ = roll(
+	body->Skill(sk1) + body->Modifier("Accuracy"),
+	targ->Skill(sk2) - reachmod
+	);
+    succ -= roll(
+	targ->Skill(sk2) + targ->Modifier("Evasion"),
+	body->Skill(sk1) + reachmod
+	);
 
     int loc = rand()%100;
     act_t loca = ACT_WEAR_CHEST;
@@ -4445,7 +4451,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
       int sev = 0;
       int stun = 0;
-      int force = body->Attribute(2);
+      int force = body->Attribute(2) + body->Modifier("Damage");
 
       if(com == COM_KICK) {
 	stun = 1;
