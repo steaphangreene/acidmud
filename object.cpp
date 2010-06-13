@@ -2933,7 +2933,7 @@ void Object::Consume(const Object *item) {
 	}
       }
     else {
-      BusyFor(500, "sleep");
+      handle_command(this, "sleep");
       }
     }
 
