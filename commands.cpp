@@ -3905,8 +3905,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    Object *scroll = body->NextHasSkill(spname + " Spell");
-    if((!nmode) && (!scroll)) {
+    Object *src = body->NextHasSkill(spname + " Spell");
+    if((!nmode) && (!src)) {
       if(mind) mind->Send(
 	"You don't know the %s Spell and have no items enchanted with it.\n",
 	spname.c_str()
@@ -3923,11 +3923,11 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
     Object *targ = body->ActTarg(ACT_POINT);
     if(!targ) targ = body;	//Defaults to SELF (If not, caught above!)
-    if(scroll) {
+    if(src) {
       string youmes = "You use ;s to cast " + spname + "%s.\n";
       body->Parent()->SendOut(stealth_t, stealth_s,
 	";s uses ;s to cast a spell.\n", youmes.c_str(),
-	body, scroll
+	body, src
 	);
       }
     string youmes = "You cast " + spname + " on ;s.\n";
@@ -3938,8 +3938,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
     if(!special) {
       Object *spell = new Object();
-      if(scroll) {
-	spell->SetSkill(spname + " Spell", scroll->Skill(spname + " Spell"));
+      if(src) {
+	spell->SetSkill(spname + " Spell", src->Skill(spname + " Spell"));
 	}
       else {
 	spell->SetSkill(spname + " Spell", 1000);	//FIXME: Magic Force!
@@ -3958,17 +3958,15 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	}
       }
 
-    if(scroll) {	//FIXME: Handle Multi-Charged Items (Rod/Staff/Wand)
-      if(scroll->Skill("Quantity") > 1) {
-	scroll = scroll->Split(1);
+    if(src) {	//FIXME: Handle Multi-Charged Items (Rod/Staff/Wand)
+      if(src->Skill("Quantity") > 1) {
+	src->Split(src->Skill("Quantity") - 1);		//Split off the rest
 	}
-      if(scroll->Skill("Magical Charges") > 1) {
-	scroll->SetSkill("Magical Charges",
-		scroll->Skill("Magical Charges") - 1
-		);
+      if(src->Skill("Magical Charges") > 1) {
+	src->SetSkill("Magical Charges", src->Skill("Magical Charges") - 1);
 	}
       else {
-	delete(scroll);
+	delete(src);
 	}
       }
 
@@ -4746,10 +4744,13 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(mind) mind->Send("You must be uninjured to use that command!\n");
       }
     else {
+      body->Parent()->SendOut(0, 0, //Not Stealthy!
+	"BAMF! ;s teleports away.\n", "BAMF! You teleport home.\n", body, NULL
+	);
       body->Travel(get_start_room(), 0);
       body->Parent()->SendOut(0, 0, //Not Stealthy!
-	"BAMF! ;s teleports home.\n",
-	"BAMF! You teleport home.\n", body, NULL);
+	"BAMF! ;s teleports here.\n", "", body, NULL
+	);
       if(mind && mind->Type() == MIND_REMOTE)
 	body->Parent()->SendDescSurround(body, body);
       }

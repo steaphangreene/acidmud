@@ -2933,7 +2933,7 @@ void Object::Consume(const Object *item) {
 	}
       }
     else {
-      DoWhenFree("sleep");
+      BusyFor(500, "sleep");
       }
     }
 
