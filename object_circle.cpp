@@ -1744,7 +1744,7 @@ void Object::CircleLoad(const char *fn) {
 	    typeof((*ob)->Contents()) cont = (*ob)->Contents();
 	    typeof(cont.begin()) cind;
 	    for(cind = cont.begin(); cind != cont.end(); ++cind) {
-	      if(string((*cind)->ShortDesc()) == "A passage exit.") {
+	      if(string((*cind)->ShortDesc()) == "a passage exit") {
 		if((*cind)->ActTarg(ACT_SPECIAL_MASTER)->Parent()
 			== bynum[tnum]) {
 		  nobj = (*cind);
@@ -1826,7 +1826,7 @@ void Object::CircleLoadShp(const char *fn) {
 	if(!fscanf(mud, "#%d~\n", &val)) break;  // Shop Number
 
 	vortex = new Object;
-	vortex->SetShortDesc("A shopkeeper vortex");
+	vortex->SetShortDesc("a shopkeeper vortex");
 	vortex->SetDesc("An advanced wormhole that shopkeeper's use.");
 	vortex->SetSkill("Vortex", 1); // Mark it as a shopkeeper Vortex.
 	vortex->SetSkill("Invisible", 1000);

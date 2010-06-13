@@ -262,5 +262,9 @@ int Object::LoadFrom(FILE *fl) {
 //    SetSkill("Invisible", 1000);
 //    }
 
+//  if(short_desc == "A passage exit.") {
+//    short_desc = "a passage exit";
+//    }
+
   return 0;
   }
