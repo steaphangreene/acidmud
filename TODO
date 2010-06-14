@@ -1,3 +1,7 @@
+Implement Raising and Resurrecting.
+Implement Non-ninja healing skills.
+Make unarmed circle MOBs more scary.
+
 Curse-ditch police: Buying with cursed gold.
 Curse-ditch police: Throwing a cursed ranged weapon in combat.
 
@@ -146,7 +150,6 @@ Wake someone else up!
 Suite of special emote/speak commands (nod, smile, stare, etc...)
 Settings for display on go/enter/leave.
 Autostash enable/disable?
-Non-ninja healing skills?
 Gossip?
 Encumbrance.
 Color-code output (ask Wyatt).
