@@ -113,6 +113,7 @@ enum {	COM_HELP=0,
 	COM_REMOVE,
 	COM_LABEL,
 	COM_UNLABEL,
+	COM_HEAL,
 
 	COM_EAT,
 	COM_DRINK,
@@ -179,7 +180,6 @@ enum {	COM_HELP=0,
 	COM_CLONE,
 	COM_MIRROR,
 	COM_JUNK,
-	COM_HEAL,
 	COM_JACK,
 	COM_CHUMP,
 	COM_INCREMENT,
@@ -403,6 +403,11 @@ Command comlist[] = {
     "Remove the label the item you are holding.",
     "Remove the label the item you are holding.",
     (REQ_ALERT|REQ_ACTION)
+    },
+  { COM_HEAL, "heal",
+    "Use healing/first-aid skills to help another, or yourself.",
+    "Use healing/first-aid skills to help another, or yourself.",
+    (REQ_CORPOREAL)
     },
 
   { COM_SLEEP, "sleep",
@@ -681,11 +686,6 @@ Command comlist[] = {
     (REQ_ANY|REQ_NINJAMODE)
     },
 
-  { COM_HEAL, "heal",
-    "Ninja command.",
-    "Ninja command - ninjas only!",
-    (REQ_CORPOREAL|REQ_NINJAMODE)
-    },
   { COM_JACK, "jack",
     "Ninja command.",
     "Ninja command - ninjas only!",
@@ -5469,7 +5469,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     if(!targ) {
       mind->Send("You want to heal what?\n");
       }
-    else {
+    else if(nmode) {
       //This is ninja-healing and bypasses all healing mechanisms.
       targ->SetSkill("Poisoned", 0);
       targ->SetSkill("Thirsty", 0);
@@ -5481,6 +5481,11 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
       body->Parent()->SendOut(stealth_t, stealth_s,
 	";s heals and repairs ;s with Ninja Powers[TM].\n", "You heal ;s.\n",
+	body, targ);
+      }
+    else  {
+      body->Parent()->SendOut(stealth_t, stealth_s,
+	";s tries to help ;s.\n", "You try to help ;s.\n",
 	body, targ);
       }
     return 0;
