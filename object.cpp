@@ -537,6 +537,21 @@ int Object::Tick() {
     SetSkill("Light Source", 1000 - light);
     }
 
+  //Poisoned
+  if(Skill("Poisoned") > 0) {
+    int succ = Roll("Strength", Skill("Poisoned"));
+    SetSkill("Poisoned", Skill("Poisoned") - succ);
+    Parent()->SendOut(0, 0,
+	";s chokes and writhes in pain.\n",
+	CRED "You choke and writhe in pain.  POISON!!!!\n" CNRM,
+	this, NULL
+	);
+    if(succ < 2) phys += 6;
+    else if(succ < 4) phys += 3;
+    else if(succ < 6) phys += 1;
+    UpdateDamage();
+    }
+
   return 0;
   }
 
@@ -2861,17 +2876,7 @@ void Object::Consume(const Object *item) {
 
   //Special effect: Poisonous
   if(item->Skill("Poisonous") > 0) {
-    int succ = Roll("Strength", item->Skill("Poisonous"));
-    Parent()->SendOut(0, 0,
-	";s chokes and writhes in pain.\n",
-	CRED "You choke and writhe in pain.  POISON!!!!\n" CNRM,
-	this, NULL
-	);
-    if(succ < 2) phys += 10;
-    else if(succ < 4) phys += 6;
-    else if(succ < 6) phys += 3;
-    else if(succ < 8) phys += 1;
-    UpdateDamage();
+    SetSkill("Poisoned", Skill("Poisoned") + item->Skill("Poisonous"));
     }
 
   //Special effect: Heal
