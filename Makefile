@@ -7,7 +7,7 @@ OBJS:=	main.o version.o net.o commands.o mind.o player.o mob.o atomstring.o \
 
 #Production Settings (dynamic)
 CXX=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
-LIBS:=	-static -lstdc++ -lcrypt
+LIBS:=	-lstdc++ -lcrypt
 
 #Production Settings (dynamic, except libstdc++)
 #CXX=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
