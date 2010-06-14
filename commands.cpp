@@ -4499,6 +4499,11 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       else {
 	sev = targ->HitPhys(force, stage, succ);
 	}
+      if(body->Skill("Poisonous") > 0) {	//Injects poison!
+	targ->SetSkill("Poisoned",
+		targ->Skill("Poisoned") + body->Skill("Poisonous")
+		);
+	}
 
       if(sev <= 0) {
 	if(mind) mind->Send("You hit - but didn't do much.\n");  //FIXME - Real Messages
