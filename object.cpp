@@ -2933,6 +2933,12 @@ void Object::Consume(const Object *item) {
       }
     }
 
+  //Special effect: Teleport Spell (Grants Ability)
+  if(item->Skill("Teleport Spell")) {
+    SetSkill("Teleport", 2);		//2 Minutes to port!
+    Send(ALL, 0, "You can now teleport once!\n");
+    }
+
   //Special effect: Sleep Other
   if(item->Skill("Sleep Other Spell") > 0) {
     int succ = Roll("Willpower", item->Skill("Sleep Other Spell"));

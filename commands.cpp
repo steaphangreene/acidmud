@@ -3896,6 +3896,11 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       special = 0;
       spname = "Recall";
       }
+    else if(!strncasecmp("Teleport", comline+len, strlen(comline+len))) {
+      defself = 1;
+      special = 0;
+      spname = "Teleport";
+      }
     else if(!strncasecmp("Remove Curse", comline+len, strlen(comline+len))) {
       defself = 1;
       special = 0;
@@ -4800,11 +4805,12 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(mind) mind->Send("No such teleportation destination found.\n");
       }
     else {
-      body->Parent()->SendOut(0, 0, //Not Stealthy!
+      body->SetSkill("Teleport", 0);	//Use it up
+      body->Parent()->SendOut(0, 0,	//Not Stealthy!
 	"BAMF! ;s teleports away.\n", "BAMF! You teleport home.\n", body, NULL
 	);
       body->Travel(dest, 0);
-      body->Parent()->SendOut(0, 0, //Not Stealthy!
+      body->Parent()->SendOut(0, 0,	//Not Stealthy!
 	"BAMF! ;s teleports here.\n", "", body, NULL
 	);
       if(mind && mind->Type() == MIND_REMOTE)
