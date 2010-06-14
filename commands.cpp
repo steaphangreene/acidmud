@@ -162,6 +162,7 @@ enum {	COM_HELP=0,
 	COM_SKILLLIST,
 
 	COM_RECALL,
+	COM_TELEPORT,
 
 	COM_NINJAMODE,
 	COM_MAKENINJA,
@@ -579,6 +580,11 @@ Command comlist[] = {
   { COM_RECALL, "recall",
     "Teleport back to the start when you are uninjured.",
     "Teleport back to the start when you are uninjured.",
+    (REQ_STAND)
+    },
+  { COM_TELEPORT, "teleport",
+    "Teleport to a named location (requires a power to enable).",
+    "Teleport to a named location (requires a power to enable).",
     (REQ_STAND)
     },
 
@@ -4759,6 +4765,45 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	"BAMF! ;s teleports away.\n", "BAMF! You teleport home.\n", body, NULL
 	);
       body->Travel(get_start_room(), 0);
+      body->Parent()->SendOut(0, 0, //Not Stealthy!
+	"BAMF! ;s teleports here.\n", "", body, NULL
+	);
+      if(mind && mind->Type() == MIND_REMOTE)
+	body->Parent()->SendDescSurround(body, body);
+      }
+    return 0;
+    }
+
+  if(com == COM_TELEPORT) {
+    if((!nmode) && body->Skill("Teleport") < 1) {
+      if(mind) mind->Send("You don't have the power to teleport!\n");
+      return 0;
+      }
+    if((!body->Parent()) || (!body->Parent()->Parent())) {
+      if(mind) mind->Send("You can't teleport from here!\n");
+      return 0;
+      }
+
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(!comline[len]) {
+      mind->Send("Where do you want to teleport to?.\n");
+      return 0;
+      }
+
+    Object *dest = body->Parent();
+    while(dest->Parent()->Parent()) {
+      dest = dest->Parent();
+      }
+    dest = dest->PickObject(comline+len, LOC_INTERNAL);
+
+    if(!dest) {
+      if(mind) mind->Send("No such teleportation destination found.\n");
+      }
+    else {
+      body->Parent()->SendOut(0, 0, //Not Stealthy!
+	"BAMF! ;s teleports away.\n", "BAMF! You teleport home.\n", body, NULL
+	);
+      body->Travel(dest, 0);
       body->Parent()->SendOut(0, 0, //Not Stealthy!
 	"BAMF! ;s teleports here.\n", "", body, NULL
 	);
