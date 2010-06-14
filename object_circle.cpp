@@ -248,6 +248,10 @@ void Object::CircleFinishMob(Object *mob) {
       }
     mob->SetSkill("CircleDefense", 0);
     }
+
+  if(Matches("snake") || Matches("spider") || Matches("poisonous")) {
+    SetSkill("Poisonous", att[2]);
+    }
   }
 
 static Object *lastmob = NULL, *lastbag = NULL;
