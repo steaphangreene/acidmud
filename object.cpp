@@ -2879,6 +2879,14 @@ void Object::Consume(const Object *item) {
     SetSkill("Poisoned", Skill("Poisoned") + item->Skill("Poisonous"));
     }
 
+  //Special effect: Cure Poison
+  if(item->Skill("Cure Poison Spell") > 0 && Skill("Poisoned") > 0) {
+    if(item->Skill("Cure Poison Spell") >= Skill("Poisoned")) {
+      SetSkill("Poisoned", 0);
+      Send(ALL, 0, "You feel better.\n");
+      }
+    }
+
   //Special effect: Heal
   if(item->Skill("Heal Spell") > 0) {
     int succ = Roll("Strength", 12 - item->Skill("Heal Spell"));

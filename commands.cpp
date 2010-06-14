@@ -3895,6 +3895,11 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       special = 0;
       spname = "Remove Curse";
       }
+    else if(!strncasecmp("Cure Poison", comline+len, strlen(comline+len))) {
+      defself = 1;
+      special = 0;
+      spname = "Cure Poison";
+      }
     else if(!strncasecmp("Sleep Other", comline+len, strlen(comline+len))) {
       defself = 0;
       special = 0;
@@ -3905,7 +3910,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    Object *src = body->NextHasSkill(spname + " Spell");
+    Object *src = NULL;
+    if(!nmode) src = body->NextHasSkill(spname + " Spell");
     if((!nmode) && (!src)) {
       if(mind) mind->Send(
 	"You don't know the %s Spell and have no items enchanted with it.\n",
