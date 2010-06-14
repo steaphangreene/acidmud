@@ -5409,6 +5409,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     else {
       //This is ninja-healing and bypasses all healing mechanisms.
+      targ->SetSkill("Poisoned", 0);
       targ->SetSkill("Thirsty", 0);
       targ->SetSkill("Hungry", 0);
       targ->SetPhys(0);
