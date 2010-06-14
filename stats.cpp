@@ -2592,18 +2592,19 @@ int Object::HasSkill(const string &s) const {
 
 int Object::Skill(const string &s, int *tnum) const {
   if(strlen(s.c_str()) == 0) return 0;
-  if(!strncasecmp(s.c_str(), "Body", s.length())) return att[0];
-  if(!strncasecmp(s.c_str(), "Quickness", s.length())) return att[1];
-  if(!strncasecmp(s.c_str(), "Strength", s.length())) return att[2];
-  if(!strncasecmp(s.c_str(), "Charisma", s.length())) return att[3];
-  if(!strncasecmp(s.c_str(), "Intelligence", s.length())) return att[4];
-  if(!strncasecmp(s.c_str(), "Willpower", s.length())) return att[5];
-  if(!strncasecmp(s.c_str(), "Reaction", s.length())) return (att[1]+att[4])/2;
+  if(!strncasecmp(s.c_str(), "Body", s.length())) return Attribute(0);
+  if(!strncasecmp(s.c_str(), "Quickness", s.length())) return Attribute(1);
+  if(!strncasecmp(s.c_str(), "Strength", s.length())) return Attribute(2);
+  if(!strncasecmp(s.c_str(), "Charisma", s.length())) return Attribute(3);
+  if(!strncasecmp(s.c_str(), "Intelligence", s.length())) return Attribute(4);
+  if(!strncasecmp(s.c_str(), "Willpower", s.length())) return Attribute(5);
+  if(!strncasecmp(s.c_str(), "Reaction", s.length()))
+	return (Attribute(1)+Attribute(4))/2;
   if(!defaults_init) init_defaults();
   if(skills.count(s)) return (skills.find(s))->second;  //const for 'skills[s]'
   if(tnum) {
     (*tnum) += 4;
-    return att[defaults[s]];
+    return Attribute(defaults[s]);
     }
   return 0;
   }
