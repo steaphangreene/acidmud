@@ -59,10 +59,10 @@ const char *act_str[ACT_SPECIAL_MAX] = {
         "wearing %1$s",
         "wearing %1$s",
         "ACT_MAX",
+        "ACT_SPECIAL_UNUSED1",
+        "ACT_SPECIAL_UNUSED2",
+        "ACT_SPECIAL_UNUSED3",
         "ACT_SPECIAL_MONITOR",
-        "ACT_SPECIAL_OLDMONITOR",
-        "ACT_SPECIAL_PREPARE",
-        "ACT_SPECIAL_NOTSHOWN",
         "ACT_SPECIAL_MASTER",
         "ACT_SPECIAL_LINKED"
         };
