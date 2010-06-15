@@ -306,9 +306,7 @@ int Object::Tick() {
     }
 
   if(parent && Skill("CirclePopper") > 0 && contents.size() > 0) {
-    if((!ActTarg(ACT_SPECIAL_MONITOR))
-	|| (ActTarg(ACT_SPECIAL_MONITOR)->IsAct(ACT_DEAD))
-	) {
+    if(!ActTarg(ACT_SPECIAL_MONITOR)) {
       Object *obj = new Object(*(contents.front()));
       obj->SetParent(this);
       obj->Travel(parent);

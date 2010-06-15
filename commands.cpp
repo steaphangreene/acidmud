@@ -5545,38 +5545,40 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	);
       if(body->HasSkill("First Aid")) {
 	if(targ->Phys() < 1) {
-	  mind->Send("%s is not injured.\n", targ->Name(0, body));
+	  mind->Send("%s is not injured.\n", targ->Name());
 	  }
 	else {
-	  mind->Send("%s is injured.\n", targ->Name(0, body));
+	  mind->Send("%s is injured.\n", targ->Name());
+	  skill = "First Aid";
 	  duration = 3000;
 	  }
 	}
       else if(body->HasSkill("Healing")) {
 	if(targ->Phys() < 1) {
-	  mind->Send("%s is not injured.\n", targ->Name(0, body));
+	  mind->Send("%s is not injured.\n", targ->Name());
 	  }
 	else {
-	  mind->Send("%s is injured.\n", targ->Name(0, body));
+	  mind->Send("%s is injured.\n", targ->Name());
+	  skill = "Healing";
 	  duration = 3000;
 	  }
 	}
       if(body->HasSkill("Treatment")) {
 	if(targ->Skill("Poisoned") < 1) {
-	  mind->Send("%s does not need help.\n", targ->Name(0, body));
+	  mind->Send("%s does not need other help.\n", targ->Name());
 	  }
 	else {
-	  mind->Send("%s is poisoned.\n", targ->Name(0, body));
+	  mind->Send("%s is poisoned.\n", targ->Name());
 	  skill = "Treatment";
 	  duration = 3000;
 	  }
 	}
       else if(body->HasSkill("Healing")) {
 	if(targ->Skill("Poisoned") < 1) {
-	  mind->Send("%s does not need help.\n", targ->Name(0, body));
+	  mind->Send("%s does not need other help.\n", targ->Name());
 	  }
 	else {
-	  mind->Send("%s is poisoned.\n", targ->Name(0, body));
+	  mind->Send("%s is poisoned.\n", targ->Name());
 	  skill = "Healing";
 	  duration = 3000;
 	  }
