@@ -407,7 +407,7 @@ Command comlist[] = {
   { COM_HEAL, "heal",
     "Use healing/first-aid skills to help another, or yourself.",
     "Use healing/first-aid skills to help another, or yourself.",
-    (REQ_CORPOREAL)
+    (REQ_CORPOREAL|REQ_ACTION)
     },
 
   { COM_SLEEP, "sleep",
@@ -5465,9 +5465,54 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   if(com == COM_HEAL) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    Object *targ = body->PickObject(comline+len, LOC_NEARBY|LOC_INTERNAL|LOC_SELF);
+    Object *targ = body->PickObject(comline+len,
+	LOC_NEARBY|LOC_INTERNAL|LOC_SELF
+	);
+
+    int finished = 0;
+    if(body->IsAct(ACT_HEAL)			//Finish Previous Healing
+	|| body->IsUsing("Healing")
+	|| body->IsUsing("First Aid")
+	|| body->IsUsing("Treatment")
+	) {
+      finished = 1;
+      if(body->IsAct(ACT_HEAL)) {
+	if(body->IsUsing("Healing")) {
+	  mind->Send("You complete your healing efforts.\n");
+	  int phys = body->ActTarg(ACT_HEAL)->Phys();
+	  phys -= body->Roll("Healing", phys + 2);
+	  if(phys < 0) phys = 0;
+	  body->ActTarg(ACT_HEAL)->SetPhys(phys);
+	  int pois = body->ActTarg(ACT_HEAL)->Skill("Poisoned");
+	  pois -= body->Roll("Healing", pois + 2);
+	  if(pois < 0) pois = 0;
+	  body->ActTarg(ACT_HEAL)->SetSkill("Poisoned", pois);
+	  }
+	else if(body->IsUsing("First Aid")) {
+	  mind->Send("You complete your first-aid efforts.\n");
+	  int phys = body->ActTarg(ACT_HEAL)->Phys();
+	  phys -= body->Roll("First Aid", phys);
+	  if(phys < 0) phys = 0;
+	  body->ActTarg(ACT_HEAL)->SetPhys(phys);
+	  }
+	else if(body->IsUsing("Treatment")) {
+	  mind->Send("You complete your treatment efforts.\n");
+	  int pois = body->ActTarg(ACT_HEAL)->Skill("Poisoned");
+	  pois -= body->Roll("Treatment", pois);
+	  if(pois < 0) pois = 0;
+	  body->ActTarg(ACT_HEAL)->SetSkill("Poisoned", pois);
+	  }
+	body->StopUsing();
+	body->StopAct(ACT_HEAL);
+	}
+      }
     if(!targ) {
-      mind->Send("You want to heal what?\n");
+      if(!finished) mind->Send("You want to heal what?\n");
+      }
+    else if(targ->Attribute(2) < 1) {
+      mind->Send("You can't heal %s, it's an inanimate object.\n",
+	targ->Name(0, body)
+	);
       }
     else if(nmode) {
       //This is ninja-healing and bypasses all healing mechanisms.
@@ -5483,10 +5528,66 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	";s heals and repairs ;s with Ninja Powers[TM].\n", "You heal ;s.\n",
 	body, targ);
       }
-    else  {
+    else if((!body->HasSkill("Healing"))
+	&& (!body->HasSkill("First Aid"))
+	&& (!body->HasSkill("Treatment"))
+	) {
+      if(mind) {
+	mind->Send("You don't know how to help %s.\n", targ->Name(0, body));
+	}
+      }
+    else {
+      int duration = 0;
+      string skill = "";
       body->Parent()->SendOut(stealth_t, stealth_s,
-	";s tries to help ;s.\n", "You try to help ;s.\n",
-	body, targ);
+	";s tries to heal ;s.\n", "You try to heal ;s.\n",
+	body, targ
+	);
+      if(body->HasSkill("First Aid")) {
+	if(targ->Phys() < 1) {
+	  mind->Send("%s is not injured.\n", targ->Name(0, body));
+	  }
+	else {
+	  mind->Send("%s is injured.\n", targ->Name(0, body));
+	  duration = 3000;
+	  }
+	}
+      else if(body->HasSkill("Healing")) {
+	if(targ->Phys() < 1) {
+	  mind->Send("%s is not injured.\n", targ->Name(0, body));
+	  }
+	else {
+	  mind->Send("%s is injured.\n", targ->Name(0, body));
+	  duration = 3000;
+	  }
+	}
+      if(body->HasSkill("Treatment")) {
+	if(targ->Phys() < 1 && targ->Skill("Poisoned") < 1) {
+	  mind->Send("%s does not need help.\n", targ->Name(0, body));
+	  }
+	else {
+	  mind->Send("%s is poisoned.\n", targ->Name(0, body));
+	  skill = "Treatment";
+	  duration = 3000;
+	  }
+	}
+      else if(body->HasSkill("Healing")) {
+	if(targ->Phys() < 1 && targ->Skill("Poisoned") < 1) {
+	  mind->Send("%s does not need help.\n", targ->Name(0, body));
+	  }
+	else {
+	  mind->Send("%s is poisoned.\n", targ->Name(0, body));
+	  skill = "Healing";
+	  duration = 3000;
+	  }
+	}
+      if(skill != "") {
+	body->AddAct(ACT_HEAL, targ);
+	body->StartUsing(skill);
+	}
+      if(duration > 0) {
+	body->BusyFor(duration, "heal");
+	}
       }
     return 0;
     }

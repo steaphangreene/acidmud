@@ -2785,6 +2785,15 @@ const char *Object::UsingString() {
     else if(cur_skill == AtomString("Perception")) {
       sprintf(buf, "keeping an eye out");
       }
+    else if(cur_skill == AtomString("Healing")) {
+      sprintf(buf, "caring for others' wounds");
+      }
+    else if(cur_skill == AtomString("First Aid")) {
+      sprintf(buf, "giving first-aid");
+      }
+    else if(cur_skill == AtomString("Treatment")) {
+      sprintf(buf, "treating others' wounds");
+      }
     else {
       sprintf(buf, "using the %s skill", Using());
       }
