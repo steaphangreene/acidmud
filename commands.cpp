@@ -5562,7 +5562,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  }
 	}
       if(body->HasSkill("Treatment")) {
-	if(targ->Phys() < 1 && targ->Skill("Poisoned") < 1) {
+	if(targ->Skill("Poisoned") < 1) {
 	  mind->Send("%s does not need help.\n", targ->Name(0, body));
 	  }
 	else {
@@ -5572,7 +5572,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  }
 	}
       else if(body->HasSkill("Healing")) {
-	if(targ->Phys() < 1 && targ->Skill("Poisoned") < 1) {
+	if(targ->Skill("Poisoned") < 1) {
 	  mind->Send("%s does not need help.\n", targ->Name(0, body));
 	  }
 	else {
