@@ -1587,12 +1587,6 @@ Object::~Object() {
     parent->NotifyGone(this);
     }
 
-  typeof(touching_me) touches = touching_me;
-  typeof(touches.begin()) touch = touches.begin();
-  for(; touch != touches.end(); ++touch) {
-    (*touch)->NotifyLeft(this);
-    }
-
   //Actions over long distances must be notified!
   set<Object*> tonotify;
   if(ActTarg(ACT_SPECIAL_MASTER))
@@ -1601,6 +1595,12 @@ Object::~Object() {
     tonotify.insert(ActTarg(ACT_SPECIAL_MONITOR));
   if(ActTarg(ACT_SPECIAL_LINKED))
     tonotify.insert(ActTarg(ACT_SPECIAL_LINKED));
+
+  typeof(touching_me) touches = touching_me;
+  typeof(touches.begin()) touch = touches.begin();
+  for(; touch != touches.end(); ++touch) {
+    tonotify.insert(*touch);
+    }
 
   StopAct(ACT_SPECIAL_MASTER);
   StopAct(ACT_SPECIAL_MONITOR);
