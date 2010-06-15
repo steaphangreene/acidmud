@@ -143,6 +143,7 @@ static void init_gold() {
   gold->SetValue(1);
   gold->SetSize(0);
   gold->SetPos(POS_LIE);
+  gold->SetSkill("Money", 1);
   }
 
 Mind *get_circle_mob_mind() {
@@ -1514,6 +1515,9 @@ void Object::CircleLoadObj(const char *fn) {
 	obj->SetVolume(weight); //FIXME: Better guess within units?
 	obj->SetSize(1);
 	obj->SetValue((value*valmod) / 1000);
+	if(obj->short_desc == "a cashcard (card atm)") {	//Is Script Now
+	  obj->SetSkill("Money", 10000);
+	  }
 	}
 
       int magresist = 0;

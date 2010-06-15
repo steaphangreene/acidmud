@@ -186,6 +186,10 @@ enum {	COM_HELP=0,
 	COM_INCREMENT,
 	COM_DECREMENT,
 	COM_DOUBLE,
+	COM_SETSTATS,
+	COM_NAME,
+	COM_DESCRIBE,
+	COM_DEFINE,
 
 	COM_SCORE,
 
@@ -196,9 +200,6 @@ enum {	COM_HELP=0,
 	COM_VERSION,
 
 	COM_MAKESTART,
-	COM_NAME,
-	COM_DESCRIBE,
-	COM_DEFINE,
 
 	COM_CLOAD,
 	COM_CCLEAN,
@@ -740,6 +741,11 @@ Command comlist[] = {
     },
 
   { COM_MAKESTART, "makestart",
+    "Ninja command.",
+    "Ninja command - ninjas only!",
+    (REQ_ALERT|REQ_NINJAMODE)
+    },
+  { COM_SETSTATS, "setstats",
     "Ninja command.",
     "Ninja command - ninjas only!",
     (REQ_ALERT|REQ_NINJAMODE)
@@ -5088,14 +5094,47 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     return 0;
     }
 
-  if(com == COM_NAME) {
+  if(com == COM_SETSTATS) {
     if(!mind) return 0;
+    Object *targ = body->ActTarg(ACT_POINT);
+    if(!targ) {
+      mind->Send("You need to be pointing at your target.\n");
+      return 0;
+      }
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(comline[len] != 0) {
-      string oldn = body->Parent()->ShortDesc();
-      body->Parent()->SetShortDesc(comline+len);
+      char gender = 0;
+      int num, weight = 0, size = 0, volume = 0, value = 0;
+      num = sscanf(comline+len, "%d %d %d %d %c;\n",
+	&weight, &size, &volume, &value, &gender
+	);
+      if(num > 0) targ->SetWeight(weight);
+      if(num > 1) targ->SetSize(size);
+      if(num > 3) targ->SetVolume(volume);
+      if(num > 3) targ->SetValue(value);
+      if(gender == 'N' || gender == 'M' || gender == 'F') {
+	targ->SetGender(gender);
+	}
+      }
+    else {
+      mind->Send("Set stats to what?\n");
+      }
+    return 0;
+    }
+
+  if(com == COM_NAME) {
+    if(!mind) return 0;
+    Object *targ = body->ActTarg(ACT_POINT);
+    if(!targ) {
+      mind->Send("You need to be pointing at your target.\n");
+      return 0;
+      }
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(comline[len] != 0) {
+      string oldn = targ->ShortDesc();
+      targ->SetShortDesc(comline+len);
       mind->Send("You rename '%s' to '%s'\n", oldn.c_str(),
-	body->Parent()->ShortDesc());	//FIXME - Real Message
+	targ->ShortDesc());	//FIXME - Real Message
       }
     else {
       mind->Send("Rename it to what?\n");
@@ -5105,12 +5144,17 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
   if(com == COM_DESCRIBE) {
     if(!mind) return 0;
+    Object *targ = body->ActTarg(ACT_POINT);
+    if(!targ) {
+      mind->Send("You need to be pointing at your target.\n");
+      return 0;
+      }
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(comline[len] != 0) {
-      string oldn = body->Parent()->ShortDesc();
-      body->Parent()->SetDesc(comline+len);
+      string oldn = targ->ShortDesc();
+      targ->SetDesc(comline+len);
       mind->Send("You redescribe '%s' as '%s'\n", oldn.c_str(),
-	body->Parent()->Desc());	//FIXME - Real Message
+	targ->Desc());	//FIXME - Real Message
       }
     else {
       mind->Send("Describe it as what?\n");
@@ -5120,12 +5164,17 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
   if(com == COM_DEFINE) {
     if(!mind) return 0;
+    Object *targ = body->ActTarg(ACT_POINT);
+    if(!targ) {
+      mind->Send("You need to be pointing at your target.\n");
+      return 0;
+      }
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(comline[len] != 0) {
-      string oldn = body->Parent()->ShortDesc();
-      body->Parent()->SetLongDesc(comline+len);
+      string oldn = targ->ShortDesc();
+      targ->SetLongDesc(comline+len);
       mind->Send("You redefine '%s' as '%s'\n", oldn.c_str(),
-	body->Parent()->LongDesc());	//FIXME - Real Message
+	targ->LongDesc());	//FIXME - Real Message
       }
     else {
       mind->Send("Define it as what?\n");
