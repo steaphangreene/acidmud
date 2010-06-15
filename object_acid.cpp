@@ -5,6 +5,61 @@
 #include "mind.h"
 #include "version.h"
 
+const char *act_save[ACT_SPECIAL_MAX] = {
+	"NONE",
+	"DEAD",
+	"DYING",
+	"UNCONSCIOUS",
+	"SLEEP",
+	"REST",
+	"POINT",
+	"FOLLOW",
+	"FIGHT",
+	"HOLD",
+	"WIELD",
+	"WEAR_BACK",
+	"WEAR_CHEST",
+	"WEAR_HEAD",
+	"WEAR_NECK",
+	"WEAR_WAIST",
+	"WEAR_SHIELD",
+	"WEAR_LARM",
+	"WEAR_RARM",
+	"WEAR_LFINGER",
+	"WEAR_RFINGER",
+	"WEAR_LFOOT",
+	"WEAR_RFOOT",
+	"WEAR_LHAND",
+	"WEAR_RHAND",
+	"WEAR_LLEG",
+	"WEAR_RLEG",
+	"WEAR_LWRIST",
+	"WEAR_RWRIST",
+	"WEAR_LSHOULDER",
+	"WEAR_RSHOULDER",
+	"WEAR_LHIP",
+	"WEAR_RHIP",
+	"MAX",
+	"SPECIAL_UNUSED1",
+	"SPECIAL_UNUSED2",
+	"SPECIAL_UNUSED3",
+	"SPECIAL_MONITOR",
+	"SPECIAL_MASTER",
+	"SPECIAL_LINKED",
+//	"SPECIAL_MAX"
+	};
+
+static map<string, act_t> act_load_map;
+static act_t act_load(const string &str) {
+  if(act_load_map.size() < 1) {
+    for(int a=0; a < ACT_SPECIAL_MAX; ++a) {
+      act_load_map[string(act_save[a])] = act_t(a);
+      }
+    }
+  if(act_load_map.count(str) < 1) return ACT_NONE;
+  return act_load_map[str];
+  }
+
 static char buf[65536];
 static vector<Object*> todo;
 static map<int, Object*> num2obj;
@@ -79,7 +134,7 @@ int Object::SaveTo(FILE *fl) {
   fprintf(fl, "%d\n", (int)(act.size()));
   map<act_t,Object*>::iterator aind;
   for(aind = act.begin(); aind != act.end(); ++aind) {
-    fprintf(fl, "%d;%d\n", aind->first, getnum(aind->second));
+    fprintf(fl, "%s;%d\n", act_save[aind->first], getnum(aind->second));
     }
 
   fprintf(fl, "\n");
@@ -216,7 +271,14 @@ int Object::LoadFrom(FILE *fl) {
   fscanf(fl, "%d ", &num);
   for(int ctr=0; ctr<num; ++ctr) {
     int anum, num2;
-    fscanf(fl, "%d;%d ", &anum, &num2);
+    if(ver < 0x0014) {	// Action types stored numerically < v0x14
+      fscanf(fl, "%d;%d ", &anum, &num2);
+      }
+    else {		// Action types stored as strings >= v0x14
+      memset(buf, 0, 65536);
+      fscanf(fl, "%65535[^;];%d ", buf, &num2);
+      anum = act_load(string(buf));
+      }
 
     /* Encode the Object Number as a pointer, Decoded in Load() */
     act[(act_t)anum] = (Object *)((Object *)(NULL) + num2);
