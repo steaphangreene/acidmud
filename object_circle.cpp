@@ -1768,7 +1768,7 @@ void Object::CircleLoad(const char *fn) {
 	      nobj2 = new Object;
 	      nobj->SetParent(*ob);
 	      nobj2->SetParent(bynum[tnum]);
-	      nobj2->SetShortDesc("A passage exit.");
+	      nobj2->SetShortDesc("a passage exit");
 	      nobj2->SetDesc("A passage exit.");
 	      nobj2->SetSkill("Invisible", 1000);
 	      }
