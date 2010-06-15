@@ -31,6 +31,7 @@ const char *act_str[ACT_SPECIAL_MAX] = {
         "unconscious",
         "fast asleep",
         "resting",
+        "healing %1$s",
         "pointing %2$s%3$sat %1$s",
         "following %1$s",
         "fighting %1$s",
@@ -59,12 +60,10 @@ const char *act_str[ACT_SPECIAL_MAX] = {
         "wearing %1$s",
         "wearing %1$s",
         "ACT_MAX",
-        "ACT_SPECIAL_UNUSED1",
-        "ACT_SPECIAL_UNUSED2",
-        "ACT_SPECIAL_UNUSED3",
         "ACT_SPECIAL_MONITOR",
         "ACT_SPECIAL_MASTER",
-        "ACT_SPECIAL_LINKED"
+        "ACT_SPECIAL_LINKED",
+//	"ACT_SPECIAL_MAX"
         };
 
 static Object *universe;

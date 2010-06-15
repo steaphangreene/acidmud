@@ -43,13 +43,14 @@ enum pos_t {
 	POS_MAX
 	};
 
-enum act_t {
-	ACT_NONE=0,
-	ACT_DEAD,
+enum act_t {			//Changing these requires change to:
+	ACT_NONE=0,			//act_str: in object.cpp
+	ACT_DEAD,			//act_save: in object_acid.cpp
 	ACT_DYING,
 	ACT_UNCONSCIOUS,
 	ACT_SLEEP,
 	ACT_REST,
+	ACT_HEAL,
 	ACT_POINT,
 	ACT_FOLLOW,
 	ACT_FIGHT,
@@ -78,9 +79,6 @@ enum act_t {
 	ACT_WEAR_LHIP,
 	ACT_WEAR_RHIP,
 	ACT_MAX,
-	ACT_SPECIAL_UNUSED1,
-	ACT_SPECIAL_UNUSED2,
-	ACT_SPECIAL_UNUSED3,
 	ACT_SPECIAL_MONITOR,
 	ACT_SPECIAL_MASTER,
 	ACT_SPECIAL_LINKED,
