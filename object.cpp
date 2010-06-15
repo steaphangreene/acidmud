@@ -306,34 +306,18 @@ int Object::Tick() {
     UpdateDamage();
     }
 
-  if(parent && Skill("CirclePopper") == 1 && ActTarg(ACT_SPECIAL_PREPARE)) {
-    ActTarg(ACT_SPECIAL_PREPARE)->AddAct(ACT_SPECIAL_MASTER, this);
-    if(!ActTarg(ACT_SPECIAL_MONITOR)) {
-      Object *obj = new Object(*(ActTarg(ACT_SPECIAL_PREPARE)));
+  if(parent && Skill("CirclePopper") > 0 && contents.size() > 0) {
+    if((!ActTarg(ACT_SPECIAL_MONITOR))
+	|| (ActTarg(ACT_SPECIAL_MONITOR)->IsAct(ACT_DEAD))
+	) {
+      Object *obj = new Object(*(contents.front()));
       obj->SetParent(this);
-      obj->AddAct(ACT_SPECIAL_MASTER, this);
       obj->Travel(parent);
       AddAct(ACT_SPECIAL_MONITOR, obj);
       obj->Attach(get_circle_mob_mind());
       obj->Activate();
       parent->SendOut(ALL, -1, ";s arrives.\n", "", obj, NULL);
       }
-    else if(ActTarg(ACT_SPECIAL_MONITOR)->IsAct(ACT_DEAD)) {
-      if(ActTarg(ACT_SPECIAL_OLDMONITOR))
-	delete ActTarg(ACT_SPECIAL_OLDMONITOR);
-      AddAct(ACT_SPECIAL_OLDMONITOR, ActTarg(ACT_SPECIAL_MONITOR));
-      Object *obj = new Object(*(ActTarg(ACT_SPECIAL_PREPARE)));
-      obj->SetParent(this);
-      obj->AddAct(ACT_SPECIAL_MASTER, this);
-      obj->Travel(parent);
-      AddAct(ACT_SPECIAL_MONITOR, obj);
-      obj->Attach(get_circle_mob_mind());
-      obj->Activate();
-      parent->SendOut(ALL, -1, ";s arrives.\n", "", obj, NULL);
-      }
-    }
-  if(Skill("CirclePopper") > 0) {	// Only pop-check once per minute!
-    SetSkill("CirclePopper", (Skill("CirclePopper")%20)+1);
     }
 
   //Grow Trees (Silently)
@@ -1615,14 +1599,11 @@ Object::~Object() {
     tonotify.insert(ActTarg(ACT_SPECIAL_MASTER));
   if(ActTarg(ACT_SPECIAL_MONITOR))
     tonotify.insert(ActTarg(ACT_SPECIAL_MONITOR));
-  if(ActTarg(ACT_SPECIAL_OLDMONITOR))
-    tonotify.insert(ActTarg(ACT_SPECIAL_OLDMONITOR));
   if(ActTarg(ACT_SPECIAL_LINKED))
     tonotify.insert(ActTarg(ACT_SPECIAL_LINKED));
 
   StopAct(ACT_SPECIAL_MASTER);
   StopAct(ACT_SPECIAL_MONITOR);
-  StopAct(ACT_SPECIAL_OLDMONITOR);
   StopAct(ACT_SPECIAL_LINKED);
 
   set<Object*>::iterator noti;
@@ -1630,7 +1611,7 @@ Object::~Object() {
     int del = 0;
     if((*noti)->ActTarg(ACT_SPECIAL_MASTER) == this) del = 1;
     else if((*noti)->ActTarg(ACT_SPECIAL_LINKED) == this) del = 1;
-    (*noti)->NotifyGone(this);
+    (*noti)->NotifyLeft(this);
     if(del) delete (*noti);
     }
 
