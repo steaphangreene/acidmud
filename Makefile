@@ -1,4 +1,4 @@
-ACIDHOST:=acidmud.dyndns.org
+ACIDHOST:=optimus.cs.binghamton.edu
 
 TSTR:=  $(shell date -u +"%Y%m%d%H%M")
 OBJS:=	main.o version.o net.o commands.o mind.o player.o mob.o atomstring.o \
@@ -41,10 +41,6 @@ upload:
 	scp TODO acidmud@$(ACIDHOST):~acidmud/public_html/todo.txt
 	./scripts/svn2cl.sh > ChangeLog
 	scp ChangeLog acidmud@$(ACIDHOST):~acidmud/public_html/changes.txt
-	svn log -rHEAD:1 --xml > /tmp/svn.log.xml
-	./scripts/svnlogatom.py file:///tmp/svn.log.xml "AcidMUD Feed" \
-		> /tmp/rss.xml
-	scp /tmp/rss.xml acidmud@$(ACIDHOST):~acidmud/public_html/rss.xml
 	rm -f /tmp/rss.xml
 
 acidmud: $(OBJS)
