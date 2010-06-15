@@ -164,6 +164,7 @@ enum {	COM_HELP=0,
 
 	COM_RECALL,
 	COM_TELEPORT,
+	COM_RESURRECT,
 
 	COM_NINJAMODE,
 	COM_MAKENINJA,
@@ -590,6 +591,11 @@ Command comlist[] = {
   { COM_TELEPORT, "teleport",
     "Teleport to a named location (requires a power to enable).",
     "Teleport to a named location (requires a power to enable).",
+    (REQ_STAND)
+    },
+  { COM_RESURRECT, "resurrect",
+    "Resurrect a long-dead character (one with no corpse left).",
+    "Resurrect a long-dead character (one with no corpse left).",
     (REQ_STAND)
     },
 
@@ -3901,6 +3907,11 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       special = 0;
       spname = "Teleport";
       }
+    else if(!strncasecmp("Resurrect", comline+len, strlen(comline+len))) {
+      defself = 1;
+      special = 0;
+      spname = "Resurrect";
+      }
     else if(!strncasecmp("Remove Curse", comline+len, strlen(comline+len))) {
       defself = 1;
       special = 0;
@@ -4821,6 +4832,50 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(mind && mind->Type() == MIND_REMOTE)
 	body->Parent()->SendDescSurround(body, body);
       }
+    return 0;
+    }
+
+  if(com == COM_RESURRECT) {
+    if((!nmode) && body->Skill("Resurrect") < 1) {
+      if(mind) mind->Send("You don't have the power to resurrect!\n");
+      return 0;
+      }
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(!comline[len]) {
+      mind->Send("Who do you want to resurrect?.\n");
+      return 0;
+      }
+
+    vector<Player *> pls = get_all_players();
+    vector<Player *>::iterator pl = pls.begin();
+    for(; pl != pls.end(); ++pl) {
+      typeof((*pl)->Room()->Contents()) chs = (*pl)->Room()->Contents();
+      typeof(chs.begin()) ch = chs.begin();
+      for(; ch != chs.end(); ++ch) {
+	if((*ch)->Matches(comline+len)) {
+	  if((*ch)->IsActive()) {
+	    if(mind) mind->Send("%s is not long dead (yet).\n", (*ch)->Name());
+	    }
+	  else {
+	    body->SetSkill("Resurrect", 0);	//Use it up
+	    (*ch)->SetSkill("Poisoned", 0);
+	    (*ch)->SetSkill("Thirsty", 0);
+	    (*ch)->SetSkill("Hungry", 0);
+	    (*ch)->SetPhys(0);
+	    (*ch)->SetStun(0);
+	    (*ch)->SetStru(0);
+	    (*ch)->UpdateDamage();
+	    (*ch)->Activate();
+	    (*ch)->Parent()->SendOut(stealth_t, stealth_s,
+		";s has been resurrected!.\n", "", (*ch), NULL
+		);
+	    if(mind) mind->Send("%s has been resurrected!\n", (*ch)->Name());
+	    }
+	  return 0;
+	  }
+	}
+      }
+    if(mind) mind->Send("%s isn't a character on this MUD\n", comline+len);
     return 0;
     }
 

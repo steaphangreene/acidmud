@@ -2922,8 +2922,14 @@ void Object::Consume(const Object *item) {
 
   //Special effect: Teleport Spell (Grants Ability)
   if(item->Skill("Teleport Spell")) {
-    SetSkill("Teleport", 2);		//2 Minutes to port!
+    SetSkill("Teleport", 1);		//Can use once!
     Send(ALL, 0, "You can now teleport once!\n");
+    }
+
+  //Special effect: Resurrect Spell (Grants Ability)
+  if(item->Skill("Resurrect Spell")) {
+    SetSkill("Resurrect", 1);		//Can use once!
+    Send(ALL, 0, "You can now resurrect a character once!\n");
     }
 
   //Special effect: Sleep Other
