@@ -344,5 +344,9 @@ int Object::LoadFrom(FILE *fl) {
 //    act.erase(ACT_SPECIAL_PREPARE);
 //    }
 
+//  if(short_desc == "a gold piece") {
+//    SetSkill("Money", 1);
+//    }
+
   return 0;
   }
