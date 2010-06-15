@@ -2236,8 +2236,10 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	for(obj = objs.begin(); obj != objs.end(); ++obj) {
 	  if(obj != objs.begin() && (*(*obj)) == (*(*oobj))) continue;
 	  int price = (*obj)->Value();
- 	  price *= shpkp->Skill("Sell Profit");
-	  price += 999;  price /= 1000;
+	  if((*obj)->Skill("Money") != (*obj)->Value()) {	//Not 1-1 Money
+	    price *= shpkp->Skill("Sell Profit");
+	    price += 999;  price /= 1000;
+	    }
 	  mind->Send("%10d gp: %s\n", price, (*obj)->ShortDesc());
 	  oobj = obj;
 	  }
@@ -2299,7 +2301,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	for(targ_i = targs.begin(); targ_i != targs.end(); ++targ_i) {
 	  Object *targ = (*targ_i);
 
-	  int price = targ->Value() * MAX(1, targ->Skill("Quantity"));
+	  int price = targ->Value() * targ->Quantity();
 	  if(price < 0) {
 	    if(mind) mind->Send("You can't sell %s.\n", targ->Name(0, body));
 	    continue;
@@ -2314,8 +2316,10 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	    continue;
 	    }
 
- 	  price *= shpkp->Skill("Sell Profit");
-	  price += 999;  price /= 1000;
+	  if(targ->Skill("Money") != targ->Value()) {	//Not 1-1 Money
+	    price *= shpkp->Skill("Sell Profit");
+	    price += 999;  price /= 1000;
+	    }
 	  mind->Send("%d gp: %s\n", price, targ->ShortDesc());
 
 	  int togo = price, ord = -price;
@@ -2403,7 +2407,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    int price = targ->Value() * MAX(1, targ->Skill("Quantity"));
+    int price = targ->Value() * targ->Quantity();
     if(price < 0 || targ->HasSkill("Priceless") || targ->HasSkill("Cursed")) {
       if(mind) mind->Send("You can't sell %s.\n", targ->Name(0, body));
       return 0;
@@ -2454,6 +2458,16 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	}
       else if((*shpkp_i)->IsAct(ACT_SLEEP)) {
 	reason = "Sorry, the shopkeeper is asleep!\n";
+	}
+      else if(targ->Skill("Money") == targ->Value()) {	//1-1 Money
+	typeof((*shpkp_i)->GetSkills().begin()) skl
+		= (*shpkp_i)->GetSkills().begin();
+	for(; skl != (*shpkp_i)->GetSkills().end(); ++skl) {
+	  if(!strncmp(skl->first.c_str(), "Buy ", 4)) {
+	    skill = "Money";
+	    break;
+	    }
+	  }
 	}
       else if(wearable && targ->Attribute(0) > 0) {
 	if((*shpkp_i)->HasSkill("Buy Armor")) {
@@ -2550,8 +2564,10 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
 	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 
- 	price *= shpkp->Skill(skill);
-	price += 0;  price /= 1000;
+	if(skill != "Money") {		//Not 1-1 Money
+ 	  price *= shpkp->Skill(skill);
+	  price += 0;  price /= 1000;
+	  }
 	mind->Send("I'll give you %dgp for %s\n", price, targ->ShortDesc());
 
 	if(com == COM_SELL) {
