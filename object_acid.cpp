@@ -275,5 +275,10 @@ int Object::LoadFrom(FILE *fl) {
 //    SetSkill("Evasion Bonus", 0);
 //    }
 
+//  if(IsAct(ACT_SPECIAL_PREPARE)) {
+//    fprintf(stderr, "Found one!\n");
+//    act.erase(ACT_SPECIAL_PREPARE);
+//    }
+
   return 0;
   }
