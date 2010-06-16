@@ -41,7 +41,6 @@ upload:
 	scp TODO acidmud@$(ACIDHOST):~acidmud/public_html/todo.txt
 	./scripts/svn2cl.sh > ChangeLog
 	scp ChangeLog acidmud@$(ACIDHOST):~acidmud/public_html/changes.txt
-	rm -f /tmp/rss.xml
 
 acidmud: $(OBJS)
 	rm -f acidmud
