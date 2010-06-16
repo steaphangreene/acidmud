@@ -164,6 +164,7 @@ int Object::Matches(const char *seek) {
 
   //Keywords which can also be things
   if((!strcasecmp(targ.c_str(), "corpse")) && IsAct(ACT_DEAD)) return 1;
+  if((!strcasecmp(targ.c_str(), "money")) && Skill("Money")) return 1;
 
   return matches(ShortDesc(), targ.c_str());
   }
