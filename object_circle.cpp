@@ -598,6 +598,7 @@ void Object::CircleLoadMob(const char *fn) {
 	obj->gender = genderlist[val3];
 	}
 
+      obj->SetSkill("NaturalWeapon", 13);	//"Hits" (is default in Circle)
       memset(buf, 0, 65536);
       while(tp == 'E') {  // Basically an if with an infinite loop ;)
 	if(fscanf(mudm, "Con: %d\n", &val))
@@ -621,7 +622,8 @@ void Object::CircleLoadMob(const char *fn) {
 	else if(fscanf(mudm, "Add: %d\n", &val)); //'StrAdd' - Do Nothing
 
 	else if(fscanf(mudm, "BareHandAttack: %d\n", &val)) {
-	  //FIXME: Add Teeth/claws/trample/etc...
+	  if(val == 13) val = 0;	//Punches (is the Default in Acid)
+	  obj->SetSkill("NaturalWeapon", val);
 	  }
 	else break;
 	}
