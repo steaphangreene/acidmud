@@ -4843,10 +4843,17 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     Object *dest = body->Parent();
-    while(dest->Parent()->Parent()) {
-      dest = dest->Parent();
+    if(strcasecmp(comline+len, "universe") || (!nmode)) {
+      while(dest->Parent()->Parent()) {
+	dest = dest->Parent();
+	}
+      dest = dest->PickObject(comline+len, LOC_INTERNAL);
       }
-    dest = dest->PickObject(comline+len, LOC_INTERNAL);
+    else if(nmode) {	//Ninjas can teleport to "Universe"
+      while(dest->Parent()) {
+	dest = dest->Parent();
+	}
+      }
 
     if(!dest) {
       if(mind) mind->Send("No such teleportation destination found.\n");
