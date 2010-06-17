@@ -1,8 +1,27 @@
-Curse-ditch police: Buying with cursed gold.
-Curse-ditch police: Throwing a cursed ranged weapon in combat.
-
 Do 3-layer armor system.
 Implement various types of armor and damage.
+Show armor messages in ninja display.
+Translate circle armor to various armor types.
+Refine the fudging of circle MOBs' stats (Better AC Handling, Natural Armor).
+Natural Armor.
+Handle Multiple Weapon Types (eg: Bastard Swords).
+
+Re-enable full introduction system?
+Fully understand visibility and cut messages accordingly.
+Starlight vision, night vision, low-light vision, and dark vision.
+
+Crafting (weapons, armor, tools, clothes, etc...).
+
+Handle liquids mixing?
+
+Implement movement settings using skills (walk, run, explore, etc...).
+Travel limitations (speed of movement, fleeing, sprinting, running).
+Encumbrance.
+
+Positional modifyers (sleeping/lying down/standing, etc...).
+
+Curse-ditch police: Buying with cursed gold.
+Curse-ditch police: Throwing a cursed ranged weapon in combat.
 
 Implement Raising.
 
@@ -17,7 +36,6 @@ Implement sustained detrimental spell effect system.
 	Implement effects of the Distract Spell
 	Implement effects of the Influence Spell
 	Implement effects of the Misfortune Spell
-	Implement effects of the Sleep Other Spell
 	Implement effects of the Weaken Subject Spell
 
 Implement sustained beneficial spell effect system.
@@ -40,7 +58,6 @@ Implement combat spell system.
 	Implement effects of the Harm Spell
 	Implement effects of the Lightning Bolt Spell
 
-Implement full spellcasting system.
 Implement prayer system.
 
 Implement other in-play magical Bonus/Penalty powers (depend on other stuff):
@@ -48,33 +65,15 @@ Implement other in-play magical Bonus/Penalty powers (depend on other stuff):
 	Magic Force
 	Youth
 
-Show armor messages in ninja display.
-Translate circle armor to various armor types.
-Refine the fudging of circle MOBs' stats (Better AC Handling, Natural Armor).
-Natural Armor.
-
-Handle Multiple Weapon Types (eg: Bastard Swords).
-
 Fix exchange system handling odd cases (including sell/buy).
 Selling of containers, or not (contents -vs- container value!).
 Fixup shopkeepers so item numbers NEVER expire.
-Fixup shopkeepers so their vortices are not viewable.
-Cleanup and secure shopkeeper vortex objects.
-
-Re-enable full introduction system?
-Fully understand visibility and cut messages accordingly.
-Starlight vision, night vision, low-light vision, and dark vision.
-
-Crafting (weapons, armor, tools, clothes, etc...).
-
-Handle liquids mixing?
 
 Do full code constification review.
 
 Really implement ranged combat.
 Implement scabbards and quivers.
 
-Implement the rest of the magical effects.
 Implement All Remaining Weapon Types (Guns, etc...).
 Get it to understand offhand weapon use.
 Get it to understand mounted weapon use.
@@ -91,21 +90,19 @@ Cleanup the remaining Object::Send*(ALL, 0, ...) hacks.
 Place circle-placed objects on back if on chest (plus other corrections).
 Let "remove" command also handle unwielding?
 Implement "all of " target for all within.
-Implement "stuff"/"money"/"cash" target.
+Implement "stuff" target.
 Implement "loot" command.
 Allow carrying of dying and KOed creatures.
-Make CircleMUD packs and purses non-stealable?
 Autowield when entering combat.
-Implement movement settings using skills (walk, run, explore, etc...).
+
 Make all plural commands see pluralized items correctly.
+Consistently pluralize (or don't) skill names (fix wiki version too!).
+
 Follower should look like he gets there after folowee to those already there.
 Implement money denominations and change.
 Implement item "piles" "pairs", "mixtures", etc....
-Positional modifyers (sleeping/lying down/standing, etc...).
-Travel limitations (speed of movement, fleeing, sprinting, running).
 Finish article substitution ("A" -> "A second", etc...).
 Pick up a fight's other opponents after your target goes down without delay.
-Consistently pluralize (or don't) skill names (fix wiki version too!).
 Reimplement create-in-direction (currently disabled).
 Check for circle rooms with no exits and add one.
 Implement real Reaction Action.
@@ -119,12 +116,13 @@ Implement character creation magic.
 
 Make circle MOBs do more stuff.
 Implement full vehicle system (small unpowered boats are done).
-Global Round Sync instead of Ad-Hoc Rounds?
 Implement the Rest of the Skills.
 Implement reserved words ("'s", "in", "to", "at", "of", "Ninja").
 See contents when you look at a nearby room (eg: "look north").
 Handle LOC_ADJACENT correctly (eg: "look north").
+
 Create "aim" command to intentionally hit certain locations.
+Enable use of skills to modify combat (Martial Arts, etc...).
 
 Implement AcidMail.
 Should some CircleMOBs be given "Swimming"?
@@ -145,9 +143,6 @@ Suite of special emote/speak commands (nod, smile, stare, etc...)
 Settings for display on go/enter/leave.
 Autostash enable/disable?
 Gossip?
-Encumbrance.
 Color-code output (ask Wyatt).
-
-Un-Ninja Everything.
 
 CHECK FIXMEs TOO!
