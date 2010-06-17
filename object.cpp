@@ -1539,13 +1539,19 @@ Object::~Object() {
   set<Object*> killers;
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
-    if(is_pc(*ind)) movers.insert(*ind);
-    else killers.insert(*ind);
+    if(is_pc(*ind)) {
+      movers.insert(*ind);
+      }
+    else {
+      killers.insert(*ind);
+      }
     }
 
   typeof(killers.begin()) indk;
   for(indk = killers.begin(); indk != killers.end(); ++indk) {
     if(find(contents.begin(), contents.end(), *indk) != contents.end()) {
+      (*indk)->SetParent(NULL);
+      RemoveLink(*indk);
       delete(*indk);
       }
     }
@@ -1566,9 +1572,7 @@ Object::~Object() {
     }
 
   for(indk = killers.begin(); indk != killers.end(); ++indk) {
-    if(find(contents.begin(), contents.end(), *indk) != contents.end()) {
-      delete(*indk);
-      }
+    delete(*indk);
     }
   killers.clear();
 
