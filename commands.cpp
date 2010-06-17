@@ -1870,6 +1870,16 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  mind->Send("   ...is armed, and you are not!\n");
 	  }
 
+	if(targ->HasSkill("NaturalWeapon") && body->HasSkill("NaturalWeapon")) {
+	  mind->Send("   ...has natural weaponry, but so do you.\n");
+	  }
+	else if(body->HasSkill("NaturalWeapon")) {
+	  mind->Send("   ...has no natural weaponry, but you do.\n");
+	  }
+	else if(targ->HasSkill("NaturalWeapon")) {
+	  mind->Send("   ...has natural weaponry, and you do not!\n");
+	  }
+
 	diff = 0;
 	if(body->ActTarg(ACT_WIELD))
 	  diff = (body->ActTarg(ACT_WIELD)->Skill("WeaponReach") > 9);
@@ -4481,8 +4491,68 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       stage = -2;
       }
 
+    const char *verb = "punch";	//Non-weapon verb
+    const char *verb3 = "punches"; //3rd Person
+    if(body->Skill("NaturalWeapon") == 14) { //Natural Weapon: stab
+      verb = "stab";
+      verb3 = "stabs";
+      }
+    else if(body->Skill("NaturalWeapon") == 13) { //Natural Weapon: hit
+      verb = "punch";
+      verb3 = "punches";
+      }
+    else if(body->Skill("NaturalWeapon") == 12) { //Natural Weapon: blast
+      verb = "blast";
+      verb3 = "blasts";
+      }
+    else if(body->Skill("NaturalWeapon") == 11) { //Natural Weapon: pierce
+      verb = "pierce";
+      verb3 = "pierces";
+      }
+    else if(body->Skill("NaturalWeapon") == 10) { //Natural Weapon: thrash
+      verb = "thrash";
+      verb3 = "thrashes";
+      }
+    else if(body->Skill("NaturalWeapon") == 9) { //Natural Weapon: maul
+      verb = "maul";
+      verb3 = "mauls";
+      }
+    else if(body->Skill("NaturalWeapon") == 8) { //Natural Weapon: claw
+      verb = "claw";
+      verb3 = "claws";
+      }
+    else if(body->Skill("NaturalWeapon") == 7) { //Natural Weapon: pound
+      verb = "pound";
+      verb3 = "pounds";
+      }
+    else if(body->Skill("NaturalWeapon") == 6) { //Natural Weapon: crush
+      verb = "crush";
+      verb3 = "crushes";
+      }
+    else if(body->Skill("NaturalWeapon") == 5) { //Natural Weapon: bludgeon
+      verb = "bludgeon";
+      verb3 = "bludgeons";
+      }
+    else if(body->Skill("NaturalWeapon") == 4) { //Natural Weapon: bite
+      verb = "bite";
+      verb3 = "bites";
+      }
+    else if(body->Skill("NaturalWeapon") == 3) { //Natural Weapon: slash
+      verb = "slash";
+      verb3 = "slashes";
+      }
+    else if(body->Skill("NaturalWeapon") == 2) { //Natural Weapon: whip
+      verb = "whip";
+      verb3 = "whips";
+      }
+    else if(body->Skill("NaturalWeapon") == 1) { //Natural Weapon: sting
+      verb = "sting";
+      verb3 = "stings";
+      }
     if(succ > 0) {
+      int stun = 0;
       if(sk1 == "Kicking") {		//Kicking Action
+	stun = 1;
 	body->Parent()->SendOut(ALL, -1,
 		"*;s kicks ;s%s.\n", "*You kick ;s%s.\n",
 		body, targ, locm.c_str());
@@ -4502,18 +4572,19 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		"*You hit ;s%s with %s.\n", body, targ,
 		locm.c_str(), body->ActTarg(ACT_WIELD)->ShortDesc());
 	}
-      else {				//No Weapon
-	body->Parent()->SendOut(ALL, -1,
-		"*;s punches ;s%s.\n", "*You punch ;s%s.\n",
-		body, targ, locm.c_str());
+      else {				//No Weapon or Natural Weapon
+	if(!body->HasSkill("NaturalWeapon")) stun = 1;
+	char mes[128] = "";
+	char mes3[128] = "";
+	sprintf(mes, "*You %s ;s%s.\n", verb, locm.c_str());
+	sprintf(mes3, "*;s %s ;s%s.\n", verb3, locm.c_str());
+	body->Parent()->SendOut(ALL, -1, mes3, mes, body, targ);
 	}
 
       int sev = 0;
-      int stun = 0;
       int force = body->Attribute(2) + body->Modifier("Damage");
 
       if(com == COM_KICK) {
-	stun = 1;
 	force -= 2;
 	stage += 2;
 	}
@@ -4525,7 +4596,6 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	stage += body->ActTarg(ACT_WIELD)->Skill("WeaponSeverity");
 	}
       else {
-	stun = 1;
 	force -= 1;
 	stage += 1;
 	}
@@ -4578,9 +4648,9 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	}
       else {				//Unarmed
 	body->Parent()->SendOut(ALL, -1,
-		";s tries to punch ;s, but misses.\n",
-		"You try to punch ;s, but miss.\n",
-		body, targ
+		";s tries to %s ;s, but misses.\n",
+		"You try to %s ;s, but miss.\n",
+		body, targ, verb
 		);
 	}
       }

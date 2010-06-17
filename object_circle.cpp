@@ -229,6 +229,9 @@ void Object::CircleFinishMob(Object *mob) {
 	get_weapon_skill(mob->ActTarg(ACT_WIELD)->Skill("WeaponType")),
 	mob->Skill("CircleAttack")
 	);
+      if(mob->Skill("NaturalWeapon") == 13) {	//Default (hit), but is armed!
+	mob->SetSkill("NaturalWeapon", 0);	//So remove it
+	}
       }
     else {
       mob->SetSkill("Punching", mob->Skill("CircleAttack"));
