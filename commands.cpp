@@ -3923,40 +3923,39 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
     int defself = 0;
     int special = 0;
+    int freehand = 0;
     string spname = "";
     if(!strncasecmp("Identify", comline+len, strlen(comline+len))) {
-      defself = 0;
       special = 1;
       spname = "Identify";
       }
+    if(!strncasecmp("Create Food", comline+len, strlen(comline+len))) {
+      defself = -1;
+      special = 1;
+      freehand = 1;
+      spname = "Create Food";
+      }
     else if(!strncasecmp("Recall", comline+len, strlen(comline+len))) {
       defself = 1;
-      special = 0;
       spname = "Recall";
       }
     else if(!strncasecmp("Teleport", comline+len, strlen(comline+len))) {
       defself = 1;
-      special = 0;
       spname = "Teleport";
       }
     else if(!strncasecmp("Resurrect", comline+len, strlen(comline+len))) {
       defself = 1;
-      special = 0;
       spname = "Resurrect";
       }
     else if(!strncasecmp("Remove Curse", comline+len, strlen(comline+len))) {
       defself = 1;
-      special = 0;
       spname = "Remove Curse";
       }
     else if(!strncasecmp("Cure Poison", comline+len, strlen(comline+len))) {
       defself = 1;
-      special = 0;
       spname = "Cure Poison";
       }
     else if(!strncasecmp("Sleep Other", comline+len, strlen(comline+len))) {
-      defself = 0;
-      special = 0;
       spname = "Sleep Other";
       }
     else {
@@ -3981,6 +3980,12 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
+    if(freehand) {
+      if(body->ActTarg(ACT_HOLD)) {
+	body->StashOrDrop(body->ActTarg(ACT_HOLD));
+	}
+      }
+
     Object *targ = body->ActTarg(ACT_POINT);
     if(!targ) targ = body;	//Defaults to SELF (If not, caught above!)
     if(src) {
@@ -3990,20 +3995,26 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	body, src
 	);
       }
-    string youmes = "You cast " + spname + " on ;s.\n";
-    body->Parent()->SendOut(stealth_t, stealth_s,
+    if(defself >= 0) {	//Targeted
+      string youmes = "You cast " + spname + " on ;s.\n";
+      body->Parent()->SendOut(stealth_t, stealth_s,
 	";s casts a spell on ;s.\n", youmes.c_str(),
 	body, targ
 	);
+      }
+    else {	//Not Targeted
+      string youmes = "You cast " + spname + ".\n";
+      body->Parent()->SendOut(stealth_t, stealth_s,
+	";s casts a spell.\n", youmes.c_str(),
+	body, NULL
+	);
+      }
 
+    int force = 1000;			//FIXME: Magic Force!
+    if(src) force = src->Skill(spname + " Spell");
     if(!special) {
       Object *spell = new Object();
-      if(src) {
-	spell->SetSkill(spname + " Spell", src->Skill(spname + " Spell"));
-	}
-      else {
-	spell->SetSkill(spname + " Spell", 1000);	//FIXME: Magic Force!
-	}
+      spell->SetSkill(spname + " Spell", force);
       targ->Consume(spell);
       delete(spell);
       }
@@ -4016,6 +4027,26 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	targ->SendScore(mind, body);
 	targ->SendStats(mind, body);
 	}
+      }
+    else if(spname == "Create Food") {
+      Object *food = new Object(body);
+      food->SetShortDesc("a piece of magical food");
+      food->SetWeight(500);
+      food->SetVolume(1);
+      food->SetSize(1);
+      food->SetSkill("Food", force * 100);
+      food->SetSkill("Magical", force);
+      food->SetSkill("Ingestible", force);
+      food->SetSkill("Light Source", 10);
+      food->SetSkill("Temporary", force);
+      food->Activate();
+      food->SetPos(POS_LIE);
+      body->AddAct(ACT_HOLD, food);
+      body->Parent()->SendOut(0, 0,
+	"A piece of magical food appears in ;s's hand.\n",
+	"A piece of magical food appears in your hand.\n",
+	body, NULL
+	);
       }
 
     if(src) {	//FIXME: Handle Multi-Charged Items (Rod/Staff/Wand)
