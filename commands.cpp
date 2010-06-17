@@ -201,6 +201,9 @@ enum {	COM_HELP=0,
 
 	COM_MAKESTART,
 
+	COM_TLOAD,
+	COM_TCLEAN,
+
 	COM_CLOAD,
 	COM_CCLEAN,
 	};
@@ -761,6 +764,17 @@ Command comlist[] = {
     (REQ_ALERT|REQ_NINJAMODE)
     },
   { COM_DEFINE, "define",
+    "Ninja command.",
+    "Ninja command - ninjas only!",
+    (REQ_ALERT|REQ_NINJAMODE)
+    },
+
+  { COM_TLOAD, "tload",
+    "Ninja command.",
+    "Ninja command - ninjas only!",
+    (REQ_ALERT|REQ_NINJAMODE)
+    },
+  { COM_TCLEAN, "tclean",
     "Ninja command.",
     "Ninja command - ninjas only!",
     (REQ_ALERT|REQ_NINJAMODE)
@@ -1982,20 +1996,39 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	else if(diff > 0)  mind->Send("   ...is a bit weaker than you.\n");
 	else               mind->Send("   ...is about your strength.\n");
 
-	if((targ->Skill("CircleAction") & 4128) == 0) {
-	  mind->Send("   ...does not seem threatening.\n");
+	if(targ->HasSkill("TBAAction")) {
+	  if((targ->Skill("TBAAction") & 4128) == 0) {
+	    mind->Send("   ...does not seem threatening.\n");
+	    }
+	  else if((targ->Skill("TBAAction") & 160) == 32) {
+	    mind->Send("   ...is spoiling for a fight.\n");
+	    }
+	  else if((targ->Skill("TBAAction") & 160) == 160) {
+	    mind->Send("   ...seems to be trolling for victems.\n");
+	    }
+	  else if(targ->Skill("TBAAction") & 4096) {
+	    mind->Send("   ...seems to be on the look-out for trouble.\n");
+	    }
+	  else {
+	    mind->Send("   ...is impossible - tell the Ninjas[TM].\n");
+	    }
 	  }
-	else if((targ->Skill("CircleAction") & 160) == 32) {
-	  mind->Send("   ...is spoiling for a fight.\n");
-	  }
-	else if((targ->Skill("CircleAction") & 160) == 160) {
-	  mind->Send("   ...seems to be trolling for victems.\n");
-	  }
-	else if(targ->Skill("CircleAction") & 4096) {
-	  mind->Send("   ...seems to be on the look-out for trouble.\n");
-	  }
-	else {
-	  mind->Send("   ...is impossible - tell the Ninjas[TM].\n");
+	else if(targ->HasSkill("CircleAction")) {
+	  if((targ->Skill("CircleAction") & 4128) == 0) {
+	    mind->Send("   ...does not seem threatening.\n");
+	    }
+	  else if((targ->Skill("CircleAction") & 160) == 32) {
+	    mind->Send("   ...is spoiling for a fight.\n");
+	    }
+	  else if((targ->Skill("CircleAction") & 160) == 160) {
+	    mind->Send("   ...seems to be trolling for victems.\n");
+	    }
+	  else if(targ->Skill("CircleAction") & 4096) {
+	    mind->Send("   ...seems to be on the look-out for trouble.\n");
+	    }
+	  else {
+	    mind->Send("   ...is impossible - tell the Ninjas[TM].\n");
+	    }
 	  }
 	}
       }
@@ -4136,7 +4169,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	return 0;
 	}
       if(strcasestr(body->Parent()->Name(), "forest")
-		&& body->Parent()->HasSkill("CircleZone")
+		&& (body->Parent()->HasSkill("TBAZone")
+			|| body->Parent()->HasSkill("CircleZone"))
 		&& (!body->Parent()->HasSkill("Mature Trees"))) {
 	body->Parent()->SetSkill("Mature Trees", 100);
 	body->Parent()->Activate();
@@ -5988,6 +6022,43 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	targ->SetSkill("Quantity", 2);
 	}
       }
+    return 0;
+    }
+
+  if(com == COM_TLOAD) {
+    if(!mind) return 0;
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(!comline[len]) {
+      Object *world = new Object(body->Parent());
+      world->SetShortDesc("tbaMUD World");
+      world->SetSkill("Light Source", 1000);
+      world->SetSkill("Day Length", 240);
+      world->SetSkill("Day Time", 120);
+      world->TBALoadAll();
+      body->Parent()->SendOut(stealth_t, stealth_s,
+	";s loads the entire TBA world with Ninja Powers[TM].\n",
+	"You load the entire TBA world.\n", body, NULL);
+      world->Activate();
+      }
+    else {
+      sprintf(buf, "tba/wld/%s.wld", comline+len);
+      body->Parent()->TBALoad(buf);
+      sprintf(buf, "tba/obj/%s.obj", comline+len);
+      body->Parent()->TBALoadObj(buf);
+      body->Parent()->SendOut(stealth_t, stealth_s,
+	";s loads a TBA world ;s with Ninja Powers[TM].\n",
+	"You load a TBA world.\n", body, NULL);
+      }
+    return 0;
+    }
+
+  if(com == COM_TCLEAN) {
+    if(!mind) return 0;
+    body->TBACleanup();
+    body->Parent()->SendOut(stealth_t, stealth_s,
+	";s cleans up after loading TBA worlds.\n",
+	"You clean up after loading TBA worlds.\n",
+	body, NULL);
     return 0;
     }
 

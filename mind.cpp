@@ -72,6 +72,11 @@ void Mind::SetMob() {
   pers = fileno(stderr);
   }
 
+void Mind::SetTBAMob() {
+  type = MIND_TBAMOB;
+  pers = fileno(stderr);
+  }
+
 void Mind::SetCircleMob() {
   type = MIND_CIRCLEMOB;
   pers = fileno(stderr);
@@ -136,20 +141,42 @@ void Mind::Send(const char *mes, ...) {
   else if(type == MIND_MOB) {
     //Think(); //Reactionary actions (NO!).
     }
-  else if(type == MIND_CIRCLEMOB) {
-//    string newmes = "";
-//    if(body) newmes += body->ShortDesc();
-//    newmes += ": ";
-//    newmes += buf;
-//
-//    string::iterator chr = newmes.begin();
-//    for(; chr != newmes.end(); ++chr) {
-//      if((*chr) == '\n' || (*chr) == '\r') (*chr) = ' ';
-//      }
-//    newmes += "\n";
-//
-//    write(pers, newmes.c_str(), newmes.length());
+  else if(type == MIND_TBAMOB) {
+    //HELPER TBA Mobs
+    if(body && body->Parent()
+	&& (body->Skill("TBAAction") & 4096)		//Helpers
+	&& ((body->Skill("TBAAction") & 2) == 0)	//NON-SENTINEL
+	&& body->Stun() < 6			//I'm not stunned
+	&& body->Phys() < 6			//I'm not injured
+	&& (!body->IsAct(ACT_SLEEP))		//I'm not asleep
+	&& (!body->IsAct(ACT_REST))		//I'm not resting
+	&& (!body->IsAct(ACT_FIGHT))		//I'm not already fighting
+	) {
+      if((!strncasecmp(mes, "From ", 5))
+		&& (strcasestr(mes, " you hear someone shout '") != NULL)
+		&& ((strstr(mes, "HELP")) || (strstr(mes, "ALARM")))
+		) {
+	char buf[256] = "                                               ";
+	sscanf(mes+4, "%128s", buf);
 
+	Object *door = body->PickObject(buf, LOC_NEARBY);
+
+	if(door && door->ActTarg(ACT_SPECIAL_LINKED)
+                && door->ActTarg(ACT_SPECIAL_LINKED)->Parent()
+		&& TBACanWanderTo(
+			door->ActTarg(ACT_SPECIAL_LINKED)->Parent()
+			)
+		) {
+	  char buf[256] = "enter                                          ";
+	  sscanf(mes+4, "%128s", buf+6);
+	  body->BusyFor(500, buf);
+	  }
+	return;
+	}
+      }
+    Think(); //Reactionary actions (HACK!).
+    }
+  else if(type == MIND_CIRCLEMOB) {
     //HELPER Circle Mobs
     if(body && body->Parent()
 	&& (body->Skill("CircleAction") & 4096)		//Helpers
@@ -252,6 +279,14 @@ void Mind::SetPlayer(string pn) {
   }
 
 string Mind::Tactics(int phase) {
+  if(type == MIND_TBAMOB) {
+    //NON-HELPER and NON-AGGRESSIVE TBA Mobs (Innocent MOBs)
+    if(body && (body->Skill("TBAAction") & 4128) == 0) {
+      if(phase == -1) {
+	return "call HELP; attack";
+	}
+      }
+    }
   if(type == MIND_CIRCLEMOB) {
     //NON-HELPER and NON-AGGRESSIVE Circle Mobs (Innocent MOBs)
     if(body && (body->Skill("CircleAction") & 4128) == 0) {
@@ -336,6 +371,188 @@ void Mind::Think(int istick) {
 //      else if(body->Skill("Personality") & 8) {		// Rich
 //	//body->BusyFor(500, "say Hi.");
 //	}
+      }
+    }
+  else if(type == MIND_TBAMOB) {
+    if((!body) || (istick >= 0 && body->StillBusy())) return;
+
+    //Temporary
+    if(body && body->ActTarg(ACT_WEAR_SHIELD) && (!body->IsAct(ACT_HOLD))) {
+      string command = string("hold ") + body->ActTarg(ACT_WEAR_SHIELD)->ShortDesc();
+      body->BusyFor(500, command.c_str());
+      return;
+      }
+    else if(body && body->ActTarg(ACT_WEAR_SHIELD) && body->ActTarg(ACT_HOLD)
+	&& body->ActTarg(ACT_WEAR_SHIELD) != body->ActTarg(ACT_HOLD)) {
+      Object *targ = body->ActTarg(ACT_HOLD);
+      if(body->Stash(targ)) {
+	if(body->Parent())
+	  body->Parent()->SendOut(ALL, 0, ";s stashes ;s.\n", "", body, targ);
+	string command = string("hold ") + body->ActTarg(ACT_WEAR_SHIELD)->ShortDesc();
+	body->BusyFor(500, command.c_str());
+	}
+      else {
+	//fprintf(stderr, "Warning: %s can't use his shield!\n", body->Name());
+	}
+      return;
+      }
+
+    //AGGRESSIVE and WIMPY TBA Mobs
+    if(body && body->Parent() && (body->Skill("TBAAction") & 160) == 160
+	&& (!body->IsAct(ACT_FIGHT))) {
+      typeof(body->Parent()->Contents()) others
+	= body->PickObjects("everyone", LOC_NEARBY);
+      typeof(others.begin()) other;
+      for(other = others.begin(); other != others.end(); ++other) {
+	if((!(*other)->Skill("TBAAction")) //FIXME: Other mobs?
+		&& body->Stun() < 6			//I'm not stunned
+		&& body->Phys() < 6			//I'm not injured
+		&& (!body->IsAct(ACT_SLEEP))		//I'm not asleep
+		&& (!body->IsAct(ACT_REST))		//I'm not resting
+		&& (*other)->IsAct(ACT_SLEEP)		//It's not awake (wuss!)
+		&& (*other)->Attribute(1)		//It's not a rock
+		&& (!(*other)->IsAct(ACT_UNCONSCIOUS))	//It's not already KOed
+		&& (!(*other)->IsAct(ACT_DYING))	//It's not already dying
+		&& (!(*other)->IsAct(ACT_DEAD))		//It's not already dead
+	        ) {
+	  string command = string("attack ") + (*other)->ShortDesc();
+	  body->BusyFor(500, command.c_str());
+	  //fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
+	  return;
+	  }
+	}
+      if(istick == 1 && body->IsUsing("Perception")) {
+	body->BusyFor(500, "stop");
+	}
+      else if(istick == 0				//Triggered Only
+		&& (!body->IsUsing("Perception"))	//Not already searching
+		&& (!body->StillBusy())			//Not already responding
+		&& body->Stun() < 6			//I'm not stunned
+		&& body->Phys() < 6			//I'm not injured
+		&& (!body->IsAct(ACT_SLEEP))		//I'm not asleep
+		&& (!body->IsAct(ACT_REST))		//I'm not resting
+		) {
+	body->BusyFor(500, "search");
+	}
+      }
+    //AGGRESSIVE and (!WIMPY) TBA Mobs
+    else if(body && body->Parent() && (body->Skill("TBAAction") & 160) == 32
+	&& (!body->IsAct(ACT_FIGHT))) {
+      typeof(body->Parent()->Contents()) others
+	= body->PickObjects("everyone", LOC_NEARBY);
+      typeof(others.begin()) other;
+      for(other = others.begin(); other != others.end(); ++other) {
+	if((!(*other)->Skill("TBAAction")) //FIXME: Other mobs?
+		&& body->Stun() < 6			//I'm not stunned
+		&& body->Phys() < 6			//I'm not injured
+		&& (!body->IsAct(ACT_SLEEP))		//I'm not asleep
+		&& (!body->IsAct(ACT_REST))		//I'm not resting
+		&& (*other)->Attribute(1)		//It's not a rock
+		&& (!(*other)->IsAct(ACT_UNCONSCIOUS))	//It's not already KOed
+		&& (!(*other)->IsAct(ACT_DYING))	//It's not already dying
+		&& (!(*other)->IsAct(ACT_DEAD))		//It's not already dead
+	        ) {
+	  string command = string("attack ") + (*other)->ShortDesc();
+	  body->BusyFor(500, command.c_str());
+	  //fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
+	  return;
+	  }
+	}
+      if(istick == 1 && body->IsUsing("Perception")) {
+	body->BusyFor(500, "stop");
+	}
+      else if(istick == 0				//Triggered Only
+		&& (!body->IsUsing("Perception"))	//Not already searching
+		&& (!body->StillBusy())			//Not already responding
+		&& body->Stun() < 6			//I'm not stunned
+		&& body->Phys() < 6			//I'm not injured
+		&& (!body->IsAct(ACT_SLEEP))		//I'm not asleep
+		&& (!body->IsAct(ACT_REST))		//I'm not resting
+		) {
+	body->BusyFor(500, "search");
+	}
+      }
+    //HELPER TBA Mobs
+    if(body && body->Parent() && (body->Skill("TBAAction") & 4096)
+	&& (!body->IsAct(ACT_FIGHT))) {
+      typeof(body->Parent()->Contents()) others
+	= body->PickObjects("everyone", LOC_NEARBY);
+      typeof(others.begin()) other;
+      for(other = others.begin(); other != others.end(); ++other) {
+	if((!(*other)->Skill("TBAAction")) //FIXME: Other mobs?
+		&& body->Stun() < 6			//I'm not stunned
+		&& body->Phys() < 6			//I'm not injured
+		&& (!body->IsAct(ACT_SLEEP))		//I'm not asleep
+		&& (!body->IsAct(ACT_REST))		//I'm not resting
+		&& (*other)->Attribute(1)		//It's not a rock
+		&& (!(*other)->IsAct(ACT_DEAD))		//It's not already dead
+		&& (*other)->IsAct(ACT_FIGHT)		//It's figting someone
+		&& (*other)->ActTarg(ACT_FIGHT)->HasSkill("TBAAction")
+							//...against another MOB
+	        ) {
+	  string command = string("call ALARM; attack ") + (*other)->ShortDesc();
+	  body->BusyFor(500, command.c_str());
+	  //fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
+	  return;
+	  }
+	}
+      if(!body->IsUsing("Perception")) {		//Don't let guard down!
+	body->BusyFor(500, "search");
+	}
+      else if(istick == 1				//Perioidic searching
+		&& (!body->StillBusy())			//Not already responding
+		&& body->Stun() < 6			//I'm not stunned
+		&& body->Phys() < 6			//I'm not injured
+		&& (!body->IsAct(ACT_SLEEP))		//I'm not asleep
+		&& (!body->IsAct(ACT_REST))		//I'm not resting
+		) {
+	body->BusyFor(500, "search");
+	}
+      }
+    //NON-SENTINEL TBA Mobs
+    if(body && body->Parent() && ((body->Skill("TBAAction") & 2) == 0)
+	&& (!body->IsAct(ACT_FIGHT)) && (istick == 1)
+	&& (!body->IsAct(ACT_REST)) && (!body->IsAct(ACT_SLEEP))
+	&& body->Stun() < 6 && body->Phys() < 6
+	&& body->Roll("Willpower", 9)) {
+
+
+      map<Object*, const char*> cons;
+      cons[body->PickObject("north", LOC_NEARBY)] = "north";
+      cons[body->PickObject("south", LOC_NEARBY)] = "south";
+      cons[body->PickObject("east",  LOC_NEARBY)] = "east";
+      cons[body->PickObject("west",  LOC_NEARBY)] = "west";
+      cons[body->PickObject("up",    LOC_NEARBY)] = "up";
+      cons[body->PickObject("down",  LOC_NEARBY)] = "down";
+      cons.erase(NULL);
+
+      map<Object*, const char*> cons2 = cons;
+      map<Object*, const char*>::iterator dir = cons2.begin();
+      for(; dir != cons2.end(); ++dir) {
+	if((!dir->first->ActTarg(ACT_SPECIAL_LINKED))
+		|| (!dir->first->ActTarg(ACT_SPECIAL_LINKED)->Parent())) {
+	  cons.erase(dir->first);
+	  continue;
+	  }
+
+	Object *dest = dir->first->ActTarg(ACT_SPECIAL_LINKED)->Parent();
+	if(!TBACanWanderTo(dest)) {
+	  cons.erase(dir->first);
+	  }
+	}
+
+      if(cons.size()) {
+	int res = rand() % cons.size();
+	map<Object*, const char*>::iterator dir = cons.begin();
+	while(res > 0) { ++dir; --res; }
+	if(body->StillBusy()) {		//Already doing something (from above)
+	  body->DoWhenFree(dir->second);
+	  }
+	else {
+	  body->BusyFor(500, dir->second);
+	  }
+	return;
+	}
       }
     }
   else if(type == MIND_CIRCLEMOB) {
@@ -522,6 +739,28 @@ void Mind::Think(int istick) {
     }
   }
 
+
+int Mind::TBACanWanderTo(Object *dest) {
+  if(dest->Skill("TBAZone") == 999999) { //NO_MOBS TBA Zone
+    return 0;				//Don't Enter NO_MOBS Zone!
+    }
+  else if(body->Skill("TBAAction") & 64) {	//STAY_ZONE TBA MOBs
+    if(dest->Skill("TBAZone") != body->Parent()->Skill("TBAZone")) {
+      return 0;				//Don't Leave Zone!
+      }
+    }
+  else if(body->Skill("Swimming") == 0) {		//Can't Swim?
+    if(dest->Skill("WaterDepth") == 1) {
+      return 0;				//Can't swim!
+      }
+    }
+  else if(!(body->Skill("TBAAffection")&64)) {	//Can't Waterwalk?
+    if(dest->Skill("WaterDepth") >= 1) {	//Need boat!
+      return 0;				//FIXME: Have boat?
+      }
+    }
+  return 1;
+  }
 
 int Mind::CircleCanWanderTo(Object *dest) {
   if(dest->Skill("CircleZone") == 999999) { //NO_MOBS Circle Zone

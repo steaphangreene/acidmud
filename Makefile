@@ -2,8 +2,8 @@ ACIDHOST:=optimus.cs.binghamton.edu
 
 TSTR:=  $(shell date -u +"%Y%m%d%H%M")
 OBJS:=	main.o version.o net.o commands.o mind.o player.o mob.o atomstring.o \
-	object.o object_circle.o object_acid.o stats.o object_dynamic.o \
-	command_ccreate.o
+	object.o object_acid.o stats.o object_dynamic.o command_ccreate.o \
+	object_circle.o object_tba.o
 
 #Production Settings (dynamic)
 CXX=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3

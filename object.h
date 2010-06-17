@@ -280,6 +280,15 @@ public:
   void CircleCleanup();
   void CircleLoadAll();
 
+  void TBALoad(const char *);
+  void TBALoadObj(const char *);
+  void TBALoadMob(const char *);
+  void TBAFinishMob(Object *);
+  void TBALoadZon(const char *);
+  void TBALoadShp(const char *);
+  void TBACleanup();
+  void TBALoadAll();
+
   int Load(const char *);
   int LoadFrom(FILE *);
   int Save(const char *);
@@ -356,6 +365,7 @@ int getnum(Object *);
 int matches(const char *name, const char *seek);
 Mind *get_mob_mind();
 Mind *get_circle_mob_mind();
+Mind *get_tba_mob_mind();
 
 string get_skill(string sk);
 string get_skill_cat(string cat);

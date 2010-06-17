@@ -287,6 +287,7 @@ int Object::LoadFrom(FILE *fl) {
     }
 
   if(Skill("Personality")) get_mob_mind()->Attach(this);
+  else if(Skill("TBAAction")) get_tba_mob_mind()->Attach(this);
   else if(Skill("CircleAction")) get_circle_mob_mind()->Attach(this);
 
   vector<Object*>::iterator cind;

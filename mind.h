@@ -4,8 +4,9 @@
 #define MIND_REMOTE 1
 #define MIND_SLAVE 2
 #define MIND_CIRCLEMOB 3
-#define MIND_MOB 4
-#define MIND_SYSTEM 5
+#define MIND_TBAMOB 4
+#define MIND_MOB 5
+#define MIND_SYSTEM 6
 
 class Mind;
 class Object;
@@ -22,6 +23,7 @@ public:
   void SetRemote(int fd);
   void SetMob();
   void SetCircleMob();
+  void SetTBAMob();
   void SetSlave(int master);
   void SetSystem();
   void Attach(Object *bod);
@@ -46,6 +48,7 @@ public:
 
 private:
   int CircleCanWanderTo(Object *dest);
+  int TBACanWanderTo(Object *dest);
 
   int type;
   int pers;
