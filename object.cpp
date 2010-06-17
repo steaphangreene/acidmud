@@ -430,6 +430,11 @@ int Object::Tick() {
   if(HasSkill("Temporary")) {		//Temporary Items
     SetSkill("Temporary", Skill("Temporary") - 1);
     if(Skill("Temporary") < 1) {
+      if(Owner() && Owner()->Parent()) {
+	Owner()->Parent()->SendOut(0, 0,
+		";s vanishes in a flash of light.", "", this, NULL
+		);
+	}
       return 1;	//Delete Me!
       }
     }
