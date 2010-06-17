@@ -427,6 +427,12 @@ int Object::Tick() {
       }
     }
 
+  if(HasSkill("Temporary")) {		//Temporary Items
+    SetSkill("Temporary", Skill("Temporary") - 1);
+    if(Skill("Temporary") < 1) {
+      return 1;	//Delete Me!
+      }
+    }
 
   if(Attribute(2) > 0 && (!HasSkill("CircleAction"))) {	//Needs Food & Water
     int level;
