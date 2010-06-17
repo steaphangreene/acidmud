@@ -142,6 +142,8 @@ int matches(const char *name, const char *seek) {
   else if((!strcasecmp(seek, "armour")) && matches(name, "armor")) ret=1;
   else if((!strcasecmp(seek, "armorer")) && matches(name, "armourer")) ret=1;
   else if((!strcasecmp(seek, "armourer")) && matches(name, "armorer")) ret=1;
+  else if((!strcasecmp(seek, "scepter")) && matches(name, "sceptre")) ret=1;
+  else if((!strcasecmp(seek, "sceptre")) && matches(name, "scepter")) ret=1;
   else if((!strcasecmp(seek, "grey")) && matches(name, "gray")) ret=1;
   else if((!strcasecmp(seek, "gray")) && matches(name, "grey")) ret=1;
   else if((!strcasecmp(seek, "bread")) && matches(name, "waybread")) ret=1;
