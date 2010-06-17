@@ -3929,11 +3929,17 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       special = 1;
       spname = "Identify";
       }
-    if(!strncasecmp("Create Food", comline+len, strlen(comline+len))) {
+    else if(!strncasecmp("Create Food", comline+len, strlen(comline+len))) {
       defself = -1;
-      special = 1;
+      special = 2;
       freehand = 1;
       spname = "Create Food";
+      }
+    else if(!strncasecmp("Force Sword", comline+len, strlen(comline+len))) {
+      defself = -1;
+      special = 2;
+      freehand = 1;
+      spname = "Force Sword";
       }
     else if(!strncasecmp("Recall", comline+len, strlen(comline+len))) {
       defself = 1;
@@ -4012,13 +4018,42 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
     int force = 1000;			//FIXME: Magic Force!
     if(src) force = src->Skill(spname + " Spell");
-    if(!special) {
+    if(!special) {			//Effect Person/Creature Spells
       Object *spell = new Object();
       spell->SetSkill(spname + " Spell", force);
       targ->Consume(spell);
       delete(spell);
       }
-    else if(spname == "Identify") {
+    else if(special == 2) {		//Temporary Object Creation Spells
+      Object *obj = new Object(body);
+      if(spname == "Create Food") {
+	obj->SetShortDesc("a piece of magical food");
+	obj->SetSkill("Food", force * 100);
+	obj->SetSkill("Ingestible", force);
+	}
+      else if(spname == "Force Sword") {
+	obj->SetShortDesc("a sword of force");
+	obj->SetSkill("WeaponType", 13);
+	obj->SetSkill("WeaponReach", 1);
+	obj->SetSkill("WeaponSeverity", 2);
+	obj->SetSkill("WeaponForce", force);
+	}
+      obj->SetWeight(1);
+      obj->SetVolume(1);
+      obj->SetSize(1);
+      obj->SetSkill("Magical", force);
+      obj->SetSkill("Light Source", 10);
+      obj->SetSkill("Temporary", force);
+      obj->Activate();
+      obj->SetPos(POS_LIE);
+      body->AddAct(ACT_HOLD, obj);
+      body->Parent()->SendOut(0, 0,
+		"%s appears in ;s's hand.\n",
+		"%s appears in your hand.\n",
+		body, NULL, obj->Name()
+		);
+      }
+    else if(spname == "Identify") {	//Other kinds of spells
       if(mind) {
 	mind->Send("%s", CCYN);
 	targ->SendFullSituation(mind, body);
@@ -4027,26 +4062,6 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	targ->SendScore(mind, body);
 	targ->SendStats(mind, body);
 	}
-      }
-    else if(spname == "Create Food") {
-      Object *food = new Object(body);
-      food->SetShortDesc("a piece of magical food");
-      food->SetWeight(500);
-      food->SetVolume(1);
-      food->SetSize(1);
-      food->SetSkill("Food", force * 100);
-      food->SetSkill("Magical", force);
-      food->SetSkill("Ingestible", force);
-      food->SetSkill("Light Source", 10);
-      food->SetSkill("Temporary", force);
-      food->Activate();
-      food->SetPos(POS_LIE);
-      body->AddAct(ACT_HOLD, food);
-      body->Parent()->SendOut(0, 0,
-	"A piece of magical food appears in ;s's hand.\n",
-	"A piece of magical food appears in your hand.\n",
-	body, NULL
-	);
       }
 
     if(src) {	//FIXME: Handle Multi-Charged Items (Rod/Staff/Wand)

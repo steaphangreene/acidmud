@@ -6,11 +6,11 @@ Implement various types of armor and damage.
 
 Implement Raising.
 
-Implement effects of the Create Food Spell
 Implement effects of the Cure Blindness Spell
 Implement effects of the Detect Cursed Items Spell
 Implement effects of the Identify Character Spell
 Implement effects of the Identify Person Spell
+Implement effects of the Personal Shield Spell
 
 Implement sustained detrimental spell effect system.
 	Implement effects of the Blind Spell
@@ -30,10 +30,6 @@ Implement sustained beneficial spell effect system.
 	Implement effects of the Resilience Spell
 	Implement effects of the Strength Spell
 	Implement effects of the Treatment Spell
-
-Implement sustained object spell effect system.
-	Implement effects of the Force Sword Spell
-	Implement effects of the Personal Shield Spell
 
 Implement combat spell system.
 	Implement effects of the Earthquake Spell
