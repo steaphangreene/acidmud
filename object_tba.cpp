@@ -228,6 +228,7 @@ void Object::TBAFinishMob(Object *mob) {
 
   if(mob->Skill("TBAAttack")) {
     if(mob->IsAct(ACT_WIELD)) {
+      fprintf(stderr, "Weapon def: %s\n", mob->ActTarg(ACT_WIELD)->Name());
       mob->SetSkill(
 	get_weapon_skill(mob->ActTarg(ACT_WIELD)->Skill("WeaponType")),
 	mob->Skill("TBAAttack")
@@ -468,6 +469,7 @@ void Object::TBALoadMob(const char *fn) {
     while(1) {
       int onum;
       if(fscanf(mudm, " #%d\n", &onum) < 1) break;
+      //fprintf(stderr, "Loaded MOB #%d\n", onum);
 
       Object *obj = new Object(this);
       bynummob[onum] = obj;
@@ -539,7 +541,7 @@ void Object::TBALoadMob(const char *fn) {
       //FIXME: Add others here.
 
       memset(buf, 0, 65536);
-      fscanf(mudm, " %65535[^ \t\n]", buf); //Rest of line read below...
+      fscanf(mudm, " %*s %*s %*s %65535[^ \t\n]", buf); //Rest of line read below...
       if(strcasestr(buf, "g") || (atoi(buf) & 64)) { //WATERWALK
 	obj->SetSkill("TBAAffection", obj->Skill("TBAAffection") | 64);
 	}
@@ -551,7 +553,7 @@ void Object::TBALoadMob(const char *fn) {
 	}
 
       memset(buf, 0, 65536);
-      fscanf(mudm, " %d %c\n", &val, &tp);
+      fscanf(mudm, " %*s %*s %*s %d %c\n", &val, &tp);
       //FIXME: Implement special powers of MOBs here.
 
       obj->SetSkill("Accomplishment", 120000+onum);
@@ -631,6 +633,10 @@ void Object::TBALoadMob(const char *fn) {
 	  if(val == 13) val = 0;	//Punches (is the Default in Acid)
 	  obj->SetSkill("NaturalWeapon", val);
 	  }
+	else if(fscanf(mudm, "T %d\n", &val)) {
+	  //Triggers?
+	  }
+
 	else break;
 	}
 
@@ -821,6 +827,7 @@ void Object::TBALoadObj(const char *fn) {
       int onum;
       int valmod = 1000, powmod = 1;
       if(fscanf(mudo, " #%d\n", &onum) < 1) break;
+      //fprintf(stderr, "Loaded object #%d\n", onum);
 
       Object *obj = new Object(this);
       bynumobj[onum] = obj;
@@ -911,8 +918,9 @@ void Object::TBALoadObj(const char *fn) {
 	obj->SetSkill("Priceless", 1);
 	}
 
+	//Wear Bitvector
       memset(buf, 0, 65536);
-      fscanf(mudo, " %65535[^ \n\t]%*[^\n]\n", buf);	//Wear Bitvector
+      fscanf(mudo, "%*s %*s %*s %65535[^ \n\t]%*[^\n]\n", buf);
       if(strcasestr(buf, "a") || (atoi(buf) & 1)) { //TAKE
 	obj->SetPos(POS_LIE);
 	}
@@ -1238,7 +1246,7 @@ void Object::TBALoadObj(const char *fn) {
 	  if(val[3] != 0) {
 	    liq->SetSkill("Poisionous", val[3]);
 	    }
-	  liq->SetSkill("Quantity", val[1]);
+	  liq->SetSkill("Quantity", val[1] + 1);
 	  }
 	}
       else if(tp == 19) { // FOOD
@@ -1516,7 +1524,7 @@ void Object::TBALoadObj(const char *fn) {
 	}
 
       int weight, value;
-      fscanf(mudo, "%d %d %*d\n", &weight, &value);
+      fscanf(mudo, "%d %d %*[^\n]\n", &weight, &value);
 
       if(tp != 20) { // MONEY DOESN'T WORK THIS WAY
 	obj->SetWeight(weight * 454);
@@ -1529,7 +1537,7 @@ void Object::TBALoadObj(const char *fn) {
 	}
 
       int magresist = 0;
-      while(fscanf(mudo, "%1[AE]%*[ \t\n]", buf) > 0) {
+      while(fscanf(mudo, "%1[AET] ", buf) > 0) {
 	if(buf[0] == 'A') {	//Extra Affects
 	  int anum, aval;
 	  fscanf(mudo, "%d %d\n", &anum, &aval);
@@ -1615,8 +1623,18 @@ void Object::TBALoadObj(const char *fn) {
 	      } break;
 	    }
 	  }
+	else if(buf[0] == 'T') {	//Triggers?
+	  int num = 0;
+	  fscanf(mudo, "%d\n", &num);
+	  }
+	else if(buf[0] == 'E') {	//Extra Affects
+	  fscanf(mudo, "%*[^~]");	//FIXME: Load These!
+	  fscanf(mudo, "~%*[\n\r]");
+	  fscanf(mudo, "%*[^~]");	//FIXME: Load These!
+	  fscanf(mudo, "~%*[\n\r]");
+	  }
 	else {			//Extra Descriptions FIXME: Handle!
-	  fscanf(mudo, "%*[^~]\n");	//Skip these for now.
+	  fprintf(stderr, "ERROR: Unknown tag!\n");
 	  }
 	}
       if(magresist > 0) obj->SetSkill("Magic Resistance", magresist);
@@ -1638,7 +1656,7 @@ void Object::TBALoad(const char *fn) {
     while(1) {
       int onum;
       if(fscanf(mud, " #%d\n", &onum) < 1) break;
-      fprintf(stderr, "Loading room #%d\n", onum);
+      //fprintf(stderr, "Loading room #%d\n", onum);
 
       Object *obj = new Object(this);
       olist.push_back(obj);
@@ -1840,6 +1858,7 @@ void Object::TBALoadShp(const char *fn) {
       while(1) {
 	int val, kpr;
 	if(!fscanf(mud, "#%d~\n", &val)) break;  // Shop Number
+	//fprintf(stderr, "Loaded shop #%d\n", val);
 
 	vortex = new Object;
 	vortex->SetShortDesc("a shopkeeper vortex");
@@ -1851,10 +1870,10 @@ void Object::TBALoadShp(const char *fn) {
 
 	fscanf(mud, "%d\n", &val);  // Item sold
 	while(val >= 0) {
-	  if(!bynumobj.count(val)) {
+	  if(val != 0 && bynumobj.count(val) == 0) {
 	    fprintf(stderr, "Error: Shop's item #%d does not exist!\n", val);
 	    }
-	  else {
+	  else if(val != 0) {
 	    Object *item = new Object(*(bynumobj[val]));
 	    Object *item2 = dup_tba_obj(item);
 	    item->SetParent(vortex);
