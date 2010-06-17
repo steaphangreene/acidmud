@@ -1284,32 +1284,38 @@ void Object::TBALoadObj(const char *fn) {
       else if(tp == 5) { // WEAPON
         int wreach = 0;						// default
 
-        int skmatch = get_weapon_type("Long Crushing");		// default
+        int skmatch = get_weapon_type("Short Crushing");	// default
 	if(val[3] == 1)						// "stings"
-		skmatch = get_weapon_type("Long Piercing");
+		skmatch = get_weapon_type("Short Piercing");
 	else if(val[3] == 2)					// "whips"
 		skmatch = get_weapon_type("Whips");
 	else if(val[3] == 3)					// "slashes"
-		skmatch = get_weapon_type("Long Blades");
+		skmatch = get_weapon_type("Short Blades");
 	else if(val[3] == 4)					// "bites"
-		skmatch = get_weapon_type("Long Piercing");
+		skmatch = get_weapon_type("Short Piercing");
 	else if(val[3] == 8)					// "claws"
-		skmatch = get_weapon_type("Long Blades");
+		skmatch = get_weapon_type("Short Blades");
 	else if(val[3] == 9)					// "mauls"
-		skmatch = get_weapon_type("Long Cleaves");
+		skmatch = get_weapon_type("Short Cleaves");
 	else if(val[3] == 11)					// "pierces"
-		skmatch = get_weapon_type("Long Piercing");
+		skmatch = get_weapon_type("Short Piercing");
 	else if(val[3] == 12)					// "blasts"
 		skmatch = get_weapon_type("Shotguns");
 	else if(val[3] == 13)					// "punches"
 		skmatch = get_weapon_type("Punching");
 	else if(val[3] == 14)					// "stabs"
-		skmatch = get_weapon_type("Long Piercing");
+		skmatch = get_weapon_type("Short Piercing");
 
 	if(matches(obj->ShortDesc(), "lance")) {
 	  skmatch = get_weapon_type("Two-Handed Piercing");
 	  }
 	else if(matches(obj->ShortDesc(), "spear")) {
+	  skmatch = get_weapon_type("Two-Handed Piercing");
+	  }
+	else if(matches(obj->ShortDesc(), "pitchfork")) {
+	  skmatch = get_weapon_type("Two-Handed Piercing");
+	  }
+	else if(matches(obj->ShortDesc(), "pitch fork")) {
 	  skmatch = get_weapon_type("Two-Handed Piercing");
 	  }
 	else if(matches(obj->ShortDesc(), "bolg")) {
@@ -1333,17 +1339,41 @@ void Object::TBALoadObj(const char *fn) {
 	else if(matches(obj->ShortDesc(), "flail")) {
 	  skmatch = get_weapon_type("Long Flails");
 	  }
+	else if(matches(obj->ShortDesc(), "ball and chain")) {
+	  skmatch = get_weapon_type("Two-Handed Flails");
+	  }
 	else if(matches(obj->ShortDesc(), "whip")) {
+	  skmatch = get_weapon_type("Whips");
+	  }
+	else if(matches(obj->ShortDesc(), "bullwhip")) {
+	  skmatch = get_weapon_type("Whips");
+	  }
+	else if(matches(obj->ShortDesc(), "scourge")) {
 	  skmatch = get_weapon_type("Whips");
 	  }
 	else if(matches(obj->ShortDesc(), "crop")) {
 	  skmatch = get_weapon_type("Whips");
+	  }
+	else if(matches(obj->ShortDesc(), "chain")) {
+	  skmatch = get_weapon_type("Whips");
+	  }
+	else if(matches(obj->ShortDesc(), "batleth")) {
+	  skmatch = get_weapon_type("Two-Handed Blades");
+	  }
+	else if(matches(obj->ShortDesc(), "lochaber")) {
+	  skmatch = get_weapon_type("Two-Handed Cleaves");
+	  }
+	else if(matches(obj->ShortDesc(), "claymore")) {
+	  skmatch = get_weapon_type("Two-Handed Blades");
 	  }
 	else if(matches(obj->ShortDesc(), "knife")) {
 	  skmatch = get_weapon_type("Short Blades");
 	  }
 	else if(matches(obj->ShortDesc(), "shard")) {
 	  skmatch = get_weapon_type("Short Blades");
+	  }
+	else if(matches(obj->ShortDesc(), "hook")) {
+	  skmatch = get_weapon_type("Short Piercing");
 	  }
 	else if(matches(obj->ShortDesc(), "stake")) {
 	  skmatch = get_weapon_type("Short Piercing");
@@ -1355,6 +1385,18 @@ void Object::TBALoadObj(const char *fn) {
 	  skmatch = get_weapon_type("Short Piercing");
 	  }
 	else if(matches(obj->ShortDesc(), "dagger")) {
+	  skmatch = get_weapon_type("Short Piercing");
+	  }
+	else if(matches(obj->ShortDesc(), "needles")) {
+	  skmatch = get_weapon_type("Short Piercing");
+	  }
+	else if(matches(obj->ShortDesc(), "awl")) {
+	  skmatch = get_weapon_type("Short Piercing");
+	  }
+	else if(matches(obj->ShortDesc(), "screwdriver")) {
+	  skmatch = get_weapon_type("Short Piercing");
+	  }
+	else if(matches(obj->ShortDesc(), "stiletto")) {
 	  skmatch = get_weapon_type("Short Piercing");
 	  }
 	else if(matches(obj->ShortDesc(), "kris")) {
@@ -1369,6 +1411,9 @@ void Object::TBALoadObj(const char *fn) {
 	else if(matches(obj->ShortDesc(), "rapier")) {
 	  skmatch = get_weapon_type("Long Piercing");
 	  }
+	else if(matches(obj->ShortDesc(), "epee")) {
+	  skmatch = get_weapon_type("Long Piercing");
+	  }
 	else if(matches(obj->ShortDesc(), "glaive")) {
 	  skmatch = get_weapon_type("Two-Handed Blades");
 	  }
@@ -1379,6 +1424,18 @@ void Object::TBALoadObj(const char *fn) {
 	  skmatch = get_weapon_type("Long Blades");
 	  }
 	else if(matches(obj->ShortDesc(), "sword")) {
+	  skmatch = get_weapon_type("Long Blades");
+	  }
+	else if(matches(obj->ShortDesc(), "longsword")) {
+	  skmatch = get_weapon_type("Long Blades");
+	  }
+	else if(matches(obj->ShortDesc(), "straightsword")) {
+	  skmatch = get_weapon_type("Long Blades");
+	  }
+	else if(matches(obj->ShortDesc(), "saber")) {
+	  skmatch = get_weapon_type("Long Blades");
+	  }
+	else if(matches(obj->ShortDesc(), "sabre")) {
 	  skmatch = get_weapon_type("Long Blades");
 	  }
 	else if(matches(obj->ShortDesc(), "cutlass")) {
@@ -1396,10 +1453,37 @@ void Object::TBALoadObj(const char *fn) {
 	else if(matches(obj->ShortDesc(), "axe")) {
 	  skmatch = get_weapon_type("Long Cleaves");
 	  }
+	else if(matches(obj->ShortDesc(), "hatchet")) {
+	  skmatch = get_weapon_type("Long Cleaves");
+	  }
+	else if(matches(obj->ShortDesc(), "pickaxe")) {
+	  skmatch = get_weapon_type("Long Cleaves");
+	  }
+	else if(matches(obj->ShortDesc(), "hand axe")) {
+	  skmatch = get_weapon_type("Short Cleaves");
+	  }
+	else if(matches(obj->ShortDesc(), "handaxe")) {
+	  skmatch = get_weapon_type("Short Cleaves");
+	  }
 	else if(matches(obj->ShortDesc(), "club")) {
 	  skmatch = get_weapon_type("Long Crushing");
 	  }
+	else if(matches(obj->ShortDesc(), "peg leg")) {
+	  skmatch = get_weapon_type("Long Crushing");
+	  }
+	else if(matches(obj->ShortDesc(), "stick")) {
+	  skmatch = get_weapon_type("Long Crushing");
+	  }
+	else if(matches(obj->ShortDesc(), "bat")) {
+	  skmatch = get_weapon_type("Long Crushing");
+	  }
 	else if(matches(obj->ShortDesc(), "rod")) {
+	  skmatch = get_weapon_type("Long Crushing");
+	  }
+	else if(matches(obj->ShortDesc(), "scepter")) {
+	  skmatch = get_weapon_type("Long Crushing");
+	  }
+	else if(matches(obj->ShortDesc(), "sceptre")) {
 	  skmatch = get_weapon_type("Long Crushing");
 	  }
 	else if(matches(obj->ShortDesc(), "mace")) {
@@ -1410,6 +1494,9 @@ void Object::TBALoadObj(const char *fn) {
 	  }
 	else if(matches(obj->ShortDesc(), "cudgel")) {
 	  skmatch = get_weapon_type("Long Crushing");
+	  }
+	else if(matches(obj->ShortDesc(), "scythe")) {
+	  skmatch = get_weapon_type("Two-Handed Blades");
 	  }
 	else if(matches(obj->ShortDesc(), "bardiche")) {
 	  skmatch = get_weapon_type("Two-Handed Cleaves");
@@ -1429,8 +1516,32 @@ void Object::TBALoadObj(const char *fn) {
 	else if(matches(obj->ShortDesc(), "halberd")) {
 	  skmatch = get_weapon_type("Two-Handed Cleaves");
 	  }
+	else if(matches(obj->ShortDesc(), "poleaxe")) {
+	  skmatch = get_weapon_type("Two-Handed Cleaves");
+	  }
+	else if(matches(obj->ShortDesc(), "polearm")) {
+	  skmatch = get_weapon_type("Two-Handed Cleaves");
+	  }
+	else if(matches(obj->ShortDesc(), "pole axe")) {
+	  skmatch = get_weapon_type("Two-Handed Cleaves");
+	  }
+	else if(matches(obj->ShortDesc(), "pole arm")) {
+	  skmatch = get_weapon_type("Two-Handed Cleaves");
+	  }
+	else if(matches(obj->ShortDesc(), "fishing pole")) {
+	  skmatch = get_weapon_type("Whips");
+	  }
 	else if(matches(obj->ShortDesc(), "hammer")) {
 	  skmatch = get_weapon_type("Long Crushing");
+	  }
+	else if(matches(obj->ShortDesc(), "maul")) {
+	  skmatch = get_weapon_type("Long Crushing");
+	  }
+	else if(matches(obj->ShortDesc(), "mallet")) {
+	  skmatch = get_weapon_type("Long Crushing");
+	  }
+	else if(matches(obj->ShortDesc(), "gavel")) {
+	  skmatch = get_weapon_type("Short Crushing");
 	  }
 	else if(matches(obj->ShortDesc(), "baton")) {
 	  skmatch = get_weapon_type("Short Staves");
@@ -1438,11 +1549,50 @@ void Object::TBALoadObj(const char *fn) {
 	else if(matches(obj->ShortDesc(), "quarterstaff")) {
 	  skmatch = get_weapon_type("Long Staves");
 	  }
+	else if(matches(obj->ShortDesc(), "shovel")) {
+	  skmatch = get_weapon_type("Long Crushing");
+	  }
+	else if(matches(obj->ShortDesc(), "hoe")) {
+	  skmatch = get_weapon_type("Long Crushing");
+	  }
+	else if(matches(obj->ShortDesc(), "broom")) {
+	  skmatch = get_weapon_type("Two-Handed Staves");
+	  }
+	else if(matches(obj->ShortDesc(), "rake")) {
+	  skmatch = get_weapon_type("Two-Handed Staves");
+	  }
+	else if(matches(obj->ShortDesc(), "mop")) {
+	  skmatch = get_weapon_type("Two-Handed Staves");
+	  }
 	else if(matches(obj->ShortDesc(), "staff")) {
 	  skmatch = get_weapon_type("Two-Handed Staves");
 	  }
 	else if(matches(obj->ShortDesc(), "bow")) {
 	  skmatch = get_weapon_type("Archery");
+	  }
+	else if(matches(obj->ShortDesc(), "longbow")) {
+	  skmatch = get_weapon_type("Archery");
+	  }
+	else if(matches(obj->ShortDesc(), "arrow")) {
+	  skmatch = get_weapon_type("Archery");
+	  }
+	else if(matches(obj->ShortDesc(), "arrows")) {
+	  skmatch = get_weapon_type("Archery");
+	  }
+	else if(matches(obj->ShortDesc(), "slingshot")) {
+	  skmatch = get_weapon_type("Crossbow");
+	  }
+	else if(matches(obj->ShortDesc(), "sling shot")) {
+	  skmatch = get_weapon_type("Crossbow");
+	  }
+	else if(matches(obj->ShortDesc(), "sling")) {
+	  skmatch = get_weapon_type("Slings");
+	  }
+	else if(matches(obj->ShortDesc(), "dart")) {
+	  skmatch = get_weapon_type("Throwing, Aero");
+	  }
+	else if(matches(obj->ShortDesc(), "darts")) {
+	  skmatch = get_weapon_type("Throwing, Aero");
 	  }
 	else if(matches(obj->ShortDesc(), "blade")) {
 	  skmatch = get_weapon_type("Long Blades");
@@ -1461,6 +1611,81 @@ void Object::TBALoadObj(const char *fn) {
 	  }
 	else if(matches(obj->ShortDesc(), "stakes")) {
 	  skmatch = get_weapon_type("Short Piercing");
+	  }
+	else if(matches(obj->ShortDesc(), "scalpel")) {
+	  skmatch = get_weapon_type("Short Blades");
+	  }
+	else if(matches(obj->ShortDesc(), "crook")) {
+	  skmatch = get_weapon_type("Two-Handed Staves");
+	  }
+	else if(matches(obj->ShortDesc(), "knuckles")) {
+	  skmatch = get_weapon_type("Punching");
+	  }
+	else if(matches(obj->ShortDesc(), "laser rifle")) {
+	  skmatch = get_weapon_type("Laser Rifles");
+	  }
+	else if(matches(obj->ShortDesc(), "assault rifle")) {
+	  skmatch = get_weapon_type("Assault Rifles");
+	  }
+	else if(matches(obj->ShortDesc(), "rifle")) {
+	  skmatch = get_weapon_type("Rifles");
+	  }
+	else if(matches(obj->ShortDesc(), "phaser")) {
+	  skmatch = get_weapon_type("Plasma Pistols");
+	  }
+	else if(matches(obj->ShortDesc(), "plasma gun")) {
+	  skmatch = get_weapon_type("Plasma Pistols");
+	  }
+	else if(matches(obj->ShortDesc(), "laser pistol")) {
+	  skmatch = get_weapon_type("Laser Pistols");
+	  }
+	else if(matches(obj->ShortDesc(), "pistol")) {
+	  skmatch = get_weapon_type("Pistols");
+	  }
+	else if(matches(obj->ShortDesc(), "handgun")) {
+	  skmatch = get_weapon_type("Pistols");
+	  }
+	else if(matches(obj->ShortDesc(), "hand gun")) {
+	  skmatch = get_weapon_type("Pistols");
+	  }
+	else if(matches(obj->ShortDesc(), "gun")) {
+	  skmatch = get_weapon_type("Shotguns");
+	  }
+	else if(matches(obj->ShortDesc(), "thunderbolt")) {
+	  skmatch = get_weapon_type("Throwing, Aero");
+	  }
+	else if(matches(obj->ShortDesc(), "bola")) {
+	  skmatch = get_weapon_type("Throwing, Aero");
+	  }
+	else if(matches(obj->ShortDesc(), "bolas")) {
+	  skmatch = get_weapon_type("Throwing, Aero");
+	  }
+	else if(matches(obj->ShortDesc(), "pole")) {
+	  skmatch = get_weapon_type("Hurling");
+	  }
+	else if(matches(obj->ShortDesc(), "boulder")) {
+	  skmatch = get_weapon_type("Hurling");
+	  }
+	else if(matches(obj->ShortDesc(), "rock")) {
+	  skmatch = get_weapon_type("Throwing, Non-Aero");
+	  }
+	else if(matches(obj->ShortDesc(), "stone")) {
+	  skmatch = get_weapon_type("Throwing, Non-Aero");
+	  }
+	else if(matches(obj->ShortDesc(), "boomerang")) {
+	  skmatch = get_weapon_type("Throwing, Aero");
+	  }
+	else if(matches(obj->ShortDesc(), "blowgun")) {
+	  skmatch = get_weapon_type("Blowgun");
+	  }
+	else if(matches(obj->ShortDesc(), "crossbow")) {
+	  skmatch = get_weapon_type("Crossbow");
+	  }
+	else if(matches(obj->ShortDesc(), "arbalest")) {
+	  skmatch = get_weapon_type("Crossbow");
+	  }
+	else if(matches(obj->ShortDesc(), "net")) {
+	  skmatch = get_weapon_type("Nets");
 	  }
 	else {
 	  fprintf(stderr, "Warning: Using Default of '%s' for '%s'!\n",
@@ -1524,8 +1749,23 @@ void Object::TBALoadObj(const char *fn) {
 	  else if(skmatch == get_weapon_type("Short Staves")) wreach = 0;
 	  else if(skmatch == get_weapon_type("Long Staves")) wreach = 1;
 	  else if(skmatch == get_weapon_type("Two-Handed Staves")) wreach = 2;
-	  else if(skmatch == get_weapon_type("Whips")) wreach = 3;
+	  else if(skmatch == get_weapon_type("Whips")) wreach = 4;
+	  else if(skmatch == get_weapon_type("Nets")) wreach = 4;
 	  else if(skmatch == get_weapon_type("Archery")) wreach = 100;
+	  else if(skmatch == get_weapon_type("Crossbow")) wreach = 100;
+	  else if(skmatch == get_weapon_type("Slings")) wreach = 50;
+	  else if(skmatch == get_weapon_type("Blowgun")) wreach = 20;
+	  else if(skmatch == get_weapon_type("Throwing, Aero")) wreach = 20;
+	  else if(skmatch == get_weapon_type("Throwing, Non-Aero")) wreach = 10;
+	  else if(skmatch == get_weapon_type("Hurling")) wreach = 5;
+	  else if(skmatch == get_weapon_type("Assault Rifles")) wreach = 1000;
+	  else if(skmatch == get_weapon_type("Laser Rifles")) wreach = 1000;
+	  else if(skmatch == get_weapon_type("Rifles")) wreach = 1000;
+	  else if(skmatch == get_weapon_type("Shotguns")) wreach = 500;
+	  else if(skmatch == get_weapon_type("Pistols")) wreach = 200;
+	  else if(skmatch == get_weapon_type("Laser Pistols")) wreach = 200;
+	  else if(skmatch == get_weapon_type("Plasma Pistols")) wreach = 200;
+	  else if(skmatch == get_weapon_type("Punching")) wreach = 0;
 	  else {
 	    fprintf(stderr, "Warning: Using Default reach of zero for '%s'!\n",
 		obj->ShortDesc());
