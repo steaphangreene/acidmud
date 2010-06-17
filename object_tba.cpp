@@ -228,7 +228,7 @@ void Object::TBAFinishMob(Object *mob) {
 
   if(mob->Skill("TBAAttack")) {
     if(mob->IsAct(ACT_WIELD)) {
-      fprintf(stderr, "Weapon def: %s\n", mob->ActTarg(ACT_WIELD)->Name());
+      //fprintf(stderr, "Weapon def: %s\n", mob->ActTarg(ACT_WIELD)->Name());
       mob->SetSkill(
 	get_weapon_skill(mob->ActTarg(ACT_WIELD)->Skill("WeaponType")),
 	mob->Skill("TBAAttack")
@@ -1133,7 +1133,7 @@ void Object::TBALoadObj(const char *fn) {
 	else {		//DRINKCON only
 	  obj->SetSkill("Closeable", 1);
 	  }
-	if(val[1] > 0) {
+	if(val[1] > 0 || tp == 23) {
 	  Object *liq = new Object(obj);
 	  liq->SetSkill("Liquid", 1);
 	  liq->SetSkill("Ingestible", 1);
@@ -1246,7 +1246,7 @@ void Object::TBALoadObj(const char *fn) {
 	  if(val[3] != 0) {
 	    liq->SetSkill("Poisionous", val[3]);
 	    }
-	  liq->SetSkill("Quantity", val[1] + 1);
+	  liq->SetSkill("Quantity", val[1]);
 	  }
 	}
       else if(tp == 19) { // FOOD
