@@ -290,14 +290,25 @@ int Object::LoadFrom(FILE *fl) {
   else if(Skill("TBAAction")) get_tba_mob_mind()->Attach(this);
   else if(Skill("CircleAction")) get_circle_mob_mind()->Attach(this);
 
+  int num_loaded = 0;
   vector<Object*>::iterator cind;
   for(cind = toload.begin(); cind != toload.end(); ++cind) {
+    if(parent && (!(parent->parent))) {
+      fprintf(stderr, "\r%s Loading: %d/%d...",
+	short_desc.c_str(), num_loaded++, int(toload.size())
+	);
+      }
     //fprintf(stderr, "%sCalling loader from %s\n", debug_indent.c_str(), short_desc.c_str());
     //string tmp = debug_indent;
     //debug_indent += "  ";
     (*cind)->LoadFrom(fl);
     //debug_indent = tmp;
     //fprintf(stderr, "%sCalled loader from %s\n", debug_indent.c_str(), short_desc.c_str());
+    }
+  if(parent && (!(parent->parent))) {
+    fprintf(stderr, "\r%s Loading: %d/%d...Done.\n",
+	short_desc.c_str(), int(toload.size()), int(toload.size())
+	);
     }
 
   //fprintf(stderr, "%sLoaded %s\n", debug_indent.c_str(), short_desc.c_str());
