@@ -809,7 +809,7 @@ static void add_tba_spell(Object *obj, int spell, int power) {
       obj->SetSkill("Create Zombie Spell", power);
       } break;
     case(46): {		// DISPEL GOOD??
-      obj->SetSkill("Bang and Puff of Smoke Spell", power);
+      obj->SetSkill("Protection Spell", power);
       } break;
     case(47): {		// GROUP ARMOR
       obj->SetSkill("Group Resilience Spell", power);
@@ -825,6 +825,9 @@ static void add_tba_spell(Object *obj, int spell, int power) {
       } break;
     case(51): {		// WATERWALK
       obj->SetSkill("Float Spell", power);
+      } break;
+    case(52): {		// ????
+      obj->SetSkill("Bang and Puff of Smoke Spell", power);
       } break;
     case(201): {	// IDENTIFY
       obj->SetSkill("Identify Spell", power);
