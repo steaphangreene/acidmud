@@ -781,6 +781,20 @@ static void trim(string &s) {
   if(s.length() < 1) return;
   while(!isgraph(s[0])) s = s.substr(1);
   while(!isgraph(s[s.length()-1])) s = s.substr(0, s.length()-1);
+
+  size_t n00b = s.find('@');
+  while(n00b != string::npos) {
+    //fprintf(stderr, "Step: %s\n", s.c_str());
+    if(s[n00b+1] == '@') {		//@@ -> @
+      s = s.substr(0, n00b) + "@" + s.substr(n00b+2);
+      n00b = s.find('@', n00b + 1);
+      }
+    else {	//FIXME: Actually use ANSI colors?
+      s = s.substr(0, n00b) + s.substr(n00b+2);
+      n00b = s.find('@', n00b);
+      }
+    //if(n00b == string::npos) fprintf(stderr, "Done: %s\n\n", s.c_str());
+    }
   }
 
 void Object::SetShortDesc(const char *d) {
