@@ -6030,7 +6030,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
       Object *world = new Object(body->Parent());
-      world->SetShortDesc("tbaMUD World");
+      world->SetShortDesc("The tbaMUD World");
       world->SetSkill("Light Source", 1000);
       world->SetSkill("Day Length", 240);
       world->SetSkill("Day Time", 120);
