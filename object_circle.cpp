@@ -14,7 +14,9 @@ using namespace std;
 #include "color.h"
 #include "mind.h"
 
-const char *dirname[6] = { "north", "east", "south", "west", "up", "down" };
+static const char *dirname[6] = {
+	"north", "east", "south", "west", "up", "down"
+	};
 
 static char buf[65536];
 void Object::CircleLoadAll() {
@@ -1682,6 +1684,9 @@ void Object::CircleLoad(const char *fn) {
       if(strcasestr(buf, "c") || (atoi(buf) & 4)) { //NOMOB
         obj->SetSkill("CircleZone", 999999);
 	}
+      else {
+        obj->SetSkill("CircleZone", 100000 + zone);
+	}
       if(strcasestr(buf, "e") || (atoi(buf) & 16)) { //PEACEFUL
         obj->SetSkill("Peaceful", 1000);
 	}
@@ -1703,9 +1708,6 @@ void Object::CircleLoad(const char *fn) {
 //      if(strcasestr(buf, "k") || (atoi(buf) & 1024)) { //GODROOM
 //	//FIXME: Implement
 //	}
-      else {
-        obj->SetSkill("CircleZone", 100000 + zone);
-	}
 
       while(1) {
 	int dnum, tnum, tmp, tmp2;
