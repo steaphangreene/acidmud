@@ -1935,6 +1935,29 @@ void Object::TBALoadShp(const char *fn) {
 	      (*type)[ctr] = tolower((*type)[ctr]);
 	      }
 	    if((*type) == "Liq container") (*type) = "Liquid Container";
+	    else if((*type) == "1") (*type) = "Light";
+	    else if((*type) == "2") (*type) = "Scroll";
+	    else if((*type) == "3") (*type) = "Wand";
+	    else if((*type) == "4") (*type) = "Staff";
+	    else if((*type) == "5") (*type) = "Weapon";
+	    else if((*type) == "6") (*type) = "Fire Weapon";
+	    else if((*type) == "7") (*type) = "Missile";
+	    else if((*type) == "8") (*type) = "Treasure";
+	    else if((*type) == "9") (*type) = "Armor";
+	    else if((*type) == "10") (*type) = "Potion";
+	    else if((*type) == "11") (*type) = "Worn";
+	    else if((*type) == "12") (*type) = "Other";
+	    else if((*type) == "13") (*type) = "Trash";
+	    else if((*type) == "14") (*type) = "Trap";
+	    else if((*type) == "15") (*type) = "Container";
+	    else if((*type) == "16") (*type) = "Note";
+	    else if((*type) == "17") (*type) = "Liquid Container";
+	    else if((*type) == "18") (*type) = "Key";
+	    else if((*type) == "19") (*type) = "Food";
+	    else if((*type) == "20") (*type) = "Money";
+	    else if((*type) == "21") (*type) = "Pen";
+	    else if((*type) == "22") (*type) = "Boat";
+	    else if((*type) == "23") (*type) = "Fountain";
 	    keeper->SetSkill(string("Buy ") + (*type), (int)(num2*1000.0+0.5));
 	    }
 
