@@ -229,10 +229,26 @@ void Object::TBAFinishMob(Object *mob) {
   if(mob->Skill("TBAAttack")) {
     if(mob->IsAct(ACT_WIELD)) {
       //fprintf(stderr, "Weapon def: %s\n", mob->ActTarg(ACT_WIELD)->Name());
-      mob->SetSkill(
-	get_weapon_skill(mob->ActTarg(ACT_WIELD)->Skill("WeaponType")),
-	mob->Skill("TBAAttack")
-	);
+      if(mob->ActTarg(ACT_WIELD)->Skill("WeaponType") == 0) {
+	if(!mob->ActTarg(ACT_HOLD)) {	//Don't wield non-weapons, hold them
+	  fprintf(stderr, "Warning: Wielded non-weapon: %s\n",
+		mob->ActTarg(ACT_WIELD)->Name()
+		);
+	  mob->AddAct(ACT_HOLD, mob->ActTarg(ACT_WIELD));
+	  mob->StopAct(ACT_WIELD);
+	  }
+	else {
+	  fprintf(stderr, "Error: Wielded non-weapon with a held item: %s\n",
+		mob->ActTarg(ACT_WIELD)->Name()
+		);
+	  }
+	}
+      else {
+	mob->SetSkill(
+		get_weapon_skill(mob->ActTarg(ACT_WIELD)->Skill("WeaponType")),
+		mob->Skill("TBAAttack")
+		);
+	}
       if(mob->Skill("NaturalWeapon") == 13) {	//Default (hit), but is armed!
 	mob->SetSkill("NaturalWeapon", 0);	//So remove it
 	}
