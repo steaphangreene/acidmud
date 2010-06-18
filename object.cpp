@@ -66,7 +66,8 @@ const char *act_str[ACT_SPECIAL_MAX] = {
 //	"ACT_SPECIAL_MAX"
         };
 
-static Object *universe;
+static Object *universe = NULL;
+static Object *trash_bin = NULL;
 static Object *default_initial;
 
 static set<Object *> busylist;
@@ -74,6 +75,14 @@ extern timeval current_time; // From main.cpp
 
 void set_start_room(Object *o) {
   default_initial = o;
+  }
+
+Object *Object::Universe() {
+  return universe;
+  }
+
+Object *Object::TrashBin() {
+  return trash_bin;
   }
 
 int matches(const char *name, const char *seek) {
@@ -1575,6 +1584,10 @@ int Object::Travel(Object *dest, int try_combine) {
   }
 
 Object::~Object() {
+  Recycle(0);
+  }
+
+void Object::Recycle(int inbin) {
   Deactivate();
   if(default_initial == this) default_initial = universe;
 
@@ -1597,7 +1610,7 @@ Object::~Object() {
     if(find(contents.begin(), contents.end(), *indk) != contents.end()) {
       (*indk)->SetParent(NULL);
       RemoveLink(*indk);
-      delete(*indk);
+      (*indk)->Recycle();
       }
     }
   killers.clear();
@@ -1617,7 +1630,7 @@ Object::~Object() {
     }
 
   for(indk = killers.begin(); indk != killers.end(); ++indk) {
-    delete(*indk);
+    (*indk)->Recycle();
     }
   killers.clear();
 
@@ -1659,10 +1672,15 @@ Object::~Object() {
     if((*noti)->ActTarg(ACT_SPECIAL_MASTER) == this) del = 1;
     else if((*noti)->ActTarg(ACT_SPECIAL_LINKED) == this) del = 1;
     (*noti)->NotifyLeft(this);
-    if(del) delete (*noti);
+    if(del) (*noti)->Recycle();
     }
 
   busylist.erase(this);
+
+  if(inbin && trash_bin) {
+    parent = trash_bin;
+    parent->AddLink(this);
+    }
 
   //fprintf(stderr, "Done deleting: %s\n", Name(0));
   }
@@ -1991,11 +2009,16 @@ int Object::IsNearBy(const Object *obj) {
   }
 
 void Object::NotifyLeft(Object *obj, Object *newloc) {
-  for(act_t act=ACT_NONE; act < ACT_MAX; act = act_t(int(act)+1)) {
-    if(ActTarg(act) == obj || obj->IsWithin(ActTarg(act))) {
-      if(act != ACT_FOLLOW || (!newloc)) { StopAct(act); }
-      else if(parent == newloc) { } // Do nothing - didn't leave!
-      else {
+  set<act_t> stops, stops2;
+  typeof(act.begin()) curact = act.begin();
+  for(; curact != act.end(); ++curact) {
+    if(curact->second && (
+		curact->second == obj || obj->IsWithin(curact->second)
+	)) {
+      if(curact->first != ACT_FOLLOW || (!newloc)) {
+	stops.insert(curact->first);
+	}
+      else if(parent != newloc) {	// Do nothing if we didn't leave!
 	int stealth_t = 0, stealth_s = 0;
 	if(IsUsing("Stealth") && Skill("Stealth") > 0) {
 	  stealth_t = Skill("Stealth");
@@ -2012,7 +2035,28 @@ void Object::NotifyLeft(Object *obj, Object *newloc) {
 	  }
 	}
       }
+    if(curact->first >= ACT_MAX && (!newloc) && curact->second == obj) {
+      typeof(act.begin()) curact2 = act.begin();
+      for(; curact2 != act.end(); ++curact2) {
+	if(curact2->first >= ACT_MAX) {
+	  if(curact2->second == this) {
+	    stops2.insert(curact2->first);
+	    }
+	  }
+	}
+      stops.insert(curact->first);
+      }
     }
+
+  set<act_t>::iterator stop = stops.begin();
+  for(; stop != stops.end(); ++stop) {
+    StopAct(*stop);
+    }
+  stop = stops2.begin();
+  for(; stop != stops2.end(); ++stop) {
+    obj->StopAct(*stop);
+    }
+
   if(obj->ActTarg(ACT_HOLD) == this) {		//Dragging
     if(parent != newloc) {	// Actually went somewhere
       parent->SendOut(ALL, -1,
@@ -2020,13 +2064,6 @@ void Object::NotifyLeft(Object *obj, Object *newloc) {
 	obj, this);
       Travel(newloc, 0);
       parent->SendOut(ALL, -1, ";s drags ;s along.\n", "", obj, this);
-      }
-    }
-  for(act_t act=ACT_MAX; act < ACT_SPECIAL_MAX; act = act_t(int(act)+1)) {
-    if((!newloc) && ActTarg(act) == obj) {
-      StopAct(act);
-      for(act_t act2=ACT_MAX; act2 < ACT_SPECIAL_MAX; act2 = act_t(int(act2)+1))
-	if(obj->ActTarg(act2) == this) obj->StopAct(act2);
       }
     }
   }
@@ -2046,11 +2083,11 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
 
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
-    if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
-      tonotify[*ind] = 0;
-      }
-    else if(up >= 0) {
+    if(up >= 0) {
       tonotify[*ind] = -1;
+      }
+    else if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
+      tonotify[*ind] = 0;
       }
     }
 
@@ -2437,8 +2474,11 @@ void init_world() {
   universe = new Object;
   universe->SetShortDesc("The Universe");
   universe->SetDesc("An Infinite Universe within which to play.");
-  universe->SetLongDesc("An Really Big Infinite Universe within which to play.");
+  universe->SetLongDesc("A Really Big Infinite Universe within which to play.");
   default_initial = universe;
+  trash_bin = new Object;
+  trash_bin->SetShortDesc("The Trash Bin");
+  trash_bin->SetDesc("The place objects come to die.");
 
   if(!universe->Load("acid/current.wld")) {
     load_players("acid/current.plr");

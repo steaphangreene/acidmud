@@ -4993,16 +4993,17 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     Object *dest = body->Parent();
-    if(strcasecmp(comline+len, "universe") || (!nmode)) {
+    if(nmode && (!strcasecmp(comline+len, "universe"))) {
+      dest = dest->Universe();
+      }
+    else if(nmode && (!strcasecmp(comline+len, "trashbin"))) {
+      dest = dest->TrashBin();
+      }
+    else {	//Only Ninjas can teleport to "Universe"/"TrashBin"
       while(dest->Parent()->Parent()) {
 	dest = dest->Parent();
 	}
       dest = dest->PickObject(comline+len, LOC_INTERNAL);
-      }
-    else if(nmode) {	//Ninjas can teleport to "Universe"
-      while(dest->Parent()) {
-	dest = dest->Parent();
-	}
       }
 
     if(!dest) {
@@ -5011,7 +5012,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     else {
       body->SetSkill("Teleport", 0);	//Use it up
       body->Parent()->SendOut(0, 0,	//Not Stealthy!
-	"BAMF! ;s teleports away.\n", "BAMF! You teleport home.\n", body, NULL
+	"BAMF! ;s teleports away.\n", "BAMF! You teleport.\n", body, NULL
 	);
       body->Travel(dest, 0);
       body->Parent()->SendOut(0, 0,	//Not Stealthy!

@@ -103,18 +103,18 @@ void Object::TBACleanup() {
   map<int,Object*>::iterator ind;
 
   int val = 0;
-  fprintf(stderr, "\rDeleting Sample Objects: %d/%d    ", val++, int(bynumobj.size()));
+  fprintf(stderr, "\rRecycling Sample Objects: %d/%d    ", val++, int(bynumobj.size()));
   for(ind = bynumobj.begin(); ind != bynumobj.end(); ++ind) {
-    delete((*ind).second);
-    fprintf(stderr, "\rDeleting Sample Objects: %d/%d    ", val++, int(bynumobj.size()));
+    (*ind).second->Recycle();
+    fprintf(stderr, "\rRecycling Sample Objects: %d/%d    ", val++, int(bynumobj.size()));
     }
   fprintf(stderr, "...Done.\n");
 
   val = 0;
-  fprintf(stderr, "\rDeleting Sample MOBs: %d/%d    ", val++, int(bynummob.size()));
+  fprintf(stderr, "\rRecycling Sample MOBs: %d/%d    ", val++, int(bynummob.size()));
   for(ind = bynummob.begin(); ind != bynummob.end(); ++ind) {
-    delete((*ind).second);
-    fprintf(stderr, "\rDeleting Sample MOBs: %d/%d    ", val++, int(bynummob.size()));
+    (*ind).second->Recycle();
+    fprintf(stderr, "\rRecycling Sample MOBs: %d/%d    ", val++, int(bynummob.size()));
     }
   fprintf(stderr, "...Done.\n");
 
@@ -2272,7 +2272,7 @@ void Object::TBALoadShp(const char *fn) {
 	  keeper->AddAct(ACT_WEAR_RSHOULDER, vortex);
 	  }
 	else {
-	  delete vortex;
+	  vortex->Recycle();
 	  fprintf(stderr, "Warning: Can't find shopkeeper #%d!\n", kpr);
 	  }
 	}

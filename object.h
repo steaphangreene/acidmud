@@ -98,9 +98,14 @@ public:
   Object(const Object &);
   ~Object();
 
+  void Recycle(int inbin = 1);
+
   int IsActive() const;
   void Activate();
   void Deactivate();
+
+  static Object *Universe();
+  static Object *TrashBin();
 
   Object *Next(string &);
   Object *Split(int nqty);
