@@ -14,6 +14,11 @@ using namespace std;
 #include "color.h"
 #include "mind.h"
 
+static void trim_string(string &str) {  //Remove extra whitespace from string
+  while(isspace(str[0])) str = str.substr(1);
+  while(isspace(str[str.length()-1])) str = str.substr(0, str.length()-1);
+  }
+
 static const char *dirname[6] = {
 	"north", "east", "south", "west", "up", "down"
 	};
@@ -2123,6 +2128,55 @@ void Object::TBALoad(const char *fn) {
     }
   }
 
+const char *base = "'^&*abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ";
+static set<string> parse_tba_shop_rules(string rules) {
+  set<string> ret;
+  if(rules[0]) {
+//    fprintf(stderr, "Initial: '%s'\n", rules.c_str());
+    size_t done = rules.find_first_not_of(base);
+    while(done != string::npos) {
+      if(rules[done] == '|' || rules[done] == '+') {
+	string first = rules.substr(0, done);
+	trim_string(first);
+	ret.insert(first);
+//	fprintf(stderr, "  Done: '%s'\n", first.c_str());
+	rules = rules.substr(done+1);
+	trim_string(rules);
+	done = rules.find_first_not_of(base);
+	}
+      else if(rules[done] == '(' || rules[done] == '[') {
+	size_t end = rules.find_first_of(")]");
+	if(end == string::npos) end = rules.length();
+	set<string> tmp = parse_tba_shop_rules(rules.substr(done+1));
+	set<string>::iterator next = tmp.begin();
+	for(; next != tmp.end(); ++next) {
+	  ret.insert((*next) + rules.substr(end+1));
+//	  fprintf(stderr, "  Built: '%s'\n",
+//		((*next) + rules.substr(end+1)).c_str()
+//		);
+	  }
+	return ret;	//FIXME: Handled multiple ()()()....
+	}
+      else if(rules[done] == ')' || rules[done] == ']') {
+	string first = rules.substr(0, done);
+	trim_string(first);
+//	fprintf(stderr, "  Done: '%s'\n", first.c_str());
+	ret.insert(first);
+	return ret;	//End of sub-call
+	}
+      else {
+	fprintf(stderr, "Warning: Can't handle shop rule fragment: '%s'\n",
+		rules.c_str()
+		);
+	done = string::npos;
+	}
+      }
+//    fprintf(stderr, "  Done: '%s'\n", rules.c_str());
+    ret.insert(rules);
+    }
+  return ret;
+  }
+
 void Object::TBALoadShp(const char *fn) {
   FILE *mud = fopen(fn, "r");
   if(mud) {
@@ -2217,11 +2271,15 @@ void Object::TBALoadShp(const char *fn) {
 	      while(isgraph(extra[0])) extra = extra.substr(1);
 	      }
 	    while(isspace(extra[0])) extra = extra.substr(1);
+
 	    if(extra[0]) {
-	      fprintf(stderr,
-		"Warning: Can't handle %s's extra buy target: '%s'\n",
-		keeper->Name(), extra.c_str()
-		);
+	      //fprintf(stderr, "Rule: '%s'\n", extra.c_str());
+	      set<string> extras = parse_tba_shop_rules(extra);
+	      set<string>::iterator ex = extras.begin();
+	      for(; ex != extras.end(); ++ex) {
+		//fprintf(stderr, "Adding: 'Accept %s'\n", ex->c_str());
+		keeper->SetSkill("Accept " + (*ex), 1);
+		}
 	      }
 
 	    if(itnum == 1) (*type) = "Light";
