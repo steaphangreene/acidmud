@@ -85,7 +85,7 @@ void Object::TBALoadAll() {
       }
     fclose(muds);
     }
-  TBACleanup();
+  //TBACleanup();
   fprintf(stderr, "Finished!\n");
   }
 

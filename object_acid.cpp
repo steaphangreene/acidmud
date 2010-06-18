@@ -290,11 +290,11 @@ int Object::LoadFrom(FILE *fl) {
   else if(Skill("TBAAction")) get_tba_mob_mind()->Attach(this);
   else if(Skill("CircleAction")) get_circle_mob_mind()->Attach(this);
 
-  int num_loaded = 0;
+//  int num_loaded = 0;
+//  if(parent && (!(parent->parent))) {
+//    fprintf(stderr, "Loading: %s\n", short_desc.c_str());
+//    }
   vector<Object*>::iterator cind;
-  if(parent && (!(parent->parent))) {
-    fprintf(stderr, "Loading: %s\n", short_desc.c_str());
-    }
   for(cind = toload.begin(); cind != toload.end(); ++cind) {
     //fprintf(stderr, "%sCalling loader from %s\n", debug_indent.c_str(), short_desc.c_str());
     //string tmp = debug_indent;
@@ -302,15 +302,16 @@ int Object::LoadFrom(FILE *fl) {
     (*cind)->LoadFrom(fl);
     //debug_indent = tmp;
     //fprintf(stderr, "%sCalled loader from %s\n", debug_indent.c_str(), short_desc.c_str());
-    if(parent && (!(parent->parent))) {
-      fprintf(stderr, "\rLoaded: %d/%d (%s)    ",
-	++num_loaded, int(toload.size()), (*cind)->short_desc.c_str()
-	);
-      }
+
+//    if(parent && (!(parent->parent))) {
+//      fprintf(stderr, "\rLoaded: %d/%d (%s)    ",
+//	++num_loaded, int(toload.size()), (*cind)->short_desc.c_str()
+//	);
+//      }
     }
-  if(parent && (!(parent->parent))) {
-    fprintf(stderr, "\nLoaded.\n");
-    }
+//  if(parent && (!(parent->parent))) {
+//    fprintf(stderr, "\nLoaded.\n");
+//    }
 
   //fprintf(stderr, "%sLoaded %s\n", debug_indent.c_str(), short_desc.c_str());
 
