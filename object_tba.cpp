@@ -85,7 +85,7 @@ void Object::TBALoadAll() {
       }
     fclose(muds);
     }
-  //TBACleanup();
+  TBACleanup();
   fprintf(stderr, "Finished!\n");
   }
 
@@ -101,8 +101,22 @@ static vector<Object*> olist;
 
 void Object::TBACleanup() {
   map<int,Object*>::iterator ind;
-  for(ind = bynumobj.begin(); ind != bynumobj.end(); ++ind) delete((*ind).second);
-  for(ind = bynummob.begin(); ind != bynummob.end(); ++ind) delete((*ind).second);
+
+  int val = 0;
+  fprintf(stderr, "\rDeleting Sample Objects: %d/%d    ", val++, int(bynumobj.size()));
+  for(ind = bynumobj.begin(); ind != bynumobj.end(); ++ind) {
+    delete((*ind).second);
+    fprintf(stderr, "\rDeleting Sample Objects: %d/%d    ", val++, int(bynumobj.size()));
+    }
+  fprintf(stderr, "...Done.\n");
+
+  val = 0;
+  fprintf(stderr, "\rDeleting Sample MOBs: %d/%d    ", val++, int(bynummob.size()));
+  for(ind = bynummob.begin(); ind != bynummob.end(); ++ind) {
+    delete((*ind).second);
+    fprintf(stderr, "\rDeleting Sample MOBs: %d/%d    ", val++, int(bynummob.size()));
+    }
+  fprintf(stderr, "...Done.\n");
 
   bynum.clear();
   bynumobj.clear();
@@ -2217,7 +2231,41 @@ void Object::TBALoadShp(const char *fn) {
 	    else if((*type) == "21") (*type) = "Pen";
 	    else if((*type) == "22") (*type) = "Boat";
 	    else if((*type) == "23") (*type) = "Fountain";
-	    keeper->SetSkill(string("Buy ") + (*type), (int)(num2*1000.0+0.5));
+
+	    if((*type) != "Light"
+		&& (*type) != "Scroll"
+		&& (*type) != "Wand"
+		&& (*type) != "Staff"
+		&& (*type) != "Weapon"
+		&& (*type) != "Fire Weapon"
+		&& (*type) != "Missile"
+		&& (*type) != "Treasure"
+		&& (*type) != "Armor"
+		&& (*type) != "Potion"
+		&& (*type) != "Worn"
+		&& (*type) != "Other"
+		&& (*type) != "Trash"
+		&& (*type) != "Trap"
+		&& (*type) != "Container"
+		&& (*type) != "Note"
+		&& (*type) != "Liquid Container"
+		&& (*type) != "Key"
+		&& (*type) != "Food"
+		&& (*type) != "Money"
+		&& (*type) != "Pen"
+		&& (*type) != "Boat"
+		&& (*type) != "Fountain"
+		) {
+	      fprintf(stderr,
+		"Warning: Can't handle buy target: '%s'\n", type->c_str()
+		);
+	      }
+	    else {
+	      keeper->SetSkill(
+		string("Buy ") + (*type),
+		(int)(num2*1000.0+0.5)
+		);
+	      }
 	    }
 
 	  vortex->SetParent(keeper);
