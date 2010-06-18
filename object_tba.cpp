@@ -24,12 +24,12 @@ void Object::TBALoadAll() {
   if(mud) {
     sprintf(buf, "tba/wld/%c", 0);
     memset(buf+strlen(buf), 0, 256);
-    fscanf(mud, "%255[^\n]\n", buf+strlen(buf));
+    fscanf(mud, "%255[^\n\r]\n", buf+strlen(buf));
     while(strlen(buf) > 10) {
       TBALoad(buf);
       sprintf(buf, "tba/wld/%c", 0);
       memset(buf+strlen(buf), 0, 256);
-      fscanf(mud, "%255[^\n]\n", buf+strlen(buf));
+      fscanf(mud, "%255[^\n\r]\n", buf+strlen(buf));
       }
     fclose(mud);
     }
@@ -37,12 +37,12 @@ void Object::TBALoadAll() {
   if(mudo) {
     sprintf(buf, "tba/obj/%c", 0);
     memset(buf+strlen(buf), 0, 256);
-    fscanf(mudo, "%255[^\n]\n", buf+strlen(buf));
+    fscanf(mudo, "%255[^\n\r]\n", buf+strlen(buf));
     while(strlen(buf) > 10) {
       TBALoadObj(buf);
       sprintf(buf, "tba/obj/%c", 0);
       memset(buf+strlen(buf), 0, 256);
-      fscanf(mudo, "%255[^\n]\n", buf+strlen(buf));
+      fscanf(mudo, "%255[^\n\r]\n", buf+strlen(buf));
       }
     fclose(mudo);
     }
@@ -50,12 +50,12 @@ void Object::TBALoadAll() {
   if(mudm) {
     sprintf(buf, "tba/mob/%c", 0);
     memset(buf+strlen(buf), 0, 256);
-    fscanf(mudm, "%255[^\n]\n", buf+strlen(buf));
+    fscanf(mudm, "%255[^\n\r]\n", buf+strlen(buf));
     while(strlen(buf) > 10) {
       TBALoadMob(buf);
       sprintf(buf, "tba/mob/%c", 0);
       memset(buf+strlen(buf), 0, 256);
-      fscanf(mudm, "%255[^\n]\n", buf+strlen(buf));
+      fscanf(mudm, "%255[^\n\r]\n", buf+strlen(buf));
       }
     fclose(mudm);
     }
@@ -63,12 +63,12 @@ void Object::TBALoadAll() {
   if(mudz) {
     sprintf(buf, "tba/zon/%c", 0);
     memset(buf+strlen(buf), 0, 256);
-    fscanf(mudz, "%255[^\n]\n", buf+strlen(buf));
+    fscanf(mudz, "%255[^\n\r]\n", buf+strlen(buf));
     while(strlen(buf) > 10) {
       TBALoadZon(buf);
       sprintf(buf, "tba/zon/%c", 0);
       memset(buf+strlen(buf), 0, 256);
-      fscanf(mudz, "%255[^\n]\n", buf+strlen(buf));
+      fscanf(mudz, "%255[^\n\r]\n", buf+strlen(buf));
       }
     fclose(mudz);
     }
@@ -76,12 +76,12 @@ void Object::TBALoadAll() {
   if(muds) {
     sprintf(buf, "tba/shp/%c", 0);
     memset(buf+strlen(buf), 0, 256);
-    fscanf(muds, "%255[^\n]\n", buf+strlen(buf));
+    fscanf(muds, "%255[^\n\r]\n", buf+strlen(buf));
     while(strlen(buf) > 10) {
       TBALoadShp(buf);
       sprintf(buf, "tba/shp/%c", 0);
       memset(buf+strlen(buf), 0, 256);
-      fscanf(muds, "%255[^\n]\n", buf+strlen(buf));
+      fscanf(muds, "%255[^\n\r]\n", buf+strlen(buf));
       }
     fclose(muds);
     }
@@ -299,7 +299,7 @@ void Object::TBALoadZon(const char *fn) {
   if(mudz) {
     //fprintf(stderr, "Loading TBA Zone from \"%s\"\n", fn);
     for(int ctr=0; ctr<3; ++ctr) {
-      fscanf(mudz, "%*[^\n]\n");
+      fscanf(mudz, "%*[^\n\r]\n");
       }
     int done = 0;
     while(!done) {
@@ -331,7 +331,7 @@ void Object::TBALoadZon(const char *fn) {
 	  } break;
 	case('M'): {
 	  int num, room;
-	  fscanf(mudz, " %*d %d %*d %d %*[^\n]\n", &num, &room);
+	  fscanf(mudz, " %*d %d %*d %d %*[^\n\r]\n", &num, &room);
 	  if(bynum.count(room) && bynummob.count(num)) {
 	    Object *obj = new Object;
 	    obj->SetParent(bynum[room]);
@@ -353,7 +353,7 @@ void Object::TBALoadZon(const char *fn) {
 	  } break;
 	case('O'): {
 	  int num, room;
-	  fscanf(mudz, " %*d %d %*d %d %*[^\n]\n", &num, &room);
+	  fscanf(mudz, " %*d %d %*d %d %*[^\n\r]\n", &num, &room);
 	  if(bynum.count(room) && bynumobj.count(num)) {
 	    Object *obj = new Object(*(bynumobj[num]));
 	    obj->SetParent(bynum[room]);
@@ -364,8 +364,8 @@ void Object::TBALoadZon(const char *fn) {
 	case('G'):
 	case('E'): {
 	  int num, pos = -1;
-	  if(type == 'E') fscanf(mudz, " %*d %d %*d %d%*[^\n]\n", &num, &pos);
-	  if(type == 'G') fscanf(mudz, " %*d %d %*d%*[^\n]\n", &num);
+	  if(type == 'E') fscanf(mudz, " %*d %d %*d %d%*[^\n\r]\n", &num, &pos);
+	  if(type == 'G') fscanf(mudz, " %*d %d %*d%*[^\n\r]\n", &num);
 	  if(lastmob && bynumobj.count(num)) {
 	    Object *obj = new Object(*(bynumobj[num]));
 	    Object *obj2 = dup_tba_obj(obj);
@@ -471,7 +471,7 @@ void Object::TBALoadZon(const char *fn) {
 	  } break;
 	case('P'): {
 	  int num, innum;
-	  fscanf(mudz, " %*d %d %*d %d %*[^\n]\n", &num, &innum);
+	  fscanf(mudz, " %*d %d %*d %d %*[^\n\r]\n", &num, &innum);
 	  if(lastobj.count(innum) && bynumobj.count(num)) {
 	    Object *obj = new Object(*(bynumobj[num]));
 	    Object *obj2 = dup_tba_obj(obj);
@@ -482,7 +482,7 @@ void Object::TBALoadZon(const char *fn) {
 	    }
 	  } break;
 	default: {
-	  fscanf(mudz, "%*[^\n]\n");
+	  fscanf(mudz, "%*[^\n\r]\n");
 	  } break;
 	}
       }
@@ -515,7 +515,7 @@ void Object::TBALoadMob(const char *fn) {
       //fprintf(stderr, "Loaded TBA Mobile with Name = %s\n", buf);
 
       memset(buf, 0, 65536);
-      if(!fscanf(mudm, "%65535[^~]~\n", buf)) fscanf(mudm, "%*[^\n]\n");
+      if(!fscanf(mudm, "%65535[^~]~\n", buf)) fscanf(mudm, "%*[^\n\r]\n");
       else {
         for(char *ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
 	obj->SetDesc(buf);
@@ -523,7 +523,7 @@ void Object::TBALoadMob(const char *fn) {
       //fprintf(stderr, "Loaded TBA Mobile with Desc = %s\n", buf);
 
       memset(buf, 0, 65536);
-      if(!fscanf(mudm, "%65535[^~]~\n", buf)) fscanf(mudm, "%*[^\n]\n");
+      if(!fscanf(mudm, "%65535[^~]~\n", buf)) fscanf(mudm, "%*[^\n\r]\n");
       else {
         for(char *ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
 	obj->SetLongDesc(buf);
@@ -616,7 +616,7 @@ void Object::TBALoadMob(const char *fn) {
 	fscanf(mudm, "%d", &val);  // Gold
 	obj->SetSkill("TBAGold", val);
 
-	fscanf(mudm, "%*[^\n]\n"); // XP //FIXME: Worth Karma?
+	fscanf(mudm, "%*[^\n\r]\n"); // XP //FIXME: Worth Karma?
 
 	fscanf(mudm, "%d %d %d\n", &val, &val2, &val3);
 
@@ -896,14 +896,14 @@ void Object::TBALoadObj(const char *fn) {
 	}
 
       memset(buf, 0, 65536);	//Long Desc
-      if(!fscanf(mudo, "%65535[^~]~\n", buf)) fscanf(mudo, "%*[^\n]\n");
+      if(!fscanf(mudo, "%65535[^~]~\n", buf)) fscanf(mudo, "%*[^\n\r]\n");
       else {
 	for(char *ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
 	obj->SetDesc(buf);
 	}
       //fprintf(stderr, "Loaded TBA Object with Desc = %s\n", buf);
 
-      fscanf(mudo, "%*[^\n]\n");
+      fscanf(mudo, "%*[^\n\r]\n");
 
       int tp=0, val[4];
       memset(buf, 0, 65536);
@@ -953,7 +953,7 @@ void Object::TBALoadObj(const char *fn) {
 
 	//Wear Bitvector
       memset(buf, 0, 65536);
-      fscanf(mudo, "%*s %*s %*s %65535[^ \n\t]%*[^\n]\n", buf);
+      fscanf(mudo, "%*s %*s %*s %65535[^ \n\t]%*[^\n\r]\n", buf);
       if(strcasestr(buf, "a") || (atoi(buf) & 1)) { //TAKE
 	obj->SetPos(POS_LIE);
 	}
@@ -1797,7 +1797,7 @@ void Object::TBALoadObj(const char *fn) {
 	}
 
       int weight, value;
-      fscanf(mudo, "%d %d %*[^\n]\n", &weight, &value);
+      fscanf(mudo, "%d %d %*[^\n\r]\n", &weight, &value);
 
       if(tp != 20) { // MONEY DOESN'T WORK THIS WAY
 	obj->SetWeight(weight * 454);
@@ -1953,7 +1953,7 @@ void Object::TBALoad(const char *fn) {
       //fprintf(stderr, "Loaded TBA Room with Desc = %s\n", buf);
 
       int val;
-      fscanf(mud, "%*d %65535[^ \t\n] %d %*[^\n]\n", buf, &val);
+      fscanf(mud, "%*d %65535[^ \t\n] %d %*[^\n\r]\n", buf, &val);
 		//FIXME: TBA's extra 3 flags variables (ignored now)?
       if(val == 6) obj->SetSkill("WaterDepth", 1);	// WATER_SWIM
       else if(val == 7) obj->SetSkill("WaterDepth", 2);	// WATER_NOSWIM
@@ -2164,30 +2164,30 @@ void Object::TBALoadShp(const char *fn) {
 	fscanf(mud, "%lf\n", &num2);  // Profit when Buy
 
 	memset(buf, 0, 65536);
-	fscanf(mud, "%65535[^\n]\n", buf);  // Item types bought
+	fscanf(mud, "%65535[^\n\r]\n", buf);  // Item types bought
 	val = atoi(buf);
 	list<string> types;
 	while(val >= 0) {
 	  types.push_back(string(buf));
 	  memset(buf, 0, 65536);
-	  fscanf(mud, "%65535[^\n]\n", buf);  // Item types bought
+	  fscanf(mud, "%65535[^\n\r]\n", buf);  // Item types bought
 	  val = atoi(buf);
 	  }
 
 	memset(buf, 0, 65536);
 	for(int ctr=0; ctr<8; ++ctr) {
-	  fscanf(mud, "%255[^\n]\n", buf+strlen(buf));
+	  fscanf(mud, "%255[^\n\r]\n", buf+strlen(buf));
 	  }
 
 	memset(buf, 0, 65536);
-	fscanf(mud, "%65535[^\n]\n", buf);  // Shop Bitvectors
+	fscanf(mud, "%65535[^\n\r]\n", buf);  // Shop Bitvectors
 
 	fscanf(mud, "%d\n", &kpr);  // Shopkeeper!
 	Object *keeper = NULL;
 	if(bynummobinst.count(kpr)) keeper = bynummobinst[kpr];
 
 	memset(buf, 0, 65536);
-	fscanf(mud, "%65535[^\n]\n", buf);  // With Bitvectors
+	fscanf(mud, "%65535[^\n\r]\n", buf);  // With Bitvectors
 
 	fscanf(mud, "%d\n", &val);  // Shop rooms
 	while(val >= 0) {
@@ -2204,35 +2204,52 @@ void Object::TBALoadShp(const char *fn) {
 
 	  list<string>::iterator type = types.begin();	//Buy Types
 	  for(; type != types.end(); ++type) {
-	    for(unsigned int ctr=1; ctr < type->length(); ++ctr) {
+	    for(unsigned int ctr=1; isalpha((*type)[ctr]); ++ctr) {
 	      (*type)[ctr] = tolower((*type)[ctr]);
 	      }
-	    if((*type) == "Liq container") (*type) = "Liquid Container";
-	    else if((*type) == "1") (*type) = "Light";
-	    else if((*type) == "2") (*type) = "Scroll";
-	    else if((*type) == "3") (*type) = "Wand";
-	    else if((*type) == "4") (*type) = "Staff";
-	    else if((*type) == "5") (*type) = "Weapon";
-	    else if((*type) == "6") (*type) = "Fire Weapon";
-	    else if((*type) == "7") (*type) = "Missile";
-	    else if((*type) == "8") (*type) = "Treasure";
-	    else if((*type) == "9") (*type) = "Armor";
-	    else if((*type) == "10") (*type) = "Potion";
-	    else if((*type) == "11") (*type) = "Worn";
-	    else if((*type) == "12") (*type) = "Other";
-	    else if((*type) == "13") (*type) = "Trash";
-	    else if((*type) == "14") (*type) = "Trap";
-	    else if((*type) == "15") (*type) = "Container";
-	    else if((*type) == "16") (*type) = "Note";
-	    else if((*type) == "17") (*type) = "Liquid Container";
-	    else if((*type) == "18") (*type) = "Key";
-	    else if((*type) == "19") (*type) = "Food";
-	    else if((*type) == "20") (*type) = "Money";
-	    else if((*type) == "21") (*type) = "Pen";
-	    else if((*type) == "22") (*type) = "Boat";
-	    else if((*type) == "23") (*type) = "Fountain";
 
-	    if((*type) != "Light"
+	    string extra = *type;
+	    int itnum = atoi(extra.c_str());
+	    if(itnum > 0) {
+	      while(isdigit(extra[0])) extra = extra.substr(1);
+	      }
+	    else {
+	      while(isgraph(extra[0])) extra = extra.substr(1);
+	      }
+	    while(isspace(extra[0])) extra = extra.substr(1);
+	    if(extra[0]) {
+	      fprintf(stderr,
+		"Warning: Can't handle %s's extra buy target: '%s'\n",
+		keeper->Name(), extra.c_str()
+		);
+	      }
+
+	    if(itnum == 1) (*type) = "Light";
+	    else if(itnum == 2) (*type) = "Scroll";
+	    else if(itnum == 3) (*type) = "Wand";
+	    else if(itnum == 4) (*type) = "Staff";
+	    else if(itnum == 5) (*type) = "Weapon";
+	    else if(itnum == 6) (*type) = "Fire Weapon";
+	    else if(itnum == 7) (*type) = "Missile";
+	    else if(itnum == 8) (*type) = "Treasure";
+	    else if(itnum == 9) (*type) = "Armor";
+	    else if(itnum == 10) (*type) = "Potion";
+	    else if(itnum == 11) (*type) = "Worn";
+	    else if(itnum == 12) (*type) = "Other";
+	    else if(itnum == 13) (*type) = "Trash";
+	    else if(itnum == 14) (*type) = "Trap";
+	    else if(itnum == 15) (*type) = "Container";
+	    else if(itnum == 16) (*type) = "Note";
+	    else if(itnum == 17) (*type) = "Liquid Container";
+	    else if(itnum == 18) (*type) = "Key";
+	    else if(itnum == 19) (*type) = "Food";
+	    else if(itnum == 20) (*type) = "Money";
+	    else if(itnum == 21) (*type) = "Pen";
+	    else if(itnum == 22) (*type) = "Boat";
+	    else if(itnum == 23) (*type) = "Fountain";
+
+	    if((*type) != "0"
+		&& (*type) != "Light"
 		&& (*type) != "Scroll"
 		&& (*type) != "Wand"
 		&& (*type) != "Staff"
@@ -2257,10 +2274,11 @@ void Object::TBALoadShp(const char *fn) {
 		&& (*type) != "Fountain"
 		) {
 	      fprintf(stderr,
-		"Warning: Can't handle buy target: '%s'\n", type->c_str()
+		"Warning: Can't handle %s's buy target: '%s'\n",
+		keeper->Name(), type->c_str()
 		);
 	      }
-	    else {
+	    else if((*type) != "0") {	//Apparently 0 used for "Ignore This"
 	      keeper->SetSkill(
 		string("Buy ") + (*type),
 		(int)(num2*1000.0+0.5)
