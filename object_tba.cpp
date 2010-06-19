@@ -2468,7 +2468,7 @@ void Object::TBALoadTRG(const char *fn) {	//Triggers
 	++unhandled_trig;	//This is NOT really handled yet.
 	}
       else if(strstr(buf, "if %direction% == ")) {
-	fprintf(stderr, "%d appears to be a direction trigger.\n", tnum);
+//	fprintf(stderr, "%d appears to be a direction trigger.\n", tnum);
 	++unhandled_trig;	//This is NOT really handled yet.
 	}
       else if(0) {
