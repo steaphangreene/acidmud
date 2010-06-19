@@ -1481,7 +1481,7 @@ Broadway~
    You are on the 400 block of Broadway and as you look at the pot
 holes in the road you realize that city road workers are the same
 everywhere.
-   Broadway continues to the north and south. The armoury is to the
+   Broadway continues to the north and south. The armory is to the
 east and the magic shop is to the west.
 ~
 275 0 0 0 0 0
@@ -1491,7 +1491,7 @@ You see Broadway.
 ~
 0 -1 27569
 D1
-You see the Armoury.
+You see the Armory.
 ~
 ~
 0 -1 27567
@@ -1507,9 +1507,9 @@ You see the Magic Shop.
 0 -1 27568
 S
 #27567
-The Armoury~
-   This is your standard armoury, filled with your average supply of
-of armour and other assorted goodies.
+The Armory~
+   This is your standard armory, filled with your average supply of
+of armor and other assorted goodies.
    Broadway is to the west.
 ~
 275 8 0 0 0 0

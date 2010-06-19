@@ -43,7 +43,7 @@ sign~
    |                                  |
    | The Trade Halls                  |
    |                                  |
-   |    AR       AR = Armourer        |
+   |    AR       AR = Armorer        |
    |     |                            |
    | WP--+--+#   WP = Weaponsmith     |
    |     |                            |
@@ -140,11 +140,11 @@ D1
 0 0 23607
 S
 #23606
-The armourers stall~
+The armorers stall~
    You are in the corner of the cave, which the dwarves have decided to use as
 trade area.  In this, the farthest corner from the entrance, some shining
-armour has been laid out on an old sack.  Behind it, the assistant to the
-armoursmith is getting ready to display his merchandise to you.  To get back to
+armor has been laid out on an old sack.  Behind it, the assistant to the
+armorsmith is getting ready to display his merchandise to you.  To get back to
 the center of the trade halls, you must go south.    
 ~
 236 8 0 0 0 0
@@ -153,8 +153,8 @@ D2
 ~
 0 0 23607
 E
-sack armour armor~
-   The different pieces of armour have been strewed all over the ground here,
+sack armor armor~
+   The different pieces of armor have been strewed all over the ground here,
 but it might be an unwise idea to try to just pick it up.  Theft is not looked
 lightly upon in the dwarven kingdom.  
 ~
@@ -236,7 +236,7 @@ Passing by the workshops~
 almost deafened by the sounds from the nearby workshops. It seems all of the
 things traded in the trade halls come from these workshops. To your south the
 weaponsmith is working and east of here the armor smith is preparing more
-armours for sale. You can leave the city by going west from here, or go deeper
+armors for sale. You can leave the city by going west from here, or go deeper
 into it by heading north. 
 ~
 236 8 0 0 0 0
@@ -264,7 +264,7 @@ At Torgs' smithy~
    The dwarves are very proud of their fine weaponry.  Rods of several
 different metals have been laid on shelves along the south wall, ready to go
 into the forge.  The forege itself has been set in the east wall, accesible
-from both here and the armourers smithy just north and east of here.  The walls
+from both here and the armorers smithy just north and east of here.  The walls
 are blackened wth soot from many years of smoke from the large forge.  A
 strange contraption makes sure the bellows keep the heat at its peak.    
 ~
@@ -344,12 +344,12 @@ S
 #23615
 At Ralfs' smithy~
    Upon entering the smithy you immidiately discover the reason for all the
-noise in the area.  All the armours made here are full-body armours.  When
+noise in the area.  All the armors made here are full-body armors.  When
 struck by Ralf, they make about as much noise, as a churchbell.  The forge is
 set in the south wall, and on the northern and eastern wall, several
-half-finished armours have been lain on shelves.  In a crate near the eastern
+half-finished armors have been lain on shelves.  In a crate near the eastern
 wall, different straps and thongs of leather are stored - nothing of use until
-they've been applied to an armour.    
+they've been applied to an armor.    
 ~
 236 8 0 0 0 0
 D3
@@ -364,7 +364,7 @@ the fire, you notice the weaponsmiths' smithy.
 E
 crate~
    A wooden crate about one by two feet.  It contains strips of leather used for
-the armours made here.  
+the armors made here.  
 ~
 S
 #23616
@@ -1878,8 +1878,8 @@ The tunnel leads north from here.
 S
 #23683
 In the side tunnels~
-   This is where the dwarves get thir iron for the tempered steel plate armours
-you saw at the armourers stall in the trade halls.  The ore is so fine you can
+   This is where the dwarves get thir iron for the tempered steel plate armors
+you saw at the armorers stall in the trade halls.  The ore is so fine you can
 actually see the glimmer of iron, not just the reddish lump you see everywhere
 else.  The tunnel leads west from here.    
 ~

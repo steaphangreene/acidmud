@@ -81,12 +81,12 @@ air, as though it were somehow filtering and replenishing it.
 E
 T 2703
 #2705
-armoured guardian~
-an armoured guardian~
-An armoured guardian stands here, blocking the gates to the north.
+armored guardian~
+an armored guardian~
+An armored guardian stands here, blocking the gates to the north.
 ~
    Tall and menacing, his body is completely covered with black irridescent
-armour that reveals none of his natural form.  Even his eyes are masked by the
+armor that reveals none of his natural form.  Even his eyes are masked by the
 metal visor over his face, though somehow he seems to perceive his surroundings
 very well indeed.    
 ~
@@ -293,7 +293,7 @@ A little irridescent beetle scurries along.
    This little glistening beetle has two rather large pinchers that protrude
 like horns from its head.  Tiny legs move almost too quickly to be seen, as the
 creature scuttles nervously around, streaks of blue and green glinting in its
-black armour.  
+black armor.  
 ~
 200 0 0 0 2048 0 0 0 0 E
 5 19 7 1d1+50 1d2+0
