@@ -692,17 +692,26 @@ void Object::TBALoadMOB(const char *fn) {
 	  if(val == 13) val = 0;	//Punches (is the Default in Acid)
 	  obj->SetSkill("NaturalWeapon", val);
 	  }
-	else if(fscanf(mudm, "T %d\n", &val)) {
-	  //Triggers?
-	  }
 
 	else break;
 	}
+      fscanf(mudm, " E");	//Nuke the terminating "E", if present.
 
       obj->SetWeight(obj->Attribute(0) * 20000);
       obj->SetSize(1000 + obj->Attribute(0) * 200);
       obj->SetVolume(100);
       obj->SetValue(-1);
+
+      int tnum;
+      while(fscanf(mudm, " T %d\n", &tnum) > 0) {
+	if(tnum > 0 && bynumtrg.count(tnum) > 0) {
+	  Object *trg = new Object(*(bynumtrg[tnum]));
+	  trg->SetParent(obj);
+	//  fprintf(stderr, "Put Trg \"%s\" on MOB \"%s\"\n",
+	//	trg->Desc(), obj->ShortDesc()
+	//	);
+	  }
+	}
 
       fscanf(mudm, " %*[^#$]");
       }
@@ -1926,13 +1935,13 @@ void Object::TBALoadOBJ(const char *fn) {
 	    }
 	  }
 	else if(buf[0] == 'T') {	//Triggers
-	  int num = 0;
-	  fscanf(mudo, "%d\n", &num);
-	  if(num > 0 && bynumtrg.count(num) > 0) {
-	    Object *trg = new Object(*(bynumtrg[num]));
+	  int tnum = 0;
+	  fscanf(mudo, "%d\n", &tnum);
+	  if(tnum > 0 && bynumtrg.count(tnum) > 0) {
+	    Object *trg = new Object(*(bynumtrg[tnum]));
 	    trg->SetParent(obj);
 	//    fprintf(stderr, "Put Trg \"%s\" on Obj \"%s\"\n",
-	//	trg->ShortDesc(), obj->ShortDesc()
+	//	trg->Desc(), obj->ShortDesc()
 	//	);
 	    }
 	  }
@@ -2073,7 +2082,15 @@ void Object::TBALoadWLD(const char *fn) {
 	  }
 	}
       { int tnum;
-	while(fscanf(mud, " T %d\n", &tnum) > 0);	//FIXME: What is this?
+	while(fscanf(mud, " T %d\n", &tnum) > 0) {
+	  if(tnum > 0 && bynumtrg.count(tnum) > 0) {
+	    Object *trg = new Object(*(bynumtrg[tnum]));
+	    trg->SetParent(obj);
+	//    fprintf(stderr, "Put Trg \"%s\" on Room \"%s\"\n",
+	//	trg->Desc(), obj->ShortDesc()
+	//	);
+	    }
+	  }
 	}
       }
 
@@ -2407,6 +2424,8 @@ void Object::TBALoadTRG(const char *fn) {	//Triggers
       Object *script = NULL;
       script = new Object();
       bynumtrg[tnum] = script;
+      script->SetSkill("Invisible", 1000);
+      script->SetSkill("TBAScript", 1); // Mark it as a tbaMUD script (trigger)
       script->SetShortDesc("A tbaMUD trigger script.");
       //fprintf(stderr, "Loading #%d\n", tnum);
       fscanf(mud, " %65535[^~]", buf);	//Trigger Name
