@@ -25,18 +25,18 @@ static const char *dirname[6] = {
 
 static char buf[65536];
 void Object::TBALoadAll() {
-  FILE *mud = fopen("tba/wld/index", "r");
-  if(mud) {
+  FILE *mudw = fopen("tba/wld/index", "r");
+  if(mudw) {
     sprintf(buf, "tba/wld/%c", 0);
     memset(buf+strlen(buf), 0, 256);
-    fscanf(mud, "%255[^\n\r]\n", buf+strlen(buf));
+    fscanf(mudw, "%255[^\n\r]\n", buf+strlen(buf));
     while(strlen(buf) > 10) {
-      TBALoad(buf);
+      TBALoadWLD(buf);
       sprintf(buf, "tba/wld/%c", 0);
       memset(buf+strlen(buf), 0, 256);
-      fscanf(mud, "%255[^\n\r]\n", buf+strlen(buf));
+      fscanf(mudw, "%255[^\n\r]\n", buf+strlen(buf));
       }
-    fclose(mud);
+    fclose(mudw);
     }
   FILE *mudo = fopen("tba/obj/index", "r");
   if(mudo) {
@@ -44,7 +44,7 @@ void Object::TBALoadAll() {
     memset(buf+strlen(buf), 0, 256);
     fscanf(mudo, "%255[^\n\r]\n", buf+strlen(buf));
     while(strlen(buf) > 10) {
-      TBALoadObj(buf);
+      TBALoadOBJ(buf);
       sprintf(buf, "tba/obj/%c", 0);
       memset(buf+strlen(buf), 0, 256);
       fscanf(mudo, "%255[^\n\r]\n", buf+strlen(buf));
@@ -57,7 +57,7 @@ void Object::TBALoadAll() {
     memset(buf+strlen(buf), 0, 256);
     fscanf(mudm, "%255[^\n\r]\n", buf+strlen(buf));
     while(strlen(buf) > 10) {
-      TBALoadMob(buf);
+      TBALoadMOB(buf);
       sprintf(buf, "tba/mob/%c", 0);
       memset(buf+strlen(buf), 0, 256);
       fscanf(mudm, "%255[^\n\r]\n", buf+strlen(buf));
@@ -70,7 +70,7 @@ void Object::TBALoadAll() {
     memset(buf+strlen(buf), 0, 256);
     fscanf(mudz, "%255[^\n\r]\n", buf+strlen(buf));
     while(strlen(buf) > 10) {
-      TBALoadZon(buf);
+      TBALoadZON(buf);
       sprintf(buf, "tba/zon/%c", 0);
       memset(buf+strlen(buf), 0, 256);
       fscanf(mudz, "%255[^\n\r]\n", buf+strlen(buf));
@@ -83,12 +83,25 @@ void Object::TBALoadAll() {
     memset(buf+strlen(buf), 0, 256);
     fscanf(muds, "%255[^\n\r]\n", buf+strlen(buf));
     while(strlen(buf) > 10) {
-      TBALoadShp(buf);
+      TBALoadSHP(buf);
       sprintf(buf, "tba/shp/%c", 0);
       memset(buf+strlen(buf), 0, 256);
       fscanf(muds, "%255[^\n\r]\n", buf+strlen(buf));
       }
     fclose(muds);
+    }
+  FILE *mudt = fopen("tba/trg/index", "r");
+  if(mudt) {
+    sprintf(buf, "tba/trg/%c", 0);
+    memset(buf+strlen(buf), 0, 256);
+    fscanf(mudt, "%255[^\n\r]\n", buf+strlen(buf));
+    while(strlen(buf) > 10) {
+      TBALoadTRG(buf);
+      sprintf(buf, "tba/trg/%c", 0);
+      memset(buf+strlen(buf), 0, 256);
+      fscanf(mudt, "%255[^\n\r]\n", buf+strlen(buf));
+      }
+    fclose(mudt);
     }
   //TBACleanup();
   fprintf(stderr, "Finished!\n");
@@ -209,7 +222,7 @@ Object *dup_tba_obj(Object *obj) {
   return obj2;
   }
 
-void Object::TBAFinishMob(Object *mob) {
+void Object::TBAFinishMOB(Object *mob) {
   if(mob->Skill("TBAGold")) {
     Object *bag = new Object;
 
@@ -299,7 +312,7 @@ void Object::TBAFinishMob(Object *mob) {
 
 static Object *lastmob = NULL, *lastbag = NULL;
 static map<int, Object*>lastobj;
-void Object::TBALoadZon(const char *fn) {
+void Object::TBALoadZON(const char *fn) {
   FILE *mudz = fopen(fn, "r");
   if(mudz) {
     //fprintf(stderr, "Loading TBA Zone from \"%s\"\n", fn);
@@ -345,7 +358,7 @@ void Object::TBALoadZon(const char *fn) {
 
 	    //fprintf(stderr, "Put Mob \"%s\" in Room \"%s\"\n", obj->ShortDesc(), bynum[room]->ShortDesc());
 
-	    if(lastmob) TBAFinishMob(lastmob);
+	    if(lastmob) TBAFinishMOB(lastmob);
 	    lastmob = new Object(*(bynummob[num]));
 	    bynummobinst[num] = lastmob;
 	    lastmob->SetParent(obj);
@@ -491,13 +504,13 @@ void Object::TBALoadZon(const char *fn) {
 	  } break;
 	}
       }
-    if(lastmob) TBAFinishMob(lastmob);
+    if(lastmob) TBAFinishMOB(lastmob);
     fclose(mudz);
     }
   }
 
 
-void Object::TBALoadMob(const char *fn) {
+void Object::TBALoadMOB(const char *fn) {
   FILE *mudm = fopen(fn, "r");
   if(mudm) {
     //fprintf(stderr, "Loading TBA Mobiles from \"%s\"\n", fn);
@@ -857,7 +870,7 @@ static void add_tba_spell(Object *obj, int spell, int power) {
     }
   }
 
-void Object::TBALoadObj(const char *fn) {
+void Object::TBALoadOBJ(const char *fn) {
   FILE *mudo = fopen(fn, "r");
   if(mudo) {
     //fprintf(stderr, "Loading TBA Objects from \"%s\"\n", fn);
@@ -1924,7 +1937,7 @@ void Object::TBALoadObj(const char *fn) {
     }
   }
 
-void Object::TBALoad(const char *fn) {
+void Object::TBALoadWLD(const char *fn) {
   FILE *mud = fopen(fn, "r");
   int zone = 0, offset = strlen(fn) - 5; //Chop off the .wld
   while(isdigit(fn[offset])) --offset;
@@ -2177,7 +2190,7 @@ static set<string> parse_tba_shop_rules(string rules) {
   return ret;
   }
 
-void Object::TBALoadShp(const char *fn) {
+void Object::TBALoadSHP(const char *fn) {
   FILE *mud = fopen(fn, "r");
   if(mud) {
     Object *vortex = NULL;
@@ -2360,6 +2373,32 @@ void Object::TBALoadShp(const char *fn) {
       }
     else if(fscanf(mud, "%1[$]", buf) < 1) {	//Not a Null Shop File!
       fprintf(stderr, "Error: '%s' is not a CircleMUD v3.0 Shop File!\n", fn);
+      }
+    fclose(mud);
+    }
+  else {
+    fprintf(stderr, "Error: '%s' does not exist!\n", fn);
+    }
+  }
+
+void Object::TBALoadTRG(const char *fn) {	//Triggers
+  FILE *mud = fopen(fn, "r");
+  if(mud) {
+    int vnum = -1;
+    while(fscanf(mud, " #%d", &vnum) > 0) {
+      //fprintf(stderr, "Loading #%d\n", vnum);
+      fscanf(mud, " %*[^~]");		//Trigger Name
+      fscanf(mud, "~");
+      fscanf(mud, " %*d %*d %*d");	//Attach Type, Trig Type, Numeric Arg
+      fscanf(mud, " %*[^~]");		//Trigger Arg
+      fscanf(mud, "~");
+      fscanf(mud, "%*[\n\r]");		//Go to next Line, don't eat spaces.
+      fscanf(mud, "%[^~]~", buf);	//Command List (Multi-Line)
+      while(buf[strlen(buf)-1] != '\n' && (!feof(mud))) {	//~ in Middle
+	buf[strlen(buf)+1] = 0;
+	buf[strlen(buf)] = '~';
+	fscanf(mud, "%[^~]~", buf+strlen(buf));
+	}
       }
     fclose(mud);
     }

@@ -285,12 +285,13 @@ public:
   void CircleCleanup();
   void CircleLoadAll();
 
-  void TBALoad(const char *);
-  void TBALoadObj(const char *);
-  void TBALoadMob(const char *);
-  void TBAFinishMob(Object *);
-  void TBALoadZon(const char *);
-  void TBALoadShp(const char *);
+  void TBALoadWLD(const char *);
+  void TBALoadOBJ(const char *);
+  void TBALoadMOB(const char *);
+  void TBAFinishMOB(Object *);
+  void TBALoadZON(const char *);
+  void TBALoadSHP(const char *);
+  void TBALoadTRG(const char *);
   void TBACleanup();
   void TBALoadAll();
 

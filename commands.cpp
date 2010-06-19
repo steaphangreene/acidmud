@@ -6043,9 +6043,9 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     else {
       sprintf(buf, "tba/wld/%s.wld", comline+len);
-      body->Parent()->TBALoad(buf);
+      body->Parent()->TBALoadWLD(buf);
       sprintf(buf, "tba/obj/%s.obj", comline+len);
-      body->Parent()->TBALoadObj(buf);
+      body->Parent()->TBALoadOBJ(buf);
       body->Parent()->SendOut(stealth_t, stealth_s,
 	";s loads a TBA world ;s with Ninja Powers[TM].\n",
 	"You load a TBA world.\n", body, NULL);
