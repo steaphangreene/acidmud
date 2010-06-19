@@ -2254,6 +2254,7 @@ void Object::TBALoadShp(const char *fn) {
 	fscanf(mud, "%*d\n");  // Close time
 
 	if(keeper) {
+	  string picky = "";
 	  keeper->SetSkill("Sell Profit", (int)(num*1000.0+0.5));
 
 	  list<string>::iterator type = types.begin();	//Buy Types
@@ -2271,16 +2272,6 @@ void Object::TBALoadShp(const char *fn) {
 	      while(isgraph(extra[0])) extra = extra.substr(1);
 	      }
 	    while(isspace(extra[0])) extra = extra.substr(1);
-
-	    if(extra[0]) {
-	      //fprintf(stderr, "Rule: '%s'\n", extra.c_str());
-	      set<string> extras = parse_tba_shop_rules(extra);
-	      set<string>::iterator ex = extras.begin();
-	      for(; ex != extras.end(); ++ex) {
-		//fprintf(stderr, "Adding: 'Accept %s'\n", ex->c_str());
-		keeper->SetSkill("Accept " + (*ex), 1);
-		}
-	      }
 
 	    if(itnum == 1) (*type) = "Light";
 	    else if(itnum == 2) (*type) = "Scroll";
@@ -2305,6 +2296,20 @@ void Object::TBALoadShp(const char *fn) {
 	    else if(itnum == 21) (*type) = "Pen";
 	    else if(itnum == 22) (*type) = "Boat";
 	    else if(itnum == 23) (*type) = "Fountain";
+
+	    if(extra[0]) {
+	      //fprintf(stderr, "Rule: '%s'\n", extra.c_str());
+	      set<string> extras = parse_tba_shop_rules(extra);
+	      set<string>::iterator ex = extras.begin();
+	      for(; ex != extras.end(); ++ex) {
+		//fprintf(stderr, "Adding: 'Accept %s'\n", ex->c_str());
+		//keeper->SetSkill("Accept " + (*ex), 1);
+		picky += ((*type) + ": " + (*ex) + "\n");
+		}
+	      }
+	    else {
+	      picky += (*type) + ": all\n";
+	      }
 
 	    if((*type) != "0"
 		&& (*type) != "Light"
@@ -2343,7 +2348,7 @@ void Object::TBALoadShp(const char *fn) {
 		);
 	      }
 	    }
-
+	  vortex->long_desc = picky;
 	  vortex->SetParent(keeper);
 	  keeper->AddAct(ACT_WEAR_RSHOULDER, vortex);
 	  }
