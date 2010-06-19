@@ -23,8 +23,22 @@ static const char *dirname[6] = {
 	"north", "east", "south", "west", "up", "down"
 	};
 
+static int unhandled_trig = 0;
 static char buf[65536];
 void Object::TBALoadAll() {
+  FILE *mudt = fopen("tba/trg/index", "r");
+  if(mudt) {
+    sprintf(buf, "tba/trg/%c", 0);
+    memset(buf+strlen(buf), 0, 256);
+    fscanf(mudt, "%255[^\n\r]\n", buf+strlen(buf));
+    while(strlen(buf) > 10) {
+      TBALoadTRG(buf);
+      sprintf(buf, "tba/trg/%c", 0);
+      memset(buf+strlen(buf), 0, 256);
+      fscanf(mudt, "%255[^\n\r]\n", buf+strlen(buf));
+      }
+    fclose(mudt);
+    }
   FILE *mudw = fopen("tba/wld/index", "r");
   if(mudw) {
     sprintf(buf, "tba/wld/%c", 0);
@@ -90,24 +104,12 @@ void Object::TBALoadAll() {
       }
     fclose(muds);
     }
-  FILE *mudt = fopen("tba/trg/index", "r");
-  if(mudt) {
-    sprintf(buf, "tba/trg/%c", 0);
-    memset(buf+strlen(buf), 0, 256);
-    fscanf(mudt, "%255[^\n\r]\n", buf+strlen(buf));
-    while(strlen(buf) > 10) {
-      TBALoadTRG(buf);
-      sprintf(buf, "tba/trg/%c", 0);
-      memset(buf+strlen(buf), 0, 256);
-      fscanf(mudt, "%255[^\n\r]\n", buf+strlen(buf));
-      }
-    fclose(mudt);
-    }
   //TBACleanup();
-  fprintf(stderr, "Finished!\n");
+  fprintf(stderr, "Warning: %d unhandled triggers!\n", unhandled_trig);
   }
 
-static map<int,Object*> bynum;
+static map<int,Object*> bynumtrg;
+static map<int,Object*> bynumwld;
 static map<int,Object*> bynumobj;
 static map<int,Object*> bynummob;
 static map<int,Object*> bynummobinst;
@@ -136,9 +138,18 @@ void Object::TBACleanup() {
     }
   fprintf(stderr, "...Done.\n");
 
-  bynum.clear();
+  val = 0;
+  fprintf(stderr, "\rRecycling Sample Triggers: %d/%d    ", val++, int(bynumtrg.size()));
+  for(ind = bynumtrg.begin(); ind != bynumtrg.end(); ++ind) {
+    (*ind).second->Recycle();
+    fprintf(stderr, "\rRecycling Sample Triggers: %d/%d    ", val++, int(bynumtrg.size()));
+    }
+  fprintf(stderr, "...Done.\n");
+
+  bynumwld.clear();
   bynumobj.clear();
   bynummob.clear();
+  bynumtrg.clear();
   tonum[0].clear();
   tonum[1].clear();
   tonum[2].clear();
@@ -332,8 +343,8 @@ void Object::TBALoadZON(const char *fn) {
 	  int dnum, room, state;
 	  fscanf(mudz, " %*d %d %d %d\n", &room, &dnum, &state);
 	  Object *door = NULL;
-	  if(bynum[room])
-	    door = bynum[room]->PickObject(dirname[dnum], LOC_INTERNAL);
+	  if(bynumwld[room])
+	    door = bynumwld[room]->PickObject(dirname[dnum], LOC_INTERNAL);
 	  if(door && state == 0) {
 	    door->SetSkill("Open", 1000);
 	    door->SetSkill("Locked", 0);
@@ -350,13 +361,13 @@ void Object::TBALoadZON(const char *fn) {
 	case('M'): {
 	  int num, room;
 	  fscanf(mudz, " %*d %d %*d %d %*[^\n\r]\n", &num, &room);
-	  if(bynum.count(room) && bynummob.count(num)) {
+	  if(bynumwld.count(room) && bynummob.count(num)) {
 	    Object *obj = new Object;
-	    obj->SetParent(bynum[room]);
+	    obj->SetParent(bynumwld[room]);
 	    obj->SetShortDesc("a TBAMUD MOB Popper");
 	    obj->SetDesc("This thing just pops out MOBs.");
 
-	    //fprintf(stderr, "Put Mob \"%s\" in Room \"%s\"\n", obj->ShortDesc(), bynum[room]->ShortDesc());
+	    //fprintf(stderr, "Put Mob \"%s\" in Room \"%s\"\n", obj->ShortDesc(), bynumwld[room]->ShortDesc());
 
 	    if(lastmob) TBAFinishMOB(lastmob);
 	    lastmob = new Object(*(bynummob[num]));
@@ -372,10 +383,10 @@ void Object::TBALoadZON(const char *fn) {
 	case('O'): {
 	  int num, room;
 	  fscanf(mudz, " %*d %d %*d %d %*[^\n\r]\n", &num, &room);
-	  if(bynum.count(room) && bynumobj.count(num)) {
+	  if(bynumwld.count(room) && bynumobj.count(num)) {
 	    Object *obj = new Object(*(bynumobj[num]));
-	    obj->SetParent(bynum[room]);
-	    //fprintf(stderr, "Put Obj \"%s\" in Room \"%s\"\n", obj->ShortDesc(), bynum[room]->ShortDesc());
+	    obj->SetParent(bynumwld[room]);
+	    //fprintf(stderr, "Put Obj \"%s\" in Room \"%s\"\n", obj->ShortDesc(), bynumwld[room]->ShortDesc());
 	    lastobj[num] = obj;
 	    }
 	  } break;
@@ -1914,9 +1925,16 @@ void Object::TBALoadOBJ(const char *fn) {
 	      } break;
 	    }
 	  }
-	else if(buf[0] == 'T') {	//Triggers?
+	else if(buf[0] == 'T') {	//Triggers
 	  int num = 0;
 	  fscanf(mudo, "%d\n", &num);
+	  if(num > 0 && bynumtrg.count(num) > 0) {
+	    Object *trg = new Object(*(bynumtrg[num]));
+	    trg->SetParent(obj);
+	//    fprintf(stderr, "Put Trg \"%s\" on Obj \"%s\"\n",
+	//	trg->ShortDesc(), obj->ShortDesc()
+	//	);
+	    }
 	  }
 	else if(buf[0] == 'E') {	//Extra Affects
 	  fscanf(mudo, "%*[^~]");	//FIXME: Load These!
@@ -1951,7 +1969,7 @@ void Object::TBALoadWLD(const char *fn) {
 
       Object *obj = new Object(this);
       olist.push_back(obj);
-      bynum[onum] = obj;
+      bynumwld[onum] = obj;
 
       obj->SetWeight(-1);
       obj->SetVolume(-1);
@@ -2064,7 +2082,7 @@ void Object::TBALoadWLD(const char *fn) {
       for(int dir=0; dir<6; ++dir) {
 	if(tonum[dir].count(*ob)) {
 	  int tnum = tonum[dir][*ob];
-	  if(bynum.count(tnum)) {
+	  if(bynumwld.count(tnum)) {
 	    Object *nobj = NULL;
 	    Object *nobj2 = NULL;
 	    string des, nm = dirname[dir];
@@ -2074,14 +2092,14 @@ void Object::TBALoadWLD(const char *fn) {
 	    for(cind = cont.begin(); cind != cont.end(); ++cind) {
 	      if(string((*cind)->ShortDesc()) == "a passage exit") {
 		if((*cind)->ActTarg(ACT_SPECIAL_MASTER)->Parent()
-			== bynum[tnum]) {
+			== bynumwld[tnum]) {
 		  nobj = (*cind);
 		  nobj2 = (*cind)->ActTarg(ACT_SPECIAL_MASTER);
 		  }
 		}
 	      else if((*cind)->ActTarg(ACT_SPECIAL_LINKED)) {
 		if((*cind)->ActTarg(ACT_SPECIAL_LINKED)->Parent()
-			== bynum[tnum]) {
+			== bynumwld[tnum]) {
 		  nobj = (*cind);
 		  nobj2 = (*cind)->ActTarg(ACT_SPECIAL_LINKED);
 		  nm = string(nobj->ShortDesc()) + " and " + dirname[dir];
@@ -2092,7 +2110,7 @@ void Object::TBALoadWLD(const char *fn) {
 	      nobj = new Object;
 	      nobj2 = new Object;
 	      nobj->SetParent(*ob);
-	      nobj2->SetParent(bynum[tnum]);
+	      nobj2->SetParent(bynumwld[tnum]);
 	      nobj2->SetShortDesc("a passage exit");
 	      nobj2->SetDesc("A passage exit.");
 	      nobj2->SetSkill("Invisible", 1000);
@@ -2384,13 +2402,18 @@ void Object::TBALoadSHP(const char *fn) {
 void Object::TBALoadTRG(const char *fn) {	//Triggers
   FILE *mud = fopen(fn, "r");
   if(mud) {
-    int vnum = -1;
-    while(fscanf(mud, " #%d", &vnum) > 0) {
-      //fprintf(stderr, "Loading #%d\n", vnum);
-      fscanf(mud, " %*[^~]");		//Trigger Name
+    int tnum = -1;
+    while(fscanf(mud, " #%d", &tnum) > 0) {
+      Object *script = NULL;
+      script = new Object();
+      bynumtrg[tnum] = script;
+      script->SetShortDesc("A tbaMUD trigger script.");
+      //fprintf(stderr, "Loading #%d\n", tnum);
+      fscanf(mud, " %65535[^~]", buf);	//Trigger Name
+      script->SetDesc(buf);
       fscanf(mud, "~");
-      fscanf(mud, " %*d %*d %*d");	//Attach Type, Trig Type, Numeric Arg
-      fscanf(mud, " %*[^~]");		//Trigger Arg
+      fscanf(mud, " %*s %*s %*s");	//Attach Type, Trig Type, Numeric Arg
+      fscanf(mud, " %*[^~]");		//Trigger Arg (FIXME: Use All These?)
       fscanf(mud, "~");
       fscanf(mud, "%*[\n\r]");		//Go to next Line, don't eat spaces.
       fscanf(mud, "%[^~]~", buf);	//Command List (Multi-Line)
@@ -2398,6 +2421,41 @@ void Object::TBALoadTRG(const char *fn) {	//Triggers
 	buf[strlen(buf)+1] = 0;
 	buf[strlen(buf)] = '~';
 	fscanf(mud, "%[^~]~", buf+strlen(buf));
+	}
+      script->SetLongDesc(buf);
+      if(strstr(buf,
+		"* Check the direction the player must go to enter the guild."
+		)) {
+	char dir[16];
+	char *dirp = strstr(buf, "if %direction% == ");
+	if(dirp) sscanf(dirp + strlen("if %direction% == "), "%s", dir);
+
+	char cls[16];
+	char *clsp = strstr(buf, "if %actor.class% != ");
+	if(clsp) sscanf(clsp + strlen("if %actor.class% != "), "%s", cls);
+
+	if(dirp) {
+	  if(clsp) {
+//	    fprintf(stderr,
+//		"%d appears to be a '%s' %s-guild guard trigger.\n",
+//		tnum, dir, cls);
+	    }
+	  else {
+//	    fprintf(stderr,
+//		"%d appears to be a '%s' direction guard trigger.\n",
+//		tnum, dir);
+	    }
+	  }
+	++unhandled_trig;	//This is NOT really handled yet.
+	}
+      else if(strstr(buf, "if %direction% == ")) {
+	fprintf(stderr, "%d appears to be a direction trigger.\n", tnum);
+	++unhandled_trig;	//This is NOT really handled yet.
+	}
+      else if(0) {
+	}
+      else {
+	++unhandled_trig;	//FIXME: Handle some more!
 	}
       }
     fclose(mud);
