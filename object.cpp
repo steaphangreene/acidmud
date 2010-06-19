@@ -1051,7 +1051,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
       else
 	sprintf(buf, "%s %s%c", (*ind)->ShortDesc(), (*ind)->PosString(), 0);
       buf[0] = toupper(buf[0]);
-      m->Send(buf);
+      m->Send("%s", buf);
 
       (*ind)->SendActions(m);
 
@@ -1083,7 +1083,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 void Object::SendShortDesc(Mind *m, Object *o) {
   memset(buf, 0, 65536);
   sprintf(buf, "%s\n", ShortDesc());
-  m->Send(buf);
+  m->Send("%s", buf);
   }
 
 void Object::SendFullSituation(Mind *m, Object *o) {
@@ -1093,7 +1093,7 @@ void Object::SendFullSituation(Mind *m, Object *o) {
 
   if(Skill("Quantity") > 1) {
     sprintf(buf, "(x%d) ", Skill("Quantity"));
-    m->Send(buf);
+    m->Send("%s", buf);
     }
 
   if(!parent)
@@ -1177,7 +1177,7 @@ void Object::SendFullSituation(Mind *m, Object *o) {
     }
 
   buf[0] = toupper(buf[0]);
-  m->Send(buf);
+  m->Send("%s", buf);
   }
 
 void Object::SendDesc(Mind *m, Object *o) {
@@ -1192,13 +1192,13 @@ void Object::SendDesc(Mind *m, Object *o) {
     m->Send("%s", CCYN);
     sprintf(buf, "%s\n%c", ShortDesc(), 0);
     buf[0] = toupper(buf[0]);
-    m->Send(buf);
+    m->Send("%s", buf);
     }
 
   m->Send("%s   ", CNRM);
   sprintf(buf, "%s\n%c", Desc(), 0);
   buf[0] = toupper(buf[0]);
-  m->Send(buf);
+  m->Send("%s", buf);
   m->Send("%s", CNRM);
   }
 
@@ -1215,13 +1215,13 @@ void Object::SendDescSurround(Mind *m, Object *o) {
     m->Send("%s", CCYN);
     sprintf(buf, "%s\n%c", ShortDesc(), 0);
     buf[0] = toupper(buf[0]);
-    m->Send(buf);
+    m->Send("%s", buf);
     }
 
   m->Send("%s   ", CNRM);
   sprintf(buf, "%s\n%c", Desc(), 0);
   buf[0] = toupper(buf[0]);
-  m->Send(buf);
+  m->Send("%s", buf);
 
   m->Send("%s", CNRM);
   SendExtendedActions(m, 0);
@@ -1251,13 +1251,13 @@ void Object::SendLongDesc(Mind *m, Object *o) {
     m->Send("%s", CCYN);
     sprintf(buf, "%s\n%c", ShortDesc(), 0);
     buf[0] = toupper(buf[0]);
-    m->Send(buf);
+    m->Send("%s", buf);
     }
 
   m->Send("%s   ", CNRM);
   sprintf(buf, "%s\n%c", LongDesc(), 0);
   buf[0] = toupper(buf[0]);
-  m->Send(buf);
+  m->Send("%s", buf);
   m->Send("%s", CNRM);
   }
 
