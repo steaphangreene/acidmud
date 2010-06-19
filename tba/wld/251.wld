@@ -286,7 +286,7 @@ S
 Dirt Path~
    You are on a fairly wide dirt path. Grassy fields with huge willow
 trees scattered about lie to the east and west. The sun is very bright,
-making it almost difficult to see. Strange, sandy coloured dome shaped
+making it almost difficult to see. Strange, sandy colored dome shaped
 houses can be made out ahead.
 ~
 251 0 0 0 0 0
@@ -370,13 +370,13 @@ S
 #25114
 Grassy Field~
    You're on the eastern edge of a large grassy field. Waist high
-grasses completely surround you. A large sandy coloured building is
+grasses completely surround you. A large sandy colored building is
 to the north. The grass has been cut around the building, and a small
 stack of firewood is resting beside the door.
 ~
 251 4 0 0 0 0
 D0
-A sandy coloured building is North.
+A sandy colored building is North.
 ~
 ~
 0 -1 25119
@@ -394,7 +394,7 @@ S
 #25115
 Grassy Field~
    You're on the northwestern edge of a large grassy field. Waist high
-grasses completely surround you. The back of a large sandy coloured 
+grasses completely surround you. The back of a large sandy colored 
 building is directly north of you.
 ~
 251 0 0 0 0 0
@@ -411,7 +411,7 @@ The field continues South.
 S
 #25116
 Ape Village Entrance~
-   Just ahead you can see dozens of sandy coloured rounded buildings.
+   Just ahead you can see dozens of sandy colored rounded buildings.
 A small woooden guard booth has been errected on the eastern side of the
 road. A tall steel rod is attached to the side of the booth, and a large
 cloth flag attached to the top flaps in the wind. The flag has a picture
@@ -442,7 +442,7 @@ S
 #25117
 Grassy Field~
    You're on the northern edge of a large grassy field. Waist high
-grasses completely surround you. The back of a large sandy coloured 
+grasses completely surround you. The back of a large sandy colored 
 building is directly north of you.
 ~
 251 0 0 0 0 0
@@ -465,8 +465,8 @@ S
 #25118
 Grassy Field~
    You're on the northeastern edge of a large grassy field. Waist high
-grasses completely surround you. The back of a large sandy coloured 
-building is directly north of you, and another sandy coloured building
+grasses completely surround you. The back of a large sandy colored 
+building is directly north of you, and another sandy colored building
 is east of you.
 ~
 251 0 0 0 0 0
@@ -538,7 +538,7 @@ Ape Museum, Level 2
 S
 #25122
 Ape Road South~
-   You are on a well worn dirt road, in between two sandy coloured 
+   You are on a well worn dirt road, in between two sandy colored 
 buildings. The Wax Museum lies to the west, and the Weapons Shop is
 to the east. The Town Square is to the north. 
 ~

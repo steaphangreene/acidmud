@@ -340,7 +340,7 @@ break
 done
 ~
 #11814
-(02) colouring message~
+(02) coloring message~
 0 gh 100
 ~
 if %actor.is_pc%
