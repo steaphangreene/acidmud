@@ -5464,6 +5464,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		);
 	}
       }
+    return 0;
     }
 
   if(com == COM_CREATE) {
