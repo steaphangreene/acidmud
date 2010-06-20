@@ -181,6 +181,7 @@ enum {	COM_HELP=0,
 	COM_CLONE,
 	COM_MIRROR,
 	COM_JUNK,
+	COM_JUNKRESTART,
 	COM_JACK,
 	COM_CHUMP,
 	COM_INCREMENT,
@@ -672,6 +673,11 @@ Command comlist[] = {
   { COM_JUNK, "junk",
     "Ninja command.",
     "Ninja command - ninjas only!",
+    (REQ_ALERT|REQ_NINJAMODE)
+    },
+  { COM_JUNKRESTART, "junkrestart",
+    "Ninja command. DANGEROUS!",
+    "Ninja command - ninjas only!  DANGEROUS!",
     (REQ_ALERT|REQ_NINJAMODE)
     },
   { COM_RESET, "reset",
@@ -5736,7 +5742,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     return 0;
     }
 
-  if(com == COM_JUNK) {
+  if(com == COM_JUNK || com == COM_JUNKRESTART) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     typeof(body->Contents()) targs
@@ -5754,11 +5760,16 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       body->Parent()->SendOut(stealth_t, stealth_s,
 	";s destroys ;s with Ninja Powers[TM].\n", "You destroy ;s.\n",
 	body, targ);
-      delete(targ);
+      if(com == COM_JUNK) targ->Recycle();
+      else if(com == COM_JUNKRESTART) targ->Travel(targ->TrashBin(), 0);
       targs = body->PickObjects(comline+len, nmode|LOC_NEARBY);
       while(targs.size() > 0 && todo.count(targs.front()) < 1) {
 	targs.pop_front();
 	}
+      }
+    if(com == COM_JUNKRESTART) {
+      shutdn = 2;
+      if(mind) mind->Send("You instruct the system to restart.\n");
       }
     return 0;
     }
