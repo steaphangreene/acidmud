@@ -97,7 +97,12 @@ int Object::SaveTo(FILE *fl) {
   fprintf(fl, "%d\n", getnum(this));
   fprintf(fl, "%s;\n", short_desc.c_str());
   fprintf(fl, "%s;\n", desc.c_str());
-  fprintf(fl, "%s;\n", long_desc.c_str());
+
+  string hammered = long_desc;
+  for(size_t i = 0; i < hammered.length(); ++i) {
+    if(hammered[i] == ';') hammered[i] = '\e';
+    }
+  fprintf(fl, "%s;\n", hammered.c_str());
 
   fprintf(fl, "%d %d %d %d %c;\n", weight, size, volume, value, gender);
 
@@ -204,9 +209,14 @@ int Object::LoadFrom(FILE *fl) {
   res = fscanf(fl, "%[^;];\n", buf);  desc = buf;
   if(res < 1) fscanf(fl, " ; ");
 
+  string hammered;
   memset(buf, 0, 65536);
-  res = fscanf(fl, "%[^;]; ", buf);  long_desc = buf;
+  res = fscanf(fl, "%[^;]; ", buf);  hammered = buf;
   if(res < 1) fscanf(fl, " ; ");
+  for(size_t i = 0; i < hammered.length(); ++i) {
+    if(hammered[i] == '\e') hammered[i] = ';';
+    }
+  long_desc = hammered;
 
   fscanf(fl, "%d %d %d %d %c;\n", &weight, &size, &volume, &value, &gender);
 
