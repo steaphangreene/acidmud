@@ -2,11 +2,10 @@
 
 #define MIND_MORON 0
 #define MIND_REMOTE 1
-#define MIND_SLAVE 2
-#define MIND_CIRCLEMOB 3
-#define MIND_TBAMOB 4
-#define MIND_MOB 5
-#define MIND_SYSTEM 6
+#define MIND_CIRCLEMOB 2
+#define MIND_TBAMOB 3
+#define MIND_MOB 4
+#define MIND_SYSTEM 5
 
 class Mind;
 class Object;
@@ -24,7 +23,6 @@ public:
   void SetMob();
   void SetCircleMob();
   void SetTBAMob();
-  void SetSlave(int master);
   void SetSystem();
   void Attach(Object *bod);
   void Unattach();
@@ -35,7 +33,6 @@ public:
   void SetPPass(string);
   void SetPlayer(string);
   int Type() { return type; };
-  int ID() { return pers; };
   int LogFD() { return log; };
   void Send(const char *, ...) __attribute__ ((format (printf, 2, 3)));
   void SendRaw(const char *, ...) __attribute__ ((format (printf, 2, 3)));

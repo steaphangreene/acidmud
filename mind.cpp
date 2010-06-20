@@ -82,11 +82,6 @@ void Mind::SetCircleMob() {
   pers = fileno(stderr);
   }
 
-void Mind::SetSlave(int master) {
-  type = MIND_SLAVE;
-  pers = master;
-  }
-
 void Mind::SetSystem() {
   type = MIND_SYSTEM;
   pers = fileno(stderr);
