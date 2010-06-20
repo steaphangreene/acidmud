@@ -137,7 +137,6 @@ void start_net(int port, const char *host) {
 
   memset((char *)&sa, 0, sizeof(sa));
 
-  fprintf(stderr, "Host = '%s'\n", host);
   sa.sin_family = AF_INET;
   sa.sin_port = htons(port);
   if(strlen(host) == 0) {
