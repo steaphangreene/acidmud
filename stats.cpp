@@ -3,10 +3,10 @@
 
 #include "object.h"
 
-static map<AtomString,int> defaults;
-static map<int,AtomString> weaponskills;
-static map<AtomString,int> weapontypes;
-static map<AtomString,list<AtomString> > skcat;
+static map<string,int> defaults;
+static map<int,string> weaponskills;
+static map<string,int> weapontypes;
+static map<string,list<string> > skcat;
 
 static int last_wtype = 0;
 static void add_wts(const string &sk) {

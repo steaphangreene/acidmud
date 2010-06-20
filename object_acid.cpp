@@ -113,10 +113,10 @@ int Object::SaveTo(FILE *fl) {
 	att[0], att[1], att[2], att[3], att[4], att[5], att[6], att[7],
 	phys, stun, stru, IsActive());
 
-  map<AtomString,int>::const_iterator sk = skills.begin();
+  map<string,int>::const_iterator sk = skills.begin();
   for(; sk != skills.end(); ++sk)
     fprintf(fl, "|%s|%d", sk->first.c_str(), sk->second);
-  if(cur_skill != AtomString("")) {	//Added current skill to end in v0x13
+  if(cur_skill != "") {		//Added current skill to end in v0x13
     fprintf(fl, "|%s", cur_skill.c_str());
     }
   fprintf(fl, ";\n");

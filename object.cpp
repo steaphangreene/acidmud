@@ -1341,11 +1341,11 @@ void Object::SendScore(Mind *m, Object *o) {
     m->Send("\n");
     }
 
-  map<AtomString,int> skills = GetSkills();
-  map<AtomString,int> sks;
-  map<AtomString,int>::iterator skl;
-  map<AtomString,int> nsks;
-  map<AtomString,int>::iterator nskl;
+  map<string,int> skills = GetSkills();
+  map<string,int> sks;
+  map<string,int>::iterator skl;
+  map<string,int> nsks;
+  map<string,int>::iterator nskl;
 
   if(!HasSkill("WeaponType")) {
     for(skl = skills.begin(); skl != skills.end(); ++skl) {
@@ -2727,8 +2727,8 @@ int Object::operator == (const Object &in) const {
 
   if(contents.size() != 0 || in.contents.size() != 0) return 0;
 
-  map<AtomString,int> sk1 = skills;
-  map<AtomString,int> sk2 = in.skills;
+  map<string,int> sk1 = skills;
+  map<string,int> sk2 = in.skills;
   sk1.erase("Quantity");
   sk2.erase("Quantity");
   sk1.erase("Hungry");
@@ -2873,22 +2873,22 @@ const char *Object::PosString() {
 const char *Object::UsingString() {
   static char buf[128];
   if(pos == POS_USE) {
-    if(cur_skill == AtomString("Stealth")) {
+    if(cur_skill == "Stealth") {
       sprintf(buf, "sneaking around");
       }
-    else if(cur_skill == AtomString("Lumberjack")) {
+    else if(cur_skill == "Lumberjack") {
       sprintf(buf, "chopping down trees");
       }
-    else if(cur_skill == AtomString("Perception")) {
+    else if(cur_skill == "Perception") {
       sprintf(buf, "keeping an eye out");
       }
-    else if(cur_skill == AtomString("Healing")) {
+    else if(cur_skill == "Healing") {
       sprintf(buf, "caring for others' wounds");
       }
-    else if(cur_skill == AtomString("First Aid")) {
+    else if(cur_skill == "First Aid") {
       sprintf(buf, "giving first-aid");
       }
-    else if(cur_skill == AtomString("Treatment")) {
+    else if(cur_skill == "Treatment") {
       sprintf(buf, "treating others' wounds");
       }
     else {
@@ -2900,13 +2900,13 @@ const char *Object::UsingString() {
   }
 
 void Object::StartUsing(const string &skill) {
-  cur_skill = AtomString(skill);
+  cur_skill = skill;
   pos = POS_USE;
   }
 
 void Object::StopUsing() {
   if(pos == POS_USE) pos = POS_STAND;
-  cur_skill = AtomString("");
+  cur_skill = "";
   }
 
 const char *Object::Using() {
