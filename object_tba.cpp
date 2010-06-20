@@ -2344,6 +2344,7 @@ void Object::TBALoadSHP(const char *fn) {
 	    else if(itnum == 21) (*type) = "Pen";
 	    else if(itnum == 22) (*type) = "Boat";
 	    else if(itnum == 23) (*type) = "Fountain";
+	    else if(itnum == 55) (*type) = "Cursed";	//According To: Rumble
 
 	    if(extra[0]) {
 	      //fprintf(stderr, "Rule: '%s'\n", extra.c_str());
