@@ -4388,6 +4388,13 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
+    if((!body->Parent()) || body->Parent()->HasSkill("Peaceful")) {
+      if(mind) {
+	mind->Send("You can't fight here.  This is a place of peace.\n");
+	}
+      return 0;
+      }
+
     body->BusyFor(3000); //Overridden below if is alive/animate
 
     if(!(targ->Attribute(1) <= 0 || targ->IsAct(ACT_DEAD)
