@@ -2030,7 +2030,7 @@ void Object::NotifyLeft(Object *obj, Object *newloc) {
   set<act_t> stops, stops2;
   typeof(act.begin()) curact = act.begin();
   for(; curact != act.end(); ++curact) {
-    if(curact->second && (
+    if(curact->second && curact->first < ACT_MAX && (
 		curact->second == obj || obj->IsWithin(curact->second)
 	)) {
       if(curact->first != ACT_FOLLOW || (!newloc)) {
