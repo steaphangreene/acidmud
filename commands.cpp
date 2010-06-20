@@ -2628,6 +2628,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	if(skill != "Money") {		//Not 1-1 Money
  	  price *= shpkp->Skill(skill);
 	  price += 0;  price /= 1000;
+	  if(price <= 0) price = 1;
 	  }
 	mind->Send("I'll give you %dgp for %s\n", price, targ->ShortDesc());
 
@@ -5470,20 +5471,14 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   if(com == COM_CREATE) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    if(comline[len] == 0) {
-      new Object(body->Parent());
-      body->Parent()->SendOut(stealth_t, stealth_s,
-	";s creates a new object with Ninja Powers[TM].\n",
-	"You create a new object.\n", body, NULL);
+    Object * obj = new Object(body->Parent());
+    if(comline[len] != 0) {
+      obj->SetShortDesc(comline+len);
       }
-    else {
-	//FIXME - this is fuxxored
-      mind->Send("Argument mode is disabled for now\n");
-//      body->Parent()->LinkToNew(comline+len);
-//      body->Parent()->SendOut(stealth_t, stealth_s,
-//	";s creates a new object with Ninja Powers[TM].\n",
-//	"You create a new object.\n", body, NULL);
-      }
+    body->Parent()->SendOut(stealth_t, stealth_s,
+	";s creates ;s with Ninja Powers[TM].\n", "You create ;s.\n",
+	body, obj
+	);
     return 0;
     }
 
