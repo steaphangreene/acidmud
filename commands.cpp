@@ -4372,7 +4372,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    if(is_pc(targ)) {
+    if(is_pc(body) && is_pc(targ)) {
       if(mind) {
 	mind->Send("You can't attack %s, %s is a PC (no PvP)!\n",
 		targ->Name(0, body), targ->Name(0, body)
