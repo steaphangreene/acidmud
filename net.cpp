@@ -272,7 +272,7 @@ void update_net() {
       }
 
     minds[out->first]->UpdatePrompt();
-    outs += prompts[out->first];
+    outs += prompts[out->first] + "\377\371";
 
     write(out->first, outs.c_str(), outs.length());
 
