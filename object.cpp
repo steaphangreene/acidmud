@@ -791,8 +791,12 @@ const char *Object::LongDesc() const {
 
 static void trim(string &s) {
   if(s.length() < 1) return;
-  while(!isgraph(s[0])) s = s.substr(1);
-  while(!isgraph(s[s.length()-1])) s = s.substr(0, s.length()-1);
+  while(s[0] != 0 && (!isgraph(s[0]))) {
+    s = s.substr(1);
+    }
+  while(s[s.length()-1] != 0 && (!isgraph(s[s.length()-1]))) {
+    s = s.substr(0, s.length()-1);
+    }
 
   size_t n00b = s.find('@');
   while(n00b != string::npos) {

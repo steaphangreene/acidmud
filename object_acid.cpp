@@ -204,7 +204,7 @@ int Object::LoadFrom(FILE *fl) {
     res = getc(fl);
     while(res > 0) { buf[num++] = res; res = getc(fl); }
     }
-  short_desc = buf;
+  SetShortDesc(buf);
 
   memset(buf, 0, 65536);
   if(ver < 0x0015) {
@@ -216,7 +216,7 @@ int Object::LoadFrom(FILE *fl) {
     res = getc(fl);
     while(res > 0) { buf[num++] = res; res = getc(fl); }
     }
-  desc = buf;
+  SetDesc(buf);
 
   memset(buf, 0, 65536);
   if(ver < 0x0015) {
@@ -231,7 +231,7 @@ int Object::LoadFrom(FILE *fl) {
     res = getc(fl);
     while(res > 0) { buf[num++] = res; res = getc(fl); }
     }
-  long_desc = buf;
+  SetLongDesc(buf);
 
   //fprintf(stderr, "%sLoading %d:%s\n", debug_indent.c_str(), num, buf);
 
