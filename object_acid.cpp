@@ -95,16 +95,11 @@ int Object::SaveTo(FILE *fl) {
   //fprintf(stderr, "Saving %s\n", Name());
 
   fprintf(fl, "%d\n", getnum(this));
-  fprintf(fl, "%s;\n", short_desc.c_str());
-  fprintf(fl, "%s;\n", desc.c_str());
+  fprintf(fl, "%s%c\n", short_desc.c_str(), 0);
+  fprintf(fl, "%s%c\n", desc.c_str(), 0);
+  fprintf(fl, "%s%c\n", long_desc.c_str(), 0);
 
-  string hammered = long_desc;
-  for(size_t i = 0; i < hammered.length(); ++i) {
-    if(hammered[i] == ';') hammered[i] = '\e';
-    }
-  fprintf(fl, "%s;\n", hammered.c_str());
-
-  fprintf(fl, "%d %d %d %d %c;\n", weight, size, volume, value, gender);
+  fprintf(fl, "%d %d %d %d %c\n", weight, size, volume, value, gender);
 
   fprintf(fl, "%d", exp);
   typeof(completed.begin()) ind;
@@ -200,25 +195,49 @@ int Object::LoadFrom(FILE *fl) {
   todo.push_back(this);
 
   memset(buf, 0, 65536);
-  res = fscanf(fl, "%[^;]; ", buf);  short_desc = buf;
-  if(res < 1) fscanf(fl, " ; ");
+  if(ver < 0x0015) {
+    res = fscanf(fl, "%[^;]; ", buf);
+    if(res < 1) fscanf(fl, " ; ");
+    }
+  else {
+    num = 0;
+    res = getc(fl);
+    while(res > 0) { buf[num++] = res; res = getc(fl); }
+    }
+  short_desc = buf;
+
+  memset(buf, 0, 65536);
+  if(ver < 0x0015) {
+    res = fscanf(fl, "%[^;];\n", buf);
+    if(res < 1) fscanf(fl, " ; ");
+    }
+  else {
+    num = 0;
+    res = getc(fl);
+    while(res > 0) { buf[num++] = res; res = getc(fl); }
+    }
+  desc = buf;
+
+  memset(buf, 0, 65536);
+  if(ver < 0x0015) {
+    res = fscanf(fl, "%[^;]; ", buf);
+    if(res < 1) fscanf(fl, " ; ");
+    for(size_t i = 0; i < strlen(buf); ++i) {
+      if(buf[i] == '\e') buf[i] = ';';
+      }
+    }
+  else {
+    num = 0;
+    res = getc(fl);
+    while(res > 0) { buf[num++] = res; res = getc(fl); }
+    }
+  long_desc = buf;
 
   //fprintf(stderr, "%sLoading %d:%s\n", debug_indent.c_str(), num, buf);
 
-  memset(buf, 0, 65536);
-  res = fscanf(fl, "%[^;];\n", buf);  desc = buf;
-  if(res < 1) fscanf(fl, " ; ");
-
-  string hammered;
-  memset(buf, 0, 65536);
-  res = fscanf(fl, "%[^;]; ", buf);  hammered = buf;
-  if(res < 1) fscanf(fl, " ; ");
-  for(size_t i = 0; i < hammered.length(); ++i) {
-    if(hammered[i] == '\e') hammered[i] = ';';
-    }
-  long_desc = hammered;
-
-  fscanf(fl, "%d %d %d %d %c;\n", &weight, &size, &volume, &value, &gender);
+  fscanf(fl, "%d %d %d %d %c", &weight, &size, &volume, &value, &gender);
+  fscanf(fl, ";");	//Was present pre v0x15, causes no problems since.
+  fscanf(fl, "\n");	//Skil the white-space, if ';' was used or not.
 
   fscanf(fl, "%d", &exp);
   unsigned long accom;
