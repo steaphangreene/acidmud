@@ -1431,12 +1431,13 @@ void Object::AddLink(Object *ob) {
   typeof(contents.begin()) ind;
   ind = find(contents.begin(), contents.end(), ob);
   if(ind == contents.end()) {
-    typeof(contents.begin()) place = contents.end();
-    for(ind = contents.begin(); ind != contents.end(); ++ind) {
-      if((*ind) == ob) return;				//Already there!
-      if((*(*ind)) == (*ob)) { place = ind; ++place; }	//Likes by likes
-      }
-    contents.insert(place, ob);
+    contents.push_back(ob);
+//    typeof(contents.begin()) place = contents.end();
+//    for(ind = contents.begin(); ind != contents.end(); ++ind) {
+//      if((*ind) == ob) return;				//Already there!
+//      if((*(*ind)) == (*ob)) { place = ind; ++place; }	//Likes by likes
+//      }
+//    contents.insert(place, ob);
     }
   }
 
