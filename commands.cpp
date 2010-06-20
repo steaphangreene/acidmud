@@ -176,6 +176,7 @@ enum {	COM_HELP=0,
 	COM_CCREATE,
 	COM_ANCHOR,
 	COM_LINK,
+	COM_CONNECT,
 	COM_COMMAND,
 	COM_CONTROL,
 	COM_CLONE,
@@ -646,6 +647,11 @@ Command comlist[] = {
     (REQ_ALERT|REQ_NINJAMODE)
     },
   { COM_LINK, "link",
+    "Ninja command.",
+    "Ninja command - ninjas only!",
+    (REQ_ALERT|REQ_NINJAMODE)
+    },
+  { COM_CONNECT, "connect",
     "Ninja command.",
     "Ninja command - ninjas only!",
     (REQ_ALERT|REQ_NINJAMODE)
@@ -5429,6 +5435,35 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		targ, body);
       }
     return 0;
+    }
+
+  if(com == COM_CONNECT) {
+    Object *src = body->ActTarg(ACT_POINT), *dest = NULL;
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(!src) {
+      mind->Send("You need to be pointing at your source.\n");
+      return 0;
+      }
+    dest = body->PickObject(comline+len,
+		nmode|LOC_INTERNAL|LOC_NEARBY|LOC_SELF|LOC_HERE);
+    if(!dest) {
+      if(mind) mind->Send("I can't find that destination.\n");
+      }
+    else {
+      Object *exit = new Object(dest);
+      exit->SetShortDesc("a passage exit");
+      exit->SetDesc("A passage exit.");
+      exit->SetSkill("Invisible", 1000);
+      src->SetSkill("Open", 1000);
+      src->SetSkill("Enterable", 1);
+      src->AddAct(ACT_SPECIAL_LINKED, exit);
+      exit->AddAct(ACT_SPECIAL_MASTER, src);
+      if(mind) {
+	mind->Send("You link %s to %s.",
+		src->Name(0, body), dest->Name(0, body)
+		);
+	}
+      }
     }
 
   if(com == COM_CREATE) {
