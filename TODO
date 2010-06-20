@@ -66,6 +66,7 @@ Implement other in-play magical Bonus/Penalty powers (depend on other stuff):
 	Magic Force
 	Youth
 
+Get shopkeepers to unlabel their purchases.
 Fix exchange system handling odd cases (including sell/buy).
 Selling of containers, or not (contents -vs- container value!).
 Fixup shopkeepers so item numbers NEVER expire.
