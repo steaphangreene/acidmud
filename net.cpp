@@ -14,6 +14,7 @@
 #include <sys/select.h>
 #include <netinet/in.h>
 #include <arpa/telnet.h>
+#include <netdb.h>
 
 typedef int socket_t;
 
@@ -126,7 +127,7 @@ void resume_net(int fd) {
   acceptor = fd;
   }
 
-void start_net(int port) {
+void start_net(int port, const char *host) {
   struct sockaddr_in sa;
   if((acceptor = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
     perror("ERROR in socet()");
@@ -136,9 +137,16 @@ void start_net(int port) {
 
   memset((char *)&sa, 0, sizeof(sa));
 
+  fprintf(stderr, "Host = '%s'\n", host);
   sa.sin_family = AF_INET;
   sa.sin_port = htons(port);
-  sa.sin_addr.s_addr = htonl(INADDR_ANY);
+  if(strlen(host) == 0) {
+    sa.sin_addr.s_addr = htonl(INADDR_ANY);
+    }
+  else {
+    sa.sin_addr.s_addr
+       = ((struct in_addr *)(gethostbyname(host)->h_addr))->s_addr;
+    }
 
   int sockopt = 1;
   if(setsockopt(acceptor, SOL_SOCKET, SO_REUSEADDR,

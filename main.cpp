@@ -27,6 +27,7 @@ timeval current_time = { 0, 0 };
 timeval lastsave_time = { 0, 0 };
 
 int main(int argc, char **argv) {
+  const char *host = "";
   int port = 4242;
   int acceptor = -1;
   static char *netstat_file = NULL;
@@ -37,14 +38,16 @@ int main(int argc, char **argv) {
 
   static option lopts[] = {
     {"port", 1, 0, 'p'},
+    {"host", 1, 0, 'h'},
     {"network-stat", 1, 0, 'S'},
     {"network-acceptor", 1, 0, 'A'},
     {0, 0, 0, 0}
     };
 
   int arg;
-  while((arg = getopt_long(argc, argv, "p:", lopts, NULL)) >= 0) {
+  while((arg = getopt_long(argc, argv, "p:h:", lopts, NULL)) >= 0) {
     if(arg == 'p') port = atoi(optarg);
+    if(arg == 'h') host = strdup(optarg);
     else if(arg == 'S') {
       netstat_file = strdup(optarg);
       }
@@ -57,7 +60,7 @@ int main(int argc, char **argv) {
 
   fprintf(stdout, "Starting networking....\n");
   if(acceptor >= 0) resume_net(acceptor);
-  else start_net(port);
+  else start_net(port, host);
 
   fprintf(stdout, "Initializing world....\n");
   init_world();
