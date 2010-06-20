@@ -333,6 +333,8 @@ private:
 
   int Filter(int loc);
 
+  int tickstep;
+
   AtomString short_desc;
   AtomString desc;
   AtomString long_desc;

@@ -236,22 +236,22 @@ Object *new_body() {
 
 #define TICKSPLIT 6000 //60 seconds
 static set<Object*> ticklist[TICKSPLIT];
-void add_tick(Object *o) {
+int Object::IsActive() const {
+  return(tickstep >= 0);
+  }
+
+void Object::Activate() {
+  if(tickstep >= 0) return;
   static int tickstage = 0;
-  ticklist[tickstage].insert(o);
-  ++tickstage;
+  ticklist[tickstage].insert(this);
+  tickstep = tickstage++;
   if(tickstage >= TICKSPLIT) tickstage = 0;
   }
 
-void remove_tick(Object *o) {
-  for(int ctr=0; ctr<TICKSPLIT; ++ctr) ticklist[ctr].erase(o);
-  }
-
-int has_tick(const Object *o) {
-  int ret=0;
-  for(int ctr=0; (!ret) && ctr<TICKSPLIT; ++ctr)
-    ret += ticklist[ctr].count((Object *)(o));	//Why do I need to typecast?
-  return (ret != 0);
+void Object::Deactivate() {
+  if(tickstep < 0) return;
+  ticklist[tickstep].erase(this);
+  tickstep = -1;
   }
 
 void tick_world() {
@@ -603,6 +603,7 @@ Object::Object() {
   att[7] = 0;
 
   no_seek = 0;
+  tickstep = -1;
   }
 
 Object::Object(Object *o) {
@@ -635,6 +636,7 @@ Object::Object(Object *o) {
   att[7] = 0;
 
   no_seek = 0;
+  tickstep = -1;
   }
 
 Object::Object(const Object &o) {
@@ -687,11 +689,12 @@ Object::Object(const Object &o) {
 
   parent = NULL;
 
-  no_seek = 0;
-
   if(o.IsActive()) Activate();
 
   minds = o.minds;	// Transmit Attached Minds
+
+  no_seek = 0;
+  tickstep = -1;
   }
 
 // Generate truly-formatted name
@@ -2772,18 +2775,6 @@ list<Object *> Object::Contents() {
 
 int Object::Contains(const Object *obj) {
   return (find(contents.begin(), contents.end(), obj) != contents.end());
-  }
-
-int Object::IsActive() const {
-  return has_tick(this);
-  }
-
-void Object::Activate() {
-  add_tick(this);
-  }
-
-void Object::Deactivate() {
-  remove_tick(this);
   }
 
 void Object::EarnExp(int e) {
