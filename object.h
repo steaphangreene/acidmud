@@ -32,7 +32,11 @@ class MOBType;
 #define	LOC_NOTWORN	0x00010000
 #define	LOC_ALIVE	0x00020000
 #define	LOC_CONSCIOUS	0x00040000
-#define LOC_FILTERS	0xFFFF0000
+#define LOC_FILTERS	0x00FF0000
+
+//Special
+#define	LOC_NINJA	0x01000000
+#define	LOC_SPECIAL	0xFF000000
 
 enum pos_t {
 	POS_NONE=0,
@@ -128,9 +132,9 @@ public:
   void SendShortDesc(Mind *m, Object *o = NULL);
   void SendShortDesc(Object *m, Object *o = NULL);
   void SendDesc(Mind *m, Object *o = NULL);
-  void SendDescSurround(Mind *m, Object *o = NULL);
+  void SendDescSurround(Mind *m, Object *o = NULL, int seeinside=0);
   void SendDesc(Object *m, Object *o = NULL);
-  void SendDescSurround(Object *m, Object *o = NULL);
+  void SendDescSurround(Object *m, Object *o = NULL, int seeinside=0);
   void SendLongDesc(Mind *m, Object *o = NULL);
   void SendLongDesc(Object *m, Object *o = NULL);
   void SendScore(Mind *m, Object *o = NULL);

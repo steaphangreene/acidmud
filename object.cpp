@@ -268,7 +268,7 @@ void tick_world() {
     }
   for(ind = todel.begin(); ind != todel.end(); ++ind) {
     todeact.erase(*ind);
-    delete (*ind);
+    (*ind)->Recycle();
     }
   for(ind = todeact.begin(); ind != todeact.end(); ++ind) {
     (*ind)->Deactivate();
@@ -412,13 +412,13 @@ int Object::Tick() {
       set<Object*>::iterator td;
       for(td = todrop.begin(); td != todrop.end(); ++td) {
 	if(Parent()) Drop(*td, 0, 1);
-	else delete (*td);
+	else (*td)->Recycle();
 	}
 
       typeof(contents) cont = contents;
       typeof(cont.begin()) todel;
       for(todel = cont.begin(); todel != cont.end(); ++todel) {
-	delete (*todel);
+	(*todel)->Recycle();
 	}
 
       parent->SendOut(ALL, 0,
@@ -850,10 +850,10 @@ void Object::SendDesc(Object *targ, Object *o) {
     }
   }
 
-void Object::SendDescSurround(Object *targ, Object *o) {
+void Object::SendDescSurround(Object *targ, Object *o, int seeinside) {
   set<Mind*>::iterator m = targ->minds.begin();
   for(; m != targ->minds.end(); ++m) {
-    SendDescSurround(*m, o);
+    SendDescSurround(*m, o, seeinside);
     }
   }
 
@@ -956,17 +956,17 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
 	m->Send("%s", CNRM);
 	}
       else if(cur->second->Skill("Container")) {
-	if(seeinside && (!cur->second->Skill("Locked"))) {
+	if(seeinside == 1 && cur->second->Skill("Locked")) {
+	  string mes = base + CNRM + "                "
+		+ "  It is closed and locked.\n" + CGRN;
+	  m->Send(mes.c_str());
+	  }
+	else if(seeinside) {
 	  sprintf(buf, "%16s  %c", " ", 0);
 	  base = buf;
 	  cur->second->SendContents(m, NULL, seeinside);
 	  base = "";
 	  m->Send("%s", CNRM);
-	  }
-	else if(seeinside && cur->second->Skill("Locked")) {
-	  string mes = base + CNRM + "                "
-		+ "  It is closed and locked.\n" + CGRN;
-	  m->Send(mes.c_str());
 	  }
 	}
       }
@@ -989,7 +989,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
   int tlines = 0, total = 0;
   typeof(cont.begin()) ind;
   for(ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
-    if((*ind)->HasSkill("Invisible")) continue;
+    if((*ind)->HasSkill("Invisible") && seeinside <= 1) continue;
     if((*ind)->Skill("Hidden") > 0 && Parent() != NULL) continue;
 
     if((*ind)->IsAct(ACT_SPECIAL_LINKED)) {
@@ -1062,16 +1062,16 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 	base = tmp;
 	}
       else if((*ind)->Skill("Container")) {
-	if(seeinside && (!(*ind)->Skill("Locked"))) {
+	if(seeinside == 1 && (*ind)->Skill("Locked")) {
+	  string mes = base + CNRM
+		+ "  It is closed and locked, you can't see inside.\n" + CGRN;
+	  m->Send(mes.c_str());
+	  }
+	else if(seeinside) {
 	  string tmp = base;
 	  base += "  ";
 	  (*ind)->SendContents(m, o, seeinside);
 	  base = tmp;
-	  }
-	else if(seeinside && (*ind)->Skill("Locked")) {
-	  string mes = base + CNRM
-		+ "  It is closed and locked, you can't see inside.\n" + CGRN;
-	  m->Send(mes.c_str());
 	  }
 	}
       }
@@ -1202,7 +1202,7 @@ void Object::SendDesc(Mind *m, Object *o) {
   m->Send("%s", CNRM);
   }
 
-void Object::SendDescSurround(Mind *m, Object *o) {
+void Object::SendDescSurround(Mind *m, Object *o, int seeinside) {
   if(no_seek) return;
   memset(buf, 0, 65536);
 
@@ -1224,17 +1224,17 @@ void Object::SendDescSurround(Mind *m, Object *o) {
   m->Send("%s", buf);
 
   m->Send("%s", CNRM);
-  SendExtendedActions(m, 0);
+  SendExtendedActions(m, seeinside);
 
   if((!parent) || Contains(o) || Skill("Open") || Skill("Transparent")) {
-    SendContents(m, o);
+    SendContents(m, o, seeinside);
     }
 
   if(parent && (Skill("Open") || Skill("Transparent"))) {
     m->Send("%s", CCYN);
     m->Send("Outside you see: ");
     no_seek = 1;
-    parent->SendDescSurround(m, this);
+    parent->SendDescSurround(m, this, seeinside);
     no_seek = 0;
     }
 
@@ -1516,7 +1516,7 @@ void Object::TryCombine() {
       val = Skill("Tired") + (*ind)->Skill("Tired");
       SetSkill("Tired", val);
 
-      delete(*ind);
+      (*ind)->Recycle();
       break;
       }
     }
@@ -1787,12 +1787,12 @@ Object *Object::Split(int nqty) {
   return nobj;
   }
 
-static int tag(Object *obj, list<Object *> &ret, int *ordinal, int hide = 1) {
-  if(obj->HasSkill("Invisible")) return 0;	//Shouldn't be detected.
+static int tag(Object *obj, list<Object *> &ret, int *ordinal, int show = 0) {
+  //Only Ninjas in Ninja-Mode should detect these
+  if(obj->HasSkill("Invisible") && (show <= 1)) return 0;
 
   //Can't be seen/affected (except in char rooms)
-  if(obj->Skill("Hidden") > 0 && hide) return 0;
-
+  if(obj->Skill("Hidden") > 0 && (!show)) return 0;
   Object *nobj = NULL;
 
   int cqty = 1, rqty = 1; //Contains / Requires
@@ -1871,7 +1871,9 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
     typeof(masters.begin()) master;
     for(master = masters.begin(); master != masters.end(); ++master) {
       typeof(contents) add =
-	(*master)->PickObjects(keyword3 + (keyword-name)+3, LOC_INTERNAL);
+	(*master)->PickObjects(keyword3 + (keyword-name)+3,
+		(loc & LOC_SPECIAL)|LOC_INTERNAL
+		);
       ret.insert(ret.end(), add.begin(), add.end());
       }
     free(keyword3);
@@ -1902,18 +1904,22 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
   if(loc & LOC_INTERNAL) {
     if(!strncasecmp(name, "my ", 3)) {
       name += 3;
-      return PickObjects(name, loc & (LOC_INTERNAL|LOC_SELF));
+      return PickObjects(name, loc & (LOC_SPECIAL|LOC_INTERNAL|LOC_SELF));
       }
     }
 
-  if(loc & LOC_NEARBY) {
+  if((loc & LOC_NEARBY) && (parent != NULL)) {
     typeof(parent->Contents()) cont = parent->Contents();
 
     typeof(cont.begin()) ind;
     for(ind = cont.begin(); ind != cont.end(); ++ind) if(!(*ind)->no_seek) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
       if((*ind)->Filter(loc) && (*ind)->Matches(name)) {
-	if(tag(*ind, ret, ordinal, parent->Parent() != NULL)) return ret;
+	if(tag(*ind, ret, ordinal,
+		(parent->Parent() == NULL) | (loc & LOC_SPECIAL)
+		)) {
+	  return ret;
+	  }
 	}
       if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
 	typeof(contents) add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
@@ -1946,7 +1952,11 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
 	if(action->second->Filter(loc) && action->second->Matches(name)
 		&& ((loc & LOC_NOTWORN) == 0 || action->first <= ACT_HOLD)
 		) {
-	  if(tag(action->second, ret, ordinal, Parent() != NULL)) return ret;
+	  if(tag(action->second, ret, ordinal,
+		(Parent() == NULL) | (loc & LOC_SPECIAL)
+		)) {
+	    return ret;
+	    }
 	  }
 	if(action->second->HasSkill("Container")) {
 	  typeof(contents) add
@@ -1962,7 +1972,11 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
     for(ind = cont.begin(); ind != cont.end(); ++ind) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
       if((*ind)->Filter(loc) && (*ind)->Matches(name)) {
-	if(tag(*ind, ret, ordinal, Parent() != NULL)) return ret;
+	if(tag(*ind, ret, ordinal,
+		(Parent() == NULL) | (loc & LOC_SPECIAL)
+		)) {
+	  return ret;
+	  }
 	}
       if((*ind)->Skill("Container")) {
 	typeof(contents) add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
@@ -2514,8 +2528,7 @@ void init_world() {
 
     delete automind;
     delete anp;
-    delete autoninja;
-
+    autoninja->Recycle();
     delete buf;
     }
 
