@@ -87,13 +87,13 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper) {
 
   //Variable Sub (For constants on this trigger instance)
   if(tr->Skill("TBAScriptType") >= 128) {	//Room Triggers
-    replace_all(script, "%self.vnum%", tr->Skill("TBARoom")-1000000);
+    replace_all(script, "%self.vnum%", targ->Skill("TBARoom")-1000000);
     }
   else if(tr->Skill("TBAScriptType") >= 64) {	//Object Triggers
-    replace_all(script, "%self.vnum%", tr->Skill("TBAObject")-1000000);
+    replace_all(script, "%self.vnum%", targ->Skill("TBAObject")-1000000);
     }
   else {					//MOB Triggers
-    replace_all(script, "%self.vnum%", tr->Skill("TBAMOB")-1000000);
+    replace_all(script, "%self.vnum%", targ->Skill("TBAMOB")-1000000);
     }
   if(tripper) {
     int vnum = tripper->Skill("TBAMOB");
