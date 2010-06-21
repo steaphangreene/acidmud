@@ -128,7 +128,7 @@ void Mind::SetMob() {
   pers = fileno(stderr);
   }
 
-void Mind::SetTBATrigger(Object *tr, Object *tripper) {
+void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
   if((!tr) || (!(tr->Parent()))) return;
 
   type = MIND_TBATRIG;
@@ -159,6 +159,7 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper) {
       replace_all(script, "%actor.vnum%", vnum-1000000);
       }
     }
+  replace_all(script, "%speech%", text);	//Correct, even if it's ""
   }
 
 void Mind::SetTBAMob() {
@@ -979,10 +980,10 @@ const char *Mind::SpecialPrompt() {
   return prompt.c_str();
   }
 
-Mind *new_mind(int tp, Object *obj, Object *obj2) {
+Mind *new_mind(int tp, Object *obj, Object *obj2, string text) {
   Mind *m = new Mind();
   if(tp == MIND_TBATRIG && obj) {
-    m->SetTBATrigger(obj, obj2);
+    m->SetTBATrigger(obj, obj2, text);
     }
   else if(obj) {
     m->Attach(obj);
@@ -990,10 +991,10 @@ Mind *new_mind(int tp, Object *obj, Object *obj2) {
   return m;
   }
 
-int new_trigger(Object *obj, Object *tripper) {
+int new_trigger(Object *obj, Object *tripper, string text) {
   if((!obj) || (!(obj->Parent()))) return 0;
 
-  Mind *m = new_mind(MIND_TBATRIG, obj, tripper);
+  Mind *m = new_mind(MIND_TBATRIG, obj, tripper, text);
 //  fprintf(stderr, "Attached to '%s' on '%s'\n", 
 //	obj->Name(), obj->Parent()->Name()
 //	);

@@ -2470,6 +2470,21 @@ void Object::SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
 	Object *actor, Object *targ) {
   if(no_seek) return;
 
+  if(!strncmp(mes, ";s says '", 9)) {	//Type 132 (ROOM-SPEECH) Triggers
+    typeof(contents.begin()) trig = contents.begin();
+    for(; trig != contents.end(); ++trig) {
+      if((*trig)->Skill("TBAScriptType") == 132) {
+        if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) {  // % Chance
+	  string speech = mes+9;
+	  size_t len = speech.find_last_of("'");
+	  if(len != string::npos) speech = speech.substr(0, len);
+          //fprintf(stderr, "Triggering: %s\n", (*trig)->Name());
+          new_trigger(*trig, actor, speech);
+          }
+        }
+      }
+    }
+
   string tstr = "";  if(targ) tstr = (char*)targ->Name(0, this, actor);
   string astr = "";  if(actor) astr = (char*)actor->Name(0, this);
 

@@ -25,7 +25,7 @@ public:
   void SetRemote(int fd);
   void SetMob();
   void SetTBAMob();
-  void SetTBATrigger(Object *tr, Object *tripper = NULL);
+  void SetTBATrigger(Object *tr, Object *tripper = NULL, string text = "");
   void SetCircleMob();
   void SetSystem();
   void Attach(Object *bod);
@@ -71,7 +71,9 @@ private:
   static list<pair<int, Mind*> > waiting;
   };
 
-Mind *new_mind(int tp, Object *obj = NULL, Object *obj2 = NULL);
-int new_trigger(Object *obj, Object *tripper = NULL);
+Mind *new_mind(int tp,
+	Object *obj = NULL, Object *obj2 = NULL, string text = ""
+	);
+int new_trigger(Object *obj, Object *tripper = NULL, string text = "");
 
 #endif
