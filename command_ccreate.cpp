@@ -331,7 +331,7 @@ int handle_command_ccreate(Object *body, Mind *mind, const char *comline,
 	  }
 	}
       }
-    body->Parent()->SendOut(stealth_t, stealth_s,
+    body->Parent()->SendOutF(stealth_t, stealth_s,
 	";s creates a new city '%s' with Ninja Powers[TM].\n",
 	"You create a new city '%s'.\n", body, NULL, comline+len);
     }

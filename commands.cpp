@@ -830,7 +830,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       int ctr;
       for(ctr=0; ctr<int(strlen(comline)); ++ctr) {
 	if(!(isalnum(comline[ctr]) || comline[ctr] == ' ')) {
-	  mind->Send("Name '%s' is invalid.\nNames can only have letters, numbers, and spaces.\n", comline);
+	  mind->SendF("Name '%s' is invalid.\nNames can only have letters, numbers, and spaces.\n", comline);
 	  fprintf(stderr, "Name '%s' is invalid.\nNames can only have letters, numbers, and spaces.\n", comline);
 	  break;
 	  }
@@ -1001,7 +1001,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     }
 
   if(com == COM_VERSION) {
-    if(mind) mind->Send("Version of this MUD is %d.%d.%d-%d: %s.\n",
+    if(mind) mind->SendF("Version of this MUD is %d.%d.%d-%d: %s.\n",
 	CurrentVersion.acidmud_version[0], CurrentVersion.acidmud_version[1],
 	CurrentVersion.acidmud_version[2], CurrentVersion.acidmud_version[3],
 	CurrentVersion.acidmud_datestamp.c_str());
@@ -1035,7 +1035,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
     else {
-      mind->Send("'%s' is now selected as your currect character to work on.\n",
+      mind->SendF("'%s' is now selected as your currect character to work on.\n",
 		body->Name());
       mind->Owner()->SetCreator(body);
       return 0;
@@ -1071,9 +1071,13 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	return 0;
 	}
       if(body->Skill("Attributes") || body->Skill("Skills")) {
-	mind->Send("You need to finish that character before you can use it.\n");
-	mind->Send("'%s' is now selected as your currect character to work on.\n",
-		body->Name());
+	mind->Send(
+		"You need to finish that character before you can use it.\n"
+		);
+	mind->SendF(
+		"'%s' is now selected as your currect character to work on.\n",
+		body->Name()
+		);
 	mind->Owner()->SetCreator(body);
 	return 0;
 	}
@@ -1135,13 +1139,13 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(mind) mind->Send("You need to be in ninja mode to enter that object!\n");
       }
     else if(dest->Skill("Open") < 1 && (!nmode)) {
-      if(mind) mind->Send("Sorry, %s is closed!\n", dest->Name());
+      if(mind) mind->SendF("Sorry, %s is closed!\n", dest->Name());
       }
     else if(dest->Parent() != body->Parent()
 	&& dest->Parent() == body->Parent()->Parent()
 	&& body->Parent()->Skill("Vehicle") == 0) {
       if(mind)
-	mind->Send("You can't get %s to go there!\n", body->Parent()->Name(1));
+	mind->SendF("You can't get %s to go there!\n", body->Parent()->Name(1));
       }
     else if(dest->Parent() != body->Parent()
 	&& dest->Parent() == body->Parent()->Parent()
@@ -1149,7 +1153,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	&& body->Parent()->Parent()->Skill("WaterDepth") == 0
 	&& rdest->Skill("WaterDepth") == 0) {
       if(mind)
-	mind->Send("You can't get %s to go there!\n", body->Parent()->Name(1));
+	mind->SendF("You can't get %s to go there!\n", body->Parent()->Name(1));
       }
     else {
       if(nmode) {
@@ -1159,7 +1163,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(dest->Parent() != body->Parent()
 		&& dest->Parent() == body->Parent()->Parent()) {
 	if(body->Parent()->Skill("Vehicle") == 4 && body->Skill("Boat") == 0) {
-	  if(mind) mind->Send("You don't know how to operate %s!\n",
+	  if(mind) mind->SendF("You don't know how to operate %s!\n",
 		body->Parent()->Name(1));
 	  return 0;
 	  }
@@ -1201,7 +1205,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	else if(mind && mind->Type() == MIND_REMOTE)
 	  body->Parent()->SendDescSurround(body, body);
 	else if(mind && mind->Type() == MIND_SYSTEM)
-	  mind->Send("You enter %s\n", comline+len);
+	  mind->SendF("You enter %s\n", comline+len);
 
 	if(stealth_t > 0) {
 	  body->SetSkill("Hidden", body->Roll("Stealth", 2) * 2);
@@ -1276,7 +1280,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	if(islower(*chr)) shouting = 0;
 	}
       if(!shouting) {
-	body->Parent()->SendOut(ALL, 0, ";s says '%s'\n", "You say '%s'\n",
+	body->Parent()->SendOutF(ALL, 0, ";s says '%s'\n", "You say '%s'\n",
 		body, body, comline+len);
 	body->SetSkill("Hidden", 0);
 	return 0;
@@ -1308,10 +1312,12 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       for(char *chr = mes; *chr != 0; ++chr) {
 	*chr = toupper(*chr);
 	}
-      body->Parent()->SendOut(ALL, 0,
+      body->Parent()->SendOutF(ALL, 0,
 	";s shouts '%s'!!!\n", "You shout '%s'!!!\n",
 	body, body, mes);
-      body->Parent()->Loud(body->Skill("Strength"), "someone shout '%s'!!!", mes);
+      body->Parent()->LoudF(
+	body->Skill("Strength"), "someone shout '%s'!!!", mes
+	);
       free(mes);
       }
     body->SetSkill("Hidden", 0);
@@ -1320,7 +1326,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
   if(com == COM_EMOTE) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    body->Parent()->SendOut(ALL, 0, ";s %s\n", "Your character %s\n",
+    body->Parent()->SendOutF(ALL, 0, ";s %s\n", "Your character %s\n",
 	body, body, comline+len);
     body->SetSkill("Hidden", 0);
     return 0;
@@ -1328,7 +1334,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
   if(com == COM_INVENTORY) {
    if(mind) {
-     mind->Send("You (%s) are carrying:\n", body->ShortDesc());
+     mind->SendF("You (%s) are carrying:\n", body->ShortDesc());
      body->SendExtendedActions(mind, 1);
      }
    return 0;
@@ -1336,7 +1342,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
   if(com == COM_EQUIPMENT) {
    if(mind) {
-     mind->Send("You (%s) are using:\n", body->ShortDesc());
+     mind->SendF("You (%s) are using:\n", body->ShortDesc());
      body->SendExtendedActions(mind, 0);
      }
    return 0;
@@ -1384,13 +1390,13 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		&& (!(*targ_it)->Skill("Container"))
 		&& (!(*targ_it)->Skill("Liquid Container"))
 		) {
-	if(mind) mind->Send(
+	if(mind) mind->SendF(
 		"You can't look inside %s, it is not a container.\n",
 		(*targ_it)->Name()
 		);
 	}
       else if(within && ((*targ_it)->Skill("Locked"))) {
-	if(mind) mind->Send("You can't look inside %s, it is locked.\n",
+	if(mind) mind->SendF("You can't look inside %s, it is locked.\n",
 		(*targ_it)->Name());
 	}
       else {
@@ -1480,7 +1486,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     stealth_t = 0;
     stealth_s = 0;
     if(body->Pos() == POS_USE && (!body->IsUsing("Perception"))) {
-      body->Parent()->SendOut(stealth_t, stealth_s,
+      body->Parent()->SendOutF(stealth_t, stealth_s,
 	";s stops %s.\n", "You stop %s.\n",
 	body, NULL, body->UsingString()
 	);
@@ -1642,24 +1648,24 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	handled = 1;
 	Object *base = body->ActTarg(ACT_WIELD);
 	if(base == targ) {
-	  mind->Send("%s is your current weapon!\n", base->Name(0, body));
+	  mind->SendF("%s is your current weapon!\n", base->Name(0, body));
 	  mind->Send("Consider using something else for comparison.\n");
 	  return 0;
 	  }
 	string sk = (get_weapon_skill(targ->Skill("WeaponType")));
 	if(!body->HasSkill(sk)) {
-	  mind->Send(
+	  mind->SendF(
 		"You don't know much about weapons like %s.\n",
 		targ->Name(1, body)
 		);
-	  mind->Send(
+	  mind->SendF(
 		"You would need to learn the %s skill to know more.\n",
 		sk.c_str()
 		);
 	  }
 	else {
 	  int diff;
-	  mind->Send("Use of this weapon would use your %s skill.\n",
+	  mind->SendF("Use of this weapon would use your %s skill.\n",
 		sk.c_str());
 
 	  diff = body->Skill(sk);
@@ -1698,7 +1704,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       int wtlimit = 0;
       int szlimit = 0;
       if(targ->HasSkill("Container")) {
-	mind->Send("%s is a container\n", targ->Name(1, body));
+	mind->SendF("%s is a container\n", targ->Name(1, body));
 
 	wtlimit = targ->Skill("Container");
 	szlimit = targ->Skill("Capacity");
@@ -1743,7 +1749,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	//Liquid Containers
       int volume = 0;
       if(targ->HasSkill("Liquid Container")) {
-	mind->Send("%s is a liquid container\n", targ->Name(1, body));
+	mind->SendF("%s is a liquid container\n", targ->Name(1, body));
 	volume = targ->Skill("Liquid Container");
 	if(targ->Contents().size() == 0) {
 	  mind->Send("   ...it is empty.\n");
@@ -1783,15 +1789,15 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  }
 	if(wtlimit && other->HasSkill("Container")) {
 	  if(wtlimit < other->Skill("Container")) {
-	    mind->Send("and can't carry as much as %s.\n",
+	    mind->SendF("and can't carry as much as %s.\n",
 		other->Name(0, body));
 	    }
 	  else if(wtlimit > other->Skill("Container")) {
-	    mind->Send("and can carry more than %s.\n",
+	    mind->SendF("and can carry more than %s.\n",
 		other->Name(0, body));
 	    }
 	  else {
-	    mind->Send("and can carry the same as %s.\n",
+	    mind->SendF("and can carry the same as %s.\n",
 		other->Name(0, body));
 	    }
 	  }
@@ -1799,15 +1805,15 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	//Liquid Containers
 	if(volume && other->HasSkill("Liquid Container")) {
 	  if(volume < other->Skill("Liquid Container")) {
-	    mind->Send("   ...it can't hold as much as %s.\n",
+	    mind->SendF("   ...it can't hold as much as %s.\n",
 		other->Name(0, body));
 	    }
 	  else if(volume > other->Skill("Liquid Container")) {
-	    mind->Send("   ...it can hold more than %s.\n",
+	    mind->SendF("   ...it can hold more than %s.\n",
 		other->Name(0, body));
 	    }
 	  else {
-	    mind->Send("   ...it can hold about the same amount as %s.\n",
+	    mind->SendF("   ...it can hold about the same amount as %s.\n",
 		other->Name(0, body));
 	    }
 	  }
@@ -1827,17 +1833,17 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       int all = targ->WearMask();
       int num = count_ones(all);
       if(num > 1) {
-	mind->Send("%s can be worn in %d different ways:\n",
+	mind->SendF("%s can be worn in %d different ways:\n",
 		targ->Name(0, body), num
 		);
 	}
       else if(num == 1) {
-	mind->Send("%s can only be worn one way:\n", targ->Name(0, body));
+	mind->SendF("%s can only be worn one way:\n", targ->Name(0, body));
 	}
       for(int mask=1; mask <= all; mask <<= 1) {
 	set<act_t> locs = targ->WearSlots(mask);
 	if(locs.size() > 0) {
-	  mind->Send("It can be worn on %s.\n", targ->WearNames(locs).c_str());
+	  mind->SendF("It can be worn on %s.\n", targ->WearNames(locs).c_str());
 	  handled = 1;
 
 	  set<Object *> repls;
@@ -1849,7 +1855,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  set<Object *>::const_iterator repl = repls.begin();
 	  for(; repl != repls.end(); ++repl) {
 	    if((*repl) != targ) {
-	      mind->Send("   ...it would replace %s.\n", (*repl)->Name(0, body));
+	      mind->SendF("   ...it would replace %s.\n", (*repl)->Name(0, body));
 
 	      int diff = targ->Attribute(0);
 	      diff -= (*repl)->Attribute(0);
@@ -1872,7 +1878,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
 	//Other
       if(!handled) {
-	mind->Send(
+	mind->SendF(
 		"You really don't know what you would do with %s.\n",
 		targ->Name(1, body)
 		);
@@ -2056,10 +2062,10 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	body = mind->Owner()->Creator();
 	}
       if(body) {
-	mind->Send("%s", CCYN);
+	mind->Send(CCYN);
 	body->SendFullSituation(mind, body);
 	body->SendActions(mind);
-	mind->Send("%s", CNRM);
+	mind->Send(CNRM);
 	body->SendScore(mind, body);
 	}
       else {
@@ -2090,10 +2096,10 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     else {
       if(mind) {
-	mind->Send("%s", CCYN);
+	mind->Send(CCYN);
 	targ->SendFullSituation(mind, body);
 	targ->SendActions(mind);
-	mind->Send("%s", CNRM);
+	mind->Send(CNRM);
 	targ->SendScore(mind, body);
 	targ->SendStats(mind, body);
 	}
@@ -2281,7 +2287,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     if(shpkps.size() == 0) {
       if(mind) {
-	mind->Send("%s", reason.c_str());
+	mind->Send(reason.c_str());
 	mind->Send("You can only do that around a shopkeeper.\n");
 	}
       }
@@ -2300,7 +2306,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	    price *= shpkp->Skill("Sell Profit");
 	    price += 999;  price /= 1000;
 	    }
-	  mind->Send("%10d gp: %s\n", price, (*obj)->ShortDesc());
+	  mind->SendF("%10d gp: %s\n", price, (*obj)->ShortDesc());
 	  oobj = obj;
 	  }
 	}
@@ -2340,7 +2346,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     if(shpkps.size() == 0) {
       if(mind) {
-	mind->Send("%s", reason.c_str());
+	mind->Send(reason.c_str());
 	mind->Send("You can only do that around a shopkeeper.\n");
 	}
       }
@@ -2363,7 +2369,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
 	  int price = targ->Value() * targ->Quantity();
 	  if(price < 0) {
-	    if(mind) mind->Send("You can't sell %s.\n", targ->Name(0, body));
+	    if(mind) mind->SendF("You can't sell %s.\n", targ->Name(0, body));
 	    continue;
 	    }
 	  else if(price == 0) {
@@ -2380,7 +2386,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	    price *= shpkp->Skill("Sell Profit");
 	    price += 999;  price /= 1000;
 	    }
-	  mind->Send("%d gp: %s\n", price, targ->ShortDesc());
+	  mind->SendF("%d gp: %s\n", price, targ->ShortDesc());
 
 	  int togo = price, ord = -price;
 	  typeof(body->Contents()) pay
@@ -2391,7 +2397,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	    }
 
 	  if(togo > 0) {
-	    if(mind) mind->Send("You can't afford the %d gold (short %d).\n",
+	    if(mind) mind->SendF("You can't afford the %d gold (short %d).\n",
 		price, togo);
 	    }
 	  else if(body->Stash(targ, 0, 0, 0)) {
@@ -2418,7 +2424,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	      }
 	    }
 	  else {
-	    if(mind) mind->Send("You can't stash or hold %s.\n", targ->Name(1));
+	    if(mind) mind->SendF("You can't stash or hold %s.\n", targ->Name(1));
 	    }
 	  }
 	}
@@ -2470,11 +2476,11 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
     int price = targ->Value() * targ->Quantity();
     if(price < 0 || targ->HasSkill("Priceless") || targ->HasSkill("Cursed")) {
-      if(mind) mind->Send("You can't sell %s.\n", targ->Name(0, body));
+      if(mind) mind->SendF("You can't sell %s.\n", targ->Name(0, body));
       return 0;
       }
     if(price == 0) {
-      if(mind) mind->Send("%s is worthless.\n", targ->Name(0, body));
+      if(mind) mind->SendF("%s is worthless.\n", targ->Name(0, body));
       return 0;
       }
 
@@ -2616,7 +2622,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     if(shpkps.size() == 0) {
       if(mind) {
-	mind->Send("%s", reason.c_str());
+	mind->Send(reason.c_str());
 	}
       }
     else {
@@ -2630,7 +2636,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  price += 0;  price /= 1000;
 	  if(price <= 0) price = 1;
 	  }
-	mind->Send("I'll give you %dgp for %s\n", price, targ->ShortDesc());
+	mind->SendF("I'll give you %dgp for %s\n", price, targ->ShortDesc());
 
 	if(com == COM_SELL) {
 	  int togo = price, ord = -price;
@@ -2653,12 +2659,12 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	      }
 	    else {	//Keeper gets it back
 	      shpkp->Stash(payment->Contents().front(), 0, 1);
-	      if(mind) mind->Send("You couldn't stash %d gold!\n", price);
+	      if(mind) mind->SendF("You couldn't stash %d gold!\n", price);
 	      }
 	    delete payment;
 	    }
 	  else {
-	    if(mind) mind->Send("I can't afford the %d gold.\n", price);
+	    if(mind) mind->SendF("I can't afford the %d gold.\n", price);
 	    }
 	  }
 	}
@@ -2685,7 +2691,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     if(targ->Pos() == POS_NONE) {
-      if(mind) mind->Send("You can't drag %s, it is fixed in place!\n",
+      if(mind) mind->SendF("You can't drag %s, it is fixed in place!\n",
 		targ->Name());
       }
     else if(targ->Attribute(1)) {
@@ -2694,10 +2700,10 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       denied += "'s permission to drag ";
       denied += targ->Name(0, NULL, targ);
       denied += ".\n";
-      if(mind) mind->Send(denied.c_str(), targ->Name());
+      if(mind) mind->SendF(denied.c_str(), targ->Name());
       }
     else if(targ->Weight() > body->Attribute(2) * 50000) {
-      if(mind) mind->Send("You could never lift %s, it is too heavy.\n",
+      if(mind) mind->SendF("You could never lift %s, it is too heavy.\n",
 		targ->Name());
       }
     else {
@@ -2729,19 +2735,19 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       Object *targ = *ind;
 
       if((!nmode) && targ->Pos() == POS_NONE) {
-	if(mind) mind->Send("You can't get %s, it is fixed in place!\n",
+	if(mind) mind->SendF("You can't get %s, it is fixed in place!\n",
 		targ->Name());
 	}
       else if((!nmode) && targ->Attribute(1)) {
-	if(mind) mind->Send("You can't get %s, it is not inanimate.\n",
+	if(mind) mind->SendF("You can't get %s, it is not inanimate.\n",
 		targ->Name());
 	}
       else if((!nmode) && targ->Weight() > body->Attribute(2) * 50000) {
-	if(mind) mind->Send("You could never lift %s, it is too heavy.\n",
+	if(mind) mind->SendF("You could never lift %s, it is too heavy.\n",
 		targ->Name());
 	}
       else if((!nmode) && targ->Weight() > body->Attribute(2) * 10000) {
-	if(mind) mind->Send(
+	if(mind) mind->SendF(
 		"You can't carry %s, it is too heavy.  Try 'drag' instead.\n",
 		targ->Name());
 	}
@@ -2780,10 +2786,10 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	else if(body->IsAct(ACT_HOLD)
 		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)
 		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)) {
-	  if(mind) mind->Send("You have no place to stash %s.\n", targ->Name());
+	  if(mind) mind->SendF("You have no place to stash %s.\n", targ->Name());
 	  }
 	else if(targ->Skill("Quantity") > 1) {
-	  if(mind) mind->Send("You have no place to stash %s.\n", targ->Name());
+	  if(mind) mind->SendF("You have no place to stash %s.\n", targ->Name());
 	  }
 	else {
 	  if(body->IsAct(ACT_HOLD)) {
@@ -2822,12 +2828,12 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       name = name.substr(0, start);
       trim_string(name);
       body->ActTarg(ACT_HOLD)->SetShortDesc(name.c_str());
-      if(mind) mind->Send("%s is now unlabeled.\n",
+      if(mind) mind->SendF("%s is now unlabeled.\n",
 	body->ActTarg(ACT_HOLD)->Name(1, body)
 	);
       }
     else {
-      if(mind) mind->Send("%s does not have a label to remove.\n",
+      if(mind) mind->SendF("%s does not have a label to remove.\n",
 	body->ActTarg(ACT_HOLD)->Name(1, body)
 	);
       }
@@ -2850,7 +2856,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       string label = body->ActTarg(ACT_HOLD)->ShortDesc();
       size_t start = label.find_first_of('(');
       if(start == label.npos) {
-	if(mind) mind->Send("%s has no label.\n",
+	if(mind) mind->SendF("%s has no label.\n",
 		body->ActTarg(ACT_HOLD)->Name(1, body)
 		);
 	}
@@ -2862,7 +2868,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  label = label.substr(0, end);
 	  trim_string(label);
 	  }
-	if(mind) mind->Send("%s is labeled '%s'.\n",
+	if(mind) mind->SendF("%s is labeled '%s'.\n",
 		body->ActTarg(ACT_HOLD)->Name(1, body), label.c_str()
 		);
 	}
@@ -2883,7 +2889,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	if(end != label.npos) label = label.substr(0, end);
 	trim_string(label);
 	if(matches(label.c_str(), comline+len)) {
-	   if(mind) mind->Send("%s already has that on the label.\n",
+	   if(mind) mind->SendF("%s already has that on the label.\n",
 		body->ActTarg(ACT_HOLD)->Name(1, body)
 		);
 	  return 0;
@@ -2895,7 +2901,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  }
 	}
       body->ActTarg(ACT_HOLD)->SetShortDesc(name.c_str());
-      if(mind) mind->Send("%s is now labeled '%s'.\n",
+      if(mind) mind->SendF("%s is now labeled '%s'.\n",
 	body->ActTarg(ACT_HOLD)->Name(1, body), label.c_str()
 	);
       body->ActTarg(ACT_HOLD)->SetShortDesc(
@@ -2923,7 +2929,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     if(!comline[len]) {
-      if(mind) mind->Send("What do you want to put %s in?\n",
+      if(mind) mind->SendF("What do you want to put %s in?\n",
 	body->ActTarg(ACT_HOLD)->Name(0, body));
       return 0;
       }
@@ -2931,7 +2937,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     Object *targ =
 	body->PickObject(comline+len, nmode|LOC_NEARBY|LOC_INTERNAL);
     if(!targ) {
-      if(mind) mind->Send("I don't see '%s' to put '%s' in!\n", comline+len,
+      if(mind) mind->SendF("I don't see '%s' to put '%s' in!\n", comline+len,
 	body->ActTarg(ACT_HOLD)->Name(0, body));
       }
     else if(targ->Attribute(1)) {
@@ -2944,13 +2950,13 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(mind) mind->Send("You can't put anything in that, it is locked.\n");
       }
     else if(targ == body->ActTarg(ACT_HOLD)) {
-      if(mind) mind->Send("You can't put %s into itself.\n",
+      if(mind) mind->SendF("You can't put %s into itself.\n",
 	body->ActTarg(ACT_HOLD)->Name(0, body)
 	);
       }
     else if((!nmode) && body->ActTarg(ACT_HOLD)->SubHasSkill("Cursed")
 		&& targ->Owner() != body) {
-      if(mind) mind->Send("You can't seem to part with %s.\n",
+      if(mind) mind->SendF("You can't seem to part with %s.\n",
 	body->ActTarg(ACT_HOLD)->Name(0, body)
 	);
       }
@@ -2972,7 +2978,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	if(closed) body->Parent()->SendOut(stealth_t, stealth_s,  //FIXME: Really open/close stuff!
 		";s opens ;s.\n", "You open ;s.\n", body, targ);
 	string safety = obj->Name(0, body);
-	body->Parent()->SendOut(stealth_t, stealth_s,
+	body->Parent()->SendOutF(stealth_t, stealth_s,
 		";s puts %s into ;s.\n", "You put %s into ;s.\n",
 		body, targ, safety.c_str());
 	if(closed) body->Parent()->SendOut(stealth_t, stealth_s,
@@ -2994,7 +3000,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(body->IsAct(ACT_WIELD)) {
 	Object *wield = body->ActTarg(ACT_WIELD);
 	if((!nmode) && wield && wield->SubHasSkill("Cursed")) {
-	  if(mind) mind->Send("You can't seem to stop wielding %s!\n",
+	  if(mind) mind->SendF("You can't seem to stop wielding %s!\n",
 	    wield->Name(0, body)
 	    );
 	  }
@@ -3008,7 +3014,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	else if(body->IsAct(ACT_HOLD)
 		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)
 		&& body->ActTarg(ACT_HOLD) != wield) {
-	  if(mind) mind->Send(
+	  if(mind) mind->SendF(
 		"You are holding %s and can't stash %s.\n"
 		"Perhaps you want to 'drop' one of these items?",
 		body->ActTarg(ACT_HOLD)->Name(1, body), wield->Name(1, body));
@@ -3070,7 +3076,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	//Auto-unwield (trying to wield something else)
       Object *wield = body->ActTarg(ACT_WIELD);
       if((!nmode) && wield && wield->SubHasSkill("Cursed")) {
-	if(mind) mind->Send("You can't seem to stop wielding %s!\n",
+	if(mind) mind->SendF("You can't seem to stop wielding %s!\n",
 	  wield->Name(0, body)
 	  );
 	return 0;
@@ -3109,7 +3115,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 //      if(mind) mind->Send("You can't hold that - you are too weak!\n");
 //      }
     else if(body->ActTarg(ACT_HOLD) == targ) {
-      if(mind) mind->Send("You are already holding %s!\n",
+      if(mind) mind->SendF("You are already holding %s!\n",
 	targ->Name(1, body));
       }
     else if(body->IsAct(ACT_HOLD)
@@ -3132,11 +3138,11 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     else if(body->Wearing(targ) && targ->SubHasSkill("Cursed")) {
       if(mind) {
 	if(body->ActTarg(ACT_WIELD) == targ) {
-	  mind->Send("You can't seem to stop wielding %s!\n",
+	  mind->SendF("You can't seem to stop wielding %s!\n",
 		targ->Name(0, body));
 	  }
 	else {
-	  mind->Send("You can't seem to remove %s.\n", targ->Name(0, body));
+	  mind->SendF("You can't seem to remove %s.\n", targ->Name(0, body));
 	  }
 	}
       }
@@ -3192,14 +3198,14 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
       int removed = 0;
       if((!nmode) && targ->HasSkill("Cursed")) {
-	if(mind) mind->Send("%s won't come off!\n", targ->Name(0, body));
+	if(mind) mind->SendF("%s won't come off!\n", targ->Name(0, body));
 	return 0;
 	}
       for(act_t act = ACT_WEAR_BACK; act < ACT_MAX; act = act_t(int(act)+1)) {
 	if(body->ActTarg(act) == targ) { removed = 1; break; }
 	}
       if(!removed) {
-        if(mind) mind->Send("You are not wearing %s!\n", targ->Name(0, body));
+        if(mind) mind->SendF("You are not wearing %s!\n", targ->Name(0, body));
 	}
       else if(body->Stash(targ, 0, 0, 0)) {
 	body->Parent()->SendOut(stealth_t, stealth_s,
@@ -3209,7 +3215,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       else if(body->IsAct(ACT_HOLD)
 		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)
 		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)) {
-	if(mind) mind->Send(
+	if(mind) mind->SendF(
 		"You are already holding something else and can't stash %s.\n",
 		targ->Name(0, body)
 		);
@@ -3285,7 +3291,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		|| body->ActTarg(ACT_WEAR_RHIP) == targ
 		) {
 	if(mind && targs.size() == 1)
-	  mind->Send("You are already wearing %s!\n", targ->Name(0, body));
+	  mind->SendF("You are already wearing %s!\n", targ->Name(0, body));
 	}
       else {
 	int success = 0;
@@ -3362,11 +3368,11 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  if(locations.size() < 1) {
 	    if(mask == 1) {
 	      if(mind && targs.size() == 1)
-		mind->Send("You can't wear %s - it's not wearable!\n",
+		mind->SendF("You can't wear %s - it's not wearable!\n",
 							targ->Name(0, body));
 	      }
 	    else {
-	      if(mind) mind->Send(
+	      if(mind) mind->SendF(
 		"You can't wear %s with what you are already wearing!\n",
 		targ->Name(0, body));
 	      }
@@ -3425,7 +3431,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       typeof(targs.begin()) targ;
       for(targ = targs.begin(); targ != targs.end(); ++targ) {
 	if(!((*targ)->HasSkill("Ingestible"))) {
-	  if(mind) mind->Send(
+	  if(mind) mind->SendF(
 		"You don't want to eat %s.\n", (*targ)->Name(0, body)
 		);
 	  }
@@ -3447,7 +3453,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     Object *targ = body->ActTarg(ACT_HOLD);
     if(targ && targ->Parent() == body) {
       if(!body->Stash(targ)) {
-	if(mind) mind->Send("You have no place to stash %s.\n",
+	if(mind) mind->SendF("You have no place to stash %s.\n",
 		targ->Name(0, body)
 		);
 	}
@@ -3479,27 +3485,27 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       for(targ = targs.begin(); targ != targs.end(); ++targ) {
 	int ret = body->Drop(*targ, 1, nmode);
 	if(ret == -1) {		//Totally Failed
-	  if(mind) mind->Send("You can't drop %s here.\n",
+	  if(mind) mind->SendF("You can't drop %s here.\n",
 		(*targ)->Name(0, body)
 		);
 	  }
 	else if(ret == -2) {	//Exceeds Capacity
-	  if(mind) mind->Send("You can't drop %s, there isn't room.\n",
+	  if(mind) mind->SendF("You can't drop %s, there isn't room.\n",
 		(*targ)->Name(0, body)
 		);
 	  }
 	else if(ret == -3) {	//Exceeds Weight Limit
-	  if(mind) mind->Send("You can't drop %s, it's too heavy.\n",
+	  if(mind) mind->SendF("You can't drop %s, it's too heavy.\n",
 		(*targ)->Name(0, body)
 		);
 	  }
 	else if(ret == -4) {	//Cursed
-	  if(mind) mind->Send("You don't seem to be able to drop %s!\n",
+	  if(mind) mind->SendF("You don't seem to be able to drop %s!\n",
 		(*targ)->Name(0, body)
 		);
 	  }
 	else if(ret != 0) {	//?
-	  if(mind) mind->Send("You can't seem to drop %s!\n",
+	  if(mind) mind->SendF("You can't seem to drop %s!\n",
 		(*targ)->Name(0, body)
 		);
 	  }
@@ -3562,25 +3568,25 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	return 0;
 	}
       if(!(targ->HasSkill("Liquid Container"))) {
-	if(mind) mind->Send(
+	if(mind) mind->SendF(
 		"%s is not a liquid container.  You can't drink from it.\n",
 		targ->Name(0, body)
 		);
 	return 0;
 	}
       if(targ->Contents().size() < 1) {
-	if(mind) mind->Send("%s is empty.  There is nothing to drink\n",
+	if(mind) mind->SendF("%s is empty.  There is nothing to drink\n",
 		targ->Name(0, body));
 	return 0;
 	}
       Object *obj = targ->Contents().front();
       if(targ->HasSkill("Liquid Source") && obj->Skill("Quantity") < 2) {
-	if(mind) mind->Send("%s is almost empty.  There is nothing to drink\n",
+	if(mind) mind->SendF("%s is almost empty.  There is nothing to drink\n",
 		targ->Name(0, body));
 	return 0;
 	}
       if((!(obj->HasSkill("Ingestible")))) {
-	if(mind) mind->Send("You don't want to drink what's in %s.\n",
+	if(mind) mind->SendF("You don't want to drink what's in %s.\n",
 		targ->Name(0, body));
 	return 0;
 	}
@@ -3629,14 +3635,14 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       typeof(targs.begin()) targ;
       for(targ = targs.begin(); targ != targs.end(); ++targ) {
 	if(!((*targ)->HasSkill("Liquid Container"))) {
-	  if(mind) mind->Send(
+	  if(mind) mind->SendF(
 		"%s is not a liquid container.  It can't be dumped.\n",
 		(*targ)->Name(0, body)
 		);
 	  continue;
 	  }
 	if((*targ)->Contents().size() < 1) {
-	  if(mind) mind->Send("%s is empty.  There is nothing to dump\n",
+	  if(mind) mind->SendF("%s is empty.  There is nothing to dump\n",
 		(*targ)->Name(0, body));
 	  continue;
 	  }
@@ -3671,7 +3677,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     if(!comline[len]) {
-      if(mind) mind->Send("Where do you want to fill %s from?\n",
+      if(mind) mind->SendF("Where do you want to fill %s from?\n",
 	body->ActTarg(ACT_HOLD)->Name(0, body));
       return 0;
       }
@@ -3679,11 +3685,11 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     Object *src = body->PickObject(comline+len, nmode|LOC_NEARBY|LOC_INTERNAL);
     Object *dst = body->ActTarg(ACT_HOLD);
     if(!src) {
-      if(mind) mind->Send("I don't see '%s' to fill %s from!\n",
+      if(mind) mind->SendF("I don't see '%s' to fill %s from!\n",
 	comline+len, dst->Name(0, body));
       }
     else if(!dst->HasSkill("Liquid Container")) {
-      if(mind) mind->Send(
+      if(mind) mind->SendF(
 	"You can not fill %s, it is not a liquid container.\n",
 	dst->Name(0, body));
       }
@@ -3696,7 +3702,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	"You can't fill anything from that, it's not a liquid container.\n");
       }
     else if(dst->Skill("Locked")) {
-      if(mind) mind->Send(
+      if(mind) mind->SendF(
 	"You can't fill %s, it is locked.\n",
 	dst->Name(0, body));
       }
@@ -3705,7 +3711,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	"You can't fill anything from that, it is locked.\n");
       }
     else if(src == dst) {
-      if(mind) mind->Send(
+      if(mind) mind->SendF(
 	"You can't fill %s from itself.\n",
 	dst->Name(0, body));
       }
@@ -3761,7 +3767,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	";s opens ;s.\n", "You open ;s.\n", body, dst);
 
       string safety = dst->Name(0, body);
-      body->Parent()->SendOut(stealth_t, stealth_s,
+      body->Parent()->SendOutF(stealth_t, stealth_s,
 	";s dumps out and fills %s from ;s.\n",
 	"You dump out and fill %s from ;s.\n",
 	body, src, safety.c_str());
@@ -4027,7 +4033,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     Object *src = NULL;
     if(!nmode) src = body->NextHasSkill(spname + " Spell");
     if((!nmode) && (!src)) {
-      if(mind) mind->Send(
+      if(mind) mind->SendF(
 	"You don't know the %s Spell and have no items enchanted with it.\n",
 	spname.c_str()
 	);
@@ -4102,7 +4108,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       obj->Activate();
       obj->SetPos(POS_LIE);
       body->AddAct(ACT_HOLD, obj);
-      body->Parent()->SendOut(0, 0,
+      body->Parent()->SendOutF(0, 0,
 		"%s appears in ;s's hand.\n",
 		"%s appears in your hand.\n",
 		body, NULL, obj->Name()
@@ -4110,10 +4116,10 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     else if(spname == "Identify") {	//Other kinds of spells
       if(mind) {
-	mind->Send("%s", CCYN);
+	mind->Send(CCYN);
 	targ->SendFullSituation(mind, body);
 	targ->SendActions(mind);
-	mind->Send("%s", CNRM);
+	mind->Send(CNRM);
 	targ->SendScore(mind, body);
 	targ->SendStats(mind, body);
 	}
@@ -4164,7 +4170,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	mind->Send("You're not using a skill.  Try 'use <skillname>' to start.\n");
 	}
       else {
-	body->Parent()->SendOut(stealth_t, stealth_s,
+	body->Parent()->SendOutF(stealth_t, stealth_s,
 		";s stops %s.\n", "You stop %s.\n",
 		body, NULL, body->UsingString()
 		);
@@ -4183,11 +4189,11 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
     if(skill == "Lumberjack") {
       if(!body->HasSkill(skill)) {
-	mind->Send("%sYou don't know how to do that.%s\n", CYEL, CNRM);
+	mind->SendF("%sYou don't know how to do that.%s\n", CYEL, CNRM);
 	return 0;
 	}
       if(!body->Parent()) {		//You're nowhere?!?
-	mind->Send("%sThere are no trees here.%s\n", CYEL, CNRM);
+	mind->SendF("%sThere are no trees here.%s\n", CYEL, CNRM);
 	return 0;
 	}
       if(strcasestr(body->Parent()->Name(), "forest")
@@ -4198,11 +4204,11 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	body->Parent()->Activate();
 	}
       if(!body->Parent()->HasSkill("Mature Trees")) {
-	mind->Send("%sThere are no trees here.%s\n", CYEL, CNRM);
+	mind->SendF("%sThere are no trees here.%s\n", CYEL, CNRM);
 	return 0;
 	}
       else if(body->Parent()->Skill("Mature Trees") < 10) {
-	mind->Send("%sThere are too few trees to harvest here.%s\n", CYEL, CNRM);
+	mind->SendF("%sThere are too few trees to harvest here.%s\n", CYEL, CNRM);
 	return 0;
 	}
       else {
@@ -4252,26 +4258,26 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	}
 
       if(body->Pos() != POS_STAND && body->Pos() != POS_USE) {	//FIXME: Unused
-	body->Parent()->SendOut(stealth_t, stealth_s,
+	body->Parent()->SendOutF(stealth_t, stealth_s,
 		";s stands and starts %s.\n", "You stand up and start %s.\n",
 		body, NULL, body->UsingString()
 		);
 	}
       else {
-	body->Parent()->SendOut(stealth_t, stealth_s,
+	body->Parent()->SendOutF(stealth_t, stealth_s,
 		";s starts %s.\n", "You start %s.\n",
 		body, NULL, body->UsingString()
 		);
 	}
       if(!body->HasSkill(skill)) {
-	mind->Send(
+	mind->SendF(
 		"%s...you don't have the '%s' skill, so you're bad at this.%s\n",
 		CYEL, skill.c_str(), CNRM
 		);
 	}
       }
     else if(longterm == 0) {
-      mind->Send("You are already using %s\n", skill.c_str());
+      mind->SendF("You are already using %s\n", skill.c_str());
       }
 
     if(longterm > 0) {	//Long-running skills for results
@@ -4381,7 +4387,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
     if(is_pc(body) && is_pc(targ)) {
       if(mind) {
-	mind->Send("You can't attack %s, %s is a PC (no PvP)!\n",
+	mind->SendF("You can't attack %s, %s is a PC (no PvP)!\n",
 		targ->Name(0, body), targ->Name(0, body)
 		);
 	}
@@ -4418,7 +4424,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)
 	&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)) {
       if(body->DropOrStash(body->ActTarg(ACT_HOLD))) {
-        if(mind) mind->Send("Oh, no!  You can't drop or stash %s!\n",
+        if(mind) mind->SendF("Oh, no!  You can't drop or stash %s!\n",
 		body->ActTarg(ACT_HOLD)->Name(0, body)
 		);
 	}
@@ -4430,11 +4436,11 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		&& two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType"))) {
       if(body->ActTarg(ACT_HOLD)	//Some non-shield stuck in other hand!
 		&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)) {
-	if(mind) mind->Send("Oh, no!  You can't use %s - it's two-handed!\n",
+	if(mind) mind->SendF("Oh, no!  You can't use %s - it's two-handed!\n",
 		body->ActTarg(ACT_WIELD)->Name(0, body)
 		);
 	if(body->DropOrStash(body->ActTarg(ACT_WIELD))) {
-	  if(mind) mind->Send("Oh, no!  You can't drop or stash %s!\n",
+	  if(mind) mind->SendF("Oh, no!  You can't drop or stash %s!\n",
 		body->ActTarg(ACT_WIELD)->Name(0, body)
 		);
 	  }
@@ -4466,7 +4472,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     else if(mind && body->ActTarg(ACT_WEAR_SHIELD)
 		&& body->ActTarg(ACT_WEAR_SHIELD) != body->ActTarg(ACT_HOLD)) {
-      mind->Send("Oh, no!  You can't use %s - your off-hand is not free!\n",
+      mind->SendF("Oh, no!  You can't use %s - your off-hand is not free!\n",
 	body->ActTarg(ACT_WEAR_SHIELD)->Name(0, body)
 	);
       }
@@ -4664,13 +4670,13 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       int stun = 0;
       if(sk1 == "Kicking") {		//Kicking Action
 	stun = 1;
-	body->Parent()->SendOut(ALL, -1,
+	body->Parent()->SendOutF(ALL, -1,
 		"*;s kicks ;s%s.\n", "*You kick ;s%s.\n",
 		body, targ, locm.c_str());
 	}
       else if(body->IsAct(ACT_WIELD)	//Ranged Weapon
 		&& body->ActTarg(ACT_WIELD)->Skill("WeaponReach") > 9) {
-	body->Parent()->SendOut(ALL, -1,
+	body->Parent()->SendOutF(ALL, -1,
 		"*;s throws %s and hits ;s%s.\n",
 		"*You throw %s and hit ;s%s.\n", body, targ,
 		body->ActTarg(ACT_WIELD)->ShortDesc(), locm.c_str());
@@ -4678,7 +4684,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	body->StopAct(ACT_WIELD);			//FIXME: Bows/Guns!
 	}
       else if(body->IsAct(ACT_WIELD)) {	//Melee Weapon
-	body->Parent()->SendOut(ALL, -1,
+	body->Parent()->SendOutF(ALL, -1,
 		"*;s hits ;s%s with %s.\n",
 		"*You hit ;s%s with %s.\n", body, targ,
 		locm.c_str(), body->ActTarg(ACT_WIELD)->ShortDesc());
@@ -4742,7 +4748,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	}
       else if(body->IsAct(ACT_WIELD)	//Ranged Weapon
 		&& body->ActTarg(ACT_WIELD)->Skill("WeaponReach") > 9) {
-	body->Parent()->SendOut(ALL, -1,
+	body->Parent()->SendOutF(ALL, -1,
 		"*;s throws %s at ;s, but misses.\n",
 		"*You throw %s at ;s, but miss.\n",
 		body, targ, body->ActTarg(ACT_WIELD)->ShortDesc()
@@ -4758,7 +4764,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		);
 	}
       else {				//Unarmed
-	body->Parent()->SendOut(ALL, -1,
+	body->Parent()->SendOutF(ALL, -1,
 		";s tries to %s ;s, but misses.\n",
 		"You try to %s ;s, but miss.\n",
 		body, targ, verb
@@ -4773,7 +4779,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(targ->Skill("Accomplishment")) {
 	if(body->Accomplish(targ->Skill("Accomplishment"))) {
 	  if(mind) {
-	    mind->Send("%sYour character gains an experience point for this victory!\n%s",
+	    mind->SendF("%sYour character gains an experience point for this victory!\n%s",
 		CYEL, CNRM);
 	    }
 	  }
@@ -4798,7 +4804,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
     else if(strlen(comline+len) > 0) {
-      mind->Send("Just type 'randomize' to randomly spend all points for %s\n",
+      mind->SendF("Just type 'randomize' to randomly spend all points for %s\n",
 	chr->ShortDesc());
       return 0;
       }
@@ -4835,7 +4841,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	chr->SetSkill("Skills", chr->Skill("Skills") - chr->Skill(*skl));
 	}
       }
-    mind->Send("You randomly spend all remaining points for '%s'.\n",
+    mind->SendF("You randomly spend all remaining points for '%s'.\n",
 	chr->ShortDesc());
     return 0;
     }
@@ -4878,7 +4884,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       cost = chr->BaseAttribute(attr) + 1;
 
       if(body && chr->Exp(mind->Owner()) < (cost * 4)) {
-	mind->Send("You don't have enough experience to raise your %s.\n"
+	mind->SendF("You don't have enough experience to raise your %s.\n"
 		"You need %d, but you only have %d\n",
 		statnames[attr], cost * 4, chr->Exp(mind->Owner()));
 	return 0;
@@ -4897,16 +4903,16 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	}
 
       if((!body) && chr->BaseAttribute(attr) >= 6) {
-	mind->Send("Your %s is already at the maximum.\n", statnames[attr]);
+	mind->SendF("Your %s is already at the maximum.\n", statnames[attr]);
 	}
       else if(body && chr->BaseAttribute(attr) >= body->Skill(maxask[attr])) {
-	mind->Send("Your %s is already at the maximum.\n", statnames[attr]);
+	mind->SendF("Your %s is already at the maximum.\n", statnames[attr]);
 	}
       else {
 	if(!body) chr->SetSkill("Attributes", chr->Skill("Attributes") - cost);
 	else chr->SpendExp(cost * 4);
 	chr->SetAttribute(attr, chr->BaseAttribute(attr) + 1);
-	mind->Send("You raise your %s.\n", statnames[attr]);
+	mind->SendF("You raise your %s.\n", statnames[attr]);
 	}
       }
     else if((!body)
@@ -4925,19 +4931,19 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
         if(body && (chr->Skill(skill)
 		>= (chr->BaseAttribute(get_linked(skill))*3+1) / 2)) {
-	  mind->Send("Your %s is already at the maximum.\n", skill.c_str());
+	  mind->SendF("Your %s is already at the maximum.\n", skill.c_str());
 	  return 0;
 	  }
         else if((!body) && (chr->Skill(skill)
 		>= (chr->BaseAttribute(get_linked(skill))+1) / 2)) {
-	  mind->Send("Your %s is already at the maximum.\n", skill.c_str());
+	  mind->SendF("Your %s is already at the maximum.\n", skill.c_str());
 	  return 0;
 	  }
 	cost = (chr->Skill(skill) + 1);
         if(body) {
 	  if(cost > chr->BaseAttribute(get_linked(skill))) cost *= 2;
 	  if(chr->Exp(mind->Owner()) < (cost * 2)) {
-	    mind->Send("You don't have enough experience to raise your %s.\n"
+	    mind->SendF("You don't have enough experience to raise your %s.\n"
 		"You need %d, but you only have %d\n",
 		skill.c_str(), cost * 2, chr->Exp(mind->Owner()));
 	    return 0;
@@ -4954,7 +4960,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	if(body) chr->SpendExp(cost * 2);
 	else chr->SetSkill("Skills", chr->Skill("Skills") - cost);
 	chr->SetSkill(skill, chr->Skill(skill) + 1);
-	mind->Send("You raise your %s skill.\n", skill.c_str());
+	mind->SendF("You raise your %s skill.\n", skill.c_str());
 	}
       else {
 	mind->Send("I'm not sure what you are trying to buy.\n");
@@ -4989,7 +4995,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     body = new_body();
     body->SetShortDesc(comline+len);
     mind->Owner()->AddChar(body);
-    mind->Send("You created %s.\n", comline+len);
+    mind->SendF("You created %s.\n", comline+len);
     return 0;
     }
 
@@ -5095,7 +5101,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       for(; ch != chs.end(); ++ch) {
 	if((*ch)->Matches(comline+len)) {
 	  if((*ch)->IsActive()) {
-	    if(mind) mind->Send("%s is not long dead (yet).\n", (*ch)->Name());
+	    if(mind) mind->SendF("%s is not long dead (yet).\n", (*ch)->Name());
 	    }
 	  else {
 	    body->SetSkill("Resurrect", 0);	//Use it up
@@ -5110,13 +5116,13 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	    (*ch)->Parent()->SendOut(stealth_t, stealth_s,
 		";s has been resurrected!.\n", "", (*ch), NULL
 		);
-	    if(mind) mind->Send("%s has been resurrected!\n", (*ch)->Name());
+	    if(mind) mind->SendF("%s has been resurrected!\n", (*ch)->Name());
 	    }
 	  return 0;
 	  }
 	}
       }
-    if(mind) mind->Send("%s isn't a character on this MUD\n", comline+len);
+    if(mind) mind->SendF("%s isn't a character on this MUD\n", comline+len);
     return 0;
     }
 
@@ -5135,7 +5141,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       string cat = get_skill_cat(comline+len);
       if(string(comline+len) != "all") {
 	if(cat == "") {
-	  mind->Send("There is no skill category called '%s'.\n", comline+len);
+	  mind->SendF("There is no skill category called '%s'.\n", comline+len);
 	  return 0;
 	  }
 	skills = "Total " + cat + " in play on this MUD:\n";
@@ -5197,7 +5203,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       vector<Mind *> mns = get_human_minds();
       vector<Mind *>::iterator mn = mns.begin();
       for(; mn != mns.end(); ++mn) {
-	(*mn)->Send("%s", mes.c_str());
+	(*mn)->Send(mes.c_str());
 	}
       }
     return 0;
@@ -5265,7 +5271,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
     if(!pl) {
-      mind->Send("There is no PLAYER named '%s'\n", comline+len);
+      mind->SendF("There is no PLAYER named '%s'\n", comline+len);
       return 0;
       }
     if(pl == mind->Owner()) {
@@ -5274,16 +5280,16 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     if(pl->Is(PLAYER_SUPERNINJA)) {
-      mind->Send("'%s' is already a Super Ninja[TM] - this is irrevocable.\n", comline+len);
+      mind->SendF("'%s' is already a Super Ninja[TM] - this is irrevocable.\n", comline+len);
       }
     else if(pl->Is(PLAYER_NINJA)) {
       pl->UnSet(PLAYER_NINJA);
       pl->UnSet(PLAYER_NINJAMODE);
-      mind->Send("Now '%s' is no longer a True Ninja[TM].\n", comline+len);
+      mind->SendF("Now '%s' is no longer a True Ninja[TM].\n", comline+len);
       }
     else {
       pl->Set(PLAYER_NINJA);
-      mind->Send("You made '%s' into a True Ninja[TM].\n", comline+len);
+      mind->SendF("You made '%s' into a True Ninja[TM].\n", comline+len);
       }
 
     return 0;
@@ -5299,7 +5305,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
     if(!pl) {
-      mind->Send("There is no PLAYER named '%s'\n", comline+len);
+      mind->SendF("There is no PLAYER named '%s'\n", comline+len);
       return 0;
       }
     if(pl == mind->Owner()) {
@@ -5308,15 +5314,15 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     if(pl->Is(PLAYER_SUPERNINJA)) {
-      mind->Send("'%s' is already a Super Ninja[TM] - this is irrevocable.\n", comline+len);
+      mind->SendF("'%s' is already a Super Ninja[TM] - this is irrevocable.\n", comline+len);
       }
     else if(!pl->Is(PLAYER_NINJA)) {
-      mind->Send("'%s' isn't even a True Ninja[TM] yet!\n"
+      mind->SendF("'%s' isn't even a True Ninja[TM] yet!\n"
 	"Be careful - Super Ninja[TM] status is irrevocable.\n", comline+len);
       }
     else {
       pl->Set(PLAYER_SUPERNINJA);
-      mind->Send("You made '%s' into a Super Ninja[TM].\n", comline+len);
+      mind->SendF("You made '%s' into a Super Ninja[TM].\n", comline+len);
       }
 
     return 0;
@@ -5368,7 +5374,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     if(comline[len] != 0) {
       string oldn = targ->ShortDesc();
       targ->SetShortDesc(comline+len);
-      mind->Send("You rename '%s' to '%s'\n", oldn.c_str(),
+      mind->SendF("You rename '%s' to '%s'\n", oldn.c_str(),
 	targ->ShortDesc());	//FIXME - Real Message
       }
     else {
@@ -5388,7 +5394,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     if(comline[len] != 0) {
       string oldn = targ->ShortDesc();
       targ->SetDesc(comline+len);
-      mind->Send("You redescribe '%s' as '%s'\n", oldn.c_str(),
+      mind->SendF("You redescribe '%s' as '%s'\n", oldn.c_str(),
 	targ->Desc());	//FIXME - Real Message
       }
     else {
@@ -5408,7 +5414,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     if(comline[len] != 0) {
       string oldn = targ->ShortDesc();
       targ->SetLongDesc(comline+len);
-      mind->Send("You redefine '%s' as '%s'\n", oldn.c_str(),
+      mind->SendF("You redefine '%s' as '%s'\n", oldn.c_str(),
 	targ->LongDesc());	//FIXME - Real Message
       }
     else {
@@ -5445,13 +5451,13 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       mind->Send("You need to be pointing at your target.\n");
       }
     else if(comline[len] == 0) {
-      mind->Send("Command %s to do what?\n", targ->ShortDesc());
+      mind->SendF("Command %s to do what?\n", targ->ShortDesc());
       }
     else if(targ->Attribute(5) <= 0) {
       mind->Send("You can't command an object that has no will of its own.\n");
       }
     else {
-      body->Parent()->SendOut(stealth_t, stealth_s,
+      body->Parent()->SendOutF(stealth_t, stealth_s,
 	";s commands ;s to '%s' with Ninja Powers[TM].\n",
 	"You command ;s to '%s'.\n",
 	body, targ, comline+len);
@@ -5487,7 +5493,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       src->AddAct(ACT_SPECIAL_LINKED, exit);
       exit->AddAct(ACT_SPECIAL_MASTER, src);
       if(mind) {
-	mind->Send("You link %s to %s.",
+	mind->SendF("You link %s to %s.",
 		src->Name(0, body), dest->Name(0, body)
 		);
 	}
@@ -5538,7 +5544,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	dirb = "up"; dir = "down";
 	}
       else {
-	mind->Send("Direction '%s' not meaningful!\n", comline+len);
+	mind->SendF("Direction '%s' not meaningful!\n", comline+len);
 	return 0;
 	}
 
@@ -5556,7 +5562,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	dirb, string("You see a solid passage leading ") + dirb + ".\n"
 	);
 
-      body->Parent()->SendOut(stealth_t, stealth_s,
+      body->Parent()->SendOutF(stealth_t, stealth_s,
 	";s creates a new dynamic dungeon '%s' with Ninja Powers[TM].\n",
 	"You create a new dynamic dungeon '%s'.\n", body, NULL, dir);
       }
@@ -5597,7 +5603,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     else {
       Object *link;
 
-      body->Parent()->SendOut(stealth_t, stealth_s,
+      body->Parent()->SendOutF(stealth_t, stealth_s,
 	";s creates a shimmering portal '%s' with Ninja Powers[TM].\n",
 	"You create a shimmering portal '%s'.\n", body, NULL, comline+len);
 
@@ -5647,7 +5653,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	if(mind) mind->Send("That player doesn't seem to exist.\n");
 	}
       else {
-	if(mind) mind->Send("You delete the player '%s'.\n", pl->Name());
+	if(mind) mind->SendF("You delete the player '%s'.\n", pl->Name());
 	delete pl;
 	}
       }
@@ -5880,7 +5886,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(!finished) mind->Send("You want to heal what?\n");
       }
     else if(targ->Attribute(2) < 1) {
-      mind->Send("You can't heal %s, it's an inanimate object.\n",
+      mind->SendF("You can't heal %s, it's an inanimate object.\n",
 	targ->Name(0, body)
 	);
       }
@@ -5903,7 +5909,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	&& (!body->HasSkill("Treatment"))
 	) {
       if(mind) {
-	mind->Send("You don't know how to help %s.\n", targ->Name(0, body));
+	mind->SendF("You don't know how to help %s.\n", targ->Name(0, body));
 	}
       }
     else {
@@ -5915,40 +5921,40 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	);
       if(body->HasSkill("First Aid")) {
 	if(targ->Phys() < 1) {
-	  mind->Send("%s is not injured.\n", targ->Name());
+	  mind->SendF("%s is not injured.\n", targ->Name());
 	  }
 	else {
-	  mind->Send("%s is injured.\n", targ->Name());
+	  mind->SendF("%s is injured.\n", targ->Name());
 	  skill = "First Aid";
 	  duration = 3000;
 	  }
 	}
       else if(body->HasSkill("Healing")) {
 	if(targ->Phys() < 1) {
-	  mind->Send("%s is not injured.\n", targ->Name());
+	  mind->SendF("%s is not injured.\n", targ->Name());
 	  }
 	else {
-	  mind->Send("%s is injured.\n", targ->Name());
+	  mind->SendF("%s is injured.\n", targ->Name());
 	  skill = "Healing";
 	  duration = 3000;
 	  }
 	}
       if(body->HasSkill("Treatment")) {
 	if(targ->Skill("Poisoned") < 1) {
-	  mind->Send("%s does not need other help.\n", targ->Name());
+	  mind->SendF("%s does not need other help.\n", targ->Name());
 	  }
 	else {
-	  mind->Send("%s is poisoned.\n", targ->Name());
+	  mind->SendF("%s is poisoned.\n", targ->Name());
 	  skill = "Treatment";
 	  duration = 3000;
 	  }
 	}
       else if(body->HasSkill("Healing")) {
 	if(targ->Skill("Poisoned") < 1) {
-	  mind->Send("%s does not need other help.\n", targ->Name());
+	  mind->SendF("%s does not need other help.\n", targ->Name());
 	  }
 	else {
-	  mind->Send("%s is poisoned.\n", targ->Name());
+	  mind->SendF("%s is poisoned.\n", targ->Name());
 	  skill = "Healing";
 	  duration = 3000;
 	  }
@@ -5986,7 +5992,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
     targ->SetAttribute(stat, targ->Attribute(stat) + 1);
 
-    body->Parent()->SendOut(stealth_t, stealth_s,
+    body->Parent()->SendOutF(stealth_t, stealth_s,
 	";s jacks the %s of ;s with Ninja Powers[TM].\n",
 	"You jack the %s of ;s.\n",
 	body, targ, statnames[stat]);
@@ -6020,7 +6026,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
     targ->SetAttribute(stat, targ->Attribute(stat) - 1);
 
-    body->Parent()->SendOut(stealth_t, stealth_s,
+    body->Parent()->SendOutF(stealth_t, stealth_s,
 	";s chumps the %s of ;s with Ninja Powers[TM].\n",
 	"You chump the %s of ;s.\n",
 	body, targ, statnames[stat]);
@@ -6045,12 +6051,12 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     if(!is_skill(comline+len)) {
-      mind->Send("Warning, '%s' is not a real skill name!\n", comline+len);
+      mind->SendF("Warning, '%s' is not a real skill name!\n", comline+len);
       }
 
     targ->SetSkill(comline+len, MAX(targ->Skill(comline+len), 0) + amt);
 
-    body->Parent()->SendOut(stealth_t, stealth_s,
+    body->Parent()->SendOutF(stealth_t, stealth_s,
 	";s increments the %s of ;s with Ninja Powers[TM].\n",
 	"You increment the %s of ;s.\n",
 	body, targ, comline+len);
@@ -6076,7 +6082,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
     targ->SetSkill(comline+len, targ->Skill(comline+len) - amt);
 
-    body->Parent()->SendOut(stealth_t, stealth_s,
+    body->Parent()->SendOutF(stealth_t, stealth_s,
 	";s decrements the %s of ;s with Ninja Powers[TM].\n",
 	"You decrement the %s of ;s.\n",
 	body, targ, comline+len);

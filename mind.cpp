@@ -134,16 +134,9 @@ void Mind::Unattach() {
   if(bod) bod->Unattach(this);
   }
 
-static char buf[65536];
-void Mind::Send(const char *mes, ...) {
-  memset(buf, 0, 65536);
-  va_list stuff;
-  va_start(stuff, mes);
-  vsprintf(buf, mes, stuff);
-  va_end(stuff);
-
+void Mind::Send(const char *mes) {
   if(type == MIND_REMOTE) {
-    SendOut(pers, buf);
+    SendOut(pers, mes);
     }
   else if(type == MIND_MOB) {
     //Think(); //Reactionary actions (NO!).
@@ -222,7 +215,7 @@ void Mind::Send(const char *mes, ...) {
     string newmes = "";
     if(body) newmes += body->ShortDesc();
     newmes += ": ";
-    newmes += buf;
+    newmes += mes;
 
     string::iterator chr = newmes.begin();
     for(; chr != newmes.end(); ++chr) {
@@ -234,22 +227,37 @@ void Mind::Send(const char *mes, ...) {
     }
   }
 
-void Mind::SendRaw(const char *mes, ...) {
+void Mind::SendRaw(const char *mes) {
+  SendOut(pers, mes);
+  }
+
+static char buf[65536];
+void Mind::SendF(const char *mes, ...) {
   memset(buf, 0, 65536);
   va_list stuff;
   va_start(stuff, mes);
   vsprintf(buf, mes, stuff);
   va_end(stuff);
 
-  SendOut(pers, buf);
+  Send(buf);
+  }
+
+void Mind::SendRawF(const char *mes, ...) {
+  memset(buf, 0, 65536);
+  va_list stuff;
+  va_start(stuff, mes);
+  vsprintf(buf, mes, stuff);
+  va_end(stuff);
+
+  SendRaw(buf);
   }
 
 void Mind::SetPName(string pn) {
   pname = pn;
   if(player_exists(pname))
-    Send("%c%c%cReturning player - welcome back!\n", IAC, WILL, TELOPT_ECHO);
+    SendF("%c%c%cReturning player - welcome back!\n", IAC, WILL, TELOPT_ECHO);
   else
-    Send("%c%c%cNew player (%s) - enter SAME new password twice.\n",
+    SendF("%c%c%cNew player (%s) - enter SAME new password twice.\n",
 	IAC, WILL, TELOPT_ECHO, pname.c_str());
   }
 
@@ -258,10 +266,10 @@ void Mind::SetPPass(string ppass) {
     player = player_login(pname, ppass);
     if(player == NULL) {
       if(player_exists(pname))
-	Send("%c%c%cName and/or password is incorrect.\n",
+	SendF("%c%c%cName and/or password is incorrect.\n",
 		IAC, WONT, TELOPT_ECHO);
       else
-	Send("%c%c%cPasswords do not match - try again.\n",
+	SendF("%c%c%cPasswords do not match - try again.\n",
 		IAC, WONT, TELOPT_ECHO);
       pname = "";
       return;
@@ -269,11 +277,12 @@ void Mind::SetPPass(string ppass) {
     }
   else if(!player) {
     new Player(pname, ppass);
-    Send("%c%c%cEnter password again for verification.\n", IAC, WILL, TELOPT_ECHO);
+    SendF("%c%c%cEnter password again for verification.\n",
+		IAC, WILL, TELOPT_ECHO);
     return;
     }
 
-  SendRaw("%c%c%c", IAC, WONT, TELOPT_ECHO);
+  SendRawF("%c%c%c", IAC, WONT, TELOPT_ECHO);
   player->Room()->SendDesc(this);
   player->Room()->SendContents(this);
   }
@@ -382,7 +391,7 @@ void Mind::Think(int istick) {
     }
   else if(type == MIND_TBATRIG) {
     if(script && body) {
-      body->SendOut(0, 0, "%s\n", "", NULL, NULL, script->LongDesc());
+      body->SendOut(0, 0, script->LongDesc(), script->LongDesc(), NULL, NULL);
       }
     }
   else if(type == MIND_TBAMOB) {

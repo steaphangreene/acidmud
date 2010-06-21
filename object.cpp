@@ -899,7 +899,7 @@ void Object::SendActions(Mind *m) {
 //	  }
 //	}
       m->Send(", ");
-      m->Send(act_str[cur->first], targ, dirn, dirp);
+      m->SendF(act_str[cur->first], targ, dirn, dirp);
       }
     }
   if(HasSkill("Light Source")) {
@@ -920,30 +920,30 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
   map<Object*,string> shown;
   map<act_t,Object*>::iterator cur;
   for(cur = act.begin(); cur != act.end(); ++cur) {
-    if(cur->first == ACT_HOLD) m->Send("%24s", "Held: ");
-    else if(cur->first == ACT_WIELD) m->Send("%24s", "Wielded: ");
-    else if(cur->first == ACT_WEAR_BACK) m->Send("%24s", "Worn on back: ");
-    else if(cur->first == ACT_WEAR_CHEST) m->Send("%24s", "Worn on chest: ");
-    else if(cur->first == ACT_WEAR_HEAD) m->Send("%24s", "Worn on head: ");
-    else if(cur->first == ACT_WEAR_NECK) m->Send("%24s", "Worn on neck: ");
-    else if(cur->first == ACT_WEAR_WAIST) m->Send("%24s", "Worn on waist: ");
-    else if(cur->first == ACT_WEAR_SHIELD) m->Send("%24s", "Worn as shield: ");
-    else if(cur->first == ACT_WEAR_LARM) m->Send("%24s", "Worn on left arm: ");
-    else if(cur->first == ACT_WEAR_RARM) m->Send("%24s", "Worn on right arm: ");
-    else if(cur->first == ACT_WEAR_LFINGER) m->Send("%24s", "Worn on left finger: ");
-    else if(cur->first == ACT_WEAR_RFINGER) m->Send("%24s", "Worn on right finger: ");
-    else if(cur->first == ACT_WEAR_LFOOT) m->Send("%24s", "Worn on left foot: ");
-    else if(cur->first == ACT_WEAR_RFOOT) m->Send("%24s", "Worn on right foot: ");
-    else if(cur->first == ACT_WEAR_LHAND) m->Send("%24s", "Worn on left hand: ");
-    else if(cur->first == ACT_WEAR_RHAND) m->Send("%24s", "Worn on right hand: ");
-    else if(cur->first == ACT_WEAR_LLEG) m->Send("%24s", "Worn on left leg: ");
-    else if(cur->first == ACT_WEAR_RLEG) m->Send("%24s", "Worn on right leg: ");
-    else if(cur->first == ACT_WEAR_LWRIST) m->Send("%24s", "Worn on left wrist: ");
-    else if(cur->first == ACT_WEAR_RWRIST) m->Send("%24s", "Worn on right wrist: ");
-    else if(cur->first == ACT_WEAR_LSHOULDER) m->Send("%24s", "Worn on left shoulder: ");
-    else if(cur->first == ACT_WEAR_RSHOULDER) m->Send("%24s", "Worn on right shoulder: ");
-    else if(cur->first == ACT_WEAR_LHIP) m->Send("%24s", "Worn on left hip: ");
-    else if(cur->first == ACT_WEAR_RHIP) m->Send("%24s", "Worn on right hip: ");
+    if(cur->first == ACT_HOLD) m->SendF("%24s", "Held: ");
+    else if(cur->first == ACT_WIELD) m->SendF("%24s", "Wielded: ");
+    else if(cur->first == ACT_WEAR_BACK) m->SendF("%24s", "Worn on back: ");
+    else if(cur->first == ACT_WEAR_CHEST) m->SendF("%24s", "Worn on chest: ");
+    else if(cur->first == ACT_WEAR_HEAD) m->SendF("%24s", "Worn on head: ");
+    else if(cur->first == ACT_WEAR_NECK) m->SendF("%24s", "Worn on neck: ");
+    else if(cur->first == ACT_WEAR_WAIST) m->SendF("%24s", "Worn on waist: ");
+    else if(cur->first == ACT_WEAR_SHIELD) m->SendF("%24s", "Worn as shield: ");
+    else if(cur->first == ACT_WEAR_LARM) m->SendF("%24s", "Worn on left arm: ");
+    else if(cur->first == ACT_WEAR_RARM) m->SendF("%24s", "Worn on right arm: ");
+    else if(cur->first == ACT_WEAR_LFINGER) m->SendF("%24s", "Worn on left finger: ");
+    else if(cur->first == ACT_WEAR_RFINGER) m->SendF("%24s", "Worn on right finger: ");
+    else if(cur->first == ACT_WEAR_LFOOT) m->SendF("%24s", "Worn on left foot: ");
+    else if(cur->first == ACT_WEAR_RFOOT) m->SendF("%24s", "Worn on right foot: ");
+    else if(cur->first == ACT_WEAR_LHAND) m->SendF("%24s", "Worn on left hand: ");
+    else if(cur->first == ACT_WEAR_RHAND) m->SendF("%24s", "Worn on right hand: ");
+    else if(cur->first == ACT_WEAR_LLEG) m->SendF("%24s", "Worn on left leg: ");
+    else if(cur->first == ACT_WEAR_RLEG) m->SendF("%24s", "Worn on right leg: ");
+    else if(cur->first == ACT_WEAR_LWRIST) m->SendF("%24s", "Worn on left wrist: ");
+    else if(cur->first == ACT_WEAR_RWRIST) m->SendF("%24s", "Worn on right wrist: ");
+    else if(cur->first == ACT_WEAR_LSHOULDER) m->SendF("%24s", "Worn on left shoulder: ");
+    else if(cur->first == ACT_WEAR_RSHOULDER) m->SendF("%24s", "Worn on right shoulder: ");
+    else if(cur->first == ACT_WEAR_LHIP) m->SendF("%24s", "Worn on left hip: ");
+    else if(cur->first == ACT_WEAR_RHIP) m->SendF("%24s", "Worn on right hip: ");
     else continue;
 
     const char *targ;
@@ -955,16 +955,16 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
       sprintf(qty, "(x%d) ", cur->second->Skill("Quantity"));
 
     if(shown.count(cur->second) > 0) {
-      m->Send("%s%s (%s).\n", qty, targ, shown[cur->second].c_str());
+      m->SendF("%s%s (%s).\n", qty, targ, shown[cur->second].c_str());
       }
     else {
-      m->Send(CGRN "%s%s.\n" CNRM, qty, targ);
+      m->SendF(CGRN "%s%s.\n" CNRM, qty, targ);
       if(cur->second->Skill("Open") || cur->second->Skill("Transparent")) {
 	sprintf(buf, "%16s  %c", " ", 0);
 	base = buf;
 	cur->second->SendContents(m, NULL, seeinside);
 	base = "";
-	m->Send("%s", CNRM);
+	m->Send(CNRM);
 	}
       else if(cur->second->Skill("Container")) {
 	if(seeinside == 1 && cur->second->Skill("Locked")) {
@@ -977,7 +977,7 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
 	  base = buf;
 	  cur->second->SendContents(m, NULL, seeinside);
 	  base = "";
-	  m->Send("%s", CNRM);
+	  m->Send(CNRM);
 	  }
 	}
       }
@@ -1006,8 +1006,8 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
     if((*ind)->IsAct(ACT_SPECIAL_LINKED)) {
       if((*ind)->ActTarg(ACT_SPECIAL_LINKED)
 		&& (*ind)->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
-	if(base != "") m->Send("%s%sInside: ", base.c_str(), CNRM);
-	m->Send("%s", CCYN);
+	if(base != "") m->SendF("%s%sInside: ", base.c_str(), CNRM);
+	m->Send(CCYN);
 	string send = (*ind)->ShortDesc();
 	if(!((*ind)->Skill("Open") || (*ind)->Skill("Transparent"))) {
 	  send += ", the door is closed.\n";
@@ -1025,7 +1025,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
       continue;
       }
 
-    m->Send("%s", CGRN);
+    m->Send(CGRN);
     master.erase(*ind);
 
     if((*ind) != o) {
@@ -1034,12 +1034,12 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 	int ignore = 0;
 	if(o && o->Parent() == this) ignore = 1;
 	m->Send(base.c_str());
-	m->Send("...and %d more things are here too.\n",
+	m->SendF("...and %d more things are here too.\n",
 		((int)(cont.size())) - total - ignore);
 	break;
 	}
 
-      if(base != "") m->Send("%s%sInside:%s ", base.c_str(), CNRM, CGRN);
+      if(base != "") m->SendF("%s%sInside:%s ", base.c_str(), CNRM, CGRN);
 
 /*	Uncomment this and comment the block below to disable auto-pluralizing.
       int qty = MAX(1, (*ind)->Skill("Quantity"));
@@ -1053,7 +1053,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 	  }
 	}
 
-      if(qty > 1) m->Send("(x%d) ", qty);
+      if(qty > 1) m->SendF("(x%d) ", qty);
       total += qty;
       ++tlines;
 
@@ -1062,7 +1062,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
       else
 	sprintf(buf, "%s %s%c", (*ind)->ShortDesc(), (*ind)->PosString(), 0);
       buf[0] = toupper(buf[0]);
-      m->Send("%s", buf);
+      m->Send(buf);
 
       (*ind)->SendActions(m);
 
@@ -1086,7 +1086,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 	  }
 	}
       }
-    m->Send("%s", CNRM);
+    m->Send(CNRM);
     }
   if(b.length() > 0) base = "";
   }
@@ -1094,7 +1094,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 void Object::SendShortDesc(Mind *m, Object *o) {
   memset(buf, 0, 65536);
   sprintf(buf, "%s\n", ShortDesc());
-  m->Send("%s", buf);
+  m->Send(buf);
   }
 
 void Object::SendFullSituation(Mind *m, Object *o) {
@@ -1104,7 +1104,7 @@ void Object::SendFullSituation(Mind *m, Object *o) {
 
   if(Skill("Quantity") > 1) {
     sprintf(buf, "(x%d) ", Skill("Quantity"));
-    m->Send("%s", buf);
+    m->Send(buf);
     }
 
   if(!parent)
@@ -1188,29 +1188,29 @@ void Object::SendFullSituation(Mind *m, Object *o) {
     }
 
   buf[0] = toupper(buf[0]);
-  m->Send("%s", buf);
+  m->Send(buf);
   }
 
 void Object::SendDesc(Mind *m, Object *o) {
   memset(buf, 0, 65536);
 
   if(pos != POS_NONE) {
-    m->Send("%s", CCYN);
+    m->Send(CCYN);
     SendFullSituation(m, o);
     SendActions(m);
     }
   else {
-    m->Send("%s", CCYN);
+    m->Send(CCYN);
     sprintf(buf, "%s\n%c", ShortDesc(), 0);
     buf[0] = toupper(buf[0]);
-    m->Send("%s", buf);
+    m->Send(buf);
     }
 
-  m->Send("%s   ", CNRM);
+  m->SendF("%s   ", CNRM);
   sprintf(buf, "%s\n%c", Desc(), 0);
   buf[0] = toupper(buf[0]);
-  m->Send("%s", buf);
-  m->Send("%s", CNRM);
+  m->Send(buf);
+  m->Send(CNRM);
   }
 
 void Object::SendDescSurround(Mind *m, Object *o, int seeinside) {
@@ -1218,23 +1218,23 @@ void Object::SendDescSurround(Mind *m, Object *o, int seeinside) {
   memset(buf, 0, 65536);
 
   if(pos != POS_NONE) {
-    m->Send("%s", CCYN);
+    m->Send(CCYN);
     SendFullSituation(m, o);
     SendActions(m);
     }
   else {
-    m->Send("%s", CCYN);
+    m->Send(CCYN);
     sprintf(buf, "%s\n%c", ShortDesc(), 0);
     buf[0] = toupper(buf[0]);
-    m->Send("%s", buf);
+    m->Send(buf);
     }
 
-  m->Send("%s   ", CNRM);
+  m->SendF("%s   ", CNRM);
   sprintf(buf, "%s\n%c", Desc(), 0);
   buf[0] = toupper(buf[0]);
-  m->Send("%s", buf);
+  m->Send(buf);
 
-  m->Send("%s", CNRM);
+  m->Send(CNRM);
   SendExtendedActions(m, seeinside);
 
   if((!parent) || Contains(o) || Skill("Open") || Skill("Transparent")) {
@@ -1242,57 +1242,57 @@ void Object::SendDescSurround(Mind *m, Object *o, int seeinside) {
     }
 
   if(parent && (Skill("Open") || Skill("Transparent"))) {
-    m->Send("%s", CCYN);
+    m->Send(CCYN);
     m->Send("Outside you see: ");
     no_seek = 1;
     parent->SendDescSurround(m, this, seeinside);
     no_seek = 0;
     }
 
-  m->Send("%s", CNRM);
+  m->Send(CNRM);
   }
 
 void Object::SendLongDesc(Mind *m, Object *o) {
   if(pos != POS_NONE) {
-    m->Send("%s", CCYN);
+    m->Send(CCYN);
     SendFullSituation(m, o);
     SendActions(m);
     }
   else {
-    m->Send("%s", CCYN);
+    m->Send(CCYN);
     sprintf(buf, "%s\n%c", ShortDesc(), 0);
     buf[0] = toupper(buf[0]);
-    m->Send("%s", buf);
+    m->Send(buf);
     }
 
-  m->Send("%s   ", CNRM);
+  m->SendF("%s   ", CNRM);
   sprintf(buf, "%s\n%c", LongDesc(), 0);
   buf[0] = toupper(buf[0]);
-  m->Send("%s", buf);
-  m->Send("%s", CNRM);
+  m->Send(buf);
+  m->Send(CNRM);
   }
 
 const char * const atnames[] = {"Bod", "Qui", "Str", "Cha", "Int", "Wil"};
 void Object::SendScore(Mind *m, Object *o) {
   if(!m) return;
-  m->Send("\n%s", CNRM);
+  m->SendF("\n%s", CNRM);
   for(int ctr = 0; ctr < 6; ++ctr) {
     if(MIN(att[ctr], 99) == MIN(Attribute(ctr), 99)) {
-      m->Send("%s: %2d     ", atnames[ctr], MIN(Attribute(ctr), 99));
+      m->SendF("%s: %2d     ", atnames[ctr], MIN(Attribute(ctr), 99));
       }
     else if(Attribute(ctr) > 9) {	//2-Digits!
-      m->Send("%s: %2d (%d)", atnames[ctr],
+      m->SendF("%s: %2d (%d)", atnames[ctr],
 	MIN(att[ctr], 99), MIN(Attribute(ctr), 99));
       }
     else {				//1 Digit!
-      m->Send("%s: %2d (%d) ", atnames[ctr],
+      m->SendF("%s: %2d (%d) ", atnames[ctr],
 	MIN(att[ctr], 99), MIN(Attribute(ctr), 99));
       }
     if(ctr == 0) {
       m->Send("         L     M        S           D");
       }
     else if(ctr == 1) {
-      m->Send("  Stun: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
+      m->SendF("  Stun: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
 	stun <= 0 ? ' ' : 'X',
 	stun <= 1 ? ' ' : 'X',
 	stun <= 2 ? ' ' : 'X',
@@ -1306,7 +1306,7 @@ void Object::SendScore(Mind *m, Object *o) {
 	);
       }
     else if(ctr == 2) {
-      m->Send("  Phys: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
+      m->SendF("  Phys: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
 	phys <= 0 ? ' ' : 'X',
 	phys <= 1 ? ' ' : 'X',
 	phys <= 2 ? ' ' : 'X',
@@ -1319,11 +1319,11 @@ void Object::SendScore(Mind *m, Object *o) {
 	phys <= 9 ? ' ' : 'X'
 	);
       if(phys > 10) {
-	m->Send(" Overflow: %d", phys-10);
+	m->SendF(" Overflow: %d", phys-10);
 	}
       }
     else if(ctr == 3) {
-      m->Send("  Stru: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
+      m->SendF("  Stru: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
 	stru <= 0 ? ' ' : 'X',
 	stru <= 1 ? ' ' : 'X',
 	stru <= 2 ? ' ' : 'X',
@@ -1337,7 +1337,7 @@ void Object::SendScore(Mind *m, Object *o) {
 	);
       }
     else if(ctr == 5) {
-      m->Send("  Sex: %c, %d.%.3dkg, %d.%.3dm, %dv, %dY\n\n",
+      m->SendF("  Sex: %c, %d.%.3dkg, %d.%.3dm, %dv, %dY\n\n",
 	gender, weight / 1000, weight % 1000,
 	size / 1000, size % 1000, volume, value
 	);
@@ -1360,15 +1360,15 @@ void Object::SendScore(Mind *m, Object *o) {
     nskl = nsks.begin();
     while(nskl != nsks.end() || skl != sks.end()) {
       if(skl != sks.end()) {
-	m->Send("%28s: %2d ", skl->first.c_str(), MIN(99, skl->second));
+	m->SendF("%28s: %2d ", skl->first.c_str(), MIN(99, skl->second));
 	++skl;
 	}
       else {
-	m->Send("%28s     ", " ");
+	m->SendF("%28s     ", " ");
 	}
 
       if(nskl != nsks.end()) {
-	m->Send("%28s: %7d", nskl->first.c_str(), nskl->second);
+	m->SendF("%28s: %7d", nskl->first.c_str(), nskl->second);
 	++nskl;
 	}
 
@@ -1377,14 +1377,14 @@ void Object::SendScore(Mind *m, Object *o) {
     }
 
   if(Attribute(1) > 0) {
-    m->Send("%s", CYEL);
-    m->Send("\nEarned Exp: %4d  Player Exp: %4d  Unspent Exp: %4d\n", exp,
+    m->Send(CYEL);
+    m->SendF("\nEarned Exp: %4d  Player Exp: %4d  Unspent Exp: %4d\n", exp,
 	(minds.count(m) && m->Owner()) ? m->Owner()->Exp() : -1,
 	(minds.count(m) && m->Owner()) ? Exp(m->Owner()) : 0);
-    m->Send("%s", CNRM);
+    m->Send(CNRM);
     }
   else {
-    m->Send(CYEL "\n  Light Level: %d (%d)",
+    m->SendF(CYEL "\n  Light Level: %d (%d)",
 	Skill("Light Source"), LightLevel()
 	);
     }
@@ -1397,21 +1397,21 @@ void Object::SendStats(Mind *m, Object *o) {
 
   if(HasSkill("WeaponType")) {
     static char sevs[] = { '-', 'L', 'M', 'S', 'D' };
-    m->Send("    %s: (Str+%d)%c",
+    m->SendF("    %s: (Str+%d)%c",
 	get_weapon_skill(Skill("WeaponType")).c_str(),
 	Skill("WeaponForce"), sevs[MIN(4, Skill("WeaponSeverity"))]);
     if(Skill("WeaponSeverity") > 4)
-      m->Send("%d", (Skill("WeaponSeverity")-4)*2);
+      m->SendF("%d", (Skill("WeaponSeverity")-4)*2);
     if(Skill("WeaponReach") > 4)
-      m->Send("  Range: %d", Skill("WeaponReach"));
+      m->SendF("  Range: %d", Skill("WeaponReach"));
     else if(Skill("WeaponReach") >= 0)
-      m->Send("  Reach: %d", Skill("WeaponReach"));
+      m->SendF("  Reach: %d", Skill("WeaponReach"));
     m->Send("\n");
     }
 
   for(act_t act = ACT_MAX; act < ACT_SPECIAL_MAX; act = act_t(int(act)+1)) {
-    if(ActTarg(act)) m->Send("  %s -> %s\n", act_str[act], ActTarg(act)->Name());
-    else if(IsAct(act)) m->Send("  %s\n", act_str[act]);
+    if(ActTarg(act)) m->SendF("  %s -> %s\n", act_str[act], ActTarg(act)->Name());
+    else if(IsAct(act)) m->SendF("  %s\n", act_str[act]);
     }
 
   if(IsActive()) m->Send("  ACTIVE\n");
@@ -1419,7 +1419,7 @@ void Object::SendStats(Mind *m, Object *o) {
   set<Mind*>::iterator mind;
   for(mind = minds.begin(); mind != minds.end(); ++mind) {
     if((*mind)->Owner()) {
-      m->Send("->Player Connected: %s (%d exp)\n",
+      m->SendF("->Player Connected: %s (%d exp)\n",
 	(*mind)->Owner()->Name(), (*mind)->Owner()->Exp());
       }
     else if((*mind) == get_mob_mind()) {
@@ -1435,7 +1435,7 @@ void Object::SendStats(Mind *m, Object *o) {
       m->Send("->CIRCLE_TBA_TRIGGER\n");
       }
     }
-  m->Send("%s", CNRM);
+  m->Send(CNRM);
   }
 
 void Object::AddLink(Object *ob) {
@@ -1598,7 +1598,7 @@ int Object::Travel(Object *dest, int try_combine) {
     for(m = minds.begin(); m != minds.end(); ++m) {
       if((*m)->Owner()) {
 	if((*m)->Owner()->Accomplish(parent->Skill("Secret"))) {
-	  (*m)->Send("%sYou gain a player experience point for finding a secret!\n%s",
+	  (*m)->SendF("%sYou gain a player experience point for finding a secret!\n%s",
 		CYEL, CNRM);
 	  }
 	}
@@ -2190,17 +2190,17 @@ void Object::Collapse() {
       pos = POS_LIE;
       }
     if(IsAct(ACT_WIELD)) {
-      parent->SendOut(ALL, -1, ";s drops %s!\n", "You drop %s!\n",
+      parent->SendOutF(ALL, -1, ";s drops %s!\n", "You drop %s!\n",
 		this, NULL, ActTarg(ACT_WIELD)->ShortDesc());
       ActTarg(ACT_WIELD)->Travel(parent);
       }
     if(IsAct(ACT_HOLD) && ActTarg(ACT_HOLD) != ActTarg(ACT_WEAR_SHIELD)) {
-      parent->SendOut(ALL, -1, ";s drops %s!\n", "You drop %s!\n",
+      parent->SendOutF(ALL, -1, ";s drops %s!\n", "You drop %s!\n",
 		this, NULL, ActTarg(ACT_HOLD)->ShortDesc());
       ActTarg(ACT_HOLD)->Travel(parent);
       }
     else if(IsAct(ACT_HOLD)) {
-      parent->SendOut(ALL, -1, ";s stops holding %s.\n", "You stop holding %s!\n",
+      parent->SendOutF(ALL, -1, ";s stops holding %s.\n", "You stop holding %s!\n",
 		this, NULL, ActTarg(ACT_HOLD)->ShortDesc());
       StopAct(ACT_HOLD);
       }
@@ -2360,7 +2360,21 @@ int Object::HitStru(int force, int sev, int succ) {
   return sev;
   }
 
-void Object::Send(int tnum, int rsucc, const char *mes, ...) {
+void Object::Send(int tnum, int rsucc, const char *mes) {
+  char *tosend = strdup(mes);
+  tosend[0] = toupper(tosend[0]);
+
+  set<Mind*>::iterator mind;
+  for(mind = minds.begin(); mind != minds.end(); ++mind) {
+    Object *body = (*mind)->Body();
+    (*mind)->Attach(this);
+    (*mind)->Send(tosend);
+    (*mind)->Attach(body);
+    }
+  free(tosend);
+  }
+
+void Object::SendF(int tnum, int rsucc, const char *mes, ...) {
   static char buf[65536];
 
   if(mes[0] == 0) return;
@@ -2375,28 +2389,61 @@ void Object::Send(int tnum, int rsucc, const char *mes, ...) {
   vsprintf(buf, mes, stuff);
   va_end(stuff);
 
-  char *tosend = strdup(buf);
-  tosend[0] = toupper(tosend[0]);
-
-  set<Mind*>::iterator mind;
-  for(mind = minds.begin(); mind != minds.end(); ++mind) {
-    Object *body = (*mind)->Body();
-    (*mind)->Attach(this);
-    (*mind)->Send(tosend);
-    (*mind)->Attach(body);
-    }
-  free(tosend);
+  Send(tnum, rsucc, mes);
   }
 
 void Object::SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
+	Object *actor, Object *targ) {
+  if(no_seek) return;
+
+  string tstr = "";  if(targ) tstr = (char*)targ->Name(0, this, actor);
+  string astr = "";  if(actor) astr = (char*)actor->Name(0, this);
+
+  char *str = strdup(mes);
+  char *youstr = strdup(youmes);
+
+  for(char *ctr=str; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
+  for(char *ctr=youstr; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
+
+  if(youmes && youstr[0] == '*' && this == actor) {
+    Send(ALL, -1, CYEL);
+    SendF(ALL, -1, youstr+1, tstr.c_str());
+    Send(ALL, -1, CNRM);
+    }
+  else if(str[0] == '*' && targ == this) {
+    Send(ALL, -1, CRED);
+    SendF(tnum, rsucc, str+1, astr.c_str(), tstr.c_str());
+    Send(ALL, -1, CNRM);
+    }
+  else if(str[0] == '*') {
+    Send(ALL, -1, CMAG);
+    SendF(tnum, rsucc, str+1, astr.c_str(), tstr.c_str());
+    Send(ALL, -1, CNRM);
+    }
+  else if(youmes && this == actor) {
+    SendF(ALL, -1, youstr, tstr.c_str());
+    }
+  else {
+    SendF(tnum, rsucc, str, astr.c_str(), tstr.c_str());
+    }
+  free(str);
+  free(youstr);
+
+  typeof(contents.begin()) ind;
+  for(ind = contents.begin(); ind != contents.end(); ++ind) {
+    if((*ind)->Skill("Open") || (*ind)->Skill("Transparent"))
+      (*ind)->SendIn(tnum, rsucc, mes, youmes, actor, targ);
+    else if((*ind)->Pos() != POS_NONE)	//FIXME - Understand Transparency
+      (*ind)->SendIn(tnum, rsucc, mes, youmes, actor, targ);
+    }
+  }
+
+void Object::SendInF(int tnum, int rsucc, const char *mes, const char *youmes,
 	Object *actor, Object *targ, ...) {
   if(no_seek) return;
 
   static char buf[65536];
   static char youbuf[65536];
-
-  string tstr = "";  if(targ) tstr = (char*)targ->Name(0, this, actor);
-  string astr = "";  if(actor) astr = (char*)actor->Name(0, this);
 
   memset(buf, 0, 65536);
   memset(youbuf, 0, 65536);
@@ -2408,109 +2455,125 @@ void Object::SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
   vsprintf(youbuf, youmes, stuff);
   va_end(stuff);
 
-  for(char *ctr=buf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '$';
-
-  char *str = strdup(buf);
-  char *youstr = strdup(youbuf);
-
-  for(char *ctr=buf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
-  for(char *ctr=youbuf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
-
-  if(youmes && youbuf[0] == '*' && this == actor) {
-    Send(ALL, -1, CYEL);
-    Send(ALL, -1, youbuf+1, tstr.c_str());
-    Send(ALL, -1, CNRM);
-    }
-  else if(buf[0] == '*' && targ == this) {
-    Send(ALL, -1, CRED);
-    Send(tnum, rsucc, buf+1, astr.c_str(), tstr.c_str());
-    Send(ALL, -1, CNRM);
-    }
-  else if(buf[0] == '*') {
-    Send(ALL, -1, CMAG);
-    Send(tnum, rsucc, buf+1, astr.c_str(), tstr.c_str());
-    Send(ALL, -1, CNRM);
-    }
-  else if(youmes && this == actor) {
-    Send(ALL, -1, youbuf, tstr.c_str());
-    }
-  else {
-    Send(tnum, rsucc, buf, astr.c_str(), tstr.c_str());
-    }
-
-  typeof(contents.begin()) ind;
-  for(ind = contents.begin(); ind != contents.end(); ++ind) {
-    if((*ind)->Skill("Open") || (*ind)->Skill("Transparent"))
-      (*ind)->SendIn(tnum, rsucc, str, youstr, actor, targ);
-    else if((*ind)->Pos() != POS_NONE)	//FIXME - Understand Transparency
-      (*ind)->SendIn(tnum, rsucc, str, youstr, actor, targ);
-    }
-
-  free(str);
-  free(youstr);
+  SendIn(tnum, rsucc, buf, youbuf, actor, targ);
   }
 
 void Object::SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
-	Object *actor, Object *targ, ...) {
+	Object *actor, Object *targ) {
   if(no_seek) return;
-
-  static char buf[65536];
-  static char youbuf[65536];
 
   string tstr = "";  if(targ) tstr = (char*)targ->Name(0, this, actor);
   string astr = "";  if(actor) astr = (char*)actor->Name(0, this);
 
-  memset(buf, 0, 65536);
-  memset(youbuf, 0, 65536);
-  va_list stuff;
-  va_start(stuff, targ);
-  vsprintf(buf, mes, stuff);
-  va_end(stuff);
-  va_start(stuff, targ);
-  vsprintf(youbuf, youmes, stuff);
-  va_end(stuff);
+  char *str = strdup(mes);
+  char *youstr = strdup(youmes);
 
-  for(char *ctr=buf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '$';
+  for(char *ctr=str; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
+  for(char *ctr=youstr; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
 
-  char *str = strdup(buf);
-  char *youstr = strdup(youbuf);
-
-  for(char *ctr=buf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
-  for(char *ctr=youbuf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
-
-  if(youmes && youbuf[0] == '*' && this == actor) {
+  if(youmes && youstr[0] == '*' && this == actor) {
     Send(ALL, -1, CGRN);
-    Send(ALL, -1, youbuf+1, tstr.c_str());
+    SendF(ALL, -1, youstr+1, tstr.c_str());
     Send(ALL, -1, CNRM);
     }
-  else if(buf[0] == '*') {
+  else if(str[0] == '*') {
     Send(ALL, -1, CRED);
-    Send(tnum, rsucc, buf+1, astr.c_str(), tstr.c_str());
+    SendF(tnum, rsucc, str+1, astr.c_str(), tstr.c_str());
     Send(ALL, -1, CNRM);
     }
   else if(youmes && this == actor) {
-    Send(ALL, -1, youbuf, tstr.c_str());
+    SendF(ALL, -1, youstr, tstr.c_str());
     }
   else {
-    Send(tnum, rsucc, buf, astr.c_str(), tstr.c_str());
+    SendF(tnum, rsucc, str, astr.c_str(), tstr.c_str());
     }
+  free(str);
+  free(youstr);
 
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
     if((*ind)->Skill("Open") || (*ind)->Skill("Transparent"))
-      (*ind)->SendIn(tnum, rsucc, str, youstr, actor, targ);
+      (*ind)->SendIn(tnum, rsucc, mes, youmes, actor, targ);
     else if((*ind)->Pos() != POS_NONE)	//FIXME - Understand Transparency
-      (*ind)->SendIn(tnum, rsucc, str, youstr, actor, targ);
+      (*ind)->SendIn(tnum, rsucc, mes, youmes, actor, targ);
     }
 
   if(parent && (Skill("Open") || Skill("Transparent"))) {
     no_seek = 1;
-    parent->SendOut(tnum, rsucc, str, youstr, actor, targ);
+    parent->SendOut(tnum, rsucc, mes, youmes, actor, targ);
     no_seek = 0;
     }
 
-  free(str);
-  free(youstr);
+  }
+
+void Object::SendOutF(int tnum, int rsucc, const char *mes, const char *youmes,
+	Object *actor, Object *targ, ...) {
+  if(no_seek) return;
+
+  static char buf[65536];
+  static char youbuf[65536];
+
+  memset(buf, 0, 65536);
+  memset(youbuf, 0, 65536);
+  va_list stuff;
+  va_start(stuff, targ);
+  vsprintf(buf, mes, stuff);
+  va_end(stuff);
+  va_start(stuff, targ);
+  vsprintf(youbuf, youmes, stuff);
+  va_end(stuff);
+
+  SendOut(tnum, rsucc, mes, youmes, actor, targ);
+  }
+
+void Object::Loud(int str, const char *mes) {
+  set<Object*> visited;
+  Loud(visited, str, mes);
+  }
+
+void Object::LoudF(int str, const char *mes, ...) {
+  static char buf[65536];
+
+  if(mes[0] == 0) return;
+
+  memset(buf, 0, 65536);
+  va_list stuff;
+  va_start(stuff, mes);
+  vsprintf(buf, mes, stuff);
+  va_end(stuff);
+
+  set<Object*> visited;
+  Loud(visited, str, buf);
+  }
+
+void Object::Loud(set<Object*> &visited, int str, const char *mes) {
+  visited.insert(this);
+  typeof(Contents()) targs;
+  typeof(targs.begin()) targ_it;
+  targs = PickObjects("all", LOC_INTERNAL);
+  for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+    Object *dest = *targ_it;
+    if(dest->HasSkill("Enterable")) {
+      int ostr=str;
+      --str;
+      if(dest->Skill("Open") < 1) {
+	--str;
+	}
+      if(str > 0) {
+	if(dest->ActTarg(ACT_SPECIAL_LINKED)
+		&& dest->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
+	  dest = dest->ActTarg(ACT_SPECIAL_LINKED);
+	  if(visited.count(dest->Parent()) < 1) {
+	    dest->Parent()->SendOutF(ALL, 0,
+		"From ;s you hear %s\n", "",
+		dest, dest, mes);
+	    dest->Parent()->Loud(visited, str, mes);
+	    }
+	  }
+	}
+      str=ostr;
+      }
+    }
   }
 
 void init_world() {
@@ -2835,51 +2898,6 @@ int two_handed(int wtype) {
     thsks.insert(get_weapon_type("Two-Handed Staves"));
     }
   return int(thsks.count(wtype));
-  }
-
-void Object::Loud(int str, const char *mes, ...) {
-  static char buf[65536];
-
-  if(mes[0] == 0) return;
-
-  memset(buf, 0, 65536);
-  va_list stuff;
-  va_start(stuff, mes);
-  vsprintf(buf, mes, stuff);
-  va_end(stuff);
-
-  set<Object*> visited;
-  Loud(visited, str, buf);
-  }
-
-void Object::Loud(set<Object*> &visited, int str, const char *mes) {
-  visited.insert(this);
-  typeof(Contents()) targs;
-  typeof(targs.begin()) targ_it;
-  targs = PickObjects("all", LOC_INTERNAL);
-  for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
-    Object *dest = *targ_it;
-    if(dest->HasSkill("Enterable")) {
-      int ostr=str;
-      --str;
-      if(dest->Skill("Open") < 1) {
-	--str;
-	}
-      if(str > 0) {
-	if(dest->ActTarg(ACT_SPECIAL_LINKED)
-		&& dest->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
-	  dest = dest->ActTarg(ACT_SPECIAL_LINKED);
-	  if(visited.count(dest->Parent()) < 1) {
-	    dest->Parent()->SendOut(ALL, 0,
-		"From ;s you hear %s\n", "",
-		dest, dest, mes);
-	    dest->Parent()->Loud(visited, str, mes);
-	    }
-	  }
-	}
-      str=ostr;
-      }
-    }
   }
 
 const char *Object::PosString() {

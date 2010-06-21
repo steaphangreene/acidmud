@@ -268,15 +268,24 @@ public:
   int HealPhys(int succ);
   int HealStru(int succ);
 
-  void Send(int targ, int rsucc, const char *mes, ...)
-	__attribute__ ((format (printf, 4, 5)));
+  //Unformatted (raw print, but with ;s/;s for actor/targ)
+  void Send(int targ, int rsucc, const char *mes);
   void SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
-	Object *actor, Object *targ, ...)
-	__attribute__ ((format (printf, 4, 8)));
+	Object *actor, Object *targ);
   void SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
+	Object *actor, Object *targ);
+  void Loud(int str, const char *mes);
+
+  //Formatted (printf style, plus with ;s/;s for actor/targ)
+  void SendF(int targ, int rsucc, const char *mes, ...)
+	__attribute__ ((format (printf, 4, 5)));
+  void SendOutF(int tnum, int rsucc, const char *mes, const char *youmes,
 	Object *actor, Object *targ, ...)
 	__attribute__ ((format (printf, 4, 8)));
-  void Loud(int str, const char *mes, ...)
+  void SendInF(int tnum, int rsucc, const char *mes, const char *youmes,
+	Object *actor, Object *targ, ...)
+	__attribute__ ((format (printf, 4, 8)));
+  void LoudF(int str, const char *mes, ...)
 	__attribute__ ((format (printf, 3, 4)));
 
   void CircleLoadAll();
