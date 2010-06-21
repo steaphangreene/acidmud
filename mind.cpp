@@ -420,6 +420,33 @@ void Mind::Think(int istick) {
 //      fprintf(stderr, "Sent:\n%s\n   To: %s\n",
 //	body->LongDesc(), body->Parent()->Name()
 //	);
+      while(spos != string::npos) {
+	while(script[spos] && isspace(script[spos])) ++spos;
+	if(!script[spos]) return;
+
+	//Skip all of these for now
+	else if(!strncasecmp(script.c_str()+spos, "wait ", 5)) {
+	  }
+	else if(!strncasecmp(script.c_str()+spos, "if ", 3)) {
+	  }
+	else if(!strncasecmp(script.c_str()+spos, "elseif ", 7)) {
+	  }
+	else if(!strncasecmp(script.c_str()+spos, "end", 3)) {
+	  }
+
+	else if(!strncasecmp(script.c_str()+spos, "%echo% ", 7)) {
+	  string mes = script.c_str() + spos + 6;
+	  size_t end = mes.find_first_of("\n\r");
+	  if(end != string::npos) mes = mes.substr(0, end);
+	  trim_string(mes);
+	  mes += "\n";
+	  body->Parent()->SendOut(0, 0, mes.c_str(), mes.c_str(), NULL, NULL);
+	  }
+
+	else {		//Silently ignore the rest for now!  FIXME!
+	  }
+	spos = script.find_first_of("\n\r", spos+1);	//Kill Line.
+	}
       }
     }
   else if(type == MIND_TBAMOB) {

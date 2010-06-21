@@ -60,7 +60,7 @@ private:
   int log;
 
   string script;
-  int spos;
+  size_t spos;
   Object *actor;
   };
 
