@@ -53,12 +53,14 @@ private:
 
   int type;
   int pers;
-  int line;
   Object *body;
   Player *player;
   string pname;
   string prompt;
   int log;
+
+  string script;
+  int spos;
   };
 
 Mind *new_mind(int tp, Object *obj = NULL);

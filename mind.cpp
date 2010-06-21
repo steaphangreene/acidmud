@@ -25,7 +25,6 @@ Mind::Mind() {
   body = NULL;
   player = NULL;
   type = MIND_MORON;
-  line = 0;
   pers = 0;
   log = -1;
   }
@@ -33,7 +32,6 @@ Mind::Mind() {
 Mind::Mind(int fd) {
   body = NULL;
   player = NULL;
-  line = 0;
   log = -1;
   SetRemote(fd);
   }
@@ -41,7 +39,6 @@ Mind::Mind(int fd) {
 Mind::Mind(int fd, int l) {
   body = NULL;
   player = NULL;
-  line = 0;
   log = l;
   SetRemote(fd);
   }
@@ -79,6 +76,20 @@ void Mind::SetTBATrigger(Object *tr) {
   type = MIND_TBATRIG;
   pers = fileno(stderr);
   Attach(tr);
+  spos = 0;
+  script = body->LongDesc();
+  script += "\n";
+
+  //Variable Sub
+  char buf[4096];
+  size_t loc = string::npos;
+
+  loc = script.find("%self.vnum%");
+  while(loc != string::npos) {
+    sprintf(buf, "%d", body->Parent()->Skill("TBARoom") - 1000000); //To TBA #s
+    script.replace(loc, strlen("%self.vnum%"), buf);
+    loc = script.find("%self.vnum%");
+    }
   }
 
 void Mind::SetTBAMob() {
@@ -389,7 +400,9 @@ void Mind::Think(int istick) {
   else if(type == MIND_TBATRIG) {
     if(body && body->Parent()) {
       body->Parent()->SendOut(0, 0,
-	body->LongDesc(), body->LongDesc(), NULL, NULL
+	(string("TRIGGERED:\n") + script).c_str(),
+	(string("TRIGGERED:\n") + script).c_str(),
+	NULL, NULL
 	);
 //      fprintf(stderr, "Sent:\n%s\n   To: %s\n",
 //	body->LongDesc(), body->Parent()->Name()
