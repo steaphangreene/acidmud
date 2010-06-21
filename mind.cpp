@@ -22,23 +22,29 @@ using namespace std;
 #include "player.h"
 
 Mind::Mind() {
+  script = NULL;
   body = NULL;
   player = NULL;
   type = MIND_MORON;
-  log = -1;
+  line = 0;
   pers = 0;
+  log = -1;
   }
 
 Mind::Mind(int fd) {
+  script = NULL;
   body = NULL;
   player = NULL;
+  line = 0;
   log = -1;
   SetRemote(fd);
   }
 
 Mind::Mind(int fd, int l) {
+  script = NULL;
   body = NULL;
   player = NULL;
+  line = 0;
   log = l;
   SetRemote(fd);
   }
@@ -69,6 +75,12 @@ void Mind::SetRemote(int fd) {
 
 void Mind::SetMob() {
   type = MIND_MOB;
+  pers = fileno(stderr);
+  }
+
+void Mind::SetTBATrigger(Object *tr) {
+  script = tr;
+  type = MIND_TBATRIG;
   pers = fileno(stderr);
   }
 
@@ -788,4 +800,16 @@ const char *Mind::SpecialPrompt() {
   return prompt.c_str();
   }
 
-
+Mind *new_mind(int tp, Object *obj) {
+  Mind *m = new Mind();
+  if(tp == MIND_TBATRIG && obj) {
+    m->SetTBATrigger(obj);
+    if(obj->Parent()) {
+      m->Attach(obj->Parent());
+      }
+    }
+  else if(obj) {
+    m->Attach(obj);
+    }
+  return m;
+  }

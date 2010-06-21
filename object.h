@@ -390,4 +390,8 @@ int two_handed(int wtype);
 
 void tick_world();
 
+Object *new_obj();
+Object *new_obj(Object *);
+Object *new_obj(const Object &);
+
 #endif

@@ -4,8 +4,9 @@
 #define MIND_REMOTE 1
 #define MIND_CIRCLEMOB 2
 #define MIND_TBAMOB 3
-#define MIND_MOB 4
-#define MIND_SYSTEM 5
+#define MIND_TBATRIG 4
+#define MIND_MOB 5
+#define MIND_SYSTEM 6
 
 class Mind;
 class Object;
@@ -21,8 +22,9 @@ public:
   ~Mind();
   void SetRemote(int fd);
   void SetMob();
-  void SetCircleMob();
   void SetTBAMob();
+  void SetTBATrigger(Object *tr);
+  void SetCircleMob();
   void SetSystem();
   void Attach(Object *bod);
   void Unattach();
@@ -49,13 +51,15 @@ private:
 
   int type;
   int pers;
+  int line;
   Object *body;
+  Object *script;
   Player *player;
   string pname;
   string prompt;
   int log;
   };
 
-Mind *new_mind(int);
+Mind *new_mind(int tp, Object *obj = NULL);
 
 #endif

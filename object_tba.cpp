@@ -91,6 +91,7 @@ void Object::TBALoadAll() {
       }
     fclose(mudz);
     }
+  TBAFinalizeTriggers();
   FILE *muds = fopen("tba/shp/index", "r");
   if(muds) {
     sprintf(buf, "tba/shp/%c", 0);
@@ -104,7 +105,6 @@ void Object::TBALoadAll() {
       }
     fclose(muds);
     }
-  TBAFinalizeTriggers();
   //TBACleanup();
   fprintf(stderr, "Warning: %d unhandled triggers!\n", unhandled_trig);
   }
@@ -738,7 +738,6 @@ void Object::TBALoadMOB(const char *fn) {
 	  Object *trg = new Object(*(bynumtrg[tnum]));
 	  trg->SetParent(obj);
 	  todotrg.push_back(trg);
-	  TBAFinalizeTriggers();
 	//  fprintf(stderr, "Put Trg \"%s\" on MOB \"%s\"\n",
 	//	trg->Desc(), obj->ShortDesc()
 	//	);
@@ -1971,7 +1970,6 @@ void Object::TBALoadOBJ(const char *fn) {
 	    Object *trg = new Object(*(bynumtrg[tnum]));
 	    trg->SetParent(obj);
 	    todotrg.push_back(trg);
-	    TBAFinalizeTriggers();
 	//    fprintf(stderr, "Put Trg \"%s\" on Obj \"%s\"\n",
 	//	trg->Desc(), obj->ShortDesc()
 	//	);
@@ -2119,7 +2117,7 @@ void Object::TBALoadWLD(const char *fn) {
 	    Object *trg = new Object(*(bynumtrg[tnum]));
 	    trg->SetParent(obj);
 	    todotrg.push_back(trg);
-	    TBAFinalizeTriggers();
+	    new_mind(MIND_TBATRIG, trg);
 	//    fprintf(stderr, "Put Trg \"%s\" on Room \"%s\"\n",
 	//	trg->Desc(), obj->ShortDesc()
 	//	);

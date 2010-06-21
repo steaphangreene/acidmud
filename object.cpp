@@ -1431,6 +1431,9 @@ void Object::SendStats(Mind *m, Object *o) {
     else if((*mind) == get_circle_mob_mind()) {
       m->Send("->CIRCLE_MOB_MIND\n");
       }
+    else if((*mind)->Type() == MIND_TBATRIG) {
+      m->Send("->CIRCLE_TBA_TRIGGER\n");
+      }
     }
   m->Send("%s", CNRM);
   }
@@ -3336,3 +3339,16 @@ int Object::Quantity() const {
   if(!HasSkill("Quantity")) return 1;
   return Skill("Quantity");
   }
+
+Object *new_obj() {
+  return new Object();
+  }
+
+Object *new_obj(Object *o) {
+  return new Object(o);
+  }
+
+Object *new_obj(const Object &o) {
+  return new Object(o);
+  }
+
