@@ -4803,16 +4803,16 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    while(chr->Skill("Attributes") >= chr->Attribute(0)
-	|| chr->Skill("Attributes") >= chr->Attribute(1)
-	|| chr->Skill("Attributes") >= chr->Attribute(2)
-	|| chr->Skill("Attributes") >= chr->Attribute(3)
-	|| chr->Skill("Attributes") >= chr->Attribute(4)
-	|| chr->Skill("Attributes") >= chr->Attribute(5)
+    while(chr->Skill("Attributes") > chr->Attribute(0)
+	|| chr->Skill("Attributes") > chr->Attribute(1)
+	|| chr->Skill("Attributes") > chr->Attribute(2)
+	|| chr->Skill("Attributes") > chr->Attribute(3)
+	|| chr->Skill("Attributes") > chr->Attribute(4)
+	|| chr->Skill("Attributes") > chr->Attribute(5)
 	) {
       int which = (rand()%6);
       if(chr->Attribute(which) < 6
-		&& chr->Skill("Attributes") >= chr->Attribute(which)
+		&& chr->Skill("Attributes") > chr->Attribute(which)
 		) {
 	chr->SetAttribute(which, chr->Attribute(which) + 1);
 	chr->SetSkill("Attributes",
@@ -4820,13 +4820,16 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		);
 	}
       }
+    chr->SetSkill("Senses", chr->Skill("Attributes"));
+    chr->SetSkill("Attributes", 0);
+
     list<string> skills = get_skills("all");
     while(chr->Skill("Skills")) {
       int which = (rand()%skills.size());
       list<string>::iterator skl = skills.begin();
       while(which) { ++skl; --which; }
       if(chr->Skill(*skl) < (chr->Attribute(get_linked(*skl))+1) / 2
-		&& chr->Skill("Skills") >= chr->Skill(*skl)
+		&& chr->Skill("Skills") > chr->Skill(*skl)
 		) {
 	chr->SetSkill(*skl, chr->Skill(*skl) + 1);
 	chr->SetSkill("Skills", chr->Skill("Skills") - chr->Skill(*skl));
