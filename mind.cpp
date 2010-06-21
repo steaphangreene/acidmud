@@ -25,30 +25,44 @@ using namespace std;
 
 //FIXME: This is not remotely done!
 static int tba_eval(string expr) {
+  size_t end = expr.find_first_of("\n\r");
+  if(end != string::npos) expr = expr.substr(0, end);
   trim_string(expr);
+
   if(expr[0] == '(') return tba_eval(expr.substr(1));	//FIXME: Really Do This!
 
   size_t op = expr.find_first_of("|&=!<>/-+*");
   if(op == string::npos) return atoi(expr.c_str());	//No ops, just val
 
-  if(!strncmp(expr.c_str()+op, "==", 2)) {
-    string arg1 = expr.substr(0, op);
-    expr = expr.substr(op+2);
-    op = expr.find_first_of("|&=!<>/-+*)\n\r");
-    if(op != string::npos) expr = expr.substr(0, op);
-    trim_string(arg1);
-    trim_string(expr);
-    return(arg1 == expr);
-    }
+  int comp = 0;		//Positive for 2-char ops, negative for 1-char
+  if(!strncmp(expr.c_str()+op, "==", 2)) comp = 1;
+  if(!strncmp(expr.c_str()+op, "!=", 2)) comp = 2;
 
-  if(!strncmp(expr.c_str()+op, "!=", 2)) {
+  if(comp != 0) {	//For == and !=
     string arg1 = expr.substr(0, op);
-    expr = expr.substr(op+2);
-    op = expr.find_first_of("|&=!<>/-+*)\n\r");
-    if(op != string::npos) expr = expr.substr(0, op);
     trim_string(arg1);
-    trim_string(expr);
-    return(arg1 != expr);
+    expr = expr.substr(op+2);
+    string arg2 = expr;
+    op = expr.find_first_of("|&=!<>/-+*)\n\r");
+    if(op != string::npos) {
+      arg2 = expr.substr(0, op);
+      expr = expr.substr(op);
+      }
+    else {
+      expr = "";
+      }
+    trim_string(arg2);
+
+    if(expr != "") {
+      expr = "0 " + expr;
+      if(comp == 1 && arg1 == arg2) expr[0] = 1;
+      else if(comp == 2 && arg1 != arg2) expr[0] = 1;
+      return tba_eval(expr);
+      }
+    else {
+      if(comp == 1) return (arg1 == arg2);
+      if(comp == 2) return (arg1 != arg2);
+      }
     }
 
   return 0;
