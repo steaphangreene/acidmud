@@ -72,16 +72,37 @@ void Mind::SetMob() {
   pers = fileno(stderr);
   }
 
-void Mind::SetTBATrigger(Object *tr) {
+void Mind::SetTBATrigger(Object *tr, Object *tripper) {
+  if((!tr) || (!(tr->Parent()))) return;
+
   type = MIND_TBATRIG;
   pers = fileno(stderr);
   Attach(tr);
   spos = 0;
   script = body->LongDesc();
   script += "\n";
+  actor = tripper;
 
-  //Variable Sub
-  replace_all(script, "%self.vnum%", body->Parent()->Skill("TBARoom")-1000000);
+  Object *targ = tr->Parent();
+
+  //Variable Sub (For constants on this trigger instance)
+  if(tr->Skill("TBAScriptType") >= 128) {	//Room Triggers
+    replace_all(script, "%self.vnum%", tr->Skill("TBARoom")-1000000);
+    }
+  else if(tr->Skill("TBAScriptType") >= 64) {	//Object Triggers
+    replace_all(script, "%self.vnum%", tr->Skill("TBAObject")-1000000);
+    }
+  else {					//MOB Triggers
+    replace_all(script, "%self.vnum%", tr->Skill("TBAMOB")-1000000);
+    }
+  if(tripper) {
+    int vnum = tripper->Skill("TBAMOB");
+    if(vnum < 1) vnum = tripper->Skill("TBAObject");
+    if(vnum < 1) vnum = tripper->Skill("TBARoom");
+    if(vnum) {
+      replace_all(script, "%actor.vnum%", vnum-1000000);
+      }
+    }
   }
 
 void Mind::SetTBAMob() {
@@ -821,10 +842,10 @@ const char *Mind::SpecialPrompt() {
   return prompt.c_str();
   }
 
-Mind *new_mind(int tp, Object *obj) {
+Mind *new_mind(int tp, Object *obj, Object *obj2) {
   Mind *m = new Mind();
   if(tp == MIND_TBATRIG && obj) {
-    m->SetTBATrigger(obj);
+    m->SetTBATrigger(obj, obj2);
     }
   else if(obj) {
     m->Attach(obj);
@@ -832,10 +853,10 @@ Mind *new_mind(int tp, Object *obj) {
   return m;
   }
 
-int new_trigger(Object *obj) {
+int new_trigger(Object *obj, Object *tripper) {
   if((!obj) || (!(obj->Parent()))) return 0;
 
-  Mind *m = new_mind(MIND_TBATRIG, obj);
+  Mind *m = new_mind(MIND_TBATRIG, obj, tripper);
 //  fprintf(stderr, "Attached to '%s' on '%s'\n", 
 //	obj->Name(), obj->Parent()->Name()
 //	);

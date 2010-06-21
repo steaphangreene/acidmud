@@ -23,7 +23,7 @@ public:
   void SetRemote(int fd);
   void SetMob();
   void SetTBAMob();
-  void SetTBATrigger(Object *tr);
+  void SetTBATrigger(Object *tr, Object *tripper = NULL);
   void SetCircleMob();
   void SetSystem();
   void Attach(Object *bod);
@@ -61,9 +61,10 @@ private:
 
   string script;
   int spos;
+  Object *actor;
   };
 
-Mind *new_mind(int tp, Object *obj = NULL);
-int new_trigger(Object *obj);
+Mind *new_mind(int tp, Object *obj = NULL, Object *obj2 = NULL);
+int new_trigger(Object *obj, Object *tripper = NULL);
 
 #endif
