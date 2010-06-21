@@ -561,6 +561,7 @@ void Object::TBALoadMOB(const char *fn) {
       //fprintf(stderr, "Loaded MOB #%d\n", onum);
 
       Object *obj = new Object(this);
+      obj->SetSkill("TBAMOB", 1000000+onum);
       bynummob[onum] = obj;
 
       //FIXME: Nicknames should not be ignored!!!
@@ -930,6 +931,7 @@ void Object::TBALoadOBJ(const char *fn) {
       //fprintf(stderr, "Loaded object #%d\n", onum);
 
       Object *obj = new Object(this);
+      obj->SetSkill("TBAObject", 1000000+onum);
       bynumobj[onum] = obj;
 
       vector<string> aliases;
@@ -1155,7 +1157,7 @@ void Object::TBALoadOBJ(const char *fn) {
 	obj->SetSkill("Quantity", val[0]);
 	}
       else if(tp == 18) { // KEY
-	obj->SetSkill("Key", 100000 + onum);		// Key's "code"
+	obj->SetSkill("Key", 1000000 + onum);		// Key's "code"
 	}
       else if(tp == 15) { // CONTAINER
 	obj->SetSkill("Container", val[0] * 454);
@@ -1168,7 +1170,7 @@ void Object::TBALoadOBJ(const char *fn) {
 	  }
 	if(val[1] & 1) obj->SetSkill("Closeable", 1);	// Can it be closed?
 	if(val[2] > 0) {
-	  obj->SetSkill("Lock", 100000 + val[2]);	// Unlocking key's code
+	  obj->SetSkill("Lock", 1000000 + val[2]);	// Unlocking key's code
 	  obj->SetSkill("Lockable", 1);			// Can it be locked?
 	  }
 
@@ -2008,6 +2010,7 @@ void Object::TBALoadWLD(const char *fn) {
 
       Object *obj = new Object(this);
       olist.push_back(obj);
+      obj->SetSkill("TBARoom", 1000000+onum);
       bynumwld[onum] = obj;
 
       obj->SetWeight(-1);
@@ -2036,7 +2039,7 @@ void Object::TBALoadWLD(const char *fn) {
 
       string name = obj->ShortDesc();
       if(name.find("Secret") >= 0 && name.find("Secret") < name.length()) {
-        obj->SetSkill("Secret", 100000+onum);
+        obj->SetSkill("Secret", 1000000+onum);
 	}
 
       obj->SetSkill("Translucent", 1000);	// Full sky, by default
@@ -2047,14 +2050,14 @@ void Object::TBALoadWLD(const char *fn) {
 	obj->SetSkill("Translucent", 0);	// No sky, no windows
 	}
       if(strcasestr(buf, "b") || (atoi(buf) & 2)) { //DEATH
-	obj->SetSkill("Secret", 100000+onum);
+	obj->SetSkill("Secret", 1000000+onum);
 //	obj->SetSkill("Hazardous", 2);		//FIXME: Actually Dangerous?
 	}
       if(strcasestr(buf, "c") || (atoi(buf) & 4)) { //NOMOB
         obj->SetSkill("TBAZone", 999999);
 	}
       else {
-        obj->SetSkill("TBAZone", 100000 + zone);
+        obj->SetSkill("TBAZone", 1000000 + zone);
 	}
       if(strcasestr(buf, "e") || (atoi(buf) & 16)) { //PEACEFUL
         obj->SetSkill("Peaceful", 1000);
@@ -2117,7 +2120,6 @@ void Object::TBALoadWLD(const char *fn) {
 	    Object *trg = new Object(*(bynumtrg[tnum]));
 	    trg->SetParent(obj);
 	    todotrg.push_back(trg);
-	    new_mind(MIND_TBATRIG, trg);
 	//    fprintf(stderr, "Put Trg \"%s\" on Room \"%s\"\n",
 	//	trg->Desc(), obj->ShortDesc()
 	//	);
@@ -2180,7 +2182,7 @@ void Object::TBALoadWLD(const char *fn) {
 	      if(tynum[dir][*ob] == 1) nobj->SetSkill("Pickable", 4);
 	      if(tynum[dir][*ob] == 2) nobj->SetSkill("Pickable", 99);
 	      if(knum[dir][*ob] > 0) {
-		nobj->SetSkill("Lock", 100000 + knum[dir][*ob]);
+		nobj->SetSkill("Lock", 1000000 + knum[dir][*ob]);
 		}
 	      }
 	    else {
@@ -2459,13 +2461,20 @@ void Object::TBALoadTRG(const char *fn) {	//Triggers
       script = new Object();
       bynumtrg[tnum] = script;
       script->SetSkill("Invisible", 1000);
-      script->SetSkill("TBAScript", 1); // Mark it as a tbaMUD script (trigger)
+      script->SetSkill("TBAScript", tnum); // Mark it as a tbaMUD script (trigger)
       script->SetShortDesc("A tbaMUD trigger script.");
       //fprintf(stderr, "Loading #%d\n", tnum);
       fscanf(mud, " %65535[^~]", buf);	//Trigger Name
       script->SetDesc(buf);
       fscanf(mud, "~");
-      fscanf(mud, " %*s %*s %*s");	//Attach Type, Trig Type, Numeric Arg
+
+      int atype = -1, ttype = -1, narg;
+      fscanf(mud, " %d %65535s %d", &atype, buf, &narg);	//Attach Type
+      sscanf(buf, "%d", &ttype);				//Trigger Type
+      if(ttype < 1) ttype = (buf[0] & 0x1F);
+      script->SetSkill("TBAScriptType", atype*65536 + ttype);	//Combined
+      script->SetSkill("TBAScriptNArg", narg);			//Numeric Arg
+
       fscanf(mud, " %*[^~]");		//Trigger Arg (FIXME: Use All These?)
       fscanf(mud, "~");
       fscanf(mud, "%*[\n\r]");		//Go to next Line, don't eat spaces.
