@@ -275,6 +275,7 @@ void tick_world() {
     }
   ++tickstage;
   if(tickstage >= TICKSPLIT) tickstage = 0;
+  Mind::Resume(10);	//Tell suspended minds to resume if their time is up
   }
 
 int Object::Tick() {

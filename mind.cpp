@@ -16,6 +16,7 @@ using namespace std;
 #include <unistd.h>
 
 #include "utils.h"
+#include "color.h"
 #include "net.h"
 #include "mind.h"
 #include "object.h"
@@ -413,19 +414,26 @@ void Mind::Think(int istick) {
   else if(type == MIND_TBATRIG) {
     if(body && body->Parent()) {
       body->Parent()->SendOut(0, 0,
-	(string("TRIGGERED:\n") + script).c_str(),
-	(string("TRIGGERED:\n") + script).c_str(),
+	(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
+	(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
 	NULL, NULL
 	);
-//      fprintf(stderr, "Sent:\n%s\n   To: %s\n",
-//	body->LongDesc(), body->Parent()->Name()
-//	);
       while(spos != string::npos) {
 	while(script[spos] && isspace(script[spos])) ++spos;
 	if(!script[spos]) return;
 
 	//Skip all of these for now
 	else if(!strncasecmp(script.c_str()+spos, "wait ", 5)) {
+	  int time = 0;
+	  sscanf(script.c_str()+spos+5, "%d", &time);
+	  if(time > 0) {
+	    spos = script.find_first_of("\n\r", spos+1);	//Kill Line.
+	    Suspend(time*1000);
+	    }
+	  else {
+	    fprintf(stderr, "Error: Told 'wait %s'\n", script.c_str()+spos+5);
+	    }
+	  return;
 	  }
 	else if(!strncasecmp(script.c_str()+spos, "if ", 3)) {
 	  }
@@ -888,6 +896,26 @@ int new_trigger(Object *obj, Object *tripper) {
 //	obj->Name(), obj->Parent()->Name()
 //	);
   m->Think(1);
-  delete(m);
+//  delete(m);	//Needs to take care of itself!	FIXME!
   return 0;
+  }
+
+list<pair<int, Mind*> > Mind::waiting;
+void Mind::Suspend(int msec) {
+  waiting.push_back(make_pair(msec, this));
+  }
+
+void Mind::Resume(int passed) {
+  list<pair<int, Mind*> >::iterator cur = waiting.begin();
+  while(cur != waiting.end()) {
+    list<pair<int, Mind*> >::iterator tmp = cur;
+    ++cur;	//Inc cur first, in case I erase tmp.
+    if(tmp->first <= passed) {
+      waiting.erase(tmp);
+      tmp->second->Think(0);
+      }
+    else {
+      tmp->first -= passed;
+      }
+    }
   }

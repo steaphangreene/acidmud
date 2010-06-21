@@ -1,5 +1,7 @@
 #include "player.h"
 
+#include <list>
+
 #define MIND_MORON 0
 #define MIND_REMOTE 1
 #define MIND_CIRCLEMOB 2
@@ -41,8 +43,11 @@ public:
   void SendF(const char *, ...) __attribute__ ((format (printf, 2, 3)));
   void SendRawF(const char *, ...) __attribute__ ((format (printf, 2, 3)));
   void UpdatePrompt();
+
   void Think(int istick = 0);
   string Tactics(int phase = -1);
+  void Suspend(int msec);
+  static void Resume(int passed);
 
   void SetSpecialPrompt(const char *newp = "");
   const char *SpecialPrompt();
@@ -62,6 +67,8 @@ private:
   string script;
   size_t spos;
   Object *actor;
+
+  static list<pair<int, Mind*> > waiting;
   };
 
 Mind *new_mind(int tp, Object *obj = NULL, Object *obj2 = NULL);
