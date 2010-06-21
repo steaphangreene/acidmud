@@ -2389,7 +2389,7 @@ void Object::SendF(int tnum, int rsucc, const char *mes, ...) {
   vsprintf(buf, mes, stuff);
   va_end(stuff);
 
-  Send(tnum, rsucc, mes);
+  Send(tnum, rsucc, buf);
   }
 
 void Object::SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
@@ -2407,24 +2407,29 @@ void Object::SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
 
   if(youmes && youstr[0] == '*' && this == actor) {
     Send(ALL, -1, CYEL);
-    SendF(ALL, -1, youstr+1, tstr.c_str());
+    if(targ) SendF(ALL, -1, youstr+1, tstr.c_str());
+    else Send(ALL, -1, youstr+1);
     Send(ALL, -1, CNRM);
     }
   else if(str[0] == '*' && targ == this) {
     Send(ALL, -1, CRED);
-    SendF(tnum, rsucc, str+1, astr.c_str(), tstr.c_str());
+    if(targ || actor) SendF(tnum, rsucc, str+1, astr.c_str(), tstr.c_str());
+    else Send(tnum, rsucc, str+1);
     Send(ALL, -1, CNRM);
     }
   else if(str[0] == '*') {
     Send(ALL, -1, CMAG);
-    SendF(tnum, rsucc, str+1, astr.c_str(), tstr.c_str());
+    if(targ || actor) SendF(tnum, rsucc, str+1, astr.c_str(), tstr.c_str());
+    else Send(tnum, rsucc, str+1);
     Send(ALL, -1, CNRM);
     }
   else if(youmes && this == actor) {
-    SendF(ALL, -1, youstr, tstr.c_str());
+    if(targ) SendF(ALL, -1, youstr, tstr.c_str());
+    else Send(ALL, -1, youstr);
     }
   else {
-    SendF(tnum, rsucc, str, astr.c_str(), tstr.c_str());
+    if(targ || actor) SendF(tnum, rsucc, str, astr.c_str(), tstr.c_str());
+    else Send(tnum, rsucc, str);
     }
   free(str);
   free(youstr);
@@ -2473,19 +2478,23 @@ void Object::SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
 
   if(youmes && youstr[0] == '*' && this == actor) {
     Send(ALL, -1, CGRN);
-    SendF(ALL, -1, youstr+1, tstr.c_str());
+    if(targ) SendF(ALL, -1, youstr+1, tstr.c_str());
+    else Send(ALL, -1, youstr+1);
     Send(ALL, -1, CNRM);
     }
   else if(str[0] == '*') {
     Send(ALL, -1, CRED);
-    SendF(tnum, rsucc, str+1, astr.c_str(), tstr.c_str());
+    if(targ || actor) SendF(tnum, rsucc, str+1, astr.c_str(), tstr.c_str());
+    else Send(tnum, rsucc, str+1);
     Send(ALL, -1, CNRM);
     }
   else if(youmes && this == actor) {
-    SendF(ALL, -1, youstr, tstr.c_str());
+    if(targ) SendF(ALL, -1, youstr, tstr.c_str());
+    else Send(ALL, -1, youstr);
     }
   else {
-    SendF(tnum, rsucc, str, astr.c_str(), tstr.c_str());
+    if(targ || actor) SendF(tnum, rsucc, str, astr.c_str(), tstr.c_str());
+    else Send(tnum, rsucc, str);
     }
   free(str);
   free(youstr);
@@ -2523,7 +2532,7 @@ void Object::SendOutF(int tnum, int rsucc, const char *mes, const char *youmes,
   vsprintf(youbuf, youmes, stuff);
   va_end(stuff);
 
-  SendOut(tnum, rsucc, mes, youmes, actor, targ);
+  SendOut(tnum, rsucc, buf, youbuf, actor, targ);
   }
 
 void Object::Loud(int str, const char *mes) {

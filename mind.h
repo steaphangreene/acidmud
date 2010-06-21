@@ -55,7 +55,6 @@ private:
   int pers;
   int line;
   Object *body;
-  Object *script;
   Player *player;
   string pname;
   string prompt;

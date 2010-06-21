@@ -22,7 +22,6 @@ using namespace std;
 #include "player.h"
 
 Mind::Mind() {
-  script = NULL;
   body = NULL;
   player = NULL;
   type = MIND_MORON;
@@ -32,7 +31,6 @@ Mind::Mind() {
   }
 
 Mind::Mind(int fd) {
-  script = NULL;
   body = NULL;
   player = NULL;
   line = 0;
@@ -41,7 +39,6 @@ Mind::Mind(int fd) {
   }
 
 Mind::Mind(int fd, int l) {
-  script = NULL;
   body = NULL;
   player = NULL;
   line = 0;
@@ -79,9 +76,9 @@ void Mind::SetMob() {
   }
 
 void Mind::SetTBATrigger(Object *tr) {
-  script = tr;
   type = MIND_TBATRIG;
   pers = fileno(stderr);
+  Attach(tr);
   }
 
 void Mind::SetTBAMob() {
@@ -390,8 +387,13 @@ void Mind::Think(int istick) {
       }
     }
   else if(type == MIND_TBATRIG) {
-    if(script && body) {
-      body->SendOut(0, 0, script->LongDesc(), script->LongDesc(), NULL, NULL);
+    if(body && body->Parent()) {
+      body->Parent()->SendOut(0, 0,
+	body->LongDesc(), body->LongDesc(), NULL, NULL
+	);
+//      fprintf(stderr, "Sent:\n%s\n   To: %s\n",
+//	body->LongDesc(), body->Parent()->Name()
+//	);
       }
     }
   else if(type == MIND_TBAMOB) {
@@ -818,9 +820,6 @@ Mind *new_mind(int tp, Object *obj) {
   Mind *m = new Mind();
   if(tp == MIND_TBATRIG && obj) {
     m->SetTBATrigger(obj);
-    if(obj->Parent()) {
-      m->Attach(obj->Parent());
-      }
     }
   else if(obj) {
     m->Attach(obj);
@@ -829,7 +828,12 @@ Mind *new_mind(int tp, Object *obj) {
   }
 
 int new_trigger(Object *obj) {
+  if((!obj) || (!(obj->Parent()))) return 0;
+
   Mind *m = new_mind(MIND_TBATRIG, obj);
+//  fprintf(stderr, "Attached to '%s' on '%s'\n", 
+//	obj->Name(), obj->Parent()->Name()
+//	);
   m->Think(1);
   delete(m);
   return 0;
