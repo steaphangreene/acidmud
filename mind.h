@@ -61,5 +61,6 @@ private:
   };
 
 Mind *new_mind(int tp, Object *obj = NULL);
+int new_trigger(Object *obj);
 
 #endif

@@ -1556,6 +1556,16 @@ int Object::Travel(Object *dest, int try_combine) {
     if(Weight() > con) return -3;
     }
 
+  if(att[1] > 0) {	//Type 135 (ROOM-ENTER) Triggers
+    typeof(contents.begin()) trig = dest->contents.begin();
+    for(; trig != dest->contents.end(); ++trig) {
+      if((*trig)->Skill("TBAScriptType") == 135) {
+	new_trigger(*trig);
+	//fprintf(stderr, "Triggering: %s\n", (*trig)->Name());
+	}
+      }
+    }
+
   Object *oldp = parent;
   parent->RemoveLink(this);
   parent = dest;
@@ -2398,6 +2408,8 @@ void Object::SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
   vsprintf(youbuf, youmes, stuff);
   va_end(stuff);
 
+  for(char *ctr=buf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '$';
+
   char *str = strdup(buf);
   char *youstr = strdup(youbuf);
 
@@ -2457,6 +2469,8 @@ void Object::SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
   va_start(stuff, targ);
   vsprintf(youbuf, youmes, stuff);
   va_end(stuff);
+
+  for(char *ctr=buf; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '$';
 
   char *str = strdup(buf);
   char *youstr = strdup(youbuf);

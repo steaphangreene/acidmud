@@ -2472,7 +2472,7 @@ void Object::TBALoadTRG(const char *fn) {	//Triggers
       fscanf(mud, " %d %65535s %d", &atype, buf, &narg);	//Attach Type
       sscanf(buf, "%d", &ttype);				//Trigger Type
       if(ttype < 1) ttype = (buf[0] & 0x1F);
-      script->SetSkill("TBAScriptType", atype*65536 + ttype);	//Combined
+      script->SetSkill("TBAScriptType", atype*64 + ttype);	//Combined
       script->SetSkill("TBAScriptNArg", narg);			//Numeric Arg
 
       fscanf(mud, " %*[^~]");		//Trigger Arg (FIXME: Use All These?)

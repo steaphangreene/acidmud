@@ -380,6 +380,11 @@ void Mind::Think(int istick) {
 //	}
       }
     }
+  else if(type == MIND_TBATRIG) {
+    if(script && body) {
+      body->SendOut(0, 0, "%s\n", "", NULL, NULL, script->LongDesc());
+      }
+    }
   else if(type == MIND_TBAMOB) {
     if((!body) || (istick >= 0 && body->StillBusy())) return;
 
@@ -812,4 +817,11 @@ Mind *new_mind(int tp, Object *obj) {
     m->Attach(obj);
     }
   return m;
+  }
+
+int new_trigger(Object *obj) {
+  Mind *m = new_mind(MIND_TBATRIG, obj);
+  m->Think(1);
+  delete(m);
+  return 0;
   }
