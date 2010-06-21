@@ -24,48 +24,83 @@ using namespace std;
 
 
 //FIXME: This is not remotely done!
-static int tba_eval(string expr) {
+static int tba_eval(string expr);
+
+static string tba_comp(string expr) {
   size_t end = expr.find_first_of("\n\r");
   if(end != string::npos) expr = expr.substr(0, end);
   trim_string(expr);
+//  fprintf(stderr, "Expr: '%s'\n", expr.c_str());
 
-  if(expr[0] == '(') return tba_eval(expr.substr(1));	//FIXME: Really Do This!
+  if(expr[0] == '(') return tba_comp(expr.substr(1));	//FIXME: Really Do This!
+  if(expr[0] == '!') {
+    string base = tba_comp(expr.substr(1));
+    if(base == "0" || base == "") return "1";
+    return "0";
+    }
 
   size_t op = expr.find_first_of("|&=!<>/-+*");
-  if(op == string::npos) return atoi(expr.c_str());	//No ops, just val
+  if(op == string::npos) return expr;	//No ops, just val
 
-  int comp = 0;		//Positive for 2-char ops, negative for 1-char
-  if(!strncmp(expr.c_str()+op, "==", 2)) comp = 1;
-  if(!strncmp(expr.c_str()+op, "!=", 2)) comp = 2;
+  int oper = 0;		//Positive for 2-char ops, negative for 1-char
+  int weak = 0;		//Reverse-Precedence!  Hack!!!
+  if(!strncmp(expr.c_str()+op, "/=", 2)) { oper = 1; }
+  else if(!strncmp(expr.c_str()+op, "==", 2)) { oper = 2; }
+  else if(!strncmp(expr.c_str()+op, "!=", 2)) { oper = 3; }
+  else if(!strncmp(expr.c_str()+op, "<=", 2)) { oper = 4; }
+  else if(!strncmp(expr.c_str()+op, ">=", 2)) { oper = 5; }
+  else if(!strncmp(expr.c_str()+op, "&&", 2)) { oper = 6; weak = 1; }
+  else if(!strncmp(expr.c_str()+op, "||", 2)) { oper = 7; weak = 1; }
+  else if(!strncmp(expr.c_str()+op, "<", 1)) { oper = -1; }
+  else if(!strncmp(expr.c_str()+op, ">", 1)) { oper = -2; }
 
-  if(comp != 0) {	//For == and !=
+  if(oper != 0) {
     string arg1 = expr.substr(0, op);
     trim_string(arg1);
-    expr = expr.substr(op+2);
-    string arg2 = expr;
-    op = expr.find_first_of("|&=!<>/-+*)\n\r");
-    if(op != string::npos) {
-      arg2 = expr.substr(0, op);
-      expr = expr.substr(op);
+    if(oper > 0) expr = expr.substr(op+2);	//2-char
+    else expr = expr.substr(op+1);		//1-char
+    string arg2;
+    if(weak) {
+      arg2 = tba_comp(expr);
+      expr = "";
       }
     else {
-      expr = "";
+      arg2 = expr;
+      op = expr.find_first_of("|&=!<>/-+*)\n\r");
+      if(op != string::npos) {
+	arg2 = expr.substr(0, op);
+	expr = expr.substr(op);
+	}
+      else {
+	expr = "";
+	}
       }
     trim_string(arg2);
 
+    string comp = "0";
+    if(oper == 1 && (arg1 == arg2)) comp = "1";		// /=	FIXME: Not Done
+    else if(oper == 2 && (arg1 == arg2)) comp = "1";
+    else if(oper == 3 && (arg1 != arg2)) comp = "1";
+    else if(oper == 4 && (atoi(arg1.c_str()) <= atoi(arg2.c_str()))) comp = "1";
+    else if(oper == 5 && (atoi(arg1.c_str()) >= atoi(arg2.c_str()))) comp = "1";
+    else if(oper == -1 && (atoi(arg1.c_str()) < atoi(arg2.c_str()))) comp = "1";
+    else if(oper == -2 && (atoi(arg1.c_str()) > atoi(arg2.c_str()))) comp = "1";
+    else if(oper == 6 && (tba_eval(arg1) && tba_eval(arg2))) comp = "1";
+    else if(oper == 7 && (tba_eval(arg1) || tba_eval(arg2))) comp = "1";
+
     if(expr != "") {
-      expr = "0 " + expr;
-      if(comp == 1 && arg1 == arg2) expr[0] = 1;
-      else if(comp == 2 && arg1 != arg2) expr[0] = 1;
-      return tba_eval(expr);
+      expr = comp + " " + expr;
+      return tba_comp(expr);
       }
-    else {
-      if(comp == 1) return (arg1 == arg2);
-      if(comp == 2) return (arg1 != arg2);
-      }
+    return comp;
     }
 
-  return 0;
+  return "0";
+  }
+
+static int tba_eval(string expr) {
+  string base = tba_comp(expr);
+  return (base != "0" && base != "");
   }
 
 #define QUOTAERROR1	"Error: script quota exceeded in #%d\n"
