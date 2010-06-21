@@ -4872,7 +4872,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       else if(toupper(*(comline+len)) == 'I') attr = 4;
       else if(toupper(*(comline+len)) == 'W') attr = 5;
 
-      cost = chr->Attribute(attr) + 1;
+      cost = chr->BaseAttribute(attr) + 1;
 
       if(body && chr->Exp(mind->Owner()) < (cost * 4)) {
 	mind->Send("You don't have enough experience to raise your %s.\n"
@@ -4890,19 +4890,19 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	"MaxCharisma", "MaxIntelligence", "MaxWillpower"
 	};
       if((body) && (!body->Skill(maxask[attr]))) {
-	body->SetSkill(maxask[attr], (body->Attribute(attr)*3)/2);
+	body->SetSkill(maxask[attr], (body->BaseAttribute(attr)*3)/2);
 	}
 
-      if((!body) && chr->Attribute(attr) >= 6) {
+      if((!body) && chr->BaseAttribute(attr) >= 6) {
 	mind->Send("Your %s is already at the maximum.\n", statnames[attr]);
 	}
-      else if(body && chr->Attribute(attr) >= body->Skill(maxask[attr])) {
+      else if(body && chr->BaseAttribute(attr) >= body->Skill(maxask[attr])) {
 	mind->Send("Your %s is already at the maximum.\n", statnames[attr]);
 	}
       else {
 	if(!body) chr->SetSkill("Attributes", chr->Skill("Attributes") - cost);
 	else chr->SpendExp(cost * 4);
-	chr->SetAttribute(attr, chr->Attribute(attr) + 1);
+	chr->SetAttribute(attr, chr->BaseAttribute(attr) + 1);
 	mind->Send("You raise your %s.\n", statnames[attr]);
 	}
       }
@@ -4921,18 +4921,18 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(skill != "") {
 
         if(body && (chr->Skill(skill)
-		>= (chr->Attribute(get_linked(skill))*3+1) / 2)) {
+		>= (chr->BaseAttribute(get_linked(skill))*3+1) / 2)) {
 	  mind->Send("Your %s is already at the maximum.\n", skill.c_str());
 	  return 0;
 	  }
         else if((!body) && (chr->Skill(skill)
-		>= (chr->Attribute(get_linked(skill))+1) / 2)) {
+		>= (chr->BaseAttribute(get_linked(skill))+1) / 2)) {
 	  mind->Send("Your %s is already at the maximum.\n", skill.c_str());
 	  return 0;
 	  }
 	cost = (chr->Skill(skill) + 1);
         if(body) {
-	  if(cost > chr->Attribute(get_linked(skill))) cost *= 2;
+	  if(cost > chr->BaseAttribute(get_linked(skill))) cost *= 2;
 	  if(chr->Exp(mind->Owner()) < (cost * 2)) {
 	    mind->Send("You don't have enough experience to raise your %s.\n"
 		"You need %d, but you only have %d\n",
