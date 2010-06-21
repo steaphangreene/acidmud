@@ -278,15 +278,16 @@ public:
   void Loud(int str, const char *mes, ...)
 	__attribute__ ((format (printf, 3, 4)));
 
+  void CircleLoadAll();
   void CircleLoad(const char *);
   void CircleLoadObj(const char *);
   void CircleLoadMob(const char *);
   void CircleFinishMob(Object *);
   void CircleLoadZon(const char *);
   void CircleLoadShp(const char *);
-  void CircleCleanup();
-  void CircleLoadAll();
+  static void CircleCleanup();
 
+  void TBALoadAll();
   void TBALoadWLD(const char *);
   void TBALoadOBJ(const char *);
   void TBALoadMOB(const char *);
@@ -294,8 +295,8 @@ public:
   void TBALoadZON(const char *);
   void TBALoadSHP(const char *);
   void TBALoadTRG(const char *);
-  void TBACleanup();
-  void TBALoadAll();
+  static void TBAFinalizeTriggers();
+  static void TBACleanup();
 
   int Load(const char *);
   int LoadFrom(FILE *);

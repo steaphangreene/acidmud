@@ -104,10 +104,12 @@ void Object::TBALoadAll() {
       }
     fclose(muds);
     }
+  TBAFinalizeTriggers();
   //TBACleanup();
   fprintf(stderr, "Warning: %d unhandled triggers!\n", unhandled_trig);
   }
 
+static list<Object*> todotrg;
 static map<int,Object*> bynumtrg;
 static map<int,Object*> bynumwld;
 static map<int,Object*> bynumobj;
@@ -175,6 +177,34 @@ void Object::TBACleanup() {
   nmnum[4].clear();
   nmnum[5].clear();
   olist.clear();
+  todotrg.clear();
+  }
+
+void Object::TBAFinalizeTriggers() {
+  list<Object*>::iterator trg = todotrg.begin();
+  for(; trg != todotrg.end(); ++trg) {
+    string newtext = "Powers List:\n";
+    const char *cur = (*trg)->long_desc.c_str();
+    while((cur = strstr(cur, "teleport [")) != NULL) {
+      int rnum;
+      (*trg)->Parent()->SetSkill("Teleport Spell", 10);
+      (*trg)->Parent()->SetSkill("Restricted Item", 1);
+      sscanf(cur, "teleport [%d]\n", &rnum);
+      if(bynumwld.count(rnum) > 0) {
+	newtext += string("teleport ") + bynumwld[rnum]->Name() + "\n";
+	}
+      else {
+	fprintf(stderr, "Error: Can't find teleport dest: %d\n", rnum);
+	}
+      ++cur;
+      }
+    if(newtext != "Powers List:\n") {
+      (*trg)->Parent()->SetLongDesc(newtext.c_str());
+      (*trg)->Recycle();
+      //fprintf(stderr, "%s", newtext.c_str());
+      }
+    }
+  todotrg.clear();
   }
 
 static Mind *tba_mob_mind = NULL;
@@ -343,7 +373,7 @@ void Object::TBALoadZON(const char *fn) {
 	  int dnum, room, state;
 	  fscanf(mudz, " %*d %d %d %d\n", &room, &dnum, &state);
 	  Object *door = NULL;
-	  if(bynumwld[room])
+	  if(bynumwld.count(room) > 0)
 	    door = bynumwld[room]->PickObject(dirname[dnum], LOC_INTERNAL);
 	  if(door && state == 0) {
 	    door->SetSkill("Open", 1000);
@@ -707,6 +737,8 @@ void Object::TBALoadMOB(const char *fn) {
 	if(tnum > 0 && bynumtrg.count(tnum) > 0) {
 	  Object *trg = new Object(*(bynumtrg[tnum]));
 	  trg->SetParent(obj);
+	  todotrg.push_back(trg);
+	  TBAFinalizeTriggers();
 	//  fprintf(stderr, "Put Trg \"%s\" on MOB \"%s\"\n",
 	//	trg->Desc(), obj->ShortDesc()
 	//	);
@@ -1940,6 +1972,8 @@ void Object::TBALoadOBJ(const char *fn) {
 	  if(tnum > 0 && bynumtrg.count(tnum) > 0) {
 	    Object *trg = new Object(*(bynumtrg[tnum]));
 	    trg->SetParent(obj);
+	    todotrg.push_back(trg);
+	    TBAFinalizeTriggers();
 	//    fprintf(stderr, "Put Trg \"%s\" on Obj \"%s\"\n",
 	//	trg->Desc(), obj->ShortDesc()
 	//	);
@@ -2086,6 +2120,8 @@ void Object::TBALoadWLD(const char *fn) {
 	  if(tnum > 0 && bynumtrg.count(tnum) > 0) {
 	    Object *trg = new Object(*(bynumtrg[tnum]));
 	    trg->SetParent(obj);
+	    todotrg.push_back(trg);
+	    TBAFinalizeTriggers();
 	//    fprintf(stderr, "Put Trg \"%s\" on Room \"%s\"\n",
 	//	trg->Desc(), obj->ShortDesc()
 	//	);
@@ -2471,6 +2507,21 @@ void Object::TBALoadTRG(const char *fn) {	//Triggers
       else if(strstr(buf, "if %direction% == ")) {
 //	fprintf(stderr, "%d appears to be a direction trigger.\n", tnum);
 	++unhandled_trig;	//This is NOT really handled yet.
+	}
+      else if(strstr(buf, "%teleport% %actor% %loc%")) {
+	//fprintf(stderr, "%d appears to be a teleporter's trigger.\n", tnum);
+	string text = "";
+	char *trigger = strstr(buf, "\nset ");
+	while(trigger != NULL) {
+	  int dest = 0;
+	  char strnum[64];
+	  sscanf(trigger, "\nset %*s %d", &dest);
+	  sprintf(strnum, "%d", dest);
+	  text = text + "teleport [" + strnum + "]\n";
+	  trigger = strstr(trigger+5, "\nset ");
+	  }
+	//fprintf(stderr, "Will provide text:\n%s", text.c_str());
+	script->SetLongDesc(text.c_str());
 	}
       else if(0) {
 	}
