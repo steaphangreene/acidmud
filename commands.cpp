@@ -5009,18 +5009,35 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     }
 
   if(com == COM_TELEPORT) {
-    if((!nmode) && body->Skill("Teleport") < 1) {
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(!comline[len]) {
+      mind->Send("Where do you want to teleport to?.\n");
+      return 0;
+      }
+
+    Object *src = NULL;
+    if(!nmode) src = body->NextHasSkill("Restricted Item");
+    while(src) {
+      if(!src->HasSkill("Teleport")) {
+	src = body->NextHasSkill("Restricted Item", src);
+	continue;
+	}
+      string com = "teleport ";
+      com += (comline+len);
+      com += "\n";
+      if(!strcasestr(src->LongDesc(), com.c_str())) {
+	src = body->NextHasSkill("Restricted Item", src);
+	continue;
+	}
+      break;
+      }
+
+    if((!nmode) && (!src) && body->Skill("Teleport") < 1) {
       if(mind) mind->Send("You don't have the power to teleport!\n");
       return 0;
       }
     if((!body->Parent()) || (!body->Parent()->Parent())) {
       if(mind) mind->Send("You can't teleport from here!\n");
-      return 0;
-      }
-
-    while((!isgraph(comline[len])) && (comline[len])) ++len;
-    if(!comline[len]) {
-      mind->Send("Where do you want to teleport to?.\n");
       return 0;
       }
 

@@ -187,7 +187,7 @@ void Object::TBAFinalizeTriggers() {
     const char *cur = (*trg)->long_desc.c_str();
     while((cur = strstr(cur, "teleport [")) != NULL) {
       int rnum;
-      (*trg)->Parent()->SetSkill("Teleport Spell", 10);
+      (*trg)->Parent()->SetSkill("Teleport", 10);
       (*trg)->Parent()->SetSkill("Restricted Item", 1);
       sscanf(cur, "teleport [%d]\n", &rnum);
       if(bynumwld.count(rnum) > 0) {
