@@ -24,18 +24,41 @@ using namespace std;
 
 
 //FIXME: This is not remotely done!
-static int tba_eval(const string &expr) {
-  if(!strncasecmp(expr.c_str(), "24110 == 24110", 14)) {
-    return 1;
+static int tba_eval(string expr) {
+  trim_string(expr);
+  if(expr[0] == '(') return tba_eval(expr.substr(1));	//FIXME: Really Do This!
+
+  size_t op = expr.find_first_of("|&=!<>/-+*");
+  if(op == string::npos) return atoi(expr.c_str());	//No ops, just val
+
+  if(!strncmp(expr.c_str()+op, "==", 2)) {
+    string arg1 = expr.substr(0, op);
+    expr = expr.substr(op+2);
+    op = expr.find_first_of("|&=!<>/-+*)\n\r");
+    if(op != string::npos) expr = expr.substr(0, op);
+    trim_string(arg1);
+    trim_string(expr);
+    return(arg1 == expr);
     }
+
+  if(!strncmp(expr.c_str()+op, "!=", 2)) {
+    string arg1 = expr.substr(0, op);
+    expr = expr.substr(op+2);
+    op = expr.find_first_of("|&=!<>/-+*)\n\r");
+    if(op != string::npos) expr = expr.substr(0, op);
+    trim_string(arg1);
+    trim_string(expr);
+    return(arg1 != expr);
+    }
+
   return 0;
   }
 
+#define QUOTAERROR1	"Error: script quota exceeded in #%d\n"
+#define QUOTAERROR2	body->Skill("TBAScript")
 #define PING_QUOTA() { --quota; \
 	if(quota < 1) {	\
-	fprintf(stderr, "Error: script quota exceeded in #%d\n", \
-		body->Skill("TBAScript") \
-		); \
+	fprintf(stderr, QUOTAERROR1, QUOTAERROR2); \
 	return; \
 	}}
 
@@ -436,14 +459,11 @@ void Mind::Think(int istick) {
 	(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
 	NULL, NULL
 	);
+      if(!script[spos]) return;	//Empty
       int quota = 1000;
       while(spos != string::npos) {
-	while(script[spos] && isspace(script[spos])) ++spos;
 	PING_QUOTA();
-
-	if(!script[spos]) return;
-
-	else if(!strncasecmp(script.c_str()+spos, "wait ", 5)) {
+	if(!strncasecmp(script.c_str()+spos, "wait ", 5)) {
 	  int time = 0;
 	  sscanf(script.c_str()+spos+5, "%d", &time);
 	  if(time > 0) {
@@ -458,10 +478,8 @@ void Mind::Think(int istick) {
 	  return;
 	  }
 
-	else if((!strncasecmp(script.c_str()+spos, "if ", 3))
-		|| (!strncasecmp(script.c_str()+spos, "elseif ", 7))
-		) {
-	  if(tolower(script[spos]) == 'i' && tba_eval(script.c_str()+spos+3)) {
+	else if(!strncasecmp(script.c_str()+spos, "if ", 3)) {
+	  if(tba_eval(script.c_str()+spos+3)) {
 	    spos = skip_line(script, spos);	//Is "if" and is true
 	    }
 	  else {				//Was elseif or false
@@ -469,22 +487,41 @@ void Mind::Think(int istick) {
 	    spos = skip_line(script, spos);
 	    while(spos != string::npos) {	//Skip to end/elseif
 	      PING_QUOTA();
-	      if((!depth) && strncasecmp(script.c_str()+spos, "elseif ", 7)) {
+	      if((!depth) && (!strncasecmp(script.c_str()+spos, "elseif ", 7))) {
 		spos += 4;	//Make it into an "if" and go
 		break;
 		}
-	      else if(strncasecmp(script.c_str()+spos, "end", 3)) {
-		if(depth == 0) {	//Only done if all the way back
+	      else if(!strncasecmp(script.c_str()+spos, "end", 3)) {
+		if(!depth) {	//Only done if all the way back
 		  spos = skip_line(script, spos);
 		  break;
 		  }
 		--depth;	//Otherwise am just 1 nesting level less deep
 		}
-	      else if(strncasecmp(script.c_str()+spos, "if ", 3)) {
+	      else if(!strncasecmp(script.c_str()+spos, "if ", 3)) {
 		++depth;	//Am now 1 nesting level deeper!
 		}
 	      spos = skip_line(script, spos);
 	      }
+	    }
+	  }
+
+	else if(!strncasecmp(script.c_str()+spos, "elseif ", 7)) {
+	  int depth = 0;
+	  spos = skip_line(script, spos);
+	  while(spos != string::npos) {	//Skip to end (considering nesting)
+	    PING_QUOTA();
+	    if(!strncasecmp(script.c_str()+spos, "end", 3)) {
+	      if(depth == 0) {	//Only done if all the way back
+		spos = skip_line(script, spos);
+		break;
+		}
+	      --depth;	//Otherwise am just 1 nesting level less deep
+	      }
+	    else if(!strncasecmp(script.c_str()+spos, "if ", 3)) {
+	      ++depth;	//Am now 1 nesting level deeper!
+	      }
+	    spos = skip_line(script, spos);
 	    }
 	  }
 
