@@ -2274,6 +2274,7 @@ void Object::TBALoadSHP(const char *fn) {
 	vortex->SetDesc("An advanced wormhole that shopkeeper's use.");
 	vortex->SetSkill("Vortex", 1); // Mark it as a shopkeeper Vortex.
 	vortex->SetSkill("Invisible", 1000);
+	vortex->SetSkill("Perishable", 1);
 	vortex->SetSkill("Wearable on Right Shoulder", 1);
 	vortex->SetSkill("Wearable on Left Shoulder", 2);
 

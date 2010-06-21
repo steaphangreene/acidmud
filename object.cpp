@@ -387,7 +387,9 @@ int Object::Tick() {
       typeof(contents.begin()) cur;
       for(cur = contents.begin(); cur != contents.end(); ++cur) {
 	Object *item = (*cur);
-	if(item->contents.size() > 0 && item->Pos() == POS_NONE) {
+	if(item->HasSkill("Vortex")) { //Vortex can't be dropped!
+	  }
+	else if(item->contents.size() > 0 && item->Pos() == POS_NONE) {
 	  todropfrom.push_back(item);
 	  }
 	else {
@@ -400,7 +402,9 @@ int Object::Tick() {
 	Object *con = (*tdf);
 	for(cur = con->contents.begin(); cur != con->contents.end(); ++cur) {
 	  Object *item = (*cur);
-	  if(item->contents.size() > 0 && item->Pos() == POS_NONE) {
+	  if(item->HasSkill("Vortex")) { //Vortex can't be dropped!
+	    }
+	  else if(item->contents.size() > 0 && item->Pos() == POS_NONE) {
 	    todropfrom.push_back(item);
 	    }
 	  else {
