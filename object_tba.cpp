@@ -910,9 +910,7 @@ static void add_tba_spell(Object *obj, int spell, int power) {
     case(51): {		// WATERWALK
       obj->SetSkill("Float Spell", power);
       } break;
-    case(52): {		// ????
-      obj->SetSkill("Bang and Puff of Smoke Spell", power);
-      } break;
+    case(52):
     case(201): {	// IDENTIFY
       obj->SetSkill("Identify Spell", power);
       } break;
