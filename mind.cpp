@@ -81,15 +81,7 @@ void Mind::SetTBATrigger(Object *tr) {
   script += "\n";
 
   //Variable Sub
-  char buf[4096];
-  size_t loc = string::npos;
-
-  loc = script.find("%self.vnum%");
-  while(loc != string::npos) {
-    sprintf(buf, "%d", body->Parent()->Skill("TBARoom") - 1000000); //To TBA #s
-    script.replace(loc, strlen("%self.vnum%"), buf);
-    loc = script.find("%self.vnum%");
-    }
+  replace_all(script, "%self.vnum%", body->Parent()->Skill("TBARoom")-1000000);
   }
 
 void Mind::SetTBAMob() {

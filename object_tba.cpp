@@ -14,11 +14,6 @@ using namespace std;
 #include "color.h"
 #include "mind.h"
 
-static void trim_string(string &str) {  //Remove extra whitespace from string
-  while(isspace(str[0])) str = str.substr(1);
-  while(isspace(str[str.length()-1])) str = str.substr(0, str.length()-1);
-  }
-
 static const char *dirname[6] = {
 	"north", "east", "south", "west", "up", "down"
 	};

@@ -51,11 +51,6 @@ using namespace std;
 
 int handle_command_ccreate(Object *, Mind *, const char *, int, int, int);
 
-static void trim_string(string &str) {	//Remove extra whitespace from string
-  while(isspace(str[0])) str = str.substr(1);
-  while(isspace(str[str.length()-1])) str = str.substr(0, str.length()-1);
-  }
-
 static int count_ones(int mask) {
   int ret = 0;
   while(mask) {
