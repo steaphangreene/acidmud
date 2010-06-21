@@ -22,3 +22,10 @@ void trim_string(string &str) {  //Remove extra whitespace from string
   while(isspace(str[0])) str = str.substr(1);
   while(isspace(str[str.length()-1])) str = str.substr(0, str.length()-1);
   }
+
+size_t skip_line(const string &str, size_t pos) {
+  pos = str.find_first_of("\n\r", pos+1);
+  while(pos != string::npos && str[pos] && isspace(str[pos])) ++pos;
+  if(!str[pos]) pos = string::npos;
+  return pos;
+  }

@@ -9,3 +9,4 @@ using namespace std;
 void replace_all(string &str, const string &oldt, const string &newt);
 void replace_all(string &str, const string &oldt, int newn);
 void trim_string(string &str);	//Remove extra whitespace from string
+size_t skip_line(const string &str, size_t pos);

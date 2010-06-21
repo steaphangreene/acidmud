@@ -22,6 +22,24 @@ using namespace std;
 #include "object.h"
 #include "player.h"
 
+
+//FIXME: This is not remotely done!
+static int tba_eval(const string &expr) {
+  if(!strncasecmp(expr.c_str(), "24110 == 24110", 14)) {
+    return 1;
+    }
+  return 0;
+  }
+
+#define PING_QUOTA() { --quota; \
+	if(quota < 1) {	\
+	fprintf(stderr, "Error: script quota exceeded in #%d\n", \
+		body->Skill("TBAScript") \
+		); \
+	return; \
+	}}
+
+
 Mind::Mind() {
   body = NULL;
   player = NULL;
@@ -418,28 +436,56 @@ void Mind::Think(int istick) {
 	(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
 	NULL, NULL
 	);
+      int quota = 1000;
       while(spos != string::npos) {
 	while(script[spos] && isspace(script[spos])) ++spos;
+	PING_QUOTA();
+
 	if(!script[spos]) return;
 
-	//Skip all of these for now
 	else if(!strncasecmp(script.c_str()+spos, "wait ", 5)) {
 	  int time = 0;
 	  sscanf(script.c_str()+spos+5, "%d", &time);
 	  if(time > 0) {
-	    spos = script.find_first_of("\n\r", spos+1);	//Kill Line.
+	    spos = skip_line(script, spos);
 	    Suspend(time*1000);
 	    }
 	  else {
-	    fprintf(stderr, "Error: Told 'wait %s'\n", script.c_str()+spos+5);
+	    fprintf(stderr, "Error: Told 'wait %s' in #%d\n",
+		script.c_str()+spos+5, body->Skill("TBAScript")
+		);
 	    }
 	  return;
 	  }
-	else if(!strncasecmp(script.c_str()+spos, "if ", 3)) {
-	  }
-	else if(!strncasecmp(script.c_str()+spos, "elseif ", 7)) {
-	  }
-	else if(!strncasecmp(script.c_str()+spos, "end", 3)) {
+
+	else if((!strncasecmp(script.c_str()+spos, "if ", 3))
+		|| (!strncasecmp(script.c_str()+spos, "elseif ", 7))
+		) {
+	  if(tolower(script[spos]) == 'i' && tba_eval(script.c_str()+spos+3)) {
+	    spos = skip_line(script, spos);	//Is "if" and is true
+	    }
+	  else {				//Was elseif or false
+	    int depth = 0;
+	    spos = skip_line(script, spos);
+	    while(spos != string::npos) {	//Skip to end/elseif
+	      PING_QUOTA();
+	      if((!depth) && strncasecmp(script.c_str()+spos, "elseif ", 7)) {
+		spos += 4;	//Make it into an "if" and go
+		break;
+		}
+	      else if(strncasecmp(script.c_str()+spos, "end", 3)) {
+		if(depth == 0) {	//Only done if all the way back
+		  spos = skip_line(script, spos);
+		  break;
+		  }
+		--depth;	//Otherwise am just 1 nesting level less deep
+		}
+	      else if(strncasecmp(script.c_str()+spos, "if ", 3)) {
+		++depth;	//Am now 1 nesting level deeper!
+		}
+	      spos = skip_line(script, spos);
+	      }
+	    }
 	  }
 
 	else if(!strncasecmp(script.c_str()+spos, "%echo% ", 7)) {
@@ -449,11 +495,16 @@ void Mind::Think(int istick) {
 	  trim_string(mes);
 	  mes += "\n";
 	  body->Parent()->SendOut(0, 0, mes.c_str(), mes.c_str(), NULL, NULL);
+	  spos = skip_line(script, spos);
 	  }
 
-	else {		//Silently ignore the rest for now!  FIXME!
+	else if(!strncasecmp(script.c_str()+spos, "end", 3)) {
+	  //Ignore these, as we only hit them when we're running inside if
+	  spos = skip_line(script, spos);
 	  }
-	spos = script.find_first_of("\n\r", spos+1);	//Kill Line.
+	else {		//Silently ignore the rest for now!  FIXME: Error mes.
+	  spos = skip_line(script, spos);
+	  }
 	}
       }
     }
