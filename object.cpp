@@ -1561,8 +1561,10 @@ int Object::Travel(Object *dest, int try_combine) {
     typeof(contents.begin()) trig = dest->contents.begin();
     for(; trig != dest->contents.end(); ++trig) {
       if((*trig)->Skill("TBAScriptType") == 135) {
-	new_trigger(*trig, this);
-	//fprintf(stderr, "Triggering: %s\n", (*trig)->Name());
+	if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) {	// % Chance
+	  //fprintf(stderr, "Triggering: %s\n", (*trig)->Name());
+	  new_trigger(*trig, this);
+	  }
 	}
       }
     }
