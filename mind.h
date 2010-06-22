@@ -46,8 +46,10 @@ public:
 
   void Think(int istick = 0);
   string Tactics(int phase = -1);
-  void Suspend(int msec);
+
   static void Resume(int passed);
+  void Suspend(int msec);
+  void Disable();
 
   void SetSpecialPrompt(const char *newp = "");
   const char *SpecialPrompt();

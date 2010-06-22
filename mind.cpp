@@ -23,6 +23,8 @@ using namespace std;
 #include "player.h"
 
 
+list<Mind *>recycle_bin;
+
 //FIXME: This is not remotely done!
 static int tba_eval(string expr);
 
@@ -102,15 +104,6 @@ static int tba_eval(string expr) {
   string base = tba_comp(expr);
   return (base != "0" && base != "");
   }
-
-#define QUOTAERROR1	"Error: script quota exceeded in #%d\n"
-#define QUOTAERROR2	body->Skill("TBAScript")
-#define PING_QUOTA() { --quota; \
-	if(quota < 1) {	\
-	fprintf(stderr, QUOTAERROR1, QUOTAERROR2); \
-	return; \
-	}}
-
 
 Mind::Mind() {
   body = NULL;
@@ -427,6 +420,17 @@ string Mind::Tactics(int phase) {
   return "attack";
   }
 
+
+#define QUOTAERROR1	"Error: script quota exceeded in #%d\n"
+#define QUOTAERROR2	body->Skill("TBAScript")
+#define PING_QUOTA() { \
+	--quota; \
+	if(quota < 1) {	\
+		fprintf(stderr, QUOTAERROR1, QUOTAERROR2); \
+		Disable(); \
+		} \
+	}
+
 static const char *dirnames[4] = { "north", "south", "east", "west" };
 static const char *items[8] = {
   "Food", "Hungry",	//Order is Most to Least Important
@@ -504,11 +508,13 @@ void Mind::Think(int istick) {
     }
   else if(type == MIND_TBATRIG) {
     if(body && body->Parent()) {
-//      body->Parent()->SendOut(0, 0,
-//	(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
-//	(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
-//	NULL, NULL
-//	);
+     if(body->Parent()->Matches("picard")) {
+	body->Parent()->SendOut(0, 0,
+		(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
+		(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
+		NULL, NULL
+		);
+	}
       if(!script[spos]) return;	//Empty
       int quota = 128;
       while(spos != string::npos) {
@@ -524,6 +530,7 @@ void Mind::Think(int istick) {
 	    fprintf(stderr, "Error: Told 'wait %s' in #%d\n",
 		script.c_str()+spos+5, body->Skill("TBAScript")
 		);
+	    Disable();
 	    }
 	  return;
 	  }
@@ -576,6 +583,24 @@ void Mind::Think(int istick) {
 	  }
 
 	else if(!strncasecmp(script.c_str()+spos, "eval ", 5)) {
+	  spos += 5; while(script[spos] && isspace(script[spos])) ++spos;
+	  size_t end1 = script.find_first_of(" \t\n\r", spos);
+	  if(end1 != string::npos) {
+	    string var = script.substr(spos, end1 - spos);
+
+	    string val;
+	    spos = script.find_first_not_of(" \t", end1 + 1);
+	    if(spos != string::npos) {
+	      size_t end2 = script.find_first_of("\n\r", spos);
+	      if(end2 != string::npos && end2 != spos) {
+		string val = script.substr(spos, end2 - spos);
+		spos = skip_line(script, spos);
+		replace_all(script, "%"+var+"%", val, spos);
+		replace_all(script, "%"+var+".", "%"+val+".", spos);
+		continue;
+		}
+	      }
+	    }
 	  spos = skip_line(script, spos);
 	  }
 
@@ -583,14 +608,19 @@ void Mind::Think(int istick) {
 	  spos = skip_line(script, spos);
 	  }
 
-	else if(!strncasecmp(script.c_str()+spos, "while ", 6)) {//FIXME!
-	  int depth = 0;		//Just skips to end (like "break")
+	else if(!strncasecmp(script.c_str()+spos, "while ", 6)) {
+	  int depth = 0;
+	  size_t cond, begin, end, skip;
+	  cond = spos + 6;
 	  spos = skip_line(script, spos);
+	  begin = spos;
 	  while(spos != string::npos) {	//Skip to end (considering nesting)
 	    PING_QUOTA();
 	    if(!strncasecmp(script.c_str()+spos, "done", 4)) {
 	      if(depth == 0) {	//Only done if all the way back
+		end = spos;
 		spos = skip_line(script, spos);
+		skip = spos;
 		break;
 		}
 	      --depth;	//Otherwise am just 1 nesting level less deep
@@ -602,6 +632,18 @@ void Mind::Think(int istick) {
 	      ++depth;	//Am now 1 nesting level deeper!
 	      }
 	    spos = skip_line(script, spos);
+	    }
+	  while(tba_eval(script.c_str() + cond)) {
+	    PING_QUOTA();
+	    string orig = script;
+	    script = script.substr(begin, end-begin);
+	    trim_string(script);
+	    Think(istick);		//Semi-recursive to do the loop-age
+	    if(type == MIND_MORON) {
+	      Disable();
+	      return;
+	      }
+	    script = orig;
 	    }
 	  }
 
@@ -698,6 +740,13 @@ void Mind::Think(int istick) {
 	  spos = skip_line(script, spos);
 	  }
 	}
+      }
+    if((body->Skill("TBAScriptType") & 63) == 2) {	//Random Triggers
+      spos = 0;		//We never die!
+      Suspend(13000);	//Again in 13 Seconds!
+      }
+    else {
+      Disable();
       }
     }
   else if(type == MIND_TBAMOB) {
@@ -1121,7 +1170,14 @@ const char *Mind::SpecialPrompt() {
   }
 
 Mind *new_mind(int tp, Object *obj, Object *obj2, string text) {
-  Mind *m = new Mind();
+  Mind *m = NULL;
+  if(recycle_bin.size() > 0) {
+    m = recycle_bin.front();
+    recycle_bin.pop_front();
+    }
+  else {
+    m = new Mind();
+    }
   if(tp == MIND_TBATRIG && obj) {
     m->SetTBATrigger(obj, obj2, text);
     }
@@ -1148,14 +1204,32 @@ void Mind::Suspend(int msec) {
   waiting.push_back(make_pair(msec, this));
   }
 
+void Mind::Disable() {
+  if(type == MIND_REMOTE) close_socket(pers);
+  type = MIND_MORON;
+  Unattach();
+  if(log >= 0) close(log);
+  log = -1;
+  list<pair<int, Mind*> >::iterator cur = waiting.begin();
+  while(cur != waiting.end()) {
+    list<pair<int, Mind*> >::iterator tmp = cur;
+    ++cur;	//Inc cur first, in case I erase tmp.
+    if(tmp->second == this) {
+      waiting.erase(tmp);
+      }
+    }
+  recycle_bin.push_back(this);      //Ready for re-use
+  }
+
 void Mind::Resume(int passed) {
   list<pair<int, Mind*> >::iterator cur = waiting.begin();
   while(cur != waiting.end()) {
     list<pair<int, Mind*> >::iterator tmp = cur;
     ++cur;	//Inc cur first, in case I erase tmp.
     if(tmp->first <= passed) {
+      Mind *mind = tmp->second;
       waiting.erase(tmp);
-      tmp->second->Think(0);
+      mind->Think(0);
       }
     else {
       tmp->first -= passed;

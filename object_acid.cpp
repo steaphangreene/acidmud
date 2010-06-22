@@ -319,6 +319,11 @@ int Object::LoadFrom(FILE *fl) {
   else if(Skill("TBAAction")) get_tba_mob_mind()->Attach(this);
   else if(Skill("CircleAction")) get_circle_mob_mind()->Attach(this);
 
+  if((Skill("TBAScriptType") & 63) == 2) {	//Random/Permanent Triggers
+    Mind *trig = new_mind(MIND_TBATRIG, this);
+    trig->Suspend((rand()%13000)+3000);	//3-16 Seconds
+    }
+
 //  int num_loaded = 0;
 //  if(parent && (!(parent->parent))) {
 //    fprintf(stderr, "Loading: %s\n", short_desc.c_str());
