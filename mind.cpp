@@ -32,7 +32,9 @@ static string tba_comp(string expr) {
   size_t end = expr.find_first_of("\n\r");
   if(end != string::npos) expr = expr.substr(0, end);
   trim_string(expr);
-//  fprintf(stderr, "Expr: '%s'\n", expr.c_str());
+//  if(strcasestr(expr.c_str(), "tea")) {
+//    fprintf(stderr, "Expr: '%s'\n", expr.c_str());
+//    }
 
   if(expr[0] == '(') return tba_comp(expr.substr(1));	//FIXME: Really Do This!
   if(expr[0] == '!') {
@@ -521,10 +523,10 @@ void Mind::Think(int istick) {
       int quota = 1024;
       while(spos != string::npos) {
 	PING_QUOTA();
-        string line;
+	string line;
 	size_t endl = script.find_first_of("\n\r", spos);
 	if(endl == string::npos) line = script.substr(spos);
-        else line = script.substr(spos, endl-spos);
+	else line = script.substr(spos, endl-spos);
 
 	//Variable sub (Single line)
 	if(body->Skill("TBAScriptType") >= 128) {       //Room Triggers
@@ -533,7 +535,7 @@ void Mind::Think(int istick) {
 	else if(body->Skill("TBAScriptType") >= 64) {   //Object Triggers
 	  replace_all(line, "%self.vnum%", targ->Skill("TBAObject")-1000000);
 	  }
-	else {                                        //MOB Triggers
+	else {						//MOB Triggers
 	  replace_all(line, "%self.vnum%", targ->Skill("TBAMOB")-1000000);
 	  }
 
@@ -641,8 +643,30 @@ void Mind::Think(int istick) {
 	    }
 	  }
 
-	else if(!strncasecmp(line.c_str(), "set ", 5)) {
+	else if(!strncasecmp(line.c_str(), "set ", 4)) {
 	  spos = skip_line(script, spos);
+
+	  size_t lpos = line.find_first_not_of(" \t", 4);
+	  if(lpos != string::npos) {
+	    line = line.substr(lpos);
+	    size_t end1 = line.find_first_of(" \t\n\r");
+	    if(end1 != string::npos) {
+	      string var = line.substr(0, end1);
+	      lpos = line.find_first_not_of(" \t", end1 + 1);
+	      if(lpos != string::npos) {
+		string val = line.substr(lpos);
+		if(val[0] == '%' && val[val.length()-1] == '%') {
+		  val = val.substr(1, val.length()-2);
+		  replace_all(script, "%"+var+"%", val, lpos);
+		  replace_all(script, "%"+var+".", "%"+val+".", lpos);
+		  }
+		else {
+		  replace_all(script, "%"+var+"%", val, lpos);
+		  }
+		continue;
+		}
+	      }
+	    }
 	  }
 
 	else if(!strncasecmp(line.c_str(), "while ", 6)) {
@@ -784,11 +808,19 @@ void Mind::Think(int istick) {
 	  spos = skip_line(script, spos);
 	  }
 	else if(!strncasecmp(line.c_str(), "done", 4)) {
-	  //Ignore these, as we only hit them when we're running inside if
+	  //Means we should be within a while(), so return to main.
+	  return;
+	  }
+	else if(!strncasecmp(line.c_str(), "*", 1)) {	//Comments
 	  spos = skip_line(script, spos);
 	  }
 	else {		//Silently ignore the rest for now!  FIXME: Error mes.
 	  spos = skip_line(script, spos);
+	  fprintf(stderr, "Error: Gibberish script line '%s' in #%d\n",
+		line.c_str(), body->Skill("TBAScript")
+		);
+	  Disable();
+	  return;
 	  }
 	}
       if((body->Skill("TBAScriptType") & 63) == 2) {	//Random Triggers
