@@ -863,6 +863,10 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	&& (!strncasecmp(comline, "chars", MAX(len, 5)))) {
       com = comlist[ctr].id; cnum = ctr; break;
       }
+    if(comlist[ctr].id == COM_GET
+	&& (!strncasecmp(comline, "take", MAX(len, 1)))) {
+      com = comlist[ctr].id; cnum = ctr; break;
+      }
     }
   if(com == -1) {
     if(mind) mind->Send("Command NOT understood - type 'help' for assistance.\n");
