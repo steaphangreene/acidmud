@@ -765,6 +765,7 @@ void Mind::Think(int istick) {
 		|| (!strncasecmp(line.c_str(), "emote ", 6))
 		|| (!strncasecmp(line.c_str(), "emot ", 5))
 		|| (!strncasecmp(line.c_str(), "emo ", 4))
+		|| (!strncasecmp(line.c_str(), "em ", 3))
 		|| (!strncasecmp(line.c_str(), "close ", 6))
 		|| (!strncasecmp(line.c_str(), "clos ", 5))
 		|| (!strncasecmp(line.c_str(), "clo ", 4))
