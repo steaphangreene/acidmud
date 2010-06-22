@@ -275,7 +275,7 @@ void Mind::Send(const char *mes) {
 	Object *door = body->PickObject(buf, LOC_NEARBY);
 
 	if(door && door->ActTarg(ACT_SPECIAL_LINKED)
-                && door->ActTarg(ACT_SPECIAL_LINKED)->Parent()
+		&& door->ActTarg(ACT_SPECIAL_LINKED)->Parent()
 		&& TBACanWanderTo(
 			door->ActTarg(ACT_SPECIAL_LINKED)->Parent()
 			)
@@ -310,7 +310,7 @@ void Mind::Send(const char *mes) {
 	Object *door = body->PickObject(buf, LOC_NEARBY);
 
 	if(door && door->ActTarg(ACT_SPECIAL_LINKED)
-                && door->ActTarg(ACT_SPECIAL_LINKED)->Parent()
+		&& door->ActTarg(ACT_SPECIAL_LINKED)->Parent()
 		&& CircleCanWanderTo(
 			door->ActTarg(ACT_SPECIAL_LINKED)->Parent()
 			)
@@ -510,7 +510,7 @@ void Mind::Think(int istick) {
 	NULL, NULL
 	);
       if(!script[spos]) return;	//Empty
-      int quota = 1000;
+      int quota = 128;
       while(spos != string::npos) {
 	PING_QUOTA();
 	if(!strncasecmp(script.c_str()+spos, "wait ", 5)) {
@@ -585,6 +585,33 @@ void Mind::Think(int istick) {
 	  spos = skip_line(script, spos);
 	  }
 
+	else if(!strncasecmp(script.c_str()+spos, "%teleport% all ", 15)) {
+	  int dnum;
+	  sscanf(script.c_str() + spos + 15, "%d", &dnum);
+	  dnum += 1000000;
+	  Object *dest = body->Parent();
+	  while(dest->Parent()->Parent()) {
+	    dest = dest->Parent();
+	    }
+	  list<Object*> options = dest->Contents();
+	  list<Object*>::iterator opt = options.begin();
+	  dest = NULL;
+	  for(; opt != options.end(); ++opt) {
+	    if((*opt)->Skill("TBARoom") == dnum) {
+	      dest = (*opt);
+	      break;
+	      }
+	    }
+	  options = body->Parent()->Contents();
+	  opt = options.begin();
+	  for(; opt != options.end(); ++opt) {
+	    if((*opt)->Matches("everyone")) {
+	      (*opt)->Travel(dest);
+	      }
+	    }
+	  spos = skip_line(script, spos);
+	  }
+
 	else if(!strncasecmp(script.c_str()+spos, "end", 3)) {
 	  //Ignore these, as we only hit them when we're running inside if
 	  spos = skip_line(script, spos);
@@ -636,7 +663,7 @@ void Mind::Think(int istick) {
 		&& (!(*other)->IsAct(ACT_UNCONSCIOUS))	//It's not already KOed
 		&& (!(*other)->IsAct(ACT_DYING))	//It's not already dying
 		&& (!(*other)->IsAct(ACT_DEAD))		//It's not already dead
-	        ) {
+		) {
 	  string command = string("attack ") + (*other)->ShortDesc();
 	  body->BusyFor(500, command.c_str());
 	  //fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
@@ -673,7 +700,7 @@ void Mind::Think(int istick) {
 		&& (!(*other)->IsAct(ACT_UNCONSCIOUS))	//It's not already KOed
 		&& (!(*other)->IsAct(ACT_DYING))	//It's not already dying
 		&& (!(*other)->IsAct(ACT_DEAD))		//It's not already dead
-	        ) {
+		) {
 	  string command = string("attack ") + (*other)->ShortDesc();
 	  body->BusyFor(500, command.c_str());
 	  //fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
@@ -711,7 +738,7 @@ void Mind::Think(int istick) {
 		&& (*other)->IsAct(ACT_FIGHT)		//It's figting someone
 		&& (*other)->ActTarg(ACT_FIGHT)->HasSkill("TBAAction")
 							//...against another MOB
-	        ) {
+		) {
 	  string command = string("call ALARM; attack ") + (*other)->ShortDesc();
 	  body->BusyFor(500, command.c_str());
 	  //fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
@@ -818,7 +845,7 @@ void Mind::Think(int istick) {
 		&& (!(*other)->IsAct(ACT_UNCONSCIOUS))	//It's not already KOed
 		&& (!(*other)->IsAct(ACT_DYING))	//It's not already dying
 		&& (!(*other)->IsAct(ACT_DEAD))		//It's not already dead
-	        ) {
+		) {
 	  string command = string("attack ") + (*other)->ShortDesc();
 	  body->BusyFor(500, command.c_str());
 	  //fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
@@ -855,7 +882,7 @@ void Mind::Think(int istick) {
 		&& (!(*other)->IsAct(ACT_UNCONSCIOUS))	//It's not already KOed
 		&& (!(*other)->IsAct(ACT_DYING))	//It's not already dying
 		&& (!(*other)->IsAct(ACT_DEAD))		//It's not already dead
-	        ) {
+		) {
 	  string command = string("attack ") + (*other)->ShortDesc();
 	  body->BusyFor(500, command.c_str());
 	  //fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
@@ -893,7 +920,7 @@ void Mind::Think(int istick) {
 		&& (*other)->IsAct(ACT_FIGHT)		//It's figting someone
 		&& (*other)->ActTarg(ACT_FIGHT)->HasSkill("CircleAction")
 							//...against another MOB
-	        ) {
+		) {
 	  string command = string("call ALARM; attack ") + (*other)->ShortDesc();
 	  body->BusyFor(500, command.c_str());
 	  //fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(), command.c_str());
