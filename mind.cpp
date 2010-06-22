@@ -901,6 +901,10 @@ void Mind::Think(int istick) {
 	  //Means we should be within a while(), so return to main.
 	  return;
 	  }
+	else if(!strncasecmp(line.c_str(), "halt", 4)) {
+	  Disable();
+	  return;
+	  }
 	else if(!strncasecmp(line.c_str(), "*", 1)) {	//Comments
 	  spos = skip_line(script, spos);
 	  }
