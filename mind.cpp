@@ -782,13 +782,19 @@ void Mind::Think(int istick) {
 	  spos = skip_line(script, spos);
 	  }
 
-	else if(!strncasecmp(line.c_str(), "%echo% ", 7)) {
-	  string mes = script.c_str() + spos + 6;
-	  size_t end = mes.find_first_of("\n\r");
-	  if(end != string::npos) mes = mes.substr(0, end);
-	  trim_string(mes);
-	  mes += "\n";
-	  targ->SendOut(0, 0, mes.c_str(), mes.c_str(), NULL, NULL);
+	else if((!strncasecmp(line.c_str(), "%echo% ", 7))
+		|| (!strncasecmp(line.c_str(), "mecho ", 6))
+		) {
+	  size_t start = line.find_first_of(" ");
+	  if(start != string::npos) {
+	    start = line.find_first_not_of(" \t\r\n", start);
+	    }
+	  if(room && start != string::npos) {
+	    string mes = line.substr(start);
+	    trim_string(mes);
+	    mes += "\n";
+	    room->SendOut(0, 0, mes.c_str(), mes.c_str(), NULL, NULL);
+	    }
 	  spos = skip_line(script, spos);
 	  }
 
