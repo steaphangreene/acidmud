@@ -2405,8 +2405,14 @@ void Object::SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
   char *str = strdup(mes);
   char *youstr = strdup(youmes);
 
-  for(char *ctr=str; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
-  for(char *ctr=youstr; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
+  for(char *ctr=str; *ctr; ++ctr) {
+    if((*ctr) == ';') (*ctr) = '%';
+    else if((*ctr) == '%') (*ctr) = ';';
+    }
+  for(char *ctr=youstr; *ctr; ++ctr) {
+    if((*ctr) == ';') (*ctr) = '%';
+    else if((*ctr) == '%') (*ctr) = ';';
+    }
 
   if(youmes && youstr[0] == '*' && this == actor) {
     Send(ALL, -1, CYEL);
@@ -2491,8 +2497,14 @@ void Object::SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
   char *str = strdup(mes);
   char *youstr = strdup(youmes);
 
-  for(char *ctr=str; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
-  for(char *ctr=youstr; *ctr; ++ctr) if((*ctr) == ';') (*ctr) = '%';
+  for(char *ctr=str; *ctr; ++ctr) {
+    if((*ctr) == ';') (*ctr) = '%';
+    else if((*ctr) == '%') (*ctr) = ';';
+    }
+  for(char *ctr=youstr; *ctr; ++ctr) {
+    if((*ctr) == ';') (*ctr) = '%';
+    else if((*ctr) == '%') (*ctr) = ';';
+    }
 
   if(youmes && youstr[0] == '*' && this == actor) {
     Send(ALL, -1, CGRN);
