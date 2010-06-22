@@ -100,7 +100,7 @@ void Object::TBALoadAll() {
       }
     fclose(muds);
     }
-  //TBACleanup();
+  TBACleanup();
   fprintf(stderr, "Warning: %d unhandled triggers!\n", unhandled_trig);
   }
 
@@ -120,28 +120,28 @@ void Object::TBACleanup() {
   map<int,Object*>::iterator ind;
 
   int val = 0;
-  fprintf(stderr, "\rRecycling Sample Objects: %d/%d    ", val++, int(bynumobj.size()));
+//  fprintf(stderr, "\rRecycling Sample Objects: %d/%d    ", val++, int(bynumobj.size()));
   for(ind = bynumobj.begin(); ind != bynumobj.end(); ++ind) {
     (*ind).second->Recycle();
-    fprintf(stderr, "\rRecycling Sample Objects: %d/%d    ", val++, int(bynumobj.size()));
+//    fprintf(stderr, "\rRecycling Sample Objects: %d/%d    ", val++, int(bynumobj.size()));
     }
-  fprintf(stderr, "...Done.\n");
+//  fprintf(stderr, "...Done.\n");
 
   val = 0;
-  fprintf(stderr, "\rRecycling Sample MOBs: %d/%d    ", val++, int(bynummob.size()));
+//  fprintf(stderr, "\rRecycling Sample MOBs: %d/%d    ", val++, int(bynummob.size()));
   for(ind = bynummob.begin(); ind != bynummob.end(); ++ind) {
     (*ind).second->Recycle();
-    fprintf(stderr, "\rRecycling Sample MOBs: %d/%d    ", val++, int(bynummob.size()));
+//    fprintf(stderr, "\rRecycling Sample MOBs: %d/%d    ", val++, int(bynummob.size()));
     }
-  fprintf(stderr, "...Done.\n");
+//  fprintf(stderr, "...Done.\n");
 
   val = 0;
-  fprintf(stderr, "\rRecycling Sample Triggers: %d/%d    ", val++, int(bynumtrg.size()));
+//  fprintf(stderr, "\rRecycling Sample Triggers: %d/%d    ", val++, int(bynumtrg.size()));
   for(ind = bynumtrg.begin(); ind != bynumtrg.end(); ++ind) {
     (*ind).second->Recycle();
-    fprintf(stderr, "\rRecycling Sample Triggers: %d/%d    ", val++, int(bynumtrg.size()));
+//    fprintf(stderr, "\rRecycling Sample Triggers: %d/%d    ", val++, int(bynumtrg.size()));
     }
-  fprintf(stderr, "...Done.\n");
+//  fprintf(stderr, "...Done.\n");
 
   bynumwld.clear();
   bynumobj.clear();
@@ -555,7 +555,7 @@ void Object::TBALoadMOB(const char *fn) {
       if(fscanf(mudm, " #%d\n", &onum) < 1) break;
       //fprintf(stderr, "Loaded MOB #%d\n", onum);
 
-      Object *obj = new Object(this);
+      Object *obj = new Object();
       obj->SetSkill("TBAMOB", 1000000+onum);
       bynummob[onum] = obj;
 
@@ -925,7 +925,7 @@ void Object::TBALoadOBJ(const char *fn) {
       if(fscanf(mudo, " #%d\n", &onum) < 1) break;
       //fprintf(stderr, "Loaded object #%d\n", onum);
 
-      Object *obj = new Object(this);
+      Object *obj = new Object();
       obj->SetSkill("TBAObject", 1000000+onum);
       bynumobj[onum] = obj;
 
