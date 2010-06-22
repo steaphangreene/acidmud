@@ -6,7 +6,16 @@ using namespace std;
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 //String Functions
-void replace_all(string &str, const string &oldt, const string &newt);
-void replace_all(string &str, const string &oldt, int newn);
+void replace_all(
+	string &str, const string &oldt, const string &newt, size_t st=0
+	);
+
+void replace_all(
+	string &str, const string &oldt, int newn, size_t st=0
+	);
+
+size_t skip_line(	//IDX of next line start, skipping leading whitespace
+	const string &str, size_t pos
+	);
+
 void trim_string(string &str);	//Remove extra whitespace from string
-size_t skip_line(const string &str, size_t pos);
