@@ -575,6 +575,80 @@ void Mind::Think(int istick) {
 	    }
 	  }
 
+	else if(!strncasecmp(script.c_str()+spos, "eval ", 5)) {
+	  spos = skip_line(script, spos);
+	  }
+
+	else if(!strncasecmp(script.c_str()+spos, "set ", 5)) {
+	  spos = skip_line(script, spos);
+	  }
+
+	else if(!strncasecmp(script.c_str()+spos, "while ", 6)) {//FIXME!
+	  int depth = 0;		//Just skips to end (like "break")
+	  spos = skip_line(script, spos);
+	  while(spos != string::npos) {	//Skip to end (considering nesting)
+	    PING_QUOTA();
+	    if(!strncasecmp(script.c_str()+spos, "done", 4)) {
+	      if(depth == 0) {	//Only done if all the way back
+		spos = skip_line(script, spos);
+		break;
+		}
+	      --depth;	//Otherwise am just 1 nesting level less deep
+	      }
+	    else if(!strncasecmp(script.c_str()+spos, "switch ", 7)) {
+	      ++depth;	//Am now 1 nesting level deeper!
+	      }
+	    else if(!strncasecmp(script.c_str()+spos, "while ", 6)) {
+	      ++depth;	//Am now 1 nesting level deeper!
+	      }
+	    spos = skip_line(script, spos);
+	    }
+	  }
+
+	else if(!strncasecmp(script.c_str()+spos, "switch ", 7)) {//FIXME!
+	  int depth = 0;		//Just skips to end (like "break")
+	  spos = skip_line(script, spos);
+	  while(spos != string::npos) {	//Skip to end (considering nesting)
+	    PING_QUOTA();
+	    if(!strncasecmp(script.c_str()+spos, "done", 4)) {
+	      if(depth == 0) {	//Only done if all the way back
+		spos = skip_line(script, spos);
+		break;
+		}
+	      --depth;	//Otherwise am just 1 nesting level less deep
+	      }
+	    else if(!strncasecmp(script.c_str()+spos, "switch ", 7)) {
+	      ++depth;	//Am now 1 nesting level deeper!
+	      }
+	    else if(!strncasecmp(script.c_str()+spos, "while ", 6)) {
+	      ++depth;	//Am now 1 nesting level deeper!
+	      }
+	    spos = skip_line(script, spos);
+	    }
+	  }
+
+	else if(!strncasecmp(script.c_str()+spos, "break ", 6)) {//Skip to done
+	  int depth = 0;
+	  spos = skip_line(script, spos);
+	  while(spos != string::npos) {	//Skip to end (considering nesting)
+	    PING_QUOTA();
+	    if(!strncasecmp(script.c_str()+spos, "done", 4)) {
+	      if(depth == 0) {	//Only done if all the way back
+		spos = skip_line(script, spos);
+		break;
+		}
+	      --depth;	//Otherwise am just 1 nesting level less deep
+	      }
+	    else if(!strncasecmp(script.c_str()+spos, "switch ", 7)) {
+	      ++depth;	//Am now 1 nesting level deeper!
+	      }
+	    else if(!strncasecmp(script.c_str()+spos, "while ", 6)) {
+	      ++depth;	//Am now 1 nesting level deeper!
+	      }
+	    spos = skip_line(script, spos);
+	    }
+	  }
+
 	else if(!strncasecmp(script.c_str()+spos, "%echo% ", 7)) {
 	  string mes = script.c_str() + spos + 6;
 	  size_t end = mes.find_first_of("\n\r");
@@ -613,6 +687,10 @@ void Mind::Think(int istick) {
 	  }
 
 	else if(!strncasecmp(script.c_str()+spos, "end", 3)) {
+	  //Ignore these, as we only hit them when we're running inside if
+	  spos = skip_line(script, spos);
+	  }
+	else if(!strncasecmp(script.c_str()+spos, "done", 4)) {
 	  //Ignore these, as we only hit them when we're running inside if
 	  spos = skip_line(script, spos);
 	  }
