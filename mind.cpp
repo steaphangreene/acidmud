@@ -583,6 +583,12 @@ void Mind::Think(int istick) {
 		spos += 4;	//Make it into an "if" and go
 		break;
 		}
+	      else if(!strncasecmp(script.c_str()+spos, "else", 4)) {
+		if(!depth) {	//Only right if all the way back
+		  spos = skip_line(script, spos);
+		  break;
+		  }
+		}
 	      else if(!strncasecmp(script.c_str()+spos, "end", 3)) {
 		if(!depth) {	//Only done if all the way back
 		  spos = skip_line(script, spos);
@@ -598,7 +604,7 @@ void Mind::Think(int istick) {
 	    }
 	  }
 
-	else if(!strncasecmp(line.c_str(), "elseif ", 7)) {
+	else if(!strncasecmp(line.c_str(), "else", 4)) {	//else/elseif
 	  int depth = 0;
 	  spos = skip_line(script, spos);
 	  while(spos != string::npos) {	//Skip to end (considering nesting)
