@@ -2801,10 +2801,21 @@ void Object::FreeActions() {
   for(map<Object *,list<int> >::iterator init = initlist.begin();
 	init != initlist.end(); ++init) {
 
-    // Still in combat!
-    if(init->first->IsAct(ACT_FIGHT) && (!init->first->StillBusy())) {
-      string ret = init->first->Tactics();
-      init->first->BusyFor(3000, ret.c_str());
+    if(init->first->IsAct(ACT_FIGHT)) {			// Still in combat!
+      if(!init->first->StillBusy()) {			// Make Sure!
+	string ret = init->first->Tactics();
+	init->first->BusyFor(3000, ret.c_str());
+	}
+
+					//Type 0x1000400 (MOB + MOB-FIGHT)
+      typeof(contents.begin()) trig = init->first->contents.begin();
+      for(; trig != init->first->contents.end(); ++trig) {
+	if(((*trig)->Skill("TBAScriptType") & 0x1000400) == 0x1000400) {
+//	  if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) { // % Chance
+	    new_trigger(0, *trig, init->first->ActTarg(ACT_FIGHT));
+//	    }
+	  }
+	}
       }
     }
   }

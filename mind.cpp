@@ -181,6 +181,10 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
   else {					//MOB Triggers
     replace_all(script, "%self.vnum%", targ->Skill("TBAMOB")-1000000);
     }
+  replace_all(script, "%self.name%", targ->Name());
+  replace_all(script, "%self.hisher%",
+	string(tr->Name(0, NULL, targ)).substr(0,3)
+	);
   if(tripper) {
     int vnum = tripper->Skill("TBAMOB");
     if(vnum < 1) vnum = tripper->Skill("TBAObject");
@@ -844,6 +848,18 @@ void Mind::Think(int istick) {
 	    trim_string(mes);
 	    mes += "\n";
 	    actor->Send(0, 0, mes.c_str());
+	    }
+	  spos = skip_line(script, spos);
+	  }
+
+	else if(!strncasecmp(line.c_str(), "%damage% %actor% ", 17)) {
+	  if(actor) {
+	    int dam = 1;
+	    size_t end = line.find_first_not_of(" \t", 17);
+	    if(end != string::npos) {
+	      dam = (atoi(line.c_str() + end) + 180) / 100;
+	      }
+	    actor->HitMent(1000, dam, 0);
 	    }
 	  spos = skip_line(script, spos);
 	  }
