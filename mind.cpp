@@ -791,14 +791,18 @@ void Mind::Think(int istick) {
 	  spos = skip_line(script, spos);
 	  }
 	}
+      if((body->Skill("TBAScriptType") & 63) == 2) {	//Random Triggers
+	int chance = body->Skill("TBAScriptNArg");	//Percent Chance
+	if(chance > 0) {
+	  int delay = 13000;	//Next try in 13 seconds.
+	  while(delay < 13000000 && (rand() % 100) >= chance) delay += 13000;
+	  spos = 0;		//We never die!
+	  Suspend(delay);	//We'll be back!
+	  return;
+	  }
+	}
       }
-    if((body->Skill("TBAScriptType") & 63) == 2) {	//Random Triggers
-      spos = 0;		//We never die!
-      Suspend(13000);	//Again in 13 Seconds!
-      }
-    else {
-      Disable();
-      }
+    Disable();
     }
   else if(type == MIND_TBAMOB) {
     if((!body) || (istick >= 0 && body->StillBusy())) return;
