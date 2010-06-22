@@ -21,7 +21,7 @@ using namespace std;
 #include "mind.h"
 #include "object.h"
 #include "player.h"
-
+#include "commands.h"
 
 list<Mind *>recycle_bin;
 
@@ -166,6 +166,7 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
   script = body->LongDesc();
   script += "\n";
   actor = tripper;
+  spos = 0;
 
   Object *targ = tr->Parent();
 
@@ -677,7 +678,6 @@ void Mind::Think(int istick) {
 	    spos = 0;
 	    Think(istick);		//Semi-recursive to do the loop-age
 	    if(type == MIND_MORON) {
-	      Disable();
 	      return;
 	      }
 	    script = orig;
@@ -727,6 +727,19 @@ void Mind::Think(int istick) {
 	      }
 	    spos = skip_line(script, spos);
 	    }
+	  }
+
+	else if(!strncasecmp(line.c_str(), "say ", 4)) {
+	  size_t stuff = line.find_first_not_of(" \t\r\n", 4);
+	  if(stuff != string::npos) {
+	    handle_command(body->Parent(), line.c_str());	//Bonzai!!!
+	    }
+	  else {
+//	    fprintf(stderr, "Error: Told just 'say' in #%d\n",
+//		body->Skill("TBAScript")
+//		);
+	    }
+	  spos = skip_line(script, spos);
 	  }
 
 	else if(!strncasecmp(line.c_str(), "%echo% ", 7)) {
@@ -1225,14 +1238,15 @@ Mind *new_mind(int tp, Object *obj, Object *obj2, string text) {
   return m;
   }
 
-int new_trigger(Object *obj, Object *tripper, string text) {
+int new_trigger(int msec, Object *obj, Object *tripper, string text) {
   if((!obj) || (!(obj->Parent()))) return 0;
 
   Mind *m = new_mind(MIND_TBATRIG, obj, tripper, text);
 //  fprintf(stderr, "Attached to '%s' on '%s'\n", 
 //	obj->Name(), obj->Parent()->Name()
 //	);
-  m->Think(1);
+  if(msec == 0) m->Think(1);
+  else m->Suspend(msec);
 //  delete(m);	//Needs to take care of itself!	FIXME!
   return 0;
   }

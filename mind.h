@@ -76,6 +76,8 @@ private:
 Mind *new_mind(int tp,
 	Object *obj = NULL, Object *obj2 = NULL, string text = ""
 	);
-int new_trigger(Object *obj, Object *tripper = NULL, string text = "");
+int new_trigger(int msec,
+	Object *obj, Object *tripper = NULL, string text = ""
+	);
 
 #endif

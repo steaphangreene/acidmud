@@ -1563,7 +1563,7 @@ int Object::Travel(Object *dest, int try_combine) {
       if((*trig)->Skill("TBAScriptType") == 135) {
 	if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) {	// % Chance
 	  //fprintf(stderr, "Triggering: %s\n", (*trig)->Name());
-	  new_trigger(*trig, this);
+	  new_trigger(0, *trig, this);
 	  }
 	}
       }
@@ -2479,7 +2479,7 @@ void Object::SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
 	  size_t len = speech.find_last_of("'");
 	  if(len != string::npos) speech = speech.substr(0, len);
           //fprintf(stderr, "Triggering: %s\n", (*trig)->Name());
-          new_trigger(*trig, actor, speech);
+          new_trigger((rand() % 400) + 300, *trig, actor, speech);
           }
         }
       }
