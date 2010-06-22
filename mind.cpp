@@ -166,7 +166,6 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
   script = body->LongDesc();
   script += "\n";
   actor = tripper;
-  spos = 0;
 
   Object *targ = tr->Parent();
 
@@ -429,6 +428,7 @@ string Mind::Tactics(int phase) {
 	if(quota < 1) {	\
 		fprintf(stderr, QUOTAERROR1, QUOTAERROR2); \
 		Disable(); \
+		return; \
 		} \
 	}
 
@@ -1225,6 +1225,7 @@ Mind *new_mind(int tp, Object *obj, Object *obj2, string text) {
   if(recycle_bin.size() > 0) {
     m = recycle_bin.front();
     recycle_bin.pop_front();
+//    fprintf(stderr, "Suspending(%p)\n", m);
     }
   else {
     m = new Mind();
@@ -1242,21 +1243,19 @@ int new_trigger(int msec, Object *obj, Object *tripper, string text) {
   if((!obj) || (!(obj->Parent()))) return 0;
 
   Mind *m = new_mind(MIND_TBATRIG, obj, tripper, text);
-//  fprintf(stderr, "Attached to '%s' on '%s'\n", 
-//	obj->Name(), obj->Parent()->Name()
-//	);
   if(msec == 0) m->Think(1);
   else m->Suspend(msec);
-//  delete(m);	//Needs to take care of itself!	FIXME!
   return 0;
   }
 
 list<pair<int, Mind*> > Mind::waiting;
 void Mind::Suspend(int msec) {
+//  fprintf(stderr, "Suspening(%p)\n", this);
   waiting.push_back(make_pair(msec, this));
   }
 
 void Mind::Disable() {
+//  fprintf(stderr, "Disabled(%p)\n", this);
   if(type == MIND_REMOTE) close_socket(pers);
   type = MIND_MORON;
   Unattach();
@@ -1281,6 +1280,7 @@ void Mind::Resume(int passed) {
     if(tmp->first <= passed) {
       Mind *mind = tmp->second;
       waiting.erase(tmp);
+//      fprintf(stderr, "Resuming(%p)\n", mind);
       mind->Think(0);
       }
     else {
