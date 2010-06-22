@@ -765,7 +765,20 @@ void Mind::Think(int istick) {
 		|| (!strncasecmp(line.c_str(), "emote ", 6))
 		|| (!strncasecmp(line.c_str(), "emot ", 5))
 		|| (!strncasecmp(line.c_str(), "emo ", 4))
-		|| (!strncasecmp(line.c_str(), "em ", 3))
+		|| (!strncasecmp(line.c_str(), "close ", 6))
+		|| (!strncasecmp(line.c_str(), "clos ", 5))
+		|| (!strncasecmp(line.c_str(), "clo ", 4))
+		|| (!strncasecmp(line.c_str(), "cl ", 3))
+		|| (!strncasecmp(line.c_str(), "open ", 5))
+		|| (!strncasecmp(line.c_str(), "ope ", 4))
+		|| (!strncasecmp(line.c_str(), "op ", 3))
+		|| (!strncasecmp(line.c_str(), "o ", 2))
+		|| (!strncasecmp(line.c_str(), "get ", 4))
+		|| (!strncasecmp(line.c_str(), "ge ", 3))
+		|| (!strncasecmp(line.c_str(), "g ", 2))
+		|| (!strncasecmp(line.c_str(), "take ", 5))
+		|| (!strncasecmp(line.c_str(), "tak ", 4))
+		|| (!strncasecmp(line.c_str(), "ta ", 3))
 		) {
 	  size_t stuff = line.find_first_of(" ");
 	  stuff = line.find_first_not_of(" \t\r\n", stuff);
