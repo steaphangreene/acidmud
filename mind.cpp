@@ -647,7 +647,7 @@ void Mind::Think(int istick) {
 
 	else if(!strncasecmp(line.c_str(), "while ", 6)) {
 	  int depth = 0;
-	  size_t cond, begin, end, skip;
+	  size_t cond = spos, begin = spos, end = spos, skip = spos;
 	  cond = spos + 6;
 	  spos = skip_line(script, spos);
 	  begin = spos;
