@@ -855,11 +855,12 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     if(comlist[ctr].id == COM_SAY && (comline[0]=='\'' || comline[0]=='"')) {
       com = comlist[ctr].id; cnum = ctr; break;
       }
-    if(comlist[ctr].id == COM_DUMP && (!strncasecmp(comline, "empty", len))) {
+    if(comlist[ctr].id == COM_DUMP
+	&& (!strncasecmp(comline, "empty", MAX(len,3)))) {
       com = comlist[ctr].id; cnum = ctr; break;
       }
     if(comlist[ctr].id == COM_CHARACTERS
-	&& (!strncasecmp(comline, "chars", len))) {
+	&& (!strncasecmp(comline, "chars", MAX(len, 5)))) {
       com = comlist[ctr].id; cnum = ctr; break;
       }
     }
