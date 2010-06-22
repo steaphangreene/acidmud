@@ -504,11 +504,11 @@ void Mind::Think(int istick) {
     }
   else if(type == MIND_TBATRIG) {
     if(body && body->Parent()) {
-      body->Parent()->SendOut(0, 0,
-	(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
-	(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
-	NULL, NULL
-	);
+//      body->Parent()->SendOut(0, 0,
+//	(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
+//	(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
+//	NULL, NULL
+//	);
       if(!script[spos]) return;	//Empty
       int quota = 128;
       while(spos != string::npos) {
