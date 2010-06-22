@@ -518,7 +518,7 @@ void Mind::Think(int istick) {
 		);
 	}
       if(!script[spos]) return;	//Empty
-      int quota = 128;
+      int quota = 1024;
       while(spos != string::npos) {
 	PING_QUOTA();
         string line;
