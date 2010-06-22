@@ -782,6 +782,36 @@ void Mind::Think(int istick) {
 	  spos = skip_line(script, spos);
 	  }
 
+	else if(!strncasecmp(line.c_str(), "%send% %actor% ", 15)) {
+	  if(actor) {
+	    string mes = script.c_str() + spos + 14;
+	    size_t end = mes.find_first_of("\n\r");
+	    if(end != string::npos) mes = mes.substr(0, end);
+	    trim_string(mes);
+	    mes += "\n";
+	    actor->Send(0, 0, mes.c_str());
+	    }
+	  spos = skip_line(script, spos);
+	  }
+
+	else if(!strncasecmp(line.c_str(), "%echoaround% %actor% ", 21)) {
+	  if(actor && actor->Parent()) {
+	    Object *aroom = actor->Parent();
+	    while(aroom && aroom->Skill("TBARoom") == 0) {
+	      aroom = aroom->Parent();
+	      }
+	    if(aroom) {
+	      string mes = script.c_str() + spos + 20;
+	      size_t end = mes.find_first_of("\n\r");
+	      if(end != string::npos) mes = mes.substr(0, end);
+	      trim_string(mes);
+	      mes += "\n";
+	      aroom->SendOut(0, 0, mes.c_str(), "", actor, NULL);
+	      }
+	    }
+	  spos = skip_line(script, spos);
+	  }
+
 	else if(!strncasecmp(line.c_str(), "%teleport% all ", 15)) {
 	  int dnum;
 	  sscanf(script.c_str() + spos + 15, "%d", &dnum);
