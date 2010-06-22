@@ -172,10 +172,10 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
   Object *targ = tr->Parent();
 
   //Variable Sub (For constants on this trigger instance)
-  if(tr->Skill("TBAScriptType") >= 128) {	//Room Triggers
+  if(tr->Skill("TBAScriptType") & 0x4000000) {		//Room Triggers
     replace_all(script, "%self.vnum%", targ->Skill("TBARoom")-1000000);
     }
-  else if(tr->Skill("TBAScriptType") >= 64) {	//Object Triggers
+  else if(tr->Skill("TBAScriptType") & 0x2000000) {	//Object Triggers
     replace_all(script, "%self.vnum%", targ->Skill("TBAObject")-1000000);
     }
   else {					//MOB Triggers
@@ -529,13 +529,13 @@ void Mind::Think(int istick) {
 	else line = script.substr(spos, endl-spos);
 
 	//Variable sub (Single line)
-	if(body->Skill("TBAScriptType") >= 128) {       //Room Triggers
+	if(body->Skill("TBAScriptType") & 0x4000000) {		//Room Trigs
 	  replace_all(line, "%self.vnum%", targ->Skill("TBARoom")-1000000);
 	  }
-	else if(body->Skill("TBAScriptType") >= 64) {   //Object Triggers
+	else if(body->Skill("TBAScriptType") & 0x2000000) {	//Object Trigs
 	  replace_all(line, "%self.vnum%", targ->Skill("TBAObject")-1000000);
 	  }
-	else {						//MOB Triggers
+	else {							//MOB Trigs
 	  replace_all(line, "%self.vnum%", targ->Skill("TBAMOB")-1000000);
 	  }
 
@@ -759,15 +759,25 @@ void Mind::Think(int istick) {
 	    }
 	  }
 
-	else if(!strncasecmp(line.c_str(), "say ", 4)) {
-	  size_t stuff = line.find_first_not_of(" \t\r\n", 4);
+	//Player commands Acid shares with TBA, requiring arguments
+	else if((!strncasecmp(line.c_str(), "say ", 4))
+		|| (!strncasecmp(line.c_str(), "sa ", 3))
+		|| (!strncasecmp(line.c_str(), "emote ", 6))
+		|| (!strncasecmp(line.c_str(), "emot ", 5))
+		|| (!strncasecmp(line.c_str(), "emo ", 4))
+		|| (!strncasecmp(line.c_str(), "em ", 3))
+		) {
+	  size_t stuff = line.find_first_of(" ");
+	  stuff = line.find_first_not_of(" \t\r\n", stuff);
 	  if(stuff != string::npos) {
-	    handle_command(body->Parent(), line.c_str());	//Bonzai!!!
+	    handle_command(body->Parent(), line.c_str());
 	    }
 	  else {
-//	    fprintf(stderr, "Error: Told just 'say' in #%d\n",
-//		body->Skill("TBAScript")
-//		);
+	    fprintf(stderr, "Error: Told just '%s' in #%d\n",
+		line.c_str(), body->Skill("TBAScript")
+		);
+	    Disable();
+	    return;
 	    }
 	  spos = skip_line(script, spos);
 	  }
@@ -859,7 +869,7 @@ void Mind::Think(int istick) {
 	  return;
 	  }
 	}
-      if((body->Skill("TBAScriptType") & 63) == 2) {	//Random Triggers
+      if(body->Skill("TBAScriptType") & 2) {		//Random Triggers
 	int chance = body->Skill("TBAScriptNArg");	//Percent Chance
 	if(chance > 0) {
 	  int delay = 13000;	//Next try in 13 seconds.

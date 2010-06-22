@@ -1557,10 +1557,10 @@ int Object::Travel(Object *dest, int try_combine) {
     if(Weight() > con) return -3;
     }
 
-  if(att[1] > 0) {	//Type 135 (ROOM-ENTER) Triggers
+  if(att[1] > 0) {	//Type 0x4000040 (ROOM + ROOM-ENTER)
     typeof(contents.begin()) trig = dest->contents.begin();
     for(; trig != dest->contents.end(); ++trig) {
-      if((*trig)->Skill("TBAScriptType") == 135) {
+      if(((*trig)->Skill("TBAScriptType") & 0x4000040) == 0x4000040) {
 	if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) {	// % Chance
 	  //fprintf(stderr, "Triggering: %s\n", (*trig)->Name());
 	  new_trigger(0, *trig, this);
@@ -2476,10 +2476,10 @@ void Object::SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
 	Object *actor, Object *targ) {
   if(no_seek) return;
 
-  if(!strncmp(mes, ";s says '", 9)) {	//Type 132 (ROOM-SPEECH) Triggers
+  if(!strncmp(mes, ";s says '", 9)) {	//Type 0x4000008 (ROOM + ROOM-SPEECH)
     typeof(contents.begin()) trig = contents.begin();
     for(; trig != contents.end(); ++trig) {
-      if((*trig)->Skill("TBAScriptType") == 132) {
+      if(((*trig)->Skill("TBAScriptType") & 0x4000008) == 0x4000008) {
         if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) {  // % Chance
 	  string speech = mes+9;
 	  size_t len = speech.find_last_of("'");

@@ -14,6 +14,16 @@ using namespace std;
 #include "color.h"
 #include "mind.h"
 
+static int tba_bitvec(const string& val) {
+  int ret = atoi(val.c_str());
+  if(ret == 0) {	//Works fine for "0" too
+    for(size_t idx = 0; idx < val.length(); ++idx) {
+      ret |= 1 << ((val[idx] & 31) - 1);
+      }
+    }
+  return ret;
+  }
+
 static const char *dirname[6] = {
 	"north", "east", "south", "west", "up", "down"
 	};
@@ -2464,10 +2474,10 @@ void Object::TBALoadTRG(const char *fn) {	//Triggers
       fscanf(mud, "~");
 
       int atype = -1, ttype = -1, narg;
-      fscanf(mud, " %d %65535s %d", &atype, buf, &narg);	//Attach Type
-      sscanf(buf, "%d", &ttype);				//Trigger Type
-      if(ttype < 1) ttype = (buf[0] & 0x1F);
-      script->SetSkill("TBAScriptType", atype*64 + ttype);	//Combined
+      fscanf(mud, " %d %65535s %d", &atype, buf, &narg);
+      ttype = tba_bitvec(buf);					//Trigger Types
+      atype = 1 << (atype + 24);				//Attach Type
+      script->SetSkill("TBAScriptType", atype | ttype);		//Combined
       script->SetSkill("TBAScriptNArg", narg);			//Numeric Arg
 
       fscanf(mud, " %*[^~]");		//Trigger Arg (FIXME: Use All These?)
