@@ -508,8 +508,9 @@ void Mind::Think(int istick) {
     }
   else if(type == MIND_TBATRIG) {
     if(body && body->Parent()) {
-     if(body->Parent()->Matches("picard")) {
-	body->Parent()->SendOut(0, 0,
+      Object *targ = body->Parent();
+      if(targ->Matches("picard")) {
+	targ->SendOut(0, 0,
 		(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
 		(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
 		NULL, NULL
@@ -519,24 +520,55 @@ void Mind::Think(int istick) {
       int quota = 128;
       while(spos != string::npos) {
 	PING_QUOTA();
-	if(!strncasecmp(script.c_str()+spos, "wait ", 5)) {
+        string line;
+	size_t endl = script.find_first_of("\n\r", spos);
+	if(endl == string::npos) line = script.substr(spos);
+        else line = script.substr(spos, endl-spos);
+
+	//Variable sub (Single line)
+	if(body->Skill("TBAScriptType") >= 128) {       //Room Triggers
+	  replace_all(line, "%self.vnum%", targ->Skill("TBARoom")-1000000);
+	  }
+	else if(body->Skill("TBAScriptType") >= 64) {   //Object Triggers
+	  replace_all(line, "%self.vnum%", targ->Skill("TBAObject")-1000000);
+	  }
+	else {                                        //MOB Triggers
+	  replace_all(line, "%self.vnum%", targ->Skill("TBAMOB")-1000000);
+	  }
+
+	Object *room = targ;
+	while(room && room->Skill("TBARoom") == 0) room = room->Parent();
+	if(room) {
+	  replace_all(line, "%self.room.vnum%", room->Skill("TBARoom")-1000000);
+	  }
+
+	if(actor) {
+	  int vnum = actor->Skill("TBAMOB");
+	  if(vnum < 1) vnum = actor->Skill("TBAObject");
+	  if(vnum < 1) vnum = actor->Skill("TBARoom");
+	  if(vnum) {
+	    replace_all(line, "%actor.vnum%", vnum-1000000);
+	    }
+	  }
+
+	if(!strncasecmp(line.c_str(), "wait ", 5)) {
 	  int time = 0;
-	  sscanf(script.c_str()+spos+5, "%d", &time);
+	  sscanf(line.c_str()+5, "%d", &time);
 	  if(time > 0) {
 	    spos = skip_line(script, spos);
 	    Suspend(time*1000);
 	    }
 	  else {
 	    fprintf(stderr, "Error: Told 'wait %s' in #%d\n",
-		script.c_str()+spos+5, body->Skill("TBAScript")
+		line.c_str()+5, body->Skill("TBAScript")
 		);
 	    Disable();
 	    }
 	  return;
 	  }
 
-	else if(!strncasecmp(script.c_str()+spos, "if ", 3)) {
-	  if(tba_eval(script.c_str()+spos+3)) {
+	else if(!strncasecmp(line.c_str(), "if ", 3)) {
+	  if(tba_eval(line.c_str()+3)) {
 	    spos = skip_line(script, spos);	//Is "if" and is true
 	    }
 	  else {				//Was elseif or false
@@ -563,7 +595,7 @@ void Mind::Think(int istick) {
 	    }
 	  }
 
-	else if(!strncasecmp(script.c_str()+spos, "elseif ", 7)) {
+	else if(!strncasecmp(line.c_str(), "elseif ", 7)) {
 	  int depth = 0;
 	  spos = skip_line(script, spos);
 	  while(spos != string::npos) {	//Skip to end (considering nesting)
@@ -582,33 +614,37 @@ void Mind::Think(int istick) {
 	    }
 	  }
 
-	else if(!strncasecmp(script.c_str()+spos, "eval ", 5)) {
-	  spos += 5; while(script[spos] && isspace(script[spos])) ++spos;
-	  size_t end1 = script.find_first_of(" \t\n\r", spos);
-	  if(end1 != string::npos) {
-	    string var = script.substr(spos, end1 - spos);
+	else if(!strncasecmp(line.c_str(), "eval ", 5)) {
+	  spos = skip_line(script, spos);
 
-	    string val;
-	    spos = script.find_first_not_of(" \t", end1 + 1);
-	    if(spos != string::npos) {
-	      size_t end2 = script.find_first_of("\n\r", spos);
-	      if(end2 != string::npos && end2 != spos) {
-		string val = script.substr(spos, end2 - spos);
-		spos = skip_line(script, spos);
-		replace_all(script, "%"+var+"%", val, spos);
-		replace_all(script, "%"+var+".", "%"+val+".", spos);
+	  size_t lpos = line.find_first_not_of(" \t", 5);
+	  if(lpos != string::npos) {
+	    line = line.substr(lpos);
+	    size_t end1 = line.find_first_of(" \t\n\r");
+	    if(end1 != string::npos) {
+	      string var = line.substr(0, end1);
+	      lpos = line.find_first_not_of(" \t", end1 + 1);
+	      if(lpos != string::npos) {
+		string val = line.substr(lpos);
+		if(val[0] == '%' && val[val.length()-1] == '%') {
+		  val = val.substr(1, val.length()-2);
+		  replace_all(script, "%"+var+"%", val, lpos);
+		  replace_all(script, "%"+var+".", "%"+val+".", lpos);
+		  }
+		else {
+		  replace_all(script, "%"+var+"%", val, lpos);
+		  }
 		continue;
 		}
 	      }
 	    }
+	  }
+
+	else if(!strncasecmp(line.c_str(), "set ", 5)) {
 	  spos = skip_line(script, spos);
 	  }
 
-	else if(!strncasecmp(script.c_str()+spos, "set ", 5)) {
-	  spos = skip_line(script, spos);
-	  }
-
-	else if(!strncasecmp(script.c_str()+spos, "while ", 6)) {
+	else if(!strncasecmp(line.c_str(), "while ", 6)) {
 	  int depth = 0;
 	  size_t cond, begin, end, skip;
 	  cond = spos + 6;
@@ -638,16 +674,18 @@ void Mind::Think(int istick) {
 	    string orig = script;
 	    script = script.substr(begin, end-begin);
 	    trim_string(script);
+	    spos = 0;
 	    Think(istick);		//Semi-recursive to do the loop-age
 	    if(type == MIND_MORON) {
 	      Disable();
 	      return;
 	      }
 	    script = orig;
+	    spos = skip;
 	    }
 	  }
 
-	else if(!strncasecmp(script.c_str()+spos, "switch ", 7)) {//FIXME!
+	else if(!strncasecmp(line.c_str(), "switch ", 7)) {//FIXME!
 	  int depth = 0;		//Just skips to end (like "break")
 	  spos = skip_line(script, spos);
 	  while(spos != string::npos) {	//Skip to end (considering nesting)
@@ -669,7 +707,7 @@ void Mind::Think(int istick) {
 	    }
 	  }
 
-	else if(!strncasecmp(script.c_str()+spos, "break ", 6)) {//Skip to done
+	else if(!strncasecmp(line.c_str(), "break ", 6)) {//Skip to done
 	  int depth = 0;
 	  spos = skip_line(script, spos);
 	  while(spos != string::npos) {	//Skip to end (considering nesting)
@@ -691,21 +729,21 @@ void Mind::Think(int istick) {
 	    }
 	  }
 
-	else if(!strncasecmp(script.c_str()+spos, "%echo% ", 7)) {
+	else if(!strncasecmp(line.c_str(), "%echo% ", 7)) {
 	  string mes = script.c_str() + spos + 6;
 	  size_t end = mes.find_first_of("\n\r");
 	  if(end != string::npos) mes = mes.substr(0, end);
 	  trim_string(mes);
 	  mes += "\n";
-	  body->Parent()->SendOut(0, 0, mes.c_str(), mes.c_str(), NULL, NULL);
+	  targ->SendOut(0, 0, mes.c_str(), mes.c_str(), NULL, NULL);
 	  spos = skip_line(script, spos);
 	  }
 
-	else if(!strncasecmp(script.c_str()+spos, "%teleport% all ", 15)) {
+	else if(!strncasecmp(line.c_str(), "%teleport% all ", 15)) {
 	  int dnum;
 	  sscanf(script.c_str() + spos + 15, "%d", &dnum);
 	  dnum += 1000000;
-	  Object *dest = body->Parent();
+	  Object *dest = targ;
 	  while(dest->Parent()->Parent()) {
 	    dest = dest->Parent();
 	    }
@@ -718,7 +756,7 @@ void Mind::Think(int istick) {
 	      break;
 	      }
 	    }
-	  options = body->Parent()->Contents();
+	  options = targ->Contents();
 	  opt = options.begin();
 	  for(; opt != options.end(); ++opt) {
 	    if((*opt)->Matches("everyone")) {
@@ -728,11 +766,11 @@ void Mind::Think(int istick) {
 	  spos = skip_line(script, spos);
 	  }
 
-	else if(!strncasecmp(script.c_str()+spos, "end", 3)) {
+	else if(!strncasecmp(line.c_str(), "end", 3)) {
 	  //Ignore these, as we only hit them when we're running inside if
 	  spos = skip_line(script, spos);
 	  }
-	else if(!strncasecmp(script.c_str()+spos, "done", 4)) {
+	else if(!strncasecmp(line.c_str(), "done", 4)) {
 	  //Ignore these, as we only hit them when we're running inside if
 	  spos = skip_line(script, spos);
 	  }
