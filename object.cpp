@@ -1557,13 +1557,38 @@ int Object::Travel(Object *dest, int try_combine) {
     if(Weight() > con) return -3;
     }
 
-  if(att[1] > 0) {	//Type 0x4000040 (ROOM + ROOM-ENTER)
-    typeof(contents.begin()) trig = dest->contents.begin();
+  const char *dir = "";
+  { const char *dirs[6] = {"north", "south", "east", "west", "up", "down"};
+    for(int dnum=0; dnum < 6 && dir[0] == 0; ++dnum) {
+      Object *door = parent->PickObject(dirs[dnum], LOC_INTERNAL);
+      if(door && door->ActTarg(ACT_SPECIAL_LINKED)
+		&& door->ActTarg(ACT_SPECIAL_LINKED)->Parent()
+		&& door->ActTarg(ACT_SPECIAL_LINKED)->Parent() == dest
+		) {
+	dir = dirs[dnum];
+	}
+      }
+    }
+
+  if(att[1] > 0) {
+    typeof(contents.begin()) trig;
+	//Type 0x4010000 (ROOM + ROOM-LEAVE)
+    trig = parent->contents.begin();
+    for(; trig != parent->contents.end(); ++trig) {
+      if(((*trig)->Skill("TBAScriptType") & 0x4010000) == 0x4010000) {
+	if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) {	// % Chance
+	  //fprintf(stderr, "Triggering: %s\n", (*trig)->Name());
+	  new_trigger(0, *trig, this, dir);
+	  }
+	}
+      }
+	//Type 0x4000040 (ROOM + ROOM-ENTER)
+    trig = dest->contents.begin();
     for(; trig != dest->contents.end(); ++trig) {
       if(((*trig)->Skill("TBAScriptType") & 0x4000040) == 0x4000040) {
 	if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) {	// % Chance
 	  //fprintf(stderr, "Triggering: %s\n", (*trig)->Name());
-	  new_trigger(0, *trig, this);
+	  new_trigger(0, *trig, this, dir);
 	  }
 	}
       }

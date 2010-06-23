@@ -199,6 +199,7 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
 	);
     }
   replace_all(script, "%speech%", text);	//Correct, even if it's ""
+  replace_all(script, "%direction%", text);	//Correct, even if it's ""
   }
 
 void Mind::SetTBAMob() {
@@ -565,6 +566,7 @@ void Mind::Think(int istick) {
 	replace_all(line, "%echoaround% %actor% ", "echoaround_actor ");
 	replace_all(line, "wdamage %actor% ", "damage_actor ");
 	replace_all(line, "%teleport% ", "transport ");
+//	replace_all(line, "%door% ", "door ");
 
 	replace_all(line, "%self.fighting%", bstr[self->IsAct(ACT_FIGHT)]);
 	replace_all(line, "%self.is_pc%", bstr[is_pc(self)]);
@@ -881,6 +883,10 @@ void Mind::Think(int istick) {
 	    }
 	  spos = skip_line(script, spos);
 	  }
+
+//	else if(!strncasecmp(line.c_str(), "door ", 5)) {
+//	  spos = skip_line(script, spos);
+//	  }
 
 	else if(!strncasecmp(line.c_str(), "transport all ", 14)) {
 	  int dnum;
