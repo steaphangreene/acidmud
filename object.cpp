@@ -1369,7 +1369,7 @@ void Object::SendScore(Mind *m, Object *o) {
 	}
 
       if(nskl != nsks.end()) {
-	m->SendF("%28s: %7d", nskl->first.c_str(), nskl->second);
+	m->SendF("%28s: %8d", nskl->first.c_str(), nskl->second);
 	++nskl;
 	}
 
