@@ -43,7 +43,7 @@ static string tba_comp(string expr) {
     return "0";
     }
 
-  size_t op = expr.find_first_of("|&=!<>/-+*");
+  size_t op = expr.find_first_of("|&=!<>/-+*", 1);	//Skip Leading "-"
   if(op == string::npos) return expr;	//No ops, just val
 
   int oper = 0;		//Positive for 2-char ops, negative for 1-char
@@ -57,6 +57,10 @@ static string tba_comp(string expr) {
   else if(!strncmp(expr.c_str()+op, "||", 2)) { oper = 7; weak = 1; }
   else if(!strncmp(expr.c_str()+op, "<", 1)) { oper = -1; }
   else if(!strncmp(expr.c_str()+op, ">", 1)) { oper = -2; }
+  else if(!strncmp(expr.c_str()+op, "+", 1)) { oper = -3; }
+  else if(!strncmp(expr.c_str()+op, "-", 1)) { oper = -4; }
+  else if(!strncmp(expr.c_str()+op, "*", 1)) { oper = -5; }
+  else if(!strncmp(expr.c_str()+op, "/", 1)) { oper = -6; }
 
   if(oper != 0) {
     string arg1 = expr.substr(0, op);
@@ -81,6 +85,7 @@ static string tba_comp(string expr) {
       }
     trim_string(arg2);
 
+    int res = 0;
     string comp = "0";
     if(oper == 1 && (arg1 == arg2)) comp = "1";		// /=	FIXME: Not Done
     else if(oper == 2 && (arg1 == arg2)) comp = "1";
@@ -91,6 +96,21 @@ static string tba_comp(string expr) {
     else if(oper == -2 && (atoi(arg1.c_str()) > atoi(arg2.c_str()))) comp = "1";
     else if(oper == 6 && (tba_eval(arg1) && tba_eval(arg2))) comp = "1";
     else if(oper == 7 && (tba_eval(arg1) || tba_eval(arg2))) comp = "1";
+    else if(oper == -3) res = atoi(arg1.c_str()) + atoi(arg2.c_str());
+    else if(oper == -4) res = atoi(arg1.c_str()) - atoi(arg2.c_str());
+    else if(oper == -5) res = atoi(arg1.c_str()) * atoi(arg2.c_str());
+    else if(oper == -6) {	//Protect from div by zero
+      int val2 = atoi(arg2.c_str());
+      res = atoi(arg1.c_str());
+      if(val2 != 0) res /= val2;
+      }
+
+    if(oper <= -3) {	//Non-Boolean - actual numeric value
+      char buf[256];
+      sprintf(buf, "%d", res);
+      comp = buf;
+      //fprintf(stderr, "RES: %s\n", buf);
+      }
 
     if(expr != "") {
       expr = comp + " " + expr;
@@ -910,7 +930,7 @@ void Mind::Think(int istick) {
 	    int dam = 1;
 	    size_t end = line.find_first_not_of(" \t", 13);
 	    if(end != string::npos) {
-	      dam = (atoi(line.c_str() + end) + 180) / 100;
+	      dam = (tba_eval(line.c_str() + end) + 180) / 100;
 	      }
 	    actor->HitMent(1000, dam, 0);
 	    }
