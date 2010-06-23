@@ -847,6 +847,36 @@ void Mind::Think(int istick) {
 	    }
 	  }
 
+	//Player commands Acid shares with TBA, requiring NO arguments
+	else if((!strcasecmp(line.c_str(), "north"))
+		|| (!strcasecmp(line.c_str(), "nort"))
+		|| (!strcasecmp(line.c_str(), "nor"))
+		|| (!strcasecmp(line.c_str(), "no"))
+		|| (!strcasecmp(line.c_str(), "n"))
+		|| (!strcasecmp(line.c_str(), "south"))
+		|| (!strcasecmp(line.c_str(), "sout"))
+		|| (!strcasecmp(line.c_str(), "sou"))
+		|| (!strcasecmp(line.c_str(), "so"))
+		|| (!strcasecmp(line.c_str(), "s"))
+		|| (!strcasecmp(line.c_str(), "east"))
+		|| (!strcasecmp(line.c_str(), "eas"))
+		|| (!strcasecmp(line.c_str(), "ea"))
+		|| (!strcasecmp(line.c_str(), "e"))
+		|| (!strcasecmp(line.c_str(), "west"))
+		|| (!strcasecmp(line.c_str(), "wes"))
+		|| (!strcasecmp(line.c_str(), "we"))
+		|| (!strcasecmp(line.c_str(), "w"))
+		|| (!strcasecmp(line.c_str(), "up"))
+		|| (!strcasecmp(line.c_str(), "u"))
+		|| (!strcasecmp(line.c_str(), "down"))
+		|| (!strcasecmp(line.c_str(), "dow"))
+		|| (!strcasecmp(line.c_str(), "do"))
+		|| (!strcasecmp(line.c_str(), "d"))
+		) {
+	  handle_command(body->Parent(), line.c_str());
+	  spos = skip_line(script, spos);
+	  }
+
 	//Player commands Acid shares with TBA, requiring arguments
 	else if((!strncasecmp(line.c_str(), "say ", 4))
 		|| (!strncasecmp(line.c_str(), "sa ", 3))
@@ -854,6 +884,8 @@ void Mind::Think(int istick) {
 		|| (!strncasecmp(line.c_str(), "emot ", 5))
 		|| (!strncasecmp(line.c_str(), "emo ", 4))
 		|| (!strncasecmp(line.c_str(), "em ", 3))
+		|| (!strncasecmp(line.c_str(), "lock ", 5))
+		|| (!strncasecmp(line.c_str(), "loc ", 4))
 		|| (!strncasecmp(line.c_str(), "close ", 6))
 		|| (!strncasecmp(line.c_str(), "clos ", 5))
 		|| (!strncasecmp(line.c_str(), "clo ", 4))
@@ -868,30 +900,6 @@ void Mind::Think(int istick) {
 		|| (!strncasecmp(line.c_str(), "take ", 5))
 		|| (!strncasecmp(line.c_str(), "tak ", 4))
 		|| (!strncasecmp(line.c_str(), "ta ", 3))
-		|| (!strncasecmp(line.c_str(), "north ", 6))
-		|| (!strncasecmp(line.c_str(), "nort ", 5))
-		|| (!strncasecmp(line.c_str(), "nor ", 4))
-		|| (!strncasecmp(line.c_str(), "no ", 3))
-		|| (!strncasecmp(line.c_str(), "n ", 2))
-		|| (!strncasecmp(line.c_str(), "south ", 6))
-		|| (!strncasecmp(line.c_str(), "sout ", 5))
-		|| (!strncasecmp(line.c_str(), "sou ", 4))
-		|| (!strncasecmp(line.c_str(), "so ", 3))
-		|| (!strncasecmp(line.c_str(), "s ", 2))
-		|| (!strncasecmp(line.c_str(), "east ", 5))
-		|| (!strncasecmp(line.c_str(), "eas ", 4))
-		|| (!strncasecmp(line.c_str(), "ea ", 3))
-		|| (!strncasecmp(line.c_str(), "e ", 2))
-		|| (!strncasecmp(line.c_str(), "west ", 5))
-		|| (!strncasecmp(line.c_str(), "wes ", 4))
-		|| (!strncasecmp(line.c_str(), "we ", 3))
-		|| (!strncasecmp(line.c_str(), "w ", 2))
-		|| (!strncasecmp(line.c_str(), "up ", 3))
-		|| (!strncasecmp(line.c_str(), "u ", 2))
-		|| (!strncasecmp(line.c_str(), "down ", 5))
-		|| (!strncasecmp(line.c_str(), "dow ", 4))
-		|| (!strncasecmp(line.c_str(), "do ", 3))
-		|| (!strncasecmp(line.c_str(), "d ", 2))
 		) {
 	  size_t stuff = line.find_first_of(" ");
 	  stuff = line.find_first_not_of(" \t\r\n", stuff);
