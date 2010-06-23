@@ -186,6 +186,7 @@ public:
   void EarnExp(int);
   void SpendExp(int);
   int Accomplish(unsigned long);
+  int TotalExp(Player *p = NULL);
   int Exp(Player *p = NULL);
 
   int Stun()	{ return stun; };

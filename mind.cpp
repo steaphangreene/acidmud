@@ -185,13 +185,14 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
   replace_all(script, "%self.hisher%",
 	string(tr->Name(0, NULL, targ)).substr(0,3)
 	);
-  if(tripper) {
-    int vnum = tripper->Skill("TBAMOB");
-    if(vnum < 1) vnum = tripper->Skill("TBAObject");
-    if(vnum < 1) vnum = tripper->Skill("TBARoom");
+  if(actor) {
+    int vnum = actor->Skill("TBAMOB");
+    if(vnum < 1) vnum = actor->Skill("TBAObject");
+    if(vnum < 1) vnum = actor->Skill("TBARoom");
     if(vnum) {
       replace_all(script, "%actor.vnum%", vnum-1000000);
       }
+    replace_all(script, "%actor.level%", actor->Exp()/10);
     }
   replace_all(script, "%speech%", text);	//Correct, even if it's ""
   }
@@ -516,13 +517,17 @@ void Mind::Think(int istick) {
   else if(type == MIND_TBATRIG) {
     if(body && body->Parent()) {
       Object *targ = body->Parent();
-      if(targ->Matches("picard")) {
-	targ->SendOut(0, 0,
+      Object *room = targ;
+      while(room && room->Skill("TBARoom") == 0) room = room->Parent();
+
+      if(targ->Matches("picard") || targ->Matches("mindflayer")) {
+	room->SendOut(0, 0,
 		(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
 		(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
 		NULL, NULL
 		);
 	}
+
       if(!script[spos]) return;	//Empty
       int quota = 1024;
       while(spos != string::npos) {
@@ -543,8 +548,6 @@ void Mind::Think(int istick) {
 	  replace_all(line, "%self.vnum%", targ->Skill("TBAMOB")-1000000);
 	  }
 
-	Object *room = targ;
-	while(room && room->Skill("TBARoom") == 0) room = room->Parent();
 	if(room) {
 	  replace_all(line, "%self.room.vnum%", room->Skill("TBARoom")-1000000);
 	  }
