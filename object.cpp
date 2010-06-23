@@ -702,6 +702,42 @@ Object::Object(const Object &o) {
   tickstep = -1;
   }
 
+const char *Object::Pron(Object *rel) const {
+  if(Gender() == 'M') {
+    return "he";
+    }
+  else if(Gender() == 'F') {
+    return "she";
+    }
+  else {
+    return "it";
+    }
+  }
+
+const char *Object::Poss(Object *rel) const {
+  if(Gender() == 'M') {
+    return "his";
+    }
+  else if(Gender() == 'F') {
+    return "her";
+    }
+  else {
+    return "its";
+    }
+  }
+
+const char *Object::Obje(Object *rel) const {
+  if(Gender() == 'M') {
+    return "him";
+    }
+  else if(Gender() == 'F') {
+    return "her";
+    }
+  else {
+    return "it";
+    }
+  }
+
 // Generate truly-formatted name
 const char *Object::Name(int definite, Object *rel, Object *sub) const {
   static string local;

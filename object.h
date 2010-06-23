@@ -112,6 +112,9 @@ public:
   Object *Next(string &);
   Object *Split(int nqty);
   const char *Name(int definite = 0, Object *rel = NULL, Object *sub = NULL) const;
+  const char *Pron(Object *rel = NULL) const;
+  const char *Poss(Object *rel = NULL) const;
+  const char *Obje(Object *rel = NULL) const;
   const char *ShortDesc() const;
   const char *Desc() const;
   const char *LongDesc() const;
@@ -169,11 +172,11 @@ public:
   int ContainedWeight();
   int ContainedVolume();
 
-  int Weight()	{ return weight; };
-  int Volume()	{ return volume; };
-  int Size()	{ return size; };
-  int Value()	{ return value; };
-  char Gender()	{ return gender; };
+  int Weight() const	{ return weight; };
+  int Volume() const	{ return volume; };
+  int Size() const	{ return size; };
+  int Value() const	{ return value; };
+  char Gender() const	{ return gender; };
 
   void SetWeight(int w)	{ weight = w; };
   void SetVolume(int v)	{ volume = v; };
