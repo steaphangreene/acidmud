@@ -702,7 +702,7 @@ Object::Object(const Object &o) {
   tickstep = -1;
   }
 
-const char *Object::Pron(Object *rel) const {
+const char *Object::Pron() const {
   if(Gender() == 'M') {
     return "he";
     }
@@ -714,7 +714,7 @@ const char *Object::Pron(Object *rel) const {
     }
   }
 
-const char *Object::Poss(Object *rel) const {
+const char *Object::Poss() const {
   if(Gender() == 'M') {
     return "his";
     }
@@ -726,7 +726,7 @@ const char *Object::Poss(Object *rel) const {
     }
   }
 
-const char *Object::Obje(Object *rel) const {
+const char *Object::Obje() const {
   if(Gender() == 'M') {
     return "him";
     }
