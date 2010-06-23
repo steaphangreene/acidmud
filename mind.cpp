@@ -217,6 +217,14 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
       replace_all(script, "%actor.heshe%", "it");
       }
     }
+
+  size_t val = script.find(".hitp%");
+  while(val != string::npos) {
+    size_t start = script.rfind("%", val);
+    script.replace(start, val+6-start, "1000");	//Everybody has 1000 HP. :)
+    val = script.find(".hitp%");
+    }
+
   replace_all(script, "%speech%", text);	//Correct, even if it's ""
   replace_all(script, "%direction%", text);	//Correct, even if it's ""
   }
