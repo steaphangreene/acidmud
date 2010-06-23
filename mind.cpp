@@ -87,7 +87,7 @@ static string tba_comp(string expr) {
 
     int res = 0;
     string comp = "0";
-    if(oper == 1 && (arg1 == arg2)) comp = "1";		// /=	FIXME: Not Done
+    if(oper == 1 && strcasestr(arg1.c_str(), arg2.c_str())) comp = "1";
     else if(oper == 2 && (arg1 == arg2)) comp = "1";
     else if(oper == 3 && (arg1 != arg2)) comp = "1";
     else if(oper == 4 && (atoi(arg1.c_str()) <= atoi(arg2.c_str()))) comp = "1";
