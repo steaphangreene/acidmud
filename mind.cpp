@@ -182,9 +182,19 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
     replace_all(script, "%self.vnum%", targ->Skill("TBAMOB")-1000000);
     }
   replace_all(script, "%self.name%", targ->Name());
-  replace_all(script, "%self.hisher%",
-	string(tr->Name(0, NULL, targ)).substr(0,3)
-	);
+  if(tr->Gender() == 'M') {
+    replace_all(script, "%self.hisher%", "his");
+    replace_all(script, "%self.heshe%", "he");
+    }
+  else if(tr->Gender() == 'F') {
+    replace_all(script, "%self.hisher%", "her");
+    replace_all(script, "%self.heshe%", "she");
+    }
+  else {
+    replace_all(script, "%self.hisher%", "its");
+    replace_all(script, "%self.heshe%", "it");
+    }
+
   if(actor) {
     int vnum = actor->Skill("TBAMOB");
     if(vnum < 1) vnum = actor->Skill("TBAObject");
@@ -194,9 +204,18 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
       }
     replace_all(script, "%actor.level%", actor->Exp()/10);
     replace_all(script, "%actor.name%", actor->Name());
-    replace_all(script, "%actor.hisher%",
-	string(tr->Name(0, NULL, actor)).substr(0,3)
-	);
+    if(actor->Gender() == 'M') {
+      replace_all(script, "%actor.hisher%", "his");
+      replace_all(script, "%actor.heshe%", "he");
+      }
+    else if(actor->Gender() == 'F') {
+      replace_all(script, "%actor.hisher%", "her");
+      replace_all(script, "%actor.heshe%", "she");
+      }
+    else {
+      replace_all(script, "%actor.hisher%", "its");
+      replace_all(script, "%actor.heshe%", "it");
+      }
     }
   replace_all(script, "%speech%", text);	//Correct, even if it's ""
   replace_all(script, "%direction%", text);	//Correct, even if it's ""
@@ -732,8 +751,11 @@ void Mind::Think(int istick) {
 	    }
 	  }
 
-	else if(!strncasecmp(line.c_str(), "switch ", 7)) {//FIXME!
-	  int depth = 0;		//Just skips to end (like "break")
+	else if(!strncasecmp(line.c_str(), "switch ", 7)) {
+	  int depth = 0;
+	  size_t defl = 0;
+	  string value = line.substr(7);
+	  trim_string(value);
 	  spos = skip_line(script, spos);
 	  while(spos != string::npos) {	//Skip to end (considering nesting)
 	    PING_QUOTA();
@@ -750,11 +772,26 @@ void Mind::Think(int istick) {
 	    else if(!strncasecmp(script.c_str()+spos, "while ", 6)) {
 	      ++depth;	//Am now 1 nesting level deeper!
 	      }
+	    else if(depth == 0
+			&& (!strncasecmp(script.c_str()+spos, "case ", 5))
+			&& tba_eval(value + " == " + script.substr(spos+5))
+			) {			//The actual case I want!
+	      spos = skip_line(script, spos);
+	      break;
+	      }
+	    else if(depth == 0
+			&& (!strncasecmp(script.c_str()+spos, "default", 7))
+			) {			//The actual case I want!
+	      spos = skip_line(script, spos);
+	      defl = spos;
+	      continue;
+	      }
 	    spos = skip_line(script, spos);
 	    }
+	  if(defl != 0) spos = defl;	//Go to "default" case, if there was one
 	  }
 
-	else if(!strncasecmp(line.c_str(), "break ", 6)) {//Skip to done
+	else if(!strncasecmp(line.c_str(), "break", 5)) {//Skip to done
 	  int depth = 0;
 	  spos = skip_line(script, spos);
 	  while(spos != string::npos) {	//Skip to end (considering nesting)
@@ -915,8 +952,16 @@ void Mind::Think(int istick) {
 	  spos = skip_line(script, spos);
 	  }
 
+	else if(!strncasecmp(line.c_str(), "case ", 5)) {
+	  //Ignore these, as we only hit them here when when running over them
+	  spos = skip_line(script, spos);
+	  }
+	else if(!strncasecmp(line.c_str(), "default", 7)) {
+	  //Ignore these, as we only hit them here when when running over them
+	  spos = skip_line(script, spos);
+	  }
 	else if(!strncasecmp(line.c_str(), "end", 3)) {
-	  //Ignore these, as we only hit them when we're running inside if
+	  //Ignore these, as we only hit them here when we're running inside if
 	  spos = skip_line(script, spos);
 	  }
 	else if(!strncasecmp(line.c_str(), "done", 4)) {
