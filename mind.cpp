@@ -202,18 +202,9 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
     replace_all(script, "%self.vnum%", targ->Skill("TBAMOB")-1000000);
     }
   replace_all(script, "%self.name%", targ->Name());
-  if(tr->Gender() == 'M') {
-    replace_all(script, "%self.hisher%", "his");
-    replace_all(script, "%self.heshe%", "he");
-    }
-  else if(tr->Gender() == 'F') {
-    replace_all(script, "%self.hisher%", "her");
-    replace_all(script, "%self.heshe%", "she");
-    }
-  else {
-    replace_all(script, "%self.hisher%", "its");
-    replace_all(script, "%self.heshe%", "it");
-    }
+  replace_all(script, "%self.heshe%", tr->Pron());
+  replace_all(script, "%self.hisher%", tr->Poss());
+  replace_all(script, "%self.himher%", tr->Obje());
 
   if(actor) {
     int vnum = actor->Skill("TBAMOB");
@@ -224,18 +215,9 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
       }
     replace_all(script, "%actor.level%", actor->Exp()/10);
     replace_all(script, "%actor.name%", actor->Name());
-    if(actor->Gender() == 'M') {
-      replace_all(script, "%actor.hisher%", "his");
-      replace_all(script, "%actor.heshe%", "he");
-      }
-    else if(actor->Gender() == 'F') {
-      replace_all(script, "%actor.hisher%", "her");
-      replace_all(script, "%actor.heshe%", "she");
-      }
-    else {
-      replace_all(script, "%actor.hisher%", "its");
-      replace_all(script, "%actor.heshe%", "it");
-      }
+    replace_all(script, "%actor.heshe%", actor->Pron());
+    replace_all(script, "%actor.hisher%", actor->Poss());
+    replace_all(script, "%actor.himher%", actor->Obje());
     }
 
   size_t val = script.find(".hitp%");
