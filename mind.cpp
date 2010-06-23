@@ -574,12 +574,18 @@ void Mind::Think(int istick) {
       while(room && room->Skill("TBARoom") == 0) room = room->Parent();
       while(aroom && aroom->Skill("TBARoom") == 0) aroom = aroom->Parent();
 
-      if(self->Matches("picard") || self->Matches("mindflayer")) {
+      if(self->Matches("picard")
+		|| self->Matches("mindflayer")
+//		|| self->Matches("in the mines")
+		) {
 	room->SendOut(0, 0,
 		(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
 		(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
 		NULL, NULL
 		);
+//	fprintf(stderr, "%s\n",
+//		(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str()
+//		);
 	}
 
       if(!script[spos]) return;	//Empty
