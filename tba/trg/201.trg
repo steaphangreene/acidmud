@@ -102,9 +102,6 @@ in room 1233.
 the crabs sleep - 20101~
 0 b 100
 ~
-* in this file are not changed, and will have to be edited by hand.
-* This zone was number 201 on The Builder Academy, so you
-crab sleep
 if ( %time.hour% <=7 || %time.hour% >=19)
   eval line %random.5%
   switch %line%
