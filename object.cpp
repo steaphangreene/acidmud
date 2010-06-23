@@ -1557,7 +1557,7 @@ int Object::Travel(Object *dest, int try_combine) {
     if(Weight() > con) return -3;
     }
 
-  const char *dir = "";
+  const char *dir = "", *rdir = "";
   { const char *dirs[6] = {"north", "south", "east", "west", "up", "down"};
     for(int dnum=0; dnum < 6 && dir[0] == 0; ++dnum) {
       Object *door = parent->PickObject(dirs[dnum], LOC_INTERNAL);
@@ -1566,6 +1566,7 @@ int Object::Travel(Object *dest, int try_combine) {
 		&& door->ActTarg(ACT_SPECIAL_LINKED)->Parent() == dest
 		) {
 	dir = dirs[dnum];
+	rdir = dirs[dnum^1];	//Opposite Dir
 	}
       }
     }
@@ -1588,7 +1589,7 @@ int Object::Travel(Object *dest, int try_combine) {
       if(((*trig)->Skill("TBAScriptType") & 0x4000040) == 0x4000040) {
 	if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) {	// % Chance
 	  //fprintf(stderr, "Triggering: %s\n", (*trig)->Name());
-	  new_trigger(0, *trig, this, dir);
+	  new_trigger(0, *trig, this, rdir);
 	  }
 	}
       }
