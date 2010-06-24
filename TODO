@@ -141,7 +141,6 @@ Put telnet stuff ONLY in net.cpp.
 
 Troll Reach.
 Wake someone else up!
-Suite of special emote/speak commands (nod, smile, stare, etc...)
 Settings for display on go/enter/leave.
 Autostash enable/disable?
 Gossip?
