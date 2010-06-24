@@ -2050,9 +2050,11 @@ void Object::TBALoadWLD(const char *fn) {
       obj->SetSkill("Translucent", 1000);	// Full sky, by default
       if(strcasestr(buf, "d") || (atoi(buf) & 8)) { //INDOORS
 	obj->SetSkill("Translucent", 200);	// Windows (unless DARK)
+	obj->SetSkill("Light Source", 100);	// Torches (unless DARK)
 	}
       if(strcasestr(buf, "a") || (atoi(buf) & 1)) { //DARK
 	obj->SetSkill("Translucent", 0);	// No sky, no windows
+	obj->SetSkill("Light Source", 0);	// No torches
 	}
       if(strcasestr(buf, "b") || (atoi(buf) & 2)) { //DEATH
 	obj->SetSkill("Secret", 1000000+onum);
