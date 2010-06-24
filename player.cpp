@@ -201,7 +201,7 @@ void player_rooms_erase(Object *obj) {
     }
   }
 
-int is_pc(Object *obj) {
+int is_pc(const Object *obj) {
   map<string, Player *>::iterator pl = player_list.begin();
   for(; pl != player_list.end(); ++pl) {
     if(pl->second->Room() && pl->second->Room()->Contains(obj)) {

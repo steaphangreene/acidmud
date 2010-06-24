@@ -51,7 +51,7 @@ int player_exists(string name);
 int save_players(const char *fn);
 int load_players(const char *fn);
 void player_rooms_erase(Object *);
-int is_pc(Object *);
+int is_pc(const Object *);
 
 vector<Player *> get_current_players();
 vector<Player *> get_all_players();

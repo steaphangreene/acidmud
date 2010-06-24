@@ -142,6 +142,15 @@ static void tba_varsub_obj(string &code, const string &var, const Object *obj) {
   replace_all(code, "%"+var+".himher%", obj->Obje());
   replace_all(code, "%"+var+".maxhitp%", 1000);	//Everybody has 1000 HP.
   replace_all(code, "%"+var+".hitp%", 1000 - 50 * (obj->Phys() + obj->Stun()));
+  replace_all(code, "%"+var+".is_pc%", is_pc(obj));
+  replace_all(code, "%"+var+".is_killer%", 0);	//FIXME: Real value?
+  replace_all(code, "%"+var+".is_thief%", 0);	//FIXME: Real value?
+  replace_all(code, "%"+var+".con%", (obj->Attribute(0) - 3) + 3);
+  replace_all(code, "%"+var+".dex%", (obj->Attribute(1) - 3) + 3);
+  replace_all(code, "%"+var+".str%", (obj->Attribute(2) - 3) + 3);
+  replace_all(code, "%"+var+".cha%", (obj->Attribute(3) - 3) + 3);
+  replace_all(code, "%"+var+".int%", (obj->Attribute(4) - 3) + 3);
+  replace_all(code, "%"+var+".wis%", (obj->Attribute(5) - 3) + 3);
   }
 
 Mind::Mind() {
@@ -205,7 +214,7 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
   script = body->LongDesc();
   script += "\n";
   actor = tripper;
-  args = text;
+  vars["args"] = text;
   }
 
 void Mind::SetTBAMob() {
@@ -484,7 +493,6 @@ void Mind::Think(int istick) {
     }
   else if(type == MIND_TBATRIG) {
     if(body && body->Parent()) {
-      map<string, string> vars;
       Object *self = body->Parent();
       Object *room = self;
       Object *aroom = actor;
@@ -530,25 +538,26 @@ void Mind::Think(int istick) {
 	    replace_all(line, "%"+var+"%", val);
 	    }
 	  }
+
 	tba_varsub_obj(line, "self", self);
 	if(actor) tba_varsub_obj(line, "actor", actor);
 
 	if(stype & 0x0000008) {				//-SPEECH Triggers
-	  replace_all(line, "%speech%", args);
+	  replace_all(line, "%speech%", vars["args"]);
 	  }
 	if((stype & 0x4000040) == 0x4000040		//ROOM-ENTER Triggers
 		|| stype & 0x0010000) {			//-LEAVE Triggers
-	  replace_all(line, "%direction%", args);
+	  replace_all(line, "%direction%", vars["args"]);
 	  }
 	if(stype & 0x0000004) {				//-COMMAND Triggers
-	  string arg1 = args, argr = "";
-	  size_t apos = args.find_first_of(" \t\n\r");
+	  string arg1 = vars["args"], argr = "";
+	  size_t apos = vars["args"].find_first_of(" \t\n\r");
 	  if(apos != string::npos) {
-	    arg1 = args.substr(0, apos);
-	    apos = args.find_first_not_of(" \t\n\r", apos);
-	    if(apos != string::npos) argr = args.substr(apos);
+	    arg1 = vars["args"].substr(0, apos);
+	    apos = vars["args"].find_first_not_of(" \t\n\r", apos);
+	    if(apos != string::npos) argr = vars["args"].substr(apos);
 	    }
-	  replace_all(line, "%arg%", args);
+	  replace_all(line, "%arg%", vars["args"]);
 	  replace_all(line, "%arg.car%", arg1);
 	  replace_all(line, "%arg.cdr%", argr);
 	  }
@@ -565,6 +574,20 @@ void Mind::Think(int istick) {
 	      }
 	    }
 	  var = line.find("%random.", var + 1);
+	  }
+
+	varent = vars.begin();
+	for(; varent != vars.end(); ++varent) {
+	  const string &var = varent->first;
+	  const string &val = varent->second;
+	  if(val[0] == '%' && val[val.length()-1] == '%') {
+	    string tval = val.substr(1, val.length()-2);
+	    replace_all(line, "%"+var+"%", tval);
+	    replace_all(line, "%"+var+".", "%"+tval+".");
+	    }
+	  else {
+	    replace_all(line, "%"+var+"%", val);
+	    }
 	  }
 
 	static const char *bstr[2] = {"0", "1"};
@@ -1299,7 +1322,8 @@ void Mind::Disable() {
       waiting.erase(tmp);
       }
     }
-  recycle_bin.push_back(this);      //Ready for re-use
+  vars.clear();			//Reset all variables
+  recycle_bin.push_back(this);	//Ready for re-use
   }
 
 void Mind::Resume(int passed) {

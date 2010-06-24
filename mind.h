@@ -71,7 +71,7 @@ private:
   string script;
   size_t spos;
   Object *actor;
-  string args;
+  map<string, string> vars;
   int status;
 
   static list<pair<int, Mind*> > waiting;
