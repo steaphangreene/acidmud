@@ -229,6 +229,17 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
 
   replace_all(script, "%speech%", text);	//Correct, even if it's ""
   replace_all(script, "%direction%", text);	//Correct, even if it's ""
+
+  string arg1 = text, argr = "";
+  size_t apos = text.find_first_of(" \t\n\r");
+  if(apos != string::npos) {
+    arg1 = text.substr(0, apos);
+    apos = text.find_first_not_of(" \t\n\r", apos);
+    if(apos != string::npos) argr = text.substr(apos);
+    }
+  replace_all(script, "%arg%", text);		//Correct, even if it's ""
+  replace_all(script, "%arg.car%", arg1);	//Correct, even if it's ""
+  replace_all(script, "%arg.cdr%", argr);	//Correct, even if it's ""
   }
 
 void Mind::SetTBAMob() {
@@ -556,19 +567,20 @@ void Mind::Think(int istick) {
       while(room && room->Skill("TBARoom") == 0) room = room->Parent();
       while(aroom && aroom->Skill("TBARoom") == 0) aroom = aroom->Parent();
 
-      if(self->Matches("picard")
-		|| self->Matches("mindflayer")
+//      if(self->Matches("picard")
+//		|| self->Matches("teleporter")
+//		|| self->Matches("mindflayer")
 //		|| self->Matches("in the mines")
-		) {
-	room->SendOut(0, 0,
-		(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
-		(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
-		NULL, NULL
-		);
+//		) {
+//	room->SendOut(0, 0,
+//		(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
+//		(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
+//		NULL, NULL
+//		);
 //	fprintf(stderr, "%s\n",
 //		(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str()
 //		);
-	}
+//	}
 
       if(!script[spos]) return;	//Empty
       int quota = 1024;
@@ -600,6 +612,7 @@ void Mind::Think(int istick) {
 	replace_all(line, "%send% %actor% ", "send_actor ");
 	replace_all(line, "%echoaround% %actor% ", "echoaround_actor ");
 	replace_all(line, "wdamage %actor% ", "damage_actor ");
+	replace_all(line, "%teleport% %actor% ", "transport_actor ");
 	replace_all(line, "%teleport% ", "transport ");
 //	replace_all(line, "%door% ", "door ");
 
@@ -650,6 +663,13 @@ void Mind::Think(int istick) {
 	  }
 
 	com_t com = identify_command(line);	//ComNum for Pass-Through
+
+	while(line.find("%") != string::npos) {	//Null variables are null
+	  size_t p1 = line.find('%');
+	  while(line[p1+1] == '%') ++p1;
+	  size_t p2 = line.find('%', p1+1);
+	  line.replace(p1, p2, "");
+	  }
 
 	if(line.find("%") != string::npos) {
 	  spos = skip_line(script, spos);
@@ -880,7 +900,7 @@ void Mind::Think(int istick) {
 
 	else if(!strncasecmp(line.c_str(), "send_actor ", 11)) {
 	  if(actor) {
-	    string mes = script.c_str() + spos + 14;
+	    string mes = line.c_str() + 11;
 	    size_t end = mes.find_first_of("\n\r");
 	    if(end != string::npos) mes = mes.substr(0, end);
 	    trim_string(mes);
@@ -918,9 +938,32 @@ void Mind::Think(int istick) {
 //	  spos = skip_line(script, spos);
 //	  }
 
+	else if(!strncasecmp(line.c_str(), "transport_actor ", 16)) {
+	  int dnum;
+	  sscanf(line.c_str() + 16, "%d", &dnum);
+	  dnum += 1000000;
+	  Object *dest = self;
+	  while(dest->Parent()->Parent()) {
+	    dest = dest->Parent();
+	    }
+	  list<Object*> options = dest->Contents();
+	  list<Object*>::iterator opt = options.begin();
+	  dest = NULL;
+	  for(; opt != options.end(); ++opt) {
+	    if((*opt)->Skill("TBARoom") == dnum) {
+	      dest = (*opt);
+	      break;
+	      }
+	    }
+	  options = self->Contents();
+	  opt = options.begin();
+	  if(actor) actor->Travel(dest);
+	  spos = skip_line(script, spos);
+	  }
+
 	else if(!strncasecmp(line.c_str(), "transport all ", 14)) {
 	  int dnum;
-	  sscanf(script.c_str() + spos + 14, "%d", &dnum);
+	  sscanf(line.c_str() + 14, "%d", &dnum);
 	  dnum += 1000000;
 	  Object *dest = self;
 	  while(dest->Parent()->Parent()) {
