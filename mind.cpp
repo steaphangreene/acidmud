@@ -188,58 +188,7 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
   script = body->LongDesc();
   script += "\n";
   actor = tripper;
-
-  Object *targ = tr->Parent();
-
-  //Variable Sub (For constants on this trigger instance)
-  if(tr->Skill("TBAScriptType") & 0x4000000) {		//Room Triggers
-    replace_all(script, "%self.vnum%", targ->Skill("TBARoom")-1000000);
-    }
-  else if(tr->Skill("TBAScriptType") & 0x2000000) {	//Object Triggers
-    replace_all(script, "%self.vnum%", targ->Skill("TBAObject")-1000000);
-    }
-  else {					//MOB Triggers
-    replace_all(script, "%self.vnum%", targ->Skill("TBAMOB")-1000000);
-    }
-  replace_all(script, "%self.name%", targ->Name());
-  replace_all(script, "%self.heshe%", tr->Pron());
-  replace_all(script, "%self.hisher%", tr->Poss());
-  replace_all(script, "%self.himher%", tr->Obje());
-
-  if(actor) {
-    int vnum = actor->Skill("TBAMOB");
-    if(vnum < 1) vnum = actor->Skill("TBAObject");
-    if(vnum < 1) vnum = actor->Skill("TBARoom");
-    if(vnum) {
-      replace_all(script, "%actor.vnum%", vnum-1000000);
-      }
-    replace_all(script, "%actor.level%", actor->Exp()/10);
-    replace_all(script, "%actor.name%", actor->Name());
-    replace_all(script, "%actor.heshe%", actor->Pron());
-    replace_all(script, "%actor.hisher%", actor->Poss());
-    replace_all(script, "%actor.himher%", actor->Obje());
-    }
-
-  size_t val = script.find(".hitp%");
-  while(val != string::npos) {
-    size_t start = script.rfind("%", val);
-    script.replace(start, val+6-start, "1000");	//Everybody has 1000 HP. :)
-    val = script.find(".hitp%");
-    }
-
-  replace_all(script, "%speech%", text);	//Correct, even if it's ""
-  replace_all(script, "%direction%", text);	//Correct, even if it's ""
-
-  string arg1 = text, argr = "";
-  size_t apos = text.find_first_of(" \t\n\r");
-  if(apos != string::npos) {
-    arg1 = text.substr(0, apos);
-    apos = text.find_first_not_of(" \t\n\r", apos);
-    if(apos != string::npos) argr = text.substr(apos);
-    }
-  replace_all(script, "%arg%", text);		//Correct, even if it's ""
-  replace_all(script, "%arg.car%", arg1);	//Correct, even if it's ""
-  replace_all(script, "%arg.cdr%", argr);	//Correct, even if it's ""
+  args = text;
   }
 
 void Mind::SetTBAMob() {
@@ -549,6 +498,55 @@ void Mind::Think(int istick) {
 	else line = script.substr(spos, endl-spos);
 
 	//Variable sub (Single line)
+	if(body->Skill("TBAScriptType") & 0x4000000) {		//Room Triggers
+	  replace_all(line, "%self.vnum%", self->Skill("TBARoom")-1000000);
+	  }
+	else if(body->Skill("TBAScriptType") & 0x2000000) {	//Object Triggers
+	  replace_all(line, "%self.vnum%", self->Skill("TBAObject")-1000000);
+	  }
+	else {					//MOB Triggers
+	  replace_all(line, "%self.vnum%", self->Skill("TBAMOB")-1000000);
+	  }
+	replace_all(line, "%self.name%", self->Name());
+	replace_all(line, "%self.heshe%", body->Pron());
+	replace_all(line, "%self.hisher%", body->Poss());
+	replace_all(line, "%self.himher%", body->Obje());
+
+	if(actor) {
+	  int vnum = actor->Skill("TBAMOB");
+	  if(vnum < 1) vnum = actor->Skill("TBAObject");
+	  if(vnum < 1) vnum = actor->Skill("TBARoom");
+	  if(vnum) {
+	    replace_all(line, "%actor.vnum%", vnum-1000000);
+	    }
+	replace_all(line, "%actor.level%", actor->Exp()/10);
+	  replace_all(line, "%actor.name%", actor->Name());
+	  replace_all(line, "%actor.heshe%", actor->Pron());
+	  replace_all(line, "%actor.hisher%", actor->Poss());
+	  replace_all(line, "%actor.himher%", actor->Obje());
+	  }
+
+	size_t val = line.find(".hitp%");
+	while(val != string::npos) {
+	  size_t start = line.rfind("%", val);
+	  line.replace(start, val+6-start, "1000");	//Everybody has 1000 HP. :)
+	  val = line.find(".hitp%");
+	  }
+
+	replace_all(line, "%speech%", args);		//Correct, even if it's ""
+	replace_all(line, "%direction%", args);	//Correct, even if it's ""
+
+	string arg1 = args, argr = "";
+	size_t apos = args.find_first_of(" \t\n\r");
+	if(apos != string::npos) {
+	  arg1 = args.substr(0, apos);
+	  apos = args.find_first_not_of(" \t\n\r", apos);
+	  if(apos != string::npos) argr = args.substr(apos);
+	  }
+	replace_all(line, "%arg%", args);		//Correct, even if it's ""
+	replace_all(line, "%arg.car%", arg1);	//Correct, even if it's ""
+	replace_all(line, "%arg.cdr%", argr);	//Correct, even if it's ""
+
 	size_t var = line.find("%random.");
 	while(var != string::npos) {
 	  if(isdigit(line[var+8])) {
@@ -566,6 +564,7 @@ void Mind::Think(int istick) {
 	static const char *bstr[2] = {"0", "1"};
 	replace_all(line, "%damage% ", "wdamage ");
 	replace_all(line, "%echo% ", "mecho ");
+	replace_all(line, "set actor %random.char%", "set_actor_randomly");
 	replace_all(line, "%send% %actor% ", "send_actor ");
 	replace_all(line, "%force% %actor% ", "force_actor ");
 	replace_all(line, "%echoaround% %actor% ", "echoaround_actor ");
@@ -621,6 +620,13 @@ void Mind::Think(int istick) {
 	  }
 
 	com_t com = identify_command(line);	//ComNum for Pass-Through
+
+	if(line.find("%") != string::npos) {
+	  spos = skip_line(script, spos);
+	  fprintf(stderr, "Warning: Didn't fully expand '%s' in #%d\n",
+		line.c_str(), body->Skill("TBAScript")
+		);
+	  }
 
 	while(line.find("%") != string::npos) {	//Null variables are null
 	  size_t p1 = line.find('%');
@@ -868,6 +874,11 @@ void Mind::Think(int istick) {
 	    mes += "\n";
 	    room->SendOut(0, 0, mes.c_str(), mes.c_str(), NULL, NULL);
 	    }
+	  spos = skip_line(script, spos);
+	  }
+
+	else if(!strncasecmp(line.c_str(), "set_actor_randomly", 18)) {
+	  actor = self->PickObject("someone", LOC_NEARBY);
 	  spos = skip_line(script, spos);
 	  }
 
