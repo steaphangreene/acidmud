@@ -1712,15 +1712,15 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
 	  diff = targ->Skill("WeaponForce");
 	  if(base) diff -= base->Skill("WeaponForce");
-	  if(diff > 0) mind->Send("   ...would do more damage.\n");
-	  else if(diff < 0) mind->Send("   ...would do less damage.\n");
-	  else mind->Send("   ...would do similar damage.\n");
-
-	  diff = targ->Skill("WeaponSeverity");
-	  if(base) diff -= base->Skill("WeaponSeverity");
 	  if(diff > 0) mind->Send("   ...would be more likely to do damage.\n");
 	  else if(diff < 0) mind->Send("   ...would be less likely to do damage.\n");
 	  else mind->Send("   ...would be about as likely to do damage.\n");
+
+	  diff = targ->Skill("WeaponSeverity");
+	  if(base) diff -= base->Skill("WeaponSeverity");
+	  if(diff > 0) mind->Send("   ...would do more damage.\n");
+	  else if(diff < 0) mind->Send("   ...would do less damage.\n");
+	  else mind->Send("   ...would do similar damage.\n");
 
 	  diff = two_handed(targ->Skill("WeaponType"));
 	  if(base) diff -= two_handed(base->Skill("WeaponType"));
