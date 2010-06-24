@@ -2469,8 +2469,8 @@ void Object::TBALoadTRG(const char *fn) {	//Triggers
       script->SetSkill("TBAScript", 1000000 + tnum);
       script->SetShortDesc("A tbaMUD trigger script.");
       //fprintf(stderr, "Loading #%d\n", tnum);
-      fscanf(mud, " %65535[^~]", buf);	//Trigger Name
-      script->SetDesc(buf);
+      fscanf(mud, " %65535[^~]", buf);		//Trigger Name - Discarded!
+      //script->SetDesc(buf);
       fscanf(mud, "~");
 
       int atype = -1, ttype = -1, narg;
@@ -2480,7 +2480,9 @@ void Object::TBALoadTRG(const char *fn) {	//Triggers
       script->SetSkill("TBAScriptType", atype | ttype);		//Combined
       script->SetSkill("TBAScriptNArg", narg);			//Numeric Arg
 
-      fscanf(mud, " %*[^~]");		//Trigger Arg (FIXME: Use All These?)
+      fscanf(mud, " %65536[^~]", buf);		//Text argument!
+      script->SetDesc(buf);
+
       fscanf(mud, "~");
       fscanf(mud, "%*[\n\r]");		//Go to next Line, don't eat spaces.
       fscanf(mud, "%[^~]~", buf);	//Command List (Multi-Line)
