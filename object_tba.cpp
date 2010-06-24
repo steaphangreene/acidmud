@@ -2519,21 +2519,6 @@ void Object::TBALoadTRG(const char *fn) {	//Triggers
 //	fprintf(stderr, "%d appears to be a direction trigger.\n", tnum);
 	++unhandled_trig;	//This is NOT really handled yet.
 	}
-      else if(strstr(buf, "%teleport% %actor% %loc%")) {
-	//fprintf(stderr, "%d appears to be a teleporter's trigger.\n", tnum);
-	string text = "";
-	char *trigger = strstr(buf, "\nset ");
-	while(trigger != NULL) {
-	  int dest = 0;
-	  char strnum[64];
-	  sscanf(trigger, "\nset %*s %d", &dest);
-	  sprintf(strnum, "%d", dest);
-	  text = text + "teleport [" + strnum + "]\n";
-	  trigger = strstr(trigger+5, "\nset ");
-	  }
-	//fprintf(stderr, "Will provide text:\n%s", text.c_str());
-	script->SetLongDesc(text.c_str());
-	}
       else if(0) {
 	}
       else {
