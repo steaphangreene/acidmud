@@ -1020,6 +1020,14 @@ void Mind::Think(int istick) {
 	  //Means we should be within a while(), so return to main.
 	  return;
 	  }
+	else if(!strncasecmp(line.c_str(), "return ", 7)) {
+	  int retval = tba_eval(line.c_str()+7);
+	  if(retval == 0) {
+	    status = 1;			//Return with special state
+	    }
+	  Disable();
+	  return;
+	  }
 	else if(!strncasecmp(line.c_str(), "halt", 4)) {
 	  Disable();
 	  return;
@@ -1471,6 +1479,7 @@ Mind *new_mind(int tp, Object *obj, Object *obj2, string text) {
   if(recycle_bin.size() > 0) {
     m = recycle_bin.front();
     recycle_bin.pop_front();
+    m->ClearStatus();		//Clear special state!
 //    fprintf(stderr, "Suspending(%p)\n", m);
     }
   else {
@@ -1489,8 +1498,13 @@ int new_trigger(int msec, Object *obj, Object *tripper, string text) {
   if((!obj) || (!(obj->Parent()))) return 0;
 
   Mind *m = new_mind(MIND_TBATRIG, obj, tripper, text);
-  if(msec == 0) m->Think(1);
-  else m->Suspend(msec);
+  if(msec == 0) {
+    m->Think(1);
+    if(m->Status()) return 1;		//Catch non-default term state.
+    }
+  else {
+    m->Suspend(msec);
+    }
   return 0;
   }
 
@@ -1533,4 +1547,12 @@ void Mind::Resume(int passed) {
       tmp->first -= passed;
       }
     }
+  }
+
+int Mind::Status() const {
+  return status;
+  }
+
+void Mind::ClearStatus() {
+  status = 0;
   }

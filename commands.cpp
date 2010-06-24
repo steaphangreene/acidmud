@@ -834,7 +834,9 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  if(com == identify_command((*trig)->Desc())) {
 //	    if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) {  // % Chance
 		//FIXME: obj command triggers only work in some cases!
-	      new_trigger(0, *trig, body, comline+len);
+	      if(!new_trigger(0, *trig, body, comline+len)) {
+		return 0;	//Handled, unless script says not.
+		}
 //	      }
 	    }
 	  }

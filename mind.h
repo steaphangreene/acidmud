@@ -54,6 +54,9 @@ public:
   void SetSpecialPrompt(const char *newp = "");
   const char *SpecialPrompt();
 
+  int Status() const;
+  void ClearStatus();
+
 private:
   int CircleCanWanderTo(Object *dest);
   int TBACanWanderTo(Object *dest);
@@ -69,6 +72,7 @@ private:
   string script;
   size_t spos;
   Object *actor;
+  int status;
 
   static list<pair<int, Mind*> > waiting;
   };
