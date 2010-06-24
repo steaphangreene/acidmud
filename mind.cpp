@@ -610,6 +610,7 @@ void Mind::Think(int istick) {
 	replace_all(line, "%damage% ", "wdamage ");
 	replace_all(line, "%echo% ", "mecho ");
 	replace_all(line, "%send% %actor% ", "send_actor ");
+	replace_all(line, "%force% %actor% ", "force_actor ");
 	replace_all(line, "%echoaround% %actor% ", "echoaround_actor ");
 	replace_all(line, "wdamage %actor% ", "damage_actor ");
 	replace_all(line, "%teleport% %actor% ", "transport_actor ");
@@ -849,6 +850,21 @@ void Mind::Think(int istick) {
 	      }
 	    spos = skip_line(script, spos);
 	    }
+	  }
+
+	else if(!strncasecmp(line.c_str(), "force_actor ", 12)) {
+	  if(actor) {
+	    Mind *amind = NULL;	//Make sure human minds see it!
+	    vector<Mind *> mns = get_human_minds();
+	    vector<Mind *>::iterator mn = mns.begin();
+	    for(; mn != mns.end(); ++mn) {
+	      if((*mn)->Body() == actor) {
+		amind = *mn;
+		}
+	      }
+	    handle_command(actor, line.c_str()+12, amind);
+	    }
+	  spos = skip_line(script, spos);
 	  }
 
 	//Player commands Acid shares with TBA, not requiring arguments
