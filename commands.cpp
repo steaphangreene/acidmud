@@ -818,7 +818,16 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   comline = cmd.c_str();
   len = 0;
 
-  if(body && body->Parent()) {
+  int ninja=0, sninja=0, nmode=0;
+
+  if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_SUPERNINJA))
+    { sninja=1; ninja=1; }
+  if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJA)) ninja=1;
+  if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJAMODE)) {
+    nmode=LOC_NINJA;
+    }
+
+  if((!nmode) && body && body->Parent()) {
     list<Object *> items = body->PickObjects(
 		"everything", LOC_INTERNAL|LOC_NEARBY|LOC_HERE);
     list<Object *> mobs = body->PickObjects("everyone", LOC_NEARBY);
@@ -842,14 +851,6 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  }
 	}
       }
-    }
-  int ninja=0, sninja=0, nmode=0;
-
-  if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_SUPERNINJA))
-    { sninja=1; ninja=1; }
-  if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJA)) ninja=1;
-  if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJAMODE)) {
-    nmode=LOC_NINJA;
     }
 
   if((!sninja) && (comlist[cnum].sit & SIT_SUPERNINJA)) {
