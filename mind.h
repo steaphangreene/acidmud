@@ -4,7 +4,7 @@
 
 #define MIND_MORON 0
 #define MIND_REMOTE 1
-#define MIND_CIRCLEMOB 2
+#define MIND_NPC 2
 #define MIND_TBAMOB 3
 #define MIND_TBATRIG 4
 #define MIND_MOB 5
@@ -26,7 +26,7 @@ public:
   void SetMob();
   void SetTBAMob();
   void SetTBATrigger(Object *tr, Object *tripper = NULL, string text = "");
-  void SetCircleMob();
+  void SetNPC();
   void SetSystem();
   void Attach(Object *bod);
   void Unattach();
@@ -58,7 +58,6 @@ public:
   void ClearStatus();
 
 private:
-  int CircleCanWanderTo(Object *dest);
   int TBACanWanderTo(Object *dest);
 
   int type;

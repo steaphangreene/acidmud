@@ -330,18 +330,6 @@ int Object::Tick() {
       }
     }
 
-  if(parent && Skill("CirclePopper") > 0 && contents.size() > 0) {
-    if(!ActTarg(ACT_SPECIAL_MONITOR)) {
-      Object *obj = new Object(*(contents.front()));
-      obj->SetParent(this);
-      obj->Travel(parent);
-      AddAct(ACT_SPECIAL_MONITOR, obj);
-      obj->Attach(get_circle_mob_mind());
-      obj->Activate();
-      parent->SendOut(ALL, -1, ";s arrives.\n", "", obj, NULL);
-      }
-    }
-
   //Grow Trees (Silently)
   if(HasSkill("Mature Trees") && Skill("Mature Trees") < 100) {
     SetSkill("Mature Trees", Skill("Mature Trees") + 1);
@@ -469,7 +457,6 @@ int Object::Tick() {
 
   if(Attribute(2) > 0				//Needs Food & Water
 	&& (!HasSkill("TBAAction"))		//MOBs don't
-	&& (!HasSkill("CircleAction"))		//MOBs don't
 	) {
     int level;
 
@@ -1468,11 +1455,8 @@ void Object::SendStats(Mind *m, Object *o) {
     else if((*mind) == get_tba_mob_mind()) {
       m->Send("->TBA_MOB_MIND\n");
       }
-    else if((*mind) == get_circle_mob_mind()) {
-      m->Send("->CIRCLE_MOB_MIND\n");
-      }
     else if((*mind)->Type() == MIND_TBATRIG) {
-      m->Send("->CIRCLE_TBA_TRIGGER\n");
+      m->Send("->TBA_TRIGGER\n");
       }
     }
   m->Send(CNRM);

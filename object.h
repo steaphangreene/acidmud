@@ -295,15 +295,6 @@ public:
   void LoudF(int str, const char *mes, ...)
 	__attribute__ ((format (printf, 3, 4)));
 
-  void CircleLoadAll();
-  void CircleLoad(const char *);
-  void CircleLoadObj(const char *);
-  void CircleLoadMob(const char *);
-  void CircleFinishMob(Object *);
-  void CircleLoadZon(const char *);
-  void CircleLoadShp(const char *);
-  static void CircleCleanup();
-
   void TBALoadAll();
   void TBALoadWLD(const char *);
   void TBALoadOBJ(const char *);
@@ -393,7 +384,6 @@ Object *getbynum(int);
 int getnum(Object *);
 int matches(const char *name, const char *seek);
 Mind *get_mob_mind();
-Mind *get_circle_mob_mind();
 Mind *get_tba_mob_mind();
 
 string get_skill(string sk);

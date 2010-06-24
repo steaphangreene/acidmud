@@ -655,17 +655,6 @@ Command comlist[1024] = {
     (REQ_ALERT|REQ_NINJAMODE)
     },
 
-  { COM_CLOAD, "cload",
-    "Ninja command.",
-    "Ninja command - ninjas only!",
-    (REQ_ALERT|REQ_NINJAMODE)
-    },
-  { COM_CCLEAN, "cclean",
-    "Ninja command.",
-    "Ninja command - ninjas only!",
-    (REQ_ALERT|REQ_NINJAMODE)
-    },
-
   { COM_NONE, NULL, NULL, NULL, 0 }	//More get filled in by load_socials
   };
 
@@ -2095,23 +2084,6 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	    mind->Send("   ...seems to be trolling for victems.\n");
 	    }
 	  else if(targ->Skill("TBAAction") & 4096) {
-	    mind->Send("   ...seems to be on the look-out for trouble.\n");
-	    }
-	  else {
-	    mind->Send("   ...is impossible - tell the Ninjas[TM].\n");
-	    }
-	  }
-	else if(targ->HasSkill("CircleAction")) {
-	  if((targ->Skill("CircleAction") & 4128) == 0) {
-	    mind->Send("   ...does not seem threatening.\n");
-	    }
-	  else if((targ->Skill("CircleAction") & 160) == 32) {
-	    mind->Send("   ...is spoiling for a fight.\n");
-	    }
-	  else if((targ->Skill("CircleAction") & 160) == 160) {
-	    mind->Send("   ...seems to be trolling for victems.\n");
-	    }
-	  else if(targ->Skill("CircleAction") & 4096) {
 	    mind->Send("   ...seems to be on the look-out for trouble.\n");
 	    }
 	  else {
@@ -4264,8 +4236,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	return 0;
 	}
       if(strcasestr(body->Parent()->Name(), "forest")
-		&& (body->Parent()->HasSkill("TBAZone")
-			|| body->Parent()->HasSkill("CircleZone"))
+		&& body->Parent()->HasSkill("TBAZone")
 		&& (!body->Parent()->HasSkill("Mature Trees"))) {
 	body->Parent()->SetSkill("Mature Trees", 100);
 	body->Parent()->Activate();
@@ -6215,43 +6186,6 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     body->Parent()->SendOut(stealth_t, stealth_s,
 	";s cleans up after loading TBA worlds.\n",
 	"You clean up after loading TBA worlds.\n",
-	body, NULL);
-    return 0;
-    }
-
-  if(com == COM_CLOAD) {
-    if(!mind) return 0;
-    while((!isgraph(comline[len])) && (comline[len])) ++len;
-    if(!comline[len]) {
-      Object *world = new Object(body->Parent());
-      world->SetShortDesc("CircleMUD World");
-      world->SetSkill("Light Source", 1000);
-      world->SetSkill("Day Length", 240);
-      world->SetSkill("Day Time", 120);
-      world->CircleLoadAll();
-      body->Parent()->SendOut(stealth_t, stealth_s,
-	";s loads the entire Circle world with Ninja Powers[TM].\n",
-	"You load the entire Circle world.\n", body, NULL);
-      world->Activate();
-      }
-    else {
-      sprintf(buf, "circle/wld/%s.wld", comline+len);
-      body->Parent()->CircleLoad(buf);
-      sprintf(buf, "circle/obj/%s.obj", comline+len);
-      body->Parent()->CircleLoadObj(buf);
-      body->Parent()->SendOut(stealth_t, stealth_s,
-	";s loads a Circle world ;s with Ninja Powers[TM].\n",
-	"You load a Circle world.\n", body, NULL);
-      }
-    return 0;
-    }
-
-  if(com == COM_CCLEAN) {
-    if(!mind) return 0;
-    body->CircleCleanup();
-    body->Parent()->SendOut(stealth_t, stealth_s,
-	";s cleans up after loading Circle worlds.\n",
-	"You clean up after loading Circle worlds.\n",
 	body, NULL);
     return 0;
     }

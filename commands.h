@@ -140,9 +140,6 @@ typedef enum {
 
 	COM_TLOAD,
 	COM_TCLEAN,
-
-	COM_CLOAD,
-	COM_CCLEAN,
 	} com_t;
 
 //int handle_command(Object *, const char *);
