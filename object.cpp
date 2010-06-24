@@ -608,6 +608,7 @@ Object::Object() {
   att[7] = 0;
 
   no_seek = 0;
+  no_hear = 0;
   tickstep = -1;
   }
 
@@ -641,6 +642,7 @@ Object::Object(Object *o) {
   att[7] = 0;
 
   no_seek = 0;
+  no_hear = 0;
   tickstep = -1;
   }
 
@@ -699,6 +701,7 @@ Object::Object(const Object &o) {
   minds = o.minds;	// Transmit Attached Minds
 
   no_seek = 0;
+  no_hear = 0;
   tickstep = -1;
   }
 
@@ -2426,6 +2429,7 @@ int Object::HitStru(int force, int sev, int succ) {
   }
 
 void Object::Send(int tnum, int rsucc, const char *mes) {
+  if(no_hear) return;
   char *tosend = strdup(mes);
   tosend[0] = toupper(tosend[0]);
 
@@ -3488,6 +3492,10 @@ Object *Object::Owner() const {
 int Object::Quantity() const {
   if(!HasSkill("Quantity")) return 1;
   return Skill("Quantity");
+  }
+
+void Object::Deafen(int deaf) {
+  no_hear = deaf;
   }
 
 Object *new_obj() {

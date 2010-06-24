@@ -272,6 +272,8 @@ public:
   int HealPhys(int succ);
   int HealStru(int succ);
 
+  void Deafen(int deaf = 1);
+
   //Unformatted (raw print, but with ;s/;s for actor/targ)
   void Send(int targ, int rsucc, const char *mes);
   void SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
@@ -368,7 +370,8 @@ private:
   int att[8];
   map<string,int> skills;
 
-  int no_seek; //Recursion protection
+  int no_seek;	//Recursion protection
+  int no_hear;	//For Send() protection
 
   map<act_t,Object*> act;
   set<Object*> touching_me;

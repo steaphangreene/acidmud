@@ -68,7 +68,9 @@ struct Command {
   int sit;
   };
 
-enum {	COM_HELP=0,
+typedef
+enum {	COM_NONE=0,
+	COM_HELP,
 	COM_QUIT,
 
 	COM_NORTH,
@@ -131,6 +133,9 @@ enum {	COM_HELP=0,
 	COM_CALL,
 	COM_SAY,
 	COM_EMOTE,
+	COM_SOCIAL,	//Many commands, which all have no real effect.
+
+	COM_PLAY,
 
 	COM_POINT,
 	COM_FOLLOW,
@@ -203,9 +208,9 @@ enum {	COM_HELP=0,
 
 	COM_CLOAD,
 	COM_CCLEAN,
-	};
+	} com_t;
 
-Command comlist[] = {
+Command comlist[1024] = {
   { COM_HELP, "help",
     "Get help for a topic or command.",
     "Get help for a topic or command.",
@@ -486,6 +491,11 @@ Command comlist[] = {
   { COM_EMOTE, "emote",
     "Indicate to others that you are doing something.",
     "Indicate to others that you are doing something.",
+    (REQ_AWAKE)
+    },
+  { COM_PLAY, "play",
+    "Social command.",
+    "Social command.",
     (REQ_AWAKE)
     },
 
@@ -797,9 +807,41 @@ Command comlist[] = {
     "Ninja command - ninjas only!",
     (REQ_ALERT|REQ_NINJAMODE)
     },
-  };
-static const int comnum = sizeof(comlist)/sizeof(Command);
 
+  { COM_NONE, NULL, NULL, NULL, 0 }	//More get filled in by load_socials
+  };
+
+const char *socials[1024][13];
+
+static void load_socials() {
+  FILE *soc = fopen("tba/socials.new", "r");
+  if(soc) {
+    int cnum = 0;
+    while(comlist[cnum].id != COM_NONE) ++cnum;
+    //fprintf(stderr, "There were %d commands!\n", cnum);
+    char buf[256] = "";
+    char com[64] = "";
+    int v1, v2, v3, v4;
+    while(fscanf(soc, " ~%s %*s %d %d %d %d", com, &v1, &v2, &v3, &v4) == 5) {
+      buf[0] = 0;
+      for(int mnum = 0; mnum < 13; ++mnum) {
+	fscanf(soc, " %255[^\n\r]", buf);	//Skip space/newline, read line.
+	fscanf(soc, "%*[^\n\r]");		//Skip rest of line.
+	if(strstr(buf, "#")) socials[cnum][mnum] = "";
+	else socials[cnum][mnum] = strdup(buf);
+	}
+      comlist[cnum].command = strdup(com);
+      comlist[cnum].id = COM_SOCIAL;
+      comlist[cnum].shortdesc = "Social command.";
+      comlist[cnum].longdesc = "Social command.";
+      comlist[cnum].sit = REQ_ALERT;
+      ++cnum;
+      }
+    //fprintf(stderr, "There are now %d commands!\n", cnum);
+    comlist[256].id = COM_HELP;		//Temporary!
+    fclose(soc);
+    }
+  }
 
 //Return values: -1: Player D/Ced
 //                0: Command Understood
@@ -811,6 +853,10 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   string cmd = inpline;
   trim_string(cmd);
   const char *comline = cmd.c_str();
+
+  if(comlist[256].id == COM_NONE) {	//Haven't loaded socials yet
+    load_socials();
+    }
 
   if((!body) && (!mind)) { // Nobody doing something?
     fprintf(stderr, "Warning: absolutely nobody tried to '%s'.\n", comline);
@@ -847,7 +893,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   if(len == 0) return 0;
 
   int com = -1, cnum = -1;
-  for(int ctr=0; ctr < comnum; ++ctr) {
+  for(int ctr=0; comlist[ctr].id != COM_NONE; ++ctr) {
     if(!strncasecmp(comline, comlist[ctr].command, len))
       { com = comlist[ctr].id; cnum = ctr; break; }
 
@@ -1238,7 +1284,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!strcmp(comline+len, "commands")) {
       string mes = "";
-      for(int ctr=0; ctr < comnum; ++ctr) {
+      for(int ctr=0; comlist[ctr].id != COM_NONE; ++ctr) {
         if((comlist[ctr].sit & SIT_NINJAMODE) && (!nmode)) continue;
         if((!(comlist[ctr].sit & SIT_NINJAMODE)) && nmode) continue;
         if((comlist[ctr].sit & SIT_NINJA) && (!ninja)) continue;
@@ -1324,10 +1370,99 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     return 0;
     }
 
+  if(com == COM_SOCIAL) {
+    Object *targ = NULL;
+    while((!isgraph(comline[len])) && (comline[len])) ++len;
+    if(body && body->Parent()) {
+      string youmes = socials[cnum][0];
+      string outmes = socials[cnum][1];
+      string targmes = "";
+      if(strlen(comline+len) > 0) {
+	targ = body->PickObject(comline+len,
+		nmode|LOC_NEARBY|LOC_SELF|LOC_INTERNAL);
+	if(!targ) {
+	  youmes = socials[cnum][5];
+	  outmes = "";
+	  }
+	else if(targ == body) {
+	  youmes = socials[cnum][6];
+	  outmes = socials[cnum][7];
+	  }
+	else {
+	  youmes = socials[cnum][2];
+	  outmes = socials[cnum][3];
+	  targmes = socials[cnum][4];
+	  }
+	}
+      if(outmes[0]) {
+	replace_all(outmes, "$e", body->Pron());
+	replace_all(outmes, "$m", body->Obje());
+	replace_all(outmes, "$s", body->Poss());
+	replace_all(outmes, "$n", body->Name(1));
+	if(targ) {
+	  replace_all(outmes, "$E", targ->Pron());
+	  replace_all(outmes, "$M", targ->Obje());
+	  replace_all(outmes, "$S", targ->Poss());
+	  replace_all(outmes, "$N", targ->Name(1));
+	  replace_all(outmes, "$t", targ->Name(1));
+	  replace_all(outmes, "$p", targ->Name(1));
+	  }
+	outmes[0] = toupper(outmes[0]);
+	outmes += "\n";
+	}
+      if(youmes[0]) {
+	replace_all(youmes, "$e", body->Pron());
+	replace_all(youmes, "$m", body->Obje());
+	replace_all(youmes, "$s", body->Poss());
+	replace_all(youmes, "$n", body->Name(1));
+	if(targ) {
+	  replace_all(youmes, "$E", targ->Pron());
+	  replace_all(youmes, "$M", targ->Obje());
+	  replace_all(youmes, "$S", targ->Poss());
+	  replace_all(youmes, "$N", targ->Name(1));
+	  replace_all(youmes, "$t", targ->Name(1));
+	  replace_all(youmes, "$p", targ->Name(1));
+	  }
+	youmes[0] = toupper(youmes[0]);
+	youmes += "\n";
+	}
+      if(targ) {
+	replace_all(targmes, "$e", body->Pron());
+	replace_all(targmes, "$m", body->Obje());
+	replace_all(targmes, "$s", body->Poss());
+	replace_all(targmes, "$n", body->Name(1));
+	if(targ) {
+	  replace_all(targmes, "$E", targ->Pron());
+	  replace_all(targmes, "$M", targ->Obje());
+	  replace_all(targmes, "$S", targ->Poss());
+	  replace_all(targmes, "$N", targ->Name(1));
+	  replace_all(targmes, "$t", targ->Name(1));
+	  replace_all(targmes, "$p", targ->Name(1));
+	  }
+	targmes[0] = toupper(targmes[0]);
+	targmes += "\n";
+	targ->Send(0, 0, targmes.c_str());
+	targ->Deafen(1);
+	}
+      body->Parent()->SendOut(0, 0, outmes.c_str(), youmes.c_str(), body, targ);
+      if(targ) targ->Deafen(0);
+      }
+    return 0;
+    }
+
+  if(com == COM_PLAY)	{ com = COM_EMOTE; len = 6; comline = "emote plays"; }
+
   if(com == COM_EMOTE) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    body->Parent()->SendOutF(ALL, 0, ";s %s\n", "Your character %s\n",
-	body, body, comline+len);
+    const char *dot = ".";
+    if((comline[strlen(comline)-1] == '.')
+	|| (comline[strlen(comline)-1] == '?')
+	|| (comline[strlen(comline)-1] == '!')
+	) {
+      dot = "";
+      }
+    body->Parent()->SendOutF(ALL, 0, ";s %s%s\n", "Your character %s%s\n",
+	body, body, comline+len, dot);
     body->SetSkill("Hidden", 0);
     return 0;
     }
