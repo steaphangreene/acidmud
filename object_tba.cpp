@@ -657,8 +657,8 @@ void Object::TBALoadMOB(const char *fn) {
 	fscanf(mudm, "%d %d %d", &val, &val2, &val3);
 	for(int ctr=0; ctr<val; ++ctr)
 	  obj->SetAttribute(ctr%6, obj->Attribute(ctr%6)+1);	// val1 = Level
-	obj->SetSkill("TBAAttack", (20 - val2) / 3);		// val2 = THAC0
-	obj->SetSkill("TBADefense", (10 - val3) / 3);	// val2 = AC
+	obj->SetSkill("TBAAttack", ((20-val2)/3) + 3);		// val2 = THAC0
+	obj->SetSkill("TBADefense", ((10-val3)/3) + 3)	;	// val2 = AC
 
 	fscanf(mudm, " %dd%d+%d", &val, &val2, &val3);		// Hit Points
 	val = (val*(val2+1) + 1) / 2 + val3;
@@ -666,17 +666,7 @@ void Object::TBALoadMOB(const char *fn) {
 
 	fscanf(mudm, " %dd%d+%d\n", &val, &val2, &val3);// Barehand Damage
 	val = (val*(val2+1) + 1) / 2 + val3;
-	obj->SetAttribute(2, (val+2)/3);		// Becomes Strength
-
-	if(aware) //Perception = Int
-	  obj->SetSkill("Perception", obj->Attribute(4));
-
-	if(sneak && hidden)		//Stealth = 3Q/2
-	  obj->SetSkill("Stealth", (3*obj->Attribute(1)+1)/2);
-	else if(hidden)			//Stealth = Q
-	  obj->SetSkill("Stealth", obj->Attribute(1));
-	else if(sneak)			//Stealth = Q/2
-	  obj->SetSkill("Stealth", (obj->Attribute(1)+1)/2);
+	obj->SetAttribute(2, (val/3)+3);		// Becomes Strength
 
 	fscanf(mudm, "%d", &val);  // Gold
 	obj->SetSkill("TBAGold", val);
@@ -705,22 +695,22 @@ void Object::TBALoadMOB(const char *fn) {
       memset(buf, 0, 65536);
       while(tp == 'E') {  // Basically an if with an infinite loop ;)
 	if(fscanf(mudm, "Con: %d\n", &val))
-	  obj->SetAttribute(0, MAX(obj->Attribute(0), ((val+2)/3)));
+	  obj->SetAttribute(0, MAX(obj->Attribute(0), (val/3)+3));
 
 	else if(fscanf(mudm, "Dex: %d\n", &val))
-	  obj->SetAttribute(1, MAX(obj->Attribute(1), ((val+2)/3)));
+	  obj->SetAttribute(1, MAX(obj->Attribute(1), (val/3)+3));
 
 	else if(fscanf(mudm, "Str: %d\n", &val))
-	  obj->SetAttribute(2, MAX(obj->Attribute(2), ((val+2)/3)));
+	  obj->SetAttribute(2, MAX(obj->Attribute(2), (val/3)+3));
 
 	else if(fscanf(mudm, "ha: %d\n", &val)) //'Cha' minus 'Con' Conflict!
-	  obj->SetAttribute(3, MAX(obj->Attribute(3), ((val+2)/3)));
+	  obj->SetAttribute(3, MAX(obj->Attribute(3), (val/3)+3));
 
 	else if(fscanf(mudm, "Int: %d\n", &val))
-	  obj->SetAttribute(4, MAX(obj->Attribute(4), ((val+2)/3)));
+	  obj->SetAttribute(4, MAX(obj->Attribute(4), (val/3)+3));
 
 	else if(fscanf(mudm, "Wis: %d\n", &val))
-	  obj->SetAttribute(5, MAX(obj->Attribute(5), ((val+2)/3)));
+	  obj->SetAttribute(5, MAX(obj->Attribute(5), (val/3)+3));
 
 	else if(fscanf(mudm, "Add: %d\n", &val)); //'StrAdd' - Do Nothing
 
@@ -737,6 +727,27 @@ void Object::TBALoadMOB(const char *fn) {
       obj->SetSize(1000 + obj->Attribute(0) * 200);
       obj->SetVolume(100);
       obj->SetValue(-1);
+
+      if(aware) {	//Perception = Int
+	obj->SetSkill("Perception", obj->Attribute(4));
+	}
+
+      if(sneak && hidden) {		//Stealth = 3Q/2
+	obj->SetSkill("Stealth", (3*obj->Attribute(1)+1)/2);
+	}
+      else if(hidden) {			//Stealth = Q
+	obj->SetSkill("Stealth", obj->Attribute(1));
+	}
+      else if(sneak) {			//Stealth = Q/2
+	obj->SetSkill("Stealth", (obj->Attribute(1)+1)/2);
+	}
+
+      if(hidden) {
+	obj->SetSkill("Hidden", obj->Skill("Stealth") * 2);
+	}
+      if(sneak) {
+	obj->StartUsing("Stealth");
+	}
 
       int tnum;
       while(fscanf(mudm, " T %d\n", &tnum) > 0) {
