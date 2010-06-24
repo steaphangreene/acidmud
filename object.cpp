@@ -2044,6 +2044,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
 	cont.erase(ind);
 	if(action->second->Filter(loc) && action->second->Matches(name)
 		&& ((loc & LOC_NOTWORN) == 0 || action->first <= ACT_HOLD)
+		&& ((loc & LOC_NOTUNWORN) == 0 || action->first >= ACT_HOLD)
 		) {
 	  if(tag(action->second, ret, ordinal,
 		(Parent() == NULL) | (loc & LOC_SPECIAL)
@@ -2071,7 +2072,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
 	  return ret;
 	  }
 	}
-      if((*ind)->Skill("Container")) {
+      if((*ind)->Skill("Container") && (loc & LOC_NOTUNWORN) == 0) {
 	typeof(contents) add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
 	ret.insert(ret.end(), add.begin(), add.end());
 
