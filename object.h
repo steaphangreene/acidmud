@@ -204,7 +204,7 @@ public:
   void Consume(const Object *item);	//Eat/Drink/Potions/Poison/etc....
 
   int Attribute(int) const;
-  int BaseAttribute(int a) { return att[a]; }
+  int BaseAttribute(int a) const { return att[a]; };
   int Modifier(const string &m) const;
   int Skill(const string &, int *tnum = NULL) const;
   int HasSkill(const string &) const;
