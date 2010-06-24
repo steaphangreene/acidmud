@@ -61,154 +61,12 @@ static int count_ones(int mask) {
   }
 
 struct Command {
-  int id;
+  com_t id;
   const char *command;
   const char *shortdesc;
   const char *longdesc;
   int sit;
   };
-
-typedef
-enum {	COM_NONE=0,
-	COM_HELP,
-	COM_QUIT,
-
-	COM_NORTH,
-	COM_SOUTH,
-	COM_EAST,
-	COM_WEST,
-	COM_UP,
-	COM_DOWN,
-
-	COM_LOOK,
-	COM_EXAMINE,
-	COM_CONSIDER,
-	COM_INVENTORY,
-	COM_EQUIPMENT,
-	COM_SEARCH,
-	COM_HIDE,
-
-	COM_LEAVE,
-	COM_ENTER,
-	COM_SELECT,
-
-	COM_OPEN,
-	COM_CLOSE,
-	COM_UNLOCK,
-	COM_LOCK,
-
-	COM_GET,
-	COM_DRAG,
-	COM_PUT,
-	COM_DROP,
-	COM_STASH,
-	COM_WIELD,
-	COM_UNWIELD,
-	COM_HOLD,
-	COM_LIGHT,
-	COM_WEAR,
-	COM_REMOVE,
-	COM_LABEL,
-	COM_UNLABEL,
-	COM_HEAL,
-
-	COM_EAT,
-	COM_DRINK,
-	COM_FILL,
-	COM_DUMP,
-
-	COM_SLEEP,
-	COM_WAKE,
-	COM_LIE,
-	COM_REST,
-	COM_SIT,
-	COM_STAND,
-	COM_USE,
-	COM_STOP,
-	COM_CAST,
-	COM_PRAY,
-
-	COM_SHOUT,
-	COM_YELL,
-	COM_CALL,
-	COM_SAY,
-	COM_EMOTE,
-	COM_SOCIAL,	//Many commands, which all have no real effect.
-
-	COM_PLAY,
-
-	COM_POINT,
-	COM_FOLLOW,
-	COM_ATTACK,
-	COM_KILL,
-	COM_PUNCH,
-	COM_KICK,
-
-	COM_LIST,
-	COM_BUY,
-	COM_VALUE,
-	COM_SELL,
-
-	COM_PLAYERS,
-	COM_DELPLAYER,
-	COM_CHARACTERS,
-	COM_WHO,
-	COM_OOC,
-	COM_NEWBIE,
-
-	COM_NEWCHARACTER,
-	COM_RAISE,
-	COM_RANDOMIZE,
-
-	COM_SKILLLIST,
-
-	COM_RECALL,
-	COM_TELEPORT,
-	COM_RESURRECT,
-
-	COM_NINJAMODE,
-	COM_MAKENINJA,
-	COM_MAKESUPERNINJA,
-
-	COM_RESET,
-	COM_CREATE,
-	COM_DCREATE,
-	COM_CCREATE,
-	COM_ANCHOR,
-	COM_LINK,
-	COM_CONNECT,
-	COM_COMMAND,
-	COM_CONTROL,
-	COM_CLONE,
-	COM_MIRROR,
-	COM_JUNK,
-	COM_JUNKRESTART,
-	COM_JACK,
-	COM_CHUMP,
-	COM_INCREMENT,
-	COM_DECREMENT,
-	COM_DOUBLE,
-	COM_SETSTATS,
-	COM_NAME,
-	COM_DESCRIBE,
-	COM_DEFINE,
-
-	COM_SCORE,
-
-	COM_STATS,
-	COM_SHUTDOWN,
-	COM_RESTART,
-	COM_SAVEALL,
-	COM_VERSION,
-
-	COM_MAKESTART,
-
-	COM_TLOAD,
-	COM_TCLEAN,
-
-	COM_CLOAD,
-	COM_CCLEAN,
-	} com_t;
 
 Command comlist[1024] = {
   { COM_HELP, "help",
@@ -841,6 +699,42 @@ static void load_socials() {
     comlist[256].id = COM_HELP;		//Temporary!
     fclose(soc);
     }
+  }
+
+com_t identify_command(const string &str) {
+  int len;
+  if(comlist[256].id == COM_NONE) {		//Haven't loaded socials yet
+    load_socials();
+    }
+  if(str[0] == '\'' || str[0] == '"') {		//Command Alias: "say"
+    len = 1;
+    }
+  else {
+    for(len=0; isgraph(str[len]); ++len);
+    }
+  if(len == 0) return COM_NONE;
+  for(int ctr=0; comlist[ctr].id != COM_NONE; ++ctr) {
+    if(!strncasecmp(str.c_str(), comlist[ctr].command, len)) {
+      return comlist[ctr].id;
+      }
+    //Command Aliases
+    if(comlist[ctr].id == COM_SAY && (str[0]=='\'' || str[0]=='"')) {
+      return comlist[ctr].id;
+      }
+    if(comlist[ctr].id == COM_DUMP
+	&& (!strncasecmp(str.c_str(), "empty", MAX(len,3)))) {
+      return comlist[ctr].id;
+      }
+    if(comlist[ctr].id == COM_CHARACTERS
+	&& (!strncasecmp(str.c_str(), "chars", MAX(len, 5)))) {
+      return comlist[ctr].id;
+      }
+    if(comlist[ctr].id == COM_GET
+	&& (!strncasecmp(str.c_str(), "take", MAX(len, 1)))) {
+      return comlist[ctr].id;
+      }
+    }
+  return COM_NONE;
   }
 
 //Return values: -1: Player D/Ced
@@ -6328,14 +6222,14 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   return 0;
   }
 
-int handle_command(Object *body, const char *cl, Mind *mind) {
+int handle_command(Object *body, const string &cl, Mind *mind) {
   static char *buf = NULL;
   static int bsize = -1;
   int ret = 0;
-  char *start = (char*)cl, *end = (char*)cl;
+  const char *start = cl.c_str(), *end = cl.c_str();
 
   if(mind && mind->SpecialPrompt()[0] != 0) {
-    string cmd = string(mind->SpecialPrompt()) + " " + cl;
+    string cmd = string(mind->SpecialPrompt()) + " " + cl.c_str();
     ret = handle_single_command(body, cmd.c_str(), mind);
     return ret;
     }

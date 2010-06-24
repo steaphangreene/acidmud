@@ -649,6 +649,8 @@ void Mind::Think(int istick) {
 	  continue;	//Have to do this now, since will break if/else if
 	  }
 
+	com_t com = identify_command(line);	//ComNum for Pass-Through
+
 	if(line.find("%") != string::npos) {
 	  spos = skip_line(script, spos);
 	  fprintf(stderr, "Error: Failed to fully expand '%s' in #%d\n",
@@ -829,59 +831,26 @@ void Mind::Think(int istick) {
 	    }
 	  }
 
-	//Player commands Acid shares with TBA, requiring NO arguments
-	else if((!strcasecmp(line.c_str(), "north"))
-		|| (!strcasecmp(line.c_str(), "nort"))
-		|| (!strcasecmp(line.c_str(), "nor"))
-		|| (!strcasecmp(line.c_str(), "no"))
-		|| (!strcasecmp(line.c_str(), "n"))
-		|| (!strcasecmp(line.c_str(), "south"))
-		|| (!strcasecmp(line.c_str(), "sout"))
-		|| (!strcasecmp(line.c_str(), "sou"))
-		|| (!strcasecmp(line.c_str(), "so"))
-		|| (!strcasecmp(line.c_str(), "s"))
-		|| (!strcasecmp(line.c_str(), "east"))
-		|| (!strcasecmp(line.c_str(), "eas"))
-		|| (!strcasecmp(line.c_str(), "ea"))
-		|| (!strcasecmp(line.c_str(), "e"))
-		|| (!strcasecmp(line.c_str(), "west"))
-		|| (!strcasecmp(line.c_str(), "wes"))
-		|| (!strcasecmp(line.c_str(), "we"))
-		|| (!strcasecmp(line.c_str(), "w"))
-		|| (!strcasecmp(line.c_str(), "up"))
-		|| (!strcasecmp(line.c_str(), "u"))
-		|| (!strcasecmp(line.c_str(), "down"))
-		|| (!strcasecmp(line.c_str(), "dow"))
-		|| (!strcasecmp(line.c_str(), "do"))
-		|| (!strcasecmp(line.c_str(), "d"))
+	//Player commands Acid shares with TBA, not requiring arguments
+	else if(com == COM_NORTH
+		|| com == COM_SOUTH
+		|| com == COM_EAST
+		|| com == COM_WEST
+		|| com == COM_UP
+		|| com == COM_DOWN
+		|| com == COM_SOCIAL
 		) {
 	  handle_command(body->Parent(), line.c_str());
 	  spos = skip_line(script, spos);
 	  }
 
 	//Player commands Acid shares with TBA, requiring arguments
-	else if((!strncasecmp(line.c_str(), "say ", 4))
-		|| (!strncasecmp(line.c_str(), "sa ", 3))
-		|| (!strncasecmp(line.c_str(), "emote ", 6))
-		|| (!strncasecmp(line.c_str(), "emot ", 5))
-		|| (!strncasecmp(line.c_str(), "emo ", 4))
-		|| (!strncasecmp(line.c_str(), "em ", 3))
-		|| (!strncasecmp(line.c_str(), "lock ", 5))
-		|| (!strncasecmp(line.c_str(), "loc ", 4))
-		|| (!strncasecmp(line.c_str(), "close ", 6))
-		|| (!strncasecmp(line.c_str(), "clos ", 5))
-		|| (!strncasecmp(line.c_str(), "clo ", 4))
-		|| (!strncasecmp(line.c_str(), "cl ", 3))
-		|| (!strncasecmp(line.c_str(), "open ", 5))
-		|| (!strncasecmp(line.c_str(), "ope ", 4))
-		|| (!strncasecmp(line.c_str(), "op ", 3))
-		|| (!strncasecmp(line.c_str(), "o ", 2))
-		|| (!strncasecmp(line.c_str(), "get ", 4))
-		|| (!strncasecmp(line.c_str(), "ge ", 3))
-		|| (!strncasecmp(line.c_str(), "g ", 2))
-		|| (!strncasecmp(line.c_str(), "take ", 5))
-		|| (!strncasecmp(line.c_str(), "tak ", 4))
-		|| (!strncasecmp(line.c_str(), "ta ", 3))
+	else if(com == COM_SAY
+		|| com == COM_EMOTE
+		|| com == COM_LOCK
+		|| com == COM_OPEN
+		|| com == COM_CLOSE
+		|| com == COM_GET
 		) {
 	  size_t stuff = line.find_first_of(" ");
 	  stuff = line.find_first_not_of(" \t\r\n", stuff);
