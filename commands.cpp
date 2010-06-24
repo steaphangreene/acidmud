@@ -818,6 +818,29 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   comline = cmd.c_str();
   len = 0;
 
+  if(body && body->Parent()) {
+    list<Object *> items = body->PickObjects(
+		"everything", LOC_INTERNAL|LOC_NEARBY|LOC_HERE);
+    list<Object *> mobs = body->PickObjects("everyone", LOC_NEARBY);
+    items.splice(items.end(), mobs);
+
+    list<Object *>::iterator obj = items.begin();
+    for(; obj != items.end(); ++obj) {
+      list<Object *> trigs = (*obj)->PickObjects(
+		"tbaMUD trigger script", LOC_NINJA|LOC_INTERNAL);
+      list<Object *>::iterator trig = trigs.begin();
+      for(; trig != trigs.end(); ++trig) {
+	if((*trig)->Skill("TBAScriptType") & 0x04) {	//All the COMMAND trigs
+	  if(com == identify_command((*trig)->Desc())) {
+//	    if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) {  // % Chance
+		//FIXME: obj command triggers only work in some cases!
+	      new_trigger(0, *trig, body, comline+len);
+//	      }
+	    }
+	  }
+	}
+      }
+    }
   int ninja=0, sninja=0, nmode=0;
 
   if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_SUPERNINJA))
