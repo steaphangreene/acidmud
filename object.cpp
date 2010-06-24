@@ -166,12 +166,12 @@ int Object::Matches(const char *seek) {
   while(isspace(targ[targ.length()-1])) targ=targ.substr(0, targ.length()-1);
 
   //Keywords Only
-  if(!strcasecmp(targ.c_str(), "everyone")) return (Attribute(1) > 0);
-  if(!strcasecmp(targ.c_str(), "someone")) return (Attribute(1) > 0);
-  if(!strcasecmp(targ.c_str(), "anyone")) return (Attribute(1) > 0);
-  if(!strcasecmp(targ.c_str(), "everything")) return (Attribute(1) == 0);
-  if(!strcasecmp(targ.c_str(), "something")) return (Attribute(1) == 0);
-  if(!strcasecmp(targ.c_str(), "anything")) return (Attribute(1) == 0);
+  if(!strcasecmp(targ.c_str(), "everyone")) return (BaseAttribute(1) > 0);
+  if(!strcasecmp(targ.c_str(), "someone")) return (BaseAttribute(1) > 0);
+  if(!strcasecmp(targ.c_str(), "anyone")) return (BaseAttribute(1) > 0);
+  if(!strcasecmp(targ.c_str(), "everything")) return (BaseAttribute(1) == 0);
+  if(!strcasecmp(targ.c_str(), "something")) return (BaseAttribute(1) == 0);
+  if(!strcasecmp(targ.c_str(), "anything")) return (BaseAttribute(1) == 0);
 
   //Keywords which can also be things
   if((!strcasecmp(targ.c_str(), "corpse")) && IsAct(ACT_DEAD)) return 1;
@@ -778,7 +778,7 @@ const char *Object::Name(int definite, Object *rel, Object *sub) const {
     proper = 1;
     }
 
-  if(!Attribute(1)) {
+  if(!BaseAttribute(1)) {
     Object *pos = Owner();
     if(pos && pos == rel) {
       ret = string("your ") + ret;
