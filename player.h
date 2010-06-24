@@ -31,7 +31,7 @@ public:
   const char *Name() { return name.c_str(); }
   void AddChar(Object *);
   int Accomplish(unsigned long);
-  int Exp() { return exp; }
+  int Exp() const { return exp; }
 
 private:
   map<string, Object *> body;

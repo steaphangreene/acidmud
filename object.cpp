@@ -2983,13 +2983,13 @@ int Object::Accomplish(unsigned long acc) {
   return 1;
   }
 
-int Object::TotalExp(Player *p) {
+int Object::TotalExp(Player *p) const {
   int ret = exp;
   if(p) ret += p->Exp();
   return ret;
   }
 
-int Object::Exp(Player *p) {
+int Object::Exp(const Player *p) const {
   int ret = (exp-sexp);
   if(p) ret += p->Exp();
   return ret;

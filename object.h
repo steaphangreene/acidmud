@@ -190,12 +190,12 @@ public:
   void EarnExp(int);
   void SpendExp(int);
   int Accomplish(unsigned long);
-  int TotalExp(Player *p = NULL);
-  int Exp(Player *p = NULL);
+  int TotalExp(Player *p = NULL) const;
+  int Exp(const Player *p = NULL) const;
 
-  int Stun()	{ return stun; };
-  int Phys()	{ return phys; };
-  int Stru()	{ return stru; };
+  int Stun() const	{ return stun; };
+  int Phys() const	{ return phys; };
+  int Stru() const	{ return stru; };
 
   void SetStun(int s)	{ stun = s; };  //Don't use these for normal healing!
   void SetPhys(int p)	{ phys = p; };
