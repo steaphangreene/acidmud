@@ -2686,6 +2686,7 @@ void init_world() {
   universe->SetShortDesc("The Universe");
   universe->SetDesc("An Infinite Universe within which to play.");
   universe->SetLongDesc("A Really Big Infinite Universe within which to play.");
+  universe->SetSkill("Light Source", 1000);	//Ninjas need to see too.
   default_initial = universe;
   trash_bin = new Object;
   trash_bin->SetShortDesc("The Trash Bin");
