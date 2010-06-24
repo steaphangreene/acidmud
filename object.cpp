@@ -2083,13 +2083,13 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
   return ret;
   }
 
-int Object::IsWithin(const Object *obj) {
+int Object::HasWithin(const Object *obj) {
   if(no_seek) return 0;
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
     if((*ind) == obj) return 1;
     if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
-      int ret = (*ind)->IsWithin(obj);
+      int ret = (*ind)->HasWithin(obj);
       if(ret) return ret;
       }
     }
@@ -2103,7 +2103,7 @@ int Object::IsNearBy(const Object *obj) {
     if((*ind) == obj) return 1;
     if((*ind) == this) continue;  // Not Nearby Self
     if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
-      int ret = (*ind)->IsWithin(obj);
+      int ret = (*ind)->HasWithin(obj);
       if(ret) return ret;
       }
     }
@@ -2121,7 +2121,7 @@ void Object::NotifyLeft(Object *obj, Object *newloc) {
   typeof(act.begin()) curact = act.begin();
   for(; curact != act.end(); ++curact) {
     if(curact->second && curact->first < ACT_MAX && (
-		curact->second == obj || obj->IsWithin(curact->second)
+		curact->second == obj || obj->HasWithin(curact->second)
 	)) {
       if(curact->first != ACT_FOLLOW || (!newloc)) {
 	stops.insert(curact->first);
@@ -3478,7 +3478,7 @@ Object *Object::NextHasSkill(const string &s, const Object *last) {
   for(; item != contents.end(); ++item) {
     Object *found = (*item)->NextHasSkill(s, last);
     if(found) return found;
-    if(last && (last == (*item) || (*item)->IsWithin(last))) {
+    if(last && (last == (*item) || (*item)->HasWithin(last))) {
       last = NULL;	//Was last item in sub-item
       }
     }

@@ -841,12 +841,24 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       for(; trig != trigs.end(); ++trig) {
 	if((*trig)->Skill("TBAScriptType") & 0x04) {	//All the COMMAND trigs
 	  if(com == identify_command((*trig)->Desc())) {
-//	    if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) {  // % Chance
-		//FIXME: obj command triggers only work in some cases!
-	      if(!new_trigger(0, *trig, body, comline+len)) {
-		return 0;	//Handled, unless script says not.
+	    if((*trig)->Skill("TBAScriptType") & 0x2000000) {  // OBJ
+	      int narg = (*trig)->Skill("TBAScriptNArg");
+	      if((narg & 3) == 0 && body->HasWithin(*obj)) {
+		continue;
 		}
-//	      }
+	      else if((narg & 3) == 2 && body->Wearing(*obj)) {
+		continue;
+		}
+	      else if((narg & 3) == 1 && (!body->Wearing(*obj))) {
+		continue;
+		}
+	      if((narg & 4) == 0 && (!body->HasWithin(*obj))) {
+		continue;
+		}
+	      }
+	    if(!new_trigger(0, *trig, body, comline+len)) {
+	      return 0;		//Handled, unless script says not.
+	      }
 	    }
 	  }
 	}

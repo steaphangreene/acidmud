@@ -166,7 +166,7 @@ public:
   Object *PickObject(const char *, int loc, int *ordinal=NULL);
   list<Object *> PickObjects(const char *, int loc, int *ordinal=NULL);
   int IsNearBy(const Object *obj);
-  int IsWithin(const Object *obj);	//Recursive
+  int HasWithin(const Object *obj);	//Recursive
   int Contains(const Object *obj);	//Only Immediately (No Recursion)
   list<Object *> Contents();
 
