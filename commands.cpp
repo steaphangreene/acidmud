@@ -821,7 +821,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		"everything", LOC_INTERNAL|LOC_NEARBY);
     list<Object *> mobs = body->PickObjects("everyone", LOC_NEARBY);
     items.splice(items.end(), mobs);
-    items.push_front(body->PickObject("here", LOC_HERE));
+    Object *room = body->PickObject("here", LOC_HERE);
+    if(room) items.push_front(room);
 
     list<Object *>::iterator obj = items.begin();
     for(; obj != items.end(); ++obj) {
