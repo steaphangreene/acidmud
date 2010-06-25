@@ -125,6 +125,8 @@ static string tba_comp(string expr) {
 
 static int tba_eval(string expr) {
   string base = tba_comp(expr);
+  trim_string(base);
+//  fprintf(stderr, "EVAL: '%s'\n", base.c_str());
   return (base != "0" && base != "");
   }
 
@@ -143,8 +145,12 @@ static void tba_varsub_obj(string &code, const string &var, const Object *obj) {
   int vnum = obj->Skill("TBAMOB");
   if(vnum < 1) vnum = obj->Skill("TBAObject");
   if(vnum < 1) vnum = obj->Skill("TBARoom");
-  if(vnum) {
-    replace_all(code, "%"+var+".vnum%", vnum-1000000);
+  if(vnum > 0) {
+    vnum -= 1000000;	//Convert from Acid number
+    char svnum[256];
+    sprintf(svnum, "%d", vnum);
+    replace_all(code, "%"+var+".vnum%", vnum);
+    replace_all(code, "%"+var+".vnum("+svnum+")%", "1");
     }
   replace_all(code, "%"+var+".level%", obj->Exp()/10);
   replace_all(code, "%"+var+".name%", obj->Name());
@@ -610,11 +616,27 @@ void Mind::Think(int istick) {
 		aroom->Skill("TBARoom")-1000000);
 	  }
 
+	//Command replacements
+	if(!strncasecmp(line.c_str(), "if %actor%", 11)) {	//Include NULL
+	  if(ovars.count("actor") && ovars["actor"]) line = "if 1";
+	  else line = "if 0";
+	  }
+
+	com_t com = identify_command(line);	//ComNum for Pass-Through
+
+	if(line.find("%") != string::npos) {
+	  spos = skip_line(script, spos);
+	  fprintf(stderr, "#%d Warning: Didn't fully expand '%s'\n",
+		body->Skill("TBAScript"), line.c_str()
+		);
+	  }
+
 	if(!strncasecmp(line.c_str(), "*", 1)) {	//Comments
 	  spos = skip_line(script, spos);
 	  continue;	//Have to do this now, since will break if/else if
 	  }
-	else if((!strncasecmp(line.c_str(), "eval ", 5))
+
+	if((!strncasecmp(line.c_str(), "eval ", 5))
 		|| (!strncasecmp(line.c_str(), "set ", 4))) {
 	  spos = skip_line(script, spos);
 
@@ -627,26 +649,16 @@ void Mind::Think(int istick) {
 	      lpos = line.find_first_not_of(" \t", end1 + 1);
 	      if(lpos != string::npos) {
 		string val = line.substr(lpos);
-		svars[var] = val;
+		if(tolower(line[0]) == 'e') {
+		  svars[var] = tba_eval(val);
+		  }
+		else {
+		  svars[var] = val;
+		  }
 		}
 	      }
 	    }
 	  continue;	//Have to do this now, since will break if/else if
-	  }
-
-	com_t com = identify_command(line);	//ComNum for Pass-Through
-
-	//Command replacements
-	if(!strncasecmp(line.c_str(), "if %actor%", 11)) {	//Include NULL
-	  if(ovars.count("actor") && ovars["actor"]) line = "if 1";
-	  else line = "if 0";
-	  }
-
-	if(line.find("%") != string::npos) {
-	  spos = skip_line(script, spos);
-	  fprintf(stderr, "#%d Warning: Didn't fully expand '%s'\n",
-		body->Skill("TBAScript"), line.c_str()
-		);
 	  }
 
 	while(line.find("%") != string::npos) {	//Null variables are null
@@ -737,8 +749,7 @@ void Mind::Think(int istick) {
 
 	else if(!strncasecmp(line.c_str(), "while ", 6)) {
 	  int depth = 0;
-	  size_t cond = spos, begin = spos, end = spos, skip = spos;
-	  cond = spos + 6;
+	  size_t cond = 6, begin = spos, end = spos, skip = spos;
 	  spos = skip_line(script, spos);
 	  begin = spos;
 	  while(spos != string::npos) {	//Skip to end (considering nesting)
@@ -760,10 +771,10 @@ void Mind::Think(int istick) {
 	      }
 	    spos = skip_line(script, spos);
 	    }
-	  while(tba_eval(script.c_str() + cond)) {
+	  while(tba_eval(line.c_str() + cond)) {
 	    PING_QUOTA();
 	    string orig = script;
-	    script = script.substr(begin, end-begin);
+	    script = script.substr(begin, skip-begin);
 	    trim_string(script);
 	    spos = 0;
 	    Think(istick);		//Semi-recursive to do the loop-age
@@ -874,7 +885,9 @@ void Mind::Think(int istick) {
 		|| com == COM_GET
 		) {
 	  size_t stuff = line.find_first_of(" ");
-	  stuff = line.find_first_not_of(" \t\r\n", stuff);
+	  if(stuff != string::npos) {
+	    stuff = line.find_first_not_of(" \t\r\n", stuff);
+	    }
 	  if(stuff != string::npos) {
 	    handle_command(body->Parent(), line.c_str());
 	    }
