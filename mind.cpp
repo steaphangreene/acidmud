@@ -133,10 +133,12 @@ static int tba_eval(string expr) {
 static void tba_varsub_str(string &code, const string &var, const string &val) {
   if(val[0] == '%' && val[val.length()-1] == '%') {
     string tval = val.substr(1, val.length()-2);
+    replace_all(code, "%%"+var+"%%", tval);
     replace_all(code, "%"+var+"%", tval);
     replace_all(code, "%"+var+".", "%"+tval+".");
     }
   else {
+    replace_all(code, "%%"+var+"%%", val);
     replace_all(code, "%"+var+"%", val);
     }
   }
@@ -539,6 +541,11 @@ void Mind::Think(int istick) {
       int quota = 1024;
       int stype = body->Skill("TBAScriptType");
       while(spos != string::npos) {
+	if(script[spos] == '*') {		//Comments
+	  spos = skip_line(script, spos);
+	  continue;
+	  }
+
 	string line;
 	size_t endl = script.find_first_of("\n\r", spos);
 	if(endl == string::npos) line = script.substr(spos);
@@ -547,6 +554,12 @@ void Mind::Think(int istick) {
 	//Variable sub (Single line)
 	string tmp = "";
 	while(tmp != line) {
+//	  if(line.find("set first ") != string::npos
+//		|| line.find("exclaim") != string::npos
+//		|| line.find("speech") != string::npos
+//		) {
+//	    fprintf(stderr, ": '%s'\n", line.c_str());
+//	    }
 	  PING_QUOTA();
 	  tmp = line;
 	  map<string, string>::iterator svarent = svars.begin();
@@ -631,15 +644,8 @@ void Mind::Think(int istick) {
 		);
 	  }
 
-	if(!strncasecmp(line.c_str(), "*", 1)) {	//Comments
-	  spos = skip_line(script, spos);
-	  continue;	//Have to do this now, since will break if/else if
-	  }
-
 	if((!strncasecmp(line.c_str(), "eval ", 5))
 		|| (!strncasecmp(line.c_str(), "set ", 4))) {
-	  spos = skip_line(script, spos);
-
 	  size_t lpos = line.find_first_not_of(" \t", 4);
 	  if(lpos != string::npos) {
 	    line = line.substr(lpos);
@@ -649,8 +655,13 @@ void Mind::Think(int istick) {
 	      lpos = line.find_first_not_of(" \t", end1 + 1);
 	      if(lpos != string::npos) {
 		string val = line.substr(lpos);
-		if(tolower(line[0]) == 'e') {
-		  svars[var] = tba_eval(val);
+//		if(	var.find("exclaim") != string::npos
+//			|| var.find("speech") != string::npos
+//			) {
+//		  fprintf(stderr, "'%s' = '%s'\n", var.c_str(), val.c_str());
+//		  }
+		if(tolower(script[spos]) == 'e') {
+		  svars[var] = tba_comp(val);
 		  }
 		else {
 		  svars[var] = val;
@@ -658,6 +669,7 @@ void Mind::Think(int istick) {
 		}
 	      }
 	    }
+	  spos = skip_line(script, spos);
 	  continue;	//Have to do this now, since will break if/else if
 	  }
 
