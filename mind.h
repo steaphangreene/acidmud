@@ -70,8 +70,8 @@ private:
 
   string script;
   size_t spos;
-  Object *actor;
-  map<string, string> vars;
+  map<string, string> svars;
+  map<string, Object *> ovars;
   int status;
 
   static list<pair<int, Mind*> > waiting;

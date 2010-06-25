@@ -25,7 +25,8 @@ using namespace std;
 
 list<Mind *>recycle_bin;
 
-//FIXME: This is not remotely done!
+static const char *bstr[2] = {"0", "1"};
+
 static int tba_eval(string expr);
 
 static string tba_comp(string expr) {
@@ -127,6 +128,16 @@ static int tba_eval(string expr) {
   return (base != "0" && base != "");
   }
 
+static void tba_varsub_str(string &code, const string &var, const string &val) {
+  if(val[0] == '%' && val[val.length()-1] == '%') {
+    string tval = val.substr(1, val.length()-2);
+    replace_all(code, "%"+var+"%", tval);
+    replace_all(code, "%"+var+".", "%"+tval+".");
+    }
+  else {
+    replace_all(code, "%"+var+"%", val);
+    }
+  }
 static void tba_varsub_obj(string &code, const string &var, const Object *obj) {
   if(!obj) return;
   int vnum = obj->Skill("TBAMOB");
@@ -151,6 +162,7 @@ static void tba_varsub_obj(string &code, const string &var, const Object *obj) {
   replace_all(code, "%"+var+".cha%", (obj->Attribute(3) - 3) + 3);
   replace_all(code, "%"+var+".int%", (obj->Attribute(4) - 3) + 3);
   replace_all(code, "%"+var+".wis%", (obj->Attribute(5) - 3) + 3);
+  replace_all(code, "%"+var+".fighting%", bstr[obj->IsAct(ACT_FIGHT)]);
   }
 
 Mind::Mind() {
@@ -213,8 +225,8 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
   spos = 0;
   script = body->LongDesc();
   script += "\n";
-  actor = tripper;
-  vars["args"] = text;
+  ovars["actor"] = tripper;
+  svars["args"] = text;
   }
 
 void Mind::SetTBAMob() {
@@ -493,11 +505,14 @@ void Mind::Think(int istick) {
     }
   else if(type == MIND_TBATRIG) {
     if(body && body->Parent()) {
-      Object *self = body->Parent();
-      Object *room = self;
-      Object *aroom = actor;
+      ovars["self"] = body->Parent();
+      Object *room = ovars["self"];
       while(room && room->Skill("TBARoom") == 0) room = room->Parent();
-      while(aroom && aroom->Skill("TBARoom") == 0) aroom = aroom->Parent();
+      Object *aroom = NULL;
+      if(ovars.count("actor") && ovars["actor"]) {
+	aroom = ovars["actor"];
+	while(aroom && aroom->Skill("TBARoom") == 0) aroom = aroom->Parent();
+	}
 
 //      if(self->Matches("picard")
 //		|| self->Matches("teleporter")
@@ -518,46 +533,46 @@ void Mind::Think(int istick) {
       int quota = 1024;
       int stype = body->Skill("TBAScriptType");
       while(spos != string::npos) {
-	PING_QUOTA();
 	string line;
 	size_t endl = script.find_first_of("\n\r", spos);
 	if(endl == string::npos) line = script.substr(spos);
 	else line = script.substr(spos, endl-spos);
 
 	//Variable sub (Single line)
-	map<string, string>::iterator varent = vars.begin();
-	for(; varent != vars.end(); ++varent) {
-	  const string &var = varent->first;
-	  const string &val = varent->second;
-	  if(val[0] == '%' && val[val.length()-1] == '%') {
-	    string tval = val.substr(1, val.length()-2);
-	    replace_all(line, "%"+var+"%", tval);
-	    replace_all(line, "%"+var+".", "%"+tval+".");
+	string tmp = "";
+	while(tmp != line) {
+	  PING_QUOTA();
+	  tmp = line;
+	  map<string, string>::iterator svarent = svars.begin();
+	  for(; svarent != svars.end(); ++svarent) {
+	    const string &var = svarent->first;
+	    const string &val = svarent->second;
+	    tba_varsub_str(line, var, val);
 	    }
-	  else {
-	    replace_all(line, "%"+var+"%", val);
+	  map<string, Object *>::iterator ovarent = ovars.begin();
+	  for(; ovarent != ovars.end(); ++ovarent) {
+	    const string &var = ovarent->first;
+	    Object *obj = ovarent->second;
+	    tba_varsub_obj(line, var, obj);
 	    }
 	  }
 
-	tba_varsub_obj(line, "self", self);
-	if(actor) tba_varsub_obj(line, "actor", actor);
-
 	if(stype & 0x0000008) {				//-SPEECH Triggers
-	  replace_all(line, "%speech%", vars["args"]);
+	  replace_all(line, "%speech%", svars["args"]);
 	  }
 	if((stype & 0x4000040) == 0x4000040		//ROOM-ENTER Triggers
 		|| stype & 0x0010000) {			//-LEAVE Triggers
-	  replace_all(line, "%direction%", vars["args"]);
+	  replace_all(line, "%direction%", svars["args"]);
 	  }
 	if(stype & 0x0000004) {				//-COMMAND Triggers
-	  string arg1 = vars["args"], argr = "";
-	  size_t apos = vars["args"].find_first_of(" \t\n\r");
+	  string arg1 = svars["args"], argr = "";
+	  size_t apos = svars["args"].find_first_of(" \t\n\r");
 	  if(apos != string::npos) {
-	    arg1 = vars["args"].substr(0, apos);
-	    apos = vars["args"].find_first_not_of(" \t\n\r", apos);
-	    if(apos != string::npos) argr = vars["args"].substr(apos);
+	    arg1 = svars["args"].substr(0, apos);
+	    apos = svars["args"].find_first_not_of(" \t\n\r", apos);
+	    if(apos != string::npos) argr = svars["args"].substr(apos);
 	    }
-	  replace_all(line, "%arg%", vars["args"]);
+	  replace_all(line, "%arg%", svars["args"]);
 	  replace_all(line, "%arg.car%", arg1);
 	  replace_all(line, "%arg.cdr%", argr);
 	  }
@@ -575,22 +590,6 @@ void Mind::Think(int istick) {
 	    }
 	  var = line.find("%random.", var + 1);
 	  }
-
-	varent = vars.begin();
-	for(; varent != vars.end(); ++varent) {
-	  const string &var = varent->first;
-	  const string &val = varent->second;
-	  if(val[0] == '%' && val[val.length()-1] == '%') {
-	    string tval = val.substr(1, val.length()-2);
-	    replace_all(line, "%"+var+"%", tval);
-	    replace_all(line, "%"+var+".", "%"+tval+".");
-	    }
-	  else {
-	    replace_all(line, "%"+var+"%", val);
-	    }
-	  }
-
-	static const char *bstr[2] = {"0", "1"};
 	replace_all(line, "%damage% ", "wdamage ");
 	replace_all(line, "%echo% ", "mecho ");
 	replace_all(line, "set actor %random.char%", "set_actor_randomly");
@@ -602,15 +601,9 @@ void Mind::Think(int istick) {
 	replace_all(line, "%teleport% ", "transport ");
 //	replace_all(line, "%door% ", "door ");
 
-	replace_all(line, "%self.fighting%", bstr[self->IsAct(ACT_FIGHT)]);
-	replace_all(line, "%self.is_pc%", bstr[is_pc(self)]);
 	if(room) {
 	  replace_all(line, "%self.room.vnum%",
 		room->Skill("TBARoom")-1000000);
-	  }
-	if(actor) {
-	  replace_all(line, "%actor.fighting%", bstr[actor->IsAct(ACT_FIGHT)]);
-	  replace_all(line, "%actor.is_pc%", bstr[is_pc(actor)]);
 	  }
 	if(aroom) {
 	  replace_all(line, "%actor.room.vnum%",
@@ -634,7 +627,7 @@ void Mind::Think(int istick) {
 	      lpos = line.find_first_not_of(" \t", end1 + 1);
 	      if(lpos != string::npos) {
 		string val = line.substr(lpos);
-		vars[var] = val;
+		svars[var] = val;
 		}
 	      }
 	    }
@@ -645,7 +638,7 @@ void Mind::Think(int istick) {
 
 	//Command replacements
 	if(!strncasecmp(line.c_str(), "if %actor%", 11)) {	//Include NULL
-	  if(actor) line = "if 1";
+	  if(ovars.count("actor") && ovars["actor"]) line = "if 1";
 	  else line = "if 0";
 	  }
 
@@ -845,16 +838,16 @@ void Mind::Think(int istick) {
 	  }
 
 	else if(!strncasecmp(line.c_str(), "force_actor ", 12)) {
-	  if(actor) {
+	  if(ovars.count("actor") && ovars["actor"]) {
 	    Mind *amind = NULL;	//Make sure human minds see it!
 	    vector<Mind *> mns = get_human_minds();
 	    vector<Mind *>::iterator mn = mns.begin();
 	    for(; mn != mns.end(); ++mn) {
-	      if((*mn)->Body() == actor) {
+	      if((*mn)->Body() == ovars["actor"]) {
 		amind = *mn;
 		}
 	      }
-	    handle_command(actor, line.c_str()+12, amind);
+	    handle_command(ovars["actor"], line.c_str()+12, amind);
 	    }
 	  spos = skip_line(script, spos);
 	  }
@@ -907,41 +900,53 @@ void Mind::Think(int istick) {
 	  }
 
 	else if(!strncasecmp(line.c_str(), "set_actor_randomly", 18)) {
-	  actor = self->PickObject("someone", LOC_NEARBY);
+	  Object *actor = NULL;
+	  if(ovars["self"] == room) {
+	    actor = ovars["self"]->PickObject("someone", LOC_INTERNAL);
+	    }
+	  else if(ovars["self"]->Owner()) {
+	    actor = ovars["self"]->Owner()->PickObject("someone", LOC_NEARBY);
+	    }
+	  else {
+	    actor = ovars["self"]->PickObject("someone", LOC_NEARBY);
+	    }
+	  if(actor) ovars["actor"] = actor;
+	  else ovars.erase("actor");
+
 	  spos = skip_line(script, spos);
 	  }
 
 	else if(!strncasecmp(line.c_str(), "send_actor ", 11)) {
-	  if(actor) {
+	  if(ovars.count("actor") && ovars["actor"]) {
 	    string mes = line.c_str() + 11;
 	    size_t end = mes.find_first_of("\n\r");
 	    if(end != string::npos) mes = mes.substr(0, end);
 	    trim_string(mes);
 	    mes += "\n";
-	    actor->Send(0, 0, mes.c_str());
+	    ovars["actor"]->Send(0, 0, mes.c_str());
 	    }
 	  spos = skip_line(script, spos);
 	  }
 
 	else if(!strncasecmp(line.c_str(), "damage_actor ", 13)) {
-	  if(actor) {
+	  if(ovars.count("actor") && ovars["actor"]) {
 	    int dam = 1;
 	    size_t end = line.find_first_not_of(" \t", 13);
 	    if(end != string::npos) {
 	      dam = (tba_eval(line.c_str() + end) + 180) / 100;
 	      }
-	    actor->HitMent(1000, dam, 0);
+	    ovars["actor"]->HitMent(1000, dam, 0);
 	    }
 	  spos = skip_line(script, spos);
 	  }
 
 	else if(!strncasecmp(line.c_str(), "echoaround_actor ", 17)) {
-	  if(actor && actor->Parent()) {
+	  if(ovars.count("actor") && ovars["actor"] && ovars["actor"]->Parent()) {
 	    if(aroom) {
 	      string mes = line.substr(17);
 	      trim_string(mes);
 	      mes += "\n";
-	      aroom->SendOut(0, 0, mes.c_str(), "", actor, NULL);
+	      aroom->SendOut(0, 0, mes.c_str(), "", ovars["actor"], NULL);
 	      }
 	    }
 	  spos = skip_line(script, spos);
@@ -955,7 +960,7 @@ void Mind::Think(int istick) {
 	  int dnum;
 	  sscanf(line.c_str() + 16, "%d", &dnum);
 	  dnum += 1000000;
-	  Object *dest = self;
+	  Object *dest = ovars["self"];
 	  while(dest->Parent()->Parent()) {
 	    dest = dest->Parent();
 	    }
@@ -968,9 +973,9 @@ void Mind::Think(int istick) {
 	      break;
 	      }
 	    }
-	  options = self->Contents();
+	  options = ovars["self"]->Contents();
 	  opt = options.begin();
-	  if(actor) actor->Travel(dest);
+	  if(ovars.count("actor") && ovars["actor"]) ovars["actor"]->Travel(dest);
 	  spos = skip_line(script, spos);
 	  }
 
@@ -978,7 +983,7 @@ void Mind::Think(int istick) {
 	  int dnum;
 	  sscanf(line.c_str() + 14, "%d", &dnum);
 	  dnum += 1000000;
-	  Object *dest = self;
+	  Object *dest = ovars["self"];
 	  while(dest->Parent()->Parent()) {
 	    dest = dest->Parent();
 	    }
@@ -991,7 +996,7 @@ void Mind::Think(int istick) {
 	      break;
 	      }
 	    }
-	  options = self->Contents();
+	  options = ovars["self"]->Contents();
 	  opt = options.begin();
 	  for(; opt != options.end(); ++opt) {
 	    if((*opt)->Matches("everyone")) {
@@ -1322,7 +1327,8 @@ void Mind::Disable() {
       waiting.erase(tmp);
       }
     }
-  vars.clear();			//Reset all variables
+  svars.clear();		//Reset all variables
+  ovars.clear();
   recycle_bin.push_back(this);	//Ready for re-use
   }
 
