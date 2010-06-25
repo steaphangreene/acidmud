@@ -640,13 +640,6 @@ void Mind::Think(int istick) {
 
 	com_t com = identify_command(line);	//ComNum for Pass-Through
 
-	if(line.find("%") != line.rfind("%")) {	//More than one '%'
-	  spos = skip_line(script, spos);
-	  fprintf(stderr, "#%d Warning: Didn't fully expand '%s'\n",
-		body->Skill("TBAScript"), line.c_str()
-		);
-	  }
-
 	if((!strncasecmp(line.c_str(), "eval ", 5))
 		|| (!strncasecmp(line.c_str(), "set ", 4))) {
 	  size_t lpos = line.find_first_not_of(" \t", 4);
@@ -682,6 +675,12 @@ void Mind::Think(int istick) {
 	map<string, Object *>::iterator ovarent = ovars.begin();
 	for(; ovarent != ovars.end(); ++ovarent) {
 	  replace_all(line, "%"+ovarent->first+"%", "1"); //Exists = True
+	  }
+	if(line.find("%") != line.rfind("%")) {	//More than one '%'
+	  spos = skip_line(script, spos);
+	  fprintf(stderr, "#%d Warning: Didn't fully expand '%s'\n",
+		body->Skill("TBAScript"), line.c_str()
+		);
 	  }
 	while(line.find("%") != string::npos) {	//Null variables are null
 	  size_t p1 = line.find('%');
