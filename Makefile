@@ -19,7 +19,7 @@ LIBS:=	-lstdc++ -lcrypt
 
 #Debugging settings
 CXX=	gcc$(ACIDMUD_CTAIL) -g -Wall
-LIBS:=	-lstdc++ -lcrypt -lefence
+LIBS:=	-lstdc++ -lcrypt
 
 #Profiling settings
 #CXX=	gcc$(ACIDMUD_CTAIL) -g -pg -fprofile-arcs -Wall
