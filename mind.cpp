@@ -131,15 +131,28 @@ static int tba_eval(string expr) {
   }
 
 static void tba_varsub_str(string &code, const string &var, const string &val) {
+  replace_all(code, "%%"+var+"%%", val);
+  replace_all(code, "%"+var+"%", val);
+
+  string arg1 = val, argr = "";
+  size_t apos = val.find_first_of(" \t\n\r");
+  if(apos != string::npos) {
+    arg1 = val.substr(0, apos);
+    apos = val.find_first_not_of(" \t\n\r", apos);
+    if(apos != string::npos) argr = val.substr(apos);
+    }
+  replace_all(code, "%%"+var+".car%%", arg1);
+  replace_all(code, "%"+var+".car%", arg1);
+  replace_all(code, "%%"+var+".cdr%%", argr);
+  replace_all(code, "%"+var+".cdr%", argr);
+  string trim = val;
+  trim_string(trim);
+  replace_all(code, "%%"+var+".trim%%", trim);
+  replace_all(code, "%"+var+".trim%", trim);
+
   if(val[0] == '%' && val[val.length()-1] == '%') {
     string tval = val.substr(1, val.length()-2);
-    replace_all(code, "%%"+var+"%%", tval);
-    replace_all(code, "%"+var+"%", tval);
     replace_all(code, "%"+var+".", "%"+tval+".");
-    }
-  else {
-    replace_all(code, "%%"+var+"%%", val);
-    replace_all(code, "%"+var+"%", val);
     }
   }
 static void tba_varsub_obj(string &code, const string &var, const Object *obj) {
@@ -153,6 +166,14 @@ static void tba_varsub_obj(string &code, const string &var, const Object *obj) {
     sprintf(svnum, "%d", vnum);
     replace_all(code, "%"+var+".vnum%", vnum);
     replace_all(code, "%"+var+".vnum("+svnum+")%", "1");
+    size_t beg = code.find("%"+var+".vnum(");
+    while(beg != string::npos) {
+      size_t end = code.find('%');
+      if(end != string::npos) {
+	code.replace(beg, end+1, "0");
+	}
+      beg = code.find("%"+var+".vnum(");
+      }
     }
   replace_all(code, "%"+var+".level%", obj->Exp()/10);
   replace_all(code, "%"+var+".name%", obj->Name());
@@ -234,7 +255,18 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
   script = body->LongDesc();
   script += "\n";
   ovars["actor"] = tripper;
-  svars["args"] = text;
+
+  int stype = body->Skill("TBAScriptType");
+  if(stype & 0x0000008) {				//-SPEECH Triggers
+    svars["speech"] = text;
+    }
+  if((stype & 0x4000040) == 0x4000040			//ROOM-ENTER Triggers
+                || stype & 0x0010000) {			//-LEAVE Triggers
+    svars["direction"] = text;
+    }
+  if(stype & 0x0000004) {				//-COMMAND Triggers
+    svars["arg"] = text;
+    }
   }
 
 void Mind::SetTBAMob() {
@@ -516,10 +548,12 @@ void Mind::Think(int istick) {
       ovars["self"] = body->Parent();
       Object *room = ovars["self"];
       while(room && room->Skill("TBARoom") == 0) room = room->Parent();
+      if(room) ovars["self.room"] = room;
       Object *aroom = NULL;
       if(ovars.count("actor") && ovars["actor"]) {
 	aroom = ovars["actor"];
 	while(aroom && aroom->Skill("TBARoom") == 0) aroom = aroom->Parent();
+        if(aroom) ovars["actor.room"] = aroom;
 	}
 
 //      if(self->Matches("picard")
@@ -554,60 +588,38 @@ void Mind::Think(int istick) {
 	//Variable sub (Single line)
 	string tmp = "";
 	while(tmp != line) {
-//	  if(line.find("set first ") != string::npos
+	  if(0
+//		|| line.find("eval loc ") != string::npos
+//		|| line.find("set first ") != string::npos
 //		|| line.find("exclaim") != string::npos
 //		|| line.find("speech") != string::npos
-//		) {
-//	    fprintf(stderr, ": '%s'\n", line.c_str());
-//	    }
+		) {
+	    fprintf(stderr, "#%d '%s'\n",
+		body->Skill("TBAScript"), line.c_str());
+	    }
 	  PING_QUOTA();
 	  tmp = line;
 	  map<string, string>::iterator svarent = svars.begin();
 	  for(; svarent != svars.end(); ++svarent) {
-	    const string &var = svarent->first;
-	    const string &val = svarent->second;
-	    tba_varsub_str(line, var, val);
+	    tba_varsub_str(line, svarent->first, svarent->second);
 	    }
 	  map<string, Object *>::iterator ovarent = ovars.begin();
 	  for(; ovarent != ovars.end(); ++ovarent) {
-	    const string &var = ovarent->first;
-	    Object *obj = ovarent->second;
-	    tba_varsub_obj(line, var, obj);
+	    tba_varsub_obj(line, ovarent->first, ovarent->second);
 	    }
-	  }
-
-	if(stype & 0x0000008) {				//-SPEECH Triggers
-	  replace_all(line, "%speech%", svars["args"]);
-	  }
-	if((stype & 0x4000040) == 0x4000040		//ROOM-ENTER Triggers
-		|| stype & 0x0010000) {			//-LEAVE Triggers
-	  replace_all(line, "%direction%", svars["args"]);
-	  }
-	if(stype & 0x0000004) {				//-COMMAND Triggers
-	  string arg1 = svars["args"], argr = "";
-	  size_t apos = svars["args"].find_first_of(" \t\n\r");
-	  if(apos != string::npos) {
-	    arg1 = svars["args"].substr(0, apos);
-	    apos = svars["args"].find_first_not_of(" \t\n\r", apos);
-	    if(apos != string::npos) argr = svars["args"].substr(apos);
-	    }
-	  replace_all(line, "%arg%", svars["args"]);
-	  replace_all(line, "%arg.car%", arg1);
-	  replace_all(line, "%arg.cdr%", argr);
-	  }
-
-	size_t var = line.find("%random.");
-	while(var != string::npos) {
-	  if(isdigit(line[var+8])) {
-	    size_t vend = line.find_first_not_of("0123456789", var+8);
-	    if(vend != string::npos && line[vend] == '%') {
-	      char nstr[64];
-	      sprintf(nstr, "%d", (rand()%atoi(line.c_str()+var+8))+1);
-	      line = line.replace(var, vend+1, nstr);
-	      var = 0;
+	  size_t var = line.find("%random.");
+	  while(var != string::npos) {
+	    if(isdigit(line[var+8])) {
+	      size_t vend = line.find_first_not_of("0123456789", var+8);
+	      if(vend != string::npos && line[vend] == '%') {
+		char nstr[64];
+		sprintf(nstr, "%d", (rand()%atoi(line.c_str()+var+8))+1);
+		line = line.replace(var, vend+1, nstr);
+		var = 0;
+		}
 	      }
+	    var = line.find("%random.", var + 1);
 	    }
-	  var = line.find("%random.", var + 1);
 	  }
 	replace_all(line, "%damage% ", "wdamage ");
 	replace_all(line, "%echo% ", "mecho ");
@@ -620,15 +632,6 @@ void Mind::Think(int istick) {
 	replace_all(line, "%teleport% ", "transport ");
 //	replace_all(line, "%door% ", "door ");
 
-	if(room) {
-	  replace_all(line, "%self.room.vnum%",
-		room->Skill("TBARoom")-1000000);
-	  }
-	if(aroom) {
-	  replace_all(line, "%actor.room.vnum%",
-		aroom->Skill("TBARoom")-1000000);
-	  }
-
 	//Command replacements
 	if(!strncasecmp(line.c_str(), "if %actor%", 11)) {	//Include NULL
 	  if(ovars.count("actor") && ovars["actor"]) line = "if 1";
@@ -637,7 +640,7 @@ void Mind::Think(int istick) {
 
 	com_t com = identify_command(line);	//ComNum for Pass-Through
 
-	if(line.find("%") != string::npos) {
+	if(line.find("%") != line.rfind("%")) {	//More than one '%'
 	  spos = skip_line(script, spos);
 	  fprintf(stderr, "#%d Warning: Didn't fully expand '%s'\n",
 		body->Skill("TBAScript"), line.c_str()
@@ -655,11 +658,14 @@ void Mind::Think(int istick) {
 	      lpos = line.find_first_not_of(" \t", end1 + 1);
 	      if(lpos != string::npos) {
 		string val = line.substr(lpos);
-//		if(	var.find("exclaim") != string::npos
+		if(0
+//			|| var.find("midgaard") != string::npos
+//			|| var.find("exclaim") != string::npos
 //			|| var.find("speech") != string::npos
-//			) {
-//		  fprintf(stderr, "'%s' = '%s'\n", var.c_str(), val.c_str());
-//		  }
+			) {
+		  fprintf(stderr, "#%d '%s' = '%s'\n",
+			body->Skill("TBAScript"), var.c_str(), val.c_str());
+		  }
 		if(tolower(script[spos]) == 'e') {
 		  svars[var] = tba_comp(val);
 		  }
@@ -670,9 +676,13 @@ void Mind::Think(int istick) {
 	      }
 	    }
 	  spos = skip_line(script, spos);
-	  continue;	//Have to do this now, since will break if/else if
+	  continue;
 	  }
 
+	map<string, Object *>::iterator ovarent = ovars.begin();
+	for(; ovarent != ovars.end(); ++ovarent) {
+	  replace_all(line, "%"+ovarent->first+"%", "1"); //Exists = True
+	  }
 	while(line.find("%") != string::npos) {	//Null variables are null
 	  size_t p1 = line.find('%');
 	  while(line[p1+1] == '%') ++p1;
