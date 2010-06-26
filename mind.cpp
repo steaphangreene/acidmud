@@ -721,16 +721,16 @@ void Mind::Think(int istick) {
 		body->Skill("TBAScript"), line.c_str()
 		);
 	  }
-	while(line.find("%") != string::npos) {	//Null variables are null
+	//Set undefined variables to ""
+	while(line.find("%") != line.rfind("%")) {	//More than one '%'
 	  size_t p1 = line.find('%');
 	  while(line[p1+1] == '%') ++p1;
 	  size_t p2 = line.find('%', p1+1);
-	  line.replace(p1, p2, "");
+	  if(p2 != string::npos) line.replace(p1, p2, "");
 	  }
 
 	//Start of real command if/else if/else
-	if(line.find("%") != string::npos) {
-	  spos = skip_line(script, spos);
+	if(line.find("%") != line.rfind("%")) {		//More than one '%'
 	  fprintf(stderr, "#%d Error: Failed to fully expand '%s'\n",
 		body->Skill("TBAScript"), line.c_str()
 		);
@@ -1108,10 +1108,10 @@ void Mind::Think(int istick) {
 	  return;
 	  }
 	else {		//Silently ignore the rest for now!  FIXME: Error mes.
-	  spos = skip_line(script, spos);
 	  fprintf(stderr, "#%d Error: Gibberish script line '%s'\n",
 		body->Skill("TBAScript"), line.c_str()
 		);
+	  spos = skip_line(script, spos);
 	  Disable();
 	  return;
 	  }
