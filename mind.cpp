@@ -637,6 +637,16 @@ void Mind::Think(int istick) {
 	      }
 	    var = line.find("%random.", var + 1);
 	    }
+	  if(line.find("%time.hour%") != string::npos) {
+	    Object *world = body;
+	    while(world->Parent()->Parent()) world = world->Parent();
+	    if(world->Skill("Day Time") && world->Skill("Day Length")) {
+	      int hour = world->Skill("Day Time");
+	      hour *= 24;
+	      hour /= world->Skill("Day Length");
+	      replace_all(line, "%time.hour%", hour);
+	      }
+	    }
 	  }
 	replace_all(line, "%damage% ", "wdamage ");
 	replace_all(line, "%echo% ", "mecho ");
