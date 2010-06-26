@@ -165,6 +165,13 @@ int Object::Matches(const char *seek) {
   string targ = seek;
   while(isspace(targ[targ.length()-1])) targ=targ.substr(0, targ.length()-1);
 
+  //Pointer Matches
+  if(!strncmp(targ.c_str(), "OBJ:", 4)) {
+    Object *tofind = NULL;
+    sscanf(targ.c_str()+4, "%p", &tofind);
+    return (this == tofind);
+    }
+
   //Keywords Only
   if(!strcasecmp(targ.c_str(), "everyone")) return (BaseAttribute(1) > 0);
   if(!strcasecmp(targ.c_str(), "someone")) return (BaseAttribute(1) > 0);

@@ -262,7 +262,7 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
   spos = 0;
   script = body->LongDesc();
   script += "\n";
-  ovars["actor"] = tripper;
+  if(tripper) ovars["actor"] = tripper;
 
   int stype = body->Skill("TBAScriptType");
   if(stype & 0x0000008) {				//-SPEECH Triggers
@@ -594,7 +594,8 @@ void Mind::Think(int istick) {
 	//Variable sub (Single line)
 	string tmp = "";
 	map<string, Object *> tmpvars;
-	while(tmp != line || tmpvars != ovars) {
+	map<string, Object *> curvars = ovars;
+	while(tmp != line || tmpvars != curvars) {
 	  if(0
 //		|| line.find("eval loc ") != string::npos
 //		|| line.find("set first ") != string::npos
@@ -663,7 +664,6 @@ void Mind::Think(int istick) {
 	replace_all(line, "%force% %actor% ", "force_actor ");
 	replace_all(line, "%echoaround% %actor% ", "echoaround_actor ");
 	replace_all(line, "wdamage %actor% ", "damage_actor ");
-	replace_all(line, "%teleport% %actor% ", "transport_actor ");
 	replace_all(line, "%teleport% ", "transport ");
 //	replace_all(line, "%door% ", "door ");
 
@@ -722,9 +722,9 @@ void Mind::Think(int istick) {
 	map<string, Object *>::iterator ovarent = ovars.begin();
 	for(; ovarent != ovars.end(); ++ovarent) {
 	  if(ovarent->second) {	//FIXME: Why does this happen?
-	    replace_all(line,
-		"%"+ovarent->first+"%", ovarent->second->ShortDesc()
-		);
+	    char buf[128];
+	    sprintf(buf, "OBJ:%p", ovarent->second);
+	    replace_all(line, "%"+ovarent->first+"%", buf);
 	    }
 	  }
 	if(line.find("%") != line.rfind("%")) {	//More than one '%'
@@ -1041,9 +1041,12 @@ void Mind::Think(int istick) {
 //	  spos = skip_line(script, spos);
 //	  }
 
-	else if(!strncasecmp(line.c_str(), "transport_actor ", 16)) {
+	else if(!strncasecmp(line.c_str(), "transport ", 10)) {
 	  int dnum;
-	  sscanf(line.c_str() + 16, "%d", &dnum);
+	  char buf[256];
+	  if(sscanf(line.c_str() + 10, "%s %d", buf, &dnum) != 2) {
+	    if(!strcasecmp(buf, "all")) { strcpy(buf, "everyone"); }
+	    }
 	  dnum += 1000000;
 	  Object *dest = ovars["self"];
 	  while(dest->Parent()->Parent()) {
@@ -1058,36 +1061,16 @@ void Mind::Think(int istick) {
 	      break;
 	      }
 	    }
-	  options = ovars["self"]->Contents();
-	  opt = options.begin();
-	  if(ovars.count("actor") && ovars["actor"]) ovars["actor"]->Travel(dest);
-	  spos = skip_line(script, spos);
-	  }
-
-	else if(!strncasecmp(line.c_str(), "transport all ", 14)) {
-	  int dnum;
-	  sscanf(line.c_str() + 14, "%d", &dnum);
-	  dnum += 1000000;
-	  Object *dest = ovars["self"];
-	  while(dest->Parent()->Parent()) {
-	    dest = dest->Parent();
-	    }
-	  list<Object*> options = dest->Contents();
-	  list<Object*>::iterator opt = options.begin();
-	  dest = NULL;
-	  for(; opt != options.end(); ++opt) {
-	    if((*opt)->Skill("TBARoom") == dnum) {
-	      dest = (*opt);
-	      break;
-	      }
-	    }
-	  options = ovars["self"]->Contents();
+	  options = room->Contents();
 	  opt = options.begin();
 	  for(; opt != options.end(); ++opt) {
-	    if((*opt)->Matches("everyone")) {
+	    if((*opt)->Matches(buf)) {
 	      (*opt)->Travel(dest);
 	      }
 	    }
+//	  fprintf(stderr, "#%d Debug: Transport line: '%s'\n",
+//		body->Skill("TBAScript"), line.c_str()
+//		);
 	  spos = skip_line(script, spos);
 	  }
 
