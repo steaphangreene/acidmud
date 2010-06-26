@@ -163,8 +163,8 @@ public:
 
   void NotifyGone(Object *obj, Object *newloc = NULL, int up = 1);
 
-  Object *PickObject(const char *, int loc, int *ordinal=NULL);
-  list<Object *> PickObjects(const char *, int loc, int *ordinal=NULL);
+  Object *PickObject(const char *, int loc, int *ordinal=NULL) const;
+  list<Object *> PickObjects(const char *, int loc, int *ordinal=NULL) const;
   int IsNearBy(const Object *obj);
   int HasWithin(const Object *obj);	//Recursive
   int Contains(const Object *obj);	//Only Immediately (No Recursion)

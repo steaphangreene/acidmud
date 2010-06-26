@@ -1833,7 +1833,7 @@ int strip_ordinal(const char **text) {
   return ret;
   }
 
-Object *Object::PickObject(const char *name, int loc, int *ordinal) {
+Object *Object::PickObject(const char *name, int loc, int *ordinal) const {
   list<Object*> ret = PickObjects(name, loc, ordinal);
   if(ret.size() != 1) {
     return NULL;
@@ -1921,7 +1921,7 @@ static int tag(Object *obj, list<Object *> &ret, int *ordinal, int show = 0) {
   return 0;
   }
 
-list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
+list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) const {
   list<Object*> ret;
 
   while((!isgraph(*name)) && (*name)) ++name;
@@ -1966,7 +1966,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
 	|| (!strcasecmp(name, "me"))
 	) {
       if((*ordinal) != 1) return ret;
-      ret.push_back(this);
+      ret.push_back((Object *)this);	//Wrecks Const-Ness
       return ret;
       }
     }

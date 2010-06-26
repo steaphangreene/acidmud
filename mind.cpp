@@ -185,13 +185,21 @@ static void tba_varsub_obj(string &code, const string &var, const Object *obj) {
   replace_all(code, "%"+var+".is_pc%", is_pc(obj));
   replace_all(code, "%"+var+".is_killer%", 0);	//FIXME: Real value?
   replace_all(code, "%"+var+".is_thief%", 0);	//FIXME: Real value?
-  replace_all(code, "%"+var+".con%", (obj->Attribute(0) - 3) + 3);
-  replace_all(code, "%"+var+".dex%", (obj->Attribute(1) - 3) + 3);
-  replace_all(code, "%"+var+".str%", (obj->Attribute(2) - 3) + 3);
-  replace_all(code, "%"+var+".cha%", (obj->Attribute(3) - 3) + 3);
-  replace_all(code, "%"+var+".int%", (obj->Attribute(4) - 3) + 3);
-  replace_all(code, "%"+var+".wis%", (obj->Attribute(5) - 3) + 3);
+  replace_all(code, "%"+var+".con%", (obj->Attribute(0) - 2) * 3);
+  replace_all(code, "%"+var+".dex%", (obj->Attribute(1) - 2) * 3);
+  replace_all(code, "%"+var+".str%", (obj->Attribute(2) - 2) * 3);
+  replace_all(code, "%"+var+".cha%", (obj->Attribute(3) - 2) * 3);
+  replace_all(code, "%"+var+".int%", (obj->Attribute(4) - 2) * 3);
+  replace_all(code, "%"+var+".wis%", (obj->Attribute(5) - 2) * 3);
   replace_all(code, "%"+var+".fighting%", bstr[obj->IsAct(ACT_FIGHT)]);
+
+  int gold;
+  list<Object *> pay = obj->PickObjects("all a gold piece", LOC_INTERNAL);
+  list<Object *>::const_iterator coin;
+  for(coin = pay.begin(); coin != pay.end(); ++coin) {
+    gold += (*coin)->Quantity();
+    }
+  replace_all(code, "%"+var+".gold%", gold);
   }
 
 Mind::Mind() {
@@ -713,10 +721,13 @@ void Mind::Think(int istick) {
 
 	map<string, Object *>::iterator ovarent = ovars.begin();
 	for(; ovarent != ovars.end(); ++ovarent) {
-	  replace_all(line, "%"+ovarent->first+"%", "1"); //Exists = True
+	  if(ovarent->second) {	//FIXME: Why does this happen?
+	    replace_all(line,
+		"%"+ovarent->first+"%", ovarent->second->ShortDesc()
+		);
+	    }
 	  }
 	if(line.find("%") != line.rfind("%")) {	//More than one '%'
-	  spos = skip_line(script, spos);
 	  fprintf(stderr, "#%d Warning: Didn't fully expand '%s'\n",
 		body->Skill("TBAScript"), line.c_str()
 		);
@@ -726,7 +737,8 @@ void Mind::Think(int istick) {
 	  size_t p1 = line.find('%');
 	  while(line[p1+1] == '%') ++p1;
 	  size_t p2 = line.find('%', p1+1);
-	  if(p2 != string::npos) line.replace(p1, p2, "");
+	  if(p2 != string::npos) line.replace(p1, p2+1, "");
+	  replace_all(line, "%%", "%");
 	  }
 
 	//Start of real command if/else if/else

@@ -646,10 +646,12 @@ void Object::TBALoadMOB(const char *fn) {
       if(strcasestr(buf, "t") || (atoi(buf) & 524288)) { //HIDE
 	hidden = 1;
 	}
+      //FIXME: Implement special powers of MOBs here.
 
       memset(buf, 0, 65536);
       fscanf(mudm, " %*s %*s %*s %d %c\n", &val, &tp);
-      //FIXME: Implement special powers of MOBs here.
+      if(val > 0) obj->SetSkill("Honor", val);
+      else obj->SetSkill("Dishonor", -val);
 
       obj->SetSkill("Accomplishment", 120000+onum);
 

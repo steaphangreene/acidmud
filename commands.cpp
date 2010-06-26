@@ -2434,7 +2434,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		= body->PickObjects("a gold piece", nmode|LOC_INTERNAL, &ord);
 	  typeof(pay.begin()) coin;
 	  for(coin = pay.begin(); coin != pay.end(); ++coin) {
-	    togo -= MAX(1, (*coin)->Skill("Quantity"));
+	    togo -= (*coin)->Quantity();
 	    }
 
 	  if(togo > 0) {
