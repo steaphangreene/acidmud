@@ -123,7 +123,7 @@ public:
   void SetDesc(const char *);
   void SetLongDesc(const char *);
   void SetParent(Object *);
-  Object *Parent() { return parent; };
+  Object *Parent() const { return parent; };
 
   void SendActions(Mind *m);
   void SendExtendedActions(Mind *m, int seeinside=0);

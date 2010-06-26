@@ -408,7 +408,7 @@ int Object::Tick() {
 	else (*td)->Recycle();
 	}
 
-      typeof(contents) cont = contents;
+      list<Object*> cont = contents;
       typeof(cont.begin()) todel;
       for(todel = cont.begin(); todel != cont.end(); ++todel) {
 	(*todel)->Recycle();
@@ -1013,7 +1013,7 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
   }
 
 void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
-  typeof(contents) cont = contents;
+  list<Object*> cont = contents;
 
   if(b.length() > 0) base += b;
 
@@ -1834,7 +1834,7 @@ int strip_ordinal(const char **text) {
   }
 
 Object *Object::PickObject(const char *name, int loc, int *ordinal) {
-  typeof(contents) ret = PickObjects(name, loc, ordinal);
+  list<Object*> ret = PickObjects(name, loc, ordinal);
   if(ret.size() != 1) {
     return NULL;
     }
@@ -1922,7 +1922,7 @@ static int tag(Object *obj, list<Object *> &ret, int *ordinal, int show = 0) {
   }
 
 list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
-  typeof(contents) ret;
+  list<Object*> ret;
 
   while((!isgraph(*name)) && (*name)) ++name;
 
@@ -1942,12 +1942,12 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
     char *keyword3 = strdup(name);
     keyword3[keyword-name] = 0;
 
-    typeof(contents) masters = PickObjects(keyword3, loc, ordinal);
+    list<Object*> masters = PickObjects(keyword3, loc, ordinal);
     if(!masters.size()) { free(keyword3); return ret; }
 
     typeof(masters.begin()) master;
     for(master = masters.begin(); master != masters.end(); ++master) {
-      typeof(contents) add =
+      list<Object*> add =
 	(*master)->PickObjects(keyword3 + (keyword-name)+3,
 		(loc & LOC_SPECIAL)|LOC_INTERNAL
 		);
@@ -1999,7 +1999,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
 	  }
 	}
       if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
-	typeof(contents) add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
+	list<Object*> add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
 	ret.insert(ret.end(), add.begin(), add.end());
 
 	if((*ordinal) == 0) return ret;
@@ -2009,7 +2009,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
       if(parent->parent) {
 	parent->no_seek = 1;
 
-	typeof(contents) add = parent->PickObjects(name, LOC_NEARBY, ordinal);
+	list<Object*> add = parent->PickObjects(name, LOC_NEARBY, ordinal);
 	ret.insert(ret.end(), add.begin(), add.end());
 
 	parent->no_seek = 0;
@@ -2019,9 +2019,9 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
     }
 
   if(loc & LOC_INTERNAL) {
-    typeof(Contents()) cont = Contents();
+    list<Object*> cont(contents);
 
-    map<act_t,Object*>::iterator action;
+    map<act_t,Object*>::const_iterator action;
     for(action = act.begin(); action != act.end(); ++action) {
       typeof(cont.begin()) ind = find(cont.begin(), cont.end(), action->second);
       if(ind != cont.end()) {		// IE: Is action->second within cont
@@ -2037,7 +2037,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
 	    }
 	  }
 	if(action->second->HasSkill("Container")) {
-	  typeof(contents) add
+	  list<Object*> add
 		= action->second->PickObjects(name, LOC_INTERNAL, ordinal);
 	  ret.insert(ret.end(), add.begin(), add.end());
 
@@ -2057,7 +2057,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) {
 	  }
 	}
       if((*ind)->Skill("Container") && (loc & LOC_NOTUNWORN) == 0) {
-	typeof(contents) add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
+	list<Object*> add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
 	ret.insert(ret.end(), add.begin(), add.end());
 
 	if((*ordinal) == 0) return ret;
@@ -2638,7 +2638,7 @@ void Object::LoudF(int str, const char *mes, ...) {
 
 void Object::Loud(set<Object*> &visited, int str, const char *mes) {
   visited.insert(this);
-  typeof(Contents()) targs;
+  list<Object*> targs;
   typeof(targs.begin()) targ_it;
   targs = PickObjects("all", LOC_INTERNAL);
   for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {

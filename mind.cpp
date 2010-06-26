@@ -548,12 +548,10 @@ void Mind::Think(int istick) {
       ovars["self"] = body->Parent();
       Object *room = ovars["self"];
       while(room && room->Skill("TBARoom") == 0) room = room->Parent();
-      if(room) ovars["self.room"] = room;
       Object *aroom = NULL;
       if(ovars.count("actor") && ovars["actor"]) {
 	aroom = ovars["actor"];
 	while(aroom && aroom->Skill("TBARoom") == 0) aroom = aroom->Parent();
-        if(aroom) ovars["actor.room"] = aroom;
 	}
 
 //      if(self->Matches("picard")
@@ -587,7 +585,8 @@ void Mind::Think(int istick) {
 
 	//Variable sub (Single line)
 	string tmp = "";
-	while(tmp != line) {
+	map<string, Object *> tmpvars;
+	while(tmp != line || tmpvars != ovars) {
 	  if(0
 //		|| line.find("eval loc ") != string::npos
 //		|| line.find("set first ") != string::npos
@@ -599,13 +598,31 @@ void Mind::Think(int istick) {
 	    }
 	  PING_QUOTA();
 	  tmp = line;
+	  tmpvars = ovars;
 	  map<string, string>::iterator svarent = svars.begin();
 	  for(; svarent != svars.end(); ++svarent) {
 	    tba_varsub_str(line, svarent->first, svarent->second);
 	    }
-	  map<string, Object *>::iterator ovarent = ovars.begin();
-	  for(; ovarent != ovars.end(); ++ovarent) {
+	  map<string, Object *>::iterator ovarent = tmpvars.begin();
+	  for(; ovarent != tmpvars.end(); ++ovarent) {
 	    tba_varsub_obj(line, ovarent->first, ovarent->second);
+	    //Sub-Object Vars
+	    if(line.find("%"+ovarent->first+".room") != string::npos) {
+	      Object *other = ovarent->second;
+	      while(other && other->Skill("TBARoom") == 0)
+		other = other->Parent();
+	      if(other) ovars[ovarent->first+".room"] = other;
+	      }
+	    if(line.find("%"+ovarent->first+".people") != string::npos) {
+	      Object *other =
+		ovarent->second->PickObject("someone", LOC_INTERNAL);
+	      if(other) ovars[ovarent->first+".people"] = other;
+	      }
+	    if(line.find("%"+ovarent->first+".contents") != string::npos) {
+	      Object *other =
+		ovarent->second->PickObject("something", LOC_INTERNAL);
+	      if(other) ovars[ovarent->first+".contents"] = other;
+	      }
 	    }
 	  size_t var = line.find("%random.");
 	  while(var != string::npos) {
@@ -660,10 +677,22 @@ void Mind::Think(int istick) {
 			body->Skill("TBAScript"), var.c_str(), val.c_str());
 		  }
 		if(tolower(script[spos]) == 'e') {
-		  svars[var] = tba_comp(val);
+		  val = tba_comp(val);
+		  }
+
+		if(val[0] == '%' && val[val.length()-1] == '%'
+			&& ovars.count(val.substr(1, val.length()-2))
+			) {
+		  ovars[var] = ovars[val.substr(1, val.length()-2)];
+		  svars.erase(var);
+//		  fprintf(stderr, "#%d O'%s' = O'%s' (%p)\n",
+//			body->Skill("TBAScript"), var.c_str(), val.c_str(),
+//			ovars[var]
+//			);
 		  }
 		else {
 		  svars[var] = val;
+		  ovars.erase(var);
 		  }
 		}
 	      }
