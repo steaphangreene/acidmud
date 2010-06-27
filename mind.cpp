@@ -126,8 +126,11 @@ static string tba_comp(string expr) {
 static int tba_eval(string expr) {
   string base = tba_comp(expr);
   trim_string(base);
-//  fprintf(stderr, "EVAL: '%s'\n", base.c_str());
-  return (base != "0" && base != "");
+  if(base.length() == 0) return 0;	//Null
+  int ret = 0, len = 0;
+  sscanf(base.c_str(), " %d %n", &ret, &len);
+  if(len == int(base.length())) return ret;	//Numeric
+  return 1;	//Non-Numberic, Non-NULL
   }
 
 static void tba_varsub_str(string &code, const string &var, const string &val) {
@@ -175,7 +178,7 @@ static void tba_varsub_obj(string &code, const string &var, const Object *obj) {
       beg = code.find("%"+var+".vnum(");
       }
     }
-  replace_all(code, "%"+var+".level%", obj->Exp()/10);
+  replace_all(code, "%"+var+".level%", obj->Exp()/10+1);
   replace_all(code, "%"+var+".name%", obj->Name());
   replace_all(code, "%"+var+".heshe%", obj->Pron());
   replace_all(code, "%"+var+".hisher%", obj->Poss());
@@ -465,7 +468,7 @@ string Mind::Tactics(int phase) {
   }
 
 
-#define QUOTAERROR1	"#%d Error: script quota exceeded - killed.\n"
+#define QUOTAERROR1	CRED "#%d Error: script quota exceeded - killed.\n" CNRM
 #define QUOTAERROR2	body->Skill("TBAScript")
 #define PING_QUOTA() { \
 	--quota; \
@@ -602,12 +605,12 @@ void Mind::Think(int istick) {
 //		|| line.find("exclaim") != string::npos
 //		|| line.find("speech") != string::npos
 		) {
-	    fprintf(stderr, "#%d '%s'\n",
+	    fprintf(stderr, CGRN "#%d Debug: '%s'\n" CNRM,
 		body->Skill("TBAScript"), line.c_str());
 	    }
 	  PING_QUOTA();
 	  tmp = line;
-	  tmpvars = ovars;
+	  tmpvars = curvars;
 	  map<string, string>::iterator svarent = svars.begin();
 	  for(; svarent != svars.end(); ++svarent) {
 	    tba_varsub_str(line, svarent->first, svarent->second);
@@ -620,20 +623,51 @@ void Mind::Think(int istick) {
 	      Object *other = ovarent->second;
 	      while(other && other->Skill("TBARoom") == 0)
 		other = other->Parent();
-	      if(other) ovars[ovarent->first+".room"] = other;
+	      if(other) curvars[ovarent->first+".room"] = other;
 	      }
 	    if(line.find("%"+ovarent->first+".people") != string::npos) {
 	      Object *other =
 		ovarent->second->PickObject("someone", LOC_INTERNAL);
-	      if(other) ovars[ovarent->first+".people"] = other;
+	      if(other) curvars[ovarent->first+".people"] = other;
 	      }
 	    if(line.find("%"+ovarent->first+".contents") != string::npos) {
 	      Object *other =
 		ovarent->second->PickObject("something", LOC_INTERNAL);
-	      if(other) ovars[ovarent->first+".contents"] = other;
+	      if(other) curvars[ovarent->first+".contents"] = other;
 	      }
 	    }
-	  size_t var = line.find("%random.");
+	  size_t var = string::npos;
+	  var = line.find("%random.char%");
+	  while(var != string::npos) {
+	    list<Object*> others;
+	    if(curvars["self"] == room) {
+	      others = curvars["self"]->PickObjects("everyone", LOC_INTERNAL);
+	      }
+	    else if(curvars["self"]->Owner()) {
+	      others = curvars["self"]->Owner()->PickObjects("everyone", LOC_NEARBY);
+	      }
+	    else {
+	      others = curvars["self"]->PickObjects("everyone", LOC_NEARBY);
+	      }
+	    if(others.size() > 0) {
+	      curvars["random.char"] = others.back();
+	      curvars["booger"] = others.back();
+	      line.replace(var, var+13, "%booger%");
+	      if(0
+		|| script.find("%damage% %actor% -%actor.level%") != string::npos
+		) {
+//		fprintf(stderr, CGRN "#%d Random: '%s'\n" CNRM,
+//			body->Skill("TBAScript"), curvars["booger"]->Name());
+		}
+	      }
+	    else {
+	      curvars.erase("random.char");
+	      curvars.erase("booger");
+	      line.replace(var, var+13, "0");
+	      }
+	    var = line.find("%random.char%", var + 1);
+	    }
+	  var = line.find("%random.");
 	  while(var != string::npos) {
 	    if(isdigit(line[var+8])) {
 	      size_t vend = line.find_first_not_of("0123456789", var+8);
@@ -659,19 +693,11 @@ void Mind::Think(int istick) {
 	  }
 	replace_all(line, "%damage% ", "wdamage ");
 	replace_all(line, "%echo% ", "mecho ");
-	replace_all(line, "set actor %random.char%", "set_actor_randomly");
 	replace_all(line, "%send% %actor% ", "send_actor ");
 	replace_all(line, "%force% %actor% ", "force_actor ");
 	replace_all(line, "%echoaround% %actor% ", "echoaround_actor ");
-	replace_all(line, "wdamage %actor% ", "damage_actor ");
 	replace_all(line, "%teleport% ", "transport ");
 //	replace_all(line, "%door% ", "door ");
-
-	//Command replacements
-	if(!strncasecmp(line.c_str(), "if %actor%", 11)) {	//Include NULL
-	  if(ovars.count("actor") && ovars["actor"]) line = "if 1";
-	  else line = "if 0";
-	  }
 
 	com_t com = identify_command(line);	//ComNum for Pass-Through
 
@@ -691,7 +717,7 @@ void Mind::Think(int istick) {
 //			|| var.find("exclaim") != string::npos
 //			|| var.find("speech") != string::npos
 			) {
-		  fprintf(stderr, "#%d '%s' = '%s'\n",
+		  fprintf(stderr,CGRN "#%d Debug: '%s' = '%s'\n" CNRM,
 			body->Skill("TBAScript"), var.c_str(), val.c_str());
 		  }
 		if(tolower(script[spos]) == 'e') {
@@ -699,14 +725,10 @@ void Mind::Think(int istick) {
 		  }
 
 		if(val[0] == '%' && val[val.length()-1] == '%'
-			&& ovars.count(val.substr(1, val.length()-2))
+			&& curvars.count(val.substr(1, val.length()-2))
 			) {
-		  ovars[var] = ovars[val.substr(1, val.length()-2)];
+		  ovars[var] = curvars[val.substr(1, val.length()-2)];
 		  svars.erase(var);
-//		  fprintf(stderr, "#%d O'%s' = O'%s' (%p)\n",
-//			body->Skill("TBAScript"), var.c_str(), val.c_str(),
-//			ovars[var]
-//			);
 		  }
 		else {
 		  svars[var] = val;
@@ -719,8 +741,8 @@ void Mind::Think(int istick) {
 	  continue;
 	  }
 
-	map<string, Object *>::iterator ovarent = ovars.begin();
-	for(; ovarent != ovars.end(); ++ovarent) {
+	map<string, Object *>::iterator ovarent = curvars.begin();
+	for(; ovarent != curvars.end(); ++ovarent) {
 	  if(ovarent->second) {	//FIXME: Why does this happen?
 	    char buf[128];
 	    sprintf(buf, "OBJ:%p", ovarent->second);
@@ -728,7 +750,7 @@ void Mind::Think(int istick) {
 	    }
 	  }
 	if(line.find("%") != line.rfind("%")) {	//More than one '%'
-	  fprintf(stderr, "#%d Warning: Didn't fully expand '%s'\n",
+	  fprintf(stderr, CYEL "#%d Warning: Didn't fully expand '%s'\n" CNRM,
 		body->Skill("TBAScript"), line.c_str()
 		);
 	  }
@@ -743,7 +765,7 @@ void Mind::Think(int istick) {
 
 	//Start of real command if/else if/else
 	if(line.find("%") != line.rfind("%")) {		//More than one '%'
-	  fprintf(stderr, "#%d Error: Failed to fully expand '%s'\n",
+	  fprintf(stderr, CRED "#%d Error: Failed to fully expand '%s'\n" CNRM,
 		body->Skill("TBAScript"), line.c_str()
 		);
 	  Disable();
@@ -758,7 +780,7 @@ void Mind::Think(int istick) {
 	    Suspend(time*1000);
 	    }
 	  else {
-	  fprintf(stderr, "#%d Error: Told 'wait %s'\n",
+	  fprintf(stderr, CRED "#%d Error: Told 'wait %s'\n" CNRM,
 		body->Skill("TBAScript"), line.c_str()
 		);
 	    Disable();
@@ -921,16 +943,16 @@ void Mind::Think(int istick) {
 	  }
 
 	else if(!strncasecmp(line.c_str(), "force_actor ", 12)) {
-	  if(ovars.count("actor") && ovars["actor"]) {
+	  if(curvars.count("actor") && curvars["actor"]) {
 	    Mind *amind = NULL;	//Make sure human minds see it!
 	    vector<Mind *> mns = get_human_minds();
 	    vector<Mind *>::iterator mn = mns.begin();
 	    for(; mn != mns.end(); ++mn) {
-	      if((*mn)->Body() == ovars["actor"]) {
+	      if((*mn)->Body() == curvars["actor"]) {
 		amind = *mn;
 		}
 	      }
-	    handle_command(ovars["actor"], line.c_str()+12, amind);
+	    handle_command(curvars["actor"], line.c_str()+12, amind);
 	    }
 	  spos = skip_line(script, spos);
 	  }
@@ -964,7 +986,7 @@ void Mind::Think(int istick) {
 	    handle_command(body->Parent(), line.c_str());
 	    }
 	  else {
-	    fprintf(stderr, "#%d Error: Told just '%s'\n",
+	    fprintf(stderr, CRED "#%d Error: Told just '%s'\n" CNRM,
 		body->Skill("TBAScript"), line.c_str()
 		);
 	    Disable();
@@ -984,54 +1006,60 @@ void Mind::Think(int istick) {
 	  spos = skip_line(script, spos);
 	  }
 
-	else if(!strncasecmp(line.c_str(), "set_actor_randomly", 18)) {
-	  Object *actor = NULL;
-	  if(ovars["self"] == room) {
-	    actor = ovars["self"]->PickObject("someone", LOC_INTERNAL);
-	    }
-	  else if(ovars["self"]->Owner()) {
-	    actor = ovars["self"]->Owner()->PickObject("someone", LOC_NEARBY);
-	    }
-	  else {
-	    actor = ovars["self"]->PickObject("someone", LOC_NEARBY);
-	    }
-	  if(actor) ovars["actor"] = actor;
-	  else ovars.erase("actor");
-
-	  spos = skip_line(script, spos);
-	  }
-
 	else if(!strncasecmp(line.c_str(), "send_actor ", 11)) {
-	  if(ovars.count("actor") && ovars["actor"]) {
+	  if(curvars.count("actor") && curvars["actor"]) {
 	    string mes = line.c_str() + 11;
 	    size_t end = mes.find_first_of("\n\r");
 	    if(end != string::npos) mes = mes.substr(0, end);
 	    trim_string(mes);
 	    mes += "\n";
-	    ovars["actor"]->Send(0, 0, mes.c_str());
+	    curvars["actor"]->Send(0, 0, mes.c_str());
 	    }
 	  spos = skip_line(script, spos);
 	  }
 
-	else if(!strncasecmp(line.c_str(), "damage_actor ", 13)) {
-	  if(ovars.count("actor") && ovars["actor"]) {
-	    int dam = 1;
-	    size_t end = line.find_first_not_of(" \t", 13);
-	    if(end != string::npos) {
-	      dam = (tba_eval(line.c_str() + end) + 180) / 100;
+	else if(!strncasecmp(line.c_str(), "wdamage ", 8)) {
+//	  fprintf(stderr, CGRN "#%d Debug: WDamage '%s'\n" CNRM,
+//		body->Skill("TBAScript"), line.c_str()
+//		);
+	  int pos=0;
+	  int dam = 0;
+	  char buf[256];
+	  if(sscanf(line.c_str() + 8, " %s %n", buf, &pos) >= 1) {
+	    if(!strcasecmp(buf, "all")) { strcpy(buf, "everyone"); }
+	    dam = tba_eval(line.c_str() + 8 + pos);
+	    if(dam > 0) dam = (dam + 180) / 100;
+	    if(dam < 0) dam = (dam - 180) / 100;
+	    }
+	  list<Object*> options = room->Contents();
+	  list<Object*>::iterator opt = options.begin();
+	  for(; opt != options.end(); ++opt) {
+	    if((*opt)->Matches(buf)) {
+	      if(dam > 0) {
+		(*opt)->HitMent(1000, dam, 0);
+//		fprintf(stderr, CGRN "#%d Debug: WDamage '%s', %d\n" CNRM,
+//			body->Skill("TBAScript"), (*opt)->Name(), dam
+//			);
+		}
+	      else if(dam < 0) {
+		(*opt)->HealStun(((-dam)+1)/2);
+		(*opt)->HealPhys(((-dam)+1)/2);
+//		fprintf(stderr, CGRN "#%d Debug: WHeal '%s', %d\n" CNRM,
+//			body->Skill("TBAScript"), (*opt)->Name(), ((-dam)+1)/2
+//			);
+		}
 	      }
-	    ovars["actor"]->HitMent(1000, dam, 0);
 	    }
 	  spos = skip_line(script, spos);
 	  }
 
 	else if(!strncasecmp(line.c_str(), "echoaround_actor ", 17)) {
-	  if(ovars.count("actor") && ovars["actor"] && ovars["actor"]->Parent()) {
+	  if(curvars.count("actor") && curvars["actor"] && curvars["actor"]->Parent()) {
 	    if(aroom) {
 	      string mes = line.substr(17);
 	      trim_string(mes);
 	      mes += "\n";
-	      aroom->SendOut(0, 0, mes.c_str(), "", ovars["actor"], NULL);
+	      aroom->SendOut(0, 0, mes.c_str(), "", curvars["actor"], NULL);
 	      }
 	    }
 	  spos = skip_line(script, spos);
@@ -1048,7 +1076,7 @@ void Mind::Think(int istick) {
 	    if(!strcasecmp(buf, "all")) { strcpy(buf, "everyone"); }
 	    }
 	  dnum += 1000000;
-	  Object *dest = ovars["self"];
+	  Object *dest = curvars["self"];
 	  while(dest->Parent()->Parent()) {
 	    dest = dest->Parent();
 	    }
@@ -1068,7 +1096,7 @@ void Mind::Think(int istick) {
 	      (*opt)->Travel(dest);
 	      }
 	    }
-//	  fprintf(stderr, "#%d Debug: Transport line: '%s'\n",
+//	  fprintf(stderr, CGRN "#%d Debug: Transport line: '%s'\n" CNRM,
 //		body->Skill("TBAScript"), line.c_str()
 //		);
 	  spos = skip_line(script, spos);
@@ -1103,7 +1131,7 @@ void Mind::Think(int istick) {
 	  return;
 	  }
 	else {		//Silently ignore the rest for now!  FIXME: Error mes.
-	  fprintf(stderr, "#%d Error: Gibberish script line '%s'\n",
+	  fprintf(stderr, CRED "#%d Error: Gibberish script line '%s'\n" CNRM,
 		body->Skill("TBAScript"), line.c_str()
 		);
 	  spos = skip_line(script, spos);
