@@ -697,7 +697,13 @@ void Mind::Think(int istick) {
 	replace_all(line, "%force% %actor% ", "force_actor ");
 	replace_all(line, "%echoaround% %actor% ", "echoaround_actor ");
 	replace_all(line, "%teleport% ", "transport ");
-//	replace_all(line, "%door% ", "door ");
+	replace_all(line, "%zoneecho% ", "zoneecho ");
+	replace_all(line, "%asound% ", "asound ");
+	replace_all(line, "%force% ", "force ");
+	replace_all(line, "%send% ", "send ");
+	replace_all(line, "%door% ", "door ");
+	replace_all(line, "%load% ", "load ");
+	replace_all(line, "%at% ", "at ");
 
 	com_t com = identify_command(line);	//ComNum for Pass-Through
 
@@ -1065,7 +1071,7 @@ void Mind::Think(int istick) {
 	  spos = skip_line(script, spos);
 	  }
 
-//	else if(!strncasecmp(line.c_str(), "door ", 5)) {
+//	else if(!strncasecmp(line.c_str(), "door ", 6)) {
 //	  spos = skip_line(script, spos);
 //	  }
 
