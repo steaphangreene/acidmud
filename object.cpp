@@ -3110,9 +3110,18 @@ int Object::LooksLike(Object *other) {
 
 void Object::Consume(const Object *item) {
   //Standard food/drink effects
+  int hung = Skill("Hungry");
   SetSkill("Hungry", Skill("Hungry") - item->Skill("Food"));
+  int thir = Skill("Thirsty");
   SetSkill("Thirsty", Skill("Thirsty") - item->Skill("Drink"));
   SetSkill("Thirsty", Skill("Thirsty") + item->Skill("Dehydrate Effect"));
+  //Heal back dehydrate/hunger wounds
+  if((hung/5000) > (Skill("Hungry")/5000)) {
+    HealStun((hung/5000) - (Skill("Hungry")/5000));
+    }
+  if((thir/5000) > (Skill("Thirsty")/5000)) {
+    HealPhys((thir/5000) - (Skill("Thirsty")/5000));
+    }
 
   //Special effect: Poisonous
   if(item->Skill("Poisonous") > 0) {
