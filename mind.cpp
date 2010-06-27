@@ -180,6 +180,7 @@ static void tba_varsub_obj(string &code, const string &var, const Object *obj) {
     }
   replace_all(code, "%"+var+".level%", obj->Exp()/10+1);
   replace_all(code, "%"+var+".name%", obj->Name());
+  replace_all(code, "%"+var+".shortdesc%", obj->ShortDesc());
   replace_all(code, "%"+var+".heshe%", obj->Pron());
   replace_all(code, "%"+var+".hisher%", obj->Poss());
   replace_all(code, "%"+var+".himher%", obj->Obje());
@@ -276,7 +277,13 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
     svars["direction"] = text;
     }
   if(stype & 0x0000004) {				//-COMMAND Triggers
-    svars["arg"] = text;
+    size_t part = text.find_first_of(" \t\n\r");
+    if(part == string::npos) svars["cmd"] = text;
+    else {
+      svars["cmd"] = text.substr(0, part);
+      part = text.find_first_not_of(" \t\n\r", part);
+      if(part != string::npos) svars["arg"] = text.substr(part);
+      }
     }
   }
 
@@ -1001,6 +1008,13 @@ void Mind::Think(int istick) {
 		|| com == COM_UP
 		|| com == COM_DOWN
 		|| com == COM_SOCIAL
+		|| com == COM_SLEEP
+		|| com == COM_REST
+		|| com == COM_WAKE
+		|| com == COM_STAND
+		|| com == COM_SIT
+		|| com == COM_LIE
+		|| com == COM_PLAY
 		) {
 	  handle_command(body->Parent(), line.c_str());
 	  spos = skip_line(script, spos);

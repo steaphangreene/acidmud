@@ -847,7 +847,9 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		continue;
 		}
 	      }
-	    if(!new_trigger(0, *trig, body, comline+len)) {
+	    if(!new_trigger(0, *trig, body,
+		comlist[cnum].command + string(" ") + comline
+		)) {
 	      return 0;		//Handled, unless script says not.
 	      }
 	    }
