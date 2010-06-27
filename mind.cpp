@@ -635,8 +635,21 @@ void Mind::Think(int istick) {
 		ovarent->second->PickObject("something", LOC_INTERNAL);
 	      if(other) curvars[ovarent->first+".contents"] = other;
 	      }
+	    if(line.find("%"+ovarent->first+".follower") != string::npos) {
+	      set<Object*> touch = ovarent->second->Touching();
+	      set<Object*>::iterator tent = touch.begin();
+	      for(; tent != touch.end(); ++tent) {
+		if((*tent)->ActTarg(ACT_FOLLOW) == ovarent->second) {
+		  curvars[ovarent->first+".follower"] = (*tent);
+		  break;
+		  }
+		}
+	      }
 	    }
-	  size_t var = string::npos;
+
+	  size_t var;
+
+	  var = string::npos;
 	  var = line.find("%random.char%");
 	  while(var != string::npos) {
 	    list<Object*> others;
@@ -650,22 +663,39 @@ void Mind::Think(int istick) {
 	      others = curvars["self"]->PickObjects("everyone", LOC_NEARBY);
 	      }
 	    if(others.size() > 0) {
-	      curvars["random.char"] = others.back();
-	      curvars["booger"] = others.back();
-	      line.replace(var, var+13, "%booger%");
+	      curvars["temp_rand_char"] = others.back();
+	      line.replace(var, var+13, "%temp_rand_char%");
 	      if(0
-		|| script.find("%damage% %actor% -%actor.level%") != string::npos
+//		|| script.find("%damage% %actor% -%actor.level%") != string::npos
 		) {
-//		fprintf(stderr, CGRN "#%d Random: '%s'\n" CNRM,
-//			body->Skill("TBAScript"), curvars["booger"]->Name());
+		fprintf(stderr, CGRN "#%d Random: '%s'\n" CNRM,
+			body->Skill("TBAScript"), curvars["temp_rand_char"]->Name());
 		}
 	      }
 	    else {
-	      curvars.erase("random.char");
-	      curvars.erase("booger");
-	      line.replace(var, var+13, "0");
+	      curvars.erase("temp_rand_char");
+	      line.replace(var, var+13, "");
 	      }
 	    var = line.find("%random.char%", var + 1);
+	    }
+	  var = string::npos;
+	  var = line.find("%random.dir%");
+	  while(var != string::npos) {
+	    set<Object*> options;
+	    options.insert(room->PickObject("north", LOC_INTERNAL));
+	    options.insert(room->PickObject("south", LOC_INTERNAL));
+	    options.insert(room->PickObject("east", LOC_INTERNAL));
+	    options.insert(room->PickObject("west", LOC_INTERNAL));
+	    options.insert(room->PickObject("up", LOC_INTERNAL));
+	    options.insert(room->PickObject("down", LOC_INTERNAL));
+	    options.erase(NULL);
+	    if(options.size() > 0) {
+	      line.replace(var, var+12, (*(options.begin()))->ShortDesc());
+	      }
+	    else {
+	      line.replace(var, var+12, "");
+	      }
+	    var = line.find("%random.dir%", var + 1);
 	    }
 	  var = line.find("%random.");
 	  while(var != string::npos) {

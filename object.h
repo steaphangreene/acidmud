@@ -124,6 +124,7 @@ public:
   void SetLongDesc(const char *);
   void SetParent(Object *);
   Object *Parent() const { return parent; };
+  set<Object*> Touching() const { return touching_me; };
 
   void SendActions(Mind *m);
   void SendExtendedActions(Mind *m, int seeinside=0);
