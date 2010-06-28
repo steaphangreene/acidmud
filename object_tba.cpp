@@ -2477,7 +2477,7 @@ void Object::TBALoadTRG(const char *fn) {	//Triggers
       bynumtrg[tnum] = script;
       script->SetSkill("Invisible", 1000);
       script->SetSkill("TBAScript", 1000000 + tnum);
-      script->SetShortDesc("A tbaMUD trigger script.");
+      script->SetShortDesc("A tbaMUD trigger script");
       //fprintf(stderr, "Loading #%d\n", tnum);
       fscanf(mud, " %65535[^~]", buf);		//Trigger Name - Discarded!
       //script->SetDesc(buf);

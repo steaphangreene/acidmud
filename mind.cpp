@@ -1224,6 +1224,7 @@ void Mind::Think(int istick) {
 	      }
 	    }
 	  else if(type == 'm') {
+	    dest = room;
 	    src = src->PickObject("TBAMUD MOB Room", LOC_NINJA|LOC_INTERNAL);
 	    list<Object*> options = src->Contents();
 	    list<Object*>::iterator opt = options.begin();
@@ -1354,7 +1355,7 @@ void Mind::Think(int istick) {
 	      dest->StashOrDrop(item);
 	      }
 	    }
-	  else if(dest != curvars["self"]) {			//Have it
+	  else if(dest != room) {				//Have it
 	    dest->StashOrDrop(item);
 	    }
 	  spos = skip_line(script, spos);

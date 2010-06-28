@@ -1726,7 +1726,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     if(!targ) {
       if(mind) mind->Send("You don't see that here.\n");
       }
-    else if(targ->Attribute(1) <= 0) {	//Inanimate Object (Consider Using)
+    else if(targ->BaseAttribute(1) <= 0) { //Inanimate Object (Consider Using)
       body->Parent()->SendOut(stealth_t, stealth_s,
 	";s considers using ;s.\n", "You consider using ;s.\n",
 	body, targ
