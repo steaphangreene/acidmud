@@ -446,6 +446,12 @@ Command comlist[1024] = {
     (REQ_ETHEREAL|REQ_CORPOREAL)
     },
 
+  { COM_TIME, "time",
+    "Get the current world's MUD time.",
+    "Get the current world's MUD time.",
+    (REQ_ETHEREAL|REQ_CORPOREAL)
+    },
+
   { COM_SKILLLIST, "skilllist",
     "List all available skill categories, or all skills in a category.",
     "List all available skill categories, or all skills in a category.",
@@ -2140,6 +2146,20 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       else {
 	mind->Send("You need to select a character first.\n");
 	}
+      }
+    return 0;
+    }
+
+  if(com == COM_TIME) {
+    if(!mind) return 0;
+    Object *world = body;
+    while(world->Parent()->Parent()) world = world->Parent();
+    if(world->Skill("Day Time") && world->Skill("Day Length")) {
+      int curtime = world->Skill("Day Time");
+      curtime *= 24*60;
+      curtime /= world->Skill("Day Length");
+      mind->SendF("The time is now %d:%.2d in this world\n",
+	curtime/60, curtime%60);
       }
     return 0;
     }

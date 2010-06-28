@@ -129,6 +129,7 @@ typedef enum {
 	COM_DEFINE,
 
 	COM_SCORE,
+	COM_TIME,
 
 	COM_STATS,
 	COM_SHUTDOWN,

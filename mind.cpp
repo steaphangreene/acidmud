@@ -1014,6 +1014,7 @@ void Mind::Think(int istick) {
 		|| com == COM_STAND
 		|| com == COM_SIT
 		|| com == COM_LIE
+		|| com == COM_LOOK
 		|| com == COM_PLAY
 		) {
 	  handle_command(body->Parent(), line.c_str());
