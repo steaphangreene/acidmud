@@ -1881,10 +1881,10 @@ Object *Object::Split(int nqty) {
 
 static int tag(Object *obj, list<Object *> &ret, int *ordinal, int show = 0) {
   //Only Ninjas in Ninja-Mode should detect these
-  if(obj->HasSkill("Invisible") && (show <= 1)) return 0;
+  if(obj->HasSkill("Invisible") && (show & (LOC_NINJA|LOC_HEAT)) == 0) return 0;
 
   //Can't be seen/affected (except in char rooms)
-  if(obj->Skill("Hidden") > 0 && (!show)) return 0;
+  if(obj->Skill("Hidden") > 0 && (show & (LOC_NINJA|1)) == 0) return 0;
   Object *nobj = NULL;
 
   int cqty = 1, rqty = 1; //Contains / Requires

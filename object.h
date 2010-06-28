@@ -34,7 +34,10 @@ class MOBType;
 #define LOC_FILTERS	0x00FF0000
 
 //Special
-#define	LOC_NINJA	0x01000000
+#define	LOC_NIGHT	0x01000000
+#define	LOC_DARK	0x02000000
+#define	LOC_HEAT	0x04000000
+#define	LOC_NINJA	0x10000000
 #define	LOC_SPECIAL	0xFF000000
 
 enum pos_t {

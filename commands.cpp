@@ -807,13 +807,20 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   comline = cmd.c_str();
   len = 0;
 
-  int ninja=0, sninja=0, nmode=0;
+  int ninja=0, sninja=0, nmode=0, vmode=0;
 
   if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_SUPERNINJA))
     { sninja=1; ninja=1; }
   if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJA)) ninja=1;
   if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJAMODE)) {
-    nmode=LOC_NINJA;
+    nmode = LOC_NINJA;
+    vmode |= LOC_NINJA;
+    }
+  if(body && body->Power("Dark Vision Spell")) {
+    vmode |= LOC_DARK;
+    }
+  if(body && body->Power("Heat Vision Spell")) {
+    vmode |= LOC_HEAT;
     }
 
   if((!nmode) && body && body->Parent()) {
@@ -999,7 +1006,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
   if(com == COM_SELECT) {
     Object *body = mind->Owner()->Room()
-	->PickObject(comline+len, nmode|LOC_INTERNAL);
+	->PickObject(comline+len, vmode|LOC_INTERNAL);
     if(!body) {
       mind->Send("Sorry, that character doesn't exist.\n"
 		"Use the 'newcharacter' command to create a new character.\n");
@@ -1035,7 +1042,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	}
 
       Object *body = mind->Owner()->Room()
-			->PickObject(comline+len, nmode|LOC_INTERNAL);
+			->PickObject(comline+len, vmode|LOC_INTERNAL);
       if(!body) {
 	mind->Send("Sorry, that character doesn't exist.\n"
 		"Use the 'newcharacter' command to create a new character.\n");
@@ -1089,7 +1096,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	body->Parent()->SendDescSurround(mind, body);
       return 0;
       }
-    Object *dest = body->PickObject(comline+len, nmode|LOC_NEARBY);
+    Object *dest = body->PickObject(comline+len, vmode|LOC_NEARBY);
     Object *rdest = dest;
     Object *veh = body;
 
@@ -1170,7 +1177,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       else {
 	body->Parent()->SendOut(stealth_t, stealth_s,
 		";s arrives.\n", "", body, NULL);
-	if((!nmode) && mind && body->Parent()->LightLevel() < 100) {
+	if(mind && (vmode & (LOC_NINJA|LOC_DARK)) == 0
+		&& body->Parent()->LightLevel() < 100) {
 	  mind->Send("It's too dark, you can't see anything.\n");
 	  }
 	else if(mind && mind->Type() == MIND_REMOTE)
@@ -1304,7 +1312,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       string targmes = "";
       if(strlen(comline+len) > 0) {
 	targ = body->PickObject(comline+len,
-		nmode|LOC_NEARBY|LOC_SELF|LOC_INTERNAL);
+		vmode|LOC_NEARBY|LOC_SELF|LOC_INTERNAL);
 	if(!targ) {
 	  youmes = socials[cnum][5];
 	  outmes = "";
@@ -1420,7 +1428,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    if((!nmode) && body->Parent()->LightLevel() < 100) {
+    if(mind && (vmode & (LOC_NINJA|LOC_DARK)) == 0
+		&& body->Parent()->LightLevel() < 100) {
       if(mind) mind->Send("It's too dark, you can't see anything.\n");
       return 0;
       }
@@ -1433,7 +1442,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
     if(strlen(comline+len) > 0) {
       targs = body->PickObjects(comline+len,
-	nmode|LOC_NEARBY|LOC_ADJACENT|LOC_SELF|LOC_INTERNAL);
+	vmode|LOC_NEARBY|LOC_ADJACENT|LOC_SELF|LOC_INTERNAL);
       }
     else {
       targs.push_back(body->Parent());
@@ -1523,7 +1532,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   if(com == COM_SEARCH) {
     if(!body->Parent()) return 0;
 
-    if((!nmode) && body->Parent()->LightLevel() < 100) {
+    if(mind && (vmode & (LOC_NINJA|LOC_DARK)) == 0
+		&& body->Parent()->LightLevel() < 100) {
       if(mind) mind->Send("It's too dark, you can't see anything.\n");
       return 0;
       }
@@ -1533,7 +1543,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
     if(strlen(comline+len) > 0) {
       targs = body->PickObjects(comline+len,
-	nmode|LOC_NEARBY|LOC_ADJACENT|LOC_SELF|LOC_INTERNAL);
+	vmode|LOC_NEARBY|LOC_ADJACENT|LOC_SELF|LOC_INTERNAL);
       if(targs.size() == 0) {
 	if(mind) mind->Send("You don't see that here.\n");
 	return 0;
@@ -1618,7 +1628,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     else {
       targs = body->PickObjects(comline+len,
-		nmode|LOC_INTERNAL|LOC_NEARBY|LOC_SELF);
+		vmode|LOC_INTERNAL|LOC_NEARBY|LOC_SELF);
       }
     if(targs.size() < 1) {
       if(mind) mind->Send("You don't see that here.\n");
@@ -1670,7 +1680,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
     targ = body->PickObject(comline+len,
-		nmode|LOC_INTERNAL|LOC_NEARBY|LOC_SELF);
+		vmode|LOC_INTERNAL|LOC_NEARBY|LOC_SELF);
     if(!targ) {
       if(mind) mind->Send("You don't see that here.\n");
       }
@@ -1690,7 +1700,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
     targ = body->PickObject(comline+len,
-		nmode|LOC_INTERNAL|LOC_NEARBY|LOC_SELF);
+		vmode|LOC_INTERNAL|LOC_NEARBY|LOC_SELF);
     if(!targ) {
       if(mind) mind->Send("You don't see that here.\n");
       }
@@ -2125,14 +2135,14 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       targ = mind->Owner()->Creator();
       }
     else if(!body) {
-      targ = mind->Owner()->Room()->PickObject(comline+len, nmode|LOC_INTERNAL);
+      targ = mind->Owner()->Room()->PickObject(comline+len, vmode|LOC_INTERNAL);
       }
     else if(strlen(comline+len) <= 0) {
       targ = body;
       }
     else {
       targ = body->PickObject(comline+len,
-		nmode|LOC_INTERNAL|LOC_NEARBY|LOC_SELF|LOC_HERE);
+		vmode|LOC_INTERNAL|LOC_NEARBY|LOC_SELF|LOC_HERE);
       }
     if(!targ) {
       if(mind) mind->Send("You don't see that here.\n");
@@ -2160,7 +2170,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(mind) mind->Send("You want to lock what?\n");
       return 0;
       }
-    targ = body->PickObject(comline+len, nmode|LOC_INTERNAL|LOC_NEARBY);
+    targ = body->PickObject(comline+len, vmode|LOC_INTERNAL|LOC_NEARBY);
     if(!targ) {
       if(mind) mind->Send("You don't see that here.\n");
       }
@@ -2173,7 +2183,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     else {
       if(!nmode) {
 	typeof(body->Contents()) keys
-		= body->PickObjects("all", nmode|LOC_INTERNAL);
+		= body->PickObjects("all", vmode|LOC_INTERNAL);
 	typeof(keys.begin()) key;
 	for(key = keys.begin(); key != keys.end(); ++key) {
 	  if((*key)->Skill("Key") == targ->Skill("Lock")) break;
@@ -2201,7 +2211,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(mind) mind->Send("You want to unlock what?\n");
       return 0;
       }
-    targ = body->PickObject(comline+len, nmode|LOC_INTERNAL|LOC_NEARBY);
+    targ = body->PickObject(comline+len, vmode|LOC_INTERNAL|LOC_NEARBY);
     if(!targ) {
       if(mind) mind->Send("You don't see that here.\n");
       }
@@ -2214,7 +2224,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     else {
       if(!nmode) {
 	typeof(body->Contents()) keys
-		= body->PickObjects("all", nmode|LOC_INTERNAL);
+		= body->PickObjects("all", vmode|LOC_INTERNAL);
 	typeof(keys.begin()) key;
 	for(key = keys.begin(); key != keys.end(); ++key) {
 	  if((*key)->Skill("Key") == targ->Skill("Lock")) break;
@@ -2242,7 +2252,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(mind) mind->Send("You want to open what?\n");
       return 0;
       }
-    targ = body->PickObject(comline+len, nmode|LOC_INTERNAL|LOC_NEARBY);
+    targ = body->PickObject(comline+len, vmode|LOC_INTERNAL|LOC_NEARBY);
     if(!targ) {
       if(mind) mind->Send("You don't see that here.\n");
       }
@@ -2275,7 +2285,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(mind) mind->Send("You want to close what?\n");
       return 0;
       }
-    targ = body->PickObject(comline+len, nmode|LOC_INTERNAL|LOC_NEARBY);
+    targ = body->PickObject(comline+len, vmode|LOC_INTERNAL|LOC_NEARBY);
     if(!targ) {
       if(mind) mind->Send("You don't see that here.\n");
       }
@@ -2400,7 +2410,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 
         typeof(vortex->Contents()) targs
-		= vortex->PickObjects(comline+len, nmode|LOC_INTERNAL);
+		= vortex->PickObjects(comline+len, vmode|LOC_INTERNAL);
 	if(!targs.size()) {
 	  if(mind) mind->Send("The shopkeeper doesn't have that.\n");
 	  return 0;
@@ -2433,7 +2443,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
 	  int togo = price, ord = -price;
 	  typeof(body->Contents()) pay
-		= body->PickObjects("a gold piece", nmode|LOC_INTERNAL, &ord);
+		= body->PickObjects("a gold piece", vmode|LOC_INTERNAL, &ord);
 	  typeof(pay.begin()) coin;
 	  for(coin = pay.begin(); coin != pay.end(); ++coin) {
 	    togo -= (*coin)->Quantity();
@@ -2483,7 +2493,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     Object *targ =
-	body->PickObject(comline+len, nmode|LOC_NOTWORN|LOC_INTERNAL);
+	body->PickObject(comline+len, vmode|LOC_NOTWORN|LOC_INTERNAL);
     if((!targ) && body->ActTarg(ACT_HOLD)
 	&& body->ActTarg(ACT_HOLD)->Parent() != body		//Dragging
 	&& body->ActTarg(ACT_HOLD)->Matches(comline+len)) {
@@ -2684,7 +2694,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	if(com == COM_SELL) {
 	  int togo = price, ord = -price;
 	  typeof(body->Contents()) pay
-		= shpkp->PickObjects("a gold piece", nmode|LOC_INTERNAL, &ord);
+		= shpkp->PickObjects("a gold piece", vmode|LOC_INTERNAL, &ord);
 	  typeof(pay.begin()) coin;
 	  for(coin = pay.begin(); coin != pay.end(); ++coin) {
 	    togo -= MAX(1, (*coin)->Skill("Quantity"));
@@ -2727,7 +2737,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    Object *targ = body->PickObject(comline+len, nmode|LOC_NEARBY);
+    Object *targ = body->PickObject(comline+len, vmode|LOC_NEARBY);
     if(!targ) {
       if(mind) mind->Send("You want to drag what?\n");
       return 0;
@@ -2767,7 +2777,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     typeof(body->Contents()) targs
-	= body->PickObjects(comline+len, nmode|LOC_NEARBY);
+	= body->PickObjects(comline+len, vmode|LOC_NEARBY);
     if(targs.size() == 0) {
       if(mind) mind->Send("You want to get what?\n");
       return 0;
@@ -2978,7 +2988,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     Object *targ =
-	body->PickObject(comline+len, nmode|LOC_NEARBY|LOC_INTERNAL);
+	body->PickObject(comline+len, vmode|LOC_NEARBY|LOC_INTERNAL);
     if(!targ) {
       if(mind) mind->SendF("I don't see '%s' to put '%s' in!\n", comline+len,
 	body->ActTarg(ACT_HOLD)->Name(0, body));
@@ -3075,7 +3085,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    Object *targ = body->PickObject(comline+len, nmode|LOC_INTERNAL);
+    Object *targ = body->PickObject(comline+len, vmode|LOC_INTERNAL);
     if(!targ) {
       if(mind) mind->Send("You want to wield what?\n");
       }
@@ -3149,7 +3159,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    Object *targ = body->PickObject(comline+len, nmode|LOC_INTERNAL);
+    Object *targ = body->PickObject(comline+len, vmode|LOC_INTERNAL);
     if(!targ) {
       if(mind) mind->Send("You want to hold what?\n");
       }
@@ -3229,7 +3239,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     typeof(body->Contents()) targs
-	= body->PickObjects(comline+len, nmode|LOC_INTERNAL);
+	= body->PickObjects(comline+len, vmode|LOC_INTERNAL);
     if(targs.size() == 0) {
       if(mind) mind->Send("You want to remove what?\n");
       return 0;
@@ -3296,7 +3306,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     if(targs.size() < 1) {
-      targs = body->PickObjects(comline+len, nmode|LOC_NOTWORN|LOC_INTERNAL);
+      targs = body->PickObjects(comline+len, vmode|LOC_NOTWORN|LOC_INTERNAL);
       if(!targs.size()) {
 	if(mind) mind->Send("You want to wear what?\n");
 	return 0;
@@ -3461,7 +3471,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
     typeof(body->Contents()) targs
-	= body->PickObjects(comline+len, nmode|LOC_NOTWORN|LOC_INTERNAL);
+	= body->PickObjects(comline+len, vmode|LOC_NOTWORN|LOC_INTERNAL);
     if(body->ActTarg(ACT_HOLD)
 	&& body->ActTarg(ACT_HOLD)->Parent() != body	//Dragging
 	&& body->ActTarg(ACT_HOLD)->Matches(comline+len)) {
@@ -3514,7 +3524,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
     typeof(body->Contents()) targs
-	= body->PickObjects(comline+len, nmode|LOC_NOTWORN|LOC_INTERNAL);
+	= body->PickObjects(comline+len, vmode|LOC_NOTWORN|LOC_INTERNAL);
     if(body->ActTarg(ACT_HOLD)
 	&& body->ActTarg(ACT_HOLD)->Parent() != body	//Dragging
 	&& body->ActTarg(ACT_HOLD)->Matches(comline+len)) {
@@ -3568,14 +3578,14 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
     Object *targ
-	= body->PickObject(comline+len, nmode|LOC_NOTWORN|LOC_INTERNAL);
+	= body->PickObject(comline+len, vmode|LOC_NOTWORN|LOC_INTERNAL);
     if((!targ) && body->ActTarg(ACT_HOLD)
 	&& body->ActTarg(ACT_HOLD)->Parent() != body	//Dragging
 	&& body->ActTarg(ACT_HOLD)->Matches(comline+len)) {
       targ = body->ActTarg(ACT_HOLD);
       }
     if(!targ) {
-      targ = body->PickObject(comline+len, nmode|LOC_NEARBY);
+      targ = body->PickObject(comline+len, vmode|LOC_NEARBY);
       }
     if(!targ) {
       if(mind) mind->Send("You want to drink from what?\n");
@@ -3665,7 +3675,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
     typeof(body->Contents()) targs
-	= body->PickObjects(comline+len, nmode|LOC_NOTWORN|LOC_INTERNAL);
+	= body->PickObjects(comline+len, vmode|LOC_NOTWORN|LOC_INTERNAL);
     if(body->ActTarg(ACT_HOLD)
 	&& body->ActTarg(ACT_HOLD)->Parent() != body	//Dragging
 	&& body->ActTarg(ACT_HOLD)->Matches(comline+len)) {
@@ -3725,7 +3735,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    Object *src = body->PickObject(comline+len, nmode|LOC_NEARBY|LOC_INTERNAL);
+    Object *src = body->PickObject(comline+len, vmode|LOC_NEARBY|LOC_INTERNAL);
     Object *dst = body->ActTarg(ACT_HOLD);
     if(!src) {
       if(mind) mind->SendF("I don't see '%s' to fill %s from!\n",
@@ -4341,7 +4351,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(strlen(comline+len) > 0) {
       Object *targ = body->PickObject(comline+len,
-	nmode|LOC_NEARBY|LOC_SELF|LOC_INTERNAL
+	vmode|LOC_NEARBY|LOC_SELF|LOC_INTERNAL
 	);
       if(!targ) {
 	if(mind) mind->Send("You don't see that here.\n");
@@ -4369,7 +4379,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   if(com == COM_FOLLOW) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(strlen(comline+len) > 0) {
-      Object *targ = body->PickObject(comline+len, nmode|LOC_NEARBY|LOC_SELF);
+      Object *targ = body->PickObject(comline+len, vmode|LOC_NEARBY|LOC_SELF);
       if(!targ) {
 	if(mind) mind->Send("You don't see that here.\n");
 	}
@@ -4402,11 +4412,11 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     Object *targ = NULL;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(strlen(comline+len) > 0) {
-      targ = body->PickObject(comline+len, nmode|LOC_NEARBY|LOC_CONSCIOUS);
+      targ = body->PickObject(comline+len, vmode|LOC_NEARBY|LOC_CONSCIOUS);
       if(!targ)
-	targ = body->PickObject(comline+len, nmode|LOC_NEARBY|LOC_ALIVE);
+	targ = body->PickObject(comline+len, vmode|LOC_NEARBY|LOC_ALIVE);
       if(!targ)
-	targ = body->PickObject(comline+len, nmode|LOC_NEARBY);
+	targ = body->PickObject(comline+len, vmode|LOC_NEARBY);
       if(!targ) {
 	if(mind) mind->Send("You don't see that here.\n");
 	return 0;
@@ -5036,7 +5046,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     Object *body
-	= mind->Owner()->Room()->PickObject(comline+len, nmode|LOC_INTERNAL);
+	= mind->Owner()->Room()->PickObject(comline+len, vmode|LOC_INTERNAL);
     if(body) {
       mind->Send("Sorry, you already have a character with that name.\n"
 			"Pick another name.\n");
@@ -5111,7 +5121,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       while(dest->Parent()->Parent()) {
 	dest = dest->Parent();
 	}
-      dest = dest->PickObject(comline+len, nmode|LOC_INTERNAL);
+      dest = dest->PickObject(comline+len, vmode|LOC_INTERNAL);
       }
 
     if(!dest) {
@@ -5476,7 +5486,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   if(com == COM_CONTROL) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    Object *targ = body->PickObject(comline+len, nmode|LOC_NEARBY);
+    Object *targ = body->PickObject(comline+len, vmode|LOC_NEARBY);
     if(!targ) {
       mind->Send("You want to control who?\n");
       }
@@ -5529,7 +5539,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
     dest = body->PickObject(comline+len,
-		nmode|LOC_INTERNAL|LOC_NEARBY|LOC_SELF|LOC_HERE);
+		vmode|LOC_INTERNAL|LOC_NEARBY|LOC_SELF|LOC_HERE);
     if(!dest) {
       if(mind) mind->Send("I can't find that destination.\n");
       }
@@ -5754,7 +5764,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     Object *targ
-	= body->PickObject(comline+len, nmode|LOC_NEARBY|LOC_INTERNAL|LOC_SELF);
+	= body->PickObject(comline+len, vmode|LOC_NEARBY|LOC_INTERNAL|LOC_SELF);
     if(!targ) {
       mind->Send("You want to reset what?\n");
       }
@@ -5774,7 +5784,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   if(com == COM_MIRROR) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    Object *targ = body->PickObject(comline+len, nmode|LOC_NEARBY|LOC_INTERNAL);
+    Object *targ = body->PickObject(comline+len, vmode|LOC_NEARBY|LOC_INTERNAL);
     if(!targ) {
       mind->Send("You want to mirror what?\n");
       }
@@ -5841,7 +5851,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     Object *targ
-	= body->PickObject(comline+len, nmode|LOC_NEARBY|LOC_INTERNAL);
+	= body->PickObject(comline+len, vmode|LOC_NEARBY|LOC_INTERNAL);
     if(!targ) {
       mind->Send("You want to clone what?\n");
       }
@@ -5860,7 +5870,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     typeof(body->Contents()) targs
-	= body->PickObjects(comline+len, nmode|LOC_NEARBY);
+	= body->PickObjects(comline+len, vmode|LOC_NEARBY);
     if(targs.size() == 0) {
       mind->Send("You want to destroy what?\n");
       return 0;
@@ -5876,7 +5886,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	body, targ);
       if(com == COM_JUNK) targ->Recycle();
       else if(com == COM_JUNKRESTART) targ->Travel(targ->TrashBin(), 0);
-      targs = body->PickObjects(comline+len, nmode|LOC_NEARBY);
+      targs = body->PickObjects(comline+len, vmode|LOC_NEARBY);
       while(targs.size() > 0 && todo.count(targs.front()) < 1) {
 	targs.pop_front();
 	}
@@ -5892,7 +5902,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     Object *targ = body->PickObject(comline+len,
-	nmode|LOC_NEARBY|LOC_INTERNAL|LOC_SELF
+	vmode|LOC_NEARBY|LOC_INTERNAL|LOC_SELF
 	);
 
     int finished = 0;
@@ -6144,7 +6154,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     typeof(body->Contents()) targs
-	= body->PickObjects(comline+len, nmode|LOC_NEARBY|LOC_INTERNAL);
+	= body->PickObjects(comline+len, vmode|LOC_NEARBY|LOC_INTERNAL);
     if(targs.size() == 0) {
       mind->Send("You want to double what?\n");
       return 0;
