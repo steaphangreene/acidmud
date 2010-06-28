@@ -936,6 +936,9 @@ void Object::SendActions(Mind *m) {
       m->SendF(act_str[cur->first], targ, dirn, dirp);
       }
     }
+  if(HasSkill("Invisible")) {
+    m->Send(", invisible");
+    }
   if(HasSkill("Light Source")) {
     if(Skill("Light Source") < 20) m->Send(", glowing");
     else if(HasSkill("Brightness")) m->Send(", burning");
