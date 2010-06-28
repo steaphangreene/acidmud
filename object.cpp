@@ -1037,6 +1037,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
   int tlines = 0, total = 0;
   typeof(cont.begin()) ind;
   for(ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
+    if((*ind)->Skill("Invisible") > 999 && (seeinside & LOC_NINJA) == 0) continue;
     if((*ind)->HasSkill("Invisible") && (seeinside & (LOC_NINJA|LOC_HEAT)) == 0) continue;
     if((*ind)->Skill("Hidden") > 0 && Parent() != NULL) continue;
 
@@ -1881,6 +1882,9 @@ Object *Object::Split(int nqty) {
 
 static int tag(Object *obj, list<Object *> &ret, int *ordinal, int show = 0) {
   //Only Ninjas in Ninja-Mode should detect these
+  if(obj->Skill("Invisible") > 999 && (show & LOC_NINJA) == 0) return 0;
+
+  //Need Heat Vision to see these
   if(obj->HasSkill("Invisible") && (show & (LOC_NINJA|LOC_HEAT)) == 0) return 0;
 
   //Can't be seen/affected (except in char rooms)
