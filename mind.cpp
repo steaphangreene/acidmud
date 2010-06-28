@@ -566,6 +566,13 @@ void Mind::Think(int istick) {
       ovars["self"] = body->Parent();
       Object *room = ovars["self"];
       while(room && room->Skill("TBARoom") == 0) room = room->Parent();
+      if(!room) {
+//	fprintf(stderr, CRED "#%d Error: Self not in a room - killed!\n" CNRM,
+//		body->Skill("TBAScript")
+//		);
+	Disable();
+	return;
+	}
       Object *aroom = NULL;
       if(ovars.count("actor") && ovars["actor"]) {
 	aroom = ovars["actor"];

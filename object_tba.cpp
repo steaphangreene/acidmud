@@ -125,38 +125,27 @@ static map<Object*,int> tynum[6];
 static map<Object*,int> knum[6];
 static map<Object*,string> nmnum[6];
 static vector<Object*> olist;
+static Object *objroom = NULL;
+static Object *mobroom = NULL;
 
 void Object::TBACleanup() {
   map<int,Object*>::iterator ind;
 
-  int val = 0;
-//  fprintf(stderr, "\rRecycling Sample Objects: %d/%d    ", val++, int(bynumobj.size()));
-  for(ind = bynumobj.begin(); ind != bynumobj.end(); ++ind) {
-    (*ind).second->Recycle();
-//    fprintf(stderr, "\rRecycling Sample Objects: %d/%d    ", val++, int(bynumobj.size()));
-    }
-//  fprintf(stderr, "...Done.\n");
-
-  val = 0;
-//  fprintf(stderr, "\rRecycling Sample MOBs: %d/%d    ", val++, int(bynummob.size()));
-  for(ind = bynummob.begin(); ind != bynummob.end(); ++ind) {
-    (*ind).second->Recycle();
-//    fprintf(stderr, "\rRecycling Sample MOBs: %d/%d    ", val++, int(bynummob.size()));
-    }
-//  fprintf(stderr, "...Done.\n");
-
-  val = 0;
-//  fprintf(stderr, "\rRecycling Sample Triggers: %d/%d    ", val++, int(bynumtrg.size()));
+//  for(ind = bynumobj.begin(); ind != bynumobj.end(); ++ind) {
+//    (*ind).second->Recycle();
+//    }
+//  for(ind = bynummob.begin(); ind != bynummob.end(); ++ind) {
+//    (*ind).second->Recycle();
+//    }
   for(ind = bynumtrg.begin(); ind != bynumtrg.end(); ++ind) {
     (*ind).second->Recycle();
-//    fprintf(stderr, "\rRecycling Sample Triggers: %d/%d    ", val++, int(bynumtrg.size()));
     }
-//  fprintf(stderr, "...Done.\n");
 
   bynumwld.clear();
   bynumobj.clear();
   bynummob.clear();
   bynumtrg.clear();
+  bynummobinst.clear();
   tonum[0].clear();
   tonum[1].clear();
   tonum[2].clear();
@@ -270,9 +259,7 @@ Object *dup_tba_obj(Object *obj) {
 
 void Object::TBAFinishMOB(Object *mob) {
   if(mob->Skill("TBAGold")) {
-    Object *bag = new Object;
-
-    bag->SetParent(mob);
+    Object *bag = new Object(mob);
     bag->SetShortDesc("a TBAMUD purse");
     bag->SetDesc("A mysterious purse that didn't seem to need to exist before.");
 
@@ -397,8 +384,7 @@ void Object::TBALoadZON(const char *fn) {
 	  int num, room;
 	  fscanf(mudz, " %*d %d %*d %d %*[^\n\r]\n", &num, &room);
 	  if(bynumwld.count(room) && bynummob.count(num)) {
-	    Object *obj = new Object;
-	    obj->SetParent(bynumwld[room]);
+	    Object *obj = new Object(bynumwld[room]);
 	    obj->SetShortDesc("a TBAMUD MOB Popper");
 	    obj->SetDesc("This thing just pops out MOBs.");
 
@@ -509,8 +495,7 @@ void Object::TBALoadZON(const char *fn) {
 	      }
 	    if(bagit) {
 	      if(!lastbag) {
-		lastbag = new Object;
-		lastbag->SetParent(lastmob);
+		lastbag = new Object(lastmob);
 		lastbag->SetShortDesc("a TBAMUD pack");
 		lastbag->SetDesc("A mysterious pack that didn't seem to need to exist before.");
 
@@ -557,6 +542,11 @@ void Object::TBALoadZON(const char *fn) {
 
 
 void Object::TBALoadMOB(const char *fn) {
+  if(mobroom == NULL) {
+    mobroom = new Object(this);
+    mobroom->SetSkill("Invisible", 1000);
+    mobroom->SetShortDesc("The TBAMUD MOB Room");
+    }
   FILE *mudm = fopen(fn, "r");
   if(mudm) {
     //fprintf(stderr, "Loading TBA Mobiles from \"%s\"\n", fn);
@@ -565,7 +555,7 @@ void Object::TBALoadMOB(const char *fn) {
       if(fscanf(mudm, " #%d\n", &onum) < 1) break;
       //fprintf(stderr, "Loaded MOB #%d\n", onum);
 
-      Object *obj = new Object();
+      Object *obj = new Object(mobroom);
       obj->SetSkill("TBAMOB", 1000000+onum);
       bynummob[onum] = obj;
 
@@ -939,6 +929,11 @@ static void add_tba_spell(Object *obj, int spell, int power) {
   }
 
 void Object::TBALoadOBJ(const char *fn) {
+  if(objroom == NULL) {
+    objroom = new Object(this);
+    objroom->SetSkill("Invisible", 1000);
+    objroom->SetShortDesc("The TBAMUD Object Room");
+    }
   FILE *mudo = fopen(fn, "r");
   if(mudo) {
     //fprintf(stderr, "Loading TBA Objects from \"%s\"\n", fn);
@@ -948,7 +943,7 @@ void Object::TBALoadOBJ(const char *fn) {
       if(fscanf(mudo, " #%d\n", &onum) < 1) break;
       //fprintf(stderr, "Loaded object #%d\n", onum);
 
-      Object *obj = new Object();
+      Object *obj = new Object(objroom);
       obj->SetSkill("TBAObject", 1000000+onum);
       bynumobj[onum] = obj;
 

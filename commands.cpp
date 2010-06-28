@@ -5589,7 +5589,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       src->AddAct(ACT_SPECIAL_LINKED, exit);
       exit->AddAct(ACT_SPECIAL_MASTER, src);
       if(mind) {
-	mind->SendF("You link %s to %s.",
+	mind->SendF("You link %s to %s.\n",
 		src->Name(0, body), dest->Name(0, body)
 		);
 	}
