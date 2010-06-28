@@ -2018,7 +2018,8 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) const
 	  }
 	}
       if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
-	list<Object*> add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
+	list<Object*> add = (*ind)->PickObjects(name, 
+		(loc & LOC_SPECIAL)|LOC_INTERNAL, ordinal);
 	ret.insert(ret.end(), add.begin(), add.end());
 
 	if((*ordinal) == 0) return ret;
@@ -2028,7 +2029,8 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) const
       if(parent->parent) {
 	parent->no_seek = 1;
 
-	list<Object*> add = parent->PickObjects(name, LOC_NEARBY, ordinal);
+	list<Object*> add = parent->PickObjects(name,
+		(loc & LOC_SPECIAL)|LOC_NEARBY, ordinal);
 	ret.insert(ret.end(), add.begin(), add.end());
 
 	parent->no_seek = 0;
@@ -2057,7 +2059,8 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) const
 	  }
 	if(action->second->HasSkill("Container")) {
 	  list<Object*> add
-		= action->second->PickObjects(name, LOC_INTERNAL, ordinal);
+		= action->second->PickObjects(name,
+			(loc & LOC_SPECIAL)|LOC_INTERNAL, ordinal);
 	  ret.insert(ret.end(), add.begin(), add.end());
 
 	  if((*ordinal) == 0) return ret;
@@ -2076,7 +2079,8 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) const
 	  }
 	}
       if((*ind)->Skill("Container") && (loc & LOC_NOTUNWORN) == 0) {
-	list<Object*> add = (*ind)->PickObjects(name, LOC_INTERNAL, ordinal);
+	list<Object*> add = (*ind)->PickObjects(name,
+		(loc & LOC_SPECIAL)|LOC_INTERNAL, ordinal);
 	ret.insert(ret.end(), add.begin(), add.end());
 
 	if((*ordinal) == 0) return ret;
