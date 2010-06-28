@@ -1663,6 +1663,22 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	if(mind) mind->Send(denied.c_str());
 	continue;
 	}
+      if((!nmode) && (*targ_it)->Skill("Obvious")) {
+	if(mind) mind->SendF("You could never hide %s, it's too obvious.",
+		(*targ_it)->Name(0, body));
+	continue;
+	}
+      if((!nmode) && (*targ_it)->Skill("Open")) {
+	if((*targ_it)->Skill("Closeable")) {
+	  if(mind) mind->SendF("You can't hide %s while it's open.",
+		(*targ_it)->Name(0, body));
+	  }
+	else {
+	  if(mind) mind->SendF("You can't hide %s.  It's wide open.",
+		(*targ_it)->Name(0, body));
+	  }
+	continue;
+	}
 
       body->Parent()->SendOut(stealth_t, stealth_s,
 	";s hides ;s.\n", "you hide ;s.\n", body, *targ_it);
