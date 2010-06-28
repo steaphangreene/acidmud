@@ -2473,6 +2473,22 @@ void Object::SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
 	Object *actor, Object *targ) {
   if(no_seek) return;
 
+  if(strncmp(mes, ";s says '", 9)) {	//Type 0x1000010 (MOB + MOB-ACT)
+    typeof(contents.begin()) trig = contents.begin();
+    for(; trig != contents.end(); ++trig) {
+      if(((*trig)->Skill("TBAScriptType") & 0x1000010) == 0x1000010) {
+	if((*trig)->Skill("TBAScriptNArg") == 0) {	// Match Full Phrase
+	  if(strcasestr(mes, (*trig)->Desc())) {
+	    new_trigger(0, *trig, actor, mes);
+	    }
+	  }
+	else {						// Match Words
+	  //FIXME: Implement
+	  }
+	}
+      }
+    }
+
   string tstr = "";  if(targ) tstr = (char*)targ->Name(0, this, actor);
   string astr = "";  if(actor) astr = (char*)actor->Name(0, this);
 
@@ -3566,6 +3582,118 @@ int Object::Quantity() const {
 
 void Object::Deafen(int deaf) {
   no_hear = deaf;
+  }
+
+int Object::Wear(Object *targ, unsigned long masks, int mes) {
+  unsigned long mask = 1;
+  while((mask & masks) == 0 && mask != 0) mask <<= 1;
+  int success = 0;
+  while(!success && mask != 0) {
+    set<act_t> locations;
+
+    if(targ->Skill("Wearable on Back") & mask)
+	locations.insert(ACT_WEAR_BACK);
+
+    if(targ->Skill("Wearable on Chest") & mask)
+	locations.insert(ACT_WEAR_CHEST);
+
+    if(targ->Skill("Wearable on Head") & mask)
+	locations.insert(ACT_WEAR_HEAD);
+
+    if(targ->Skill("Wearable on Neck") & mask)
+	locations.insert(ACT_WEAR_NECK);
+
+    if(targ->Skill("Wearable on Waist") & mask)
+	locations.insert(ACT_WEAR_WAIST);
+
+    if(targ->Skill("Wearable on Shield") & mask)
+	locations.insert(ACT_WEAR_SHIELD);
+
+    if(targ->Skill("Wearable on Left Arm") & mask)
+	locations.insert(ACT_WEAR_LARM);
+
+    if(targ->Skill("Wearable on Right Arm") & mask)
+	locations.insert(ACT_WEAR_RARM);
+
+    if(targ->Skill("Wearable on Left Finger") & mask)
+	locations.insert(ACT_WEAR_LFINGER);
+
+    if(targ->Skill("Wearable on Right Finger") & mask)
+	locations.insert(ACT_WEAR_RFINGER);
+
+    if(targ->Skill("Wearable on Left Foot") & mask)
+	locations.insert(ACT_WEAR_LFOOT);
+
+    if(targ->Skill("Wearable on Right Foot") & mask)
+	locations.insert(ACT_WEAR_RFOOT);
+
+    if(targ->Skill("Wearable on Left Hand") & mask)
+	locations.insert(ACT_WEAR_LHAND);
+
+    if(targ->Skill("Wearable on Right Hand") & mask)
+	locations.insert(ACT_WEAR_RHAND);
+
+    if(targ->Skill("Wearable on Left Leg") & mask)
+	locations.insert(ACT_WEAR_LLEG);
+
+    if(targ->Skill("Wearable on Right Leg") & mask)
+	locations.insert(ACT_WEAR_RLEG);
+
+    if(targ->Skill("Wearable on Left Wrist") & mask)
+	locations.insert(ACT_WEAR_LWRIST);
+
+    if(targ->Skill("Wearable on Right Wrist") & mask)
+	locations.insert(ACT_WEAR_RWRIST);
+
+    if(targ->Skill("Wearable on Left Shoulder") & mask)
+	locations.insert(ACT_WEAR_LSHOULDER);
+
+    if(targ->Skill("Wearable on Right Shoulder") & mask)
+	locations.insert(ACT_WEAR_RSHOULDER);
+
+    if(targ->Skill("Wearable on Left Hip") & mask)
+	locations.insert(ACT_WEAR_LHIP);
+
+    if(targ->Skill("Wearable on Right Hip") & mask)
+	locations.insert(ACT_WEAR_RHIP);
+
+    if(locations.size() < 1) {
+      if(mask == 1) {
+	if(mes) targ->SendF(ALL, -1,
+		"You can't wear %s - it's not wearable!\n",
+		targ->Name(0, this)
+		);
+	}
+      else {
+	if(mes) targ->SendF(ALL, -1,
+		"You can't wear %s with what you are already wearing!\n",
+		targ->Name(0, this)
+		);
+	}
+      break;
+      }
+    success = 1;
+    mask <<= 1;
+    while((mask & masks) == 0 && mask != 0) mask <<= 1;
+
+    if(targ->Skill("Quantity") > 1) {	//One at a time!
+      targ = targ->Split(1);
+      }
+
+    set<act_t>::iterator loc;
+    for(loc = locations.begin(); loc != locations.end(); ++loc) {
+      if(IsAct(*loc)) { success = 0; break; }
+      }
+    if(success) {
+      targ->Travel(this, 0); // Kills Holds and Wields on "targ"
+      for(loc = locations.begin(); loc != locations.end(); ++loc) {
+	AddAct(*loc, targ);
+	}
+      Parent()->SendOut(0, 0,		//FIXME: stealth_t, stealth_s,
+	";s puts on ;s.\n", "You put on ;s.\n", this, targ);
+      }
+    }
+  return success;
   }
 
 Object *new_obj() {

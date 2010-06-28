@@ -162,6 +162,7 @@ public:
   int Drop(Object *item, int message = 1, int force = 0, int try_combine = 1);
   int DropOrStash(Object *item, int message = 1, int force = 0, int try_combine = 1);
   int StashOrDrop(Object *item, int message = 1, int force = 0, int try_combine = 1);
+  int Wear(Object *targ, int unsigned long = (~(0UL)), int mes = 1);
 
   Object *Owner() const;
   int NumMinds() const { return minds.size(); }

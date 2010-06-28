@@ -649,6 +649,10 @@ void Mind::Think(int istick) {
 		ovarent->second->PickObject("something", LOC_INTERNAL);
 	      if(other) curvars[ovarent->first+".contents"] = other;
 	      }
+	    if(line.find("%"+ovarent->first+".carried_by") != string::npos) {
+	      Object *other = ovarent->second->Owner();
+	      if(other) curvars[ovarent->first+".carried_by"] = other;
+	      }
 	    if(line.find("%"+ovarent->first+".follower") != string::npos) {
 	      set<Object*> touch = ovarent->second->Touching();
 	      set<Object*>::iterator tent = touch.begin();
@@ -739,7 +743,7 @@ void Mind::Think(int istick) {
 	replace_all(line, "%echo% ", "mecho ");
 	replace_all(line, "%send% %actor% ", "send_actor ");
 	replace_all(line, "%force% %actor% ", "force_actor ");
-	replace_all(line, "%echoaround% %actor% ", "echoaround_actor ");
+	replace_all(line, "%echoaround% ", "echoaround ");
 	replace_all(line, "%teleport% ", "transport ");
 	replace_all(line, "%zoneecho% ", "zoneecho ");
 	replace_all(line, "%asound% ", "asound ");
@@ -1061,6 +1065,7 @@ void Mind::Think(int istick) {
 	else if(com == COM_SAY
 		|| com == COM_EMOTE
 		|| com == COM_LOCK
+		|| com == COM_UNLOCK
 		|| com == COM_OPEN
 		|| com == COM_CLOSE
 		|| com == COM_GET
@@ -1140,15 +1145,14 @@ void Mind::Think(int istick) {
 	  spos = skip_line(script, spos);
 	  }
 
-	else if(!strncasecmp(line.c_str(), "echoaround_actor ", 17)) {
-	  if(curvars.count("actor") && curvars["actor"] && curvars["actor"]->Parent()) {
-	    if(aroom) {
-	      string mes = line.substr(17);
-	      trim_string(mes);
-	      mes += "\n";
-	      aroom->SendOut(0, 0, mes.c_str(), "", curvars["actor"], NULL);
-	      }
-	    }
+	else if(!strncasecmp(line.c_str(), "echoaround ", 11)) {
+	  Object *targ = NULL;
+	  char mes[256] = "";
+	  sscanf(line.c_str()+11, " OBJ:%p %255[^\n\r]", &targ, mes);
+	  mes[strlen(mes)] = '\n';
+	  Object *troom = targ;
+	  while(troom && troom->Skill("TBARoom") == 0) troom = troom->Parent();
+	  if(troom && targ) troom->SendOut(0, 0, mes, "", targ, NULL);
 	  spos = skip_line(script, spos);
 	  }
 
@@ -1189,6 +1193,168 @@ void Mind::Think(int istick) {
 	  spos = skip_line(script, spos);
 	  }
 
+	else if(!strncasecmp(line.c_str(), "load ", 5)) {
+	  int vnum, params, type, loc = 0, mask = 0;
+	  char buf[256] = "";
+	  char targ[256] = "";
+	  char where[256] = "";
+	  Object *src = room;
+	  Object *dest = room;
+	  Object *item = NULL;
+	  params = sscanf(line.c_str() + 5, " %s %d %s %s",
+		buf, &vnum, targ, where);
+	  type = tolower(buf[0]);
+	  if((params != 2 && params != 4) || (type != 'o' && type != 'm')) {
+	    fprintf(stderr, CRED "#%d Error: Gibberish script line '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	    Disable();
+	    return;
+	    }
+	  while(src->Parent()->Parent()) src = src->Parent();
+	  if(type == 'o') {
+	    src = src->PickObject("TBAMUD Object Room", LOC_NINJA|LOC_INTERNAL);
+	    list<Object*> options = src->Contents();
+	    list<Object*>::iterator opt = options.begin();
+	    for(; opt != options.end(); ++opt) {
+	      if((*opt)->Skill("TBAObject") == vnum + 1000000) {
+		item = new Object(*(*opt));
+		break;
+		}
+	      }
+	    }
+	  else if(type == 'm') {
+	    src = src->PickObject("TBAMUD MOB Room", LOC_NINJA|LOC_INTERNAL);
+	    list<Object*> options = src->Contents();
+	    list<Object*>::iterator opt = options.begin();
+	    for(; opt != options.end(); ++opt) {
+	      if((*opt)->Skill("TBAMOB") == vnum + 1000000) {
+		item = new Object(*(*opt));
+		break;
+		}
+	      }
+	    }
+	  if(item == NULL) {
+	    fprintf(stderr, CRED "#%d Error: Failed to find item '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	    Disable();
+	    return;
+	    }
+	  if(params > 2) {
+	    fprintf(stderr, CGRN "#%d Debug: (%s) '%s'\n" CNRM,
+		body->Skill("TBAScript"), targ, line.c_str());
+	    dest = dest->PickObject(targ, LOC_NINJA|LOC_INTERNAL);
+	    }
+	  if(!dest) {
+	    fprintf(stderr, CRED "#%d Error: Can't find target in '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	    Disable();
+	    return;
+	    }
+	  if(strcmp("rfinger", where) == 0 || strcmp("1", where) == 0) {
+	    mask = item->Skill("Wearable on Right Finger");
+	    loc = ACT_WEAR_RFINGER;
+	    }
+	  else if(strcmp("lfinger", where) == 0 || strcmp("2", where) == 0) {
+	    mask = item->Skill("Wearable on Left Finger");
+	    loc = ACT_WEAR_LFINGER;
+	    }
+	  else if(strcmp("neck1", where) == 0 || strcmp("3", where) == 0) {
+	    mask = item->Skill("Wearable on Neck");
+	    loc = ACT_WEAR_NECK;
+	    }
+	  else if(strcmp("neck2", where) == 0 || strcmp("4", where) == 0) {
+	    mask = item->Skill("Wearable on Neck");
+	    loc = ACT_WEAR_NECK;
+	    }
+	  else if(strcmp("body", where) == 0 || strcmp("5", where) == 0) {
+	    mask = item->Skill("Wearable on Chest");
+	    loc = ACT_WEAR_CHEST;
+	    }
+	  else if(strcmp("head", where) == 0 || strcmp("6", where) == 0) {
+	    mask = item->Skill("Wearable on Head");
+	    loc = ACT_WEAR_HEAD;
+	    }
+	  else if(strcmp("legs", where) == 0 || strcmp("7", where) == 0) {
+	    mask = item->Skill("Wearable on Left Leg");
+	    loc = ACT_WEAR_LLEG;
+	    }
+	  else if(strcmp("feet", where) == 0 || strcmp("8", where) == 0) {
+	    mask = item->Skill("Wearable on Left Foot");
+	    loc = ACT_WEAR_LFOOT;
+	    }
+	  else if(strcmp("hands", where) == 0 || strcmp("9", where) == 0) {
+	    mask = item->Skill("Wearable on Left Hand");
+	    loc = ACT_WEAR_LHAND;
+	    }
+	  else if(strcmp("arms", where) == 0 || strcmp("10", where) == 0) {
+	    mask = item->Skill("Wearable on Left Arm");
+	    loc = ACT_WEAR_LARM;
+	    }
+	  else if(strcmp("shield", where) == 0 || strcmp("11", where) == 0) {
+	    mask = item->Skill("Wearable on Shield");
+	    loc = ACT_WEAR_SHIELD;
+	    }
+	  else if(strcmp("about", where) == 0 || strcmp("12", where) == 0) {
+	    mask = item->Skill("Wearable on Left Shoulder");
+	    loc = ACT_WEAR_LSHOULDER;
+	    }
+	  else if(strcmp("waist", where) == 0 || strcmp("13", where) == 0) {
+	    mask = item->Skill("Wearable on Waist");
+	    loc = ACT_WEAR_WAIST;
+	    }
+	  else if(strcmp("rwrist", where) == 0 || strcmp("14", where) == 0) {
+	    mask = item->Skill("Wearable on Right Wrist");
+	    loc = ACT_WEAR_RWRIST;
+	    }
+	  else if(strcmp("lwrist", where) == 0 || strcmp("15", where) == 0) {
+	    mask = item->Skill("Wearable on Left Wrist");
+	    loc = ACT_WEAR_LWRIST;
+	    }
+	  else if(strcmp("wield", where) == 0 || strcmp("16", where) == 0) {
+	    mask = item->Skill("Wearable on ");
+	    loc = ACT_WIELD;
+	    }
+	  else if(strcmp("light", where) == 0 || strcmp("0", where) == 0) {
+	    loc = ACT_HOLD;
+	    }
+	  else if(strcmp("hold", where) == 0 || strcmp("17", where) == 0) {
+	    loc = ACT_HOLD;
+	    }
+	  else if(strcmp("inv", where) == 0 || strcmp("18", where) == 0) {
+	    }
+	  else if(params > 2) {
+	    fprintf(stderr, CRED "#%d Error: Unsupported dest '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	    Disable();
+	    return;
+	    }
+	  item->SetParent(dest);
+	  if(loc != 0 && loc != ACT_HOLD) {
+	    dest->Drop(item);
+	    fprintf(stderr, CYEL "#%d Warning: Didn't wear '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	    }
+	  else if(loc == ACT_HOLD) {
+	    if(body->ActTarg(ACT_HOLD) == NULL
+		|| body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WIELD)
+		|| body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)) {
+	      body->AddAct(ACT_HOLD, item);
+	      }
+	    else {
+	      dest->Drop(item);
+	      }
+	    }
+	  else if(dest != room) {
+	    dest->StashOrDrop(item);
+	    }
+	  spos = skip_line(script, spos);
+	  }
+
 	else if(!strncasecmp(line.c_str(), "case ", 5)) {
 	  //Ignore these, as we only hit them here when when running over them
 	  spos = skip_line(script, spos);
@@ -1221,7 +1387,6 @@ void Mind::Think(int istick) {
 	  fprintf(stderr, CRED "#%d Error: Gibberish script line '%s'\n" CNRM,
 		body->Skill("TBAScript"), line.c_str()
 		);
-	  spos = skip_line(script, spos);
 	  Disable();
 	  return;
 	  }
