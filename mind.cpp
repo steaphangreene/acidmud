@@ -273,7 +273,7 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
     svars["speech"] = text;
     }
   if((stype & 0x4000040) == 0x4000040			//ROOM-ENTER Triggers
-                || stype & 0x0010000) {			//-LEAVE Triggers
+		|| stype & 0x0010000) {			//-LEAVE Triggers
     svars["direction"] = text;
     }
   if(stype & 0x0000004) {				//-COMMAND Triggers
@@ -815,6 +815,41 @@ void Mind::Think(int istick) {
 	  return;
 	  }
 
+	else if(!strncasecmp(line.c_str(), "wait until ", 11)) {
+	  fprintf(stderr, CMAG "#%d DEBUG: OMG '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	  int hour = 0, minute = 0, curmin = 0;
+	  if(sscanf(line.c_str()+11, "%d:%d", &hour, &minute) > 0) {
+	    spos = skip_line(script, spos);
+	    if(hour >= 100) hour /= 100;
+	    minute += hour * 60;
+	    Object *world = room;
+	    while(world->Parent()->Parent()) world = world->Parent();
+	    if(world->Skill("Day Time") && world->Skill("Day Length")) {
+	      curmin = world->Skill("Day Time");
+	      curmin *= 24*60;
+	      curmin /= world->Skill("Day Length");
+	      }
+	    if(minute > curmin) {	//Not Time Yet!
+	      Suspend((minute - curmin)
+		* 1000 * world->Skill("Day Length") / 24	//*60/60
+		);
+	      return;
+	      }
+	    fprintf(stderr, CMAG "#%d DEBUG: %d ? %d\n" CNRM,
+		body->Skill("TBAScript"), minute, curmin
+		);
+	    }
+	  else {
+	    fprintf(stderr, CRED "#%d Error: Told '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	    Disable();
+	    return;
+	    }
+	  }
+
 	else if(!strncasecmp(line.c_str(), "wait ", 5)) {
 	  int time = 0;
 	  sscanf(line.c_str()+5, "%d", &time);
@@ -823,7 +858,7 @@ void Mind::Think(int istick) {
 	    Suspend(time*1000);
 	    }
 	  else {
-	  fprintf(stderr, CRED "#%d Error: Told 'wait %s'\n" CNRM,
+	    fprintf(stderr, CRED "#%d Error: Told '%s'\n" CNRM,
 		body->Skill("TBAScript"), line.c_str()
 		);
 	    Disable();
