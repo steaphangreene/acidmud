@@ -816,9 +816,6 @@ void Mind::Think(int istick) {
 	  }
 
 	else if(!strncasecmp(line.c_str(), "wait until ", 11)) {
-	  fprintf(stderr, CMAG "#%d DEBUG: OMG '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
 	  int hour = 0, minute = 0, curmin = 0;
 	  if(sscanf(line.c_str()+11, "%d:%d", &hour, &minute) > 0) {
 	    spos = skip_line(script, spos);
@@ -837,9 +834,6 @@ void Mind::Think(int istick) {
 		);
 	      return;
 	      }
-	    fprintf(stderr, CMAG "#%d DEBUG: %d ? %d\n" CNRM,
-		body->Skill("TBAScript"), minute, curmin
-		);
 	    }
 	  else {
 	    fprintf(stderr, CRED "#%d Error: Told '%s'\n" CNRM,
