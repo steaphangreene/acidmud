@@ -1346,7 +1346,7 @@ void Mind::Think(int istick) {
 	      body->AddAct(ACT_HOLD, item);
 	      }
 	    else {
-	      dest->Drop(item);
+	      if(!dest->Wear(item, mask)) dest->StashOrDrop(item);
 	      }
 	    }
 	  else if(dest != room) {
