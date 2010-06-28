@@ -164,6 +164,7 @@ public:
   int StashOrDrop(Object *item, int message = 1, int force = 0, int try_combine = 1);
 
   Object *Owner() const;
+  int NumMinds() const { return minds.size(); }
 
   void NotifyGone(Object *obj, Object *newloc = NULL, int up = 1);
 
