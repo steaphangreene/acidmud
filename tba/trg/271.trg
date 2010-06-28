@@ -52,7 +52,7 @@ switch %random.23%
      say Ah! Fellow travellers! Come have a look at the finest silk this side of the infamous Ched Razimtheth!
   break
   case 14
-    look %actor%
+    emote looks at you.
     say You are feebly attired for the danger that lies ahead.
   break
   case 15
