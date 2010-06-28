@@ -1199,7 +1199,7 @@ void Mind::Think(int istick) {
 	  char targ[256] = "";
 	  char where[256] = "";
 	  Object *src = room;
-	  Object *dest = room;
+	  Object *dest = curvars["self"];
 	  Object *item = NULL;
 	  params = sscanf(line.c_str() + 5, " %s %d %s %s",
 		buf, &vnum, targ, where);
@@ -1244,7 +1244,7 @@ void Mind::Think(int istick) {
 	  if(params > 2) {
 	    fprintf(stderr, CGRN "#%d Debug: (%s) '%s'\n" CNRM,
 		body->Skill("TBAScript"), targ, line.c_str());
-	    dest = dest->PickObject(targ, LOC_NINJA|LOC_INTERNAL);
+	    dest = room->PickObject(targ, LOC_NINJA|LOC_INTERNAL);
 	    }
 	  if(!dest) {
 	    fprintf(stderr, CRED "#%d Error: Can't find target in '%s'\n" CNRM,
@@ -1333,23 +1333,28 @@ void Mind::Think(int istick) {
 	    return;
 	    }
 	  item->SetParent(dest);
-	  if(loc != 0 && loc != ACT_HOLD) {
-	    dest->Drop(item);
-	    fprintf(stderr, CYEL "#%d Warning: Didn't wear '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
+	  if(loc != 0 && loc != ACT_HOLD && loc != ACT_WIELD) {	//Wear it
+	    if(!dest->Wear(item, mask)) dest->StashOrDrop(item);
 	    }
-	  else if(loc == ACT_HOLD) {
+	  else if(loc == ACT_WIELD) {				//Wield it
+	    if(body->ActTarg(ACT_WIELD) == NULL) {
+	      body->AddAct(ACT_WIELD, item);
+	      }
+	    else {
+	      dest->StashOrDrop(item);
+	      }
+	    }
+	  else if(loc == ACT_HOLD) {				//Hold it
 	    if(body->ActTarg(ACT_HOLD) == NULL
 		|| body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WIELD)
 		|| body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)) {
 	      body->AddAct(ACT_HOLD, item);
 	      }
 	    else {
-	      if(!dest->Wear(item, mask)) dest->StashOrDrop(item);
+	      dest->StashOrDrop(item);
 	      }
 	    }
-	  else if(dest != room) {
+	  else if(dest != curvars["self"]) {			//Have it
 	    dest->StashOrDrop(item);
 	    }
 	  spos = skip_line(script, spos);
