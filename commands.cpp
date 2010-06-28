@@ -1420,7 +1420,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!body) {
       mind->Owner()->Room()->SendDesc(mind);
-      mind->Owner()->Room()->SendContents(mind, NULL, nmode);
+      mind->Owner()->Room()->SendContents(mind, NULL, vmode);
       return 0;
       }
 
@@ -1481,7 +1481,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	if(strlen(comline+len) <= 0) {
 		body->Parent()->SendOut(stealth_t, stealth_s,
 		";s looks around.\n", "", body, (*targ_it));
-	  if(mind) (*targ_it)->SendDescSurround(mind, body, nmode);
+	  if(mind) (*targ_it)->SendDescSurround(mind, body, vmode);
 	  }
 	else if((!strcasecmp(comline+len, "north"))
 		|| (!strcasecmp(comline+len, "south"))
@@ -1502,8 +1502,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		";s looks inside ;s.\n", "", body, (*targ_it));
 	  if(mind) {
 	    (*targ_it)->SendDesc(mind, body);
-	    (*targ_it)->SendExtendedActions(mind, nmode);
-	    (*targ_it)->SendContents(mind, NULL, nmode);
+	    (*targ_it)->SendExtendedActions(mind, vmode);
+	    (*targ_it)->SendContents(mind, NULL, vmode);
 	    }
 	  }
 	else {
@@ -1511,7 +1511,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		";s looks at ;s.\n", "", body, (*targ_it));
 	  if(mind) {
 	    (*targ_it)->SendDesc(mind, body);
-	    (*targ_it)->SendExtendedActions(mind, nmode);
+	    (*targ_it)->SendExtendedActions(mind, vmode);
 	    }
 	  }
 
@@ -3536,7 +3536,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     else {
       typeof(targs.begin()) targ;
       for(targ = targs.begin(); targ != targs.end(); ++targ) {
-	int ret = body->Drop(*targ, 1, nmode);
+	int ret = body->Drop(*targ, 1, vmode);
 	if(ret == -1) {		//Totally Failed
 	  if(mind) mind->SendF("You can't drop %s here.\n",
 		(*targ)->Name(0, body)

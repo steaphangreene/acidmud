@@ -1037,7 +1037,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
   int tlines = 0, total = 0;
   typeof(cont.begin()) ind;
   for(ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
-    if((*ind)->HasSkill("Invisible") && seeinside <= 1) continue;
+    if((*ind)->HasSkill("Invisible") && (seeinside & (LOC_NINJA|LOC_HEAT)) == 0) continue;
     if((*ind)->Skill("Hidden") > 0 && Parent() != NULL) continue;
 
     if((*ind)->IsAct(ACT_SPECIAL_LINKED)) {
