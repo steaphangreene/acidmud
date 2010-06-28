@@ -33,18 +33,19 @@ static string tba_comp(string expr) {
   size_t end = expr.find_first_of("\n\r");
   if(end != string::npos) expr = expr.substr(0, end);
   trim_string(expr);
-//  if(strcasestr(expr.c_str(), "tea")) {
-//    fprintf(stderr, "Expr: '%s'\n", expr.c_str());
-//    }
-
-  if(expr[0] == '(') return tba_comp(expr.substr(1));	//FIXME: Really Do This!
-  if(expr[0] == '!') {
-    string base = tba_comp(expr.substr(1));
-    if(base == "0" || base == "") return "1";
-    return "0";
+  if(0
+//	|| strcasestr(expr.c_str(), "tea")
+//	|| strcasestr(expr.c_str(), "wake")
+	) {
+    fprintf(stderr, "Expr: '%s'\n", expr.c_str());
     }
 
-  size_t op = expr.find_first_of("|&=!<>/-+*", 1);	//Skip Leading "-"
+  if(expr[0] == '(') return tba_comp(expr.substr(1));	//FIXME: Really Do This!
+
+  size_t skip = 0;
+  if(expr[0] == '-') skip = 1;	//Skip Leading "-"
+  if(expr[0] == '!') skip = 1;	//Skip Leading "!"
+  size_t op = expr.find_first_of("|&=!<>/-+*", skip);
   if(op == string::npos) return expr;	//No ops, just val
 
   int oper = 0;		//Positive for 2-char ops, negative for 1-char
@@ -91,18 +92,18 @@ static string tba_comp(string expr) {
     if(oper == 1 && strcasestr(arg1.c_str(), arg2.c_str())) comp = "1";
     else if(oper == 2 && (arg1 == arg2)) comp = "1";
     else if(oper == 3 && (arg1 != arg2)) comp = "1";
-    else if(oper == 4 && (atoi(arg1.c_str()) <= atoi(arg2.c_str()))) comp = "1";
-    else if(oper == 5 && (atoi(arg1.c_str()) >= atoi(arg2.c_str()))) comp = "1";
-    else if(oper == -1 && (atoi(arg1.c_str()) < atoi(arg2.c_str()))) comp = "1";
-    else if(oper == -2 && (atoi(arg1.c_str()) > atoi(arg2.c_str()))) comp = "1";
+    else if(oper == 4 && (tba_eval(arg1) <= tba_eval(arg2))) comp = "1";
+    else if(oper == 5 && (tba_eval(arg1) >= tba_eval(arg2))) comp = "1";
+    else if(oper == -1 && (tba_eval(arg1) < tba_eval(arg2))) comp = "1";
+    else if(oper == -2 && (tba_eval(arg1) > tba_eval(arg2))) comp = "1";
     else if(oper == 6 && (tba_eval(arg1) && tba_eval(arg2))) comp = "1";
     else if(oper == 7 && (tba_eval(arg1) || tba_eval(arg2))) comp = "1";
-    else if(oper == -3) res = atoi(arg1.c_str()) + atoi(arg2.c_str());
-    else if(oper == -4) res = atoi(arg1.c_str()) - atoi(arg2.c_str());
-    else if(oper == -5) res = atoi(arg1.c_str()) * atoi(arg2.c_str());
+    else if(oper == -3) res = tba_eval(arg1) + tba_eval(arg2);
+    else if(oper == -4) res = tba_eval(arg1) - tba_eval(arg2);
+    else if(oper == -5) res = tba_eval(arg1) * tba_eval(arg2);
     else if(oper == -6) {	//Protect from div by zero
-      int val2 = atoi(arg2.c_str());
-      res = atoi(arg1.c_str());
+      int val2 = tba_eval(arg2);
+      res = tba_eval(arg1);
       if(val2 != 0) res /= val2;
       }
 
@@ -126,10 +127,19 @@ static string tba_comp(string expr) {
 static int tba_eval(string expr) {
   string base = tba_comp(expr);
   trim_string(base);
-  if(base.length() == 0) return 0;	//Null
+  if(0
+//	|| strcasestr(expr.c_str(), "tea")
+//	|| strcasestr(expr.c_str(), "wake")
+	) {
+    fprintf(stderr, "Base: '%s'\n", base.c_str());
+    }
+  if(base.length() == 0) return 0;			//Null
+  if(base.length() == 1 && base[0] == '!') return 1;	//!Null
   int ret = 0, len = 0;
   sscanf(base.c_str(), " %d %n", &ret, &len);
-  if(len == int(base.length())) return ret;	//Numeric
+  if(len == int(base.length())) return ret;		//Numeric
+  sscanf(base.c_str(), " ! %d %n", &ret, &len);
+  if(len == int(base.length())) return !ret;		//!Numeric
   return 1;	//Non-Numberic, Non-NULL
   }
 
@@ -144,6 +154,8 @@ static void tba_varsub_str(string &code, const string &var, const string &val) {
     apos = val.find_first_not_of(" \t\n\r", apos);
     if(apos != string::npos) argr = val.substr(apos);
     }
+  replace_all(code, "%%"+var+".mudcommand%%", val);	//Commands always full
+  replace_all(code, "%"+var+".mudcommand%", val);	//Commands always full
   replace_all(code, "%%"+var+".car%%", arg1);
   replace_all(code, "%"+var+".car%", arg1);
   replace_all(code, "%%"+var+".cdr%%", argr);
@@ -173,7 +185,7 @@ static void tba_varsub_obj(string &code, const string &var, const Object *obj) {
     while(beg != string::npos) {
       size_t end = code.find('%');
       if(end != string::npos) {
-	code.replace(beg, end+1, "0");
+	code.replace(beg, end+1-beg, "0");
 	}
       beg = code.find("%"+var+".vnum(");
       }
@@ -663,6 +675,62 @@ void Mind::Think(int istick) {
 		  }
 		}
 	      }
+//	    if(line.find("%"+ovarent->first+".has_item(") != string::npos) {
+//	      list<Object*> pos
+//			= ovarent->second->PickObjects("all", LOC_INTERNAL);
+//	      list<Object*>::iterator item = pos.begin();
+//	      for(; item != pos.end(); ++item) {
+//		int vnum = (*pos)->
+//	        replace_all(
+//		if((*tent)->ActTarg(ACT_FOLLOW) == ovarent->second) {
+//		  curvars[ovarent->first+".follower"] = (*tent);
+//		  break;
+//		  }
+//		}
+//	      }
+	    size_t var;
+
+	    var = line.find("%"+ovarent->first+".pos(");
+	    if(var != string::npos) {
+	      char buf[1024];
+	      size_t start = line.find('(', var) + 1;
+	      sscanf(line.c_str()+start, "%1023[^)]", buf);
+	      if(line[start+strlen(buf)+1] != '%') {
+		buf[0] = 0;	//WTF?  Do nothing.
+		}
+	      else if(!strcasecmp(buf, "sleeping")) {
+		ovarent->second->SetPos(POS_LIE);
+		ovarent->second->StopAct(ACT_REST);
+		ovarent->second->AddAct(ACT_SLEEP);
+		}
+	      else if(!strcasecmp(buf, "resting")) {
+		ovarent->second->StopAct(ACT_SLEEP);
+		ovarent->second->SetPos(POS_SIT);
+		ovarent->second->AddAct(ACT_REST);
+		}
+	      else if(!strcasecmp(buf, "sitting")) {
+		ovarent->second->StopAct(ACT_SLEEP);
+		ovarent->second->StopAct(ACT_REST);
+		ovarent->second->SetPos(POS_SIT);
+		}
+	      else if(!strcasecmp(buf, "fighting")) {
+		ovarent->second->StopAct(ACT_SLEEP);
+		ovarent->second->StopAct(ACT_REST);
+		ovarent->second->SetPos(POS_STAND);
+		}
+	      else if(!strcasecmp(buf, "standing")) {
+		ovarent->second->StopAct(ACT_SLEEP);
+		ovarent->second->StopAct(ACT_REST);
+		ovarent->second->SetPos(POS_STAND);
+		//Is no general fighting state, must fight someone!
+		}
+	      else {
+		buf[0] = 0;	//WTF?  Do nothing.
+		}
+	      if(buf[0] != 0) {
+		replace_all(line, "%"+ovarent->first+".pos("+buf+")%", "");
+		}
+	      }
 	    }
 
 	  size_t var;
@@ -682,7 +750,7 @@ void Mind::Think(int istick) {
 	      }
 	    if(others.size() > 0) {
 	      curvars["temp_rand_char"] = others.back();
-	      line.replace(var, var+13, "%temp_rand_char%");
+	      line.replace(var, 13, "%temp_rand_char%");
 	      if(0
 //		|| script.find("%damage% %actor% -%actor.level%") != string::npos
 		) {
@@ -692,7 +760,7 @@ void Mind::Think(int istick) {
 	      }
 	    else {
 	      curvars.erase("temp_rand_char");
-	      line.replace(var, var+13, "");
+	      line.replace(var, 13, "");
 	      }
 	    var = line.find("%random.char%", var + 1);
 	    }
@@ -708,10 +776,10 @@ void Mind::Think(int istick) {
 	    options.insert(room->PickObject("down", LOC_INTERNAL));
 	    options.erase(NULL);
 	    if(options.size() > 0) {
-	      line.replace(var, var+12, (*(options.begin()))->ShortDesc());
+	      line.replace(var, 12, (*(options.begin()))->ShortDesc());
 	      }
 	    else {
-	      line.replace(var, var+12, "");
+	      line.replace(var, 12, "");
 	      }
 	    var = line.find("%random.dir%", var + 1);
 	    }
@@ -722,7 +790,7 @@ void Mind::Think(int istick) {
 	      if(vend != string::npos && line[vend] == '%') {
 		char nstr[64];
 		sprintf(nstr, "%d", (rand()%atoi(line.c_str()+var+8))+1);
-		line = line.replace(var, vend+1, nstr);
+		line = line.replace(var, vend+1-var, nstr);
 		var = 0;
 		}
 	      }
@@ -741,16 +809,15 @@ void Mind::Think(int istick) {
 	  }
 	replace_all(line, "%damage% ", "wdamage ");
 	replace_all(line, "%echo% ", "mecho ");
-	replace_all(line, "%send% %actor% ", "send_actor ");
-	replace_all(line, "%force% %actor% ", "force_actor ");
+	replace_all(line, "%send% ", "send ");
+	replace_all(line, "%force% ", "force ");
 	replace_all(line, "%echoaround% ", "echoaround ");
 	replace_all(line, "%teleport% ", "transport ");
 	replace_all(line, "%zoneecho% ", "zoneecho ");
 	replace_all(line, "%asound% ", "asound ");
-	replace_all(line, "%force% ", "force ");
-	replace_all(line, "%send% ", "send ");
 	replace_all(line, "%door% ", "door ");
 	replace_all(line, "%load% ", "load ");
+	replace_all(line, "%purge% ", "purge ");
 	replace_all(line, "%at% ", "at ");
 
 	com_t com = identify_command(line);	//ComNum for Pass-Through
@@ -813,7 +880,7 @@ void Mind::Think(int istick) {
 	  size_t p1 = line.find('%');
 	  while(line[p1+1] == '%') ++p1;
 	  size_t p2 = line.find('%', p1+1);
-	  if(p2 != string::npos) line.replace(p1, p2+1, "");
+	  if(p2 != string::npos) line.replace(p1, p2+1-p1, "");
 	  replace_all(line, "%%", "%");
 	  }
 
@@ -1025,21 +1092,6 @@ void Mind::Think(int istick) {
 	    }
 	  }
 
-	else if(!strncasecmp(line.c_str(), "force_actor ", 12)) {
-	  if(curvars.count("actor") && curvars["actor"]) {
-	    Mind *amind = NULL;	//Make sure human minds see it!
-	    vector<Mind *> mns = get_human_minds();
-	    vector<Mind *>::iterator mn = mns.begin();
-	    for(; mn != mns.end(); ++mn) {
-	      if((*mn)->Body() == curvars["actor"]) {
-		amind = *mn;
-		}
-	      }
-	    handle_command(curvars["actor"], line.c_str()+12, amind);
-	    }
-	  spos = skip_line(script, spos);
-	  }
-
 	//Player commands Acid shares with TBA, not requiring arguments
 	else if(com == COM_NORTH
 		|| com == COM_SOUTH
@@ -1098,14 +1150,27 @@ void Mind::Think(int istick) {
 	  spos = skip_line(script, spos);
 	  }
 
-	else if(!strncasecmp(line.c_str(), "send_actor ", 11)) {
-	  if(curvars.count("actor") && curvars["actor"]) {
-	    string mes = line.c_str() + 11;
-	    size_t end = mes.find_first_of("\n\r");
-	    if(end != string::npos) mes = mes.substr(0, end);
-	    trim_string(mes);
-	    mes += "\n";
-	    curvars["actor"]->Send(0, 0, mes.c_str());
+	else if(!strncasecmp(line.c_str(), "send ", 5)) {
+	  Object *targ = NULL;
+	  char mes[1024] = "";
+	  sscanf(line.c_str()+5, " OBJ:%p %1023[^\n\r]", &targ, mes);
+	  mes[strlen(mes)] = '\n';
+	  if(targ) targ->Send(0, 0, mes);
+	  spos = skip_line(script, spos);
+	  }
+
+	else if(!strncasecmp(line.c_str(), "force ", 6)) {
+	  Object *targ = NULL;
+	  char com[1024] = "";
+	  sscanf(line.c_str()+6, " OBJ:%p %1023[^\n\r]", &targ, com);
+	  if(targ) {
+	    Mind *amind = NULL;	//Make sure human minds see it!
+	    vector<Mind *> mns = get_human_minds();
+	    vector<Mind *>::iterator mn = mns.begin();
+	    for(; mn != mns.end(); ++mn) {
+	      if((*mn)->Body() == targ) { amind = *mn; break; }
+	      }
+	    handle_command(targ, com, amind);
 	    }
 	  spos = skip_line(script, spos);
 	  }
@@ -1191,6 +1256,21 @@ void Mind::Think(int istick) {
 //		body->Skill("TBAScript"), line.c_str()
 //		);
 	  spos = skip_line(script, spos);
+	  }
+
+	else if(!strncasecmp(line.c_str(), "purge ", 6)) {
+	  Object *targ = NULL;
+	  sscanf(line.c_str()+6, " OBJ:%p", &targ);
+	  if(targ) {
+	    targ->Recycle();
+	    if(body) {	//Still Connected, didn't purge self.
+	      spos = skip_line(script, spos);
+	      }
+	    else {	//Not Connected, purged self or parent.
+	      Disable();
+	      return;
+	      }
+	    }
 	  }
 
 	else if(!strncasecmp(line.c_str(), "load ", 5)) {
@@ -1371,6 +1451,10 @@ void Mind::Think(int istick) {
 	  }
 	else if(!strncasecmp(line.c_str(), "end", 3)) {
 	  //Ignore these, as we only hit them here when we're running inside if
+	  spos = skip_line(script, spos);
+	  }
+	else if(!strncasecmp(line.c_str(), "nop ", 4)) {
+	  //Ignore these, as the varsub should have done all that's needed
 	  spos = skip_line(script, spos);
 	  }
 	else if(!strncasecmp(line.c_str(), "done", 4)) {
