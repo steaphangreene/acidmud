@@ -1415,6 +1415,11 @@ void Object::SendScore(Mind *m, Object *o) {
     m->SendF("\nEarned Exp: %4d  Player Exp: %4d  Unspent Exp: %4d\n", exp,
 	(minds.count(m) && m->Owner()) ? m->Owner()->Exp() : -1,
 	(minds.count(m) && m->Owner()) ? Exp(m->Owner()) : 0);
+    if(Power("Heat Vision Spell") || Power("Dark Vision Spell")) {
+      m->SendF("Heat/Dark Vision: %d/%d\n",
+	Power("Heat Vision Spell"), Power("Dark Vision Spell")
+	);
+      }
     m->Send(CNRM);
     }
   else {
@@ -3182,6 +3187,36 @@ void Object::Consume(const Object *item) {
       }
     }
 
+  //Special effect: Heat Vision Spell (Grants Ability)
+
+
+  if(item->Skill("Heat Vision Spell")) {
+    int force = item->Skill("Heat Vision Spell");
+    Object *spell = new Object(this);
+    spell->SetSkill("Heat Vision Spell", MIN(100, force));
+    spell->SetShortDesc("a spell");
+    spell->SetSkill("Magical", force);
+    spell->SetSkill("Magical Spell", force);
+    spell->SetSkill("Temporary", force);
+    spell->SetSkill("Invisible", 1000);
+    spell->Activate();
+    Send(ALL, 0, "You can now see better!\n");
+    }
+
+  //Special effect: Dark Vision Spell (Grants Ability)
+  if(item->Skill("Dark Vision Spell")) {
+    int force = item->Skill("Dark Vision Spell");
+    Object *spell = new Object(this);
+    spell->SetSkill("Dark Vision Spell", MIN(100, force));
+    spell->SetShortDesc("a spell");
+    spell->SetSkill("Magical", force);
+    spell->SetSkill("Magical Spell", force);
+    spell->SetSkill("Temporary", force);
+    spell->SetSkill("Invisible", 1000);
+    spell->Activate();
+    Send(ALL, 0, "You can now see better!\n");
+    }
+
   //Special effect: Teleport Spell (Grants Ability)
   if(item->Skill("Teleport Spell")) {
     SetSkill("Teleport", 1);		//Can use once!
@@ -3268,16 +3303,28 @@ int Object::Modifier(const string &m) const {
   int ret = 0;
   typeof(contents.begin()) item = contents.begin();
   for(; item != contents.end(); ++item) {
-    if(Wearing(*item)) {
+    if(Wearing(*item) || (*item)->Skill("Magical Spell")) {
       ret += (*item)->Skill(m + " Bonus");
       ret -= (*item)->Skill(m + " Penalty");
       }
-    //FIXME: Spell Effects!
     }
   ret += Skill(m + " Bonus");
   ret -= Skill(m + " Penalty");
   if(ret < 0) return (ret-999)/1000;
   return (ret/1000);
+  }
+
+int Object::Power(const string &m) const {
+  int ret = 0;
+  ret = Skill(m);
+  typeof(contents.begin()) item = contents.begin();
+  for(; item != contents.end(); ++item) {
+    if(Wearing(*item) || (*item)->Skill("Magical Spell")) {
+      int val = (*item)->Skill(m);
+      if(val > ret) ret = val;
+      }
+    }
+  return ret;
   }
 
 int Object::Wearing(const Object *obj) const {
@@ -3460,6 +3507,16 @@ int Object::StashOrDrop(Object *item, int message, int force, int try_combine) {
     return Drop(item, message, force, try_combine);
     }
   return 0;
+  }
+
+int Object::SubMaxSkill(const string &s) const {
+  int ret = Skill(s);
+  typeof(contents.begin()) item = contents.begin();
+  for(; item != contents.end(); ++item) {
+    int sub = (*item)->SubMaxSkill(s);
+    if(sub > ret) ret = sub;
+    }
+  return ret;
   }
 
 int Object::SubHasSkill(const string &s) const {

@@ -4045,6 +4045,14 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       freehand = 1;
       spname = "Force Sword";
       }
+    else if(!strncasecmp("Heat Vision", comline+len, strlen(comline+len))) {
+      defself = 1;
+      spname = "Heat Vision";
+      }
+    else if(!strncasecmp("Dark Vision", comline+len, strlen(comline+len))) {
+      defself = 1;
+      spname = "Dark Vision";
+      }
     else if(!strncasecmp("Recall", comline+len, strlen(comline+len))) {
       defself = 1;
       spname = "Recall";
@@ -4140,7 +4148,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	obj->SetSkill("WeaponType", 13);
 	obj->SetSkill("WeaponReach", 1);
 	obj->SetSkill("WeaponSeverity", 2);
-	obj->SetSkill("WeaponForce", force);
+	obj->SetSkill("WeaponForce", MIN(100, force));
 	}
       obj->SetWeight(1);
       obj->SetVolume(1);

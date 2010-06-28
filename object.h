@@ -208,9 +208,11 @@ public:
   int Attribute(int) const;
   int BaseAttribute(int a) const { return att[a]; };
   int Modifier(const string &m) const;
+  int Power(const string &m) const;
   int Skill(const string &, int *tnum = NULL) const;
   int HasSkill(const string &) const;
   int SubHasSkill(const string &) const;
+  int SubMaxSkill(const string &) const;
   Object *NextHasSkill(const string &, const Object *last = NULL);
   const map<string,int> &GetSkills() const { return skills; }
 
