@@ -1182,7 +1182,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  mind->Send("It's too dark, you can't see anything.\n");
 	  }
 	else if(mind && mind->Type() == MIND_REMOTE)
-	  body->Parent()->SendDescSurround(body, body);
+	  body->Parent()->SendDescSurround(body, body, vmode);
 	else if(mind && mind->Type() == MIND_SYSTEM)
 	  mind->SendF("You enter %s\n", comline+len);
 
@@ -1403,7 +1403,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   if(com == COM_INVENTORY) {
    if(mind) {
      mind->SendF("You (%s) are carrying:\n", body->ShortDesc());
-     body->SendExtendedActions(mind, 1);
+     body->SendExtendedActions(mind, vmode|1);
      }
    return 0;
    }
@@ -1411,7 +1411,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   if(com == COM_EQUIPMENT) {
    if(mind) {
      mind->SendF("You (%s) are using:\n", body->ShortDesc());
-     body->SendExtendedActions(mind, 0);
+     body->SendExtendedActions(mind, vmode);
      }
    return 0;
    }
@@ -1494,7 +1494,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		";s looks ;s.\n", "", body, (*targ_it));
 	  if(mind) {
 	    (*targ_it)->SendDesc(mind, body);
-	    (*targ_it)->SendExtendedActions(mind);
+	    (*targ_it)->SendExtendedActions(mind, vmode);
 	    }
 	  }
 	else if(within) {
@@ -1612,8 +1612,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	}
 
       if(mind) {
-	(*targ_it)->SendExtendedActions(mind, 1);
-	(*targ_it)->SendContents(mind, body, 1);
+	(*targ_it)->SendExtendedActions(mind, vmode|1);
+	(*targ_it)->SendContents(mind, body, vmode|1);
 	}
       }
     return 0;
