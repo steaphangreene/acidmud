@@ -173,12 +173,39 @@ int Object::Matches(const char *seek) {
     }
 
   //Keywords Only
-  if(!strcasecmp(targ.c_str(), "everyone")) return (BaseAttribute(1) > 0);
-  if(!strcasecmp(targ.c_str(), "someone")) return (BaseAttribute(1) > 0);
-  if(!strcasecmp(targ.c_str(), "anyone")) return (BaseAttribute(1) > 0);
-  if(!strcasecmp(targ.c_str(), "everything")) return (BaseAttribute(1) == 0);
-  if(!strcasecmp(targ.c_str(), "something")) return (BaseAttribute(1) == 0);
-  if(!strcasecmp(targ.c_str(), "anything")) return (BaseAttribute(1) == 0);
+  if(!strcasecmp(targ.c_str(), "everyone")) {
+    return (BaseAttribute(1) > 0);
+    }
+  if(!strcasecmp(targ.c_str(), "someone")) {
+    return (BaseAttribute(1) > 0);
+    }
+  if(!strcasecmp(targ.c_str(), "anyone")) {
+    return (BaseAttribute(1) > 0);
+    }
+  if(!strcasecmp(targ.c_str(), "everything")) {
+    if(IsAct(ACT_SPECIAL_LINKED)) return 0;
+    return (BaseAttribute(1) == 0);
+    }
+  if(!strcasecmp(targ.c_str(), "something")) {
+    if(IsAct(ACT_SPECIAL_LINKED)) return 0;
+    return (BaseAttribute(1) == 0);
+    }
+  if(!strcasecmp(targ.c_str(), "anything")) {
+    if(IsAct(ACT_SPECIAL_LINKED)) return 0;
+    return (BaseAttribute(1) == 0);
+    }
+  if(!strcasecmp(targ.c_str(), "everywhere")) {
+    if(!IsAct(ACT_SPECIAL_LINKED)) return 0;
+    return (BaseAttribute(1) == 0);
+    }
+  if(!strcasecmp(targ.c_str(), "somewhere")) {
+    if(!IsAct(ACT_SPECIAL_LINKED)) return 0;
+    return (BaseAttribute(1) == 0);
+    }
+  if(!strcasecmp(targ.c_str(), "anywhere")) {
+    if(!IsAct(ACT_SPECIAL_LINKED)) return 0;
+    return (BaseAttribute(1) == 0);
+    }
 
   //Keywords which can also be things
   if((!strcasecmp(targ.c_str(), "corpse")) && IsAct(ACT_DEAD)) return 1;
@@ -1951,6 +1978,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) const
   if(!strcasecmp(name, "all")) (*ordinal) = ALL;
   if(!strcasecmp(name, "everyone")) (*ordinal) = ALL;
   if(!strcasecmp(name, "everything")) (*ordinal) = ALL;
+  if(!strcasecmp(name, "everywhere")) (*ordinal) = ALL;
   if(!(*ordinal)) (*ordinal) = 1;
 
   const char *keyword = NULL;
