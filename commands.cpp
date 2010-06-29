@@ -4606,8 +4606,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       verb3 = "stabs";
       }
     else if(body->Skill("NaturalWeapon") == 13) { //Natural Weapon: hit
-      verb = "punch";
-      verb3 = "punches";
+      verb = "hit";
+      verb3 = "hits";
       }
     else if(body->Skill("NaturalWeapon") == 12) { //Natural Weapon: blast
       verb = "blast";
