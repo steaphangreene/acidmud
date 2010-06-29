@@ -1090,7 +1090,6 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
       continue;
       }
 
-    m->Send(CGRN);
     master.erase(*ind);
 
     if((*ind) != o) {
@@ -1099,12 +1098,12 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 	int ignore = 0;
 	if(o && o->Parent() == this) ignore = 1;
 	m->Send(base.c_str());
-	m->SendF("...and %d more things are here too.\n",
+	m->SendF(CGRN "...and %d more things are here too.\n" CNRM,
 		((int)(cont.size())) - total - ignore);
 	break;
 	}
 
-      if(base != "") m->SendF("%s%sInside:%s ", base.c_str(), CNRM, CGRN);
+      if(base != "") m->SendF("%sInside: ", base.c_str());
 
 /*	Uncomment this and comment the block below to disable auto-pluralizing.
       int qty = MAX(1, (*ind)->Skill("Quantity"));
@@ -1117,6 +1116,9 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 	  qty += MAX(1, (*oth)->Skill("Quantity"));
 	  }
 	}
+
+      if((*ind)->BaseAttribute(1) > 0) m->Send(CYEL);
+      else m->Send(CGRN);
 
       if(qty > 1) m->SendF("(x%d) ", qty);
       total += qty;
@@ -1134,24 +1136,25 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
       if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
 	string tmp = base;
 	base += "  ";
+	m->Send(CNRM);
 	(*ind)->SendContents(m, o, seeinside);
 	base = tmp;
 	}
       else if((*ind)->Skill("Container")) {
 	if(seeinside == 1 && (*ind)->Skill("Locked")) {
-	  string mes = base + CNRM
-		+ "  It is closed and locked, you can't see inside.\n" + CGRN;
+	  string mes = base
+		+ CNRM "  It is closed and locked, you can't see inside.\n";
 	  m->Send(mes.c_str());
 	  }
 	else if(seeinside) {
 	  string tmp = base;
 	  base += "  ";
+	  m->Send(CNRM);
 	  (*ind)->SendContents(m, o, seeinside);
 	  base = tmp;
 	  }
 	}
       }
-    m->Send(CNRM);
     }
   if(b.length() > 0) base = "";
   }
