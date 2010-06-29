@@ -814,7 +814,7 @@ void Mind::TBAVarSub(string &line) {
     else if(line[end] == '%') ++end;
     if(is_obj) {
       char buf[256] = "";
-      if(obj) sprintf(buf, "OBJ:%p", obj);
+      sprintf(buf, "OBJ:%p", obj);
       line.replace(cur, end-cur, buf);
       }
     else {	//String OR ""
@@ -998,10 +998,8 @@ void Mind::Think(int istick) {
 		  val = TBAComp(val);
 		  }
 
-		if(val[0] == '%' && val[val.length()-1] == '%'
-			&& ovars.count(val.substr(1, val.length()-2))
-			) {
-		  ovars[var] = ovars[val.substr(1, val.length()-2)];
+		if(! strncmp(val.c_str(), "OBJ:", 4)) {	//Encoded Object *
+		  sscanf(val.c_str(), "OBJ:%p", &(ovars[var]));
 		  svars.erase(var);
 		  }
 		else {
