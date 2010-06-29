@@ -843,7 +843,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		"tbaMUD trigger script", LOC_NINJA|LOC_INTERNAL);
       list<Object *>::iterator trig = trigs.begin();
       for(; trig != trigs.end(); ++trig) {
-	if((*trig)->Skill("TBAScriptType") & 0x04) {	//All the COMMAND trigs
+	if((*trig)->Skill("TBAScriptType") & 0x04) {	//*-COMMAND trigs
 	  if(com == identify_command((*trig)->Desc())) {
 	    if((*trig)->Skill("TBAScriptType") & 0x2000000) {  // OBJ
 	      int narg = (*trig)->Skill("TBAScriptNArg");

@@ -140,11 +140,11 @@ static int tba_eval(string expr) {
   if(len == int(base.length())) return ret;		//Numeric
   sscanf(base.c_str(), " ! %d %n", &ret, &len);
   if(len == int(base.length())) return !ret;		//!Numeric
-  return 1;	//Non-Numberic, Non-NULL
+  if(base[0] == '!') return 0;		//!Non-Numberic, Non-NULL
+  return 1;				//Non-Numberic, Non-NULL
   }
 
 static void tba_varsub_str(string &code, const string &var, const string &val) {
-  replace_all(code, "%%"+var+"%%", val);
   replace_all(code, "%"+var+"%", val);
 
   string arg1 = val, argr = "";
@@ -154,15 +154,11 @@ static void tba_varsub_str(string &code, const string &var, const string &val) {
     apos = val.find_first_not_of(" \t\n\r", apos);
     if(apos != string::npos) argr = val.substr(apos);
     }
-  replace_all(code, "%%"+var+".mudcommand%%", val);	//Commands always full
   replace_all(code, "%"+var+".mudcommand%", val);	//Commands always full
-  replace_all(code, "%%"+var+".car%%", arg1);
   replace_all(code, "%"+var+".car%", arg1);
-  replace_all(code, "%%"+var+".cdr%%", argr);
   replace_all(code, "%"+var+".cdr%", argr);
   string trim = val;
   trim_string(trim);
-  replace_all(code, "%%"+var+".trim%%", trim);
   replace_all(code, "%"+var+".trim%", trim);
 
   if(val[0] == '%' && val[val.length()-1] == '%') {
@@ -627,7 +623,7 @@ void Mind::Think(int istick) {
 	while(tmp != line || tmpvars != curvars) {
 	  if(0
 //		|| body->Skill("TBAScript") == 1000170
-//		|| line.find("eval loc ") != string::npos
+		|| line.find("eval loc ") != string::npos
 //		|| line.find("set first ") != string::npos
 //		|| line.find("exclaim") != string::npos
 //		|| line.find("speech") != string::npos
