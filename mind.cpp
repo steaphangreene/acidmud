@@ -452,8 +452,10 @@ void Mind::TBAVarSub(string &line) {
     string vname = line.substr(cur+1, end-cur-1);
     Object *obj = NULL;
     string val = "";
+    int is_obj = 0;
     if(ovars.count(vname) > 0) {
       obj = ovars[vname];
+      is_obj = 1;
       }
     else if(svars.count(vname) > 0) {
       val = svars[vname];
@@ -465,139 +467,241 @@ void Mind::TBAVarSub(string &line) {
 	int hour = world->Skill("Day Time");
 	hour *= 24;
 	hour /= world->Skill("Day Length");
-	line.replace(cur, 11, itos(hour));
+	val = itos(hour);
+	}
+      end = line.find_first_of("% \t", cur+1);	//Done.  Replace All.
+      }
+    else if(!strncasecmp(line.c_str()+cur, "%random.char%", 13)) {
+      list<Object*> others;
+      if(ovars["self"]->HasSkill("TBARoom")) {
+	others = ovars["self"]->PickObjects("everyone", LOC_INTERNAL);
+	}
+      else if(ovars["self"]->Owner()) {
+	others = ovars["self"]->Owner()->PickObjects("everyone", LOC_NEARBY);
 	}
       else {
-	end = line.find_first_of("% \t", cur+1);
+	others = ovars["self"]->PickObjects("everyone", LOC_NEARBY);
 	}
+      if(others.size() > 0) {
+	int num = rand() % others.size();
+	list<Object*>::iterator item = others.begin();
+	for(;num > 0; --num) { ++item; }
+	obj = (*item);
+	if(0
+//		|| script.find("%damage% %actor% -%actor.level%") != string::npos
+		) {
+	  fprintf(stderr, CGRN "#%d Random: '%s'\n" CNRM,
+		body->Skill("TBAScript"), obj->Name());
+	  }
+	}
+      else {
+	obj = NULL;
+	}
+      is_obj = 1;
+      end = line.find_first_of("% \t", cur+1);	//Done.  Replace All.
       }
-    else {
-      end = line.find_first_of("% \t", cur+1);
+    else if(!strncasecmp(line.c_str()+cur, "%random.dir%", 12)) {
+      Object *room = ovars["self"];
+      while(room && room->Skill("TBARoom") == 0) room = room->Parent();
+      if(room) {
+	set<Object*> options;
+	options.insert(room->PickObject("north", LOC_INTERNAL));
+	options.insert(room->PickObject("south", LOC_INTERNAL));
+	options.insert(room->PickObject("east", LOC_INTERNAL));
+	options.insert(room->PickObject("west", LOC_INTERNAL));
+	options.insert(room->PickObject("up", LOC_INTERNAL));
+	options.insert(room->PickObject("down", LOC_INTERNAL));
+	options.erase(NULL);
+	if(options.size() > 0) {
+	  int num = rand() % options.size();
+	  set<Object*>::iterator item = options.begin();
+	  for(;num > 0; --num) { ++item; }
+	  val = (*item)->ShortDesc();
+	  }
+	}
+      end = line.find_first_of("% \t", cur+1);	//Done.  Replace All.
+      }
+    else if(!strncasecmp(line.c_str()+cur, "%random.", 8)) {
+      if(isdigit(line[cur+8])) {
+	size_t vend = line.find_first_not_of("0123456789", cur+8);
+	if(vend != string::npos && line[vend] == '%') {
+	  val = itos((rand()%atoi(line.c_str()+cur+8))+1);
+	  }
+	}
+      end = line.find_first_of("% \t", cur+1);	//Done.  Replace All.
+      }
+    else {	//Undefined base var
+      end = line.find_first_of("% \t", cur+1);	//Done.  Replace All.
       }
     while(line[end] == '.') {
       size_t start = end+1;
       end = line.find_first_of("%. \t", start);
       if(end == string::npos) end = line.length();
       string field = line.substr(start, end-start);
-      if(obj) {
+      if(is_obj) {
 	if(!strcasecmp(field.c_str(), "vnum")) {
-	  int vnum = obj->Skill("TBAMOB");
-	  if(vnum < 1) vnum = obj->Skill("TBAObject");
-	  if(vnum < 1) vnum = obj->Skill("TBARoom");
-	  if(vnum > 0) vnum -= 1000000;	//Convert from Acid number
+	  int vnum = 0;
+	  if(obj) {
+	    obj->Skill("TBAMOB");
+	    if(vnum < 1) vnum = obj->Skill("TBAObject");
+	    if(vnum < 1) vnum = obj->Skill("TBARoom");
+	    if(vnum > 0) vnum -= 1000000;	//Convert from Acid number
+	    }
 	  val = itos(vnum);
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "gold")) {
-	  int gold;
-	  list<Object *> pay = obj->PickObjects("all a gold piece", LOC_INTERNAL);
-	  list<Object *>::const_iterator coin;
-	  for(coin = pay.begin(); coin != pay.end(); ++coin) {
-	    gold += (*coin)->Quantity();
+	  int gold = 0;
+	  if(obj) {
+	    list<Object *> pay
+		= obj->PickObjects("all a gold piece", LOC_INTERNAL);
+	    list<Object *>::const_iterator coin;
+	    for(coin = pay.begin(); coin != pay.end(); ++coin) {
+	      gold += (*coin)->Quantity();
+	      }
 	    }
 	  val = itos(gold);
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "level")) {
-	  val = itos(obj->Exp()/10+1);
+	  val = "";
+	  if(obj) val = itos(obj->Exp()/10+1);
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "name")) {
-	  val = obj->Name();
+	  val = "";
+	  if(obj) val = obj->Name();
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "shortdesc")) {
-	  val = obj->ShortDesc();
+	  val = "";
+	  if(obj) val = obj->ShortDesc();
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "heshe")) {
-	  val = obj->Pron();
+	  val = "";
+	  if(obj) val = obj->Pron();
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "hisher")) {
-	  val = obj->Poss();
+	  val = "";
+	  if(obj) val = obj->Poss();
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "himher")) {
-	  val = obj->Obje();
+	  val = "";
+	  if(obj) val = obj->Obje();
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "maxhitp")) {
 	  val = itos(1000);	//Everybody has 1000 HP.
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "hitp")) {
-	  val = itos(1000 - 50 * (obj->Phys() + obj->Stun()));
+	  val = "";
+	  if(obj) val = itos(1000 - 50 * (obj->Phys() + obj->Stun()));
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "is_pc")) {
-	  val = bstr[is_pc(obj)];
+	  val = "";
+	  if(obj) val = bstr[is_pc(obj)];
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "is_killer")) {
 	  val = "0";	//FIXME: Real value?
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "is_thief")) {
 	  val = "0";	//FIXME: Real value?
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "con")) {
-	  val = itos((obj->Attribute(0) - 2) * 3);
+	  val = "";
+	  if(obj) val = itos((obj->Attribute(0) - 2) * 3);
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "dex")) {
-	  val = itos((obj->Attribute(1) - 2) * 3);
+	  val = "";
+	  if(obj) val = itos((obj->Attribute(1) - 2) * 3);
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "str")) {
-	  val = itos((obj->Attribute(2) - 2) * 3);
+	  val = "";
+	  if(obj) val = itos((obj->Attribute(2) - 2) * 3);
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "cha")) {
-	  val = itos((obj->Attribute(3) - 2) * 3);
+	  val = "";
+	  if(obj) val = itos((obj->Attribute(3) - 2) * 3);
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "int")) {
-	  val = itos((obj->Attribute(4) - 2) * 3);
+	  val = "";
+	  if(obj) val = itos((obj->Attribute(4) - 2) * 3);
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "wis")) {
-	  val = itos((obj->Attribute(5) - 2) * 3);
+	  val = "";
+	  if(obj) val = itos((obj->Attribute(5) - 2) * 3);
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "fighting")) {
-	  val = bstr[obj->IsAct(ACT_FIGHT)];
+	  val = "";
+	  if(obj) val = bstr[obj->IsAct(ACT_FIGHT)];
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "room")) {
 	  while(obj && obj->Skill("TBARoom") == 0) obj = obj->Parent();
 	  }
 	else if(!strcasecmp(field.c_str(), "people")) {
-	  obj = obj->PickObject("someone", LOC_INTERNAL);
+	  if(obj) obj = obj->PickObject("someone", LOC_INTERNAL);
 	  }
 	else if(!strcasecmp(field.c_str(), "contents")) {
-	  obj = obj->PickObject("something", LOC_INTERNAL);
+	  if(obj) obj = obj->PickObject("something", LOC_INTERNAL);
 	  }
 	else if(!strcasecmp(field.c_str(), "carried_by")) {
-	  obj = obj->Owner();
+	  if(obj) obj = obj->Owner();
 	  }
 	else if(!strcasecmp(field.c_str(), "follower")) {
-	  set<Object*> touch = obj->Touching();
-	  set<Object*>::iterator tent = touch.begin();
-	  for(; tent != touch.end(); ++tent) {
-	    if((*tent)->ActTarg(ACT_FOLLOW) == obj) {
-	      obj = (*tent);
-	      break;
+	  if(obj) {
+	    set<Object*> touch = obj->Touching();
+	    set<Object*>::iterator tent = touch.begin();
+	    for(; tent != touch.end(); ++tent) {
+	      if((*tent)->ActTarg(ACT_FOLLOW) == obj) {
+		obj = (*tent);
+		break;
+		}
 	      }
+	    if(tent == touch.end()) obj = NULL;
 	    }
+	  else obj = NULL;
 	  }
 	else if(!strncasecmp(field.c_str(), "has_item(", 9)) {
 	  int vnum = -1;
 	  size_t num = field.find_first_not_of("0123456789", 9);
 	  sscanf(field.c_str()+9, "%d", &vnum);
-	  if(vnum != -1 && field[num] == ')') {
-	    val = "0";
+	  val = "";
+	  if(obj && vnum != -1 && field[num] == ')') {
 	    vnum += 1000000;
 	    list<Object*> pos = obj->PickObjects("all", LOC_INTERNAL);
 	    list<Object*>::iterator item = pos.begin();
@@ -608,48 +712,63 @@ void Mind::TBAVarSub(string &line) {
 		}
 	      }
 	    }
+	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strncasecmp(field.c_str(), "vnum(", 5)) {
-	  int vnum = obj->Skill("TBAMOB");
-	  if(vnum < 1) vnum = obj->Skill("TBAObject");
-	  if(vnum < 1) vnum = obj->Skill("TBARoom");
 	  val = "0";	//Default - in case it doesn't have a vnum
-	  if(vnum > 0) {
-	    vnum -= 1000000;	//Convert from Acid number
-	    int qnum = TBAEval(field.c_str()+5);
-	    val == bstr[(vnum == qnum)];
+	  if(obj) {
+	    int vnum = obj->Skill("TBAMOB");
+	    if(vnum < 1) vnum = obj->Skill("TBAObject");
+	    if(vnum < 1) vnum = obj->Skill("TBARoom");
+	    if(vnum > 0) {
+	      vnum -= 1000000;	//Convert from Acid number
+	      int qnum = TBAEval(field.c_str()+5);
+	      val == bstr[(vnum == qnum)];
+	      }
 	    }
 	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "pos(sleeping)")) {
-	  obj->SetPos(POS_LIE);
-	  obj->StopAct(ACT_REST);
-	  obj->AddAct(ACT_SLEEP);
-	  obj = NULL; val = "";
+	  if(obj) {
+	    obj->SetPos(POS_LIE);
+	    obj->StopAct(ACT_REST);
+	    obj->AddAct(ACT_SLEEP);
+	    }
+	  obj = NULL; val = ""; is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "pos(resting)")) {
-	  obj->StopAct(ACT_SLEEP);
-	  obj->SetPos(POS_SIT);
-	  obj->AddAct(ACT_REST);
-	  obj = NULL; val = "";
+	  if(obj) {
+	    obj->StopAct(ACT_SLEEP);
+	    obj->SetPos(POS_SIT);
+	    obj->AddAct(ACT_REST);
+	    }
+	  obj = NULL; val = ""; is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "pos(sitting)")) {
-	  obj->StopAct(ACT_SLEEP);
-	  obj->StopAct(ACT_REST);
-	  obj->SetPos(POS_SIT);
-	  obj = NULL; val = "";
+	  if(obj) {
+	    obj->StopAct(ACT_SLEEP);
+	    obj->StopAct(ACT_REST);
+	    obj->SetPos(POS_SIT);
+	    }
+	  obj = NULL; val = ""; is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "pos(fighting)")) {
-	  obj->StopAct(ACT_SLEEP);
-	  obj->StopAct(ACT_REST);
-	  obj->SetPos(POS_STAND);
-	  obj = NULL; val = "";
+	  if(obj) {
+	    obj->StopAct(ACT_SLEEP);
+	    obj->StopAct(ACT_REST);
+	    obj->SetPos(POS_STAND);
+	    }
+	  obj = NULL; val = ""; is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "pos(standing)")) {
-	  obj->StopAct(ACT_SLEEP);
-	  obj->StopAct(ACT_REST);
-	  obj->SetPos(POS_STAND);
-	  obj = NULL; val = "";
+	  if(obj) {
+	    obj->StopAct(ACT_SLEEP);
+	    obj->StopAct(ACT_REST);
+	    obj->SetPos(POS_STAND);
+	    }
+	  obj = NULL; val = ""; is_obj = 0;
 	  //Is no general fighting state, must fight someone!
 	  }
 	else {
@@ -693,9 +812,9 @@ void Mind::TBAVarSub(string &line) {
       }
     if(end == string::npos) end = line.length();
     else if(line[end] == '%') ++end;
-    if(obj) {
-      char buf[256];
-      sprintf(buf, "OBJ:%p", obj);
+    if(is_obj) {
+      char buf[256] = "";
+      if(obj) sprintf(buf, "OBJ:%p", obj);
       line.replace(cur, end-cur, buf);
       }
     else {	//String OR ""
@@ -713,73 +832,6 @@ void Mind::TBAVarSub(string &line) {
     fprintf(stderr, CGRN "#%d Debug: '%s' <-Final\n" CNRM,
 	body->Skill("TBAScript"), line.c_str());
     }
-
-
-/*
-      size_t var;
-
-      var = string::npos;
-      var = line.find("%random.char%");
-      while(var != string::npos) {
-	list<Object*> others;
-	if(ovars["self"] == room) {
-	  others = ovars["self"]->PickObjects("everyone", LOC_INTERNAL);
-	  }
-	else if(ovars["self"]->Owner()) {
-	  others = ovars["self"]->Owner()->PickObjects("everyone", LOC_NEARBY);
-	  }
-	else {
-	  others = ovars["self"]->PickObjects("everyone", LOC_NEARBY);
-	  }
-	if(others.size() > 0) {
-	  ovars["temp_rand_char"] = others.back();
-	  line.replace(var, 13, "%temp_rand_char%");
-	  if(0
-//		|| script.find("%damage% %actor% -%actor.level%") != string::npos
-		) {
-	    fprintf(stderr, CGRN "#%d Random: '%s'\n" CNRM,
-		body->Skill("TBAScript"), ovars["temp_rand_char"]->Name());
-	    }
-	  }
-	else {
-	  ovars.erase("temp_rand_char");
-	  line.replace(var, 13, "");
-	  }
-	var = line.find("%random.char%", var + 1);
-	}
-      var = string::npos;
-      var = line.find("%random.dir%");
-      while(var != string::npos) {
-	set<Object*> options;
-	options.insert(room->PickObject("north", LOC_INTERNAL));
-	options.insert(room->PickObject("south", LOC_INTERNAL));
-	options.insert(room->PickObject("east", LOC_INTERNAL));
-	options.insert(room->PickObject("west", LOC_INTERNAL));
-	options.insert(room->PickObject("up", LOC_INTERNAL));
-	options.insert(room->PickObject("down", LOC_INTERNAL));
-	options.erase(NULL);
-	if(options.size() > 0) {
-	  line.replace(var, 12, (*(options.begin()))->ShortDesc());
-	  }
-	else {
-	  line.replace(var, 12, "");
-	  }
-	var = line.find("%random.dir%", var + 1);
-	}
-      var = line.find("%random.");
-      while(var != string::npos) {
-	if(isdigit(line[var+8])) {
-	  size_t vend = line.find_first_not_of("0123456789", var+8);
-	  if(vend != string::npos && line[vend] == '%') {
-	    char nstr[64];
-	    sprintf(nstr, "%d", (rand()%atoi(line.c_str()+var+8))+1);
-	    line = line.replace(var, vend+1-var, nstr);
-	    var = 0;
-	    }
-	  }
-	var = line.find("%random.", var + 1);
-	}
-*/
   }
 
 #define QUOTAERROR1	CRED "#%d Error: script quota exceeded - killed.\n" CNRM
