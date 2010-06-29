@@ -22,6 +22,7 @@ public:
   Mind(int fd);
   Mind(int fd, int l);
   ~Mind();
+  void Init();
   void SetRemote(int fd);
   void SetMob();
   void SetTBAMob();
@@ -57,6 +58,10 @@ public:
   int Status() const;
   void ClearStatus();
 
+  string TBAComp(string expr);
+  int TBAEval(string expr);
+  void TBAVarSub(string &line);
+
 private:
   int TBACanWanderTo(Object *dest);
 
@@ -68,11 +73,12 @@ private:
   string prompt;
   int log;
 
-  string script;
-  size_t spos;
+  static map<string, string> cvars;
   map<string, string> svars;
   map<string, Object *> ovars;
   int status;
+  string script;
+  size_t spos;
 
   static list<pair<int, Mind*> > waiting;
   };

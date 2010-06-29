@@ -27,9 +27,7 @@ list<Mind *>recycle_bin;
 
 static const char *bstr[2] = {"0", "1"};
 
-static int tba_eval(string expr);
-
-static string tba_comp(string expr) {
+string Mind::TBAComp(string expr) {
   size_t end = expr.find_first_of("\n\r");
   if(end != string::npos) expr = expr.substr(0, end);
   trim_string(expr);
@@ -40,7 +38,7 @@ static string tba_comp(string expr) {
     fprintf(stderr, "Expr: '%s'\n", expr.c_str());
     }
 
-  if(expr[0] == '(') return tba_comp(expr.substr(1));	//FIXME: Really Do This!
+  if(expr[0] == '(') return TBAComp(expr.substr(1));	//FIXME: Really Do This!
 
   size_t skip = 0;
   if(expr[0] == '-') skip = 1;	//Skip Leading "-"
@@ -71,7 +69,7 @@ static string tba_comp(string expr) {
     else expr = expr.substr(op+1);		//1-char
     string arg2;
     if(weak) {
-      arg2 = tba_comp(expr);
+      arg2 = TBAComp(expr);
       expr = "";
       }
     else {
@@ -92,18 +90,18 @@ static string tba_comp(string expr) {
     if(oper == 1 && strcasestr(arg1.c_str(), arg2.c_str())) comp = "1";
     else if(oper == 2 && (arg1 == arg2)) comp = "1";
     else if(oper == 3 && (arg1 != arg2)) comp = "1";
-    else if(oper == 4 && (tba_eval(arg1) <= tba_eval(arg2))) comp = "1";
-    else if(oper == 5 && (tba_eval(arg1) >= tba_eval(arg2))) comp = "1";
-    else if(oper == -1 && (tba_eval(arg1) < tba_eval(arg2))) comp = "1";
-    else if(oper == -2 && (tba_eval(arg1) > tba_eval(arg2))) comp = "1";
-    else if(oper == 6 && (tba_eval(arg1) && tba_eval(arg2))) comp = "1";
-    else if(oper == 7 && (tba_eval(arg1) || tba_eval(arg2))) comp = "1";
-    else if(oper == -3) res = tba_eval(arg1) + tba_eval(arg2);
-    else if(oper == -4) res = tba_eval(arg1) - tba_eval(arg2);
-    else if(oper == -5) res = tba_eval(arg1) * tba_eval(arg2);
+    else if(oper == 4 && (TBAEval(arg1) <= TBAEval(arg2))) comp = "1";
+    else if(oper == 5 && (TBAEval(arg1) >= TBAEval(arg2))) comp = "1";
+    else if(oper == -1 && (TBAEval(arg1) < TBAEval(arg2))) comp = "1";
+    else if(oper == -2 && (TBAEval(arg1) > TBAEval(arg2))) comp = "1";
+    else if(oper == 6 && (TBAEval(arg1) && TBAEval(arg2))) comp = "1";
+    else if(oper == 7 && (TBAEval(arg1) || TBAEval(arg2))) comp = "1";
+    else if(oper == -3) res = TBAEval(arg1) + TBAEval(arg2);
+    else if(oper == -4) res = TBAEval(arg1) - TBAEval(arg2);
+    else if(oper == -5) res = TBAEval(arg1) * TBAEval(arg2);
     else if(oper == -6) {	//Protect from div by zero
-      int val2 = tba_eval(arg2);
-      res = tba_eval(arg1);
+      int val2 = TBAEval(arg2);
+      res = TBAEval(arg1);
       if(val2 != 0) res /= val2;
       }
 
@@ -116,7 +114,7 @@ static string tba_comp(string expr) {
 
     if(expr != "") {
       expr = comp + " " + expr;
-      return tba_comp(expr);
+      return TBAComp(expr);
       }
     return comp;
     }
@@ -124,8 +122,8 @@ static string tba_comp(string expr) {
   return "0";
   }
 
-static int tba_eval(string expr) {
-  string base = tba_comp(expr);
+int Mind::TBAEval(string expr) {
+  string base = TBAComp(expr);
   trim_string(base);
   if(0
 //	|| strcasestr(expr.c_str(), "tea")
@@ -144,28 +142,6 @@ static int tba_eval(string expr) {
   return 1;				//Non-Numberic, Non-NULL
   }
 
-static void tba_varsub_str(string &code, const string &var, const string &val) {
-  replace_all(code, "%"+var+"%", val);
-
-  string arg1 = val, argr = "";
-  size_t apos = val.find_first_of(" \t\n\r");
-  if(apos != string::npos) {
-    arg1 = val.substr(0, apos);
-    apos = val.find_first_not_of(" \t\n\r", apos);
-    if(apos != string::npos) argr = val.substr(apos);
-    }
-  replace_all(code, "%"+var+".mudcommand%", val);	//Commands always full
-  replace_all(code, "%"+var+".car%", arg1);
-  replace_all(code, "%"+var+".cdr%", argr);
-  string trim = val;
-  trim_string(trim);
-  replace_all(code, "%"+var+".trim%", trim);
-
-  if(val[0] == '%' && val[val.length()-1] == '%') {
-    string tval = val.substr(1, val.length()-2);
-    replace_all(code, "%"+var+".", "%"+tval+".");
-    }
-  }
 static void tba_varsub_obj(string &code, const string &var, const Object *obj) {
   if(!obj) return;
   int vnum = obj->Skill("TBAMOB");
@@ -214,24 +190,44 @@ static void tba_varsub_obj(string &code, const string &var, const Object *obj) {
   replace_all(code, "%"+var+".gold%", gold);
   }
 
-Mind::Mind() {
+map<string, string> Mind::cvars;
+
+void Mind::Init() {
   body = NULL;
   player = NULL;
+  if(cvars.size() < 1) {
+    cvars["damage"] = "wdamage";
+    cvars["echo"] = "mecho";
+    cvars["send"] = "send";
+    cvars["force"] = "force";
+    cvars["echoaround"] = "echoaround";
+    cvars["teleport"] = "transport";
+    cvars["zoneecho"] = "zoneecho";
+    cvars["asound"] = "asound";
+    cvars["door"] = "door";
+    cvars["load"] = "load";
+    cvars["purge"] = "purge";
+    cvars["at"] = "at";
+    cvars[""] = "%";
+    }
+  svars = cvars;
+  }
+
+Mind::Mind() {
+  Init();
   type = MIND_MORON;
   pers = 0;
   log = -1;
   }
 
 Mind::Mind(int fd) {
-  body = NULL;
-  player = NULL;
+  Init();
   log = -1;
   SetRemote(fd);
   }
 
 Mind::Mind(int fd, int l) {
-  body = NULL;
-  player = NULL;
+  Init();
   log = l;
   SetRemote(fd);
   }
@@ -309,7 +305,6 @@ void Mind::SetSystem() {
   type = MIND_SYSTEM;
   pers = fileno(stderr);
   }
-
 
 static const char *sevs_p[]
 	= {"-", "L", "L", "M", "M", "M", "S", "S", "S", "S", "D"};
@@ -482,6 +477,240 @@ string Mind::Tactics(int phase) {
   return "attack";
   }
 
+void Mind::TBAVarSub(string &line) {
+  size_t cur = line.find('%');
+  size_t end;
+  while(cur != string::npos) {
+    end = line.find_first_of("%. \t", cur+1);
+    if(end == string::npos) end = line.length();
+    if(0
+//	|| body->Skill("TBAScript") == 1000099
+//	|| line.find("eval loc ") != string::npos
+//	|| line.find("set first ") != string::npos
+//	|| line.find("exclaim") != string::npos
+//	|| line.find("speech") != string::npos
+	) {
+      fprintf(stderr, CGRN "#%d Debug: '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str());
+      }
+    string vname = line.substr(cur+1, end-cur-1);
+    Object *obj = NULL;
+    string val = "";
+    if(ovars.count(vname) > 0) {
+      obj = ovars[vname];
+      }
+    else if(svars.count(vname) > 0) {
+      val = svars[vname];
+      }
+    else if(!strncasecmp(line.c_str()+cur, "%time.hour%", 11)) {
+      Object *world = body;
+      while(world->Parent()->Parent()) world = world->Parent();
+      if(world->Skill("Day Time") && world->Skill("Day Length")) {
+	int hour = world->Skill("Day Time");
+	hour *= 24;
+	hour /= world->Skill("Day Length");
+	char buf[64];
+	sprintf(buf, "%d", hour);
+	line.replace(cur, 11, buf);
+	}
+      else {
+	end = line.find_first_of("% \t", cur+1);
+	}
+      }
+    else {
+      end = line.find_first_of("% \t", cur+1);
+      }
+    while(line[end] == '.') {
+      size_t start = end+1;
+      end = line.find_first_of("%. \t", start);
+      if(end == string::npos) end = line.length();
+      string field = line.substr(start, end-start);
+      if(obj) {
+	if(!strcasecmp(field.c_str(), "room")) {
+	  while(obj && obj->Skill("TBARoom") == 0) obj = obj->Parent();
+	  }
+	if(!strcasecmp(field.c_str(), "people")) {
+	  obj = obj->PickObject("someone", LOC_INTERNAL);
+	  }
+	if(!strcasecmp(field.c_str(), "contents")) {
+	  obj = obj->PickObject("something", LOC_INTERNAL);
+	  }
+	if(!strcasecmp(field.c_str(), "carried_by")) {
+	  obj = obj->Owner();
+	  }
+	if(!strcasecmp(field.c_str(), "follower")) {
+	  set<Object*> touch = obj->Touching();
+	  set<Object*>::iterator tent = touch.begin();
+	  for(; tent != touch.end(); ++tent) {
+	    if((*tent)->ActTarg(ACT_FOLLOW) == obj) {
+	      obj = (*tent);
+	      break;
+	      }
+	    }
+	  }
+	if(!strncasecmp(field.c_str(), "has_item(", 9)) {
+	  int vnum = -1;
+	  size_t num = field.find_first_not_of("0123456789", 9);
+	  sscanf(field.c_str()+9, "%d", &vnum);
+	  if(vnum != -1 && field[num] == ')') {
+	    val = "0";
+	    vnum += 1000000;
+	    list<Object*> pos = obj->PickObjects("all", LOC_INTERNAL);
+	    list<Object*>::iterator item = pos.begin();
+	    for(; item != pos.end(); ++item) {
+	      if(vnum == (*item)->Skill("TBAObject")) {
+		val = "1";
+		break;
+		}
+	      }
+	    }
+	  }
+	if(!strcasecmp(field.c_str(), "pos(sleeping)")) {
+	  obj->SetPos(POS_LIE);
+	  obj->StopAct(ACT_REST);
+	  obj->AddAct(ACT_SLEEP);
+	  obj = NULL; val = "";
+	  }
+	else if(!strcasecmp(field.c_str(), "pos(resting)")) {
+	  obj->StopAct(ACT_SLEEP);
+	  obj->SetPos(POS_SIT);
+	  obj->AddAct(ACT_REST);
+	  obj = NULL; val = "";
+	  }
+	else if(!strcasecmp(field.c_str(), "pos(sitting)")) {
+	  obj->StopAct(ACT_SLEEP);
+	  obj->StopAct(ACT_REST);
+	  obj->SetPos(POS_SIT);
+	  obj = NULL; val = "";
+	  }
+	else if(!strcasecmp(field.c_str(), "pos(fighting)")) {
+	  obj->StopAct(ACT_SLEEP);
+	  obj->StopAct(ACT_REST);
+	  obj->SetPos(POS_STAND);
+	  obj = NULL; val = "";
+	  }
+	else if(!strcasecmp(field.c_str(), "pos(standing)")) {
+	  obj->StopAct(ACT_SLEEP);
+	  obj->StopAct(ACT_REST);
+	  obj->SetPos(POS_STAND);
+	  obj = NULL; val = "";
+	  //Is no general fighting state, must fight someone!
+	  }
+	}
+      else {
+	if(!strcasecmp(field.c_str(), "mudcommand")) {
+	  //val is already right
+	  }
+	else if(!strcasecmp(field.c_str(), "car")) {
+	  size_t apos = val.find_first_of(" \t\n\r");
+	  if(apos != string::npos) {
+	    val = val.substr(0, apos);
+	    }
+	  }
+	else if(!strcasecmp(field.c_str(), "cdr")) {
+	  size_t apos = val.find_first_of(" \t\n\r");
+	  if(apos != string::npos) {
+	    apos = val.find_first_not_of(" \t\n\r", apos);
+	    if(apos != string::npos) val = val.substr(apos);
+	    else val = "";
+	    }
+	  else val = "";
+	  }
+	else if(!strcasecmp(field.c_str(), "trim")) {
+	  trim_string(val);
+	  }
+	}
+      }
+    if(end == string::npos) end = line.length();
+    else if(line[end] == '%') ++end;
+    if(obj) {
+      char buf[256];
+      sprintf(buf, "OBJ:%p", obj);
+      line.replace(cur, end-cur, buf);
+      }
+    else {	//String OR ""
+      line.replace(cur, end-cur, val);
+      }
+    cur = line.find('%', cur+1);
+    }
+  if(0
+//	|| body->Skill("TBAScript") == 1000099
+//	|| line.find("eval loc ") != string::npos
+//	|| line.find("set first ") != string::npos
+//	|| line.find("exclaim") != string::npos
+//	|| line.find("speech") != string::npos
+	) {
+    fprintf(stderr, CGRN "#%d Debug: '%s' <-Final\n" CNRM,
+	body->Skill("TBAScript"), line.c_str());
+    }
+
+
+/*
+      size_t var;
+
+      var = string::npos;
+      var = line.find("%random.char%");
+      while(var != string::npos) {
+	list<Object*> others;
+	if(ovars["self"] == room) {
+	  others = ovars["self"]->PickObjects("everyone", LOC_INTERNAL);
+	  }
+	else if(ovars["self"]->Owner()) {
+	  others = ovars["self"]->Owner()->PickObjects("everyone", LOC_NEARBY);
+	  }
+	else {
+	  others = ovars["self"]->PickObjects("everyone", LOC_NEARBY);
+	  }
+	if(others.size() > 0) {
+	  ovars["temp_rand_char"] = others.back();
+	  line.replace(var, 13, "%temp_rand_char%");
+	  if(0
+//		|| script.find("%damage% %actor% -%actor.level%") != string::npos
+		) {
+	    fprintf(stderr, CGRN "#%d Random: '%s'\n" CNRM,
+		body->Skill("TBAScript"), ovars["temp_rand_char"]->Name());
+	    }
+	  }
+	else {
+	  ovars.erase("temp_rand_char");
+	  line.replace(var, 13, "");
+	  }
+	var = line.find("%random.char%", var + 1);
+	}
+      var = string::npos;
+      var = line.find("%random.dir%");
+      while(var != string::npos) {
+	set<Object*> options;
+	options.insert(room->PickObject("north", LOC_INTERNAL));
+	options.insert(room->PickObject("south", LOC_INTERNAL));
+	options.insert(room->PickObject("east", LOC_INTERNAL));
+	options.insert(room->PickObject("west", LOC_INTERNAL));
+	options.insert(room->PickObject("up", LOC_INTERNAL));
+	options.insert(room->PickObject("down", LOC_INTERNAL));
+	options.erase(NULL);
+	if(options.size() > 0) {
+	  line.replace(var, 12, (*(options.begin()))->ShortDesc());
+	  }
+	else {
+	  line.replace(var, 12, "");
+	  }
+	var = line.find("%random.dir%", var + 1);
+	}
+      var = line.find("%random.");
+      while(var != string::npos) {
+	if(isdigit(line[var+8])) {
+	  size_t vend = line.find_first_not_of("0123456789", var+8);
+	  if(vend != string::npos && line[vend] == '%') {
+	    char nstr[64];
+	    sprintf(nstr, "%d", (rand()%atoi(line.c_str()+var+8))+1);
+	    line = line.replace(var, vend+1-var, nstr);
+	    var = 0;
+	    }
+	  }
+	var = line.find("%random.", var + 1);
+	}
+*/
+  }
 
 #define QUOTAERROR1	CRED "#%d Error: script quota exceeded - killed.\n" CNRM
 #define QUOTAERROR2	body->Skill("TBAScript")
@@ -610,213 +839,14 @@ void Mind::Think(int istick) {
 	  spos = skip_line(script, spos);
 	  continue;
 	  }
+	PING_QUOTA();
 
 	string line;
 	size_t endl = script.find_first_of("\n\r", spos);
 	if(endl == string::npos) line = script.substr(spos);
 	else line = script.substr(spos, endl-spos);
 
-	//Variable sub (Single line)
-	string tmp = "";
-	map<string, Object *> tmpvars;
-	map<string, Object *> curvars = ovars;
-	while(tmp != line || tmpvars != curvars) {
-	  if(0
-//		|| body->Skill("TBAScript") == 1000170
-		|| line.find("eval loc ") != string::npos
-//		|| line.find("set first ") != string::npos
-//		|| line.find("exclaim") != string::npos
-//		|| line.find("speech") != string::npos
-		) {
-	    fprintf(stderr, CGRN "#%d Debug: '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str());
-	    }
-	  PING_QUOTA();
-	  tmp = line;
-	  tmpvars = curvars;
-	  map<string, string>::iterator svarent = svars.begin();
-	  for(; svarent != svars.end(); ++svarent) {
-	    tba_varsub_str(line, svarent->first, svarent->second);
-	    }
-	  map<string, Object *>::iterator ovarent = tmpvars.begin();
-	  for(; ovarent != tmpvars.end(); ++ovarent) {
-	    tba_varsub_obj(line, ovarent->first, ovarent->second);
-	    //Sub-Object Vars
-	    if(line.find("%"+ovarent->first+".room") != string::npos) {
-	      Object *other = ovarent->second;
-	      while(other && other->Skill("TBARoom") == 0)
-		other = other->Parent();
-	      if(other) curvars[ovarent->first+".room"] = other;
-	      }
-	    if(line.find("%"+ovarent->first+".people") != string::npos) {
-	      Object *other =
-		ovarent->second->PickObject("someone", LOC_INTERNAL);
-	      if(other) curvars[ovarent->first+".people"] = other;
-	      }
-	    if(line.find("%"+ovarent->first+".contents") != string::npos) {
-	      Object *other =
-		ovarent->second->PickObject("something", LOC_INTERNAL);
-	      if(other) curvars[ovarent->first+".contents"] = other;
-	      }
-	    if(line.find("%"+ovarent->first+".carried_by") != string::npos) {
-	      Object *other = ovarent->second->Owner();
-	      if(other) curvars[ovarent->first+".carried_by"] = other;
-	      }
-	    if(line.find("%"+ovarent->first+".follower") != string::npos) {
-	      set<Object*> touch = ovarent->second->Touching();
-	      set<Object*>::iterator tent = touch.begin();
-	      for(; tent != touch.end(); ++tent) {
-		if((*tent)->ActTarg(ACT_FOLLOW) == ovarent->second) {
-		  curvars[ovarent->first+".follower"] = (*tent);
-		  break;
-		  }
-		}
-	      }
-	    if(line.find("%"+ovarent->first+".has_item(") != string::npos) {
-	      list<Object*> pos
-			= ovarent->second->PickObjects("all", LOC_INTERNAL);
-	      list<Object*>::iterator item = pos.begin();
-	      for(; item != pos.end(); ++item) {
-		int vnum = (*item)->Skill("TBAObject");
-		if(vnum) {
-		  char buf[32];
-		  sprintf(buf, "%d", vnum - 1000000);
-		  replace_all(line,
-			"%"+ovarent->first+".has_item("+buf+")%", "1");
-		  }
-		}
-	      }
-	    size_t var;
-
-	    var = line.find("%"+ovarent->first+".pos(");
-	    if(var != string::npos) {
-	      char buf[1024];
-	      size_t start = line.find('(', var) + 1;
-	      sscanf(line.c_str()+start, "%1023[^)]", buf);
-	      if(line[start+strlen(buf)+1] != '%') {
-		buf[0] = 0;	//WTF?  Do nothing.
-		}
-	      else if(!strcasecmp(buf, "sleeping")) {
-		ovarent->second->SetPos(POS_LIE);
-		ovarent->second->StopAct(ACT_REST);
-		ovarent->second->AddAct(ACT_SLEEP);
-		}
-	      else if(!strcasecmp(buf, "resting")) {
-		ovarent->second->StopAct(ACT_SLEEP);
-		ovarent->second->SetPos(POS_SIT);
-		ovarent->second->AddAct(ACT_REST);
-		}
-	      else if(!strcasecmp(buf, "sitting")) {
-		ovarent->second->StopAct(ACT_SLEEP);
-		ovarent->second->StopAct(ACT_REST);
-		ovarent->second->SetPos(POS_SIT);
-		}
-	      else if(!strcasecmp(buf, "fighting")) {
-		ovarent->second->StopAct(ACT_SLEEP);
-		ovarent->second->StopAct(ACT_REST);
-		ovarent->second->SetPos(POS_STAND);
-		}
-	      else if(!strcasecmp(buf, "standing")) {
-		ovarent->second->StopAct(ACT_SLEEP);
-		ovarent->second->StopAct(ACT_REST);
-		ovarent->second->SetPos(POS_STAND);
-		//Is no general fighting state, must fight someone!
-		}
-	      else {
-		buf[0] = 0;	//WTF?  Do nothing.
-		}
-	      if(buf[0] != 0) {
-		replace_all(line, "%"+ovarent->first+".pos("+buf+")%", "");
-		}
-	      }
-	    }
-
-	  size_t var;
-
-	  var = string::npos;
-	  var = line.find("%random.char%");
-	  while(var != string::npos) {
-	    list<Object*> others;
-	    if(curvars["self"] == room) {
-	      others = curvars["self"]->PickObjects("everyone", LOC_INTERNAL);
-	      }
-	    else if(curvars["self"]->Owner()) {
-	      others = curvars["self"]->Owner()->PickObjects("everyone", LOC_NEARBY);
-	      }
-	    else {
-	      others = curvars["self"]->PickObjects("everyone", LOC_NEARBY);
-	      }
-	    if(others.size() > 0) {
-	      curvars["temp_rand_char"] = others.back();
-	      line.replace(var, 13, "%temp_rand_char%");
-	      if(0
-//		|| script.find("%damage% %actor% -%actor.level%") != string::npos
-		) {
-		fprintf(stderr, CGRN "#%d Random: '%s'\n" CNRM,
-			body->Skill("TBAScript"), curvars["temp_rand_char"]->Name());
-		}
-	      }
-	    else {
-	      curvars.erase("temp_rand_char");
-	      line.replace(var, 13, "");
-	      }
-	    var = line.find("%random.char%", var + 1);
-	    }
-	  var = string::npos;
-	  var = line.find("%random.dir%");
-	  while(var != string::npos) {
-	    set<Object*> options;
-	    options.insert(room->PickObject("north", LOC_INTERNAL));
-	    options.insert(room->PickObject("south", LOC_INTERNAL));
-	    options.insert(room->PickObject("east", LOC_INTERNAL));
-	    options.insert(room->PickObject("west", LOC_INTERNAL));
-	    options.insert(room->PickObject("up", LOC_INTERNAL));
-	    options.insert(room->PickObject("down", LOC_INTERNAL));
-	    options.erase(NULL);
-	    if(options.size() > 0) {
-	      line.replace(var, 12, (*(options.begin()))->ShortDesc());
-	      }
-	    else {
-	      line.replace(var, 12, "");
-	      }
-	    var = line.find("%random.dir%", var + 1);
-	    }
-	  var = line.find("%random.");
-	  while(var != string::npos) {
-	    if(isdigit(line[var+8])) {
-	      size_t vend = line.find_first_not_of("0123456789", var+8);
-	      if(vend != string::npos && line[vend] == '%') {
-		char nstr[64];
-		sprintf(nstr, "%d", (rand()%atoi(line.c_str()+var+8))+1);
-		line = line.replace(var, vend+1-var, nstr);
-		var = 0;
-		}
-	      }
-	    var = line.find("%random.", var + 1);
-	    }
-	  if(line.find("%time.hour%") != string::npos) {
-	    Object *world = body;
-	    while(world->Parent()->Parent()) world = world->Parent();
-	    if(world->Skill("Day Time") && world->Skill("Day Length")) {
-	      int hour = world->Skill("Day Time");
-	      hour *= 24;
-	      hour /= world->Skill("Day Length");
-	      replace_all(line, "%time.hour%", hour);
-	      }
-	    }
-	  }
-	replace_all(line, "%damage% ", "wdamage ");
-	replace_all(line, "%echo% ", "mecho ");
-	replace_all(line, "%send% ", "send ");
-	replace_all(line, "%force% ", "force ");
-	replace_all(line, "%echoaround% ", "echoaround ");
-	replace_all(line, "%teleport% ", "transport ");
-	replace_all(line, "%zoneecho% ", "zoneecho ");
-	replace_all(line, "%asound% ", "asound ");
-	replace_all(line, "%door% ", "door ");
-	replace_all(line, "%load% ", "load ");
-	replace_all(line, "%purge% ", "purge ");
-	replace_all(line, "%at% ", "at ");
+	TBAVarSub(line);
 
 	com_t com = identify_command(line);	//ComNum for Pass-Through
 
@@ -840,13 +870,14 @@ void Mind::Think(int istick) {
 			body->Skill("TBAScript"), var.c_str(), val.c_str());
 		  }
 		if(tolower(script[spos]) == 'e') {
-		  val = tba_comp(val);
+		  TBAVarSub(val);
+		  val = TBAComp(val);
 		  }
 
 		if(val[0] == '%' && val[val.length()-1] == '%'
-			&& curvars.count(val.substr(1, val.length()-2))
+			&& ovars.count(val.substr(1, val.length()-2))
 			) {
-		  ovars[var] = curvars[val.substr(1, val.length()-2)];
+		  ovars[var] = ovars[val.substr(1, val.length()-2)];
 		  svars.erase(var);
 		  }
 		else {
@@ -860,15 +891,15 @@ void Mind::Think(int istick) {
 	  continue;
 	  }
 
-	map<string, Object *>::iterator ovarent = curvars.begin();
-	for(; ovarent != curvars.end(); ++ovarent) {
+/*	map<string, Object *>::iterator ovarent = ovars.begin();
+	for(; ovarent != ovars.end(); ++ovarent) {
 	  if(ovarent->second) {	//FIXME: Why does this happen?
 	    char buf[128];
 	    sprintf(buf, "OBJ:%p", ovarent->second);
 	    replace_all(line, "%"+ovarent->first+"%", buf);
 	    }
 	  }
-	if(line.find("%") != line.rfind("%")) {	//More than one '%'
+*/	if(line.find("%") != line.rfind("%")) {	//More than one '%'
 	  fprintf(stderr, CYEL "#%d Warning: Didn't fully expand '%s'\n" CNRM,
 		body->Skill("TBAScript"), line.c_str()
 		);
@@ -937,7 +968,7 @@ void Mind::Think(int istick) {
 	  }
 
 	else if(!strncasecmp(line.c_str(), "if ", 3)) {
-	  if(tba_eval(line.c_str()+3)) {
+	  if(TBAEval(line.c_str()+3)) {
 	    spos = skip_line(script, spos);	//Is "if" and is true
 	    }
 	  else {				//Was elseif or false
@@ -1013,7 +1044,7 @@ void Mind::Think(int istick) {
 	      }
 	    spos = skip_line(script, spos);
 	    }
-	  if(tba_eval(line.c_str() + cond)) {
+	  if(TBAEval(line.c_str() + cond)) {
 	    string orig = script;
 	    script = script.substr(begin, skip-begin);
 	    trim_string(script);
@@ -1050,7 +1081,7 @@ void Mind::Think(int istick) {
 	      }
 	    else if(depth == 0
 			&& (!strncasecmp(script.c_str()+spos, "case ", 5))
-			&& tba_eval(value + " == " + script.substr(spos+5))
+			&& TBAEval(value + " == " + script.substr(spos+5))
 			) {			//The actual case I want!
 	      spos = skip_line(script, spos);
 	      break;
@@ -1181,7 +1212,7 @@ void Mind::Think(int istick) {
 	  char buf[256];
 	  if(sscanf(line.c_str() + 8, " %s %n", buf, &pos) >= 1) {
 	    if(!strcasecmp(buf, "all")) { strcpy(buf, "everyone"); }
-	    dam = tba_eval(line.c_str() + 8 + pos);
+	    dam = TBAEval(line.c_str() + 8 + pos);
 	    if(dam > 0) dam = (dam + 180) / 100;
 	    if(dam < 0) dam = (dam - 180) / 100;
 	    }
@@ -1229,7 +1260,7 @@ void Mind::Think(int istick) {
 	    if(!strcasecmp(buf, "all")) { strcpy(buf, "everyone"); }
 	    }
 	  dnum += 1000000;
-	  Object *dest = curvars["self"];
+	  Object *dest = ovars["self"];
 	  while(dest->Parent()->Parent()) {
 	    dest = dest->Parent();
 	    }
@@ -1276,7 +1307,7 @@ void Mind::Think(int istick) {
 	  char targ[256] = "";
 	  char where[256] = "";
 	  Object *src = room;
-	  Object *dest = curvars["self"];
+	  Object *dest = ovars["self"];
 	  Object *item = NULL;
 	  params = sscanf(line.c_str() + 5, " %s %d %s %s",
 		buf, &vnum, targ, where);
@@ -1459,7 +1490,7 @@ void Mind::Think(int istick) {
 	  return;
 	  }
 	else if(!strncasecmp(line.c_str(), "return ", 7)) {
-	  int retval = tba_eval(line.c_str()+7);
+	  int retval = TBAEval(line.c_str()+7);
 	  if(retval == 0) {
 	    status = 1;			//Return with special state
 	    }
@@ -1762,7 +1793,7 @@ void Mind::Disable() {
       waiting.erase(tmp);
       }
     }
-  svars.clear();		//Reset all variables
+  svars = cvars;		//Reset all variables
   ovars.clear();
   recycle_bin.push_back(this);	//Ready for re-use
   }
