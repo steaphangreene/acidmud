@@ -1133,23 +1133,22 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 
       (*ind)->SendActions(m);
 
+      m->Send(CNRM);
       if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
 	string tmp = base;
 	base += "  ";
-	m->Send(CNRM);
 	(*ind)->SendContents(m, o, seeinside);
 	base = tmp;
 	}
       else if((*ind)->Skill("Container")) {
 	if(seeinside == 1 && (*ind)->Skill("Locked")) {
-	  string mes = base
-		+ CNRM "  It is closed and locked, you can't see inside.\n";
+	  string mes
+		= base + "  It is closed and locked, you can't see inside.\n";
 	  m->Send(mes.c_str());
 	  }
 	else if(seeinside) {
 	  string tmp = base;
 	  base += "  ";
-	  m->Send(CNRM);
 	  (*ind)->SendContents(m, o, seeinside);
 	  base = tmp;
 	  }
