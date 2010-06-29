@@ -539,7 +539,10 @@ void Mind::TBAVarSub(string &line) {
       if(end == string::npos) end = line.length();
       string field = line.substr(start, end-start);
       if(is_obj) {
-	if(!strcasecmp(field.c_str(), "vnum")) {
+	if(!strcasecmp(field.c_str(), "id")) {
+	  //obj is already right
+	  }
+	else if(!strcasecmp(field.c_str(), "vnum")) {
 	  int vnum = 0;
 	  if(obj) {
 	    obj->Skill("TBAMOB");
@@ -999,6 +1002,7 @@ void Mind::Think(int istick) {
 		  }
 
 		if(! strncmp(val.c_str(), "OBJ:", 4)) {	//Encoded Object *
+		  ovars[var] = NULL;
 		  sscanf(val.c_str(), "OBJ:%p", &(ovars[var]));
 		  svars.erase(var);
 		  }
@@ -1265,6 +1269,7 @@ void Mind::Think(int istick) {
 
 	//Player commands Acid shares with TBA, requiring arguments
 	else if(com == COM_SAY
+		|| com == COM_SHOUT
 		|| com == COM_EMOTE
 		|| com == COM_LOCK
 		|| com == COM_UNLOCK
