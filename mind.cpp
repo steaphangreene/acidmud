@@ -27,6 +27,12 @@ list<Mind *>recycle_bin;
 
 static const char *bstr[2] = {"0", "1"};
 
+static string itos(int val) {
+  char buf[256];
+  sprintf(buf, "%d", val);
+  return string(buf);
+  }
+
 string Mind::TBAComp(string expr) {
   size_t end = expr.find_first_of("\n\r");
   if(end != string::npos) expr = expr.substr(0, end);
@@ -106,9 +112,7 @@ string Mind::TBAComp(string expr) {
       }
 
     if(oper <= -3) {	//Non-Boolean - actual numeric value
-      char buf[256];
-      sprintf(buf, "%d", res);
-      comp = buf;
+      comp = itos(res);
       //fprintf(stderr, "RES: %s\n", buf);
       }
 
@@ -140,54 +144,6 @@ int Mind::TBAEval(string expr) {
   if(len == int(base.length())) return !ret;		//!Numeric
   if(base[0] == '!') return 0;		//!Non-Numberic, Non-NULL
   return 1;				//Non-Numberic, Non-NULL
-  }
-
-static void tba_varsub_obj(string &code, const string &var, const Object *obj) {
-  if(!obj) return;
-  int vnum = obj->Skill("TBAMOB");
-  if(vnum < 1) vnum = obj->Skill("TBAObject");
-  if(vnum < 1) vnum = obj->Skill("TBARoom");
-  if(vnum > 0) {
-    vnum -= 1000000;	//Convert from Acid number
-    char svnum[256];
-    sprintf(svnum, "%d", vnum);
-    replace_all(code, "%"+var+".vnum%", vnum);
-    replace_all(code, "%"+var+".vnum("+svnum+")%", "1");
-    size_t beg = code.find("%"+var+".vnum(");
-    while(beg != string::npos) {
-      size_t end = code.find('%');
-      if(end != string::npos) {
-	code.replace(beg, end+1-beg, "0");
-	}
-      beg = code.find("%"+var+".vnum(");
-      }
-    }
-  replace_all(code, "%"+var+".level%", obj->Exp()/10+1);
-  replace_all(code, "%"+var+".name%", obj->Name());
-  replace_all(code, "%"+var+".shortdesc%", obj->ShortDesc());
-  replace_all(code, "%"+var+".heshe%", obj->Pron());
-  replace_all(code, "%"+var+".hisher%", obj->Poss());
-  replace_all(code, "%"+var+".himher%", obj->Obje());
-  replace_all(code, "%"+var+".maxhitp%", 1000);	//Everybody has 1000 HP.
-  replace_all(code, "%"+var+".hitp%", 1000 - 50 * (obj->Phys() + obj->Stun()));
-  replace_all(code, "%"+var+".is_pc%", is_pc(obj));
-  replace_all(code, "%"+var+".is_killer%", 0);	//FIXME: Real value?
-  replace_all(code, "%"+var+".is_thief%", 0);	//FIXME: Real value?
-  replace_all(code, "%"+var+".con%", (obj->Attribute(0) - 2) * 3);
-  replace_all(code, "%"+var+".dex%", (obj->Attribute(1) - 2) * 3);
-  replace_all(code, "%"+var+".str%", (obj->Attribute(2) - 2) * 3);
-  replace_all(code, "%"+var+".cha%", (obj->Attribute(3) - 2) * 3);
-  replace_all(code, "%"+var+".int%", (obj->Attribute(4) - 2) * 3);
-  replace_all(code, "%"+var+".wis%", (obj->Attribute(5) - 2) * 3);
-  replace_all(code, "%"+var+".fighting%", bstr[obj->IsAct(ACT_FIGHT)]);
-
-  int gold;
-  list<Object *> pay = obj->PickObjects("all a gold piece", LOC_INTERNAL);
-  list<Object *>::const_iterator coin;
-  for(coin = pay.begin(); coin != pay.end(); ++coin) {
-    gold += (*coin)->Quantity();
-    }
-  replace_all(code, "%"+var+".gold%", gold);
   }
 
 map<string, string> Mind::cvars;
@@ -509,9 +465,7 @@ void Mind::TBAVarSub(string &line) {
 	int hour = world->Skill("Day Time");
 	hour *= 24;
 	hour /= world->Skill("Day Length");
-	char buf[64];
-	sprintf(buf, "%d", hour);
-	line.replace(cur, 11, buf);
+	line.replace(cur, 11, itos(hour));
 	}
       else {
 	end = line.find_first_of("% \t", cur+1);
@@ -526,19 +480,109 @@ void Mind::TBAVarSub(string &line) {
       if(end == string::npos) end = line.length();
       string field = line.substr(start, end-start);
       if(obj) {
-	if(!strcasecmp(field.c_str(), "room")) {
+	if(!strcasecmp(field.c_str(), "vnum")) {
+	  int vnum = obj->Skill("TBAMOB");
+	  if(vnum < 1) vnum = obj->Skill("TBAObject");
+	  if(vnum < 1) vnum = obj->Skill("TBARoom");
+	  if(vnum > 0) vnum -= 1000000;	//Convert from Acid number
+	  val = itos(vnum);
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "gold")) {
+	  int gold;
+	  list<Object *> pay = obj->PickObjects("all a gold piece", LOC_INTERNAL);
+	  list<Object *>::const_iterator coin;
+	  for(coin = pay.begin(); coin != pay.end(); ++coin) {
+	    gold += (*coin)->Quantity();
+	    }
+	  val = itos(gold);
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "level")) {
+	  val = itos(obj->Exp()/10+1);
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "name")) {
+	  val = obj->Name();
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "shortdesc")) {
+	  val = obj->ShortDesc();
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "heshe")) {
+	  val = obj->Pron();
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "hisher")) {
+	  val = obj->Poss();
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "himher")) {
+	  val = obj->Obje();
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "maxhitp")) {
+	  val = itos(1000);	//Everybody has 1000 HP.
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "hitp")) {
+	  val = itos(1000 - 50 * (obj->Phys() + obj->Stun()));
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "is_pc")) {
+	  val = bstr[is_pc(obj)];
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "is_killer")) {
+	  val = "0";	//FIXME: Real value?
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "is_thief")) {
+	  val = "0";	//FIXME: Real value?
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "con")) {
+	  val = itos((obj->Attribute(0) - 2) * 3);
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "dex")) {
+	  val = itos((obj->Attribute(1) - 2) * 3);
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "str")) {
+	  val = itos((obj->Attribute(2) - 2) * 3);
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "cha")) {
+	  val = itos((obj->Attribute(3) - 2) * 3);
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "int")) {
+	  val = itos((obj->Attribute(4) - 2) * 3);
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "wis")) {
+	  val = itos((obj->Attribute(5) - 2) * 3);
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "fighting")) {
+	  val = bstr[obj->IsAct(ACT_FIGHT)];
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "room")) {
 	  while(obj && obj->Skill("TBARoom") == 0) obj = obj->Parent();
 	  }
-	if(!strcasecmp(field.c_str(), "people")) {
+	else if(!strcasecmp(field.c_str(), "people")) {
 	  obj = obj->PickObject("someone", LOC_INTERNAL);
 	  }
-	if(!strcasecmp(field.c_str(), "contents")) {
+	else if(!strcasecmp(field.c_str(), "contents")) {
 	  obj = obj->PickObject("something", LOC_INTERNAL);
 	  }
-	if(!strcasecmp(field.c_str(), "carried_by")) {
+	else if(!strcasecmp(field.c_str(), "carried_by")) {
 	  obj = obj->Owner();
 	  }
-	if(!strcasecmp(field.c_str(), "follower")) {
+	else if(!strcasecmp(field.c_str(), "follower")) {
 	  set<Object*> touch = obj->Touching();
 	  set<Object*>::iterator tent = touch.begin();
 	  for(; tent != touch.end(); ++tent) {
@@ -548,7 +592,7 @@ void Mind::TBAVarSub(string &line) {
 	      }
 	    }
 	  }
-	if(!strncasecmp(field.c_str(), "has_item(", 9)) {
+	else if(!strncasecmp(field.c_str(), "has_item(", 9)) {
 	  int vnum = -1;
 	  size_t num = field.find_first_not_of("0123456789", 9);
 	  sscanf(field.c_str()+9, "%d", &vnum);
@@ -565,7 +609,19 @@ void Mind::TBAVarSub(string &line) {
 	      }
 	    }
 	  }
-	if(!strcasecmp(field.c_str(), "pos(sleeping)")) {
+	else if(!strncasecmp(field.c_str(), "vnum(", 5)) {
+	  int vnum = obj->Skill("TBAMOB");
+	  if(vnum < 1) vnum = obj->Skill("TBAObject");
+	  if(vnum < 1) vnum = obj->Skill("TBARoom");
+	  val = "0";	//Default - in case it doesn't have a vnum
+	  if(vnum > 0) {
+	    vnum -= 1000000;	//Convert from Acid number
+	    int qnum = TBAEval(field.c_str()+5);
+	    val == bstr[(vnum == qnum)];
+	    }
+	  obj = NULL;
+	  }
+	else if(!strcasecmp(field.c_str(), "pos(sleeping)")) {
 	  obj->SetPos(POS_LIE);
 	  obj->StopAct(ACT_REST);
 	  obj->AddAct(ACT_SLEEP);
@@ -596,6 +652,13 @@ void Mind::TBAVarSub(string &line) {
 	  obj = NULL; val = "";
 	  //Is no general fighting state, must fight someone!
 	  }
+	else {
+	  fprintf(stderr, CRED "#%d Error: Bad sub-obj '%s' in '%s'\n" CNRM,
+		body->Skill("TBAScript"), field.c_str(), line.c_str()
+		);
+	  Disable();
+	  return;
+	  }
 	}
       else {
 	if(!strcasecmp(field.c_str(), "mudcommand")) {
@@ -618,6 +681,13 @@ void Mind::TBAVarSub(string &line) {
 	  }
 	else if(!strcasecmp(field.c_str(), "trim")) {
 	  trim_string(val);
+	  }
+	else {
+	  fprintf(stderr, CRED "#%d Error: Bad sub-str '%s' in '%s'\n" CNRM,
+		body->Skill("TBAScript"), field.c_str(), line.c_str()
+		);
+	  Disable();
+	  return;
 	  }
 	}
       }
@@ -847,6 +917,7 @@ void Mind::Think(int istick) {
 	else line = script.substr(spos, endl-spos);
 
 	TBAVarSub(line);
+	if(type == MIND_MORON) return;
 
 	com_t com = identify_command(line);	//ComNum for Pass-Through
 
@@ -871,6 +942,7 @@ void Mind::Think(int istick) {
 		  }
 		if(tolower(script[spos]) == 'e') {
 		  TBAVarSub(val);
+		  if(type == MIND_MORON) return;
 		  val = TBAComp(val);
 		  }
 
