@@ -621,7 +621,7 @@ Command comlist[1024] = {
   { COM_VERSION, "version",
     "Ninja command: query the version information of running AcidMUD.",
     "Ninja command: query the version information of running AcidMUD.",
-    (REQ_ANY|REQ_NINJAMODE)
+    (REQ_ANY)
     },
 
   { COM_MAKESTART, "makestart",
@@ -987,8 +987,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   if(com == COM_VERSION) {
     if(mind) mind->SendF("Version of this MUD is %d.%d.%d-%d: %s.\n",
 	CurrentVersion.acidmud_version[0], CurrentVersion.acidmud_version[1],
-	CurrentVersion.acidmud_version[2], CurrentVersion.acidmud_version[3],
-	CurrentVersion.acidmud_datestamp.c_str());
+	CurrentVersion.acidmud_version[2], CurrentVersion.acidmud_svnstamp,
+	CurrentVersion.acidmud_datestamp);
     return 0;
     }
 

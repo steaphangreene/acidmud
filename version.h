@@ -8,8 +8,9 @@ struct VersionInformation {
   unsigned int savefile_version_net;
   unsigned int savefile_version_player;
   unsigned int savefile_version_object;
-  unsigned int acidmud_version[4];
-  string acidmud_datestamp;
+  unsigned int acidmud_version[3];
+  unsigned int acidmud_svnstamp;
+  const char *acidmud_datestamp;
   };
 
 #ifndef VERSION_DEFINED

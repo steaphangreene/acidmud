@@ -1,6 +1,7 @@
 ACIDHOST:=optimus.cs.binghamton.edu
 
 TSTR:=  $(shell date -u +"%Y%m%d%H%M")
+SSTR:=  $(shell svn info | grep ^Revision: | cut -f2- -d' ')
 OBJS:=	main.o version.o stats.o net.o commands.o mind.o player.o mob.o \
 	object.o object_acid.o object_dynamic.o command_ccreate.o utils.o \
 	object_tba.o 
@@ -18,8 +19,8 @@ LIBS:=	-lstdc++ -lcrypt
 #LIBS:=	-static -lstdc++ -lcrypt
 
 #Debugging settings
-#CXX=	gcc$(ACIDMUD_CTAIL) -g -Wall
-#LIBS:=	-lstdc++ -lcrypt
+CXX=	gcc$(ACIDMUD_CTAIL) -g -Wall
+LIBS:=	-lstdc++ -lcrypt
 
 #Profiling settings
 #CXX=	gcc$(ACIDMUD_CTAIL) -g -pg -fprofile-arcs -Wall
@@ -50,7 +51,10 @@ acidmud: $(OBJS)
 	$(CXX) -c $<
 
 version.cpp:	version.cpp.template *.h [a-uw-z]*.cpp
-	cat version.cpp.template | sed s-DATE_STAMP-$(TSTR)-g > version.cpp
+	cat version.cpp.template \
+		| sed s-DATE_STAMP-$(TSTR)-g \
+		| sed s-SVN_STAMP-$(SSTR)-g \
+		> version.cpp
 
 include deps.mk
 
