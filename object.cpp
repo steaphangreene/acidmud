@@ -2570,13 +2570,13 @@ void Object::SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
     typeof(contents.begin()) trig = contents.begin();
     for(; trig != contents.end(); ++trig) {
       if(((*trig)->Skill("TBAScriptType") & 0x4000008) == 0x4000008) {
-        if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) {  // % Chance
+//        if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) {//FIXME: Word/Phrase
 	  string speech = mes+9;
 	  size_t len = speech.find_last_of("'");
 	  if(len != string::npos) speech = speech.substr(0, len);
           //fprintf(stderr, "Triggering: %s\n", (*trig)->Name());
           new_trigger((rand() % 400) + 300, *trig, actor, speech);
-          }
+//          }
         }
       }
     }

@@ -626,6 +626,7 @@ void Mind::Think(int istick) {
 	map<string, Object *> curvars = ovars;
 	while(tmp != line || tmpvars != curvars) {
 	  if(0
+//		|| body->Skill("TBAScript") == 1000170
 //		|| line.find("eval loc ") != string::npos
 //		|| line.find("set first ") != string::npos
 //		|| line.find("exclaim") != string::npos
@@ -675,19 +676,20 @@ void Mind::Think(int istick) {
 		  }
 		}
 	      }
-//	    if(line.find("%"+ovarent->first+".has_item(") != string::npos) {
-//	      list<Object*> pos
-//			= ovarent->second->PickObjects("all", LOC_INTERNAL);
-//	      list<Object*>::iterator item = pos.begin();
-//	      for(; item != pos.end(); ++item) {
-//		int vnum = (*pos)->
-//	        replace_all(
-//		if((*tent)->ActTarg(ACT_FOLLOW) == ovarent->second) {
-//		  curvars[ovarent->first+".follower"] = (*tent);
-//		  break;
-//		  }
-//		}
-//	      }
+	    if(line.find("%"+ovarent->first+".has_item(") != string::npos) {
+	      list<Object*> pos
+			= ovarent->second->PickObjects("all", LOC_INTERNAL);
+	      list<Object*>::iterator item = pos.begin();
+	      for(; item != pos.end(); ++item) {
+		int vnum = (*item)->Skill("TBAObject");
+		if(vnum) {
+		  char buf[32];
+		  sprintf(buf, "%d", vnum - 1000000);
+		  replace_all(line,
+			"%"+ovarent->first+".has_item("+buf+")%", "1");
+		  }
+		}
+	      }
 	    size_t var;
 
 	    var = line.find("%"+ovarent->first+".pos(");
@@ -993,7 +995,7 @@ void Mind::Think(int istick) {
 
 	else if(!strncasecmp(line.c_str(), "while ", 6)) {
 	  int depth = 0;
-	  size_t cond = 6, begin = spos, end = spos, skip = spos;
+	  size_t rep = spos, cond = 6, begin = spos, end = spos, skip = spos;
 	  spos = skip_line(script, spos);
 	  begin = spos;
 	  while(spos != string::npos) {	//Skip to end (considering nesting)
@@ -1015,8 +1017,7 @@ void Mind::Think(int istick) {
 	      }
 	    spos = skip_line(script, spos);
 	    }
-	  while(tba_eval(line.c_str() + cond)) {
-	    PING_QUOTA();
+	  if(tba_eval(line.c_str() + cond)) {
 	    string orig = script;
 	    script = script.substr(begin, skip-begin);
 	    trim_string(script);
@@ -1026,7 +1027,7 @@ void Mind::Think(int istick) {
 	      return;
 	      }
 	    script = orig;
-	    spos = skip;
+	    spos = rep;			//Repeat the "while"
 	    }
 	  }
 
