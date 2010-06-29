@@ -464,7 +464,7 @@ Room Drop Example~
 2 h 100
 ~
 %echo% %actor.name% tries to drop object type: %object.type%
-if %object.type% == TRA
+if %object.type% == TRASH
   %echo% No Littering!
   return 0
 end
