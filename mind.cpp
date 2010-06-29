@@ -94,8 +94,8 @@ string Mind::TBAComp(string expr) {
     int res = 0;
     string comp = "0";
     if(oper == 1 && strcasestr(arg1.c_str(), arg2.c_str())) comp = "1";
-    else if(oper == 2 && (arg1 == arg2)) comp = "1";
-    else if(oper == 3 && (arg1 != arg2)) comp = "1";
+    else if(oper == 2 && (!strcasecmp(arg1.c_str(), arg2.c_str()))) comp = "1";
+    else if(oper == 3 && strcasestr(arg1.c_str(), arg2.c_str())) comp = "1";
     else if(oper == 4 && (TBAEval(arg1) <= TBAEval(arg2))) comp = "1";
     else if(oper == 5 && (TBAEval(arg1) >= TBAEval(arg2))) comp = "1";
     else if(oper == -1 && (TBAEval(arg1) < TBAEval(arg2))) comp = "1";
@@ -135,15 +135,23 @@ int Mind::TBAEval(string expr) {
 	) {
     fprintf(stderr, "Base: '%s'\n", base.c_str());
     }
-  if(base.length() == 0) return 0;			//Null
-  if(base.length() == 1 && base[0] == '!') return 1;	//!Null
+  if(base.length() == 0) return 0;				//Null
+  if(base.length() == 1 && base[0] == '!') return 1;		//!Null
+
   int ret = 0, len = 0;
   sscanf(base.c_str(), " %d %n", &ret, &len);
-  if(len == int(base.length())) return ret;		//Numeric
+  if(len == int(base.length())) return ret;			//Numeric
   sscanf(base.c_str(), " ! %d %n", &ret, &len);
-  if(len == int(base.length())) return !ret;		//!Numeric
-  if(base[0] == '!') return 0;		//!Non-Numberic, Non-NULL
-  return 1;				//Non-Numberic, Non-NULL
+  if(len == int(base.length())) return !ret;			//!Numeric
+
+  Object *holder;
+  sscanf(base.c_str(), " OBJ:%p %n", &holder, &len);
+  if(len == int(base.length())) return (holder != NULL);	//Object
+  sscanf(base.c_str(), " ! OBJ:%p %n", &holder, &len);
+  if(len == int(base.length())) return (holder == NULL);	//!Object
+
+  if(base[0] == '!') return 0;		//!Non-Numberic, Non-NULL, Non-Object
+  return 1;				//Non-Numberic, Non-NULL, Non-Object
   }
 
 map<string, string> Mind::cvars;
@@ -568,6 +576,37 @@ void Mind::TBAVarSub(string &line) {
 	  obj = NULL;
 	  is_obj = 0;
 	  }
+	else if(!strcasecmp(field.c_str(), "type")) {
+	  val = "OTHER";
+	  if(obj) {
+	    if(obj->HasSkill("Conatiner")) val = "CONTAINER";
+	    else if(obj->HasSkill("Liquid Source")) val = "FOUNTAIN";
+	    else if(obj->HasSkill("Liquid Container")) val = "LIQUID CONTAINER";
+	    else if(obj->HasSkill("Ingestible") <= 0) val = "FOOD";
+	    else if(obj->Value() <= 0) val = "TRASH";
+		//FIXME: More Types!
+	    }
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "cost")) {
+	  val = "";
+	  if(obj) val = itos(obj->Value());
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "count")) {
+	  val = "";
+	  if(obj) val = itos(obj->Quantity());
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "weight")) {
+	  val = "";
+	  if(obj) val = itos(obj->Weight());
+	  obj = NULL;
+	  is_obj = 0;
+	  }
 	else if(!strcasecmp(field.c_str(), "level")) {
 	  val = "";
 	  if(obj) val = itos(obj->Exp()/10+1);
@@ -684,6 +723,21 @@ void Mind::TBAVarSub(string &line) {
 	  }
 	else if(!strcasecmp(field.c_str(), "carried_by")) {
 	  if(obj) obj = obj->Owner();
+	  }
+	else if(!strcasecmp(field.c_str(), "next_in_list")) {
+	  if(obj) {
+	    Object *par = obj->Owner();
+	    if(!par) par = obj->Parent();
+	    if(par) {
+	      list<Object*> stf = par->PickObjects("everything", LOC_INTERNAL);
+	      list<Object*>::iterator item = stf.begin();
+	      while(item != stf.end() && (*item) != obj) ++item;
+	      if(item != stf.end()) ++item;
+	      if(item != stf.end()) obj = (*item);
+	      else obj = NULL;
+	      }
+	    else obj = NULL;
+	    }
 	  }
 	else if(!strcasecmp(field.c_str(), "follower")) {
 	  if(obj) {
