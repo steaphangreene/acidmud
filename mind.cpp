@@ -607,6 +607,16 @@ void Mind::TBAVarSub(string &line) {
 	  obj = NULL;
 	  is_obj = 0;
 	  }
+	else if(!strcasecmp(field.c_str(), "sex")) {
+	  val = "";
+	  if(obj) {
+	    if(obj->Gender() == 'M') val = "male";
+	    else if(obj->Gender() == 'F') val = "female";
+	    else val = "none";
+	    }
+	  obj = NULL;
+	  is_obj = 0;
+	  }
 	else if(!strcasecmp(field.c_str(), "level")) {
 	  val = "";
 	  if(obj) val = itos(obj->Exp()/10+1);
@@ -620,6 +630,12 @@ void Mind::TBAVarSub(string &line) {
 	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "shortdesc")) {
+	  val = "";
+	  if(obj) val = obj->ShortDesc();
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "alias")) {
 	  val = "";
 	  if(obj) val = obj->ShortDesc();
 	  obj = NULL;
@@ -651,6 +667,17 @@ void Mind::TBAVarSub(string &line) {
 	else if(!strcasecmp(field.c_str(), "hitp")) {
 	  val = "";
 	  if(obj) val = itos(1000 - 50 * (obj->Phys() + obj->Stun()));
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "align")) {
+	  val = "";
+	  if(obj) {
+	    int align = 0;
+	    align = obj->Skill("Honor");
+	    if(align == 0) align = -(obj->Skill("Dishonor"));
+	    val = itos(align);
+	    }
 	  obj = NULL;
 	  is_obj = 0;
 	  }
@@ -688,6 +715,11 @@ void Mind::TBAVarSub(string &line) {
 	  obj = NULL;
 	  is_obj = 0;
 	  }
+	else if(!strcasecmp(field.c_str(), "stradd")) {	//D&D is Dumb
+	  val = "0";
+	  obj = NULL;
+	  is_obj = 0;
+	  }
 	else if(!strcasecmp(field.c_str(), "cha")) {
 	  val = "";
 	  if(obj) val = itos((obj->Attribute(3) - 2) * 3);
@@ -706,6 +738,155 @@ void Mind::TBAVarSub(string &line) {
 	  obj = NULL;
 	  is_obj = 0;
 	  }
+	else if(!strcasecmp(field.c_str(), "pos")) {
+	  val = "";
+	  if(obj) {
+	    if(obj->IsAct(ACT_SLEEP)) val = "sleeping";
+	    else if(obj->IsAct(ACT_REST)) val = "resting";
+	    else if(obj->IsAct(ACT_FIGHT)) val = "fighting";
+	    else if(obj->Pos() == POS_LIE) val = "resting";
+	    else if(obj->Pos() == POS_SIT) val = "sitting";
+	    else if(obj->Pos() == POS_STAND) val = "standing";
+	    }
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "move")) {
+	  val = "";
+	  if(obj) val = itos(10 - obj->Stun());
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "maxmove")) {
+	  val = "";
+	  if(obj) val = "10";
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "mana")) {
+	  val = "";
+	  if(obj) {
+	    if(obj->HasSkill("Faith")) {
+	      val = itos(obj->Skill("Faith Remaining"));
+	      }
+	    else {
+	      val = itos(10 - obj->Stun());
+	      }
+	    }
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "maxmana")) {
+	  val = "";
+	  if(obj) {
+	    if(obj->HasSkill("Faith")) {
+	      val = itos(obj->Skill("Faith") * obj->Skill("Faith"));
+	      }
+	    else {
+	      val = "10";
+	      }
+	    }
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "saving_para")) {
+	  val = "";
+	  if(obj) val = "0";
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "saving_rod")) {
+	  val = "";
+	  if(obj) val = "0";
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "saving_petri")) {
+	  val = "";
+	  if(obj) val = "0";
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "saving_breath")) {
+	  val = "";
+	  if(obj) val = "0";
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "saving_spell")) {
+	  val = "";
+	  if(obj) val = "0";
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "prac")) {
+	  val = "";
+	  if(obj) val = "0";
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "questpoints")) {
+	  val = "";
+	  if(obj) val = "0";
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "exp")) {
+	  val = "";
+	  if(obj) val = itos(obj->Exp());
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "hunger")) {
+	  val = "";
+	  if(obj) val = itos(obj->Skill("Hungry"));	//FIXME: Convert
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "thirst")) {
+	  val = "";
+	  if(obj) val = itos(obj->Skill("Thirsty"));	//FIXME: Convert
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "drunk")) {
+	  val = "";
+	  if(obj) val = "0";	//FIXME: Query Drunkenness Here
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "class")) {
+	  val = "";
+	  if(obj) {
+	    if(obj->HasSkill("Spellcasting") || obj->HasSkill("Spellcraft")) {
+	      val = "magic user";
+	      }
+	    else if(obj->HasSkill("Perception") || obj->HasSkill("Stealth")) {
+	      val = "thief";
+	      }
+	    else if(obj->HasSkill("Faith")) {
+	      val = "priest";
+	      }
+	    else {
+	      val = "warrior";
+	      }
+	    }
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "canbeseen")) {
+	  val = "";
+	  if(obj) val = bstr[
+		!(obj->HasSkill("Invisible") || obj->HasSkill("Hidden"))
+		];
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "affect")) {
+	  val = "";	//FIXME: Translate & List Spell Effects?
+	  obj = NULL;
+	  is_obj = 0;
+	  }
 	else if(!strcasecmp(field.c_str(), "fighting")) {
 	  if(obj) obj = obj->ActTarg(ACT_FIGHT);
 	  }
@@ -717,6 +898,12 @@ void Mind::TBAVarSub(string &line) {
 	  }
 	else if(!strcasecmp(field.c_str(), "contents")) {
 	  if(obj) obj = obj->PickObject("something", LOC_INTERNAL);
+	  }
+	else if(!strcasecmp(field.c_str(), "inventory")) {
+	  if(obj) obj = obj->PickObject("something", LOC_INTERNAL|LOC_NOTWORN);
+	  }
+	else if(!strcasecmp(field.c_str(), "eq")) {
+	  if(obj) obj = obj->PickObject("something", LOC_INTERNAL|LOC_NOTUNWORN);
 	  }
 	else if(!strcasecmp(field.c_str(), "carried_by")) {
 	  if(obj) obj = obj->Owner();
@@ -735,6 +922,24 @@ void Mind::TBAVarSub(string &line) {
 	      }
 	    else obj = NULL;
 	    }
+	  }
+	else if(!strcasecmp(field.c_str(), "next_in_room")) {
+	  if(obj) {
+	    Object *room = obj->Parent();
+	    while(room && room->Skill("TBARoom") == 0) room = room->Parent();
+	    if(room) {
+	      list<Object*> stf = room->PickObjects("everyone", LOC_INTERNAL);
+	      list<Object*>::iterator item = stf.begin();
+	      while(item != stf.end() && (*item) != obj) ++item;
+	      if(item != stf.end()) ++item;
+	      if(item != stf.end()) obj = (*item);
+	      else obj = NULL;
+	      }
+	    else obj = NULL;
+	    }
+	  }
+	else if(!strcasecmp(field.c_str(), "master")) {
+	  if(obj) obj = obj->ActTarg(ACT_FOLLOW);	//FIXME: More Kinds?
 	  }
 	else if(!strcasecmp(field.c_str(), "follower")) {
 	  if(obj) {
