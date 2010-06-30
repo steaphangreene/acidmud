@@ -1334,11 +1334,8 @@ void Mind::Think(int istick) {
       ovars["self"] = body->Parent();
       Object *room = ovars["self"];
       while(room && room->Skill("TBARoom") == 0) {
-	if(room->Skill("Invisible") > 999) {	//Not Really There
-	  room = NULL;
-	  break;
-	  }
-	room = room->Parent();
+	if(room->Skill("Invisible") > 999) room = NULL;	//Not really there
+	else room = room->Parent();
 	}
       if(!room) {	//Not in a room (dup clone, in a popper, etc...).
 	Disable();
@@ -1348,7 +1345,14 @@ void Mind::Think(int istick) {
       if(!script[spos]) return;	//Empty
       int quota = 1024;
       int stype = body->Skill("TBAScriptType");
+      Object *oldp = NULL;
       while(spos != string::npos) {
+	if(oldp) {
+	  ovars["self"]->Parent()->RemoveLink(ovars["self"]);
+	  ovars["self"]->SetParent(oldp);
+	  oldp->AddLink(ovars["self"]);
+	  oldp = NULL;
+	  }
 	if(script[spos] == '*') {		//Comments
 	  spos = skip_line(script, spos);
 	  continue;
@@ -1362,41 +1366,6 @@ void Mind::Think(int istick) {
 
 	TBAVarSub(line);
 	if(type == MIND_MORON) return;
-
-	com_t com = identify_command(line);	//ComNum for Pass-Through
-
-	if(!strncasecmp(line.c_str(), "at ", 3)) {
-	  int dnum, pos;
-	  if(sscanf(line.c_str(), "at %d %n", &dnum, &pos) != 1) {
-	    fprintf(stderr, CRED "#%d Error: Malformed line '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
-	    Disable();
-	    return;
-	    }
-	  dnum += 1000000;
-	  while(room->Parent()->Parent()) {
-	    room = room->Parent();
-	    }
-	  list<Object*> options = room->Contents();
-	  list<Object*>::iterator opt = options.begin();
-	  room = NULL;
-	  for(; opt != options.end(); ++opt) {
-	    if((*opt)->Skill("TBARoom") == dnum) {
-	      room = (*opt);
-	      break;
-	      }
-	    }
-	  if(!room) {
-	    fprintf(stderr, CRED "#%d Error: Can't find room in '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
-	    Disable();
-	    return;
-	    }
-	  line = line.substr(pos);
-	  //Continue interpreting line (with new room).
-	  }
 
 	if((!strncasecmp(line.c_str(), "eval ", 5))
 		|| (!strncasecmp(line.c_str(), "set ", 4))) {
@@ -1439,27 +1408,46 @@ void Mind::Think(int istick) {
 	  continue;
 	  }
 
-/*	map<string, Object *>::iterator ovarent = ovars.begin();
-	for(; ovarent != ovars.end(); ++ovarent) {
-	  if(ovarent->second) {	//FIXME: Why does this happen?
-	    char buf[128];
-	    sprintf(buf, "OBJ:%p", ovarent->second);
-	    replace_all(line, "%"+ovarent->first+"%", buf);
-	    }
-	  }
-*/	if(line.find("%") != line.rfind("%")) {	//More than one '%'
-	  fprintf(stderr, CYEL "#%d Warning: Didn't fully expand '%s'\n" CNRM,
+	if(!strncasecmp(line.c_str(), "at ", 3)) {
+	  int dnum, pos;
+	  if(sscanf(line.c_str(), "at %d %n", &dnum, &pos) < 1) {
+	    fprintf(stderr, CRED "#%d Error: Malformed line '%s'\n" CNRM,
 		body->Skill("TBAScript"), line.c_str()
 		);
+	    Disable();
+	    return;
+	    }
+	  dnum += 1000000;
+	  while(room->Parent()->Parent()) {
+	    room = room->Parent();
+	    }
+	  list<Object*> options = room->Contents();
+	  list<Object*>::iterator opt = options.begin();
+	  room = NULL;
+	  for(; opt != options.end(); ++opt) {
+	    if((*opt)->Skill("TBARoom") == dnum) {
+	      room = (*opt);
+	      break;
+	      }
+	    }
+	  if(!room) {
+	    fprintf(stderr, CRED "#%d Error: Can't find room in '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	    Disable();
+	    return;
+	    }
+	  oldp = ovars["self"]->Parent();
+	  oldp->RemoveLink(ovars["self"]);
+	  ovars["self"]->SetParent(room);
+	  room->AddLink(ovars["self"]);
+	  fprintf(stderr,CGRN "#%d Debug: '%s' -> '%s'\n" CNRM,
+		body->Skill("TBAScript"), oldp->ShortDesc(), room->ShortDesc());
+	  line = line.substr(pos);
+	  //Continue interpreting line (with new room).
 	  }
-	//Set undefined variables to ""
-	while(line.find("%") != line.rfind("%")) {	//More than one '%'
-	  size_t p1 = line.find('%');
-	  while(line[p1+1] == '%') ++p1;
-	  size_t p2 = line.find('%', p1+1);
-	  if(p2 != string::npos) line.replace(p1, p2+1-p1, "");
-	  replace_all(line, "%%", "%");
-	  }
+
+	com_t com = identify_command(line);	//ComNum for Pass-Through
 
 	//Start of real command if/else if/else
 	if(line.find("%") != line.rfind("%")) {		//More than one '%'
@@ -1467,7 +1455,7 @@ void Mind::Think(int istick) {
 		body->Skill("TBAScript"), line.c_str()
 		);
 	  Disable();
-	  return;
+	  break;
 	  }
 
 	else if(!strncasecmp(line.c_str(), "wait until ", 11)) {
@@ -1487,7 +1475,7 @@ void Mind::Think(int istick) {
 	      Suspend((minute - curmin)
 		* 1000 * world->Skill("Day Length") / 24	//*60/60
 		);
-	      return;
+	      break;
 	      }
 	    }
 	  else {
@@ -1495,7 +1483,7 @@ void Mind::Think(int istick) {
 		body->Skill("TBAScript"), line.c_str()
 		);
 	    Disable();
-	    return;
+	    break;
 	    }
 	  }
 
@@ -1505,14 +1493,50 @@ void Mind::Think(int istick) {
 	  if(time > 0) {
 	    spos = skip_line(script, spos);
 	    Suspend(time*1000);
+	    break;
 	    }
 	  else {
 	    fprintf(stderr, CRED "#%d Error: Told '%s'\n" CNRM,
 		body->Skill("TBAScript"), line.c_str()
 		);
 	    Disable();
+	    break;
 	    }
-	  return;
+	  }
+
+	if((!strncasecmp(line.c_str(), "oset ", 5))
+		|| (!strncasecmp(line.c_str(), "osetval ", 8))) {
+	  int v1, v2;
+	  size_t end = line.find(" ");
+	  if(sscanf(line.c_str()+end, " %d %d", &v1, &v2) != 2) {
+	    fprintf(stderr, CRED "#%d Error: Told '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	    Disable();
+	    break;
+	    }
+	  else if(ovars["self"]->Skill("Liquid Source") && v1 == 0) {
+	    if(v2 < 0) v2 = 1<<30;
+	    ovars["self"]->SetSkill("Liquid Source", v2 + 1);
+	    }
+	  else if(ovars["self"]->Skill("Liquid Source") && v1 == 1) {
+	    if(ovars["self"]->Contents().size() < 1) {
+	      fprintf(stderr, CYEL "#%d Warning: Empty fountain '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	      Disable();
+	      break;
+	      }
+	    ovars["self"]->Contents().front()->SetSkill("Quantity", v2+1);
+	    }
+	  else {
+	    fprintf(stderr, CRED "#%d Error: Unimplemented oset '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	    Disable();
+	    break;
+	    }
+	  spos = skip_line(script, spos);
 	  }
 
 	else if(!strncasecmp(line.c_str(), "if ", 3)) {
@@ -1599,7 +1623,7 @@ void Mind::Think(int istick) {
 	    spos = 0;
 	    Think(istick);		//Semi-recursive to do the loop-age
 	    if(type == MIND_MORON) {
-	      return;
+	      break;
 	      }
 	    script = orig;
 	    spos = rep;			//Repeat the "while"
@@ -1698,6 +1722,7 @@ void Mind::Think(int istick) {
 		|| com == COM_OPEN
 		|| com == COM_CLOSE
 		|| com == COM_GET
+		|| com == COM_DROP
 		) {
 	  size_t stuff = line.find_first_of(" ");
 	  if(stuff != string::npos) {
@@ -1711,7 +1736,7 @@ void Mind::Think(int istick) {
 		body->Skill("TBAScript"), line.c_str()
 		);
 	    Disable();
-	    return;
+	    break;
 	    }
 	  spos = skip_line(script, spos);
 	  }
@@ -1875,7 +1900,7 @@ void Mind::Think(int istick) {
 	      }
 	    else {	//Not Connected, purged self or parent.
 	      Disable();
-	      return;
+	      break;
 	      }
 	    }
 	  }
@@ -1896,7 +1921,7 @@ void Mind::Think(int istick) {
 		body->Skill("TBAScript"), line.c_str()
 		);
 	    Disable();
-	    return;
+	    break;
 	    }
 	  while(src->Parent()->Parent()) src = src->Parent();
 	  if(type == 'o') {
@@ -1927,7 +1952,7 @@ void Mind::Think(int istick) {
 		body->Skill("TBAScript"), line.c_str()
 		);
 	    Disable();
-	    return;
+	    break;
 	    }
 	  if(params > 2) {
 	    fprintf(stderr, CGRN "#%d Debug: (%s) '%s'\n" CNRM,
@@ -1939,7 +1964,7 @@ void Mind::Think(int istick) {
 		body->Skill("TBAScript"), line.c_str()
 		);
 	    Disable();
-	    return;
+	    break;
 	    }
 	  if(strcmp("rfinger", where) == 0 || strcmp("1", where) == 0) {
 	    mask = item->Skill("Wearable on Right Finger");
@@ -2018,7 +2043,7 @@ void Mind::Think(int istick) {
 		body->Skill("TBAScript"), line.c_str()
 		);
 	    Disable();
-	    return;
+	    break;
 	    }
 	  item->SetParent(dest);
 	  if(loc != 0 && loc != ACT_HOLD && loc != ACT_WIELD) {	//Wear it
@@ -2066,7 +2091,7 @@ void Mind::Think(int istick) {
 	  }
 	else if(!strncasecmp(line.c_str(), "done", 4)) {
 	  //Means we should be within a while(), so return to main.
-	  return;
+	  break;
 	  }
 	else if(!strncasecmp(line.c_str(), "return ", 7)) {
 	  int retval = TBAEval(line.c_str()+7);
@@ -2074,19 +2099,28 @@ void Mind::Think(int istick) {
 	    status = 1;			//Return with special state
 	    }
 	  Disable();
-	  return;
+	  break;
 	  }
 	else if(!strncasecmp(line.c_str(), "halt", 4)) {
 	  Disable();
-	  return;
+	  break;
 	  }
 	else {		//Silently ignore the rest for now!  FIXME: Error mes.
 	  fprintf(stderr, CRED "#%d Error: Gibberish script line '%s'\n" CNRM,
 		body->Skill("TBAScript"), line.c_str()
 		);
 	  Disable();
-	  return;
+	  break;
 	  }
+	}
+      if(oldp) {
+	ovars["self"]->Parent()->RemoveLink(ovars["self"]);
+	ovars["self"]->SetParent(oldp);
+	oldp->AddLink(ovars["self"]);
+	oldp = NULL;
+	}
+      if(type == MIND_MORON) {	//Disabled
+	return;
 	}
       if(stype & 2) {		//Random Triggers
 	int chance = body->Skill("TBAScriptNArg");	//Percent Chance
@@ -2355,6 +2389,7 @@ list<pair<int, Mind*> > Mind::waiting;
 void Mind::Suspend(int msec) {
 //  fprintf(stderr, "Suspening(%p)\n", this);
   waiting.push_back(make_pair(msec, this));
+  fprintf(stderr, CYEL "Queue: %d\n" CNRM, int(waiting.size()));
   }
 
 void Mind::Disable() {

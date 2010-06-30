@@ -548,10 +548,10 @@ int Object::Tick() {
       if(contents.front()->Skill("Quantity") > 1) {
 	qty = contents.front()->Skill("Quantity");
 	}
-      if(qty < Skill("Capacity")) {
+      if(qty < Skill("Liquid Container")) {
 	contents.front()->SetSkill("Quantity", qty + Skill("Liquid Source"));
-	if(contents.front()->Skill("Quantity") > Skill("Capacity")) {
-	  contents.front()->SetSkill("Quantity", Skill("Capacity"));
+	if(contents.front()->Skill("Quantity") > Skill("Liquid Container")) {
+	  contents.front()->SetSkill("Quantity", Skill("Liquid Container"));
 	  }
 	}
       }

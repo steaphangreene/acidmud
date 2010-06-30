@@ -28,7 +28,7 @@ static const char *dirname[6] = {
 	"north", "east", "south", "west", "up", "down"
 	};
 
-static int unhandled_trig = 0;
+static int untrans_trig = 0;
 static char buf[65536];
 void Object::TBALoadAll() {
   FILE *mudt = fopen("tba/trg/index", "r");
@@ -111,7 +111,7 @@ void Object::TBALoadAll() {
     fclose(muds);
     }
   TBACleanup();
-  fprintf(stderr, "Warning: %d unhandled triggers!\n", unhandled_trig);
+  fprintf(stderr, "Warning: %d untranslated triggers!\n", untrans_trig);
   }
 
 static list<Object*> todotrg;
@@ -408,6 +408,9 @@ void Object::TBALoadZON(const char *fn) {
 	    Object *obj = new Object(*(bynumobj[num]));
 	    obj->SetParent(bynumwld[room]);
 	    //fprintf(stderr, "Put Obj \"%s\" in Room \"%s\"\n", obj->ShortDesc(), bynumwld[room]->ShortDesc());
+	    if(obj->HasSkill("Liquid Source")) {
+	      obj->Activate();
+	      }
 	    lastobj[num] = obj;
 	    }
 	  } break;
@@ -1221,7 +1224,6 @@ void Object::TBALoadOBJ(const char *fn) {
 	}
       else if(tp == 10) { // POTION
 	obj->SetSkill("Liquid Container", 1);
-	obj->SetSkill("Capacity", 1);
 	obj->SetSkill("Closeable", 1);
 	obj->SetSkill("Perishable", 1);
 
@@ -1238,15 +1240,15 @@ void Object::TBALoadOBJ(const char *fn) {
 	  }
 	}
       else if(tp == 17 || tp == 23) { // DRINKCON/FOUNTAIN
-	obj->SetSkill("Liquid Container", val[0]);
-	obj->SetSkill("Capacity", val[0]);
+	if(val[0] < 0) val[0] = 1<<30;	//Unlimited
 	if(tp == 23) {	//FOUNTAIN only
 	  obj->SetSkill("Open", 1000);
 	  obj->SetSkill("Liquid Source", 1);
-	  obj->Activate();
+	  obj->SetSkill("Liquid Container", val[0]+1);
 	  }
 	else {		//DRINKCON only
 	  obj->SetSkill("Closeable", 1);
+	  obj->SetSkill("Liquid Container", val[0]);
 	  }
 	if(val[1] > 0 || tp == 23) {
 	  Object *liq = new Object(obj);
@@ -2525,16 +2527,16 @@ void Object::TBALoadTRG(const char *fn) {	//Triggers
 //		tnum, dir);
 	    }
 	  }
-	++unhandled_trig;	//This is NOT really handled yet.
+	++untrans_trig;	//This is NOT really handled yet.
 	}
       else if(strstr(buf, "if %direction% == ")) {
 //	fprintf(stderr, "%d appears to be a direction trigger.\n", tnum);
-	++unhandled_trig;	//This is NOT really handled yet.
+	++untrans_trig;	//This is NOT really handled yet.
 	}
       else if(0) {
 	}
       else {
-	++unhandled_trig;	//FIXME: Handle some more!
+	++untrans_trig;	//FIXME: Handle some more!
 	}
       }
     fclose(mud);
