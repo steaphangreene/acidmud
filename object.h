@@ -122,9 +122,9 @@ public:
   const char *ShortDesc() const;
   const char *Desc() const;
   const char *LongDesc() const;
-  void SetShortDesc(const char *);
-  void SetDesc(const char *);
-  void SetLongDesc(const char *);
+  void SetShortDesc(const string &);
+  void SetDesc(const string &);
+  void SetLongDesc(const string &);
   void SetParent(Object *);
   Object *Parent() const { return parent; };
   set<Object*> Touching() const { return touching_me; };

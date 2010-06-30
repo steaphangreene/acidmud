@@ -644,7 +644,17 @@ Command comlist[1024] = {
     "Ninja command - ninjas only!",
     (REQ_ALERT|REQ_NINJAMODE)
     },
+  { COM_UNDESCRIBE, "undescribe",
+    "Ninja command.",
+    "Ninja command - ninjas only!",
+    (REQ_ALERT|REQ_NINJAMODE)
+    },
   { COM_DEFINE, "define",
+    "Ninja command.",
+    "Ninja command - ninjas only!",
+    (REQ_ALERT|REQ_NINJAMODE)
+    },
+  { COM_UNDEFINE, "undefine",
     "Ninja command.",
     "Ninja command - ninjas only!",
     (REQ_ALERT|REQ_NINJAMODE)
@@ -5374,6 +5384,18 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     return 0;
     }
 
+  if(com == COM_UNDESCRIBE) {
+    if(!mind) return 0;
+    Object *targ = body->ActTarg(ACT_POINT);
+    if(!targ) {
+      mind->Send("You need to be pointing at your target.\n");
+      return 0;
+      }
+    targ->SetDesc("");
+    mind->SendF("You remove the description from '%s'\n", targ->Name(0, body));
+    return 0;
+    }
+
   if(com == COM_DESCRIBE) {
     if(!mind) return 0;
     Object *targ = body->ActTarg(ACT_POINT);
@@ -5383,14 +5405,40 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(comline[len] != 0) {
-      string oldn = targ->ShortDesc();
-      targ->SetDesc(comline+len);
-      mind->SendF("You redescribe '%s' as '%s'\n", oldn.c_str(),
-	targ->Desc());	//FIXME - Real Message
+      if(targ->Desc() == targ->ShortDesc()) {
+	targ->SetDesc(comline+len);
+	mind->SendF("You add a description to '%s'\n", targ->Name(0, body));
+	}
+      else {
+	targ->SetDesc(targ->Desc() + string("\n") + (comline+len));
+	mind->SendF("You add to the description of '%s'\n", targ->Name(0, body));
+	}
       }
     else {
-      mind->Send("Describe it as what?\n");
+      if(strncmp(mind->SpecialPrompt(), "nin des", 7)) {
+	mind->SetSpecialPrompt("nin des");
+	mind->Send(
+		"Type the description - exit by just hitting ENTER:"
+		);
+	}
+      else {
+	mind->SetSpecialPrompt("");
+	mind->Send("Exiting out of describe mode.");
+	}
+      return 0;
       }
+    return 0;
+    }
+
+  if(com == COM_UNDEFINE) {
+    if(!mind) return 0;
+    Object *targ = body->ActTarg(ACT_POINT);
+    if(!targ) {
+      mind->Send("You need to be pointing at your target.\n");
+      return 0;
+      }
+    targ->SetLongDesc("");
+    mind->SendF("You remove the definition from '%s'\n", targ->Name(0, body));
     return 0;
     }
 
@@ -5403,13 +5451,27 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(comline[len] != 0) {
-      string oldn = targ->ShortDesc();
-      targ->SetLongDesc(comline+len);
-      mind->SendF("You redefine '%s' as '%s'\n", oldn.c_str(),
-	targ->LongDesc());	//FIXME - Real Message
+      if(targ->LongDesc() == targ->Desc()) {
+	targ->SetLongDesc(comline+len);
+	mind->SendF("You add a definition to '%s'\n", targ->Name(0, body));
+	}
+      else {
+	targ->SetLongDesc(targ->LongDesc() + string("\n") + (comline+len));
+	mind->SendF("You add to the definition of '%s'\n", targ->Name(0, body));
+	}
       }
     else {
-      mind->Send("Define it as what?\n");
+      if(strncmp(mind->SpecialPrompt(), "nin def", 7)) {
+	mind->SetSpecialPrompt("nin def");
+	mind->Send(
+		"Type the definition - exit by just hitting ENTER:"
+		);
+	}
+      else {
+	mind->SetSpecialPrompt("");
+	mind->Send("Exiting out of define mode.");
+	}
+      return 0;
       }
     return 0;
     }

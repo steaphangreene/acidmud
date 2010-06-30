@@ -878,19 +878,19 @@ static void trim(string &s) {
     }
   }
 
-void Object::SetShortDesc(const char *d) {
+void Object::SetShortDesc(const string &d) {
   string s = d;
   trim(s);
   short_desc = s;
   }
 
-void Object::SetDesc(const char *d) {
+void Object::SetDesc(const string &d) {
   string s = d;
   trim(s);
   desc = s;
   }
 
-void Object::SetLongDesc(const char *d) {
+void Object::SetLongDesc(const string &d) {
   string s = d;
   trim(s);
   long_desc = s;
