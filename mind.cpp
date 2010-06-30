@@ -1393,7 +1393,10 @@ void Mind::Think(int istick) {
 	    Disable();
 	    return;
 	    }
+	  spos = skip_line(script, spos);
+	  continue;
 	  }
+
 	if((!strncasecmp(line.c_str(), "eval ", 5))
 		|| (!strncasecmp(line.c_str(), "set ", 4))) {
 	  size_t lpos = line.find_first_not_of(" \t", 4);
