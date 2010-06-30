@@ -2718,7 +2718,7 @@ void Object::Loud(set<Object*> &visited, int str, const char *mes) {
       if(dest->Skill("Open") < 1) {
 	--str;
 	}
-      if(str > 0) {
+      if(str >= 0) {
 	if(dest->ActTarg(ACT_SPECIAL_LINKED)
 		&& dest->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
 	  dest = dest->ActTarg(ACT_SPECIAL_LINKED);

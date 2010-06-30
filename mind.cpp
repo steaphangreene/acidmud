@@ -1333,34 +1333,17 @@ void Mind::Think(int istick) {
     if(body && body->Parent()) {
       ovars["self"] = body->Parent();
       Object *room = ovars["self"];
-      while(room && room->Skill("TBARoom") == 0) room = room->Parent();
-      if(!room) {
-//	fprintf(stderr, CRED "#%d Error: Self not in a room - killed!\n" CNRM,
-//		body->Skill("TBAScript")
-//		);
+      while(room && room->Skill("TBARoom") == 0) {
+	if(room->Skill("Invisible") > 999) {	//Not Really There
+	  room = NULL;
+	  break;
+	  }
+	room = room->Parent();
+	}
+      if(!room) {	//Not in a room (dup clone, in a popper, etc...).
 	Disable();
 	return;
 	}
-      Object *aroom = NULL;
-      if(ovars.count("actor") && ovars["actor"]) {
-	aroom = ovars["actor"];
-	while(aroom && aroom->Skill("TBARoom") == 0) aroom = aroom->Parent();
-	}
-
-//      if(self->Matches("picard")
-//		|| self->Matches("teleporter")
-//		|| self->Matches("mindflayer")
-//		|| self->Matches("in the mines")
-//		) {
-//	room->SendOut(0, 0,
-//		(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
-//		(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str(),
-//		NULL, NULL
-//		);
-//	fprintf(stderr, "%s\n",
-//		(string(CMAG "TRIGGERED:\n") + script + CNRM).c_str()
-//		);
-//	}
 
       if(!script[spos]) return;	//Empty
       int quota = 1024;
@@ -1381,6 +1364,39 @@ void Mind::Think(int istick) {
 	if(type == MIND_MORON) return;
 
 	com_t com = identify_command(line);	//ComNum for Pass-Through
+
+	if(!strncasecmp(line.c_str(), "at ", 3)) {
+	  int dnum, pos;
+	  if(sscanf(line.c_str(), "at %d %n", &dnum, &pos) != 1) {
+	    fprintf(stderr, CRED "#%d Error: Malformed line '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	    Disable();
+	    return;
+	    }
+	  dnum += 1000000;
+	  while(room->Parent()->Parent()) {
+	    room = room->Parent();
+	    }
+	  list<Object*> options = room->Contents();
+	  list<Object*>::iterator opt = options.begin();
+	  room = NULL;
+	  for(; opt != options.end(); ++opt) {
+	    if((*opt)->Skill("TBARoom") == dnum) {
+	      room = (*opt);
+	      break;
+	      }
+	    }
+	  if(!room) {
+	    fprintf(stderr, CRED "#%d Error: Can't find room in '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	    Disable();
+	    return;
+	    }
+	  line = line.substr(pos);
+	  //Continue interpreting line (with new room).
+	  }
 
 	if((!strncasecmp(line.c_str(), "eval ", 5))
 		|| (!strncasecmp(line.c_str(), "set ", 4))) {
@@ -1700,6 +1716,47 @@ void Mind::Think(int istick) {
 	  spos = skip_line(script, spos);
 	  }
 
+	else if((!strncasecmp(line.c_str(), "asound ", 7))) {
+	  size_t start = line.find_first_not_of(" \t\r\n", 7);
+	  if(room && start != string::npos) {
+	    string mes = line.substr(start);
+	    trim_string(mes);
+	    replace_all(mes, "You hear ", "");
+	    replace_all(mes, " can be heard close by", "");
+	    replace_all(mes, " is heard close by", "");
+	    replace_all(mes, " from close by", "");
+	    replace_all(mes, " from nearby", "");
+	    mes += "\n";
+	    room->Loud(2, mes.c_str());	//2 will go through 1 closed door.
+	    }
+	  spos = skip_line(script, spos);
+	  }
+
+	else if((!strncasecmp(line.c_str(), "zoneecho ", 9))) {
+	  size_t start = line.find_first_not_of(" \t\r\n", 9);
+	  start = line.find_first_of(" \t\r\n", start);
+	  start = line.find_first_not_of(" \t\r\n", start);
+	  if(room && start != string::npos) {
+	    string mes = line.substr(start);
+	    trim_string(mes);
+	    mes += "\n";
+	    room->SendIn(ALL, 0, mes.c_str(), "", NULL, NULL);
+	    room->Loud(8, mes.c_str());	//8 will go 4-8 rooms.
+	    }
+	  spos = skip_line(script, spos);
+	  }
+
+	else if(!strncasecmp(line.c_str(), "echoaround ", 11)) {
+	  Object *targ = NULL;
+	  char mes[256] = "";
+	  sscanf(line.c_str()+11, " OBJ:%p %255[^\n\r]", &targ, mes);
+	  mes[strlen(mes)] = '\n';
+	  Object *troom = targ;
+	  while(troom && troom->Skill("TBARoom") == 0) troom = troom->Parent();
+	  if(troom && targ) troom->SendOut(0, 0, mes, "", targ, NULL);
+	  spos = skip_line(script, spos);
+	  }
+
 	else if((!strncasecmp(line.c_str(), "mecho ", 6))) {
 	  size_t start = line.find_first_not_of(" \t\r\n", 6);
 	  if(room && start != string::npos) {
@@ -1768,17 +1825,6 @@ void Mind::Think(int istick) {
 		}
 	      }
 	    }
-	  spos = skip_line(script, spos);
-	  }
-
-	else if(!strncasecmp(line.c_str(), "echoaround ", 11)) {
-	  Object *targ = NULL;
-	  char mes[256] = "";
-	  sscanf(line.c_str()+11, " OBJ:%p %255[^\n\r]", &targ, mes);
-	  mes[strlen(mes)] = '\n';
-	  Object *troom = targ;
-	  while(troom && troom->Skill("TBARoom") == 0) troom = troom->Parent();
-	  if(troom && targ) troom->SendOut(0, 0, mes, "", targ, NULL);
 	  spos = skip_line(script, spos);
 	  }
 
