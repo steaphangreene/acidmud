@@ -1437,12 +1437,12 @@ void Mind::Think(int istick) {
 	    Disable();
 	    return;
 	    }
-	  oldp = ovars["self"]->Parent();
-	  oldp->RemoveLink(ovars["self"]);
-	  ovars["self"]->SetParent(room);
-	  room->AddLink(ovars["self"]);
-	  fprintf(stderr,CGRN "#%d Debug: '%s' -> '%s'\n" CNRM,
-		body->Skill("TBAScript"), oldp->ShortDesc(), room->ShortDesc());
+	  if(ovars["self"]->Parent() != room) {
+	    oldp = ovars["self"]->Parent();
+	    oldp->RemoveLink(ovars["self"]);
+	    ovars["self"]->SetParent(room);
+	    room->AddLink(ovars["self"]);
+	    }
 	  line = line.substr(pos);
 	  //Continue interpreting line (with new room).
 	  }
@@ -1475,7 +1475,13 @@ void Mind::Think(int istick) {
 	      Suspend((minute - curmin)
 		* 1000 * world->Skill("Day Length") / 24	//*60/60
 		);
-	      break;
+	      if(oldp) {
+		ovars["self"]->Parent()->RemoveLink(ovars["self"]);
+		ovars["self"]->SetParent(oldp);
+		oldp->AddLink(ovars["self"]);
+		oldp = NULL;
+		}
+	      return;
 	      }
 	    }
 	  else {
@@ -1493,7 +1499,13 @@ void Mind::Think(int istick) {
 	  if(time > 0) {
 	    spos = skip_line(script, spos);
 	    Suspend(time*1000);
-	    break;
+	    if(oldp) {
+	      ovars["self"]->Parent()->RemoveLink(ovars["self"]);
+	      ovars["self"]->SetParent(oldp);
+	      oldp->AddLink(ovars["self"]);
+	      oldp = NULL;
+	      }
+	    return;
 	    }
 	  else {
 	    fprintf(stderr, CRED "#%d Error: Told '%s'\n" CNRM,
@@ -2389,7 +2401,6 @@ list<pair<int, Mind*> > Mind::waiting;
 void Mind::Suspend(int msec) {
 //  fprintf(stderr, "Suspening(%p)\n", this);
   waiting.push_back(make_pair(msec, this));
-  fprintf(stderr, CYEL "Queue: %d\n" CNRM, int(waiting.size()));
   }
 
 void Mind::Disable() {
