@@ -78,7 +78,7 @@ private:
   map<string, Object *> ovars;
   int status;
   string script;
-  size_t spos;
+  list<size_t> spos_s;
 
   static list<pair<int, Mind*> > waiting;
   };

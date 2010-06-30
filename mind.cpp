@@ -240,7 +240,8 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
   type = MIND_TBATRIG;
   pers = fileno(stderr);
   Attach(tr);
-  spos = 0;
+  spos_s.clear();
+  spos_s.push_front(0);
   script = body->LongDesc();
   script += "\n";
   if(tripper) ovars["actor"] = tripper;
@@ -1339,7 +1340,8 @@ void Mind::Think(int istick) {
       }
     }
   else if(type == MIND_TBATRIG) {
-    if(body && body->Parent()) {
+    if(body && body->Parent() && spos_s.size() > 0) {
+      size_t spos = spos_s.front();
       ovars["self"] = body->Parent();
       Object *room = ovars["self"];
       while(room && room->Skill("TBARoom") == 0) {
@@ -1351,7 +1353,7 @@ void Mind::Think(int istick) {
 	return;
 	}
 
-      if(!script[spos]) return;	//Empty
+      if(spos >= script.length()) return;	//Empty/Done
       int quota = 1024;
       int stype = body->Skill("TBAScriptType");
       Object *oldp = NULL;
@@ -1376,6 +1378,22 @@ void Mind::Think(int istick) {
 	TBAVarSub(line);
 	if(type == MIND_MORON) return;
 
+	if(!strncasecmp(line.c_str(), "unset ", 6)) {
+	  size_t lpos = line.find_first_not_of(" \t", 6);
+	  if(lpos != string::npos) {
+	    string var = line.substr(lpos);
+	    trim_string(var);
+	    svars.erase(var);
+	    ovars.erase(var);
+	    }
+	  else {
+	    fprintf(stderr, CRED "#%d Error: Malformed unset '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	    Disable();
+	    return;
+	    }
+	  }
 	if((!strncasecmp(line.c_str(), "eval ", 5))
 		|| (!strncasecmp(line.c_str(), "set ", 4))) {
 	  size_t lpos = line.find_first_not_of(" \t", 4);
@@ -1420,7 +1438,7 @@ void Mind::Think(int istick) {
 	if(!strncasecmp(line.c_str(), "at ", 3)) {
 	  int dnum, pos;
 	  if(sscanf(line.c_str(), "at %d %n", &dnum, &pos) < 1) {
-	    fprintf(stderr, CRED "#%d Error: Malformed line '%s'\n" CNRM,
+	    fprintf(stderr, CRED "#%d Error: Malformed at '%s'\n" CNRM,
 		body->Skill("TBAScript"), line.c_str()
 		);
 	    Disable();
@@ -1481,6 +1499,7 @@ void Mind::Think(int istick) {
 	      curmin /= world->Skill("Day Length");
 	      }
 	    if(minute > curmin) {	//Not Time Yet!
+	      spos_s.front() = spos;	//Save current pos.
 	      Suspend((minute - curmin)
 		* 1000 * world->Skill("Day Length") / 24	//*60/60
 		);
@@ -1507,6 +1526,7 @@ void Mind::Think(int istick) {
 	  sscanf(line.c_str()+5, "%d", &time);
 	  if(time > 0) {
 	    spos = skip_line(script, spos);
+	    spos_s.front() = spos;	//Save current pos.
 	    Suspend(time*1000);
 	    if(oldp) {
 	      ovars["self"]->Parent()->RemoveLink(ovars["self"]);
@@ -1638,16 +1658,9 @@ void Mind::Think(int istick) {
 	    spos = skip_line(script, spos);
 	    }
 	  if(TBAEval(line.c_str() + cond)) {
-	    string orig = script;
-	    script = script.substr(begin, skip-begin);
-	    trim_string(script);
-	    spos = 0;
-	    Think(istick);		//Semi-recursive to do the loop-age
-	    if(type == MIND_MORON) {
-	      break;
-	      }
-	    script = orig;
-	    spos = rep;			//Repeat the "while"
+	    spos_s.front() = rep;	//Will repeat the "while"
+	    spos_s.push_front(begin);	//But run the inside of the loop first.
+	    spos = spos_s.front();
 	    }
 	  }
 
@@ -2111,8 +2124,16 @@ void Mind::Think(int istick) {
 	  spos = skip_line(script, spos);
 	  }
 	else if(!strncasecmp(line.c_str(), "done", 4)) {
-	  //Means we should be within a while(), so return to main.
-	  break;
+	  //Means we should be within a while(), pop up a level.
+	  if(spos_s.size() < 2) {
+	    fprintf(stderr, CRED "#%d Error: Not in while, but '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	    Disable();
+	    break;
+	    }
+	  spos_s.pop_front();
+	  spos = spos_s.front();
 	  }
 	else if(!strncasecmp(line.c_str(), "return ", 7)) {
 	  int retval = TBAEval(line.c_str()+7);
@@ -2148,7 +2169,8 @@ void Mind::Think(int istick) {
 	if(chance > 0) {
 	  int delay = 13000;	//Next try in 13 seconds.
 	  while(delay < 13000000 && (rand() % 100) >= chance) delay += 13000;
-	  spos = 0;		//We never die!
+	  spos_s.clear();
+	  spos_s.push_front(0);	//We never die!
 	  Suspend(delay);	//We'll be back!
 	  return;
 	  }
