@@ -18,4 +18,8 @@ size_t skip_line(	//IDX of next line start, skipping leading whitespace
 	const string &str, size_t pos
 	);
 
+size_t prev_line(	//IDX of prev line start, skipping leading whitespace
+	const string &str, size_t pos
+	);
+
 void trim_string(string &str);	//Remove extra whitespace from string

@@ -58,12 +58,14 @@ public:
   int Status() const;
   void ClearStatus();
 
+private:
+  int TBACanWanderTo(Object *dest);
+
   string TBAComp(string expr);
   int TBAEval(string expr);
   void TBAVarSub(string &line);
 
-private:
-  int TBACanWanderTo(Object *dest);
+  int TBARunLine(string line);
 
   int type;
   int pers;

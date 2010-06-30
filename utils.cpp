@@ -26,6 +26,15 @@ void trim_string(string &str) {  //Remove extra whitespace from string
 size_t skip_line(const string &str, size_t pos) {
   pos = str.find_first_of("\n\r", pos+1);
   while(pos != string::npos && str[pos] && isspace(str[pos])) ++pos;
-  if(!str[pos]) pos = string::npos;
+  if(pos >= str.length()) pos = string::npos;
+  return pos;
+  }
+
+size_t prev_line(const string &str, size_t pos) {
+  pos = str.find_last_of("\n\r", pos-1);
+  while(pos != string::npos && pos > 0 && isspace(str[pos])) --pos;
+  if(pos != string::npos) pos = str.find_last_of("\n\r", pos);
+  while(pos != string::npos && str[pos] && isspace(str[pos])) ++pos;
+  if(pos >= str.length()) pos = string::npos;
   return pos;
   }

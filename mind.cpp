@@ -458,7 +458,7 @@ void Mind::TBAVarSub(string &line) {
     end = line.find_first_of("%. \t", cur+1);
     if(end == string::npos) end = line.length();
     if(0
-	|| body->Skill("TBAScript") == 1008393
+//	|| body->Skill("TBAScript") == 1008393
 //	|| line.find("eval loc ") != string::npos
 //	|| line.find("set first ") != string::npos
 //	|| line.find("exclaim") != string::npos
@@ -1242,7 +1242,7 @@ void Mind::TBAVarSub(string &line) {
     cur = line.find('%', cur+1);
     }
   if(0
-	|| body->Skill("TBAScript") == 1008393
+//	|| body->Skill("TBAScript") == 1008393
 //	|| line.find("eval loc ") != string::npos
 //	|| line.find("set first ") != string::npos
 //	|| line.find("exclaim") != string::npos
@@ -1263,6 +1263,796 @@ void Mind::TBAVarSub(string &line) {
 		return; \
 		} \
 	}
+
+//Return 0 to continue running, 1 to be done now (error/suspend/done).
+int Mind::TBARunLine(string line) {
+  if(0
+//	|| body->Skill("TBAScript") == 1008393
+//	|| line.find("eval loc ") != string::npos
+//	|| line.find("set first ") != string::npos
+//	|| line.find("exclaim") != string::npos
+//	|| line.find("speech") != string::npos
+	) {
+    fprintf(stderr, CGRN "#%d Debug: Running '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str());
+    }
+  Object *room = ovars["self"];
+  while(room && room->Skill("TBARoom") == 0) {
+    if(room->Skill("Invisible") > 999) room = NULL;	//Not really there
+    else room = room->Parent();
+    }
+  if(!room) {	//Not in a room (dup clone, in a popper, etc...).
+//    fprintf(stderr, CRED "#%d Error: No room in '%s'\n" CNRM,
+//	body->Skill("TBAScript"), line.c_str()
+//	);
+    Disable();
+    return 1;
+    }
+
+  size_t spos = spos_s.front();
+  TBAVarSub(line);
+  if(type == MIND_MORON) {
+    fprintf(stderr, CRED "#%d Error: VarSub failed in '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+    return 1;
+    }
+
+  if(!strncasecmp(line.c_str(), "unset ", 6)) {
+    size_t lpos = line.find_first_not_of(" \t", 6);
+    if(lpos != string::npos) {
+      string var = line.substr(lpos);
+      trim_string(var);
+      svars.erase(var);
+      ovars.erase(var);
+      }
+    else {
+      fprintf(stderr, CRED "#%d Error: Malformed unset '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+    return 0;
+    }
+
+  if((!strncasecmp(line.c_str(), "eval ", 5))
+		|| (!strncasecmp(line.c_str(), "set ", 4))) {
+    char coml = tolower(line[0]);	//To tell eval from set later.
+    size_t lpos = line.find_first_not_of(" \t", 4);
+    if(lpos != string::npos) {
+      line = line.substr(lpos);
+      size_t end1 = line.find_first_of(" \t\n\r");
+      if(end1 != string::npos) {
+        string var = line.substr(0, end1);
+        lpos = line.find_first_not_of(" \t", end1 + 1);
+        if(lpos != string::npos) {
+	  string val = line.substr(lpos);
+	  if(0
+//		|| var.find("midgaard") != string::npos
+//		|| var.find("exclaim") != string::npos
+//		|| var.find("speech") != string::npos
+		) {
+	    fprintf(stderr,CGRN "#%d Debug: '%s' = '%s'\n" CNRM,
+		body->Skill("TBAScript"), var.c_str(), val.c_str());
+	    }
+	  if(coml == 'e') {
+	    TBAVarSub(val);
+	    if(type == MIND_MORON) return 1;
+	    val = TBAComp(val);
+	    }
+	  if(! strncmp(val.c_str(), "OBJ:", 4)) {	//Encoded Object *
+	    ovars[var] = NULL;
+	    sscanf(val.c_str(), "OBJ:%p", &(ovars[var]));
+	    svars.erase(var);
+	    }
+	  else {
+	    svars[var] = val;
+	    ovars.erase(var);
+	    }
+	  }
+	}
+      }
+    return 0;
+    }
+
+  if(!strncasecmp(line.c_str(), "at ", 3)) {
+    int dnum, pos;
+    if(sscanf(line.c_str(), "at %d %n", &dnum, &pos) < 1) {
+      fprintf(stderr, CRED "#%d Error: Malformed at '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+    dnum += 1000000;
+    while(room->Parent()->Parent()) {
+      room = room->Parent();
+      }
+    list<Object*> options = room->Contents();
+    list<Object*>::iterator opt = options.begin();
+    room = NULL;
+    for(; opt != options.end(); ++opt) {
+      if((*opt)->Skill("TBARoom") == dnum) {
+        room = (*opt);
+        break;
+        }
+      }
+    if(!room) {
+      fprintf(stderr, CRED "#%d Error: Can't find room in '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+    Object *oldp = NULL;
+    if(ovars["self"]->Parent() != room) {
+      oldp = ovars["self"]->Parent();
+      oldp->RemoveLink(ovars["self"]);
+      ovars["self"]->SetParent(room);
+      room->AddLink(ovars["self"]);
+      }
+    int ret = TBARunLine(line.substr(pos));
+    if(oldp) {
+      ovars["self"]->Parent()->RemoveLink(ovars["self"]);
+      ovars["self"]->SetParent(oldp);
+      oldp->AddLink(ovars["self"]);
+      oldp = NULL;
+      }
+    return ret;
+    }
+
+  com_t com = identify_command(line);	//ComNum for Pass-Through
+
+  //Start of real command if/else if/else
+  if(line.find("%") != line.rfind("%")) {		//More than one '%'
+    fprintf(stderr, CRED "#%d Error: Failed to fully expand '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+    Disable();
+    return 1;
+    }
+
+  else if(!strncasecmp(line.c_str(), "wait until ", 11)) {
+    int hour = 0, minute = 0, cur = 0;
+    if(sscanf(line.c_str()+11, "%d:%d", &hour, &minute) > 0) {
+      if(hour >= 100) hour /= 100;
+      minute += hour * 60;
+      Object *world = room;
+      while(world->Parent()->Parent()) world = world->Parent();
+      if(world->Skill("Day Time") && world->Skill("Day Length")) {
+        cur = world->Skill("Day Time");
+        cur *= 24*60;
+        cur /= world->Skill("Day Length");
+        }
+      if(minute > cur) {	//Not Time Yet!
+        Suspend((minute - cur) * 1000 * world->Skill("Day Length") / 24);
+	//Note: The above calculation removed the *60 and the /60
+        return 1;
+        }
+      }
+    else {
+      fprintf(stderr, CRED "#%d Error: Told '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+    }
+
+  else if(!strncasecmp(line.c_str(), "wait ", 5)) {
+    int time = 0;
+    sscanf(line.c_str()+5, "%d", &time);
+    if(time > 0) {
+      Suspend(time*1000);
+      return 1;
+      }
+    else {
+      fprintf(stderr, CRED "#%d Error: Told '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+    }
+
+  if((!strncasecmp(line.c_str(), "oset ", 5))
+	|| (!strncasecmp(line.c_str(), "osetval ", 8))) {
+    int v1, v2;
+    size_t end = line.find(" ");
+    if(sscanf(line.c_str()+end, " %d %d", &v1, &v2) != 2) {
+      fprintf(stderr, CRED "#%d Error: Told '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+    else if(ovars["self"]->Skill("Liquid Source") && v1 == 0) {
+      if(v2 < 0) v2 = 1<<30;
+      ovars["self"]->SetSkill("Liquid Source", v2 + 1);
+      }
+    else if(ovars["self"]->Skill("Liquid Source") && v1 == 1) {
+      if(ovars["self"]->Contents().size() < 1) {
+        fprintf(stderr, CYEL "#%d Warning: Empty fountain '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+        Disable();
+        return 1;
+        }
+      ovars["self"]->Contents().front()->SetSkill("Quantity", v2+1);
+      }
+    else {
+      fprintf(stderr, CRED "#%d Error: Unimplemented oset '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+    }
+
+  else if(!strncasecmp(line.c_str(), "if ", 3)) {
+    if(!TBAEval(line.c_str()+3)) {	//Was false
+      int depth = 0;
+      while(spos != string::npos) {	//Skip to end/elseif
+//        PING_QUOTA();
+        if((!depth) && (!strncasecmp(script.c_str()+spos, "elseif ", 7))) {
+	spos += 4;	//Make it into an "if" and go
+	break;
+	}
+        else if(!strncasecmp(script.c_str()+spos, "else", 4)) {
+	if(!depth) {	//Only right if all the way back
+	  spos = skip_line(script, spos);
+	  break;
+	  }
+	}
+        else if(!strncasecmp(script.c_str()+spos, "end", 3)) {
+	if(!depth) {	//Only done if all the way back
+	  spos = skip_line(script, spos);
+	  break;
+	  }
+	--depth;	//Otherwise am just 1 nesting level less deep
+	}
+        else if(!strncasecmp(script.c_str()+spos, "if ", 3)) {
+	++depth;	//Am now 1 nesting level deeper!
+	}
+        spos = skip_line(script, spos);
+        }
+      spos_s.front() = spos;	//Save skip-to position in real PC
+      }
+    }
+
+  else if(!strncasecmp(line.c_str(), "else", 4)) {	//else/elseif
+    int depth = 0;
+    while(spos != string::npos) {	//Skip to end (considering nesting)
+//      PING_QUOTA();
+      if(!strncasecmp(script.c_str()+spos, "end", 3)) {
+        if(depth == 0) {	//Only done if all the way back
+	spos = skip_line(script, spos);
+	break;
+	}
+        --depth;	//Otherwise am just 1 nesting level less deep
+        }
+      else if(!strncasecmp(script.c_str()+spos, "if ", 3)) {
+        ++depth;	//Am now 1 nesting level deeper!
+        }
+      spos = skip_line(script, spos);
+      }
+    spos_s.front() = spos;	//Save skip-to position in real PC
+    }
+
+  else if(!strncasecmp(line.c_str(), "while ", 6)) {
+    int depth = 0;
+    size_t rep = prev_line(script, spos);
+    size_t cond = 6, begin = spos, end = spos, skip = spos;
+    begin = spos;
+    while(spos != string::npos) {	//Skip to end (considering nesting)
+//      PING_QUOTA();
+      if(!strncasecmp(script.c_str()+spos, "done", 4)) {
+        if(depth == 0) {	//Only done if all the way back
+	end = spos;
+	spos = skip_line(script, spos);
+	skip = spos;
+	break;
+	}
+        --depth;	//Otherwise am just 1 nesting level less deep
+        }
+      else if(!strncasecmp(script.c_str()+spos, "switch ", 7)) {
+        ++depth;	//Am now 1 nesting level deeper!
+        }
+      else if(!strncasecmp(script.c_str()+spos, "while ", 6)) {
+        ++depth;	//Am now 1 nesting level deeper!
+        }
+      spos = skip_line(script, spos);
+      }
+    if(TBAEval(line.c_str() + cond)) {
+      spos_s.front() = rep;	//Will repeat the "while"
+      spos_s.push_front(begin);	//But run the inside of the loop first.
+      }
+    else {
+      spos_s.front() = spos;	//Save skip-to position in real PC
+      }
+    }
+
+  else if(!strncasecmp(line.c_str(), "switch ", 7)) {
+    int depth = 0;
+    size_t defl = 0;
+    string value = line.substr(7);
+    trim_string(value);
+    while(spos != string::npos) {	//Skip to end (considering nesting)
+//      PING_QUOTA();
+      if(!strncasecmp(script.c_str()+spos, "done", 4)) {
+        if(depth == 0) {	//Only done if all the way back
+	spos = skip_line(script, spos);
+	break;
+	}
+        --depth;	//Otherwise am just 1 nesting level less deep
+        }
+      else if(!strncasecmp(script.c_str()+spos, "switch ", 7)) {
+        ++depth;	//Am now 1 nesting level deeper!
+        }
+      else if(!strncasecmp(script.c_str()+spos, "while ", 6)) {
+        ++depth;	//Am now 1 nesting level deeper!
+        }
+      else if(depth == 0
+		&& (!strncasecmp(script.c_str()+spos, "case ", 5))
+		&& TBAEval(value + " == " + script.substr(spos+5))
+		) {			//The actual case I want!
+        spos = skip_line(script, spos);
+        break;
+        }
+      else if(depth == 0
+		&& (!strncasecmp(script.c_str()+spos, "default", 7))
+		) {			//The actual case I want!
+        spos = skip_line(script, spos);
+        defl = spos;
+        continue;
+        }
+      spos = skip_line(script, spos);
+      }
+    if(defl != 0) spos = defl;	//Go to "default" case, if there was one
+    spos_s.front() = spos;	//Save jump-to position in real PC
+    }
+
+  else if(!strncasecmp(line.c_str(), "break", 5)) {//Skip to done
+    int depth = 0;
+    while(spos != string::npos) {	//Skip to end (considering nesting)
+//      PING_QUOTA();
+      if(!strncasecmp(script.c_str()+spos, "done", 4)) {
+        if(depth == 0) {	//Only done if all the way back
+	break;
+	}
+        --depth;	//Otherwise am just 1 nesting level less deep
+        }
+      else if(!strncasecmp(script.c_str()+spos, "switch ", 7)) {
+        ++depth;	//Am now 1 nesting level deeper!
+        }
+      else if(!strncasecmp(script.c_str()+spos, "while ", 6)) {
+        ++depth;	//Am now 1 nesting level deeper!
+        }
+      spos = skip_line(script, spos);
+      }
+    if(spos == string::npos) {
+      fprintf(stderr, CRED "#%d Error: Can't find done in '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+    else {
+      spos = skip_line(script, spos);	//Skip the actual "done"
+      spos_s.front() = spos;	//Save jump-to position in real PC
+      }
+    }
+
+  //Player commands Acid shares with TBA, not requiring arguments
+  else if(com == COM_NORTH
+	|| com == COM_SOUTH
+	|| com == COM_EAST
+	|| com == COM_WEST
+	|| com == COM_UP
+	|| com == COM_DOWN
+	|| com == COM_SOCIAL
+	|| com == COM_SLEEP
+	|| com == COM_REST
+	|| com == COM_WAKE
+	|| com == COM_STAND
+	|| com == COM_SIT
+	|| com == COM_LIE
+	|| com == COM_LOOK
+	|| com == COM_PLAY
+	) {
+    handle_command(body->Parent(), line.c_str());
+    }
+
+  //Player commands Acid shares with TBA, requiring arguments
+  else if(com == COM_SAY
+	|| com == COM_SHOUT
+	|| com == COM_EMOTE
+	|| com == COM_LOCK
+	|| com == COM_UNLOCK
+	|| com == COM_OPEN
+	|| com == COM_CLOSE
+	|| com == COM_GET
+	|| com == COM_DROP
+	) {
+    size_t stuff = line.find_first_of(" ");
+    if(stuff != string::npos) {
+      stuff = line.find_first_not_of(" \t\r\n", stuff);
+      }
+    if(stuff != string::npos) {
+      handle_command(body->Parent(), line.c_str());
+      }
+    else {
+      fprintf(stderr, CRED "#%d Error: Told just '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+    }
+
+  else if((!strncasecmp(line.c_str(), "asound ", 7))) {
+    size_t start = line.find_first_not_of(" \t\r\n", 7);
+    if(room && start != string::npos) {
+      string mes = line.substr(start);
+      trim_string(mes);
+      replace_all(mes, "You hear ", "");
+      replace_all(mes, " can be heard close by", "");
+      replace_all(mes, " is heard close by", "");
+      replace_all(mes, " from close by", "");
+      replace_all(mes, " from nearby", "");
+      mes += "\n";
+      room->Loud(2, mes.c_str());	//2 will go through 1 closed door.
+      }
+    }
+
+  else if((!strncasecmp(line.c_str(), "zoneecho ", 9))) {
+    size_t start = line.find_first_not_of(" \t\r\n", 9);
+    start = line.find_first_of(" \t\r\n", start);
+    start = line.find_first_not_of(" \t\r\n", start);
+    if(room && start != string::npos) {
+      string mes = line.substr(start);
+      trim_string(mes);
+      mes += "\n";
+      room->SendIn(ALL, 0, mes.c_str(), "", NULL, NULL);
+      room->Loud(8, mes.c_str());	//8 will go 4-8 rooms.
+      }
+    }
+
+  else if(!strncasecmp(line.c_str(), "echoaround ", 11)) {
+    Object *targ = NULL;
+    char mes[256] = "";
+    sscanf(line.c_str()+11, " OBJ:%p %255[^\n\r]", &targ, mes);
+    mes[strlen(mes)] = '\n';
+    Object *troom = targ;
+    while(troom && troom->Skill("TBARoom") == 0) troom = troom->Parent();
+    if(troom && targ) troom->SendOut(0, 0, mes, "", targ, NULL);
+    }
+
+  else if((!strncasecmp(line.c_str(), "mecho ", 6))) {
+    size_t start = line.find_first_not_of(" \t\r\n", 6);
+    if(room && start != string::npos) {
+      string mes = line.substr(start);
+      trim_string(mes);
+      mes += "\n";
+      room->SendOut(0, 0, mes.c_str(), mes.c_str(), NULL, NULL);
+      }
+    }
+
+  else if(!strncasecmp(line.c_str(), "send ", 5)) {
+    Object *targ = NULL;
+    char mes[1024] = "";
+    sscanf(line.c_str()+5, " OBJ:%p %1023[^\n\r]", &targ, mes);
+    mes[strlen(mes)] = '\n';
+    if(targ) targ->Send(0, 0, mes);
+    }
+
+  else if(!strncasecmp(line.c_str(), "force ", 6)) {
+    Object *targ = NULL;
+    char com[1024] = "";
+    sscanf(line.c_str()+6, " OBJ:%p %1023[^\n\r]", &targ, com);
+    if(targ) {
+      Mind *amind = NULL;	//Make sure human minds see it!
+      vector<Mind *> mns = get_human_minds();
+      vector<Mind *>::iterator mn = mns.begin();
+      for(; mn != mns.end(); ++mn) {
+	if((*mn)->Body() == targ) { amind = *mn; break; }
+	}
+      handle_command(targ, com, amind);
+      }
+    }
+
+  else if(!strncasecmp(line.c_str(), "wdamage ", 8)) {
+//    fprintf(stderr, CGRN "#%d Debug: WDamage '%s'\n" CNRM,
+//	body->Skill("TBAScript"), line.c_str()
+//	);
+    int pos=0;
+    int dam = 0;
+    char buf[256];
+    if(sscanf(line.c_str() + 8, " %s %n", buf, &pos) >= 1) {
+      if(!strcasecmp(buf, "all")) { strcpy(buf, "everyone"); }
+      dam = TBAEval(line.c_str() + 8 + pos);
+      if(dam > 0) dam = (dam + 180) / 100;
+      if(dam < 0) dam = (dam - 180) / 100;
+      }
+    list<Object*> options = room->Contents();
+    list<Object*>::iterator opt = options.begin();
+    for(; opt != options.end(); ++opt) {
+      if((*opt)->Matches(buf)) {
+	if(dam > 0) {
+	  (*opt)->HitMent(1000, dam, 0);
+//	  fprintf(stderr, CGRN "#%d Debug: WDamage '%s', %d\n" CNRM,
+//		body->Skill("TBAScript"), (*opt)->Name(), dam
+//		);
+	  }
+	else if(dam < 0) {
+	  (*opt)->HealStun(((-dam)+1)/2);
+	  (*opt)->HealPhys(((-dam)+1)/2);
+//	  fprintf(stderr, CGRN "#%d Debug: WHeal '%s', %d\n" CNRM,
+//		body->Skill("TBAScript"), (*opt)->Name(), ((-dam)+1)/2
+//		);
+	  }
+        }
+      }
+    }
+
+//  else if(!strncasecmp(line.c_str(), "door ", 6)) {
+//    }
+
+  else if(!strncasecmp(line.c_str(), "transport ", 10)) {
+    int dnum;
+    char buf[256];
+    if(sscanf(line.c_str() + 10, "%s %d", buf, &dnum) != 2) {
+      if(!strcasecmp(buf, "all")) { strcpy(buf, "everyone"); }
+      }
+    dnum += 1000000;
+    Object *dest = ovars["self"];
+    while(dest->Parent()->Parent()) {
+      dest = dest->Parent();
+      }
+    list<Object*> options = dest->Contents();
+    list<Object*>::iterator opt = options.begin();
+    dest = NULL;
+    for(; opt != options.end(); ++opt) {
+      if((*opt)->Skill("TBARoom") == dnum) {
+	dest = (*opt);
+	break;
+	}
+      }
+    options = room->Contents();
+    opt = options.begin();
+    for(; opt != options.end(); ++opt) {
+      if((*opt)->Matches(buf)) {
+	(*opt)->Travel(dest);
+	}
+      }
+//    fprintf(stderr, CGRN "#%d Debug: Transport line: '%s'\n" CNRM,
+//	body->Skill("TBAScript"), line.c_str()
+//	);
+    }
+
+  else if(!strncasecmp(line.c_str(), "purge ", 6)) {
+    Object *targ = NULL;
+    sscanf(line.c_str()+6, " OBJ:%p", &targ);
+    if(targ) {
+      targ->Recycle();
+      if(!body) {	//Not Connected, purged self or parent.
+	Disable();
+	return 1;
+	}
+      }
+    }
+
+  else if(!strncasecmp(line.c_str(), "load ", 5)) {
+    int vnum, params, type, loc = 0, mask = 0;
+    char buf[256] = "";
+    char targ[256] = "";
+    char where[256] = "";
+    Object *src = room;
+    Object *dest = ovars["self"];
+    Object *item = NULL;
+    params = sscanf(line.c_str() + 5, " %s %d %s %s", buf, &vnum, targ, where);
+    type = tolower(buf[0]);
+    if((params != 2 && params != 4) || (type != 'o' && type != 'm')) {
+      fprintf(stderr, CRED "#%d Error: Gibberish script line '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+    while(src->Parent()->Parent()) src = src->Parent();
+    if(type == 'o') {
+      src = src->PickObject("TBAMUD Object Room", LOC_NINJA|LOC_INTERNAL);
+      list<Object*> options = src->Contents();
+      list<Object*>::iterator opt = options.begin();
+      for(; opt != options.end(); ++opt) {
+	if((*opt)->Skill("TBAObject") == vnum + 1000000) {
+	  item = new Object(*(*opt));
+	  break;
+	  }
+	}
+      }
+    else if(type == 'm') {
+      dest = room;
+      src = src->PickObject("TBAMUD MOB Room", LOC_NINJA|LOC_INTERNAL);
+      list<Object*> options = src->Contents();
+      list<Object*>::iterator opt = options.begin();
+      for(; opt != options.end(); ++opt) {
+	if((*opt)->Skill("TBAMOB") == vnum + 1000000) {
+	  item = new Object(*(*opt));
+	  break;
+	  }
+	}
+      }
+    if(item == NULL) {
+      fprintf(stderr, CRED "#%d Error: Failed to find item '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+    if(params > 2) {
+      fprintf(stderr, CGRN "#%d Debug: (%s) '%s'\n" CNRM,
+	body->Skill("TBAScript"), targ, line.c_str());
+      dest = room->PickObject(targ, LOC_NINJA|LOC_INTERNAL);
+      }
+    if(!dest) {
+      fprintf(stderr, CRED "#%d Error: Can't find target in '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+    if(strcmp("rfinger", where) == 0 || strcmp("1", where) == 0) {
+      mask = item->Skill("Wearable on Right Finger");
+      loc = ACT_WEAR_RFINGER;
+      }
+    else if(strcmp("lfinger", where) == 0 || strcmp("2", where) == 0) {
+      mask = item->Skill("Wearable on Left Finger");
+      loc = ACT_WEAR_LFINGER;
+      }
+    else if(strcmp("neck1", where) == 0 || strcmp("3", where) == 0) {
+      mask = item->Skill("Wearable on Neck");
+      loc = ACT_WEAR_NECK;
+      }
+    else if(strcmp("neck2", where) == 0 || strcmp("4", where) == 0) {
+      mask = item->Skill("Wearable on Neck");
+      loc = ACT_WEAR_NECK;
+      }
+    else if(strcmp("body", where) == 0 || strcmp("5", where) == 0) {
+      mask = item->Skill("Wearable on Chest");
+      loc = ACT_WEAR_CHEST;
+      }
+    else if(strcmp("head", where) == 0 || strcmp("6", where) == 0) {
+      mask = item->Skill("Wearable on Head");
+      loc = ACT_WEAR_HEAD;
+      }
+    else if(strcmp("legs", where) == 0 || strcmp("7", where) == 0) {
+      mask = item->Skill("Wearable on Left Leg");
+      loc = ACT_WEAR_LLEG;
+      }
+    else if(strcmp("feet", where) == 0 || strcmp("8", where) == 0) {
+      mask = item->Skill("Wearable on Left Foot");
+      loc = ACT_WEAR_LFOOT;
+      }
+    else if(strcmp("hands", where) == 0 || strcmp("9", where) == 0) {
+      mask = item->Skill("Wearable on Left Hand");
+      loc = ACT_WEAR_LHAND;
+      }
+    else if(strcmp("arms", where) == 0 || strcmp("10", where) == 0) {
+      mask = item->Skill("Wearable on Left Arm");
+      loc = ACT_WEAR_LARM;
+      }
+    else if(strcmp("shield", where) == 0 || strcmp("11", where) == 0) {
+      mask = item->Skill("Wearable on Shield");
+      loc = ACT_WEAR_SHIELD;
+      }
+    else if(strcmp("about", where) == 0 || strcmp("12", where) == 0) {
+      mask = item->Skill("Wearable on Left Shoulder");
+      loc = ACT_WEAR_LSHOULDER;
+      }
+    else if(strcmp("waist", where) == 0 || strcmp("13", where) == 0) {
+      mask = item->Skill("Wearable on Waist");
+      loc = ACT_WEAR_WAIST;
+      }
+    else if(strcmp("rwrist", where) == 0 || strcmp("14", where) == 0) {
+      mask = item->Skill("Wearable on Right Wrist");
+      loc = ACT_WEAR_RWRIST;
+      }
+    else if(strcmp("lwrist", where) == 0 || strcmp("15", where) == 0) {
+      mask = item->Skill("Wearable on Left Wrist");
+      loc = ACT_WEAR_LWRIST;
+      }
+    else if(strcmp("wield", where) == 0 || strcmp("16", where) == 0) {
+      mask = item->Skill("Wearable on ");
+      loc = ACT_WIELD;
+      }
+    else if(strcmp("light", where) == 0 || strcmp("0", where) == 0) {
+      loc = ACT_HOLD;
+      }
+    else if(strcmp("hold", where) == 0 || strcmp("17", where) == 0) {
+      loc = ACT_HOLD;
+      }
+    else if(strcmp("inv", where) == 0 || strcmp("18", where) == 0) {
+      }
+    else if(params > 2) {
+      fprintf(stderr, CRED "#%d Error: Unsupported dest '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+    item->SetParent(dest);
+    if(loc != 0 && loc != ACT_HOLD && loc != ACT_WIELD) {	//Wear it
+      if(!dest->Wear(item, mask)) dest->StashOrDrop(item);
+      }
+    else if(loc == ACT_WIELD) {				//Wield it
+      if(body->ActTarg(ACT_WIELD) == NULL) {
+	body->AddAct(ACT_WIELD, item);
+	}
+      else {
+	dest->StashOrDrop(item);
+	}
+      }
+    else if(loc == ACT_HOLD) {				//Hold it
+      if(body->ActTarg(ACT_HOLD) == NULL
+		|| body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WIELD)
+		|| body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)) {
+	body->AddAct(ACT_HOLD, item);
+	}
+      else {
+        dest->StashOrDrop(item);
+        }
+      }
+    else if(dest != room) {				//Have it
+      dest->StashOrDrop(item);
+      }
+    }
+
+  else if(!strncasecmp(line.c_str(), "case ", 5)) {
+    //Ignore these, as we only hit them here when when running over them
+    }
+  else if(!strncasecmp(line.c_str(), "default", 7)) {
+    //Ignore these, as we only hit them here when when running over them
+    }
+  else if(!strncasecmp(line.c_str(), "end", 3)) {
+    //Ignore these, as we only hit them here when we're running inside if
+    }
+  else if(!strncasecmp(line.c_str(), "nop ", 4)) {
+    //Ignore these, as the varsub should have done all that's needed
+    }
+  else if(!strncasecmp(line.c_str(), "done", 4)) {
+    //Means we should be within a while(), pop up a level.
+    if(spos_s.size() < 2) {
+      fprintf(stderr, CRED "#%d Error: Not in while, but '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+    spos_s.pop_front();
+    }
+  else if(!strncasecmp(line.c_str(), "return ", 7)) {
+    int retval = TBAEval(line.c_str()+7);
+    if(retval == 0) {
+      status = 1;			//Return with special state
+      }
+    Disable();
+    return 1;
+    }
+  else if(!strncasecmp(line.c_str(), "halt", 4)) {
+    Disable();
+    return 1;
+    }
+  else {
+    fprintf(stderr, CRED "#%d Error: Gibberish script line '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+    Disable();
+    return 1;
+    }
+  return 0;
+  }
 
 static const char *dirnames[4] = { "north", "south", "east", "west" };
 static const char *items[8] = {
@@ -1341,828 +2131,25 @@ void Mind::Think(int istick) {
     }
   else if(type == MIND_TBATRIG) {
     if(body && body->Parent() && spos_s.size() > 0) {
-      size_t spos = spos_s.front();
       ovars["self"] = body->Parent();
-      Object *room = ovars["self"];
-      while(room && room->Skill("TBARoom") == 0) {
-	if(room->Skill("Invisible") > 999) room = NULL;	//Not really there
-	else room = room->Parent();
-	}
-      if(!room) {	//Not in a room (dup clone, in a popper, etc...).
-	Disable();
-	return;
-	}
 
-      if(spos >= script.length()) return;	//Empty/Done
+      if(spos_s.size() < 1) return;			//Never Run?!?
+      if(spos_s.front() >= script.length()) return;	//Empty/Done
       int quota = 1024;
       int stype = body->Skill("TBAScriptType");
-      Object *oldp = NULL;
-      while(spos != string::npos) {
-	if(oldp) {
-	  ovars["self"]->Parent()->RemoveLink(ovars["self"]);
-	  ovars["self"]->SetParent(oldp);
-	  oldp->AddLink(ovars["self"]);
-	  oldp = NULL;
-	  }
-	if(script[spos] == '*') {		//Comments
-	  spos = skip_line(script, spos);
-	  continue;
-	  }
+      while(spos_s.size() > 0 && spos_s.front() != string::npos) {
+	string line;
+	size_t endl = script.find_first_of("\n\r", spos_s.front());
+	if(endl == string::npos) line = script.substr(spos_s.front());
+	else line = script.substr(spos_s.front(), endl-spos_s.front());
+
+	spos_s.front() = skip_line(script, spos_s.front());
+
+	if(line[0] == '*') continue;		//Comments
+
 	PING_QUOTA();
 
-	string line;
-	size_t endl = script.find_first_of("\n\r", spos);
-	if(endl == string::npos) line = script.substr(spos);
-	else line = script.substr(spos, endl-spos);
-
-	TBAVarSub(line);
-	if(type == MIND_MORON) return;
-
-	if(!strncasecmp(line.c_str(), "unset ", 6)) {
-	  size_t lpos = line.find_first_not_of(" \t", 6);
-	  if(lpos != string::npos) {
-	    string var = line.substr(lpos);
-	    trim_string(var);
-	    svars.erase(var);
-	    ovars.erase(var);
-	    }
-	  else {
-	    fprintf(stderr, CRED "#%d Error: Malformed unset '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
-	    Disable();
-	    return;
-	    }
-	  spos = skip_line(script, spos);
-	  continue;
-	  }
-
-	if((!strncasecmp(line.c_str(), "eval ", 5))
-		|| (!strncasecmp(line.c_str(), "set ", 4))) {
-	  size_t lpos = line.find_first_not_of(" \t", 4);
-	  if(lpos != string::npos) {
-	    line = line.substr(lpos);
-	    size_t end1 = line.find_first_of(" \t\n\r");
-	    if(end1 != string::npos) {
-	      string var = line.substr(0, end1);
-	      lpos = line.find_first_not_of(" \t", end1 + 1);
-	      if(lpos != string::npos) {
-		string val = line.substr(lpos);
-		if(0
-//			|| var.find("midgaard") != string::npos
-//			|| var.find("exclaim") != string::npos
-//			|| var.find("speech") != string::npos
-			) {
-		  fprintf(stderr,CGRN "#%d Debug: '%s' = '%s'\n" CNRM,
-			body->Skill("TBAScript"), var.c_str(), val.c_str());
-		  }
-		if(tolower(script[spos]) == 'e') {
-		  TBAVarSub(val);
-		  if(type == MIND_MORON) return;
-		  val = TBAComp(val);
-		  }
-
-		if(! strncmp(val.c_str(), "OBJ:", 4)) {	//Encoded Object *
-		  ovars[var] = NULL;
-		  sscanf(val.c_str(), "OBJ:%p", &(ovars[var]));
-		  svars.erase(var);
-		  }
-		else {
-		  svars[var] = val;
-		  ovars.erase(var);
-		  }
-		}
-	      }
-	    }
-	  spos = skip_line(script, spos);
-	  continue;
-	  }
-
-	if(!strncasecmp(line.c_str(), "at ", 3)) {
-	  int dnum, pos;
-	  if(sscanf(line.c_str(), "at %d %n", &dnum, &pos) < 1) {
-	    fprintf(stderr, CRED "#%d Error: Malformed at '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
-	    Disable();
-	    return;
-	    }
-	  dnum += 1000000;
-	  while(room->Parent()->Parent()) {
-	    room = room->Parent();
-	    }
-	  list<Object*> options = room->Contents();
-	  list<Object*>::iterator opt = options.begin();
-	  room = NULL;
-	  for(; opt != options.end(); ++opt) {
-	    if((*opt)->Skill("TBARoom") == dnum) {
-	      room = (*opt);
-	      break;
-	      }
-	    }
-	  if(!room) {
-	    fprintf(stderr, CRED "#%d Error: Can't find room in '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
-	    Disable();
-	    return;
-	    }
-	  if(ovars["self"]->Parent() != room) {
-	    oldp = ovars["self"]->Parent();
-	    oldp->RemoveLink(ovars["self"]);
-	    ovars["self"]->SetParent(room);
-	    room->AddLink(ovars["self"]);
-	    }
-	  line = line.substr(pos);
-	  //Continue interpreting line (with new room).
-	  }
-
-	com_t com = identify_command(line);	//ComNum for Pass-Through
-
-	//Start of real command if/else if/else
-	if(line.find("%") != line.rfind("%")) {		//More than one '%'
-	  fprintf(stderr, CRED "#%d Error: Failed to fully expand '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
-	  Disable();
-	  break;
-	  }
-
-	else if(!strncasecmp(line.c_str(), "wait until ", 11)) {
-	  int hour = 0, minute = 0, curmin = 0;
-	  if(sscanf(line.c_str()+11, "%d:%d", &hour, &minute) > 0) {
-	    spos = skip_line(script, spos);
-	    if(hour >= 100) hour /= 100;
-	    minute += hour * 60;
-	    Object *world = room;
-	    while(world->Parent()->Parent()) world = world->Parent();
-	    if(world->Skill("Day Time") && world->Skill("Day Length")) {
-	      curmin = world->Skill("Day Time");
-	      curmin *= 24*60;
-	      curmin /= world->Skill("Day Length");
-	      }
-	    if(minute > curmin) {	//Not Time Yet!
-	      spos_s.front() = spos;	//Save current pos.
-	      Suspend((minute - curmin)
-		* 1000 * world->Skill("Day Length") / 24	//*60/60
-		);
-	      if(oldp) {
-		ovars["self"]->Parent()->RemoveLink(ovars["self"]);
-		ovars["self"]->SetParent(oldp);
-		oldp->AddLink(ovars["self"]);
-		oldp = NULL;
-		}
-	      return;
-	      }
-	    }
-	  else {
-	    fprintf(stderr, CRED "#%d Error: Told '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
-	    Disable();
-	    break;
-	    }
-	  }
-
-	else if(!strncasecmp(line.c_str(), "wait ", 5)) {
-	  int time = 0;
-	  sscanf(line.c_str()+5, "%d", &time);
-	  if(time > 0) {
-	    spos = skip_line(script, spos);
-	    spos_s.front() = spos;	//Save current pos.
-	    Suspend(time*1000);
-	    if(oldp) {
-	      ovars["self"]->Parent()->RemoveLink(ovars["self"]);
-	      ovars["self"]->SetParent(oldp);
-	      oldp->AddLink(ovars["self"]);
-	      oldp = NULL;
-	      }
-	    return;
-	    }
-	  else {
-	    fprintf(stderr, CRED "#%d Error: Told '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
-	    Disable();
-	    break;
-	    }
-	  }
-
-	if((!strncasecmp(line.c_str(), "oset ", 5))
-		|| (!strncasecmp(line.c_str(), "osetval ", 8))) {
-	  int v1, v2;
-	  size_t end = line.find(" ");
-	  if(sscanf(line.c_str()+end, " %d %d", &v1, &v2) != 2) {
-	    fprintf(stderr, CRED "#%d Error: Told '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
-	    Disable();
-	    break;
-	    }
-	  else if(ovars["self"]->Skill("Liquid Source") && v1 == 0) {
-	    if(v2 < 0) v2 = 1<<30;
-	    ovars["self"]->SetSkill("Liquid Source", v2 + 1);
-	    }
-	  else if(ovars["self"]->Skill("Liquid Source") && v1 == 1) {
-	    if(ovars["self"]->Contents().size() < 1) {
-	      fprintf(stderr, CYEL "#%d Warning: Empty fountain '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
-	      Disable();
-	      break;
-	      }
-	    ovars["self"]->Contents().front()->SetSkill("Quantity", v2+1);
-	    }
-	  else {
-	    fprintf(stderr, CRED "#%d Error: Unimplemented oset '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
-	    Disable();
-	    break;
-	    }
-	  spos = skip_line(script, spos);
-	  }
-
-	else if(!strncasecmp(line.c_str(), "if ", 3)) {
-	  if(TBAEval(line.c_str()+3)) {
-	    spos = skip_line(script, spos);	//Is "if" and is true
-	    }
-	  else {				//Was elseif or false
-	    int depth = 0;
-	    spos = skip_line(script, spos);
-	    while(spos != string::npos) {	//Skip to end/elseif
-	      PING_QUOTA();
-	      if((!depth) && (!strncasecmp(script.c_str()+spos, "elseif ", 7))) {
-		spos += 4;	//Make it into an "if" and go
-		break;
-		}
-	      else if(!strncasecmp(script.c_str()+spos, "else", 4)) {
-		if(!depth) {	//Only right if all the way back
-		  spos = skip_line(script, spos);
-		  break;
-		  }
-		}
-	      else if(!strncasecmp(script.c_str()+spos, "end", 3)) {
-		if(!depth) {	//Only done if all the way back
-		  spos = skip_line(script, spos);
-		  break;
-		  }
-		--depth;	//Otherwise am just 1 nesting level less deep
-		}
-	      else if(!strncasecmp(script.c_str()+spos, "if ", 3)) {
-		++depth;	//Am now 1 nesting level deeper!
-		}
-	      spos = skip_line(script, spos);
-	      }
-	    }
-	  }
-
-	else if(!strncasecmp(line.c_str(), "else", 4)) {	//else/elseif
-	  int depth = 0;
-	  spos = skip_line(script, spos);
-	  while(spos != string::npos) {	//Skip to end (considering nesting)
-	    PING_QUOTA();
-	    if(!strncasecmp(script.c_str()+spos, "end", 3)) {
-	      if(depth == 0) {	//Only done if all the way back
-		spos = skip_line(script, spos);
-		break;
-		}
-	      --depth;	//Otherwise am just 1 nesting level less deep
-	      }
-	    else if(!strncasecmp(script.c_str()+spos, "if ", 3)) {
-	      ++depth;	//Am now 1 nesting level deeper!
-	      }
-	    spos = skip_line(script, spos);
-	    }
-	  }
-
-	else if(!strncasecmp(line.c_str(), "while ", 6)) {
-	  int depth = 0;
-	  size_t rep = spos, cond = 6, begin = spos, end = spos, skip = spos;
-	  spos = skip_line(script, spos);
-	  begin = spos;
-	  while(spos != string::npos) {	//Skip to end (considering nesting)
-	    PING_QUOTA();
-	    if(!strncasecmp(script.c_str()+spos, "done", 4)) {
-	      if(depth == 0) {	//Only done if all the way back
-		end = spos;
-		spos = skip_line(script, spos);
-		skip = spos;
-		break;
-		}
-	      --depth;	//Otherwise am just 1 nesting level less deep
-	      }
-	    else if(!strncasecmp(script.c_str()+spos, "switch ", 7)) {
-	      ++depth;	//Am now 1 nesting level deeper!
-	      }
-	    else if(!strncasecmp(script.c_str()+spos, "while ", 6)) {
-	      ++depth;	//Am now 1 nesting level deeper!
-	      }
-	    spos = skip_line(script, spos);
-	    }
-	  if(TBAEval(line.c_str() + cond)) {
-	    spos_s.front() = rep;	//Will repeat the "while"
-	    spos_s.push_front(begin);	//But run the inside of the loop first.
-	    spos = spos_s.front();
-	    }
-	  }
-
-	else if(!strncasecmp(line.c_str(), "switch ", 7)) {
-	  int depth = 0;
-	  size_t defl = 0;
-	  string value = line.substr(7);
-	  trim_string(value);
-	  spos = skip_line(script, spos);
-	  while(spos != string::npos) {	//Skip to end (considering nesting)
-	    PING_QUOTA();
-	    if(!strncasecmp(script.c_str()+spos, "done", 4)) {
-	      if(depth == 0) {	//Only done if all the way back
-		spos = skip_line(script, spos);
-		break;
-		}
-	      --depth;	//Otherwise am just 1 nesting level less deep
-	      }
-	    else if(!strncasecmp(script.c_str()+spos, "switch ", 7)) {
-	      ++depth;	//Am now 1 nesting level deeper!
-	      }
-	    else if(!strncasecmp(script.c_str()+spos, "while ", 6)) {
-	      ++depth;	//Am now 1 nesting level deeper!
-	      }
-	    else if(depth == 0
-			&& (!strncasecmp(script.c_str()+spos, "case ", 5))
-			&& TBAEval(value + " == " + script.substr(spos+5))
-			) {			//The actual case I want!
-	      spos = skip_line(script, spos);
-	      break;
-	      }
-	    else if(depth == 0
-			&& (!strncasecmp(script.c_str()+spos, "default", 7))
-			) {			//The actual case I want!
-	      spos = skip_line(script, spos);
-	      defl = spos;
-	      continue;
-	      }
-	    spos = skip_line(script, spos);
-	    }
-	  if(defl != 0) spos = defl;	//Go to "default" case, if there was one
-	  }
-
-	else if(!strncasecmp(line.c_str(), "break", 5)) {//Skip to done
-	  int depth = 0;
-	  spos = skip_line(script, spos);
-	  while(spos != string::npos) {	//Skip to end (considering nesting)
-	    PING_QUOTA();
-	    if(!strncasecmp(script.c_str()+spos, "done", 4)) {
-	      if(depth == 0) {	//Only done if all the way back
-		spos = skip_line(script, spos);
-		break;
-		}
-	      --depth;	//Otherwise am just 1 nesting level less deep
-	      }
-	    else if(!strncasecmp(script.c_str()+spos, "switch ", 7)) {
-	      ++depth;	//Am now 1 nesting level deeper!
-	      }
-	    else if(!strncasecmp(script.c_str()+spos, "while ", 6)) {
-	      ++depth;	//Am now 1 nesting level deeper!
-	      }
-	    spos = skip_line(script, spos);
-	    }
-	  }
-
-	//Player commands Acid shares with TBA, not requiring arguments
-	else if(com == COM_NORTH
-		|| com == COM_SOUTH
-		|| com == COM_EAST
-		|| com == COM_WEST
-		|| com == COM_UP
-		|| com == COM_DOWN
-		|| com == COM_SOCIAL
-		|| com == COM_SLEEP
-		|| com == COM_REST
-		|| com == COM_WAKE
-		|| com == COM_STAND
-		|| com == COM_SIT
-		|| com == COM_LIE
-		|| com == COM_LOOK
-		|| com == COM_PLAY
-		) {
-	  handle_command(body->Parent(), line.c_str());
-	  spos = skip_line(script, spos);
-	  }
-
-	//Player commands Acid shares with TBA, requiring arguments
-	else if(com == COM_SAY
-		|| com == COM_SHOUT
-		|| com == COM_EMOTE
-		|| com == COM_LOCK
-		|| com == COM_UNLOCK
-		|| com == COM_OPEN
-		|| com == COM_CLOSE
-		|| com == COM_GET
-		|| com == COM_DROP
-		) {
-	  size_t stuff = line.find_first_of(" ");
-	  if(stuff != string::npos) {
-	    stuff = line.find_first_not_of(" \t\r\n", stuff);
-	    }
-	  if(stuff != string::npos) {
-	    handle_command(body->Parent(), line.c_str());
-	    }
-	  else {
-	    fprintf(stderr, CRED "#%d Error: Told just '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
-	    Disable();
-	    break;
-	    }
-	  spos = skip_line(script, spos);
-	  }
-
-	else if((!strncasecmp(line.c_str(), "asound ", 7))) {
-	  size_t start = line.find_first_not_of(" \t\r\n", 7);
-	  if(room && start != string::npos) {
-	    string mes = line.substr(start);
-	    trim_string(mes);
-	    replace_all(mes, "You hear ", "");
-	    replace_all(mes, " can be heard close by", "");
-	    replace_all(mes, " is heard close by", "");
-	    replace_all(mes, " from close by", "");
-	    replace_all(mes, " from nearby", "");
-	    mes += "\n";
-	    room->Loud(2, mes.c_str());	//2 will go through 1 closed door.
-	    }
-	  spos = skip_line(script, spos);
-	  }
-
-	else if((!strncasecmp(line.c_str(), "zoneecho ", 9))) {
-	  size_t start = line.find_first_not_of(" \t\r\n", 9);
-	  start = line.find_first_of(" \t\r\n", start);
-	  start = line.find_first_not_of(" \t\r\n", start);
-	  if(room && start != string::npos) {
-	    string mes = line.substr(start);
-	    trim_string(mes);
-	    mes += "\n";
-	    room->SendIn(ALL, 0, mes.c_str(), "", NULL, NULL);
-	    room->Loud(8, mes.c_str());	//8 will go 4-8 rooms.
-	    }
-	  spos = skip_line(script, spos);
-	  }
-
-	else if(!strncasecmp(line.c_str(), "echoaround ", 11)) {
-	  Object *targ = NULL;
-	  char mes[256] = "";
-	  sscanf(line.c_str()+11, " OBJ:%p %255[^\n\r]", &targ, mes);
-	  mes[strlen(mes)] = '\n';
-	  Object *troom = targ;
-	  while(troom && troom->Skill("TBARoom") == 0) troom = troom->Parent();
-	  if(troom && targ) troom->SendOut(0, 0, mes, "", targ, NULL);
-	  spos = skip_line(script, spos);
-	  }
-
-	else if((!strncasecmp(line.c_str(), "mecho ", 6))) {
-	  size_t start = line.find_first_not_of(" \t\r\n", 6);
-	  if(room && start != string::npos) {
-	    string mes = line.substr(start);
-	    trim_string(mes);
-	    mes += "\n";
-	    room->SendOut(0, 0, mes.c_str(), mes.c_str(), NULL, NULL);
-	    }
-	  spos = skip_line(script, spos);
-	  }
-
-	else if(!strncasecmp(line.c_str(), "send ", 5)) {
-	  Object *targ = NULL;
-	  char mes[1024] = "";
-	  sscanf(line.c_str()+5, " OBJ:%p %1023[^\n\r]", &targ, mes);
-	  mes[strlen(mes)] = '\n';
-	  if(targ) targ->Send(0, 0, mes);
-	  spos = skip_line(script, spos);
-	  }
-
-	else if(!strncasecmp(line.c_str(), "force ", 6)) {
-	  Object *targ = NULL;
-	  char com[1024] = "";
-	  sscanf(line.c_str()+6, " OBJ:%p %1023[^\n\r]", &targ, com);
-	  if(targ) {
-	    Mind *amind = NULL;	//Make sure human minds see it!
-	    vector<Mind *> mns = get_human_minds();
-	    vector<Mind *>::iterator mn = mns.begin();
-	    for(; mn != mns.end(); ++mn) {
-	      if((*mn)->Body() == targ) { amind = *mn; break; }
-	      }
-	    handle_command(targ, com, amind);
-	    }
-	  spos = skip_line(script, spos);
-	  }
-
-	else if(!strncasecmp(line.c_str(), "wdamage ", 8)) {
-//	  fprintf(stderr, CGRN "#%d Debug: WDamage '%s'\n" CNRM,
-//		body->Skill("TBAScript"), line.c_str()
-//		);
-	  int pos=0;
-	  int dam = 0;
-	  char buf[256];
-	  if(sscanf(line.c_str() + 8, " %s %n", buf, &pos) >= 1) {
-	    if(!strcasecmp(buf, "all")) { strcpy(buf, "everyone"); }
-	    dam = TBAEval(line.c_str() + 8 + pos);
-	    if(dam > 0) dam = (dam + 180) / 100;
-	    if(dam < 0) dam = (dam - 180) / 100;
-	    }
-	  list<Object*> options = room->Contents();
-	  list<Object*>::iterator opt = options.begin();
-	  for(; opt != options.end(); ++opt) {
-	    if((*opt)->Matches(buf)) {
-	      if(dam > 0) {
-		(*opt)->HitMent(1000, dam, 0);
-//		fprintf(stderr, CGRN "#%d Debug: WDamage '%s', %d\n" CNRM,
-//			body->Skill("TBAScript"), (*opt)->Name(), dam
-//			);
-		}
-	      else if(dam < 0) {
-		(*opt)->HealStun(((-dam)+1)/2);
-		(*opt)->HealPhys(((-dam)+1)/2);
-//		fprintf(stderr, CGRN "#%d Debug: WHeal '%s', %d\n" CNRM,
-//			body->Skill("TBAScript"), (*opt)->Name(), ((-dam)+1)/2
-//			);
-		}
-	      }
-	    }
-	  spos = skip_line(script, spos);
-	  }
-
-//	else if(!strncasecmp(line.c_str(), "door ", 6)) {
-//	  spos = skip_line(script, spos);
-//	  }
-
-	else if(!strncasecmp(line.c_str(), "transport ", 10)) {
-	  int dnum;
-	  char buf[256];
-	  if(sscanf(line.c_str() + 10, "%s %d", buf, &dnum) != 2) {
-	    if(!strcasecmp(buf, "all")) { strcpy(buf, "everyone"); }
-	    }
-	  dnum += 1000000;
-	  Object *dest = ovars["self"];
-	  while(dest->Parent()->Parent()) {
-	    dest = dest->Parent();
-	    }
-	  list<Object*> options = dest->Contents();
-	  list<Object*>::iterator opt = options.begin();
-	  dest = NULL;
-	  for(; opt != options.end(); ++opt) {
-	    if((*opt)->Skill("TBARoom") == dnum) {
-	      dest = (*opt);
-	      break;
-	      }
-	    }
-	  options = room->Contents();
-	  opt = options.begin();
-	  for(; opt != options.end(); ++opt) {
-	    if((*opt)->Matches(buf)) {
-	      (*opt)->Travel(dest);
-	      }
-	    }
-//	  fprintf(stderr, CGRN "#%d Debug: Transport line: '%s'\n" CNRM,
-//		body->Skill("TBAScript"), line.c_str()
-//		);
-	  spos = skip_line(script, spos);
-	  }
-
-	else if(!strncasecmp(line.c_str(), "purge ", 6)) {
-	  Object *targ = NULL;
-	  sscanf(line.c_str()+6, " OBJ:%p", &targ);
-	  if(targ) {
-	    targ->Recycle();
-	    if(body) {	//Still Connected, didn't purge self.
-	      spos = skip_line(script, spos);
-	      }
-	    else {	//Not Connected, purged self or parent.
-	      Disable();
-	      break;
-	      }
-	    }
-	  }
-
-	else if(!strncasecmp(line.c_str(), "load ", 5)) {
-	  int vnum, params, type, loc = 0, mask = 0;
-	  char buf[256] = "";
-	  char targ[256] = "";
-	  char where[256] = "";
-	  Object *src = room;
-	  Object *dest = ovars["self"];
-	  Object *item = NULL;
-	  params = sscanf(line.c_str() + 5, " %s %d %s %s",
-		buf, &vnum, targ, where);
-	  type = tolower(buf[0]);
-	  if((params != 2 && params != 4) || (type != 'o' && type != 'm')) {
-	    fprintf(stderr, CRED "#%d Error: Gibberish script line '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
-	    Disable();
-	    break;
-	    }
-	  while(src->Parent()->Parent()) src = src->Parent();
-	  if(type == 'o') {
-	    src = src->PickObject("TBAMUD Object Room", LOC_NINJA|LOC_INTERNAL);
-	    list<Object*> options = src->Contents();
-	    list<Object*>::iterator opt = options.begin();
-	    for(; opt != options.end(); ++opt) {
-	      if((*opt)->Skill("TBAObject") == vnum + 1000000) {
-		item = new Object(*(*opt));
-		break;
-		}
-	      }
-	    }
-	  else if(type == 'm') {
-	    dest = room;
-	    src = src->PickObject("TBAMUD MOB Room", LOC_NINJA|LOC_INTERNAL);
-	    list<Object*> options = src->Contents();
-	    list<Object*>::iterator opt = options.begin();
-	    for(; opt != options.end(); ++opt) {
-	      if((*opt)->Skill("TBAMOB") == vnum + 1000000) {
-		item = new Object(*(*opt));
-		break;
-		}
-	      }
-	    }
-	  if(item == NULL) {
-	    fprintf(stderr, CRED "#%d Error: Failed to find item '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
-	    Disable();
-	    break;
-	    }
-	  if(params > 2) {
-	    fprintf(stderr, CGRN "#%d Debug: (%s) '%s'\n" CNRM,
-		body->Skill("TBAScript"), targ, line.c_str());
-	    dest = room->PickObject(targ, LOC_NINJA|LOC_INTERNAL);
-	    }
-	  if(!dest) {
-	    fprintf(stderr, CRED "#%d Error: Can't find target in '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
-	    Disable();
-	    break;
-	    }
-	  if(strcmp("rfinger", where) == 0 || strcmp("1", where) == 0) {
-	    mask = item->Skill("Wearable on Right Finger");
-	    loc = ACT_WEAR_RFINGER;
-	    }
-	  else if(strcmp("lfinger", where) == 0 || strcmp("2", where) == 0) {
-	    mask = item->Skill("Wearable on Left Finger");
-	    loc = ACT_WEAR_LFINGER;
-	    }
-	  else if(strcmp("neck1", where) == 0 || strcmp("3", where) == 0) {
-	    mask = item->Skill("Wearable on Neck");
-	    loc = ACT_WEAR_NECK;
-	    }
-	  else if(strcmp("neck2", where) == 0 || strcmp("4", where) == 0) {
-	    mask = item->Skill("Wearable on Neck");
-	    loc = ACT_WEAR_NECK;
-	    }
-	  else if(strcmp("body", where) == 0 || strcmp("5", where) == 0) {
-	    mask = item->Skill("Wearable on Chest");
-	    loc = ACT_WEAR_CHEST;
-	    }
-	  else if(strcmp("head", where) == 0 || strcmp("6", where) == 0) {
-	    mask = item->Skill("Wearable on Head");
-	    loc = ACT_WEAR_HEAD;
-	    }
-	  else if(strcmp("legs", where) == 0 || strcmp("7", where) == 0) {
-	    mask = item->Skill("Wearable on Left Leg");
-	    loc = ACT_WEAR_LLEG;
-	    }
-	  else if(strcmp("feet", where) == 0 || strcmp("8", where) == 0) {
-	    mask = item->Skill("Wearable on Left Foot");
-	    loc = ACT_WEAR_LFOOT;
-	    }
-	  else if(strcmp("hands", where) == 0 || strcmp("9", where) == 0) {
-	    mask = item->Skill("Wearable on Left Hand");
-	    loc = ACT_WEAR_LHAND;
-	    }
-	  else if(strcmp("arms", where) == 0 || strcmp("10", where) == 0) {
-	    mask = item->Skill("Wearable on Left Arm");
-	    loc = ACT_WEAR_LARM;
-	    }
-	  else if(strcmp("shield", where) == 0 || strcmp("11", where) == 0) {
-	    mask = item->Skill("Wearable on Shield");
-	    loc = ACT_WEAR_SHIELD;
-	    }
-	  else if(strcmp("about", where) == 0 || strcmp("12", where) == 0) {
-	    mask = item->Skill("Wearable on Left Shoulder");
-	    loc = ACT_WEAR_LSHOULDER;
-	    }
-	  else if(strcmp("waist", where) == 0 || strcmp("13", where) == 0) {
-	    mask = item->Skill("Wearable on Waist");
-	    loc = ACT_WEAR_WAIST;
-	    }
-	  else if(strcmp("rwrist", where) == 0 || strcmp("14", where) == 0) {
-	    mask = item->Skill("Wearable on Right Wrist");
-	    loc = ACT_WEAR_RWRIST;
-	    }
-	  else if(strcmp("lwrist", where) == 0 || strcmp("15", where) == 0) {
-	    mask = item->Skill("Wearable on Left Wrist");
-	    loc = ACT_WEAR_LWRIST;
-	    }
-	  else if(strcmp("wield", where) == 0 || strcmp("16", where) == 0) {
-	    mask = item->Skill("Wearable on ");
-	    loc = ACT_WIELD;
-	    }
-	  else if(strcmp("light", where) == 0 || strcmp("0", where) == 0) {
-	    loc = ACT_HOLD;
-	    }
-	  else if(strcmp("hold", where) == 0 || strcmp("17", where) == 0) {
-	    loc = ACT_HOLD;
-	    }
-	  else if(strcmp("inv", where) == 0 || strcmp("18", where) == 0) {
-	    }
-	  else if(params > 2) {
-	    fprintf(stderr, CRED "#%d Error: Unsupported dest '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
-	    Disable();
-	    break;
-	    }
-	  item->SetParent(dest);
-	  if(loc != 0 && loc != ACT_HOLD && loc != ACT_WIELD) {	//Wear it
-	    if(!dest->Wear(item, mask)) dest->StashOrDrop(item);
-	    }
-	  else if(loc == ACT_WIELD) {				//Wield it
-	    if(body->ActTarg(ACT_WIELD) == NULL) {
-	      body->AddAct(ACT_WIELD, item);
-	      }
-	    else {
-	      dest->StashOrDrop(item);
-	      }
-	    }
-	  else if(loc == ACT_HOLD) {				//Hold it
-	    if(body->ActTarg(ACT_HOLD) == NULL
-		|| body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WIELD)
-		|| body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)) {
-	      body->AddAct(ACT_HOLD, item);
-	      }
-	    else {
-	      dest->StashOrDrop(item);
-	      }
-	    }
-	  else if(dest != room) {				//Have it
-	    dest->StashOrDrop(item);
-	    }
-	  spos = skip_line(script, spos);
-	  }
-
-	else if(!strncasecmp(line.c_str(), "case ", 5)) {
-	  //Ignore these, as we only hit them here when when running over them
-	  spos = skip_line(script, spos);
-	  }
-	else if(!strncasecmp(line.c_str(), "default", 7)) {
-	  //Ignore these, as we only hit them here when when running over them
-	  spos = skip_line(script, spos);
-	  }
-	else if(!strncasecmp(line.c_str(), "end", 3)) {
-	  //Ignore these, as we only hit them here when we're running inside if
-	  spos = skip_line(script, spos);
-	  }
-	else if(!strncasecmp(line.c_str(), "nop ", 4)) {
-	  //Ignore these, as the varsub should have done all that's needed
-	  spos = skip_line(script, spos);
-	  }
-	else if(!strncasecmp(line.c_str(), "done", 4)) {
-	  //Means we should be within a while(), pop up a level.
-	  if(spos_s.size() < 2) {
-	    fprintf(stderr, CRED "#%d Error: Not in while, but '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
-	    Disable();
-	    break;
-	    }
-	  spos_s.pop_front();
-	  spos = spos_s.front();
-	  }
-	else if(!strncasecmp(line.c_str(), "return ", 7)) {
-	  int retval = TBAEval(line.c_str()+7);
-	  if(retval == 0) {
-	    status = 1;			//Return with special state
-	    }
-	  Disable();
-	  break;
-	  }
-	else if(!strncasecmp(line.c_str(), "halt", 4)) {
-	  Disable();
-	  break;
-	  }
-	else {		//Silently ignore the rest for now!  FIXME: Error mes.
-	  fprintf(stderr, CRED "#%d Error: Gibberish script line '%s'\n" CNRM,
-		body->Skill("TBAScript"), line.c_str()
-		);
-	  Disable();
-	  break;
-	  }
-	}
-      if(oldp) {
-	ovars["self"]->Parent()->RemoveLink(ovars["self"]);
-	ovars["self"]->SetParent(oldp);
-	oldp->AddLink(ovars["self"]);
-	oldp = NULL;
+	if(TBARunLine(line)) return;
 	}
       if(type == MIND_MORON) {	//Disabled
 	return;
