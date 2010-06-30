@@ -458,7 +458,7 @@ void Mind::TBAVarSub(string &line) {
     end = line.find_first_of("%. \t", cur+1);
     if(end == string::npos) end = line.length();
     if(0
-//	|| body->Skill("TBAScript") == 1008393
+//	|| body->Skill("TBAScript") == 1000099
 //	|| line.find("eval loc ") != string::npos
 //	|| line.find("set first ") != string::npos
 //	|| line.find("exclaim") != string::npos
@@ -1242,7 +1242,7 @@ void Mind::TBAVarSub(string &line) {
     cur = line.find('%', cur+1);
     }
   if(0
-//	|| body->Skill("TBAScript") == 1008393
+//	|| body->Skill("TBAScript") == 1000099
 //	|| line.find("eval loc ") != string::npos
 //	|| line.find("set first ") != string::npos
 //	|| line.find("exclaim") != string::npos
@@ -1267,7 +1267,7 @@ void Mind::TBAVarSub(string &line) {
 //Return 0 to continue running, 1 to be done now (error/suspend/done).
 int Mind::TBARunLine(string line) {
   if(0
-//	|| body->Skill("TBAScript") == 1008393
+//	|| body->Skill("TBAScript") == 1000099
 //	|| line.find("eval loc ") != string::npos
 //	|| line.find("set first ") != string::npos
 //	|| line.find("exclaim") != string::npos
@@ -1348,7 +1348,7 @@ int Mind::TBARunLine(string line) {
 	      }
 	    val = TBAComp(val);
 	    }
-	  if(! strncmp(val.c_str(), "OBJ:", 4)) {	//Encoded Object *
+	  if(!strncmp(val.c_str(), "OBJ:", 4)) {	//Encoded Object
 	    ovars[var] = NULL;
 	    sscanf(val.c_str(), "OBJ:%p", &(ovars[var]));
 	    svars.erase(var);
@@ -1358,6 +1358,14 @@ int Mind::TBARunLine(string line) {
 	    ovars.erase(var);
 	    }
 	  }
+	else {	//Only space after varname
+	  svars[var] = "";
+	  ovars.erase(var);
+	  }
+	}
+      else {	//Nothing after varname
+	svars[line] = "";
+	ovars.erase(line);
 	}
       }
     return 0;
