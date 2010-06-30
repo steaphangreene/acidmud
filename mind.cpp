@@ -1290,10 +1290,11 @@ int Mind::TBARunLine(string line) {
     }
 
   size_t spos = spos_s.front();
+  int vnum = body->Skill("TBAScript");
   TBAVarSub(line);
   if(type == MIND_MORON) {
     fprintf(stderr, CRED "#%d Error: VarSub failed in '%s'\n" CNRM,
-	body->Skill("TBAScript"), line.c_str()
+	vnum, line.c_str()
 	);
     return 1;
     }
@@ -1337,8 +1338,14 @@ int Mind::TBARunLine(string line) {
 		body->Skill("TBAScript"), var.c_str(), val.c_str());
 	    }
 	  if(coml == 'e') {
+	    int vnum = body->Skill("TBAScript");
 	    TBAVarSub(val);
-	    if(type == MIND_MORON) return 1;
+	    if(type == MIND_MORON) {
+	      fprintf(stderr, CRED "#%d Error: Eval failed in '%s'\n" CNRM,
+		vnum, line.c_str()
+		);
+	      return 1;
+	      }
 	    val = TBAComp(val);
 	    }
 	  if(! strncmp(val.c_str(), "OBJ:", 4)) {	//Encoded Object *
@@ -1390,14 +1397,11 @@ int Mind::TBARunLine(string line) {
       oldp = ovars["self"]->Parent();
       oldp->RemoveLink(ovars["self"]);
       ovars["self"]->SetParent(room);
-      room->AddLink(ovars["self"]);
       }
     int ret = TBARunLine(line.substr(pos));
     if(oldp) {
       ovars["self"]->Parent()->RemoveLink(ovars["self"]);
       ovars["self"]->SetParent(oldp);
-      oldp->AddLink(ovars["self"]);
-      oldp = NULL;
       }
     return ret;
     }
@@ -1653,7 +1657,7 @@ int Mind::TBARunLine(string line) {
 	|| com == COM_LOOK
 	|| com == COM_PLAY
 	) {
-    handle_command(body->Parent(), line.c_str());
+    handle_command(ovars["self"], line.c_str());
     }
 
   //Player commands Acid shares with TBA, requiring arguments
@@ -1672,7 +1676,7 @@ int Mind::TBARunLine(string line) {
       stuff = line.find_first_not_of(" \t\r\n", stuff);
       }
     if(stuff != string::npos) {
-      handle_command(body->Parent(), line.c_str());
+      handle_command(ovars["self"], line.c_str());
       }
     else {
       fprintf(stderr, CRED "#%d Error: Told just '%s'\n" CNRM,
@@ -1714,7 +1718,8 @@ int Mind::TBARunLine(string line) {
   else if(!strncasecmp(line.c_str(), "echoaround ", 11)) {
     Object *targ = NULL;
     char mes[256] = "";
-    sscanf(line.c_str()+11, " OBJ:%p %255[^\n\r]", &targ, mes);
+    sscanf(line.c_str()+11, " OBJ:%p %254[^\n\r]", &targ, mes);
+    mes[strlen(mes)+1] = 0;
     mes[strlen(mes)] = '\n';
     Object *troom = targ;
     while(troom && troom->Skill("TBARoom") == 0) troom = troom->Parent();
@@ -1734,15 +1739,16 @@ int Mind::TBARunLine(string line) {
   else if(!strncasecmp(line.c_str(), "send ", 5)) {
     Object *targ = NULL;
     char mes[1024] = "";
-    sscanf(line.c_str()+5, " OBJ:%p %1023[^\n\r]", &targ, mes);
+    sscanf(line.c_str()+5, " OBJ:%p %1022[^\n\r]", &targ, mes);
+    mes[strlen(mes)+1] = 0;
     mes[strlen(mes)] = '\n';
     if(targ) targ->Send(0, 0, mes);
     }
 
   else if(!strncasecmp(line.c_str(), "force ", 6)) {
     Object *targ = NULL;
-    char com[1024] = "";
-    sscanf(line.c_str()+6, " OBJ:%p %1023[^\n\r]", &targ, com);
+    char cmd[1024] = "";
+    sscanf(line.c_str()+6, " OBJ:%p %1023[^\n\r]", &targ, cmd);
     if(targ) {
       Mind *amind = NULL;	//Make sure human minds see it!
       vector<Mind *> mns = get_human_minds();
@@ -1750,7 +1756,7 @@ int Mind::TBARunLine(string line) {
       for(; mn != mns.end(); ++mn) {
 	if((*mn)->Body() == targ) { amind = *mn; break; }
 	}
-      handle_command(targ, com, amind);
+      handle_command(targ, cmd, amind);
       }
     }
 
