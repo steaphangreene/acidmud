@@ -751,6 +751,11 @@ void Mind::TBAVarSub(string &line) {
 	  obj = NULL;
 	  is_obj = 0;
 	  }
+	else if(!strcasecmp(field.c_str(), "title")) {
+	  val = "";
+	  obj = NULL;
+	  is_obj = 0;
+	  }
 	else if(!strcasecmp(field.c_str(), "move")) {
 	  val = "";
 	  if(obj) val = itos(10 - obj->Stun());
@@ -902,8 +907,94 @@ void Mind::TBAVarSub(string &line) {
 	else if(!strcasecmp(field.c_str(), "inventory")) {
 	  if(obj) obj = obj->PickObject("something", LOC_INTERNAL|LOC_NOTWORN);
 	  }
-	else if(!strcasecmp(field.c_str(), "eq")) {
+	else if((!strcasecmp(field.c_str(), "eq(*)"))
+		|| (!strcasecmp(field.c_str(), "eq"))
+		) {
 	  if(obj) obj = obj->PickObject("something", LOC_INTERNAL|LOC_NOTUNWORN);
+	  }
+	else if((!strcasecmp(field.c_str(), "eq(light)"))
+		|| (!strcasecmp(field.c_str(), "eq(hold)"))
+		|| (!strcasecmp(field.c_str(), "eq(0)"))
+		|| (!strcasecmp(field.c_str(), "eq(17)"))
+		) {
+	  if(obj) obj = obj->ActTarg(ACT_HOLD);
+	  }
+	else if((!strcasecmp(field.c_str(), "eq(wield)"))
+		|| (!strcasecmp(field.c_str(), "eq(16)"))
+		) {
+	  if(obj) obj = obj->ActTarg(ACT_WIELD);
+	  }
+	else if((!strcasecmp(field.c_str(), "eq(rfinger)"))
+		|| (!strcasecmp(field.c_str(), "eq(1)"))
+		) {
+	  if(obj) obj = obj->ActTarg(ACT_WEAR_RFINGER);
+	  }
+	else if((!strcasecmp(field.c_str(), "eq(lfinger)"))
+		|| (!strcasecmp(field.c_str(), "eq(2)"))
+		) {
+	  if(obj) obj = obj->ActTarg(ACT_WEAR_LFINGER);
+	  }
+	else if((!strcasecmp(field.c_str(), "eq(neck1)"))
+		|| (!strcasecmp(field.c_str(), "eq(neck2)"))
+		|| (!strcasecmp(field.c_str(), "eq(3)"))
+		|| (!strcasecmp(field.c_str(), "eq(4)"))
+		) {
+	  if(obj) obj = obj->ActTarg(ACT_WEAR_NECK);
+	  }
+	else if((!strcasecmp(field.c_str(), "eq(body)"))
+		|| (!strcasecmp(field.c_str(), "eq(5)"))
+		) {
+	  if(obj) obj = obj->ActTarg(ACT_WEAR_CHEST);
+	  }
+	else if((!strcasecmp(field.c_str(), "eq(head)"))
+		|| (!strcasecmp(field.c_str(), "eq(6)"))
+		) {
+	  if(obj) obj = obj->ActTarg(ACT_WEAR_HEAD);
+	  }
+	else if((!strcasecmp(field.c_str(), "eq(legs)"))
+		|| (!strcasecmp(field.c_str(), "eq(7)"))
+		) {
+	  if(obj) obj = obj->ActTarg(ACT_WEAR_LLEG);
+	  }
+	else if((!strcasecmp(field.c_str(), "eq(feet)"))
+		|| (!strcasecmp(field.c_str(), "eq(8)"))
+		) {
+	  if(obj) obj = obj->ActTarg(ACT_WEAR_LFOOT);
+	  }
+	else if((!strcasecmp(field.c_str(), "eq(hands)"))
+		|| (!strcasecmp(field.c_str(), "eq(9)"))
+		) {
+	  if(obj) obj = obj->ActTarg(ACT_WEAR_LHAND);
+	  }
+	else if((!strcasecmp(field.c_str(), "eq(arms)"))
+		|| (!strcasecmp(field.c_str(), "eq(10)"))
+		) {
+	  if(obj) obj = obj->ActTarg(ACT_WEAR_LARM);
+	  }
+	else if((!strcasecmp(field.c_str(), "eq(shield)"))
+		|| (!strcasecmp(field.c_str(), "eq(11)"))
+		) {
+	  if(obj) obj = obj->ActTarg(ACT_WEAR_SHIELD);
+	  }
+	else if((!strcasecmp(field.c_str(), "eq(about)"))
+		|| (!strcasecmp(field.c_str(), "eq(12)"))
+		) {
+	  if(obj) obj = obj->ActTarg(ACT_WEAR_LSHOULDER);
+	  }
+	else if((!strcasecmp(field.c_str(), "eq(waits)"))
+		|| (!strcasecmp(field.c_str(), "eq(13)"))
+		) {
+	  if(obj) obj = obj->ActTarg(ACT_WEAR_WAIST);
+	  }
+	else if((!strcasecmp(field.c_str(), "eq(rwrist)"))
+		|| (!strcasecmp(field.c_str(), "eq(14)"))
+		) {
+	  if(obj) obj = obj->ActTarg(ACT_WEAR_RWRIST);
+	  }
+	else if((!strcasecmp(field.c_str(), "eq(lwrist)"))
+		|| (!strcasecmp(field.c_str(), "eq(15)"))
+		) {
+	  if(obj) obj = obj->ActTarg(ACT_WEAR_LWRIST);
 	  }
 	else if(!strcasecmp(field.c_str(), "carried_by")) {
 	  if(obj) obj = obj->Owner();
@@ -954,6 +1045,26 @@ void Mind::TBAVarSub(string &line) {
 	    if(tent == touch.end()) obj = NULL;
 	    }
 	  else obj = NULL;
+	  }
+	else if(!strncasecmp(field.c_str(), "skill(", 6)) {
+	  val = "";
+	  if(obj) {
+	    size_t num = field.find_first_of(") .%", 6);
+	    string skl = get_skill(field.substr(6, num-6));
+	    val = itos(obj->Skill(skl));
+	    }
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strncasecmp(field.c_str(), "varexists(", 10)) {
+	  val = "";
+	  if(obj) {
+	    size_t num = field.find_first_of(") .%", 10);
+	    string var = field.substr(10, num-10);	//FIXME: Variables!
+	    val = "0";	//Nothing exists, right now.
+	    }
+	  obj = NULL;
+	  is_obj = 0;
 	  }
 	else if(!strncasecmp(field.c_str(), "has_item(", 9)) {
 	  int vnum = -1;
