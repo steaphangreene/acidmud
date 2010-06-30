@@ -632,6 +632,14 @@ void Mind::TBAVarSub(string &line) {
 	  obj = NULL;
 	  is_obj = 0;
 	  }
+	else if(!strcasecmp(field.c_str(), "race")) {
+	  val = "";
+	  if(obj && obj->BaseAttribute(1) > 0) {
+	    val = "human";	//FIXME: Implement Race!
+	    }
+	  obj = NULL;
+	  is_obj = 0;
+	  }
 	else if(!strcasecmp(field.c_str(), "level")) {
 	  val = "";
 	  if(obj) val = itos(obj->Exp()/10+1);
