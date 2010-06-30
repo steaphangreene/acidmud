@@ -73,7 +73,16 @@ string Mind::TBAComp(string expr) {
     trim_string(arg1);
     if(oper > 0) expr = expr.substr(op+2);	//2-char
     else expr = expr.substr(op+1);		//1-char
+    trim_string(expr);
     string arg2;
+    if(expr[0] == '(') {
+      size_t cls = expr.find(")");	//FIXME: Nested
+      if(cls == string::npos) arg2 = TBAComp(expr.substr(1));
+      else {
+	arg2 = TBAComp(expr.substr(1, cls-1));
+	expr.replace(0, cls+1, arg2);
+	}
+      }
     if(weak) {
       arg2 = TBAComp(expr);
       expr = "";
@@ -448,7 +457,7 @@ void Mind::TBAVarSub(string &line) {
     end = line.find_first_of("%. \t", cur+1);
     if(end == string::npos) end = line.length();
     if(0
-//	|| body->Skill("TBAScript") == 1000099
+	|| body->Skill("TBAScript") == 1008393
 //	|| line.find("eval loc ") != string::npos
 //	|| line.find("set first ") != string::npos
 //	|| line.find("exclaim") != string::npos
@@ -1232,7 +1241,7 @@ void Mind::TBAVarSub(string &line) {
     cur = line.find('%', cur+1);
     }
   if(0
-//	|| body->Skill("TBAScript") == 1000099
+	|| body->Skill("TBAScript") == 1008393
 //	|| line.find("eval loc ") != string::npos
 //	|| line.find("set first ") != string::npos
 //	|| line.find("exclaim") != string::npos
