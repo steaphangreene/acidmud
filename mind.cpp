@@ -589,6 +589,11 @@ void Mind::TBAVarSub(string &line) {
 	  obj = NULL;
 	  is_obj = 0;
 	  }
+	else if(!strcasecmp(field.c_str(), "cost_per_day")) {
+	  val = "0";
+	  obj = NULL;
+	  is_obj = 0;
+	  }
 	else if(!strcasecmp(field.c_str(), "cost")) {
 	  val = "";
 	  if(obj) val = itos(obj->Value());
@@ -756,6 +761,32 @@ void Mind::TBAVarSub(string &line) {
 	  obj = NULL;
 	  is_obj = 0;
 	  }
+	else if(!strcasecmp(field.c_str(), "val0")) {	//FIXME: Implement?
+	  val = "0";
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "val1")) {	//FIXME: Implement?
+	  val = "0";
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "val2")) {	//FIXME: Implement?
+	  val = "0";
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "val3")) {	//FIXME: Implement?
+	  val = "0";
+	  obj = NULL;
+	  is_obj = 0;
+	  }
+	else if(!strcasecmp(field.c_str(), "timer")) {
+	  val = "";
+	  if(obj) val = itos(obj->Skill("Temporary"));	//FIXME: More Kinds?
+	  obj = NULL;
+	  is_obj = 0;
+	  }
 	else if(!strcasecmp(field.c_str(), "move")) {
 	  val = "";
 	  if(obj) val = itos(10 - obj->Stun());
@@ -894,6 +925,14 @@ void Mind::TBAVarSub(string &line) {
 	  }
 	else if(!strcasecmp(field.c_str(), "fighting")) {
 	  if(obj) obj = obj->ActTarg(ACT_FIGHT);
+	  }
+	else if(!strcasecmp(field.c_str(), "worn_by")) {
+	  if(obj) {
+	    Object *owner = obj->Owner();
+	    if(owner && owner->Wearing(obj)) obj = owner;
+	    else obj = NULL;
+	    }
+	  else obj = NULL;
 	  }
 	else if(!strcasecmp(field.c_str(), "room")) {
 	  while(obj && obj->Skill("TBARoom") == 0) obj = obj->Parent();
