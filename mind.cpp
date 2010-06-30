@@ -1324,9 +1324,9 @@ int Mind::TBARunLine(string line) {
       line = line.substr(lpos);
       size_t end1 = line.find_first_of(" \t\n\r");
       if(end1 != string::npos) {
-        string var = line.substr(0, end1);
-        lpos = line.find_first_not_of(" \t", end1 + 1);
-        if(lpos != string::npos) {
+	string var = line.substr(0, end1);
+	lpos = line.find_first_not_of(" \t", end1 + 1);
+	if(lpos != string::npos) {
 	  string val = line.substr(lpos);
 	  if(0
 //		|| var.find("midgaard") != string::npos
@@ -1374,9 +1374,9 @@ int Mind::TBARunLine(string line) {
     room = NULL;
     for(; opt != options.end(); ++opt) {
       if((*opt)->Skill("TBARoom") == dnum) {
-        room = (*opt);
-        break;
-        }
+	room = (*opt);
+	break;
+	}
       }
     if(!room) {
       fprintf(stderr, CRED "#%d Error: Can't find room in '%s'\n" CNRM,
@@ -1421,15 +1421,15 @@ int Mind::TBARunLine(string line) {
       Object *world = room;
       while(world->Parent()->Parent()) world = world->Parent();
       if(world->Skill("Day Time") && world->Skill("Day Length")) {
-        cur = world->Skill("Day Time");
-        cur *= 24*60;
-        cur /= world->Skill("Day Length");
-        }
+	cur = world->Skill("Day Time");
+	cur *= 24*60;
+	cur /= world->Skill("Day Length");
+	}
       if(minute > cur) {	//Not Time Yet!
-        Suspend((minute - cur) * 1000 * world->Skill("Day Length") / 24);
+	Suspend((minute - cur) * 1000 * world->Skill("Day Length") / 24);
 	//Note: The above calculation removed the *60 and the /60
-        return 1;
-        }
+	return 1;
+	}
       }
     else {
       fprintf(stderr, CRED "#%d Error: Told '%s'\n" CNRM,
@@ -1473,12 +1473,12 @@ int Mind::TBARunLine(string line) {
       }
     else if(ovars["self"]->Skill("Liquid Source") && v1 == 1) {
       if(ovars["self"]->Contents().size() < 1) {
-        fprintf(stderr, CYEL "#%d Warning: Empty fountain '%s'\n" CNRM,
-	body->Skill("TBAScript"), line.c_str()
-	);
-        Disable();
-        return 1;
-        }
+	fprintf(stderr, CYEL "#%d Warning: Empty fountain '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	Disable();
+	return 1;
+	}
       ovars["self"]->Contents().front()->SetSkill("Quantity", v2+1);
       }
     else {
@@ -1495,28 +1495,28 @@ int Mind::TBARunLine(string line) {
       int depth = 0;
       while(spos != string::npos) {	//Skip to end/elseif
 //        PING_QUOTA();
-        if((!depth) && (!strncasecmp(script.c_str()+spos, "elseif ", 7))) {
-	spos += 4;	//Make it into an "if" and go
-	break;
-	}
-        else if(!strncasecmp(script.c_str()+spos, "else", 4)) {
-	if(!depth) {	//Only right if all the way back
-	  spos = skip_line(script, spos);
+	if((!depth) && (!strncasecmp(script.c_str()+spos, "elseif ", 7))) {
+	  spos += 4;	//Make it into an "if" and go
 	  break;
 	  }
-	}
-        else if(!strncasecmp(script.c_str()+spos, "end", 3)) {
-	if(!depth) {	//Only done if all the way back
-	  spos = skip_line(script, spos);
-	  break;
+	else if(!strncasecmp(script.c_str()+spos, "else", 4)) {
+	  if(!depth) {	//Only right if all the way back
+	    spos = skip_line(script, spos);
+	    break;
+	    }
 	  }
-	--depth;	//Otherwise am just 1 nesting level less deep
+	else if(!strncasecmp(script.c_str()+spos, "end", 3)) {
+	  if(!depth) {	//Only done if all the way back
+	    spos = skip_line(script, spos);
+	    break;
+	    }
+	  --depth;	//Otherwise am just 1 nesting level less deep
+	  }
+	else if(!strncasecmp(script.c_str()+spos, "if ", 3)) {
+	  ++depth;	//Am now 1 nesting level deeper!
+	  }
+	spos = skip_line(script, spos);
 	}
-        else if(!strncasecmp(script.c_str()+spos, "if ", 3)) {
-	++depth;	//Am now 1 nesting level deeper!
-	}
-        spos = skip_line(script, spos);
-        }
       spos_s.front() = spos;	//Save skip-to position in real PC
       }
     }
@@ -1526,15 +1526,15 @@ int Mind::TBARunLine(string line) {
     while(spos != string::npos) {	//Skip to end (considering nesting)
 //      PING_QUOTA();
       if(!strncasecmp(script.c_str()+spos, "end", 3)) {
-        if(depth == 0) {	//Only done if all the way back
-	spos = skip_line(script, spos);
-	break;
+	if(depth == 0) {	//Only done if all the way back
+	  spos = skip_line(script, spos);
+	  break;
+	  }
+	--depth;	//Otherwise am just 1 nesting level less deep
 	}
-        --depth;	//Otherwise am just 1 nesting level less deep
-        }
       else if(!strncasecmp(script.c_str()+spos, "if ", 3)) {
-        ++depth;	//Am now 1 nesting level deeper!
-        }
+	++depth;	//Am now 1 nesting level deeper!
+	}
       spos = skip_line(script, spos);
       }
     spos_s.front() = spos;	//Save skip-to position in real PC
@@ -1543,74 +1543,76 @@ int Mind::TBARunLine(string line) {
   else if(!strncasecmp(line.c_str(), "while ", 6)) {
     int depth = 0;
     size_t rep = prev_line(script, spos);
-    size_t cond = 6, begin = spos, end = spos, skip = spos;
-    begin = spos;
+    size_t begin = spos;
     while(spos != string::npos) {	//Skip to end (considering nesting)
 //      PING_QUOTA();
       if(!strncasecmp(script.c_str()+spos, "done", 4)) {
-        if(depth == 0) {	//Only done if all the way back
-	end = spos;
-	spos = skip_line(script, spos);
-	skip = spos;
-	break;
+	if(depth == 0) {	//Only done if all the way back
+	  spos = skip_line(script, spos);
+	  break;
+	  }
+	--depth;	//Otherwise am just 1 nesting level less deep
 	}
-        --depth;	//Otherwise am just 1 nesting level less deep
-        }
       else if(!strncasecmp(script.c_str()+spos, "switch ", 7)) {
-        ++depth;	//Am now 1 nesting level deeper!
-        }
+	++depth;	//Am now 1 nesting level deeper!
+	}
       else if(!strncasecmp(script.c_str()+spos, "while ", 6)) {
-        ++depth;	//Am now 1 nesting level deeper!
-        }
+	++depth;	//Am now 1 nesting level deeper!
+	}
       spos = skip_line(script, spos);
       }
-    if(TBAEval(line.c_str() + cond)) {
+    if(TBAEval(line.c_str() + 6)) {
       spos_s.front() = rep;	//Will repeat the "while"
       spos_s.push_front(begin);	//But run the inside of the loop first.
       }
     else {
-      spos_s.front() = spos;	//Save skip-to position in real PC
+      spos_s.front() = spos;	//Save after-done position in real PC
       }
     }
 
   else if(!strncasecmp(line.c_str(), "switch ", 7)) {
     int depth = 0;
-    size_t defl = 0;
+    size_t targ = 0;
     string value = line.substr(7);
     trim_string(value);
     while(spos != string::npos) {	//Skip to end (considering nesting)
 //      PING_QUOTA();
       if(!strncasecmp(script.c_str()+spos, "done", 4)) {
-        if(depth == 0) {	//Only done if all the way back
-	spos = skip_line(script, spos);
-	break;
+	if(depth == 0) {	//Only done if all the way back
+	  spos = skip_line(script, spos);
+	  break;
+	  }
+	--depth;		//Otherwise am just 1 nesting level less deep
 	}
-        --depth;	//Otherwise am just 1 nesting level less deep
-        }
       else if(!strncasecmp(script.c_str()+spos, "switch ", 7)) {
-        ++depth;	//Am now 1 nesting level deeper!
-        }
+	++depth;		//Am now 1 nesting level deeper!
+	}
       else if(!strncasecmp(script.c_str()+spos, "while ", 6)) {
-        ++depth;	//Am now 1 nesting level deeper!
-        }
+	++depth;		//Am now 1 nesting level deeper!
+	}
       else if(depth == 0
 		&& (!strncasecmp(script.c_str()+spos, "case ", 5))
 		&& TBAEval(value + " == " + script.substr(spos+5))
 		) {			//The actual case I want!
-        spos = skip_line(script, spos);
-        break;
-        }
+	spos = skip_line(script, spos);
+	targ = spos;
+	continue;
+	}
       else if(depth == 0
 		&& (!strncasecmp(script.c_str()+spos, "default", 7))
-		) {			//The actual case I want!
-        spos = skip_line(script, spos);
-        defl = spos;
-        continue;
-        }
+		) {			//Maybe the case I want
+	if(targ == 0) {
+	  spos = skip_line(script, spos);
+	  targ = spos;
+	  continue;
+	  }
+	}
       spos = skip_line(script, spos);
       }
-    if(defl != 0) spos = defl;	//Go to "default" case, if there was one
-    spos_s.front() = spos;	//Save jump-to position in real PC
+    spos_s.front() = spos;		//Save after-done position in real PC
+    if(targ != 0) {			//Got a case to go to
+      spos_s.push_front(targ);		//Push jump-to position above real PC
+      }
     }
 
   else if(!strncasecmp(line.c_str(), "break", 5)) {//Skip to done
@@ -1618,30 +1620,20 @@ int Mind::TBARunLine(string line) {
     while(spos != string::npos) {	//Skip to end (considering nesting)
 //      PING_QUOTA();
       if(!strncasecmp(script.c_str()+spos, "done", 4)) {
-        if(depth == 0) {	//Only done if all the way back
+	if(depth == 0) {	//Only done if all the way back
 	break;
 	}
-        --depth;	//Otherwise am just 1 nesting level less deep
-        }
+	--depth;	//Otherwise am just 1 nesting level less deep
+	}
       else if(!strncasecmp(script.c_str()+spos, "switch ", 7)) {
-        ++depth;	//Am now 1 nesting level deeper!
-        }
+	++depth;	//Am now 1 nesting level deeper!
+	}
       else if(!strncasecmp(script.c_str()+spos, "while ", 6)) {
-        ++depth;	//Am now 1 nesting level deeper!
-        }
+	++depth;	//Am now 1 nesting level deeper!
+	}
       spos = skip_line(script, spos);
       }
-    if(spos == string::npos) {
-      fprintf(stderr, CRED "#%d Error: Can't find done in '%s'\n" CNRM,
-	body->Skill("TBAScript"), line.c_str()
-	);
-      Disable();
-      return 1;
-      }
-    else {
-      spos = skip_line(script, spos);	//Skip the actual "done"
-      spos_s.front() = spos;	//Save jump-to position in real PC
-      }
+    spos_s.front() = spos;	//Save done position in real PC
     }
 
   //Player commands Acid shares with TBA, not requiring arguments
@@ -1792,7 +1784,7 @@ int Mind::TBARunLine(string line) {
 //		body->Skill("TBAScript"), (*opt)->Name(), ((-dam)+1)/2
 //		);
 	  }
-        }
+	}
       }
     }
 
@@ -2001,8 +1993,8 @@ int Mind::TBARunLine(string line) {
 	body->AddAct(ACT_HOLD, item);
 	}
       else {
-        dest->StashOrDrop(item);
-        }
+	dest->StashOrDrop(item);
+	}
       }
     else if(dest != room) {				//Have it
       dest->StashOrDrop(item);
@@ -2024,7 +2016,7 @@ int Mind::TBARunLine(string line) {
   else if(!strncasecmp(line.c_str(), "done", 4)) {
     //Means we should be within a while(), pop up a level.
     if(spos_s.size() < 2) {
-      fprintf(stderr, CRED "#%d Error: Not in while, but '%s'\n" CNRM,
+      fprintf(stderr, CRED "#%d Error: Not in while/switch, but '%s'\n" CNRM,
 	body->Skill("TBAScript"), line.c_str()
 	);
       Disable();
