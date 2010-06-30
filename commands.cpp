@@ -202,7 +202,7 @@ Command comlist[1024] = {
   { COM_DROP, "drop",
     "Drop an item you are carrying.",
     "Drop an item you are carrying.",
-    (REQ_ALERT|REQ_ACTION)
+    (REQ_ALERT)
     },
   { COM_STASH, "stash",
     "Store an item you are holding in one of your containers.",
@@ -780,7 +780,10 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     return 0;
     }
 
-  //fprintf(stderr, "Handling command from %p[%p] of '%s'\n", mind, body, comline);
+//  if(body && body->Matches("Glumgold")) {
+//    fprintf(stderr, "Handling command: '%s' (%d)\n",
+//	comline, body->StillBusy());
+//    }
 
   if(comline[0] == '\'' || comline[0] == '"') {	//Command Alias: "say"
     len = 1;
