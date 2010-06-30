@@ -707,10 +707,7 @@ void Mind::TBAVarSub(string &line) {
 	  is_obj = 0;
 	  }
 	else if(!strcasecmp(field.c_str(), "fighting")) {
-	  val = "";
-	  if(obj) val = bstr[obj->IsAct(ACT_FIGHT)];
-	  obj = NULL;
-	  is_obj = 0;
+	  if(obj) obj = obj->ActTarg(ACT_FIGHT);
 	  }
 	else if(!strcasecmp(field.c_str(), "room")) {
 	  while(obj && obj->Skill("TBARoom") == 0) obj = obj->Parent();
