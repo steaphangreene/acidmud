@@ -234,7 +234,7 @@ void Mind::SetMob() {
   pers = fileno(stderr);
   }
 
-void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
+void Mind::SetTBATrigger(Object *tr, Object *tripper, Object *targ, string text) {
   if((!tr) || (!(tr->Parent()))) return;
 
   type = MIND_TBATRIG;
@@ -253,6 +253,9 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, string text) {
   if((stype & 0x4000040) == 0x4000040			//ROOM-ENTER Triggers
 		|| stype & 0x0010000) {			//-LEAVE Triggers
     svars["direction"] = text;
+    }
+  if((stype & 0x4000080) == 0x4000080) {		//ROOM-DROP Triggers
+    ovars["object"] = targ;
     }
   if(stype & 0x0000004) {				//-COMMAND Triggers
     size_t part = text.find_first_of(" \t\n\r");
@@ -2398,7 +2401,7 @@ const char *Mind::SpecialPrompt() {
   return prompt.c_str();
   }
 
-Mind *new_mind(int tp, Object *obj, Object *obj2, string text) {
+Mind *new_mind(int tp, Object *obj, Object *obj2, Object *obj3, string text) {
   Mind *m = NULL;
   if(recycle_bin.size() > 0) {
     m = recycle_bin.front();
@@ -2410,7 +2413,7 @@ Mind *new_mind(int tp, Object *obj, Object *obj2, string text) {
     m = new Mind();
     }
   if(tp == MIND_TBATRIG && obj) {
-    m->SetTBATrigger(obj, obj2, text);
+    m->SetTBATrigger(obj, obj2, obj3, text);
     }
   else if(obj) {
     m->Attach(obj);
@@ -2419,9 +2422,14 @@ Mind *new_mind(int tp, Object *obj, Object *obj2, string text) {
   }
 
 int new_trigger(int msec, Object *obj, Object *tripper, string text) {
+  return new_trigger(msec, obj, tripper, NULL, text);
+  }
+
+int new_trigger(int msec,
+	Object *obj, Object *tripper, Object *targ, string text) {
   if((!obj) || (!(obj->Parent()))) return 0;
 
-  Mind *m = new_mind(MIND_TBATRIG, obj, tripper, text);
+  Mind *m = new_mind(MIND_TBATRIG, obj, tripper, targ, text);
   if(msec == 0) {
     m->Think(1);
     if(m->Status()) return 1;		//Catch non-default term state.

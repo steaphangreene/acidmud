@@ -2836,6 +2836,19 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     for(ind = targs.begin(); ind != targs.end(); ++ind) {
       Object *targ = *ind;
 
+      list<Object *> trigs = targ->PickObjects(
+		"tbaMUD trigger script", LOC_NINJA|LOC_INTERNAL);
+      list<Object *>::iterator trig = trigs.begin();
+      for(; trig != trigs.end(); ++trig) {
+	int ttype = (*trig)->Skill("TBAScriptType");
+	if((ttype & 0x2000040) == 0x2000040) {	//OBJ-GET trigs
+	  if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) { // % Chance
+	    if(new_trigger(0, *trig, body)) return 0;		//Says fail!
+	    if(targ->Parent() == targ->TrashBin()) return 0;	//Purged it
+	    }
+	  }
+	}
+
       if((!nmode) && targ->Pos() == POS_NONE) {
 	if(mind) mind->SendF("You can't get %s, it is fixed in place!\n",
 		targ->Name());
@@ -3480,6 +3493,38 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     else {
       typeof(targs.begin()) targ;
       for(targ = targs.begin(); targ != targs.end(); ++targ) {
+
+	list<Object *> trigs;
+	list<Object *>::iterator trig;
+
+	trigs = (*targ)->PickObjects("tbaMUD trigger script",
+		LOC_NINJA|LOC_INTERNAL);
+	trig = trigs.begin();
+	for(; trig != trigs.end(); ++trig) {
+	  int ttype = (*trig)->Skill("TBAScriptType");
+	  if((ttype & 0x2000080) == 0x2000080) {	//OBJ-DROP trigs
+	    if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) { // % Chance
+	      if(new_trigger(0, *trig, body)) return 0;		//Says FAIL!
+	      if((*targ)->Parent() == (*targ)->TrashBin()) return 0;//Purged it
+	      }
+	    }
+	  }
+
+	Object *room = body->PickObject("here", LOC_HERE);
+	trigs.clear();
+	if(room) trigs = room->PickObjects("tbaMUD trigger script",
+		LOC_NINJA|LOC_INTERNAL);
+	trig = trigs.begin();
+	for(; trig != trigs.end(); ++trig) {
+	  int ttype = (*trig)->Skill("TBAScriptType");
+	  if((ttype & 0x4000080) == 0x4000080) {	//ROOM-DROP trigs
+	    if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) { // % Chance
+	      if(new_trigger(0, *trig, body, *targ)) return 0;	//Says FAIL!
+	      if((*targ)->Parent() == (*targ)->TrashBin()) return 0;//Purged it
+	      }
+	    }
+	  }
+
 	int ret = body->Drop(*targ, 1, vmode);
 	if(ret == -1) {		//Totally Failed
 	  if(mind) mind->SendF("You can't drop %s here.\n",

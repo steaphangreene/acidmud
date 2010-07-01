@@ -26,7 +26,9 @@ public:
   void SetRemote(int fd);
   void SetMob();
   void SetTBAMob();
-  void SetTBATrigger(Object *tr, Object *tripper = NULL, string text = "");
+  void SetTBATrigger(Object *tr,
+	Object *tripper = NULL, Object *targ = NULL, string text = ""
+	);
   void SetNPC();
   void SetSystem();
   void Attach(Object *bod);
@@ -86,10 +88,14 @@ private:
   };
 
 Mind *new_mind(int tp,
-	Object *obj = NULL, Object *obj2 = NULL, string text = ""
+	Object *obj = NULL, Object *obj2 = NULL, Object *obj3 = NULL,
+	string text = ""
 	);
 int new_trigger(int msec,
 	Object *obj, Object *tripper = NULL, string text = ""
+	);
+int new_trigger(int msec,
+	Object *obj, Object *tripper, Object *targ, string text = ""
 	);
 
 #endif
