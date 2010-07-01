@@ -306,36 +306,36 @@ shoot~
 random messages~
 2 b 40
 ~
-switch %random.8%
+switch %random.10%
   case 0
     %echo% Birds chirp serenly from the swaying branches of surrounding trees.
   break
   case 1
-  %echo% A sudden chill breathes harshly down your neck.
+    %echo% A sudden chill breathes harshly down your neck.
   break
   case 2
-%echo% A soft glow lights the place as a large spark flares and dies.
+    %echo% A soft glow lights the place as a large spark flares and dies.
   break
   case 3
- %echo% The sound of gentle laughter echoes from nearby mountains.
+    %echo% The sound of gentle laughter echoes from nearby mountains.
   break
   case 4
-%echo% An anguished scream pierces the air.
+    %echo% An anguished scream pierces the air.
   break
   case 5
-%echo% The leaves shiver uneasily as something invisible stirs the air.
+    %echo% The leaves shiver uneasily as something invisible stirs the air.
   break
   case 6
- %echo% The warm scent of fresh baking bread wafts on the air.
+    %echo% The warm scent of fresh baking bread wafts on the air.
   break
-case 7
-%echo% The soothing sound of a mother's voice can be heard singing gently.
-break
-case 8
-%echo% The air grows suddenly still as though this place was holding its breath.
-break
+  case 7
+    %echo% The soothing sound of a mother's voice can be heard singing gently.
+  break
+  case 8
+    %echo% The air grows suddenly still as though this place was holding its breath.
+  break
   default
-%echo% A soft glow lights the place as a large spark flares and dies.
+    %echo% A soft glow lights the place as a large spark flares and dies.
   break
 done
 ~
@@ -1059,7 +1059,7 @@ if %arg% == north || %arg% ==  east || %arg% == south || %arg% == west || %arg% 
   if %actor.inventory(2733)%
     if %people%
       switch %random.3%
-        case 1
+        case 0
           %send% %people% You are suddenly shot by %actor.name%.
           %at% %direction% %damage% %people% 20
           %send% %actor% You shoot %people.name% and damage %people.himher%.
@@ -1067,14 +1067,14 @@ if %arg% == north || %arg% ==  east || %arg% == south || %arg% == west || %arg% 
           %purge% %actor.inventory(2733)%
           %load% obj 2733 %people% inv
         break
-        case 2
+        case 1
           %send% %people% %actor.name% tries to shoot you but misses.
           %send% %actor% You try to shoot %people.name% but miss.
           %echoaround% %actor% %actor.name% tries to shoot %people.name% but misses%
           %purge% %actor.inventory(2733)%
           %load% obj 2733
         break
-        case 3
+        case 2
           %send% %people% You are suddenly shot by %actor.name%.
           %send% %people% The arrow breaks.
           %at% %direction% %damage% %people% 20
@@ -1082,14 +1082,6 @@ if %arg% == north || %arg% ==  east || %arg% == south || %arg% == west || %arg% 
           %send% %actor% The arrow breaks.
           %echoaround% %actor% %actor.name% shoots %people.name% and damages %people.himher%
           %purge% %actor.inventory(2733)%
-        break
-        default
-          %send% %people% You are suddenly shot by %actor.name%.
-          %at% %direction% %damage% %people% 20
-          %send% %actor% You shoot %people.name% and damage %people.himher%.
-          %echoaround% %actor% %actor.name% shoots %people.name% and damages %people.himher%
-          %purge% %actor.inventory(2733)%
-          %load% obj 2733 %people% inv
         break
       done
     else
@@ -1173,7 +1165,7 @@ if %arg.mudcommand% == north || %arg.mudcommand% == east || %arg.mudcommand% == 
   * Just a calculation of the arrow stats using a
   * random number of dice between 1 and 3.
   *
-  set dice %random.3%
+  eval dice %random.3% + 1
   eval finaldam ((%dice% * %dam%) + %bonus%)
   %echo% Hits for total of %finaldam%.  
   *
@@ -1184,7 +1176,8 @@ if %arg.mudcommand% == north || %arg.mudcommand% == east || %arg.mudcommand% == 
   *
   if %arrow%
     if %people%
-      switch %random.3%
+      eval var %random.3% + 1
+      switch %var%
         case 1
           %send% %people% %actor.name% shoots you with %weapon.shortdesc%.
           %at% %direction% %damage% %people% %finaldam%
@@ -1291,7 +1284,7 @@ end
 ex~
 if %cmd.mudcommand% == examine
   if walls /= %arg%
-    eval max %random.21%
+    eval max %random.21% + 1
     set  txt[1] PATRIS
     set  txt[2] PRODITIO
     set  txt[3] CRUCIATUS
@@ -1501,10 +1494,10 @@ end
 *~
 if %actor.varexists(zn118_knifestart)%
 if %speech% == start
-  eval max %random.3%
+  eval max %random.3% + 1
   set txt[1] right
-  set  txt[2] middle
-  set  txt[3] left
+  set txt[2] middle
+  set txt[3] left
   set  ball %%txt[%max%]%%
   eval ball %ball%
   emote places the ball under the %ball% cup.
@@ -1515,7 +1508,8 @@ if %speech% == start
   set tries 7
   while %tries% > 1
     wait 2 s
-    switch %random.7%
+    eval var %random.7% + 1
+    switch %var%
       case 1
       emote switches the first and third cup around.
       eval z %1%

@@ -2,7 +2,7 @@
 Chunky Philosopher - 206~
 0 b 5
 ~
-eval max %random.10%
+eval max %random.11% + 1
 set  txt[1] I signed up for an exercise class and was told to wear loose-fitting clothing. Hell, if I HAD any loose-fitting clothing, I wouldn't  have signed up for the damn class in the first place!
 set  txt[2] When I was young and trim we used to go "skinny dipping,"  now... I just "chunky dunkin."
 set  txt[3] Remember... the early bird still has to eat worms.

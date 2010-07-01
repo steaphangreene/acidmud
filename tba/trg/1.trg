@@ -1178,7 +1178,7 @@ end
 Annoying Kid - 117~
 0 b 5
 ~
-eval max %random.4%
+eval max %random.4% + 1
 set  txt[1] I know you are, but what am I?
 set  txt[2] Does your parents know you are out in public?
 set  txt[3] And I thought I knew ugly.
@@ -1560,7 +1560,7 @@ Underground Spy M30 T174~
 ~
 * By Rumble of The Builder Academy    tbamud.com 9091
 if !%self.follower%
-  eval max %random.4%
+  eval max %random.4% + 1
   set txt[1] Don't let the 'MAN' hold you back, join the rebellion. Follow me if you want to lead a better life.
   set txt[2] Be careful who you talk to, they may be part of the conspiracy. Follow me if you want to know the truth.
   set txt[3] Follow me if you want to join the resistance.
@@ -1846,7 +1846,7 @@ Epictetus M29~
 0 b 5
 ~
 * Epictetus - M29 - T181 By Rumble
-eval max %random.26%
+eval max %random.26% + 1
 set txt[1] the judge will do some things to you which are thought to be terrifying, but how can he stop you from taking the punishment he threatened?
 set txt[2] what are the benefits of a stoic life? It is an ancient and honorable package of advice on how to stay out of the clutches of those who are trying to get you on the hook, trying to give you a feeling of obligation, trying to get moral leverage.
 set txt[3] There can be no such thing as being the "victim" of another. You can only be a "victim" of yourself.
@@ -1882,7 +1882,7 @@ Clausewitz M28~
 0 b 5
 ~
 * Clausewitz - M28 - T182 By Rumble
-eval max %random.15%
+eval max %random.15% + 1
 set txt[1] it is not only in the loss of men, horses, and guns but in order, courage, confidence, cohesion and plan which come into consideration whether the engagement can still be continued or not. It is principally the moral forces which decide here.
 set txt[2] failures of management and engineering are tactical shortcomings that can be fixed but that failures of leadership's nerve and character are terminal, catastrophic.
 set txt[3] War is a special profession, however general its relation may be and even if all the male population of a country capable of bearing arms were able to practice it, war would still continue to be different and separate from any other activity.
@@ -1907,7 +1907,7 @@ Socrates - 17~
 0 b 1
 ~
 * Socrates - M17 - T183 By Rumble
-eval max %random.14%
+eval max %random.14% + 1
 set txt[1] Let him that would move the world, first move himself. 
 set txt[2] Employ your time in improving yourself by other men's writings, so that you shall gain easily what others have labored hard for. 
 set txt[3] No evil can befall a good man
@@ -1931,7 +1931,7 @@ Plato - 21~
 0 b 3
 ~
 * Plato - M21 - T184 By Rumble
-eval max %random.22%
+eval max %random.22% + 1
 set txt[1] Wise men speak because they have something to say; Fools because they have to say something
 set txt[2] Those who are too smart to engage in politics are punished by being governed by those who are dumber. 
 set txt[3] This I know - that I know nothing. 
@@ -1963,7 +1963,7 @@ Aristotle - 22~
 0 b 10
 ~
 * Aristotle - M22 - T185 By Rumble
-eval max %random.27%
+eval max %random.27% + 1
 set txt[1] education is an ornament in prosperity and a refuge in adversity.
 set txt[2] a good man with a flaw who had come to an unjustified bad end.
 set txt[3] All paid jobs absorb and degrade the mind.
@@ -1999,7 +1999,7 @@ Confucius - 23~
 ~
 * By Rumble of The Builder Academy    tbamud.com 9091
 * Confucius - M23 - T186 By Rumble
-set max %random.27%
+set max %random.27% + 1
 set txt[1] Before you embark on a journey of revenge, dig two graves. 
 set txt[2] Everything has its beauty but not everyone sees it. 
 set txt[3] Forget injuries, never forget kindnesses. 
@@ -2035,7 +2035,7 @@ James Stockdale - 27~
 0 b 10
 ~
 * James Stockdale - M27 - T187 By Rumble
-eval max %random.43%
+eval max %random.43% + 1
 set txt[1] Francis Bacon once said, "Adversity doth best induce virtue... while luxury doth best induce vice."
 set txt[2] to quote Glenn Gray, "Numberless soldiers have died, more or less willingly, not for country or honor or religious faith or for any other abstract good, but because they realized that by fleeing their posts and rescuing themselves, they would expose their companions to greater danger. Such loyalty to the group is the essence of fighting morale."
 set txt[3] Glenn Gray said, "Nothing is clearer than that men can act contrary to the alleged basic instinct of self-preservation and against all motives of self-interest and egoism. Were it not so, the history of our civilization would be completely different than what it has been."
