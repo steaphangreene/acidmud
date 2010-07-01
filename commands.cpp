@@ -446,12 +446,6 @@ Command comlist[1024] = {
     (REQ_ETHEREAL|REQ_CORPOREAL)
     },
 
-  { COM_TIME, "time",
-    "Get the current world's MUD time.",
-    "Get the current world's MUD time.",
-    (REQ_ETHEREAL|REQ_CORPOREAL)
-    },
-
   { COM_SKILLLIST, "skilllist",
     "List all available skill categories, or all skills in a category.",
     "List all available skill categories, or all skills in a category.",
@@ -472,6 +466,17 @@ Command comlist[1024] = {
     "Resurrect a long-dead character (one with no corpse left).",
     "Resurrect a long-dead character (one with no corpse left).",
     (REQ_STAND)
+    },
+
+  { COM_TIME, "time",
+    "Get the current world's MUD time.",
+    "Get the current world's MUD time.",
+    (REQ_ETHEREAL|REQ_CORPOREAL)
+    },
+  { COM_VERSION, "version",
+    "Query the version information of running AcidMUD.",
+    "Query the version information of running AcidMUD.",
+    (REQ_ANY)
     },
 
   { COM_NINJAMODE, "ninjamode",
@@ -618,11 +623,6 @@ Command comlist[1024] = {
     "Ninja command: save the entire MUD Universe - preserving connections.",
     (REQ_ANY|REQ_NINJAMODE)
     },
-  { COM_VERSION, "version",
-    "Ninja command: query the version information of running AcidMUD.",
-    "Ninja command: query the version information of running AcidMUD.",
-    (REQ_ANY)
-    },
 
   { COM_MAKESTART, "makestart",
     "Ninja command.",
@@ -697,11 +697,10 @@ static void load_socials() {
       comlist[cnum].id = COM_SOCIAL;
       comlist[cnum].shortdesc = "Social command.";
       comlist[cnum].longdesc = "Social command.";
-      comlist[cnum].sit = REQ_ALERT;
+      comlist[cnum].sit = REQ_ALERT;	//FIXME: Import This?
       ++cnum;
       }
     //fprintf(stderr, "There are now %d commands!\n", cnum);
-    comlist[256].id = COM_HELP;		//Temporary!
     fclose(soc);
     }
   }
@@ -1237,6 +1236,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     if(!strcmp(comline+len, "commands")) {
       string mes = "";
       for(int ctr=0; comlist[ctr].id != COM_NONE; ++ctr) {
+        if(comlist[ctr].id == COM_SOCIAL) continue;
         if((comlist[ctr].sit & SIT_NINJAMODE) && (!nmode)) continue;
         if((!(comlist[ctr].sit & SIT_NINJAMODE)) && nmode) continue;
         if((comlist[ctr].sit & SIT_NINJA) && (!ninja)) continue;
@@ -1251,8 +1251,28 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       mind->Send(mes.c_str());
       return 0;
       }
-    mind->Send("Well, the help command's not yet implemented :P\n"
-	"Try 'help commands' command for a list of commands at least.\n");
+    else if(!strcmp(comline+len, "socials")) {
+      string mes = "";
+      for(int ctr=0; comlist[ctr].id != COM_NONE; ++ctr) {
+        if(comlist[ctr].id != COM_SOCIAL) continue;
+        if((comlist[ctr].sit & SIT_NINJAMODE) && (!nmode)) continue;
+        if((!(comlist[ctr].sit & SIT_NINJAMODE)) && nmode) continue;
+        if((comlist[ctr].sit & SIT_NINJA) && (!ninja)) continue;
+        if((comlist[ctr].sit & SIT_SUPERNINJA) && (!sninja)) continue;
+        if((!(comlist[ctr].sit & SIT_CORPOREAL)) && (body)) continue;
+        if((!(comlist[ctr].sit & SIT_ETHEREAL)) && (!body)) continue;
+        mes += comlist[ctr].command;
+        mes += " - ";
+        mes += comlist[ctr].shortdesc;
+        mes += '\n';
+        }
+      mind->Send(mes.c_str());
+      return 0;
+      }
+    mind->Send("Well, the help command's not really implemented yet :P\n"
+	"Try 'help commands' for a list of general commands.\n"
+	"Try 'help socials' for a list of social commands.\n"
+	);
     return 0;
     }
 
