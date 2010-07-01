@@ -2014,18 +2014,18 @@ int Mind::TBARunLine(string line) {
       if(!dest->Wear(item, mask)) dest->StashOrDrop(item);
       }
     else if(loc == ACT_WIELD) {				//Wield it
-      if(body->ActTarg(ACT_WIELD) == NULL) {
-	body->AddAct(ACT_WIELD, item);
+      if(dest->ActTarg(ACT_WIELD) == NULL) {
+	dest->AddAct(ACT_WIELD, item);
 	}
       else {
 	dest->StashOrDrop(item);
 	}
       }
     else if(loc == ACT_HOLD) {				//Hold it
-      if(body->ActTarg(ACT_HOLD) == NULL
-		|| body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WIELD)
-		|| body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)) {
-	body->AddAct(ACT_HOLD, item);
+      if(dest->ActTarg(ACT_HOLD) == NULL
+		|| dest->ActTarg(ACT_HOLD) == dest->ActTarg(ACT_WIELD)
+		|| dest->ActTarg(ACT_HOLD) == dest->ActTarg(ACT_WEAR_SHIELD)) {
+	dest->AddAct(ACT_HOLD, item);
 	}
       else {
 	dest->StashOrDrop(item);
