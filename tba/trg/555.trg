@@ -10,7 +10,7 @@ TalkingHorse~
 ~
 * Trigger Program By Rumble of The Builder Academy    tbamud.com 9091
 if !%self.fighting%
-  eval max %random.4% + 1
+  eval max %random.4%
   set txt[1] What's my job?  I eat hay.
   set txt[2] The answer... It was...INFINITY!
   set txt[3] Hey...  You look familiar, have we met?
