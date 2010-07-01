@@ -569,7 +569,7 @@ void Mind::TBAVarSub(string &line) {
 	    obj->Skill("TBAMOB");
 	    if(vnum < 1) vnum = obj->Skill("TBAObject");
 	    if(vnum < 1) vnum = obj->Skill("TBARoom");
-	    if(vnum > 0) vnum -= 1000000;	//Convert from Acid number
+	    if(vnum > 0) vnum %= 1000000;	//Convert from Acid number
 	    }
 	  val = itos(vnum);
 	  obj = NULL;
@@ -1132,7 +1132,7 @@ void Mind::TBAVarSub(string &line) {
 	  sscanf(field.c_str()+9, "%d", &vnum);
 	  val = "";
 	  if(obj && vnum != -1 && field[num] == ')') {
-	    vnum += 1000000;
+	    vnum += 2000000;
 	    list<Object*> pos = obj->PickObjects("all", LOC_INTERNAL);
 	    list<Object*>::iterator item = pos.begin();
 	    for(; item != pos.end(); ++item) {
@@ -1152,7 +1152,7 @@ void Mind::TBAVarSub(string &line) {
 	    if(vnum < 1) vnum = obj->Skill("TBAObject");
 	    if(vnum < 1) vnum = obj->Skill("TBARoom");
 	    if(vnum > 0) {
-	      vnum -= 1000000;	//Convert from Acid number
+	      vnum %= 1000000;	//Convert from Acid number
 	      int qnum = TBAEval(field.c_str()+5);
 	      val == bstr[(vnum == qnum)];
 	      }
@@ -1391,7 +1391,6 @@ int Mind::TBARunLine(string line) {
       Disable();
       return 1;
       }
-    dnum += 1000000;
     while(room->Parent()->Parent()) {
       room = room->Parent();
       }
@@ -1399,7 +1398,8 @@ int Mind::TBARunLine(string line) {
     list<Object*>::iterator opt = options.begin();
     room = NULL;
     for(; opt != options.end(); ++opt) {
-      if((*opt)->Skill("TBARoom") == dnum) {
+      int tnum = (*opt)->Skill("TBARoom");
+      if(tnum > 0 && (tnum % 1000000) == dnum) {
 	room = (*opt);
 	break;
 	}
@@ -1822,7 +1822,6 @@ int Mind::TBARunLine(string line) {
     if(sscanf(line.c_str() + 10, "%s %d", buf, &dnum) != 2) {
       if(!strcasecmp(buf, "all")) { strcpy(buf, "everyone"); }
       }
-    dnum += 1000000;
     Object *dest = ovars["self"];
     while(dest->Parent()->Parent()) {
       dest = dest->Parent();
@@ -1831,7 +1830,8 @@ int Mind::TBARunLine(string line) {
     list<Object*>::iterator opt = options.begin();
     dest = NULL;
     for(; opt != options.end(); ++opt) {
-      if((*opt)->Skill("TBARoom") == dnum) {
+      int tnum = (*opt)->Skill("TBARoom");
+      if(tnum > 0 && (tnum % 1000000) == dnum) {
 	dest = (*opt);
 	break;
 	}
@@ -1883,7 +1883,7 @@ int Mind::TBARunLine(string line) {
       list<Object*> options = src->Contents();
       list<Object*>::iterator opt = options.begin();
       for(; opt != options.end(); ++opt) {
-	if((*opt)->Skill("TBAObject") == vnum + 1000000) {
+	if((*opt)->Skill("TBAObject") == vnum + 2000000) {
 	  item = new Object(*(*opt));
 	  break;
 	  }

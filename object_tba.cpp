@@ -947,7 +947,7 @@ void Object::TBALoadOBJ(const char *fn) {
       //fprintf(stderr, "Loaded object #%d\n", onum);
 
       Object *obj = new Object(objroom);
-      obj->SetSkill("TBAObject", 1000000+onum);
+      obj->SetSkill("TBAObject", 2000000+onum);
       bynumobj[onum] = obj;
 
       vector<string> aliases;
@@ -1173,7 +1173,7 @@ void Object::TBALoadOBJ(const char *fn) {
 	obj->SetSkill("Quantity", val[0]);
 	}
       else if(tp == 18) { // KEY
-	obj->SetSkill("Key", 1000000 + onum);		// Key's "code"
+	obj->SetSkill("Key", 2000000 + onum);		// Key's "code"
 	}
       else if(tp == 15) { // CONTAINER
 	obj->SetSkill("Container", val[0] * 454);
@@ -1186,7 +1186,7 @@ void Object::TBALoadOBJ(const char *fn) {
 	  }
 	if(val[1] & 1) obj->SetSkill("Closeable", 1);	// Can it be closed?
 	if(val[2] > 0) {
-	  obj->SetSkill("Lock", 1000000 + val[2]);	// Unlocking key's code
+	  obj->SetSkill("Lock", 2000000 + val[2]);	// Unlocking key's code
 	  obj->SetSkill("Lockable", 1);			// Can it be locked?
 	  }
 
@@ -2025,7 +2025,7 @@ void Object::TBALoadWLD(const char *fn) {
 
       Object *obj = new Object(this);
       olist.push_back(obj);
-      obj->SetSkill("TBARoom", 1000000+onum);
+      obj->SetSkill("TBARoom", 4000000+onum);
       bynumwld[onum] = obj;
 
       obj->SetWeight(-1);
@@ -2054,7 +2054,7 @@ void Object::TBALoadWLD(const char *fn) {
 
       string name = obj->ShortDesc();
       if(name.find("Secret") >= 0 && name.find("Secret") < name.length()) {
-        obj->SetSkill("Secret", 1000000+onum);
+        obj->SetSkill("Secret", 4000000+onum);
 	}
 
       obj->SetSkill("Translucent", 1000);	// Full sky, by default
@@ -2067,14 +2067,14 @@ void Object::TBALoadWLD(const char *fn) {
 	obj->SetSkill("Light Source", 0);	// No torches
 	}
       if(strcasestr(buf, "b") || (atoi(buf) & 2)) { //DEATH
-	obj->SetSkill("Secret", 1000000+onum);
+	obj->SetSkill("Secret", 4000000+onum);
 //	obj->SetSkill("Hazardous", 2);		//FIXME: Actually Dangerous?
 	}
       if(strcasestr(buf, "c") || (atoi(buf) & 4)) { //NOMOB
         obj->SetSkill("TBAZone", 999999);
 	}
       else {
-        obj->SetSkill("TBAZone", 1000000 + zone);
+        obj->SetSkill("TBAZone", 3000000 + zone);
 	}
       if(strcasestr(buf, "e") || (atoi(buf) & 16)) { //PEACEFUL
         obj->SetSkill("Peaceful", 1000);
@@ -2199,7 +2199,7 @@ void Object::TBALoadWLD(const char *fn) {
 	      if(tynum[dir][*ob] == 1) nobj->SetSkill("Pickable", 4);
 	      if(tynum[dir][*ob] == 2) nobj->SetSkill("Pickable", 99);
 	      if(knum[dir][*ob] > 0) {
-		nobj->SetSkill("Lock", 1000000 + knum[dir][*ob]);
+		nobj->SetSkill("Lock", 2000000 + knum[dir][*ob]);
 		}
 	      }
 	    else {
@@ -2478,7 +2478,7 @@ void Object::TBALoadTRG(const char *fn) {	//Triggers
       script = new Object();
       bynumtrg[tnum] = script;
       script->SetSkill("Invisible", 1000);
-      script->SetSkill("TBAScript", 1000000 + tnum);
+      script->SetSkill("TBAScript", 5000000 + tnum);
       script->SetShortDesc("A tbaMUD trigger script");
       //fprintf(stderr, "Loading #%d\n", tnum);
       fscanf(mud, " %65535[^~]", buf);		//Trigger Name - Discarded!
