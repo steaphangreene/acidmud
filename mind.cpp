@@ -1816,8 +1816,122 @@ int Mind::TBARunLine(string line) {
       }
     }
 
-//  else if(!strncasecmp(line.c_str(), "door ", 6)) {
-//    }
+  else if(!strncasecmp(line.c_str(), "door ", 5)) {
+    int rnum, tnum, len;
+    char dir[16], xtra;
+    const char *args = line.c_str() + 5;
+    if(sscanf(args, "%d %s", &rnum, dir) < 2) {
+      fprintf(stderr, CRED "#%d Error: short door command '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+
+    while(room->Parent()->Parent()) {
+      room = room->Parent();
+      }
+    list<Object*> options = room->Contents();
+    list<Object*>::iterator opt = options.begin();
+    room = NULL;
+    for(; opt != options.end(); ++opt) {
+      int tnum = (*opt)->Skill("TBARoom");
+      if(tnum > 0 && (tnum % 1000000) == rnum) {
+	room = (*opt);
+	break;
+	}
+      }
+    if(!room) {
+      fprintf(stderr, CRED "#%d Error: can't find target in '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+
+    Object *door = room->PickObject(dir, LOC_NINJA|LOC_INTERNAL);
+
+    if(sscanf(args, "%*d %*s descriptio%c %n", &xtra, &len) >= 1) {
+//      fprintf(stderr, CGRN "#%d Debug: door redesc '%s'\n" CNRM,
+//	body->Skill("TBAScript"), line.c_str()
+//	);
+      if(door) door->SetDesc(line.substr(len+5));
+      }
+    else if(sscanf(args, "%*d %*s flag%c %n", &xtra, &len) >= 1) {
+      fprintf(stderr, CRED "#%d Error: door reflag '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+    else if(sscanf(args, "%*d %*s nam%c %n", &xtra, &len) >= 1) {
+//      fprintf(stderr, CGRN "#%d Debug: door rename '%s'\n" CNRM,
+//	body->Skill("TBAScript"), line.c_str()
+//	);
+      if(door) {
+	string newname = door->ShortDesc();
+	size_t end = newname.find("(");
+	if(end != string::npos) {
+	  end = newname.find_last_not_of(" \t", end-1);
+	  if(end != string::npos) newname = newname.substr(0, end);
+	  }
+	door->SetShortDesc(newname + " (" + line.substr(len+5) + ")");
+	}
+      }
+    else if(sscanf(args, "%*d %*s room %d", &tnum) == 1) {
+//      fprintf(stderr, CGRN "#%d Debug: door relink '%s'\n" CNRM,
+//	body->Skill("TBAScript"), line.c_str()
+//	);
+      if(door) door->Recycle();
+      list<Object*>::iterator opt = options.begin();
+      Object *toroom = NULL;
+      for(; opt != options.end(); ++opt) {
+	int onum = (*opt)->Skill("TBARoom");
+	if(tnum > 0 && (onum % 1000000) == tnum) {
+	  toroom = (*opt);
+	  break;
+	  }
+	}
+      if(!toroom) {
+	fprintf(stderr, CRED "#%d Error: can't find dest in '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	Disable();
+	return 1;
+	}
+      door = new Object(room);
+      door->SetShortDesc(dir);
+      Object *odoor = new Object(toroom);
+      odoor->SetShortDesc("a passage exit");
+      door->SetSkill("Enterable", 1);
+      door->SetSkill("Open", 1000);
+      door->AddAct(ACT_SPECIAL_LINKED, odoor);
+      odoor->SetSkill("Enterable", 1);
+      odoor->SetSkill("Open", 1000);
+      odoor->SetSkill("Invisible", 1000);
+      odoor->AddAct(ACT_SPECIAL_MASTER, door);
+      }
+    else if(sscanf(args, "%*d %*s key %d", &tnum) == 1) {
+      fprintf(stderr, CRED "#%d Error: door rekey '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+    else if(sscanf(args, "%*d %*s purg%c", &xtra) == 1) {
+//      fprintf(stderr, CGRN "#%d Debug: door purge '%s'\n" CNRM,
+//	body->Skill("TBAScript"), line.c_str()
+//	);
+      if(door) door->Recycle();
+      }
+    else {
+      fprintf(stderr, CRED "#%d Error: bad door command '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+    }
 
   else if(!strncasecmp(line.c_str(), "transport ", 10)) {
     int dnum;
@@ -1912,8 +2026,8 @@ int Mind::TBARunLine(string line) {
       return 1;
       }
     if(params > 2) {
-      fprintf(stderr, CGRN "#%d Debug: (%s) '%s'\n" CNRM,
-	body->Skill("TBAScript"), targ, line.c_str());
+//      fprintf(stderr, CGRN "#%d Debug: (%s) '%s'\n" CNRM,
+//	body->Skill("TBAScript"), targ, line.c_str());
       dest = room->PickObject(targ, LOC_NINJA|LOC_INTERNAL);
       }
     if(!dest) {
