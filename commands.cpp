@@ -473,6 +473,11 @@ Command comlist[1024] = {
     "Get the current world's MUD time.",
     (REQ_ETHEREAL|REQ_CORPOREAL)
     },
+  { COM_WORLD, "world",
+    "Get the name of the current world.",
+    "Get the name of the current world.",
+    (REQ_ETHEREAL|REQ_CORPOREAL)
+    },
   { COM_VERSION, "version",
     "Query the version information of running AcidMUD.",
     "Query the version information of running AcidMUD.",
@@ -2194,6 +2199,14 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       mind->SendF("The time is now %d:%.2d in this world\n",
 	curtime/60, curtime%60);
       }
+    return 0;
+    }
+
+  if(com == COM_WORLD) {
+    if(!mind) return 0;
+    Object *world = body;
+    while(world->Parent()->Parent()) world = world->Parent();
+    mind->SendF("This world is called: %s\n", world->ShortDesc());
     return 0;
     }
 
