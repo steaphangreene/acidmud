@@ -995,11 +995,14 @@ void Mind::TBAVarSub(string &line) {
 	  if(obj) obj = obj->ActTarg(ACT_WEAR_LFINGER);
 	  }
 	else if((!strcasecmp(field.c_str(), "eq(neck1)"))
-		|| (!strcasecmp(field.c_str(), "eq(neck2)"))
 		|| (!strcasecmp(field.c_str(), "eq(3)"))
-		|| (!strcasecmp(field.c_str(), "eq(4)"))
 		) {
 	  if(obj) obj = obj->ActTarg(ACT_WEAR_NECK);
+	  }
+	else if((!strcasecmp(field.c_str(), "eq(neck2)"))
+		|| (!strcasecmp(field.c_str(), "eq(4)"))
+		) {
+	  if(obj) obj = obj->ActTarg(ACT_WEAR_COLLAR);
 	  }
 	else if((!strcasecmp(field.c_str(), "eq(body)"))
 		|| (!strcasecmp(field.c_str(), "eq(5)"))
@@ -1930,14 +1933,17 @@ int Mind::TBARunLine(string line) {
       }
     else if(strcmp("neck1", where) == 0 || strcmp("3", where) == 0) {
       mask = item->Skill("Wearable on Neck");
+      mask |= item->Skill("Wearable on Collar");
       loc = ACT_WEAR_NECK;
       }
     else if(strcmp("neck2", where) == 0 || strcmp("4", where) == 0) {
       mask = item->Skill("Wearable on Neck");
-      loc = ACT_WEAR_NECK;
+      mask |= item->Skill("Wearable on Collar");
+      loc = ACT_WEAR_COLLAR;
       }
     else if(strcmp("body", where) == 0 || strcmp("5", where) == 0) {
       mask = item->Skill("Wearable on Chest");
+      mask &= item->Skill("Wearable on Back");			//Both
       loc = ACT_WEAR_CHEST;
       }
     else if(strcmp("head", where) == 0 || strcmp("6", where) == 0) {
@@ -1946,18 +1952,22 @@ int Mind::TBARunLine(string line) {
       }
     else if(strcmp("legs", where) == 0 || strcmp("7", where) == 0) {
       mask = item->Skill("Wearable on Left Leg");
+      mask |= item->Skill("Wearable on Right Leg");
       loc = ACT_WEAR_LLEG;
       }
     else if(strcmp("feet", where) == 0 || strcmp("8", where) == 0) {
       mask = item->Skill("Wearable on Left Foot");
+      mask |= item->Skill("Wearable on Right Foot");
       loc = ACT_WEAR_LFOOT;
       }
     else if(strcmp("hands", where) == 0 || strcmp("9", where) == 0) {
       mask = item->Skill("Wearable on Left Hand");
+      mask |= item->Skill("Wearable on Right Hand");
       loc = ACT_WEAR_LHAND;
       }
     else if(strcmp("arms", where) == 0 || strcmp("10", where) == 0) {
       mask = item->Skill("Wearable on Left Arm");
+      mask |= item->Skill("Wearable on Right Arm");
       loc = ACT_WEAR_LARM;
       }
     else if(strcmp("shield", where) == 0 || strcmp("11", where) == 0) {
@@ -1966,6 +1976,7 @@ int Mind::TBARunLine(string line) {
       }
     else if(strcmp("about", where) == 0 || strcmp("12", where) == 0) {
       mask = item->Skill("Wearable on Left Shoulder");
+      mask &= item->Skill("Wearable on Right Shoulder");	//Both
       loc = ACT_WEAR_LSHOULDER;
       }
     else if(strcmp("waist", where) == 0 || strcmp("13", where) == 0) {
@@ -1981,7 +1992,6 @@ int Mind::TBARunLine(string line) {
       loc = ACT_WEAR_LWRIST;
       }
     else if(strcmp("wield", where) == 0 || strcmp("16", where) == 0) {
-      mask = item->Skill("Wearable on ");
       loc = ACT_WIELD;
       }
     else if(strcmp("light", where) == 0 || strcmp("0", where) == 0) {

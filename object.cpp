@@ -59,6 +59,7 @@ const char *act_str[ACT_SPECIAL_MAX] = {
         "wearing %1$s",
         "wearing %1$s",
         "wearing %1$s",
+        "wearing %1$s",
         "ACT_MAX",
         "ACT_SPECIAL_MONITOR",
         "ACT_SPECIAL_MASTER",
@@ -990,6 +991,7 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
     else if(cur->first == ACT_WEAR_CHEST) m->SendF("%24s", "Worn on chest: ");
     else if(cur->first == ACT_WEAR_HEAD) m->SendF("%24s", "Worn on head: ");
     else if(cur->first == ACT_WEAR_NECK) m->SendF("%24s", "Worn on neck: ");
+    else if(cur->first == ACT_WEAR_COLLAR) m->SendF("%24s", "Worn on collar: ");
     else if(cur->first == ACT_WEAR_WAIST) m->SendF("%24s", "Worn on waist: ");
     else if(cur->first == ACT_WEAR_SHIELD) m->SendF("%24s", "Worn as shield: ");
     else if(cur->first == ACT_WEAR_LARM) m->SendF("%24s", "Worn on left arm: ");
@@ -1194,6 +1196,9 @@ void Object::SendFullSituation(Mind *m, Object *o) {
 
   else if(parent->ActTarg(ACT_WEAR_NECK) == this)
     sprintf(buf, "%s is here around %s neck%c", Name(), pname.c_str(), 0);
+
+  else if(parent->ActTarg(ACT_WEAR_COLLAR) == this)
+    sprintf(buf, "%s is here on %s neck%c", Name(), pname.c_str(), 0);
 
   else if(parent->ActTarg(ACT_WEAR_WAIST) == this)
     sprintf(buf, "%s is here around %s waist%c", Name(), pname.c_str(), 0);
@@ -3396,6 +3401,7 @@ int Object::WearMask() const {
 	| Skill("Wearable on Chest")
 	| Skill("Wearable on Head")
 	| Skill("Wearable on Neck")
+	| Skill("Wearable on Collar")
 	| Skill("Wearable on Waist")
 	| Skill("Wearable on Shield")
 	| Skill("Wearable on Left Arm")
@@ -3423,6 +3429,7 @@ set<act_t> Object::WearSlots(int m) const {
   if(Skill("Wearable on Chest") & m) locs.insert(ACT_WEAR_CHEST);
   if(Skill("Wearable on Head") & m) locs.insert(ACT_WEAR_HEAD);
   if(Skill("Wearable on Neck") & m) locs.insert(ACT_WEAR_NECK);
+  if(Skill("Wearable on Collar") & m) locs.insert(ACT_WEAR_COLLAR);
   if(Skill("Wearable on Waist") & m) locs.insert(ACT_WEAR_WAIST);
   if(Skill("Wearable on Shield") & m) locs.insert(ACT_WEAR_SHIELD);
   if(Skill("Wearable on Left Arm") & m) locs.insert(ACT_WEAR_LARM);
@@ -3457,6 +3464,7 @@ string Object::WearNames(const set<act_t> &locs) const {
     else if(*loc == ACT_WEAR_CHEST) ret += "chest";
     else if(*loc == ACT_WEAR_HEAD) ret += "head";
     else if(*loc == ACT_WEAR_NECK) ret += "neck";
+    else if(*loc == ACT_WEAR_COLLAR) ret += "collar";
     else if(*loc == ACT_WEAR_WAIST) ret += "waist";
     else if(*loc == ACT_WEAR_SHIELD) ret += "shield";
     else if(*loc == ACT_WEAR_LARM) ret += "left arm";
@@ -3632,6 +3640,9 @@ int Object::Wear(Object *targ, unsigned long masks, int mes) {
 
     if(targ->Skill("Wearable on Neck") & mask)
 	locations.insert(ACT_WEAR_NECK);
+
+    if(targ->Skill("Wearable on Collar") & mask)
+	locations.insert(ACT_WEAR_COLLAR);
 
     if(targ->Skill("Wearable on Waist") & mask)
 	locations.insert(ACT_WEAR_WAIST);

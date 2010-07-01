@@ -66,6 +66,7 @@ enum act_t {			//Changing these requires change to:
 	ACT_WEAR_CHEST,
 	ACT_WEAR_HEAD,
 	ACT_WEAR_NECK,
+	ACT_WEAR_COLLAR,
 	ACT_WEAR_WAIST,
 	ACT_WEAR_SHIELD,
 	ACT_WEAR_LARM,

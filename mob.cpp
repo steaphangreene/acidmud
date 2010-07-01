@@ -20,6 +20,7 @@ static void init_wear_attribs() {
   wear_attribs[ACT_WEAR_CHEST] = "Wearable on Chest";
   wear_attribs[ACT_WEAR_HEAD] = "Wearable on Head";
   wear_attribs[ACT_WEAR_NECK] = "Wearable on Neck";
+  wear_attribs[ACT_WEAR_COLLAR] = "Wearable on Collar";
   wear_attribs[ACT_WEAR_WAIST] = "Wearable on Waist";
   wear_attribs[ACT_WEAR_SHIELD] = "Wearable on Shield";
   wear_attribs[ACT_WEAR_LARM] = "Wearable on Left Arm";

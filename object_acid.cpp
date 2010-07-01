@@ -22,6 +22,7 @@ const char *act_save[ACT_SPECIAL_MAX] = {
 	"WEAR_CHEST",
 	"WEAR_HEAD",
 	"WEAR_NECK",
+	"WEAR_COLLAR",
 	"WEAR_WAIST",
 	"WEAR_SHIELD",
 	"WEAR_LARM",

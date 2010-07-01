@@ -2591,6 +2591,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     if(targ->HasSkill("Wearable on Chest")) wearable = 1;
     if(targ->HasSkill("Wearable on Head")) wearable = 1;
     if(targ->HasSkill("Wearable on Neck")) wearable = 1;
+    if(targ->HasSkill("Wearable on Collar")) wearable = 1;
     if(targ->HasSkill("Wearable on Waist")) wearable = 1;
     if(targ->HasSkill("Wearable on Shield")) wearable = 1;
     if(targ->HasSkill("Wearable on Left Arm")) wearable = 1;
@@ -3158,6 +3159,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	|| body->ActTarg(ACT_WEAR_CHEST) == targ
 	|| body->ActTarg(ACT_WEAR_HEAD) == targ
 	|| body->ActTarg(ACT_WEAR_NECK) == targ
+	|| body->ActTarg(ACT_WEAR_COLLAR) == targ
 	|| body->ActTarg(ACT_WEAR_WAIST) == targ
 	|| body->ActTarg(ACT_WEAR_SHIELD) == targ
 	|| body->ActTarg(ACT_WEAR_LARM) == targ
@@ -3386,6 +3388,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		|| body->ActTarg(ACT_WEAR_CHEST) == targ
 		|| body->ActTarg(ACT_WEAR_HEAD) == targ
 		|| body->ActTarg(ACT_WEAR_NECK) == targ
+		|| body->ActTarg(ACT_WEAR_COLLAR) == targ
 		|| body->ActTarg(ACT_WEAR_WAIST) == targ
 		|| body->ActTarg(ACT_WEAR_SHIELD) == targ
 		|| body->ActTarg(ACT_WEAR_LARM) == targ
@@ -4602,18 +4605,23 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       loca = ACT_WEAR_CHEST;
       locm = " in the chest";
       }
-    else if(loc < 57) {
+    else if(loc < 56) {
       loca = ACT_WEAR_BACK;
       locm = " in the back";
       }
-    else if(loc < 59) {
+    else if(loc < 58) {
       loca = ACT_WEAR_HEAD;
       locm = " in the head";
       stage = 1;
       }
-    else if(loc < 60) {
+    else if(loc < 59) {
       loca = ACT_WEAR_NECK;
       locm = " in the neck";
+      stage = 2;
+      }
+    else if(loc < 69) {
+      loca = ACT_WEAR_COLLAR;
+      locm = " in the throat";
       stage = 2;
       }
     else if(loc < 70) {

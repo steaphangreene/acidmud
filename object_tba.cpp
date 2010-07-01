@@ -434,10 +434,13 @@ void Object::TBALoadZON(const char *fn) {
 	      case(2): { // Worn
 		lastmob->AddAct(ACT_WEAR_LFINGER, obj); break;
 		}
-	      case(3):		//TBA MOBs have two necks
-	      case(4): { // Worn
+	      case(3):		//TBA MOBs have two necks (1/2)
 		if(lastmob->IsAct(ACT_WEAR_NECK)) bagit = 1;
 		else lastmob->AddAct(ACT_WEAR_NECK, obj);
+		break;
+	      case(4): {	//TBA MOBs have two necks (2/2)
+		if(lastmob->IsAct(ACT_WEAR_COLLAR)) bagit = 1;
+		else lastmob->AddAct(ACT_WEAR_COLLAR, obj);
 		break;
 		}
 	      case(5): { // Worn
@@ -1055,6 +1058,7 @@ void Object::TBALoadOBJ(const char *fn) {
 	}
       if(strcasestr(buf, "c") || (atoi(buf) & 4)) {
 	obj->SetSkill("Wearable on Neck", 1);
+	obj->SetSkill("Wearable on Collar", 2);
 	}
       if(strcasestr(buf, "d") || (atoi(buf) & 8)) {
 	obj->SetSkill("Wearable on Chest", 1);
