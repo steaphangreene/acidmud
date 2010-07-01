@@ -565,15 +565,35 @@ void Object::TBALoadMOB(const char *fn) {
       obj->SetSkill("TBAMOB", 1000000+onum);
       bynummob[onum] = obj;
 
-      //FIXME: Nicknames should not be ignored!!!
-      memset(buf, 0, 65536);
+      vector<string> aliases;
+      memset(buf, 0, 65536);	//Alias List
       fscanf(mudm, "%65535[^~\n]~\n", buf);
+
+      const char *str;
+      const char *ind = buf;
+      while(sscanf(ind, " %as", &str) > 0) {
+	ind += strlen(str) + 1;
+	aliases.push_back(string(str));
+	free((void *)(str));
+	}
 
       memset(buf, 0, 65536);
       fscanf(mudm, "%65535[^~\n]~\n", buf);
       for(char *ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
       obj->SetShortDesc(buf);
       //fprintf(stderr, "Loaded TBA Mobile with Name = %s\n", buf);
+
+      string label = "";
+      for(unsigned int actr = 0; actr < aliases.size(); ++actr) {
+	if(!obj->Matches(aliases[actr].c_str())) {
+	  label += " " + aliases[actr];
+	  }
+	}
+      if(label.length() > 0) {
+	label[0] = '(';
+	label += ')';
+	obj->SetShortDesc((string(obj->ShortDesc()) + " " + label).c_str());
+	}
 
       memset(buf, 0, 65536);
       if(!fscanf(mudm, "%65535[^~]~\n", buf)) fscanf(mudm, "%*[^\n\r]\n");
