@@ -1101,7 +1101,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 	if(o && o->Parent() == this) ignore = 1;
 	m->Send(base.c_str());
 	m->SendF(CGRN "...and %d more things are here too.\n" CNRM,
-		((int)(cont.size())) - total - ignore);
+		((int)(cont.size())) - tlines - ignore);
 	break;
 	}
 
@@ -1113,7 +1113,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
       int qty = 1;	// Even animate objects can have higher quantities.
       typeof(cont.begin()) oth = ind;
       for(qty = 0; oth != cont.end(); ++oth) {
-	if((*ind)->LooksLike(*oth)) {
+	if((*ind)->LooksLike(*oth, seeinside)) {
 	  master.erase(*oth);
 	  qty += MAX(1, (*oth)->Skill("Quantity"));
 	  }
@@ -1142,7 +1142,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
 	(*ind)->SendContents(m, o, seeinside);
 	base = tmp;
 	}
-      else if((*ind)->Skill("Container")) {
+      else if((*ind)->Skill("Container") || (*ind)->Skill("Liquid Container")) {
 	if(seeinside == 1 && (*ind)->Skill("Locked")) {
 	  string mes
 		= base + "  It is closed and locked, you can't see inside.\n";
@@ -3157,10 +3157,23 @@ int Object::Filter(int loc) {
   return 1;
   }
 
-int Object::LooksLike(Object *other) {
+int Object::LooksLike(Object *other, int seeinside) {
   if(string(Name()) != string(other->Name())) return 0;
   if(Pos() != other->Pos()) return 0;
   if(string(Using()) != string(other->Using())) return 0;
+
+  //Neither open/trans/seen inside (if either contain anything)
+  if(Contents().size() > 0 || other->Contents().size() > 0) {
+    if(Skill("Open") || Skill("Transparent")) return 0;
+    if(other->Skill("Open") || other->Skill("Transparent")) return 0;
+    if(Skill("Container") || Skill("Liquid Container")) {
+      if(seeinside && (!Skill("Locked"))) return 0;
+      }
+    if(other->Skill("Container") || other->Skill("Liquid Container")) {
+      if(seeinside && (!other->Skill("Locked"))) return 0;
+      }
+    }
+
   for(act_t act = ACT_NONE; act < ACT_WIELD;) {		//Off-By-One!
     act = act_t(int(act)+1);				//Increments First!
     if(IsAct(act) != other->IsAct(act)) return 0;

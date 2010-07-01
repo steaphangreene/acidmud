@@ -336,7 +336,7 @@ public:
   int operator != (const Object &in) const;
 
   int Matches(const char *seek);
-  int LooksLike(Object *other);
+  int LooksLike(Object *other, int seeinside = 0);
 
   void AddMOB(const MOBType *);
 
