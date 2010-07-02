@@ -1441,12 +1441,22 @@ int Mind::TBARunLine(string line) {
     return ret;
     }
 
+  else if(!strncasecmp(line.c_str(), "rdelete ", 8)) {
+    //FIXME: This is a stub!
+    fprintf(stderr, CGRN "#%d RDelte '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str());
+    }
+
   else if(!strncasecmp(line.c_str(), "remote ", 7)) {
     //FIXME: This is a stub!
+    fprintf(stderr, CGRN "#%d Remote '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str());
     }
 
   else if(!strncasecmp(line.c_str(), "global ", 7)) {
     //FIXME: This is a stub!
+    fprintf(stderr, CGRN "#%d Global '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str());
     }
 
   else if(!strncasecmp(line.c_str(), "wait until ", 11)) {

@@ -23,3 +23,6 @@ size_t prev_line(	//IDX of prev line start, skipping leading whitespace
 	);
 
 void trim_string(string &str);	//Remove extra whitespace from string
+
+int phrase_match(const string &str, const string &phrase);
+int words_match(const string &str, const string &words);
