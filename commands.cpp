@@ -560,6 +560,11 @@ Command comlist[1024] = {
     "Ninja command - ninjas only!",
     (REQ_ALERT|REQ_NINJAMODE)
     },
+  { COM_JUNKRESTART, "junkrestart",
+    "Ninja command. DANGEROUS!",
+    "Ninja command - ninjas only!  DANGEROUS!",
+    (REQ_ALERT|REQ_NINJAMODE)
+    },
   { COM_RESET, "reset",
     "Ninja command.",
     "Ninja command - ninjas only!",
@@ -5961,7 +5966,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     return 0;
     }
 
-  if(com == COM_JUNK) {
+  if(com == COM_JUNK || com == COM_JUNKRESTART) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     typeof(body->Contents()) targs
@@ -5976,14 +5981,48 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     while(targs.size() > 0) {
       Object *targ = targs.front();
+
+      if(com == COM_JUNKRESTART) {	//Extra JunkRestart protections
+	if(is_pc(targ)) {
+	  mind->Send((string("Sorry, ") + targ->ShortDesc()
+		+ " is a PC.  Use just 'junk' instead.\n").c_str());
+	  targs.pop_front();
+	  continue;	//Nope, don't nuke that.
+	  }
+
+	string chars = "";
+	vector<Player *> pls = get_all_players();
+	vector<Player *>::iterator pl = pls.begin();
+	for(; pl != pls.end(); ++pl) {
+	  typeof((*pl)->Room()->Contents()) chs = (*pl)->Room()->Contents();
+	  typeof(chs.begin()) ch = chs.begin();
+	  for(; ch != chs.end(); ++ch) {
+	    if(targ->HasWithin(*ch)) {
+	      chars += string("Sorry, A PC (") + (*ch)->ShortDesc()
+		+ ") is in " + targ->ShortDesc() + ".\n";
+	      }
+	    }
+	  }
+	if(chars != "") {
+	  mind->Send(chars.c_str());
+	  targs.pop_front();
+	  continue;	//Nope, don't nuke that.
+	  }
+	}
+
       body->Parent()->SendOut(stealth_t, stealth_s,
 	";s destroys ;s with Ninja Powers[TM].\n", "You destroy ;s.\n",
 	body, targ);
-      targ->Recycle();
+      if(com == COM_JUNK) targ->Recycle();
+      else if(com == COM_JUNKRESTART) targ->Travel(targ->TrashBin(), 0);
       targs = body->PickObjects(comline+len, vmode|LOC_NEARBY);
       while(targs.size() > 0 && todo.count(targs.front()) < 1) {
 	targs.pop_front();
 	}
+      }
+    if(com == COM_JUNKRESTART) {
+      shutdn = 2;
+      if(mind) mind->Send("You instruct the system to restart.\n");
       }
     return 0;
     }

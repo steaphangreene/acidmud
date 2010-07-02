@@ -160,6 +160,7 @@ int Object::Load(const char *fn) {
 
   vector<Object*>::iterator ind;
   for(ind = todo.begin(); ind != todo.end(); ++ind) {
+    list<act_t> killacts;
     map<act_t,Object*>::iterator aind = (*ind)->act.begin();
     for(; aind != (*ind)->act.end(); ++aind) {
       /* Decode the Object Number from a pointer, Encoded in LoadFrom() */
@@ -168,9 +169,19 @@ int Object::Load(const char *fn) {
       if(aind->second) {
 	aind->second->touching_me.insert(*ind);
 	}
+      else if(num == 0){
+	aind->second = NULL;
+	}
+      else {	//Act Targ No Longer Exists ("junkrestart", I hope)!
+	killacts.push_back(aind->first);
+	}
       if(aind->first == ACT_FIGHT) {
 	(*ind)->BusyFor(500, (*ind)->Tactics().c_str());
 	}
+      }
+    list<act_t>::iterator kill = killacts.begin();
+    for(; kill != killacts.end(); ++kill) {	//Kill Actions on Non-Existent
+      act.erase(*kill);
       }
     if((*ind)->IsUsing("Lumberjack")) {		//FIXME: All long-term skills?
       (*ind)->BusyFor(500, "use Lumberjack");

@@ -2135,9 +2135,18 @@ int Object::HasWithin(const Object *obj) {
   typeof(contents.begin()) ind;
   for(ind = contents.begin(); ind != contents.end(); ++ind) {
     if((*ind) == obj) return 1;
+    if((*ind)->HasWithin(obj)) return 1;
+    }
+  return 0;
+  }
+
+int Object::SeeWithin(const Object *obj) {
+  if(no_seek) return 0;
+  typeof(contents.begin()) ind;
+  for(ind = contents.begin(); ind != contents.end(); ++ind) {
+    if((*ind) == obj) return 1;
     if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
-      int ret = (*ind)->HasWithin(obj);
-      if(ret) return ret;
+      if((*ind)->SeeWithin(obj)) return 1;
       }
     }
   return 0;
@@ -2150,7 +2159,7 @@ int Object::IsNearBy(const Object *obj) {
     if((*ind) == obj) return 1;
     if((*ind) == this) continue;  // Not Nearby Self
     if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
-      int ret = (*ind)->HasWithin(obj);
+      int ret = (*ind)->SeeWithin(obj);
       if(ret) return ret;
       }
     }
