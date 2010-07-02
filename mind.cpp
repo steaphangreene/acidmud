@@ -1935,9 +1935,10 @@ int Mind::TBARunLine(string line) {
 
   else if(!strncasecmp(line.c_str(), "transport ", 10)) {
     int dnum;
+    int nocheck = 0;
     char buf[256];
     if(sscanf(line.c_str() + 10, "%s %d", buf, &dnum) != 2) {
-      if(!strcasecmp(buf, "all")) { strcpy(buf, "everyone"); }
+      if(!strcasecmp(buf, "all")) { strcpy(buf, "everyone"); nocheck = 1; }
       }
     Object *dest = ovars["self"];
     while(dest->Parent()->Parent()) {
@@ -1958,7 +1959,14 @@ int Mind::TBARunLine(string line) {
     for(; opt != options.end(); ++opt) {
       if((*opt)->Matches(buf)) {
 	(*opt)->Travel(dest);
+	nocheck = 1;
 	}
+      }
+    if(!nocheck) {	//Check for a MOB by that UNIQUE name ANYWHERE.
+      room = room->Parent();
+      Object *targ = room->PickObject((string("all's ") + buf).c_str(),
+	LOC_INTERNAL);
+      if(targ) targ->Travel(dest);
       }
 //    fprintf(stderr, CGRN "#%d Debug: Transport line: '%s'\n" CNRM,
 //	body->Skill("TBAScript"), line.c_str()
