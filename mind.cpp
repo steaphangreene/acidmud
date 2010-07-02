@@ -1124,9 +1124,7 @@ void Mind::TBAVarSub(string &line) {
 	  if(obj) {
 	    size_t num = field.find_first_of(") .%", 10);
 	    string var = field.substr(10, num-10);	//FIXME: Variables!
-	    val = "1";	//Everything exists, right now.
-	    fprintf(stderr, CGRN "#%d Query of '%s': '%s'\n" CNRM,
-		body->Skill("TBAScript"), var.c_str(), line.c_str());
+	    val = bstr[obj->HasSkill(string("TBA:")+var)];
 	    }
 	  obj = NULL;
 	  is_obj = 0;
@@ -1333,6 +1331,7 @@ int Mind::TBARunLine(string line) {
       trim_string(var);
       svars.erase(var);
       ovars.erase(var);
+      ovars["context"]->SetSkill(string("TBA:")+var, 0);
       }
     else {
       fprintf(stderr, CRED "#%d Error: Malformed unset '%s'\n" CNRM,
@@ -1441,22 +1440,77 @@ int Mind::TBARunLine(string line) {
     return ret;
     }
 
+  else if(!strncasecmp(line.c_str(), "context ", 8)) {
+    Object *con = NULL;
+    if(sscanf(line.c_str()+8, " OBJ:%p", &con) >= 1 && con != NULL) {
+      ovars["context"] = con;
+      }
+    else {
+      fprintf(stderr, CRED "#%d Error: No Context Object '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str());
+      return 1;
+      }
+    }
+
   else if(!strncasecmp(line.c_str(), "rdelete ", 8)) {
-    //FIXME: This is a stub!
-    fprintf(stderr, CGRN "#%d RDelte '%s'\n" CNRM,
-	body->Skill("TBAScript"), line.c_str());
+    Object *con = NULL;
+    char var[256] = "";
+    if(sscanf(line.c_str()+7, " %s OBJ:%p", var, &con) >= 2 && con != NULL) {
+      con->SetSkill(string("TBA:")+var, 0);
+//      fprintf(stderr, CGRN "#%d Debug: RDelete '%s'\n" CNRM,
+//		body->Skill("TBAScript"), line.c_str());
+      }
+    else {
+      fprintf(stderr, CRED "#%d Error: No RDelete VarName/ID '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str());
+      return 1;
+      }
     }
 
   else if(!strncasecmp(line.c_str(), "remote ", 7)) {
-    //FIXME: This is a stub!
-    fprintf(stderr, CGRN "#%d Remote '%s'\n" CNRM,
-	body->Skill("TBAScript"), line.c_str());
+    Object *con = NULL;
+    char var[256] = "";
+    if(sscanf(line.c_str()+7, " %s OBJ:%p", var, &con) >= 2 && con != NULL) {
+      if(svars.count(var) > 0) {
+	int val = atoi(svars[var].c_str());
+	con->SetSkill(string("TBA:")+var, val);
+//	fprintf(stderr, CGRN "#%d Debug: Remote %s=%d '%s'\n" CNRM,
+//		body->Skill("TBAScript"), var, val, line.c_str());
+	}
+      else {
+	fprintf(stderr, CRED "#%d Error: Non-Existent Remote %s '%s'\n" CNRM,
+		body->Skill("TBAScript"), var, line.c_str());
+	return 1;
+	}
+      }
+    else {
+      fprintf(stderr, CRED "#%d Error: No Remote VarName/ID '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str());
+      return 1;
+      }
     }
 
   else if(!strncasecmp(line.c_str(), "global ", 7)) {
-    //FIXME: This is a stub!
-    fprintf(stderr, CGRN "#%d Global '%s'\n" CNRM,
-	body->Skill("TBAScript"), line.c_str());
+    Object *con = ovars["context"];
+    char var[256] = "";
+    if(sscanf(line.c_str()+7, " %s", var) >= 1 && con != NULL) {
+      if(svars.count(var) > 0) {
+	int val = atoi(svars[var].c_str());
+	con->SetSkill(string("TBA:")+var, val);
+//	fprintf(stderr, CGRN "#%d Debug: Global %s=%d '%s'\n" CNRM,
+//		body->Skill("TBAScript"), var, val, line.c_str());
+	}
+      else {
+	fprintf(stderr, CRED "#%d Error: Non-Existent Global %s '%s'\n" CNRM,
+		body->Skill("TBAScript"), var, line.c_str());
+	return 1;
+	}
+      }
+    else {
+      fprintf(stderr, CRED "#%d Error: No Global VarName '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str());
+      return 1;
+      }
     }
 
   else if(!strncasecmp(line.c_str(), "wait until ", 11)) {
@@ -2309,6 +2363,7 @@ void Mind::Think(int istick) {
   else if(type == MIND_TBATRIG) {
     if(body && body->Parent() && spos_s.size() > 0) {
       ovars["self"] = body->Parent();
+      ovars["context"] = ovars["self"];	//Initial global var context
 
       if(spos_s.size() < 1) return;			//Never Run?!?
       if(spos_s.front() >= script.length()) return;	//Empty/Done
