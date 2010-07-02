@@ -150,6 +150,9 @@ int matches(const char *name, const char *seek) {
   else if((!strcasecmp(seek, "gray")) && matches(name, "grey")) ret=1;
   else if((!strcasecmp(seek, "bread")) && matches(name, "waybread")) ret=1;
 
+  //One-way purposeful mis-spellings to silence some extra labelling from TBA
+  else if((!strcasecmp(seek, "potatoe")) && matches(name, "potato")) ret=1;
+
   dont_recur = 0;
   return ret;
   }

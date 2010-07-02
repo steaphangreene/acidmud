@@ -2017,9 +2017,25 @@ void Object::TBALoadOBJ(const char *fn) {
 	    }
 	  }
 	else if(buf[0] == 'E') {	//Extra Affects
-	  fscanf(mudo, "%*[^~]");	//FIXME: Load These!
+	  fscanf(mudo, "%65535[^~]", buf);
+	  fscanf(mudo, "%*[^~]");
 	  fscanf(mudo, "~%*[\n\r]");
-	  fscanf(mudo, "%*[^~]");	//FIXME: Load These!
+	  if(words_match(obj->ShortDesc(), buf)) {
+		//FIXME: Add Aliases for Non-Matching Words
+	    if(obj->long_desc == "") {
+	      fscanf(mudo, "%65535[^~]", buf);
+	      obj->SetLongDesc(buf);
+	      }
+	    else {				//FIXME: Handle These
+	      fprintf(stderr, "Warning: Duplicate (%s) extra for '%s'!\n",
+		buf, obj->ShortDesc());
+	      }
+	    }
+	  else {				//FIXME: Handle These
+	    fprintf(stderr, "Warning: Non-matching (%s) extra for '%s'!\n",
+		buf, obj->ShortDesc());
+	    }
+	  fscanf(mudo, "%*[^~]");
 	  fscanf(mudo, "~%*[\n\r]");
 	  }
 	else {			//Extra Descriptions FIXME: Handle!
