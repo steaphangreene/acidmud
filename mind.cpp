@@ -1789,8 +1789,12 @@ int Mind::TBARunLine(string line) {
 
   else if(!strncasecmp(line.c_str(), "force ", 6)) {
     Object *targ = NULL;
-    char cmd[1024] = "";
-    sscanf(line.c_str()+6, " OBJ:%p %1023[^\n\r]", &targ, cmd);
+    char tstr[256] = "", cmd[1024] = "";
+    if(sscanf(line.c_str()+6, " OBJ:%p %1023[^\n\r]", &targ, cmd) < 2) {
+      if(sscanf(line.c_str()+6, " %255s %1023[^\n\r]", tstr, cmd) >= 2) {
+	targ = room->PickObject(tstr, LOC_NINJA|LOC_INTERNAL);
+	}
+      }
     if(targ) {
       Mind *amind = NULL;	//Make sure human minds see it!
       vector<Mind *> mns = get_human_minds();
