@@ -38,13 +38,24 @@ string Mind::TBAComp(string expr) {
   if(end != string::npos) expr = expr.substr(0, end);
   trim_string(expr);
   if(0
+//	|| body->Skill("TBAScript") == 5000099
 //	|| strcasestr(expr.c_str(), "tea")
 //	|| strcasestr(expr.c_str(), "wake")
 	) {
     fprintf(stderr, "Expr: '%s'\n", expr.c_str());
     }
 
-  if(expr[0] == '(') return TBAComp(expr.substr(1));	//FIXME: Really Do This!
+  if(expr[0] == '(') {
+    size_t cls = expr.find(')');
+    size_t opn = expr.find('(', 1);
+    while(cls != string::npos && opn != string::npos && opn < cls) {
+      cls = expr.find(')', cls+1);
+      opn = expr.find('(', opn+1);
+      }
+    if(cls == string::npos) return TBAComp(expr.substr(1));
+    expr = TBAComp(expr.substr(1, cls-1)) + " " + expr.substr(cls+1);
+    trim_string(expr);
+    }
 
   size_t skip = 0;
   if(expr[0] == '-') skip = 1;	//Skip Leading "-"
@@ -139,6 +150,7 @@ int Mind::TBAEval(string expr) {
   string base = TBAComp(expr);
   trim_string(base);
   if(0
+//	|| body->Skill("TBAScript") == 5000099
 //	|| strcasestr(expr.c_str(), "tea")
 //	|| strcasestr(expr.c_str(), "wake")
 	) {
@@ -461,7 +473,7 @@ void Mind::TBAVarSub(string &line) {
     end = line.find_first_of("%. \t", cur+1);
     if(end == string::npos) end = line.length();
     if(0
-//	|| body->Skill("TBAScript") == 1000099
+//	|| body->Skill("TBAScript") == 5000099
 //	|| line.find("eval loc ") != string::npos
 //	|| line.find("set first ") != string::npos
 //	|| line.find("exclaim") != string::npos
@@ -1256,7 +1268,7 @@ void Mind::TBAVarSub(string &line) {
     cur = line.find('%', cur+1);
     }
   if(0
-//	|| body->Skill("TBAScript") == 1000099
+//	|| body->Skill("TBAScript") == 5000099
 //	|| line.find("eval loc ") != string::npos
 //	|| line.find("set first ") != string::npos
 //	|| line.find("exclaim") != string::npos
@@ -1281,7 +1293,7 @@ void Mind::TBAVarSub(string &line) {
 //Return 0 to continue running, 1 to be done now (error/suspend/done).
 int Mind::TBARunLine(string line) {
   if(0
-//	|| body->Skill("TBAScript") == 1000099
+//	|| body->Skill("TBAScript") == 5000099
 //	|| line.find("eval loc ") != string::npos
 //	|| line.find("set first ") != string::npos
 //	|| line.find("exclaim") != string::npos
