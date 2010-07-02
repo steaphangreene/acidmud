@@ -15,6 +15,7 @@ Crafting (weapons, armor, tools, clothes, etc...).
 Handle liquids mixing?
 
 Unify SendOut() and SendIn().
+Get rid of obsolete "_MASTER" action.
 
 Implement movement settings using skills (walk, run, explore, etc...).
 Travel limitations (speed of movement, fleeing, sprinting, running).

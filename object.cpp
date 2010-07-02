@@ -64,19 +64,15 @@ const char *act_str[ACT_SPECIAL_MAX] = {
         "ACT_SPECIAL_MONITOR",
         "ACT_SPECIAL_MASTER",
         "ACT_SPECIAL_LINKED",
+        "ACT_SPECIAL_HOME",
 //	"ACT_SPECIAL_MAX"
         };
 
 static Object *universe = NULL;
 static Object *trash_bin = NULL;
-static Object *default_initial;
 
 static set<Object *> busylist;
 extern timeval current_time; // From main.cpp
-
-void set_start_room(Object *o) {
-  default_initial = o;
-  }
 
 Object *Object::Universe() {
   return universe;
@@ -210,10 +206,6 @@ int Object::Matches(const char *seek) {
   return matches(ShortDesc(), targ.c_str());
   }
 
-Object *get_start_room() {
-  return default_initial;
-  }
-
 Object *new_body() {
   Object *body = new Object();
   body->SetAttribute(0, 3);
@@ -224,7 +216,10 @@ Object *new_body() {
   body->SetAttribute(5, 3);
 
   body->SetShortDesc("an amorphous blob");
-  body->SetParent(default_initial);
+
+  Object *start = universe->ActTarg(ACT_SPECIAL_HOME);
+  if(!start) start = universe;
+  body->SetParent(start);
 
   body->SetWeight(body->Attribute(0) * 20000);
   body->SetSize(1000 + body->Attribute(0) * 200);
@@ -450,7 +445,14 @@ int Object::Tick() {
 	);
 
       if(is_pc(this)) {	//Hide me in the VOID!
-	Travel(default_initial);
+	Object *dest = this;
+	while((!dest->ActTarg(ACT_SPECIAL_HOME)) && dest->Parent()) {
+	  dest = dest->Parent();
+	  }
+	if(dest->ActTarg(ACT_SPECIAL_HOME)) {
+	  dest = dest->ActTarg(ACT_SPECIAL_HOME);
+	  }
+	Travel(dest);
 	SetSkill("Hidden", 65535);
 	return -1;	//Deactivate Me!
 	}
@@ -1712,7 +1714,6 @@ Object::~Object() {
 
 void Object::Recycle(int inbin) {
   Deactivate();
-  if(default_initial == this) default_initial = universe;
 
   //fprintf(stderr, "Deleting: %s\n", Name(0));
 
@@ -1749,7 +1750,15 @@ void Object::Recycle(int inbin) {
       killers.insert(*ind2);
       }
     (*indm)->contents.clear();
-    (*indm)->Travel(default_initial);
+    Object *dest = (*indm);
+    while((!dest->ActTarg(ACT_SPECIAL_HOME)) && dest->Parent()) {
+      dest = dest->Parent();
+      }
+    if(dest->ActTarg(ACT_SPECIAL_HOME)) {
+      dest = dest->ActTarg(ACT_SPECIAL_HOME);
+      }
+    if(dest == parent) dest = universe;		//Already there, bail!
+    (*indm)->Travel(dest);
     }
 
   for(indk = killers.begin(); indk != killers.end(); ++indk) {
@@ -2763,7 +2772,6 @@ void init_world() {
   universe->SetDesc("An Infinite Universe within which to play.");
   universe->SetLongDesc("A Really Big Infinite Universe within which to play.");
   universe->SetSkill("Light Source", 1000);	//Ninjas need to see too.
-  default_initial = universe;
   trash_bin = new Object;
   trash_bin->SetShortDesc("The Trash Bin");
   trash_bin->SetDesc("The place objects come to die.");
@@ -2805,8 +2813,6 @@ void init_world() {
     autoninja->Recycle();
     delete buf;
     }
-
-
   }
 
 void save_world(int with_net) {
@@ -3272,7 +3278,14 @@ void Object::Consume(const Object *item) {
 	"BAMF! ;s teleports away.\n", "BAMF! You teleport home.\n", this, NULL
 	);
       }
-    Travel(get_start_room(), 0);
+    Object *dest = this;
+    while((!dest->ActTarg(ACT_SPECIAL_HOME)) && dest->Parent()) {
+      dest = dest->Parent();
+      }
+    if(dest->ActTarg(ACT_SPECIAL_HOME)) {
+      dest = dest->ActTarg(ACT_SPECIAL_HOME);
+      }
+    Travel(dest, 0);
     if(parent) {
       parent->SendOut(0, 0, "BAMF! ;s teleports here.\n", "", this, NULL);
       parent->SendDescSurround(this, this);

@@ -2099,6 +2099,12 @@ int Mind::TBARunLine(string line) {
     while(src->Parent()->Parent()) src = src->Parent();
     if(type == 'o') {
       src = src->PickObject("TBAMUD Object Room", LOC_NINJA|LOC_INTERNAL);
+      if(src == NULL) {
+	fprintf(stderr, CRED "#%d Error: Can't find Object room '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	return 1;
+	}
       list<Object*> options = src->Contents();
       list<Object*>::iterator opt = options.begin();
       for(; opt != options.end(); ++opt) {
@@ -2111,6 +2117,12 @@ int Mind::TBARunLine(string line) {
     else if(type == 'm') {
       dest = room;
       src = src->PickObject("TBAMUD MOB Room", LOC_NINJA|LOC_INTERNAL);
+      if(src == NULL) {
+	fprintf(stderr, CRED "#%d Error: Can't find MOB room '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	return 1;
+	}
       list<Object*> options = src->Contents();
       list<Object*>::iterator opt = options.begin();
       for(; opt != options.end(); ++opt) {

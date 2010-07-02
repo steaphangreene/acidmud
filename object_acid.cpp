@@ -45,6 +45,7 @@ const char *act_save[ACT_SPECIAL_MAX] = {
 	"SPECIAL_MONITOR",
 	"SPECIAL_MASTER",
 	"SPECIAL_LINKED",
+	"SPECIAL_HOME",
 //	"SPECIAL_MAX"
 	};
 
@@ -85,8 +86,6 @@ int Object::Save(const char *filename) {
   fprintf(fl, "%.8X\n", CurrentVersion.savefile_version_object);
 
   if(SaveTo(fl)) { fclose(fl); return -1; }
-
-  fprintf(fl, "%d\n", getnum(get_start_room()));
 
   fclose(fl);
   return 0;
@@ -179,9 +178,9 @@ int Object::Load(const char *fn) {
     }
   todo.clear();
 
-  int num;
-  fscanf(fl, "%d\n", &num);
-  set_start_room(num2obj[num]);
+  if(ver < 0x0016) {
+    fscanf(fl, "%*d\n");	//Used to be start room, which is an action now
+    }
 
   fclose(fl);
   return 0;

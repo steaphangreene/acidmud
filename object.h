@@ -89,6 +89,7 @@ enum act_t {			//Changing these requires change to:
 	ACT_SPECIAL_MONITOR,
 	ACT_SPECIAL_MASTER,
 	ACT_SPECIAL_LINKED,
+	ACT_SPECIAL_HOME,
 	ACT_SPECIAL_MAX
 	};
 
@@ -387,8 +388,6 @@ int roll(int ndice, int targ, list<int> *wraps = NULL);
 void init_world();
 void save_world(int with_net=0);
 Object *new_body();
-void set_start_room(Object *);
-Object *get_start_room();
 Object *getbynum(int);
 int getnum(Object *);
 int matches(const char *name, const char *seek);

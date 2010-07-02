@@ -560,11 +560,6 @@ Command comlist[1024] = {
     "Ninja command - ninjas only!",
     (REQ_ALERT|REQ_NINJAMODE)
     },
-  { COM_JUNKRESTART, "junkrestart",
-    "Ninja command. DANGEROUS!",
-    "Ninja command - ninjas only!  DANGEROUS!",
-    (REQ_ALERT|REQ_NINJAMODE)
-    },
   { COM_RESET, "reset",
     "Ninja command.",
     "Ninja command - ninjas only!",
@@ -5094,10 +5089,17 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(mind) mind->Send("You must be uninjured to use that command!\n");
       }
     else {
+      Object *dest = body;
+      while((!dest->ActTarg(ACT_SPECIAL_HOME)) && dest->Parent()) {
+	dest = dest->Parent();
+	}
+      if(dest->ActTarg(ACT_SPECIAL_HOME)) {
+	dest = dest->ActTarg(ACT_SPECIAL_HOME);
+	}
       body->Parent()->SendOut(0, 0, //Not Stealthy!
 	"BAMF! ;s teleports away.\n", "BAMF! You teleport home.\n", body, NULL
 	);
-      body->Travel(get_start_room(), 0);
+      body->Travel(dest, 0);
       body->Parent()->SendOut(0, 0, //Not Stealthy!
 	"BAMF! ;s teleports here.\n", "", body, NULL
 	);
@@ -5420,7 +5422,10 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
   if(com == COM_MAKESTART) {
     if(!mind) return 0;
-    set_start_room(body->Parent());
+    Object *world = body;
+    while(world->Parent()->Parent()) world = world->Parent();
+    world->AddAct(ACT_SPECIAL_HOME, body->Parent());
+    world->Parent()->AddAct(ACT_SPECIAL_HOME, body->Parent());
     mind->Send("You make this the default starting room for players.\n");
     return 0;
     }
@@ -5853,8 +5858,16 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     else {
       typeof(targ->Contents()) cont = targ->Contents();
       typeof(cont.begin()) item = cont.begin();
-      for(; item != cont.end(); ++item) delete (*item);
-      targ->Travel(get_start_room(), 0);
+      for(; item != cont.end(); ++item) (*item)->Recycle();
+
+      Object *dest = targ;
+      while((!dest->ActTarg(ACT_SPECIAL_HOME)) && dest->Parent()) {
+	dest = dest->Parent();
+	}
+      if(dest->ActTarg(ACT_SPECIAL_HOME)) {
+	dest = dest->ActTarg(ACT_SPECIAL_HOME);
+	}
+      targ->Travel(dest, 0);
 
       body->Parent()->SendOut(stealth_t, stealth_s,
 	";s resets ;s with Ninja Powers[TM].\n", "You reset ;s.\n",
@@ -5948,7 +5961,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     return 0;
     }
 
-  if(com == COM_JUNK || com == COM_JUNKRESTART) {
+  if(com == COM_JUNK) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     typeof(body->Contents()) targs
@@ -5966,16 +5979,11 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       body->Parent()->SendOut(stealth_t, stealth_s,
 	";s destroys ;s with Ninja Powers[TM].\n", "You destroy ;s.\n",
 	body, targ);
-      if(com == COM_JUNK) targ->Recycle();
-      else if(com == COM_JUNKRESTART) targ->Travel(targ->TrashBin(), 0);
+      targ->Recycle();
       targs = body->PickObjects(comline+len, vmode|LOC_NEARBY);
       while(targs.size() > 0 && todo.count(targs.front()) < 1) {
 	targs.pop_front();
 	}
-      }
-    if(com == COM_JUNKRESTART) {
-      shutdn = 2;
-      if(mind) mind->Send("You instruct the system to restart.\n");
       }
     return 0;
     }
