@@ -1057,7 +1057,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	mind->Send("Enter which character?  Use 'enter <charname>'.\n");
 	return 0;
 	}
-      if(!mind->Owner()) {
+      if(!mind->Owner()) {	//The Autoninja (Initial Startup)
 	Object *body = new_body();
 	body->SetShortDesc(comline+len);
 	mind->Attach(body);
@@ -1082,15 +1082,10 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	mind->Owner()->SetCreator(body);
 	return 0;
 	}
-      if(body->IsAct(ACT_DEAD)) {
-	if(nmode) {
-	  // Allow entry to ninjas - autoheal!
-	  }
-	else {
-	  mind->Send("Sorry, that character is dead.\n"
+      if((!nmode) && body->IsAct(ACT_DEAD)) {	// Ninjas can autoheal
+	mind->Send("Sorry, that character is dead.\n"
 		"Use the 'newcharacter' command to create a new character.\n");
-	  return 0;
-	  }
+	return 0;
 	}
 
       //FIXME: Handle conversion of body->Skill("Resources").
@@ -1100,6 +1095,9 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
       if(nmode) {
 	//This is ninja-healing and bypasses all healing mechanisms.
+	body->SetSkill("Poisoned", 0);
+	body->SetSkill("Thirsty", 0);
+	body->SetSkill("Hungry", 0);
 	body->SetStun(0);
 	body->SetPhys(0);
 	body->SetStru(0);
@@ -1109,14 +1107,21 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  body, body);
 	}
 
-      if(body->IsAct(ACT_DYING))
+      if(body->IsAct(ACT_DYING)) {
 	mind->Send("You can see nothing, you are too busy dying.\n");
-      else if(body->IsAct(ACT_SLEEP))
-	mind->Send("You can see nothing since you are asleep.\n");
-      else if(body->IsAct(ACT_UNCONSCIOUS))
+	}
+      else if(body->IsAct(ACT_UNCONSCIOUS)) {
 	mind->Send("You can see nothing, you are out cold.\n");
-      else
+	}
+      else if(body->IsAct(ACT_SLEEP)) {
+	mind->Send("You can see nothing since you are asleep.\n");
+	}
+      else {
 	body->Parent()->SendDescSurround(mind, body);
+	}
+      mind->SendF(CMAG "You have entered: %s\n" CNRM,
+	body->World()->ShortDesc()
+	);
       return 0;
       }
     Object *dest = body->PickObject(comline+len, vmode|LOC_NEARBY);
@@ -2190,8 +2195,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
   if(com == COM_TIME) {
     if(!mind) return 0;
-    Object *world = body;
-    while(world->Parent()->Parent()) world = world->Parent();
+    Object *world = body->World();
     if(world->Skill("Day Time") && world->Skill("Day Length")) {
       int curtime = world->Skill("Day Time");
       curtime *= 24*60;
@@ -2204,9 +2208,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
   if(com == COM_WORLD) {
     if(!mind) return 0;
-    Object *world = body;
-    while(world->Parent()->Parent()) world = world->Parent();
-    mind->SendF("This world is called: %s\n", world->ShortDesc());
+    mind->SendF("This world is called: %s\n", body->World()->ShortDesc());
     return 0;
     }
 
@@ -5427,8 +5429,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
   if(com == COM_MAKESTART) {
     if(!mind) return 0;
-    Object *world = body;
-    while(world->Parent()->Parent()) world = world->Parent();
+    Object *world = body->World();
     world->AddAct(ACT_SPECIAL_HOME, body->Parent());
     world->Parent()->AddAct(ACT_SPECIAL_HOME, body->Parent());
     mind->Send("You make this the default starting room for players.\n");

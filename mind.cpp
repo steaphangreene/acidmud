@@ -494,8 +494,7 @@ void Mind::TBAVarSub(string &line) {
       val = svars[vname];
       }
     else if(!strncasecmp(line.c_str()+cur, "%time.hour%", 11)) {
-      Object *world = body;
-      while(world->Parent()->Parent()) world = world->Parent();
+      Object *world = body->World();
       if(world->Skill("Day Time") && world->Skill("Day Length")) {
 	int hour = world->Skill("Day Time");
 	hour *= 24;
@@ -1418,9 +1417,7 @@ int Mind::TBARunLine(string line) {
       Disable();
       return 1;
       }
-    while(room->Parent()->Parent()) {
-      room = room->Parent();
-      }
+    room = room->World();
     list<Object*> options = room->Contents();
     list<Object*>::iterator opt = options.begin();
     room = NULL;
@@ -1530,8 +1527,7 @@ int Mind::TBARunLine(string line) {
     if(sscanf(line.c_str()+11, "%d:%d", &hour, &minute) > 0) {
       if(hour >= 100) hour /= 100;
       minute += hour * 60;
-      Object *world = room;
-      while(world->Parent()->Parent()) world = world->Parent();
+      Object *world = room->World();
       if(world->Skill("Day Time") && world->Skill("Day Length")) {
 	cur = world->Skill("Day Time");
 	cur *= 24*60;
@@ -1918,10 +1914,7 @@ int Mind::TBARunLine(string line) {
       return 1;
       }
 
-    while(room->Parent()->Parent()) {
-      room = room->Parent();
-      }
-    list<Object*> options = room->Contents();
+    list<Object*> options = room->World()->Contents();
     list<Object*>::iterator opt = options.begin();
     room = NULL;
     for(; opt != options.end(); ++opt) {
@@ -2030,10 +2023,7 @@ int Mind::TBARunLine(string line) {
     if(sscanf(line.c_str() + 10, "%s %d", buf, &dnum) != 2) {
       if(!strcasecmp(buf, "all")) { strcpy(buf, "everyone"); nocheck = 1; }
       }
-    Object *dest = ovars["self"];
-    while(dest->Parent()->Parent()) {
-      dest = dest->Parent();
-      }
+    Object *dest = ovars["self"]->World();
     list<Object*> options = dest->Contents();
     list<Object*>::iterator opt = options.begin();
     dest = NULL;
@@ -2084,7 +2074,6 @@ int Mind::TBARunLine(string line) {
     char buf[256] = "";
     char targ[256] = "";
     char where[256] = "";
-    Object *src = room;
     Object *dest = ovars["self"];
     Object *item = NULL;
     params = sscanf(line.c_str() + 5, " %s %d %s %s", buf, &vnum, targ, where);
@@ -2096,7 +2085,7 @@ int Mind::TBARunLine(string line) {
       Disable();
       return 1;
       }
-    while(src->Parent()->Parent()) src = src->Parent();
+    Object *src = room->World();
     if(type == 'o') {
       src = src->PickObject("TBAMUD Object Room", LOC_NINJA|LOC_INTERNAL);
       if(src == NULL) {

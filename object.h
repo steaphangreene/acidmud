@@ -114,6 +114,7 @@ public:
 
   static Object *Universe();
   static Object *TrashBin();
+  Object *World();
 
   Object *Next(string &);
   Object *Split(int nqty);

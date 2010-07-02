@@ -2067,6 +2067,13 @@ void Object::TBALoadWLD(const char *fn) {
       olist.push_back(obj);
       obj->SetSkill("TBARoom", 4000000+onum);
       bynumwld[onum] = obj;
+      if(onum == 0) {	//Player Start Room (Void) Hard-Coded Here
+	Object *world = obj->World();
+	world->AddAct(ACT_SPECIAL_HOME, obj);
+	if(!world->parent->IsAct(ACT_SPECIAL_HOME)) {	//If is first world
+	  world->parent->AddAct(ACT_SPECIAL_HOME, obj);
+	  }
+	}
 
       obj->SetWeight(-1);
       obj->SetVolume(-1);

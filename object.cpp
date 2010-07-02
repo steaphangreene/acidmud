@@ -82,6 +82,14 @@ Object *Object::TrashBin() {
   return trash_bin;
   }
 
+Object *Object::World() {
+  Object *world = this;
+  if(world->Parent()) {
+    while(world->Parent()->Parent()) world = world->Parent();
+    }
+  return world;
+  }
+
 int matches(const char *name, const char *seek) {
   if(*seek == 0) return 0;
   if(!strcasecmp(seek, "all")) return 1;
