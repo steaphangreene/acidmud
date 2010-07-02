@@ -651,7 +651,7 @@ end
 1 h 100
 ~
 eval where %self.room%
-if %where% == }51286
+if %where% == 1982
 %echo% The ground rumbles as a heavy stone slab slides back into place in the northern wall.
 %door% 1982 north purge
 end

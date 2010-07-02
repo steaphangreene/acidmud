@@ -14,6 +14,8 @@ Crafting (weapons, armor, tools, clothes, etc...).
 
 Handle liquids mixing?
 
+Unify SendOut() and SendIn().
+
 Implement movement settings using skills (walk, run, explore, etc...).
 Travel limitations (speed of movement, fleeing, sprinting, running).
 Encumbrance.
