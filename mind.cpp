@@ -1124,7 +1124,9 @@ void Mind::TBAVarSub(string &line) {
 	  if(obj) {
 	    size_t num = field.find_first_of(") .%", 10);
 	    string var = field.substr(10, num-10);	//FIXME: Variables!
-	    val = "0";	//Nothing exists, right now.
+	    val = "1";	//Everything exists, right now.
+	    fprintf(stderr, CGRN "#%d Query of '%s': '%s'\n" CNRM,
+		body->Skill("TBAScript"), var.c_str(), line.c_str());
 	    }
 	  obj = NULL;
 	  is_obj = 0;
@@ -1313,6 +1315,17 @@ int Mind::TBARunLine(string line) {
     return 1;
     }
 
+  com_t com = identify_command(line);	//ComNum for Pass-Through
+
+//  //Start of script command if/else if/else
+//  if(line.find("%") != line.rfind("%")) {		//More than one '%'
+//    fprintf(stderr, CRED "#%d Error: Failed to fully expand '%s'\n" CNRM,
+//	body->Skill("TBAScript"), line.c_str()
+//	);
+//    Disable();
+//    return 1;
+//    }
+
   if(!strncasecmp(line.c_str(), "unset ", 6)) {
     size_t lpos = line.find_first_not_of(" \t", 6);
     if(lpos != string::npos) {
@@ -1331,7 +1344,7 @@ int Mind::TBARunLine(string line) {
     return 0;
     }
 
-  if((!strncasecmp(line.c_str(), "eval ", 5))
+  else if((!strncasecmp(line.c_str(), "eval ", 5))
 		|| (!strncasecmp(line.c_str(), "set ", 4))) {
     char coml = tolower(line[0]);	//To tell eval from set later.
     size_t lpos = line.find_first_not_of(" \t", 4);
@@ -1385,7 +1398,7 @@ int Mind::TBARunLine(string line) {
     return 0;
     }
 
-  if(!strncasecmp(line.c_str(), "at ", 3)) {
+  else if(!strncasecmp(line.c_str(), "at ", 3)) {
     int dnum, pos;
     if(sscanf(line.c_str(), "at %d %n", &dnum, &pos) < 1) {
       fprintf(stderr, CRED "#%d Error: Malformed at '%s'\n" CNRM,
@@ -1428,15 +1441,12 @@ int Mind::TBARunLine(string line) {
     return ret;
     }
 
-  com_t com = identify_command(line);	//ComNum for Pass-Through
+  else if(!strncasecmp(line.c_str(), "remote ", 7)) {
+    //FIXME: This is a stub!
+    }
 
-  //Start of real command if/else if/else
-  if(line.find("%") != line.rfind("%")) {		//More than one '%'
-    fprintf(stderr, CRED "#%d Error: Failed to fully expand '%s'\n" CNRM,
-	body->Skill("TBAScript"), line.c_str()
-	);
-    Disable();
-    return 1;
+  else if(!strncasecmp(line.c_str(), "global ", 7)) {
+    //FIXME: This is a stub!
     }
 
   else if(!strncasecmp(line.c_str(), "wait until ", 11)) {
@@ -1482,7 +1492,7 @@ int Mind::TBARunLine(string line) {
       }
     }
 
-  if((!strncasecmp(line.c_str(), "oset ", 5))
+  else if((!strncasecmp(line.c_str(), "oset ", 5))
 	|| (!strncasecmp(line.c_str(), "osetval ", 8))) {
     int v1, v2;
     size_t end = line.find(" ");
@@ -1958,7 +1968,8 @@ int Mind::TBARunLine(string line) {
     opt = options.begin();
     for(; opt != options.end(); ++opt) {
       if((*opt)->Matches(buf)) {
-	(*opt)->Travel(dest);
+	(*opt)->Parent()->RemoveLink(*opt);
+	(*opt)->SetParent(dest);
 	nocheck = 1;
 	}
       }
@@ -1966,7 +1977,10 @@ int Mind::TBARunLine(string line) {
       room = room->Parent();
       Object *targ = room->PickObject((string("all's ") + buf).c_str(),
 	LOC_INTERNAL);
-      if(targ) targ->Travel(dest);
+      if(targ) {
+	targ->Parent()->RemoveLink(targ);
+	targ->SetParent(dest);
+	}
       }
 //    fprintf(stderr, CGRN "#%d Debug: Transport line: '%s'\n" CNRM,
 //	body->Skill("TBAScript"), line.c_str()
