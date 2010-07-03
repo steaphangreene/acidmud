@@ -977,7 +977,7 @@ void Object::SendExtendedActions(Mind *m, int vmode) {
   map<Object*,string> shown;
   map<act_t,Object*>::iterator cur;
   for(cur = act.begin(); cur != act.end(); ++cur) {
-    if((vmode & (LOC_TOUCH|LOC_HEAT)) == 0	//Can't See/Feel Invis
+    if((vmode & (LOC_TOUCH|LOC_HEAT|LOC_NINJA)) == 0	//Can't See/Feel Invis
 	&& cur->second && cur->second->Skill("Invisible") > 0) {
       continue;		//Don't show invisible equip
       }
@@ -1008,7 +1008,7 @@ void Object::SendExtendedActions(Mind *m, int vmode) {
     else if(cur->first == ACT_WEAR_RHIP) m->SendF("%24s", "Worn on right hip: ");
     else continue;
 
-    if((vmode & LOC_HEAT) == 0	//Can't See Invis (but can touch, from above)
+    if((vmode & (LOC_HEAT|LOC_NINJA)) == 0	//Can't see (but can touch)
 	&& cur->second && cur->second->Skill("Invisible") > 0) {
       m->Send(CGRN "Something invisible.\n" CNRM);
       continue;		//Don't show details of invisible equip
