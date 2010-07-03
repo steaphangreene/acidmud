@@ -1452,7 +1452,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   if(com == COM_INVENTORY) {
    if(mind) {
      mind->SendF("You (%s) are carrying:\n", body->ShortDesc());
-     body->SendExtendedActions(mind, vmode|1);
+     body->SendExtendedActions(mind, LOC_TOUCH|vmode|1);
      }
    return 0;
    }
@@ -1460,7 +1460,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   if(com == COM_EQUIPMENT) {
    if(mind) {
      mind->SendF("You (%s) are using:\n", body->ShortDesc());
-     body->SendExtendedActions(mind, vmode);
+     body->SendExtendedActions(mind, LOC_TOUCH|vmode);
      }
    return 0;
    }
@@ -1661,8 +1661,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	}
 
       if(mind) {
-	(*targ_it)->SendExtendedActions(mind, vmode|1);
-	(*targ_it)->SendContents(mind, body, vmode|1);
+	(*targ_it)->SendExtendedActions(mind, LOC_TOUCH|vmode|1);
+	(*targ_it)->SendContents(mind, body, LOC_TOUCH|vmode|1);
 	}
       }
     return 0;

@@ -19,11 +19,12 @@ class MOBType;
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#define	LOC_SELF	0x0001
-#define	LOC_HERE	0x0002
-#define	LOC_INTERNAL	0x0004
-#define	LOC_NEARBY	0x0008
-#define	LOC_ADJACENT	0x0010
+#define	LOC_RESERVED	0x0001	//Reserved for individual funcion flags
+#define	LOC_SELF	0x0002
+#define	LOC_HERE	0x0004
+#define	LOC_INTERNAL	0x0008
+#define	LOC_NEARBY	0x0010
+#define	LOC_ADJACENT	0x0020
 #define LOC_LOCATIONS	0xFFFF
 
 //Filters
@@ -34,9 +35,10 @@ class MOBType;
 #define LOC_FILTERS	0x00FF0000
 
 //Special
-#define	LOC_NIGHT	0x01000000
-#define	LOC_DARK	0x02000000
-#define	LOC_HEAT	0x04000000
+#define	LOC_TOUCH	0x01000000
+#define	LOC_NIGHT	0x02000000
+#define	LOC_DARK	0x04000000
+#define	LOC_HEAT	0x08000000
 #define	LOC_NINJA	0x10000000
 #define	LOC_SPECIAL	0xFF000000
 
@@ -133,17 +135,17 @@ public:
   set<Object*> Touching() const { return touching_me; };
 
   void SendActions(Mind *m);
-  void SendExtendedActions(Mind *m, int seeinside=0);
-  void SendContents(Mind *m, Object *o = NULL, int seeinside=0, string b="");
-  void SendContents(Object *m, Object *o = NULL, int seeinside=0, string b="");
+  void SendExtendedActions(Mind *m, int vmode=0);
+  void SendContents(Mind *m, Object *o = NULL, int vmode=0, string b="");
+  void SendContents(Object *m, Object *o = NULL, int vmode=0, string b="");
 
   void SendFullSituation(Mind *m, Object *o = NULL);
   void SendShortDesc(Mind *m, Object *o = NULL);
   void SendShortDesc(Object *m, Object *o = NULL);
   void SendDesc(Mind *m, Object *o = NULL);
-  void SendDescSurround(Mind *m, Object *o = NULL, int seeinside=0);
+  void SendDescSurround(Mind *m, Object *o = NULL, int vmode=0);
   void SendDesc(Object *m, Object *o = NULL);
-  void SendDescSurround(Object *m, Object *o = NULL, int seeinside=0);
+  void SendDescSurround(Object *m, Object *o = NULL, int vmode=0);
   void SendLongDesc(Mind *m, Object *o = NULL);
   void SendLongDesc(Object *m, Object *o = NULL);
   void SendScore(Mind *m, Object *o = NULL);
@@ -339,7 +341,7 @@ public:
   int operator != (const Object &in) const;
 
   int Matches(const char *seek);
-  int LooksLike(Object *other, int seeinside = 0);
+  int LooksLike(Object *other, int vmode = 0);
 
   void AddMOB(const MOBType *);
 

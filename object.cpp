@@ -894,10 +894,10 @@ void Object::SetParent(Object *o) {
   if(o) o->AddLink(this);
   }
 
-void Object::SendContents(Object *targ, Object *o, int seeinside, string b) {
+void Object::SendContents(Object *targ, Object *o, int vmode, string b) {
   set<Mind*>::iterator m = targ->minds.begin();
   for(; m != targ->minds.end(); ++m) {
-    SendContents(*m, o, seeinside, b);
+    SendContents(*m, o, vmode, b);
     }
   }
 
@@ -915,10 +915,10 @@ void Object::SendDesc(Object *targ, Object *o) {
     }
   }
 
-void Object::SendDescSurround(Object *targ, Object *o, int seeinside) {
+void Object::SendDescSurround(Object *targ, Object *o, int vmode) {
   set<Mind*>::iterator m = targ->minds.begin();
   for(; m != targ->minds.end(); ++m) {
-    SendDescSurround(*m, o, seeinside);
+    SendDescSurround(*m, o, vmode);
     }
   }
 
@@ -973,10 +973,14 @@ void Object::SendActions(Mind *m) {
   m->Send(".\n");
   }
 
-void Object::SendExtendedActions(Mind *m, int seeinside) {
+void Object::SendExtendedActions(Mind *m, int vmode) {
   map<Object*,string> shown;
   map<act_t,Object*>::iterator cur;
   for(cur = act.begin(); cur != act.end(); ++cur) {
+    if((vmode & (LOC_TOUCH|LOC_HEAT)) == 0	//Can't See/Feel Invis
+	&& cur->second && cur->second->Skill("Invisible") > 0) {
+      continue;		//Don't show invisible equip
+      }
     if(cur->first == ACT_HOLD) m->SendF("%24s", "Held: ");
     else if(cur->first == ACT_WIELD) m->SendF("%24s", "Wielded: ");
     else if(cur->first == ACT_WEAR_BACK) m->SendF("%24s", "Worn on back: ");
@@ -1004,6 +1008,12 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
     else if(cur->first == ACT_WEAR_RHIP) m->SendF("%24s", "Worn on right hip: ");
     else continue;
 
+    if((vmode & LOC_HEAT) == 0	//Can't See Invis (but can touch, from above)
+	&& cur->second && cur->second->Skill("Invisible") > 0) {
+      m->Send("Something invisible.\n");
+      continue;		//Don't show details of invisible equip
+      }
+
     const char *targ;
     if(!cur->second) targ = "";
     else targ = (char*) cur->second->Name(0, m->Body(), this);
@@ -1020,20 +1030,20 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
       if(cur->second->Skill("Open") || cur->second->Skill("Transparent")) {
 	sprintf(buf, "%16s  %c", " ", 0);
 	base = buf;
-	cur->second->SendContents(m, NULL, seeinside);
+	cur->second->SendContents(m, NULL, vmode);
 	base = "";
 	m->Send(CNRM);
 	}
       else if(cur->second->Skill("Container")) {
-	if(seeinside == 1 && cur->second->Skill("Locked")) {
+	if((vmode & 1) && cur->second->Skill("Locked")) {
 	  string mes = base + CNRM + "                "
 		+ "  It is closed and locked.\n" + CGRN;
 	  m->Send(mes.c_str());
 	  }
-	else if(seeinside) {
+	else if(vmode & 1) {
 	  sprintf(buf, "%16s  %c", " ", 0);
 	  base = buf;
-	  cur->second->SendContents(m, NULL, seeinside);
+	  cur->second->SendContents(m, NULL, vmode);
 	  base = "";
 	  m->Send(CNRM);
 	  }
@@ -1043,7 +1053,7 @@ void Object::SendExtendedActions(Mind *m, int seeinside) {
     }
   }
 
-void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
+void Object::SendContents(Mind *m, Object *o, int vmode, string b) {
   list<Object*> cont = contents;
 
   if(b.length() > 0) base += b;
@@ -1058,8 +1068,8 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
   int tlines = 0, total = 0;
   typeof(cont.begin()) ind;
   for(ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
-    if((*ind)->Skill("Invisible") > 999 && (seeinside & LOC_NINJA) == 0) continue;
-    if((*ind)->HasSkill("Invisible") && (seeinside & (LOC_NINJA|LOC_HEAT)) == 0) continue;
+    if((*ind)->Skill("Invisible") > 999 && (vmode & LOC_NINJA) == 0) continue;
+    if((*ind)->HasSkill("Invisible") && (vmode & (LOC_NINJA|LOC_HEAT)) == 0) continue;
     if((*ind)->Skill("Hidden") > 0 && Parent() != NULL) continue;
 
     if((*ind)->IsAct(ACT_SPECIAL_LINKED)) {
@@ -1106,7 +1116,7 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
       int qty = 1;	// Even animate objects can have higher quantities.
       typeof(cont.begin()) oth = ind;
       for(qty = 0; oth != cont.end(); ++oth) {
-	if((*ind)->LooksLike(*oth, seeinside)) {
+	if((*ind)->LooksLike(*oth, vmode)) {
 	  master.erase(*oth);
 	  qty += MAX(1, (*oth)->Skill("Quantity"));
 	  }
@@ -1132,19 +1142,19 @@ void Object::SendContents(Mind *m, Object *o, int seeinside, string b) {
       if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
 	string tmp = base;
 	base += "  ";
-	(*ind)->SendContents(m, o, seeinside);
+	(*ind)->SendContents(m, o, vmode);
 	base = tmp;
 	}
       else if((*ind)->Skill("Container") || (*ind)->Skill("Liquid Container")) {
-	if(seeinside == 1 && (*ind)->Skill("Locked")) {
+	if((vmode&1) && (*ind)->Skill("Locked")) {
 	  string mes
 		= base + "  It is closed and locked, you can't see inside.\n";
 	  m->Send(mes.c_str());
 	  }
-	else if(seeinside) {
+	else if(vmode&1) {
 	  string tmp = base;
 	  base += "  ";
-	  (*ind)->SendContents(m, o, seeinside);
+	  (*ind)->SendContents(m, o, vmode);
 	  base = tmp;
 	  }
 	}
@@ -1278,7 +1288,7 @@ void Object::SendDesc(Mind *m, Object *o) {
   m->Send(CNRM);
   }
 
-void Object::SendDescSurround(Mind *m, Object *o, int seeinside) {
+void Object::SendDescSurround(Mind *m, Object *o, int vmode) {
   if(no_seek) return;
   memset(buf, 0, 65536);
 
@@ -1300,17 +1310,17 @@ void Object::SendDescSurround(Mind *m, Object *o, int seeinside) {
   m->Send(buf);
 
   m->Send(CNRM);
-  SendExtendedActions(m, seeinside);
+  SendExtendedActions(m, vmode);
 
   if((!parent) || Contains(o) || Skill("Open") || Skill("Transparent")) {
-    SendContents(m, o, seeinside);
+    SendContents(m, o, vmode);
     }
 
   if(parent && (Skill("Open") || Skill("Transparent"))) {
     m->Send(CCYN);
     m->Send("Outside you see: ");
     no_seek = 1;
-    parent->SendDescSurround(m, this, seeinside);
+    parent->SendDescSurround(m, this, vmode);
     no_seek = 0;
     }
 
@@ -3184,7 +3194,7 @@ int Object::Filter(int loc) {
   return 1;
   }
 
-int Object::LooksLike(Object *other, int seeinside) {
+int Object::LooksLike(Object *other, int vmode) {
   if(string(Name()) != string(other->Name())) return 0;
   if(Pos() != other->Pos()) return 0;
   if(string(Using()) != string(other->Using())) return 0;
@@ -3194,10 +3204,10 @@ int Object::LooksLike(Object *other, int seeinside) {
     if(Skill("Open") || Skill("Transparent")) return 0;
     if(other->Skill("Open") || other->Skill("Transparent")) return 0;
     if(Skill("Container") || Skill("Liquid Container")) {
-      if(seeinside && (!Skill("Locked"))) return 0;
+      if(vmode && (!Skill("Locked"))) return 0;
       }
     if(other->Skill("Container") || other->Skill("Liquid Container")) {
-      if(seeinside && (!other->Skill("Locked"))) return 0;
+      if(vmode && (!other->Skill("Locked"))) return 0;
       }
     }
 
