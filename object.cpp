@@ -1010,7 +1010,7 @@ void Object::SendExtendedActions(Mind *m, int vmode) {
 
     if((vmode & LOC_HEAT) == 0	//Can't See Invis (but can touch, from above)
 	&& cur->second && cur->second->Skill("Invisible") > 0) {
-      m->Send("Something invisible.\n");
+      m->Send(CGRN "Something invisible.\n" CNRM);
       continue;		//Don't show details of invisible equip
       }
 
@@ -1068,9 +1068,22 @@ void Object::SendContents(Mind *m, Object *o, int vmode, string b) {
   int tlines = 0, total = 0;
   typeof(cont.begin()) ind;
   for(ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
-    if((*ind)->Skill("Invisible") > 999 && (vmode & LOC_NINJA) == 0) continue;
-    if((*ind)->HasSkill("Invisible") && (vmode & (LOC_NINJA|LOC_HEAT)) == 0) continue;
-    if((*ind)->Skill("Hidden") > 0 && Parent() != NULL) continue;
+    if((vmode & LOC_NINJA) == 0 && Parent() != NULL) {	//NinjaMode/CharRoom
+      if((*ind)->Skill("Invisible") > 999) continue;
+      if((*ind)->HasSkill("Invisible")) {
+	//Can't detect it at all
+	if((vmode & (LOC_TOUCH|LOC_HEAT)) == 0) continue;
+	//Can't see it, and it's mobile, so can't feel it
+	if((vmode & LOC_TOUCH) == 0 && (*ind)->Pos() > POS_SIT) continue;
+	}
+      if((*ind)->Skill("Hidden") > 0) continue;
+      }
+
+    if((*ind)->HasSkill("Invisible") && (vmode & (LOC_HEAT|LOC_NINJA)) == 0) {
+      if(base != "") m->SendF("%s%sInside: ", base.c_str(), CNRM);
+      m->Send(CGRN "Something invisible is here.\n" CNRM);
+      continue;					//Can feel, but can't see
+      }
 
     if((*ind)->IsAct(ACT_SPECIAL_LINKED)) {
       if((*ind)->ActTarg(ACT_SPECIAL_LINKED)
@@ -1924,15 +1937,15 @@ Object *Object::Split(int nqty) {
   return nobj;
   }
 
-static int tag(Object *obj, list<Object *> &ret, int *ordinal, int show = 0) {
+static int tag(Object *obj, list<Object *> &ret, int *ordinal, int vmode = 0) {
   //Only Ninjas in Ninja-Mode should detect these
-  if(obj->Skill("Invisible") > 999 && (show & LOC_NINJA) == 0) return 0;
+  if(obj->Skill("Invisible") > 999 && (vmode & LOC_NINJA) == 0) return 0;
 
   //Need Heat Vision to see these
-  if(obj->HasSkill("Invisible") && (show & (LOC_NINJA|LOC_HEAT)) == 0) return 0;
+  if(obj->HasSkill("Invisible") && (vmode & (LOC_NINJA|LOC_HEAT)) == 0) return 0;
 
   //Can't be seen/affected (except in char rooms)
-  if(obj->Skill("Hidden") > 0 && (show & (LOC_NINJA|1)) == 0) return 0;
+  if(obj->Skill("Hidden") > 0 && (vmode & (LOC_NINJA|1)) == 0) return 0;
   Object *nobj = NULL;
 
   int cqty = 1, rqty = 1; //Contains / Requires
@@ -2050,7 +2063,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) const
     }
 
   if((loc & LOC_NEARBY) && (parent != NULL)) {
-    typeof(parent->Contents()) cont = parent->Contents();
+    list<Object*> cont = parent->Contents(loc);	//"loc" includes vmode.
 
     typeof(cont.begin()) ind;
     for(ind = cont.begin(); ind != cont.end(); ++ind) if(!(*ind)->no_seek) {
@@ -3071,6 +3084,20 @@ void Object::operator = (const Object &in) {
 //  act = in.act;
   }
 
+list<Object *> Object::Contents(int vmode) {
+  if(vmode & LOC_NINJA) return contents;
+  list<Object *> ret;
+  list<Object *>::iterator item = contents.begin();
+  for(; item != contents.end(); ++item) {
+    if((*item)->Skill("Invisible") >= 1000) continue;	//Not Really There
+    if((vmode & (LOC_HEAT|LOC_TOUCH)) == 0 && (*item)->Skill("Invisible")) {
+      continue;
+      }
+    ret.push_back(*item);
+    }
+  return contents;
+  }
+
 list<Object *> Object::Contents() {
   return contents;
   }
@@ -3200,7 +3227,7 @@ int Object::LooksLike(Object *other, int vmode) {
   if(string(Using()) != string(other->Using())) return 0;
 
   //Neither open/trans/seen inside (if either contain anything)
-  if(Contents().size() > 0 || other->Contents().size() > 0) {
+  if(Contents(vmode).size() > 0 || other->Contents(vmode).size() > 0) {
     if(Skill("Open") || Skill("Transparent")) return 0;
     if(other->Skill("Open") || other->Skill("Transparent")) return 0;
     if(Skill("Container") || Skill("Liquid Container")) {

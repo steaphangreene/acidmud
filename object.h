@@ -180,6 +180,7 @@ public:
   int SeeWithin(const Object *obj);	//Recursive & Visible
   int HasWithin(const Object *obj);	//Recursive (All)
   int Contains(const Object *obj);	//Only Immediately (No Recursion)
+  list<Object *> Contents(int vmode);
   list<Object *> Contents();
 
   int ContainedWeight();

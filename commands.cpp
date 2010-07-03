@@ -1483,7 +1483,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    typeof(body->Contents()) targs;
+    list<Object *> targs;
     int within = 0;
 
     if(!strncasecmp(comline+len, "at ", 3)) len += 3;
@@ -1587,7 +1587,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    typeof(body->Contents()) targs;
+    list<Object *> targs;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
 
     if(strlen(comline+len) > 0) {
@@ -1647,8 +1647,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       body->Parent()->SendOut(stealth_t, stealth_s,
 	";s searches ;s.\n", "you search ;s.\n", body, *targ_it);
 
-      typeof(body->Contents()) objs;
-      objs = (*targ_it)->Contents();
+      list<Object *> objs;
+      objs = (*targ_it)->Contents(vmode);
       typeof(objs.begin()) obj_it;
       for(obj_it = objs.begin(); obj_it != objs.end(); ++obj_it) {
 	if((*obj_it)->Skill("Hidden")) {
@@ -1669,7 +1669,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     }
 
   if(com == COM_HIDE) {
-    typeof(body->Contents()) targs;
+    list<Object *> targs;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
 
     if(strlen(comline+len) <= 0) {
@@ -1843,8 +1843,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
 	wtlimit = targ->Skill("Container");
 	szlimit = targ->Skill("Capacity");
-	if(targ->Contents().size() == 0) {
-	  mind->Send("   ...it is empty.\n");
+	if(targ->Contents(vmode).size() == 0) {
+	  mind->Send("   ...it appears to be empty.\n");
 	  }
 	else {
 	  if(targ->ContainedVolume() < szlimit / 10) {
@@ -1886,20 +1886,20 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(targ->HasSkill("Liquid Container")) {
 	mind->SendF("%s is a liquid container\n", targ->Name(1, body));
 	volume = targ->Skill("Liquid Container");
-	if(targ->Contents().size() == 0) {
-	  mind->Send("   ...it is empty.\n");
+	if(targ->Contents(vmode).size() == 0) {
+	  mind->Send("   ...it appears to be empty.\n");
 	  }
 	else {
-	  if(targ->Contents().front()->Quantity() < volume / 10) {
+	  if(targ->Contents(vmode).front()->Quantity() < volume / 10) {
 	    mind->Send("   ...it is nearly empty.\n");
 	    }
-	  else if(targ->Contents().front()->Quantity() < volume / 2) {
+	  else if(targ->Contents(vmode).front()->Quantity() < volume / 2) {
 	    mind->Send("   ...it is less than half full.\n");
 	    }
-	  else if(targ->Contents().front()->Quantity() < volume * 9/10) {
+	  else if(targ->Contents(vmode).front()->Quantity() < volume * 9/10) {
 	    mind->Send("   ...it is more than half full.\n");
 	    }
-	  else if(targ->Contents().front()->Quantity() < volume) {
+	  else if(targ->Contents(vmode).front()->Quantity() < volume) {
 	    mind->Send("   ...it is nearly full.\n");
 	    }
 	  else {
@@ -2266,7 +2266,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     else {
       if(!nmode) {
-	typeof(body->Contents()) keys
+	list<Object *> keys
 		= body->PickObjects("all", vmode|LOC_INTERNAL);
 	typeof(keys.begin()) key;
 	for(key = keys.begin(); key != keys.end(); ++key) {
@@ -2307,7 +2307,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     else {
       if(!nmode) {
-	typeof(body->Contents()) keys
+	list<Object *> keys
 		= body->PickObjects("all", vmode|LOC_INTERNAL);
 	typeof(keys.begin()) key;
 	for(key = keys.begin(); key != keys.end(); ++key) {
@@ -2399,9 +2399,9 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   if(com == COM_LIST) {
     if(!mind) return 0;
 
-    typeof(body->Parent()->Contents()) objs = body->Parent()->Contents();
-    typeof(objs.begin()) shpkp_i;
-    typeof(body->Parent()->Contents()) shpkps;
+    list<Object*> objs = body->Parent()->Contents(vmode);
+    list<Object*>::iterator shpkp_i;
+    list<Object*> shpkps;
     string reason = "";
     for(shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
       if((*shpkp_i)->Skill("Sell Profit")) {
@@ -2433,7 +2433,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(shpkp->ActTarg(ACT_WEAR_RSHOULDER)
 		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
 	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
-	objs = vortex->Contents();
+	objs = vortex->Contents(vmode);
 	typeof(objs.begin()) obj;
 	typeof(objs.begin()) oobj = objs.begin();
 	for(obj = objs.begin(); obj != objs.end(); ++obj) {
@@ -2458,9 +2458,9 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    typeof(body->Parent()->Contents()) objs = body->Parent()->Contents();
-    typeof(objs.begin()) shpkp_i;
-    typeof(body->Parent()->Contents()) shpkps;
+    list<Object*> objs = body->Parent()->Contents();
+    list<Object*>::iterator shpkp_i;
+    list<Object*> shpkps;
     string reason = "";
     for(shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
       if((*shpkp_i)->Skill("Sell Profit")) {
@@ -2493,7 +2493,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
 	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 
-        typeof(vortex->Contents()) targs
+        list<Object*> targs
 		= vortex->PickObjects(comline+len, vmode|LOC_INTERNAL);
 	if(!targs.size()) {
 	  if(mind) mind->Send("The shopkeeper doesn't have that.\n");
@@ -2526,7 +2526,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  mind->SendF("%d gp: %s\n", price, targ->ShortDesc());
 
 	  int togo = price, ord = -price;
-	  typeof(body->Contents()) pay
+	  list<Object *> pay
 		= body->PickObjects("a gold piece", vmode|LOC_INTERNAL, &ord);
 	  typeof(pay.begin()) coin;
 	  for(coin = pay.begin(); coin != pay.end(); ++coin) {
@@ -2600,7 +2600,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    if(targ->Contents().size() > 0) {
+    if(targ->Contents(LOC_TOUCH).size() > 0) {
       if(mind) {
 	string mes = targ->Name(0, body);
 	mes += " is not empty.";
@@ -2646,9 +2646,9 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     if(targ->HasSkill("Wearable on Left Hip")) wearable = 1;
     if(targ->HasSkill("Wearable on Right Hip")) wearable = 1;
 
-    typeof(body->Parent()->Contents()) objs = body->Parent()->Contents();
-    typeof(objs.begin()) shpkp_i;
-    typeof(body->Parent()->Contents()) shpkps;
+    list<Object*> objs = body->Parent()->Contents();
+    list<Object*>::iterator shpkp_i;
+    list<Object*> shpkps;
     string reason = "Sorry, nobody is buying that sort of thing here.\n";
     string skill = "";
     for(shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
@@ -2778,7 +2778,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
 	if(com == COM_SELL) {
 	  int togo = price, ord = -price;
-	  typeof(body->Contents()) pay
+	  list<Object *> pay
 		= shpkp->PickObjects("a gold piece", vmode|LOC_INTERNAL, &ord);
 	  typeof(pay.begin()) coin;
 	  for(coin = pay.begin(); coin != pay.end(); ++coin) {
@@ -2861,7 +2861,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    typeof(body->Contents()) targs
+    list<Object *> targs
 	= body->PickObjects(comline+len, vmode|LOC_NEARBY);
     if(targs.size() == 0) {
       if(mind) mind->Send("You want to get what?\n");
@@ -3337,7 +3337,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    typeof(body->Contents()) targs
+    list<Object *> targs
 	= body->PickObjects(comline+len, vmode|LOC_INTERNAL);
     if(targs.size() == 0) {
       if(mind) mind->Send("You want to remove what?\n");
@@ -3388,7 +3388,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     }
 
   if(com == COM_WEAR) {
-    typeof(body->Contents()) targs;
+    list<Object *> targs;
 
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     if(!comline[len]) {
@@ -3465,7 +3465,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(mind) mind->Send("You are not hungry, you can't eat any more.\n");
       return 0;
       }
-    typeof(body->Contents()) targs
+    list<Object *> targs
 	= body->PickObjects(comline+len, vmode|LOC_NOTWORN|LOC_INTERNAL);
     if(body->ActTarg(ACT_HOLD)
 	&& body->ActTarg(ACT_HOLD)->Parent() != body	//Dragging
@@ -3518,7 +3518,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(mind) mind->Send("What do you want to drop?\n");
       return 0;
       }
-    typeof(body->Contents()) targs
+    list<Object *> targs
 	= body->PickObjects(comline+len, vmode|LOC_NOTWORN|LOC_INTERNAL);
     if(body->ActTarg(ACT_HOLD)
 	&& body->ActTarg(ACT_HOLD)->Parent() != body	//Dragging
@@ -3654,12 +3654,12 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		);
 	return 0;
 	}
-      if(targ->Contents().size() < 1) {
+      if(targ->Contents(vmode).size() < 1) {
 	if(mind) mind->SendF("%s is empty.  There is nothing to drink\n",
 		targ->Name(0, body));
 	return 0;
 	}
-      Object *obj = targ->Contents().front();
+      Object *obj = targ->Contents(vmode).front();
       if(targ->HasSkill("Liquid Source") && obj->Skill("Quantity") < 2) {
 	if(mind) mind->SendF("%s is almost empty.  There is nothing to drink\n",
 		targ->Name(0, body));
@@ -3681,11 +3681,9 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       body->Consume(obj);
 
       if(obj->Skill("Quantity") < 2) {
-	Object *nuke = targ->Contents().front();
-	delete nuke;
-
-	if(targ->HasSkill("Perishable")) {
-	  body->Drop(targ);
+	obj->Recycle();
+	if(targ->HasSkill("Perishable")) {	//One-Use Vials
+	  targ->Recycle();
 	  }
 	}
       else {
@@ -3701,7 +3699,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(mind) mind->Send("What do you want to dump?\n");
       return 0;
       }
-    typeof(body->Contents()) targs
+    list<Object *> targs
 	= body->PickObjects(comline+len, vmode|LOC_NOTWORN|LOC_INTERNAL);
     if(body->ActTarg(ACT_HOLD)
 	&& body->ActTarg(ACT_HOLD)->Parent() != body	//Dragging
@@ -3721,7 +3719,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		);
 	  continue;
 	  }
-	if((*targ)->Contents().size() < 1) {
+	if((*targ)->Contents(LOC_TOUCH).size() < 1) {
 	  if(mind) mind->SendF("%s is empty.  There is nothing to dump\n",
 		(*targ)->Name(0, body));
 	  continue;
@@ -3731,8 +3729,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		"You dump all the liquid out of ;s.\n",
 		body, *targ
 		);
-	while((*targ)->Contents().size() >= 1) {
-	  Object *nuke = (*targ)->Contents().front();
+	while((*targ)->Contents(LOC_TOUCH).size() >= 1) {
+	  Object *nuke = (*targ)->Contents(LOC_TOUCH).front();
 	  delete nuke;
 	  }
 	}
@@ -3795,12 +3793,12 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	"You can't fill %s from itself.\n",
 	dst->Name(0, body));
       }
-    else if(src->Contents().size() < 1) {
+    else if(src->Contents(vmode).size() < 1) {
       if(mind) mind->Send(
 	"You can't fill anything from that, it is empty.\n");
       }
     else if(src->HasSkill("Liquid Source")
-		&& src->Contents().front()->Skill("Quantity") < 2) {
+		&& src->Contents(vmode).front()->Skill("Quantity") < 2) {
       if(mind) mind->Send(
 	"You can't fill anything from that, it is almost empty.\n");
       }
@@ -3809,8 +3807,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
       int sqty = 1;
       int dqty = dst->Skill("Capacity");
-      if(src->Contents().front()->Skill("Quantity") > 0) {
-	sqty = src->Contents().front()->Skill("Quantity");
+      if(src->Contents(vmode).front()->Skill("Quantity") > 0) {
+	sqty = src->Contents(vmode).front()->Skill("Quantity");
 	}
 
       if(src->HasSkill("Liquid Source")) {
@@ -3822,19 +3820,19 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       sqty -= dqty;
 
       Object *liq;
-      if(dst->Contents().size() > 0) {
-	liq = dst->Contents().front();
+      if(dst->Contents(vmode).size() > 0) {
+	liq = dst->Contents(vmode).front();
 	}
       else {
 	liq = new Object(dst);
 	}
-      (*liq) = (*(src->Contents().front()));
+      (*liq) = (*(src->Contents(vmode).front()));
       liq->SetSkill("Quantity", dqty);
       if(sqty > 0) {
-	src->Contents().front()->SetSkill("Quantity", sqty);
+	src->Contents(vmode).front()->SetSkill("Quantity", sqty);
 	}
       else {
-	delete(src->Contents().front());
+	src->Contents(vmode).front()->Recycle();
 	}
 
       if(!src->Skill("Open")) itclosed = 1;
@@ -5970,7 +5968,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   if(com == COM_JUNK || com == COM_JUNKRESTART) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    typeof(body->Contents()) targs
+    list<Object *> targs
 	= body->PickObjects(comline+len, vmode|LOC_NEARBY);
     if(targs.size() == 0) {
       mind->Send("You want to destroy what?\n");
@@ -6283,7 +6281,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   if(com == COM_DOUBLE) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
-    typeof(body->Contents()) targs
+    list<Object *> targs
 	= body->PickObjects(comline+len, vmode|LOC_NEARBY|LOC_INTERNAL);
     if(targs.size() == 0) {
       mind->Send("You want to double what?\n");
