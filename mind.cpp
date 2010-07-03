@@ -1313,6 +1313,19 @@ int Mind::TBARunLine(string line) {
     Disable();
     return 1;
     }
+  //Needs to be alive! MOB & MOB-* (Not -DEATH or -GLOBAL)
+  if((body->Skill("TBAScriptType") & 0x103FFDE) > 0x1000000) {
+    if(ovars["self"]->IsAct(ACT_DEAD)
+	|| ovars["self"]->IsAct(ACT_DYING)
+	|| ovars["self"]->IsAct(ACT_UNCONSCIOUS)
+	) {
+//      fprintf(stderr, CGRN "#%d Debug: Triggered on downed MOB.\n" CNRM,
+//	body->Skill("TBAScript")
+//	);
+      spos_s.front() = string::npos;	//Jump to End
+      return 0;	//Allow re-run (in case of resurrection/waking/etc...).
+      }
+    }
 
   size_t spos = spos_s.front();
   int vnum = body->Skill("TBAScript");

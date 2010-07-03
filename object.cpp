@@ -405,31 +405,18 @@ int Object::Tick() {
 
       set<Object*> todrop;
       list<Object*> todropfrom;
-
-      typeof(contents.begin()) cur;
-      for(cur = contents.begin(); cur != contents.end(); ++cur) {
-	Object *item = (*cur);
-	if(item->HasSkill("Vortex")) { //Vortex can't be dropped!
-	  }
-	else if(item->contents.size() > 0 && item->Pos() == POS_NONE) {
-	  todropfrom.push_back(item);
-	  }
-	else {
-	  todrop.insert(item);
-	  }
-	}
+      todropfrom.push_back(this);
 
       list<Object*>::iterator tdf;
       for(tdf = todropfrom.begin(); tdf != todropfrom.end(); ++tdf) {
 	Object *con = (*tdf);
+	list<Object*>::iterator cur;
 	for(cur = con->contents.begin(); cur != con->contents.end(); ++cur) {
 	  Object *item = (*cur);
-	  if(item->HasSkill("Vortex")) { //Vortex can't be dropped!
-	    }
-	  else if(item->contents.size() > 0 && item->Pos() == POS_NONE) {
+	  if(item->contents.size() > 0 && item->Pos() == POS_NONE) {
 	    todropfrom.push_back(item);
 	    }
-	  else {
+	  else if(item->Pos() != POS_NONE) { //Fixed items can't be dropped!
 	    todrop.insert(item);
 	    }
 	  }

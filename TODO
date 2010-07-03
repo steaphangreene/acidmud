@@ -16,6 +16,7 @@ Handle liquids mixing?
 
 Unify SendOut() and SendIn().
 Get rid of obsolete "_MASTER" action.
+Get rid of uses of "typeof" - going away, and has poor code readability.
 
 Implement object categories (people, weapons, creatures, axes, etc...).
 
