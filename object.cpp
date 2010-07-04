@@ -2193,6 +2193,7 @@ int Object::IsNearBy(const Object *obj) {
 void Object::NotifyLeft(Object *obj, Object *newloc) {
   set<act_t> stops, stops2;
   typeof(act.begin()) curact = act.begin();
+  int following = 0;
   for(; curact != act.end(); ++curact) {
     if(curact->second && curact->first < ACT_MAX && (
 		curact->second == obj || obj->HasWithin(curact->second)
@@ -2201,20 +2202,7 @@ void Object::NotifyLeft(Object *obj, Object *newloc) {
 	stops.insert(curact->first);
 	}
       else if(parent != newloc) {	// Do nothing if we didn't leave!
-	int stealth_t = 0, stealth_s = 0;
-	if(IsUsing("Stealth") && Skill("Stealth") > 0) {
-	  stealth_t = Skill("Stealth");
-	  stealth_s = Roll("Stealth", 2);
-	  }
-	parent->SendOut(stealth_t, stealth_s,
-		";s follows ;s.\n", "You follow ;s.\n", this, obj);
-	Travel(newloc);
-	parent->SendOut(stealth_t, stealth_s,
-		";s follows ;s.\n", "", this, obj);
-	AddAct(ACT_FOLLOW, obj);
-	if(stealth_t > 0) {
-	  SetSkill("Hidden", Roll("Stealth", 2) * 2);
-	  }
+	following = 1;			// Run Follow Response AFTER loop!
 	}
       }
     if(curact->first >= ACT_MAX && (!newloc) && curact->second == obj) {
@@ -2230,13 +2218,30 @@ void Object::NotifyLeft(Object *obj, Object *newloc) {
       }
     }
 
-  set<act_t>::iterator stop = stops.begin();
-  for(; stop != stops.end(); ++stop) {
-    StopAct(*stop);
-    }
-  stop = stops2.begin();
-  for(; stop != stops2.end(); ++stop) {
-    obj->StopAct(*stop);
+  if(following) {
+    int stealth_t = 0, stealth_s = 0;
+    if(IsUsing("Stealth") && Skill("Stealth") > 0) {
+      stealth_t = Skill("Stealth");
+      stealth_s = Roll("Stealth", 2);
+      }
+    parent->SendOut(stealth_t, stealth_s,
+	";s follows ;s.\n", "You follow ;s.\n", this, obj);
+    Travel(newloc);
+    parent->SendOut(stealth_t, stealth_s,
+	";s follows ;s.\n", "", this, obj);
+    AddAct(ACT_FOLLOW, obj);	//Needed since Travel Kills Follow Act
+    if(stealth_t > 0) {
+      SetSkill("Hidden", Roll("Stealth", 2) * 2);
+      }
+
+    set<act_t>::iterator stop = stops.begin();
+    for(; stop != stops.end(); ++stop) {
+      StopAct(*stop);
+      }
+    stop = stops2.begin();
+    for(; stop != stops2.end(); ++stop) {
+      obj->StopAct(*stop);
+      }
     }
 
   if(obj->ActTarg(ACT_HOLD) == this) {		//Dragging
