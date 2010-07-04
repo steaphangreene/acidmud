@@ -1431,6 +1431,63 @@ int Mind::TBARunLine(string line) {
     return 0;
     }
 
+  else if((!strncasecmp(line.c_str(), "extract ", 8))) {
+    size_t lpos = line.find_first_not_of(" \t", 8);
+    if(lpos != string::npos) {
+      line = line.substr(lpos);
+      size_t end1 = line.find_first_of(" \t\n\r");
+      if(end1 != string::npos) {
+	string var = line.substr(0, end1);
+	lpos = line.find_first_not_of(" \t", end1 + 1);
+	if(lpos != string::npos) {
+	  int wnum = atoi(line.c_str()+lpos) - 1;	//Start at 0, -1=fail
+	  lpos = line.find_first_of(" \t", lpos);
+	  if(lpos != string::npos) lpos = line.find_first_not_of(" \t", lpos);
+	  if(wnum >= 0 && lpos != string::npos) {
+	    while(wnum > 0 && lpos != string::npos) {
+	      lpos = line.find_first_of(" \t", lpos);
+	      if(lpos != string::npos) {
+		lpos = line.find_first_not_of(" \t", lpos);
+		}
+	      --wnum;
+	      }
+	    if(lpos != string::npos) {
+	      end1 = line.find_first_of(" \t\n\r", lpos);
+	      if(end1 == string::npos) end1 = line.length();
+	      svars[var] = line.substr(lpos, end1-lpos);
+	      }
+	    else {
+	      svars[var] = "";
+	      }
+	    ovars.erase(var);
+	    }
+	  else if(wnum < 0) {	//Bad number after varname
+	    fprintf(stderr, CRED "#%d Error: Malformed extract '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	    Disable();
+	    return 1;
+	    }
+	  }
+	else {	//Only space after varname
+	  fprintf(stderr, CRED "#%d Error: Malformed extract '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	  Disable();
+	  return 1;
+	  }
+	}
+      else {	//Nothing after varname
+	fprintf(stderr, CRED "#%d Error: Malformed extract '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+	Disable();
+	return 1;
+	}
+      }
+    return 0;
+    }
+
   else if(!strncasecmp(line.c_str(), "at ", 3)) {
     int dnum, pos;
     if(sscanf(line.c_str(), "at %d %n", &dnum, &pos) < 1) {
