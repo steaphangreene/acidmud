@@ -2093,7 +2093,7 @@ void Object::TBALoadWLD(const char *fn) {
       //fprintf(stderr, "Loaded TBA Room with Desc = %s\n", buf);
 
       int val;
-      fscanf(mud, "%*d %65535[^ \t\n] %d %*[^\n\r]\n", buf, &val);
+      fscanf(mud, "%*d %65535[^ \t\n] %*d %*d %*d %d\n", buf, &val);
 		//FIXME: TBA's extra 3 flags variables (ignored now)?
       if(val == 6) obj->SetSkill("WaterDepth", 1);	// WATER_SWIM
       else if(val == 7) obj->SetSkill("WaterDepth", 2);	// WATER_NOSWIM
