@@ -2521,11 +2521,6 @@ void Mind::Think(int istick) {
 	  }
 	}
       }
-    else {
-      fprintf(stderr, CRED "#%d Error: Ran Bad Trigger.\n" CNRM,
-	body->Skill("TBAScript")
-	);
-      }
     Disable();
     }
   else if(type == MIND_TBAMOB) {
