@@ -723,6 +723,8 @@ com_t identify_command(const string &str) {
     }
   if(len == 0) return COM_NONE;
   for(int ctr=0; comlist[ctr].id != COM_NONE; ++ctr) {
+    if(comlist[ctr].sit & SIT_NINJAMODE) continue;	//Don't match ninjas
+
     if(!strncasecmp(str.c_str(), comlist[ctr].command, len)) {
       return comlist[ctr].id;
       }
@@ -798,8 +800,27 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
   if(len == 0) return 0;
 
+  int ninja=0, sninja=0, nmode=0, vmode=0;
+
+  if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_SUPERNINJA))
+    { sninja=1; ninja=1; }
+  if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJA)) ninja=1;
+  if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJAMODE)) {
+    nmode = LOC_NINJA;
+    vmode |= LOC_NINJA;
+    }
+  if(body && body->Power("Dark Vision Spell")) {
+    vmode |= LOC_DARK;
+    }
+  if(body && body->Power("Heat Vision Spell")) {
+    vmode |= LOC_HEAT;
+    }
+
   int com = COM_NONE, cnum = -1;
   for(int ctr=0; comlist[ctr].id != COM_NONE; ++ctr) {
+    //Always match ninjas last (and only in ninja mode)
+    if(comlist[ctr].sit & SIT_NINJAMODE) continue;
+
     if(!strncasecmp(comline, comlist[ctr].command, len))
       { com = comlist[ctr].id; cnum = ctr; break; }
 
@@ -821,24 +842,15 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     }
 
+  if(com == COM_NONE && ninja) {	//Now match ninja commands (for ninjas)
+    for(int ctr=0; comlist[ctr].id != COM_NONE; ++ctr) {
+      if(!strncasecmp(comline, comlist[ctr].command, len))
+	{ com = comlist[ctr].id; cnum = ctr; break; }
+      }
+    }
+
   cmd = cmd.substr(len);
   trim_string(cmd);
-
-  int ninja=0, sninja=0, nmode=0, vmode=0;
-
-  if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_SUPERNINJA))
-    { sninja=1; ninja=1; }
-  if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJA)) ninja=1;
-  if(mind && mind->Owner() && mind->Owner()->Is(PLAYER_NINJAMODE)) {
-    nmode = LOC_NINJA;
-    vmode |= LOC_NINJA;
-    }
-  if(body && body->Power("Dark Vision Spell")) {
-    vmode |= LOC_DARK;
-    }
-  if(body && body->Power("Heat Vision Spell")) {
-    vmode |= LOC_HEAT;
-    }
 
   if((!nmode) && body && body->Parent()) {
     list<Object *> items = body->PickObjects(
