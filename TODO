@@ -15,7 +15,7 @@ Crafting (weapons, armor, tools, clothes, etc...).
 Handle liquids mixing?
 
 Unify SendOut() and SendIn().
-Get rid of obsolete "_MASTER" action.
+Get rid of obsolete "_MASTER" action?
 Get rid of uses of "typeof" - going away, and has poor code readability.
 
 Implement object categories (people, weapons, creatures, axes, etc...).
@@ -49,9 +49,7 @@ Implement sustained detrimental spell effect system.
 	Implement effects of the Weaken Subject Spell
 
 Implement sustained beneficial spell effect system.
-	Implement effects of the Dark Vision Spell
 	Implement effects of the Float Spell
-	Implement effects of the Heat Vision Spell
 	Implement effects of the Invisibility Spell
 	Implement effects of the Light Spell
 	Implement effects of the Luck Spell
