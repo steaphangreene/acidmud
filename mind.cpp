@@ -2071,15 +2071,32 @@ int Mind::TBARunLine(string line) {
 //	);
     }
 
-  else if(!strncasecmp(line.c_str(), "purge ", 6)) {
+  else if(!strncasecmp(line.c_str(), "purge", 5)) {
     Object *targ = NULL;
-    sscanf(line.c_str()+6, " OBJ:%p", &targ);
+    sscanf(line.c_str()+5, " OBJ:%p", &targ);
     if(targ) {
-      targ->Recycle();
-      if(!body) {	//Not Connected, purged self or parent.
-	Disable();
-	return 1;
+      if(!is_pc(targ)) targ->Recycle();
+      }
+    else if(line.length() <= 6) {	//No Args: Nuke All (but dirs and PCs)!
+      list<Object*> tokill = room->PickObjects("everyone",
+		LOC_DARK|LOC_HEAT|LOC_INTERNAL);
+      list<Object*> tokill2 = room->PickObjects("everything",
+		LOC_DARK|LOC_HEAT|LOC_INTERNAL);
+      tokill.splice(tokill.end(), tokill2);
+      list<Object*>::iterator item = tokill.begin();
+      for(; item != tokill.end(); ++item) {
+	if(!is_pc(*item)) (*item)->Recycle();
 	}
+      }
+    else {
+      fprintf(stderr, CRED "#%d Error: Bad purge target '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      return 1;
+      }
+    if(!body) {	//No longer connected, must have purged self or parent.
+      Disable();
+      return 1;
       }
     }
 
