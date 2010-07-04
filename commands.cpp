@@ -150,12 +150,12 @@ Command comlist[1024] = {
   { COM_LEAVE, "leave",
     "Leave an object.",
     "Leave an object.",
-    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
   { COM_ENTER, "enter",
     "Enter an object (or enter the game).",
     "Enter an object (or enter the game).",
-    (REQ_ETHEREAL|REQ_ALERT|REQ_STAND|REQ_ACTION)
+    (REQ_ETHEREAL|REQ_ALERT|REQ_UP|REQ_ACTION)
     },
   { COM_SELECT, "select",
     "Select an unfinished character.",
@@ -166,28 +166,28 @@ Command comlist[1024] = {
   { COM_OPEN, "open",
     "Open a door or container.",
     "Open a door or container.",
-    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
   { COM_CLOSE, "close",
     "Close a door or container.",
     "Close a door or container.",
-    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
   { COM_UNLOCK, "unlock",
     "Unlock a door or container.",
     "Unlock a door or container.",
-    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
   { COM_LOCK, "lock",
     "Lock a door or container.",
     "Lock a door or container.",
-    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
 
   { COM_GET, "get",
     "Get an item from your surroundings.",
     "Get an item from your surroundings.",
-    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
   { COM_DRAG, "drag",
     "Drag a heavy item with you when you next move.",
@@ -197,7 +197,7 @@ Command comlist[1024] = {
   { COM_PUT, "put",
     "Put a held item in or on something.",
     "Put a held item in or on something.",
-    (REQ_ALERT|REQ_STAND|REQ_ACTION)
+    (REQ_ALERT|REQ_UP|REQ_ACTION)
     },
   { COM_DROP, "drop",
     "Drop an item you are carrying.",
