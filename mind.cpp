@@ -33,6 +33,16 @@ static string itos(int val) {
   return string(buf);
   }
 
+static int tba_bitvec(const string& val) {
+  int ret = atoi(val.c_str());
+  if(ret == 0) {        //Works fine for "0" too
+    for(size_t idx = 0; idx < val.length(); ++idx) {
+      ret |= 1 << ((val[idx] & 31) - 1);
+      }
+    }
+  return ret;
+  }
+
 string Mind::TBAComp(string expr) {
   size_t end = expr.find_first_of("\n\r");
   if(end != string::npos) expr = expr.substr(0, end);
@@ -1546,6 +1556,7 @@ int Mind::TBARunLine(string line) {
 	cur *= 24*60;
 	cur /= world->Skill("Day Length");
 	}
+      if(minute < cur) minute += 24*60;	//Not Time Until Tomorrow!
       if(minute > cur) {	//Not Time Yet!
 	Suspend((minute - cur) * 1000 * world->Skill("Day Length") / 24);
 	//Note: The above calculation removed the *60 and the /60
@@ -1918,15 +1929,24 @@ int Mind::TBARunLine(string line) {
 
   else if(!strncasecmp(line.c_str(), "door ", 5)) {
     int rnum, tnum, len;
-    char dir[16], xtra;
+    char dname[16], xtra;
     const char *args = line.c_str() + 5;
-    if(sscanf(args, "%d %s", &rnum, dir) < 2) {
+    if(sscanf(args, "%d %s", &rnum, dname) < 2) {
       fprintf(stderr, CRED "#%d Error: short door command '%s'\n" CNRM,
 	body->Skill("TBAScript"), line.c_str()
 	);
       Disable();
       return 1;
       }
+
+	//Handle abbreviated standard directions.
+    const char *dir = dname;
+    if(!strncasecmp("north", dir, strlen(dir))) dir = "north";
+    else if(!strncasecmp("south", dir, strlen(dir))) dir = "south";
+    else if(!strncasecmp("east", dir, strlen(dir))) dir = "east";
+    else if(!strncasecmp("west", dir, strlen(dir))) dir = "west";
+    else if(!strncasecmp("up", dir, strlen(dir))) dir = "up";
+    else if(!strncasecmp("down", dir, strlen(dir))) dir = "down";
 
     list<Object*> options = room->World()->Contents();
     list<Object*>::iterator opt = options.begin();
@@ -1955,11 +1975,51 @@ int Mind::TBARunLine(string line) {
       if(door) door->SetDesc(line.substr(len+5));
       }
     else if(sscanf(args, "%*d %*s flag%c %n", &xtra, &len) >= 1) {
-      fprintf(stderr, CRED "#%d Error: door reflag '%s'\n" CNRM,
-	body->Skill("TBAScript"), line.c_str()
-	);
-      Disable();
-      return 1;
+      if(!door) {
+	fprintf(stderr, CRED "#%d Error: No %s door to reflag in '%s'\n" CNRM,
+		body->Skill("TBAScript"), dir, line.c_str()
+		);
+	Disable();
+	return 1;
+	}
+      int newfl = tba_bitvec(line.substr(len));
+      if((newfl & 0xF) == 0) {
+	fprintf(stderr, CRED "#%d Error: bad door reflag (%d) in '%s'\n" CNRM,
+		body->Skill("TBAScript"), newfl, line.c_str()
+		);
+	Disable();
+	return 1;
+	}
+      if(newfl & 1) {	//Can Open/Close
+	door->SetSkill("Open", 1000);
+	door->SetSkill("Closeable", 1);
+	door->SetSkill("Locked", 0);
+	door->SetSkill("Lockable", 1);
+	door->SetSkill("Pickable", 4);
+//	fprintf(stderr, CGRN "#%d Debug: %s door can open/close in '%s'\n" CNRM,
+//		body->Skill("TBAScript"), dir, line.c_str()
+//		);
+	}
+      if(newfl & 2) {	//Closed
+	door->SetSkill("Open", 0);
+//	fprintf(stderr, CGRN "#%d Debug: %s door is closed in '%s'\n" CNRM,
+//		body->Skill("TBAScript"), dir, line.c_str()
+//		);
+	}
+      if(newfl & 4) {	//Locked
+	door->SetSkill("Locked", 1);
+	door->SetSkill("Lockable", 1);
+	door->SetSkill("Pickable", 4);
+//	fprintf(stderr, CGRN "#%d Debug: %s door is locked in '%s'\n" CNRM,
+//		body->Skill("TBAScript"), dir, line.c_str()
+//		);
+	}
+      if(newfl & 8) {	//Pick-Proof
+	door->SetSkill("Pickable", 1000);
+//	fprintf(stderr, CGRN "#%d Debug: %s door is pick-proof in '%s'\n" CNRM,
+//		body->Skill("TBAScript"), dir, line.c_str()
+//		);
+	}
       }
     else if(sscanf(args, "%*d %*s nam%c %n", &xtra, &len) >= 1) {
 //      fprintf(stderr, CGRN "#%d Debug: door rename '%s'\n" CNRM,
@@ -2009,11 +2069,19 @@ int Mind::TBARunLine(string line) {
       odoor->AddAct(ACT_SPECIAL_MASTER, door);
       }
     else if(sscanf(args, "%*d %*s key %d", &tnum) == 1) {
-      fprintf(stderr, CRED "#%d Error: door rekey '%s'\n" CNRM,
-	body->Skill("TBAScript"), line.c_str()
-	);
-      Disable();
-      return 1;
+      if(!door) {
+	fprintf(stderr, CRED "#%d Error: No %s door to re-key in '%s'\n" CNRM,
+		body->Skill("TBAScript"), dir, line.c_str()
+		);
+	Disable();
+	return 1;
+	}
+      door->SetSkill("Lockable", 1);
+      door->SetSkill("Key", 2000000 + tnum);
+      if(door->Skill("Pickable") < 1) door->SetSkill("Pickable", 4);
+//      fprintf(stderr, CGRN "#%d Debug: %s door re-keyed (%d) in '%s'\n" CNRM,
+//	body->Skill("TBAScript"), dir, tnum, line.c_str()
+//	);
       }
     else if(sscanf(args, "%*d %*s purg%c", &xtra) == 1) {
 //      fprintf(stderr, CGRN "#%d Debug: door purge '%s'\n" CNRM,

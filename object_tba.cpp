@@ -2244,7 +2244,7 @@ void Object::TBALoadWLD(const char *fn) {
 	      nobj->SetSkill("Closeable", 1);
 	      nobj->SetSkill("Lockable", 1);
 	      if(tynum[dir][*ob] == 1) nobj->SetSkill("Pickable", 4);
-	      if(tynum[dir][*ob] == 2) nobj->SetSkill("Pickable", 99);
+	      if(tynum[dir][*ob] == 2) nobj->SetSkill("Pickable", 1000);
 	      if(knum[dir][*ob] > 0) {
 		nobj->SetSkill("Lock", 2000000 + knum[dir][*ob]);
 		}
