@@ -1074,7 +1074,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     dir = dirs.begin();
     int sel=rand() % dirs.size();
     while(sel > 0) { ++dir; --sel; }
-    mind->SendF("You try to flee %s.\n", (*dir)->ShortDesc());
+    if(mind) mind->SendF("You try to flee %s.\n", (*dir)->ShortDesc());
 
     com = COM_ENTER;
     comline = (*dir)->ShortDesc();
@@ -1240,13 +1240,24 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		&& body->Parent()->LightLevel() < 100) {
 	  mind->Send("It's too dark, you can't see anything.\n");
 	  }
-	else if(mind && mind->Type() == MIND_REMOTE)
+	else if(mind && mind->Type() == MIND_REMOTE) {
 	  body->Parent()->SendDescSurround(body, body, vmode);
-	else if(mind && mind->Type() == MIND_SYSTEM)
+	  }
+	else if(mind && mind->Type() == MIND_SYSTEM) {
 	  mind->SendF("You enter %s\n", comline+len);
+	  }
 
 	if(stealth_t > 0) {
 	  body->SetSkill("Hidden", body->Roll("Stealth", 2) * 2);
+	  }
+	if(body->Roll("Running", 2) < 1) { //FIXME: Terrain/Direction Mods?
+	  if(mind) {
+	    mind->Send(
+		CRED "\nYou are winded, and have to catch your breath." CNRM
+		"  Raise the " CMAG "Running" CNRM " skill.\n"
+		);
+	    }
+	  body->BusyFor(3000);
 	  }
 	}
       }
