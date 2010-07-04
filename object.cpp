@@ -2545,7 +2545,10 @@ void Object::SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
     for(; trig != contents.end(); ++trig) {
       if(strncmp(mes, ";s says '", 9)) {//Type 0x1000010 (MOB + MOB-ACT)
 	if(((*trig)->Skill("TBAScriptType") & 0x1000010) == 0x1000010) {
-	  if((*trig)->Skill("TBAScriptNArg") == 0) {	// Match Full Phrase
+	  if((*trig)->Desc()[0] == '*') {		// All Actions
+	    new_trigger((rand() % 400) + 300, *trig, actor, mes);
+	    }
+	  else if((*trig)->Skill("TBAScriptNArg") == 0) {// Match Full Phrase
 	    if(phrase_match(mes, (*trig)->Desc())) {
 	      new_trigger((rand() % 400) + 300, *trig, actor, mes);
 	      }
@@ -2559,14 +2562,23 @@ void Object::SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
 	}
       else {				//Type 0x1000008 (MOB + MOB-SPEECH)
 	if(((*trig)->Skill("TBAScriptType") & 0x1000008) == 0x1000008) {
-	  if((*trig)->Skill("TBAScriptNArg") == 0) {	// Match Full Phrase
-	    if(phrase_match(mes, (*trig)->Desc())) {
-	      new_trigger((rand() % 400) + 300, *trig, actor, mes);
+	  string speech = (mes+9);
+	  while(speech[0] && speech[speech.length()-1] != '\'') {
+	    speech = speech.substr(0, speech.length()-1);
+	    }
+	  if(speech[0]) speech = speech.substr(0, speech.length()-1);
+
+	  if((*trig)->Desc()[0] == '*') {		// All Speech
+	    new_trigger((rand() % 400) + 300, *trig, actor, speech);
+	    }
+	  else if((*trig)->Skill("TBAScriptNArg") == 0) {// Match Full Phrase
+	    if(phrase_match(speech, (*trig)->Desc())) {
+	      new_trigger((rand() % 400) + 300, *trig, actor, speech);
 	      }
 	    }
 	  else {					// Match Words
-	    if(words_match(mes, (*trig)->Desc())) {
-	      new_trigger((rand() % 400) + 300, *trig, actor, mes);
+	    if(words_match(speech, (*trig)->Desc())) {
+	      new_trigger((rand() % 400) + 300, *trig, actor, speech);
 	      }
 	    }
 	  }
@@ -2655,14 +2667,23 @@ void Object::SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
     typeof(contents.begin()) trig = contents.begin();
     for(; trig != contents.end(); ++trig) {
       if(((*trig)->Skill("TBAScriptType") & 0x4000008) == 0x4000008) {
-	if((*trig)->Skill("TBAScriptNArg") == 0) {	// Match Full Phrase
-	  if(phrase_match(mes, (*trig)->Desc())) {
-	    new_trigger((rand() % 400) + 300, *trig, actor, mes);
+	string speech = (mes+9);
+	while(speech[0] && speech[speech.length()-1] != '\'') {
+	  speech = speech.substr(0, speech.length()-1);
+	  }
+	if(speech[0]) speech = speech.substr(0, speech.length()-1);
+
+	if((*trig)->Desc()[0] == '*') {		// All Speech
+	  new_trigger((rand() % 400) + 300, *trig, actor, speech);
+	  }
+	else if((*trig)->Skill("TBAScriptNArg") == 0) {// Match Full Phrase
+	  if(phrase_match(speech, (*trig)->Desc())) {
+	    new_trigger((rand() % 400) + 300, *trig, actor, speech);
 	    }
 	  }
 	else {					// Match Words
-	  if(words_match(mes, (*trig)->Desc())) {
-	    new_trigger((rand() % 400) + 300, *trig, actor, mes);
+	  if(words_match(speech, (*trig)->Desc())) {
+	    new_trigger((rand() % 400) + 300, *trig, actor, speech);
 	    }
 	  }
         }
