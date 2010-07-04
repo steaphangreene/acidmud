@@ -1772,6 +1772,7 @@ int Mind::TBARunLine(string line) {
 	|| com == COM_SIT
 	|| com == COM_LIE
 	|| com == COM_LOOK
+	|| com == COM_FLEE
 	|| com == COM_PLAY
 	) {
     handle_command(ovars["self"], line.c_str());

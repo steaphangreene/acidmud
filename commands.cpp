@@ -387,6 +387,11 @@ Command comlist[1024] = {
     "Kick somebody, or an object.",
     (REQ_ALERT|REQ_ACTION|REQ_STAND)
     },
+  { COM_FLEE, "flee",
+    "Escape the area as fast as you can, in a random direction.",
+    "Escape the area as fast as you can, in a random direction.",
+    (REQ_ALERT|REQ_ACTION|REQ_UP)
+    },
 
   { COM_LIST, "list",
     "List items available at a shop.",
@@ -1049,6 +1054,32 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   if(com == COM_WEST)	{ com = COM_ENTER; len = 6; comline = "enter west"; }
   if(com == COM_UP)	{ com = COM_ENTER; len = 6; comline = "enter up"; }
   if(com == COM_DOWN)	{ com = COM_ENTER; len = 6; comline = "enter down"; }
+
+  if(com == COM_FLEE) {
+    list<Object*> dirs = body->PickObjects("everywhere", vmode|LOC_NEARBY);
+    list<Object*>::iterator dir = dirs.begin();
+    while(dir != dirs.end()) {
+      list<Object*>::iterator cur = dir;
+      ++dir;		//Inc first, in case I remove it.
+      if((*cur)->Skill("Open") < 1) dirs.erase(cur);
+      }
+    if(dirs.size() < 1) {
+      if(mind) mind->Send("There is nowhere go, you can't flee!\n");
+      return 0;
+      }
+
+    body->StartUsing("Sprinting");
+    body->SetSkill("Hidden", 0);
+
+    dir = dirs.begin();
+    int sel=rand() % dirs.size();
+    while(sel > 0) { ++dir; --sel; }
+    mind->SendF("You try to flee %s.\n", (*dir)->ShortDesc());
+
+    com = COM_ENTER;
+    comline = (*dir)->ShortDesc();
+    len = 0;
+    }
 
   if(com == COM_ENTER) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;

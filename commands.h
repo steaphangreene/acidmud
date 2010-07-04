@@ -78,6 +78,7 @@ typedef enum {
 	COM_KILL,
 	COM_PUNCH,
 	COM_KICK,
+	COM_FLEE,
 
 	COM_LIST,
 	COM_BUY,

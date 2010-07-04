@@ -3161,9 +3161,6 @@ const char *Object::UsingString() {
     if(cur_skill == "Stealth") {
       sprintf(buf, "sneaking around");
       }
-    else if(cur_skill == "Lumberjack") {
-      sprintf(buf, "chopping down trees");
-      }
     else if(cur_skill == "Perception") {
       sprintf(buf, "keeping an eye out");
       }
@@ -3175,6 +3172,12 @@ const char *Object::UsingString() {
       }
     else if(cur_skill == "Treatment") {
       sprintf(buf, "treating others' wounds");
+      }
+    else if(cur_skill == "Lumberjack") {
+      sprintf(buf, "chopping down trees");
+      }
+    else if(cur_skill == "Sprinting") {
+      sprintf(buf, "running as fast as possible");
       }
     else {
       sprintf(buf, "using the %s skill", Using());
