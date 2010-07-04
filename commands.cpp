@@ -872,9 +872,14 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		continue;
 		}
 	      }
-	    if(!new_trigger(0, *trig, body,
-		comlist[cnum].command + string(" ") + cmd
-		)) {
+	    string cmln;
+	    if(com != COM_NONE) {
+	      cmln = comlist[cnum].command + string(" ") + cmd;
+	      }
+	    else {
+	      cmln = (*trig)->Desc() + string(" ") + cmd;
+	      }
+	    if(!new_trigger(0, *trig, body, cmln)) {
 	      return 0;		//Handled, unless script says not.
 	      }
 	    }

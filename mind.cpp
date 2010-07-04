@@ -1768,54 +1768,6 @@ int Mind::TBARunLine(string line) {
     spos_s.front() = spos;	//Save done position in real PC
     }
 
-  //Player commands Acid shares with TBA, not requiring arguments
-  else if(com == COM_NORTH
-	|| com == COM_SOUTH
-	|| com == COM_EAST
-	|| com == COM_WEST
-	|| com == COM_UP
-	|| com == COM_DOWN
-	|| com == COM_SOCIAL
-	|| com == COM_SLEEP
-	|| com == COM_REST
-	|| com == COM_WAKE
-	|| com == COM_STAND
-	|| com == COM_SIT
-	|| com == COM_LIE
-	|| com == COM_LOOK
-	|| com == COM_FLEE
-	|| com == COM_NONE	//Trigger-Supported
-	) {
-    handle_command(ovars["self"], line.c_str());
-    }
-
-  //Player commands Acid shares with TBA, requiring arguments
-  else if(com == COM_SAY
-	|| com == COM_SHOUT
-	|| com == COM_EMOTE
-	|| com == COM_LOCK
-	|| com == COM_UNLOCK
-	|| com == COM_OPEN
-	|| com == COM_CLOSE
-	|| com == COM_GET
-	|| com == COM_DROP
-	) {
-    size_t stuff = line.find_first_of(" ");
-    if(stuff != string::npos) {
-      stuff = line.find_first_not_of(" \t\r\n", stuff);
-      }
-    if(stuff != string::npos) {
-      handle_command(ovars["self"], line.c_str());
-      }
-    else {
-      fprintf(stderr, CRED "#%d Error: Told just '%s'\n" CNRM,
-	body->Skill("TBAScript"), line.c_str()
-	);
-      Disable();
-      return 1;
-      }
-    }
-
   else if((!strncasecmp(line.c_str(), "asound ", 7))) {
     size_t start = line.find_first_not_of(" \t\r\n", 7);
     if(room && start != string::npos) {
@@ -2392,6 +2344,58 @@ int Mind::TBARunLine(string line) {
     Disable();
     return 1;
     }
+  //Player commands Acid shares with TBA, requiring arguments
+  else if(com == COM_SAY
+	|| com == COM_SHOUT
+	|| com == COM_EMOTE
+	|| com == COM_LOCK
+	|| com == COM_UNLOCK
+	|| com == COM_OPEN
+	|| com == COM_CLOSE
+	|| com == COM_GET
+	|| com == COM_DROP
+	) {
+    size_t stuff = line.find_first_of(" ");
+    if(stuff != string::npos) {
+      stuff = line.find_first_not_of(" \t\r\n", stuff);
+      }
+    if(stuff != string::npos) {
+      handle_command(ovars["self"], line.c_str());
+      }
+    else {
+      fprintf(stderr, CRED "#%d Error: Told just '%s'\n" CNRM,
+	body->Skill("TBAScript"), line.c_str()
+	);
+      Disable();
+      return 1;
+      }
+    }
+
+  //Player commands Acid shares with TBA, not requiring arguments
+  else if(com == COM_NORTH
+	|| com == COM_SOUTH
+	|| com == COM_EAST
+	|| com == COM_WEST
+	|| com == COM_UP
+	|| com == COM_DOWN
+	|| com == COM_SOCIAL
+	|| com == COM_SLEEP
+	|| com == COM_REST
+	|| com == COM_WAKE
+	|| com == COM_STAND
+	|| com == COM_SIT
+	|| com == COM_LIE
+	|| com == COM_LOOK
+	|| com == COM_FLEE
+	) {
+    handle_command(ovars["self"], line.c_str());
+    }
+
+  //Trigger-Supported (only) commands (not shared with real acid commands).
+  else if(com == COM_NONE && handle_command(ovars["self"], line.c_str()) != 1) {
+    //Do Nothing, as handle_command already did it.
+    }
+
   else {
     fprintf(stderr, CRED "#%d Error: Gibberish script line '%s'\n" CNRM,
 	body->Skill("TBAScript"), line.c_str()
@@ -2478,12 +2482,14 @@ void Mind::Think(int istick) {
       }
     }
   else if(type == MIND_TBATRIG) {
-    if(body && body->Parent() && spos_s.size() > 0) {
+    if(body && body->Parent() && spos_s.size() > 0
+		&& spos_s.front() < script.length()) {
+//      fprintf(stderr, CGRN "#%d Debug: Running Trigger.\n" CNRM,
+//	body->Skill("TBAScript")
+//	);
       ovars["self"] = body->Parent();
       ovars["context"] = ovars["self"];	//Initial global var context
 
-      if(spos_s.size() < 1) return;			//Never Run?!?
-      if(spos_s.front() >= script.length()) return;	//Empty/Done
       int quota = 1024;
       int stype = body->Skill("TBAScriptType");
       while(spos_s.size() > 0 && spos_s.front() != string::npos) {
@@ -2514,6 +2520,11 @@ void Mind::Think(int istick) {
 	  return;
 	  }
 	}
+      }
+    else {
+      fprintf(stderr, CRED "#%d Error: Ran Bad Trigger.\n" CNRM,
+	body->Skill("TBAScript")
+	);
       }
     Disable();
     }
