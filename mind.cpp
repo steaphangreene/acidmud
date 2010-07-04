@@ -2103,8 +2103,13 @@ int Mind::TBARunLine(string line) {
     int nocheck = 0;
     char buf[256];
     if(sscanf(line.c_str() + 10, "%s %d", buf, &dnum) != 2) {
-      if(!strcasecmp(buf, "all")) { strcpy(buf, "everyone"); nocheck = 1; }
+      fprintf(stderr, CRED "#%d Error: Bad teleport line '%s'\n" CNRM,
+		body->Skill("TBAScript"), line.c_str()
+		);
+      Disable();
+      return 1;
       }
+    if(!strcasecmp(buf, "all")) { strcpy(buf, "everyone"); nocheck = 1; }
     Object *dest = ovars["self"]->World();
     list<Object*> options = dest->Contents();
     list<Object*>::iterator opt = options.begin();
