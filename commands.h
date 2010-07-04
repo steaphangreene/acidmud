@@ -70,8 +70,6 @@ typedef enum {
 	COM_EMOTE,
 	COM_SOCIAL,	//Many commands, which all have no real effect.
 
-	COM_PLAY,
-
 	COM_POINT,
 	COM_FOLLOW,
 	COM_ATTACK,

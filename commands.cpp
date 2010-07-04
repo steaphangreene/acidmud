@@ -351,11 +351,6 @@ Command comlist[1024] = {
     "Indicate to others that you are doing something.",
     (REQ_AWAKE)
     },
-  { COM_PLAY, "play",
-    "Social command.",
-    "Social command.",
-    (REQ_AWAKE)
-    },
 
   { COM_POINT, "point",
     "Point at an object, or stop pointing.",
@@ -803,7 +798,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
   if(len == 0) return 0;
 
-  int com = -1, cnum = -1;
+  int com = COM_NONE, cnum = -1;
   for(int ctr=0; comlist[ctr].id != COM_NONE; ++ctr) {
     if(!strncasecmp(comline, comlist[ctr].command, len))
       { com = comlist[ctr].id; cnum = ctr; break; }
@@ -825,15 +820,9 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       com = comlist[ctr].id; cnum = ctr; break;
       }
     }
-  if(com == -1) {
-    if(mind) mind->Send("Command NOT understood - type 'help' for assistance.\n");
-    return 1;
-    }
 
   cmd = cmd.substr(len);
   trim_string(cmd);
-  comline = cmd.c_str();
-  len = 0;
 
   int ninja=0, sninja=0, nmode=0, vmode=0;
 
@@ -862,11 +851,12 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     list<Object *>::iterator obj = items.begin();
     for(; obj != items.end(); ++obj) {
       list<Object *> trigs = (*obj)->PickObjects(
-		"tbaMUD trigger script", LOC_NINJA|LOC_INTERNAL);
+		"all tbaMUD trigger script", LOC_NINJA|LOC_INTERNAL);
       list<Object *>::iterator trig = trigs.begin();
       for(; trig != trigs.end(); ++trig) {
 	if((*trig)->Skill("TBAScriptType") & 0x04) {	//*-COMMAND trigs
-	  if(com == identify_command((*trig)->Desc())) {
+	  if((com == COM_NONE && (!strncasecmp(inpline, (*trig)->Desc(), len)))
+		|| (com && com == identify_command((*trig)->Desc()))) {
 	    if((*trig)->Skill("TBAScriptType") & 0x2000000) {  // OBJ
 	      int narg = (*trig)->Skill("TBAScriptNArg");
 	      if((narg & 3) == 0 && body->HasWithin(*obj)) {
@@ -883,7 +873,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		}
 	      }
 	    if(!new_trigger(0, *trig, body,
-		comlist[cnum].command + string(" ") + comline
+		comlist[cnum].command + string(" ") + cmd
 		)) {
 	      return 0;		//Handled, unless script says not.
 	      }
@@ -892,6 +882,13 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	}
       }
     }
+  if(com == COM_NONE) {	//Unknown, and not trigger-supported, command
+    if(mind) mind->Send("Command NOT understood - type 'help' for assistance.\n");
+    return 1;
+    }
+
+  comline = cmd.c_str();
+  len = 0;
 
   if((!sninja) && (comlist[cnum].sit & SIT_SUPERNINJA)) {
     if(mind) mind->Send("Sorry, that command is for Super Ninjas only!\n");
@@ -1473,8 +1470,6 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     return 0;
     }
-
-  if(com == COM_PLAY)	{ com = COM_EMOTE; len = 6; comline = "emote plays"; }
 
   if(com == COM_EMOTE) {
     while((!isgraph(comline[len])) && (comline[len])) ++len;
@@ -2915,7 +2910,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       Object *targ = *ind;
 
       list<Object *> trigs = targ->PickObjects(
-		"tbaMUD trigger script", LOC_NINJA|LOC_INTERNAL);
+		"all tbaMUD trigger script", LOC_NINJA|LOC_INTERNAL);
       list<Object *>::iterator trig = trigs.begin();
       for(; trig != trigs.end(); ++trig) {
 	int ttype = (*trig)->Skill("TBAScriptType");
@@ -3577,7 +3572,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	list<Object *> trigs;
 	list<Object *>::iterator trig;
 
-	trigs = (*targ)->PickObjects("tbaMUD trigger script",
+	trigs = (*targ)->PickObjects("all tbaMUD trigger script",
 		LOC_NINJA|LOC_INTERNAL);
 	trig = trigs.begin();
 	for(; trig != trigs.end(); ++trig) {
@@ -3592,7 +3587,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
 	Object *room = body->PickObject("here", LOC_HERE);
 	trigs.clear();
-	if(room) trigs = room->PickObjects("tbaMUD trigger script",
+	if(room) trigs = room->PickObjects("all tbaMUD trigger script",
 		LOC_NINJA|LOC_INTERNAL);
 	trig = trigs.begin();
 	for(; trig != trigs.end(); ++trig) {
