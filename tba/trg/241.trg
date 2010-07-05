@@ -591,9 +591,9 @@ else
   eval number %random.20%
   switch %number%
     case 1
-      if %self.vnum% == 24106 && %self.inventory(24111)%
+      if %self.vnum% == 24106 && %actor.inventory(24111)%
         play flute
-      elseif if %self.vnum% == 24105 && %self.inventory(24112)%
+      elseif if %self.vnum% == 24105 && %actor.inventory(24112)%
         play trombone
       end
     break
