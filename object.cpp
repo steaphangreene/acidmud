@@ -1526,11 +1526,20 @@ void Object::SendStats(Mind *m, Object *o) {
     if((sk = Skill("Hardness")) > 0) {
       m->SendF("  Hardness: %d.%.3d\n", sk/1000, sk%1000);
       }
+    if((sk = Skill("Flexibility")) > 0) {
+      m->SendF("  Flexibility: %d.%.3d\n", sk/1000, sk%1000);
+      }
     if((sk = Skill("Sharpness")) > 0) {
       m->SendF("  Sharpness: %d.%.3d\n", sk/1000, sk%1000);
       }
-    if((sk = Skill("Flexibility")) > 0) {
-      m->SendF("  Flexibility: %d.%.3d\n", sk/1000, sk%1000);
+    if((sk = Skill("Distance")) > 0) {
+      m->SendF("  Pen. Dist: %d.%.3dm\n", sk/1000, sk%1000);
+      }
+    if((sk = Skill("Width")) > 0) {
+      m->SendF("  Pen. Width: %d.%.3dm\n", sk/1000, sk%1000);
+      }
+    if((sk = Skill("Ratio")) > 0) {
+      m->SendF("  Pen. Ratio: %d.%.3d\n", sk/1000, sk%1000);
       }
     if((sk = Skill("Hit Weight")) > 0) {
       m->SendF("  Hit Weight: %d.%.3d\n", sk/1000, sk%1000);
