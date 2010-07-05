@@ -1488,31 +1488,8 @@ void Object::SendStats(Mind *m, Object *o) {
 
   m->Send("\n");
 
-  if(HasSkill("WeaponType") && HasSkill("WeaponReach")) {
-    static char sevs[] = { '-', 'L', 'M', 'S', 'D' };
-    m->Send(CGRN "Weapon Stats [Wet Noodle]:\n" CNRM);
-
-    m->SendF("  Skill: %s\n",
-	get_weapon_skill(Skill("WeaponType")).c_str()
-	);
-
-    m->SendF("  Damage: (Str+%d)%c",
-	Skill("WeaponForce"), sevs[MIN(4, Skill("WeaponSeverity"))]
-	);
-    if(Skill("WeaponSeverity") > 4) {
-      m->SendF("%d", (Skill("WeaponSeverity")-4)*2);
-      }
-    m->Send("\n");
-
-    if(Skill("WeaponReach") > 4) {
-      m->SendF("  Range: %d\n", Skill("WeaponReach"));
-      }
-    else if(Skill("WeaponReach") >= 0) {
-      m->SendF("  Reach: %d\n", Skill("WeaponReach"));
-      }
-    }
-
-  if(HasSkill("WeaponType") && HasSkill("Reach")) {
+  if(HasSkill("WeaponType")) {
+	//Detailed Weapon Stats
     m->Send(CGRN "Weapon Stats [Compligimicated]:\n" CNRM);
 
     m->SendF("  Skill: %s\n",
@@ -1579,6 +1556,29 @@ void Object::SendStats(Mind *m, Object *o) {
       }
     if((sk = Skill("Multiple")) > 1) {
       m->SendF("  Multiple: %d\n", sk);
+      }
+
+	//Old-Style (Shadowrun) Weapon Stats
+    static char sevs[] = { '-', 'L', 'M', 'S', 'D' };
+    m->Send(CGRN "Weapon Stats [Wet Noodle]:\n" CNRM);
+
+    m->SendF("  Skill: %s\n",
+	get_weapon_skill(Skill("WeaponType")).c_str()
+	);
+
+    m->SendF("  Damage: (Str+%d)%c",
+	Skill("WeaponForce"), sevs[MIN(4, Skill("WeaponSeverity"))]
+	);
+    if(Skill("WeaponSeverity") > 4) {
+      m->SendF("%d", (Skill("WeaponSeverity")-4)*2);
+      }
+    m->Send("\n");
+
+    if(Skill("WeaponReach") > 4) {
+      m->SendF("  Range: %d\n", Skill("WeaponReach"));
+      }
+    else if(Skill("WeaponReach") >= 0) {
+      m->SendF("  Reach: %d\n", Skill("WeaponReach"));
       }
     }
 
