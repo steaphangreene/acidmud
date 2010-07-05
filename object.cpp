@@ -1425,7 +1425,7 @@ void Object::SendScore(Mind *m, Object *o) {
 	);
       }
     else if(ctr == 5) {
-      m->SendF("  Sex: %c, %d.%.3dkg, %d.%.3dm, %dv, %dY\n\n",
+      m->SendF("  Sex: %c, %d.%.3dkg, %d.%.3dm, %dv, %dY\n",
 	gender, weight / 1000, weight % 1000,
 	size / 1000, size % 1000, volume, value
 	);
@@ -1440,7 +1440,7 @@ void Object::SendScore(Mind *m, Object *o) {
   list<string> col1;
   list<string>::iterator c1;
 
-  if(HasSkill("Durability")) {	//Weapon/Armor
+  if(BaseAttribute(1) <= 0) {	//Inanimate
     col1 = FormatStats();
     }
   else {
@@ -1469,6 +1469,34 @@ void Object::SendScore(Mind *m, Object *o) {
     m->Send("\n");
     }
 
+  for(act_t act = ACT_MAX; act < ACT_SPECIAL_MAX; act = act_t(int(act)+1)) {
+    if(ActTarg(act)) {
+      m->SendF(CGRN "  %s -> %s\n" CNRM, act_str[act], ActTarg(act)->Name());
+      }
+    else if(IsAct(act)) {
+      m->SendF(CGRN "  %s\n" CNRM, act_str[act]);
+      }
+    }
+
+  if(IsActive()) m->Send(CCYN "  ACTIVE\n" CNRM);
+
+  set<Mind*>::iterator mind;
+  for(mind = minds.begin(); mind != minds.end(); ++mind) {
+    if((*mind)->Owner()) {
+      m->SendF(CBLU "->Player Connected: %s (%d exp)\n" CNRM,
+	(*mind)->Owner()->Name(), (*mind)->Owner()->Exp());
+      }
+    else if((*mind) == get_mob_mind()) {
+      m->Send(CBLU "->MOB_MIND\n" CNRM);
+      }
+    else if((*mind) == get_tba_mob_mind()) {
+      m->Send(CBLU "->TBA_MOB_MIND\n" CNRM);
+      }
+    else if((*mind)->Type() == MIND_TBATRIG) {
+      m->Send(CBLU "->TBA_TRIGGER\n" CNRM);
+      }
+    }
+
   if(Attribute(1) > 0) {
     m->Send(CYEL);
     m->SendF("\nEarned Exp: %4d  Player Exp: %4d  Unspent Exp: %4d\n", exp,
@@ -1480,11 +1508,6 @@ void Object::SendScore(Mind *m, Object *o) {
 	);
       }
     m->Send(CNRM);
-    }
-  else {
-    m->SendF(CYEL "\n  Light Level: %d (%d)\n" CNRM,
-	Skill("Light Source"), LightLevel()
-	);
     }
   }
 
@@ -1598,32 +1621,22 @@ list<string> Object::FormatStats() {
     stick_on(ret, this, "Strength Required", "Str Req");
     }
 
-  for(act_t act = ACT_MAX; act < ACT_SPECIAL_MAX; act = act_t(int(act)+1)) {
-    buf[0] = 0;
-    if(ActTarg(act)) sprintf(buf, "  %s -> %s", act_str[act], ActTarg(act)->Name());
-    else if(IsAct(act)) sprintf(buf, "  %s", act_str[act]);
-    if(buf[0]) ret.push_back(buf);
+  ret.push_back(CYEL CNRM);	//Leave a blank line between weap/arm and gen
+
+  //Other Misc Stats
+  if(HasSkill("Light Source")) {
+    sprintf(buf, CYEL "  Light Level: %d (%d)" CNRM,
+	Skill("Light Source"), LightLevel()
+	);
+    ret.push_back(buf);
+    }
+  if(HasSkill("Cursed")) {
+    sprintf(buf, CRED "  Cursed: %d" CNRM, Skill("Cursed"));
+    ret.push_back(buf);
     }
 
-  if(IsActive()) ret.push_back("  ACTIVE");
+  if(ret.back() != CYEL CNRM) ret.pop_back();	//Make sure last line is blank
 
-  set<Mind*>::iterator mind;
-  for(mind = minds.begin(); mind != minds.end(); ++mind) {
-    if((*mind)->Owner()) {
-      sprintf(buf, "->Player Connected: %s (%d exp)",
-	(*mind)->Owner()->Name(), (*mind)->Owner()->Exp());
-      ret.push_back(buf);
-      }
-    else if((*mind) == get_mob_mind()) {
-      ret.push_back("->MOB_MIND");
-      }
-    else if((*mind) == get_tba_mob_mind()) {
-      ret.push_back("->TBA_MOB_MIND");
-      }
-    else if((*mind)->Type() == MIND_TBATRIG) {
-      ret.push_back("->TBA_TRIGGER");
-      }
-    }
   return ret;
   }
 
