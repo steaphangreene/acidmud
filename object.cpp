@@ -1488,18 +1488,89 @@ void Object::SendStats(Mind *m, Object *o) {
 
   m->Send("\n");
 
-  if(HasSkill("WeaponType")) {
+  if(HasSkill("WeaponType") && HasSkill("WeaponReach")) {
     static char sevs[] = { '-', 'L', 'M', 'S', 'D' };
-    m->SendF("    %s: (Str+%d)%c",
-	get_weapon_skill(Skill("WeaponType")).c_str(),
-	Skill("WeaponForce"), sevs[MIN(4, Skill("WeaponSeverity"))]);
-    if(Skill("WeaponSeverity") > 4)
+    m->Send(CGRN "Weapon Stats [Wet Noodle]:\n" CNRM);
+
+    m->SendF("  Skill: %s\n",
+	get_weapon_skill(Skill("WeaponType")).c_str()
+	);
+
+    m->SendF("  Damage: (Str+%d)%c",
+	Skill("WeaponForce"), sevs[MIN(4, Skill("WeaponSeverity"))]
+	);
+    if(Skill("WeaponSeverity") > 4) {
       m->SendF("%d", (Skill("WeaponSeverity")-4)*2);
-    if(Skill("WeaponReach") > 4)
-      m->SendF("  Range: %d", Skill("WeaponReach"));
-    else if(Skill("WeaponReach") >= 0)
-      m->SendF("  Reach: %d", Skill("WeaponReach"));
+      }
     m->Send("\n");
+
+    if(Skill("WeaponReach") > 4) {
+      m->SendF("  Range: %d\n", Skill("WeaponReach"));
+      }
+    else if(Skill("WeaponReach") >= 0) {
+      m->SendF("  Reach: %d\n", Skill("WeaponReach"));
+      }
+    }
+
+  if(HasSkill("WeaponType") && HasSkill("Reach")) {
+    m->Send(CGRN "Weapon Stats [Compligimicated]:\n" CNRM);
+
+    m->SendF("  Skill: %s\n",
+	get_weapon_skill(Skill("WeaponType")).c_str()
+	);
+
+    int sk;
+    if((sk = Skill("Durability")) > 0) {
+      m->SendF("  Durability: %d.%.3d\n", sk/1000, sk%1000);
+      }
+    if((sk = Skill("Hardness")) > 0) {
+      m->SendF("  Hardness: %d.%.3d\n", sk/1000, sk%1000);
+      }
+    if((sk = Skill("Sharpness")) > 0) {
+      m->SendF("  Sharpness: %d.%.3d\n", sk/1000, sk%1000);
+      }
+    if((sk = Skill("Flexibility")) > 0) {
+      m->SendF("  Flexibility: %d.%.3d\n", sk/1000, sk%1000);
+      }
+    if((sk = Skill("Hit Weight")) > 0) {
+      m->SendF("  Hit Weight: %d.%.3d\n", sk/1000, sk%1000);
+      }
+    if((sk = Skill("Velocity")) > 0) {
+      m->SendF("  Velocity: %d.%.3d\n", sk/1000, sk%1000);
+      }
+    if((sk = Skill("Leverage")) > 0) {
+      m->SendF("  Leverage: %d.%.3d\n", sk/1000, sk%1000);
+      }
+    if((sk = Skill("Burn")) > 0) {
+      m->SendF("  Burn: %d.%.3d\n", sk/1000, sk%1000);
+      }
+    if((sk = Skill("Zap")) > 0) {
+      m->SendF("  Zap: %d.%.3d\n", sk/1000, sk%1000);
+      }
+    if((sk = Skill("Concuss")) > 0) {
+      m->SendF("  Concuss: %d.%.3d\n", sk/1000, sk%1000);
+      }
+    if((sk = Skill("Flash")) > 0) {
+      m->SendF("  Flash: %d.%.3d\n", sk/1000, sk%1000);
+      }
+    if((sk = Skill("Bang")) > 0) {
+      m->SendF("  Bang: %d.%.3d\n", sk/1000, sk%1000);
+      }
+    if((sk = Skill("Irradiate")) > 0) {
+      m->SendF("  Irradiate: %d.%.3d\n", sk/1000, sk%1000);
+      }
+    if((sk = Skill("Reach")) > 0) {
+      m->SendF("  Reach: %d.%.3dm\n", sk/1000, sk%1000);
+      }
+    if((sk = Skill("Range")) > 0) {
+      m->SendF("  Range: %d.%.3dm\n", sk/1000, sk%1000);
+      }
+    if((sk = Skill("Strength Required")) > 0) {
+      m->SendF("  Str Req: %d\n", sk/1000);
+      }
+    if((sk = Skill("Multiple")) > 1) {
+      m->SendF("  Multiple: %d\n", sk);
+      }
     }
 
   for(act_t act = ACT_MAX; act < ACT_SPECIAL_MAX; act = act_t(int(act)+1)) {
