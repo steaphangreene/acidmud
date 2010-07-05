@@ -1520,9 +1520,9 @@ static void stick_on(list<string> &out, Object *obj,
 list<string> Object::FormatStats() {
   list<string> ret;
 
-  if(HasSkill("WeaponType")) {
+  if(HasSkill("WeaponType")) {	//It's a Weapon
 	//Detailed Weapon Stats
-    ret.push_back("  Skill: " CYEL
+    ret.push_back("Weapon: " CYEL
 	+ get_weapon_skill(Skill("WeaponType")) + CNRM
 	);
     stick_on(ret, this, "Durability", "Durability");
@@ -1536,6 +1536,7 @@ list<string> Object::FormatStats() {
     stick_on(ret, this, "Velocity", "Velocity");
     stick_on(ret, this, "Leverage", "Leverage");
     stick_on(ret, this, "Burn", "Burn");
+    stick_on(ret, this, "Chill", "Chill");
     stick_on(ret, this, "Zap", "Zap");
     stick_on(ret, this, "Concuss", "Concuss");
     stick_on(ret, this, "Flash", "Flash");
@@ -1543,7 +1544,7 @@ list<string> Object::FormatStats() {
     stick_on(ret, this, "Irradiate", "Irradiate");
     stick_on(ret, this, "Reach", "Reach");
     stick_on(ret, this, "Range", "Range");
-    stick_on(ret, this, "Strength Required ", "Str Req");
+    stick_on(ret, this, "Strength Required", "Str Req");
     stick_on(ret, this, "Multiple", "Multiple");
 
     ret.push_back(CYEL CNRM);	//Leave a blank line between new and old
@@ -1573,6 +1574,28 @@ list<string> Object::FormatStats() {
       sprintf(buf, "  Reach: " CYEL "%d" CNRM, Skill("WeaponReach"));
       ret.push_back(buf);
       }
+    }
+  if(HasSkill("Thickness")) {	//It's Armor (or just Clothing)
+    //stick_on(ret, this, "Coverage", "Coverage");
+    stick_on(ret, this, "Durability", "Durability");
+    stick_on(ret, this, "Hardness", "Hardness");
+    stick_on(ret, this, "Flexibility", "Flexibility");
+    stick_on(ret, this, "Sharpness", "Sharpness");
+    stick_on(ret, this, "Thickness", "Thickness");
+    stick_on(ret, this, "Max Gap", "Max Gap");
+    stick_on(ret, this, "Min Gap", "Min Gap");
+    stick_on(ret, this, "Hit Weight", "Hit Weight");
+    stick_on(ret, this, "Ballistic", "Ballistic");
+    stick_on(ret, this, "Bulk", "Bulk");
+    stick_on(ret, this, "Warm", "Warm");
+    stick_on(ret, this, "Reflect", "Reflect");
+    stick_on(ret, this, "Insulate", "Insulate");
+    stick_on(ret, this, "Padding", "Padding");
+    stick_on(ret, this, "Shade", "Shade");
+    stick_on(ret, this, "Muffle", "Muffle");
+    stick_on(ret, this, "Shielding", "Shielding");
+    stick_on(ret, this, "Defense Range", "Def Range");
+    stick_on(ret, this, "Strength Required", "Str Req");
     }
 
   for(act_t act = ACT_MAX; act < ACT_SPECIAL_MAX; act = act_t(int(act)+1)) {
