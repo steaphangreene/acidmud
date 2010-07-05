@@ -60,6 +60,11 @@ public:
   int Status() const;
   void ClearStatus();
 
+  void SetSVar(const string &var, const string &val);
+  void ClearSVar(const string &var);
+  const string &SVar(const string &var);
+  int IsSVar(const string &var);
+
 private:
   int TBACanWanderTo(Object *dest);
 

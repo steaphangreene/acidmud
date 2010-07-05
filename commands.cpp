@@ -409,6 +409,12 @@ Command comlist[1024] = {
     (REQ_ALERT|REQ_ACTION)
     },
 
+  { COM_TOGGLE, "toggle",
+    "Turn options on and off, or show current options setting.",
+    "Turn options on and off, or show current options setting.",
+    (REQ_ANY)
+    },
+
   { COM_WHO, "who",
     "Get a list of who is on the MUD right now.",
     "Get a list of who is on the MUD right now.",
@@ -5309,6 +5315,37 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     mind->Send(skills.c_str());
 
+    return 0;
+    }
+
+  if(com == COM_TOGGLE) {
+    if(!mind) return 0;
+
+    if(!comline[0]) {
+      mind->Send("Your current settings:\n");
+
+      if(mind->IsSVar("combatinfo")) {
+	mind->Send("  CombatInfo is " CYEL "on" CNRM ".\n");
+	}
+      else {
+	mind->Send("  CombatInfo is " CYEL "off" CNRM ".\n");
+	}
+
+      }
+    else if(!strncasecmp(cmd.c_str(), "combatinfo", cmd.length())) {
+      if(mind->IsSVar("combatinfo")) {
+	mind->ClearSVar("combatinfo");
+	mind->Send("  CombatInfo is now " CYEL "off" CNRM ".\n");
+	}
+      else {
+	mind->SetSVar("combatinfo", "1");
+	mind->Send("  CombatInfo is now " CYEL "on" CNRM ".\n");
+	}
+      }
+    else {
+      mind->Send("Don't know what setting you want to change.\n");
+      mind->Send("Just type " CYEL "toggle" CNRM " to see a full list.\n");
+      }
     return 0;
     }
 

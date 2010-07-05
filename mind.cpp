@@ -2885,3 +2885,22 @@ int Mind::Status() const {
 void Mind::ClearStatus() {
   status = 0;
   }
+
+static const string blank = "";
+void Mind::SetSVar(const string &var, const string &val) {
+  svars[var] = val;
+  }
+
+void Mind::ClearSVar(const string &var) {
+  svars.erase(var);
+  }
+
+const string &Mind::SVar(const string &var) {
+  if(svars.count(var) <= 0) return blank;
+  return svars[var];
+  }
+
+int Mind::IsSVar(const string &var) {
+  return (svars.count(var) > 0);
+  }
+
