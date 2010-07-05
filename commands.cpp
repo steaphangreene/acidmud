@@ -858,7 +858,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
   cmd = cmd.substr(len);
   trim_string(cmd);
 
-  if((!nmode) && body && body->Parent()) {
+  if((!nmode) && com != COM_RECALL && body && body->Parent()) {
     list<Object *> items = body->PickObjects(
 		"everything", LOC_INTERNAL|LOC_NEARBY);
     list<Object *> mobs = body->PickObjects("everyone", LOC_NEARBY);
