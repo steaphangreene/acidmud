@@ -1240,7 +1240,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  }
 	}
 
-      int newworld = (body->World() != dest->World());
+      int newworld = (body->World() != rdest->World());
       if(dest->ActTarg(ACT_SPECIAL_LINKED)
 		&& dest->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
 	body->Parent()->SendOut(stealth_t, stealth_s, ";s leaves ;s.\n", "", body, dest);
