@@ -2592,7 +2592,7 @@ void Mind::Think(int istick) {
     else if(body && body->ActTarg(ACT_WEAR_SHIELD) && body->ActTarg(ACT_HOLD)
 	&& body->ActTarg(ACT_WEAR_SHIELD) != body->ActTarg(ACT_HOLD)) {
       Object *targ = body->ActTarg(ACT_HOLD);
-      if(body->Stash(targ)) {
+      if(body->Stash(targ, 0)) {
 	if(body->Parent())
 	  body->Parent()->SendOut(ALL, 0, ";s stashes ;s.\n", "", body, targ);
 	string command = string("hold ") + body->ActTarg(ACT_WEAR_SHIELD)->ShortDesc();
