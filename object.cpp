@@ -1434,34 +1434,39 @@ void Object::SendScore(Mind *m, Object *o) {
     }
 
   map<string,int> skills = GetSkills();
-  map<string,int> sks;
   map<string,int>::iterator skl;
   map<string,int> nsks;
   map<string,int>::iterator nskl;
+  list<string> col1;
+  list<string>::iterator c1;
 
-  if(!HasSkill("WeaponType")) {
-    for(skl = skills.begin(); skl != skills.end(); ++skl) {
-      if(is_skill(skl->first)) sks[skl->first] = skl->second;
-      else nsks[skl->first] = skl->second;
+  if(HasSkill("Durability")) {	//Weapon/Armor
+    col1 = FormatStats();
+    }
+  else {
+    col1 = FormatSkills();
+    }
+
+  for(skl = skills.begin(); skl != skills.end(); ++skl) {
+    if(!is_skill(skl->first)) nsks[skl->first] = skl->second;
+    }
+  c1 = col1.begin();
+  nskl = nsks.begin();
+  while(nskl != nsks.end() || c1 != col1.end()) {
+    if(c1 != col1.end()) {
+      m->SendF("%41s ", c1->c_str());	//Note: 41 is 32 (2 Color Escape Codes)
+      ++c1;
       }
-    skl = sks.begin();
-    nskl = nsks.begin();
-    while(nskl != nsks.end() || skl != sks.end()) {
-      if(skl != sks.end()) {
-	m->SendF("%28s: %2d ", skl->first.c_str(), MIN(99, skl->second));
-	++skl;
-	}
-      else {
-	m->SendF("%28s     ", " ");
-	}
-
-      if(nskl != nsks.end()) {
-	m->SendF("%28s: %8d", nskl->first.c_str(), nskl->second);
-	++nskl;
-	}
-
-      m->Send("\n");
+    else {
+      m->SendF("%32s ", "");
       }
+
+    if(nskl != nsks.end()) {
+      m->SendF("%28s: %8d", nskl->first.c_str(), nskl->second);
+      ++nskl;
+      }
+
+    m->Send("\n");
     }
 
   if(Attribute(1) > 0) {
@@ -1477,135 +1482,126 @@ void Object::SendScore(Mind *m, Object *o) {
     m->Send(CNRM);
     }
   else {
-    m->SendF(CYEL "\n  Light Level: %d (%d)",
+    m->SendF(CYEL "\n  Light Level: %d (%d)\n" CNRM,
 	Skill("Light Source"), LightLevel()
 	);
     }
   }
 
-void Object::SendStats(Mind *m, Object *o) {
-  if(!m) return;
+list<string> Object::FormatSkills() {
+  list<string> ret;
 
-  m->Send("\n");
+  map<string,int> skills = GetSkills();
+  map<string,int>::iterator skl;
+
+  for(skl = skills.begin(); skl != skills.end(); ++skl) {
+    if(is_skill(skl->first)) {
+      char buf[256];
+      sprintf(buf, "%28s: " CYEL "%2d" CNRM,
+	skl->first.c_str(), MIN(99, skl->second)
+	);
+      ret.push_back(buf);
+      }
+    }
+  return ret;
+  }
+
+static void stick_on(list<string> &out, Object *obj,
+	const char *skn, const char *label
+	) {
+  int sk;
+  char buf[256];
+  if((sk = obj->Skill(skn)) > 0) {
+    sprintf(buf, "  %18s: " CYEL "%d.%.3d" CNRM, label, sk/1000, sk%1000);
+    out.push_back(buf);
+    }
+  }
+
+list<string> Object::FormatStats() {
+  list<string> ret;
 
   if(HasSkill("WeaponType")) {
 	//Detailed Weapon Stats
-    m->Send(CGRN "Weapon Stats [Compligimicated]:\n" CNRM);
-
-    m->SendF("  Skill: %s\n",
-	get_weapon_skill(Skill("WeaponType")).c_str()
+    ret.push_back("  Skill: " CYEL
+	+ get_weapon_skill(Skill("WeaponType")) + CNRM
 	);
+    stick_on(ret, this, "Durability", "Durability");
+    stick_on(ret, this, "Hardness", "Hardness");
+    stick_on(ret, this, "Flexibility", "Flexibility");
+    stick_on(ret, this, "Sharpness", "Sharpness");
+    stick_on(ret, this, "Distance", "Pen. Dist");
+    stick_on(ret, this, "Width", "Pen. Width");
+    stick_on(ret, this, "Ratio", "Pen. Ratio");
+    stick_on(ret, this, "Hit Weight", "Hit Weight");
+    stick_on(ret, this, "Velocity", "Velocity");
+    stick_on(ret, this, "Leverage", "Leverage");
+    stick_on(ret, this, "Burn", "Burn");
+    stick_on(ret, this, "Zap", "Zap");
+    stick_on(ret, this, "Concuss", "Concuss");
+    stick_on(ret, this, "Flash", "Flash");
+    stick_on(ret, this, "Bang", "Bang");
+    stick_on(ret, this, "Irradiate", "Irradiate");
+    stick_on(ret, this, "Reach", "Reach");
+    stick_on(ret, this, "Range", "Range");
+    stick_on(ret, this, "Strength Required ", "Str Req");
+    stick_on(ret, this, "Multiple", "Multiple");
 
-    int sk;
-    if((sk = Skill("Durability")) > 0) {
-      m->SendF("  Durability: %d.%.3d\n", sk/1000, sk%1000);
-      }
-    if((sk = Skill("Hardness")) > 0) {
-      m->SendF("  Hardness: %d.%.3d\n", sk/1000, sk%1000);
-      }
-    if((sk = Skill("Flexibility")) > 0) {
-      m->SendF("  Flexibility: %d.%.3d\n", sk/1000, sk%1000);
-      }
-    if((sk = Skill("Sharpness")) > 0) {
-      m->SendF("  Sharpness: %d.%.3d\n", sk/1000, sk%1000);
-      }
-    if((sk = Skill("Distance")) > 0) {
-      m->SendF("  Pen. Dist: %d.%.3dm\n", sk/1000, sk%1000);
-      }
-    if((sk = Skill("Width")) > 0) {
-      m->SendF("  Pen. Width: %d.%.3dm\n", sk/1000, sk%1000);
-      }
-    if((sk = Skill("Ratio")) > 0) {
-      m->SendF("  Pen. Ratio: %d.%.3d\n", sk/1000, sk%1000);
-      }
-    if((sk = Skill("Hit Weight")) > 0) {
-      m->SendF("  Hit Weight: %d.%.3d\n", sk/1000, sk%1000);
-      }
-    if((sk = Skill("Velocity")) > 0) {
-      m->SendF("  Velocity: %d.%.3d\n", sk/1000, sk%1000);
-      }
-    if((sk = Skill("Leverage")) > 0) {
-      m->SendF("  Leverage: %d.%.3d\n", sk/1000, sk%1000);
-      }
-    if((sk = Skill("Burn")) > 0) {
-      m->SendF("  Burn: %d.%.3d\n", sk/1000, sk%1000);
-      }
-    if((sk = Skill("Zap")) > 0) {
-      m->SendF("  Zap: %d.%.3d\n", sk/1000, sk%1000);
-      }
-    if((sk = Skill("Concuss")) > 0) {
-      m->SendF("  Concuss: %d.%.3d\n", sk/1000, sk%1000);
-      }
-    if((sk = Skill("Flash")) > 0) {
-      m->SendF("  Flash: %d.%.3d\n", sk/1000, sk%1000);
-      }
-    if((sk = Skill("Bang")) > 0) {
-      m->SendF("  Bang: %d.%.3d\n", sk/1000, sk%1000);
-      }
-    if((sk = Skill("Irradiate")) > 0) {
-      m->SendF("  Irradiate: %d.%.3d\n", sk/1000, sk%1000);
-      }
-    if((sk = Skill("Reach")) > 0) {
-      m->SendF("  Reach: %d.%.3dm\n", sk/1000, sk%1000);
-      }
-    if((sk = Skill("Range")) > 0) {
-      m->SendF("  Range: %d.%.3dm\n", sk/1000, sk%1000);
-      }
-    if((sk = Skill("Strength Required")) > 0) {
-      m->SendF("  Str Req: %d\n", sk/1000);
-      }
-    if((sk = Skill("Multiple")) > 1) {
-      m->SendF("  Multiple: %d\n", sk);
-      }
+    ret.push_back(CYEL CNRM);	//Leave a blank line between new and old
+				//Must include color escapes for formatting
 
 	//Old-Style (Shadowrun) Weapon Stats
     static char sevs[] = { '-', 'L', 'M', 'S', 'D' };
-    m->Send(CGRN "Weapon Stats [Wet Noodle]:\n" CNRM);
-
-    m->SendF("  Skill: %s\n",
-	get_weapon_skill(Skill("WeaponType")).c_str()
+    ret.push_back("  Skill: " CYEL
+	+ get_weapon_skill(Skill("WeaponType")) + CNRM
 	);
 
-    m->SendF("  Damage: (Str+%d)%c",
+    char buf[256];
+    sprintf(buf, "  Damage: " CYEL "(Str+%d)%c",
 	Skill("WeaponForce"), sevs[MIN(4, Skill("WeaponSeverity"))]
 	);
     if(Skill("WeaponSeverity") > 4) {
-      m->SendF("%d", (Skill("WeaponSeverity")-4)*2);
+      sprintf(buf+strlen(buf), "%d", (Skill("WeaponSeverity")-4)*2);
       }
-    m->Send("\n");
+    strcat(buf, CNRM);
+    ret.push_back(buf);
 
     if(Skill("WeaponReach") > 4) {
-      m->SendF("  Range: %d\n", Skill("WeaponReach"));
+      sprintf(buf, "  Range: " CYEL "%d" CNRM, Skill("WeaponReach"));
+      ret.push_back(buf);
       }
     else if(Skill("WeaponReach") >= 0) {
-      m->SendF("  Reach: %d\n", Skill("WeaponReach"));
+      sprintf(buf, "  Reach: " CYEL "%d" CNRM, Skill("WeaponReach"));
+      ret.push_back(buf);
       }
     }
 
   for(act_t act = ACT_MAX; act < ACT_SPECIAL_MAX; act = act_t(int(act)+1)) {
-    if(ActTarg(act)) m->SendF("  %s -> %s\n", act_str[act], ActTarg(act)->Name());
-    else if(IsAct(act)) m->SendF("  %s\n", act_str[act]);
+    buf[0] = 0;
+    if(ActTarg(act)) sprintf(buf, "  %s -> %s", act_str[act], ActTarg(act)->Name());
+    else if(IsAct(act)) sprintf(buf, "  %s", act_str[act]);
+    if(buf[0]) ret.push_back(buf);
     }
 
-  if(IsActive()) m->Send("  ACTIVE\n");
+  if(IsActive()) ret.push_back("  ACTIVE");
 
   set<Mind*>::iterator mind;
   for(mind = minds.begin(); mind != minds.end(); ++mind) {
     if((*mind)->Owner()) {
-      m->SendF("->Player Connected: %s (%d exp)\n",
+      sprintf(buf, "->Player Connected: %s (%d exp)",
 	(*mind)->Owner()->Name(), (*mind)->Owner()->Exp());
+      ret.push_back(buf);
       }
     else if((*mind) == get_mob_mind()) {
-      m->Send("->MOB_MIND\n");
+      ret.push_back("->MOB_MIND");
       }
     else if((*mind) == get_tba_mob_mind()) {
-      m->Send("->TBA_MOB_MIND\n");
+      ret.push_back("->TBA_MOB_MIND");
       }
     else if((*mind)->Type() == MIND_TBATRIG) {
-      m->Send("->TBA_TRIGGER\n");
+      ret.push_back("->TBA_TRIGGER");
       }
     }
-  m->Send(CNRM);
+  return ret;
   }
 
 void Object::AddLink(Object *ob) {

@@ -2292,7 +2292,6 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	targ->SendActions(mind);
 	mind->Send(CNRM);
 	targ->SendScore(mind, body);
-	targ->SendStats(mind, body);
 	}
       }
     if(targ && body && targ != body && targ != body->Parent()) {
@@ -4261,7 +4260,6 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	targ->SendActions(mind);
 	mind->Send(CNRM);
 	targ->SendScore(mind, body);
-	targ->SendStats(mind, body);
 	}
       }
 

@@ -149,7 +149,8 @@ public:
   void SendLongDesc(Mind *m, Object *o = NULL);
   void SendLongDesc(Object *m, Object *o = NULL);
   void SendScore(Mind *m, Object *o = NULL);
-  void SendStats(Mind *m, Object *o = NULL);
+  list<string> FormatStats();
+  list<string> FormatSkills();
 
   void Link(Object *other, const string &name, const string &desc,
         const string &oname, const string &odesc);
