@@ -1240,6 +1240,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  }
 	}
 
+      int newworld = (body->World() != dest->World());
       if(dest->ActTarg(ACT_SPECIAL_LINKED)
 		&& dest->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
 	body->Parent()->SendOut(stealth_t, stealth_s, ";s leaves ;s.\n", "", body, dest);
@@ -1267,6 +1268,11 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  mind->SendF("You enter %s\n", comline+len);
 	  }
 
+	if(newworld) {
+	  mind->SendF(CMAG "You have entered: %s\n" CNRM,
+	    body->World()->ShortDesc()
+	    );
+	  }
 	if(stealth_t > 0) {
 	  body->SetSkill("Hidden", body->Roll("Stealth", 2) * 2);
 	  }
