@@ -6002,7 +6002,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     if(!mind) return 0;
     while((!isgraph(comline[len])) && (comline[len])) ++len;
     Object *targ
-	= body->PickObject(comline+len, vmode|LOC_NEARBY|LOC_INTERNAL);
+	= body->PickObject(comline+len, vmode|LOC_NEARBY|LOC_INTERNAL|LOC_SELF);
     if(!targ) {
       mind->Send("You want to clone what?\n");
       }
