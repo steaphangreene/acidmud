@@ -742,10 +742,6 @@ com_t identify_command(const string &str) {
 	&& (!strncasecmp(str.c_str(), "empty", MAX(len,3)))) {
       return comlist[ctr].id;
       }
-    if(comlist[ctr].id == COM_CHARACTERS
-	&& (!strncasecmp(str.c_str(), "chars", MAX(len, 5)))) {
-      return comlist[ctr].id;
-      }
     if(comlist[ctr].id == COM_GET
 	&& (!strncasecmp(str.c_str(), "take", MAX(len, 1)))) {
       return comlist[ctr].id;
@@ -838,10 +834,6 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	&& (!strncasecmp(comline, "empty", MAX(len,3)))) {
       com = comlist[ctr].id; cnum = ctr; break;
       }
-    if(comlist[ctr].id == COM_CHARACTERS
-	&& (!strncasecmp(comline, "chars", MAX(len, 5)))) {
-      com = comlist[ctr].id; cnum = ctr; break;
-      }
     if(comlist[ctr].id == COM_GET
 	&& (!strncasecmp(comline, "take", MAX(len, 1)))) {
       com = comlist[ctr].id; cnum = ctr; break;
@@ -852,6 +844,10 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     for(int ctr=0; comlist[ctr].id != COM_NONE; ++ctr) {
       if(!strncasecmp(comline, comlist[ctr].command, len))
 	{ com = comlist[ctr].id; cnum = ctr; break; }
+      if(comlist[ctr].id == COM_CHARACTERS
+		&& (!strncasecmp(comline, "chars", MAX(len, 5)))) {
+	com = comlist[ctr].id; cnum = ctr; break;
+	}
       }
     }
 
