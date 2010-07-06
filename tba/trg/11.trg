@@ -583,7 +583,7 @@ end
 test room dirs~
 1 c 2
 test2~
-eval here %%actor.%here%%
+eval here %%actor.%here%%%
 %echo% here is %here%
 if %here.east%
   eval eastexit %here.east(vnum)%
@@ -591,7 +591,7 @@ if %here.east%
   if !(%check.contains(%eastexit%)%)
     if !(%actor.varexists(%eastexit%)%)
       if %actor.varexists(%here%)%
-        eval path %%actor.%here%%
+        eval path %%actor.%here%%%
         if !(%path% == here)
           eval %eastexit% %path% e
         else
@@ -627,7 +627,7 @@ if %here.west%
   if !(%check.contains(%westexit%)%)
     if !(%actor.varexists(%westexit%)%)
       if %actor.varexists(%here%)%
-        eval path %%actor.%here%%
+        eval path %%actor.%here%%%
         eval path %path.trim%
         if !(%path% == here)
           eval %westexit% %path% w
@@ -727,7 +727,7 @@ test~
 testing findobj~
 2 c 100
 test~
-eval here %%findobj.%self.vnum%(xxtree)%%%
+eval here %%findobj.%self.vnum%(xxtree)%%
 if %here% > 0
   %purge% xxtree
 end
