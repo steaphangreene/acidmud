@@ -1,10 +1,13 @@
+Implement various types of armor, weapons and damage.
 Do 3-layer armor system.
-Implement various types of armor and damage.
-Show armor messages in ninja display.
+Show armor/weapon/hit/miss messages in ninja display.
 Translate circle armor to various armor types.
+Translate circle weapons to various armor types.
+
+Handle Multiple Weapon Types (eg: Bastard Swords).
+
 Refine the fudging of circle MOBs' stats (Better AC Handling, Natural Armor).
 Natural Armor.
-Handle Multiple Weapon Types (eg: Bastard Swords).
 
 Re-enable full introduction system?
 Fully understand visibility and cut messages accordingly.
