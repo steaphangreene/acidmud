@@ -2449,17 +2449,17 @@ void Object::Collapse() {
       parent->SendOut(ALL, -1, ";s collapses!\n", "You collapse!\n", this, NULL);
       pos = POS_LIE;
       }
-    if(IsAct(ACT_WIELD)) {
+    if(ActTarg(ACT_WIELD)) {
       parent->SendOutF(ALL, -1, ";s drops %s!\n", "You drop %s!\n",
 		this, NULL, ActTarg(ACT_WIELD)->ShortDesc());
       ActTarg(ACT_WIELD)->Travel(parent);
       }
-    if(IsAct(ACT_HOLD) && ActTarg(ACT_HOLD) != ActTarg(ACT_WEAR_SHIELD)) {
+    if(ActTarg(ACT_HOLD) && ActTarg(ACT_HOLD) != ActTarg(ACT_WEAR_SHIELD)) {
       parent->SendOutF(ALL, -1, ";s drops %s!\n", "You drop %s!\n",
 		this, NULL, ActTarg(ACT_HOLD)->ShortDesc());
       ActTarg(ACT_HOLD)->Travel(parent);
       }
-    else if(IsAct(ACT_HOLD)) {
+    else if(ActTarg(ACT_HOLD)) {
       parent->SendOutF(ALL, -1, ";s stops holding %s.\n", "You stop holding %s!\n",
 		this, NULL, ActTarg(ACT_HOLD)->ShortDesc());
       StopAct(ACT_HOLD);
