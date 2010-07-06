@@ -639,21 +639,23 @@ attach 8917 %self.id%
 eval where %self.room%
 eval where2 %where.vnum%
 if %where2% == 1982
-%echo% A large rumbling sound can be heard as the passage to the north opens.
-%door% 1982 north room 1983
-%door% 1982 north description A great black cavern looms beyond, the stone that covered it glowing and quivering with magic.
-%door% 1983 south room 1982
-%door% 1983 south description A faint magical glow comes from this direction, a rectangular slab removed from the cavernous wall.
+  wait 1 sec
+  %echo% A large rumbling sound can be heard as the passage to the north opens.
+  %door% 1982 north room 1983
+  %door% 1982 north description A great black cavern looms beyond, the stone that covered it glowing and quivering with magic.
+  %door% 1983 south room 1982
+  %door% 1983 south description A faint magical glow comes from this direction, a rectangular slab removed from the cavernous wall.
 end
 ~
 #1941
 (1929) leaving candle removes exit~
 1 h 100
 ~
-eval where %self.room%
-if %where% == 1982
-%echo% The ground rumbles as a heavy stone slab slides back into place in the northern wall.
-%door% 1982 north purge
+eval where %self.room.vnum%
+if %where% == 1982 
+  wait 1 sec
+  %echo% The ground rumbles as a heavy stone slab slides back into place in the northern wall.
+  %door% 1982 north purge
 end
 ~
 #1942
@@ -767,7 +769,7 @@ dg_affect %actor% maxhit 100 24
 dg_affect %actor% armor 20 24
 %purge% %self%
 else
-%send% %actor% Try specifying the color.
+%send% %actor% Try specifying the colour.
 end
 end
 ~
@@ -784,7 +786,7 @@ dg_affect %actor% maxmana 100 24
 dg_affect %actor% wis 5 24
 %purge% %self%
 else
-%send% %actor% Try specifying the color.
+%send% %actor% Try specifying the colour.
 end
 end
 ~
@@ -801,7 +803,7 @@ dg_affect %actor% maxmove 100 24
 dg_affect %actor% invis on 24
 %purge% %self%
 else
-%send% %actor% Try specifying the color.
+%send% %actor% Try specifying the colour.
 end
 end
 ~
@@ -968,18 +970,18 @@ tur~
 *This trig is meant to be used as part of a trio (1954, 1960, 1961)
 *This one is what gives you the finished product after tallying up
 *all the ingredients.
-*If everything has been done properly, a lovely colored potion is 
+*If everything has been done properly, a lovely coloured potion is 
 *the reward. Otherwise, you end up with nothing.. or a big mess ;)
 **************
 set product 1949
-set color colorless
+set colour colourless
 if  %actor.varexists(zn19_red1)%
 rdelete zn19_red1 %actor.id%
 if  %actor.varexists(zn19_red2)%
 rdelete zn19_red2 %actor.id%
 if  %actor.varexists(zn19_all)%
 set product 1945
-set color red
+set colour red
 end
 end
 end
@@ -989,7 +991,7 @@ if  %actor.varexists(zn19_blue2)%
 rdelete zn19_blue2 %actor.id%
 if  %actor.varexists(zn19_all)%
 set product 1946
-set color blue
+set colour blue
 end
 end
 end
@@ -999,21 +1001,21 @@ if  %actor.varexists(zn19_green2)%
 rdelete zn19_green2 %actor.id%
 if  %actor.varexists(zn19_all)%
 set product 1947
-set color green
+set colour green
 end
 end
 end
 if  %actor.varexists(zn19_black)%
 rdelete zn19_black %actor.id%
 set product 1952
-set color black
+set colour black
 end
 eval in_bag %self.contents%
 if %in_bag.vnum%==1949
-%echo% A stream of %color% fluid gushes out of the machine's nozzle into the empty vial.
+%echo% A stream of %colour% fluid gushes out of the machine's nozzle into the empty vial.
 %load% obj %product%
 else
-%echo% A stream of %color% fluid gushes out of the machine's nozzle and splashes all over the floor.
+%echo% A stream of %colour% fluid gushes out of the machine's nozzle and splashes all over the floor.
 end
 rdelete zn19_all %actor.id%
 %load% obj 1948
@@ -1032,7 +1034,7 @@ dg_affect %actor% maxmove -50 24
 dg_affect %actor% maxhit -50 24
 %purge% %self%
 else
-%send% %actor% Try specifying the color.
+%send% %actor% Try specifying the colour.
 end
 end
 ~
@@ -1412,8 +1414,8 @@ if fireworks /= %arg%
   set col[5] M
   set col[6] Y
   set col[7] W
-  set  color %%col[%cx%]%%
-  eval color %color%
+  set  colour %%col[%cx%]%%
+  eval colour %colour%
   eval sx %random.7%
   set sou[1] an almighty bang
   set sou[2] a piercing whistle
@@ -1424,7 +1426,7 @@ if fireworks /= %arg%
   set sou[7] a shower of sparks
   set  sound %%sou[%sx%]%%
   eval sound %sound%
-  %echo% With %sound%, a@%color% F I R E W O R K@n explodes into light.@n
+  %echo% With %sound%, a@%colour% F I R E W O R K@n explodes into light.@n
   %purge% self
 else
   %send% %actor% Light what?

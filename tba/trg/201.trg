@@ -86,9 +86,6 @@ done
 seagull eat the crabs~
 0 d 100
 test~
-* in this file are not changed, and will have to be edited by hand.
-* This zone was number 201 on The Builder Academy, so you
-* should be looking for 201xx, where xx is 00-99.
 %echo% FINDOBJ:    There are %findobj.1233(1300)% objects of vnum 1300 in roo
 m 1233.
 %echo%             There is %findobj.1233(1332664)% object of ID 1332605 in r
@@ -151,10 +148,6 @@ end
 Siren sings to all around her - 20104~
 2 g 100
 ~
-* This zone was number 201 on The Builder Academy, so you
-If %actor.name% == Elixias
-  return 0
-else
   if (%actor.sex% == male)
     %send% %actor% You hear someone sing, the voice overpowering your senses and strangely luring...
     wait 2 secs
@@ -163,7 +156,6 @@ else
     %force% %actor% south
     %force% %actor% look
   end
-end
 ~
 #20113
 Siren confuses the male - 20104~
@@ -525,7 +517,7 @@ if (%arg%==aurorafall)
       %echoaround% %actor% @W%actor.name% whirls @bO@Bc@Ce@Wa@Cn@Ba @bM@Be@Cr@Widia@Cn@Bu@bs@W around %actor.himher% creating @bf@Br@Co@Wzen illusions of the blade.@n
       %send% %actor% @WYou whirl @bO@Bc@Ce@Wa@Cn@Ba @bM@Be@Cr@Widia@Cn@Bu@bs@W around you, creating @bf@Br@Co@Wsted illusions of the sacred blade.@n
       wait 2 secs
-      %echo% @WThe surroundings @Dloose@W their colors as @bO@Bc@Ce@Wa@Cn@Ba @bM@Be@Cr@Widia@Cn@Bu@bs@W rapidly @Ddrains@W energy from them.@n
+      %echo% @WThe surroundings @Dloose@W their colours as @bO@Bc@Ce@Wa@Cn@Ba @bM@Be@Cr@Widia@Cn@Bu@bs@W rapidly @Ddrains@W energy from them.@n
       wait 2 secs
 if (%actor.fighting%)
 if ((%victim.is_pc%))

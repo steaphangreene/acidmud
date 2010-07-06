@@ -84,8 +84,8 @@ if %actor%
     %send% %actor% You discover that %self.name% has %self.hisher% hands in your wallet.
     %echoaround% %actor% %self.name% tries to steal gold from %actor.name%.
     eval coins %actor.gold% * %random.10% / 100
-    nop %actor.gold(-%coins%)
-    nop %self.gold(%coins%)
+    nop %actor.gold(-%coins%)%
+    nop %self.gold(%coins%)%
   end
 end
 ~
@@ -543,6 +543,7 @@ Mortal Greet~
 ~
 * By Rumble of The Builder Academy    tbamud.com 9091
 * TBA mortal greet and equip. New players start at level 0.
+wait 1 sec
 if %actor.level% == 0
   if !%actor.eq(*)%
     %load% obj 3037 %actor% light

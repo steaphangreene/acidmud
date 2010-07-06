@@ -32,7 +32,7 @@ else
   %send% %actor% You type briefly on a nearby keyboard.
   %echoaround% %actor% %actor.name% types briefly on a nearby keyboard.
   wait 1 sec
-  %send% %actor% Co-ordinates set to '%arg%'.
+  %send% %actor% Coordinates set to '%arg%'.
   set location %arg%
   global location
 end
@@ -628,12 +628,12 @@ switch %fish%
 done
 if livingston /= %arg% && %arg%
   %send% %actor% You sprinkle a small amount of fish food into Livingston's bowl.
-  %echoaround% %actor% 5actor.name% sprinkles a small amount of fish food into Livingston's bowl.
+  %echoaround% %actor% %actor.name% sprinkles a small amount of fish food into Livingston's bowl.
   wait 3 sec
   %echo% %fishy%
 elseif fish /= %arg% && %arg%
   %send% %actor% You sprinkle a small amount of fish food into Livingston's bowl.
-  %echoaround% %actor% 5actor.name% sprinkles a small amount of fish food into Livingston's bowl.
+  %echoaround% %actor% %actor.name% sprinkles a small amount of fish food into Livingston's bowl.
   wait 3 sec
   %echo% %fishy%
 else

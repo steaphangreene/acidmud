@@ -63,7 +63,7 @@ Lord's Guest Goose~
 mecho You feel a sudden pain, a sharp pinch on your butt-cheek.
 wait 1 s
 mecho You look around the room, but the only other person you see is the Lord's guest
-mecho and he's facing away from you, studying a portrait on the wall.
+mecho and he's facing the away from you, studying a portrait on the wall.
 wait 1 s
 mecho What in the heck could that have been?
 ~

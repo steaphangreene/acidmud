@@ -4,7 +4,7 @@ a sad-looking memlin~
 A small creature digs here with a sad look in its eyes.
 ~
    This creature is one of the few left of the race of memlins.  Short and
-gangly, it looks well suited to life in tunnels.  Its warty skin is the color
+gangly, it looks well suited to life in tunnels.  Its warty skin is the colour
 of sand and stone and two large pointed ears twitch at any sound.  Large yellow
 eyes seem to fill its face with an expression of despair and helplessness.    
 ~
@@ -81,12 +81,12 @@ air, as though it were somehow filtering and replenishing it.
 E
 T 2703
 #2705
-armored guardian~
-an armored guardian~
-An armored guardian stands here, blocking the gates to the north.
+armoured guardian~
+an armoured guardian~
+An armoured guardian stands here, blocking the gates to the north.
 ~
    Tall and menacing, his body is completely covered with black irridescent
-armor that reveals none of his natural form.  Even his eyes are masked by the
+armour that reveals none of his natural form.  Even his eyes are masked by the
 metal visor over his face, though somehow he seems to perceive his surroundings
 very well indeed.    
 ~
@@ -118,9 +118,9 @@ T 2714
 T 2715
 T 2712
 #2707
-colorful pheasant~
-a colorful pheasant~
-A colorful pheasant hides amongst the greenery.
+colourful pheasant~
+a colourful pheasant~
+A colourful pheasant hides amongst the greenery.
 ~
    This beautiful bird is well-fattened and covered with bright plumage that
 makes its efforts at hiding almost laughable.  Its cherry-red face blends into a
@@ -220,7 +220,7 @@ skeletal creature toothy~
 a skeletal creature~
 A skeletal creature crouches within the circle of light.
 ~
-   The color of faded blue egg-shell, this creature makes a faint clacking
+   The colour of faded blue egg-shell, this creature makes a faint clacking
 sound when it moves as though it is made entirely of bone...  or indeed
 egg-shell.  Squinting black eyes peer calculatingly out from an elongated skull
 and a hideous toothy smile splits across its face at the sight of you.  Two
@@ -293,7 +293,7 @@ A little irridescent beetle scurries along.
    This little glistening beetle has two rather large pinchers that protrude
 like horns from its head.  Tiny legs move almost too quickly to be seen, as the
 creature scuttles nervously around, streaks of blue and green glinting in its
-black armor.  
+black armour.  
 ~
 200 0 0 0 2048 0 0 0 0 E
 5 19 7 1d1+50 1d2+0
@@ -362,7 +362,7 @@ polished and gleaming as it moves.  An enormous tail waves slowly and
 pendulously from side to side, its clawed feet indenting the almost solid
 ground.  Its most unusual feature is its large faintly glowing eyes, uncannily
 perceptive they seem to peer through things rather than at them.  The eyes are
-of odd coloring too, one glowing bright ember red and the other gleaming
+of odd colouring too, one glowing bright ember red and the other gleaming
 charcoal black.  
 ~
 253978 0 0 0 0 0 0 0 0 E
@@ -445,7 +445,7 @@ the Revealer~
 The Revealer stands here, guarding the secrets of his people.
 ~
    This aged memlin is shrunken and wrinkled with time, his large eyes faded in
-color as an ember about to die.  His expression is firm and troubled, as though
+colour as an ember about to die.  His expression is firm and troubled, as though
 he has seen enough for many lifetimes.  
 ~
 10 0 0 0 0 0 0 0 0 E
@@ -520,7 +520,7 @@ A dark crow perches here, its green eyes gleaming.
 ~
    This jet-black crow is covered with sleek irridescent feathers, its
 formidable beak sharply curved, obviously made for tearing flesh.  Two tiny
-gleaming eyes peer suspicously about, the color of deep emerald green.  
+gleaming eyes peer suspicously about, the colour of deep emerald green.  
 ~
 10 0 0 0 0 0 0 0 0 E
 23 13 -3 4d4+230 3d3+3

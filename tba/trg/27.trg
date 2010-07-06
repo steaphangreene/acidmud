@@ -586,7 +586,7 @@ end
 %echo% @yAs the wrm collapses in death, one of its spines breaks off.@n
 ~
 #2732
-(2726) shard changes color~
+(2726) shard changes colour~
 1 g 100
 ~
 wait 1 s
@@ -697,7 +697,7 @@ if %cmd%==shoot
 if %quiver%
   %force% %actor% take arrow quiver
   %send% %actor% You prepare to shoot.
-  if %actor.inventory(2733)
+  if %actor.inventory(2733)%
     %echo% About to nod
     set ready 1
     remote ready %actor.id%
@@ -1265,13 +1265,13 @@ wait 5 s
   say Shunned through fear and isolated from every other form of life, Nevim become bitter and angry, forces of destruction and causing much pain in an attempt to exorcise their own.
   wait 1 s
 elseif %room.vnum% == 2793
-  say The second wave brings forth the Denuo, the lesser beings, the second-born who live and die without changing form, coloring the lamen that flows through them but being entirely of miru. 
+  say The second wave brings forth the Denuo, the lesser beings, the second-born who live and die without changing form, colouring the lamen that flows through them but being entirely of miru. 
   wait 3 s
   say The Khan'li, the Dynar, and myself of Memlin kind, are all examples of Denuo life.
 elseif %room.vnum% == 2794
   say Khan'li embrace the darkness of night and the heat of summer, inheriting through their forebearer Cui a kinship with fire, which they are not harmed by, though simple water acts like acid on their skin.
   wait 4 s
-  say Black and red are their colors and they enjoy sharp points, reflective surfaces for their inclination to repel light and singular works of beauty, believing themselves superior as the firstborn.
+  say Black and red are their colours and they enjoy sharp points, reflective surfaces for their inclination to repel light and singular works of beauty, believing themselves superior as the firstborn.
   wait 4 s
   say They live mainly underground or in caves, seeking to escape the occasional rains and sculpting their showy palaces into mountains. 
   wait 3 s

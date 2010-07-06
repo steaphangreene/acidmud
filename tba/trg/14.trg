@@ -432,8 +432,8 @@ else
 end
 * Portal example with arguments: enter
 * if portal /= %arg%
-* %send %actor% You enter the portal.
-* %echoaround %actor.name% %actor.name% bravely steps into the portal.
+* %send% %actor% You enter the portal.
+* %echoaround% %actor.name% %actor.name% bravely steps into the portal.
 * %teleport% %actor% 3001
 * %force% %actor% look
 * %echoaround% %actor% %actor.name% steps through a portal.
