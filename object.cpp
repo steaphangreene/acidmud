@@ -1433,26 +1433,21 @@ void Object::SendScore(Mind *m, Object *o) {
     m->Send("\n");
     }
 
-  map<string,int> skills = GetSkills();
-  map<string,int>::iterator skl;
-  map<string,int> nsks;
-  map<string,int>::iterator nskl;
   list<string> col1;
   list<string>::iterator c1;
+  map<string,int> skills = GetSkills();
+  map<string,int>::iterator c2;
 
   if(BaseAttribute(1) <= 0) {	//Inanimate
-    col1 = FormatStats();
+    col1 = FormatStats(skills);
     }
   else {
-    col1 = FormatSkills();
+    col1 = FormatSkills(skills);
     }
 
-  for(skl = skills.begin(); skl != skills.end(); ++skl) {
-    if(!is_skill(skl->first)) nsks[skl->first] = skl->second;
-    }
   c1 = col1.begin();
-  nskl = nsks.begin();
-  while(nskl != nsks.end() || c1 != col1.end()) {
+  c2 = skills.begin();
+  while(c2 != skills.end() || c1 != col1.end()) {
     if(c1 != col1.end()) {
       m->SendF("%41s ", c1->c_str());	//Note: 41 is 32 (2 Color Escape Codes)
       ++c1;
@@ -1461,9 +1456,9 @@ void Object::SendScore(Mind *m, Object *o) {
       m->SendF("%32s ", "");
       }
 
-    if(nskl != nsks.end()) {
-      m->SendF("%28s: %8d", nskl->first.c_str(), nskl->second);
-      ++nskl;
+    if(c2 != skills.end()) {
+      m->SendF("%28s: %8d", c2->first.c_str(), c2->second);
+      ++c2;
       }
 
     m->Send("\n");
@@ -1511,14 +1506,15 @@ void Object::SendScore(Mind *m, Object *o) {
     }
   }
 
-list<string> Object::FormatSkills() {
+list<string> Object::FormatSkills(map<string,int> &skls) {
   list<string> ret;
 
-  map<string,int> skills = GetSkills();
+  map<string,int> skills = skls;
   map<string,int>::iterator skl;
 
   for(skl = skills.begin(); skl != skills.end(); ++skl) {
     if(is_skill(skl->first)) {
+      skls.erase(skl->first);	//Remove it from to-show list.
       char buf[256];
       sprintf(buf, "%28s: " CYEL "%2d" CNRM,
 	skl->first.c_str(), MIN(99, skl->second)
@@ -1529,18 +1525,21 @@ list<string> Object::FormatSkills() {
   return ret;
   }
 
-static void stick_on(list<string> &out, Object *obj,
+static void stick_on(list<string> &out, map<string,int> &skls,
 	const char *skn, const char *label
 	) {
-  int sk;
   char buf[256];
-  if((sk = obj->Skill(skn)) > 0) {
-    sprintf(buf, "  %18s: " CYEL "%d.%.3d" CNRM, label, sk/1000, sk%1000);
-    out.push_back(buf);
+  if(skls.count(skn) > 0) {
+    int sk = skls[skn];
+    if(sk > 0) {
+      sprintf(buf, "  %18s: " CYEL "%d.%.3d" CNRM, label, sk/1000, sk%1000);
+      out.push_back(buf);
+      }
+    skls.erase(skn);
     }
   }
 
-list<string> Object::FormatStats() {
+list<string> Object::FormatStats(map<string,int> &skls) {
   list<string> ret;
 
   if(HasSkill("WeaponType")) {	//It's a Weapon
@@ -1548,36 +1547,38 @@ list<string> Object::FormatStats() {
     ret.push_back("Weapon: " CYEL
 	+ get_weapon_skill(Skill("WeaponType")) + CNRM
 	);
-    stick_on(ret, this, "Durability", "Durability");
-    stick_on(ret, this, "Hardness", "Hardness");
-    stick_on(ret, this, "Flexibility", "Flexibility");
-    stick_on(ret, this, "Sharpness", "Sharpness");
-    stick_on(ret, this, "Distance", "Pen. Dist");
-    stick_on(ret, this, "Width", "Pen. Width");
-    stick_on(ret, this, "Ratio", "Pen. Ratio");
-    stick_on(ret, this, "Hit Weight", "Hit Weight");
-    stick_on(ret, this, "Velocity", "Velocity");
-    stick_on(ret, this, "Leverage", "Leverage");
-    stick_on(ret, this, "Burn", "Burn");
-    stick_on(ret, this, "Chill", "Chill");
-    stick_on(ret, this, "Zap", "Zap");
-    stick_on(ret, this, "Concuss", "Concuss");
-    stick_on(ret, this, "Flash", "Flash");
-    stick_on(ret, this, "Bang", "Bang");
-    stick_on(ret, this, "Irradiate", "Irradiate");
-    stick_on(ret, this, "Reach", "Reach");
-    stick_on(ret, this, "Range", "Range");
-    stick_on(ret, this, "Strength Required", "Str Req");
-    stick_on(ret, this, "Multiple", "Multiple");
+    //skls.erase("WeaponType");
+    stick_on(ret, skls, "Durability", "Durability");
+    stick_on(ret, skls, "Hardness", "Hardness");
+    stick_on(ret, skls, "Flexibility", "Flexibility");
+    stick_on(ret, skls, "Sharpness", "Sharpness");
+    stick_on(ret, skls, "Distance", "Pen. Dist");
+    stick_on(ret, skls, "Width", "Pen. Width");
+    stick_on(ret, skls, "Ratio", "Pen. Ratio");
+    stick_on(ret, skls, "Hit Weight", "Hit Weight");
+    stick_on(ret, skls, "Velocity", "Velocity");
+    stick_on(ret, skls, "Leverage", "Leverage");
+    stick_on(ret, skls, "Burn", "Burn");
+    stick_on(ret, skls, "Chill", "Chill");
+    stick_on(ret, skls, "Zap", "Zap");
+    stick_on(ret, skls, "Concuss", "Concuss");
+    stick_on(ret, skls, "Flash", "Flash");
+    stick_on(ret, skls, "Bang", "Bang");
+    stick_on(ret, skls, "Irradiate", "Irradiate");
+    stick_on(ret, skls, "Reach", "Reach");
+    stick_on(ret, skls, "Range", "Range");
+    stick_on(ret, skls, "Strength Required", "Str Req");
+    stick_on(ret, skls, "Multiple", "Multiple");
 
     ret.push_back(CYEL CNRM);	//Leave a blank line between new and old
 				//Must include color escapes for formatting
 
 	//Old-Style (Shadowrun) Weapon Stats
     static char sevs[] = { '-', 'L', 'M', 'S', 'D' };
-    ret.push_back("  Skill: " CYEL
+    ret.push_back(" Old Weapon: " CYEL
 	+ get_weapon_skill(Skill("WeaponType")) + CNRM
 	);
+    skls.erase("WeaponType");
 
     char buf[256];
     sprintf(buf, "  Damage: " CYEL "(Str+%d)%c",
@@ -1588,6 +1589,8 @@ list<string> Object::FormatStats() {
       }
     strcat(buf, CNRM);
     ret.push_back(buf);
+    skls.erase("WeaponForce");
+    skls.erase("WeaponSeverity");
 
     if(Skill("WeaponReach") > 4) {
       sprintf(buf, "  Range: " CYEL "%d" CNRM, Skill("WeaponReach"));
@@ -1597,28 +1600,29 @@ list<string> Object::FormatStats() {
       sprintf(buf, "  Reach: " CYEL "%d" CNRM, Skill("WeaponReach"));
       ret.push_back(buf);
       }
+    skls.erase("WeaponReach");
     }
   if(HasSkill("Thickness")) {	//It's Armor (or just Clothing)
-    //stick_on(ret, this, "Coverage", "Coverage");
-    stick_on(ret, this, "Durability", "Durability");
-    stick_on(ret, this, "Hardness", "Hardness");
-    stick_on(ret, this, "Flexibility", "Flexibility");
-    stick_on(ret, this, "Sharpness", "Sharpness");
-    stick_on(ret, this, "Thickness", "Thickness");
-    stick_on(ret, this, "Max Gap", "Max Gap");
-    stick_on(ret, this, "Min Gap", "Min Gap");
-    stick_on(ret, this, "Hit Weight", "Hit Weight");
-    stick_on(ret, this, "Ballistic", "Ballistic");
-    stick_on(ret, this, "Bulk", "Bulk");
-    stick_on(ret, this, "Warm", "Warm");
-    stick_on(ret, this, "Reflect", "Reflect");
-    stick_on(ret, this, "Insulate", "Insulate");
-    stick_on(ret, this, "Padding", "Padding");
-    stick_on(ret, this, "Shade", "Shade");
-    stick_on(ret, this, "Muffle", "Muffle");
-    stick_on(ret, this, "Shielding", "Shielding");
-    stick_on(ret, this, "Defense Range", "Def Range");
-    stick_on(ret, this, "Strength Required", "Str Req");
+    //stick_on(ret, skls, "Coverage", "Coverage");
+    stick_on(ret, skls, "Durability", "Durability");
+    stick_on(ret, skls, "Hardness", "Hardness");
+    stick_on(ret, skls, "Flexibility", "Flexibility");
+    stick_on(ret, skls, "Sharpness", "Sharpness");
+    stick_on(ret, skls, "Thickness", "Thickness");
+    stick_on(ret, skls, "Max Gap", "Max Gap");
+    stick_on(ret, skls, "Min Gap", "Min Gap");
+    stick_on(ret, skls, "Hit Weight", "Hit Weight");
+    stick_on(ret, skls, "Ballistic", "Ballistic");
+    stick_on(ret, skls, "Bulk", "Bulk");
+    stick_on(ret, skls, "Warm", "Warm");
+    stick_on(ret, skls, "Reflect", "Reflect");
+    stick_on(ret, skls, "Insulate", "Insulate");
+    stick_on(ret, skls, "Padding", "Padding");
+    stick_on(ret, skls, "Shade", "Shade");
+    stick_on(ret, skls, "Muffle", "Muffle");
+    stick_on(ret, skls, "Shielding", "Shielding");
+    stick_on(ret, skls, "Defense Range", "Def Range");
+    stick_on(ret, skls, "Strength Required", "Str Req");
     }
 
   ret.push_back(CYEL CNRM);	//Leave a blank line between weap/arm and gen
@@ -1629,10 +1633,12 @@ list<string> Object::FormatStats() {
 	Skill("Light Source"), LightLevel()
 	);
     ret.push_back(buf);
+    skls.erase("Light Source");
     }
   if(HasSkill("Cursed")) {
     sprintf(buf, CRED "  Cursed: %d" CNRM, Skill("Cursed"));
     ret.push_back(buf);
+    skls.erase("Cursed");
     }
 
   if(ret.back() != CYEL CNRM) ret.pop_back();	//Make sure last line is blank

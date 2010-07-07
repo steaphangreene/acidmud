@@ -149,8 +149,8 @@ public:
   void SendLongDesc(Mind *m, Object *o = NULL);
   void SendLongDesc(Object *m, Object *o = NULL);
   void SendScore(Mind *m, Object *o = NULL);
-  list<string> FormatStats();
-  list<string> FormatSkills();
+  list<string> FormatStats(map<string,int> &skls);	//Modifies skls
+  list<string> FormatSkills(map<string,int> &skls);	//Modifies skls
 
   void Link(Object *other, const string &name, const string &desc,
         const string &oname, const string &odesc);
