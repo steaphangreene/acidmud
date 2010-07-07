@@ -2351,15 +2351,15 @@ void Object::NotifyLeft(Object *obj, Object *newloc) {
     if(stealth_t > 0) {
       SetSkill("Hidden", Roll("Stealth", 2) * 2);
       }
+    }
 
-    set<act_t>::iterator stop = stops.begin();
-    for(; stop != stops.end(); ++stop) {
-      StopAct(*stop);
-      }
-    stop = stops2.begin();
-    for(; stop != stops2.end(); ++stop) {
-      obj->StopAct(*stop);
-      }
+  set<act_t>::iterator stop = stops.begin();
+  for(; stop != stops.end(); ++stop) {
+    StopAct(*stop);
+    }
+  stop = stops2.begin();
+  for(; stop != stops2.end(); ++stop) {
+    obj->StopAct(*stop);
     }
 
   if(obj->ActTarg(ACT_HOLD) == this) {		//Dragging
