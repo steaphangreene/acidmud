@@ -578,8 +578,11 @@ void Object::TBALoadMOB(const char *fn) {
 	}
 
       memset(buf, 0, 65536);
-      fscanf(mudm, "%65535[^~\n]~\n", buf);
-      for(char *ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
+      fscanf(mudm, "%65535[^\r\n]\n", buf);
+      { char *ch;
+	for(ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
+	if(ch[-1] == '~') ch[-1] = 0;	//Kill Trailing '~'
+	}
       obj->SetShortDesc(buf);
       //fprintf(stderr, "Loaded TBA Mobile with Name = %s\n", buf);
 
@@ -986,8 +989,11 @@ void Object::TBALoadOBJ(const char *fn) {
 	}
 
       memset(buf, 0, 65536);	//Short Desc
-      fscanf(mudo, "%65535[^~\n]~\n", buf);
-      for(char *ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
+      fscanf(mudo, "%65535[^\r\n]\n", buf);
+      { char *ch;
+	for(ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
+	if(ch[-1] == '~') ch[-1] = 0;	//Kill Trailing '~'
+	}
       obj->SetShortDesc(buf);
       //fprintf(stderr, "Loaded TBA Object with Name = %s\n", buf);
 
@@ -2081,8 +2087,11 @@ void Object::TBALoadWLD(const char *fn) {
       obj->SetValue(-1);
 
       memset(buf, 0, 65536);
-      fscanf(mud, "%65535[^~\n]~\n", buf);
-      for(char *ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
+      fscanf(mud, "%65535[^\r\n]\n", buf);
+      { char *ch;
+	for(ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
+	if(ch[-1] == '~') ch[-1] = 0;	//Kill Trailing '~'
+	}
       obj->SetShortDesc(buf);
       //fprintf(stderr, "Loaded TBA Room with Name = %s\n", buf);
 
@@ -2172,7 +2181,7 @@ void Object::TBALoadWLD(const char *fn) {
 	  fscanf(mud, "~%*[\n\r]");
 	  }
 	else if(buf[0] != 'S') {
-	  fprintf(stderr, "Warning, didn't see an ending S!\n");
+	  fprintf(stderr, "#%d: Warning, didn't see an ending S!\n", onum);
 	  }
 	else {
 	  break;
