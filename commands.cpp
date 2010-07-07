@@ -1264,7 +1264,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  mind->SendF("You enter %s\n", comline+len);
 	  }
 
-	if(newworld) {
+	if(mind && newworld) {
 	  mind->SendF(CMAG "You have entered: %s\n" CNRM,
 	    body->World()->ShortDesc()
 	    );
