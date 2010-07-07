@@ -32,6 +32,8 @@ public:
   void AddChar(Object *);
   int Accomplish(unsigned long);
   int Exp() const { return exp; }
+  const map<string,string> Vars() { return vars; };
+  void SetVars(const map<string,string> v) { vars = v; };
 
 private:
   map<string, Object *> body;
@@ -40,6 +42,7 @@ private:
   unsigned long flags;
   set<unsigned long> completed;
   int exp;
+  map<string,string> vars;
 
   friend Player *player_login(string name, string pass);
   friend Player *get_player(string name);

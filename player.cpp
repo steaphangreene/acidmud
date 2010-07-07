@@ -113,7 +113,6 @@ static char buf[65536];
 int Player::LoadFrom(FILE *fl) {
   memset(buf, 0, 65536);
   fscanf(fl, "%s\n", buf);
-//  name = buf;
   SetName(buf);
   memset(buf, 0, 65536);
   fscanf(fl, "%s\n", buf);
@@ -131,6 +130,10 @@ int Player::LoadFrom(FILE *fl) {
     AddChar(getbynum(num));
     }
 
+  //Won't be present previous to v0x02, but that's ok, will work fine anyway
+  while(fscanf(fl, "\n;%32767[^:]:%32767[^; \t\n\r]", buf, buf+32768) >= 2) {
+    vars[buf] = (buf+32768);
+    }
   return 0;
   }
 
@@ -169,6 +172,12 @@ int Player::SaveTo(FILE *fl) {
 
   fprintf(fl, ":%lX", flags);
   room->WriteContentsTo(fl);
+  fprintf(fl, "\n");
+
+  map<string,string>::iterator var = vars.begin();
+  for(; var != vars.end(); ++var) {
+    fprintf(fl, ";%s:%s", var->first.c_str(), var->second.c_str());
+    }
   fprintf(fl, "\n");
   return 0;
   }

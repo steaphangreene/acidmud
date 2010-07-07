@@ -190,38 +190,26 @@ map<string, string> Mind::cvars;
 void Mind::Init() {
   body = NULL;
   player = NULL;
-  if(cvars.size() < 1) {
-    cvars["damage"] = "wdamage";
-    cvars["echo"] = "mecho";
-    cvars["send"] = "send";
-    cvars["force"] = "force";
-    cvars["echoaround"] = "echoaround";
-    cvars["teleport"] = "transport";
-    cvars["zoneecho"] = "zoneecho";
-    cvars["asound"] = "asound";
-    cvars["door"] = "door";
-    cvars["load"] = "load";
-    cvars["purge"] = "purge";
-    cvars["at"] = "at";
-    cvars[""] = "%";
-    }
-  svars = cvars;
+  ovars.clear();
+  svars.clear();
   }
 
 Mind::Mind() {
-  Init();
   type = MIND_MORON;
+  Init();
   pers = 0;
   log = -1;
   }
 
 Mind::Mind(int fd) {
+  type = MIND_MORON;
   Init();
   log = -1;
   SetRemote(fd);
   }
 
 Mind::Mind(int fd, int l) {
+  type = MIND_MORON;
   Init();
   log = l;
   SetRemote(fd);
@@ -260,6 +248,22 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, Object *targ, string text)
   if((!tr) || (!(tr->Parent()))) return;
 
   type = MIND_TBATRIG;
+  if(cvars.size() < 1) {
+    cvars["damage"] = "wdamage";
+    cvars["echo"] = "mecho";
+    cvars["send"] = "send";
+    cvars["force"] = "force";
+    cvars["echoaround"] = "echoaround";
+    cvars["teleport"] = "transport";
+    cvars["zoneecho"] = "zoneecho";
+    cvars["asound"] = "asound";
+    cvars["door"] = "door";
+    cvars["load"] = "load";
+    cvars["purge"] = "purge";
+    cvars["at"] = "at";
+    cvars[""] = "%";
+    }
+  svars = cvars;
   pers = fileno(stderr);
   Attach(tr);
   spos_s.clear();
@@ -453,6 +457,7 @@ void Mind::SetPPass(string ppass) {
     }
 
   SendRawF("%c%c%c", IAC, WONT, TELOPT_ECHO);
+  svars = player->Vars();
   player->Room()->SendDesc(this);
   player->Room()->SendContents(this);
   }
@@ -461,6 +466,7 @@ void Mind::SetPlayer(string pn) {
   if(player_exists(pn)) {
     pname = pn;
     player = get_player(pname);
+    svars = player->Vars();
     }
   }
 
@@ -2895,12 +2901,19 @@ void Mind::ClearSVar(const string &var) {
   svars.erase(var);
   }
 
-const string &Mind::SVar(const string &var) {
+const string &Mind::SVar(const string &var) const {
   if(svars.count(var) <= 0) return blank;
-  return svars[var];
+  return svars.at(var);
   }
 
-int Mind::IsSVar(const string &var) {
+int Mind::IsSVar(const string &var) const {
   return (svars.count(var) > 0);
   }
 
+const map<string,string> Mind::SVars() const {
+  return svars;
+  }
+
+void Mind::SetSVars(const map<string,string> &sv) {
+  svars = sv;
+  }

@@ -5322,6 +5322,14 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
   if(com == COM_TOGGLE) {
     if(!mind) return 0;
+    Player *pl = mind->Owner();
+    if(!pl) return 0;
+
+    if(comline[0] && (!strncasecmp(cmd.c_str(), "restore", cmd.length()))) {
+      mind->SetSVars(pl->Vars());
+      mind->Send("Your settings have been reset to your defaults.\n");
+      comline = "";	//Show current settings too
+      }
 
     if(!comline[0]) {
       mind->Send("Your current settings:\n");
@@ -5337,16 +5345,28 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     else if(!strncasecmp(cmd.c_str(), "combatinfo", cmd.length())) {
       if(mind->IsSVar("combatinfo")) {
 	mind->ClearSVar("combatinfo");
-	mind->Send("  CombatInfo is now " CYEL "off" CNRM ".\n");
+	mind->Send("CombatInfo is now " CYEL "off" CNRM ".\n");
 	}
       else {
 	mind->SetSVar("combatinfo", "1");
-	mind->Send("  CombatInfo is now " CYEL "on" CNRM ".\n");
+	mind->Send("CombatInfo is now " CYEL "on" CNRM ".\n");
 	}
+      }
+    else if(!strncasecmp(cmd.c_str(), "save", cmd.length())) {
+      pl->SetVars(mind->SVars());
+      mind->Send("Your current settings have been saved as your defaults.\n");
       }
     else {
       mind->Send("Don't know what setting you want to change.\n");
       mind->Send("Just type " CYEL "toggle" CNRM " to see a full list.\n");
+      return 0;
+      }
+    if(mind->SVars() != pl->Vars()) {
+      mind->Send(CYEL "\nYour current settings are not all saved:\n" CNRM);
+      mind->Send("  Type '" CMAG "toggle save" CNRM
+	"' to make this change permanent.\n");
+      mind->Send("  Type '" CMAG "toggle restore" CNRM
+	"' to restore your default settings.\n");
       }
     return 0;
     }
