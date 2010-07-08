@@ -1246,7 +1246,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	body->Parent()->SendOut(stealth_t, stealth_s, ";s enters ;s.\n", "", body, dest);
 	}
 
-      if(int reas = veh->Travel(dest)) {
+      int reas = 0;
+      if((!nmode) && (reas = veh->Travel(dest))) {
 	if(reas < 0) {	//If it's not a script-prevent (which handles alert)
 	  body->Parent()->SendOut(stealth_t, stealth_s,
 		"...but ;s didn't seem to fit!\n", "You could not fit!\n",
@@ -1255,6 +1256,10 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  }
 	}
       else {
+	if(nmode) {
+	  body->Parent()->RemoveLink(body);
+	  body->SetParent(dest);
+	  }
 	body->Parent()->SendOut(stealth_t, stealth_s,
 		";s arrives.\n", "", body, NULL);
 	if(mind && (vmode & (LOC_NINJA|LOC_DARK)) == 0
@@ -3937,10 +3942,14 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     else {
       if(nmode) {
-	//Ninja-movement can't be followed!
-	if(body->Parent()) body->Parent()->NotifyGone(body);
+	//Ninja-movement can't be followed or blocked!
+	body->Parent()->NotifyGone(body);
+	body->RemoveLink(body->Parent());
+	body->SetParent(body->Parent()->Parent());
 	}
-      body->Travel(body->Parent()->Parent());
+      else {
+	body->Travel(body->Parent()->Parent());
+	}
       if(oldp) oldp->SendOut(stealth_t, stealth_s, ";s leaves.\n", "", body, NULL);
       body->Parent()->SendDescSurround(body, body);
       body->Parent()->SendOut(stealth_t, stealth_s,
