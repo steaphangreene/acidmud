@@ -1786,7 +1786,7 @@ int Object::Travel(Object *dest, int try_combine) {
       if(((*trig)->Skill("TBAScriptType") & 0x4010000) == 0x4010000) {
 	if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) {	// % Chance
 	  //fprintf(stderr, "Triggering: %s\n", (*trig)->Name());
-	  new_trigger(0, *trig, this, dir);
+	  if(new_trigger(0, *trig, this, dir)) return 1;
 	  }
 	}
       }
@@ -1796,7 +1796,7 @@ int Object::Travel(Object *dest, int try_combine) {
       if(((*trig)->Skill("TBAScriptType") & 0x4000040) == 0x4000040) {
 	if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) {	// % Chance
 	  //fprintf(stderr, "Triggering: %s\n", (*trig)->Name());
-	  new_trigger(0, *trig, this, rdir);
+	  if(new_trigger(0, *trig, this, rdir)) return 1;
 	  }
 	}
       }

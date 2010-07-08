@@ -1246,9 +1246,13 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	body->Parent()->SendOut(stealth_t, stealth_s, ";s enters ;s.\n", "", body, dest);
 	}
 
-      if(veh->Travel(dest)) {
-	body->Parent()->SendOut(stealth_t, stealth_s, "...but ;s didn't seem to fit!\n",
-		"You could not fit!\n", body, NULL);
+      if(int reas = veh->Travel(dest)) {
+	if(reas < 0) {	//If it's not a script-prevent (which handles alert)
+	  body->Parent()->SendOut(stealth_t, stealth_s,
+		"...but ;s didn't seem to fit!\n", "You could not fit!\n",
+		body, NULL
+		);
+	  }
 	}
       else {
 	body->Parent()->SendOut(stealth_t, stealth_s,
