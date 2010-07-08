@@ -3237,6 +3237,8 @@ list<Object *> Object::Contents(int vmode) {
     if((vmode & (LOC_HEAT|LOC_TOUCH)) == 0 && (*item)->Skill("Invisible")) {
       continue;
       }
+    if((vmode & LOC_FIXED) && (*item)->Pos() != POS_NONE) continue;
+    if((vmode & LOC_NOTFIXED) && (*item)->Pos() == POS_NONE) continue;
     ret.push_back(*item);
     }
   return contents;

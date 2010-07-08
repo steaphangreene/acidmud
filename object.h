@@ -30,6 +30,8 @@ class MOBType;
 //Filters
 #define	LOC_NOTWORN	0x00010000	//Allows held
 #define	LOC_NOTUNWORN	0x00020000	//ALSO allows held
+#define	LOC_FIXED	0x00040000
+#define	LOC_NOTFIXED	0x00080000
 #define	LOC_ALIVE	0x00100000
 #define	LOC_CONSCIOUS	0x00200000
 #define LOC_FILTERS	0x00FF0000

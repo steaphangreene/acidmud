@@ -2519,7 +2519,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    list<Object*> objs = body->Parent()->Contents();
+    list<Object*> objs = body->Parent()->Contents(vmode);
     list<Object*>::iterator shpkp_i;
     list<Object*> shpkps;
     string reason = "";
@@ -2661,7 +2661,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    if(targ->Contents(LOC_TOUCH).size() > 0) {
+    if(targ->Contents(LOC_TOUCH|LOC_NOTFIXED).size() > 0) {
       if(mind) {
 	string mes = targ->Name(0, body);
 	mes += " is not empty.";
