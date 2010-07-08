@@ -1779,21 +1779,29 @@ int Object::Travel(Object *dest, int try_combine) {
     }
 
   if(att[1] > 0) {
-    typeof(contents.begin()) trig;
-	//Type 0x4010000 (ROOM + ROOM-LEAVE)
-    trig = parent->contents.begin();
-    for(; trig != parent->contents.end(); ++trig) {
-      if(((*trig)->Skill("TBAScriptType") & 0x4010000) == 0x4010000) {
+    list<Object*> trigs = parent->contents;
+    list<Object*>::const_iterator src = parent->contents.begin();
+    for(; src != parent->contents.end(); ++src) {
+      trigs.insert(trigs.end(),
+	(*src)->contents.begin(), (*src)->contents.end()
+	);
+      }
+
+    list<Object*>::iterator trig;
+	//Type 0x0010000 (*-LEAVE)
+    for(trig = trigs.begin(); trig != trigs.end(); ++trig) {
+      if((*trig)->Skill("TBAScriptType") & 0x0010000) {
 	if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) {	// % Chance
 	  //fprintf(stderr, "Triggering: %s\n", (*trig)->Name());
 	  if(new_trigger(0, *trig, this, dir)) return 1;
 	  }
 	}
       }
-	//Type 0x4000040 (ROOM + ROOM-ENTER)
-    trig = dest->contents.begin();
-    for(; trig != dest->contents.end(); ++trig) {
-      if(((*trig)->Skill("TBAScriptType") & 0x4000040) == 0x4000040) {
+	//Type 0x4000040 or 0x1000040 (ROOM-ENTER or MOB-GREET)
+    for(trig = trigs.begin(); trig != trigs.end(); ++trig) {
+      if(((*trig)->Skill("TBAScriptType") & 0x0000040)
+		&& ((*trig)->Skill("TBAScriptType") & 0x5000000)
+		) {
 	if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) {	// % Chance
 	  //fprintf(stderr, "Triggering: %s\n", (*trig)->Name());
 	  if(new_trigger(0, *trig, this, rdir)) return 1;

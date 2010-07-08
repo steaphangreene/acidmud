@@ -125,7 +125,7 @@ string Mind::TBAComp(string expr) {
     string comp = "0";
     if(oper == 1 && strcasestr(arg1.c_str(), arg2.c_str())) comp = "1";
     else if(oper == 2 && (!strcasecmp(arg1.c_str(), arg2.c_str()))) comp = "1";
-    else if(oper == 3 && strcasestr(arg1.c_str(), arg2.c_str())) comp = "1";
+    else if(oper == 3 && strcasecmp(arg1.c_str(), arg2.c_str())) comp = "1";
     else if(oper == 4 && (TBAEval(arg1) <= TBAEval(arg2))) comp = "1";
     else if(oper == 5 && (TBAEval(arg1) >= TBAEval(arg2))) comp = "1";
     else if(oper == -1 && (TBAEval(arg1) < TBAEval(arg2))) comp = "1";
@@ -276,8 +276,9 @@ void Mind::SetTBATrigger(Object *tr, Object *tripper, Object *targ, string text)
   if(stype & 0x0000008) {				//-SPEECH Triggers
     svars["speech"] = text;
     }
-  if((stype & 0x4000040) == 0x4000040			//ROOM-ENTER Triggers
-		|| stype & 0x0010000) {			//-LEAVE Triggers
+  if((stype & 0x0000040) == 0x4000040			//ROOM-ENTER Triggers
+	|| (stype & 0x1000040) == 0x1000040		//MOB-GREET Triggers
+		|| stype & 0x0010000) {			//*-LEAVE Triggers
     svars["direction"] = text;
     }
   if((stype & 0x4000080) == 0x4000080) {		//ROOM-DROP Triggers
@@ -2398,10 +2399,8 @@ int Mind::TBARunLine(string line) {
   else if(!strncasecmp(line.c_str(), "return ", 7)) {
     int retval = TBAEval(line.c_str()+7);
     if(retval == 0) {
-      status = 1;			//Return with special state
+      status = 1;			//Set special state
       }
-    Disable();
-    return 1;
     }
   else if(!strncasecmp(line.c_str(), "halt", 4)) {
     Disable();
