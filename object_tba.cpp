@@ -2033,13 +2033,21 @@ void Object::TBALoadOBJ(const char *fn) {
 	      obj->SetLongDesc(buf);
 	      }
 	    else {				//FIXME: Handle These
-	      fprintf(stderr, "Warning: Duplicate (%s) extra for '%s'!\n",
-		buf, obj->ShortDesc());
+//	      fprintf(stderr, "Warning: Duplicate (%s) extra for '%s'!\n",
+//		buf, obj->ShortDesc());
+	      Object *sub = new Object(obj);
+	      sub->SetShortDesc(buf);
+	      fscanf(mudo, "%65535[^~]", buf);
+	      sub->SetDesc(buf);
 	      }
 	    }
 	  else {				//FIXME: Handle These
-	    fprintf(stderr, "Warning: Non-matching (%s) extra for '%s'!\n",
-		buf, obj->ShortDesc());
+//	    fprintf(stderr, "Warning: Non-matching (%s) extra for '%s'!\n",
+//		buf, obj->ShortDesc());
+	    Object *sub = new Object(obj);
+	    sub->SetShortDesc(buf);
+	    fscanf(mudo, "%65535[^~]", buf);
+	    sub->SetDesc(buf);
 	    }
 	  fscanf(mudo, "%*[^~]");
 	  fscanf(mudo, "~%*[\n\r]");

@@ -3241,7 +3241,7 @@ list<Object *> Object::Contents(int vmode) {
     if((vmode & LOC_NOTFIXED) && (*item)->Pos() == POS_NONE) continue;
     ret.push_back(*item);
     }
-  return contents;
+  return ret;
   }
 
 list<Object *> Object::Contents() {
