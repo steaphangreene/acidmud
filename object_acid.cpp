@@ -169,7 +169,7 @@ int Object::Load(const char *fn) {
       if(aind->second) {
 	aind->second->touching_me.insert(*ind);
 	}
-      else if(num == 0){
+      else if(aind->first <= ACT_REST){		//Targetless Actions
 	aind->second = NULL;
 	}
       else {	//Act Targ No Longer Exists ("junkrestart", I hope)!
