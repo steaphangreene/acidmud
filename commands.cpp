@@ -3944,7 +3944,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(nmode) {
 	//Ninja-movement can't be followed or blocked!
 	body->Parent()->NotifyGone(body);
-	body->RemoveLink(body->Parent());
+	body->Parent()->RemoveLink(body);
 	body->SetParent(body->Parent()->Parent());
 	}
       else {
