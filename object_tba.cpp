@@ -610,7 +610,11 @@ void Object::TBALoadMOB(const char *fn) {
       if(!fscanf(mudm, "%65535[^~]~\n", buf)) fscanf(mudm, "%*[^\n\r]\n");
       else {
         for(char *ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
-	obj->SetLongDesc(buf);
+	if(buf[0] != '.') obj->SetLongDesc(buf);
+	else {	//Hidden MOBs
+	  obj->SetSkill("Hidden", 10);
+	  obj->SetLongDesc(buf+1);
+	  }
 	}
       //fprintf(stderr, "Loaded TBA Mobile with LongDesc = %s\n", buf);
 
