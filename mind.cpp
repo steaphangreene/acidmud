@@ -71,6 +71,9 @@ string Mind::TBAComp(string expr) {
   if(expr[0] == '-') skip = 1;	//Skip Leading "-"
   if(expr[0] == '!') skip = 1;	//Skip Leading "!"
   size_t op = expr.find_first_of("|&=!<>/-+*", skip);
+  while(expr[op] == '-' && isalpha(expr[op-1]) && isalpha(expr[op+1])) {
+    op = expr.find_first_of("|&=!<>/-+*", op+1);	//Skip Hyphens
+    }
   if(op == string::npos) return expr;	//No ops, just val
 
   int oper = 0;		//Positive for 2-char ops, negative for 1-char
