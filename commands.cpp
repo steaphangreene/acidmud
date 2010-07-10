@@ -3314,6 +3314,20 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  body->AddAct(ACT_HOLD, wield);	//If not, just hold it
 	  }
 	}
+
+      list<Object *> trigs;
+      list<Object *>::iterator trig;
+
+      trigs = targ->PickObjects("all tbaMUD trigger script",
+		LOC_NINJA|LOC_INTERNAL);
+      trig = trigs.begin();
+      for(; trig != trigs.end(); ++trig) {
+	int ttype = (*trig)->Skill("TBAScriptType");
+	if((ttype & 0x2000200) == 0x2000200) {		//OBJ-WEAR trigs
+	  if(new_trigger(0, *trig, body)) return 0;	//Says FAIL!
+	  }
+	}
+
       body->AddAct(ACT_WIELD, targ);
       body->Parent()->SendOut(stealth_t, stealth_s,
 	";s wields ;s.\n", "You wield ;s.\n", body, targ);
@@ -3418,6 +3432,19 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
       Object *targ = (*targ_it);
 
+      list<Object *> trigs;
+      list<Object *>::iterator trig;
+
+      trigs = targ->PickObjects("all tbaMUD trigger script",
+		LOC_NINJA|LOC_INTERNAL);
+      trig = trigs.begin();
+      for(; trig != trigs.end(); ++trig) {
+	int ttype = (*trig)->Skill("TBAScriptType");
+	if((ttype & 0x2000800) == 0x2000800) {		//OBJ-REMOVE trigs
+	  if(new_trigger(0, *trig, body)) return 0;	//Says FAIL!
+	  }
+	}
+
       int removed = 0;
       if((!nmode) && targ->HasSkill("Cursed")) {
 	if(mind) mind->SendF("%s won't come off!\n", targ->Name(0, body));
@@ -3517,6 +3544,19 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  mind->SendF("You are already wearing %s!\n", targ->Name(0, body));
 	}
       else {
+	list<Object *> trigs;
+	list<Object *>::iterator trig;
+
+	trigs = targ->PickObjects("all tbaMUD trigger script",
+		LOC_NINJA|LOC_INTERNAL);
+	trig = trigs.begin();
+	for(; trig != trigs.end(); ++trig) {
+	  int ttype = (*trig)->Skill("TBAScriptType");
+	  if((ttype & 0x2000200) == 0x2000200) {	//OBJ-WEAR trigs
+	    if(new_trigger(0, *trig, body)) return 0;	//Says FAIL!
+	    }
+	  }
+
 	if(body->Wear(targ, ~(0UL), 0)) did_something = 1;
 	}
       }
