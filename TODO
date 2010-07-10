@@ -9,6 +9,51 @@ Handle Multiple Weapon Types (eg: Bastard Swords).
 Refine the fudging of circle MOBs' stats (Better AC Handling, Natural Armor).
 Natural Armor.
 
+Handle Remaining ROOM-* TBA Trigger Scripts:
+	 1) Global       ROOM-GLOBAL
+Done	 2) Random       ROOM-RANDOM
+Done	 3) Command      ROOM-COMMAND
+Done	 4) Speech       ROOM-SPEECH       
+	 6) Zone Reset   ROOM-ZONE       
+Done	 7) Enter        ROOM-ENTER        
+Done	 8) Drop         ROOM-DROP       
+	16) Cast         ROOM-CAST       
+Done	17) Leave        ROOM-LEAVE       
+	18) Door         ROOM-DOOR       
+
+Handle Remaining OBJ-* TBA Trigger Scripts:
+	 1) Global    OBJ-GLOBAL
+Done	 2) Random    OBJ-RANDOM            
+Done	 3) Command   OBJ-COMMAND             
+	 6) Timer     OBJ-TIMER              
+Done	 7) Get       OBJ-GET              
+Done	 8) Drop      OBJ-DROP            
+	 9) Give      OBJ-GIVE              
+Done	10) Wear      OBJ-WEAR              
+Done	12) Remove    OBJ-REMOVE              
+	14) Load      OBJ-LOAD              
+Done	17) Leave     OBJ-LEAVE              
+
+Handle Remaining MOB-* TBA Trigger Scripts:
+	 1) Global      MOB-GLOBAL              
+Done	 2) Random      MOB-RANDOM          
+Done	 3) Command     MOB-COMMAND           
+Done	 4) Speech      MOB-SPEECH          
+Done	 5) Act         MOB-ACT           
+	 6) Death       MOB-DEATH          
+Done	 7) Greet       MOB-GREET           
+	 8) Greet-All   MOB-GREET-ALL          
+	 9) Entry       MOB-ENTRY          
+	10) Receive     MOB-RECEIVE          
+	11) Fight       MOB-FIGHT          
+	12) HitPrcnt    MOB-HITPRCNT          
+	13) Bribe       MOB-BRIBE          
+	14) Load        MOB-LOAD          
+	15) Memory      MOB-MEMORY          
+	16) Cast        MOB-CAST          
+Done	17) Leave       MOB-LEAVE          
+	18) Door        MOB-DOOR          
+
 Re-enable full introduction system?
 Fully understand visibility and cut messages accordingly.
 Starlight vision, night vision, low-light vision, and dark vision.
