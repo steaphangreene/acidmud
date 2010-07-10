@@ -2118,6 +2118,7 @@ static int tag(Object *obj, list<Object *> &ret, int *ordinal, int vmode = 0) {
   else {				// Some of this set.
     nobj = obj->Split(rqty);
     ret.push_back(nobj);
+    *ordinal = 0;
     return 1;
     }
   return 0;
