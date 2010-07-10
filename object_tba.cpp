@@ -1013,7 +1013,11 @@ void Object::TBALoadOBJ(const char *fn) {
       if(!fscanf(mudo, "%65535[^~]~\n", buf)) fscanf(mudo, "%*[^\n\r]\n");
       else {
 	for(char *ch=buf; (*ch); ++ch) if((*ch) == ';') (*ch) = ',';
-	obj->SetDesc(buf);
+	if(buf[0] != '.') obj->SetDesc(buf);
+	else {	//Hidden Objects
+	  obj->SetSkill("Hidden", 10);
+	  obj->SetDesc(buf+1);
+	  }
 	}
       //fprintf(stderr, "Loaded TBA Object with Desc = %s\n", buf);
 
