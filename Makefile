@@ -5,28 +5,20 @@ SSTR:=  $(shell svn info | grep ^Revision: | cut -f2- -d' ')
 OBJS:=	main.o version.o stats.o net.o commands.o mind.o player.o mob.o \
 	object.o object_acid.o object_dynamic.o command_ccreate.o utils.o \
 	object_tba.o 
+LIBS:=	-lstdc++ -lcrypt
+
+all:	acidmud
 
 #Production Settings (dynamic)
 CXX=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
-LIBS:=	-lstdc++ -lcrypt
 
-#Production Settings (dynamic, except libstdc++)
-#CXX=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
-#LIBS:=	-static `gcc$(ACIDMUD_CTAIL) -print-file-name=libstdc++.a` -lcrypt
+#Use debugging settings
+debug:
+	+make CXX='gcc$(ACIDMUD_CTAIL) -g -Wall'
 
-#Production Settings (static)
-#CXX=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
-#LIBS:=	-static -lstdc++ -lcrypt
-
-#Debugging settings
-#CXX=	gcc$(ACIDMUD_CTAIL) -g -Wall
-#LIBS:=	-lstdc++ -lcrypt
-
-#Profiling settings
-#CXX=	gcc$(ACIDMUD_CTAIL) -g -pg -fprofile-arcs -Wall
-#LIBS:=	-lstdc++ -lcrypt
-
-all:	acidmud
+#Use profiling settings
+profile:
+	+make CXX='gcc$(ACIDMUD_CTAIL) -g -pg -fprofile-arcs -Wall'
 
 clean:
 	rm -f gmon.out deps.mk *.o *.da acidmud ChangeLog ChangeLog.bak
