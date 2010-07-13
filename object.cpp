@@ -3182,6 +3182,10 @@ int Object::operator == (const Object &in) const {
   if(att[6] != in.att[6]) return 0;
   if(att[7] != in.att[7]) return 0;
 
+  if(phys != in.phys) return 0;
+  if(stun != in.stun) return 0;
+  if(stru != in.stru) return 0;
+
   if(pos != in.pos) return 0;
 
   if(minds != in.minds) return 0;	//Only no-mind or same-group-minds
