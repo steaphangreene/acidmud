@@ -4617,12 +4617,20 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       attacknow = 1; //Uncontested.
       }
 
-	//Free your off-hand (if it's not a shield)
+	//Free your off-hand if needed (if it's not a shield or weapon)
     if(body->ActTarg(ACT_HOLD)		//FIXME: Don't drop offhand weapons?!?
 	&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)
-	&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)) {
+	&& body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)
+	&& (body->ActTarg(ACT_WEAR_SHIELD)	//Need Off-Hand for shield
+	  || (body->ActTarg(ACT_WIELD)		//...or for two-hander
+	    && two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType"))
+	    )
+	  )
+	) {
       if(body->DropOrStash(body->ActTarg(ACT_HOLD))) {
-        if(mind) mind->SendF("Oh, no!  You can't drop or stash %s!\n",
+        if(mind) mind->SendF(
+		"Oh, no!  You can't drop or stash %s, "
+		"but you need your off-hand!",
 		body->ActTarg(ACT_HOLD)->Name(0, body)
 		);
 	}
