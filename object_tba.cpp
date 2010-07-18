@@ -28,6 +28,19 @@ static const char *dirname[6] = {
 	"north", "east", "south", "west", "up", "down"
 	};
 
+static int fline(FILE *f) {
+  long pos = ftell(f);
+  int lnum = 0;
+  rewind(f);
+  fscanf(f, "%*[^\n]");
+  while((!feof(f)) && pos > ftell(f)) {
+    ++lnum;
+    fscanf(f, "%*c%*[^\n]");
+    }
+  fseek(f, pos, SEEK_SET);
+  return lnum;
+  }
+
 static int untrans_trig = 0;
 static char buf[65536];
 void Object::TBALoadAll() {
@@ -275,20 +288,13 @@ void Object::TBAFinishMOB(Object *mob) {
     bag->SetValue(100);
 
     bag->SetSkill("Perishable", 1);
-    mob->AddAct(ACT_WEAR_RHIP, bag);
+    mob->AddAct(ACT_WEAR_LHIP, bag);
 
     if(!gold) init_gold();
     Object *g = new Object(*gold);
     g->SetParent(bag);
     g->SetSkill("Quantity", mob->Skill("TBAGold"));
     mob->SetSkill("TBAGold", 0);
-    }
-
-  if(mob->ActTarg(ACT_WEAR_LSHOULDER)) { //TBAMUD Bags Only
-    mob->ActTarg(ACT_WEAR_LSHOULDER)->SetSkill("Container",
-	mob->ActTarg(ACT_WEAR_LSHOULDER)->ContainedWeight());
-    mob->ActTarg(ACT_WEAR_LSHOULDER)->SetSkill("Capacity",
-	mob->ActTarg(ACT_WEAR_LSHOULDER)->ContainedVolume());
     }
 
   if(mob->Skill("TBAAttack")) {
@@ -429,84 +435,176 @@ void Object::TBALoadZON(const char *fn) {
 	    int bagit = 0;
 	    switch(pos) {
 	      case(1): { // Worn
-		lastmob->AddAct(ACT_WEAR_RFINGER, obj); break;
-		}
+		lastmob->AddAct(ACT_WEAR_RFINGER, obj);
+		if(obj->Skill("Wearable on Right Finger") == 0) {
+		  fprintf(stderr,
+			CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
+			fn, fline(mudz), obj->ShortDesc()
+			);
+		  }
+		} break;
 	      case(2): { // Worn
-		lastmob->AddAct(ACT_WEAR_LFINGER, obj); break;
-		}
-	      case(3):		//TBA MOBs have two necks (1/2)
+		lastmob->AddAct(ACT_WEAR_LFINGER, obj);
+		if(obj->Skill("Wearable on Left Finger") == 0) {
+		  fprintf(stderr,
+			CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
+			fn, fline(mudz), obj->ShortDesc()
+			);
+		  }
+		} break;
+	      case(3): {	//TBA MOBs have two necks (1/2)
 		if(lastmob->IsAct(ACT_WEAR_NECK)) bagit = 1;
 		else lastmob->AddAct(ACT_WEAR_NECK, obj);
-		break;
+		if(obj->Skill("Wearable on Neck") == 0) {
+		  fprintf(stderr,
+			CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
+			fn, fline(mudz), obj->ShortDesc()
+			);
+		  }
+		} break;
 	      case(4): {	//TBA MOBs have two necks (2/2)
 		if(lastmob->IsAct(ACT_WEAR_COLLAR)) bagit = 1;
 		else lastmob->AddAct(ACT_WEAR_COLLAR, obj);
-		break;
-		}
+		if(obj->Skill("Wearable on Collar") == 0) {
+		  fprintf(stderr,
+			CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
+			fn, fline(mudz), obj->ShortDesc()
+			);
+		  }
+		} break;
 	      case(5): { // Worn
-		lastmob->AddAct(ACT_WEAR_CHEST, obj); break;
-		lastmob->AddAct(ACT_WEAR_BACK, obj); break;
-		}
+		lastmob->AddAct(ACT_WEAR_CHEST, obj);
+		lastmob->AddAct(ACT_WEAR_BACK, obj);
+		if(obj->Skill("Wearable on Chest") == 0) {
+		  fprintf(stderr,
+			CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
+			fn, fline(mudz), obj->ShortDesc()
+			);
+		  }
+		} break;
 	      case(6): { // Worn
-		lastmob->AddAct(ACT_WEAR_HEAD, obj); break;
-		}
+		lastmob->AddAct(ACT_WEAR_HEAD, obj);
+		if(obj->Skill("Wearable on Head") == 0) {
+		  fprintf(stderr,
+			CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
+			fn, fline(mudz), obj->ShortDesc()
+			);
+		  }
+		} break;
 	      case(7): { // Worn
 		lastmob->AddAct(ACT_WEAR_LLEG, obj);
 		if(obj2) lastmob->AddAct(ACT_WEAR_RLEG, obj2);
 		else lastmob->AddAct(ACT_WEAR_RLEG, obj);
-		break;
-		}
+		if(obj->Skill("Wearable on Left Leg") == 0) {
+		  fprintf(stderr,
+			CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
+			fn, fline(mudz), obj->ShortDesc()
+			);
+		  }
+		} break;
 	      case(8): { // Worn
 		lastmob->AddAct(ACT_WEAR_LFOOT, obj);
 		if(obj2) lastmob->AddAct(ACT_WEAR_RFOOT, obj2);
 		else lastmob->AddAct(ACT_WEAR_RFOOT, obj);
-		break;
-		}
+		if(obj->Skill("Wearable on Left Foot") == 0) {
+		  fprintf(stderr,
+			CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
+			fn, fline(mudz), obj->ShortDesc()
+			);
+		  }
+		} break;
 	      case(9): { // Worn
 		lastmob->AddAct(ACT_WEAR_LHAND, obj);
 		if(obj2) lastmob->AddAct(ACT_WEAR_RHAND, obj2);
 		else lastmob->AddAct(ACT_WEAR_RHAND, obj);
-		break;
-		}
+		if(obj->Skill("Wearable on Left Hand") == 0) {
+		  fprintf(stderr,
+			CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
+			fn, fline(mudz), obj->ShortDesc()
+			);
+		  }
+		} break;
 	      case(10): { // Worn
 		lastmob->AddAct(ACT_WEAR_LARM, obj);
 		if(obj2) lastmob->AddAct(ACT_WEAR_RARM, obj2);
 		else lastmob->AddAct(ACT_WEAR_RARM, obj);
-		break;
-		}
+		if(obj->Skill("Wearable on Left Arm") == 0) {
+		  fprintf(stderr,
+			CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
+			fn, fline(mudz), obj->ShortDesc()
+			);
+		  }
+		} break;
 	      case(11): { // Worn
-		lastmob->AddAct(ACT_WEAR_SHIELD, obj); break;
-		}
+		lastmob->AddAct(ACT_WEAR_SHIELD, obj);
+		if(obj->Skill("Wearable on Shield") == 0) {
+		  fprintf(stderr,
+			CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
+			fn, fline(mudz), obj->ShortDesc()
+			);
+		  }
+		} break;
 	      case(12): { // Worn
-		lastmob->AddAct(ACT_WEAR_BACK, obj); break;
-		}
+		lastmob->AddAct(ACT_WEAR_LSHOULDER, obj);
+		lastmob->AddAct(ACT_WEAR_RSHOULDER, obj);
+		if(obj->Skill("Wearable on Left Shoulder") == 0) {
+		  fprintf(stderr,
+			CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
+			fn, fline(mudz), obj->ShortDesc()
+			);
+		  }
+		} break;
 	      case(13): { // Worn
-		lastmob->AddAct(ACT_WEAR_WAIST, obj); break;
-		}
+		lastmob->AddAct(ACT_WEAR_WAIST, obj);
+		if(obj->Skill("Wearable on Waist") == 0) {
+		  fprintf(stderr,
+			CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
+			fn, fline(mudz), obj->ShortDesc()
+			);
+		  }
+		} break;
 	      case(14): { // Worn
-		lastmob->AddAct(ACT_WEAR_RWRIST, obj); break;
-		}
+		lastmob->AddAct(ACT_WEAR_RWRIST, obj);
+		if(obj->Skill("Wearable on Right Wrist") == 0) {
+		  fprintf(stderr,
+			CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
+			fn, fline(mudz), obj->ShortDesc()
+			);
+		  }
+		} break;
 	      case(15): { // Worn
-		lastmob->AddAct(ACT_WEAR_LWRIST, obj); break;
-		}
+		lastmob->AddAct(ACT_WEAR_LWRIST, obj);
+		if(obj->Skill("Wearable on Left Wrist") == 0) {
+		  fprintf(stderr,
+			CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
+			fn, fline(mudz), obj->ShortDesc()
+			);
+		  }
+		} break;
 	      case(16): { // Wielded
-		lastmob->AddAct(ACT_WIELD, obj); break;
-		}
+		lastmob->AddAct(ACT_WIELD, obj);
+		if(obj->Skill("WeaponType") == 0) {
+		  fprintf(stderr,
+			CYEL "%s:%d: Warning: Wield non-weapon: %s\n" CNRM,
+			fn, fline(mudz), obj->ShortDesc()
+			);
+		  }
+		} break;
 	      case(17): { // Held
-		lastmob->AddAct(ACT_HOLD, obj); break;
-		}
+		lastmob->AddAct(ACT_HOLD, obj);
+		} break;
 	      default: {
 		bagit = 1;
-		}break;
+		} break;
 	      }
 	    if(bagit) {
 	      if(!lastbag) {
 		lastbag = new Object(lastmob);
-		lastbag->SetShortDesc("a TBAMUD pack");
-		lastbag->SetDesc("A mysterious pack that didn't seem to need to exist before.");
+		lastbag->SetShortDesc("a TBAMUD bag");
+		lastbag->SetDesc("A mysterious bag that didn't seem to need to exist before.");
 
-		lastbag->SetSkill("Wearable on Left Shoulder", 1);
-		lastbag->SetSkill("Wearable on Right Shoulder", 2);
+		lastbag->SetSkill("Wearable on Right Hip", 1);
+		lastbag->SetSkill("Wearable on Left Hip", 2);
 		lastbag->SetSkill("Container", 1000 * 454);
 		lastbag->SetSkill("Capacity", 1000);
 		lastbag->SetSkill("Closeable", 1);
@@ -517,7 +615,7 @@ void Object::TBALoadZON(const char *fn) {
 		lastbag->SetValue(200);
 
 		lastbag->SetSkill("Perishable", 1);
-		lastmob->AddAct(ACT_WEAR_LSHOULDER, lastbag);
+		lastmob->AddAct(ACT_WEAR_RHIP, lastbag);
 		}
 	      obj->Travel(lastbag);
 	      if(obj2) obj2->Travel(lastbag);
@@ -1178,9 +1276,8 @@ void Object::TBALoadOBJ(const char *fn) {
 	obj->SetSkill("Wearable on Shield", 1);	// FIXME: Wear Shield?
 	}
       if(strcasestr(buf, "k") || (atoi(buf) & 1024)) {
-	obj->SetSkill("Wearable on Back", 1);		// "WEAR_ABOUT"
-	obj->SetSkill("Wearable on Left Shoulder", 2);
-	obj->SetSkill("Wearable on Right Shoulder", 2);
+	obj->SetSkill("Wearable on Left Shoulder", 1);
+	obj->SetSkill("Wearable on Right Shoulder", 1);
 	}
       if(strcasestr(buf, "l") || (atoi(buf) & 2048)) {
 	obj->SetSkill("Wearable on Waist", 1);
