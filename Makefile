@@ -1,7 +1,7 @@
 ACIDHOST:=optimus.cs.binghamton.edu
 
 TSTR:=  $(shell date -u +"%Y%m%d%H%M")
-SSTR:=  $(shell svn info | grep ^Revision: | cut -f2- -d' ')
+SSTR:=  $(shell git log --oneline | wc -l)
 OBJS:=	main.o version.o stats.o net.o commands.o mind.o player.o mob.o \
 	object.o object_acid.o object_dynamic.o command_ccreate.o utils.o \
 	object_tba.o 

@@ -1,0 +1,4 @@
+acidmud
+deps.mk
+version.cpp
+*.o
