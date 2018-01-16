@@ -17,7 +17,7 @@ class Object;
 #define MIND_H
 
 class Mind {
-public:
+ public:
   Mind();
   Mind(int fd);
   Mind(int fd, int l);
@@ -26,25 +26,33 @@ public:
   void SetRemote(int fd);
   void SetMob();
   void SetTBAMob();
-  void SetTBATrigger(Object *tr,
-	Object *tripper = NULL, Object *targ = NULL, string text = ""
-	);
+  void SetTBATrigger(Object* tr, Object* tripper = NULL, Object* targ = NULL, string text = "");
   void SetNPC();
   void SetSystem();
-  void Attach(Object *bod);
+  void Attach(Object* bod);
   void Unattach();
-  Object *Body() { return body; };
-  Player *Owner() { return player; };
-  string PName() { return pname; };
+  Object* Body() {
+    return body;
+  };
+  Player* Owner() {
+    return player;
+  };
+  string PName() {
+    return pname;
+  };
   void SetPName(string);
   void SetPPass(string);
   void SetPlayer(string);
-  int Type() { return type; };
-  int LogFD() { return log; };
-  void Send(const char *);
-  void SendRaw(const char *);
-  void SendF(const char *, ...) __attribute__ ((format (printf, 2, 3)));
-  void SendRawF(const char *, ...) __attribute__ ((format (printf, 2, 3)));
+  int Type() {
+    return type;
+  };
+  int LogFD() {
+    return log;
+  };
+  void Send(const char*);
+  void SendRaw(const char*);
+  void SendF(const char*, ...) __attribute__((format(printf, 2, 3)));
+  void SendRawF(const char*, ...) __attribute__((format(printf, 2, 3)));
   void UpdatePrompt();
 
   void Think(int istick = 0);
@@ -54,55 +62,53 @@ public:
   void Suspend(int msec);
   void Disable();
 
-  void SetSpecialPrompt(const char *newp = "");
-  const char *SpecialPrompt();
+  void SetSpecialPrompt(const char* newp = "");
+  const char* SpecialPrompt();
 
   int Status() const;
   void ClearStatus();
 
-  void SetSVar(const string &var, const string &val);
-  void ClearSVar(const string &var);
-  const string &SVar(const string &var) const;
-  int IsSVar(const string &var) const;
-  void SetSVars(const map<string,string> &sv);
-  const map<string,string> SVars() const;
+  void SetSVar(const string& var, const string& val);
+  void ClearSVar(const string& var);
+  const string& SVar(const string& var) const;
+  int IsSVar(const string& var) const;
+  void SetSVars(const map<string, string>& sv);
+  const map<string, string> SVars() const;
 
-private:
-  int TBACanWanderTo(Object *dest);
+ private:
+  int TBACanWanderTo(Object* dest);
 
   string TBAComp(string expr);
   int TBAEval(string expr);
-  void TBAVarSub(string &line);
+  void TBAVarSub(string& line);
 
   int TBARunLine(string line);
 
   int type;
   int pers;
-  Object *body;
-  Player *player;
+  Object* body;
+  Player* player;
   string pname;
   string prompt;
   int log;
 
   static map<string, string> cvars;
   map<string, string> svars;
-  map<string, Object *> ovars;
+  map<string, Object*> ovars;
   int status;
   string script;
   list<size_t> spos_s;
 
-  static list<pair<int, Mind*> > waiting;
-  };
+  static list<pair<int, Mind*>> waiting;
+};
 
-Mind *new_mind(int tp,
-	Object *obj = NULL, Object *obj2 = NULL, Object *obj3 = NULL,
-	string text = ""
-	);
-int new_trigger(int msec,
-	Object *obj, Object *tripper = NULL, string text = ""
-	);
-int new_trigger(int msec,
-	Object *obj, Object *tripper, Object *targ, string text = ""
-	);
+Mind* new_mind(
+    int tp,
+    Object* obj = NULL,
+    Object* obj2 = NULL,
+    Object* obj3 = NULL,
+    string text = "");
+int new_trigger(int msec, Object* obj, Object* tripper = NULL, string text = "");
+int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, string text = "");
 
 #endif
