@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "object.h"
+#include "object.hpp"
 
 static map<string, int> defaults;
 static map<int, string> weaponskills;

@@ -9,12 +9,12 @@
 
 using namespace std;
 
-#include "color.h"
-#include "commands.h"
-#include "mind.h"
-#include "net.h"
-#include "object.h"
-#include "utils.h"
+#include "color.hpp"
+#include "commands.hpp"
+#include "mind.hpp"
+#include "net.hpp"
+#include "object.hpp"
+#include "utils.hpp"
 
 const char* pos_str[POS_MAX] = {
     "is here",

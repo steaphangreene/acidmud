@@ -3,7 +3,7 @@
 
 using namespace std;
 
-#include "object.h"
+#include "object.hpp"
 
 class Player;
 

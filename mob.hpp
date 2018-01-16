@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-#include "object.h"
+#include "object.hpp"
 
 class ArmorType {
  public:

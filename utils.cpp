@@ -2,7 +2,7 @@
 #include <cstring>
 #include <string>
 
-#include "utils.h"
+#include "utils.hpp"
 
 void replace_all(string& str, const string& oldt, const string& newt, size_t st) {
   size_t loc = str.find(oldt, st);

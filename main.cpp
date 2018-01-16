@@ -14,8 +14,8 @@ using namespace std;
 #include <cstring>
 #include <ctime>
 
-#include "net.h"
-#include "object.h"
+#include "net.hpp"
+#include "object.hpp"
 
 int shutdn = 0;
 

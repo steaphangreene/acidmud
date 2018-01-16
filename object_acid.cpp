@@ -1,9 +1,9 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "mind.h"
-#include "object.h"
-#include "version.h"
+#include "mind.hpp"
+#include "object.hpp"
+#include "version.hpp"
 
 const char* act_save[ACT_SPECIAL_MAX] = {
     "NONE",

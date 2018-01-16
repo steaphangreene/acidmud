@@ -6,9 +6,9 @@ using namespace std;
 #include <cstdlib>
 #include <cstring>
 
-#include "net.h"
-#include "player.h"
-#include "version.h"
+#include "net.hpp"
+#include "player.hpp"
+#include "version.hpp"
 
 static map<string, Player*> player_list;
 static set<Player*> non_init;

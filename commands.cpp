@@ -6,14 +6,14 @@
 
 using namespace std;
 
-#include "color.h"
-#include "commands.h"
-#include "main.h"
-#include "mind.h"
-#include "net.h"
-#include "object.h"
-#include "utils.h"
-#include "version.h"
+#include "color.hpp"
+#include "commands.hpp"
+#include "main.hpp"
+#include "mind.hpp"
+#include "net.hpp"
+#include "object.hpp"
+#include "utils.hpp"
+#include "version.hpp"
 
 #define SIT_ETHEREAL 1
 #define SIT_CORPOREAL 2

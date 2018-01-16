@@ -42,7 +42,7 @@ acidmud: $(OBJS)
 %.o: %.cpp
 	$(CXX) -c $<
 
-version.cpp:	version.cpp.template *.h [a-uw-z]*.cpp
+version.cpp:	version.cpp.template *.hpp [a-uw-z]*.cpp
 	cat version.cpp.template \
 		| sed s-DATE_STAMP-$(TSTR)-g \
 		| sed s-SVN_STAMP-$(SSTR)-g \
@@ -50,5 +50,5 @@ version.cpp:	version.cpp.template *.h [a-uw-z]*.cpp
 
 include deps.mk
 
-deps.mk:	*.cpp *.h
+deps.mk:	*.cpp *.hpp
 	$(CXX) -MM *.cpp > deps.mk

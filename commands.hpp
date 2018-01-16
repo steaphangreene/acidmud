@@ -1,7 +1,7 @@
 #include <string>
 
-#include "mind.h"
-#include "object.h"
+#include "mind.hpp"
+#include "object.hpp"
 
 typedef enum {
   COM_NONE = 0,

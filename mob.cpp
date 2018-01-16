@@ -7,12 +7,12 @@
 
 using namespace std;
 
-#include "color.h"
-#include "commands.h"
-#include "mind.h"
-#include "mob.h"
-#include "object.h"
-#include "utils.h"
+#include "color.hpp"
+#include "commands.hpp"
+#include "mind.hpp"
+#include "mob.hpp"
+#include "object.hpp"
+#include "utils.hpp"
 
 static map<act_t, string> wear_attribs;
 static void init_wear_attribs() {

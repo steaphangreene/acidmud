@@ -5,11 +5,11 @@
 #include <cstring>
 #include <string>
 
-#include "color.h"
-#include "commands.h"
-#include "mind.h"
-#include "mob.h"
-#include "object.h"
+#include "color.hpp"
+#include "commands.hpp"
+#include "mind.hpp"
+#include "mob.hpp"
+#include "object.hpp"
 
 void Object::DynamicInit9() {}
 

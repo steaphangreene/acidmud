@@ -15,13 +15,13 @@ using namespace std;
 #include <cstdlib>
 #include <cstring>
 
-#include "color.h"
-#include "commands.h"
-#include "mind.h"
-#include "net.h"
-#include "object.h"
-#include "player.h"
-#include "utils.h"
+#include "color.hpp"
+#include "commands.hpp"
+#include "mind.hpp"
+#include "net.hpp"
+#include "object.hpp"
+#include "player.hpp"
+#include "utils.hpp"
 
 list<Mind*> recycle_bin;
 

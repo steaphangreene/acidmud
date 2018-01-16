@@ -1,6 +1,6 @@
 #define VERSION_DEFINED
 
-#include "version.h"
+#include "version.hpp"
 
 VersionInformation CurrentVersion = {
     0x00000001UL, // Net Save Version

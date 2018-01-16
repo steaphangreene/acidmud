@@ -20,12 +20,12 @@ typedef int socket_t;
 
 using namespace std;
 
-#include "commands.h"
-#include "mind.h"
-#include "net.h"
-#include "object.h"
-#include "utils.h"
-#include "version.h"
+#include "commands.hpp"
+#include "mind.hpp"
+#include "net.hpp"
+#include "object.hpp"
+#include "utils.hpp"
+#include "version.hpp"
 
 static set<socket_t> fds;
 static map<socket_t, Mind*> minds;

@@ -8,11 +8,11 @@
 
 using namespace std;
 
-#include "color.h"
-#include "commands.h"
-#include "mind.h"
-#include "object.h"
-#include "utils.h"
+#include "color.hpp"
+#include "commands.hpp"
+#include "mind.hpp"
+#include "object.hpp"
+#include "utils.hpp"
 
 static int tba_bitvec(const string& val) {
   int ret = atoi(val.c_str());

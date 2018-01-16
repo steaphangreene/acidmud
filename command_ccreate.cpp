@@ -4,9 +4,9 @@
 
 using namespace std;
 
-#include "commands.h"
-#include "mind.h"
-#include "object.h"
+#include "commands.hpp"
+#include "mind.hpp"
+#include "object.hpp"
 
 #define NUM_AVS 5 // 28 Max!
 #define NUM_STS 5 // No Max
