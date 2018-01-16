@@ -429,8 +429,7 @@ int Object::Tick() {
 	}
 
       list<Object*> cont = contents;
-      typeof(cont.begin()) todel;
-      for(todel = cont.begin(); todel != cont.end(); ++todel) {
+      for(auto todel = cont.begin(); todel != cont.end(); ++todel) {
 	(*todel)->Recycle();
 	}
 
@@ -693,8 +692,7 @@ Object::Object(const Object &o) {
   skills = o.skills;
 
   contents.clear();
-  typeof(o.contents.begin()) ind;
-  for(ind = o.contents.begin(); ind != o.contents.end(); ++ind) {
+  for(auto ind = o.contents.begin(); ind != o.contents.end(); ++ind) {
     Object *nobj = new Object(*(*ind));
     nobj->SetParent(this);
     if(o.ActTarg(ACT_HOLD) == (*ind)) AddAct(ACT_HOLD, nobj);
@@ -1066,8 +1064,7 @@ void Object::SendContents(Mind *m, Object *o, int vmode, string b) {
     }
 
   int tlines = 0, total = 0;
-  typeof(cont.begin()) ind;
-  for(ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
+  for(auto ind = cont.begin(); ind != cont.end(); ++ind) if(master.count(*ind)) {
     if((vmode & LOC_NINJA) == 0 && Parent() != NULL) {	//NinjaMode/CharRoom
       if((*ind)->Skill("Invisible") > 999) continue;
       if((*ind)->HasSkill("Invisible")) {
@@ -1127,7 +1124,7 @@ void Object::SendContents(Mind *m, Object *o, int vmode, string b) {
       int qty = MAX(1, (*ind)->Skill("Quantity"));
 */
       int qty = 1;	// Even animate objects can have higher quantities.
-      typeof(cont.begin()) oth = ind;
+      auto oth = ind;
       for(qty = 0; oth != cont.end(); ++oth) {
 	if((*ind)->LooksLike(*oth, vmode)) {
 	  master.erase(*oth);
@@ -1647,11 +1644,10 @@ list<string> Object::FormatStats(map<string,int> &skls) {
   }
 
 void Object::AddLink(Object *ob) {
-  typeof(contents.begin()) ind;
-  ind = find(contents.begin(), contents.end(), ob);
+  auto ind = find(contents.begin(), contents.end(), ob);
   if(ind == contents.end()) {
     contents.push_back(ob);
-//    typeof(contents.begin()) place = contents.end();
+//    auto place = contents.end();
 //    for(ind = contents.begin(); ind != contents.end(); ++ind) {
 //      if((*ind) == ob) return;				//Already there!
 //      if((*(*ind)) == (*ob)) { place = ind; ++place; }	//Likes by likes
@@ -1661,8 +1657,7 @@ void Object::AddLink(Object *ob) {
   }
 
 void Object::RemoveLink(Object *ob) {
-  typeof(contents.begin()) ind;
-  ind = find(contents.begin(), contents.end(), ob);
+  auto ind = find(contents.begin(), contents.end(), ob);
   while(ind != contents.end()) {
     contents.erase(ind);
     ind = find(contents.begin(), contents.end(), ob);
@@ -1709,8 +1704,7 @@ void Object::LinkClosed(Object *other, const string &name, const string &desc,
 
 void Object::TryCombine() {
   if(!parent) return;
-  typeof(parent->contents.begin()) ind;
-  for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
+  for(auto ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
     if((*ind) == this) continue;	//Skip self
 
 	// Never combine with an actee.
@@ -1816,8 +1810,8 @@ int Object::Travel(Object *dest, int try_combine) {
   oldp->NotifyGone(this, dest);
   parent->AddLink(this);
 
-  typeof(touching_me) touches = touching_me;
-  typeof(touches.begin()) touch = touches.begin();
+  auto touches = touching_me;
+  auto touch = touches.begin();
   for(; touch != touches.end(); ++touch) {
     (*touch)->NotifyLeft(this, dest);
     }
@@ -1863,8 +1857,7 @@ void Object::Recycle(int inbin) {
 
   set<Object*> movers;
   set<Object*> killers;
-  typeof(contents.begin()) ind;
-  for(ind = contents.begin(); ind != contents.end(); ++ind) {
+  for(auto ind = contents.begin(); ind != contents.end(); ++ind) {
     if(is_pc(*ind)) {
       movers.insert(*ind);
       }
@@ -1873,8 +1866,7 @@ void Object::Recycle(int inbin) {
       }
     }
 
-  typeof(killers.begin()) indk;
-  for(indk = killers.begin(); indk != killers.end(); ++indk) {
+  for(auto indk = killers.begin(); indk != killers.end(); ++indk) {
     if(find(contents.begin(), contents.end(), *indk) != contents.end()) {
       (*indk)->SetParent(NULL);
       RemoveLink(*indk);
@@ -1885,10 +1877,9 @@ void Object::Recycle(int inbin) {
 
   contents.clear();
 
-  typeof(movers.begin()) indm;
-  for(indm = movers.begin(); indm != movers.end(); ++indm) {
+  for(auto indm = movers.begin(); indm != movers.end(); ++indm) {
     (*indm)->StopAll();
-    typeof((*indm)->contents.begin()) ind2 = (*indm)->contents.begin();
+    auto ind2 = (*indm)->contents.begin();
     for(; ind2 != (*indm)->contents.end(); ++ind2) {
       (*ind2)->SetParent(NULL);
       killers.insert(*ind2);
@@ -1905,7 +1896,7 @@ void Object::Recycle(int inbin) {
     (*indm)->Travel(dest);
     }
 
-  for(indk = killers.begin(); indk != killers.end(); ++indk) {
+  for(auto indk = killers.begin(); indk != killers.end(); ++indk) {
     (*indk)->Recycle();
     }
   killers.clear();
@@ -1932,8 +1923,8 @@ void Object::Recycle(int inbin) {
   if(ActTarg(ACT_SPECIAL_LINKED))
     tonotify.insert(ActTarg(ACT_SPECIAL_LINKED));
 
-  typeof(touching_me) touches = touching_me;
-  typeof(touches.begin()) touch = touches.begin();
+  auto touches = touching_me;
+  auto touch = touches.begin();
   for(; touch != touches.end(); ++touch) {
     tonotify.insert(*touch);
     }
@@ -1974,8 +1965,7 @@ void Object::Unattach(Mind *m) {
 
 int Object::ContainedWeight() {
   int ret = 0;
-  typeof(contents.begin()) ind;
-  for(ind = contents.begin(); ind != contents.end(); ++ind) {
+  for(auto ind = contents.begin(); ind != contents.end(); ++ind) {
     ret += (*ind)->weight;
     }
   return ret;
@@ -1983,8 +1973,7 @@ int Object::ContainedWeight() {
 
 int Object::ContainedVolume() {
   int ret = 0;
-  typeof(contents.begin()) ind;
-  for(ind = contents.begin(); ind != contents.end(); ++ind) {
+  for(auto ind = contents.begin(); ind != contents.end(); ++ind) {
     ret += (*ind)->volume;
     }
   return ret;
@@ -2149,8 +2138,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) const
     list<Object*> masters = PickObjects(keyword3, loc, ordinal);
     if(!masters.size()) { free(keyword3); return ret; }
 
-    typeof(masters.begin()) master;
-    for(master = masters.begin(); master != masters.end(); ++master) {
+    for(auto master = masters.begin(); master != masters.end(); ++master) {
       list<Object*> add =
 	(*master)->PickObjects(keyword3 + (keyword-name)+3,
 		(loc & LOC_SPECIAL)|LOC_INTERNAL
@@ -2192,8 +2180,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) const
   if((loc & LOC_NEARBY) && (parent != NULL)) {
     list<Object*> cont = parent->Contents(loc);	//"loc" includes vmode.
 
-    typeof(cont.begin()) ind;
-    for(ind = cont.begin(); ind != cont.end(); ++ind) if(!(*ind)->no_seek) {
+    for(auto ind = cont.begin(); ind != cont.end(); ++ind) if(!(*ind)->no_seek) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
       if((*ind)->Filter(loc) && (*ind)->Matches(name)) {
 	if(tag(*ind, ret, ordinal,
@@ -2229,7 +2216,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) const
 
     map<act_t,Object*>::const_iterator action;
     for(action = act.begin(); action != act.end(); ++action) {
-      typeof(cont.begin()) ind = find(cont.begin(), cont.end(), action->second);
+      auto ind = find(cont.begin(), cont.end(), action->second);
       if(ind != cont.end()) {		// IE: Is action->second within cont
 	cont.erase(ind);
 	if(action->second->Filter(loc) && action->second->Matches(name)
@@ -2253,8 +2240,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) const
 	}
       }
 
-    typeof(cont.begin()) ind;
-    for(ind = cont.begin(); ind != cont.end(); ++ind) {
+    for(auto ind = cont.begin(); ind != cont.end(); ++ind) {
       if((*ind) == this) continue;  // Must use "self" to pick self!
       if((*ind)->Filter(loc) && (*ind)->Matches(name)) {
 	if(tag(*ind, ret, ordinal,
@@ -2277,8 +2263,7 @@ list<Object*> Object::PickObjects(const char *name, int loc, int *ordinal) const
 
 int Object::HasWithin(const Object *obj) {
   if(no_seek) return 0;
-  typeof(contents.begin()) ind;
-  for(ind = contents.begin(); ind != contents.end(); ++ind) {
+  for(auto ind = contents.begin(); ind != contents.end(); ++ind) {
     if((*ind) == obj) return 1;
     if((*ind)->HasWithin(obj)) return 1;
     }
@@ -2287,8 +2272,7 @@ int Object::HasWithin(const Object *obj) {
 
 int Object::SeeWithin(const Object *obj) {
   if(no_seek) return 0;
-  typeof(contents.begin()) ind;
-  for(ind = contents.begin(); ind != contents.end(); ++ind) {
+  for(auto ind = contents.begin(); ind != contents.end(); ++ind) {
     if((*ind) == obj) return 1;
     if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
       if((*ind)->SeeWithin(obj)) return 1;
@@ -2299,8 +2283,7 @@ int Object::SeeWithin(const Object *obj) {
 
 int Object::IsNearBy(const Object *obj) {
   if(no_seek || (!parent)) return 0;
-  typeof(contents.begin()) ind;
-  for(ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
+  for(auto ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
     if((*ind) == obj) return 1;
     if((*ind) == this) continue;  // Not Nearby Self
     if((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
@@ -2319,7 +2302,7 @@ int Object::IsNearBy(const Object *obj) {
 
 void Object::NotifyLeft(Object *obj, Object *newloc) {
   set<act_t> stops, stops2;
-  typeof(act.begin()) curact = act.begin();
+  auto curact = act.begin();
   int following = 0;
   for(; curact != act.end(); ++curact) {
     if(curact->second && curact->first < ACT_MAX && (
@@ -2333,7 +2316,7 @@ void Object::NotifyLeft(Object *obj, Object *newloc) {
 	}
       }
     if(curact->first >= ACT_MAX && (!newloc) && curact->second == obj) {
-      typeof(act.begin()) curact2 = act.begin();
+      auto curact2 = act.begin();
       for(; curact2 != act.end(); ++curact2) {
 	if(curact2->first >= ACT_MAX) {
 	  if(curact2->second == this) {
@@ -2395,8 +2378,7 @@ void Object::NotifyGone(Object *obj, Object *newloc, int up) {
 
   map<Object *, int> tonotify;
 
-  typeof(contents.begin()) ind;
-  for(ind = contents.begin(); ind != contents.end(); ++ind) {
+  for(auto ind = contents.begin(); ind != contents.end(); ++ind) {
     if(up >= 0) {
       tonotify[*ind] = -1;
       }
@@ -2432,7 +2414,7 @@ void Object::StopAct(act_t a) {
     obj->Deactivate();
     }
   if(obj) {
-    typeof(act.begin()) opt = act.begin();
+    auto opt = act.begin();
     for(; opt != act.end(); ++opt) {
       if(opt->second == obj) {
 	return;				//Still touching it 
@@ -2443,8 +2425,8 @@ void Object::StopAct(act_t a) {
   }
 
 void Object::StopAll() {
-  typeof(act) oldact = act;
-  typeof(oldact.begin()) opt = oldact.begin();
+  auto oldact = act;
+  auto opt = oldact.begin();
   for(; opt != oldact.end(); ++opt) {
     StopAct(opt->first);
     }
@@ -2673,7 +2655,7 @@ void Object::SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
   if(no_seek) return;
 
   if(this != actor) {			//Don't trigger yourself!
-    typeof(contents.begin()) trig = contents.begin();
+    auto trig = contents.begin();
     for(; trig != contents.end(); ++trig) {
       if(strncmp(mes, ";s says '", 9)) {//Type 0x1000010 (MOB + MOB-ACT)
 	if(((*trig)->Skill("TBAScriptType") & 0x1000010) == 0x1000010) {
@@ -2762,8 +2744,7 @@ void Object::SendIn(int tnum, int rsucc, const char *mes, const char *youmes,
   free(str);
   free(youstr);
 
-  typeof(contents.begin()) ind;
-  for(ind = contents.begin(); ind != contents.end(); ++ind) {
+  for(auto ind = contents.begin(); ind != contents.end(); ++ind) {
     if((*ind)->Skill("Open") || (*ind)->Skill("Transparent"))
       (*ind)->SendIn(tnum, rsucc, mes, youmes, actor, targ);
     else if((*ind)->Pos() != POS_NONE)	//FIXME - Understand Transparency
@@ -2796,7 +2777,7 @@ void Object::SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
   if(no_seek) return;
 
   if(!strncmp(mes, ";s says '", 9)) {	//Type 0x4000008 (ROOM + ROOM-SPEECH)
-    typeof(contents.begin()) trig = contents.begin();
+    auto trig = contents.begin();
     for(; trig != contents.end(); ++trig) {
       if(((*trig)->Skill("TBAScriptType") & 0x4000008) == 0x4000008) {
 	string speech = (mes+9);
@@ -2860,8 +2841,7 @@ void Object::SendOut(int tnum, int rsucc, const char *mes, const char *youmes,
   free(str);
   free(youstr);
 
-  typeof(contents.begin()) ind;
-  for(ind = contents.begin(); ind != contents.end(); ++ind) {
+  for(auto ind = contents.begin(); ind != contents.end(); ++ind) {
     if((*ind)->Skill("Open") || (*ind)->Skill("Transparent"))
       (*ind)->SendIn(tnum, rsucc, mes, youmes, actor, targ);
     else if((*ind)->Pos() != POS_NONE)	//FIXME - Understand Transparency
@@ -2919,9 +2899,8 @@ void Object::LoudF(int str, const char *mes, ...) {
 void Object::Loud(set<Object*> &visited, int str, const char *mes) {
   visited.insert(this);
   list<Object*> targs;
-  typeof(targs.begin()) targ_it;
   targs = PickObjects("all", LOC_INTERNAL);
-  for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+  for(auto targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
     Object *dest = *targ_it;
     if(dest->HasSkill("Enterable")) {
       int ostr=str;
@@ -3028,8 +3007,7 @@ void save_world(int with_net) {
   }
 
 int Object::WriteContentsTo(FILE *fl) {
-  typeof(contents.begin()) cind;
-  for(cind = contents.begin(); cind != contents.end(); ++cind) {
+  for(auto cind = contents.begin(); cind != contents.end(); ++cind) {
     fprintf(fl, ":%d", getnum(*cind));
     }
   return 0;
@@ -3137,7 +3115,7 @@ void Object::FreeActions() {
 	}
 
 					//Type 0x1000400 (MOB + MOB-FIGHT)
-      typeof(contents.begin()) trig = init->first->contents.begin();
+      auto trig = init->first->contents.begin();
       for(; trig != init->first->contents.end(); ++trig) {
 	if(((*trig)->Skill("TBAScriptType") & 0x1000400) == 0x1000400) {
 	  if((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) { // % Chance
@@ -3567,7 +3545,7 @@ int Object::LightLevel(int updown) {
       }
     }
   if(updown != 1) {	//Go Down
-    typeof(contents.begin()) item = contents.begin();
+    auto item = contents.begin();
     for(; item != contents.end(); ++item) {
       if(!Wearing(*item)) {	//Containing it (internal)
 	int fac = (*item)->Skill("Open")
@@ -3579,7 +3557,7 @@ int Object::LightLevel(int updown) {
 	  }
 	}
 
-      typeof(contents.begin()) subitem = (*item)->contents.begin();
+      auto subitem = (*item)->contents.begin();
       for(; subitem != (*item)->contents.end(); ++subitem) {
 	//Wearing it (external - so reaching one level further)
 	if((*item)->Wearing(*subitem)) {
@@ -3609,7 +3587,7 @@ int Object::Attribute(int a) const {
 
 int Object::Modifier(const string &m) const {
   int ret = 0;
-  typeof(contents.begin()) item = contents.begin();
+  auto item = contents.begin();
   for(; item != contents.end(); ++item) {
     if(Wearing(*item) || (*item)->Skill("Magical Spell")) {
       ret += (*item)->Skill(m + " Bonus");
@@ -3625,7 +3603,7 @@ int Object::Modifier(const string &m) const {
 int Object::Power(const string &m) const {
   int ret = 0;
   ret = Skill(m);
-  typeof(contents.begin()) item = contents.begin();
+  auto item = contents.begin();
   for(; item != contents.end(); ++item) {
     if(Wearing(*item) || (*item)->Skill("Magical Spell")) {
       int val = (*item)->Skill(m);
@@ -3702,7 +3680,7 @@ string Object::WearNames(const set<act_t> &locs) const {
   set<act_t>::const_iterator loc = locs.begin();
   for(; loc != locs.end(); ++loc) {
     if(loc != locs.begin()) {
-      typeof(loc) tmp = loc;  ++tmp;
+      auto tmp = loc;  ++tmp;
       if(tmp == locs.end()) ret += " and ";
       else ret += ", ";	//I put no comma before " and "
       }
@@ -3740,8 +3718,7 @@ string Object::WearNames(int m) const {
 Object *Object::Stash(Object *item, int message, int force, int try_combine) {
   list<Object*> containers, my_cont;
   my_cont = PickObjects("all", LOC_INTERNAL);
-  typeof(my_cont.begin()) ind;
-  for(ind = my_cont.begin(); ind != my_cont.end(); ++ind) {
+  for(auto ind = my_cont.begin(); ind != my_cont.end(); ++ind) {
     if((*ind)->Skill("Container") && (
 	(!(*ind)->Skill("Locked")) || (*ind)->Skill("Open")
 	)) {
@@ -3757,7 +3734,7 @@ Object *Object::Stash(Object *item, int message, int force, int try_combine) {
     if((*con)->Skill("Container") - (*con)->ContainedWeight() < item->Weight())
       continue;
     if(!dest) dest = (*con);  //It CAN go here....
-    for(ind = (*con)->contents.begin(); ind != (*con)->contents.end(); ++ind) {
+    for(auto ind = (*con)->contents.begin(); ind != (*con)->contents.end(); ++ind) {
       if((*item) == (*(*ind))) { dest = (*con); break; }
       }
     }
@@ -3822,7 +3799,7 @@ int Object::StashOrDrop(Object *item, int message, int force, int try_combine) {
 
 int Object::SubMaxSkill(const string &s) const {
   int ret = Skill(s);
-  typeof(contents.begin()) item = contents.begin();
+  auto item = contents.begin();
   for(; item != contents.end(); ++item) {
     int sub = (*item)->SubMaxSkill(s);
     if(sub > ret) ret = sub;
@@ -3832,7 +3809,7 @@ int Object::SubMaxSkill(const string &s) const {
 
 int Object::SubHasSkill(const string &s) const {
   if(HasSkill(s)) return 1;
-  typeof(contents.begin()) item = contents.begin();
+  auto item = contents.begin();
   for(; item != contents.end(); ++item) {
     if((*item)->SubHasSkill(s)) return 1;
     }
@@ -3842,7 +3819,7 @@ int Object::SubHasSkill(const string &s) const {
 Object *Object::NextHasSkill(const string &s, const Object *last) {
   if(HasSkill(s) && (!last)) return this;
   if(last == this) last = NULL;				//I was last one
-  typeof(contents.begin()) item = contents.begin();
+  auto item = contents.begin();
   for(; item != contents.end(); ++item) {
     Object *found = (*item)->NextHasSkill(s, last);
     if(found) return found;

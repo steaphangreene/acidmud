@@ -669,7 +669,7 @@ void Object::TBALoadMOB(const char *fn) {
 
       const char *str;
       const char *ind = buf;
-      while(sscanf(ind, " %as", &str) > 0) {
+      while(sscanf(ind, " %ms", &str) > 0) {
 	ind += strlen(str) + 1;
 	aliases.push_back(string(str));
 	free((void *)(str));
@@ -1084,7 +1084,7 @@ void Object::TBALoadOBJ(const char *fn) {
 
       const char *str;
       const char *ind = buf;
-      while(sscanf(ind, " %as", &str) > 0) {
+      while(sscanf(ind, " %ms", &str) > 0) {
 	ind += strlen(str) + 1;
 	aliases.push_back(string(str));
 	free((void *)(str));
@@ -2324,9 +2324,8 @@ void Object::TBALoadWLD(const char *fn) {
 	    Object *nobj2 = NULL;
 	    string des, nm = dirname[dir];
 
-	    typeof((*ob)->Contents()) cont = (*ob)->Contents();
-	    typeof(cont.begin()) cind;
-	    for(cind = cont.begin(); cind != cont.end(); ++cind) {
+	    auto cont = (*ob)->Contents();
+	    for(auto cind = cont.begin(); cind != cont.end(); ++cind) {
 	      if(string((*cind)->ShortDesc()) == "a passage exit") {
 		if((*cind)->ActTarg(ACT_SPECIAL_MASTER)->Parent()
 			== bynumwld[tnum]) {

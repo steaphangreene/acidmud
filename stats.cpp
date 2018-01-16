@@ -2494,7 +2494,7 @@ string get_skill(string sk) {
   if(defaults.count(sk)) return sk;
   if(sk.length() < 2) return "";
 
-  typeof(defaults.begin()) itr = defaults.begin();
+  auto itr = defaults.begin();
   for(; itr != defaults.end(); ++itr) {
     if(!strncasecmp(sk.c_str(), itr->first.c_str(), sk.length())) {
       return itr->first;
@@ -2508,7 +2508,7 @@ string get_skill_cat(string cat) {
   if(skcat.count(cat)) return cat;
   if(cat.length() < 2) return "";
 
-  typeof(skcat.begin()) itr = skcat.begin();
+  auto itr = skcat.begin();
   for(; itr != skcat.end(); ++itr) {
     if(!strncasecmp(cat.c_str(), itr->first.c_str(), cat.length())) {
       return itr->first;
@@ -2530,20 +2530,17 @@ list<string> get_skills(string cat) {
   while(isspace(cat[cat.length()-1])) cat = cat.substr(0, cat.length()-1);
 
   if(cat == "Categories") {
-    typeof(skcat.begin()) ind;
-    for(ind = skcat.begin(); ind != skcat.end(); ++ind) {
+    for(auto ind = skcat.begin(); ind != skcat.end(); ++ind) {
       ret.push_back(ind->first);
       }
     }
   else if(cat == "all") {
-    typeof(defaults.begin()) ind;
-    for(ind = defaults.begin(); ind != defaults.end(); ++ind) {
+    for(auto ind = defaults.begin(); ind != defaults.end(); ++ind) {
       ret.push_back(ind->first);
       }
     }
   else if(skcat.count(cat)) {
-    typeof(skcat[cat].begin()) ind;
-    for(ind = skcat[cat].begin(); ind != skcat[cat].end(); ++ind) {
+    for(auto ind = skcat[cat].begin(); ind != skcat[cat].end(); ++ind) {
       ret.push_back(*ind);
       }
     }

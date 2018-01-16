@@ -1573,8 +1573,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    typeof(targs.begin()) targ_it;
-    for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+    for(auto targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
       if(within
 		&& (!(*targ_it)->Skill("Container"))
 		&& (!(*targ_it)->Skill("Liquid Container"))
@@ -1683,8 +1682,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
     body->StartUsing("Perception");
     body->SetSkill("Hidden", 0);
-    typeof(targs.begin()) targ_it;
-    for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+    for(auto targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
       string denied = "";
       for(Object *own = *targ_it; own; own = own->Parent()) {
 	if(own->Attribute(1) && own != body && (!own->IsAct(ACT_SLEEP))
@@ -1720,8 +1718,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
       list<Object *> objs;
       objs = (*targ_it)->Contents(vmode);
-      typeof(objs.begin()) obj_it;
-      for(obj_it = objs.begin(); obj_it != objs.end(); ++obj_it) {
+      for(auto obj_it = objs.begin(); obj_it != objs.end(); ++obj_it) {
 	if((*obj_it)->Skill("Hidden")) {
 	  if(body->Roll("Perception", (*obj_it)->Skill("Hidden"))) {
 	    (*obj_it)->SetSkill("Hidden", 0);
@@ -1755,8 +1752,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    typeof(targs.begin()) targ_it;
-    for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+    for(auto targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
       string denied = "";
       for(Object *own = *targ_it; own; own = own->Parent()) {
 	if(own->Attribute(1) && own != body && (!own->IsAct(ACT_SLEEP))
@@ -2338,8 +2334,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(!nmode) {
 	list<Object *> keys
 		= body->PickObjects("all", vmode|LOC_INTERNAL);
-	typeof(keys.begin()) key;
-	for(key = keys.begin(); key != keys.end(); ++key) {
+        auto key = keys.begin();
+	for(; key != keys.end(); ++key) {
 	  if((*key)->Skill("Key") == targ->Skill("Lock")) break;
 	  }
 	if(key == keys.end()) {
@@ -2379,8 +2375,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(!nmode) {
 	list<Object *> keys
 		= body->PickObjects("all", vmode|LOC_INTERNAL);
-	typeof(keys.begin()) key;
-	for(key = keys.begin(); key != keys.end(); ++key) {
+        auto key = keys.begin();
+	for(; key != keys.end(); ++key) {
 	  if((*key)->Skill("Key") == targ->Skill("Lock")) break;
 	  }
 	if(key == keys.end()) {
@@ -2504,9 +2500,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 		&& shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
 	Object *vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 	objs = vortex->Contents(vmode);
-	typeof(objs.begin()) obj;
-	typeof(objs.begin()) oobj = objs.begin();
-	for(obj = objs.begin(); obj != objs.end(); ++obj) {
+	auto oobj = objs.begin();
+	for(auto obj = objs.begin(); obj != objs.end(); ++obj) {
 	  if(obj != objs.begin() && (*(*obj)) == (*(*oobj))) continue;
 	  int price = (*obj)->Value();
 	  if((*obj)->Skill("Money") != (*obj)->Value()) {	//Not 1-1 Money
@@ -2570,8 +2565,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  return 0;
 	  }
 
-	typeof(targs.begin()) targ_i;
-	for(targ_i = targs.begin(); targ_i != targs.end(); ++targ_i) {
+	for(auto targ_i = targs.begin(); targ_i != targs.end(); ++targ_i) {
 	  Object *targ = (*targ_i);
 
 	  int price = targ->Value() * targ->Quantity();
@@ -2598,8 +2592,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  int togo = price, ord = -price;
 	  list<Object *> pay
 		= body->PickObjects("a gold piece", vmode|LOC_INTERNAL, &ord);
-	  typeof(pay.begin()) coin;
-	  for(coin = pay.begin(); coin != pay.end(); ++coin) {
+          auto coin = pay.begin();
+	  for(; coin != pay.end(); ++coin) {
 	    togo -= (*coin)->Quantity();
 	    }
 
@@ -2735,8 +2729,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	reason = "Sorry, the shopkeeper is asleep!\n";
 	}
       else if(targ->Skill("Money") == targ->Value()) {	//1-1 Money
-	typeof((*shpkp_i)->GetSkills().begin()) skl
-		= (*shpkp_i)->GetSkills().begin();
+	auto skl = (*shpkp_i)->GetSkills().begin();
 	for(; skl != (*shpkp_i)->GetSkills().end(); ++skl) {
 	  if(!strncmp(skl->first.c_str(), "Buy ", 4)) {
 	    skill = "Money";
@@ -2850,8 +2843,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	  int togo = price, ord = -price;
 	  list<Object *> pay
 		= shpkp->PickObjects("a gold piece", vmode|LOC_INTERNAL, &ord);
-	  typeof(pay.begin()) coin;
-	  for(coin = pay.begin(); coin != pay.end(); ++coin) {
+          auto coin = pay.begin();
+	  for(; coin != pay.end(); ++coin) {
 	    togo -= MAX(1, (*coin)->Skill("Quantity"));
 	    }
 
@@ -2938,8 +2931,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    typeof(targs.begin()) ind;
-    for(ind = targs.begin(); ind != targs.end(); ++ind) {
+    for(auto ind = targs.begin(); ind != targs.end(); ++ind) {
       Object *targ = *ind;
 
       list<Object *> trigs = targ->PickObjects(
@@ -3428,8 +3420,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
 
-    typeof(targs.begin()) targ_it;
-    for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+    for(auto targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
       Object *targ = (*targ_it);
 
       list<Object *> trigs;
@@ -3510,8 +3501,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       }
 
     int did_something = 0;
-    typeof(targs.begin()) targ_it;
-    for(targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+    for(auto targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
       Object *targ = (*targ_it);
 
       //fprintf(stderr, "You try to wear %s!\n", targ->Name(0, body));
@@ -3586,8 +3576,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(mind) mind->Send("You want to eat what?\n");
       }
     else {
-      typeof(targs.begin()) targ;
-      for(targ = targs.begin(); targ != targs.end(); ++targ) {
+      for(auto targ = targs.begin(); targ != targs.end(); ++targ) {
 	if(!((*targ)->HasSkill("Ingestible"))) {
 	  if(mind) mind->SendF(
 		"You don't want to eat %s.\n", (*targ)->Name(0, body)
@@ -3639,8 +3628,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(mind) mind->Send("You want to drop what?\n");
       }
     else {
-      typeof(targs.begin()) targ;
-      for(targ = targs.begin(); targ != targs.end(); ++targ) {
+      for(auto targ = targs.begin(); targ != targs.end(); ++targ) {
 
 	list<Object *> trigs;
 	list<Object *>::iterator trig;
@@ -3820,8 +3808,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       if(mind) mind->Send("You want to dump what?\n");
       }
     else {
-      typeof(targs.begin()) targ;
-      for(targ = targs.begin(); targ != targs.end(); ++targ) {
+      for(auto targ = targs.begin(); targ != targs.end(); ++targ) {
 	if(!((*targ)->HasSkill("Liquid Container"))) {
 	  if(mind) mind->SendF(
 		"%s is not a liquid container.  It can't be dumped.\n",
@@ -5314,8 +5301,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
     vector<Player *> pls = get_all_players();
     vector<Player *>::iterator pl = pls.begin();
     for(; pl != pls.end(); ++pl) {
-      typeof((*pl)->Room()->Contents()) chs = (*pl)->Room()->Contents();
-      typeof(chs.begin()) ch = chs.begin();
+      auto chs = (*pl)->Room()->Contents();
+      auto ch = chs.begin();
       for(; ch != chs.end(); ++ch) {
 	if((*ch)->Matches(comline+len)) {
 	  if((*ch)->IsActive()) {
@@ -6005,8 +5992,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 
     vector<Player *>::iterator pl = pls.begin();
     for(; pl != pls.end(); ++pl) {
-      typeof((*pl)->Room()->Contents()) chs = (*pl)->Room()->Contents();
-      typeof(chs.begin()) ch = chs.begin();
+      auto chs = (*pl)->Room()->Contents();
+      auto ch = chs.begin();
       for(; ch != chs.end(); ++ch) {
 	chars += (*pl)->Name();
 	chars += ": ";
@@ -6032,8 +6019,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       mind->Send("You want to reset what?\n");
       }
     else {
-      typeof(targ->Contents()) cont = targ->Contents();
-      typeof(cont.begin()) item = cont.begin();
+      auto cont = targ->Contents();
+      auto item = cont.begin();
       for(; item != cont.end(); ++item) (*item)->Recycle();
 
       Object *dest = targ;
@@ -6147,7 +6134,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       return 0;
       }
     set<Object *> todo;
-    for(typeof(targs.begin()) itr = targs.begin(); itr != targs.end(); ++itr) {
+    for(auto itr = targs.begin(); itr != targs.end(); ++itr) {
       todo.insert(*itr);
       }
     while(targs.size() > 0) {
@@ -6165,8 +6152,8 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
 	vector<Player *> pls = get_all_players();
 	vector<Player *>::iterator pl = pls.begin();
 	for(; pl != pls.end(); ++pl) {
-	  typeof((*pl)->Room()->Contents()) chs = (*pl)->Room()->Contents();
-	  typeof(chs.begin()) ch = chs.begin();
+	  auto chs = (*pl)->Room()->Contents();
+	  auto ch = chs.begin();
 	  for(; ch != chs.end(); ++ch) {
 	    if(targ->HasWithin(*ch)) {
 	      chars += string("Sorry, A PC (") + (*ch)->ShortDesc()
@@ -6459,8 +6446,7 @@ int handle_single_command(Object *body, const char *inpline, Mind *mind) {
       mind->Send("You want to double what?\n");
       return 0;
       }
-    typeof(targs.begin()) targ_it;
-    for(targ_it = targs.begin(); targ_it != targs.end(); ++ targ_it) {
+    for(auto targ_it = targs.begin(); targ_it != targs.end(); ++ targ_it) {
       Object *targ = (*targ_it);
       body->Parent()->SendOut(stealth_t, stealth_s,
 	";s doubles ;s with Ninja Powers[TM].\n", "You double ;s.\n",

@@ -145,8 +145,7 @@ void Object::AddMOB(const MOBType *type) {
   mob->SetAttribute(4, type->i + rand() % type->im);
   mob->SetAttribute(5, type->w + rand() % type->wm);
 
-  typeof(type->skills.begin()) sk_it;
-  for(sk_it = type->skills.begin(); sk_it != type->skills.end(); ++sk_it) {
+  for(auto sk_it = type->skills.begin(); sk_it != type->skills.end(); ++sk_it) {
     if(sk_it->second.first < 0) {
       mob->SetSkill(sk_it->first, sk_it->second.second);
       }
@@ -190,8 +189,7 @@ void Object::AddMOB(const MOBType *type) {
     if(two_handed(type->armed->type)) mob->AddAct(ACT_HOLD, obj);
     }
 
-  typeof(type->armor.begin()) ar_it;
-  for(ar_it = type->armor.begin(); ar_it != type->armor.end(); ++ar_it) {
+  for(auto ar_it = type->armor.begin(); ar_it != type->armor.end(); ++ar_it) {
     if(wear_attribs.size() <= 0) {
       init_wear_attribs();
       }
@@ -209,8 +207,7 @@ void Object::AddMOB(const MOBType *type) {
     obj->SetValue((*ar_it)->value);
     obj->SetPos(POS_LIE);
 
-    typeof((*ar_it)->loc.begin()) l_it;
-    for(l_it = (*ar_it)->loc.begin(); l_it != (*ar_it)->loc.end(); ++l_it) {
+    for(auto l_it = (*ar_it)->loc.begin(); l_it != (*ar_it)->loc.end(); ++l_it) {
       obj->SetSkill(wear_attribs[*l_it], 1);
       mob->AddAct(*l_it, obj);
       }

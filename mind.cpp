@@ -2616,10 +2616,8 @@ void Mind::Think(int istick) {
     //AGGRESSIVE and WIMPY TBA Mobs
     if(body && body->Parent() && (body->Skill("TBAAction") & 160) == 160
 	&& (!body->IsAct(ACT_FIGHT))) {
-      typeof(body->Parent()->Contents()) others
-	= body->PickObjects("everyone", LOC_NEARBY);
-      typeof(others.begin()) other;
-      for(other = others.begin(); other != others.end(); ++other) {
+      auto others = body->PickObjects("everyone", LOC_NEARBY);
+      for(auto other = others.begin(); other != others.end(); ++other) {
 	if((!(*other)->Skill("TBAAction")) //FIXME: Other mobs?
 		&& body->Stun() < 6			//I'm not stunned
 		&& body->Phys() < 6			//I'm not injured
@@ -2654,10 +2652,8 @@ void Mind::Think(int istick) {
     //AGGRESSIVE and (!WIMPY) TBA Mobs
     else if(body && body->Parent() && (body->Skill("TBAAction") & 160) == 32
 	&& (!body->IsAct(ACT_FIGHT))) {
-      typeof(body->Parent()->Contents()) others
-	= body->PickObjects("everyone", LOC_NEARBY);
-      typeof(others.begin()) other;
-      for(other = others.begin(); other != others.end(); ++other) {
+      auto others = body->PickObjects("everyone", LOC_NEARBY);
+      for(auto other = others.begin(); other != others.end(); ++other) {
 	if((!(*other)->Skill("TBAAction")) //FIXME: Other mobs?
 		&& body->Stun() < 6			//I'm not stunned
 		&& body->Phys() < 6			//I'm not injured
@@ -2691,10 +2687,8 @@ void Mind::Think(int istick) {
     //HELPER TBA Mobs
     if(body && body->Parent() && (body->Skill("TBAAction") & 4096)
 	&& (!body->IsAct(ACT_FIGHT))) {
-      typeof(body->Parent()->Contents()) others
-	= body->PickObjects("everyone", LOC_NEARBY);
-      typeof(others.begin()) other;
-      for(other = others.begin(); other != others.end(); ++other) {
+      auto others = body->PickObjects("everyone", LOC_NEARBY);
+      for(auto other = others.begin(); other != others.end(); ++other) {
 	if((!(*other)->Skill("TBAAction")) //FIXME: Other mobs?
 		&& body->Stun() < 6			//I'm not stunned
 		&& body->Phys() < 6			//I'm not injured

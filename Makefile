@@ -4,21 +4,21 @@ TSTR:=  $(shell date -u +"%Y%m%d%H%M")
 SSTR:=  $(shell git log --oneline | wc -l)
 OBJS:=	main.o version.o stats.o net.o commands.o mind.o player.o mob.o \
 	object.o object_acid.o object_dynamic.o command_ccreate.o utils.o \
-	object_tba.o 
+	object_tba.o
 LIBS:=	-lstdc++ -lcrypt
 
 all:	acidmud
 
 #Production Settings (dynamic)
-CXX=	gcc$(ACIDMUD_CTAIL) -s -Wall -O3
+CXX=	g++ -std=c++14 -s -Wall -Werror -O3
 
 #Use debugging settings
 debug:
-	+make CXX='gcc$(ACIDMUD_CTAIL) -g -Wall'
+	+make CXX='g++ -std=c++14 -g -Wall -Werror'
 
 #Use profiling settings
 profile:
-	+make CXX='gcc$(ACIDMUD_CTAIL) -g -pg -fprofile-arcs -Wall'
+	+make CXX='g++ -std=c++14 -g -pg -fprofile-arcs -Wall -Werror'
 
 clean:
 	rm -f gmon.out deps.mk *.o *.da acidmud ChangeLog ChangeLog.bak
@@ -37,7 +37,7 @@ upload:
 
 acidmud: $(OBJS)
 	rm -f acidmud
-	$(CXX) -Wall -o acidmud $(OBJS) $(LIBS)
+	$(CXX) -Wall -Werror -o acidmud $(OBJS) $(LIBS)
 
 %.o: %.cpp
 	$(CXX) -c $<

@@ -102,8 +102,7 @@ int Object::SaveTo(FILE *fl) {
   fprintf(fl, "%d %d %d %d %c\n", weight, size, volume, value, gender);
 
   fprintf(fl, "%d", exp);
-  typeof(completed.begin()) ind;
-  for(ind=completed.begin(); ind != completed.end(); ++ind) {
+  for(auto ind = completed.begin(); ind != completed.end(); ++ind) {
     fprintf(fl, ";%ld", *ind);
     }
 
@@ -122,8 +121,7 @@ int Object::SaveTo(FILE *fl) {
   fprintf(fl, ";\n");
 
   fprintf(fl, "%d\n", (int)(contents.size()));
-  typeof(contents.begin()) cind;
-  for(cind = contents.begin(); cind != contents.end(); ++cind) {
+  for(auto cind = contents.begin(); cind != contents.end(); ++cind) {
     fprintf(fl, "%d\n", getnum(*cind));
     }
 
@@ -137,7 +135,7 @@ int Object::SaveTo(FILE *fl) {
 
   fprintf(fl, "\n");
 
-  for(cind = contents.begin(); cind != contents.end(); ++cind) {
+  for(auto cind = contents.begin(); cind != contents.end(); ++cind) {
     (*cind)->SaveTo(fl);
     }
 
