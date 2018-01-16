@@ -1,4 +1,4 @@
-ACIDHOST:=optimus.cs.binghamton.edu
+ACIDHOST:=acidmud
 
 TSTR:=  $(shell date -u +"%Y%m%d%H%M")
 SSTR:=  $(shell git log --oneline | wc -l)
