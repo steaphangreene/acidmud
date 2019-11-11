@@ -21,7 +21,7 @@ void replace_all(std::string& str, const std::string& oldt, int newn, size_t st)
 void trim_string(std::string& str) { // Remove extra whitespace from std::string
   while (isspace(str[0]))
     str = str.substr(1);
-  while (isspace(str[str.length() - 1]))
+  while (!str.empty() && isspace(str[str.length() - 1]))
     str = str.substr(0, str.length() - 1);
 }
 

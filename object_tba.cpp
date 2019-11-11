@@ -1983,7 +1983,7 @@ void Object::TBALoadOBJ(const char* fn) {
       fscanf(mudo, "%d %d %*[^\n\r]\n", &weight, &value);
 
       if (tp != 20) { // MONEY DOESN'T WORK THIS WAY
-        obj->SetWeight(weight * 454);
+        obj->SetWeight((weight >= 1000000) ? 1000000 : weight * 454);
         obj->SetVolume(weight); // FIXME: Better guess within units?
         obj->SetSize(1);
         obj->SetValue((value * valmod) / 1000);
@@ -2653,7 +2653,7 @@ void Object::TBALoadTRG(const char* fn) { // Triggers
       script->SetSkill("TBAScriptType", atype | ttype); // Combined
       script->SetSkill("TBAScriptNArg", narg); // Numeric Arg
 
-      fscanf(mud, " %65536[^~]", buf); // Text argument!
+      fscanf(mud, " %65535[^~]", buf); // Text argument!
       script->SetDesc(buf);
 
       fscanf(mud, "~");
