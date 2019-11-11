@@ -814,12 +814,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   trim_string(cmd);
 
   if ((!nmode) && com != COM_RECALL && body && body->Parent()) {
-    std::list<Object*> items = body->PickObjects("everything", LOC_INTERNAL | LOC_NEARBY);
-    std::list<Object*> mobs = body->PickObjects("everyone", LOC_NEARBY);
-    items.splice(items.end(), mobs);
+    std::list<Object*> items;
     Object* room = body->PickObject("here", LOC_HERE);
     if (room)
-      items.push_front(room);
+      items.push_back(room);
+    items.splice(items.end(), body->PickObjects("everything", LOC_INTERNAL | LOC_NEARBY));
+    items.splice(items.end(), body->PickObjects("everyone", LOC_NEARBY));
 
     std::list<Object*>::iterator obj = items.begin();
     for (; obj != items.end(); ++obj) {
