@@ -2,7 +2,6 @@
 #define VERSION_H
 
 #include <string>
-using namespace std;
 
 struct VersionInformation {
   unsigned int savefile_version_net;

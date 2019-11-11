@@ -1,8 +1,6 @@
 #include <set>
 #include <vector>
 
-using namespace std;
-
 #include <fcntl.h>
 #include <getopt.h>
 #include <sys/time.h>

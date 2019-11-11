@@ -6,15 +6,13 @@
 #include <cstdlib>
 #include <cstring>
 
-using namespace std;
-
 #include "color.hpp"
 #include "commands.hpp"
 #include "mind.hpp"
 #include "object.hpp"
 #include "utils.hpp"
 
-static int tba_bitvec(const string& val) {
+static int tba_bitvec(const std::string& val) {
   int ret = atoi(val.c_str());
   if (ret == 0) { // Works fine for "0" too
     for (size_t idx = 0; idx < val.length(); ++idx) {
@@ -125,22 +123,22 @@ void Object::TBALoadAll() {
   fprintf(stderr, "Warning: %d untranslated triggers!\n", untrans_trig);
 }
 
-static list<Object*> todotrg;
-static map<int, Object*> bynumtrg;
-static map<int, Object*> bynumwld;
-static map<int, Object*> bynumobj;
-static map<int, Object*> bynummob;
-static map<int, Object*> bynummobinst;
-static map<Object*, int> tonum[6];
-static map<Object*, int> tynum[6];
-static map<Object*, int> knum[6];
-static map<Object*, string> nmnum[6];
-static vector<Object*> olist;
+static std::list<Object*> todotrg;
+static std::map<int, Object*> bynumtrg;
+static std::map<int, Object*> bynumwld;
+static std::map<int, Object*> bynumobj;
+static std::map<int, Object*> bynummob;
+static std::map<int, Object*> bynummobinst;
+static std::map<Object*, int> tonum[6];
+static std::map<Object*, int> tynum[6];
+static std::map<Object*, int> knum[6];
+static std::map<Object*, std::string> nmnum[6];
+static std::vector<Object*> olist;
 static Object* objroom = NULL;
 static Object* mobroom = NULL;
 
 void Object::TBACleanup() {
-  map<int, Object*>::iterator ind;
+  std::map<int, Object*>::iterator ind;
 
   //  for(ind = bynumobj.begin(); ind != bynumobj.end(); ++ind) {
   //    (*ind).second->Recycle();
@@ -186,9 +184,9 @@ void Object::TBACleanup() {
 }
 
 void Object::TBAFinalizeTriggers() {
-  list<Object*>::iterator trg = todotrg.begin();
+  std::list<Object*>::iterator trg = todotrg.begin();
   for (; trg != todotrg.end(); ++trg) {
-    string newtext = "Powers List:\n";
+    std::string newtext = "Powers List:\n";
     const char* cur = (*trg)->long_desc.c_str();
     while ((cur = strstr(cur, "teleport [")) != NULL) {
       int rnum;
@@ -196,7 +194,7 @@ void Object::TBAFinalizeTriggers() {
       (*trg)->Parent()->SetSkill("Restricted Item", 1);
       sscanf(cur, "teleport [%d]\n", &rnum);
       if (bynumwld.count(rnum) > 0) {
-        newtext += string("teleport ") + bynumwld[rnum]->Name() + "\n";
+        newtext += std::string("teleport ") + bynumwld[rnum]->Name() + "\n";
       } else {
         fprintf(stderr, "Error: Can't find teleport dest: %d\n", rnum);
       }
@@ -240,15 +238,15 @@ Object* dup_tba_obj(Object* obj) {
     obj2 = new Object(*obj);
     obj2->SetSkill("Wearable on Left Hand", 0);
     obj2->SetSkill("Wearable on Right Hand", 1);
-    obj->SetShortDesc((string(obj->ShortDesc()) + " (left)").c_str());
-    obj2->SetShortDesc((string(obj2->ShortDesc()) + " (right)").c_str());
+    obj->SetShortDesc((std::string(obj->ShortDesc()) + " (left)").c_str());
+    obj2->SetShortDesc((std::string(obj2->ShortDesc()) + " (right)").c_str());
     //    fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
   } else if (obj->Skill("Wearable on Left Foot") != obj->Skill("Wearable on Right Foot")) {
     obj2 = new Object(*obj);
     obj2->SetSkill("Wearable on Left Foot", 0);
     obj2->SetSkill("Wearable on Right Foot", 1);
-    obj->SetShortDesc((string(obj->ShortDesc()) + " (left)").c_str());
-    obj2->SetShortDesc((string(obj2->ShortDesc()) + " (right)").c_str());
+    obj->SetShortDesc((std::string(obj->ShortDesc()) + " (left)").c_str());
+    obj2->SetShortDesc((std::string(obj2->ShortDesc()) + " (right)").c_str());
     //    fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
   } else if (obj->Skill("Wearable on Left Leg") != obj->Skill("Wearable on Right Leg")) {
     obj2 = new Object(*obj);
@@ -333,7 +331,7 @@ void Object::TBAFinishMOB(Object* mob) {
 }
 
 static Object *lastmob = NULL, *lastbag = NULL;
-static map<int, Object*> lastobj;
+static std::map<int, Object*> lastobj;
 void Object::TBALoadZON(const char* fn) {
   FILE* mudz = fopen(fn, "r");
   if (mudz) {
@@ -694,7 +692,7 @@ void Object::TBALoadMOB(const char* fn) {
       obj->SetSkill("TBAMOB", 1000000 + onum);
       bynummob[onum] = obj;
 
-      vector<string> aliases;
+      std::vector<std::string> aliases;
       memset(buf, 0, 65536); // Alias List
       fscanf(mudm, "%65535[^~\n]~\n", buf);
 
@@ -702,7 +700,7 @@ void Object::TBALoadMOB(const char* fn) {
       const char* ind = buf;
       while (sscanf(ind, " %ms", &str) > 0) {
         ind += strlen(str) + 1;
-        aliases.push_back(string(str));
+        aliases.push_back(std::string(str));
         free((void*)(str));
       }
 
@@ -719,7 +717,7 @@ void Object::TBALoadMOB(const char* fn) {
       obj->SetShortDesc(buf);
       // fprintf(stderr, "Loaded TBA Mobile with Name = %s\n", buf);
 
-      string label = "";
+      std::string label = "";
       for (unsigned int actr = 0; actr < aliases.size(); ++actr) {
         if (!obj->Matches(aliases[actr].c_str())) {
           label += " " + aliases[actr];
@@ -728,7 +726,7 @@ void Object::TBALoadMOB(const char* fn) {
       if (label.length() > 0) {
         label[0] = '(';
         label += ')';
-        obj->SetShortDesc((string(obj->ShortDesc()) + " " + label).c_str());
+        obj->SetShortDesc((std::string(obj->ShortDesc()) + " " + label).c_str());
       }
 
       memset(buf, 0, 65536);
@@ -1120,7 +1118,7 @@ void Object::TBALoadOBJ(const char* fn) {
       obj->SetSkill("TBAObject", 2000000 + onum);
       bynumobj[onum] = obj;
 
-      vector<string> aliases;
+      std::vector<std::string> aliases;
       memset(buf, 0, 65536); // Alias List
       fscanf(mudo, "%65535[^~\n]~\n", buf);
 
@@ -1128,7 +1126,7 @@ void Object::TBALoadOBJ(const char* fn) {
       const char* ind = buf;
       while (sscanf(ind, " %ms", &str) > 0) {
         ind += strlen(str) + 1;
-        aliases.push_back(string(str));
+        aliases.push_back(std::string(str));
         free((void*)(str));
       }
 
@@ -1145,7 +1143,7 @@ void Object::TBALoadOBJ(const char* fn) {
       obj->SetShortDesc(buf);
       // fprintf(stderr, "Loaded TBA Object with Name = %s\n", buf);
 
-      string label = "";
+      std::string label = "";
       for (unsigned int actr = 0; actr < aliases.size(); ++actr) {
         if (!obj->Matches(aliases[actr].c_str())) {
           label += " " + aliases[actr];
@@ -1154,7 +1152,7 @@ void Object::TBALoadOBJ(const char* fn) {
       if (label.length() > 0) {
         label[0] = '(';
         label += ')';
-        obj->SetShortDesc((string(obj->ShortDesc()) + " " + label).c_str());
+        obj->SetShortDesc((std::string(obj->ShortDesc()) + " " + label).c_str());
       }
 
       memset(buf, 0, 65536); // Long Desc
@@ -1236,7 +1234,7 @@ void Object::TBALoadOBJ(const char* fn) {
       else if (!strncasecmp(obj->ShortDesc(), "a set of ", 9))
         sf = 8;
 
-      string name = obj->ShortDesc();
+      std::string name = obj->ShortDesc();
       if (strcasestr(buf, "b") || (atoi(buf) & 2)) {
         obj->SetSkill("Wearable on Left Finger", 1); // Two Alternatives
         obj->SetSkill("Wearable on Right Finger", 2);
@@ -1263,9 +1261,9 @@ void Object::TBALoadOBJ(const char* fn) {
         obj->SetSkill("Wearable on Left Leg", 1);
         if (sf) {
           if (!strcasecmp(name.c_str() + (name.length() - 9), " leggings"))
-            name = string("a") + name.substr(sf, name.length() - (sf + 1));
+            name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else if (!strcasecmp(name.c_str() + (name.length() - 7), " plates"))
-            name = string("a") + name.substr(sf, name.length() - (sf + 1));
+            name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else
             obj->SetSkill("Wearable on Right Leg", 1);
         } else
@@ -1280,11 +1278,11 @@ void Object::TBALoadOBJ(const char* fn) {
         obj->SetSkill("Wearable on Left Foot", 1);
         if (sf) {
           if (!strcasecmp(name.c_str() + (name.length() - 8), " sandals"))
-            name = string("a") + name.substr(sf, name.length() - (sf + 1));
+            name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else if (!strcasecmp(name.c_str() + (name.length() - 6), " boots"))
-            name = string("a") + name.substr(sf, name.length() - (sf + 1));
+            name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else if (!strcasecmp(name.c_str() + (name.length() - 6), " shoes"))
-            name = string("a") + name.substr(sf, name.length() - (sf + 1));
+            name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else
             obj->SetSkill("Wearable on Right Foot", 1);
         } else
@@ -1298,9 +1296,9 @@ void Object::TBALoadOBJ(const char* fn) {
         obj->SetSkill("Wearable on Left Hand", 1);
         if (sf) {
           if (!strcasecmp(name.c_str() + (name.length() - 10), " gauntlets"))
-            name = string("a") + name.substr(sf, name.length() - (sf + 1));
+            name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else if (!strcasecmp(name.c_str() + (name.length() - 7), " gloves"))
-            name = string("a") + name.substr(sf, name.length() - (sf + 1));
+            name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else
             obj->SetSkill("Wearable on Right Hand", 1);
         } else
@@ -1314,11 +1312,11 @@ void Object::TBALoadOBJ(const char* fn) {
         obj->SetSkill("Wearable on Left Arm", 1);
         if (sf) {
           if (!strcasecmp(name.c_str() + (name.length() - 8), " sleeves"))
-            name = string("a") + name.substr(sf, name.length() - (sf + 1));
+            name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else if (!strcasecmp(name.c_str() + (name.length() - 8), " bracers"))
-            name = string("a") + name.substr(sf, name.length() - (sf + 1));
+            name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else if (!strcasecmp(name.c_str() + (name.length() - 7), " plates"))
-            name = string("a") + name.substr(sf, name.length() - (sf + 1));
+            name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else
             obj->SetSkill("Wearable on Right Arm", 1);
         } else
@@ -1380,13 +1378,13 @@ void Object::TBALoadOBJ(const char* fn) {
           obj->SetSkill("Lockable", 1); // Can it be locked?
         }
 
-        if (string(obj->ShortDesc()).find("bag") < strlen(obj->ShortDesc())) {
+        if (std::string(obj->ShortDesc()).find("bag") < strlen(obj->ShortDesc())) {
           obj->SetSkill("Closeable", 1); // Bags CAN be closed
           obj->SetSkill("Wearable on Left Hip", 1); // Bags CAN be belted
           obj->SetSkill("Wearable on Right Hip", 2);
         }
 
-        if (string(obj->ShortDesc()).find("pouch") < strlen(obj->ShortDesc())) {
+        if (std::string(obj->ShortDesc()).find("pouch") < strlen(obj->ShortDesc())) {
           obj->SetSkill("Closeable", 1); // Pouches CAN be closed
           obj->SetSkill("Wearable on Left Hip", 1); // Pouches CAN be belted
           obj->SetSkill("Wearable on Right Hip", 2);
@@ -2217,7 +2215,7 @@ void Object::TBALoadWLD(const char* fn) {
       else if (val == 8)
         obj->SetSkill("WaterDepth", 3); // UNDERWATER
 
-      string name = obj->ShortDesc();
+      std::string name = obj->ShortDesc();
       if (name.find("Secret") >= 0 && name.find("Secret") < name.length()) {
         obj->SetSkill("Secret", 4000000 + onum);
       }
@@ -2308,7 +2306,7 @@ void Object::TBALoadWLD(const char* fn) {
       }
     }
 
-    vector<Object*>::iterator ob = olist.begin();
+    std::vector<Object*>::iterator ob = olist.begin();
     for (; ob != olist.end(); ++ob) {
       for (int dir = 0; dir < 6; ++dir) {
         if (tonum[dir].count(*ob)) {
@@ -2316,11 +2314,11 @@ void Object::TBALoadWLD(const char* fn) {
           if (bynumwld.count(tnum)) {
             Object* nobj = NULL;
             Object* nobj2 = NULL;
-            string des, nm = dirname[dir];
+            std::string des, nm = dirname[dir];
 
             auto cont = (*ob)->Contents();
             for (auto cind = cont.begin(); cind != cont.end(); ++cind) {
-              if (string((*cind)->ShortDesc()) == "a passage exit") {
+              if (std::string((*cind)->ShortDesc()) == "a passage exit") {
                 if ((*cind)->ActTarg(ACT_SPECIAL_MASTER)->Parent() == bynumwld[tnum]) {
                   nobj = (*cind);
                   nobj2 = (*cind)->ActTarg(ACT_SPECIAL_MASTER);
@@ -2329,7 +2327,7 @@ void Object::TBALoadWLD(const char* fn) {
                 if ((*cind)->ActTarg(ACT_SPECIAL_LINKED)->Parent() == bynumwld[tnum]) {
                   nobj = (*cind);
                   nobj2 = (*cind)->ActTarg(ACT_SPECIAL_LINKED);
-                  nm = string(nobj->ShortDesc()) + " and " + dirname[dir];
+                  nm = std::string(nobj->ShortDesc()) + " and " + dirname[dir];
                 }
               }
             }
@@ -2351,7 +2349,7 @@ void Object::TBALoadWLD(const char* fn) {
               nm += ")";
             }
             if (tynum[dir][*ob] != 0) { // FIXME: Respond to "door"?
-              des = string("A door to the ") + dirname[dir] + " is here.";
+              des = std::string("A door to the ") + dirname[dir] + " is here.";
               nobj->SetSkill("Closeable", 1);
               nobj->SetSkill("Lockable", 1);
               if (tynum[dir][*ob] == 1)
@@ -2362,7 +2360,7 @@ void Object::TBALoadWLD(const char* fn) {
                 nobj->SetSkill("Lock", 2000000 + knum[dir][*ob]);
               }
             } else {
-              des = string("A passage ") + dirname[dir] + " is here.";
+              des = std::string("A passage ") + dirname[dir] + " is here.";
             }
             nobj->SetShortDesc(nm.c_str());
             nobj->SetDesc(des.c_str());
@@ -2386,14 +2384,14 @@ void Object::TBALoadWLD(const char* fn) {
 }
 
 const char* base = "'^&*abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ";
-static set<string> parse_tba_shop_rules(string rules) {
-  set<string> ret;
+static std::set<std::string> parse_tba_shop_rules(std::string rules) {
+  std::set<std::string> ret;
   if (rules[0]) {
     //    fprintf(stderr, "Initial: '%s'\n", rules.c_str());
     size_t done = rules.find_first_not_of(base);
-    while (done != string::npos) {
+    while (done != std::string::npos) {
       if (rules[done] == '|' || rules[done] == '+') {
-        string first = rules.substr(0, done);
+        std::string first = rules.substr(0, done);
         trim_string(first);
         ret.insert(first);
         //	fprintf(stderr, "  Done: '%s'\n", first.c_str());
@@ -2402,10 +2400,10 @@ static set<string> parse_tba_shop_rules(string rules) {
         done = rules.find_first_not_of(base);
       } else if (rules[done] == '(' || rules[done] == '[') {
         size_t end = rules.find_first_of(")]");
-        if (end == string::npos)
+        if (end == std::string::npos)
           end = rules.length();
-        set<string> tmp = parse_tba_shop_rules(rules.substr(done + 1));
-        set<string>::iterator next = tmp.begin();
+        std::set<std::string> tmp = parse_tba_shop_rules(rules.substr(done + 1));
+        std::set<std::string>::iterator next = tmp.begin();
         for (; next != tmp.end(); ++next) {
           ret.insert((*next) + rules.substr(end + 1));
           //	  fprintf(stderr, "  Built: '%s'\n",
@@ -2414,14 +2412,14 @@ static set<string> parse_tba_shop_rules(string rules) {
         }
         return ret; // FIXME: Handled multiple ()()()....
       } else if (rules[done] == ')' || rules[done] == ']') {
-        string first = rules.substr(0, done);
+        std::string first = rules.substr(0, done);
         trim_string(first);
         //	fprintf(stderr, "  Done: '%s'\n", first.c_str());
         ret.insert(first);
         return ret; // End of sub-call
       } else {
         fprintf(stderr, "Warning: Can't handle shop rule fragment: '%s'\n", rules.c_str());
-        done = string::npos;
+        done = std::string::npos;
       }
     }
     //    fprintf(stderr, "  Done: '%s'\n", rules.c_str());
@@ -2474,9 +2472,9 @@ void Object::TBALoadSHP(const char* fn) {
         memset(buf, 0, 65536);
         fscanf(mud, "%65535[^\n\r]\n", buf); // Item types bought
         val = atoi(buf);
-        list<string> types;
+        std::list<std::string> types;
         while (val >= 0) {
-          types.push_back(string(buf));
+          types.push_back(std::string(buf));
           memset(buf, 0, 65536);
           fscanf(mud, "%65535[^\n\r]\n", buf); // Item types bought
           val = atoi(buf);
@@ -2509,16 +2507,16 @@ void Object::TBALoadSHP(const char* fn) {
         fscanf(mud, "%*d\n"); // Close time
 
         if (keeper) {
-          string picky = "";
+          std::string picky = "";
           keeper->SetSkill("Sell Profit", (int)(num * 1000.0 + 0.5));
 
-          list<string>::iterator type = types.begin(); // Buy Types
+          std::list<std::string>::iterator type = types.begin(); // Buy Types
           for (; type != types.end(); ++type) {
             for (unsigned int ctr = 1; isalpha((*type)[ctr]); ++ctr) {
               (*type)[ctr] = tolower((*type)[ctr]);
             }
 
-            string extra = *type;
+            std::string extra = *type;
             int itnum = atoi(extra.c_str());
             if (itnum > 0) {
               while (isdigit(extra[0]))
@@ -2581,8 +2579,8 @@ void Object::TBALoadSHP(const char* fn) {
 
             if (extra[0]) {
               // fprintf(stderr, "Rule: '%s'\n", extra.c_str());
-              set<string> extras = parse_tba_shop_rules(extra);
-              set<string>::iterator ex = extras.begin();
+              std::set<std::string> extras = parse_tba_shop_rules(extra);
+              std::set<std::string>::iterator ex = extras.begin();
               for (; ex != extras.end(); ++ex) {
                 // fprintf(stderr, "Adding: 'Accept %s'\n", ex->c_str());
                 // keeper->SetSkill("Accept " + (*ex), 1);
@@ -2606,7 +2604,7 @@ void Object::TBALoadSHP(const char* fn) {
                   keeper->Name(),
                   type->c_str());
             } else if ((*type) != "0") { // Apparently 0 used for "Ignore This"
-              keeper->SetSkill(string("Buy ") + (*type), (int)(num2 * 1000.0 + 0.5));
+              keeper->SetSkill(std::string("Buy ") + (*type), (int)(num2 * 1000.0 + 0.5));
             }
           }
           vortex->long_desc = picky;

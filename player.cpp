@@ -1,7 +1,5 @@
 #include <set>
 
-using namespace std;
-
 #include <crypt.h>
 #include <cstdlib>
 #include <cstring>
@@ -10,12 +8,12 @@ using namespace std;
 #include "player.hpp"
 #include "version.hpp"
 
-static map<string, Player*> player_list;
-static set<Player*> non_init;
+static std::map<std::string, Player*> player_list;
+static std::set<Player*> non_init;
 
 static const char* salt_char = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
 
-Player::Player(string nm, string ps) {
+Player::Player(std::string nm, std::string ps) {
   flags = 0;
   exp = 0;
 
@@ -26,7 +24,7 @@ Player::Player(string nm, string ps) {
   if (ps[0] == '$' && ps[1] == '1' && ps[2] == '$') {
     pass = ps;
   } else {
-    string salt = "$1$", app = " ";
+    std::string salt = "$1$", app = " ";
     for (int ctr = 0; ctr < 8; ++ctr) {
       app[0] = salt_char[rand() & 63];
       salt += app;
@@ -46,11 +44,11 @@ Player::~Player() {
     delete room;
 }
 
-void Player::SetName(string nm) {
+void Player::SetName(std::string nm) {
   player_list.erase(name);
   name = nm;
   player_list[name] = this;
-  string desc = nm + "'s character room";
+  std::string desc = nm + "'s character room";
   room->SetShortDesc(desc.c_str());
   desc = "Available commands:\n";
   desc += "     enter <character_name>: Enter a finished character.\n";
@@ -72,11 +70,11 @@ void Player::AddChar(Object* ch) {
   creator = ch;
 }
 
-int player_exists(string name) {
+int player_exists(std::string name) {
   return player_list.count(name);
 }
 
-Player* get_player(string name) {
+Player* get_player(std::string name) {
   if (!player_list.count(name))
     return NULL;
 
@@ -86,12 +84,12 @@ Player* get_player(string name) {
   return pl;
 }
 
-Player* player_login(string name, string pass) {
+Player* player_login(std::string name, std::string pass) {
   if (!player_list.count(name))
     return NULL;
 
   Player* pl = player_list[name];
-  string enpass = crypt(pass.c_str(), pl->pass.c_str());
+  std::string enpass = crypt(pass.c_str(), pl->pass.c_str());
 
   //  fprintf(stderr, "Trying %s:%s\n", name.c_str(), enpass.c_str());
 
@@ -168,7 +166,7 @@ int Player::SaveTo(FILE* fl) {
 
   fprintf(fl, ":%d", exp);
 
-  set<unsigned long>::iterator com = completed.begin();
+  std::set<unsigned long>::iterator com = completed.begin();
   for (; com != completed.end(); ++com) {
     fprintf(fl, ";%ld", (*com));
   }
@@ -177,7 +175,7 @@ int Player::SaveTo(FILE* fl) {
   room->WriteContentsTo(fl);
   fprintf(fl, "\n");
 
-  map<string, string>::iterator var = vars.begin();
+  std::map<std::string, std::string>::iterator var = vars.begin();
   for (; var != vars.end(); ++var) {
     fprintf(fl, ";%s:%s", var->first.c_str(), var->second.c_str());
   }
@@ -194,7 +192,7 @@ int save_players(const char* fn) {
 
   fprintf(fl, "%d\n", (int)(player_list.size() - non_init.size()));
 
-  map<string, Player*>::iterator pl = player_list.begin();
+  std::map<std::string, Player*>::iterator pl = player_list.begin();
   for (; pl != player_list.end(); ++pl) {
     if (non_init.count((*pl).second) == 0) {
       if ((*pl).second->SaveTo(fl))
@@ -207,7 +205,7 @@ int save_players(const char* fn) {
 }
 
 void player_rooms_erase(Object* obj) {
-  map<string, Player*>::iterator pl = player_list.begin();
+  std::map<std::string, Player*>::iterator pl = player_list.begin();
   for (; pl != player_list.end(); ++pl) {
     if ((*pl).second->Creator() == obj)
       (*pl).second->SetCreator(NULL);
@@ -216,7 +214,7 @@ void player_rooms_erase(Object* obj) {
 }
 
 int is_pc(const Object* obj) {
-  map<string, Player*>::iterator pl = player_list.begin();
+  std::map<std::string, Player*>::iterator pl = player_list.begin();
   for (; pl != player_list.end(); ++pl) {
     if (pl->second->Room() && pl->second->Room()->Contains(obj)) {
       return 1;
@@ -225,15 +223,15 @@ int is_pc(const Object* obj) {
   return 0;
 }
 
-vector<Player*> get_current_players() {
+std::vector<Player*> get_current_players() {
   fprintf(stderr, "Warning: %s called, but not implemented yet!\n", __PRETTY_FUNCTION__);
-  vector<Player*> ret;
+  std::vector<Player*> ret;
   return ret;
 }
 
-vector<Player*> get_all_players() {
-  vector<Player*> ret;
-  map<string, Player*>::iterator pl = player_list.begin();
+std::vector<Player*> get_all_players() {
+  std::vector<Player*> ret;
+  std::map<std::string, Player*>::iterator pl = player_list.begin();
   for (; pl != player_list.end(); ++pl) {
     if ((*pl).second->Room()) {
       ret.push_back((*pl).second);

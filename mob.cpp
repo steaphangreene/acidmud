@@ -4,8 +4,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-
-using namespace std;
+#include <string>
 
 #include "color.hpp"
 #include "commands.hpp"
@@ -14,7 +13,7 @@ using namespace std;
 #include "object.hpp"
 #include "utils.hpp"
 
-static map<act_t, string> wear_attribs;
+static std::map<act_t, std::string> wear_attribs;
 static void init_wear_attribs() {
   wear_attribs[ACT_WEAR_BACK] = "Wearable on Back";
   wear_attribs[ACT_WEAR_CHEST] = "Wearable on Chest";
@@ -132,11 +131,11 @@ MOBType::MOBType(
 }
 
 void MOBType::Skill(const char* nm, int percent, int mod) {
-  skills[nm] = make_pair(percent, mod);
+  skills[nm] = std::make_pair(percent, mod);
 }
 
 void MOBType::Skill(const char* nm, int val) {
-  skills[nm] = make_pair(-1, val);
+  skills[nm] = std::make_pair(-1, val);
 }
 
 void MOBType::Arm(WeaponType* weap) {
@@ -315,8 +314,8 @@ static const char* gen_replace[][4] = {{"{He}", "She", "He", "It"},
                                        {"{his}", "hers", "his", "its"},
                                        {NULL, NULL, NULL, NULL}};
 
-string gender_proc(const char* in, char gender) {
-  string ret = in;
+std::string gender_proc(const char* in, char gender) {
+  std::string ret = in;
   int ctr = 0, gen = 3;
 
   if (gender == 'F')
@@ -328,7 +327,7 @@ string gender_proc(const char* in, char gender) {
     int where = ret.find(gen_replace[ctr][0]);
     while (where >= 0 && where <= int(ret.length())) {
       fprintf(stderr, "Yep: %d %s (%s)\n", where, ret.c_str(), gen_replace[ctr][0]);
-      ret = ret.substr(0, where) + string(gen_replace[ctr][gen]) +
+      ret = ret.substr(0, where) + std::string(gen_replace[ctr][gen]) +
           ret.substr(where + strlen(gen_replace[ctr][0]));
       where = ret.find(gen_replace[ctr][0]);
     }

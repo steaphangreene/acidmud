@@ -6,8 +6,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-
-using namespace std;
+#include <string>
 
 #include "color.hpp"
 #include "commands.hpp"
@@ -51,7 +50,7 @@ const char* act_str[ACT_SPECIAL_MAX] = {
 static Object* universe = NULL;
 static Object* trash_bin = NULL;
 
-static set<Object*> busylist;
+static std::set<Object*> busylist;
 extern timeval current_time; // From main.cpp
 
 Object* Object::Universe() {
@@ -198,7 +197,7 @@ int matches(const char* name, const char* seek) {
 }
 
 int Object::Matches(const char* seek) {
-  string targ = seek;
+  std::string targ = seek;
   while (isspace(targ[targ.length() - 1]))
     targ = targ.substr(0, targ.length() - 1);
 
@@ -314,7 +313,7 @@ Object* new_body() {
 }
 
 #define TICKSPLIT 6000 // 60 seconds
-static set<Object*> ticklist[TICKSPLIT];
+static std::set<Object*> ticklist[TICKSPLIT];
 int Object::IsActive() const {
   return (tickstep >= 0);
 }
@@ -338,8 +337,8 @@ void Object::Deactivate() {
 
 void tick_world() {
   static int tickstage = 0;
-  set<Object *> todel, todeact;
-  set<Object*>::iterator ind = ticklist[tickstage].begin();
+  std::set<Object *> todel, todeact;
+  std::set<Object*>::iterator ind = ticklist[tickstage].begin();
   //  fprintf(stderr, "Ticking %d items\n", ticklist[tickstage].size());
   for (; ind != ticklist[tickstage].end(); ++ind) {
     int res = (*ind)->Tick();
@@ -365,7 +364,7 @@ void tick_world() {
 }
 
 int Object::Tick() {
-  set<Mind*>::iterator m;
+  std::set<Mind*>::iterator m;
   for (m = minds.begin(); m != minds.end(); ++m) {
     (*m)->Attach(this);
     (*m)->Think(1);
@@ -452,14 +451,14 @@ int Object::Tick() {
       corpse->SetSize(Size());
       corpse->SetVolume(Volume());
 
-      set<Object*> todrop;
-      list<Object*> todropfrom;
+      std::set<Object*> todrop;
+      std::list<Object*> todropfrom;
       todropfrom.push_back(this);
 
-      list<Object*>::iterator tdf;
+      std::list<Object*>::iterator tdf;
       for (tdf = todropfrom.begin(); tdf != todropfrom.end(); ++tdf) {
         Object* con = (*tdf);
-        list<Object*>::iterator cur;
+        std::list<Object*>::iterator cur;
         for (cur = con->contents.begin(); cur != con->contents.end(); ++cur) {
           Object* item = (*cur);
           if (item->contents.size() > 0 && item->Pos() == POS_NONE) {
@@ -470,7 +469,7 @@ int Object::Tick() {
         }
       }
 
-      set<Object*>::iterator td;
+      std::set<Object*>::iterator td;
       for (td = todrop.begin(); td != todrop.end(); ++td) {
         if (Parent())
           Drop(*td, 0, 1);
@@ -478,7 +477,7 @@ int Object::Tick() {
           (*td)->Recycle();
       }
 
-      list<Object*> cont = contents;
+      std::list<Object*> cont = contents;
       for (auto todel = cont.begin(); todel != cont.end(); ++todel) {
         (*todel)->Recycle();
       }
@@ -830,10 +829,10 @@ const char* Object::Obje() const {
 
 // Generate truly-formatted name
 const char* Object::Name(int definite, Object* rel, Object* sub) const {
-  static string local;
+  static std::string local;
   int need_an = 0;
   int proper = 0;
-  string ret;
+  std::string ret;
 
   if (rel == this && sub == this)
     return "yourself";
@@ -872,28 +871,28 @@ const char* Object::Name(int definite, Object* rel, Object* sub) const {
   if (!BaseAttribute(1)) {
     Object* pos = Owner();
     if (pos && pos == rel) {
-      ret = string("your ") + ret;
+      ret = std::string("your ") + ret;
     } else if (pos && pos == sub && pos->Gender() == 'F') {
-      ret = string("her ") + ret;
+      ret = std::string("her ") + ret;
     } else if (pos && pos == sub && pos->Gender() == 'M') {
-      ret = string("his ") + ret;
+      ret = std::string("his ") + ret;
     } else if (pos && pos == sub) {
-      ret = string("its ") + ret;
+      ret = std::string("its ") + ret;
     } else if (pos) {
-      ret = string(pos->Name()) + "'s " + ret;
+      ret = std::string(pos->Name()) + "'s " + ret;
     } else if (definite && (!proper)) {
-      ret = string("the ") + ret;
+      ret = std::string("the ") + ret;
     } else if ((!proper) && need_an) {
-      ret = string("an ") + ret;
+      ret = std::string("an ") + ret;
     } else if (!proper) {
-      ret = string("a ") + ret;
+      ret = std::string("a ") + ret;
     }
   } else if (definite && (!proper)) {
-    ret = string("the ") + ret;
+    ret = std::string("the ") + ret;
   } else if ((!proper) && need_an) {
-    ret = string("an ") + ret;
+    ret = std::string("an ") + ret;
   } else if (!proper) {
-    ret = string("a ") + ret;
+    ret = std::string("a ") + ret;
   }
 
   local = ret;
@@ -916,7 +915,7 @@ const char* Object::LongDesc() const {
   return long_desc.c_str();
 }
 
-static void trim(string& s) {
+static void trim(std::string& s) {
   if (s.length() < 1)
     return;
   while (s[0] != 0 && (!isgraph(s[0]))) {
@@ -927,7 +926,7 @@ static void trim(string& s) {
   }
 
   size_t n00b = s.find('@');
-  while (n00b != string::npos) {
+  while (n00b != std::string::npos) {
     // fprintf(stderr, "Step: %s\n", s.c_str());
     if (s[n00b + 1] == '@') { //@@ -> @
       s = s.substr(0, n00b) + "@" + s.substr(n00b + 2);
@@ -936,24 +935,24 @@ static void trim(string& s) {
       s = s.substr(0, n00b) + s.substr(n00b + 2);
       n00b = s.find('@', n00b);
     }
-    // if(n00b == string::npos) fprintf(stderr, "Done: %s\n\n", s.c_str());
+    // if(n00b == std::string::npos) fprintf(stderr, "Done: %s\n\n", s.c_str());
   }
 }
 
-void Object::SetShortDesc(const string& d) {
-  string s = d;
+void Object::SetShortDesc(const std::string& d) {
+  std::string s = d;
   trim(s);
   short_desc = s;
 }
 
-void Object::SetDesc(const string& d) {
-  string s = d;
+void Object::SetDesc(const std::string& d) {
+  std::string s = d;
   trim(s);
   desc = s;
 }
 
-void Object::SetLongDesc(const string& d) {
-  string s = d;
+void Object::SetLongDesc(const std::string& d) {
+  std::string s = d;
   trim(s);
   long_desc = s;
 }
@@ -964,46 +963,46 @@ void Object::SetParent(Object* o) {
     o->AddLink(this);
 }
 
-void Object::SendContents(Object* targ, Object* o, int vmode, string b) {
-  set<Mind*>::iterator m = targ->minds.begin();
+void Object::SendContents(Object* targ, Object* o, int vmode, std::string b) {
+  std::set<Mind*>::iterator m = targ->minds.begin();
   for (; m != targ->minds.end(); ++m) {
     SendContents(*m, o, vmode, b);
   }
 }
 
 void Object::SendShortDesc(Object* targ, Object* o) {
-  set<Mind*>::iterator m = targ->minds.begin();
+  std::set<Mind*>::iterator m = targ->minds.begin();
   for (; m != targ->minds.end(); ++m) {
     SendShortDesc(*m, o);
   }
 }
 
 void Object::SendDesc(Object* targ, Object* o) {
-  set<Mind*>::iterator m = targ->minds.begin();
+  std::set<Mind*>::iterator m = targ->minds.begin();
   for (; m != targ->minds.end(); ++m) {
     SendDesc(*m, o);
   }
 }
 
 void Object::SendDescSurround(Object* targ, Object* o, int vmode) {
-  set<Mind*>::iterator m = targ->minds.begin();
+  std::set<Mind*>::iterator m = targ->minds.begin();
   for (; m != targ->minds.end(); ++m) {
     SendDescSurround(*m, o, vmode);
   }
 }
 
 void Object::SendLongDesc(Object* targ, Object* o) {
-  set<Mind*>::iterator m = targ->minds.begin();
+  std::set<Mind*>::iterator m = targ->minds.begin();
   for (; m != targ->minds.end(); ++m) {
     SendLongDesc(*m, o);
   }
 }
 
-static string base = "";
+static std::string base = "";
 static char buf[65536];
 
 void Object::SendActions(Mind* m) {
-  map<act_t, Object*>::iterator cur;
+  std::map<act_t, Object*>::iterator cur;
   for (cur = act.begin(); cur != act.end(); ++cur) {
     if (cur->first < ACT_WEAR_BACK) {
       const char* targ;
@@ -1017,7 +1016,7 @@ void Object::SendActions(Mind* m) {
 
       //      //FIXME: Busted!  This should be the "pointing north to bob"
       //      thingy.
-      //      map<string,Object*>::iterator dir = connections.begin();
+      //      std::map<std::string,Object*>::iterator dir = connections.begin();
       //      for(; dir != connections.end(); ++dir) {
       //	if((*dir).second == cur->second) {
       //	  dirn = (char*) (*dir).first.c_str();
@@ -1054,8 +1053,8 @@ void Object::SendActions(Mind* m) {
 }
 
 void Object::SendExtendedActions(Mind* m, int vmode) {
-  map<Object*, string> shown;
-  map<act_t, Object*>::iterator cur;
+  std::map<Object*, std::string> shown;
+  std::map<act_t, Object*>::iterator cur;
   for (cur = act.begin(); cur != act.end(); ++cur) {
     if ((vmode & (LOC_TOUCH | LOC_HEAT | LOC_NINJA)) == 0 // Can't See/Feel Invis
         &&
@@ -1144,7 +1143,7 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
         m->Send(CNRM);
       } else if (cur->second->Skill("Container")) {
         if ((vmode & 1) && cur->second->Skill("Locked")) {
-          string mes = base + CNRM + "                " + "  It is closed and locked.\n" + CGRN;
+          std::string mes = base + CNRM + "                " + "  It is closed and locked.\n" + CGRN;
           m->Send(mes.c_str());
         } else if (vmode & 1) {
           sprintf(buf, "%16s  %c", " ", 0);
@@ -1159,13 +1158,13 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
   }
 }
 
-void Object::SendContents(Mind* m, Object* o, int vmode, string b) {
-  list<Object*> cont = contents;
+void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
+  std::list<Object*> cont = contents;
 
   if (b.length() > 0)
     base += b;
 
-  set<Object*> master;
+  std::set<Object*> master;
   master.insert(cont.begin(), cont.end());
 
   for (act_t act = ACT_HOLD; act < ACT_MAX; act = act_t(int(act) + 1)) {
@@ -1202,7 +1201,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, string b) {
           if (base != "")
             m->SendF("%s%sInside: ", base.c_str(), CNRM);
           m->Send(CCYN);
-          string send = (*ind)->ShortDesc();
+          std::string send = (*ind)->ShortDesc();
           if (!((*ind)->Skill("Open") || (*ind)->Skill("Transparent"))) {
             send += ", the door is closed.\n";
           } else {
@@ -1271,16 +1270,16 @@ void Object::SendContents(Mind* m, Object* o, int vmode, string b) {
 
         m->Send(CNRM);
         if ((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
-          string tmp = base;
+          std::string tmp = base;
           base += "  ";
           (*ind)->SendContents(m, o, vmode);
           base = tmp;
         } else if ((*ind)->Skill("Container") || (*ind)->Skill("Liquid Container")) {
           if ((vmode & 1) && (*ind)->Skill("Locked")) {
-            string mes = base + "  It is closed and locked, you can't see inside.\n";
+            std::string mes = base + "  It is closed and locked, you can't see inside.\n";
             m->Send(mes.c_str());
           } else if (vmode & 1) {
-            string tmp = base;
+            std::string tmp = base;
             base += "  ";
             (*ind)->SendContents(m, o, vmode);
             base = tmp;
@@ -1299,7 +1298,7 @@ void Object::SendShortDesc(Mind* m, Object* o) {
 }
 
 void Object::SendFullSituation(Mind* m, Object* o) {
-  string pname = "its";
+  std::string pname = "its";
   if (parent && parent->Gender() == 'M')
     pname = "his";
   else if (parent && parent->Gender() == 'F')
@@ -1547,10 +1546,10 @@ void Object::SendScore(Mind* m, Object* o) {
     m->Send("\n");
   }
 
-  list<string> col1;
-  list<string>::iterator c1;
-  map<string, int> skills = GetSkills();
-  map<string, int>::iterator c2;
+  std::list<std::string> col1;
+  std::list<std::string>::iterator c1;
+  std::map<std::string, int> skills = GetSkills();
+  std::map<std::string, int>::iterator c2;
 
   if (BaseAttribute(1) <= 0) { // Inanimate
     col1 = FormatStats(skills);
@@ -1587,7 +1586,7 @@ void Object::SendScore(Mind* m, Object* o) {
   if (IsActive())
     m->Send(CCYN "  ACTIVE\n" CNRM);
 
-  set<Mind*>::iterator mind;
+  std::set<Mind*>::iterator mind;
   for (mind = minds.begin(); mind != minds.end(); ++mind) {
     if ((*mind)->Owner()) {
       m->SendF(
@@ -1617,11 +1616,11 @@ void Object::SendScore(Mind* m, Object* o) {
   }
 }
 
-list<string> Object::FormatSkills(map<string, int>& skls) {
-  list<string> ret;
+std::list<std::string> Object::FormatSkills(std::map<std::string, int>& skls) {
+  std::list<std::string> ret;
 
-  map<string, int> skills = skls;
-  map<string, int>::iterator skl;
+  std::map<std::string, int> skills = skls;
+  std::map<std::string, int>::iterator skl;
 
   for (skl = skills.begin(); skl != skills.end(); ++skl) {
     if (is_skill(skl->first)) {
@@ -1635,7 +1634,7 @@ list<string> Object::FormatSkills(map<string, int>& skls) {
 }
 
 static void
-stick_on(list<string>& out, map<string, int>& skls, const char* skn, const char* label) {
+stick_on(std::list<std::string>& out, std::map<std::string, int>& skls, const char* skn, const char* label) {
   char buf[256];
   if (skls.count(skn) > 0) {
     int sk = skls[skn];
@@ -1647,8 +1646,8 @@ stick_on(list<string>& out, map<string, int>& skls, const char* skn, const char*
   }
 }
 
-list<string> Object::FormatStats(map<string, int>& skls) {
-  list<string> ret;
+std::list<std::string> Object::FormatStats(std::map<std::string, int>& skls) {
+  std::list<std::string> ret;
 
   if (HasSkill("WeaponType")) { // It's a Weapon
     // Detailed Weapon Stats
@@ -1773,10 +1772,10 @@ void Object::RemoveLink(Object* ob) {
 
 void Object::Link(
     Object* other,
-    const string& name,
-    const string& desc,
-    const string& oname,
-    const string& odesc) {
+    const std::string& name,
+    const std::string& desc,
+    const std::string& oname,
+    const std::string& odesc) {
   Object* door1 = new Object(this);
   Object* door2 = new Object(other);
   door1->SetShortDesc(name.c_str());
@@ -1795,10 +1794,10 @@ void Object::Link(
 
 void Object::LinkClosed(
     Object* other,
-    const string& name,
-    const string& desc,
-    const string& oname,
-    const string& odesc) {
+    const std::string& name,
+    const std::string& desc,
+    const std::string& oname,
+    const std::string& odesc) {
   Object* door1 = new Object(this);
   Object* door2 = new Object(other);
   door1->SetShortDesc(name.c_str());
@@ -1825,7 +1824,7 @@ void Object::TryCombine() {
       continue; // Skip self
 
     // Never combine with an actee.
-    map<act_t, Object*>::iterator a = parent->act.begin();
+    std::map<act_t, Object*>::iterator a = parent->act.begin();
     for (; a != parent->act.end(); ++a) {
       if (a->second == (*ind))
         break;
@@ -1896,13 +1895,13 @@ int Object::Travel(Object* dest, int try_combine) {
   }
 
   if (att[1] > 0) {
-    list<Object*> trigs = parent->contents;
-    list<Object*>::const_iterator src = parent->contents.begin();
+    std::list<Object*> trigs = parent->contents;
+    std::list<Object*>::const_iterator src = parent->contents.begin();
     for (; src != parent->contents.end(); ++src) {
       trigs.insert(trigs.end(), (*src)->contents.begin(), (*src)->contents.end());
     }
 
-    list<Object*>::iterator trig;
+    std::list<Object*>::iterator trig;
     // Type 0x0010000 (*-LEAVE)
     for (trig = trigs.begin(); trig != trigs.end(); ++trig) {
       if ((*trig)->Skill("TBAScriptType") & 0x0010000) {
@@ -1955,7 +1954,7 @@ int Object::Travel(Object* dest, int try_combine) {
   }
 
   if (parent->Skill("Secret")) {
-    set<Mind*>::iterator m;
+    std::set<Mind*>::iterator m;
     for (m = minds.begin(); m != minds.end(); ++m) {
       if ((*m)->Owner()) {
         if ((*m)->Owner()->Accomplish(parent->Skill("Secret"))) {
@@ -1977,8 +1976,8 @@ void Object::Recycle(int inbin) {
 
   // fprintf(stderr, "Deleting: %s\n", Name(0));
 
-  set<Object*> movers;
-  set<Object*> killers;
+  std::set<Object*> movers;
+  std::set<Object*> killers;
   for (auto ind = contents.begin(); ind != contents.end(); ++ind) {
     if (is_pc(*ind)) {
       movers.insert(*ind);
@@ -2025,7 +2024,7 @@ void Object::Recycle(int inbin) {
 
   player_rooms_erase(this);
 
-  set<Mind*>::iterator mind;
+  std::set<Mind*>::iterator mind;
   for (mind = minds.begin(); mind != minds.end(); ++mind) {
     Unattach(*mind);
   }
@@ -2037,7 +2036,7 @@ void Object::Recycle(int inbin) {
   }
 
   // Actions over long distances must be notified!
-  set<Object*> tonotify;
+  std::set<Object*> tonotify;
   if (ActTarg(ACT_SPECIAL_MASTER))
     tonotify.insert(ActTarg(ACT_SPECIAL_MASTER));
   if (ActTarg(ACT_SPECIAL_MONITOR))
@@ -2055,7 +2054,7 @@ void Object::Recycle(int inbin) {
   StopAct(ACT_SPECIAL_MONITOR);
   StopAct(ACT_SPECIAL_LINKED);
 
-  set<Object*>::iterator noti;
+  std::set<Object*>::iterator noti;
   for (noti = tonotify.begin(); noti != tonotify.end(); ++noti) {
     int del = 0;
     if ((*noti)->ActTarg(ACT_SPECIAL_MASTER) == this)
@@ -2173,7 +2172,7 @@ int strip_ordinal(const char** text) {
 }
 
 Object* Object::PickObject(const char* name, int loc, int* ordinal) const {
-  list<Object*> ret = PickObjects(name, loc, ordinal);
+  std::list<Object*> ret = PickObjects(name, loc, ordinal);
   if (ret.size() != 1) {
     return NULL;
   }
@@ -2205,7 +2204,7 @@ Object* Object::Split(int nqty) {
   return nobj;
 }
 
-static int tag(Object* obj, list<Object*>& ret, int* ordinal, int vmode = 0) {
+static int tag(Object* obj, std::list<Object*>& ret, int* ordinal, int vmode = 0) {
   // Only Ninjas in Ninja-Mode should detect these
   if (obj->Skill("Invisible") > 999 && (vmode & LOC_NINJA) == 0)
     return 0;
@@ -2272,8 +2271,8 @@ static int tag(Object* obj, list<Object*>& ret, int* ordinal, int vmode = 0) {
   return 0;
 }
 
-list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) const {
-  list<Object*> ret;
+std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) const {
+  std::list<Object*> ret;
 
   while ((!isgraph(*name)) && (*name))
     ++name;
@@ -2306,14 +2305,14 @@ list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) const
     char* keyword3 = strdup(name);
     keyword3[keyword - name] = 0;
 
-    list<Object*> masters = PickObjects(keyword3, loc, ordinal);
+    std::list<Object*> masters = PickObjects(keyword3, loc, ordinal);
     if (!masters.size()) {
       free(keyword3);
       return ret;
     }
 
     for (auto master = masters.begin(); master != masters.end(); ++master) {
-      list<Object*> add = (*master)->PickObjects(
+      std::list<Object*> add = (*master)->PickObjects(
           keyword3 + (keyword - name) + 3, (loc & LOC_SPECIAL) | LOC_INTERNAL);
       ret.insert(ret.end(), add.begin(), add.end());
     }
@@ -2350,7 +2349,7 @@ list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) const
   }
 
   if ((loc & LOC_NEARBY) && (parent != NULL)) {
-    list<Object*> cont = parent->Contents(loc); //"loc" includes vmode.
+    std::list<Object*> cont = parent->Contents(loc); //"loc" includes vmode.
 
     for (auto ind = cont.begin(); ind != cont.end(); ++ind)
       if (!(*ind)->no_seek) {
@@ -2362,7 +2361,7 @@ list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) const
           }
         }
         if ((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
-          list<Object*> add =
+          std::list<Object*> add =
               (*ind)->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
           ret.insert(ret.end(), add.begin(), add.end());
 
@@ -2374,7 +2373,7 @@ list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) const
       if (parent->parent) {
         parent->no_seek = 1;
 
-        list<Object*> add = parent->PickObjects(name, (loc & LOC_SPECIAL) | LOC_NEARBY, ordinal);
+        std::list<Object*> add = parent->PickObjects(name, (loc & LOC_SPECIAL) | LOC_NEARBY, ordinal);
         ret.insert(ret.end(), add.begin(), add.end());
 
         parent->no_seek = 0;
@@ -2385,9 +2384,9 @@ list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) const
   }
 
   if (loc & LOC_INTERNAL) {
-    list<Object*> cont(contents);
+    std::list<Object*> cont(contents);
 
-    map<act_t, Object*>::const_iterator action;
+    std::map<act_t, Object*>::const_iterator action;
     for (action = act.begin(); action != act.end(); ++action) {
       auto ind = find(cont.begin(), cont.end(), action->second);
       if (ind != cont.end()) { // IE: Is action->second within cont
@@ -2400,7 +2399,7 @@ list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) const
           }
         }
         if (action->second->HasSkill("Container")) {
-          list<Object*> add =
+          std::list<Object*> add =
               action->second->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
           ret.insert(ret.end(), add.begin(), add.end());
 
@@ -2419,7 +2418,7 @@ list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) const
         }
       }
       if ((*ind)->Skill("Container") && (loc & LOC_NOTUNWORN) == 0) {
-        list<Object*> add = (*ind)->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
+        std::list<Object*> add = (*ind)->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
         ret.insert(ret.end(), add.begin(), add.end());
 
         if ((*ordinal) == 0)
@@ -2481,7 +2480,7 @@ int Object::IsNearBy(const Object* obj) {
 }
 
 void Object::NotifyLeft(Object* obj, Object* newloc) {
-  set<act_t> stops, stops2;
+  std::set<act_t> stops, stops2;
   auto curact = act.begin();
   int following = 0;
   for (; curact != act.end(); ++curact) {
@@ -2521,7 +2520,7 @@ void Object::NotifyLeft(Object* obj, Object* newloc) {
     }
   }
 
-  set<act_t>::iterator stop = stops.begin();
+  std::set<act_t>::iterator stop = stops.begin();
   for (; stop != stops.end(); ++stop) {
     StopAct(*stop);
   }
@@ -2551,7 +2550,7 @@ void Object::NotifyGone(Object* obj, Object* newloc, int up) {
 
   NotifyLeft(obj, newloc);
 
-  map<Object*, int> tonotify;
+  std::map<Object*, int> tonotify;
 
   for (auto ind = contents.begin(); ind != contents.end(); ++ind) {
     if (up >= 0) {
@@ -2561,7 +2560,7 @@ void Object::NotifyGone(Object* obj, Object* newloc, int up) {
     }
   }
 
-  map<Object*, int>::iterator noti;
+  std::map<Object*, int>::iterator noti;
   for (noti = tonotify.begin(); noti != tonotify.end(); ++noti) {
     noti->first->NotifyGone(obj, newloc, noti->second);
   }
@@ -2663,8 +2662,8 @@ void Object::UpdateDamage() {
       stun = 10;
       Collapse();
       AddAct(ACT_DEAD);
-      set<Mind*> removals;
-      set<Mind*>::iterator mind;
+      std::set<Mind*> removals;
+      std::set<Mind*>::iterator mind;
       for (mind = minds.begin(); mind != minds.end(); ++mind) {
         if ((*mind)->Type() == MIND_REMOTE)
           removals.insert(*mind);
@@ -2822,7 +2821,7 @@ void Object::Send(int tnum, int rsucc, const char* mes) {
   char* tosend = strdup(mes);
   tosend[0] = toupper(tosend[0]);
 
-  set<Mind*>::iterator mind;
+  std::set<Mind*>::iterator mind;
   for (mind = minds.begin(); mind != minds.end(); ++mind) {
     Object* body = (*mind)->Body();
     (*mind)->Attach(this);
@@ -2880,7 +2879,7 @@ void Object::SendIn(
         }
       } else { // Type 0x1000008 (MOB + MOB-SPEECH)
         if (((*trig)->Skill("TBAScriptType") & 0x1000008) == 0x1000008) {
-          string speech = (mes + 9);
+          std::string speech = (mes + 9);
           while (speech[0] && speech[speech.length() - 1] != '\'') {
             speech = speech.substr(0, speech.length() - 1);
           }
@@ -2903,10 +2902,10 @@ void Object::SendIn(
     }
   }
 
-  string tstr = "";
+  std::string tstr = "";
   if (targ)
     tstr = (char*)targ->Name(0, this, actor);
-  string astr = "";
+  std::string astr = "";
   if (actor)
     astr = (char*)actor->Name(0, this);
 
@@ -3010,7 +3009,7 @@ void Object::SendOut(
     auto trig = contents.begin();
     for (; trig != contents.end(); ++trig) {
       if (((*trig)->Skill("TBAScriptType") & 0x4000008) == 0x4000008) {
-        string speech = (mes + 9);
+        std::string speech = (mes + 9);
         while (speech[0] && speech[speech.length() - 1] != '\'') {
           speech = speech.substr(0, speech.length() - 1);
         }
@@ -3032,10 +3031,10 @@ void Object::SendOut(
     }
   }
 
-  string tstr = "";
+  std::string tstr = "";
   if (targ)
     tstr = (char*)targ->Name(0, this, actor);
-  string astr = "";
+  std::string astr = "";
   if (actor)
     astr = (char*)actor->Name(0, this);
 
@@ -3125,7 +3124,7 @@ void Object::SendOutF(
 }
 
 void Object::Loud(int str, const char* mes) {
-  set<Object*> visited;
+  std::set<Object*> visited;
   Loud(visited, str, mes);
 }
 
@@ -3141,13 +3140,13 @@ void Object::LoudF(int str, const char* mes, ...) {
   vsprintf(buf, mes, stuff);
   va_end(stuff);
 
-  set<Object*> visited;
+  std::set<Object*> visited;
   Loud(visited, str, buf);
 }
 
-void Object::Loud(set<Object*>& visited, int str, const char* mes) {
+void Object::Loud(std::set<Object*>& visited, int str, const char* mes) {
   visited.insert(this);
-  list<Object*> targs;
+  std::list<Object*> targs;
   targs = PickObjects("all", LOC_INTERNAL);
   for (auto targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
     Object* dest = *targ_it;
@@ -3220,14 +3219,14 @@ void init_world() {
 }
 
 void save_world(int with_net) {
-  string fn = "acid/current";
-  string wfn = fn + ".wld.tmp";
+  std::string fn = "acid/current";
+  std::string wfn = fn + ".wld.tmp";
   if (!universe->Save(wfn.c_str())) {
-    string pfn = fn + ".plr.tmp";
+    std::string pfn = fn + ".plr.tmp";
     if (!save_players(pfn.c_str())) {
-      string nfn = fn + ".nst";
+      std::string nfn = fn + ".nst";
       if ((!with_net) || (!save_net(nfn.c_str()))) {
-        string nfn = fn + ".wld";
+        std::string nfn = fn + ".wld";
         unlink(nfn.c_str());
         rename(wfn.c_str(), nfn.c_str());
 
@@ -3305,8 +3304,8 @@ int Object::BusyAct() {
     }
   }
 
-  string comm = dowhenfree;
-  string def = defact;
+  std::string comm = dowhenfree;
+  std::string def = defact;
   dowhenfree = "";
   defact = "";
 
@@ -3327,8 +3326,8 @@ int Object::BusyAct() {
 
 void Object::FreeActions() {
   int maxinit = 0;
-  map<Object*, list<int>> initlist;
-  for (set<Object*>::iterator busy = busylist.begin(); busy != busylist.end(); ++busy) {
+  std::map<Object*, std::list<int>> initlist;
+  for (std::set<Object*>::iterator busy = busylist.begin(); busy != busylist.end(); ++busy) {
     if (!(*busy)->StillBusy()) {
       initlist[*busy] = (*busy)->RollInitiative();
       if (maxinit < initlist[*busy].front()) {
@@ -3337,7 +3336,7 @@ void Object::FreeActions() {
     }
   }
   for (int phase = maxinit; phase > 0; --phase) {
-    for (map<Object*, list<int>>::iterator init = initlist.begin(); init != initlist.end();
+    for (std::map<Object*, std::list<int>>::iterator init = initlist.begin(); init != initlist.end();
          ++init) {
       // Make sure it's still in busylist
       // (hasn't been deleted by another's BusyAct)!
@@ -3353,10 +3352,10 @@ void Object::FreeActions() {
       }
     }
   }
-  for (map<Object*, list<int>>::iterator init = initlist.begin(); init != initlist.end(); ++init) {
+  for (std::map<Object*, std::list<int>>::iterator init = initlist.begin(); init != initlist.end(); ++init) {
     if (init->first->IsAct(ACT_FIGHT)) { // Still in combat!
       if (!init->first->StillBusy()) { // Make Sure!
-        string ret = init->first->Tactics();
+        std::string ret = init->first->Tactics();
         init->first->BusyFor(3000, ret.c_str());
       }
 
@@ -3373,13 +3372,13 @@ void Object::FreeActions() {
   }
 }
 
-string Object::Tactics(int phase) {
+std::string Object::Tactics(int phase) {
   if (minds.size() < 1)
     return "attack";
   Mind* mind = (*(minds.begin())); // FIXME: Handle Multiple Minds
   Object* body = mind->Body();
   mind->Attach(this);
-  string ret = mind->Tactics();
+  std::string ret = mind->Tactics();
   mind->Attach(body);
   return ret;
 }
@@ -3442,8 +3441,8 @@ int Object::operator==(const Object& in) const {
   if (contents.size() != 0 || in.contents.size() != 0)
     return 0;
 
-  map<string, int> sk1 = skills;
-  map<string, int> sk2 = in.skills;
+  std::map<std::string, int> sk1 = skills;
+  std::map<std::string, int> sk2 = in.skills;
   sk1.erase("Quantity");
   sk2.erase("Quantity");
   sk1.erase("Hungry");
@@ -3492,11 +3491,11 @@ void Object::operator=(const Object& in) {
   //  act = in.act;
 }
 
-list<Object*> Object::Contents(int vmode) {
+std::list<Object*> Object::Contents(int vmode) {
   if (vmode & LOC_NINJA)
     return contents;
-  list<Object*> ret;
-  list<Object*>::iterator item = contents.begin();
+  std::list<Object*> ret;
+  std::list<Object*>::iterator item = contents.begin();
   for (; item != contents.end(); ++item) {
     if ((*item)->Skill("Invisible") >= 1000)
       continue; // Not Really There
@@ -3512,7 +3511,7 @@ list<Object*> Object::Contents(int vmode) {
   return ret;
 }
 
-list<Object*> Object::Contents() {
+std::list<Object*> Object::Contents() {
   return contents;
 }
 
@@ -3551,7 +3550,7 @@ int Object::Exp(const Player* p) const {
 }
 
 int two_handed(int wtype) {
-  static set<int> thsks;
+  static std::set<int> thsks;
   if (thsks.size() == 0) {
     thsks.insert(get_weapon_type("Two-Handed Blades"));
     thsks.insert(get_weapon_type("Two-Handed Cleaves"));
@@ -3597,7 +3596,7 @@ const char* Object::UsingString() {
   return "doing nothing";
 }
 
-void Object::StartUsing(const string& skill) {
+void Object::StartUsing(const std::string& skill) {
   cur_skill = skill;
   pos = POS_USE;
 }
@@ -3612,8 +3611,8 @@ const char* Object::Using() {
   return cur_skill.c_str();
 }
 
-int Object::IsUsing(const string& skill) {
-  return (string(skill) == string(cur_skill));
+int Object::IsUsing(const std::string& skill) {
+  return (std::string(skill) == std::string(cur_skill));
 }
 
 pos_t Object::Pos() {
@@ -3639,11 +3638,11 @@ int Object::Filter(int loc) {
 }
 
 int Object::LooksLike(Object* other, int vmode) {
-  if (string(Name()) != string(other->Name()))
+  if (std::string(Name()) != std::string(other->Name()))
     return 0;
   if (Pos() != other->Pos())
     return 0;
-  if (string(Using()) != string(other->Using()))
+  if (std::string(Using()) != std::string(other->Using()))
     return 0;
 
   // Neither open/trans/seen inside (if either contain anything)
@@ -3667,10 +3666,10 @@ int Object::LooksLike(Object* other, int vmode) {
     if (IsAct(act) != other->IsAct(act))
       return 0;
     if (ActTarg(act) != other->ActTarg(act)) {
-      string s1 = "";
+      std::string s1 = "";
       if (ActTarg(act))
         s1 = ActTarg(act)->Name(0, this);
-      string s2 = "";
+      std::string s2 = "";
       if (ActTarg(act))
         s2 = other->ActTarg(act)->Name(0, other);
       if (s1 != s2)
@@ -3870,7 +3869,7 @@ int Object::Attribute(int a) const {
   return att[a] + Modifier(attnames[a]);
 }
 
-int Object::Modifier(const string& m) const {
+int Object::Modifier(const std::string& m) const {
   int ret = 0;
   auto item = contents.begin();
   for (; item != contents.end(); ++item) {
@@ -3886,7 +3885,7 @@ int Object::Modifier(const string& m) const {
   return (ret / 1000);
 }
 
-int Object::Power(const string& m) const {
+int Object::Power(const std::string& m) const {
   int ret = 0;
   ret = Skill(m);
   auto item = contents.begin();
@@ -3922,8 +3921,8 @@ int Object::WearMask() const {
       Skill("Wearable on Left Hip") | Skill("Wearable on Right Hip"));
 }
 
-set<act_t> Object::WearSlots(int m) const {
-  set<act_t> locs;
+std::set<act_t> Object::WearSlots(int m) const {
+  std::set<act_t> locs;
   if (Skill("Wearable on Back") & m)
     locs.insert(ACT_WEAR_BACK);
   if (Skill("Wearable on Chest") & m)
@@ -3973,9 +3972,9 @@ set<act_t> Object::WearSlots(int m) const {
   return locs;
 }
 
-string Object::WearNames(const set<act_t>& locs) const {
-  string ret = "";
-  set<act_t>::const_iterator loc = locs.begin();
+std::string Object::WearNames(const std::set<act_t>& locs) const {
+  std::string ret = "";
+  std::set<act_t>::const_iterator loc = locs.begin();
   for (; loc != locs.end(); ++loc) {
     if (loc != locs.begin()) {
       auto tmp = loc;
@@ -4035,12 +4034,12 @@ string Object::WearNames(const set<act_t>& locs) const {
   return ret;
 }
 
-string Object::WearNames(int m) const {
+std::string Object::WearNames(int m) const {
   return WearNames(WearSlots(m));
 }
 
 Object* Object::Stash(Object* item, int message, int force, int try_combine) {
-  list<Object *> containers, my_cont;
+  std::list<Object *> containers, my_cont;
   my_cont = PickObjects("all", LOC_INTERNAL);
   for (auto ind = my_cont.begin(); ind != my_cont.end(); ++ind) {
     if ((*ind)->Skill("Container") && ((!(*ind)->Skill("Locked")) || (*ind)->Skill("Open"))) {
@@ -4049,7 +4048,7 @@ Object* Object::Stash(Object* item, int message, int force, int try_combine) {
   }
 
   Object* dest = NULL;
-  list<Object*>::iterator con;
+  std::list<Object*>::iterator con;
   for (con = containers.begin(); con != containers.end(); ++con) {
     if ((*con)->Skill("Capacity") - (*con)->ContainedVolume() < item->Volume())
       continue;
@@ -4127,7 +4126,7 @@ int Object::StashOrDrop(Object* item, int message, int force, int try_combine) {
   return 0;
 }
 
-int Object::SubMaxSkill(const string& s) const {
+int Object::SubMaxSkill(const std::string& s) const {
   int ret = Skill(s);
   auto item = contents.begin();
   for (; item != contents.end(); ++item) {
@@ -4138,7 +4137,7 @@ int Object::SubMaxSkill(const string& s) const {
   return ret;
 }
 
-int Object::SubHasSkill(const string& s) const {
+int Object::SubHasSkill(const std::string& s) const {
   if (HasSkill(s))
     return 1;
   auto item = contents.begin();
@@ -4149,7 +4148,7 @@ int Object::SubHasSkill(const string& s) const {
   return 0;
 }
 
-Object* Object::NextHasSkill(const string& s, const Object* last) {
+Object* Object::NextHasSkill(const std::string& s, const Object* last) {
   if (HasSkill(s) && (!last))
     return this;
   if (last == this)
@@ -4189,7 +4188,7 @@ int Object::Wear(Object* targ, unsigned long masks, int mes) {
     mask <<= 1;
   int success = 0;
   while (!success && mask != 0) {
-    set<act_t> locations;
+    std::set<act_t> locations;
 
     if (targ->Skill("Wearable on Back") & mask)
       locations.insert(ACT_WEAR_BACK);
@@ -4283,7 +4282,7 @@ int Object::Wear(Object* targ, unsigned long masks, int mes) {
       targ = targ->Split(1);
     }
 
-    set<act_t>::iterator loc;
+    std::set<act_t>::iterator loc;
     for (loc = locations.begin(); loc != locations.end(); ++loc) {
       if (IsAct(*loc)) {
         success = 0;

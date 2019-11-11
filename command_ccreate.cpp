@@ -2,8 +2,6 @@
 #include <cstdlib>
 #include <cstring>
 
-using namespace std;
-
 #include "commands.hpp"
 #include "mind.hpp"
 #include "object.hpp"
@@ -45,7 +43,7 @@ int handle_command_ccreate(
                        "Uber",   "Violet", "Widget", "X-Ray",   "Yeller", "Zebra", ""};
     sprintf(alist[NUM_AVS - 1], "East");
 
-    vector<Object*> bldg;
+    std::vector<Object*> bldg;
 
     bldg.push_back(new Object(city));
     bldg.back()->SetShortDesc("Municipal Building");

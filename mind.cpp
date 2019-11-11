@@ -1,8 +1,6 @@
 #include <map>
 #include <string>
 
-using namespace std;
-
 #include <arpa/telnet.h>
 
 #include <fcntl.h>
@@ -23,17 +21,17 @@ using namespace std;
 #include "player.hpp"
 #include "utils.hpp"
 
-list<Mind*> recycle_bin;
+std::list<Mind*> recycle_bin;
 
 static const char* bstr[2] = {"0", "1"};
 
-static string itos(int val) {
+static std::string itos(int val) {
   char buf[256];
   sprintf(buf, "%d", val);
-  return string(buf);
+  return std::string(buf);
 }
 
-static int tba_bitvec(const string& val) {
+static int tba_bitvec(const std::string& val) {
   int ret = atoi(val.c_str());
   if (ret == 0) { // Works fine for "0" too
     for (size_t idx = 0; idx < val.length(); ++idx) {
@@ -43,9 +41,9 @@ static int tba_bitvec(const string& val) {
   return ret;
 }
 
-string Mind::TBAComp(string expr) {
+std::string Mind::TBAComp(std::string expr) {
   size_t end = expr.find_first_of("\n\r");
-  if (end != string::npos)
+  if (end != std::string::npos)
     expr = expr.substr(0, end);
   trim_string(expr);
   if (0
@@ -59,11 +57,11 @@ string Mind::TBAComp(string expr) {
   if (expr[0] == '(') {
     size_t cls = expr.find(')');
     size_t opn = expr.find('(', 1);
-    while (cls != string::npos && opn != string::npos && opn < cls) {
+    while (cls != std::string::npos && opn != std::string::npos && opn < cls) {
       cls = expr.find(')', cls + 1);
       opn = expr.find('(', opn + 1);
     }
-    if (cls == string::npos)
+    if (cls == std::string::npos)
       return TBAComp(expr.substr(1));
     expr = TBAComp(expr.substr(1, cls - 1)) + " " + expr.substr(cls + 1);
     trim_string(expr);
@@ -75,10 +73,10 @@ string Mind::TBAComp(string expr) {
   if (expr[0] == '!')
     skip = 1; // Skip Leading "!"
   size_t op = expr.find_first_of("|&=!<>/-+*", skip);
-  while (op != string::npos && expr[op] == '-' && isalpha(expr[op - 1]) && isalpha(expr[op + 1])) {
+  while (op != std::string::npos && expr[op] == '-' && isalpha(expr[op - 1]) && isalpha(expr[op + 1])) {
     op = expr.find_first_of("|&=!<>/-+*", op + 1); // Skip Hyphens
   }
-  if (op == string::npos)
+  if (op == std::string::npos)
     return expr; // No ops, just val
 
   int oper = 0; // Positive for 2-char ops, negative for 1-char
@@ -114,17 +112,17 @@ string Mind::TBAComp(string expr) {
   }
 
   if (oper != 0) {
-    string arg1 = expr.substr(0, op);
+    std::string arg1 = expr.substr(0, op);
     trim_string(arg1);
     if (oper > 0)
       expr = expr.substr(op + 2); // 2-char
     else
       expr = expr.substr(op + 1); // 1-char
     trim_string(expr);
-    string arg2;
+    std::string arg2;
     if (expr[0] == '(') {
       size_t cls = expr.find(")"); // FIXME: Nested
-      if (cls == string::npos)
+      if (cls == std::string::npos)
         arg2 = TBAComp(expr.substr(1));
       else {
         arg2 = TBAComp(expr.substr(1, cls - 1));
@@ -137,7 +135,7 @@ string Mind::TBAComp(string expr) {
     } else {
       arg2 = expr;
       op = expr.find_first_of("|&=!<>/-+*)\n\r");
-      if (op != string::npos) {
+      if (op != std::string::npos) {
         arg2 = expr.substr(0, op);
         expr = expr.substr(op);
       } else {
@@ -147,7 +145,7 @@ string Mind::TBAComp(string expr) {
     trim_string(arg2);
 
     int res = 0;
-    string comp = "0";
+    std::string comp = "0";
     if (oper == 1 && strcasestr(arg1.c_str(), arg2.c_str()))
       comp = "1";
     else if (oper == 2 && (!strcasecmp(arg1.c_str(), arg2.c_str())))
@@ -194,8 +192,8 @@ string Mind::TBAComp(string expr) {
   return "0";
 }
 
-int Mind::TBAEval(string expr) {
-  string base = TBAComp(expr);
+int Mind::TBAEval(std::string expr) {
+  std::string base = TBAComp(expr);
   trim_string(base);
   if (0
       //	|| body->Skill("TBAScript") == 5000099
@@ -230,7 +228,7 @@ int Mind::TBAEval(string expr) {
   return 1; // Non-Numberic, Non-NULL, Non-Object
 }
 
-map<string, string> Mind::cvars;
+std::map<std::string, std::string> Mind::cvars;
 
 void Mind::Init() {
   body = NULL;
@@ -292,7 +290,7 @@ void Mind::SetMob() {
   pers = fileno(stderr);
 }
 
-void Mind::SetTBATrigger(Object* tr, Object* tripper, Object* targ, string text) {
+void Mind::SetTBATrigger(Object* tr, Object* tripper, Object* targ, std::string text) {
   if ((!tr) || (!(tr->Parent())))
     return;
 
@@ -338,12 +336,12 @@ void Mind::SetTBATrigger(Object* tr, Object* tripper, Object* targ, string text)
   }
   if (stype & 0x0000004) { //-COMMAND Triggers
     size_t part = text.find_first_of(" \t\n\r");
-    if (part == string::npos)
+    if (part == std::string::npos)
       svars["cmd"] = text;
     else {
       svars["cmd"] = text.substr(0, part);
       part = text.find_first_not_of(" \t\n\r", part);
-      if (part != string::npos)
+      if (part != std::string::npos)
         svars["arg"] = text.substr(part);
     }
   }
@@ -442,13 +440,13 @@ void Mind::Send(const char* mes) {
     }
     Think(); // Reactionary actions (HACK!).
   } else if (type == MIND_SYSTEM) {
-    string newmes = "";
+    std::string newmes = "";
     if (body)
       newmes += body->ShortDesc();
     newmes += ": ";
     newmes += mes;
 
-    string::iterator chr = newmes.begin();
+    std::string::iterator chr = newmes.begin();
     for (; chr != newmes.end(); ++chr) {
       if ((*chr) == '\n' || (*chr) == '\r')
         (*chr) = ' ';
@@ -484,7 +482,7 @@ void Mind::SendRawF(const char* mes, ...) {
   SendRaw(buf);
 }
 
-void Mind::SetPName(string pn) {
+void Mind::SetPName(std::string pn) {
   pname = pn;
   if (player_exists(pname))
     SendF("%c%c%cReturning player - welcome back!\n", IAC, WILL, TELOPT_ECHO);
@@ -497,7 +495,7 @@ void Mind::SetPName(string pn) {
         pname.c_str());
 }
 
-void Mind::SetPPass(string ppass) {
+void Mind::SetPPass(std::string ppass) {
   if (player_exists(pname)) {
     player = player_login(pname, ppass);
     if (player == NULL) {
@@ -520,7 +518,7 @@ void Mind::SetPPass(string ppass) {
   player->Room()->SendContents(this);
 }
 
-void Mind::SetPlayer(string pn) {
+void Mind::SetPlayer(std::string pn) {
   if (player_exists(pn)) {
     pname = pn;
     player = get_player(pname);
@@ -528,7 +526,7 @@ void Mind::SetPlayer(string pn) {
   }
 }
 
-string Mind::Tactics(int phase) {
+std::string Mind::Tactics(int phase) {
   if (type == MIND_TBAMOB) {
     // NON-HELPER and NON-AGGRESSIVE TBA Mobs (Innocent MOBs)
     if (body && (body->Skill("TBAAction") & 4128) == 0) {
@@ -540,25 +538,25 @@ string Mind::Tactics(int phase) {
   return "attack";
 }
 
-void Mind::TBAVarSub(string& line) {
+void Mind::TBAVarSub(std::string& line) {
   size_t cur = line.find('%');
   size_t end;
-  while (cur != string::npos) {
+  while (cur != std::string::npos) {
     end = line.find_first_of("%. \t", cur + 1);
-    if (end == string::npos)
+    if (end == std::string::npos)
       end = line.length();
     if (0
         //	|| body->Skill("TBAScript") == 5000099
-        //	|| line.find("eval loc ") != string::npos
-        //	|| line.find("set first ") != string::npos
-        //	|| line.find("exclaim") != string::npos
-        //	|| line.find("speech") != string::npos
+        //	|| line.find("eval loc ") != std::string::npos
+        //	|| line.find("set first ") != std::string::npos
+        //	|| line.find("exclaim") != std::string::npos
+        //	|| line.find("speech") != std::string::npos
         ) {
       fprintf(stderr, CGRN "#%d Debug: '%s'\n" CNRM, body->Skill("TBAScript"), line.c_str());
     }
-    string vname = line.substr(cur + 1, end - cur - 1);
+    std::string vname = line.substr(cur + 1, end - cur - 1);
     Object* obj = NULL;
-    string val = "";
+    std::string val = "";
     int is_obj = 0;
     if (ovars.count(vname) > 0) {
       obj = ovars[vname];
@@ -575,7 +573,7 @@ void Mind::TBAVarSub(string& line) {
       }
       end = line.find_first_of("% \t", cur + 1); // Done.  Replace All.
     } else if (!strncasecmp(line.c_str() + cur, "%random.char%", 13)) {
-      list<Object*> others;
+      std::list<Object*> others;
       if (ovars["self"]->HasSkill("TBARoom")) {
         others = ovars["self"]->PickObjects("everyone", LOC_INTERNAL);
       } else if (ovars["self"]->Owner()) {
@@ -585,14 +583,14 @@ void Mind::TBAVarSub(string& line) {
       }
       if (others.size() > 0) {
         int num = rand() % others.size();
-        list<Object*>::iterator item = others.begin();
+        std::list<Object*>::iterator item = others.begin();
         for (; num > 0; --num) {
           ++item;
         }
         obj = (*item);
         if (0
             //		|| script.find("%damage% %actor% -%actor.level%") !=
-            // string::npos
+            // std::string::npos
             ) {
           fprintf(stderr, CGRN "#%d Random: '%s'\n" CNRM, body->Skill("TBAScript"), obj->Name());
         }
@@ -606,7 +604,7 @@ void Mind::TBAVarSub(string& line) {
       while (room && room->Skill("TBARoom") == 0)
         room = room->Parent();
       if (room) {
-        set<Object*> options;
+        std::set<Object*> options;
         options.insert(room->PickObject("north", LOC_INTERNAL));
         options.insert(room->PickObject("south", LOC_INTERNAL));
         options.insert(room->PickObject("east", LOC_INTERNAL));
@@ -616,7 +614,7 @@ void Mind::TBAVarSub(string& line) {
         options.erase(NULL);
         if (options.size() > 0) {
           int num = rand() % options.size();
-          set<Object*>::iterator item = options.begin();
+          std::set<Object*>::iterator item = options.begin();
           for (; num > 0; --num) {
             ++item;
           }
@@ -627,7 +625,7 @@ void Mind::TBAVarSub(string& line) {
     } else if (!strncasecmp(line.c_str() + cur, "%random.", 8)) {
       if (isdigit(line[cur + 8])) {
         size_t vend = line.find_first_not_of("0123456789", cur + 8);
-        if (vend != string::npos && line[vend] == '%') {
+        if (vend != std::string::npos && line[vend] == '%') {
           val = itos((rand() % atoi(line.c_str() + cur + 8)) + 1);
         }
       }
@@ -638,9 +636,9 @@ void Mind::TBAVarSub(string& line) {
     while (line[end] == '.') {
       size_t start = end + 1;
       end = line.find_first_of("%. \t", start);
-      if (end == string::npos)
+      if (end == std::string::npos)
         end = line.length();
-      string field = line.substr(start, end - start);
+      std::string field = line.substr(start, end - start);
       if (is_obj) {
         if (!strcasecmp(field.c_str(), "id")) {
           // obj is already right
@@ -661,8 +659,8 @@ void Mind::TBAVarSub(string& line) {
         } else if (!strcasecmp(field.c_str(), "gold")) {
           int gold = 0;
           if (obj) {
-            list<Object*> pay = obj->PickObjects("all a gold piece", LOC_INTERNAL);
-            list<Object*>::const_iterator coin;
+            std::list<Object*> pay = obj->PickObjects("all a gold piece", LOC_INTERNAL);
+            std::list<Object*>::const_iterator coin;
             for (coin = pay.begin(); coin != pay.end(); ++coin) {
               gold += (*coin)->Quantity();
             }
@@ -1119,8 +1117,8 @@ void Mind::TBAVarSub(string& line) {
             if (!par)
               par = obj->Parent();
             if (par) {
-              list<Object*> stf = par->PickObjects("everything", LOC_INTERNAL);
-              list<Object*>::iterator item = stf.begin();
+              std::list<Object*> stf = par->PickObjects("everything", LOC_INTERNAL);
+              std::list<Object*>::iterator item = stf.begin();
               while (item != stf.end() && (*item) != obj)
                 ++item;
               if (item != stf.end())
@@ -1138,8 +1136,8 @@ void Mind::TBAVarSub(string& line) {
             while (room && room->Skill("TBARoom") == 0)
               room = room->Parent();
             if (room) {
-              list<Object*> stf = room->PickObjects("everyone", LOC_INTERNAL);
-              list<Object*>::iterator item = stf.begin();
+              std::list<Object*> stf = room->PickObjects("everyone", LOC_INTERNAL);
+              std::list<Object*>::iterator item = stf.begin();
               while (item != stf.end() && (*item) != obj)
                 ++item;
               if (item != stf.end())
@@ -1156,8 +1154,8 @@ void Mind::TBAVarSub(string& line) {
             obj = obj->ActTarg(ACT_FOLLOW); // FIXME: More Kinds?
         } else if (!strcasecmp(field.c_str(), "follower")) {
           if (obj) {
-            set<Object*> touch = obj->Touching();
-            set<Object*>::iterator tent = touch.begin();
+            std::set<Object*> touch = obj->Touching();
+            std::set<Object*>::iterator tent = touch.begin();
             for (; tent != touch.end(); ++tent) {
               if ((*tent)->ActTarg(ACT_FOLLOW) == obj) {
                 obj = (*tent);
@@ -1172,7 +1170,7 @@ void Mind::TBAVarSub(string& line) {
           val = "";
           if (obj) {
             size_t num = field.find_first_of(") .%", 6);
-            string skl = get_skill(field.substr(6, num - 6));
+            std::string skl = get_skill(field.substr(6, num - 6));
             val = itos(obj->Skill(skl));
           }
           obj = NULL;
@@ -1181,8 +1179,8 @@ void Mind::TBAVarSub(string& line) {
           val = "";
           if (obj) {
             size_t num = field.find_first_of(") .%", 10);
-            string var = field.substr(10, num - 10); // FIXME: Variables!
-            val = bstr[obj->HasSkill(string("TBA:") + var)];
+            std::string var = field.substr(10, num - 10); // FIXME: Variables!
+            val = bstr[obj->HasSkill(std::string("TBA:") + var)];
           }
           obj = NULL;
           is_obj = 0;
@@ -1193,8 +1191,8 @@ void Mind::TBAVarSub(string& line) {
           val = "";
           if (obj && vnum != -1 && field[num] == ')') {
             vnum += 2000000;
-            list<Object*> pos = obj->PickObjects("all", LOC_INTERNAL);
-            list<Object*>::iterator item = pos.begin();
+            std::list<Object*> pos = obj->PickObjects("all", LOC_INTERNAL);
+            std::list<Object*>::iterator item = pos.begin();
             for (; item != pos.end(); ++item) {
               if (vnum == (*item)->Skill("TBAObject")) {
                 val = "1";
@@ -1281,14 +1279,14 @@ void Mind::TBAVarSub(string& line) {
           // val is already right
         } else if (!strcasecmp(field.c_str(), "car")) {
           size_t apos = val.find_first_of(" \t\n\r");
-          if (apos != string::npos) {
+          if (apos != std::string::npos) {
             val = val.substr(0, apos);
           }
         } else if (!strcasecmp(field.c_str(), "cdr")) {
           size_t apos = val.find_first_of(" \t\n\r");
-          if (apos != string::npos) {
+          if (apos != std::string::npos) {
             apos = val.find_first_not_of(" \t\n\r", apos);
-            if (apos != string::npos)
+            if (apos != std::string::npos)
               val = val.substr(apos);
             else
               val = "";
@@ -1308,7 +1306,7 @@ void Mind::TBAVarSub(string& line) {
         }
       }
     }
-    if (end == string::npos)
+    if (end == std::string::npos)
       end = line.length();
     else if (line[end] == '%')
       ++end;
@@ -1316,17 +1314,17 @@ void Mind::TBAVarSub(string& line) {
       char buf[256] = "";
       sprintf(buf, "OBJ:%p", obj);
       line.replace(cur, end - cur, buf);
-    } else { // String OR ""
+    } else { // std::string OR ""
       line.replace(cur, end - cur, val);
     }
     cur = line.find('%', cur + 1);
   }
   if (0
       //	|| body->Skill("TBAScript") == 5000099
-      //	|| line.find("eval loc ") != string::npos
-      //	|| line.find("set first ") != string::npos
-      //	|| line.find("exclaim") != string::npos
-      //	|| line.find("speech") != string::npos
+      //	|| line.find("eval loc ") != std::string::npos
+      //	|| line.find("set first ") != std::string::npos
+      //	|| line.find("exclaim") != std::string::npos
+      //	|| line.find("speech") != std::string::npos
       ) {
     fprintf(stderr, CGRN "#%d Debug: '%s' <-Final\n" CNRM, body->Skill("TBAScript"), line.c_str());
   }
@@ -1345,13 +1343,13 @@ void Mind::TBAVarSub(string& line) {
   }
 
 // Return 0 to continue running, 1 to be done now (error/suspend/done).
-int Mind::TBARunLine(string line) {
+int Mind::TBARunLine(std::string line) {
   if (0
       //	|| body->Skill("TBAScript") == 5000099
-      //	|| line.find("eval loc ") != string::npos
-      //	|| line.find("set first ") != string::npos
-      //	|| line.find("exclaim") != string::npos
-      //	|| line.find("speech") != string::npos
+      //	|| line.find("eval loc ") != std::string::npos
+      //	|| line.find("set first ") != std::string::npos
+      //	|| line.find("exclaim") != std::string::npos
+      //	|| line.find("speech") != std::string::npos
       ) {
     fprintf(stderr, CGRN "#%d Debug: Running '%s'\n" CNRM, body->Skill("TBAScript"), line.c_str());
   }
@@ -1376,7 +1374,7 @@ int Mind::TBARunLine(string line) {
       //      fprintf(stderr, CGRN "#%d Debug: Triggered on downed MOB.\n" CNRM,
       //	body->Skill("TBAScript")
       //	);
-      spos_s.front() = string::npos; // Jump to End
+      spos_s.front() = std::string::npos; // Jump to End
       return 0; // Allow re-run (in case of resurrection/waking/etc...).
     }
   }
@@ -1402,12 +1400,12 @@ int Mind::TBARunLine(string line) {
 
   if (!strncasecmp(line.c_str(), "unset ", 6)) {
     size_t lpos = line.find_first_not_of(" \t", 6);
-    if (lpos != string::npos) {
-      string var = line.substr(lpos);
+    if (lpos != std::string::npos) {
+      std::string var = line.substr(lpos);
       trim_string(var);
       svars.erase(var);
       ovars.erase(var);
-      ovars["context"]->SetSkill(string("TBA:") + var, 0);
+      ovars["context"]->SetSkill(std::string("TBA:") + var, 0);
     } else {
       fprintf(
           stderr,
@@ -1423,18 +1421,18 @@ int Mind::TBARunLine(string line) {
   else if ((!strncasecmp(line.c_str(), "eval ", 5)) || (!strncasecmp(line.c_str(), "set ", 4))) {
     char coml = tolower(line[0]); // To tell eval from set later.
     size_t lpos = line.find_first_not_of(" \t", 4);
-    if (lpos != string::npos) {
+    if (lpos != std::string::npos) {
       line = line.substr(lpos);
       size_t end1 = line.find_first_of(" \t\n\r");
-      if (end1 != string::npos) {
-        string var = line.substr(0, end1);
+      if (end1 != std::string::npos) {
+        std::string var = line.substr(0, end1);
         lpos = line.find_first_not_of(" \t", end1 + 1);
-        if (lpos != string::npos) {
-          string val = line.substr(lpos);
+        if (lpos != std::string::npos) {
+          std::string val = line.substr(lpos);
           if (0
-              //		|| var.find("midgaard") != string::npos
-              //		|| var.find("exclaim") != string::npos
-              //		|| var.find("speech") != string::npos
+              //		|| var.find("midgaard") != std::string::npos
+              //		|| var.find("exclaim") != std::string::npos
+              //		|| var.find("speech") != std::string::npos
               ) {
             fprintf(
                 stderr,
@@ -1474,28 +1472,28 @@ int Mind::TBARunLine(string line) {
 
   else if ((!strncasecmp(line.c_str(), "extract ", 8))) {
     size_t lpos = line.find_first_not_of(" \t", 8);
-    if (lpos != string::npos) {
+    if (lpos != std::string::npos) {
       line = line.substr(lpos);
       size_t end1 = line.find_first_of(" \t\n\r");
-      if (end1 != string::npos) {
-        string var = line.substr(0, end1);
+      if (end1 != std::string::npos) {
+        std::string var = line.substr(0, end1);
         lpos = line.find_first_not_of(" \t", end1 + 1);
-        if (lpos != string::npos) {
+        if (lpos != std::string::npos) {
           int wnum = atoi(line.c_str() + lpos) - 1; // Start at 0, -1=fail
           lpos = line.find_first_of(" \t", lpos);
-          if (lpos != string::npos)
+          if (lpos != std::string::npos)
             lpos = line.find_first_not_of(" \t", lpos);
-          if (wnum >= 0 && lpos != string::npos) {
-            while (wnum > 0 && lpos != string::npos) {
+          if (wnum >= 0 && lpos != std::string::npos) {
+            while (wnum > 0 && lpos != std::string::npos) {
               lpos = line.find_first_of(" \t", lpos);
-              if (lpos != string::npos) {
+              if (lpos != std::string::npos) {
                 lpos = line.find_first_not_of(" \t", lpos);
               }
               --wnum;
             }
-            if (lpos != string::npos) {
+            if (lpos != std::string::npos) {
               end1 = line.find_first_of(" \t\n\r", lpos);
-              if (end1 == string::npos)
+              if (end1 == std::string::npos)
                 end1 = line.length();
               svars[var] = line.substr(lpos, end1 - lpos);
             } else {
@@ -1545,8 +1543,8 @@ int Mind::TBARunLine(string line) {
       return 1;
     }
     room = room->World();
-    list<Object*> options = room->Contents();
-    list<Object*>::iterator opt = options.begin();
+    std::list<Object*> options = room->Contents();
+    std::list<Object*>::iterator opt = options.begin();
     room = NULL;
     for (; opt != options.end(); ++opt) {
       int tnum = (*opt)->Skill("TBARoom");
@@ -1596,7 +1594,7 @@ int Mind::TBARunLine(string line) {
     Object* con = NULL;
     char var[256] = "";
     if (sscanf(line.c_str() + 7, " %s OBJ:%p", var, &con) >= 2 && con != NULL) {
-      con->SetSkill(string("TBA:") + var, 0);
+      con->SetSkill(std::string("TBA:") + var, 0);
       //      fprintf(stderr, CGRN "#%d Debug: RDelete '%s'\n" CNRM,
       //		body->Skill("TBAScript"), line.c_str());
     } else {
@@ -1615,7 +1613,7 @@ int Mind::TBARunLine(string line) {
     if (sscanf(line.c_str() + 7, " %s OBJ:%p", var, &con) >= 2 && con != NULL) {
       if (svars.count(var) > 0) {
         int val = atoi(svars[var].c_str());
-        con->SetSkill(string("TBA:") + var, val);
+        con->SetSkill(std::string("TBA:") + var, val);
         //	fprintf(stderr, CGRN "#%d Debug: Remote %s=%d '%s'\n" CNRM,
         //		body->Skill("TBAScript"), var, val, line.c_str());
       } else {
@@ -1643,7 +1641,7 @@ int Mind::TBARunLine(string line) {
     if (sscanf(line.c_str() + 7, " %s", var) >= 1 && con != NULL) {
       if (svars.count(var) > 0) {
         int val = atoi(svars[var].c_str());
-        con->SetSkill(string("TBA:") + var, val);
+        con->SetSkill(std::string("TBA:") + var, val);
         //	fprintf(stderr, CGRN "#%d Debug: Global %s=%d '%s'\n" CNRM,
         //		body->Skill("TBAScript"), var, val, line.c_str());
       } else {
@@ -1741,7 +1739,7 @@ int Mind::TBARunLine(string line) {
   else if (!strncasecmp(line.c_str(), "if ", 3)) {
     if (!TBAEval(line.c_str() + 3)) { // Was false
       int depth = 0;
-      while (spos != string::npos) { // Skip to end/elseif
+      while (spos != std::string::npos) { // Skip to end/elseif
         //        PING_QUOTA();
         if ((!depth) && (!strncasecmp(script.c_str() + spos, "elseif ", 7))) {
           spos += 4; // Make it into an "if" and go
@@ -1768,7 +1766,7 @@ int Mind::TBARunLine(string line) {
 
   else if (!strncasecmp(line.c_str(), "else", 4)) { // else/elseif
     int depth = 0;
-    while (spos != string::npos) { // Skip to end (considering nesting)
+    while (spos != std::string::npos) { // Skip to end (considering nesting)
       //      PING_QUOTA();
       if (!strncasecmp(script.c_str() + spos, "end", 3)) {
         if (depth == 0) { // Only done if all the way back
@@ -1788,7 +1786,7 @@ int Mind::TBARunLine(string line) {
     int depth = 0;
     size_t rep = prev_line(script, spos);
     size_t begin = spos;
-    while (spos != string::npos) { // Skip to end (considering nesting)
+    while (spos != std::string::npos) { // Skip to end (considering nesting)
       //      PING_QUOTA();
       if (!strncasecmp(script.c_str() + spos, "done", 4)) {
         if (depth == 0) { // Only done if all the way back
@@ -1814,9 +1812,9 @@ int Mind::TBARunLine(string line) {
   else if (!strncasecmp(line.c_str(), "switch ", 7)) {
     int depth = 0;
     size_t targ = 0;
-    string value = line.substr(7);
+    std::string value = line.substr(7);
     trim_string(value);
-    while (spos != string::npos) { // Skip to end (considering nesting)
+    while (spos != std::string::npos) { // Skip to end (considering nesting)
       //      PING_QUOTA();
       if (!strncasecmp(script.c_str() + spos, "done", 4)) {
         if (depth == 0) { // Only done if all the way back
@@ -1855,7 +1853,7 @@ int Mind::TBARunLine(string line) {
 
   else if (!strncasecmp(line.c_str(), "break", 5)) { // Skip to done
     int depth = 0;
-    while (spos != string::npos) { // Skip to end (considering nesting)
+    while (spos != std::string::npos) { // Skip to end (considering nesting)
       //      PING_QUOTA();
       if (!strncasecmp(script.c_str() + spos, "done", 4)) {
         if (depth == 0) { // Only done if all the way back
@@ -1874,8 +1872,8 @@ int Mind::TBARunLine(string line) {
 
   else if ((!strncasecmp(line.c_str(), "asound ", 7))) {
     size_t start = line.find_first_not_of(" \t\r\n", 7);
-    if (room && start != string::npos) {
-      string mes = line.substr(start);
+    if (room && start != std::string::npos) {
+      std::string mes = line.substr(start);
       trim_string(mes);
       replace_all(mes, "You hear ", "");
       replace_all(mes, " can be heard close by", "");
@@ -1891,8 +1889,8 @@ int Mind::TBARunLine(string line) {
     size_t start = line.find_first_not_of(" \t\r\n", 9);
     start = line.find_first_of(" \t\r\n", start);
     start = line.find_first_not_of(" \t\r\n", start);
-    if (room && start != string::npos) {
-      string mes = line.substr(start);
+    if (room && start != std::string::npos) {
+      std::string mes = line.substr(start);
       trim_string(mes);
       mes += "\n";
       room->SendIn(ALL, 0, mes.c_str(), "", NULL, NULL);
@@ -1915,8 +1913,8 @@ int Mind::TBARunLine(string line) {
 
   else if ((!strncasecmp(line.c_str(), "mecho ", 6))) {
     size_t start = line.find_first_not_of(" \t\r\n", 6);
-    if (room && start != string::npos) {
-      string mes = line.substr(start);
+    if (room && start != std::string::npos) {
+      std::string mes = line.substr(start);
       trim_string(mes);
       mes += "\n";
       room->SendOut(0, 0, mes.c_str(), mes.c_str(), NULL, NULL);
@@ -1943,8 +1941,8 @@ int Mind::TBARunLine(string line) {
     }
     if (targ) {
       Mind* amind = NULL; // Make sure human minds see it!
-      vector<Mind*> mns = get_human_minds();
-      vector<Mind*>::iterator mn = mns.begin();
+      std::vector<Mind*> mns = get_human_minds();
+      std::vector<Mind*>::iterator mn = mns.begin();
       for (; mn != mns.end(); ++mn) {
         if ((*mn)->Body() == targ) {
           amind = *mn;
@@ -1972,8 +1970,8 @@ int Mind::TBARunLine(string line) {
       if (dam < 0)
         dam = (dam - 180) / 100;
     }
-    list<Object*> options = room->Contents();
-    list<Object*>::iterator opt = options.begin();
+    std::list<Object*> options = room->Contents();
+    std::list<Object*>::iterator opt = options.begin();
     for (; opt != options.end(); ++opt) {
       if ((*opt)->Matches(buf)) {
         if (dam > 0) {
@@ -2021,8 +2019,8 @@ int Mind::TBARunLine(string line) {
     else if (!strncasecmp("down", dir, strlen(dir)))
       dir = "down";
 
-    list<Object*> options = room->World()->Contents();
-    list<Object*>::iterator opt = options.begin();
+    std::list<Object*> options = room->World()->Contents();
+    std::list<Object*>::iterator opt = options.begin();
     room = NULL;
     for (; opt != options.end(); ++opt) {
       int tnum = (*opt)->Skill("TBARoom");
@@ -2110,11 +2108,11 @@ int Mind::TBARunLine(string line) {
       //	body->Skill("TBAScript"), line.c_str()
       //	);
       if (door) {
-        string newname = door->ShortDesc();
+        std::string newname = door->ShortDesc();
         size_t end = newname.find("(");
-        if (end != string::npos) {
+        if (end != std::string::npos) {
           end = newname.find_last_not_of(" \t", end - 1);
-          if (end != string::npos)
+          if (end != std::string::npos)
             newname = newname.substr(0, end);
         }
         door->SetShortDesc(newname + " (" + line.substr(len + 5) + ")");
@@ -2125,7 +2123,7 @@ int Mind::TBARunLine(string line) {
       //	);
       if (door)
         door->Recycle();
-      list<Object*>::iterator opt = options.begin();
+      std::list<Object*>::iterator opt = options.begin();
       Object* toroom = NULL;
       for (; opt != options.end(); ++opt) {
         int onum = (*opt)->Skill("TBARoom");
@@ -2208,8 +2206,8 @@ int Mind::TBARunLine(string line) {
       nocheck = 1;
     }
     Object* dest = ovars["self"]->World();
-    list<Object*> options = dest->Contents();
-    list<Object*>::iterator opt = options.begin();
+    std::list<Object*> options = dest->Contents();
+    std::list<Object*>::iterator opt = options.begin();
     dest = NULL;
     for (; opt != options.end(); ++opt) {
       int tnum = (*opt)->Skill("TBARoom");
@@ -2229,7 +2227,7 @@ int Mind::TBARunLine(string line) {
     }
     if (!nocheck) { // Check for a MOB by that UNIQUE name ANYWHERE.
       room = room->Parent();
-      Object* targ = room->PickObject((string("all's ") + buf).c_str(), LOC_INTERNAL);
+      Object* targ = room->PickObject((std::string("all's ") + buf).c_str(), LOC_INTERNAL);
       if (targ) {
         targ->Parent()->RemoveLink(targ);
         targ->SetParent(dest);
@@ -2247,10 +2245,10 @@ int Mind::TBARunLine(string line) {
       if (!is_pc(targ))
         targ->Recycle();
     } else if (line.length() <= 6) { // No Args: Nuke All (but dirs and PCs)!
-      list<Object*> tokill = room->PickObjects("everyone", LOC_DARK | LOC_HEAT | LOC_INTERNAL);
-      list<Object*> tokill2 = room->PickObjects("everything", LOC_DARK | LOC_HEAT | LOC_INTERNAL);
+      std::list<Object*> tokill = room->PickObjects("everyone", LOC_DARK | LOC_HEAT | LOC_INTERNAL);
+      std::list<Object*> tokill2 = room->PickObjects("everything", LOC_DARK | LOC_HEAT | LOC_INTERNAL);
       tokill.splice(tokill.end(), tokill2);
-      list<Object*>::iterator item = tokill.begin();
+      std::list<Object*>::iterator item = tokill.begin();
       for (; item != tokill.end(); ++item) {
         if (!is_pc(*item))
           (*item)->Recycle();
@@ -2298,8 +2296,8 @@ int Mind::TBARunLine(string line) {
             line.c_str());
         return 1;
       }
-      list<Object*> options = src->Contents();
-      list<Object*>::iterator opt = options.begin();
+      std::list<Object*> options = src->Contents();
+      std::list<Object*>::iterator opt = options.begin();
       for (; opt != options.end(); ++opt) {
         if ((*opt)->Skill("TBAObject") == vnum + 2000000) {
           item = new Object(*(*opt));
@@ -2317,8 +2315,8 @@ int Mind::TBARunLine(string line) {
             line.c_str());
         return 1;
       }
-      list<Object*> options = src->Contents();
-      list<Object*>::iterator opt = options.begin();
+      std::list<Object*> options = src->Contents();
+      std::list<Object*>::iterator opt = options.begin();
       for (; opt != options.end(); ++opt) {
         if ((*opt)->Skill("TBAMOB") == vnum + 1000000) {
           item = new Object(*(*opt));
@@ -2475,10 +2473,10 @@ int Mind::TBARunLine(string line) {
       com == COM_UNLOCK || com == COM_OPEN || com == COM_CLOSE || com == COM_GET ||
       com == COM_DROP) {
     size_t stuff = line.find_first_of(" ");
-    if (stuff != string::npos) {
+    if (stuff != std::string::npos) {
       stuff = line.find_first_not_of(" \t\r\n", stuff);
     }
-    if (stuff != string::npos) {
+    if (stuff != std::string::npos) {
       handle_command(ovars["self"], line.c_str());
     } else {
       fprintf(
@@ -2553,7 +2551,7 @@ void Mind::Think(int istick) {
           req = -1;
       }
       if (req >= 0) {
-        vector<const char*> dirs;
+        std::vector<const char*> dirs;
         for (int i = 0; i < 4; ++i) {
           Object* dir = body->PickObject(dirnames[i], LOC_NEARBY);
           if (dir && dir->Skill("Open") > 0) {
@@ -2599,10 +2597,10 @@ void Mind::Think(int istick) {
 
       int quota = 1024;
       int stype = body->Skill("TBAScriptType");
-      while (spos_s.size() > 0 && spos_s.front() != string::npos) {
-        string line;
+      while (spos_s.size() > 0 && spos_s.front() != std::string::npos) {
+        std::string line;
         size_t endl = script.find_first_of("\n\r", spos_s.front());
-        if (endl == string::npos)
+        if (endl == std::string::npos)
           line = script.substr(spos_s.front());
         else
           line = script.substr(spos_s.front(), endl - spos_s.front());
@@ -2640,7 +2638,7 @@ void Mind::Think(int istick) {
 
     // Temporary
     if (body && body->ActTarg(ACT_WEAR_SHIELD) && (!body->IsAct(ACT_HOLD))) {
-      string command = string("hold ") + body->ActTarg(ACT_WEAR_SHIELD)->ShortDesc();
+      std::string command = std::string("hold ") + body->ActTarg(ACT_WEAR_SHIELD)->ShortDesc();
       body->BusyFor(500, command.c_str());
       return;
     } else if (
@@ -2650,7 +2648,7 @@ void Mind::Think(int istick) {
       if (body->Stash(targ, 0)) {
         if (body->Parent())
           body->Parent()->SendOut(ALL, 0, ";s stashes ;s.\n", "", body, targ);
-        string command = string("hold ") + body->ActTarg(ACT_WEAR_SHIELD)->ShortDesc();
+        std::string command = std::string("hold ") + body->ActTarg(ACT_WEAR_SHIELD)->ShortDesc();
         body->BusyFor(500, command.c_str());
       } else {
         // fprintf(stderr, "Warning: %s can't use his shield!\n", body->Name());
@@ -2683,7 +2681,7 @@ void Mind::Think(int istick) {
             &&
             (!(*other)->IsAct(ACT_DEAD)) // It's not already dead
             ) {
-          string command = string("attack ") + (*other)->ShortDesc();
+          std::string command = std::string("attack ") + (*other)->ShortDesc();
           body->BusyFor(500, command.c_str());
           // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(),
           // command.c_str());
@@ -2734,7 +2732,7 @@ void Mind::Think(int istick) {
             &&
             (!(*other)->IsAct(ACT_DEAD)) // It's not already dead
             ) {
-          string command = string("attack ") + (*other)->ShortDesc();
+          std::string command = std::string("attack ") + (*other)->ShortDesc();
           body->BusyFor(500, command.c_str());
           // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(),
           // command.c_str());
@@ -2784,7 +2782,7 @@ void Mind::Think(int istick) {
             (*other)->ActTarg(ACT_FIGHT)->HasSkill("TBAAction")
             //...against another MOB
             ) {
-          string command = string("call ALARM; attack ") + (*other)->ShortDesc();
+          std::string command = std::string("call ALARM; attack ") + (*other)->ShortDesc();
           body->BusyFor(500, command.c_str());
           // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(),
           // command.c_str());
@@ -2814,7 +2812,7 @@ void Mind::Think(int istick) {
         (!body->IsAct(ACT_FIGHT)) && (istick == 1) && (!body->IsAct(ACT_REST)) &&
         (!body->IsAct(ACT_SLEEP)) && body->Stun() < 6 && body->Phys() < 6 &&
         body->Roll("Willpower", 9)) {
-      map<Object*, const char*> cons;
+      std::map<Object*, const char*> cons;
       cons[body->PickObject("north", LOC_NEARBY)] = "north";
       cons[body->PickObject("south", LOC_NEARBY)] = "south";
       cons[body->PickObject("east", LOC_NEARBY)] = "east";
@@ -2823,8 +2821,8 @@ void Mind::Think(int istick) {
       cons[body->PickObject("down", LOC_NEARBY)] = "down";
       cons.erase(NULL);
 
-      map<Object*, const char*> cons2 = cons;
-      map<Object*, const char*>::iterator dir = cons2.begin();
+      std::map<Object*, const char*> cons2 = cons;
+      std::map<Object*, const char*>::iterator dir = cons2.begin();
       for (; dir != cons2.end(); ++dir) {
         if ((!dir->first->ActTarg(ACT_SPECIAL_LINKED)) ||
             (!dir->first->ActTarg(ACT_SPECIAL_LINKED)->Parent())) {
@@ -2840,7 +2838,7 @@ void Mind::Think(int istick) {
 
       if (cons.size()) {
         int res = rand() % cons.size();
-        map<Object*, const char*>::iterator dir = cons.begin();
+        std::map<Object*, const char*>::iterator dir = cons.begin();
         while (res > 0) {
           ++dir;
           --res;
@@ -2876,7 +2874,7 @@ int Mind::TBACanWanderTo(Object* dest) {
 }
 
 void Mind::SetSpecialPrompt(const char* newp) {
-  prompt = string(newp);
+  prompt = std::string(newp);
   UpdatePrompt();
 }
 
@@ -2884,7 +2882,7 @@ const char* Mind::SpecialPrompt() {
   return prompt.c_str();
 }
 
-Mind* new_mind(int tp, Object* obj, Object* obj2, Object* obj3, string text) {
+Mind* new_mind(int tp, Object* obj, Object* obj2, Object* obj3, std::string text) {
   Mind* m = NULL;
   if (recycle_bin.size() > 0) {
     m = recycle_bin.front();
@@ -2902,11 +2900,11 @@ Mind* new_mind(int tp, Object* obj, Object* obj2, Object* obj3, string text) {
   return m;
 }
 
-int new_trigger(int msec, Object* obj, Object* tripper, string text) {
+int new_trigger(int msec, Object* obj, Object* tripper, std::string text) {
   return new_trigger(msec, obj, tripper, NULL, text);
 }
 
-int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, string text) {
+int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, std::string text) {
   if ((!obj) || (!(obj->Parent())))
     return 0;
 
@@ -2921,10 +2919,10 @@ int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, string tex
   return 0;
 }
 
-list<pair<int, Mind*>> Mind::waiting;
+std::list<std::pair<int, Mind*>> Mind::waiting;
 void Mind::Suspend(int msec) {
   //  fprintf(stderr, "Suspening(%p)\n", this);
-  waiting.push_back(make_pair(msec, this));
+  waiting.push_back(std::make_pair(msec, this));
 }
 
 void Mind::Disable() {
@@ -2936,9 +2934,9 @@ void Mind::Disable() {
   if (log >= 0)
     close(log);
   log = -1;
-  list<pair<int, Mind*>>::iterator cur = waiting.begin();
+  std::list<std::pair<int, Mind*>>::iterator cur = waiting.begin();
   while (cur != waiting.end()) {
-    list<pair<int, Mind*>>::iterator tmp = cur;
+    std::list<std::pair<int, Mind*>>::iterator tmp = cur;
     ++cur; // Inc cur first, in case I erase tmp.
     if (tmp->second == this) {
       waiting.erase(tmp);
@@ -2950,9 +2948,9 @@ void Mind::Disable() {
 }
 
 void Mind::Resume(int passed) {
-  list<pair<int, Mind*>>::iterator cur = waiting.begin();
+  std::list<std::pair<int, Mind*>>::iterator cur = waiting.begin();
   while (cur != waiting.end()) {
-    list<pair<int, Mind*>>::iterator tmp = cur;
+    std::list<std::pair<int, Mind*>>::iterator tmp = cur;
     ++cur; // Inc cur first, in case I erase tmp.
     if (tmp->first <= passed) {
       Mind* mind = tmp->second;
@@ -2973,29 +2971,29 @@ void Mind::ClearStatus() {
   status = 0;
 }
 
-static const string blank = "";
-void Mind::SetSVar(const string& var, const string& val) {
+static const std::string blank = "";
+void Mind::SetSVar(const std::string& var, const std::string& val) {
   svars[var] = val;
 }
 
-void Mind::ClearSVar(const string& var) {
+void Mind::ClearSVar(const std::string& var) {
   svars.erase(var);
 }
 
-const string& Mind::SVar(const string& var) const {
+const std::string& Mind::SVar(const std::string& var) const {
   if (svars.count(var) <= 0)
     return blank;
   return svars.at(var);
 }
 
-int Mind::IsSVar(const string& var) const {
+int Mind::IsSVar(const std::string& var) const {
   return (svars.count(var) > 0);
 }
 
-const map<string, string> Mind::SVars() const {
+const std::map<std::string, std::string> Mind::SVars() const {
   return svars;
 }
 
-void Mind::SetSVars(const map<string, string>& sv) {
+void Mind::SetSVars(const std::map<std::string, std::string>& sv) {
   svars = sv;
 }

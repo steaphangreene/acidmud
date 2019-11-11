@@ -3,8 +3,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
-
-using namespace std;
+#include <string>
 
 #include "color.hpp"
 #include "commands.hpp"
@@ -655,7 +654,7 @@ static void load_socials() {
   }
 }
 
-com_t identify_command(const string& str) {
+com_t identify_command(const std::string& str) {
   int len;
   if (comlist[256].id == COM_NONE) { // Haven't loaded socials yet
     load_socials();
@@ -696,7 +695,7 @@ com_t identify_command(const string& str) {
 int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   int len;
   static char buf[2048];
-  string cmd = inpline;
+  std::string cmd = inpline;
   trim_string(cmd);
   const char* comline = cmd.c_str();
 
@@ -820,18 +819,18 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   trim_string(cmd);
 
   if ((!nmode) && com != COM_RECALL && body && body->Parent()) {
-    list<Object*> items = body->PickObjects("everything", LOC_INTERNAL | LOC_NEARBY);
-    list<Object*> mobs = body->PickObjects("everyone", LOC_NEARBY);
+    std::list<Object*> items = body->PickObjects("everything", LOC_INTERNAL | LOC_NEARBY);
+    std::list<Object*> mobs = body->PickObjects("everyone", LOC_NEARBY);
     items.splice(items.end(), mobs);
     Object* room = body->PickObject("here", LOC_HERE);
     if (room)
       items.push_front(room);
 
-    list<Object*>::iterator obj = items.begin();
+    std::list<Object*>::iterator obj = items.begin();
     for (; obj != items.end(); ++obj) {
-      list<Object*> trigs =
+      std::list<Object*> trigs =
           (*obj)->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
-      list<Object*>::iterator trig = trigs.begin();
+      std::list<Object*>::iterator trig = trigs.begin();
       for (; trig != trigs.end(); ++trig) {
         if ((*trig)->Skill("TBAScriptType") & 0x04) { //*-COMMAND trigs
           if ((com == COM_NONE && (!strncasecmp(inpline, (*trig)->Desc(), len))) ||
@@ -849,11 +848,11 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
                 continue;
               }
             }
-            string cmln;
+            std::string cmln;
             if (com != COM_NONE) {
-              cmln = comlist[cnum].command + string(" ") + cmd;
+              cmln = comlist[cnum].command + std::string(" ") + cmd;
             } else {
-              cmln = (*trig)->Desc() + string(" ") + cmd;
+              cmln = (*trig)->Desc() + std::string(" ") + cmd;
             }
             if (!new_trigger(0, *trig, body, cmln)) {
               return 0; // Handled, unless script says not.
@@ -1086,10 +1085,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   }
 
   if (com == COM_FLEE) {
-    list<Object*> dirs = body->PickObjects("everywhere", vmode | LOC_NEARBY);
-    list<Object*>::iterator dir = dirs.begin();
+    std::list<Object*> dirs = body->PickObjects("everywhere", vmode | LOC_NEARBY);
+    std::list<Object*>::iterator dir = dirs.begin();
     while (dir != dirs.end()) {
-      list<Object*>::iterator cur = dir;
+      std::list<Object*>::iterator cur = dir;
       ++dir; // Inc first, in case I remove it.
       if ((*cur)->Skill("Open") < 1)
         dirs.erase(cur);
@@ -1327,7 +1326,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     while ((!isgraph(comline[len])) && (comline[len]))
       ++len;
     if (!strcmp(comline + len, "commands")) {
-      string mes = "";
+      std::string mes = "";
       for (int ctr = 0; comlist[ctr].id != COM_NONE; ++ctr) {
         if (comlist[ctr].id == COM_SOCIAL)
           continue;
@@ -1351,7 +1350,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       mind->Send(mes.c_str());
       return 0;
     } else if (!strcmp(comline + len, "socials")) {
-      string mes = "";
+      std::string mes = "";
       for (int ctr = 0; comlist[ctr].id != COM_NONE; ++ctr) {
         if (comlist[ctr].id != COM_SOCIAL)
           continue;
@@ -1448,9 +1447,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     while ((!isgraph(comline[len])) && (comline[len]))
       ++len;
     if (body && body->Parent()) {
-      string youmes = socials[cnum][0];
-      string outmes = socials[cnum][1];
-      string targmes = "";
+      std::string youmes = socials[cnum][0];
+      std::string outmes = socials[cnum][1];
+      std::string targmes = "";
       if (strlen(comline + len) > 0) {
         targ = body->PickObject(comline + len, vmode | LOC_NEARBY | LOC_SELF | LOC_INTERNAL);
         if (!targ) {
@@ -1571,7 +1570,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    list<Object*> targs;
+    std::list<Object*> targs;
     int within = 0;
 
     if (!strncasecmp(comline + len, "at ", 3))
@@ -1665,7 +1664,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    list<Object*> targs;
+    std::list<Object*> targs;
     while ((!isgraph(comline[len])) && (comline[len]))
       ++len;
 
@@ -1696,7 +1695,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     body->StartUsing("Perception");
     body->SetSkill("Hidden", 0);
     for (auto targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
-      string denied = "";
+      std::string denied = "";
       for (Object* own = *targ_it; own; own = own->Parent()) {
         if (own->Attribute(1) && own != body && (!own->IsAct(ACT_SLEEP)) &&
             (!own->IsAct(ACT_DEAD)) && (!own->IsAct(ACT_DYING)) && (!own->IsAct(ACT_UNCONSCIOUS))) {
@@ -1726,7 +1725,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s searches ;s.\n", "you search ;s.\n", body, *targ_it);
 
-      list<Object*> objs;
+      std::list<Object*> objs;
       objs = (*targ_it)->Contents(vmode);
       for (auto obj_it = objs.begin(); obj_it != objs.end(); ++obj_it) {
         if ((*obj_it)->Skill("Hidden")) {
@@ -1747,7 +1746,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   }
 
   if (com == COM_HIDE) {
-    list<Object*> targs;
+    std::list<Object*> targs;
     while ((!isgraph(comline[len])) && (comline[len]))
       ++len;
 
@@ -1763,7 +1762,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     for (auto targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
-      string denied = "";
+      std::string denied = "";
       for (Object* own = *targ_it; own; own = own->Parent()) {
         if (own->Attribute(1) && own != body && (!own->IsAct(ACT_SLEEP)) &&
             (!own->IsAct(ACT_DEAD)) && (!own->IsAct(ACT_DYING)) && (!own->IsAct(ACT_UNCONSCIOUS))) {
@@ -1862,7 +1861,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           mind->Send("Consider using something else for comparison.\n");
           return 0;
         }
-        string sk = (get_weapon_skill(targ->Skill("WeaponType")));
+        std::string sk = (get_weapon_skill(targ->Skill("WeaponType")));
         if (!body->HasSkill(sk)) {
           mind->SendF("You don't know much about weapons like %s.\n", targ->Name(1, body));
           mind->SendF("You would need to learn the %s skill to know more.\n", sk.c_str());
@@ -2028,19 +2027,19 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->SendF("%s can only be worn one way:\n", targ->Name(0, body));
       }
       for (int mask = 1; mask <= all; mask <<= 1) {
-        set<act_t> locs = targ->WearSlots(mask);
+        std::set<act_t> locs = targ->WearSlots(mask);
         if (locs.size() > 0) {
           mind->SendF("It can be worn on %s.\n", targ->WearNames(locs).c_str());
           handled = 1;
 
-          set<Object*> repls;
-          set<act_t>::const_iterator loc = locs.begin();
+          std::set<Object*> repls;
+          std::set<act_t>::const_iterator loc = locs.begin();
           for (; loc != locs.end(); ++loc) {
             if (body->ActTarg(*loc))
               repls.insert(body->ActTarg(*loc));
           }
 
-          set<Object*>::const_iterator repl = repls.begin();
+          std::set<Object*>::const_iterator repl = repls.begin();
           for (; repl != repls.end(); ++repl) {
             if ((*repl) != targ) {
               mind->SendF("   ...it would replace %s.\n", (*repl)->Name(0, body));
@@ -2075,7 +2074,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           targ);
       if (mind) {
         int diff;
-        string mes = string(targ->Name()) + "...\n";
+        std::string mes = std::string(targ->Name()) + "...\n";
         mes[0] = toupper(mes[0]);
         mind->Send(mes.c_str());
 
@@ -2140,7 +2139,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         }
 
         diff = 0;
-        string sk = "Punching";
+        std::string sk = "Punching";
         if (body->IsAct(ACT_WIELD)) {
           sk = get_weapon_skill(body->ActTarg(ACT_WIELD)->Skill("WeaponType"));
         }
@@ -2354,7 +2353,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("It does not seem to have a keyhole!\n");
     } else {
       if (!nmode) {
-        list<Object*> keys = body->PickObjects("all", vmode | LOC_INTERNAL);
+        std::list<Object*> keys = body->PickObjects("all", vmode | LOC_INTERNAL);
         auto key = keys.begin();
         for (; key != keys.end(); ++key) {
           if ((*key)->Skill("Key") == targ->Skill("Lock"))
@@ -2398,7 +2397,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("It does not seem to have a keyhole!\n");
     } else {
       if (!nmode) {
-        list<Object*> keys = body->PickObjects("all", vmode | LOC_INTERNAL);
+        std::list<Object*> keys = body->PickObjects("all", vmode | LOC_INTERNAL);
         auto key = keys.begin();
         for (; key != keys.end(); ++key) {
           if ((*key)->Skill("Key") == targ->Skill("Lock"))
@@ -2497,10 +2496,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (!mind)
       return 0;
 
-    list<Object*> objs = body->Parent()->Contents(vmode);
-    list<Object*>::iterator shpkp_i;
-    list<Object*> shpkps;
-    string reason = "";
+    std::list<Object*> objs = body->Parent()->Contents(vmode);
+    std::list<Object*>::iterator shpkp_i;
+    std::list<Object*> shpkps;
+    std::string reason = "";
     for (shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
       if ((*shpkp_i)->Skill("Sell Profit")) {
         if ((*shpkp_i)->IsAct(ACT_DEAD)) {
@@ -2554,10 +2553,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    list<Object*> objs = body->Parent()->Contents(vmode);
-    list<Object*>::iterator shpkp_i;
-    list<Object*> shpkps;
-    string reason = "";
+    std::list<Object*> objs = body->Parent()->Contents(vmode);
+    std::list<Object*>::iterator shpkp_i;
+    std::list<Object*> shpkps;
+    std::string reason = "";
     for (shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
       if ((*shpkp_i)->Skill("Sell Profit")) {
         if ((*shpkp_i)->IsAct(ACT_DEAD)) {
@@ -2584,7 +2583,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
         Object* vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 
-        list<Object*> targs = vortex->PickObjects(comline + len, vmode | LOC_INTERNAL);
+        std::list<Object*> targs = vortex->PickObjects(comline + len, vmode | LOC_INTERNAL);
         if (!targs.size()) {
           if (mind)
             mind->Send("The shopkeeper doesn't have that.\n");
@@ -2601,7 +2600,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             continue;
           } else if (price == 0) {
             if (mind) {
-              string mes = targ->Name(0, body);
+              std::string mes = targ->Name(0, body);
               mes += " is worthless.\n";
               mes[0] = toupper(mes[0]);
               mind->Send(mes.c_str());
@@ -2617,7 +2616,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           mind->SendF("%d gp: %s\n", price, targ->ShortDesc());
 
           int togo = price, ord = -price;
-          list<Object*> pay = body->PickObjects("a gold piece", vmode | LOC_INTERNAL, &ord);
+          std::list<Object*> pay = body->PickObjects("a gold piece", vmode | LOC_INTERNAL, &ord);
           auto coin = pay.begin();
           for (; coin != pay.end(); ++coin) {
             togo -= (*coin)->Quantity();
@@ -2696,7 +2695,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
     if (targ->Skill("Container") || targ->Skill("Liquid Container")) {
       if (mind) {
-        string mes = targ->Name(0, body);
+        std::string mes = targ->Name(0, body);
         mes += " is a container.";
         mes += "  You can't sell containers (yet).\n";
         mes[0] = toupper(mes[0]);
@@ -2707,7 +2706,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
     if (targ->Contents(LOC_TOUCH | LOC_NOTFIXED).size() > 0) {
       if (mind) {
-        string mes = targ->Name(0, body);
+        std::string mes = targ->Name(0, body);
         mes += " is not empty.";
         mes += "  You must empty it before you can sell it.\n";
         mes[0] = toupper(mes[0]);
@@ -2776,11 +2775,11 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (targ->HasSkill("Wearable on Right Hip"))
       wearable = 1;
 
-    list<Object*> objs = body->Parent()->Contents();
-    list<Object*>::iterator shpkp_i;
-    list<Object*> shpkps;
-    string reason = "Sorry, nobody is buying that sort of thing here.\n";
-    string skill = "";
+    std::list<Object*> objs = body->Parent()->Contents();
+    std::list<Object*>::iterator shpkp_i;
+    std::list<Object*> shpkps;
+    std::string reason = "Sorry, nobody is buying that sort of thing here.\n";
+    std::string skill = "";
     for (shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
       if ((*shpkp_i)->IsAct(ACT_DEAD)) {
         reason = "Sorry, the shopkeeper is dead!\n";
@@ -2896,7 +2895,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
         if (com == COM_SELL) {
           int togo = price, ord = -price;
-          list<Object*> pay = shpkp->PickObjects("a gold piece", vmode | LOC_INTERNAL, &ord);
+          std::list<Object*> pay = shpkp->PickObjects("a gold piece", vmode | LOC_INTERNAL, &ord);
           auto coin = pay.begin();
           for (; coin != pay.end(); ++coin) {
             togo -= MAX(1, (*coin)->Skill("Quantity"));
@@ -2953,7 +2952,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       if (mind)
         mind->SendF("You can't drag %s, it is fixed in place!\n", targ->Name());
     } else if (targ->Attribute(1)) {
-      string denied = "You would need ";
+      std::string denied = "You would need ";
       denied += targ->Name(1);
       denied += "'s permission to drag ";
       denied += targ->Name(0, NULL, targ);
@@ -2980,7 +2979,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    list<Object*> targs = body->PickObjects(comline + len, vmode | LOC_NEARBY);
+    std::list<Object*> targs = body->PickObjects(comline + len, vmode | LOC_NEARBY);
     if (targs.size() == 0) {
       if (mind)
         mind->Send("You want to get what?\n");
@@ -2990,9 +2989,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     for (auto ind = targs.begin(); ind != targs.end(); ++ind) {
       Object* targ = *ind;
 
-      list<Object*> trigs =
+      std::list<Object*> trigs =
           targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
-      list<Object*>::iterator trig = trigs.begin();
+      std::list<Object*>::iterator trig = trigs.begin();
       for (; trig != trigs.end(); ++trig) {
         int ttype = (*trig)->Skill("TBAScriptType");
         if ((ttype & 0x2000040) == 0x2000040) { // OBJ-GET trigs
@@ -3018,7 +3017,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         if (mind)
           mind->SendF("You can't carry %s, it is too heavy.  Try 'drag' instead.\n", targ->Name());
       } else {
-        string denied = "";
+        std::string denied = "";
         for (Object* owner = targ->Parent(); owner; owner = owner->Parent()) {
           if (owner->Attribute(1) && owner != body && (!owner->IsAct(ACT_SLEEP)) &&
               (!owner->IsAct(ACT_DEAD)) && (!owner->IsAct(ACT_DYING)) &&
@@ -3100,7 +3099,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    string name = body->ActTarg(ACT_HOLD)->ShortDesc();
+    std::string name = body->ActTarg(ACT_HOLD)->ShortDesc();
     size_t start = name.find_first_of('(');
     if (start != name.npos) {
       name = name.substr(0, start);
@@ -3131,7 +3130,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     if (comline[len] == 0) { // Just Checking Label
-      string label = body->ActTarg(ACT_HOLD)->ShortDesc();
+      std::string label = body->ActTarg(ACT_HOLD)->ShortDesc();
       size_t start = label.find_first_of('(');
       if (start == label.npos) {
         if (mind)
@@ -3149,8 +3148,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
               "%s is labeled '%s'.\n", body->ActTarg(ACT_HOLD)->Name(1, body), label.c_str());
       }
     } else { // Adding to Label
-      string name = body->ActTarg(ACT_HOLD)->ShortDesc();
-      string label = name;
+      std::string name = body->ActTarg(ACT_HOLD)->ShortDesc();
+      std::string label = name;
       size_t start = label.find_first_of('(');
       if (start == label.npos) {
         label = (comline + len);
@@ -3257,7 +3256,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
               "You open ;s.\n",
               body,
               targ);
-        string safety = obj->Name(0, body);
+        std::string safety = obj->Name(0, body);
         body->Parent()->SendOutF(
             stealth_t,
             stealth_s,
@@ -3380,8 +3379,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         }
       }
 
-      list<Object*> trigs;
-      list<Object*>::iterator trig;
+      std::list<Object*> trigs;
+      std::list<Object*>::iterator trig;
 
       trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
       trig = trigs.begin();
@@ -3499,7 +3498,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    list<Object*> targs = body->PickObjects(comline + len, vmode | LOC_INTERNAL);
+    std::list<Object*> targs = body->PickObjects(comline + len, vmode | LOC_INTERNAL);
     if (targs.size() == 0) {
       if (mind)
         mind->Send("You want to remove what?\n");
@@ -3509,8 +3508,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     for (auto targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
       Object* targ = (*targ_it);
 
-      list<Object*> trigs;
-      list<Object*>::iterator trig;
+      std::list<Object*> trigs;
+      std::list<Object*>::iterator trig;
 
       trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
       trig = trigs.begin();
@@ -3577,7 +3576,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   }
 
   if (com == COM_WEAR) {
-    list<Object*> targs;
+    std::list<Object*> targs;
 
     while ((!isgraph(comline[len])) && (comline[len]))
       ++len;
@@ -3623,8 +3622,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         if (mind && targs.size() == 1)
           mind->SendF("You are already wearing %s!\n", targ->Name(0, body));
       } else {
-        list<Object*> trigs;
-        list<Object*>::iterator trig;
+        std::list<Object*> trigs;
+        std::list<Object*>::iterator trig;
 
         trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
         trig = trigs.begin();
@@ -3659,7 +3658,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("You are not hungry, you can't eat any more.\n");
       return 0;
     }
-    list<Object*> targs = body->PickObjects(comline + len, vmode | LOC_NOTWORN | LOC_INTERNAL);
+    std::list<Object*> targs = body->PickObjects(comline + len, vmode | LOC_NOTWORN | LOC_INTERNAL);
     if (body->ActTarg(ACT_HOLD) && body->ActTarg(ACT_HOLD)->Parent() != body // Dragging
         &&
         body->ActTarg(ACT_HOLD)->Matches(comline + len)) {
@@ -3709,7 +3708,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("What do you want to drop?\n");
       return 0;
     }
-    list<Object*> targs = body->PickObjects(comline + len, vmode | LOC_NOTWORN | LOC_INTERNAL);
+    std::list<Object*> targs = body->PickObjects(comline + len, vmode | LOC_NOTWORN | LOC_INTERNAL);
     if (body->ActTarg(ACT_HOLD) && body->ActTarg(ACT_HOLD)->Parent() != body // Dragging
         &&
         body->ActTarg(ACT_HOLD)->Matches(comline + len)) {
@@ -3720,8 +3719,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("You want to drop what?\n");
     } else {
       for (auto targ = targs.begin(); targ != targs.end(); ++targ) {
-        list<Object*> trigs;
-        list<Object*>::iterator trig;
+        std::list<Object*> trigs;
+        std::list<Object*>::iterator trig;
 
         trigs = (*targ)->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
         trig = trigs.begin();
@@ -3802,7 +3801,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       if (mind)
         mind->Send("You want to drink from what?\n");
     } else {
-      string denied = "";
+      std::string denied = "";
       for (Object* own = targ; own; own = own->Parent()) {
         if (own->Attribute(1) && own != body && (!own->IsAct(ACT_SLEEP)) &&
             (!own->IsAct(ACT_DEAD)) && (!own->IsAct(ACT_DYING)) && (!own->IsAct(ACT_UNCONSCIOUS))) {
@@ -3882,7 +3881,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("What do you want to dump?\n");
       return 0;
     }
-    list<Object*> targs = body->PickObjects(comline + len, vmode | LOC_NOTWORN | LOC_INTERNAL);
+    std::list<Object*> targs = body->PickObjects(comline + len, vmode | LOC_NOTWORN | LOC_INTERNAL);
     if (body->ActTarg(ACT_HOLD) && body->ActTarg(ACT_HOLD)->Parent() != body // Dragging
         &&
         body->ActTarg(ACT_HOLD)->Matches(comline + len)) {
@@ -4023,7 +4022,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         body->Parent()->SendOut(
             stealth_t, stealth_s, ";s opens ;s.\n", "You open ;s.\n", body, dst);
 
-      string safety = dst->Name(0, body);
+      std::string safety = dst->Name(0, body);
       body->Parent()->SendOutF(
           stealth_t,
           stealth_s,
@@ -4279,7 +4278,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     int defself = 0;
     int special = 0;
     int freehand = 0;
-    string spname = "";
+    std::string spname = "";
     if (!strncasecmp("Identify", comline + len, strlen(comline + len))) {
       special = 1;
       spname = "Identify";
@@ -4350,16 +4349,16 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (!targ)
       targ = body; // Defaults to SELF (If not, caught above!)
     if (src) {
-      string youmes = "You use ;s to cast " + spname + ".\n";
+      std::string youmes = "You use ;s to cast " + spname + ".\n";
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s uses ;s to cast a spell.\n", youmes.c_str(), body, src);
     }
     if (defself >= 0) { // Targeted
-      string youmes = "You cast " + spname + " on ;s.\n";
+      std::string youmes = "You cast " + spname + " on ;s.\n";
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s casts a spell on ;s.\n", youmes.c_str(), body, targ);
     } else { // Not Targeted
-      string youmes = "You cast " + spname + ".\n";
+      std::string youmes = "You cast " + spname + ".\n";
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s casts a spell.\n", youmes.c_str(), body, NULL);
     }
@@ -4470,7 +4469,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     int longterm = 0; // Long-running skills for results
-    string skill = get_skill(comline + len);
+    std::string skill = get_skill(comline + len);
     if (skill == "") {
       mind->Send("Don't know what skill you're trying to use.\n");
       return 0;
@@ -4802,7 +4801,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     targ->SetSkill("Hidden", 0);
 
     int reachmod = 0;
-    string sk1 = "Punching", sk2 = "Punching";
+    std::string sk1 = "Punching", sk2 = "Punching";
 
     if (com == COM_KICK) {
       sk1 = "Kicking";
@@ -4852,7 +4851,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
     int loc = rand() % 100;
     act_t loca = ACT_WEAR_CHEST;
-    string locm = "";
+    std::string locm = "";
     int stage = 0;
     if (loc < 50) {
       loca = ACT_WEAR_CHEST;
@@ -5126,10 +5125,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     chr->SetSkill("Senses", chr->Skill("Attributes"));
     chr->SetSkill("Attributes", 0);
 
-    list<string> skills = get_skills("all");
+    std::list<std::string> skills = get_skills("all");
     while (chr->Skill("Skills")) {
       int which = (rand() % skills.size());
-      list<string>::iterator skl = skills.begin();
+      std::list<std::string>::iterator skl = skills.begin();
       while (which) {
         ++skl;
         --which;
@@ -5236,7 +5235,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       chr->SetSkill("Senses", chr->Skill("Senses") + 1);
       mind->Send("You set aside an attribute point for senses.\n");
     } else {
-      string skill = get_skill(comline + len);
+      std::string skill = get_skill(comline + len);
       if (skill != "") {
         if (body && (chr->Skill(skill) >= (chr->BaseAttribute(get_linked(skill)) * 3 + 1) / 2)) {
           mind->SendF("Your %s is already at the maximum.\n", skill.c_str());
@@ -5362,7 +5361,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         src = body->NextHasSkill("Restricted Item", src);
         continue;
       }
-      string com = "teleport ";
+      std::string com = "teleport ";
       com += (comline + len);
       com += "\n";
       if (!strcasestr(src->LongDesc(), com.c_str())) {
@@ -5434,8 +5433,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    vector<Player*> pls = get_all_players();
-    vector<Player*>::iterator pl = pls.begin();
+    std::vector<Player*> pls = get_all_players();
+    std::vector<Player*>::iterator pl = pls.begin();
     for (; pl != pls.end(); ++pl) {
       auto chs = (*pl)->Room()->Contents();
       auto ch = chs.begin();
@@ -5475,16 +5474,16 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     while ((!isgraph(comline[len])) && (comline[len]))
       ++len;
 
-    string skills;
-    list<string> skls;
+    std::string skills;
+    std::list<std::string> skls;
     if (!comline[len]) {
       skills =
           "Here are all the skill categories (use 'skill <Category>' to "
           "see the skills):\n";
       skls = get_skills();
     } else {
-      string cat = get_skill_cat(comline + len);
-      if (string(comline + len) != "all") {
+      std::string cat = get_skill_cat(comline + len);
+      if (std::string(comline + len) != "all") {
         if (cat == "") {
           mind->SendF("There is no skill category called '%s'.\n", comline + len);
           return 0;
@@ -5497,7 +5496,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       skls = get_skills(cat);
     }
 
-    list<string>::iterator skl = skls.begin();
+    std::list<std::string>::iterator skl = skls.begin();
     for (; skl != skls.end(); ++skl) {
       skills += (*skl);
       skills += "\n";
@@ -5556,10 +5555,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   if (com == COM_WHO) {
     if (!mind)
       return 0;
-    string users = "Currently on this MUD:\n";
-    vector<Mind*> mns = get_human_minds();
+    std::string users = "Currently on this MUD:\n";
+    std::vector<Mind*> mns = get_human_minds();
 
-    vector<Mind*>::iterator mn = mns.begin();
+    std::vector<Mind*>::iterator mn = mns.begin();
     for (; mn != mns.end(); ++mn) {
       users += (*mn)->Owner()->Name();
       if ((*mn)->Body())
@@ -5586,12 +5585,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("Exiting out of out-of-character mode.");
       }
     } else {
-      string name = "Unknown";
+      std::string name = "Unknown";
       if (mind->Owner())
         name = mind->Owner()->Name();
-      string mes = string("OOC: <") + name + "> " + (comline + len) + "\n";
-      vector<Mind*> mns = get_human_minds();
-      vector<Mind*>::iterator mn = mns.begin();
+      std::string mes = std::string("OOC: <") + name + "> " + (comline + len) + "\n";
+      std::vector<Mind*> mns = get_human_minds();
+      std::vector<Mind*>::iterator mn = mns.begin();
       for (; mn != mns.end(); ++mn) {
         (*mn)->Send(mes.c_str());
       }
@@ -5613,12 +5612,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("Exiting out of newbie-chat mode.");
       }
     } else {
-      string name = "Unknown";
+      std::string name = "Unknown";
       if (mind->Owner())
         name = mind->Owner()->Name();
-      string mes = string("NEWBIE: <") + name + "> " + (comline + len) + "\n";
-      vector<Mind*> mns = get_human_minds();
-      vector<Mind*>::iterator mn = mns.begin();
+      std::string mes = std::string("NEWBIE: <") + name + "> " + (comline + len) + "\n";
+      std::vector<Mind*> mns = get_human_minds();
+      std::vector<Mind*>::iterator mn = mns.begin();
       for (; mn != mns.end(); ++mn) {
         (*mn)->Send(mes.c_str());
       }
@@ -5771,7 +5770,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     while ((!isgraph(comline[len])) && (comline[len]))
       ++len;
     if (comline[len] != 0) {
-      string oldn = targ->ShortDesc();
+      std::string oldn = targ->ShortDesc();
       targ->SetShortDesc(comline + len);
       mind->SendF(
           "You rename '%s' to '%s'\n",
@@ -5811,7 +5810,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         targ->SetDesc(comline + len);
         mind->SendF("You add a description to '%s'\n", targ->Name(0, body));
       } else {
-        targ->SetDesc(targ->Desc() + string("\n") + (comline + len));
+        targ->SetDesc(targ->Desc() + std::string("\n") + (comline + len));
         mind->SendF("You add to the description of '%s'\n", targ->Name(0, body));
       }
     } else {
@@ -5855,7 +5854,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         targ->SetLongDesc(comline + len);
         mind->SendF("You add a definition to '%s'\n", targ->Name(0, body));
       } else {
-        targ->SetLongDesc(targ->LongDesc() + string("\n") + (comline + len));
+        targ->SetLongDesc(targ->LongDesc() + std::string("\n") + (comline + len));
         mind->SendF("You add to the definition of '%s'\n", targ->Name(0, body));
       }
     } else {
@@ -6022,9 +6021,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       body->Parent()->Link(
           next,
           dir,
-          string("You see a solid passage leading ") + dir + ".\n",
+          std::string("You see a solid passage leading ") + dir + ".\n",
           dirb,
-          string("You see a solid passage leading ") + dirb + ".\n");
+          std::string("You see a solid passage leading ") + dirb + ".\n");
 
       body->Parent()->SendOutF(
           stealth_t,
@@ -6101,7 +6100,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       anchor->AddAct(ACT_SPECIAL_MASTER, link);
       anchor->SetSkill("Open", 1000);
       anchor->SetSkill("Enterable", 1);
-      string other = comline + len;
+      std::string other = comline + len;
       if (!strncmp(comline + len, "east", 4)) {
         other = "west";
         other += comline + len + 4;
@@ -6150,10 +6149,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   if (com == COM_PLAYERS) {
     if (!mind)
       return 0;
-    string users = "Current accounts on this MUD:\n";
-    vector<Player*> pls = get_all_players();
+    std::string users = "Current accounts on this MUD:\n";
+    std::vector<Player*> pls = get_all_players();
 
-    vector<Player*>::iterator pl = pls.begin();
+    std::vector<Player*>::iterator pl = pls.begin();
     for (; pl != pls.end(); ++pl) {
       users += (*pl)->Name();
       users += "\n";
@@ -6166,10 +6165,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   if (com == COM_CHARACTERS) {
     if (!mind)
       return 0;
-    string chars = "Current characters on this MUD:\n";
-    vector<Player*> pls = get_all_players();
+    std::string chars = "Current characters on this MUD:\n";
+    std::vector<Player*> pls = get_all_players();
 
-    vector<Player*>::iterator pl = pls.begin();
+    std::vector<Player*>::iterator pl = pls.begin();
     for (; pl != pls.end(); ++pl) {
       auto chs = (*pl)->Room()->Contents();
       auto ch = chs.begin();
@@ -6255,12 +6254,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       nobj->SetSkill("Wearable on Right Hip", targ->Skill("Wearable on Left Hip"));
 
       int start;
-      string name = nobj->ShortDesc();
-      start = name.find(string("(left)"));
+      std::string name = nobj->ShortDesc();
+      start = name.find(std::string("(left)"));
       if (start < int(name.length()) && start >= 0) {
         name = name.substr(0, start) + "(right)" + name.substr(start + 6);
       } else {
-        start = name.find(string("(right)"));
+        start = name.find(std::string("(right)"));
         if (start < int(name.length()) && start >= 0) {
           name = name.substr(0, start) + "(left)" + name.substr(start + 7);
         }
@@ -6306,12 +6305,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     while ((!isgraph(comline[len])) && (comline[len]))
       ++len;
-    list<Object*> targs = body->PickObjects(comline + len, vmode | LOC_NEARBY);
+    std::list<Object*> targs = body->PickObjects(comline + len, vmode | LOC_NEARBY);
     if (targs.size() == 0) {
       mind->Send("You want to destroy what?\n");
       return 0;
     }
-    set<Object*> todo;
+    std::set<Object*> todo;
     for (auto itr = targs.begin(); itr != targs.end(); ++itr) {
       todo.insert(*itr);
     }
@@ -6321,21 +6320,21 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       if (com == COM_JUNKRESTART) { // Extra JunkRestart protections
         if (is_pc(targ)) {
           mind->Send(
-              (string("Sorry, ") + targ->ShortDesc() + " is a PC.  Use just 'junk' instead.\n")
+              (std::string("Sorry, ") + targ->ShortDesc() + " is a PC.  Use just 'junk' instead.\n")
                   .c_str());
           targs.pop_front();
           continue; // Nope, don't nuke that.
         }
 
-        string chars = "";
-        vector<Player*> pls = get_all_players();
-        vector<Player*>::iterator pl = pls.begin();
+        std::string chars = "";
+        std::vector<Player*> pls = get_all_players();
+        std::vector<Player*>::iterator pl = pls.begin();
         for (; pl != pls.end(); ++pl) {
           auto chs = (*pl)->Room()->Contents();
           auto ch = chs.begin();
           for (; ch != chs.end(); ++ch) {
             if (targ->HasWithin(*ch)) {
-              chars += string("Sorry, A PC (") + (*ch)->ShortDesc() + ") is in " +
+              chars += std::string("Sorry, A PC (") + (*ch)->ShortDesc() + ") is in " +
                   targ->ShortDesc() + ".\n";
             }
           }
@@ -6445,7 +6444,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       }
     } else {
       int duration = 0;
-      string skill = "";
+      std::string skill = "";
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s tries to heal ;s.\n", "You try to heal ;s.\n", body, targ);
       if (body->HasSkill("First Aid")) {
@@ -6656,7 +6655,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     while ((!isgraph(comline[len])) && (comline[len]))
       ++len;
-    list<Object*> targs = body->PickObjects(comline + len, vmode | LOC_NEARBY | LOC_INTERNAL);
+    std::list<Object*> targs = body->PickObjects(comline + len, vmode | LOC_NEARBY | LOC_INTERNAL);
     if (targs.size() == 0) {
       mind->Send("You want to double what?\n");
       return 0;
@@ -6733,14 +6732,14 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   return 0;
 }
 
-int handle_command(Object* body, const string& cl, Mind* mind) {
+int handle_command(Object* body, const std::string& cl, Mind* mind) {
   static char* buf = NULL;
   static int bsize = -1;
   int ret = 0;
   const char *start = cl.c_str(), *end = cl.c_str();
 
   if (mind && mind->SpecialPrompt()[0] != 0) {
-    string cmd = string(mind->SpecialPrompt()) + " " + cl.c_str();
+    std::string cmd = std::string(mind->SpecialPrompt()) + " " + cl.c_str();
     ret = handle_single_command(body, cmd.c_str(), mind);
     return ret;
   }

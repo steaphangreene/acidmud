@@ -9,8 +9,6 @@
 #include <ctime>
 #include <list>
 
-using namespace std;
-
 class Object;
 class Player;
 class Mind;
@@ -113,7 +111,7 @@ class Object {
   static Object* TrashBin();
   Object* World();
 
-  Object* Next(string&);
+  Object* Next(std::string&);
   Object* Split(int nqty);
   const char* Name(int definite = 0, Object* rel = NULL, Object* sub = NULL) const;
   const char* Pron() const;
@@ -122,21 +120,21 @@ class Object {
   const char* ShortDesc() const;
   const char* Desc() const;
   const char* LongDesc() const;
-  void SetShortDesc(const string&);
-  void SetDesc(const string&);
-  void SetLongDesc(const string&);
+  void SetShortDesc(const std::string&);
+  void SetDesc(const std::string&);
+  void SetLongDesc(const std::string&);
   void SetParent(Object*);
   Object* Parent() const {
     return parent;
   };
-  set<Object*> Touching() const {
+  std::set<Object*> Touching() const {
     return touching_me;
   };
 
   void SendActions(Mind* m);
   void SendExtendedActions(Mind* m, int vmode = 0);
-  void SendContents(Mind* m, Object* o = NULL, int vmode = 0, string b = "");
-  void SendContents(Object* m, Object* o = NULL, int vmode = 0, string b = "");
+  void SendContents(Mind* m, Object* o = NULL, int vmode = 0, std::string b = "");
+  void SendContents(Object* m, Object* o = NULL, int vmode = 0, std::string b = "");
 
   void SendFullSituation(Mind* m, Object* o = NULL);
   void SendShortDesc(Mind* m, Object* o = NULL);
@@ -148,21 +146,21 @@ class Object {
   void SendLongDesc(Mind* m, Object* o = NULL);
   void SendLongDesc(Object* m, Object* o = NULL);
   void SendScore(Mind* m, Object* o = NULL);
-  list<string> FormatStats(map<string, int>& skls); // Modifies skls
-  list<string> FormatSkills(map<string, int>& skls); // Modifies skls
+  std::list<std::string> FormatStats(std::map<std::string, int>& skls); // Modifies skls
+  std::list<std::string> FormatSkills(std::map<std::string, int>& skls); // Modifies skls
 
   void Link(
       Object* other,
-      const string& name,
-      const string& desc,
-      const string& oname,
-      const string& odesc);
+      const std::string& name,
+      const std::string& desc,
+      const std::string& oname,
+      const std::string& odesc);
   void LinkClosed(
       Object* other,
-      const string& name,
-      const string& desc,
-      const string& oname,
-      const string& odesc);
+      const std::string& name,
+      const std::string& desc,
+      const std::string& oname,
+      const std::string& odesc);
   int Travel(Object*, int try_combine = 1);
   void AddLink(Object*);
   void RemoveLink(Object*);
@@ -185,13 +183,13 @@ class Object {
   void NotifyGone(Object* obj, Object* newloc = NULL, int up = 1);
 
   Object* PickObject(const char*, int loc, int* ordinal = NULL) const;
-  list<Object*> PickObjects(const char*, int loc, int* ordinal = NULL) const;
+  std::list<Object*> PickObjects(const char*, int loc, int* ordinal = NULL) const;
   int IsNearBy(const Object* obj);
   int SeeWithin(const Object* obj); // Recursive & Visible
   int HasWithin(const Object* obj); // Recursive (All)
   int Contains(const Object* obj); // Only Immediately (No Recursion)
-  list<Object*> Contents(int vmode);
-  list<Object*> Contents();
+  std::list<Object*> Contents(int vmode);
+  std::list<Object*> Contents();
 
   int ContainedWeight();
   int ContainedVolume();
@@ -263,19 +261,19 @@ class Object {
   int BaseAttribute(int a) const {
     return att[a];
   };
-  int Modifier(const string& m) const;
-  int Power(const string& m) const;
-  int Skill(const string&, int* tnum = NULL) const;
-  int HasSkill(const string&) const;
-  int SubHasSkill(const string&) const;
-  int SubMaxSkill(const string&) const;
-  Object* NextHasSkill(const string&, const Object* last = NULL);
-  const map<string, int>& GetSkills() const {
+  int Modifier(const std::string& m) const;
+  int Power(const std::string& m) const;
+  int Skill(const std::string&, int* tnum = NULL) const;
+  int HasSkill(const std::string&) const;
+  int SubHasSkill(const std::string&) const;
+  int SubMaxSkill(const std::string&) const;
+  Object* NextHasSkill(const std::string&, const Object* last = NULL);
+  const std::map<std::string, int>& GetSkills() const {
     return skills;
   }
 
   void SetAttribute(int, int);
-  void SetSkill(const string&, int);
+  void SetSkill(const std::string&, int);
 
   void DynamicInit();
   void DynamicInit1();
@@ -288,36 +286,36 @@ class Object {
   void DynamicInit8();
   void DynamicInit9();
 
-  list<int> RollInitiative() const;
-  int Roll(const string&, const Object*, const string&, int bias = 0, string* res = NULL) const;
+  std::list<int> RollInitiative() const;
+  int Roll(const std::string&, const Object*, const std::string&, int bias = 0, std::string* res = NULL) const;
   int Roll(
-      const string&,
+      const std::string&,
       const Object*,
-      const string&,
+      const std::string&,
       int bias = 0,
-      list<int>* wraps = NULL,
-      string* res = NULL) const;
-  int Roll(const string&, int, list<int>* wraps, string* res = NULL) const;
-  int Roll(const string&, int, string* res = NULL) const;
-  int RollNoWounds(const string&, int, list<int>* wraps, string* res = NULL) const;
-  int RollNoWounds(const string&, int, string* res = NULL) const;
+      std::list<int>* wraps = NULL,
+      std::string* res = NULL) const;
+  int Roll(const std::string&, int, std::list<int>* wraps, std::string* res = NULL) const;
+  int Roll(const std::string&, int, std::string* res = NULL) const;
+  int RollNoWounds(const std::string&, int, std::list<int>* wraps, std::string* res = NULL) const;
+  int RollNoWounds(const std::string&, int, std::string* res = NULL) const;
 
   int WoundPenalty() const;
 
   pos_t Pos();
   void SetPos(pos_t p);
   const char* PosString();
-  void StartUsing(const string& skill);
+  void StartUsing(const std::string& skill);
   void StopUsing();
   const char* Using();
-  int IsUsing(const string& skill);
+  int IsUsing(const std::string& skill);
   const char* UsingString();
 
   int Wearing(const Object* obj) const;
   int WearMask() const;
-  set<act_t> WearSlots(int m = -1) const;
-  string WearNames(const set<act_t>& locs) const;
-  string WearNames(int m = -1) const;
+  std::set<act_t> WearSlots(int m = -1) const;
+  std::string WearNames(const std::set<act_t>& locs) const;
+  std::string WearNames(int m = -1) const;
 
   int Quantity() const;
 
@@ -394,7 +392,7 @@ class Object {
   void BusyWith(Object* other, const char* default_next = "");
   void DoWhenFree(const char*);
 
-  string Tactics(int phase = -1);
+  std::string Tactics(int phase = -1);
 
   void operator=(const Object& in);
   int operator==(const Object& in) const;
@@ -410,44 +408,44 @@ class Object {
  private:
   void NotifyLeft(Object* obj, Object* newloc = NULL);
 
-  void Loud(set<Object*>& visited, int str, const char* mes);
+  void Loud(std::set<Object*>& visited, int str, const char* mes);
 
   int Filter(int loc);
 
   int tickstep;
 
-  string short_desc;
-  string desc;
-  string long_desc;
-  list<Object*> contents;
+  std::string short_desc;
+  std::string desc;
+  std::string long_desc;
+  std::list<Object*> contents;
   Object* parent;
-  set<Mind*> minds;
+  std::set<Mind*> minds;
   pos_t pos;
-  string cur_skill;
+  std::string cur_skill;
 
   int weight, volume, size;
   int value;
   char gender;
 
-  set<unsigned long> completed;
+  std::set<unsigned long> completed;
   int exp, sexp;
 
   int phys, stun, stru;
   int att[8];
-  map<string, int> skills;
+  std::map<std::string, int> skills;
 
   int no_seek; // Recursion protection
   int no_hear; // For Send() protection
 
-  map<act_t, Object*> act;
-  set<Object*> touching_me;
+  std::map<act_t, Object*> act;
+  std::set<Object*> touching_me;
 
   timeval busytill;
-  string dowhenfree, defact;
+  std::string dowhenfree, defact;
   friend void player_rooms_erase(Object*);
 };
 
-int roll(int ndice, int targ, list<int>* wraps = NULL);
+int roll(int ndice, int targ, std::list<int>* wraps = NULL);
 
 void init_world();
 void save_world(int with_net = 0);
@@ -458,13 +456,13 @@ int matches(const char* name, const char* seek);
 Mind* get_mob_mind();
 Mind* get_tba_mob_mind();
 
-string get_skill(string sk);
-string get_skill_cat(string cat);
-int get_linked(string sk);
-list<string> get_skills(string cat = "Categories");
-int is_skill(string sk);
-string get_weapon_skill(int wtype);
-int get_weapon_type(string wskill);
+std::string get_skill(std::string sk);
+std::string get_skill_cat(std::string cat);
+int get_linked(std::string sk);
+std::list<std::string> get_skills(std::string cat = "Categories");
+int is_skill(std::string sk);
+std::string get_weapon_skill(int wtype);
+int get_weapon_type(std::string wskill);
 int two_handed(int wtype);
 
 void tick_world();

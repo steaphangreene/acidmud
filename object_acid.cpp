@@ -49,11 +49,11 @@ const char* act_save[ACT_SPECIAL_MAX] = {
     //	"SPECIAL_MAX"
 };
 
-static map<string, act_t> act_load_map;
-static act_t act_load(const string& str) {
+static std::map<std::string, act_t> act_load_map;
+static act_t act_load(const std::string& str) {
   if (act_load_map.size() < 1) {
     for (int a = 0; a < ACT_SPECIAL_MAX; ++a) {
-      act_load_map[string(act_save[a])] = act_t(a);
+      act_load_map[std::string(act_save[a])] = act_t(a);
     }
   }
   if (act_load_map.count(str) < 1)
@@ -62,9 +62,9 @@ static act_t act_load(const string& str) {
 }
 
 static char buf[65536];
-static vector<Object*> todo;
-static map<int, Object*> num2obj;
-static map<Object*, int> obj2num;
+static std::vector<Object*> todo;
+static std::map<int, Object*> num2obj;
+static std::map<Object*, int> obj2num;
 
 Object* getbynum(int num) {
   if (num2obj.count(num) < 1)
@@ -131,7 +131,7 @@ int Object::SaveTo(FILE* fl) {
       stru,
       IsActive());
 
-  map<string, int>::const_iterator sk = skills.begin();
+  std::map<std::string, int>::const_iterator sk = skills.begin();
   for (; sk != skills.end(); ++sk)
     fprintf(fl, "|%s|%d", sk->first.c_str(), sk->second);
   if (cur_skill != "") { // Added current skill to end in v0x13
@@ -147,7 +147,7 @@ int Object::SaveTo(FILE* fl) {
   fprintf(fl, "%d\n", pos);
 
   fprintf(fl, "%d\n", (int)(act.size()));
-  map<act_t, Object*>::iterator aind;
+  std::map<act_t, Object*>::iterator aind;
   for (aind = act.begin(); aind != act.end(); ++aind) {
     fprintf(fl, "%s;%d\n", act_save[aind->first], getnum(aind->second));
   }
@@ -179,10 +179,10 @@ int Object::Load(const char* fn) {
     return -1;
   }
 
-  vector<Object*>::iterator ind;
+  std::vector<Object*>::iterator ind;
   for (ind = todo.begin(); ind != todo.end(); ++ind) {
-    list<act_t> killacts;
-    map<act_t, Object*>::iterator aind = (*ind)->act.begin();
+    std::list<act_t> killacts;
+    std::map<act_t, Object*>::iterator aind = (*ind)->act.begin();
     for (; aind != (*ind)->act.end(); ++aind) {
       /* Decode the Object Number from a pointer, Encoded in LoadFrom() */
       int num = int(aind->second - ((Object*)(NULL)));
@@ -198,7 +198,7 @@ int Object::Load(const char* fn) {
         (*ind)->BusyFor(500, (*ind)->Tactics().c_str());
       }
     }
-    list<act_t>::iterator kill = killacts.begin();
+    std::list<act_t>::iterator kill = killacts.begin();
     for (; kill != killacts.end(); ++kill) { // Kill Actions on Non-Existent
       act.erase(*kill);
     }
@@ -217,7 +217,7 @@ int Object::Load(const char* fn) {
 }
 
 int Object::LoadFrom(FILE* fl) {
-  // static string debug_indent = "";
+  // static std::string debug_indent = "";
 
   int num, res;
   fscanf(fl, "%d ", &num);
@@ -336,7 +336,7 @@ int Object::LoadFrom(FILE* fl) {
   }
   fscanf(fl, ";\n");
 
-  vector<Object*> toload;
+  std::vector<Object*> toload;
   fscanf(fl, "%d ", &num);
   // contents.reserve(num); // This was for vectors.
   for (int ctr = 0; ctr < num; ++ctr) {
@@ -355,10 +355,10 @@ int Object::LoadFrom(FILE* fl) {
     int anum, num2;
     if (ver < 0x0014) { // Action types stored numerically < v0x14
       fscanf(fl, "%d;%d ", &anum, &num2);
-    } else { // Action types stored as strings >= v0x14
+    } else { // Action types stored as std::strings >= v0x14
       memset(buf, 0, 65536);
       fscanf(fl, "%65535[^;];%d ", buf, &num2);
-      anum = act_load(string(buf));
+      anum = act_load(std::string(buf));
     }
 
     /* Encode the Object Number as a pointer, Decoded in Load() */
@@ -379,11 +379,11 @@ int Object::LoadFrom(FILE* fl) {
   //  if(parent && (!(parent->parent))) {
   //    fprintf(stderr, "Loading: %s\n", short_desc.c_str());
   //    }
-  vector<Object*>::iterator cind;
+  std::vector<Object*>::iterator cind;
   for (cind = toload.begin(); cind != toload.end(); ++cind) {
     // fprintf(stderr, "%sCalling loader from %s\n", debug_indent.c_str(),
     // short_desc.c_str());
-    // string tmp = debug_indent;
+    // std::string tmp = debug_indent;
     // debug_indent += "  ";
     (*cind)->LoadFrom(fl);
     // debug_indent = tmp;

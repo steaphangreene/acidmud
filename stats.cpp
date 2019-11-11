@@ -1,15 +1,18 @@
 #include <cstdlib>
 #include <cstring>
+#include <list>
+#include <map>
+#include <string>
 
 #include "object.hpp"
 
-static map<string, int> defaults;
-static map<int, string> weaponskills;
-static map<string, int> weapontypes;
-static map<string, list<string>> skcat;
+static std::map<std::string, int> defaults;
+static std::map<int, std::string> weaponskills;
+static std::map<std::string, int> weapontypes;
+static std::map<std::string, std::list<std::string>> skcat;
 
 static int last_wtype = 0;
-static void add_wts(const string& sk) {
+static void add_wts(const std::string& sk) {
   if (defaults.count(sk) == 0) {
     fprintf(
         stderr,
@@ -2469,13 +2472,13 @@ static void init_defaults() {
   skcat["Skills"].push_back("Zero-G Ops");
 }
 
-int is_skill(string sk) {
+int is_skill(std::string sk) {
   if (!defaults_init)
     init_defaults();
   return (defaults.count(sk) != 0);
 }
 
-string get_weapon_skill(int wtype) {
+std::string get_weapon_skill(int wtype) {
   if (!defaults_init)
     init_defaults();
   if (!weaponskills.count(wtype)) {
@@ -2485,7 +2488,7 @@ string get_weapon_skill(int wtype) {
   return weaponskills[wtype];
 }
 
-int get_weapon_type(string wskill) {
+int get_weapon_type(std::string wskill) {
   if (!defaults_init)
     init_defaults();
   if (!weapontypes.count(wskill)) {
@@ -2495,7 +2498,7 @@ int get_weapon_type(string wskill) {
   return weapontypes[wskill];
 }
 
-string get_skill(string sk) {
+std::string get_skill(std::string sk) {
   while (isspace(sk[sk.length() - 1]))
     sk = sk.substr(0, sk.length() - 1);
   if (defaults.count(sk))
@@ -2512,7 +2515,7 @@ string get_skill(string sk) {
   return "";
 }
 
-string get_skill_cat(string cat) {
+std::string get_skill_cat(std::string cat) {
   while (isspace(cat[cat.length() - 1]))
     cat = cat.substr(0, cat.length() - 1);
   if (skcat.count(cat))
@@ -2529,7 +2532,7 @@ string get_skill_cat(string cat) {
   return "";
 }
 
-int get_linked(string sk) {
+int get_linked(std::string sk) {
   while (isspace(sk[sk.length() - 1]))
     sk = sk.substr(0, sk.length() - 1);
   if (defaults.count(sk))
@@ -2537,10 +2540,10 @@ int get_linked(string sk) {
   return 4; // Default to Int for knowledges
 }
 
-list<string> get_skills(string cat) {
+std::list<std::string> get_skills(std::string cat) {
   if (!defaults_init)
     init_defaults();
-  list<string> ret;
+  std::list<std::string> ret;
 
   while (isspace(cat[cat.length() - 1]))
     cat = cat.substr(0, cat.length() - 1);
@@ -2562,7 +2565,7 @@ list<string> get_skills(string cat) {
   return ret;
 }
 
-int roll(int ndice, int targ, list<int>* wraps) {
+int roll(int ndice, int targ, std::list<int>* wraps) {
   int ret = 0, ctr;
   for (ctr = 0; ctr < ndice; ++ctr) {
     int val = 1 + (rand() % 6);
@@ -2574,7 +2577,7 @@ int roll(int ndice, int targ, list<int>* wraps) {
       if (wraps && numwrap > 0) {
         if (wraps->size() < numwrap)
           wraps->resize(numwrap, 0);
-        list<int>::iterator wit = wraps->begin();
+        std::list<int>::iterator wit = wraps->begin();
         for (unsigned int i = 0; i < numwrap; ++i, ++wit) {
           (*wit) += numwrap - i;
         }
@@ -2592,7 +2595,7 @@ void Object::SetAttribute(int a, int v) {
   att[a] = v;
 }
 
-void Object::SetSkill(const string& s, int v) {
+void Object::SetSkill(const std::string& s, int v) {
   if (v > 1000000000)
     v = 1000000000;
   else if (v < -1000000000)
@@ -2603,7 +2606,7 @@ void Object::SetSkill(const string& s, int v) {
     skills[s] = v;
 }
 
-int Object::HasSkill(const string& s) const {
+int Object::HasSkill(const std::string& s) const {
   if (strlen(s.c_str()) == 0)
     return 0;
   if (skills.count(s))
@@ -2611,7 +2614,7 @@ int Object::HasSkill(const string& s) const {
   return 0;
 }
 
-int Object::Skill(const string& s, int* tnum) const {
+int Object::Skill(const std::string& s, int* tnum) const {
   if (strlen(s.c_str()) == 0)
     return 0;
   if (!strncasecmp(s.c_str(), "Body", s.length()))
@@ -2639,18 +2642,18 @@ int Object::Skill(const string& s, int* tnum) const {
   return 0;
 }
 
-int Object::Roll(const string& s1, const Object* p2, const string& s2, int bias, string* res)
+int Object::Roll(const std::string& s1, const Object* p2, const std::string& s2, int bias, std::string* res)
     const {
   return Roll(s1, p2, s2, bias, NULL, res);
 }
 
 int Object::Roll(
-    const string& s1,
+    const std::string& s1,
     const Object* p2,
-    const string& s2,
+    const std::string& s2,
     int bias,
-    list<int>* wraps,
-    string* res) const {
+    std::list<int>* wraps,
+    std::string* res) const {
   int succ = 0;
 
   int t1 = p2->Skill(s2) - bias;
@@ -2669,11 +2672,11 @@ int Object::Roll(
   return succ;
 }
 
-int Object::Roll(const string& s1, int targ, string* res) const {
+int Object::Roll(const std::string& s1, int targ, std::string* res) const {
   return Roll(s1, targ, NULL, res);
 }
 
-int Object::Roll(const string& s1, int targ, list<int>* wraps, string* res) const {
+int Object::Roll(const std::string& s1, int targ, std::list<int>* wraps, std::string* res) const {
   if (phys >= 10 || stun >= 10 || (!(att[0] * att[1] * att[2] * att[3] * att[4] * att[5]))) {
     if (res)
       (*res) += "N/A";
@@ -2683,11 +2686,11 @@ int Object::Roll(const string& s1, int targ, list<int>* wraps, string* res) cons
   return RollNoWounds(s1, targ, wraps, res);
 }
 
-int Object::RollNoWounds(const string& s1, int targ, string* res) const {
+int Object::RollNoWounds(const std::string& s1, int targ, std::string* res) const {
   return RollNoWounds(s1, targ, NULL, res);
 }
 
-int Object::RollNoWounds(const string& s1, int targ, list<int>* wraps, string* res) const {
+int Object::RollNoWounds(const std::string& s1, int targ, std::list<int>* wraps, std::string* res) const {
   int succ = 0;
   int d1 = Skill(s1, &targ);
   succ = roll(abs(d1), targ, wraps);
@@ -2729,15 +2732,15 @@ int Object::WoundPenalty() const {
   return ret;
 }
 
-list<int> Object::RollInitiative() const {
-  list<int> ret;
+std::list<int> Object::RollInitiative() const {
+  std::list<int> ret;
   int start = Roll("Reaction", 6 - att[5], &ret);
   ret.push_front(start);
 
   /* Begin Debug Output */
   //  if(IsAct(ACT_FIGHT)) {
   //    fprintf(stderr, "Initiative: [");
-  //    for(list<int>::iterator it = ret.begin(); it != ret.end();) {
+  //    for(std::list<int>::iterator it = ret.begin(); it != ret.end();) {
   //      fprintf(stderr, "%d", *it);
   //      ++it;
   //      if(it != ret.end()) fprintf(stderr, ", ");

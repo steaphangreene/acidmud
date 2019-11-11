@@ -27,8 +27,8 @@ class ArmorType {
       act_t l4 = ACT_NONE,
       act_t l5 = ACT_NONE,
       act_t l6 = ACT_NONE);
-  string name, desc, long_desc;
-  vector<act_t> loc;
+  std::string name, desc, long_desc;
+  std::vector<act_t> loc;
   int bulk, bulkm; // Body-Type (adds mass, reduces shock)
   int impact, impactm; // Cushion (absorbs shock, softens impact)
   int thread, threadm; // Tensile (won't rip/cut, prevents slashing)
@@ -51,7 +51,7 @@ class WeaponType {
       int w,
       int vol,
       int val);
-  string name, desc, long_desc;
+  std::string name, desc, long_desc;
   int type, reach;
   int force, forcem;
   int sev, sevm;
@@ -84,7 +84,7 @@ class MOBType {
   void Arm(WeaponType*);
   void Armor(ArmorType*);
 
-  string name, desc, long_desc, genders;
+  std::string name, desc, long_desc, genders;
   int b, bm;
   int q, qm;
   int s, sm;
@@ -92,9 +92,9 @@ class MOBType {
   int i, im;
   int w, wm;
   int g, gm;
-  map<string, pair<int, int>> skills;
+  std::map<std::string, std::pair<int, int>> skills;
   WeaponType* armed;
-  vector<ArmorType*> armor;
+  std::vector<ArmorType*> armor;
 };
 
-string gender_proc(const char* in, char gender);
+std::string gender_proc(const char* in, char gender);

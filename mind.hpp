@@ -1,6 +1,7 @@
 #include "player.hpp"
 
 #include <list>
+#include <map>
 
 #define MIND_MORON 0
 #define MIND_REMOTE 1
@@ -26,7 +27,7 @@ class Mind {
   void SetRemote(int fd);
   void SetMob();
   void SetTBAMob();
-  void SetTBATrigger(Object* tr, Object* tripper = NULL, Object* targ = NULL, string text = "");
+  void SetTBATrigger(Object* tr, Object* tripper = NULL, Object* targ = NULL, std::string text = "");
   void SetNPC();
   void SetSystem();
   void Attach(Object* bod);
@@ -37,12 +38,12 @@ class Mind {
   Player* Owner() {
     return player;
   };
-  string PName() {
+  std::string PName() {
     return pname;
   };
-  void SetPName(string);
-  void SetPPass(string);
-  void SetPlayer(string);
+  void SetPName(std::string);
+  void SetPPass(std::string);
+  void SetPlayer(std::string);
   int Type() {
     return type;
   };
@@ -56,7 +57,7 @@ class Mind {
   void UpdatePrompt();
 
   void Think(int istick = 0);
-  string Tactics(int phase = -1);
+  std::string Tactics(int phase = -1);
 
   static void Resume(int passed);
   void Suspend(int msec);
@@ -68,38 +69,38 @@ class Mind {
   int Status() const;
   void ClearStatus();
 
-  void SetSVar(const string& var, const string& val);
-  void ClearSVar(const string& var);
-  const string& SVar(const string& var) const;
-  int IsSVar(const string& var) const;
-  void SetSVars(const map<string, string>& sv);
-  const map<string, string> SVars() const;
+  void SetSVar(const std::string& var, const std::string& val);
+  void ClearSVar(const std::string& var);
+  const std::string& SVar(const std::string& var) const;
+  int IsSVar(const std::string& var) const;
+  void SetSVars(const std::map<std::string, std::string>& sv);
+  const std::map<std::string, std::string> SVars() const;
 
  private:
   int TBACanWanderTo(Object* dest);
 
-  string TBAComp(string expr);
-  int TBAEval(string expr);
-  void TBAVarSub(string& line);
+  std::string TBAComp(std::string expr);
+  int TBAEval(std::string expr);
+  void TBAVarSub(std::string& line);
 
-  int TBARunLine(string line);
+  int TBARunLine(std::string line);
 
   int type;
   int pers;
   Object* body;
   Player* player;
-  string pname;
-  string prompt;
+  std::string pname;
+  std::string prompt;
   int log;
 
-  static map<string, string> cvars;
-  map<string, string> svars;
-  map<string, Object*> ovars;
+  static std::map<std::string, std::string> cvars;
+  std::map<std::string, std::string> svars;
+  std::map<std::string, Object*> ovars;
   int status;
-  string script;
-  list<size_t> spos_s;
+  std::string script;
+  std::list<size_t> spos_s;
 
-  static list<pair<int, Mind*>> waiting;
+  static std::list<std::pair<int, Mind*>> waiting;
 };
 
 Mind* new_mind(
@@ -107,8 +108,8 @@ Mind* new_mind(
     Object* obj = NULL,
     Object* obj2 = NULL,
     Object* obj3 = NULL,
-    string text = "");
-int new_trigger(int msec, Object* obj, Object* tripper = NULL, string text = "");
-int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, string text = "");
+    std::string text = "");
+int new_trigger(int msec, Object* obj, Object* tripper = NULL, std::string text = "");
+int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, std::string text = "");
 
 #endif

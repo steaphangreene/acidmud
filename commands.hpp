@@ -148,5 +148,5 @@ typedef enum {
 } com_t;
 
 // int handle_command(Object *, const char *);
-int handle_command(Object*, const string&, Mind* mind = NULL);
-com_t identify_command(const string&);
+int handle_command(Object*, const std::string&, Mind* mind = NULL);
+com_t identify_command(const std::string&);

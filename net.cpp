@@ -18,8 +18,6 @@
 
 typedef int socket_t;
 
-using namespace std;
-
 #include "commands.hpp"
 #include "mind.hpp"
 #include "net.hpp"
@@ -27,11 +25,11 @@ using namespace std;
 #include "utils.hpp"
 #include "version.hpp"
 
-static set<socket_t> fds;
-static map<socket_t, Mind*> minds;
-static map<socket_t, string> comlines;
-static map<socket_t, string> outbufs;
-static map<socket_t, string> prompts;
+static std::set<socket_t> fds;
+static std::map<socket_t, Mind*> minds;
+static std::map<socket_t, std::string> comlines;
+static std::map<socket_t, std::string> outbufs;
+static std::map<socket_t, std::string> prompts;
 static struct timeval null_time = {0, 0};
 static socket_t acceptor, maxfd;
 
@@ -60,7 +58,7 @@ void drop_socket(socket_t d_s) {
 }
 
 void notify_player_deleted(Player* pl) {
-  vector<socket_t> todel;
+  std::vector<socket_t> todel;
   for (auto ind = minds.begin(); ind != minds.end(); ++ind) {
     if (ind->second->Owner() == pl)
       todel.push_back(ind->first);
@@ -205,7 +203,7 @@ void update_net() {
   FD_ZERO(&exc_set);
   FD_SET(acceptor, &input_set);
 
-  set<socket_t>::iterator sock;
+  std::set<socket_t>::iterator sock;
   for (sock = fds.begin(); sock != fds.end(); ++sock) {
     FD_SET((*sock), &input_set);
     FD_SET((*sock), &output_set);
@@ -232,7 +230,7 @@ void update_net() {
     minds[newsock]->Send("Welcome to AcidMUD!\n");
   }
 
-  set<socket_t> killfds;
+  std::set<socket_t> killfds;
   for (sock = fds.begin(); sock != fds.end(); ++sock) {
     if (FD_ISSET((*sock), &exc_set)) {
       killfds.insert(*sock);
@@ -251,11 +249,11 @@ void update_net() {
     }
   }
 
-  map<socket_t, string>::iterator out = outbufs.begin();
+  std::map<socket_t, std::string>::iterator out = outbufs.begin();
   for (; out != outbufs.end(); ++out)
     if (minds.count(out->first)) {
-      string outs = out->second;
-      outs = string("\n") + outs;
+      std::string outs = out->second;
+      outs = std::string("\n") + outs;
       outs += "\n";
 
       int pos = outs.find('\n');
@@ -271,7 +269,7 @@ void update_net() {
 
       write(out->first, outs.c_str(), outs.length());
 
-      string::iterator loc = find(outs.begin(), outs.end(), (char)(255));
+      std::string::iterator loc = find(outs.begin(), outs.end(), (char)(255));
       while (loc >= outs.begin() && loc < outs.end()) {
         loc = outs.erase(loc);
         if (loc < outs.end())
@@ -287,7 +285,7 @@ void update_net() {
 }
 
 void unwarn_net(int tp) {
-  set<socket_t>::iterator sock;
+  std::set<socket_t>::iterator sock;
   for (sock = fds.begin(); sock != fds.end(); ++sock) {
     if (tp == 0) {
       minds[*sock]->Send("...the world has been auto-saved!\n");
@@ -302,7 +300,7 @@ void unwarn_net(int tp) {
 }
 
 void warn_net(int tp) {
-  set<socket_t>::iterator sock;
+  std::set<socket_t>::iterator sock;
   for (sock = fds.begin(); sock != fds.end(); ++sock) {
     sock_write(*sock, "\nThe ground shakes with the power of the Ninjas...\n");
     if (tp == 0) {
@@ -319,7 +317,7 @@ void warn_net(int tp) {
 }
 
 void stop_net() {
-  set<socket_t>::iterator sock;
+  std::set<socket_t>::iterator sock;
   for (sock = fds.begin(); sock != fds.end(); ++sock) {
     close(*sock);
   }
@@ -342,7 +340,7 @@ int save_net(const char* fn) {
 
   fprintf(fl, "%d\n", (int)(fds.size()));
 
-  set<socket_t>::iterator sk;
+  std::set<socket_t>::iterator sk;
   for (sk = fds.begin(); sk != fds.end(); ++sk) {
     if (!(minds[*sk]->Owner() || minds[*sk]->Body())) {
       fprintf(fl, "%d\n", *sk);
@@ -410,10 +408,10 @@ int load_net(const char* fn) {
   return 0;
 }
 
-vector<Mind*> get_human_minds() {
-  vector<Mind*> ret;
+std::vector<Mind*> get_human_minds() {
+  std::vector<Mind*> ret;
 
-  set<socket_t>::iterator sock;
+  std::set<socket_t>::iterator sock;
   for (sock = fds.begin(); sock != fds.end(); ++sock) {
     if (minds[*sock]->Owner())
       ret.push_back(minds[*sock]);

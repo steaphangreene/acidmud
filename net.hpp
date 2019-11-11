@@ -1,7 +1,5 @@
 #include <vector>
 
-using namespace std;
-
 void warn_net(int type);
 void unwarn_net(int type);
 
@@ -20,5 +18,5 @@ void SetPrompt(int, const char*);
 class Mind;
 class Player;
 
-vector<Mind*> get_human_minds();
+std::vector<Mind*> get_human_minds();
 void notify_player_deleted(Player* pl);

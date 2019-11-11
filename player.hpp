@@ -1,7 +1,6 @@
 #include <map>
+#include <set>
 #include <vector>
-
-using namespace std;
 
 #include "object.hpp"
 
@@ -16,9 +15,9 @@ class Player;
 
 class Player {
  public:
-  Player(string nm, string ps);
+  Player(std::string nm, std::string ps);
   ~Player();
-  void SetName(string);
+  void SetName(std::string);
   void Link(Object*);
   Object* Room() {
     return room;
@@ -48,35 +47,35 @@ class Player {
   int Exp() const {
     return exp;
   }
-  const map<string, string> Vars() {
+  const std::map<std::string, std::string> Vars() {
     return vars;
   };
-  void SetVars(const map<string, string> v) {
+  void SetVars(const std::map<std::string, std::string> v) {
     vars = v;
   };
 
  private:
-  map<string, Object*> body;
-  string name, pass;
+  std::map<std::string, Object*> body;
+  std::string name, pass;
   Object *room, *creator;
   unsigned long flags;
-  set<unsigned long> completed;
+  std::set<unsigned long> completed;
   int exp;
-  map<string, string> vars;
+  std::map<std::string, std::string> vars;
 
-  friend Player* player_login(string name, string pass);
-  friend Player* get_player(string name);
+  friend Player* player_login(std::string name, std::string pass);
+  friend Player* get_player(std::string name);
 };
 
-Player* player_login(string name, string pass);
-Player* get_player(string name);
-int player_exists(string name);
+Player* player_login(std::string name, std::string pass);
+Player* get_player(std::string name);
+int player_exists(std::string name);
 int save_players(const char* fn);
 int load_players(const char* fn);
 void player_rooms_erase(Object*);
 int is_pc(const Object*);
 
-vector<Player*> get_current_players();
-vector<Player*> get_all_players();
+std::vector<Player*> get_current_players();
+std::vector<Player*> get_all_players();
 
 #endif
