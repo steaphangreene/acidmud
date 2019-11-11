@@ -2277,12 +2277,22 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   if (com == COM_TIME) {
     if (!mind)
       return 0;
-    Object* world = body->World();
-    if (world->Skill("Day Time") && world->Skill("Day Length")) {
-      int curtime = world->Skill("Day Time");
-      curtime *= 24 * 60;
-      curtime /= world->Skill("Day Length");
-      mind->SendF("The time is now %d:%.2d in this world\n", curtime / 60, curtime % 60);
+    if (body) {
+      Object* world = body->World();
+      if (world) {
+        if (world->Skill("Day Time") && world->Skill("Day Length")) {
+          int curtime = world->Skill("Day Time");
+          curtime *= 24 * 60;
+          curtime /= world->Skill("Day Length");
+          mind->SendF("The time is now %d:%.2d in this world.\n", curtime / 60, curtime % 60);
+        } else {
+          mind->SendF("This world as no concept of time....\n");
+        }
+      } else {
+        mind->SendF("This character is not in any world.\n");
+      }
+    } else {
+      mind->SendF("You need to enter a character before doing this.\n");
     }
     return 0;
   }
