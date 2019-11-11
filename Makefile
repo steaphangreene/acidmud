@@ -10,15 +10,18 @@ LIBS:=	-lstdc++ -lcrypt
 all:	acidmud
 
 #Production Settings (dynamic)
-CXX=	g++ -std=c++14 -s -Wall -Werror -O3
+CXX=	clang++ -std=c++17 -O3 -g -Wall -Werror -ferror-limit=2
 
 #Use debugging settings
 debug:
-	+make CXX='g++ -std=c++14 -g -Wall -Werror'
+	+make CXX='clang++ -std=c++17 -Og -fno-omit-frame-pointer -g -fsanitize=address -fsanitize=undefined -fno-sanitize-recover=undefined -Wall -Werror -ferror-limit=2'
 
 #Use profiling settings
 profile:
-	+make CXX='g++ -std=c++14 -g -pg -fprofile-arcs -Wall -Werror'
+	+make CXX='clang++ -std=c++17 -O3 -fno-omit-frame-pointer -g -Wall -Werror -ferror-limit=2'
+
+gcc:
+	+make CXX='g++ -std=c++17 -Og -fno-omit-frame-pointer -g -Wall -Werror -fmax-errors=2'
 
 clean:
 	rm -f gmon.out deps.mk *.o *.da acidmud ChangeLog ChangeLog.bak
@@ -37,7 +40,7 @@ upload:
 
 acidmud: $(OBJS)
 	rm -f acidmud
-	$(CXX) -Wall -Werror -o acidmud $(OBJS) $(LIBS)
+	$(CXX) -o acidmud $(OBJS) $(LIBS)
 
 %.o: %.cpp
 	$(CXX) -c $<
