@@ -1206,7 +1206,7 @@ void Mind::TBAVarSub(std::string& line) {
             if (vnum > 0) {
               vnum %= 1000000; // Convert from Acid number
               int qnum = TBAEval(field.c_str() + 5);
-              val == bstr[(vnum == qnum)];
+              val = bstr[(vnum == qnum)];
             }
           }
           obj = NULL;

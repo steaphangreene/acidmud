@@ -3217,7 +3217,7 @@ void init_world() {
     delete automind;
     delete anp;
     autoninja->Recycle();
-    delete buf;
+    delete[] buf;
   }
 }
 
