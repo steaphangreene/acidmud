@@ -501,11 +501,6 @@ Command comlist[1024] = {
      "Ninja command.",
      "Ninja command - ninjas only!",
      (REQ_ALERT | REQ_NINJAMODE)},
-    {COM_JUNKRESTART,
-     "junkrestart",
-     "Ninja command. DANGEROUS!",
-     "Ninja command - ninjas only!  DANGEROUS!",
-     (REQ_ALERT | REQ_NINJAMODE)},
     {COM_RESET,
      "reset",
      "Ninja command.",
@@ -6291,7 +6286,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     return 0;
   }
 
-  if (com == COM_JUNK || com == COM_JUNKRESTART) {
+  if (com == COM_JUNK) {
     if (!mind)
       return 0;
     while ((!isgraph(comline[len])) && (comline[len]))
@@ -6301,42 +6296,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       mind->Send("You want to destroy what?\n");
       return 0;
     }
-    std::set<Object*> todo;
-    for (auto itr = targs.begin(); itr != targs.end(); ++itr) {
-      todo.insert(*itr);
-    }
-    while (targs.size() > 0) {
-      Object* targ = targs.front();
-
-      if (com == COM_JUNKRESTART) { // Extra JunkRestart protections
-        if (is_pc(targ)) {
-          mind->Send(
-              (std::string("Sorry, ") + targ->ShortDesc() + " is a PC.  Use just 'junk' instead.\n")
-                  .c_str());
-          targs.pop_front();
-          continue; // Nope, don't nuke that.
-        }
-
-        std::string chars = "";
-        std::vector<Player*> pls = get_all_players();
-        std::vector<Player*>::iterator pl = pls.begin();
-        for (; pl != pls.end(); ++pl) {
-          auto chs = (*pl)->Room()->Contents();
-          auto ch = chs.begin();
-          for (; ch != chs.end(); ++ch) {
-            if (targ->HasWithin(*ch)) {
-              chars += std::string("Sorry, A PC (") + (*ch)->ShortDesc() + ") is in " +
-                  targ->ShortDesc() + ".\n";
-            }
-          }
-        }
-        if (chars != "") {
-          mind->Send(chars.c_str());
-          targs.pop_front();
-          continue; // Nope, don't nuke that.
-        }
-      }
-
+    for (auto targ : targs) {
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,
@@ -6344,19 +6304,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           "You destroy ;s.\n",
           body,
           targ);
-      if (com == COM_JUNK)
-        targ->Recycle();
-      else if (com == COM_JUNKRESTART)
-        targ->Travel(targ->TrashBin(), 0);
-      targs = body->PickObjects(comline + len, vmode | LOC_NEARBY);
-      while (targs.size() > 0 && todo.count(targs.front()) < 1) {
-        targs.pop_front();
-      }
-    }
-    if (com == COM_JUNKRESTART) {
-      shutdn = 2;
-      if (mind)
-        mind->Send("You instruct the system to restart.\n");
+      targ->Recycle();
     }
     return 0;
   }
