@@ -338,24 +338,23 @@ void Object::Deactivate() {
 void tick_world() {
   static int tickstage = 0;
   std::set<Object*> todel, todeact;
-  std::set<Object*>::iterator ind = ticklist[tickstage].begin();
   //  fprintf(stderr, "Ticking %d items\n", ticklist[tickstage].size());
-  for (; ind != ticklist[tickstage].end(); ++ind) {
-    int res = (*ind)->Tick();
+  for (auto ind : ticklist[tickstage]) {
+    int res = ind->Tick();
     if (res != 0) {
       if (res == 1) {
-        todel.insert(*ind);
+        todel.insert(ind);
       } else if (res == -1) {
-        todeact.insert(*ind);
+        todeact.insert(ind);
       }
     }
   }
-  for (ind = todel.begin(); ind != todel.end(); ++ind) {
-    todeact.erase(*ind);
-    (*ind)->Recycle();
+  for (auto ind : todel) {
+    todeact.erase(ind);
+    ind->Recycle();
   }
-  for (ind = todeact.begin(); ind != todeact.end(); ++ind) {
-    (*ind)->Deactivate();
+  for (auto ind : todeact) {
+    ind->Deactivate();
   }
   ++tickstage;
   if (tickstage >= TICKSPLIT)
@@ -364,10 +363,9 @@ void tick_world() {
 }
 
 int Object::Tick() {
-  std::set<Mind*>::iterator m;
-  for (m = minds.begin(); m != minds.end(); ++m) {
-    (*m)->Attach(this);
-    (*m)->Think(1);
+  for (auto m : minds) {
+    m->Attach(this);
+    m->Think(1);
   }
 
   if (phys > (10 + Attribute(2))) {
@@ -455,12 +453,9 @@ int Object::Tick() {
       std::list<Object*> todropfrom;
       todropfrom.push_back(this);
 
-      std::list<Object*>::iterator tdf;
-      for (tdf = todropfrom.begin(); tdf != todropfrom.end(); ++tdf) {
-        Object* con = (*tdf);
+      for (auto con : todropfrom) {
         std::list<Object*>::iterator cur;
-        for (cur = con->contents.begin(); cur != con->contents.end(); ++cur) {
-          Object* item = (*cur);
+        for (auto item : con->contents) {
           if (item->contents.size() > 0 && item->Pos() == POS_NONE) {
             todropfrom.push_back(item);
           } else if (item->Pos() != POS_NONE) { // Fixed items can't be dropped!
@@ -469,17 +464,16 @@ int Object::Tick() {
         }
       }
 
-      std::set<Object*>::iterator td;
-      for (td = todrop.begin(); td != todrop.end(); ++td) {
+      for (auto td : todrop) {
         if (Parent())
-          Drop(*td, 0, 1);
+          Drop(td, 0, 1);
         else
-          (*td)->Recycle();
+          td->Recycle();
       }
 
       std::list<Object*> cont = contents;
-      for (auto todel = cont.begin(); todel != cont.end(); ++todel) {
-        (*todel)->Recycle();
+      for (auto todel : cont) {
+        todel->Recycle();
       }
 
       parent->SendOut(ALL, 0, ";s's corpse completely falls apart.\n", "", this, nullptr);
@@ -762,15 +756,15 @@ Object::Object(const Object& o) {
   skills = o.skills;
 
   contents.clear();
-  for (auto ind = o.contents.begin(); ind != o.contents.end(); ++ind) {
-    Object* nobj = new Object(*(*ind));
+  for (auto ind : o.contents) {
+    Object* nobj = new Object(*ind);
     nobj->SetParent(this);
-    if (o.ActTarg(ACT_HOLD) == (*ind))
+    if (o.ActTarg(ACT_HOLD) == ind)
       AddAct(ACT_HOLD, nobj);
-    if (o.ActTarg(ACT_WIELD) == (*ind))
+    if (o.ActTarg(ACT_WIELD) == ind)
       AddAct(ACT_WIELD, nobj);
     for (act_t act = ACT_WEAR_BACK; act < ACT_MAX; act = act_t(int(act) + 1))
-      if (o.ActTarg(act) == (*ind))
+      if (o.ActTarg(act) == ind)
         AddAct(act, nobj);
   }
   if (o.IsAct(ACT_DEAD))
@@ -957,37 +951,32 @@ void Object::SetParent(Object* o) {
 }
 
 void Object::SendContents(Object* targ, Object* o, int vmode, std::string b) {
-  std::set<Mind*>::iterator m = targ->minds.begin();
-  for (; m != targ->minds.end(); ++m) {
-    SendContents(*m, o, vmode, b);
+  for (auto m : targ->minds) {
+    SendContents(m, o, vmode, b);
   }
 }
 
 void Object::SendShortDesc(Object* targ, Object* o) {
-  std::set<Mind*>::iterator m = targ->minds.begin();
-  for (; m != targ->minds.end(); ++m) {
-    SendShortDesc(*m, o);
+  for (auto m : targ->minds) {
+    SendShortDesc(m, o);
   }
 }
 
 void Object::SendDesc(Object* targ, Object* o) {
-  std::set<Mind*>::iterator m = targ->minds.begin();
-  for (; m != targ->minds.end(); ++m) {
-    SendDesc(*m, o);
+  for (auto m : targ->minds) {
+    SendDesc(m, o);
   }
 }
 
 void Object::SendDescSurround(Object* targ, Object* o, int vmode) {
-  std::set<Mind*>::iterator m = targ->minds.begin();
-  for (; m != targ->minds.end(); ++m) {
-    SendDescSurround(*m, o, vmode);
+  for (auto m : targ->minds) {
+    SendDescSurround(m, o, vmode);
   }
 }
 
 void Object::SendLongDesc(Object* targ, Object* o) {
-  std::set<Mind*>::iterator m = targ->minds.begin();
-  for (; m != targ->minds.end(); ++m) {
-    SendLongDesc(*m, o);
+  for (auto m : targ->minds) {
+    SendLongDesc(m, o);
   }
 }
 
@@ -995,30 +984,28 @@ static std::string base = "";
 static char buf[65536];
 
 void Object::SendActions(Mind* m) {
-  std::map<act_t, Object*>::iterator cur;
-  for (cur = act.begin(); cur != act.end(); ++cur) {
-    if (cur->first < ACT_WEAR_BACK) {
+  for (auto cur : act) {
+    if (cur.first < ACT_WEAR_BACK) {
       const char* targ;
       const char* dirn = "";
       const char* dirp = "";
 
-      if (!cur->second)
+      if (!cur.second)
         targ = "";
       else
-        targ = (char*)cur->second->Name(0, m->Body(), this);
+        targ = (char*)cur.second->Name(0, m->Body(), this);
 
       //      //FIXME: Busted!  This should be the "pointing north to bob"
       //      thingy.
-      //      std::map<std::string,Object*>::iterator dir = connections.begin();
-      //      for(; dir != connections.end(); ++dir) {
-      //	if((*dir).second == cur->second) {
-      //	  dirn = (char*) (*dir).first.c_str();
+      //      for(auto dir : connections) {
+      //	if(dir.second == cur.second) {
+      //	  dirn = (char*) dir.first.c_str();
       //	  dirp = " ";
       //	  break;
       //	  }
       //	}
       m->Send(", ");
-      m->SendF(act_str[cur->first], targ, dirn, dirp);
+      m->SendF(act_str[cur.first], targ, dirn, dirp);
     }
   }
   if (HasSkill("Invisible")) {
@@ -1047,106 +1034,105 @@ void Object::SendActions(Mind* m) {
 
 void Object::SendExtendedActions(Mind* m, int vmode) {
   std::map<Object*, std::string> shown;
-  std::map<act_t, Object*>::iterator cur;
-  for (cur = act.begin(); cur != act.end(); ++cur) {
+  for (auto cur : act) {
     if ((vmode & (LOC_TOUCH | LOC_HEAT | LOC_NINJA)) == 0 // Can't See/Feel Invis
-        && cur->second && cur->second->Skill("Invisible") > 0) {
+        && cur.second && cur.second->Skill("Invisible") > 0) {
       continue; // Don't show invisible equip
     }
-    if (cur->first == ACT_HOLD)
+    if (cur.first == ACT_HOLD)
       m->SendF("%24s", "Held: ");
-    else if (cur->first == ACT_WIELD)
+    else if (cur.first == ACT_WIELD)
       m->SendF("%24s", "Wielded: ");
-    else if (cur->first == ACT_WEAR_BACK)
+    else if (cur.first == ACT_WEAR_BACK)
       m->SendF("%24s", "Worn on back: ");
-    else if (cur->first == ACT_WEAR_CHEST)
+    else if (cur.first == ACT_WEAR_CHEST)
       m->SendF("%24s", "Worn on chest: ");
-    else if (cur->first == ACT_WEAR_HEAD)
+    else if (cur.first == ACT_WEAR_HEAD)
       m->SendF("%24s", "Worn on head: ");
-    else if (cur->first == ACT_WEAR_NECK)
+    else if (cur.first == ACT_WEAR_NECK)
       m->SendF("%24s", "Worn on neck: ");
-    else if (cur->first == ACT_WEAR_COLLAR)
+    else if (cur.first == ACT_WEAR_COLLAR)
       m->SendF("%24s", "Worn on collar: ");
-    else if (cur->first == ACT_WEAR_WAIST)
+    else if (cur.first == ACT_WEAR_WAIST)
       m->SendF("%24s", "Worn on waist: ");
-    else if (cur->first == ACT_WEAR_SHIELD)
+    else if (cur.first == ACT_WEAR_SHIELD)
       m->SendF("%24s", "Worn as shield: ");
-    else if (cur->first == ACT_WEAR_LARM)
+    else if (cur.first == ACT_WEAR_LARM)
       m->SendF("%24s", "Worn on left arm: ");
-    else if (cur->first == ACT_WEAR_RARM)
+    else if (cur.first == ACT_WEAR_RARM)
       m->SendF("%24s", "Worn on right arm: ");
-    else if (cur->first == ACT_WEAR_LFINGER)
+    else if (cur.first == ACT_WEAR_LFINGER)
       m->SendF("%24s", "Worn on left finger: ");
-    else if (cur->first == ACT_WEAR_RFINGER)
+    else if (cur.first == ACT_WEAR_RFINGER)
       m->SendF("%24s", "Worn on right finger: ");
-    else if (cur->first == ACT_WEAR_LFOOT)
+    else if (cur.first == ACT_WEAR_LFOOT)
       m->SendF("%24s", "Worn on left foot: ");
-    else if (cur->first == ACT_WEAR_RFOOT)
+    else if (cur.first == ACT_WEAR_RFOOT)
       m->SendF("%24s", "Worn on right foot: ");
-    else if (cur->first == ACT_WEAR_LHAND)
+    else if (cur.first == ACT_WEAR_LHAND)
       m->SendF("%24s", "Worn on left hand: ");
-    else if (cur->first == ACT_WEAR_RHAND)
+    else if (cur.first == ACT_WEAR_RHAND)
       m->SendF("%24s", "Worn on right hand: ");
-    else if (cur->first == ACT_WEAR_LLEG)
+    else if (cur.first == ACT_WEAR_LLEG)
       m->SendF("%24s", "Worn on left leg: ");
-    else if (cur->first == ACT_WEAR_RLEG)
+    else if (cur.first == ACT_WEAR_RLEG)
       m->SendF("%24s", "Worn on right leg: ");
-    else if (cur->first == ACT_WEAR_LWRIST)
+    else if (cur.first == ACT_WEAR_LWRIST)
       m->SendF("%24s", "Worn on left wrist: ");
-    else if (cur->first == ACT_WEAR_RWRIST)
+    else if (cur.first == ACT_WEAR_RWRIST)
       m->SendF("%24s", "Worn on right wrist: ");
-    else if (cur->first == ACT_WEAR_LSHOULDER)
+    else if (cur.first == ACT_WEAR_LSHOULDER)
       m->SendF("%24s", "Worn on left shoulder: ");
-    else if (cur->first == ACT_WEAR_RSHOULDER)
+    else if (cur.first == ACT_WEAR_RSHOULDER)
       m->SendF("%24s", "Worn on right shoulder: ");
-    else if (cur->first == ACT_WEAR_LHIP)
+    else if (cur.first == ACT_WEAR_LHIP)
       m->SendF("%24s", "Worn on left hip: ");
-    else if (cur->first == ACT_WEAR_RHIP)
+    else if (cur.first == ACT_WEAR_RHIP)
       m->SendF("%24s", "Worn on right hip: ");
     else
       continue;
 
     if ((vmode & (LOC_HEAT | LOC_NINJA)) == 0 // Can't see (but can touch)
-        && cur->second && cur->second->Skill("Invisible") > 0) {
+        && cur.second && cur.second->Skill("Invisible") > 0) {
       m->Send(CGRN "Something invisible.\n" CNRM);
       continue; // Don't show details of invisible equip
     }
 
     const char* targ;
-    if (!cur->second)
+    if (!cur.second)
       targ = "";
     else
-      targ = (char*)cur->second->Name(0, m->Body(), this);
+      targ = (char*)cur.second->Name(0, m->Body(), this);
 
     char qty[256] = {0};
-    if (cur->second->Skill("Quantity") > 1)
-      sprintf(qty, "(x%d) ", cur->second->Skill("Quantity"));
+    if (cur.second->Skill("Quantity") > 1)
+      sprintf(qty, "(x%d) ", cur.second->Skill("Quantity"));
 
-    if (shown.count(cur->second) > 0) {
-      m->SendF("%s%s (%s).\n", qty, targ, shown[cur->second].c_str());
+    if (shown.count(cur.second) > 0) {
+      m->SendF("%s%s (%s).\n", qty, targ, shown[cur.second].c_str());
     } else {
       m->SendF(CGRN "%s%s.\n" CNRM, qty, targ);
-      if (cur->second->Skill("Open") || cur->second->Skill("Transparent")) {
+      if (cur.second->Skill("Open") || cur.second->Skill("Transparent")) {
         sprintf(buf, "%16s  %c", " ", 0);
         base = buf;
-        cur->second->SendContents(m, nullptr, vmode);
+        cur.second->SendContents(m, nullptr, vmode);
         base = "";
         m->Send(CNRM);
-      } else if (cur->second->Skill("Container")) {
-        if ((vmode & 1) && cur->second->Skill("Locked")) {
+      } else if (cur.second->Skill("Container")) {
+        if ((vmode & 1) && cur.second->Skill("Locked")) {
           std::string mes =
               base + CNRM + "                " + "  It is closed and locked.\n" + CGRN;
           m->Send(mes.c_str());
         } else if (vmode & 1) {
           sprintf(buf, "%16s  %c", " ", 0);
           base = buf;
-          cur->second->SendContents(m, nullptr, vmode);
+          cur.second->SendContents(m, nullptr, vmode);
           base = "";
           m->Send(CNRM);
         }
       }
     }
-    shown[cur->second] = "already listed";
+    shown[cur.second] = "already listed";
   }
 }
 
@@ -1164,43 +1150,43 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
   }
 
   int tlines = 0, total = 0;
-  for (auto ind = cont.begin(); ind != cont.end(); ++ind)
-    if (master.count(*ind)) {
+  for (auto ind : cont)
+    if (master.count(ind)) {
       if ((vmode & LOC_NINJA) == 0 && Parent() != nullptr) { // NinjaMode/CharRoom
-        if ((*ind)->Skill("Invisible") > 999)
+        if (ind->Skill("Invisible") > 999)
           continue;
-        if ((*ind)->HasSkill("Invisible")) {
+        if (ind->HasSkill("Invisible")) {
           // Can't detect it at all
           if ((vmode & (LOC_TOUCH | LOC_HEAT)) == 0)
             continue;
           // Can't see it, and it's mobile, so can't feel it
-          if ((vmode & LOC_TOUCH) == 0 && (*ind)->Pos() > POS_SIT)
+          if ((vmode & LOC_TOUCH) == 0 && ind->Pos() > POS_SIT)
             continue;
         }
-        if ((*ind)->Skill("Hidden") > 0)
+        if (ind->Skill("Hidden") > 0)
           continue;
       }
 
-      if ((*ind)->HasSkill("Invisible") && (vmode & (LOC_HEAT | LOC_NINJA)) == 0) {
+      if (ind->HasSkill("Invisible") && (vmode & (LOC_HEAT | LOC_NINJA)) == 0) {
         if (base != "")
           m->SendF("%s%sInside: ", base.c_str(), CNRM);
         m->Send(CGRN "Something invisible is here.\n" CNRM);
         continue; // Can feel, but can't see
       }
 
-      if ((*ind)->IsAct(ACT_SPECIAL_LINKED)) {
-        if ((*ind)->ActTarg(ACT_SPECIAL_LINKED) && (*ind)->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
+      if (ind->IsAct(ACT_SPECIAL_LINKED)) {
+        if (ind->ActTarg(ACT_SPECIAL_LINKED) && ind->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
           if (base != "")
             m->SendF("%s%sInside: ", base.c_str(), CNRM);
           m->Send(CCYN);
-          std::string send = (*ind)->ShortDesc();
-          if (!((*ind)->Skill("Open") || (*ind)->Skill("Transparent"))) {
+          std::string send = ind->ShortDesc();
+          if (!(ind->Skill("Open") || ind->Skill("Transparent"))) {
             send += ", the door is closed.\n";
           } else {
-            if ((*ind)->Skill("Closeable"))
+            if (ind->Skill("Closeable"))
               send += ", through an open door,";
             send += " you see ";
-            send += (*ind)->ActTarg(ACT_SPECIAL_LINKED)->Parent()->ShortDesc();
+            send += ind->ActTarg(ACT_SPECIAL_LINKED)->Parent()->ShortDesc();
             send += ".\n";
           }
           send[0] = toupper(send[0]);
@@ -1210,9 +1196,9 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
         continue;
       }
 
-      master.erase(*ind);
+      master.erase(ind);
 
-      if ((*ind) != o) {
+      if (ind != o) {
         /* Comment out this block to disable 20-item limit in view */
         if (tlines >= 20) {
           int ignore = 0;
@@ -1230,18 +1216,18 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
 
         /*	Uncomment this and comment the block below to disable
            auto-pluralizing.
-              int qty = MAX(1, (*ind)->Skill("Quantity"));
+              int qty = MAX(1, ind->Skill("Quantity"));
         */
         int qty = 1; // Even animate objects can have higher quantities.
-        auto oth = ind;
+        auto oth = std::find(cont.begin(), cont.end(), ind);
         for (qty = 0; oth != cont.end(); ++oth) {
-          if ((*ind)->LooksLike(*oth, vmode)) {
+          if (ind->LooksLike(*oth, vmode)) {
             master.erase(*oth);
             qty += MAX(1, (*oth)->Skill("Quantity"));
           }
         }
 
-        if ((*ind)->BaseAttribute(1) > 0)
+        if (ind->BaseAttribute(1) > 0)
           m->Send(CYEL);
         else
           m->Send(CGRN);
@@ -1251,29 +1237,29 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
         total += qty;
         ++tlines;
 
-        if ((*ind)->parent && (*ind)->parent->Skill("Container"))
-          sprintf(buf, "%s%c", (*ind)->ShortDesc(), 0);
+        if (ind->parent && ind->parent->Skill("Container"))
+          sprintf(buf, "%s%c", ind->ShortDesc(), 0);
         else
-          sprintf(buf, "%s %s%c", (*ind)->ShortDesc(), (*ind)->PosString(), 0);
+          sprintf(buf, "%s %s%c", ind->ShortDesc(), ind->PosString(), 0);
         buf[0] = toupper(buf[0]);
         m->Send(buf);
 
-        (*ind)->SendActions(m);
+        ind->SendActions(m);
 
         m->Send(CNRM);
-        if ((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
+        if (ind->Skill("Open") || ind->Skill("Transparent")) {
           std::string tmp = base;
           base += "  ";
-          (*ind)->SendContents(m, o, vmode);
+          ind->SendContents(m, o, vmode);
           base = tmp;
-        } else if ((*ind)->Skill("Container") || (*ind)->Skill("Liquid Container")) {
-          if ((vmode & 1) && (*ind)->Skill("Locked")) {
+        } else if (ind->Skill("Container") || ind->Skill("Liquid Container")) {
+          if ((vmode & 1) && ind->Skill("Locked")) {
             std::string mes = base + "  It is closed and locked, you can't see inside.\n";
             m->Send(mes.c_str());
           } else if (vmode & 1) {
             std::string tmp = base;
             base += "  ";
-            (*ind)->SendContents(m, o, vmode);
+            ind->SendContents(m, o, vmode);
             base = tmp;
           }
         }
@@ -1578,18 +1564,17 @@ void Object::SendScore(Mind* m, Object* o) {
   if (IsActive())
     m->Send(CCYN "  ACTIVE\n" CNRM);
 
-  std::set<Mind*>::iterator mind;
-  for (mind = minds.begin(); mind != minds.end(); ++mind) {
-    if ((*mind)->Owner()) {
+  for (auto mind : minds) {
+    if (mind->Owner()) {
       m->SendF(
           CBLU "->Player Connected: %s (%d exp)\n" CNRM,
-          (*mind)->Owner()->Name(),
-          (*mind)->Owner()->Exp());
-    } else if ((*mind) == get_mob_mind()) {
+          mind->Owner()->Name(),
+          mind->Owner()->Exp());
+    } else if (mind == get_mob_mind()) {
       m->Send(CBLU "->MOB_MIND\n" CNRM);
-    } else if ((*mind) == get_tba_mob_mind()) {
+    } else if (mind == get_tba_mob_mind()) {
       m->Send(CBLU "->TBA_MOB_MIND\n" CNRM);
-    } else if ((*mind)->Type() == MIND_TBATRIG) {
+    } else if (mind->Type() == MIND_TBATRIG) {
       m->Send(CBLU "->TBA_TRIGGER\n" CNRM);
     }
   }
@@ -1612,13 +1597,12 @@ std::list<std::string> Object::FormatSkills(std::map<std::string, int>& skls) {
   std::list<std::string> ret;
 
   std::map<std::string, int> skills = skls;
-  std::map<std::string, int>::iterator skl;
 
-  for (skl = skills.begin(); skl != skills.end(); ++skl) {
-    if (is_skill(skl->first)) {
-      skls.erase(skl->first); // Remove it from to-show list.
+  for (auto skl : skills) {
+    if (is_skill(skl.first)) {
+      skls.erase(skl.first); // Remove it from to-show list.
       char buf[256];
-      sprintf(buf, "%28s: " CYEL "%2d" CNRM, skl->first.c_str(), MIN(99, skl->second));
+      sprintf(buf, "%28s: " CYEL "%2d" CNRM, skl.first.c_str(), MIN(99, skl.second));
       ret.push_back(buf);
     }
   }
@@ -1750,8 +1734,8 @@ void Object::AddLink(Object* ob) {
     contents.push_back(ob);
     //    auto place = contents.end();
     //    for(ind = contents.begin(); ind != contents.end(); ++ind) {
-    //      if((*ind) == ob) return;				//Already there!
-    //      if((*(*ind)) == (*ob)) { place = ind; ++place; }	//Likes by likes
+    //      if(ind == ob) return;				//Already there!
+    //      if((*ind) == (*ob)) { place = ind; ++place; }	//Likes by likes
     //      }
     //    contents.insert(place, ob);
   }
@@ -1814,39 +1798,42 @@ void Object::LinkClosed(
 void Object::TryCombine() {
   if (!parent)
     return;
-  for (auto ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
-    if ((*ind) == this)
+  const auto todo = parent->contents;
+  for (auto obj : todo) {
+    if (obj == this)
       continue; // Skip self
 
     // Never combine with an actee.
-    std::map<act_t, Object*>::iterator a = parent->act.begin();
-    for (; a != parent->act.end(); ++a) {
-      if (a->second == (*ind))
+    bool actee = false;
+    for (auto a : parent->act) {
+      if (a.second == obj) {
+        actee = true;
         break;
+      }
     }
-    if (a != parent->act.end())
+    if (actee)
       continue;
 
-    if ((*this) == (*(*ind))) {
+    if ((*this) == (*obj)) {
       // fprintf(stderr, "Combining '%s'\n", Name());
       int val;
 
-      val = MAX(1, Skill("Quantity")) + MAX(1, (*ind)->Skill("Quantity"));
+      val = MAX(1, Skill("Quantity")) + MAX(1, obj->Skill("Quantity"));
       SetSkill("Quantity", val);
 
-      val = Skill("Hungry") + (*ind)->Skill("Hungry");
+      val = Skill("Hungry") + obj->Skill("Hungry");
       SetSkill("Hungry", val);
 
-      val = Skill("Bored") + (*ind)->Skill("Bored");
+      val = Skill("Bored") + obj->Skill("Bored");
       SetSkill("Bored", val);
 
-      val = Skill("Needy") + (*ind)->Skill("Needy");
+      val = Skill("Needy") + obj->Skill("Needy");
       SetSkill("Needy", val);
 
-      val = Skill("Tired") + (*ind)->Skill("Tired");
+      val = Skill("Tired") + obj->Skill("Tired");
       SetSkill("Tired", val);
 
-      (*ind)->Recycle();
+      obj->Recycle();
       break;
     }
   }
@@ -1891,29 +1878,27 @@ int Object::Travel(Object* dest, int try_combine) {
 
   if (att[1] > 0) {
     std::list<Object*> trigs = parent->contents;
-    std::list<Object*>::const_iterator src = parent->contents.begin();
-    for (; src != parent->contents.end(); ++src) {
-      trigs.insert(trigs.end(), (*src)->contents.begin(), (*src)->contents.end());
+    for (auto src : parent->contents) {
+      trigs.insert(trigs.end(), src->contents.begin(), src->contents.end());
     }
 
-    std::list<Object*>::iterator trig;
     // Type 0x0010000 (*-LEAVE)
-    for (trig = trigs.begin(); trig != trigs.end(); ++trig) {
-      if ((*trig)->Skill("TBAScriptType") & 0x0010000) {
-        if ((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) { // % Chance
-          // fprintf(stderr, "Triggering: %s\n", (*trig)->Name());
-          if (new_trigger(0, *trig, this, dir))
+    for (auto trig : trigs) {
+      if (trig->Skill("TBAScriptType") & 0x0010000) {
+        if ((rand() % 100) < trig->Skill("TBAScriptNArg")) { // % Chance
+          // fprintf(stderr, "Triggering: %s\n", trig->Name());
+          if (new_trigger(0, trig, this, dir))
             return 1;
         }
       }
     }
     // Type 0x4000040 or 0x1000040 (ROOM-ENTER or MOB-GREET)
-    for (trig = trigs.begin(); trig != trigs.end(); ++trig) {
-      if (((*trig)->Skill("TBAScriptType") & 0x0000040) &&
-          ((*trig)->Skill("TBAScriptType") & 0x5000000)) {
-        if ((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) { // % Chance
-          // fprintf(stderr, "Triggering: %s\n", (*trig)->Name());
-          if (new_trigger(0, *trig, this, rdir))
+    for (auto trig : trigs) {
+      if ((trig->Skill("TBAScriptType") & 0x0000040) &&
+          (trig->Skill("TBAScriptType") & 0x5000000)) {
+        if ((rand() % 100) < trig->Skill("TBAScriptNArg")) { // % Chance
+          // fprintf(stderr, "Triggering: %s\n", trig->Name());
+          if (new_trigger(0, trig, this, rdir))
             return 1;
         }
       }
@@ -1927,9 +1912,8 @@ int Object::Travel(Object* dest, int try_combine) {
   parent->AddLink(this);
 
   auto touches = touching_me;
-  auto touch = touches.begin();
-  for (; touch != touches.end(); ++touch) {
-    (*touch)->NotifyLeft(this, dest);
+  for (auto touch : touches) {
+    touch->NotifyLeft(this, dest);
   }
 
   if (try_combine)
@@ -1949,11 +1933,10 @@ int Object::Travel(Object* dest, int try_combine) {
   }
 
   if (parent->Skill("Secret")) {
-    std::set<Mind*>::iterator m;
-    for (m = minds.begin(); m != minds.end(); ++m) {
-      if ((*m)->Owner()) {
-        if ((*m)->Owner()->Accomplish(parent->Skill("Secret"))) {
-          (*m)->SendF("%sYou gain a player experience point for finding a secret!\n%s", CYEL, CNRM);
+    for (auto m : minds) {
+      if (m->Owner()) {
+        if (m->Owner()->Accomplish(parent->Skill("Secret"))) {
+          m->SendF("%sYou gain a player experience point for finding a secret!\n%s", CYEL, CNRM);
         }
       }
     }
@@ -1973,34 +1956,33 @@ void Object::Recycle(int inbin) {
 
   std::set<Object*> movers;
   std::set<Object*> killers;
-  for (auto ind = contents.begin(); ind != contents.end(); ++ind) {
-    if (is_pc(*ind)) {
-      movers.insert(*ind);
+  for (auto ind : contents) {
+    if (is_pc(ind)) {
+      movers.insert(ind);
     } else {
-      killers.insert(*ind);
+      killers.insert(ind);
     }
   }
 
-  for (auto indk = killers.begin(); indk != killers.end(); ++indk) {
-    if (find(contents.begin(), contents.end(), *indk) != contents.end()) {
-      (*indk)->SetParent(nullptr);
-      RemoveLink(*indk);
-      (*indk)->Recycle();
+  for (auto indk : killers) {
+    if (find(contents.begin(), contents.end(), indk) != contents.end()) {
+      indk->SetParent(nullptr);
+      RemoveLink(indk);
+      indk->Recycle();
     }
   }
   killers.clear();
 
   contents.clear();
 
-  for (auto indm = movers.begin(); indm != movers.end(); ++indm) {
-    (*indm)->StopAll();
-    auto ind2 = (*indm)->contents.begin();
-    for (; ind2 != (*indm)->contents.end(); ++ind2) {
-      (*ind2)->SetParent(nullptr);
-      killers.insert(*ind2);
+  for (auto indm : movers) {
+    indm->StopAll();
+    for (auto ind2 : indm->contents) {
+      ind2->SetParent(nullptr);
+      killers.insert(ind2);
     }
-    (*indm)->contents.clear();
-    Object* dest = (*indm);
+    indm->contents.clear();
+    Object* dest = indm;
     while ((!dest->ActTarg(ACT_SPECIAL_HOME)) && dest->Parent()) {
       dest = dest->Parent();
     }
@@ -2009,19 +1991,19 @@ void Object::Recycle(int inbin) {
     }
     if (dest == parent)
       dest = universe; // Already there, bail!
-    (*indm)->Travel(dest);
+    indm->Travel(dest);
   }
 
-  for (auto indk = killers.begin(); indk != killers.end(); ++indk) {
-    (*indk)->Recycle();
+  for (auto indk : killers) {
+    indk->Recycle();
   }
   killers.clear();
 
   player_rooms_erase(this);
 
-  std::set<Mind*>::iterator mind;
-  for (mind = minds.begin(); mind != minds.end(); ++mind) {
-    Unattach(*mind);
+  auto todo = minds;
+  for (auto mind : todo) {
+    Unattach(mind);
   }
   minds.clear();
 
@@ -2040,25 +2022,23 @@ void Object::Recycle(int inbin) {
     tonotify.insert(ActTarg(ACT_SPECIAL_LINKED));
 
   auto touches = touching_me;
-  auto touch = touches.begin();
-  for (; touch != touches.end(); ++touch) {
-    tonotify.insert(*touch);
+  for (auto touch : touches) {
+    tonotify.insert(touch);
   }
 
   StopAct(ACT_SPECIAL_MASTER);
   StopAct(ACT_SPECIAL_MONITOR);
   StopAct(ACT_SPECIAL_LINKED);
 
-  std::set<Object*>::iterator noti;
-  for (noti = tonotify.begin(); noti != tonotify.end(); ++noti) {
+  for (auto noti : tonotify) {
     int del = 0;
-    if ((*noti)->ActTarg(ACT_SPECIAL_MASTER) == this)
+    if (noti->ActTarg(ACT_SPECIAL_MASTER) == this)
       del = 1;
-    else if ((*noti)->ActTarg(ACT_SPECIAL_LINKED) == this)
+    else if (noti->ActTarg(ACT_SPECIAL_LINKED) == this)
       del = 1;
-    (*noti)->NotifyLeft(this);
+    noti->NotifyLeft(this);
     if (del)
-      (*noti)->Recycle();
+      noti->Recycle();
   }
 
   busylist.erase(this);
@@ -2084,16 +2064,16 @@ void Object::Unattach(Mind* m) {
 
 int Object::ContainedWeight() {
   int ret = 0;
-  for (auto ind = contents.begin(); ind != contents.end(); ++ind) {
-    ret += (*ind)->weight;
+  for (auto ind : contents) {
+    ret += ind->weight;
   }
   return ret;
 }
 
 int Object::ContainedVolume() {
   int ret = 0;
-  for (auto ind = contents.begin(); ind != contents.end(); ++ind) {
-    ret += (*ind)->volume;
+  for (auto ind : contents) {
+    ret += ind->volume;
   }
   return ret;
 }
@@ -2171,7 +2151,7 @@ Object* Object::PickObject(const char* name, int loc, int* ordinal) const {
   if (ret.size() != 1) {
     return nullptr;
   }
-  return (*(ret.begin()));
+  return ret.front();
 }
 
 static const char* splits[4] = {"Hungry", "Bored", "Tired", "Needy"};
@@ -2306,9 +2286,9 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
       return ret;
     }
 
-    for (auto master = masters.begin(); master != masters.end(); ++master) {
-      std::list<Object*> add = (*master)->PickObjects(
-          keyword3 + (keyword - name) + 3, (loc & LOC_SPECIAL) | LOC_INTERNAL);
+    for (auto master : masters) {
+      std::list<Object*> add =
+          master->PickObjects(keyword3 + (keyword - name) + 3, (loc & LOC_SPECIAL) | LOC_INTERNAL);
       ret.insert(ret.end(), add.begin(), add.end());
     }
     free(keyword3);
@@ -2346,18 +2326,18 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
   if ((loc & LOC_NEARBY) && (parent != nullptr)) {
     std::list<Object*> cont = parent->Contents(loc); //"loc" includes vmode.
 
-    for (auto ind = cont.begin(); ind != cont.end(); ++ind)
-      if (!(*ind)->no_seek) {
-        if ((*ind) == this)
+    for (auto ind : cont)
+      if (!ind->no_seek) {
+        if (ind == this)
           continue; // Must use "self" to pick self!
-        if ((*ind)->Filter(loc) && (*ind)->Matches(name)) {
-          if (tag(*ind, ret, ordinal, (parent->Parent() == nullptr) | (loc & LOC_SPECIAL))) {
+        if (ind->Filter(loc) && ind->Matches(name)) {
+          if (tag(ind, ret, ordinal, (parent->Parent() == nullptr) | (loc & LOC_SPECIAL))) {
             return ret;
           }
         }
-        if ((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
+        if (ind->Skill("Open") || ind->Skill("Transparent")) {
           std::list<Object*> add =
-              (*ind)->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
+              ind->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
           ret.insert(ret.end(), add.begin(), add.end());
 
           if ((*ordinal) == 0)
@@ -2382,21 +2362,20 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
   if (loc & LOC_INTERNAL) {
     std::list<Object*> cont(contents);
 
-    std::map<act_t, Object*>::const_iterator action;
-    for (action = act.begin(); action != act.end(); ++action) {
-      auto ind = find(cont.begin(), cont.end(), action->second);
-      if (ind != cont.end()) { // IE: Is action->second within cont
+    for (auto action : act) {
+      auto ind = find(cont.begin(), cont.end(), action.second);
+      if (ind != cont.end()) { // IE: Is action.second within cont
         cont.erase(ind);
-        if (action->second->Filter(loc) && action->second->Matches(name) &&
-            ((loc & LOC_NOTWORN) == 0 || action->first <= ACT_HOLD) &&
-            ((loc & LOC_NOTUNWORN) == 0 || action->first >= ACT_HOLD)) {
-          if (tag(action->second, ret, ordinal, (Parent() == nullptr) | (loc & LOC_SPECIAL))) {
+        if (action.second->Filter(loc) && action.second->Matches(name) &&
+            ((loc & LOC_NOTWORN) == 0 || action.first <= ACT_HOLD) &&
+            ((loc & LOC_NOTUNWORN) == 0 || action.first >= ACT_HOLD)) {
+          if (tag(action.second, ret, ordinal, (Parent() == nullptr) | (loc & LOC_SPECIAL))) {
             return ret;
           }
         }
-        if (action->second->HasSkill("Container")) {
+        if (action.second->HasSkill("Container")) {
           std::list<Object*> add =
-              action->second->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
+              action.second->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
           ret.insert(ret.end(), add.begin(), add.end());
 
           if ((*ordinal) == 0)
@@ -2405,17 +2384,17 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
       }
     }
 
-    for (auto ind = cont.begin(); ind != cont.end(); ++ind) {
-      if ((*ind) == this)
+    for (auto ind : cont) {
+      if (ind == this)
         continue; // Must use "self" to pick self!
-      if ((*ind)->Filter(loc) && (*ind)->Matches(name)) {
-        if (tag(*ind, ret, ordinal, (Parent() == nullptr) | (loc & LOC_SPECIAL))) {
+      if (ind->Filter(loc) && ind->Matches(name)) {
+        if (tag(ind, ret, ordinal, (Parent() == nullptr) | (loc & LOC_SPECIAL))) {
           return ret;
         }
       }
-      if ((*ind)->Skill("Container") && (loc & LOC_NOTUNWORN) == 0) {
+      if (ind->Skill("Container") && (loc & LOC_NOTUNWORN) == 0) {
         std::list<Object*> add =
-            (*ind)->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
+            ind->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
         ret.insert(ret.end(), add.begin(), add.end());
 
         if ((*ordinal) == 0)
@@ -2429,10 +2408,10 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
 int Object::HasWithin(const Object* obj) {
   if (no_seek)
     return 0;
-  for (auto ind = contents.begin(); ind != contents.end(); ++ind) {
-    if ((*ind) == obj)
+  for (auto ind : contents) {
+    if (ind == obj)
       return 1;
-    if ((*ind)->HasWithin(obj))
+    if (ind->HasWithin(obj))
       return 1;
   }
   return 0;
@@ -2441,11 +2420,11 @@ int Object::HasWithin(const Object* obj) {
 int Object::SeeWithin(const Object* obj) {
   if (no_seek)
     return 0;
-  for (auto ind = contents.begin(); ind != contents.end(); ++ind) {
-    if ((*ind) == obj)
+  for (auto ind : contents) {
+    if (ind == obj)
       return 1;
-    if ((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
-      if ((*ind)->SeeWithin(obj))
+    if (ind->Skill("Open") || ind->Skill("Transparent")) {
+      if (ind->SeeWithin(obj))
         return 1;
     }
   }
@@ -2455,13 +2434,13 @@ int Object::SeeWithin(const Object* obj) {
 int Object::IsNearBy(const Object* obj) {
   if (no_seek || (!parent))
     return 0;
-  for (auto ind = parent->contents.begin(); ind != parent->contents.end(); ++ind) {
-    if ((*ind) == obj)
+  for (auto ind : parent->contents) {
+    if (ind == obj)
       return 1;
-    if ((*ind) == this)
+    if (ind == this)
       continue; // Not Nearby Self
-    if ((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
-      int ret = (*ind)->SeeWithin(obj);
+    if (ind->Skill("Open") || ind->Skill("Transparent")) {
+      int ret = ind->SeeWithin(obj);
       if (ret)
         return ret;
     }
@@ -2478,27 +2457,25 @@ int Object::IsNearBy(const Object* obj) {
 
 void Object::NotifyLeft(Object* obj, Object* newloc) {
   std::set<act_t> stops, stops2;
-  auto curact = act.begin();
   int following = 0;
-  for (; curact != act.end(); ++curact) {
-    if (curact->second && curact->first < ACT_MAX &&
-        (curact->second == obj || obj->HasWithin(curact->second))) {
-      if (curact->first != ACT_FOLLOW || (!newloc)) {
-        stops.insert(curact->first);
+  for (auto curact : act) {
+    if (curact.second && curact.first < ACT_MAX &&
+        (curact.second == obj || obj->HasWithin(curact.second))) {
+      if (curact.first != ACT_FOLLOW || (!newloc)) {
+        stops.insert(curact.first);
       } else if (parent != newloc) { // Do nothing if we didn't leave!
         following = 1; // Run Follow Response AFTER loop!
       }
     }
-    if (curact->first >= ACT_MAX && (!newloc) && curact->second == obj) {
-      auto curact2 = act.begin();
-      for (; curact2 != act.end(); ++curact2) {
-        if (curact2->first >= ACT_MAX) {
-          if (curact2->second == this) {
-            stops2.insert(curact2->first);
+    if (curact.first >= ACT_MAX && (!newloc) && curact.second == obj) {
+      for (auto curact2 : act) {
+        if (curact2.first >= ACT_MAX) {
+          if (curact2.second == this) {
+            stops2.insert(curact2.first);
           }
         }
       }
-      stops.insert(curact->first);
+      stops.insert(curact.first);
     }
   }
 
@@ -2517,13 +2494,11 @@ void Object::NotifyLeft(Object* obj, Object* newloc) {
     }
   }
 
-  std::set<act_t>::iterator stop = stops.begin();
-  for (; stop != stops.end(); ++stop) {
-    StopAct(*stop);
+  for (auto stop : stops) {
+    StopAct(stop);
   }
-  stop = stops2.begin();
-  for (; stop != stops2.end(); ++stop) {
-    obj->StopAct(*stop);
+  for (auto stop : stops2) {
+    obj->StopAct(stop);
   }
 
   if (obj->ActTarg(ACT_HOLD) == this) { // Dragging
@@ -2549,17 +2524,16 @@ void Object::NotifyGone(Object* obj, Object* newloc, int up) {
 
   std::map<Object*, int> tonotify;
 
-  for (auto ind = contents.begin(); ind != contents.end(); ++ind) {
+  for (auto ind : contents) {
     if (up >= 0) {
-      tonotify[*ind] = -1;
-    } else if ((*ind)->Skill("Open") || (*ind)->Skill("Transparent")) {
-      tonotify[*ind] = 0;
+      tonotify[ind] = -1;
+    } else if (ind->Skill("Open") || ind->Skill("Transparent")) {
+      tonotify[ind] = 0;
     }
   }
 
-  std::map<Object*, int>::iterator noti;
-  for (noti = tonotify.begin(); noti != tonotify.end(); ++noti) {
-    noti->first->NotifyGone(obj, newloc, noti->second);
+  for (auto noti : tonotify) {
+    noti.first->NotifyGone(obj, newloc, noti.second);
   }
 }
 
@@ -2585,9 +2559,8 @@ void Object::StopAct(act_t a) {
     obj->Deactivate();
   }
   if (obj) {
-    auto opt = act.begin();
-    for (; opt != act.end(); ++opt) {
-      if (opt->second == obj) {
+    for (auto opt : act) {
+      if (opt.second == obj) {
         return; // Still touching it
       }
     }
@@ -2597,9 +2570,8 @@ void Object::StopAct(act_t a) {
 
 void Object::StopAll() {
   auto oldact = act;
-  auto opt = oldact.begin();
-  for (; opt != oldact.end(); ++opt) {
-    StopAct(opt->first);
+  for (auto opt : oldact) {
+    StopAct(opt.first);
   }
 }
 
@@ -2674,12 +2646,12 @@ void Object::UpdateDamage() {
       AddAct(ACT_DEAD);
       std::set<Mind*> removals;
       std::set<Mind*>::iterator mind;
-      for (mind = minds.begin(); mind != minds.end(); ++mind) {
-        if ((*mind)->Type() == MIND_REMOTE)
-          removals.insert(*mind);
+      for (auto mind : minds) {
+        if (mind->Type() == MIND_REMOTE)
+          removals.insert(mind);
       }
-      for (mind = removals.begin(); mind != removals.end(); ++mind) {
-        Unattach(*mind);
+      for (auto mind : removals) {
+        Unattach(mind);
       }
     }
     SetPos(POS_LIE);
@@ -2836,12 +2808,11 @@ void Object::Send(int tnum, int rsucc, const char* mes) {
   char* tosend = strdup(mes);
   tosend[0] = toupper(tosend[0]);
 
-  std::set<Mind*>::iterator mind;
-  for (mind = minds.begin(); mind != minds.end(); ++mind) {
-    Object* body = (*mind)->Body();
-    (*mind)->Attach(this);
-    (*mind)->Send(tosend);
-    (*mind)->Attach(body);
+  for (auto mind : minds) {
+    Object* body = mind->Body();
+    mind->Attach(this);
+    mind->Send(tosend);
+    mind->Attach(body);
   }
   free(tosend);
 }
@@ -2876,24 +2847,23 @@ void Object::SendIn(
     return;
 
   if (this != actor) { // Don't trigger yourself!
-    auto trig = contents.begin();
-    for (; trig != contents.end(); ++trig) {
+    for (auto trig : contents) {
       if (strncmp(mes, ";s says '", 9)) { // Type 0x1000010 (MOB + MOB-ACT)
-        if (((*trig)->Skill("TBAScriptType") & 0x1000010) == 0x1000010) {
-          if ((*trig)->Desc()[0] == '*') { // All Actions
-            new_trigger((rand() % 400) + 300, *trig, actor, mes);
-          } else if ((*trig)->Skill("TBAScriptNArg") == 0) { // Match Full Phrase
-            if (phrase_match(mes, (*trig)->Desc())) {
-              new_trigger((rand() % 400) + 300, *trig, actor, mes);
+        if ((trig->Skill("TBAScriptType") & 0x1000010) == 0x1000010) {
+          if (trig->Desc()[0] == '*') { // All Actions
+            new_trigger((rand() % 400) + 300, trig, actor, mes);
+          } else if (trig->Skill("TBAScriptNArg") == 0) { // Match Full Phrase
+            if (phrase_match(mes, trig->Desc())) {
+              new_trigger((rand() % 400) + 300, trig, actor, mes);
             }
           } else { // Match Words
-            if (words_match(mes, (*trig)->Desc())) {
-              new_trigger((rand() % 400) + 300, *trig, actor, mes);
+            if (words_match(mes, trig->Desc())) {
+              new_trigger((rand() % 400) + 300, trig, actor, mes);
             }
           }
         }
       } else { // Type 0x1000008 (MOB + MOB-SPEECH)
-        if (((*trig)->Skill("TBAScriptType") & 0x1000008) == 0x1000008) {
+        if ((trig->Skill("TBAScriptType") & 0x1000008) == 0x1000008) {
           std::string speech = (mes + 9);
           while (!speech.empty() && speech.back() != '\'') {
             speech.pop_back();
@@ -2901,15 +2871,15 @@ void Object::SendIn(
           if (!speech.empty())
             speech.pop_back();
 
-          if ((*trig)->Desc()[0] == '*') { // All Speech
-            new_trigger((rand() % 400) + 300, *trig, actor, speech);
-          } else if ((*trig)->Skill("TBAScriptNArg") == 0) { // Match Full Phrase
-            if (phrase_match(speech, (*trig)->Desc())) {
-              new_trigger((rand() % 400) + 300, *trig, actor, speech);
+          if (trig->Desc()[0] == '*') { // All Speech
+            new_trigger((rand() % 400) + 300, trig, actor, speech);
+          } else if (trig->Skill("TBAScriptNArg") == 0) { // Match Full Phrase
+            if (phrase_match(speech, trig->Desc())) {
+              new_trigger((rand() % 400) + 300, trig, actor, speech);
             }
           } else { // Match Words
-            if (words_match(speech, (*trig)->Desc())) {
-              new_trigger((rand() % 400) + 300, *trig, actor, speech);
+            if (words_match(speech, trig->Desc())) {
+              new_trigger((rand() % 400) + 300, trig, actor, speech);
             }
           }
         }
@@ -2975,11 +2945,11 @@ void Object::SendIn(
   free(str);
   free(youstr);
 
-  for (auto ind = contents.begin(); ind != contents.end(); ++ind) {
-    if ((*ind)->Skill("Open") || (*ind)->Skill("Transparent"))
-      (*ind)->SendIn(tnum, rsucc, mes, youmes, actor, targ);
-    else if ((*ind)->Pos() != POS_NONE) // FIXME - Understand Transparency
-      (*ind)->SendIn(tnum, rsucc, mes, youmes, actor, targ);
+  for (auto ind : contents) {
+    if (ind->Skill("Open") || ind->Skill("Transparent"))
+      ind->SendIn(tnum, rsucc, mes, youmes, actor, targ);
+    else if (ind->Pos() != POS_NONE) // FIXME - Understand Transparency
+      ind->SendIn(tnum, rsucc, mes, youmes, actor, targ);
   }
 }
 
@@ -3021,9 +2991,8 @@ void Object::SendOut(
     return;
 
   if (!strncmp(mes, ";s says '", 9)) { // Type 0x4000008 (ROOM + ROOM-SPEECH)
-    auto trig = contents.begin();
-    for (; trig != contents.end(); ++trig) {
-      if (((*trig)->Skill("TBAScriptType") & 0x4000008) == 0x4000008) {
+    for (auto trig : contents) {
+      if ((trig->Skill("TBAScriptType") & 0x4000008) == 0x4000008) {
         std::string speech = (mes + 9);
         while (!speech.empty() && speech.back() != '\'') {
           speech.pop_back();
@@ -3031,15 +3000,15 @@ void Object::SendOut(
         if (!speech.empty())
           speech.pop_back();
 
-        if ((*trig)->Desc()[0] == '*') { // All Speech
-          new_trigger((rand() % 400) + 300, *trig, actor, speech);
-        } else if ((*trig)->Skill("TBAScriptNArg") == 0) { // Match Full Phrase
-          if (phrase_match(speech, (*trig)->Desc())) {
-            new_trigger((rand() % 400) + 300, *trig, actor, speech);
+        if (trig->Desc()[0] == '*') { // All Speech
+          new_trigger((rand() % 400) + 300, trig, actor, speech);
+        } else if (trig->Skill("TBAScriptNArg") == 0) { // Match Full Phrase
+          if (phrase_match(speech, trig->Desc())) {
+            new_trigger((rand() % 400) + 300, trig, actor, speech);
           }
         } else { // Match Words
-          if (words_match(speech, (*trig)->Desc())) {
-            new_trigger((rand() % 400) + 300, *trig, actor, speech);
+          if (words_match(speech, trig->Desc())) {
+            new_trigger((rand() % 400) + 300, trig, actor, speech);
           }
         }
       }
@@ -3097,11 +3066,11 @@ void Object::SendOut(
   free(str);
   free(youstr);
 
-  for (auto ind = contents.begin(); ind != contents.end(); ++ind) {
-    if ((*ind)->Skill("Open") || (*ind)->Skill("Transparent"))
-      (*ind)->SendIn(tnum, rsucc, mes, youmes, actor, targ);
-    else if ((*ind)->Pos() != POS_NONE) // FIXME - Understand Transparency
-      (*ind)->SendIn(tnum, rsucc, mes, youmes, actor, targ);
+  for (auto ind : contents) {
+    if (ind->Skill("Open") || ind->Skill("Transparent"))
+      ind->SendIn(tnum, rsucc, mes, youmes, actor, targ);
+    else if (ind->Pos() != POS_NONE) // FIXME - Understand Transparency
+      ind->SendIn(tnum, rsucc, mes, youmes, actor, targ);
   }
 
   if (parent && (Skill("Open") || Skill("Transparent"))) {
@@ -3163,8 +3132,7 @@ void Object::Loud(std::set<Object*>& visited, int str, const char* mes) {
   visited.insert(this);
   std::list<Object*> targs;
   targs = PickObjects("all", LOC_INTERNAL);
-  for (auto targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
-    Object* dest = *targ_it;
+  for (auto dest : targs) {
     if (dest->HasSkill("Enterable")) {
       int ostr = str;
       --str;
@@ -3263,8 +3231,8 @@ void save_world(int with_net) {
 }
 
 int Object::WriteContentsTo(FILE* fl) {
-  for (auto cind = contents.begin(); cind != contents.end(); ++cind) {
-    fprintf(fl, ":%d", getnum(*cind));
+  for (auto cind : contents) {
+    fprintf(fl, ":%d", getnum(cind));
   }
   return 0;
 }
@@ -3328,9 +3296,9 @@ int Object::BusyAct() {
 
   int ret;
   if (minds.size()) {
-    ret = handle_command(this, comm.c_str(), *(minds.begin()));
+    ret = handle_command(this, comm.c_str(), (*(minds.begin())));
     if (ret != 2 && (!StillBusy()))
-      ret = handle_command(this, def.c_str(), *(minds.begin()));
+      ret = handle_command(this, def.c_str(), (*(minds.begin())));
   } else {
     ret = handle_command(this, comm.c_str());
     if (ret != 2 && (!StillBusy()))
@@ -3342,46 +3310,42 @@ int Object::BusyAct() {
 void Object::FreeActions() {
   int maxinit = 0;
   std::map<Object*, std::list<int>> initlist;
-  for (std::set<Object*>::iterator busy = busylist.begin(); busy != busylist.end(); ++busy) {
-    if (!(*busy)->StillBusy()) {
-      initlist[*busy] = (*busy)->RollInitiative();
-      if (maxinit < initlist[*busy].front()) {
-        maxinit = initlist[*busy].front();
+  for (auto busy : busylist) {
+    if (!busy->StillBusy()) {
+      initlist[busy] = busy->RollInitiative();
+      if (maxinit < initlist[busy].front()) {
+        maxinit = initlist[busy].front();
       }
     }
   }
   for (int phase = maxinit; phase > 0; --phase) {
-    for (std::map<Object*, std::list<int>>::iterator init = initlist.begin();
-         init != initlist.end();
-         ++init) {
+    for (auto init : initlist) {
       // Make sure it's still in busylist
       // (hasn't been deleted by another's BusyAct)!
-      if (init->second.front() == phase && busylist.count(init->first)) {
-        //	if(init->first->IsAct(ACT_FIGHT))
+      if (init.second.front() == phase && busylist.count(init.first)) {
+        //	if(init.first->IsAct(ACT_FIGHT))
         //	  fprintf(stderr, "Going at %d (%s)\n", phase,
-        // init->first->Name());
-        int ret = init->first->BusyAct();
-        if (ret || init->second.size() <= 1)
-          init->second.front() = 0;
+        // init.first->Name());
+        int ret = init.first->BusyAct();
+        if (ret || init.second.size() <= 1)
+          init.second.front() = 0;
         else
-          init->second.pop_front();
+          init.second.pop_front();
       }
     }
   }
-  for (std::map<Object*, std::list<int>>::iterator init = initlist.begin(); init != initlist.end();
-       ++init) {
-    if (init->first->IsAct(ACT_FIGHT)) { // Still in combat!
-      if (!init->first->StillBusy()) { // Make Sure!
-        std::string ret = init->first->Tactics();
-        init->first->BusyFor(3000, ret.c_str());
+  for (auto init : initlist) {
+    if (init.first->IsAct(ACT_FIGHT)) { // Still in combat!
+      if (!init.first->StillBusy()) { // Make Sure!
+        std::string ret = init.first->Tactics();
+        init.first->BusyFor(3000, ret.c_str());
       }
 
       // Type 0x1000400 (MOB + MOB-FIGHT)
-      auto trig = init->first->contents.begin();
-      for (; trig != init->first->contents.end(); ++trig) {
-        if (((*trig)->Skill("TBAScriptType") & 0x1000400) == 0x1000400) {
-          if ((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) { // % Chance
-            new_trigger(0, *trig, init->first->ActTarg(ACT_FIGHT));
+      for (auto trig : init.first->contents) {
+        if ((trig->Skill("TBAScriptType") & 0x1000400) == 0x1000400) {
+          if ((rand() % 100) < trig->Skill("TBAScriptNArg")) { // % Chance
+            new_trigger(0, trig, init.first->ActTarg(ACT_FIGHT));
           }
         }
       }
@@ -3512,18 +3476,17 @@ std::list<Object*> Object::Contents(int vmode) {
   if (vmode & LOC_NINJA)
     return contents;
   std::list<Object*> ret;
-  std::list<Object*>::iterator item = contents.begin();
-  for (; item != contents.end(); ++item) {
-    if ((*item)->Skill("Invisible") >= 1000)
+  for (auto item : contents) {
+    if (item->Skill("Invisible") >= 1000)
       continue; // Not Really There
-    if ((vmode & (LOC_HEAT | LOC_TOUCH)) == 0 && (*item)->Skill("Invisible")) {
+    if ((vmode & (LOC_HEAT | LOC_TOUCH)) == 0 && item->Skill("Invisible")) {
       continue;
     }
-    if ((vmode & LOC_FIXED) && (*item)->Pos() != POS_NONE)
+    if ((vmode & LOC_FIXED) && item->Pos() != POS_NONE)
       continue;
-    if ((vmode & LOC_NOTFIXED) && (*item)->Pos() == POS_NONE)
+    if ((vmode & LOC_NOTFIXED) && item->Pos() == POS_NONE)
       continue;
-    ret.push_back(*item);
+    ret.push_back(item);
   }
   return ret;
 }
@@ -3851,22 +3814,20 @@ int Object::LightLevel(int updown) {
     }
   }
   if (updown != 1) { // Go Down
-    auto item = contents.begin();
-    for (; item != contents.end(); ++item) {
-      if (!Wearing(*item)) { // Containing it (internal)
-        int fac =
-            (*item)->Skill("Open") + (*item)->Skill("Transparent") + (*item)->Skill("Translucent");
+    for (auto item : contents) {
+      if (!Wearing(item)) { // Containing it (internal)
+        int fac = item->Skill("Open") + item->Skill("Transparent") + item->Skill("Translucent");
         if (fac > 1000)
           fac = 1000;
         if (fac > 0) {
-          level += (fac * (*item)->LightLevel(-1));
+          level += (fac * item->LightLevel(-1));
         }
       }
 
-      auto subitem = (*item)->contents.begin();
-      for (; subitem != (*item)->contents.end(); ++subitem) {
+      auto subitem = item->contents.begin();
+      for (; subitem != item->contents.end(); ++subitem) {
         // Wearing it (external - so reaching one level further)
-        if ((*item)->Wearing(*subitem)) {
+        if (item->Wearing(*subitem)) {
           level += (1000 * (*subitem)->LightLevel(-1));
         }
       }
@@ -3889,11 +3850,10 @@ int Object::Attribute(int a) const {
 
 int Object::Modifier(const std::string& m) const {
   int ret = 0;
-  auto item = contents.begin();
-  for (; item != contents.end(); ++item) {
-    if (Wearing(*item) || (*item)->Skill("Magical Spell")) {
-      ret += (*item)->Skill(m + " Bonus");
-      ret -= (*item)->Skill(m + " Penalty");
+  for (auto item : contents) {
+    if (Wearing(item) || item->Skill("Magical Spell")) {
+      ret += item->Skill(m + " Bonus");
+      ret -= item->Skill(m + " Penalty");
     }
   }
   ret += Skill(m + " Bonus");
@@ -3906,10 +3866,9 @@ int Object::Modifier(const std::string& m) const {
 int Object::Power(const std::string& m) const {
   int ret = 0;
   ret = Skill(m);
-  auto item = contents.begin();
-  for (; item != contents.end(); ++item) {
-    if (Wearing(*item) || (*item)->Skill("Magical Spell")) {
-      int val = (*item)->Skill(m);
+  for (auto item : contents) {
+    if (Wearing(item) || item->Skill("Magical Spell")) {
+      int val = item->Skill(m);
       if (val > ret)
         ret = val;
     }
@@ -4059,24 +4018,23 @@ std::string Object::WearNames(int m) const {
 Object* Object::Stash(Object* item, int message, int force, int try_combine) {
   std::list<Object*> containers, my_cont;
   my_cont = PickObjects("all", LOC_INTERNAL);
-  for (auto ind = my_cont.begin(); ind != my_cont.end(); ++ind) {
-    if ((*ind)->Skill("Container") && ((!(*ind)->Skill("Locked")) || (*ind)->Skill("Open"))) {
-      containers.push_back(*ind);
+  for (auto ind : my_cont) {
+    if (ind->Skill("Container") && ((!ind->Skill("Locked")) || ind->Skill("Open"))) {
+      containers.push_back(ind);
     }
   }
 
   Object* dest = nullptr;
-  std::list<Object*>::iterator con;
-  for (con = containers.begin(); con != containers.end(); ++con) {
-    if ((*con)->Skill("Capacity") - (*con)->ContainedVolume() < item->Volume())
+  for (auto con : containers) {
+    if (con->Skill("Capacity") - con->ContainedVolume() < item->Volume())
       continue;
-    if ((*con)->Skill("Container") - (*con)->ContainedWeight() < item->Weight())
+    if (con->Skill("Container") - con->ContainedWeight() < item->Weight())
       continue;
     if (!dest)
-      dest = (*con); // It CAN go here....
-    for (auto ind = (*con)->contents.begin(); ind != (*con)->contents.end(); ++ind) {
-      if ((*item) == (*(*ind))) {
-        dest = (*con);
+      dest = con; // It CAN go here....
+    for (auto ind : con->contents) {
+      if ((*item) == (*ind)) {
+        dest = con;
         break;
       }
     }
@@ -4146,9 +4104,8 @@ int Object::StashOrDrop(Object* item, int message, int force, int try_combine) {
 
 int Object::SubMaxSkill(const std::string& s) const {
   int ret = Skill(s);
-  auto item = contents.begin();
-  for (; item != contents.end(); ++item) {
-    int sub = (*item)->SubMaxSkill(s);
+  for (auto item : contents) {
+    int sub = item->SubMaxSkill(s);
     if (sub > ret)
       ret = sub;
   }
@@ -4158,9 +4115,8 @@ int Object::SubMaxSkill(const std::string& s) const {
 int Object::SubHasSkill(const std::string& s) const {
   if (HasSkill(s))
     return 1;
-  auto item = contents.begin();
-  for (; item != contents.end(); ++item) {
-    if ((*item)->SubHasSkill(s))
+  for (auto item : contents) {
+    if (item->SubHasSkill(s))
       return 1;
   }
   return 0;
@@ -4171,12 +4127,11 @@ Object* Object::NextHasSkill(const std::string& s, const Object* last) {
     return this;
   if (last == this)
     last = nullptr; // I was last one
-  auto item = contents.begin();
-  for (; item != contents.end(); ++item) {
-    Object* found = (*item)->NextHasSkill(s, last);
+  for (auto item : contents) {
+    Object* found = item->NextHasSkill(s, last);
     if (found)
       return found;
-    if (last && (last == (*item) || (*item)->HasWithin(last))) {
+    if (last && (last == item || item->HasWithin(last))) {
       last = nullptr; // Was last item in sub-item
     }
   }
@@ -4300,17 +4255,16 @@ int Object::Wear(Object* targ, unsigned long masks, int mes) {
       targ = targ->Split(1);
     }
 
-    std::set<act_t>::iterator loc;
-    for (loc = locations.begin(); loc != locations.end(); ++loc) {
-      if (IsAct(*loc)) {
+    for (auto loc : locations) {
+      if (IsAct(loc)) {
         success = 0;
         break;
       }
     }
     if (success) {
       targ->Travel(this, 0); // Kills Holds and Wields on "targ"
-      for (loc = locations.begin(); loc != locations.end(); ++loc) {
-        AddAct(*loc, targ);
+      for (auto loc : locations) {
+        AddAct(loc, targ);
       }
       Parent()->SendOut(
           0,
