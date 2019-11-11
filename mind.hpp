@@ -27,7 +27,8 @@ class Mind {
   void SetRemote(int fd);
   void SetMob();
   void SetTBAMob();
-  void SetTBATrigger(Object* tr, Object* tripper = NULL, Object* targ = NULL, std::string text = "");
+  void
+  SetTBATrigger(Object* tr, Object* tripper = NULL, Object* targ = NULL, std::string text = "");
   void SetNPC();
   void SetSystem();
   void Attach(Object* bod);

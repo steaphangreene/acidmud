@@ -337,7 +337,7 @@ void Object::Deactivate() {
 
 void tick_world() {
   static int tickstage = 0;
-  std::set<Object *> todel, todeact;
+  std::set<Object*> todel, todeact;
   std::set<Object*>::iterator ind = ticklist[tickstage].begin();
   //  fprintf(stderr, "Ticking %d items\n", ticklist[tickstage].size());
   for (; ind != ticklist[tickstage].end(); ++ind) {
@@ -524,9 +524,8 @@ int Object::Tick() {
   }
 
   if (Attribute(2) > 0 // Needs Food & Water
-      &&
-      (!HasSkill("TBAAction")) // MOBs don't
-      ) {
+      && (!HasSkill("TBAAction")) // MOBs don't
+  ) {
     int level;
 
     // Get Hungrier
@@ -1057,8 +1056,7 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
   std::map<act_t, Object*>::iterator cur;
   for (cur = act.begin(); cur != act.end(); ++cur) {
     if ((vmode & (LOC_TOUCH | LOC_HEAT | LOC_NINJA)) == 0 // Can't See/Feel Invis
-        &&
-        cur->second && cur->second->Skill("Invisible") > 0) {
+        && cur->second && cur->second->Skill("Invisible") > 0) {
       continue; // Don't show invisible equip
     }
     if (cur->first == ACT_HOLD)
@@ -1115,8 +1113,7 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
       continue;
 
     if ((vmode & (LOC_HEAT | LOC_NINJA)) == 0 // Can't see (but can touch)
-        &&
-        cur->second && cur->second->Skill("Invisible") > 0) {
+        && cur->second && cur->second->Skill("Invisible") > 0) {
       m->Send(CGRN "Something invisible.\n" CNRM);
       continue; // Don't show details of invisible equip
     }
@@ -1143,7 +1140,8 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
         m->Send(CNRM);
       } else if (cur->second->Skill("Container")) {
         if ((vmode & 1) && cur->second->Skill("Locked")) {
-          std::string mes = base + CNRM + "                " + "  It is closed and locked.\n" + CGRN;
+          std::string mes =
+              base + CNRM + "                " + "  It is closed and locked.\n" + CGRN;
           m->Send(mes.c_str());
         } else if (vmode & 1) {
           sprintf(buf, "%16s  %c", " ", 0);
@@ -1633,8 +1631,11 @@ std::list<std::string> Object::FormatSkills(std::map<std::string, int>& skls) {
   return ret;
 }
 
-static void
-stick_on(std::list<std::string>& out, std::map<std::string, int>& skls, const char* skn, const char* label) {
+static void stick_on(
+    std::list<std::string>& out,
+    std::map<std::string, int>& skls,
+    const char* skn,
+    const char* label) {
   char buf[256];
   if (skls.count(skn) > 0) {
     int sk = skls[skn];
@@ -2373,7 +2374,8 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
       if (parent->parent) {
         parent->no_seek = 1;
 
-        std::list<Object*> add = parent->PickObjects(name, (loc & LOC_SPECIAL) | LOC_NEARBY, ordinal);
+        std::list<Object*> add =
+            parent->PickObjects(name, (loc & LOC_SPECIAL) | LOC_NEARBY, ordinal);
         ret.insert(ret.end(), add.begin(), add.end());
 
         parent->no_seek = 0;
@@ -2418,7 +2420,8 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
         }
       }
       if ((*ind)->Skill("Container") && (loc & LOC_NOTUNWORN) == 0) {
-        std::list<Object*> add = (*ind)->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
+        std::list<Object*> add =
+            (*ind)->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
         ret.insert(ret.end(), add.begin(), add.end());
 
         if ((*ordinal) == 0)
@@ -3336,7 +3339,8 @@ void Object::FreeActions() {
     }
   }
   for (int phase = maxinit; phase > 0; --phase) {
-    for (std::map<Object*, std::list<int>>::iterator init = initlist.begin(); init != initlist.end();
+    for (std::map<Object*, std::list<int>>::iterator init = initlist.begin();
+         init != initlist.end();
          ++init) {
       // Make sure it's still in busylist
       // (hasn't been deleted by another's BusyAct)!
@@ -3352,7 +3356,8 @@ void Object::FreeActions() {
       }
     }
   }
-  for (std::map<Object*, std::list<int>>::iterator init = initlist.begin(); init != initlist.end(); ++init) {
+  for (std::map<Object*, std::list<int>>::iterator init = initlist.begin(); init != initlist.end();
+       ++init) {
     if (init->first->IsAct(ACT_FIGHT)) { // Still in combat!
       if (!init->first->StillBusy()) { // Make Sure!
         std::string ret = init->first->Tactics();
@@ -4039,7 +4044,7 @@ std::string Object::WearNames(int m) const {
 }
 
 Object* Object::Stash(Object* item, int message, int force, int try_combine) {
-  std::list<Object *> containers, my_cont;
+  std::list<Object*> containers, my_cont;
   my_cont = PickObjects("all", LOC_INTERNAL);
   for (auto ind = my_cont.begin(); ind != my_cont.end(); ++ind) {
     if ((*ind)->Skill("Container") && ((!(*ind)->Skill("Locked")) || (*ind)->Skill("Open"))) {

@@ -622,7 +622,9 @@ void Object::TBALoadZON(const char* fn) {
               case (17): { // Held
                 lastmob->AddAct(ACT_HOLD, obj);
               } break;
-              default: { bagit = 1; } break;
+              default: {
+                bagit = 1;
+              } break;
             }
             if (bagit) {
               if (!lastbag) {
@@ -664,7 +666,9 @@ void Object::TBALoadZON(const char* fn) {
             lastobj[num] = obj;
           }
         } break;
-        default: { fscanf(mudz, "%*[^\n\r]\n"); } break;
+        default: {
+          fscanf(mudz, "%*[^\n\r]\n");
+        } break;
       }
     }
     if (lastmob)
@@ -1094,7 +1098,9 @@ static void add_tba_spell(Object* obj, int spell, int power) {
     case (201): { // IDENTIFY
       obj->SetSkill("Identify Spell", power);
     } break;
-    default: { fprintf(stderr, "Warning: Unhandled CicleMUD Spell: %d\n", spell); }
+    default: {
+      fprintf(stderr, "Warning: Unhandled CicleMUD Spell: %d\n", spell);
+    }
   }
 }
 

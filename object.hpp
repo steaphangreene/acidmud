@@ -287,7 +287,12 @@ class Object {
   void DynamicInit9();
 
   std::list<int> RollInitiative() const;
-  int Roll(const std::string&, const Object*, const std::string&, int bias = 0, std::string* res = NULL) const;
+  int Roll(
+      const std::string&,
+      const Object*,
+      const std::string&,
+      int bias = 0,
+      std::string* res = NULL) const;
   int Roll(
       const std::string&,
       const Object*,

@@ -50,7 +50,7 @@ std::string Mind::TBAComp(std::string expr) {
       //	|| body->Skill("TBAScript") == 5000099
       //	|| strcasestr(expr.c_str(), "tea")
       //	|| strcasestr(expr.c_str(), "wake")
-      ) {
+  ) {
     fprintf(stderr, "Expr: '%s'\n", expr.c_str());
   }
 
@@ -73,7 +73,8 @@ std::string Mind::TBAComp(std::string expr) {
   if (expr[0] == '!')
     skip = 1; // Skip Leading "!"
   size_t op = expr.find_first_of("|&=!<>/-+*", skip);
-  while (op != std::string::npos && expr[op] == '-' && isalpha(expr[op - 1]) && isalpha(expr[op + 1])) {
+  while (op != std::string::npos && expr[op] == '-' && isalpha(expr[op - 1]) &&
+         isalpha(expr[op + 1])) {
     op = expr.find_first_of("|&=!<>/-+*", op + 1); // Skip Hyphens
   }
   if (op == std::string::npos)
@@ -199,7 +200,7 @@ int Mind::TBAEval(std::string expr) {
       //	|| body->Skill("TBAScript") == 5000099
       //	|| strcasestr(expr.c_str(), "tea")
       //	|| strcasestr(expr.c_str(), "wake")
-      ) {
+  ) {
     fprintf(stderr, "Base: '%s'\n", base.c_str());
   }
   if (base.length() == 0)
@@ -325,10 +326,8 @@ void Mind::SetTBATrigger(Object* tr, Object* tripper, Object* targ, std::string 
     svars["speech"] = text;
   }
   if ((stype & 0x0000040) == 0x4000040 // ROOM-ENTER Triggers
-      ||
-      (stype & 0x1000040) == 0x1000040 // MOB-GREET Triggers
-      ||
-      stype & 0x0010000) { //*-LEAVE Triggers
+      || (stype & 0x1000040) == 0x1000040 // MOB-GREET Triggers
+      || stype & 0x0010000) { //*-LEAVE Triggers
     svars["direction"] = text;
   }
   if ((stype & 0x4000080) == 0x4000080) { // ROOM-DROP Triggers
@@ -407,19 +406,13 @@ void Mind::Send(const char* mes) {
   } else if (type == MIND_TBAMOB) {
     // HELPER TBA Mobs
     if (body && body->Parent() && (body->Skill("TBAAction") & 4096) // Helpers
-        &&
-        ((body->Skill("TBAAction") & 2) == 0) // NON-SENTINEL
-        &&
-        body->Stun() < 6 // I'm not stunned
-        &&
-        body->Phys() < 6 // I'm not injured
-        &&
-        (!body->IsAct(ACT_SLEEP)) // I'm not asleep
-        &&
-        (!body->IsAct(ACT_REST)) // I'm not resting
-        &&
-        (!body->IsAct(ACT_FIGHT)) // I'm not already fighting
-        ) {
+        && ((body->Skill("TBAAction") & 2) == 0) // NON-SENTINEL
+        && body->Stun() < 6 // I'm not stunned
+        && body->Phys() < 6 // I'm not injured
+        && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
+        && (!body->IsAct(ACT_REST)) // I'm not resting
+        && (!body->IsAct(ACT_FIGHT)) // I'm not already fighting
+    ) {
       if ((!strncasecmp(mes, "From ", 5)) &&
           (strcasestr(mes, " you hear someone shout '") != NULL) &&
           ((strstr(mes, "HELP")) || (strstr(mes, "ALARM")))) {
@@ -551,7 +544,7 @@ void Mind::TBAVarSub(std::string& line) {
         //	|| line.find("set first ") != std::string::npos
         //	|| line.find("exclaim") != std::string::npos
         //	|| line.find("speech") != std::string::npos
-        ) {
+    ) {
       fprintf(stderr, CGRN "#%d Debug: '%s'\n" CNRM, body->Skill("TBAScript"), line.c_str());
     }
     std::string vname = line.substr(cur + 1, end - cur - 1);
@@ -591,7 +584,7 @@ void Mind::TBAVarSub(std::string& line) {
         if (0
             //		|| script.find("%damage% %actor% -%actor.level%") !=
             // std::string::npos
-            ) {
+        ) {
           fprintf(stderr, CGRN "#%d Random: '%s'\n" CNRM, body->Skill("TBAScript"), obj->Name());
         }
       } else {
@@ -1325,7 +1318,7 @@ void Mind::TBAVarSub(std::string& line) {
       //	|| line.find("set first ") != std::string::npos
       //	|| line.find("exclaim") != std::string::npos
       //	|| line.find("speech") != std::string::npos
-      ) {
+  ) {
     fprintf(stderr, CGRN "#%d Debug: '%s' <-Final\n" CNRM, body->Skill("TBAScript"), line.c_str());
   }
 }
@@ -1350,7 +1343,7 @@ int Mind::TBARunLine(std::string line) {
       //	|| line.find("set first ") != std::string::npos
       //	|| line.find("exclaim") != std::string::npos
       //	|| line.find("speech") != std::string::npos
-      ) {
+  ) {
     fprintf(stderr, CGRN "#%d Debug: Running '%s'\n" CNRM, body->Skill("TBAScript"), line.c_str());
   }
   Object* room = ovars["self"];
@@ -1433,7 +1426,7 @@ int Mind::TBARunLine(std::string line) {
               //		|| var.find("midgaard") != std::string::npos
               //		|| var.find("exclaim") != std::string::npos
               //		|| var.find("speech") != std::string::npos
-              ) {
+          ) {
             fprintf(
                 stderr,
                 CGRN "#%d Debug: '%s' = '%s'\n" CNRM,
@@ -1833,10 +1826,11 @@ int Mind::TBARunLine(std::string line) {
         targ = spos;
         continue;
       } else if (
-          depth == 0 && (!strncasecmp(
-                            script.c_str() + spos,
-                            "default",
-                            7))) { // Maybe the case I want
+          depth == 0 &&
+          (!strncasecmp(
+              script.c_str() + spos,
+              "default",
+              7))) { // Maybe the case I want
         if (targ == 0) {
           spos = skip_line(script, spos);
           targ = spos;
@@ -2246,7 +2240,8 @@ int Mind::TBARunLine(std::string line) {
         targ->Recycle();
     } else if (line.length() <= 6) { // No Args: Nuke All (but dirs and PCs)!
       std::list<Object*> tokill = room->PickObjects("everyone", LOC_DARK | LOC_HEAT | LOC_INTERNAL);
-      std::list<Object*> tokill2 = room->PickObjects("everything", LOC_DARK | LOC_HEAT | LOC_INTERNAL);
+      std::list<Object*> tokill2 =
+          room->PickObjects("everything", LOC_DARK | LOC_HEAT | LOC_INTERNAL);
       tokill.splice(tokill.end(), tokill2);
       std::list<Object*>::iterator item = tokill.begin();
       for (; item != tokill.end(); ++item) {
@@ -2662,25 +2657,16 @@ void Mind::Think(int istick) {
       auto others = body->PickObjects("everyone", LOC_NEARBY);
       for (auto other = others.begin(); other != others.end(); ++other) {
         if ((!(*other)->Skill("TBAAction")) // FIXME: Other mobs?
-            &&
-            body->Stun() < 6 // I'm not stunned
-            &&
-            body->Phys() < 6 // I'm not injured
-            &&
-            (!body->IsAct(ACT_SLEEP)) // I'm not asleep
-            &&
-            (!body->IsAct(ACT_REST)) // I'm not resting
-            &&
-            (*other)->IsAct(ACT_SLEEP) // It's not awake (wuss!)
-            &&
-            (*other)->Attribute(1) // It's not a rock
-            &&
-            (!(*other)->IsAct(ACT_UNCONSCIOUS)) // It's not already KOed
-            &&
-            (!(*other)->IsAct(ACT_DYING)) // It's not already dying
-            &&
-            (!(*other)->IsAct(ACT_DEAD)) // It's not already dead
-            ) {
+            && body->Stun() < 6 // I'm not stunned
+            && body->Phys() < 6 // I'm not injured
+            && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
+            && (!body->IsAct(ACT_REST)) // I'm not resting
+            && (*other)->IsAct(ACT_SLEEP) // It's not awake (wuss!)
+            && (*other)->Attribute(1) // It's not a rock
+            && (!(*other)->IsAct(ACT_UNCONSCIOUS)) // It's not already KOed
+            && (!(*other)->IsAct(ACT_DYING)) // It's not already dying
+            && (!(*other)->IsAct(ACT_DEAD)) // It's not already dead
+        ) {
           std::string command = std::string("attack ") + (*other)->ShortDesc();
           body->BusyFor(500, command.c_str());
           // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(),
@@ -2692,19 +2678,13 @@ void Mind::Think(int istick) {
         body->BusyFor(500, "stop");
       } else if (
           istick == 0 // Triggered Only
-          &&
-          (!body->IsUsing("Perception")) // Not already searching
-          &&
-          (!body->StillBusy()) // Not already responding
-          &&
-          body->Stun() < 6 // I'm not stunned
-          &&
-          body->Phys() < 6 // I'm not injured
-          &&
-          (!body->IsAct(ACT_SLEEP)) // I'm not asleep
-          &&
-          (!body->IsAct(ACT_REST)) // I'm not resting
-          ) {
+          && (!body->IsUsing("Perception")) // Not already searching
+          && (!body->StillBusy()) // Not already responding
+          && body->Stun() < 6 // I'm not stunned
+          && body->Phys() < 6 // I'm not injured
+          && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
+          && (!body->IsAct(ACT_REST)) // I'm not resting
+      ) {
         body->BusyFor(500, "search");
       }
     }
@@ -2715,23 +2695,15 @@ void Mind::Think(int istick) {
       auto others = body->PickObjects("everyone", LOC_NEARBY);
       for (auto other = others.begin(); other != others.end(); ++other) {
         if ((!(*other)->Skill("TBAAction")) // FIXME: Other mobs?
-            &&
-            body->Stun() < 6 // I'm not stunned
-            &&
-            body->Phys() < 6 // I'm not injured
-            &&
-            (!body->IsAct(ACT_SLEEP)) // I'm not asleep
-            &&
-            (!body->IsAct(ACT_REST)) // I'm not resting
-            &&
-            (*other)->Attribute(1) // It's not a rock
-            &&
-            (!(*other)->IsAct(ACT_UNCONSCIOUS)) // It's not already KOed
-            &&
-            (!(*other)->IsAct(ACT_DYING)) // It's not already dying
-            &&
-            (!(*other)->IsAct(ACT_DEAD)) // It's not already dead
-            ) {
+            && body->Stun() < 6 // I'm not stunned
+            && body->Phys() < 6 // I'm not injured
+            && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
+            && (!body->IsAct(ACT_REST)) // I'm not resting
+            && (*other)->Attribute(1) // It's not a rock
+            && (!(*other)->IsAct(ACT_UNCONSCIOUS)) // It's not already KOed
+            && (!(*other)->IsAct(ACT_DYING)) // It's not already dying
+            && (!(*other)->IsAct(ACT_DEAD)) // It's not already dead
+        ) {
           std::string command = std::string("attack ") + (*other)->ShortDesc();
           body->BusyFor(500, command.c_str());
           // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(),
@@ -2743,19 +2715,13 @@ void Mind::Think(int istick) {
         body->BusyFor(500, "stop");
       } else if (
           istick == 0 // Triggered Only
-          &&
-          (!body->IsUsing("Perception")) // Not already searching
-          &&
-          (!body->StillBusy()) // Not already responding
-          &&
-          body->Stun() < 6 // I'm not stunned
-          &&
-          body->Phys() < 6 // I'm not injured
-          &&
-          (!body->IsAct(ACT_SLEEP)) // I'm not asleep
-          &&
-          (!body->IsAct(ACT_REST)) // I'm not resting
-          ) {
+          && (!body->IsUsing("Perception")) // Not already searching
+          && (!body->StillBusy()) // Not already responding
+          && body->Stun() < 6 // I'm not stunned
+          && body->Phys() < 6 // I'm not injured
+          && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
+          && (!body->IsAct(ACT_REST)) // I'm not resting
+      ) {
         body->BusyFor(500, "search");
       }
     }
@@ -2764,24 +2730,16 @@ void Mind::Think(int istick) {
       auto others = body->PickObjects("everyone", LOC_NEARBY);
       for (auto other = others.begin(); other != others.end(); ++other) {
         if ((!(*other)->Skill("TBAAction")) // FIXME: Other mobs?
-            &&
-            body->Stun() < 6 // I'm not stunned
-            &&
-            body->Phys() < 6 // I'm not injured
-            &&
-            (!body->IsAct(ACT_SLEEP)) // I'm not asleep
-            &&
-            (!body->IsAct(ACT_REST)) // I'm not resting
-            &&
-            (*other)->Attribute(1) // It's not a rock
-            &&
-            (!(*other)->IsAct(ACT_DEAD)) // It's not already dead
-            &&
-            (*other)->IsAct(ACT_FIGHT) // It's figting someone
-            &&
-            (*other)->ActTarg(ACT_FIGHT)->HasSkill("TBAAction")
+            && body->Stun() < 6 // I'm not stunned
+            && body->Phys() < 6 // I'm not injured
+            && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
+            && (!body->IsAct(ACT_REST)) // I'm not resting
+            && (*other)->Attribute(1) // It's not a rock
+            && (!(*other)->IsAct(ACT_DEAD)) // It's not already dead
+            && (*other)->IsAct(ACT_FIGHT) // It's figting someone
+            && (*other)->ActTarg(ACT_FIGHT)->HasSkill("TBAAction")
             //...against another MOB
-            ) {
+        ) {
           std::string command = std::string("call ALARM; attack ") + (*other)->ShortDesc();
           body->BusyFor(500, command.c_str());
           // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(),
@@ -2793,17 +2751,12 @@ void Mind::Think(int istick) {
         body->BusyFor(500, "search");
       } else if (
           istick == 1 // Perioidic searching
-          &&
-          (!body->StillBusy()) // Not already responding
-          &&
-          body->Stun() < 6 // I'm not stunned
-          &&
-          body->Phys() < 6 // I'm not injured
-          &&
-          (!body->IsAct(ACT_SLEEP)) // I'm not asleep
-          &&
-          (!body->IsAct(ACT_REST)) // I'm not resting
-          ) {
+          && (!body->StillBusy()) // Not already responding
+          && body->Stun() < 6 // I'm not stunned
+          && body->Phys() < 6 // I'm not injured
+          && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
+          && (!body->IsAct(ACT_REST)) // I'm not resting
+      ) {
         body->BusyFor(500, "search");
       }
     }

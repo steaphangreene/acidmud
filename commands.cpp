@@ -1218,8 +1218,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     } else if (
         dest->Parent() != body->Parent() && dest->Parent() == body->Parent()->Parent() &&
         (!(body->Parent()->Skill("Vehicle") & 0xFFF0)) // No Land Travel!
-        &&
-        body->Parent()->Parent()->Skill("WaterDepth") == 0 && rdest->Skill("WaterDepth") == 0) {
+        && body->Parent()->Parent()->Skill("WaterDepth") == 0 && rdest->Skill("WaterDepth") == 0) {
       if (mind)
         mind->SendF("You can't get %s to go there!\n", body->Parent()->Name(1));
     } else {
@@ -2682,8 +2681,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
     Object* targ = body->PickObject(comline + len, vmode | LOC_NOTWORN | LOC_INTERNAL);
     if ((!targ) && body->ActTarg(ACT_HOLD) && body->ActTarg(ACT_HOLD)->Parent() != body // Dragging
-        &&
-        body->ActTarg(ACT_HOLD)->Matches(comline + len)) {
+        && body->ActTarg(ACT_HOLD)->Matches(comline + len)) {
       targ = body->ActTarg(ACT_HOLD);
     }
 
@@ -3660,8 +3658,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
     std::list<Object*> targs = body->PickObjects(comline + len, vmode | LOC_NOTWORN | LOC_INTERNAL);
     if (body->ActTarg(ACT_HOLD) && body->ActTarg(ACT_HOLD)->Parent() != body // Dragging
-        &&
-        body->ActTarg(ACT_HOLD)->Matches(comline + len)) {
+        && body->ActTarg(ACT_HOLD)->Matches(comline + len)) {
       targs.push_back(body->ActTarg(ACT_HOLD));
     }
     if (!targs.size()) {
@@ -3710,8 +3707,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
     std::list<Object*> targs = body->PickObjects(comline + len, vmode | LOC_NOTWORN | LOC_INTERNAL);
     if (body->ActTarg(ACT_HOLD) && body->ActTarg(ACT_HOLD)->Parent() != body // Dragging
-        &&
-        body->ActTarg(ACT_HOLD)->Matches(comline + len)) {
+        && body->ActTarg(ACT_HOLD)->Matches(comline + len)) {
       targs.push_back(body->ActTarg(ACT_HOLD));
     }
     if (!targs.size()) {
@@ -3790,8 +3786,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
     Object* targ = body->PickObject(comline + len, vmode | LOC_NOTWORN | LOC_INTERNAL);
     if ((!targ) && body->ActTarg(ACT_HOLD) && body->ActTarg(ACT_HOLD)->Parent() != body // Dragging
-        &&
-        body->ActTarg(ACT_HOLD)->Matches(comline + len)) {
+        && body->ActTarg(ACT_HOLD)->Matches(comline + len)) {
       targ = body->ActTarg(ACT_HOLD);
     }
     if (!targ) {
@@ -3883,8 +3878,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
     std::list<Object*> targs = body->PickObjects(comline + len, vmode | LOC_NOTWORN | LOC_INTERNAL);
     if (body->ActTarg(ACT_HOLD) && body->ActTarg(ACT_HOLD)->Parent() != body // Dragging
-        &&
-        body->ActTarg(ACT_HOLD)->Matches(comline + len)) {
+        && body->ActTarg(ACT_HOLD)->Matches(comline + len)) {
       targs.push_back(body->ActTarg(ACT_HOLD));
     }
     if (!targs.size()) {
@@ -4087,8 +4081,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       body->StashOrDrop(item);
     }
     if (body->ActTarg(ACT_HOLD) // Shield held & worn
-        &&
-        body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)) {
+        && body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)) {
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,
@@ -4099,8 +4092,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       body->StopAct(ACT_HOLD);
     } else if (
         body->ActTarg(ACT_HOLD) // Dragging an item
-        &&
-        body->ActTarg(ACT_HOLD)->Parent() != body) {
+        && body->ActTarg(ACT_HOLD)->Parent() != body) {
       body->Drop(body->ActTarg(ACT_HOLD));
     } else if (body->ActTarg(ACT_HOLD)) { // Regular held item
       Object* item = body->ActTarg(ACT_HOLD);
@@ -4680,8 +4672,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       }
     }
 
-    if (com == COM_ATTACK && (targ->Attribute(1) <= 0 || targ->IsAct(ACT_DEAD) ||
-                              targ->IsAct(ACT_DYING) || targ->IsAct(ACT_UNCONSCIOUS))) {
+    if (com == COM_ATTACK &&
+        (targ->Attribute(1) <= 0 || targ->IsAct(ACT_DEAD) || targ->IsAct(ACT_DYING) ||
+         targ->IsAct(ACT_UNCONSCIOUS))) {
       if (mind)
         mind->Send("No need, target is down!\n");
       body->StopAct(ACT_FIGHT);
@@ -4723,14 +4716,11 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
     // Free your off-hand if needed (if it's not a shield or weapon)
     if (body->ActTarg(ACT_HOLD) // FIXME: Don't drop offhand weapons?!?
-        &&
-        body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD) &&
+        && body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD) &&
         body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD) &&
         (body->ActTarg(ACT_WEAR_SHIELD) // Need Off-Hand for shield
-         ||
-         (body->ActTarg(ACT_WIELD) //...or for two-hander
-          &&
-          two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType"))))) {
+         || (body->ActTarg(ACT_WIELD) //...or for two-hander
+             && two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType"))))) {
       if (body->DropOrStash(body->ActTarg(ACT_HOLD))) {
         if (mind)
           mind->SendF(
@@ -4742,12 +4732,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
     // Hold your 2-hander, even if you have to let go of your shield
     if (body->ActTarg(ACT_WIELD) // Half-Wielding a 2-Hander
-        &&
-        body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD) &&
+        && body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD) &&
         two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType"))) {
       if (body->ActTarg(ACT_HOLD) // Some non-shield stuck in other hand!
-          &&
-          body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)) {
+          && body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)) {
         if (mind)
           mind->SendF(
               "Oh, no!  You can't use %s - it's two-handed!\n",
@@ -4810,8 +4798,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
     else if (
         body->ActTarg(ACT_WIELD) // Not Holding your 2-Hander
-        &&
-        two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType")) &&
+        && two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType")) &&
         body->ActTarg(ACT_WIELD) != body->ActTarg(ACT_HOLD)) {
       sk1 = "Kicking";
       sk2 = "Kicking";
@@ -4832,8 +4819,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         reachmod = 0;
       } else if (
           targ->ActTarg(ACT_WIELD) // Not Holding his 2-Hander
-          &&
-          two_handed(targ->ActTarg(ACT_WIELD)->Skill("WeaponType")) &&
+          && two_handed(targ->ActTarg(ACT_WIELD)->Skill("WeaponType")) &&
           targ->ActTarg(ACT_WIELD) != targ->ActTarg(ACT_HOLD)) {
         sk2 = ""; // Can't defend himself
       } else if (targ->ActTarg(ACT_WIELD)) {
@@ -4958,8 +4944,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             ALL, -1, "*;s kicks ;s%s.\n", "*You kick ;s%s.\n", body, targ, locm.c_str());
       } else if (
           body->IsAct(ACT_WIELD) // Ranged Weapon
-          &&
-          body->ActTarg(ACT_WIELD)->Skill("WeaponReach") > 9) {
+          && body->ActTarg(ACT_WIELD)->Skill("WeaponReach") > 9) {
         body->Parent()->SendOutF(
             ALL,
             -1,
@@ -5039,8 +5024,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             targ);
       } else if (
           body->IsAct(ACT_WIELD) // Ranged Weapon
-          &&
-          body->ActTarg(ACT_WIELD)->Skill("WeaponReach") > 9) {
+          && body->ActTarg(ACT_WIELD)->Skill("WeaponReach") > 9) {
         body->Parent()->SendOutF(
             ALL,
             -1,
@@ -6379,8 +6363,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
     int finished = 0;
     if (body->IsAct(ACT_HEAL) // Finish Previous Healing
-        ||
-        body->IsUsing("Healing") || body->IsUsing("First Aid") || body->IsUsing("Treatment")) {
+        || body->IsUsing("Healing") || body->IsUsing("First Aid") || body->IsUsing("Treatment")) {
       finished = 1;
       if (body->IsAct(ACT_HEAL)) {
         if (body->IsUsing("Healing")) {

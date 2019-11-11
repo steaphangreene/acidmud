@@ -2642,8 +2642,12 @@ int Object::Skill(const std::string& s, int* tnum) const {
   return 0;
 }
 
-int Object::Roll(const std::string& s1, const Object* p2, const std::string& s2, int bias, std::string* res)
-    const {
+int Object::Roll(
+    const std::string& s1,
+    const Object* p2,
+    const std::string& s2,
+    int bias,
+    std::string* res) const {
   return Roll(s1, p2, s2, bias, NULL, res);
 }
 
@@ -2690,7 +2694,8 @@ int Object::RollNoWounds(const std::string& s1, int targ, std::string* res) cons
   return RollNoWounds(s1, targ, NULL, res);
 }
 
-int Object::RollNoWounds(const std::string& s1, int targ, std::list<int>* wraps, std::string* res) const {
+int Object::RollNoWounds(const std::string& s1, int targ, std::list<int>* wraps, std::string* res)
+    const {
   int succ = 0;
   int d1 = Skill(s1, &targ);
   succ = roll(abs(d1), targ, wraps);
