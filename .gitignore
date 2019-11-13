@@ -2,3 +2,6 @@ acidmud
 deps.mk
 version.cpp
 *.o
+acid
+perf.data
+perf.data.old
