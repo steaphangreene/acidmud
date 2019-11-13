@@ -79,7 +79,7 @@ void handle_input(socket_t in_s) {
     return;
   }
 
-  Mind* mind = NULL;
+  Mind* mind = nullptr;
   if (minds.count(in_s))
     mind = minds[in_s];
 
@@ -188,7 +188,7 @@ void update_net() {
     int ret;
     null_time.tv_sec = 0;
     null_time.tv_usec = 0;
-    ret = select(acceptor + 1, &input_set, NULL, NULL, &null_time);
+    ret = select(acceptor + 1, &input_set, nullptr, nullptr, &null_time);
     if (ret < 0) {
       if (errno != EINTR) {
         perror("ERROR in select()");

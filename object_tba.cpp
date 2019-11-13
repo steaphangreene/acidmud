@@ -134,8 +134,8 @@ static std::map<Object*, int> tynum[6];
 static std::map<Object*, int> knum[6];
 static std::map<Object*, std::string> nmnum[6];
 static std::vector<Object*> olist;
-static Object* objroom = NULL;
-static Object* mobroom = NULL;
+static Object* objroom = nullptr;
+static Object* mobroom = nullptr;
 
 void Object::TBACleanup() {
   std::map<int, Object*>::iterator ind;
@@ -188,7 +188,7 @@ void Object::TBAFinalizeTriggers() {
   for (; trg != todotrg.end(); ++trg) {
     std::string newtext = "Powers List:\n";
     const char* cur = (*trg)->long_desc.c_str();
-    while ((cur = strstr(cur, "teleport [")) != NULL) {
+    while ((cur = strstr(cur, "teleport [")) != nullptr) {
       int rnum;
       (*trg)->Parent()->SetSkill("Teleport", 10);
       (*trg)->Parent()->SetSkill("Restricted Item", 1);
@@ -209,9 +209,9 @@ void Object::TBAFinalizeTriggers() {
   todotrg.clear();
 }
 
-static Mind* tba_mob_mind = NULL;
+static Mind* tba_mob_mind = nullptr;
 
-static Object* gold = NULL;
+static Object* gold = nullptr;
 static void init_gold() {
   gold = new Object();
   gold->SetShortDesc("a gold piece");
@@ -233,7 +233,7 @@ Mind* get_tba_mob_mind() {
 }
 
 Object* dup_tba_obj(Object* obj) {
-  Object* obj2 = NULL;
+  Object* obj2 = nullptr;
   if (obj->Skill("Wearable on Left Hand") != obj->Skill("Wearable on Right Hand")) {
     obj2 = new Object(*obj);
     obj2->SetSkill("Wearable on Left Hand", 0);
@@ -330,7 +330,7 @@ void Object::TBAFinishMOB(Object* mob) {
   }
 }
 
-static Object *lastmob = NULL, *lastbag = NULL;
+static Object *lastmob = nullptr, *lastbag = nullptr;
 static std::map<int, Object*> lastobj;
 void Object::TBALoadZON(const char* fn) {
   FILE* mudz = fopen(fn, "r");
@@ -351,7 +351,7 @@ void Object::TBALoadZON(const char* fn) {
         case ('D'): { // Door state
           int dnum, room, state;
           fscanf(mudz, " %*d %d %d %d\n", &room, &dnum, &state);
-          Object* door = NULL;
+          Object* door = nullptr;
           if (bynumwld.count(room) > 0)
             door = bynumwld[room]->PickObject(dirname[dnum], LOC_INTERNAL);
           if (door && state == 0) {
@@ -385,7 +385,7 @@ void Object::TBALoadZON(const char* fn) {
             obj->SetSkill("TBAPopper", 1);
             obj->SetSkill("Invisible", 1000);
             obj->Activate();
-            lastbag = NULL;
+            lastbag = nullptr;
           }
         } break;
         case ('O'): {
@@ -678,7 +678,7 @@ void Object::TBALoadZON(const char* fn) {
 }
 
 void Object::TBALoadMOB(const char* fn) {
-  if (mobroom == NULL) {
+  if (mobroom == nullptr) {
     mobroom = new Object(this);
     mobroom->SetSkill("Invisible", 1000);
     mobroom->SetShortDesc("The TBAMUD MOB Room");
@@ -1105,7 +1105,7 @@ static void add_tba_spell(Object* obj, int spell, int power) {
 }
 
 void Object::TBALoadOBJ(const char* fn) {
-  if (objroom == NULL) {
+  if (objroom == nullptr) {
     objroom = new Object(this);
     objroom->SetSkill("Invisible", 1000);
     objroom->SetShortDesc("The TBAMUD Object Room");
@@ -2318,8 +2318,8 @@ void Object::TBALoadWLD(const char* fn) {
         if (tonum[dir].count(*ob)) {
           int tnum = tonum[dir][*ob];
           if (bynumwld.count(tnum)) {
-            Object* nobj = NULL;
-            Object* nobj2 = NULL;
+            Object* nobj = nullptr;
+            Object* nobj2 = nullptr;
             std::string des, nm = dirname[dir];
 
             auto cont = (*ob)->Contents();
@@ -2437,7 +2437,7 @@ static std::set<std::string> parse_tba_shop_rules(std::string rules) {
 void Object::TBALoadSHP(const char* fn) {
   FILE* mud = fopen(fn, "r");
   if (mud) {
-    Object* vortex = NULL;
+    Object* vortex = nullptr;
     if (fscanf(mud, "CircleMUD v3.0 Shop File~%65535[\n\r]", buf) > 0) {
       while (1) {
         int val, kpr;
@@ -2495,7 +2495,7 @@ void Object::TBALoadSHP(const char* fn) {
         fscanf(mud, "%65535[^\n\r]\n", buf); // Shop Bitvectors
 
         fscanf(mud, "%d\n", &kpr); // Shopkeeper!
-        Object* keeper = NULL;
+        Object* keeper = nullptr;
         if (bynummobinst.count(kpr))
           keeper = bynummobinst[kpr];
 
@@ -2635,7 +2635,7 @@ void Object::TBALoadTRG(const char* fn) { // Triggers
   if (mud) {
     int tnum = -1;
     while (fscanf(mud, " #%d", &tnum) > 0) {
-      Object* script = NULL;
+      Object* script = nullptr;
       script = new Object();
       bynumtrg[tnum] = script;
       script->SetSkill("Invisible", 1000);

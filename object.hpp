@@ -113,7 +113,7 @@ class Object {
 
   Object* Next(std::string&);
   Object* Split(int nqty);
-  const char* Name(int definite = 0, Object* rel = NULL, Object* sub = NULL) const;
+  const char* Name(int definite = 0, Object* rel = nullptr, Object* sub = nullptr) const;
   const char* Pron() const;
   const char* Poss() const;
   const char* Obje() const;
@@ -133,19 +133,19 @@ class Object {
 
   void SendActions(Mind* m);
   void SendExtendedActions(Mind* m, int vmode = 0);
-  void SendContents(Mind* m, Object* o = NULL, int vmode = 0, std::string b = "");
-  void SendContents(Object* m, Object* o = NULL, int vmode = 0, std::string b = "");
+  void SendContents(Mind* m, Object* o = nullptr, int vmode = 0, std::string b = "");
+  void SendContents(Object* m, Object* o = nullptr, int vmode = 0, std::string b = "");
 
-  void SendFullSituation(Mind* m, Object* o = NULL);
-  void SendShortDesc(Mind* m, Object* o = NULL);
-  void SendShortDesc(Object* m, Object* o = NULL);
-  void SendDesc(Mind* m, Object* o = NULL);
-  void SendDescSurround(Mind* m, Object* o = NULL, int vmode = 0);
-  void SendDesc(Object* m, Object* o = NULL);
-  void SendDescSurround(Object* m, Object* o = NULL, int vmode = 0);
-  void SendLongDesc(Mind* m, Object* o = NULL);
-  void SendLongDesc(Object* m, Object* o = NULL);
-  void SendScore(Mind* m, Object* o = NULL);
+  void SendFullSituation(Mind* m, Object* o = nullptr);
+  void SendShortDesc(Mind* m, Object* o = nullptr);
+  void SendShortDesc(Object* m, Object* o = nullptr);
+  void SendDesc(Mind* m, Object* o = nullptr);
+  void SendDescSurround(Mind* m, Object* o = nullptr, int vmode = 0);
+  void SendDesc(Object* m, Object* o = nullptr);
+  void SendDescSurround(Object* m, Object* o = nullptr, int vmode = 0);
+  void SendLongDesc(Mind* m, Object* o = nullptr);
+  void SendLongDesc(Object* m, Object* o = nullptr);
+  void SendScore(Mind* m, Object* o = nullptr);
   std::list<std::string> FormatStats(std::map<std::string, int>& skls); // Modifies skls
   std::list<std::string> FormatSkills(std::map<std::string, int>& skls); // Modifies skls
 
@@ -180,10 +180,10 @@ class Object {
     return minds.size();
   }
 
-  void NotifyGone(Object* obj, Object* newloc = NULL, int up = 1);
+  void NotifyGone(Object* obj, Object* newloc = nullptr, int up = 1);
 
-  Object* PickObject(const char*, int loc, int* ordinal = NULL) const;
-  std::list<Object*> PickObjects(const char*, int loc, int* ordinal = NULL) const;
+  Object* PickObject(const char*, int loc, int* ordinal = nullptr) const;
+  std::list<Object*> PickObjects(const char*, int loc, int* ordinal = nullptr) const;
   int IsNearBy(const Object* obj);
   int SeeWithin(const Object* obj); // Recursive & Visible
   int HasWithin(const Object* obj); // Recursive (All)
@@ -231,8 +231,8 @@ class Object {
   void EarnExp(int);
   void SpendExp(int);
   int Accomplish(unsigned long);
-  int TotalExp(Player* p = NULL) const;
-  int Exp(const Player* p = NULL) const;
+  int TotalExp(Player* p = nullptr) const;
+  int Exp(const Player* p = nullptr) const;
 
   int Stun() const {
     return stun;
@@ -263,11 +263,11 @@ class Object {
   };
   int Modifier(const std::string& m) const;
   int Power(const std::string& m) const;
-  int Skill(const std::string&, int* tnum = NULL) const;
+  int Skill(const std::string&, int* tnum = nullptr) const;
   int HasSkill(const std::string&) const;
   int SubHasSkill(const std::string&) const;
   int SubMaxSkill(const std::string&) const;
-  Object* NextHasSkill(const std::string&, const Object* last = NULL);
+  Object* NextHasSkill(const std::string&, const Object* last = nullptr);
   const std::map<std::string, int>& GetSkills() const {
     return skills;
   }
@@ -292,18 +292,19 @@ class Object {
       const Object*,
       const std::string&,
       int bias = 0,
-      std::string* res = NULL) const;
+      std::string* res = nullptr) const;
   int Roll(
       const std::string&,
       const Object*,
       const std::string&,
       int bias = 0,
-      std::list<int>* wraps = NULL,
-      std::string* res = NULL) const;
-  int Roll(const std::string&, int, std::list<int>* wraps, std::string* res = NULL) const;
-  int Roll(const std::string&, int, std::string* res = NULL) const;
-  int RollNoWounds(const std::string&, int, std::list<int>* wraps, std::string* res = NULL) const;
-  int RollNoWounds(const std::string&, int, std::string* res = NULL) const;
+      std::list<int>* wraps = nullptr,
+      std::string* res = nullptr) const;
+  int Roll(const std::string&, int, std::list<int>* wraps, std::string* res = nullptr) const;
+  int Roll(const std::string&, int, std::string* res = nullptr) const;
+  int RollNoWounds(const std::string&, int, std::list<int>* wraps, std::string* res = nullptr)
+      const;
+  int RollNoWounds(const std::string&, int, std::string* res = nullptr) const;
 
   int WoundPenalty() const;
 
@@ -327,7 +328,7 @@ class Object {
   void Collapse();
 
   void StopAll();
-  void AddAct(act_t a, Object* o = NULL);
+  void AddAct(act_t a, Object* o = nullptr);
   void StopAct(act_t a);
   int IsAct(act_t a) const {
     return act.count(a);
@@ -411,7 +412,7 @@ class Object {
   static void FreeActions();
 
  private:
-  void NotifyLeft(Object* obj, Object* newloc = NULL);
+  void NotifyLeft(Object* obj, Object* newloc = nullptr);
 
   void Loud(std::set<Object*>& visited, int str, const char* mes);
 
@@ -450,7 +451,7 @@ class Object {
   friend void player_rooms_erase(Object*);
 };
 
-int roll(int ndice, int targ, std::list<int>* wraps = NULL);
+int roll(int ndice, int targ, std::list<int>* wraps = nullptr);
 
 void init_world();
 void save_world(int with_net = 0);

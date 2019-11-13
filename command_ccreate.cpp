@@ -206,7 +206,7 @@ int handle_command_ccreate(
     random_shuffle(bldg.begin(), bldg.end());
 
     char sname[32], aname[32], iname[32];
-    Object* ave[NUM_AVS] = {NULL};
+    Object* ave[NUM_AVS] = {nullptr};
     for (int north = 0; north < NUM_STS; ++north) {
       if (north == 0)
         sprintf(sname, "South Street");
@@ -221,7 +221,7 @@ int handle_command_ccreate(
       else
         sprintf(sname, "%dth Street", north);
 
-      Object* street = NULL;
+      Object* street = nullptr;
       for (int east = 0; east < NUM_AVS; ++east) {
         sprintf(aname, "%s Avenue", alist[east]);
         sprintf(iname, "%s and %s", alist[east], sname);
@@ -303,7 +303,7 @@ int handle_command_ccreate(
           }
 
           if (off != 0) {
-            Object* places[3] = {NULL, cur, NULL};
+            Object* places[3] = {nullptr, cur, nullptr};
             const char* dir[2] = {"south", "north"};
             if (off < 0) {
               dir[0] = "west";
@@ -346,7 +346,7 @@ int handle_command_ccreate(
         ";s creates a new city '%s' with Ninja Powers[TM].\n",
         "You create a new city '%s'.\n",
         body,
-        NULL,
+        nullptr,
         comline + len);
   }
   return 0;

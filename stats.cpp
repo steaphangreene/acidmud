@@ -2648,7 +2648,7 @@ int Object::Roll(
     const std::string& s2,
     int bias,
     std::string* res) const {
-  return Roll(s1, p2, s2, bias, NULL, res);
+  return Roll(s1, p2, s2, bias, nullptr, res);
 }
 
 int Object::Roll(
@@ -2677,7 +2677,7 @@ int Object::Roll(
 }
 
 int Object::Roll(const std::string& s1, int targ, std::string* res) const {
-  return Roll(s1, targ, NULL, res);
+  return Roll(s1, targ, nullptr, res);
 }
 
 int Object::Roll(const std::string& s1, int targ, std::list<int>* wraps, std::string* res) const {
@@ -2691,7 +2691,7 @@ int Object::Roll(const std::string& s1, int targ, std::list<int>* wraps, std::st
 }
 
 int Object::RollNoWounds(const std::string& s1, int targ, std::string* res) const {
-  return RollNoWounds(s1, targ, NULL, res);
+  return RollNoWounds(s1, targ, nullptr, res);
 }
 
 int Object::RollNoWounds(const std::string& s1, int targ, std::list<int>* wraps, std::string* res)

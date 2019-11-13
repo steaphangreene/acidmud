@@ -18,7 +18,7 @@ Player::Player(std::string nm, std::string ps) {
   exp = 0;
 
   room = new Object();
-  creator = NULL;
+  creator = nullptr;
 
   SetName(nm);
   if (ps[0] == '$' && ps[1] == '1' && ps[2] == '$') {
@@ -39,7 +39,7 @@ Player::~Player() {
   notify_player_deleted(this);
   player_list.erase(name);
   non_init.erase(this);
-  creator = NULL;
+  creator = nullptr;
   if (room)
     delete room;
 }
@@ -76,7 +76,7 @@ int player_exists(std::string name) {
 
 Player* get_player(std::string name) {
   if (!player_list.count(name))
-    return NULL;
+    return nullptr;
 
   Player* pl = player_list[name];
   non_init.erase(pl);
@@ -86,7 +86,7 @@ Player* get_player(std::string name) {
 
 Player* player_login(std::string name, std::string pass) {
   if (!player_list.count(name))
-    return NULL;
+    return nullptr;
 
   Player* pl = player_list[name];
   std::string enpass = crypt(pass.c_str(), pl->pass.c_str());
@@ -98,7 +98,7 @@ Player* player_login(std::string name, std::string pass) {
       player_list.erase(name);
       non_init.erase(pl);
     }
-    return NULL;
+    return nullptr;
   }
 
   non_init.erase(pl);
@@ -208,7 +208,7 @@ void player_rooms_erase(Object* obj) {
   std::map<std::string, Player*>::iterator pl = player_list.begin();
   for (; pl != player_list.end(); ++pl) {
     if ((*pl).second->Creator() == obj)
-      (*pl).second->SetCreator(NULL);
+      (*pl).second->SetCreator(nullptr);
     (*pl).second->Room()->RemoveLink(obj);
   }
 }

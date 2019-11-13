@@ -219,21 +219,21 @@ int Mind::TBAEval(std::string expr) {
   Object* holder;
   sscanf(base.c_str(), " OBJ:%p %n", &holder, &len);
   if (len == int(base.length()))
-    return (holder != NULL); // Object
+    return (holder != nullptr); // Object
   sscanf(base.c_str(), " ! OBJ:%p %n", &holder, &len);
   if (len == int(base.length()))
-    return (holder == NULL); //! Object
+    return (holder == nullptr); //! Object
 
   if (base[0] == '!')
-    return 0; //! Non-Numberic, Non-NULL, Non-Object
-  return 1; // Non-Numberic, Non-NULL, Non-Object
+    return 0; //! Non-Numberic, Non-nullptr, Non-Object
+  return 1; // Non-Numberic, Non-nullptr, Non-Object
 }
 
 std::map<std::string, std::string> Mind::cvars;
 
 void Mind::Init() {
-  body = NULL;
-  player = NULL;
+  body = nullptr;
+  player = nullptr;
   ovars.clear();
   svars.clear();
 }
@@ -393,7 +393,7 @@ void Mind::Attach(Object* bod) {
 
 void Mind::Unattach() {
   Object* bod = body;
-  body = NULL;
+  body = nullptr;
   if (bod)
     bod->Unattach(this);
 }
@@ -414,7 +414,7 @@ void Mind::Send(const char* mes) {
         && (!body->IsAct(ACT_FIGHT)) // I'm not already fighting
     ) {
       if ((!strncasecmp(mes, "From ", 5)) &&
-          (strcasestr(mes, " you hear someone shout '") != NULL) &&
+          (strcasestr(mes, " you hear someone shout '") != nullptr) &&
           ((strstr(mes, "HELP")) || (strstr(mes, "ALARM")))) {
         char buf[256] = "                                               ";
         sscanf(mes + 4, "%128s", buf);
@@ -491,7 +491,7 @@ void Mind::SetPName(std::string pn) {
 void Mind::SetPPass(std::string ppass) {
   if (player_exists(pname)) {
     player = player_login(pname, ppass);
-    if (player == NULL) {
+    if (player == nullptr) {
       if (player_exists(pname))
         SendF("%c%c%cName and/or password is incorrect.\n", IAC, WONT, TELOPT_ECHO);
       else
@@ -548,7 +548,7 @@ void Mind::TBAVarSub(std::string& line) {
       fprintf(stderr, CGRN "#%d Debug: '%s'\n" CNRM, body->Skill("TBAScript"), line.c_str());
     }
     std::string vname = line.substr(cur + 1, end - cur - 1);
-    Object* obj = NULL;
+    Object* obj = nullptr;
     std::string val = "";
     int is_obj = 0;
     if (ovars.count(vname) > 0) {
@@ -588,7 +588,7 @@ void Mind::TBAVarSub(std::string& line) {
           fprintf(stderr, CGRN "#%d Random: '%s'\n" CNRM, body->Skill("TBAScript"), obj->Name());
         }
       } else {
-        obj = NULL;
+        obj = nullptr;
       }
       is_obj = 1;
       end = line.find_first_of("% \t", cur + 1); // Done.  Replace All.
@@ -604,7 +604,7 @@ void Mind::TBAVarSub(std::string& line) {
         options.insert(room->PickObject("west", LOC_INTERNAL));
         options.insert(room->PickObject("up", LOC_INTERNAL));
         options.insert(room->PickObject("down", LOC_INTERNAL));
-        options.erase(NULL);
+        options.erase(nullptr);
         if (options.size() > 0) {
           int num = rand() % options.size();
           std::set<Object*>::iterator item = options.begin();
@@ -647,7 +647,7 @@ void Mind::TBAVarSub(std::string& line) {
               vnum %= 1000000; // Convert from Acid number
           }
           val = itos(vnum);
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "gold")) {
           int gold = 0;
@@ -659,7 +659,7 @@ void Mind::TBAVarSub(std::string& line) {
             }
           }
           val = itos(gold);
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "type")) {
           val = "OTHER";
@@ -676,29 +676,29 @@ void Mind::TBAVarSub(std::string& line) {
               val = "TRASH";
             // FIXME: More Types!
           }
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "cost_per_day")) {
           val = "0";
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "cost")) {
           val = "";
           if (obj)
             val = itos(obj->Value());
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "count")) {
           val = "";
           if (obj)
             val = itos(obj->Quantity());
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "weight")) {
           val = "";
           if (obj)
             val = itos(obj->Weight());
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "sex")) {
           val = "";
@@ -710,66 +710,66 @@ void Mind::TBAVarSub(std::string& line) {
             else
               val = "none";
           }
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "race")) {
           val = "";
           if (obj && obj->BaseAttribute(1) > 0) {
             val = "human"; // FIXME: Implement Race!
           }
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "level")) {
           val = "";
           if (obj)
             val = itos(obj->Exp() / 10 + 1);
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "name")) {
           val = "";
           if (obj)
             val = obj->Name();
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "shortdesc")) {
           val = "";
           if (obj)
             val = obj->ShortDesc();
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "alias")) {
           val = "";
           if (obj)
             val = obj->ShortDesc();
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "heshe")) {
           val = "";
           if (obj)
             val = obj->Pron();
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "hisher")) {
           val = "";
           if (obj)
             val = obj->Poss();
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "himher")) {
           val = "";
           if (obj)
             val = obj->Obje();
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "maxhitp")) {
           val = itos(1000); // Everybody has 1000 HP.
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "hitp")) {
           val = "";
           if (obj)
             val = itos(1000 - 50 * (obj->Phys() + obj->Stun()));
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "align")) {
           val = "";
@@ -780,61 +780,61 @@ void Mind::TBAVarSub(std::string& line) {
               align = -(obj->Skill("Dishonor"));
             val = itos(align);
           }
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "is_pc")) {
           val = "";
           if (obj)
             val = bstr[is_pc(obj)];
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "is_killer")) {
           val = "0"; // FIXME: Real value?
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "is_thief")) {
           val = "0"; // FIXME: Real value?
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "con")) {
           val = "";
           if (obj)
             val = itos((obj->Attribute(0) - 2) * 3);
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "dex")) {
           val = "";
           if (obj)
             val = itos((obj->Attribute(1) - 2) * 3);
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "str")) {
           val = "";
           if (obj)
             val = itos((obj->Attribute(2) - 2) * 3);
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "stradd")) { // D&D is Dumb
           val = "0";
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "cha")) {
           val = "";
           if (obj)
             val = itos((obj->Attribute(3) - 2) * 3);
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "int")) {
           val = "";
           if (obj)
             val = itos((obj->Attribute(4) - 2) * 3);
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "wis")) {
           val = "";
           if (obj)
             val = itos((obj->Attribute(5) - 2) * 3);
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "pos")) {
           val = "";
@@ -852,45 +852,45 @@ void Mind::TBAVarSub(std::string& line) {
             else if (obj->Pos() == POS_STAND)
               val = "standing";
           }
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "title")) {
           val = "";
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "val0")) { // FIXME: Implement?
           val = "0";
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "val1")) { // FIXME: Implement?
           val = "0";
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "val2")) { // FIXME: Implement?
           val = "0";
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "val3")) { // FIXME: Implement?
           val = "0";
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "timer")) {
           val = "";
           if (obj)
             val = itos(obj->Skill("Temporary")); // FIXME: More Kinds?
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "move")) {
           val = "";
           if (obj)
             val = itos(10 - obj->Stun());
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "maxmove")) {
           val = "";
           if (obj)
             val = "10";
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "mana")) {
           val = "";
@@ -901,7 +901,7 @@ void Mind::TBAVarSub(std::string& line) {
               val = itos(10 - obj->Stun());
             }
           }
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "maxmana")) {
           val = "";
@@ -912,73 +912,73 @@ void Mind::TBAVarSub(std::string& line) {
               val = "10";
             }
           }
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "saving_para")) {
           val = "";
           if (obj)
             val = "0";
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "saving_rod")) {
           val = "";
           if (obj)
             val = "0";
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "saving_petri")) {
           val = "";
           if (obj)
             val = "0";
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "saving_breath")) {
           val = "";
           if (obj)
             val = "0";
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "saving_spell")) {
           val = "";
           if (obj)
             val = "0";
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "prac")) {
           val = "";
           if (obj)
             val = "0";
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "questpoints")) {
           val = "";
           if (obj)
             val = "0";
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "exp")) {
           val = "";
           if (obj)
             val = itos(obj->Exp());
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "hunger")) {
           val = "";
           if (obj)
             val = itos(obj->Skill("Hungry")); // FIXME: Convert
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "thirst")) {
           val = "";
           if (obj)
             val = itos(obj->Skill("Thirsty")); // FIXME: Convert
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "drunk")) {
           val = "";
           if (obj)
             val = "0"; // FIXME: Query Drunkenness Here
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "class")) {
           val = "";
@@ -993,17 +993,17 @@ void Mind::TBAVarSub(std::string& line) {
               val = "warrior";
             }
           }
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "canbeseen")) {
           val = "";
           if (obj)
             val = bstr[!(obj->HasSkill("Invisible") || obj->HasSkill("Hidden"))];
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "affect")) {
           val = ""; // FIXME: Translate & List Spell Effects?
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "fighting")) {
           if (obj)
@@ -1014,9 +1014,9 @@ void Mind::TBAVarSub(std::string& line) {
             if (owner && owner->Wearing(obj))
               obj = owner;
             else
-              obj = NULL;
+              obj = nullptr;
           } else
-            obj = NULL;
+            obj = nullptr;
         } else if (!strcasecmp(field.c_str(), "room")) {
           while (obj && obj->Skill("TBARoom") == 0)
             obj = obj->Parent();
@@ -1119,9 +1119,9 @@ void Mind::TBAVarSub(std::string& line) {
               if (item != stf.end())
                 obj = (*item);
               else
-                obj = NULL;
+                obj = nullptr;
             } else
-              obj = NULL;
+              obj = nullptr;
           }
         } else if (!strcasecmp(field.c_str(), "next_in_room")) {
           if (obj) {
@@ -1138,9 +1138,9 @@ void Mind::TBAVarSub(std::string& line) {
               if (item != stf.end())
                 obj = (*item);
               else
-                obj = NULL;
+                obj = nullptr;
             } else
-              obj = NULL;
+              obj = nullptr;
           }
         } else if (!strcasecmp(field.c_str(), "master")) {
           if (obj)
@@ -1156,9 +1156,9 @@ void Mind::TBAVarSub(std::string& line) {
               }
             }
             if (tent == touch.end())
-              obj = NULL;
+              obj = nullptr;
           } else
-            obj = NULL;
+            obj = nullptr;
         } else if (!strncasecmp(field.c_str(), "skill(", 6)) {
           val = "";
           if (obj) {
@@ -1166,7 +1166,7 @@ void Mind::TBAVarSub(std::string& line) {
             std::string skl = get_skill(field.substr(6, num - 6));
             val = itos(obj->Skill(skl));
           }
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strncasecmp(field.c_str(), "varexists(", 10)) {
           val = "";
@@ -1175,7 +1175,7 @@ void Mind::TBAVarSub(std::string& line) {
             std::string var = field.substr(10, num - 10); // FIXME: Variables!
             val = bstr[obj->HasSkill(std::string("TBA:") + var)];
           }
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strncasecmp(field.c_str(), "has_item(", 9)) {
           int vnum = -1;
@@ -1193,7 +1193,7 @@ void Mind::TBAVarSub(std::string& line) {
               }
             }
           }
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strncasecmp(field.c_str(), "vnum(", 5)) {
           val = "0"; // Default - in case it doesn't have a vnum
@@ -1209,7 +1209,7 @@ void Mind::TBAVarSub(std::string& line) {
               val = bstr[(vnum == qnum)];
             }
           }
-          obj = NULL;
+          obj = nullptr;
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "pos(sleeping)")) {
           if (obj) {
@@ -1217,7 +1217,7 @@ void Mind::TBAVarSub(std::string& line) {
             obj->StopAct(ACT_REST);
             obj->AddAct(ACT_SLEEP);
           }
-          obj = NULL;
+          obj = nullptr;
           val = "";
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "pos(resting)")) {
@@ -1226,7 +1226,7 @@ void Mind::TBAVarSub(std::string& line) {
             obj->SetPos(POS_SIT);
             obj->AddAct(ACT_REST);
           }
-          obj = NULL;
+          obj = nullptr;
           val = "";
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "pos(sitting)")) {
@@ -1235,7 +1235,7 @@ void Mind::TBAVarSub(std::string& line) {
             obj->StopAct(ACT_REST);
             obj->SetPos(POS_SIT);
           }
-          obj = NULL;
+          obj = nullptr;
           val = "";
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "pos(fighting)")) {
@@ -1244,7 +1244,7 @@ void Mind::TBAVarSub(std::string& line) {
             obj->StopAct(ACT_REST);
             obj->SetPos(POS_STAND);
           }
-          obj = NULL;
+          obj = nullptr;
           val = "";
           is_obj = 0;
         } else if (!strcasecmp(field.c_str(), "pos(standing)")) {
@@ -1253,7 +1253,7 @@ void Mind::TBAVarSub(std::string& line) {
             obj->StopAct(ACT_REST);
             obj->SetPos(POS_STAND);
           }
-          obj = NULL;
+          obj = nullptr;
           val = "";
           is_obj = 0;
           // Is no general fighting state, must fight someone!
@@ -1349,7 +1349,7 @@ int Mind::TBARunLine(std::string line) {
   Object* room = ovars["self"];
   while (room && room->Skill("TBARoom") == 0) {
     if (room->Skill("Invisible") > 999)
-      room = NULL; // Not really there
+      room = nullptr; // Not really there
     else
       room = room->Parent();
   }
@@ -1444,7 +1444,7 @@ int Mind::TBARunLine(std::string line) {
             val = TBAComp(val);
           }
           if (!strncmp(val.c_str(), "OBJ:", 4)) { // Encoded Object
-            ovars[var] = NULL;
+            ovars[var] = nullptr;
             sscanf(val.c_str(), "OBJ:%p", &(ovars[var]));
             svars.erase(var);
           } else {
@@ -1538,7 +1538,7 @@ int Mind::TBARunLine(std::string line) {
     room = room->World();
     std::list<Object*> options = room->Contents();
     std::list<Object*>::iterator opt = options.begin();
-    room = NULL;
+    room = nullptr;
     for (; opt != options.end(); ++opt) {
       int tnum = (*opt)->Skill("TBARoom");
       if (tnum > 0 && (tnum % 1000000) == dnum) {
@@ -1555,7 +1555,7 @@ int Mind::TBARunLine(std::string line) {
       Disable();
       return 1;
     }
-    Object* oldp = NULL;
+    Object* oldp = nullptr;
     if (ovars["self"]->Parent() != room) {
       oldp = ovars["self"]->Parent();
       oldp->RemoveLink(ovars["self"]);
@@ -1570,8 +1570,8 @@ int Mind::TBARunLine(std::string line) {
   }
 
   else if (!strncasecmp(line.c_str(), "context ", 8)) {
-    Object* con = NULL;
-    if (sscanf(line.c_str() + 8, " OBJ:%p", &con) >= 1 && con != NULL) {
+    Object* con = nullptr;
+    if (sscanf(line.c_str() + 8, " OBJ:%p", &con) >= 1 && con != nullptr) {
       ovars["context"] = con;
     } else {
       fprintf(
@@ -1584,9 +1584,9 @@ int Mind::TBARunLine(std::string line) {
   }
 
   else if (!strncasecmp(line.c_str(), "rdelete ", 8)) {
-    Object* con = NULL;
+    Object* con = nullptr;
     char var[256] = "";
-    if (sscanf(line.c_str() + 7, " %s OBJ:%p", var, &con) >= 2 && con != NULL) {
+    if (sscanf(line.c_str() + 7, " %s OBJ:%p", var, &con) >= 2 && con != nullptr) {
       con->SetSkill(std::string("TBA:") + var, 0);
       //      fprintf(stderr, CGRN "#%d Debug: RDelete '%s'\n" CNRM,
       //		body->Skill("TBAScript"), line.c_str());
@@ -1601,9 +1601,9 @@ int Mind::TBARunLine(std::string line) {
   }
 
   else if (!strncasecmp(line.c_str(), "remote ", 7)) {
-    Object* con = NULL;
+    Object* con = nullptr;
     char var[256] = "";
-    if (sscanf(line.c_str() + 7, " %s OBJ:%p", var, &con) >= 2 && con != NULL) {
+    if (sscanf(line.c_str() + 7, " %s OBJ:%p", var, &con) >= 2 && con != nullptr) {
       if (svars.count(var) > 0) {
         int val = atoi(svars[var].c_str());
         con->SetSkill(std::string("TBA:") + var, val);
@@ -1631,7 +1631,7 @@ int Mind::TBARunLine(std::string line) {
   else if (!strncasecmp(line.c_str(), "global ", 7)) {
     Object* con = ovars["context"];
     char var[256] = "";
-    if (sscanf(line.c_str() + 7, " %s", var) >= 1 && con != NULL) {
+    if (sscanf(line.c_str() + 7, " %s", var) >= 1 && con != nullptr) {
       if (svars.count(var) > 0) {
         int val = atoi(svars[var].c_str());
         con->SetSkill(std::string("TBA:") + var, val);
@@ -1887,13 +1887,13 @@ int Mind::TBARunLine(std::string line) {
       std::string mes = line.substr(start);
       trim_string(mes);
       mes += "\n";
-      room->SendIn(ALL, 0, mes.c_str(), "", NULL, NULL);
+      room->SendIn(ALL, 0, mes.c_str(), "", nullptr, nullptr);
       room->Loud(8, mes.c_str()); // 8 will go 4-8 rooms.
     }
   }
 
   else if (!strncasecmp(line.c_str(), "echoaround ", 11)) {
-    Object* targ = NULL;
+    Object* targ = nullptr;
     char mes[256] = "";
     sscanf(line.c_str() + 11, " OBJ:%p %254[^\n\r]", &targ, mes);
     mes[strlen(mes) + 1] = 0;
@@ -1902,7 +1902,7 @@ int Mind::TBARunLine(std::string line) {
     while (troom && troom->Skill("TBARoom") == 0)
       troom = troom->Parent();
     if (troom && targ)
-      troom->SendOut(0, 0, mes, "", targ, NULL);
+      troom->SendOut(0, 0, mes, "", targ, nullptr);
   }
 
   else if ((!strncasecmp(line.c_str(), "mecho ", 6))) {
@@ -1911,12 +1911,12 @@ int Mind::TBARunLine(std::string line) {
       std::string mes = line.substr(start);
       trim_string(mes);
       mes += "\n";
-      room->SendOut(0, 0, mes.c_str(), mes.c_str(), NULL, NULL);
+      room->SendOut(0, 0, mes.c_str(), mes.c_str(), nullptr, nullptr);
     }
   }
 
   else if (!strncasecmp(line.c_str(), "send ", 5)) {
-    Object* targ = NULL;
+    Object* targ = nullptr;
     char mes[1024] = "";
     sscanf(line.c_str() + 5, " OBJ:%p %1022[^\n\r]", &targ, mes);
     mes[strlen(mes) + 1] = 0;
@@ -1926,7 +1926,7 @@ int Mind::TBARunLine(std::string line) {
   }
 
   else if (!strncasecmp(line.c_str(), "force ", 6)) {
-    Object* targ = NULL;
+    Object* targ = nullptr;
     char tstr[256] = "", cmd[1024] = "";
     if (sscanf(line.c_str() + 6, " OBJ:%p %1023[^\n\r]", &targ, cmd) < 2) {
       if (sscanf(line.c_str() + 6, " %255s %1023[^\n\r]", tstr, cmd) >= 2) {
@@ -1934,7 +1934,7 @@ int Mind::TBARunLine(std::string line) {
       }
     }
     if (targ) {
-      Mind* amind = NULL; // Make sure human minds see it!
+      Mind* amind = nullptr; // Make sure human minds see it!
       std::vector<Mind*> mns = get_human_minds();
       std::vector<Mind*>::iterator mn = mns.begin();
       for (; mn != mns.end(); ++mn) {
@@ -2015,7 +2015,7 @@ int Mind::TBARunLine(std::string line) {
 
     std::list<Object*> options = room->World()->Contents();
     std::list<Object*>::iterator opt = options.begin();
-    room = NULL;
+    room = nullptr;
     for (; opt != options.end(); ++opt) {
       int tnum = (*opt)->Skill("TBARoom");
       if (tnum > 0 && (tnum % 1000000) == rnum) {
@@ -2118,7 +2118,7 @@ int Mind::TBARunLine(std::string line) {
       if (door)
         door->Recycle();
       std::list<Object*>::iterator opt = options.begin();
-      Object* toroom = NULL;
+      Object* toroom = nullptr;
       for (; opt != options.end(); ++opt) {
         int onum = (*opt)->Skill("TBARoom");
         if (tnum > 0 && (onum % 1000000) == tnum) {
@@ -2202,7 +2202,7 @@ int Mind::TBARunLine(std::string line) {
     Object* dest = ovars["self"]->World();
     std::list<Object*> options = dest->Contents();
     std::list<Object*>::iterator opt = options.begin();
-    dest = NULL;
+    dest = nullptr;
     for (; opt != options.end(); ++opt) {
       int tnum = (*opt)->Skill("TBARoom");
       if (tnum > 0 && (tnum % 1000000) == dnum) {
@@ -2233,7 +2233,7 @@ int Mind::TBARunLine(std::string line) {
   }
 
   else if (!strncasecmp(line.c_str(), "purge", 5)) {
-    Object* targ = NULL;
+    Object* targ = nullptr;
     sscanf(line.c_str() + 5, " OBJ:%p", &targ);
     if (targ) {
       if (!is_pc(targ))
@@ -2268,7 +2268,7 @@ int Mind::TBARunLine(std::string line) {
     char targ[256] = "";
     char where[256] = "";
     Object* dest = ovars["self"];
-    Object* item = NULL;
+    Object* item = nullptr;
     params = sscanf(line.c_str() + 5, " %s %d %s %s", buf, &vnum, targ, where);
     type = tolower(buf[0]);
     if ((params != 2 && params != 4) || (type != 'o' && type != 'm')) {
@@ -2283,7 +2283,7 @@ int Mind::TBARunLine(std::string line) {
     Object* src = room->World();
     if (type == 'o') {
       src = src->PickObject("TBAMUD Object Room", LOC_NINJA | LOC_INTERNAL);
-      if (src == NULL) {
+      if (src == nullptr) {
         fprintf(
             stderr,
             CRED "#%d Error: Can't find Object room '%s'\n" CNRM,
@@ -2302,7 +2302,7 @@ int Mind::TBARunLine(std::string line) {
     } else if (type == 'm') {
       dest = room;
       src = src->PickObject("TBAMUD MOB Room", LOC_NINJA | LOC_INTERNAL);
-      if (src == NULL) {
+      if (src == nullptr) {
         fprintf(
             stderr,
             CRED "#%d Error: Can't find MOB room '%s'\n" CNRM,
@@ -2319,7 +2319,7 @@ int Mind::TBARunLine(std::string line) {
         }
       }
     }
-    if (item == NULL) {
+    if (item == nullptr) {
       fprintf(
           stderr,
           CRED "#%d Error: Failed to find item '%s'\n" CNRM,
@@ -2416,13 +2416,14 @@ int Mind::TBARunLine(std::string line) {
       if (!dest->Wear(item, mask))
         dest->StashOrDrop(item);
     } else if (loc == ACT_WIELD) { // Wield it
-      if (dest->ActTarg(ACT_WIELD) == NULL) {
+      if (dest->ActTarg(ACT_WIELD) == nullptr) {
         dest->AddAct(ACT_WIELD, item);
       } else {
         dest->StashOrDrop(item);
       }
     } else if (loc == ACT_HOLD) { // Hold it
-      if (dest->ActTarg(ACT_HOLD) == NULL || dest->ActTarg(ACT_HOLD) == dest->ActTarg(ACT_WIELD) ||
+      if (dest->ActTarg(ACT_HOLD) == nullptr ||
+          dest->ActTarg(ACT_HOLD) == dest->ActTarg(ACT_WIELD) ||
           dest->ActTarg(ACT_HOLD) == dest->ActTarg(ACT_WEAR_SHIELD)) {
         dest->AddAct(ACT_HOLD, item);
       } else {
@@ -2772,7 +2773,7 @@ void Mind::Think(int istick) {
       cons[body->PickObject("west", LOC_NEARBY)] = "west";
       cons[body->PickObject("up", LOC_NEARBY)] = "up";
       cons[body->PickObject("down", LOC_NEARBY)] = "down";
-      cons.erase(NULL);
+      cons.erase(nullptr);
 
       std::map<Object*, const char*> cons2 = cons;
       std::map<Object*, const char*>::iterator dir = cons2.begin();
@@ -2836,7 +2837,7 @@ const char* Mind::SpecialPrompt() {
 }
 
 Mind* new_mind(int tp, Object* obj, Object* obj2, Object* obj3, std::string text) {
-  Mind* m = NULL;
+  Mind* m = nullptr;
   if (recycle_bin.size() > 0) {
     m = recycle_bin.front();
     recycle_bin.pop_front();
@@ -2854,7 +2855,7 @@ Mind* new_mind(int tp, Object* obj, Object* obj2, Object* obj3, std::string text
 }
 
 int new_trigger(int msec, Object* obj, Object* tripper, std::string text) {
-  return new_trigger(msec, obj, tripper, NULL, text);
+  return new_trigger(msec, obj, tripper, nullptr, text);
 }
 
 int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, std::string text) {

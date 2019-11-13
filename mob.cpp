@@ -40,7 +40,7 @@ static void init_wear_attribs() {
   wear_attribs[ACT_WEAR_RHIP] = "Wearable on Right Hip";
 }
 
-static Mind* mob_mind = NULL;
+static Mind* mob_mind = nullptr;
 Mind* get_mob_mind() {
   if (!mob_mind) {
     mob_mind = new Mind();
@@ -49,7 +49,7 @@ Mind* get_mob_mind() {
   return mob_mind;
 }
 
-static Object* gold = NULL;
+static Object* gold = nullptr;
 static void init_gold() {
   gold = new Object();
   gold->SetShortDesc("a gold piece");
@@ -127,7 +127,7 @@ MOBType::MOBType(
   g = ig;
   gm = MAX(igm, 1);
 
-  armed = NULL;
+  armed = nullptr;
 }
 
 void MOBType::Skill(const char* nm, int percent, int mod) {
@@ -312,7 +312,7 @@ static const char* gen_replace[][4] = {{"{He}", "She", "He", "It"},
                                        {"{he}", "she", "he", "it"},
                                        {"{him}", "her", "him", "it"},
                                        {"{his}", "hers", "his", "its"},
-                                       {NULL, NULL, NULL, NULL}};
+                                       {nullptr, nullptr, nullptr, nullptr}};
 
 std::string gender_proc(const char* in, char gender) {
   std::string ret = in;

@@ -27,8 +27,11 @@ class Mind {
   void SetRemote(int fd);
   void SetMob();
   void SetTBAMob();
-  void
-  SetTBATrigger(Object* tr, Object* tripper = NULL, Object* targ = NULL, std::string text = "");
+  void SetTBATrigger(
+      Object* tr,
+      Object* tripper = nullptr,
+      Object* targ = nullptr,
+      std::string text = "");
   void SetNPC();
   void SetSystem();
   void Attach(Object* bod);
@@ -106,11 +109,11 @@ class Mind {
 
 Mind* new_mind(
     int tp,
-    Object* obj = NULL,
-    Object* obj2 = NULL,
-    Object* obj3 = NULL,
+    Object* obj = nullptr,
+    Object* obj2 = nullptr,
+    Object* obj3 = nullptr,
     std::string text = "");
-int new_trigger(int msec, Object* obj, Object* tripper = NULL, std::string text = "");
+int new_trigger(int msec, Object* obj, Object* tripper = nullptr, std::string text = "");
 int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, std::string text = "");
 
 #endif

@@ -68,7 +68,7 @@ static std::map<Object*, int> obj2num;
 
 Object* getbynum(int num) {
   if (num2obj.count(num) < 1)
-    return NULL;
+    return nullptr;
   return num2obj[num];
 }
 
@@ -80,8 +80,8 @@ int getnum(Object* obj) {
 }
 
 int Object::Save(const char* filename) {
-  num2obj[0] = NULL;
-  obj2num[NULL] = 0;
+  num2obj[0] = nullptr;
+  obj2num[nullptr] = 0;
 
   FILE* fl = fopen(filename, "w");
   if (!fl)
@@ -164,8 +164,8 @@ int Object::SaveTo(FILE* fl) {
 
 static unsigned int ver;
 int Object::Load(const char* fn) {
-  num2obj[0] = NULL;
-  obj2num[NULL] = 0;
+  num2obj[0] = nullptr;
+  obj2num[nullptr] = 0;
 
   FILE* fl = fopen(fn, "r");
   if (!fl)
@@ -185,12 +185,12 @@ int Object::Load(const char* fn) {
     std::map<act_t, Object*>::iterator aind = (*ind)->act.begin();
     for (; aind != (*ind)->act.end(); ++aind) {
       /* Decode the Object Number from a pointer, Encoded in LoadFrom() */
-      int num = int(aind->second - ((Object*)(NULL)));
+      int num = int(aind->second - ((Object*)(nullptr)));
       aind->second = num2obj[num];
       if (aind->second) {
         aind->second->touching_me.insert(*ind);
       } else if (aind->first <= ACT_REST) { // Targetless Actions
-        aind->second = NULL;
+        aind->second = nullptr;
       } else { // Act Targ No Longer Exists ("junkrestart", I hope)!
         killacts.push_back(aind->first);
       }
@@ -362,7 +362,7 @@ int Object::LoadFrom(FILE* fl) {
     }
 
     /* Encode the Object Number as a pointer, Decoded in Load() */
-    act[(act_t)anum] = (Object*)((Object*)(NULL) + num2);
+    act[(act_t)anum] = (Object*)((Object*)(nullptr) + num2);
   }
 
   if (Skill("Personality"))

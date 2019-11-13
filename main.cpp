@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
   const char* host = "";
   int port = 4242;
   int acceptor = -1;
-  static char* netstat_file = NULL;
+  static char* netstat_file = nullptr;
 
   signal(SIGHUP, &do_restart);
   signal(SIGINT, &do_shutdown);
@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
                            {0, 0, 0, 0}};
 
   int arg;
-  while ((arg = getopt_long(argc, argv, "p:h:", lopts, NULL)) >= 0) {
+  while ((arg = getopt_long(argc, argv, "p:h:", lopts, nullptr)) >= 0) {
     if (arg == 'p')
       port = atoi(optarg);
     if (arg == 'h')
@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  srand(time(NULL));
+  srand(time(nullptr));
 
   fprintf(stdout, "Starting networking....\n");
   if (acceptor >= 0)
@@ -74,19 +74,19 @@ int main(int argc, char** argv) {
     unwarn_net(2);
   }
 
-  gettimeofday(&lastsave_time, NULL);
+  gettimeofday(&lastsave_time, nullptr);
   fprintf(stdout, "Ready to play!\n");
   while (shutdn <= 0) {
-    gettimeofday(&current_time, NULL);
+    gettimeofday(&current_time, nullptr);
     tick_world();
 
     // timeval now_time;
     // timeval then_time;
 
     // static long long diff1;
-    // gettimeofday(&now_time, NULL);
+    // gettimeofday(&now_time, nullptr);
     update_net();
-    // gettimeofday(&then_time, NULL);
+    // gettimeofday(&then_time, nullptr);
     // diff1 = (long long)(then_time.tv_usec - now_time.tv_usec);
     // diff1 += (long long)(1000000) * (long long)(then_time.tv_sec -
     // now_time.tv_sec);
@@ -94,15 +94,15 @@ int main(int argc, char** argv) {
     usleep(10000);
 
     // static long long diff2;
-    // gettimeofday(&now_time, NULL);
+    // gettimeofday(&now_time, nullptr);
     Object::FreeActions();
-    // gettimeofday(&then_time, NULL);
+    // gettimeofday(&then_time, nullptr);
     // diff2 = (long long)(then_time.tv_usec - now_time.tv_usec);
     // diff2 += (long long)(1000000) * (long long)(then_time.tv_sec -
     // now_time.tv_sec);
 
     // static long long diff3;
-    // gettimeofday(&now_time, NULL);
+    // gettimeofday(&now_time, nullptr);
 
     // FIXME: Do real (adjustable) autosave times - hardcoded to 15 minutes!
     if (shutdn < 0 || (current_time.tv_sec > lastsave_time.tv_sec + 900)) {
@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
       shutdn = 0;
       lastsave_time = current_time;
     }
-    // gettimeofday(&then_time, NULL);
+    // gettimeofday(&then_time, nullptr);
     // diff3 = (long long)(then_time.tv_usec - now_time.tv_usec);
     // diff3 += (long long)(1000000) * (long long)(then_time.tv_sec -
     // now_time.tv_sec);
@@ -138,7 +138,7 @@ int main(int argc, char** argv) {
     }
     new_argv[ctr] = strdup("--network-stat=acid/current.nst");
     new_argv[ctr + 1] = strdup(buf);
-    new_argv[ctr + 2] = NULL;
+    new_argv[ctr + 2] = nullptr;
 
     execvp(strdup(argv[0]), new_argv);
     perror("execvp() failed for restart");

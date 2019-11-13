@@ -397,17 +397,17 @@ void Object::DynamicInit1() { // Dwarven mine
   const char* dir2 = "west";
   const char* dir3 = "east";
 
-  if (PickObject("north", LOC_INTERNAL) != NULL) {
+  if (PickObject("north", LOC_INTERNAL) != nullptr) {
     dirb = "north";
     dir = "south";
     dir2 = "east";
     dir3 = "west";
-  } else if (PickObject("east", LOC_INTERNAL) != NULL) {
+  } else if (PickObject("east", LOC_INTERNAL) != nullptr) {
     dirb = "east";
     dir = "west";
     dir2 = "south";
     dir3 = "north";
-  } else if (PickObject("west", LOC_INTERNAL) != NULL) {
+  } else if (PickObject("west", LOC_INTERNAL) != nullptr) {
     dirb = "west";
     dir = "east";
     dir2 = "north";

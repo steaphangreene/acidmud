@@ -47,8 +47,8 @@ const char* act_str[ACT_SPECIAL_MAX] = {
     //	"ACT_SPECIAL_MAX"
 };
 
-static Object* universe = NULL;
-static Object* trash_bin = NULL;
+static Object* universe = nullptr;
+static Object* trash_bin = nullptr;
 
 static std::set<Object*> busylist;
 extern timeval current_time; // From main.cpp
@@ -203,7 +203,7 @@ int Object::Matches(const char* seek) {
 
   // Pointer Matches
   if (!strncmp(targ.c_str(), "OBJ:", 4)) {
-    Object* tofind = NULL;
+    Object* tofind = nullptr;
     sscanf(targ.c_str() + 4, "%p", &tofind);
     return (this == tofind);
   }
@@ -419,7 +419,7 @@ int Object::Tick() {
       AddAct(ACT_SPECIAL_MONITOR, obj);
       obj->Attach(get_tba_mob_mind());
       obj->Activate();
-      parent->SendOut(ALL, -1, ";s arrives.\n", "", obj, NULL);
+      parent->SendOut(ALL, -1, ";s arrives.\n", "", obj, nullptr);
     }
   }
 
@@ -431,11 +431,11 @@ int Object::Tick() {
   if (IsAct(ACT_DEAD)) { // Rotting corpses
     ++stru;
     if (stru == 1) {
-      parent->SendOut(ALL, 0, ";s's corpse starts to smell.\n", "", this, NULL);
+      parent->SendOut(ALL, 0, ";s's corpse starts to smell.\n", "", this, nullptr);
     } else if (stru == 3) {
-      parent->SendOut(ALL, 0, ";s's corpse starts to rot.\n", "", this, NULL);
+      parent->SendOut(ALL, 0, ";s's corpse starts to rot.\n", "", this, nullptr);
     } else if (stru == 6) {
-      parent->SendOut(ALL, 0, ";s's corpse starts to fall apart.\n", "", this, NULL);
+      parent->SendOut(ALL, 0, ";s's corpse starts to fall apart.\n", "", this, nullptr);
     } else if (stru >= 10) {
       Object* corpse = new Object(parent);
 
@@ -482,7 +482,7 @@ int Object::Tick() {
         (*todel)->Recycle();
       }
 
-      parent->SendOut(ALL, 0, ";s's corpse completely falls apart.\n", "", this, NULL);
+      parent->SendOut(ALL, 0, ";s's corpse completely falls apart.\n", "", this, nullptr);
 
       if (is_pc(this)) { // Hide me in the VOID!
         Object* dest = this;
@@ -517,7 +517,7 @@ int Object::Tick() {
     SetSkill("Temporary", Skill("Temporary") - 1);
     if (Skill("Temporary") < 1) {
       if (Owner() && Owner()->Parent()) {
-        Owner()->Parent()->SendOut(0, 0, ";s vanishes in a flash of light.", "", this, NULL);
+        Owner()->Parent()->SendOut(0, 0, ";s vanishes in a flash of light.", "", this, nullptr);
       }
       return 1; // Delete Me!
     }
@@ -649,7 +649,7 @@ int Object::Tick() {
         ";s chokes and writhes in pain.\n",
         CRED "You choke and writhe in pain.  POISON!!!!\n" CNRM,
         this,
-        NULL);
+        nullptr);
     if (succ < 2)
       phys += 6;
     else if (succ < 4)
@@ -666,7 +666,7 @@ Object::Object() {
   busytill.tv_sec = 0;
   busytill.tv_usec = 0;
   short_desc = "new object";
-  parent = NULL;
+  parent = nullptr;
   pos = POS_NONE;
 
   weight = 0;
@@ -699,7 +699,7 @@ Object::Object(Object* o) {
   busytill.tv_sec = 0;
   busytill.tv_usec = 0;
   short_desc = "new object";
-  parent = NULL;
+  parent = nullptr;
   SetParent(o);
   pos = POS_NONE;
 
@@ -784,7 +784,7 @@ Object::Object(const Object& o) {
   if (o.IsAct(ACT_REST))
     AddAct(ACT_REST);
 
-  parent = NULL;
+  parent = nullptr;
 
   if (o.IsActive())
     Activate();
@@ -839,11 +839,11 @@ const char* Object::Name(int definite, Object* rel, Object* sub) const {
     return "you";
 
   // FIXME: Hack!  Really detect/specify reflexives?
-  else if (rel == NULL && sub == this && sub->Gender() == 'F')
+  else if (rel == nullptr && sub == this && sub->Gender() == 'F')
     return "her";
-  else if (rel == NULL && sub == this && sub->Gender() == 'M')
+  else if (rel == nullptr && sub == this && sub->Gender() == 'M')
     return "him";
-  else if (rel == NULL && sub == this)
+  else if (rel == nullptr && sub == this)
     return "it";
 
   else if (sub == this && sub->Gender() == 'F')
@@ -1135,7 +1135,7 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
       if (cur->second->Skill("Open") || cur->second->Skill("Transparent")) {
         sprintf(buf, "%16s  %c", " ", 0);
         base = buf;
-        cur->second->SendContents(m, NULL, vmode);
+        cur->second->SendContents(m, nullptr, vmode);
         base = "";
         m->Send(CNRM);
       } else if (cur->second->Skill("Container")) {
@@ -1146,7 +1146,7 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
         } else if (vmode & 1) {
           sprintf(buf, "%16s  %c", " ", 0);
           base = buf;
-          cur->second->SendContents(m, NULL, vmode);
+          cur->second->SendContents(m, nullptr, vmode);
           base = "";
           m->Send(CNRM);
         }
@@ -1172,7 +1172,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
   int tlines = 0, total = 0;
   for (auto ind = cont.begin(); ind != cont.end(); ++ind)
     if (master.count(*ind)) {
-      if ((vmode & LOC_NINJA) == 0 && Parent() != NULL) { // NinjaMode/CharRoom
+      if ((vmode & LOC_NINJA) == 0 && Parent() != nullptr) { // NinjaMode/CharRoom
         if ((*ind)->Skill("Invisible") > 999)
           continue;
         if ((*ind)->HasSkill("Invisible")) {
@@ -1989,7 +1989,7 @@ void Object::Recycle(int inbin) {
 
   for (auto indk = killers.begin(); indk != killers.end(); ++indk) {
     if (find(contents.begin(), contents.end(), *indk) != contents.end()) {
-      (*indk)->SetParent(NULL);
+      (*indk)->SetParent(nullptr);
       RemoveLink(*indk);
       (*indk)->Recycle();
     }
@@ -2002,7 +2002,7 @@ void Object::Recycle(int inbin) {
     (*indm)->StopAll();
     auto ind2 = (*indm)->contents.begin();
     for (; ind2 != (*indm)->contents.end(); ++ind2) {
-      (*ind2)->SetParent(NULL);
+      (*ind2)->SetParent(nullptr);
       killers.insert(*ind2);
     }
     (*indm)->contents.clear();
@@ -2175,7 +2175,7 @@ int strip_ordinal(const char** text) {
 Object* Object::PickObject(const char* name, int loc, int* ordinal) const {
   std::list<Object*> ret = PickObjects(name, loc, ordinal);
   if (ret.size() != 1) {
-    return NULL;
+    return nullptr;
   }
   return (*(ret.begin()));
 }
@@ -2217,7 +2217,7 @@ static int tag(Object* obj, std::list<Object*>& ret, int* ordinal, int vmode = 0
   // Can't be seen/affected (except in char rooms)
   if (obj->Skill("Hidden") > 0 && (vmode & (LOC_NINJA | 1)) == 0)
     return 0;
-  Object* nobj = NULL;
+  Object* nobj = nullptr;
 
   int cqty = 1, rqty = 1; // Contains / Requires
 
@@ -2296,8 +2296,8 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
   if (!(*ordinal))
     (*ordinal) = 1;
 
-  const char* keyword = NULL;
-  const char* keyword2 = NULL;
+  const char* keyword = nullptr;
+  const char* keyword2 = nullptr;
   if ((keyword = strstr(name, "'s ")) || (keyword2 = strstr(name, "'S "))) {
     if (keyword && keyword2)
       keyword = MIN(keyword, keyword2);
@@ -2349,7 +2349,7 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
     }
   }
 
-  if ((loc & LOC_NEARBY) && (parent != NULL)) {
+  if ((loc & LOC_NEARBY) && (parent != nullptr)) {
     std::list<Object*> cont = parent->Contents(loc); //"loc" includes vmode.
 
     for (auto ind = cont.begin(); ind != cont.end(); ++ind)
@@ -2357,7 +2357,7 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
         if ((*ind) == this)
           continue; // Must use "self" to pick self!
         if ((*ind)->Filter(loc) && (*ind)->Matches(name)) {
-          if (tag(*ind, ret, ordinal, (parent->Parent() == NULL) | (loc & LOC_SPECIAL))) {
+          if (tag(*ind, ret, ordinal, (parent->Parent() == nullptr) | (loc & LOC_SPECIAL))) {
             return ret;
           }
         }
@@ -2396,7 +2396,7 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
         if (action->second->Filter(loc) && action->second->Matches(name) &&
             ((loc & LOC_NOTWORN) == 0 || action->first <= ACT_HOLD) &&
             ((loc & LOC_NOTUNWORN) == 0 || action->first >= ACT_HOLD)) {
-          if (tag(action->second, ret, ordinal, (Parent() == NULL) | (loc & LOC_SPECIAL))) {
+          if (tag(action->second, ret, ordinal, (Parent() == nullptr) | (loc & LOC_SPECIAL))) {
             return ret;
           }
         }
@@ -2415,7 +2415,7 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
       if ((*ind) == this)
         continue; // Must use "self" to pick self!
       if ((*ind)->Filter(loc) && (*ind)->Matches(name)) {
-        if (tag(*ind, ret, ordinal, (Parent() == NULL) | (loc & LOC_SPECIAL))) {
+        if (tag(*ind, ret, ordinal, (Parent() == nullptr) | (loc & LOC_SPECIAL))) {
           return ret;
         }
       }
@@ -2572,7 +2572,7 @@ void Object::NotifyGone(Object* obj, Object* newloc, int up) {
 Object* Object::ActTarg(act_t a) const {
   if (act.count(a))
     return (act.find(a))->second;
-  return NULL;
+  return nullptr;
 };
 
 void Object::AddAct(act_t a, Object* o) {
@@ -2587,7 +2587,7 @@ void Object::StopAct(act_t a) {
   act.erase(a);
   if (obj && obj->HasSkill("Brightness") && obj->HasSkill("Light Source")) {
     obj->SetSkill("Light Source", 0);
-    // obj->SendOut(0, 0, ";s goes out.\n", "", obj, NULL);
+    // obj->SendOut(0, 0, ";s goes out.\n", "", obj, nullptr);
     obj->Deactivate();
   }
   if (obj) {
@@ -2620,17 +2620,29 @@ void Object::Collapse() {
   StopAct(ACT_FIGHT);
   if (parent) {
     if (pos != POS_LIE) {
-      parent->SendOut(ALL, -1, ";s collapses!\n", "You collapse!\n", this, NULL);
+      parent->SendOut(ALL, -1, ";s collapses!\n", "You collapse!\n", this, nullptr);
       pos = POS_LIE;
     }
     if (ActTarg(ACT_WIELD)) {
       parent->SendOutF(
-          ALL, -1, ";s drops %s!\n", "You drop %s!\n", this, NULL, ActTarg(ACT_WIELD)->ShortDesc());
+          ALL,
+          -1,
+          ";s drops %s!\n",
+          "You drop %s!\n",
+          this,
+          nullptr,
+          ActTarg(ACT_WIELD)->ShortDesc());
       ActTarg(ACT_WIELD)->Travel(parent);
     }
     if (ActTarg(ACT_HOLD) && ActTarg(ACT_HOLD) != ActTarg(ACT_WEAR_SHIELD)) {
       parent->SendOutF(
-          ALL, -1, ";s drops %s!\n", "You drop %s!\n", this, NULL, ActTarg(ACT_HOLD)->ShortDesc());
+          ALL,
+          -1,
+          ";s drops %s!\n",
+          "You drop %s!\n",
+          this,
+          nullptr,
+          ActTarg(ACT_HOLD)->ShortDesc());
       ActTarg(ACT_HOLD)->Travel(parent);
     } else if (ActTarg(ACT_HOLD)) {
       parent->SendOutF(
@@ -2639,7 +2651,7 @@ void Object::Collapse() {
           ";s stops holding %s.\n",
           "You stop holding %s!\n",
           this,
-          NULL,
+          nullptr,
           ActTarg(ACT_HOLD)->ShortDesc());
       StopAct(ACT_HOLD);
     }
@@ -2661,7 +2673,8 @@ void Object::UpdateDamage() {
     phys = 10 + Attribute(2) + 1;
 
     if (IsAct(ACT_DEAD) == 0) {
-      parent->SendOut(ALL, -1, ";s expires from its wounds.\n", "You expire, sorry.\n", this, NULL);
+      parent->SendOut(
+          ALL, -1, ";s expires from its wounds.\n", "You expire, sorry.\n", this, nullptr);
       stun = 10;
       Collapse();
       AddAct(ACT_DEAD);
@@ -2684,20 +2697,20 @@ void Object::UpdateDamage() {
           ";s collapses, bleeding and dying!\n",
           "You collapse, bleeding and dying!\n",
           this,
-          NULL);
+          nullptr);
       stun = 10;
       Collapse();
       AddAct(ACT_DYING);
     } else if (IsAct(ACT_DEAD) == 0) {
       parent->SendOut(
-          ALL, -1, ";s isn't quite dead yet!\n", "You aren't quite dead yet!\n", this, NULL);
+          ALL, -1, ";s isn't quite dead yet!\n", "You aren't quite dead yet!\n", this, nullptr);
       StopAct(ACT_DEAD);
       AddAct(ACT_DYING);
     }
     SetPos(POS_LIE);
   } else if (stun >= 10) {
     if (IsAct(ACT_UNCONSCIOUS) + IsAct(ACT_DYING) + IsAct(ACT_DEAD) == 0) {
-      parent->SendOut(ALL, -1, ";s falls unconscious!\n", "You fall unconscious!\n", this, NULL);
+      parent->SendOut(ALL, -1, ";s falls unconscious!\n", "You fall unconscious!\n", this, nullptr);
       Collapse();
       AddAct(ACT_UNCONSCIOUS);
     } else if (IsAct(ACT_DEAD) + IsAct(ACT_DYING) != 0) {
@@ -2707,7 +2720,7 @@ void Object::UpdateDamage() {
           ";s isn't dead, just out cold.\n",
           "You aren't dead, just unconscious.",
           this,
-          NULL);
+          nullptr);
       StopAct(ACT_DEAD);
       StopAct(ACT_DYING);
       AddAct(ACT_UNCONSCIOUS);
@@ -2716,7 +2729,12 @@ void Object::UpdateDamage() {
   } else if (stun > 0) {
     if (IsAct(ACT_DEAD) + IsAct(ACT_DYING) + IsAct(ACT_UNCONSCIOUS) != 0) {
       parent->SendOut(
-          ALL, -1, ";s wakes up, a little groggy.\n", "You wake up, a little groggy.", this, NULL);
+          ALL,
+          -1,
+          ";s wakes up, a little groggy.\n",
+          "You wake up, a little groggy.",
+          this,
+          nullptr);
       StopAct(ACT_DEAD);
       StopAct(ACT_DYING);
       StopAct(ACT_UNCONSCIOUS);
@@ -2724,7 +2742,7 @@ void Object::UpdateDamage() {
   } else {
     if (IsAct(ACT_DEAD) + IsAct(ACT_DYING) + IsAct(ACT_UNCONSCIOUS) != 0) {
       parent->SendOut(
-          ALL, -1, ";s wakes up, feeling fine!\n", "You wake up, feeling fine!\n", this, NULL);
+          ALL, -1, ";s wakes up, feeling fine!\n", "You wake up, feeling fine!\n", this, nullptr);
       StopAct(ACT_DEAD);
       StopAct(ACT_DYING);
       StopAct(ACT_UNCONSCIOUS);
@@ -3750,7 +3768,8 @@ void Object::Consume(const Object* item) {
   // Special effect: Recall
   if (item->Skill("Recall Spell") > 0) {
     if (parent) {
-      parent->SendOut(0, 0, "BAMF! ;s teleports away.\n", "BAMF! You teleport home.\n", this, NULL);
+      parent->SendOut(
+          0, 0, "BAMF! ;s teleports away.\n", "BAMF! You teleport home.\n", this, nullptr);
     }
     Object* dest = this;
     while ((!dest->ActTarg(ACT_SPECIAL_HOME)) && dest->Parent()) {
@@ -3761,7 +3780,7 @@ void Object::Consume(const Object* item) {
     }
     Travel(dest, 0);
     if (parent) {
-      parent->SendOut(0, 0, "BAMF! ;s teleports here.\n", "", this, NULL);
+      parent->SendOut(0, 0, "BAMF! ;s teleports here.\n", "", this, nullptr);
       parent->SendDescSurround(this, this);
     }
   }
@@ -3818,7 +3837,7 @@ void Object::Consume(const Object* item) {
             ";s looks groggy for a moment, but recovers.\n",
             "You feel groggy for a moment, but recover.\n",
             this,
-            NULL);
+            nullptr);
       }
     } else {
       handle_command(this, "sleep");
@@ -4052,7 +4071,7 @@ Object* Object::Stash(Object* item, int message, int force, int try_combine) {
     }
   }
 
-  Object* dest = NULL;
+  Object* dest = nullptr;
   std::list<Object*>::iterator con;
   for (con = containers.begin(); con != containers.end(); ++con) {
     if ((*con)->Skill("Capacity") - (*con)->ContainedVolume() < item->Volume())
@@ -4071,7 +4090,7 @@ Object* Object::Stash(Object* item, int message, int force, int try_combine) {
 
   // See if it actually makes it!
   if (dest && (item->Travel(dest, try_combine)))
-    dest = NULL;
+    dest = nullptr;
 
   if (message && dest) {
     int openclose = 0;
@@ -4157,17 +4176,17 @@ Object* Object::NextHasSkill(const std::string& s, const Object* last) {
   if (HasSkill(s) && (!last))
     return this;
   if (last == this)
-    last = NULL; // I was last one
+    last = nullptr; // I was last one
   auto item = contents.begin();
   for (; item != contents.end(); ++item) {
     Object* found = (*item)->NextHasSkill(s, last);
     if (found)
       return found;
     if (last && (last == (*item) || (*item)->HasWithin(last))) {
-      last = NULL; // Was last item in sub-item
+      last = nullptr; // Was last item in sub-item
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 Object* Object::Owner() const {
