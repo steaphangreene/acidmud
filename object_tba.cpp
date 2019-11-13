@@ -140,14 +140,14 @@ static Object* mobroom = nullptr;
 void Object::TBACleanup() {
   std::map<int, Object*>::iterator ind;
 
-  //  for(ind = bynumobj.begin(); ind != bynumobj.end(); ++ind) {
-  //    (*ind).second->Recycle();
+  //  for(ind : bynumobj) {
+  //    ind.second->Recycle();
   //    }
-  //  for(ind = bynummob.begin(); ind != bynummob.end(); ++ind) {
-  //    (*ind).second->Recycle();
+  //  for(ind : bynummob) {
+  //    ind.second->Recycle();
   //    }
-  for (ind = bynumtrg.begin(); ind != bynumtrg.end(); ++ind) {
-    (*ind).second->Recycle();
+  for (auto ind : bynumtrg) {
+    ind.second->Recycle();
   }
 
   bynumwld.clear();
@@ -184,14 +184,13 @@ void Object::TBACleanup() {
 }
 
 void Object::TBAFinalizeTriggers() {
-  std::list<Object*>::iterator trg = todotrg.begin();
-  for (; trg != todotrg.end(); ++trg) {
+  for (auto trg : todotrg) {
     std::string newtext = "Powers List:\n";
-    const char* cur = (*trg)->long_desc.c_str();
+    const char* cur = trg->long_desc.c_str();
     while ((cur = strstr(cur, "teleport [")) != nullptr) {
       int rnum;
-      (*trg)->Parent()->SetSkill("Teleport", 10);
-      (*trg)->Parent()->SetSkill("Restricted Item", 1);
+      trg->Parent()->SetSkill("Teleport", 10);
+      trg->Parent()->SetSkill("Restricted Item", 1);
       sscanf(cur, "teleport [%d]\n", &rnum);
       if (bynumwld.count(rnum) > 0) {
         newtext += std::string("teleport ") + bynumwld[rnum]->Name() + "\n";
@@ -201,8 +200,8 @@ void Object::TBAFinalizeTriggers() {
       ++cur;
     }
     if (newtext != "Powers List:\n") {
-      (*trg)->Parent()->SetLongDesc(newtext.c_str());
-      (*trg)->Recycle();
+      trg->Parent()->SetLongDesc(newtext.c_str());
+      trg->Recycle();
       // fprintf(stderr, "%s", newtext.c_str());
     }
   }
@@ -2312,27 +2311,26 @@ void Object::TBALoadWLD(const char* fn) {
       }
     }
 
-    std::vector<Object*>::iterator ob = olist.begin();
-    for (; ob != olist.end(); ++ob) {
+    for (auto ob : olist) {
       for (int dir = 0; dir < 6; ++dir) {
-        if (tonum[dir].count(*ob)) {
-          int tnum = tonum[dir][*ob];
+        if (tonum[dir].count(ob)) {
+          int tnum = tonum[dir][ob];
           if (bynumwld.count(tnum)) {
             Object* nobj = nullptr;
             Object* nobj2 = nullptr;
             std::string des, nm = dirname[dir];
 
-            auto cont = (*ob)->Contents();
-            for (auto cind = cont.begin(); cind != cont.end(); ++cind) {
-              if (std::string((*cind)->ShortDesc()) == "a passage exit") {
-                if ((*cind)->ActTarg(ACT_SPECIAL_MASTER)->Parent() == bynumwld[tnum]) {
-                  nobj = (*cind);
-                  nobj2 = (*cind)->ActTarg(ACT_SPECIAL_MASTER);
+            auto cont = ob->Contents();
+            for (auto cind : cont) {
+              if (std::string(cind->ShortDesc()) == "a passage exit") {
+                if (cind->ActTarg(ACT_SPECIAL_MASTER)->Parent() == bynumwld[tnum]) {
+                  nobj = cind;
+                  nobj2 = cind->ActTarg(ACT_SPECIAL_MASTER);
                 }
-              } else if ((*cind)->ActTarg(ACT_SPECIAL_LINKED)) {
-                if ((*cind)->ActTarg(ACT_SPECIAL_LINKED)->Parent() == bynumwld[tnum]) {
-                  nobj = (*cind);
-                  nobj2 = (*cind)->ActTarg(ACT_SPECIAL_LINKED);
+              } else if (cind->ActTarg(ACT_SPECIAL_LINKED)) {
+                if (cind->ActTarg(ACT_SPECIAL_LINKED)->Parent() == bynumwld[tnum]) {
+                  nobj = cind;
+                  nobj2 = cind->ActTarg(ACT_SPECIAL_LINKED);
                   nm = std::string(nobj->ShortDesc()) + " and " + dirname[dir];
                 }
               }
@@ -2340,7 +2338,7 @@ void Object::TBALoadWLD(const char* fn) {
             if (!nobj) {
               nobj = new Object;
               nobj2 = new Object;
-              nobj->SetParent(*ob);
+              nobj->SetParent(ob);
               nobj2->SetParent(bynumwld[tnum]);
               nobj2->SetShortDesc("a passage exit");
               nobj2->SetDesc("A passage exit.");
@@ -2349,21 +2347,21 @@ void Object::TBALoadWLD(const char* fn) {
               nobj->SetSkill("Invisible", 0);
             }
 
-            if (nmnum[dir][*ob] != "") {
+            if (nmnum[dir][ob] != "") {
               nm += " (";
-              nm += nmnum[dir][*ob];
+              nm += nmnum[dir][ob];
               nm += ")";
             }
-            if (tynum[dir][*ob] != 0) { // FIXME: Respond to "door"?
+            if (tynum[dir][ob] != 0) { // FIXME: Respond to "door"?
               des = std::string("A door to the ") + dirname[dir] + " is here.";
               nobj->SetSkill("Closeable", 1);
               nobj->SetSkill("Lockable", 1);
-              if (tynum[dir][*ob] == 1)
+              if (tynum[dir][ob] == 1)
                 nobj->SetSkill("Pickable", 4);
-              if (tynum[dir][*ob] == 2)
+              if (tynum[dir][ob] == 2)
                 nobj->SetSkill("Pickable", 1000);
-              if (knum[dir][*ob] > 0) {
-                nobj->SetSkill("Lock", 2000000 + knum[dir][*ob]);
+              if (knum[dir][ob] > 0) {
+                nobj->SetSkill("Lock", 2000000 + knum[dir][ob]);
               }
             } else {
               des = std::string("A passage ") + dirname[dir] + " is here.";
@@ -2375,10 +2373,10 @@ void Object::TBALoadWLD(const char* fn) {
             nobj->AddAct(ACT_SPECIAL_LINKED, nobj2);
             nobj2->AddAct(ACT_SPECIAL_MASTER, nobj);
 
-            nmnum[dir].erase(*ob);
-            tonum[dir].erase(*ob);
-            tynum[dir].erase(*ob);
-            knum[dir].erase(*ob);
+            nmnum[dir].erase(ob);
+            tonum[dir].erase(ob);
+            tynum[dir].erase(ob);
+            knum[dir].erase(ob);
           }
         }
       }
@@ -2409,9 +2407,8 @@ static std::set<std::string> parse_tba_shop_rules(std::string rules) {
         if (end == std::string::npos)
           end = rules.length();
         std::set<std::string> tmp = parse_tba_shop_rules(rules.substr(done + 1));
-        std::set<std::string>::iterator next = tmp.begin();
-        for (; next != tmp.end(); ++next) {
-          ret.insert((*next) + rules.substr(end + 1));
+        for (auto next : tmp) {
+          ret.insert(next + rules.substr(end + 1));
           //	  fprintf(stderr, "  Built: '%s'\n",
           //		((*next) + rules.substr(end+1)).c_str()
           //		);
@@ -2516,13 +2513,12 @@ void Object::TBALoadSHP(const char* fn) {
           std::string picky = "";
           keeper->SetSkill("Sell Profit", (int)(num * 1000.0 + 0.5));
 
-          std::list<std::string>::iterator type = types.begin(); // Buy Types
-          for (; type != types.end(); ++type) {
-            for (unsigned int ctr = 1; isalpha((*type)[ctr]); ++ctr) {
-              (*type)[ctr] = tolower((*type)[ctr]);
+          for (auto type : types) { // Buy Types
+            for (unsigned int ctr = 1; isalpha(type[ctr]); ++ctr) {
+              type[ctr] = tolower(type[ctr]);
             }
 
-            std::string extra = *type;
+            std::string extra = type;
             int itnum = atoi(extra.c_str());
             if (itnum > 0) {
               while (isdigit(extra[0]))
@@ -2535,82 +2531,79 @@ void Object::TBALoadSHP(const char* fn) {
               extra = extra.substr(1);
 
             if (itnum == 1)
-              (*type) = "Light";
+              type = "Light";
             else if (itnum == 2)
-              (*type) = "Scroll";
+              type = "Scroll";
             else if (itnum == 3)
-              (*type) = "Wand";
+              type = "Wand";
             else if (itnum == 4)
-              (*type) = "Staff";
+              type = "Staff";
             else if (itnum == 5)
-              (*type) = "Weapon";
+              type = "Weapon";
             else if (itnum == 6)
-              (*type) = "Fire Weapon";
+              type = "Fire Weapon";
             else if (itnum == 7)
-              (*type) = "Missile";
+              type = "Missile";
             else if (itnum == 8)
-              (*type) = "Treasure";
+              type = "Treasure";
             else if (itnum == 9)
-              (*type) = "Armor";
+              type = "Armor";
             else if (itnum == 10)
-              (*type) = "Potion";
+              type = "Potion";
             else if (itnum == 11)
-              (*type) = "Worn";
+              type = "Worn";
             else if (itnum == 12)
-              (*type) = "Other";
+              type = "Other";
             else if (itnum == 13)
-              (*type) = "Trash";
+              type = "Trash";
             else if (itnum == 14)
-              (*type) = "Trap";
+              type = "Trap";
             else if (itnum == 15)
-              (*type) = "Container";
+              type = "Container";
             else if (itnum == 16)
-              (*type) = "Note";
+              type = "Note";
             else if (itnum == 17)
-              (*type) = "Liquid Container";
+              type = "Liquid Container";
             else if (itnum == 18)
-              (*type) = "Key";
+              type = "Key";
             else if (itnum == 19)
-              (*type) = "Food";
+              type = "Food";
             else if (itnum == 20)
-              (*type) = "Money";
+              type = "Money";
             else if (itnum == 21)
-              (*type) = "Pen";
+              type = "Pen";
             else if (itnum == 22)
-              (*type) = "Boat";
+              type = "Boat";
             else if (itnum == 23)
-              (*type) = "Fountain";
+              type = "Fountain";
             else if (itnum == 55)
-              (*type) = "Cursed"; // According To: Rumble
+              type = "Cursed"; // According To: Rumble
 
             if (extra[0]) {
               // fprintf(stderr, "Rule: '%s'\n", extra.c_str());
               std::set<std::string> extras = parse_tba_shop_rules(extra);
-              std::set<std::string>::iterator ex = extras.begin();
-              for (; ex != extras.end(); ++ex) {
-                // fprintf(stderr, "Adding: 'Accept %s'\n", ex->c_str());
-                // keeper->SetSkill("Accept " + (*ex), 1);
-                picky += ((*type) + ": " + (*ex) + "\n");
+              for (auto ex : extras) {
+                // fprintf(stderr, "Adding: 'Accept %s'\n", ex.c_str());
+                // keeper->SetSkill("Accept " + ex, 1);
+                picky += (type + ": " + ex + "\n");
               }
             } else {
-              picky += (*type) + ": all\n";
+              picky += type + ": all\n";
             }
 
-            if ((*type) != "0" && (*type) != "Light" && (*type) != "Scroll" && (*type) != "Wand" &&
-                (*type) != "Staff" && (*type) != "Weapon" && (*type) != "Fire Weapon" &&
-                (*type) != "Missile" && (*type) != "Treasure" && (*type) != "Armor" &&
-                (*type) != "Potion" && (*type) != "Worn" && (*type) != "Other" &&
-                (*type) != "Trash" && (*type) != "Trap" && (*type) != "Container" &&
-                (*type) != "Note" && (*type) != "Liquid Container" && (*type) != "Key" &&
-                (*type) != "Food" && (*type) != "Money" && (*type) != "Pen" && (*type) != "Boat" &&
-                (*type) != "Fountain") {
+            if (type != "0" && type != "Light" && type != "Scroll" && type != "Wand" &&
+                type != "Staff" && type != "Weapon" && type != "Fire Weapon" && type != "Missile" &&
+                type != "Treasure" && type != "Armor" && type != "Potion" && type != "Worn" &&
+                type != "Other" && type != "Trash" && type != "Trap" && type != "Container" &&
+                type != "Note" && type != "Liquid Container" && type != "Key" && type != "Food" &&
+                type != "Money" && type != "Pen" && type != "Boat" && type != "Fountain") {
               fprintf(
                   stderr,
                   "Warning: Can't handle %s's buy target: '%s'\n",
                   keeper->Name(),
-                  type->c_str());
-            } else if ((*type) != "0") { // Apparently 0 used for "Ignore This"
-              keeper->SetSkill(std::string("Buy ") + (*type), (int)(num2 * 1000.0 + 0.5));
+                  type.c_str());
+            } else if (type != "0") { // Apparently 0 used for "Ignore This"
+              keeper->SetSkill(std::string("Buy ") + type, (int)(num2 * 1000.0 + 0.5));
             }
           }
           vortex->long_desc = picky;
