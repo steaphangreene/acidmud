@@ -59,12 +59,12 @@ void drop_socket(socket_t d_s) {
 
 void notify_player_deleted(Player* pl) {
   std::vector<socket_t> todel;
-  for (auto ind = minds.begin(); ind != minds.end(); ++ind) {
-    if (ind->second->Owner() == pl)
-      todel.push_back(ind->first);
+  for (auto mind : minds) {
+    if (mind.second->Owner() == pl)
+      todel.push_back(mind.first);
   }
-  for (auto ind = todel.begin(); ind != todel.end(); ++ind) {
-    drop_socket(*ind);
+  for (auto mind : todel) {
+    drop_socket(mind);
   }
 }
 
@@ -203,11 +203,10 @@ void update_net() {
   FD_ZERO(&exc_set);
   FD_SET(acceptor, &input_set);
 
-  std::set<socket_t>::iterator sock;
-  for (sock = fds.begin(); sock != fds.end(); ++sock) {
-    FD_SET((*sock), &input_set);
-    FD_SET((*sock), &output_set);
-    FD_SET((*sock), &exc_set);
+  for (auto sock : fds) {
+    FD_SET(sock, &input_set);
+    FD_SET(sock, &output_set);
+    FD_SET(sock, &exc_set);
   }
 
   null_time.tv_sec = 0;
@@ -231,28 +230,27 @@ void update_net() {
   }
 
   std::set<socket_t> killfds;
-  for (sock = fds.begin(); sock != fds.end(); ++sock) {
-    if (FD_ISSET((*sock), &exc_set)) {
-      killfds.insert(*sock);
-      fprintf(stderr, "Killed %d\n", *sock);
+  for (auto sock : fds) {
+    if (FD_ISSET(sock, &exc_set)) {
+      killfds.insert(sock);
+      fprintf(stderr, "Killed %d\n", sock);
     }
   }
-  for (sock = killfds.begin(); sock != killfds.end(); ++sock) {
-    FD_CLR(*sock, &input_set);
-    FD_CLR(*sock, &output_set);
-    drop_socket(*sock);
+  for (auto sock : killfds) {
+    FD_CLR(sock, &input_set);
+    FD_CLR(sock, &output_set);
+    drop_socket(sock);
   }
 
-  for (sock = fds.begin(); sock != fds.end(); ++sock) {
-    if (FD_ISSET((*sock), &input_set)) {
-      handle_input(*sock);
+  for (auto sock : fds) {
+    if (FD_ISSET(sock, &input_set)) {
+      handle_input(sock);
     }
   }
 
-  std::map<socket_t, std::string>::iterator out = outbufs.begin();
-  for (; out != outbufs.end(); ++out)
-    if (minds.count(out->first)) {
-      std::string outs = out->second;
+  for (auto out : outbufs) {
+    if (minds.count(out.first)) {
+      std::string outs = out.second;
       outs = std::string("\n") + outs;
       outs += "\n";
 
@@ -264,10 +262,10 @@ void update_net() {
           pos = outs.find('\n', pos);
       }
 
-      minds[out->first]->UpdatePrompt();
-      outs += prompts[out->first] + "\377\371";
+      minds[out.first]->UpdatePrompt();
+      outs += prompts[out.first] + "\377\371";
 
-      write(out->first, outs.c_str(), outs.length());
+      write(out.first, outs.c_str(), outs.length());
 
       std::string::iterator loc = find(outs.begin(), outs.end(), (char)(255));
       while (loc >= outs.begin() && loc < outs.end()) {
@@ -278,48 +276,46 @@ void update_net() {
           loc = outs.erase(loc);
         loc = find(outs.begin(), outs.end(), (char)(255));
       }
-      if (minds[out->first]->LogFD() >= 0)
-        write(minds[out->first]->LogFD(), outs.c_str(), outs.length());
+      if (minds[out.first]->LogFD() >= 0)
+        write(minds[out.first]->LogFD(), outs.c_str(), outs.length());
     }
+  }
   outbufs.clear();
 }
 
 void unwarn_net(int tp) {
-  std::set<socket_t>::iterator sock;
-  for (sock = fds.begin(); sock != fds.end(); ++sock) {
+  for (auto sock : fds) {
     if (tp == 0) {
-      minds[*sock]->Send("...the world has been auto-saved!\n");
+      minds[sock]->Send("...the world has been auto-saved!\n");
     } else if (tp < 0) {
-      minds[*sock]->Send("...the world has been saved!\n");
+      minds[sock]->Send("...the world has been saved!\n");
     } else if (tp == 2) {
-      minds[*sock]->Send("...the world has been restarted!\n");
+      minds[sock]->Send("...the world has been restarted!\n");
     } else {
-      minds[*sock]->Send("...umm, this message shouldn't happen!\n");
+      minds[sock]->Send("...umm, this message shouldn't happen!\n");
     }
   }
 }
 
 void warn_net(int tp) {
-  std::set<socket_t>::iterator sock;
-  for (sock = fds.begin(); sock != fds.end(); ++sock) {
-    sock_write(*sock, "\nThe ground shakes with the power of the Ninjas...\n");
+  for (auto sock : fds) {
+    sock_write(sock, "\nThe ground shakes with the power of the Ninjas...\n");
     if (tp == 0) {
-      sock_write(*sock, "\n    AcidMUD is auto-saving the world, hang on!\n");
+      sock_write(sock, "\n    AcidMUD is auto-saving the world, hang on!\n");
     } else if (tp < 0) {
-      sock_write(*sock, "\n    AcidMUD is saving the world, hang on!\n");
+      sock_write(sock, "\n    AcidMUD is saving the world, hang on!\n");
     } else if (tp == 2) {
-      sock_write(*sock, "\n    AcidMUD is restarting, hang on!\n");
+      sock_write(sock, "\n    AcidMUD is restarting, hang on!\n");
     } else {
-      sock_write(*sock, "\n    AcidMUD is shutting down (saving everything first)!\n");
-      sock_write(*sock, "    It'll be back soon I hope.  See you then!\n\n\n");
+      sock_write(sock, "\n    AcidMUD is shutting down (saving everything first)!\n");
+      sock_write(sock, "    It'll be back soon I hope.  See you then!\n\n\n");
     }
   }
 }
 
 void stop_net() {
-  std::set<socket_t>::iterator sock;
-  for (sock = fds.begin(); sock != fds.end(); ++sock) {
-    close(*sock);
+  for (auto sock : fds) {
+    close(sock);
   }
   sleep(1); // Make sure messages really get flushed!
   close(acceptor);
@@ -340,24 +336,23 @@ int save_net(const char* fn) {
 
   fprintf(fl, "%d\n", (int)(fds.size()));
 
-  std::set<socket_t>::iterator sk;
-  for (sk = fds.begin(); sk != fds.end(); ++sk) {
-    if (!(minds[*sk]->Owner() || minds[*sk]->Body())) {
-      fprintf(fl, "%d\n", *sk);
-    } else if ((!(minds[*sk]->Body())) && minds[*sk]->LogFD() >= 0) {
-      fprintf(fl, "%d;%d:%s\n", *sk, minds[*sk]->LogFD(), minds[*sk]->Owner()->Name());
-    } else if (!(minds[*sk]->Body())) {
-      fprintf(fl, "%d:%s\n", *sk, minds[*sk]->Owner()->Name());
-    } else if (minds[*sk]->LogFD() >= 0) {
+  for (auto sk : fds) {
+    if (!(minds[sk]->Owner() || minds[sk]->Body())) {
+      fprintf(fl, "%d\n", sk);
+    } else if ((!(minds[sk]->Body())) && minds[sk]->LogFD() >= 0) {
+      fprintf(fl, "%d;%d:%s\n", sk, minds[sk]->LogFD(), minds[sk]->Owner()->Name());
+    } else if (!(minds[sk]->Body())) {
+      fprintf(fl, "%d:%s\n", sk, minds[sk]->Owner()->Name());
+    } else if (minds[sk]->LogFD() >= 0) {
       fprintf(
           fl,
           "%d;%d:%s:%d\n",
-          *sk,
-          minds[*sk]->LogFD(),
-          minds[*sk]->Owner()->Name(),
-          getnum(minds[*sk]->Body()));
+          sk,
+          minds[sk]->LogFD(),
+          minds[sk]->Owner()->Name(),
+          getnum(minds[sk]->Body()));
     } else {
-      fprintf(fl, "%d:%s:%d\n", *sk, minds[*sk]->Owner()->Name(), getnum(minds[*sk]->Body()));
+      fprintf(fl, "%d:%s:%d\n", sk, minds[sk]->Owner()->Name(), getnum(minds[sk]->Body()));
     }
   }
   sleep(1); // Make sure messages really get flushed!
@@ -411,10 +406,9 @@ int load_net(const char* fn) {
 std::vector<Mind*> get_human_minds() {
   std::vector<Mind*> ret;
 
-  std::set<socket_t>::iterator sock;
-  for (sock = fds.begin(); sock != fds.end(); ++sock) {
-    if (minds[*sock]->Owner())
-      ret.push_back(minds[*sock]);
+  for (auto sock : fds) {
+    if (minds[sock]->Owner())
+      ret.push_back(minds[sock]);
   }
 
   return ret;
