@@ -54,7 +54,7 @@ int phrase_match(const std::string& str, const std::string& phrase) {
 
   const char* desc = str.c_str();
   while (*desc) {
-    if ((!strncasecmp(desc, phrase.c_str(), len)) && (!isalnum(desc[len]))) {
+    if ((!strncmp(desc, phrase.c_str(), len)) && (!isalnum(desc[len]))) {
       return 1;
     }
     while (isalnum(*desc))

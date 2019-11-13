@@ -666,17 +666,17 @@ com_t identify_command(const std::string& str) {
     if (comlist[ctr].sit & SIT_NINJAMODE)
       continue; // Don't match ninjas
 
-    if (!strncasecmp(str.c_str(), comlist[ctr].command, len)) {
+    if (!strncmp(str.c_str(), comlist[ctr].command, len)) {
       return comlist[ctr].id;
     }
     // Command Aliases
     if (comlist[ctr].id == COM_SAY && (str[0] == '\'' || str[0] == '"')) {
       return comlist[ctr].id;
     }
-    if (comlist[ctr].id == COM_DUMP && (!strncasecmp(str.c_str(), "empty", MAX(len, 3)))) {
+    if (comlist[ctr].id == COM_DUMP && (!strncmp(str.c_str(), "empty", MAX(len, 3)))) {
       return comlist[ctr].id;
     }
-    if (comlist[ctr].id == COM_GET && (!strncasecmp(str.c_str(), "take", MAX(len, 1)))) {
+    if (comlist[ctr].id == COM_GET && (!strncmp(str.c_str(), "take", MAX(len, 1)))) {
       return comlist[ctr].id;
     }
   }
@@ -692,6 +692,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   static char buf[2048];
   std::string cmd = inpline;
   trim_string(cmd);
+  std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
 
   if (comlist[256].id == COM_NONE) { // Haven't loaded socials yet
     load_socials();
@@ -770,7 +771,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (comlist[ctr].sit & SIT_NINJAMODE)
       continue;
 
-    if (!strncasecmp(cmd.c_str(), comlist[ctr].command, len)) {
+    if (!strncmp(cmd.c_str(), comlist[ctr].command, len)) {
       com = comlist[ctr].id;
       cnum = ctr;
       break;
@@ -782,12 +783,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       cnum = ctr;
       break;
     }
-    if (comlist[ctr].id == COM_DUMP && (!strncasecmp(cmd.c_str(), "empty", MAX(len, 3)))) {
+    if (comlist[ctr].id == COM_DUMP && (!strncmp(cmd.c_str(), "empty", MAX(len, 3)))) {
       com = comlist[ctr].id;
       cnum = ctr;
       break;
     }
-    if (comlist[ctr].id == COM_GET && (!strncasecmp(cmd.c_str(), "take", MAX(len, 1)))) {
+    if (comlist[ctr].id == COM_GET && (!strncmp(cmd.c_str(), "take", MAX(len, 1)))) {
       com = comlist[ctr].id;
       cnum = ctr;
       break;
@@ -796,12 +797,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
   if (com == COM_NONE && ninja) { // Now match ninja commands (for ninjas)
     for (int ctr = 0; comlist[ctr].id != COM_NONE; ++ctr) {
-      if (!strncasecmp(cmd.c_str(), comlist[ctr].command, len)) {
+      if (!strncmp(cmd.c_str(), comlist[ctr].command, len)) {
         com = comlist[ctr].id;
         cnum = ctr;
         break;
       }
-      if (comlist[ctr].id == COM_CHARACTERS && (!strncasecmp(cmd.c_str(), "chars", MAX(len, 5)))) {
+      if (comlist[ctr].id == COM_CHARACTERS && (!strncmp(cmd.c_str(), "chars", MAX(len, 5)))) {
         com = comlist[ctr].id;
         cnum = ctr;
         break;
@@ -827,7 +828,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       std::list<Object*>::iterator trig = trigs.begin();
       for (; trig != trigs.end(); ++trig) {
         if ((*trig)->Skill("TBAScriptType") & 0x04) { //*-COMMAND trigs
-          if ((com == COM_NONE && (!strncasecmp(inpline, (*trig)->Desc(), len))) ||
+          if ((com == COM_NONE && (!strncmp(inpline, (*trig)->Desc(), len))) ||
               (com && com == identify_command((*trig)->Desc()))) {
             if ((*trig)->Skill("TBAScriptType") & 0x2000000) { // OBJ
               int narg = (*trig)->Skill("TBAScriptNArg");
@@ -1418,7 +1419,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("Exiting out of shout mode.");
       }
     } else {
-      if (!strncasecmp(cmd.c_str() + len, "for ", 4))
+      if (!strncmp(cmd.c_str() + len, "for ", 4))
         len += 4;
 
       char* mes = strdup(cmd.c_str() + len);
@@ -1564,9 +1565,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     std::list<Object*> targs;
     int within = 0;
 
-    if (!strncasecmp(cmd.c_str() + len, "at ", 3))
+    if (!strncmp(cmd.c_str() + len, "at ", 3))
       len += 3;
-    if (!strncasecmp(cmd.c_str() + len, "in ", 3)) {
+    if (!strncmp(cmd.c_str() + len, "in ", 3)) {
       len += 3;
       within = 1;
     }
@@ -1607,10 +1608,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           if (mind)
             (*targ_it)->SendDescSurround(mind, body, vmode);
         } else if (
-            (!strcasecmp(cmd.c_str() + len, "north")) ||
-            (!strcasecmp(cmd.c_str() + len, "south")) || (!strcasecmp(cmd.c_str() + len, "east")) ||
-            (!strcasecmp(cmd.c_str() + len, "west")) || (!strcasecmp(cmd.c_str() + len, "up")) ||
-            (!strcasecmp(cmd.c_str() + len, "down"))) {
+            (!strcmp(cmd.c_str() + len, "north")) || (!strcmp(cmd.c_str() + len, "south")) ||
+            (!strcmp(cmd.c_str() + len, "east")) || (!strcmp(cmd.c_str() + len, "west")) ||
+            (!strcmp(cmd.c_str() + len, "up")) || (!strcmp(cmd.c_str() + len, "down"))) {
           body->Parent()->SendOut(stealth_t, stealth_s, ";s looks ;s.\n", "", body, (*targ_it));
           if (mind) {
             (*targ_it)->SendDesc(mind, body);
@@ -3188,7 +3188,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
       ++len;
 
-    if (!strncasecmp(cmd.c_str() + len, "in ", 3))
+    if (!strncmp(cmd.c_str() + len, "in ", 3))
       len += 3;
 
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
@@ -3923,7 +3923,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
       ++len;
 
-    if (!strncasecmp(cmd.c_str() + len, "from ", 5))
+    if (!strncmp(cmd.c_str() + len, "from ", 5))
       len += 5;
 
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
@@ -4284,41 +4284,41 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     int special = 0;
     int freehand = 0;
     std::string spname = "";
-    if (!strncasecmp("Identify", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    if (!strncmp("Identify", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       special = 1;
       spname = "Identify";
-    } else if (!strncasecmp("Create Food", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("Create Food", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = -1;
       special = 2;
       freehand = 1;
       spname = "Create Food";
-    } else if (!strncasecmp("Force Sword", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("Force Sword", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = -1;
       special = 2;
       freehand = 1;
       spname = "Force Sword";
-    } else if (!strncasecmp("Heat Vision", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("Heat Vision", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
       spname = "Heat Vision";
-    } else if (!strncasecmp("Dark Vision", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("Dark Vision", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
       spname = "Dark Vision";
-    } else if (!strncasecmp("Recall", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("Recall", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
       spname = "Recall";
-    } else if (!strncasecmp("Teleport", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("Teleport", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
       spname = "Teleport";
-    } else if (!strncasecmp("Resurrect", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("Resurrect", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
       spname = "Resurrect";
-    } else if (!strncasecmp("Remove Curse", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("Remove Curse", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
       spname = "Remove Curse";
-    } else if (!strncasecmp("Cure Poison", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("Cure Poison", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
       spname = "Cure Poison";
-    } else if (!strncasecmp("Sleep Other", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("Sleep Other", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       spname = "Sleep Other";
     } else {
       if (mind)
@@ -5162,12 +5162,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     int cost = 1;
-    if ((!strncasecmp(cmd.c_str() + len, "body", strlen(cmd.c_str() + len))) ||
-        (!strncasecmp(cmd.c_str() + len, "quickness", strlen(cmd.c_str() + len))) ||
-        (!strncasecmp(cmd.c_str() + len, "strength", strlen(cmd.c_str() + len))) ||
-        (!strncasecmp(cmd.c_str() + len, "charisma", strlen(cmd.c_str() + len))) ||
-        (!strncasecmp(cmd.c_str() + len, "intelligence", strlen(cmd.c_str() + len))) ||
-        (!strncasecmp(cmd.c_str() + len, "willpower", strlen(cmd.c_str() + len)))) {
+    if ((!strncmp(cmd.c_str() + len, "body", strlen(cmd.c_str() + len))) ||
+        (!strncmp(cmd.c_str() + len, "quickness", strlen(cmd.c_str() + len))) ||
+        (!strncmp(cmd.c_str() + len, "strength", strlen(cmd.c_str() + len))) ||
+        (!strncmp(cmd.c_str() + len, "charisma", strlen(cmd.c_str() + len))) ||
+        (!strncmp(cmd.c_str() + len, "intelligence", strlen(cmd.c_str() + len))) ||
+        (!strncmp(cmd.c_str() + len, "willpower", strlen(cmd.c_str() + len)))) {
       if ((!body) && (!chr->Skill("Attributes"))) {
         mind->Send("You have no free attribute points left.\n");
         return 0;
@@ -5224,7 +5224,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         chr->SetAttribute(attr, chr->BaseAttribute(attr) + 1);
         mind->SendF("You raise your %s.\n", statnames[attr]);
       }
-    } else if ((!body) && (!strncasecmp(cmd.c_str() + len, "senses", strlen(cmd.c_str() + len)))) {
+    } else if ((!body) && (!strncmp(cmd.c_str() + len, "senses", strlen(cmd.c_str() + len)))) {
       if (!chr->Skill("Attributes")) {
         mind->Send("You have no free attribute points left.\n");
         return 0;
@@ -5381,9 +5381,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     Object* dest = body->Parent();
-    if (nmode && (!strcasecmp(cmd.c_str() + len, "universe"))) {
+    if (nmode && (!strcmp(cmd.c_str() + len, "universe"))) {
       dest = dest->Universe();
-    } else if (nmode && (!strcasecmp(cmd.c_str() + len, "trashbin"))) {
+    } else if (nmode && (!strcmp(cmd.c_str() + len, "trashbin"))) {
       dest = dest->TrashBin();
     } else { // Only Ninjas can teleport to "Universe"/"TrashBin"
       while (dest->Parent()->Parent()) {
@@ -5511,7 +5511,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (!pl)
       return 0;
 
-    if (!cmd.empty() && (!strncasecmp(cmd.c_str(), "restore", cmd.length()))) {
+    if (!cmd.empty() && (!strncmp(cmd.c_str(), "restore", cmd.length()))) {
       mind->SetSVars(pl->Vars());
       mind->Send("Your settings have been reset to your defaults.\n");
       cmd = ""; // Show current settings too
@@ -5526,7 +5526,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("  CombatInfo is " CYEL "off" CNRM ".\n");
       }
 
-    } else if (!strncasecmp(cmd.c_str(), "combatinfo", cmd.length())) {
+    } else if (!strncmp(cmd.c_str(), "combatinfo", cmd.length())) {
       if (mind->IsSVar("combatinfo")) {
         mind->ClearSVar("combatinfo");
         mind->Send("CombatInfo is now " CYEL "off" CNRM ".\n");
@@ -5534,7 +5534,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->SetSVar("combatinfo", "1");
         mind->Send("CombatInfo is now " CYEL "on" CNRM ".\n");
       }
-    } else if (!strncasecmp(cmd.c_str(), "save", cmd.length())) {
+    } else if (!strncmp(cmd.c_str(), "save", cmd.length())) {
       pl->SetVars(mind->SVars());
       mind->Send("Your current settings have been saved as your defaults.\n");
     } else {

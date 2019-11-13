@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstdlib>
 #include <cstring>
 #include <list>
@@ -2501,15 +2502,17 @@ int get_weapon_type(std::string wskill) {
 std::string get_skill(std::string sk) {
   while (isspace(sk.back()))
     sk.pop_back();
+
   if (defaults.count(sk))
     return sk;
   if (sk.length() < 2)
     return "";
 
-  auto itr = defaults.begin();
-  for (; itr != defaults.end(); ++itr) {
-    if (!strncasecmp(sk.c_str(), itr->first.c_str(), sk.length())) {
-      return itr->first;
+  for (auto itr : defaults) {
+    std::string lc = itr.first;
+    std::transform(lc.begin(), lc.end(), lc.begin(), ::tolower);
+    if (!strncmp(sk.c_str(), lc.c_str(), sk.length())) {
+      return itr.first;
     }
   }
   return "";
@@ -2525,7 +2528,7 @@ std::string get_skill_cat(std::string cat) {
 
   auto itr = skcat.begin();
   for (; itr != skcat.end(); ++itr) {
-    if (!strncasecmp(cat.c_str(), itr->first.c_str(), cat.length())) {
+    if (!strncmp(cat.c_str(), itr->first.c_str(), cat.length())) {
       return itr->first;
     }
   }
@@ -2617,19 +2620,19 @@ int Object::HasSkill(const std::string& s) const {
 int Object::Skill(const std::string& s, int* tnum) const {
   if (strlen(s.c_str()) == 0)
     return 0;
-  if (!strncasecmp(s.c_str(), "Body", s.length()))
+  if (!strncmp(s.c_str(), "Body", s.length()))
     return Attribute(0);
-  if (!strncasecmp(s.c_str(), "Quickness", s.length()))
+  if (!strncmp(s.c_str(), "Quickness", s.length()))
     return Attribute(1);
-  if (!strncasecmp(s.c_str(), "Strength", s.length()))
+  if (!strncmp(s.c_str(), "Strength", s.length()))
     return Attribute(2);
-  if (!strncasecmp(s.c_str(), "Charisma", s.length()))
+  if (!strncmp(s.c_str(), "Charisma", s.length()))
     return Attribute(3);
-  if (!strncasecmp(s.c_str(), "Intelligence", s.length()))
+  if (!strncmp(s.c_str(), "Intelligence", s.length()))
     return Attribute(4);
-  if (!strncasecmp(s.c_str(), "Willpower", s.length()))
+  if (!strncmp(s.c_str(), "Willpower", s.length()))
     return Attribute(5);
-  if (!strncasecmp(s.c_str(), "Reaction", s.length()))
+  if (!strncmp(s.c_str(), "Reaction", s.length()))
     return (Attribute(1) + Attribute(4)) / 2;
   if (!defaults_init)
     init_defaults();

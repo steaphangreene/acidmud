@@ -73,126 +73,126 @@ Object* Object::World() {
 int matches(const char* name, const char* seek) {
   if (*seek == 0)
     return 0;
-  if (!strcasecmp(seek, "all"))
+  if (!strcmp(seek, "all"))
     return 1;
 
   if (phrase_match(name, seek))
     return 1;
 
-  static int dont_recur;
+  static bool dont_recur = false;
   if (dont_recur)
     return 0;
-  dont_recur = 1;
+  dont_recur = true;
 
   int ret = 0;
 
   // special SMART[TM] searches
-  if ((!strcasecmp(seek, "guard")) && matches(name, "cityguard"))
+  if ((!strcmp(seek, "guard")) && matches(name, "cityguard"))
     ret = 1;
-  else if ((!strcasecmp(seek, "guard")) && matches(name, "guildguard"))
+  else if ((!strcmp(seek, "guard")) && matches(name, "guildguard"))
     ret = 1;
-  else if ((!strcasecmp(seek, "guard")) && matches(name, "gateguard"))
+  else if ((!strcmp(seek, "guard")) && matches(name, "gateguard"))
     ret = 1;
-  else if ((!strcasecmp(seek, "guard")) && matches(name, "bodyguard"))
+  else if ((!strcmp(seek, "guard")) && matches(name, "bodyguard"))
     ret = 1;
-  else if ((!strcasecmp(seek, "merc")) && matches(name, "mercenary"))
+  else if ((!strcmp(seek, "merc")) && matches(name, "mercenary"))
     ret = 1;
-  else if ((!strcasecmp(seek, "smith")) && matches(name, "weaponsmith"))
+  else if ((!strcmp(seek, "smith")) && matches(name, "weaponsmith"))
     ret = 1;
-  else if ((!strcasecmp(seek, "smith")) && matches(name, "swordsmith"))
+  else if ((!strcmp(seek, "smith")) && matches(name, "swordsmith"))
     ret = 1;
-  else if ((!strcasecmp(seek, "smith")) && matches(name, "blacksmith"))
+  else if ((!strcmp(seek, "smith")) && matches(name, "blacksmith"))
     ret = 1;
-  else if ((!strcasecmp(seek, "bolt")) && matches(name, "thunderbolt"))
+  else if ((!strcmp(seek, "bolt")) && matches(name, "thunderbolt"))
     ret = 1;
-  else if ((!strcasecmp(seek, "sword")) && matches(name, "longsword"))
+  else if ((!strcmp(seek, "sword")) && matches(name, "longsword"))
     ret = 1;
-  else if ((!strcasecmp(seek, "sword")) && matches(name, "broadsword"))
+  else if ((!strcmp(seek, "sword")) && matches(name, "broadsword"))
     ret = 1;
-  else if ((!strcasecmp(seek, "sword")) && matches(name, "shortsword"))
+  else if ((!strcmp(seek, "sword")) && matches(name, "shortsword"))
     ret = 1;
-  else if ((!strcasecmp(seek, "hammer")) && matches(name, "warhammer"))
+  else if ((!strcmp(seek, "hammer")) && matches(name, "warhammer"))
     ret = 1;
-  else if ((!strcasecmp(seek, "hammer")) && matches(name, "battlehammer"))
+  else if ((!strcmp(seek, "hammer")) && matches(name, "battlehammer"))
     ret = 1;
-  else if ((!strcasecmp(seek, "battle hammer")) && matches(name, "battlehammer"))
+  else if ((!strcmp(seek, "battle hammer")) && matches(name, "battlehammer"))
     ret = 1;
-  else if ((!strcasecmp(seek, "battlehammer")) && matches(name, "battle hammer"))
+  else if ((!strcmp(seek, "battlehammer")) && matches(name, "battle hammer"))
     ret = 1;
-  else if ((!strcasecmp(seek, "war hammer")) && matches(name, "warhammer"))
+  else if ((!strcmp(seek, "war hammer")) && matches(name, "warhammer"))
     ret = 1;
-  else if ((!strcasecmp(seek, "warhammer")) && matches(name, "war hammer"))
+  else if ((!strcmp(seek, "warhammer")) && matches(name, "war hammer"))
     ret = 1;
-  else if ((!strcasecmp(seek, "axe")) && matches(name, "waraxe"))
+  else if ((!strcmp(seek, "axe")) && matches(name, "waraxe"))
     ret = 1;
-  else if ((!strcasecmp(seek, "axe")) && matches(name, "battleaxe"))
+  else if ((!strcmp(seek, "axe")) && matches(name, "battleaxe"))
     ret = 1;
-  else if ((!strcasecmp(seek, "battle axe")) && matches(name, "battleaxe"))
+  else if ((!strcmp(seek, "battle axe")) && matches(name, "battleaxe"))
     ret = 1;
-  else if ((!strcasecmp(seek, "battleaxe")) && matches(name, "battle axe"))
+  else if ((!strcmp(seek, "battleaxe")) && matches(name, "battle axe"))
     ret = 1;
-  else if ((!strcasecmp(seek, "war axe")) && matches(name, "waraxe"))
+  else if ((!strcmp(seek, "war axe")) && matches(name, "waraxe"))
     ret = 1;
-  else if ((!strcasecmp(seek, "waraxe")) && matches(name, "war axe"))
+  else if ((!strcmp(seek, "waraxe")) && matches(name, "war axe"))
     ret = 1;
-  else if ((!strcasecmp(seek, "morning star")) && matches(name, "morningstar"))
+  else if ((!strcmp(seek, "morning star")) && matches(name, "morningstar"))
     ret = 1;
-  else if ((!strcasecmp(seek, "morningstar")) && matches(name, "morning star"))
+  else if ((!strcmp(seek, "morningstar")) && matches(name, "morning star"))
     ret = 1;
-  else if ((!strcasecmp(seek, "bisarme")) && matches(name, "gisarme"))
+  else if ((!strcmp(seek, "bisarme")) && matches(name, "gisarme"))
     ret = 1;
-  else if ((!strcasecmp(seek, "bisarme")) && matches(name, "guisarme"))
+  else if ((!strcmp(seek, "bisarme")) && matches(name, "guisarme"))
     ret = 1;
-  else if ((!strcasecmp(seek, "gisarme")) && matches(name, "bisarme"))
+  else if ((!strcmp(seek, "gisarme")) && matches(name, "bisarme"))
     ret = 1;
-  else if ((!strcasecmp(seek, "gisarme")) && matches(name, "guisarme"))
+  else if ((!strcmp(seek, "gisarme")) && matches(name, "guisarme"))
     ret = 1;
-  else if ((!strcasecmp(seek, "guisarme")) && matches(name, "bisarme"))
+  else if ((!strcmp(seek, "guisarme")) && matches(name, "bisarme"))
     ret = 1;
-  else if ((!strcasecmp(seek, "guisarme")) && matches(name, "gisarme"))
+  else if ((!strcmp(seek, "guisarme")) && matches(name, "gisarme"))
     ret = 1;
-  else if ((!strcasecmp(seek, "bill-bisarme")) && matches(name, "bill-gisarme"))
+  else if ((!strcmp(seek, "bill-bisarme")) && matches(name, "bill-gisarme"))
     ret = 1;
-  else if ((!strcasecmp(seek, "bill-bisarme")) && matches(name, "bill-guisarme"))
+  else if ((!strcmp(seek, "bill-bisarme")) && matches(name, "bill-guisarme"))
     ret = 1;
-  else if ((!strcasecmp(seek, "bill-gisarme")) && matches(name, "bill-bisarme"))
+  else if ((!strcmp(seek, "bill-gisarme")) && matches(name, "bill-bisarme"))
     ret = 1;
-  else if ((!strcasecmp(seek, "bill-gisarme")) && matches(name, "bill-guisarme"))
+  else if ((!strcmp(seek, "bill-gisarme")) && matches(name, "bill-guisarme"))
     ret = 1;
-  else if ((!strcasecmp(seek, "bill-guisarme")) && matches(name, "bill-bisarme"))
+  else if ((!strcmp(seek, "bill-guisarme")) && matches(name, "bill-bisarme"))
     ret = 1;
-  else if ((!strcasecmp(seek, "bill-guisarme")) && matches(name, "bill-gisarme"))
+  else if ((!strcmp(seek, "bill-guisarme")) && matches(name, "bill-gisarme"))
     ret = 1;
-  else if ((!strcasecmp(seek, "staff")) && matches(name, "quarterstaff"))
+  else if ((!strcmp(seek, "staff")) && matches(name, "quarterstaff"))
     ret = 1;
-  else if ((!strcasecmp(seek, "bow")) && matches(name, "longbow"))
+  else if ((!strcmp(seek, "bow")) && matches(name, "longbow"))
     ret = 1;
-  else if ((!strcasecmp(seek, "bow")) && matches(name, "shortbow"))
+  else if ((!strcmp(seek, "bow")) && matches(name, "shortbow"))
     ret = 1;
-  else if ((!strcasecmp(seek, "armor")) && matches(name, "armour"))
+  else if ((!strcmp(seek, "armor")) && matches(name, "armour"))
     ret = 1;
-  else if ((!strcasecmp(seek, "armour")) && matches(name, "armor"))
+  else if ((!strcmp(seek, "armour")) && matches(name, "armor"))
     ret = 1;
-  else if ((!strcasecmp(seek, "armorer")) && matches(name, "armourer"))
+  else if ((!strcmp(seek, "armorer")) && matches(name, "armourer"))
     ret = 1;
-  else if ((!strcasecmp(seek, "armourer")) && matches(name, "armorer"))
+  else if ((!strcmp(seek, "armourer")) && matches(name, "armorer"))
     ret = 1;
-  else if ((!strcasecmp(seek, "scepter")) && matches(name, "sceptre"))
+  else if ((!strcmp(seek, "scepter")) && matches(name, "sceptre"))
     ret = 1;
-  else if ((!strcasecmp(seek, "sceptre")) && matches(name, "scepter"))
+  else if ((!strcmp(seek, "sceptre")) && matches(name, "scepter"))
     ret = 1;
-  else if ((!strcasecmp(seek, "grey")) && matches(name, "gray"))
+  else if ((!strcmp(seek, "grey")) && matches(name, "gray"))
     ret = 1;
-  else if ((!strcasecmp(seek, "gray")) && matches(name, "grey"))
+  else if ((!strcmp(seek, "gray")) && matches(name, "grey"))
     ret = 1;
-  else if ((!strcasecmp(seek, "bread")) && matches(name, "waybread"))
+  else if ((!strcmp(seek, "bread")) && matches(name, "waybread"))
     ret = 1;
 
   // One-way purposeful mis-spellings to silence some extra labelling from TBA
-  else if ((!strcasecmp(seek, "potatoe")) && matches(name, "potato"))
+  else if ((!strcmp(seek, "potatoe")) && matches(name, "potato"))
     ret = 1;
 
-  dont_recur = 0;
+  dont_recur = false;
   return ret;
 }
 
@@ -209,50 +209,50 @@ int Object::Matches(const char* seek) {
   }
 
   // Keywords Only
-  if (!strcasecmp(targ.c_str(), "everyone")) {
+  if (!strcmp(targ.c_str(), "everyone")) {
     return (BaseAttribute(1) > 0);
   }
-  if (!strcasecmp(targ.c_str(), "someone")) {
+  if (!strcmp(targ.c_str(), "someone")) {
     return (BaseAttribute(1) > 0);
   }
-  if (!strcasecmp(targ.c_str(), "anyone")) {
+  if (!strcmp(targ.c_str(), "anyone")) {
     return (BaseAttribute(1) > 0);
   }
-  if (!strcasecmp(targ.c_str(), "everything")) {
+  if (!strcmp(targ.c_str(), "everything")) {
     if (IsAct(ACT_SPECIAL_LINKED))
       return 0;
     return (BaseAttribute(1) == 0);
   }
-  if (!strcasecmp(targ.c_str(), "something")) {
+  if (!strcmp(targ.c_str(), "something")) {
     if (IsAct(ACT_SPECIAL_LINKED))
       return 0;
     return (BaseAttribute(1) == 0);
   }
-  if (!strcasecmp(targ.c_str(), "anything")) {
+  if (!strcmp(targ.c_str(), "anything")) {
     if (IsAct(ACT_SPECIAL_LINKED))
       return 0;
     return (BaseAttribute(1) == 0);
   }
-  if (!strcasecmp(targ.c_str(), "everywhere")) {
+  if (!strcmp(targ.c_str(), "everywhere")) {
     if (!IsAct(ACT_SPECIAL_LINKED))
       return 0;
     return (BaseAttribute(1) == 0);
   }
-  if (!strcasecmp(targ.c_str(), "somewhere")) {
+  if (!strcmp(targ.c_str(), "somewhere")) {
     if (!IsAct(ACT_SPECIAL_LINKED))
       return 0;
     return (BaseAttribute(1) == 0);
   }
-  if (!strcasecmp(targ.c_str(), "anywhere")) {
+  if (!strcmp(targ.c_str(), "anywhere")) {
     if (!IsAct(ACT_SPECIAL_LINKED))
       return 0;
     return (BaseAttribute(1) == 0);
   }
 
   // Keywords which can also be things
-  if ((!strcasecmp(targ.c_str(), "corpse")) && IsAct(ACT_DEAD))
+  if ((!strcmp(targ.c_str(), "corpse")) && IsAct(ACT_DEAD))
     return 1;
-  if ((!strcasecmp(targ.c_str(), "money")) && Skill("Money"))
+  if ((!strcmp(targ.c_str(), "money")) && Skill("Money"))
     return 1;
 
   return matches(ShortDesc(), targ.c_str());
@@ -853,13 +853,13 @@ const char* Object::Name(int definite, Object* rel, Object* sub) const {
   else if (sub == this)
     return "itself";
 
-  if (!strncasecmp(short_desc.c_str(), "a ", 2)) {
+  if (!strncmp(short_desc.c_str(), "a ", 2)) {
     ret = (short_desc.c_str() + 2);
     need_an = 0;
-  } else if (!strncasecmp(short_desc.c_str(), "an ", 3)) {
+  } else if (!strncmp(short_desc.c_str(), "an ", 3)) {
     ret = (short_desc.c_str() + 3);
     need_an = 1;
-  } else if (!strncasecmp(short_desc.c_str(), "the ", 4)) {
+  } else if (!strncmp(short_desc.c_str(), "the ", 4)) {
     ret = (short_desc.c_str() + 4);
     definite = 1;
   } else {
@@ -2112,13 +2112,13 @@ int get_ordinal(const char* text) {
     const char* suf = text;
     while (isdigit(*suf))
       ++suf;
-    if (!strncasecmp(suf, "st", 2))
+    if (!strncmp(suf, "st", 2))
       ret = atoi(text);
-    else if (!strncasecmp(suf, "nd", 2))
+    else if (!strncmp(suf, "nd", 2))
       ret = atoi(text);
-    else if (!strncasecmp(suf, "rd", 2))
+    else if (!strncmp(suf, "rd", 2))
       ret = atoi(text);
-    else if (!strncasecmp(suf, "th", 2))
+    else if (!strncmp(suf, "th", 2))
       ret = atoi(text);
     if (ret && isgraph(suf[2]))
       ret = 0;
@@ -2126,33 +2126,33 @@ int get_ordinal(const char* text) {
       ret = atoi(text);
     if (!isgraph(*suf))
       ret = -atoi(text);
-  } else if (!strncasecmp(text, "first ", 6))
+  } else if (!strncmp(text, "first ", 6))
     ret = 1;
-  else if (!strncasecmp(text, "second ", 7))
+  else if (!strncmp(text, "second ", 7))
     ret = 2;
-  else if (!strncasecmp(text, "third ", 6))
+  else if (!strncmp(text, "third ", 6))
     ret = 3;
-  else if (!strncasecmp(text, "fourth ", 7))
+  else if (!strncmp(text, "fourth ", 7))
     ret = 4;
-  else if (!strncasecmp(text, "fifth ", 6))
+  else if (!strncmp(text, "fifth ", 6))
     ret = 5;
-  else if (!strncasecmp(text, "sixth ", 6))
+  else if (!strncmp(text, "sixth ", 6))
     ret = 6;
-  else if (!strncasecmp(text, "seventh ", 8))
+  else if (!strncmp(text, "seventh ", 8))
     ret = 7;
-  else if (!strncasecmp(text, "eighth ", 7))
+  else if (!strncmp(text, "eighth ", 7))
     ret = 8;
-  else if (!strncasecmp(text, "ninth ", 6))
+  else if (!strncmp(text, "ninth ", 6))
     ret = 9;
-  else if (!strncasecmp(text, "tenth ", 6))
+  else if (!strncmp(text, "tenth ", 6))
     ret = 10;
-  else if (!strncasecmp(text, "all ", 4))
+  else if (!strncmp(text, "all ", 4))
     ret = ALL;
-  else if (!strncasecmp(text, "all.", 4))
+  else if (!strncmp(text, "all.", 4))
     ret = ALL;
-  else if (!strncasecmp(text, "some ", 5))
+  else if (!strncmp(text, "some ", 5))
     ret = SOME;
-  else if (!strncasecmp(text, "some.", 5))
+  else if (!strncmp(text, "some.", 5))
     ret = SOME;
   return ret;
 }
@@ -2283,13 +2283,13 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
     ordinal = &ordcontainer;
     (*ordinal) = strip_ordinal(&name);
   }
-  if (!strcasecmp(name, "all"))
+  if (!strcmp(name, "all"))
     (*ordinal) = ALL;
-  if (!strcasecmp(name, "everyone"))
+  if (!strcmp(name, "everyone"))
     (*ordinal) = ALL;
-  if (!strcasecmp(name, "everything"))
+  if (!strcmp(name, "everything"))
     (*ordinal) = ALL;
-  if (!strcasecmp(name, "everywhere"))
+  if (!strcmp(name, "everywhere"))
     (*ordinal) = ALL;
   if (!(*ordinal))
     (*ordinal) = 1;
@@ -2324,7 +2324,7 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
     --len;
 
   if (loc & LOC_SELF) {
-    if ((!strcasecmp(name, "self")) || (!strcasecmp(name, "myself")) || (!strcasecmp(name, "me"))) {
+    if ((!strcmp(name, "self")) || (!strcmp(name, "myself")) || (!strcmp(name, "me"))) {
       if ((*ordinal) != 1)
         return ret;
       ret.push_back((Object*)this); // Wrecks Const-Ness
@@ -2333,7 +2333,7 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
   }
 
   if (loc & LOC_HERE) {
-    if (!strcasecmp(name, "here")) {
+    if (!strcmp(name, "here")) {
       if ((*ordinal) == 1 && parent)
         ret.push_back(parent);
       return ret;
@@ -2341,7 +2341,7 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
   }
 
   if (loc & LOC_INTERNAL) {
-    if (!strncasecmp(name, "my ", 3)) {
+    if (!strncmp(name, "my ", 3)) {
       name += 3;
       return PickObjects(name, loc & (LOC_SPECIAL | LOC_INTERNAL | LOC_SELF));
     }

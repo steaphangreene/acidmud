@@ -1233,11 +1233,11 @@ void Object::TBALoadOBJ(const char* fn) {
       }
 
       int sf = 0;
-      if (!strncasecmp(obj->ShortDesc(), "a pair of ", 10))
+      if (!strncmp(obj->ShortDesc(), "a pair of ", 10))
         sf = 9;
-      else if (!strncasecmp(obj->ShortDesc(), "some ", 5))
+      else if (!strncmp(obj->ShortDesc(), "some ", 5))
         sf = 4;
-      else if (!strncasecmp(obj->ShortDesc(), "a set of ", 9))
+      else if (!strncmp(obj->ShortDesc(), "a set of ", 9))
         sf = 8;
 
       std::string name = obj->ShortDesc();
@@ -1266,9 +1266,9 @@ void Object::TBALoadOBJ(const char* fn) {
       if (strcasestr(buf, "f") || (atoi(buf) & 32)) {
         obj->SetSkill("Wearable on Left Leg", 1);
         if (sf) {
-          if (!strcasecmp(name.c_str() + (name.length() - 9), " leggings"))
+          if (!strcmp(name.c_str() + (name.length() - 9), " leggings"))
             name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
-          else if (!strcasecmp(name.c_str() + (name.length() - 7), " plates"))
+          else if (!strcmp(name.c_str() + (name.length() - 7), " plates"))
             name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else
             obj->SetSkill("Wearable on Right Leg", 1);
@@ -1283,11 +1283,11 @@ void Object::TBALoadOBJ(const char* fn) {
       if (strcasestr(buf, "g") || (atoi(buf) & 64)) {
         obj->SetSkill("Wearable on Left Foot", 1);
         if (sf) {
-          if (!strcasecmp(name.c_str() + (name.length() - 8), " sandals"))
+          if (!strcmp(name.c_str() + (name.length() - 8), " sandals"))
             name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
-          else if (!strcasecmp(name.c_str() + (name.length() - 6), " boots"))
+          else if (!strcmp(name.c_str() + (name.length() - 6), " boots"))
             name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
-          else if (!strcasecmp(name.c_str() + (name.length() - 6), " shoes"))
+          else if (!strcmp(name.c_str() + (name.length() - 6), " shoes"))
             name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else
             obj->SetSkill("Wearable on Right Foot", 1);
@@ -1301,9 +1301,9 @@ void Object::TBALoadOBJ(const char* fn) {
       if (strcasestr(buf, "h") || (atoi(buf) & 128)) {
         obj->SetSkill("Wearable on Left Hand", 1);
         if (sf) {
-          if (!strcasecmp(name.c_str() + (name.length() - 10), " gauntlets"))
+          if (!strcmp(name.c_str() + (name.length() - 10), " gauntlets"))
             name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
-          else if (!strcasecmp(name.c_str() + (name.length() - 7), " gloves"))
+          else if (!strcmp(name.c_str() + (name.length() - 7), " gloves"))
             name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else
             obj->SetSkill("Wearable on Right Hand", 1);
@@ -1317,11 +1317,11 @@ void Object::TBALoadOBJ(const char* fn) {
       if (strcasestr(buf, "i") || (atoi(buf) & 256)) {
         obj->SetSkill("Wearable on Left Arm", 1);
         if (sf) {
-          if (!strcasecmp(name.c_str() + (name.length() - 8), " sleeves"))
+          if (!strcmp(name.c_str() + (name.length() - 8), " sleeves"))
             name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
-          else if (!strcasecmp(name.c_str() + (name.length() - 8), " bracers"))
+          else if (!strcmp(name.c_str() + (name.length() - 8), " bracers"))
             name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
-          else if (!strcasecmp(name.c_str() + (name.length() - 7), " plates"))
+          else if (!strcmp(name.c_str() + (name.length() - 7), " plates"))
             name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else
             obj->SetSkill("Wearable on Right Arm", 1);
