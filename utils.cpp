@@ -19,10 +19,13 @@ void replace_all(std::string& str, const std::string& oldt, int newn, size_t st)
 }
 
 void trim_string(std::string& str) { // Remove extra whitespace from std::string
-  while (isspace(str[0]))
-    str = str.substr(1);
-  while (!str.empty() && isspace(str[str.length() - 1]))
-    str = str.substr(0, str.length() - 1);
+  size_t b = str.find_first_not_of(" \n\r\t\f\v");
+  size_t e = str.find_last_not_of(" \n\r\t\f\v");
+  if (b == std::string::npos || e == std::string::npos || b > e) { // No (valid) string
+    str.clear();
+  } else if (b != 0 || e + 1 != str.length()) { // String needs trimming
+    str = str.substr(b, (e - b) + 1);
+  }
 }
 
 size_t skip_line(const std::string& str, size_t pos) {

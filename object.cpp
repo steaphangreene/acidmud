@@ -915,13 +915,9 @@ const char* Object::LongDesc() const {
 }
 
 static void trim(std::string& s) {
-  while ((!s.empty()) && (!isgraph(s.front()))) {
-    s.erase(s.begin());
-  }
-  while ((!s.empty()) && (!isgraph(s.back()))) {
-    s.pop_back();
-  }
+  trim_string(s);
 
+  // Also remove N00bScript tags
   size_t n00b = s.find('@');
   while (n00b != std::string::npos) {
     // fprintf(stderr, "Step: %s\n", s.c_str());
