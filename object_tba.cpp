@@ -727,7 +727,7 @@ void Object::TBALoadMOB(const char* fn) {
           label += " " + aliases[actr];
         }
       }
-      if (label.length() > 0) {
+      if (!label.empty()) {
         label[0] = '(';
         label += ')';
         obj->SetShortDesc((std::string(obj->ShortDesc()) + " " + label).c_str());
@@ -1155,7 +1155,7 @@ void Object::TBALoadOBJ(const char* fn) {
           label += " " + aliases[actr];
         }
       }
-      if (label.length() > 0) {
+      if (!label.empty()) {
         label[0] = '(';
         label += ')';
         obj->SetShortDesc((std::string(obj->ShortDesc()) + " " + label).c_str());

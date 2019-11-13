@@ -2499,8 +2499,8 @@ int get_weapon_type(std::string wskill) {
 }
 
 std::string get_skill(std::string sk) {
-  while (isspace(sk[sk.length() - 1]))
-    sk = sk.substr(0, sk.length() - 1);
+  while (isspace(sk.back()))
+    sk.pop_back();
   if (defaults.count(sk))
     return sk;
   if (sk.length() < 2)
@@ -2516,8 +2516,8 @@ std::string get_skill(std::string sk) {
 }
 
 std::string get_skill_cat(std::string cat) {
-  while (isspace(cat[cat.length() - 1]))
-    cat = cat.substr(0, cat.length() - 1);
+  while (isspace(cat.back()))
+    cat.pop_back();
   if (skcat.count(cat))
     return cat;
   if (cat.length() < 2)
@@ -2533,8 +2533,8 @@ std::string get_skill_cat(std::string cat) {
 }
 
 int get_linked(std::string sk) {
-  while (isspace(sk[sk.length() - 1]))
-    sk = sk.substr(0, sk.length() - 1);
+  while (isspace(sk.back()))
+    sk.pop_back();
   if (defaults.count(sk))
     return defaults[sk];
   return 4; // Default to Int for knowledges
@@ -2545,8 +2545,8 @@ std::list<std::string> get_skills(std::string cat) {
     init_defaults();
   std::list<std::string> ret;
 
-  while (isspace(cat[cat.length() - 1]))
-    cat = cat.substr(0, cat.length() - 1);
+  while (isspace(cat.back()))
+    cat.pop_back();
 
   if (cat == "Categories") {
     for (auto ind = skcat.begin(); ind != skcat.end(); ++ind) {

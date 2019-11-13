@@ -198,8 +198,8 @@ int matches(const char* name, const char* seek) {
 
 int Object::Matches(const char* seek) {
   std::string targ = seek;
-  while (isspace(targ[targ.length() - 1]))
-    targ = targ.substr(0, targ.length() - 1);
+  while (isspace(targ.back()))
+    targ.pop_back();
 
   // Pointer Matches
   if (!strncmp(targ.c_str(), "OBJ:", 4)) {
@@ -903,25 +903,23 @@ const char* Object::ShortDesc() const {
 }
 
 const char* Object::Desc() const {
-  if (desc.length() <= 0)
+  if (desc.empty())
     return ShortDesc();
   return desc.c_str();
 }
 
 const char* Object::LongDesc() const {
-  if (long_desc.length() <= 0)
+  if (long_desc.empty())
     return Desc();
   return long_desc.c_str();
 }
 
 static void trim(std::string& s) {
-  if (s.length() < 1)
-    return;
-  while (s[0] != 0 && (!isgraph(s[0]))) {
-    s = s.substr(1);
+  while ((!s.empty()) && (!isgraph(s.front()))) {
+    s.erase(s.begin());
   }
-  while (s[s.length() - 1] != 0 && (!isgraph(s[s.length() - 1]))) {
-    s = s.substr(0, s.length() - 1);
+  while ((!s.empty()) && (!isgraph(s.back()))) {
+    s.pop_back();
   }
 
   size_t n00b = s.find('@');
@@ -1159,7 +1157,7 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
 void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
   std::list<Object*> cont = contents;
 
-  if (b.length() > 0)
+  if (!b.empty())
     base += b;
 
   std::set<Object*> master;
@@ -1285,7 +1283,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
         }
       }
     }
-  if (b.length() > 0)
+  if (!b.empty())
     base = "";
 }
 
@@ -2901,11 +2899,11 @@ void Object::SendIn(
       } else { // Type 0x1000008 (MOB + MOB-SPEECH)
         if (((*trig)->Skill("TBAScriptType") & 0x1000008) == 0x1000008) {
           std::string speech = (mes + 9);
-          while (speech[0] && speech[speech.length() - 1] != '\'') {
-            speech = speech.substr(0, speech.length() - 1);
+          while (!speech.empty() && speech.back() != '\'') {
+            speech.pop_back();
           }
-          if (speech[0])
-            speech = speech.substr(0, speech.length() - 1);
+          if (!speech.empty())
+            speech.pop_back();
 
           if ((*trig)->Desc()[0] == '*') { // All Speech
             new_trigger((rand() % 400) + 300, *trig, actor, speech);
@@ -3031,11 +3029,11 @@ void Object::SendOut(
     for (; trig != contents.end(); ++trig) {
       if (((*trig)->Skill("TBAScriptType") & 0x4000008) == 0x4000008) {
         std::string speech = (mes + 9);
-        while (speech[0] && speech[speech.length() - 1] != '\'') {
-          speech = speech.substr(0, speech.length() - 1);
+        while (!speech.empty() && speech.back() != '\'') {
+          speech.pop_back();
         }
-        if (speech[0])
-          speech = speech.substr(0, speech.length() - 1);
+        if (!speech.empty())
+          speech.pop_back();
 
         if ((*trig)->Desc()[0] == '*') { // All Speech
           new_trigger((rand() % 400) + 300, *trig, actor, speech);
