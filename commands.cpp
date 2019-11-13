@@ -624,11 +624,10 @@ static void load_socials() {
     while (comlist[cnum].id != COM_NONE)
       ++cnum;
     // fprintf(stderr, "There were %d commands!\n", cnum);
-    char buf[256] = "";
     char com[64] = "";
     int v1, v2, v3, v4;
     while (fscanf(soc, " ~%s %*s %d %d %d %d", com, &v1, &v2, &v3, &v4) == 5) {
-      buf[0] = 0;
+      char buf[256] = "";
       for (int mnum = 0; mnum < 13; ++mnum) {
         fscanf(soc, " %255[^\n\r]", buf); // Skip space/newline, read line.
         fscanf(soc, "%*[^\n\r]"); // Skip rest of line.
@@ -688,8 +687,6 @@ com_t identify_command(const std::string& str) {
 //                1: Command NOT Understood
 //                2: Command Understood - No More Actions This Round
 int handle_single_command(Object* body, const char* inpline, Mind* mind) {
-  int len;
-  static char buf[2048];
   std::string cmd = inpline;
   trim_string(cmd);
   std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
@@ -736,6 +733,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   //	cmd.c_str(), body->StillBusy());
   //    }
 
+  int len;
   if (cmd.front() == '\'' || cmd.front() == '"') { // Command Alias: "say"
     len = 1;
   } else {
@@ -6655,6 +6653,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           nullptr);
       world->Activate();
     } else {
+      char buf[2048];
       sprintf(buf, "tba/wld/%s.wld", cmd.c_str() + len);
       body->Parent()->TBALoadWLD(buf);
       sprintf(buf, "tba/obj/%s.obj", cmd.c_str() + len);
@@ -6689,8 +6688,6 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 }
 
 int handle_command(Object* body, const std::string& cl, Mind* mind) {
-  static char* buf = nullptr;
-  static int bsize = -1;
   int ret = 0;
   const char *start = cl.c_str(), *end = cl.c_str();
 
@@ -6704,12 +6701,7 @@ int handle_command(Object* body, const std::string& cl, Mind* mind) {
     if ((*end) == '\n' || (*end) == '\r' || (*end) == ';' || (*end) == 0) {
       if (end > start) {
         int len = end - start;
-        if (bsize < len) {
-          bsize = ((len + 4095) / 4096) * 4096;
-          if (buf)
-            delete buf;
-          buf = new char[bsize];
-        }
+        char buf[len + 1];
         memcpy(buf, start, len);
         buf[len] = 0;
 
