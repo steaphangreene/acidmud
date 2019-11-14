@@ -166,18 +166,16 @@ int Player::SaveTo(FILE* fl) {
 
   fprintf(fl, ":%d", exp);
 
-  std::set<unsigned long>::iterator com = completed.begin();
-  for (; com != completed.end(); ++com) {
-    fprintf(fl, ";%ld", (*com));
+  for (auto com : completed) {
+    fprintf(fl, ";%ld", com);
   }
 
   fprintf(fl, ":%lX", flags);
   room->WriteContentsTo(fl);
   fprintf(fl, "\n");
 
-  std::map<std::string, std::string>::iterator var = vars.begin();
-  for (; var != vars.end(); ++var) {
-    fprintf(fl, ";%s:%s", var->first.c_str(), var->second.c_str());
+  for (auto var : vars) {
+    fprintf(fl, ";%s:%s", var.first.c_str(), var.second.c_str());
   }
   fprintf(fl, "\n");
   return 0;
@@ -192,10 +190,9 @@ int save_players(const char* fn) {
 
   fprintf(fl, "%d\n", (int)(player_list.size() - non_init.size()));
 
-  std::map<std::string, Player*>::iterator pl = player_list.begin();
-  for (; pl != player_list.end(); ++pl) {
-    if (non_init.count((*pl).second) == 0) {
-      if ((*pl).second->SaveTo(fl))
+  for (auto pl : player_list) {
+    if (non_init.count(pl.second) == 0) {
+      if (pl.second->SaveTo(fl))
         return -1;
     }
   }
@@ -205,18 +202,16 @@ int save_players(const char* fn) {
 }
 
 void player_rooms_erase(Object* obj) {
-  std::map<std::string, Player*>::iterator pl = player_list.begin();
-  for (; pl != player_list.end(); ++pl) {
-    if ((*pl).second->Creator() == obj)
-      (*pl).second->SetCreator(nullptr);
-    (*pl).second->Room()->RemoveLink(obj);
+  for (auto pl : player_list) {
+    if (pl.second->Creator() == obj)
+      pl.second->SetCreator(nullptr);
+    pl.second->Room()->RemoveLink(obj);
   }
 }
 
 int is_pc(const Object* obj) {
-  std::map<std::string, Player*>::iterator pl = player_list.begin();
-  for (; pl != player_list.end(); ++pl) {
-    if (pl->second->Room() && pl->second->Room()->Contains(obj)) {
+  for (auto pl : player_list) {
+    if (pl.second->Room() && pl.second->Room()->Contains(obj)) {
       return 1;
     }
   }
@@ -231,10 +226,9 @@ std::vector<Player*> get_current_players() {
 
 std::vector<Player*> get_all_players() {
   std::vector<Player*> ret;
-  std::map<std::string, Player*>::iterator pl = player_list.begin();
-  for (; pl != player_list.end(); ++pl) {
-    if ((*pl).second->Room()) {
-      ret.push_back((*pl).second);
+  for (auto pl : player_list) {
+    if (pl.second->Room()) {
+      ret.push_back(pl.second);
     }
   }
   return ret;
