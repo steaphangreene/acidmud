@@ -18,5 +18,6 @@ size_t prev_line( // IDX of prev line start, skipping leading whitespace
 
 void trim_string(std::string& str); // Remove extra whitespace from string
 
-int phrase_match(const std::string& str, const std::string& phrase);
+int phrase_match(const std::string& str, const std::string& phrase /* lowercase! */);
+int phrase_match_sensitive(const std::string& str, const std::string& phrase /* non-empty! */);
 int words_match(const std::string& str, const std::string& words);

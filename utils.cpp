@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstdio>
 #include <cstring>
 #include <string>
@@ -50,10 +51,8 @@ size_t prev_line(const std::string& str, size_t pos) {
   return pos;
 }
 
-int phrase_match(const std::string& str, const std::string& phrase) {
+int phrase_match_sensitive(const std::string& str, const std::string& phrase) {
   int len = phrase.length();
-  if (len == 0)
-    return 0;
 
   const char* desc = str.c_str();
   while (*desc) {
@@ -66,6 +65,19 @@ int phrase_match(const std::string& str, const std::string& phrase) {
       ++desc;
   }
   return 0;
+}
+
+int phrase_match(const std::string& str, const std::string& phrase) {
+  if (phrase.length() == 0)
+    return 0;
+
+  if (std::any_of(str.cbegin(), str.cend(), ::isupper)) {
+    std::string str2 = str;
+    std::transform(str2.begin(), str2.end(), str2.begin(), ::tolower);
+    return phrase_match_sensitive(str2, phrase);
+  } else {
+    return phrase_match_sensitive(str, phrase);
+  }
 }
 
 static const char* alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
