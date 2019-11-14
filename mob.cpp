@@ -159,17 +159,16 @@ void Object::AddMOB(const MOBType* type) {
   mob->SetAttribute(4, type->i + rand() % type->im);
   mob->SetAttribute(5, type->w + rand() % type->wm);
 
-  for (auto sk_it = type->skills.begin(); sk_it != type->skills.end(); ++sk_it) {
-    if (sk_it->second.first < 0) {
-      mob->SetSkill(sk_it->first, sk_it->second.second);
+  for (auto sk : type->skills) {
+    if (sk.second.first < 0) {
+      mob->SetSkill(sk.first, sk.second.second);
     } else {
       mob->SetSkill(
-          sk_it->first,
-          mob->Attribute(get_linked(sk_it->first)) * sk_it->second.first / 100 -
-              rand() % sk_it->second.second);
+          sk.first,
+          mob->Attribute(get_linked(sk.first)) * sk.second.first / 100 - rand() % sk.second.second);
     }
-    // fprintf(stderr, "DBG: %d %d %d\n", get_linked(sk_it->first),
-    // sk_it->second.first, sk_it->second.second);
+    // fprintf(stderr, "DBG: %d %d %d\n", get_linked(sk.first),
+    // sk.second.first, sk.second.second);
   }
 
   mob->SetShortDesc(type->name.c_str());
@@ -202,27 +201,27 @@ void Object::AddMOB(const MOBType* type) {
       mob->AddAct(ACT_HOLD, obj);
   }
 
-  for (auto ar_it = type->armor.begin(); ar_it != type->armor.end(); ++ar_it) {
+  for (auto ar : type->armor) {
     if (wear_attribs.size() <= 0) {
       init_wear_attribs();
     }
     Object* obj = new Object(mob);
-    obj->SetAttribute(0, (*ar_it)->bulk + rand() % (*ar_it)->bulkm);
-    obj->SetSkill("ArmorB", (*ar_it)->bulk + rand() % (*ar_it)->bulkm);
-    obj->SetSkill("ArmorI", (*ar_it)->impact + rand() % (*ar_it)->impactm);
-    obj->SetSkill("ArmorT", (*ar_it)->thread + rand() % (*ar_it)->threadm);
-    obj->SetSkill("ArmorP", (*ar_it)->planar + rand() % (*ar_it)->planarm);
-    obj->SetShortDesc((*ar_it)->name.c_str());
-    obj->SetDesc((*ar_it)->desc.c_str());
-    obj->SetLongDesc((*ar_it)->long_desc.c_str());
-    obj->SetWeight((*ar_it)->weight);
-    obj->SetVolume((*ar_it)->volume);
-    obj->SetValue((*ar_it)->value);
+    obj->SetAttribute(0, ar->bulk + rand() % ar->bulkm);
+    obj->SetSkill("ArmorB", ar->bulk + rand() % ar->bulkm);
+    obj->SetSkill("ArmorI", ar->impact + rand() % ar->impactm);
+    obj->SetSkill("ArmorT", ar->thread + rand() % ar->threadm);
+    obj->SetSkill("ArmorP", ar->planar + rand() % ar->planarm);
+    obj->SetShortDesc(ar->name.c_str());
+    obj->SetDesc(ar->desc.c_str());
+    obj->SetLongDesc(ar->long_desc.c_str());
+    obj->SetWeight(ar->weight);
+    obj->SetVolume(ar->volume);
+    obj->SetValue(ar->value);
     obj->SetPos(POS_LIE);
 
-    for (auto l_it = (*ar_it)->loc.begin(); l_it != (*ar_it)->loc.end(); ++l_it) {
-      obj->SetSkill(wear_attribs[*l_it], 1);
-      mob->AddAct(*l_it, obj);
+    for (auto loc : ar->loc) {
+      obj->SetSkill(wear_attribs[loc], 1);
+      mob->AddAct(loc, obj);
     }
   }
 }
