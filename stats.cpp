@@ -2526,10 +2526,9 @@ std::string get_skill_cat(std::string cat) {
   if (cat.length() < 2)
     return "";
 
-  auto itr = skcat.begin();
-  for (; itr != skcat.end(); ++itr) {
-    if (!strncmp(cat.c_str(), itr->first.c_str(), cat.length())) {
-      return itr->first;
+  for (auto itr : skcat) {
+    if (!strncmp(cat.c_str(), itr.first.c_str(), cat.length())) {
+      return itr.first;
     }
   }
   return "";
@@ -2552,16 +2551,16 @@ std::list<std::string> get_skills(std::string cat) {
     cat.pop_back();
 
   if (cat == "Categories") {
-    for (auto ind = skcat.begin(); ind != skcat.end(); ++ind) {
-      ret.push_back(ind->first);
+    for (auto ind : skcat) {
+      ret.push_back(ind.first);
     }
   } else if (cat == "all") {
-    for (auto ind = defaults.begin(); ind != defaults.end(); ++ind) {
-      ret.push_back(ind->first);
+    for (auto ind : defaults) {
+      ret.push_back(ind.first);
     }
   } else if (skcat.count(cat)) {
-    for (auto ind = skcat[cat].begin(); ind != skcat[cat].end(); ++ind) {
-      ret.push_back(*ind);
+    for (auto ind : skcat[cat]) {
+      ret.push_back(ind);
     }
   }
 
