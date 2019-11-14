@@ -819,25 +819,23 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     items.splice(items.end(), body->PickObjects("everything", LOC_INTERNAL | LOC_NEARBY));
     items.splice(items.end(), body->PickObjects("everyone", LOC_NEARBY));
 
-    std::list<Object*>::iterator obj = items.begin();
-    for (; obj != items.end(); ++obj) {
+    for (auto obj : items) {
       std::list<Object*> trigs =
-          (*obj)->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
-      std::list<Object*>::iterator trig = trigs.begin();
-      for (; trig != trigs.end(); ++trig) {
-        if ((*trig)->Skill("TBAScriptType") & 0x04) { //*-COMMAND trigs
-          if ((com == COM_NONE && (!strncmp(inpline, (*trig)->Desc(), len))) ||
-              (com && com == identify_command((*trig)->Desc()))) {
-            if ((*trig)->Skill("TBAScriptType") & 0x2000000) { // OBJ
-              int narg = (*trig)->Skill("TBAScriptNArg");
-              if ((narg & 3) == 0 && body->HasWithin(*obj)) {
+          obj->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
+      for (auto trig : trigs) {
+        if (trig->Skill("TBAScriptType") & 0x04) { //*-COMMAND trigs
+          if ((com == COM_NONE && (!strncmp(inpline, trig->Desc(), len))) ||
+              (com && com == identify_command(trig->Desc()))) {
+            if (trig->Skill("TBAScriptType") & 0x2000000) { // OBJ
+              int narg = trig->Skill("TBAScriptNArg");
+              if ((narg & 3) == 0 && body->HasWithin(obj)) {
                 continue;
-              } else if ((narg & 3) == 2 && body->Wearing(*obj)) {
+              } else if ((narg & 3) == 2 && body->Wearing(obj)) {
                 continue;
-              } else if ((narg & 3) == 1 && (!body->Wearing(*obj))) {
+              } else if ((narg & 3) == 1 && (!body->Wearing(obj))) {
                 continue;
               }
-              if ((narg & 4) == 0 && (!body->HasWithin(*obj))) {
+              if ((narg & 4) == 0 && (!body->HasWithin(obj))) {
                 continue;
               }
             }
@@ -845,9 +843,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             if (com != COM_NONE) {
               cmln = comlist[cnum].command + std::string(" ") + cmd;
             } else {
-              cmln = (*trig)->Desc() + std::string(" ") + cmd;
+              cmln = trig->Desc() + std::string(" ") + cmd;
             }
-            if (!new_trigger(0, *trig, body, cmln)) {
+            if (!new_trigger(0, trig, body, cmln)) {
               return 0; // Handled, unless script says not.
             }
           }
@@ -1560,9 +1558,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    std::list<Object*> targs;
     int within = 0;
-
     if (!strncmp(cmd.c_str() + len, "at ", 3))
       len += 3;
     if (!strncmp(cmd.c_str() + len, "in ", 3)) {
@@ -1570,6 +1566,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       within = 1;
     }
 
+    std::list<Object*> targs;
     if (strlen(cmd.c_str() + len) > 0) {
       targs = body->PickObjects(
           cmd.c_str() + len, vmode | LOC_NEARBY | LOC_ADJACENT | LOC_SELF | LOC_INTERNAL);
@@ -1583,57 +1580,56 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    for (auto targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
-      if (within && (!(*targ_it)->Skill("Container")) && (!(*targ_it)->Skill("Liquid Container"))) {
+    for (auto targ : targs) {
+      if (within && (!targ->Skill("Container")) && (!targ->Skill("Liquid Container"))) {
         if (mind)
-          mind->SendF("You can't look inside %s, it is not a container.\n", (*targ_it)->Name());
-      } else if (within && ((*targ_it)->Skill("Locked"))) {
+          mind->SendF("You can't look inside %s, it is not a container.\n", targ->Name());
+      } else if (within && (targ->Skill("Locked"))) {
         if (mind)
-          mind->SendF("You can't look inside %s, it is locked.\n", (*targ_it)->Name());
+          mind->SendF("You can't look inside %s, it is locked.\n", targ->Name());
       } else {
         int must_open = within;
-        if (within && (*targ_it)->Skill("Open"))
+        if (within && targ->Skill("Open"))
           must_open = 0;
 
         if (must_open) {
-          (*targ_it)->SetSkill("Open", 1000);
+          targ->SetSkill("Open", 1000);
           body->Parent()->SendOut(
-              stealth_t, stealth_s, ";s opens ;s.\n", "You open ;s.\n", body, (*targ_it));
+              stealth_t, stealth_s, ";s opens ;s.\n", "You open ;s.\n", body, targ);
         }
 
         if (strlen(cmd.c_str() + len) <= 0) {
-          body->Parent()->SendOut(stealth_t, stealth_s, ";s looks around.\n", "", body, (*targ_it));
+          body->Parent()->SendOut(stealth_t, stealth_s, ";s looks around.\n", "", body, targ);
           if (mind)
-            (*targ_it)->SendDescSurround(mind, body, vmode);
+            targ->SendDescSurround(mind, body, vmode);
         } else if (
             (!strcmp(cmd.c_str() + len, "north")) || (!strcmp(cmd.c_str() + len, "south")) ||
             (!strcmp(cmd.c_str() + len, "east")) || (!strcmp(cmd.c_str() + len, "west")) ||
             (!strcmp(cmd.c_str() + len, "up")) || (!strcmp(cmd.c_str() + len, "down"))) {
-          body->Parent()->SendOut(stealth_t, stealth_s, ";s looks ;s.\n", "", body, (*targ_it));
+          body->Parent()->SendOut(stealth_t, stealth_s, ";s looks ;s.\n", "", body, targ);
           if (mind) {
-            (*targ_it)->SendDesc(mind, body);
-            (*targ_it)->SendExtendedActions(mind, vmode);
+            targ->SendDesc(mind, body);
+            targ->SendExtendedActions(mind, vmode);
           }
         } else if (within) {
-          body->Parent()->SendOut(
-              stealth_t, stealth_s, ";s looks inside ;s.\n", "", body, (*targ_it));
+          body->Parent()->SendOut(stealth_t, stealth_s, ";s looks inside ;s.\n", "", body, targ);
           if (mind) {
-            (*targ_it)->SendDesc(mind, body);
-            (*targ_it)->SendExtendedActions(mind, vmode);
-            (*targ_it)->SendContents(mind, nullptr, vmode);
+            targ->SendDesc(mind, body);
+            targ->SendExtendedActions(mind, vmode);
+            targ->SendContents(mind, nullptr, vmode);
           }
         } else {
-          body->Parent()->SendOut(stealth_t, stealth_s, ";s looks at ;s.\n", "", body, (*targ_it));
+          body->Parent()->SendOut(stealth_t, stealth_s, ";s looks at ;s.\n", "", body, targ);
           if (mind) {
-            (*targ_it)->SendDesc(mind, body);
-            (*targ_it)->SendExtendedActions(mind, vmode);
+            targ->SendDesc(mind, body);
+            targ->SendExtendedActions(mind, vmode);
           }
         }
 
         if (must_open) {
-          (*targ_it)->SetSkill("Open", 0);
+          targ->SetSkill("Open", 0);
           body->Parent()->SendOut(
-              stealth_t, stealth_s, ";s closes ;s.\n", "You close ;s.\n", body, (*targ_it));
+              stealth_t, stealth_s, ";s closes ;s.\n", "You close ;s.\n", body, targ);
         }
       }
     }
@@ -1654,10 +1650,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    std::list<Object*> targs;
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
       ++len;
 
+    std::list<Object*> targs;
     if (strlen(cmd.c_str() + len) > 0) {
       targs = body->PickObjects(
           cmd.c_str() + len, vmode | LOC_NEARBY | LOC_ADJACENT | LOC_SELF | LOC_INTERNAL);
@@ -1684,23 +1680,23 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
     body->StartUsing("Perception");
     body->SetSkill("Hidden", 0);
-    for (auto targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+    for (auto targ : targs) {
       std::string denied = "";
-      for (Object* own = *targ_it; own; own = own->Parent()) {
+      for (Object* own = targ; own; own = own->Parent()) {
         if (own->Attribute(1) && own != body && (!own->IsAct(ACT_SLEEP)) &&
             (!own->IsAct(ACT_DEAD)) && (!own->IsAct(ACT_DYING)) && (!own->IsAct(ACT_UNCONSCIOUS))) {
           denied = "You would need ";
           denied += own->Name(1);
           denied += "'s permission to search ";
-          denied += (*targ_it)->Name(0, nullptr, own);
+          denied += targ->Name(0, nullptr, own);
           denied += ".\n";
         } else if (own->Skill("Container") && (!own->Skill("Open")) && own->Skill("Locked")) {
           denied = own->Name(1);
-          if (own == *targ_it) {
+          if (own == targ) {
             denied += " is closed and locked so you can't search it.\n";
           } else {
             denied += " is closed and locked so you can't get to ";
-            denied += (*targ_it)->Name(1);
+            denied += targ->Name(1);
             denied += ".\n";
           }
           denied[0] = toupper(denied[0]);
@@ -1713,33 +1709,33 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       }
 
       body->Parent()->SendOut(
-          stealth_t, stealth_s, ";s searches ;s.\n", "you search ;s.\n", body, *targ_it);
+          stealth_t, stealth_s, ";s searches ;s.\n", "you search ;s.\n", body, targ);
 
       std::list<Object*> objs;
-      objs = (*targ_it)->Contents(vmode);
-      for (auto obj_it = objs.begin(); obj_it != objs.end(); ++obj_it) {
-        if ((*obj_it)->Skill("Hidden")) {
-          if (body->Roll("Perception", (*obj_it)->Skill("Hidden"))) {
-            (*obj_it)->SetSkill("Hidden", 0);
+      objs = targ->Contents(vmode);
+      for (auto obj : objs) {
+        if (obj->Skill("Hidden")) {
+          if (body->Roll("Perception", obj->Skill("Hidden"))) {
+            obj->SetSkill("Hidden", 0);
             body->Parent()->SendOut(
-                stealth_t, stealth_s, ";s reveals ;s.\n", "you reveal ;s.\n", body, *obj_it);
+                stealth_t, stealth_s, ";s reveals ;s.\n", "you reveal ;s.\n", body, obj);
           }
         }
       }
 
       if (mind) {
-        (*targ_it)->SendExtendedActions(mind, LOC_TOUCH | vmode | 1);
-        (*targ_it)->SendContents(mind, body, LOC_TOUCH | vmode | 1);
+        targ->SendExtendedActions(mind, LOC_TOUCH | vmode | 1);
+        targ->SendContents(mind, body, LOC_TOUCH | vmode | 1);
       }
     }
     return 0;
   }
 
   if (com == COM_HIDE) {
-    std::list<Object*> targs;
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
       ++len;
 
+    std::list<Object*> targs;
     if (strlen(cmd.c_str() + len) <= 0) {
       targs.push_back(body);
     } else {
@@ -1751,21 +1747,21 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    for (auto targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+    for (auto targ : targs) {
       std::string denied = "";
-      for (Object* own = *targ_it; own; own = own->Parent()) {
+      for (Object* own = targ; own; own = own->Parent()) {
         if (own->Attribute(1) && own != body && (!own->IsAct(ACT_SLEEP)) &&
             (!own->IsAct(ACT_DEAD)) && (!own->IsAct(ACT_DYING)) && (!own->IsAct(ACT_UNCONSCIOUS))) {
           denied = "You would need ";
           denied += own->Name(1);
           denied += "'s permission to hide ";
-          denied += (*targ_it)->Name(0, nullptr, own);
+          denied += targ->Name(0, nullptr, own);
           denied += ".\n";
         } else if (own->Skill("Container") && (!own->Skill("Open")) && own->Skill("Locked")) {
-          if (own != *targ_it) {
+          if (own != targ) {
             denied = own->Name(1);
             denied += " is closed and locked so you can't get to ";
-            denied += (*targ_it)->Name(1);
+            denied += targ->Name(1);
             denied += ".\n";
             denied[0] = toupper(denied[0]);
           }
@@ -1776,26 +1772,25 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           mind->Send(denied.c_str());
         continue;
       }
-      if ((!nmode) && (*targ_it)->Skill("Obvious")) {
+      if ((!nmode) && targ->Skill("Obvious")) {
         if (mind)
-          mind->SendF("You could never hide %s, it's too obvious.", (*targ_it)->Name(0, body));
+          mind->SendF("You could never hide %s, it's too obvious.", targ->Name(0, body));
         continue;
       }
-      if ((!nmode) && (*targ_it)->Skill("Open")) {
-        if ((*targ_it)->Skill("Closeable")) {
+      if ((!nmode) && targ->Skill("Open")) {
+        if (targ->Skill("Closeable")) {
           if (mind)
-            mind->SendF("You can't hide %s while it's open.", (*targ_it)->Name(0, body));
+            mind->SendF("You can't hide %s while it's open.", targ->Name(0, body));
         } else {
           if (mind)
-            mind->SendF("You can't hide %s.  It's wide open.", (*targ_it)->Name(0, body));
+            mind->SendF("You can't hide %s.  It's wide open.", targ->Name(0, body));
         }
         continue;
       }
 
-      body->Parent()->SendOut(
-          stealth_t, stealth_s, ";s hides ;s.\n", "you hide ;s.\n", body, *targ_it);
+      body->Parent()->SendOut(stealth_t, stealth_s, ";s hides ;s.\n", "you hide ;s.\n", body, targ);
 
-      (*targ_it)->SetSkill("Hidden", body->Roll("Stealth", 2) * 2);
+      targ->SetSkill("Hidden", body->Roll("Stealth", 2) * 2);
     }
     return 0;
   }
@@ -2023,19 +2018,17 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           handled = 1;
 
           std::set<Object*> repls;
-          std::set<act_t>::const_iterator loc = locs.begin();
-          for (; loc != locs.end(); ++loc) {
-            if (body->ActTarg(*loc))
-              repls.insert(body->ActTarg(*loc));
+          for (const auto loc : locs) {
+            if (body->ActTarg(loc))
+              repls.insert(body->ActTarg(loc));
           }
 
-          std::set<Object*>::const_iterator repl = repls.begin();
-          for (; repl != repls.end(); ++repl) {
-            if ((*repl) != targ) {
-              mind->SendF("   ...it would replace %s.\n", (*repl)->Name(0, body));
+          for (const auto repl : repls) {
+            if (repl != targ) {
+              mind->SendF("   ...it would replace %s.\n", repl->Name(0, body));
 
               int diff = targ->Attribute(0);
-              diff -= (*repl)->Attribute(0);
+              diff -= repl->Attribute(0);
               if (diff > 0) {
                 mind->Send("      ...and would provide better protection.\n");
               } else if (diff < 0) {
@@ -2354,12 +2347,14 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     } else {
       if (!nmode) {
         std::list<Object*> keys = body->PickObjects("all", vmode | LOC_INTERNAL);
-        auto key = keys.begin();
-        for (; key != keys.end(); ++key) {
-          if ((*key)->Skill("Key") == targ->Skill("Lock"))
+        bool can_open = false;
+        for (auto key : keys) {
+          if (key->Skill("Key") == targ->Skill("Lock")) {
+            can_open = true;
             break;
+          }
         }
-        if (key == keys.end()) {
+        if (!can_open) {
           if (mind)
             mind->Send("You don't seem to have the right key.\n");
           return 0;
@@ -2398,12 +2393,14 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     } else {
       if (!nmode) {
         std::list<Object*> keys = body->PickObjects("all", vmode | LOC_INTERNAL);
-        auto key = keys.begin();
-        for (; key != keys.end(); ++key) {
-          if ((*key)->Skill("Key") == targ->Skill("Lock"))
+        bool can_open = false;
+        for (auto key : keys) {
+          if (key->Skill("Key") == targ->Skill("Lock")) {
+            can_open = true;
             break;
+          }
         }
-        if (key == keys.end()) {
+        if (!can_open) {
           if (mind)
             mind->Send("You don't seem to have the right key.\n");
           return 0;
@@ -2497,21 +2494,20 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
 
     std::list<Object*> objs = body->Parent()->Contents(vmode);
-    std::list<Object*>::iterator shpkp_i;
     std::list<Object*> shpkps;
     std::string reason = "";
-    for (shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
-      if ((*shpkp_i)->Skill("Sell Profit")) {
-        if ((*shpkp_i)->IsAct(ACT_DEAD)) {
+    for (auto shpkp : objs) {
+      if (shpkp->Skill("Sell Profit")) {
+        if (shpkp->IsAct(ACT_DEAD)) {
           reason = "Sorry, the shopkeeper is dead!\n";
-        } else if ((*shpkp_i)->IsAct(ACT_DYING)) {
+        } else if (shpkp->IsAct(ACT_DYING)) {
           reason = "Sorry, the shopkeeper is dying!\n";
-        } else if ((*shpkp_i)->IsAct(ACT_UNCONSCIOUS)) {
+        } else if (shpkp->IsAct(ACT_UNCONSCIOUS)) {
           reason = "Sorry, the shopkeeper is unconscious!\n";
-        } else if ((*shpkp_i)->IsAct(ACT_SLEEP)) {
+        } else if (shpkp->IsAct(ACT_SLEEP)) {
           reason = "Sorry, the shopkeeper is asleep!\n";
         } else {
-          shpkps.push_back(*shpkp_i);
+          shpkps.push_back(shpkp);
         }
       }
     }
@@ -2526,17 +2522,17 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
         Object* vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
         objs = vortex->Contents(vmode);
-        auto oobj = objs.begin();
-        for (auto obj = objs.begin(); obj != objs.end(); ++obj) {
-          if (obj != objs.begin() && (*(*obj)) == (*(*oobj)))
+        auto oobj = objs.front();
+        for (auto obj : objs) {
+          if (obj != objs.front() && (*obj) == (*oobj))
             continue;
-          int price = (*obj)->Value();
-          if ((*obj)->Skill("Money") != (*obj)->Value()) { // Not 1-1 Money
+          int price = obj->Value();
+          if (obj->Skill("Money") != obj->Value()) { // Not 1-1 Money
             price *= shpkp->Skill("Sell Profit");
             price += 999;
             price /= 1000;
           }
-          mind->SendF("%10d gp: %s\n", price, (*obj)->ShortDesc());
+          mind->SendF("%10d gp: %s\n", price, obj->ShortDesc());
           oobj = obj;
         }
       }
@@ -2554,21 +2550,20 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     std::list<Object*> objs = body->Parent()->Contents(vmode);
-    std::list<Object*>::iterator shpkp_i;
     std::list<Object*> shpkps;
     std::string reason = "";
-    for (shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
-      if ((*shpkp_i)->Skill("Sell Profit")) {
-        if ((*shpkp_i)->IsAct(ACT_DEAD)) {
+    for (auto shpkp : objs) {
+      if (shpkp->Skill("Sell Profit")) {
+        if (shpkp->IsAct(ACT_DEAD)) {
           reason = "Sorry, the shopkeeper is dead!\n";
-        } else if ((*shpkp_i)->IsAct(ACT_DYING)) {
+        } else if (shpkp->IsAct(ACT_DYING)) {
           reason = "Sorry, the shopkeeper is dying!\n";
-        } else if ((*shpkp_i)->IsAct(ACT_UNCONSCIOUS)) {
+        } else if (shpkp->IsAct(ACT_UNCONSCIOUS)) {
           reason = "Sorry, the shopkeeper is unconscious!\n";
-        } else if ((*shpkp_i)->IsAct(ACT_SLEEP)) {
+        } else if (shpkp->IsAct(ACT_SLEEP)) {
           reason = "Sorry, the shopkeeper is asleep!\n";
         } else {
-          shpkps.push_back(*shpkp_i);
+          shpkps.push_back(shpkp);
         }
       }
     }
@@ -2583,16 +2578,14 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
         Object* vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 
-        std::list<Object*> targs = vortex->PickObjects(cmd.c_str() + len, vmode | LOC_INTERNAL);
+        auto targs = vortex->PickObjects(cmd.c_str() + len, vmode | LOC_INTERNAL);
         if (!targs.size()) {
           if (mind)
             mind->Send("The shopkeeper doesn't have that.\n");
           return 0;
         }
 
-        for (auto targ_i = targs.begin(); targ_i != targs.end(); ++targ_i) {
-          Object* targ = (*targ_i);
-
+        for (auto targ : targs) {
           int price = targ->Value() * targ->Quantity();
           if (price < 0) {
             if (mind)
@@ -2617,9 +2610,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
           int togo = price, ord = -price;
           std::list<Object*> pay = body->PickObjects("a gold piece", vmode | LOC_INTERNAL, &ord);
-          auto coin = pay.begin();
-          for (; coin != pay.end(); ++coin) {
-            togo -= (*coin)->Quantity();
+          for (auto coin : pay) {
+            togo -= coin->Quantity();
           }
 
           if (togo > 0) {
@@ -2633,8 +2625,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
                 "You buy and stash ;s.\n",
                 body,
                 targ);
-            for (coin = pay.begin(); coin != pay.end(); ++coin) {
-              shpkp->Stash(*coin, 0, 1);
+            for (auto coin : pay) {
+              shpkp->Stash(coin, 0, 1);
             }
           } else if (
               ((!body->IsAct(ACT_HOLD)) || body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WIELD) ||
@@ -2658,8 +2650,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
                 "You buy and hold ;s.\n",
                 body,
                 targ);
-            for (coin = pay.begin(); coin != pay.end(); ++coin) {
-              shpkp->Stash(*coin, 0, 1);
+            for (auto coin : pay) {
+              shpkp->Stash(coin, 0, 1);
             }
           } else {
             if (mind)
@@ -2775,102 +2767,100 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       wearable = 1;
 
     std::list<Object*> objs = body->Parent()->Contents();
-    std::list<Object*>::iterator shpkp_i;
     std::list<Object*> shpkps;
     std::string reason = "Sorry, nobody is buying that sort of thing here.\n";
     std::string skill = "";
-    for (shpkp_i = objs.begin(); shpkp_i != objs.end(); ++shpkp_i) {
-      if ((*shpkp_i)->IsAct(ACT_DEAD)) {
+    for (auto shpkp : objs) {
+      if (shpkp->IsAct(ACT_DEAD)) {
         reason = "Sorry, the shopkeeper is dead!\n";
-      } else if ((*shpkp_i)->IsAct(ACT_DYING)) {
+      } else if (shpkp->IsAct(ACT_DYING)) {
         reason = "Sorry, the shopkeeper is dying!\n";
-      } else if ((*shpkp_i)->IsAct(ACT_UNCONSCIOUS)) {
+      } else if (shpkp->IsAct(ACT_UNCONSCIOUS)) {
         reason = "Sorry, the shopkeeper is unconscious!\n";
-      } else if ((*shpkp_i)->IsAct(ACT_SLEEP)) {
+      } else if (shpkp->IsAct(ACT_SLEEP)) {
         reason = "Sorry, the shopkeeper is asleep!\n";
       } else if (targ->Skill("Money") == targ->Value()) { // 1-1 Money
-        auto skl = (*shpkp_i)->GetSkills().begin();
-        for (; skl != (*shpkp_i)->GetSkills().end(); ++skl) {
-          if (!strncmp(skl->first.c_str(), "Buy ", 4)) {
+        for (auto skl : shpkp->GetSkills()) {
+          if (!strncmp(skl.first.c_str(), "Buy ", 4)) {
             skill = "Money";
             break;
           }
         }
       } else if (wearable && targ->Attribute(0) > 0) {
-        if ((*shpkp_i)->HasSkill("Buy Armor")) {
+        if (shpkp->HasSkill("Buy Armor")) {
           skill = "Buy Armor";
         }
       } else if (targ->Skill("Vehicle") == 4) {
-        if ((*shpkp_i)->HasSkill("Buy Boat")) {
+        if (shpkp->HasSkill("Buy Boat")) {
           skill = "Buy Boat";
         }
       } else if (targ->HasSkill("Container")) {
-        if ((*shpkp_i)->HasSkill("Buy Container")) {
+        if (shpkp->HasSkill("Buy Container")) {
           skill = "Buy Container";
         }
       } else if (targ->HasSkill("Food") && (!targ->HasSkill("Drink"))) {
-        if ((*shpkp_i)->HasSkill("Buy Food")) {
+        if (shpkp->HasSkill("Buy Food")) {
           skill = "Buy Food";
         }
       }
       //      else if(false) {				//FIXME: Implement
-      //	if((*shpkp_i)->HasSkill("Buy Light")) {
+      //	if(shpkp->HasSkill("Buy Light")) {
       //	  skill = "Buy Light";
       //	  }
       //	}
       else if (targ->HasSkill("Liquid Container")) { // FIXME: Not Potions?
-        if ((*shpkp_i)->HasSkill("Buy Liquid Container")) {
+        if (shpkp->HasSkill("Buy Liquid Container")) {
           skill = "Buy Liquid Container";
         }
       } else if (targ->HasSkill("Liquid Container")) { // FIXME: Not Bottles?
-        if ((*shpkp_i)->HasSkill("Buy Potion")) {
+        if (shpkp->HasSkill("Buy Potion")) {
           skill = "Buy Potion";
         }
       } else if (targ->HasSkill("Magical Scroll")) {
-        if ((*shpkp_i)->HasSkill("Buy Scroll")) {
+        if (shpkp->HasSkill("Buy Scroll")) {
           skill = "Buy Scroll";
         }
       } else if (targ->HasSkill("Magical Staff")) {
-        if ((*shpkp_i)->HasSkill("Buy Staff")) {
+        if (shpkp->HasSkill("Buy Staff")) {
           skill = "Buy Staff";
         }
       } else if (targ->HasSkill("Magical Wand")) {
-        if ((*shpkp_i)->HasSkill("Buy Wand")) {
+        if (shpkp->HasSkill("Buy Wand")) {
           skill = "Buy Wand";
         }
       }
       //      else if(false) {				//FIXME: Implement
-      //	if((*shpkp_i)->HasSkill("Buy Trash")) {
+      //	if(shpkp->HasSkill("Buy Trash")) {
       //	  skill = "Buy Trash";
       //	  }
       //	}
       //      else if(false) {				//FIXME: Implement
-      //	if((*shpkp_i)->HasSkill("Buy Treasure")) {
+      //	if(shpkp->HasSkill("Buy Treasure")) {
       //	  skill = "Buy Treasure";
       //	  }
       //	}
       else if (targ->Skill("WeaponType") > 0) {
-        if ((*shpkp_i)->HasSkill("Buy Weapon")) {
+        if (shpkp->HasSkill("Buy Weapon")) {
           skill = "Buy Weapon";
         }
       } else if (wearable && targ->Attribute(0) < 0) {
-        if ((*shpkp_i)->HasSkill("Buy Worn")) {
+        if (shpkp->HasSkill("Buy Worn")) {
           skill = "Buy Worn";
         }
       }
       //      else if(false) {					//FIXME:
       //      Implement
-      //	if((*shpkp_i)->HasSkill("Buy Other")) {
+      //	if(shpkp->HasSkill("Buy Other")) {
       //	  skill = "Buy Other";
       //	  }
       //	}
 
-      if (skill.empty() && (*shpkp_i)->HasSkill("Buy All")) {
+      if (skill.empty() && shpkp->HasSkill("Buy All")) {
         skill = "Buy All";
       }
 
       if ((!skill.empty())) {
-        shpkps.push_back(*shpkp_i);
+        shpkps.push_back(shpkp);
       }
     }
     if (shpkps.size() == 0) {
@@ -2895,17 +2885,16 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         if (com == COM_SELL) {
           int togo = price, ord = -price;
           std::list<Object*> pay = shpkp->PickObjects("a gold piece", vmode | LOC_INTERNAL, &ord);
-          auto coin = pay.begin();
-          for (; coin != pay.end(); ++coin) {
-            togo -= MAX(1, (*coin)->Skill("Quantity"));
+          for (auto coin : pay) {
+            togo -= MAX(1, coin->Skill("Quantity"));
           }
 
           if (togo <= 0) {
             body->Parent()->SendOut(
                 stealth_t, stealth_s, ";s sells ;s.\n", "You sell ;s.\n", body, targ);
             Object* payment = new Object;
-            for (coin = pay.begin(); coin != pay.end(); ++coin) {
-              (*coin)->Travel(payment);
+            for (auto coin : pay) {
+              coin->Travel(payment);
             }
             if (body->Stash(payment->Contents().front())) {
               targ->Travel(vortex);
@@ -2985,17 +2974,14 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    for (auto ind = targs.begin(); ind != targs.end(); ++ind) {
-      Object* targ = *ind;
-
+    for (auto targ : targs) {
       std::list<Object*> trigs =
           targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
-      std::list<Object*>::iterator trig = trigs.begin();
-      for (; trig != trigs.end(); ++trig) {
-        int ttype = (*trig)->Skill("TBAScriptType");
+      for (auto trig : trigs) {
+        int ttype = trig->Skill("TBAScriptType");
         if ((ttype & 0x2000040) == 0x2000040) { // OBJ-GET trigs
-          if ((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) { // % Chance
-            if (new_trigger(0, *trig, body))
+          if ((rand() % 100) < trig->Skill("TBAScriptNArg")) { // % Chance
+            if (new_trigger(0, trig, body))
               return 0; // Says fail!
             if (targ->Parent() == targ->TrashBin())
               return 0; // Purged it
@@ -3382,11 +3368,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       std::list<Object*>::iterator trig;
 
       trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
-      trig = trigs.begin();
-      for (; trig != trigs.end(); ++trig) {
-        int ttype = (*trig)->Skill("TBAScriptType");
+      for (auto trig : trigs) {
+        int ttype = trig->Skill("TBAScriptType");
         if ((ttype & 0x2000200) == 0x2000200) { // OBJ-WEAR trigs
-          if (new_trigger(0, *trig, body))
+          if (new_trigger(0, trig, body))
             return 0; // Says FAIL!
         }
       }
@@ -3497,25 +3482,22 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    std::list<Object*> targs = body->PickObjects(cmd.c_str() + len, vmode | LOC_INTERNAL);
+    auto targs = body->PickObjects(cmd.c_str() + len, vmode | LOC_INTERNAL);
     if (targs.size() == 0) {
       if (mind)
         mind->Send("You want to remove what?\n");
       return 0;
     }
 
-    for (auto targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
-      Object* targ = (*targ_it);
-
+    for (auto targ : targs) {
       std::list<Object*> trigs;
       std::list<Object*>::iterator trig;
 
       trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
-      trig = trigs.begin();
-      for (; trig != trigs.end(); ++trig) {
-        int ttype = (*trig)->Skill("TBAScriptType");
+      for (auto trig : trigs) {
+        int ttype = trig->Skill("TBAScriptType");
         if ((ttype & 0x2000800) == 0x2000800) { // OBJ-REMOVE trigs
-          if (new_trigger(0, *trig, body))
+          if (new_trigger(0, trig, body))
             return 0; // Says FAIL!
         }
       }
@@ -3601,9 +3583,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     int did_something = 0;
-    for (auto targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
-      Object* targ = (*targ_it);
-
+    for (auto targ : targs) {
       // fprintf(stderr, "You try to wear %s!\n", targ->Name(0, body));
       // if(mind) mind->Send("You try to wear %s!\n", targ->Name(0, body));
       if (body->ActTarg(ACT_WEAR_BACK) == targ || body->ActTarg(ACT_WEAR_CHEST) == targ ||
@@ -3625,11 +3605,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         std::list<Object*>::iterator trig;
 
         trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
-        trig = trigs.begin();
-        for (; trig != trigs.end(); ++trig) {
-          int ttype = (*trig)->Skill("TBAScriptType");
+        for (auto trig : trigs) {
+          int ttype = trig->Skill("TBAScriptType");
           if ((ttype & 0x2000200) == 0x2000200) { // OBJ-WEAR trigs
-            if (new_trigger(0, *trig, body))
+            if (new_trigger(0, trig, body))
               return 0; // Says FAIL!
           }
         }
@@ -3657,8 +3636,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("You are not hungry, you can't eat any more.\n");
       return 0;
     }
-    std::list<Object*> targs =
-        body->PickObjects(cmd.c_str() + len, vmode | LOC_NOTWORN | LOC_INTERNAL);
+    auto targs = body->PickObjects(cmd.c_str() + len, vmode | LOC_NOTWORN | LOC_INTERNAL);
     if (body->ActTarg(ACT_HOLD) && body->ActTarg(ACT_HOLD)->Parent() != body // Dragging
         && body->ActTarg(ACT_HOLD)->Matches(cmd.c_str() + len)) {
       targs.push_back(body->ActTarg(ACT_HOLD));
@@ -3667,18 +3645,18 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       if (mind)
         mind->Send("You want to eat what?\n");
     } else {
-      for (auto targ = targs.begin(); targ != targs.end(); ++targ) {
-        if (!((*targ)->HasSkill("Ingestible"))) {
+      for (auto targ : targs) {
+        if (!(targ->HasSkill("Ingestible"))) {
           if (mind)
-            mind->SendF("You don't want to eat %s.\n", (*targ)->Name(0, body));
+            mind->SendF("You don't want to eat %s.\n", targ->Name(0, body));
         } else {
           body->Parent()->SendOut(
-              stealth_t, stealth_s, ";s eats ;s.\n", "You eat ;s.\n", body, *targ);
+              stealth_t, stealth_s, ";s eats ;s.\n", "You eat ;s.\n", body, targ);
 
           // Hunger/Thirst/Posion/Potion Effects
-          body->Consume(*targ);
+          body->Consume(targ);
 
-          delete (*targ);
+          delete (targ);
         }
       }
     }
@@ -3707,8 +3685,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("What do you want to drop?\n");
       return 0;
     }
-    std::list<Object*> targs =
-        body->PickObjects(cmd.c_str() + len, vmode | LOC_NOTWORN | LOC_INTERNAL);
+    auto targs = body->PickObjects(cmd.c_str() + len, vmode | LOC_NOTWORN | LOC_INTERNAL);
     if (body->ActTarg(ACT_HOLD) && body->ActTarg(ACT_HOLD)->Parent() != body // Dragging
         && body->ActTarg(ACT_HOLD)->Matches(cmd.c_str() + len)) {
       targs.push_back(body->ActTarg(ACT_HOLD));
@@ -3717,19 +3694,18 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       if (mind)
         mind->Send("You want to drop what?\n");
     } else {
-      for (auto targ = targs.begin(); targ != targs.end(); ++targ) {
+      for (auto targ : targs) {
         std::list<Object*> trigs;
         std::list<Object*>::iterator trig;
 
-        trigs = (*targ)->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
-        trig = trigs.begin();
-        for (; trig != trigs.end(); ++trig) {
-          int ttype = (*trig)->Skill("TBAScriptType");
+        trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
+        for (auto trig : trigs) {
+          int ttype = trig->Skill("TBAScriptType");
           if ((ttype & 0x2000080) == 0x2000080) { // OBJ-DROP trigs
-            if ((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) { // % Chance
-              if (new_trigger(0, *trig, body))
+            if ((rand() % 100) < trig->Skill("TBAScriptNArg")) { // % Chance
+              if (new_trigger(0, trig, body))
                 return 0; // Says FAIL!
-              if ((*targ)->Parent() == (*targ)->TrashBin())
+              if (targ->Parent() == targ->TrashBin())
                 return 0; // Purged it
             }
           }
@@ -3739,35 +3715,34 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         trigs.clear();
         if (room)
           trigs = room->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
-        trig = trigs.begin();
-        for (; trig != trigs.end(); ++trig) {
-          int ttype = (*trig)->Skill("TBAScriptType");
+        for (auto trig : trigs) {
+          int ttype = trig->Skill("TBAScriptType");
           if ((ttype & 0x4000080) == 0x4000080) { // ROOM-DROP trigs
-            if ((rand() % 100) < (*trig)->Skill("TBAScriptNArg")) { // % Chance
-              if (new_trigger(0, *trig, body, *targ))
+            if ((rand() % 100) < trig->Skill("TBAScriptNArg")) { // % Chance
+              if (new_trigger(0, trig, body, targ))
                 return 0; // Says FAIL!
-              if ((*targ)->Parent() == (*targ)->TrashBin())
+              if (targ->Parent() == targ->TrashBin())
                 return 0; // Purged it
             }
           }
         }
 
-        int ret = body->Drop(*targ, 1, vmode);
+        int ret = body->Drop(targ, 1, vmode);
         if (ret == -1) { // Totally Failed
           if (mind)
-            mind->SendF("You can't drop %s here.\n", (*targ)->Name(0, body));
+            mind->SendF("You can't drop %s here.\n", targ->Name(0, body));
         } else if (ret == -2) { // Exceeds Capacity
           if (mind)
-            mind->SendF("You can't drop %s, there isn't room.\n", (*targ)->Name(0, body));
+            mind->SendF("You can't drop %s, there isn't room.\n", targ->Name(0, body));
         } else if (ret == -3) { // Exceeds Weight Limit
           if (mind)
-            mind->SendF("You can't drop %s, it's too heavy.\n", (*targ)->Name(0, body));
+            mind->SendF("You can't drop %s, it's too heavy.\n", targ->Name(0, body));
         } else if (ret == -4) { // Cursed
           if (mind)
-            mind->SendF("You don't seem to be able to drop %s!\n", (*targ)->Name(0, body));
+            mind->SendF("You don't seem to be able to drop %s!\n", targ->Name(0, body));
         } else if (ret != 0) { //?
           if (mind)
-            mind->SendF("You can't seem to drop %s!\n", (*targ)->Name(0, body));
+            mind->SendF("You can't seem to drop %s!\n", targ->Name(0, body));
         }
       }
     }
@@ -3879,8 +3854,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("What do you want to dump?\n");
       return 0;
     }
-    std::list<Object*> targs =
-        body->PickObjects(cmd.c_str() + len, vmode | LOC_NOTWORN | LOC_INTERNAL);
+    auto targs = body->PickObjects(cmd.c_str() + len, vmode | LOC_NOTWORN | LOC_INTERNAL);
     if (body->ActTarg(ACT_HOLD) && body->ActTarg(ACT_HOLD)->Parent() != body // Dragging
         && body->ActTarg(ACT_HOLD)->Matches(cmd.c_str() + len)) {
       targs.push_back(body->ActTarg(ACT_HOLD));
@@ -3889,16 +3863,16 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       if (mind)
         mind->Send("You want to dump what?\n");
     } else {
-      for (auto targ = targs.begin(); targ != targs.end(); ++targ) {
-        if (!((*targ)->HasSkill("Liquid Container"))) {
+      for (auto targ : targs) {
+        if (!(targ->HasSkill("Liquid Container"))) {
           if (mind)
             mind->SendF(
-                "%s is not a liquid container.  It can't be dumped.\n", (*targ)->Name(0, body));
+                "%s is not a liquid container.  It can't be dumped.\n", targ->Name(0, body));
           continue;
         }
-        if ((*targ)->Contents(LOC_TOUCH).size() < 1) {
+        if (targ->Contents(LOC_TOUCH).size() < 1) {
           if (mind)
-            mind->SendF("%s is empty.  There is nothing to dump\n", (*targ)->Name(0, body));
+            mind->SendF("%s is empty.  There is nothing to dump\n", targ->Name(0, body));
           continue;
         }
         body->Parent()->SendOut(
@@ -3907,9 +3881,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             ";s dumps all the liquid out of ;s.\n",
             "You dump all the liquid out of ;s.\n",
             body,
-            *targ);
-        while ((*targ)->Contents(LOC_TOUCH).size() >= 1) {
-          Object* nuke = (*targ)->Contents(LOC_TOUCH).front();
+            targ);
+        while (targ->Contents(LOC_TOUCH).size() >= 1) {
+          Object* nuke = targ->Contents(LOC_TOUCH).front();
           delete nuke;
         }
       }
@@ -5148,9 +5122,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (!chr) {
       chr = mind->Owner()->Creator();
       if (!chr) {
-        mind->Send(
-            "You need to be working on a character first (use 'select "
-            "<character>'.\n");
+        mind->Send("You need to be working on a character first (use 'select <character>'.\n");
         return 0;
       }
     }
@@ -5430,29 +5402,27 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     std::vector<Player*> pls = get_all_players();
-    std::vector<Player*>::iterator pl = pls.begin();
-    for (; pl != pls.end(); ++pl) {
-      auto chs = (*pl)->Room()->Contents();
-      auto ch = chs.begin();
-      for (; ch != chs.end(); ++ch) {
-        if ((*ch)->Matches(cmd.c_str() + len)) {
-          if ((*ch)->IsActive()) {
+    for (auto pl : pls) {
+      auto chs = pl->Room()->Contents();
+      for (auto ch : chs) {
+        if (ch->Matches(cmd.c_str() + len)) {
+          if (ch->IsActive()) {
             if (mind)
-              mind->SendF("%s is not long dead (yet).\n", (*ch)->Name());
+              mind->SendF("%s is not long dead (yet).\n", ch->Name());
           } else {
             body->SetSkill("Resurrect", 0); // Use it up
-            (*ch)->SetSkill("Poisoned", 0);
-            (*ch)->SetSkill("Thirsty", 0);
-            (*ch)->SetSkill("Hungry", 0);
-            (*ch)->SetPhys(0);
-            (*ch)->SetStun(0);
-            (*ch)->SetStru(0);
-            (*ch)->UpdateDamage();
-            (*ch)->Activate();
-            (*ch)->Parent()->SendOut(
-                stealth_t, stealth_s, ";s has been resurrected!.\n", "", (*ch), nullptr);
+            ch->SetSkill("Poisoned", 0);
+            ch->SetSkill("Thirsty", 0);
+            ch->SetSkill("Hungry", 0);
+            ch->SetPhys(0);
+            ch->SetStun(0);
+            ch->SetStru(0);
+            ch->UpdateDamage();
+            ch->Activate();
+            ch->Parent()->SendOut(
+                stealth_t, stealth_s, ";s has been resurrected!.\n", "", ch, nullptr);
             if (mind)
-              mind->SendF("%s has been resurrected!\n", (*ch)->Name());
+              mind->SendF("%s has been resurrected!\n", ch->Name());
           }
           return 0;
         }
@@ -5492,9 +5462,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       skls = get_skills(cat);
     }
 
-    std::list<std::string>::iterator skl = skls.begin();
-    for (; skl != skls.end(); ++skl) {
-      skills += (*skl);
+    for (auto skl : skls) {
+      skills += skl;
       skills += "\n";
     }
     mind->Send(skills.c_str());
@@ -5554,11 +5523,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     std::string users = "Currently on this MUD:\n";
     std::vector<Mind*> mns = get_human_minds();
 
-    std::vector<Mind*>::iterator mn = mns.begin();
-    for (; mn != mns.end(); ++mn) {
-      users += (*mn)->Owner()->Name();
-      if ((*mn)->Body())
-        users = users + " as " + (*mn)->Body()->ShortDesc() + ".\n";
+    for (auto mn : mns) {
+      users += mn->Owner()->Name();
+      if (mn->Body())
+        users = users + " as " + mn->Body()->ShortDesc() + ".\n";
       else
         users += " in character room.\n";
     }
@@ -5586,9 +5554,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         name = mind->Owner()->Name();
       std::string mes = std::string("OOC: <") + name + "> " + (cmd.c_str() + len) + "\n";
       std::vector<Mind*> mns = get_human_minds();
-      std::vector<Mind*>::iterator mn = mns.begin();
-      for (; mn != mns.end(); ++mn) {
-        (*mn)->Send(mes.c_str());
+      for (auto mn : mns) {
+        mn->Send(mes.c_str());
       }
     }
     return 0;
@@ -5613,9 +5580,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         name = mind->Owner()->Name();
       std::string mes = std::string("NEWBIE: <") + name + "> " + (cmd.c_str() + len) + "\n";
       std::vector<Mind*> mns = get_human_minds();
-      std::vector<Mind*>::iterator mn = mns.begin();
-      for (; mn != mns.end(); ++mn) {
-        (*mn)->Send(mes.c_str());
+      for (auto mn : mns) {
+        mn->Send(mes.c_str());
       }
     }
     return 0;
@@ -6150,9 +6116,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     std::string users = "Current accounts on this MUD:\n";
     std::vector<Player*> pls = get_all_players();
 
-    std::vector<Player*>::iterator pl = pls.begin();
-    for (; pl != pls.end(); ++pl) {
-      users += (*pl)->Name();
+    for (auto pl : pls) {
+      users += pl->Name();
       users += "\n";
     }
     mind->Send(users.c_str());
@@ -6166,16 +6131,14 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     std::string chars = "Current characters on this MUD:\n";
     std::vector<Player*> pls = get_all_players();
 
-    std::vector<Player*>::iterator pl = pls.begin();
-    for (; pl != pls.end(); ++pl) {
-      auto chs = (*pl)->Room()->Contents();
-      auto ch = chs.begin();
-      for (; ch != chs.end(); ++ch) {
-        chars += (*pl)->Name();
+    for (auto pl : pls) {
+      auto chs = pl->Room()->Contents();
+      for (auto ch : chs) {
+        chars += pl->Name();
         chars += ": ";
-        chars += (*ch)->ShortDesc();
+        chars += ch->ShortDesc();
         chars += " (";
-        Object* top = (*ch);
+        Object* top = ch;
         while (top->Parent() && top->Parent()->Parent())
           top = top->Parent();
         chars += top->ShortDesc();
@@ -6198,9 +6161,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       mind->Send("You want to reset what?\n");
     } else {
       auto cont = targ->Contents();
-      auto item = cont.begin();
-      for (; item != cont.end(); ++item)
-        (*item)->Recycle();
+      for (auto item : cont)
+        item->Recycle();
 
       Object* dest = targ;
       while ((!dest->ActTarg(ACT_SPECIAL_HOME)) && dest->Parent()) {
@@ -6305,7 +6267,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
       ++len;
-    std::list<Object*> targs = body->PickObjects(cmd.c_str() + len, vmode | LOC_NEARBY);
+    auto targs = body->PickObjects(cmd.c_str() + len, vmode | LOC_NEARBY);
     if (targs.size() == 0) {
       mind->Send("You want to destroy what?\n");
       return 0;
@@ -6608,14 +6570,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
       ++len;
-    std::list<Object*> targs =
-        body->PickObjects(cmd.c_str() + len, vmode | LOC_NEARBY | LOC_INTERNAL);
+    auto targs = body->PickObjects(cmd.c_str() + len, vmode | LOC_NEARBY | LOC_INTERNAL);
     if (targs.size() == 0) {
       mind->Send("You want to double what?\n");
       return 0;
     }
-    for (auto targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
-      Object* targ = (*targ_it);
+    for (auto targ : targs) {
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,
