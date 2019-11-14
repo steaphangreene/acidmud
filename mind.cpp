@@ -325,7 +325,7 @@ void Mind::SetTBATrigger(Object* tr, Object* tripper, Object* targ, std::string 
   if (stype & 0x0000008) { //-SPEECH Triggers
     svars["speech"] = text;
   }
-  if ((stype & 0x0000040) == 0x4000040 // ROOM-ENTER Triggers
+  if ((stype & 0x4000040) == 0x4000040 // ROOM-ENTER Triggers
       || (stype & 0x1000040) == 0x1000040 // MOB-GREET Triggers
       || stype & 0x0010000) { //*-LEAVE Triggers
     svars["direction"] = text;

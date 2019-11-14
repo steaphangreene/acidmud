@@ -205,7 +205,7 @@ int handle_command_ccreate(
 
     random_shuffle(bldg.begin(), bldg.end());
 
-    char sname[32], aname[32], iname[32];
+    char sname[32], aname[32], iname[64];
     Object* ave[NUM_AVS] = {nullptr};
     for (int north = 0; north < NUM_STS; ++north) {
       if (north == 0)
@@ -310,7 +310,7 @@ int handle_command_ccreate(
               dir[1] = "east";
             }
             for (int i = 0; i < 2; ++i) {
-              char addr[32];
+              char addr[64];
               if (off > 0) {
                 sprintf(addr, "%d %s", (east + 1) * 100 + off + i, sname);
               } else {

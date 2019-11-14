@@ -2681,7 +2681,7 @@ int Object::Roll(const std::string& s1, int targ, std::string* res) const {
 }
 
 int Object::Roll(const std::string& s1, int targ, std::list<int>* wraps, std::string* res) const {
-  if (phys >= 10 || stun >= 10 || (!(att[0] * att[1] * att[2] * att[3] * att[4] * att[5]))) {
+  if (phys >= 10 || stun >= 10 || ((att[0] * att[1] * att[2] * att[3] * att[4] * att[5]) == 0)) {
     if (res)
       (*res) += "N/A";
     return 0;
