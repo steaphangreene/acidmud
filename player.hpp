@@ -1,5 +1,5 @@
-#include <map>
-#include <set>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "object.hpp"
@@ -47,21 +47,21 @@ class Player {
   int Exp() const {
     return exp;
   }
-  const std::map<std::string, std::string> Vars() {
+  const std::unordered_map<std::string, std::string> Vars() {
     return vars;
   };
-  void SetVars(const std::map<std::string, std::string> v) {
+  void SetVars(const std::unordered_map<std::string, std::string> v) {
     vars = v;
   };
 
  private:
-  std::map<std::string, Object*> body;
+  std::unordered_map<std::string, Object*> body;
   std::string name, pass;
   Object *room, *creator;
   unsigned long flags;
-  std::set<unsigned long> completed;
+  std::unordered_set<unsigned long> completed;
   int exp;
-  std::map<std::string, std::string> vars;
+  std::unordered_map<std::string, std::string> vars;
 
   friend Player* player_login(std::string name, std::string pass);
   friend Player* get_player(std::string name);

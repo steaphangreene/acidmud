@@ -1,4 +1,4 @@
-#include <set>
+#include <unordered_set>
 
 #include <crypt.h>
 #include <cstdlib>
@@ -8,8 +8,8 @@
 #include "player.hpp"
 #include "version.hpp"
 
-static std::map<std::string, Player*> player_list;
-static std::set<Player*> non_init;
+static std::unordered_map<std::string, Player*> player_list;
+static std::unordered_set<Player*> non_init;
 
 static const char* salt_char = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
 

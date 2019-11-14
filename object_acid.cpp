@@ -51,7 +51,7 @@ const char* act_save[ACT_SPECIAL_MAX] = {
     //	"SPECIAL_MAX"
 };
 
-static std::map<std::string, act_t> act_load_map;
+static std::unordered_map<std::string, act_t> act_load_map;
 static act_t act_load(const std::string& str) {
   if (act_load_map.size() < 1) {
     for (int a = 0; a < ACT_SPECIAL_MAX; ++a) {

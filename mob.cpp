@@ -13,7 +13,7 @@
 #include "object.hpp"
 #include "utils.hpp"
 
-static std::map<act_t, std::string> wear_attribs;
+static std::unordered_map<act_t, std::string> wear_attribs;
 static void init_wear_attribs() {
   wear_attribs[ACT_WEAR_BACK] = "Wearable on Back";
   wear_attribs[ACT_WEAR_CHEST] = "Wearable on Chest";

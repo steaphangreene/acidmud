@@ -1,7 +1,7 @@
 #include <list>
-#include <map>
-#include <set>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 
 #include <fcntl.h>
 #include <sys/time.h>
@@ -127,7 +127,7 @@ class Object {
   Object* Parent() const {
     return parent;
   };
-  std::set<Object*> Touching() const {
+  std::unordered_set<Object*> Touching() const {
     return touching_me;
   };
 
@@ -146,8 +146,8 @@ class Object {
   void SendLongDesc(Mind* m, Object* o = nullptr);
   void SendLongDesc(Object* m, Object* o = nullptr);
   void SendScore(Mind* m, Object* o = nullptr);
-  std::list<std::string> FormatStats(std::map<std::string, int>& skls); // Modifies skls
-  std::list<std::string> FormatSkills(std::map<std::string, int>& skls); // Modifies skls
+  std::list<std::string> FormatStats(std::unordered_map<std::string, int>& skls); // Modifies skls
+  std::list<std::string> FormatSkills(std::unordered_map<std::string, int>& skls); // Modifies skls
 
   void Link(
       Object* other,
@@ -268,7 +268,7 @@ class Object {
   int SubHasSkill(const std::string&) const;
   int SubMaxSkill(const std::string&) const;
   Object* NextHasSkill(const std::string&, const Object* last = nullptr);
-  const std::map<std::string, int>& GetSkills() const {
+  const std::unordered_map<std::string, int>& GetSkills() const {
     return skills;
   }
 
@@ -319,8 +319,8 @@ class Object {
 
   int Wearing(const Object* obj) const;
   int WearMask() const;
-  std::set<act_t> WearSlots(int m = -1) const;
-  std::string WearNames(const std::set<act_t>& locs) const;
+  std::unordered_set<act_t> WearSlots(int m = -1) const;
+  std::string WearNames(const std::unordered_set<act_t>& locs) const;
   std::string WearNames(int m = -1) const;
 
   int Quantity() const;
@@ -414,7 +414,7 @@ class Object {
  private:
   void NotifyLeft(Object* obj, Object* newloc = nullptr);
 
-  void Loud(std::set<Object*>& visited, int str, const char* mes);
+  void Loud(std::unordered_set<Object*>& visited, int str, const char* mes);
 
   int Filter(int loc);
 
@@ -425,7 +425,7 @@ class Object {
   std::string long_desc;
   std::list<Object*> contents;
   Object* parent;
-  std::set<Mind*> minds;
+  std::unordered_set<Mind*> minds;
   pos_t pos;
   std::string cur_skill;
 
@@ -433,18 +433,18 @@ class Object {
   int value;
   char gender;
 
-  std::set<unsigned long> completed;
+  std::unordered_set<unsigned long> completed;
   int exp, sexp;
 
   int phys, stun, stru;
   int att[8];
-  std::map<std::string, int> skills;
+  std::unordered_map<std::string, int> skills;
 
   int no_seek; // Recursion protection
   int no_hear; // For Send() protection
 
-  std::map<act_t, Object*> act;
-  std::set<Object*> touching_me;
+  std::unordered_map<act_t, Object*> act;
+  std::unordered_set<Object*> touching_me;
 
   timeval busytill;
   std::string dowhenfree, defact;

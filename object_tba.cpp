@@ -124,21 +124,21 @@ void Object::TBALoadAll() {
 }
 
 static std::list<Object*> todotrg;
-static std::map<int, Object*> bynumtrg;
-static std::map<int, Object*> bynumwld;
-static std::map<int, Object*> bynumobj;
-static std::map<int, Object*> bynummob;
-static std::map<int, Object*> bynummobinst;
-static std::map<Object*, int> tonum[6];
-static std::map<Object*, int> tynum[6];
-static std::map<Object*, int> knum[6];
-static std::map<Object*, std::string> nmnum[6];
+static std::unordered_map<int, Object*> bynumtrg;
+static std::unordered_map<int, Object*> bynumwld;
+static std::unordered_map<int, Object*> bynumobj;
+static std::unordered_map<int, Object*> bynummob;
+static std::unordered_map<int, Object*> bynummobinst;
+static std::unordered_map<Object*, int> tonum[6];
+static std::unordered_map<Object*, int> tynum[6];
+static std::unordered_map<Object*, int> knum[6];
+static std::unordered_map<Object*, std::string> nmnum[6];
 static std::vector<Object*> olist;
 static Object* objroom = nullptr;
 static Object* mobroom = nullptr;
 
 void Object::TBACleanup() {
-  std::map<int, Object*>::iterator ind;
+  std::unordered_map<int, Object*>::iterator ind;
 
   //  for(ind : bynumobj) {
   //    ind.second->Recycle();
@@ -330,7 +330,7 @@ void Object::TBAFinishMOB(Object* mob) {
 }
 
 static Object *lastmob = nullptr, *lastbag = nullptr;
-static std::map<int, Object*> lastobj;
+static std::unordered_map<int, Object*> lastobj;
 void Object::TBALoadZON(const char* fn) {
   FILE* mudz = fopen(fn, "r");
   if (mudz) {
@@ -2388,8 +2388,8 @@ void Object::TBALoadWLD(const char* fn) {
 }
 
 const char* base = "'^&*abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ";
-static std::set<std::string> parse_tba_shop_rules(std::string rules) {
-  std::set<std::string> ret;
+static std::unordered_set<std::string> parse_tba_shop_rules(std::string rules) {
+  std::unordered_set<std::string> ret;
   if (rules[0]) {
     //    fprintf(stderr, "Initial: '%s'\n", rules.c_str());
     size_t done = rules.find_first_not_of(base);
@@ -2406,7 +2406,7 @@ static std::set<std::string> parse_tba_shop_rules(std::string rules) {
         size_t end = rules.find_first_of(")]");
         if (end == std::string::npos)
           end = rules.length();
-        std::set<std::string> tmp = parse_tba_shop_rules(rules.substr(done + 1));
+        std::unordered_set<std::string> tmp = parse_tba_shop_rules(rules.substr(done + 1));
         for (auto next : tmp) {
           ret.insert(next + rules.substr(end + 1));
           //	  fprintf(stderr, "  Built: '%s'\n",
@@ -2581,7 +2581,7 @@ void Object::TBALoadSHP(const char* fn) {
 
             if (extra[0]) {
               // fprintf(stderr, "Rule: '%s'\n", extra.c_str());
-              std::set<std::string> extras = parse_tba_shop_rules(extra);
+              std::unordered_set<std::string> extras = parse_tba_shop_rules(extra);
               for (auto ex : extras) {
                 // fprintf(stderr, "Adding: 'Accept %s'\n", ex.c_str());
                 // keeper->SetSkill("Accept " + ex, 1);

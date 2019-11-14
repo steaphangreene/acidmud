@@ -1,5 +1,5 @@
-#include <map>
 #include <string>
+#include <unordered_map>
 
 #include <arpa/telnet.h>
 
@@ -229,7 +229,7 @@ int Mind::TBAEval(std::string expr) {
   return 1; // Non-Numberic, Non-nullptr, Non-Object
 }
 
-std::map<std::string, std::string> Mind::cvars;
+std::unordered_map<std::string, std::string> Mind::cvars;
 
 void Mind::Init() {
   body = nullptr;
@@ -596,7 +596,7 @@ void Mind::TBAVarSub(std::string& line) {
       while (room && room->Skill("TBARoom") == 0)
         room = room->Parent();
       if (room) {
-        std::set<Object*> options;
+        std::unordered_set<Object*> options;
         options.insert(room->PickObject("north", LOC_INTERNAL));
         options.insert(room->PickObject("south", LOC_INTERNAL));
         options.insert(room->PickObject("east", LOC_INTERNAL));
@@ -606,7 +606,7 @@ void Mind::TBAVarSub(std::string& line) {
         options.erase(nullptr);
         if (options.size() > 0) {
           int num = rand() % options.size();
-          std::set<Object*>::iterator item = options.begin();
+          std::unordered_set<Object*>::iterator item = options.begin();
           for (; num > 0; --num) {
             ++item;
           }
@@ -1129,7 +1129,7 @@ void Mind::TBAVarSub(std::string& line) {
             obj = obj->ActTarg(ACT_FOLLOW); // FIXME: More Kinds?
         } else if (!strcmp(field.c_str(), "follower")) {
           if (obj) {
-            std::set<Object*> touch = obj->Touching();
+            std::unordered_set<Object*> touch = obj->Touching();
             bool found = false;
             for (auto tent : touch) {
               if (tent->ActTarg(ACT_FOLLOW) == obj) {
@@ -2739,7 +2739,7 @@ void Mind::Think(int istick) {
         (!body->IsAct(ACT_FIGHT)) && (istick == 1) && (!body->IsAct(ACT_REST)) &&
         (!body->IsAct(ACT_SLEEP)) && body->Stun() < 6 && body->Phys() < 6 &&
         body->Roll("Willpower", 9)) {
-      std::map<Object*, const char*> cons;
+      std::unordered_map<Object*, const char*> cons;
       cons[body->PickObject("north", LOC_NEARBY)] = "north";
       cons[body->PickObject("south", LOC_NEARBY)] = "south";
       cons[body->PickObject("east", LOC_NEARBY)] = "east";
@@ -2748,7 +2748,7 @@ void Mind::Think(int istick) {
       cons[body->PickObject("down", LOC_NEARBY)] = "down";
       cons.erase(nullptr);
 
-      std::map<Object*, const char*> cons2 = cons;
+      std::unordered_map<Object*, const char*> cons2 = cons;
       for (auto dir : cons2) {
         if ((!dir.first->ActTarg(ACT_SPECIAL_LINKED)) ||
             (!dir.first->ActTarg(ACT_SPECIAL_LINKED)->Parent())) {
@@ -2764,7 +2764,7 @@ void Mind::Think(int istick) {
 
       if (cons.size()) {
         int res = rand() % cons.size();
-        std::map<Object*, const char*>::iterator dir = cons.begin();
+        std::unordered_map<Object*, const char*>::iterator dir = cons.begin();
         while (res > 0) {
           ++dir;
           --res;
@@ -2916,10 +2916,10 @@ int Mind::IsSVar(const std::string& var) const {
   return (svars.count(var) > 0);
 }
 
-const std::map<std::string, std::string> Mind::SVars() const {
+const std::unordered_map<std::string, std::string> Mind::SVars() const {
   return svars;
 }
 
-void Mind::SetSVars(const std::map<std::string, std::string>& sv) {
+void Mind::SetSVars(const std::unordered_map<std::string, std::string>& sv) {
   svars = sv;
 }
