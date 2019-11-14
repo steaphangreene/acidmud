@@ -12,9 +12,9 @@
 #include "object.hpp"
 #include "utils.hpp"
 
-static int tba_bitvec(const std::string& val) {
-  int ret = atoi(val.c_str());
-  if (ret == 0) { // Works fine for "0" too
+static uint32_t tba_bitvec(const std::string& val) {
+  uint32_t ret = atoi(val.c_str());
+  if (ret == 0) {
     for (size_t idx = 0; idx < val.length(); ++idx) {
       ret |= 1 << ((val[idx] & 31) - 1);
     }
@@ -2639,7 +2639,7 @@ void Object::TBALoadTRG(const char* fn) { // Triggers
       // script->SetDesc(buf);
       fscanf(mud, "~");
 
-      int atype = -1, ttype = -1, narg;
+      int atype, ttype, narg;
       fscanf(mud, " %d %65535s %d", &atype, buf, &narg);
       ttype = tba_bitvec(buf); // Trigger Types
       atype = 1 << (atype + 24); // Attach Type
