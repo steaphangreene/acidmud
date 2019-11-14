@@ -439,10 +439,9 @@ void Mind::Send(const char* mes) {
     newmes += ": ";
     newmes += mes;
 
-    std::string::iterator chr = newmes.begin();
-    for (; chr != newmes.end(); ++chr) {
-      if ((*chr) == '\n' || (*chr) == '\r')
-        (*chr) = ' ';
+    for (auto chr : newmes) {
+      if (chr == '\n' || chr == '\r')
+        chr = ' ';
     }
     newmes += "\n";
 
@@ -653,9 +652,8 @@ void Mind::TBAVarSub(std::string& line) {
           int gold = 0;
           if (obj) {
             std::list<Object*> pay = obj->PickObjects("all a gold piece", LOC_INTERNAL);
-            std::list<Object*>::const_iterator coin;
-            for (coin = pay.begin(); coin != pay.end(); ++coin) {
-              gold += (*coin)->Quantity();
+            for (auto coin : pay) {
+              gold += coin->Quantity();
             }
           }
           val = itos(gold);
@@ -1132,15 +1130,17 @@ void Mind::TBAVarSub(std::string& line) {
         } else if (!strcmp(field.c_str(), "follower")) {
           if (obj) {
             std::set<Object*> touch = obj->Touching();
-            std::set<Object*>::iterator tent = touch.begin();
-            for (; tent != touch.end(); ++tent) {
-              if ((*tent)->ActTarg(ACT_FOLLOW) == obj) {
-                obj = (*tent);
+            bool found = false;
+            for (auto tent : touch) {
+              if (tent->ActTarg(ACT_FOLLOW) == obj) {
+                obj = tent;
+                found = true;
                 break;
               }
             }
-            if (tent == touch.end())
+            if (found) {
               obj = nullptr;
+            }
           } else
             obj = nullptr;
         } else if (!strncmp(field.c_str(), "skill(", 6)) {
@@ -1169,9 +1169,8 @@ void Mind::TBAVarSub(std::string& line) {
           if (obj && vnum != -1 && field[num] == ')') {
             vnum += 2000000;
             std::list<Object*> pos = obj->PickObjects("all", LOC_INTERNAL);
-            std::list<Object*>::iterator item = pos.begin();
-            for (; item != pos.end(); ++item) {
-              if (vnum == (*item)->Skill("TBAObject")) {
+            for (auto item : pos) {
+              if (vnum == item->Skill("TBAObject")) {
                 val = "1";
                 break;
               }
@@ -1521,12 +1520,12 @@ int Mind::TBARunLine(std::string line) {
     }
     room = room->World();
     std::list<Object*> options = room->Contents();
-    std::list<Object*>::iterator opt = options.begin();
+
     room = nullptr;
-    for (; opt != options.end(); ++opt) {
-      int tnum = (*opt)->Skill("TBARoom");
+    for (auto opt : options) {
+      int tnum = opt->Skill("TBARoom");
       if (tnum > 0 && (tnum % 1000000) == dnum) {
-        room = (*opt);
+        room = opt;
         break;
       }
     }
@@ -1919,10 +1918,9 @@ int Mind::TBARunLine(std::string line) {
     if (targ) {
       Mind* amind = nullptr; // Make sure human minds see it!
       std::vector<Mind*> mns = get_human_minds();
-      std::vector<Mind*>::iterator mn = mns.begin();
-      for (; mn != mns.end(); ++mn) {
-        if ((*mn)->Body() == targ) {
-          amind = *mn;
+      for (auto mn : mns) {
+        if (mn->Body() == targ) {
+          amind = mn;
           break;
         }
       }
@@ -1948,19 +1946,18 @@ int Mind::TBARunLine(std::string line) {
         dam = (dam - 180) / 100;
     }
     std::list<Object*> options = room->Contents();
-    std::list<Object*>::iterator opt = options.begin();
-    for (; opt != options.end(); ++opt) {
-      if ((*opt)->Matches(buf)) {
+    for (auto opt : options) {
+      if (opt->Matches(buf)) {
         if (dam > 0) {
-          (*opt)->HitMent(1000, dam, 0);
+          opt->HitMent(1000, dam, 0);
           //	  fprintf(stderr, CGRN "#%d Debug: WDamage '%s', %d\n" CNRM,
-          //		body->Skill("TBAScript"), (*opt)->Name(), dam
+          //		body->Skill("TBAScript"), opt->Name(), dam
           //		);
         } else if (dam < 0) {
-          (*opt)->HealStun(((-dam) + 1) / 2);
-          (*opt)->HealPhys(((-dam) + 1) / 2);
+          opt->HealStun(((-dam) + 1) / 2);
+          opt->HealPhys(((-dam) + 1) / 2);
           //	  fprintf(stderr, CGRN "#%d Debug: WHeal '%s', %d\n" CNRM,
-          //		body->Skill("TBAScript"), (*opt)->Name(), ((-dam)+1)/2
+          //		body->Skill("TBAScript"), opt->Name(), ((-dam)+1)/2
           //		);
         }
       }
@@ -1997,12 +1994,11 @@ int Mind::TBARunLine(std::string line) {
       dir = "down";
 
     std::list<Object*> options = room->World()->Contents();
-    std::list<Object*>::iterator opt = options.begin();
     room = nullptr;
-    for (; opt != options.end(); ++opt) {
-      int tnum = (*opt)->Skill("TBARoom");
+    for (auto opt : options) {
+      int tnum = opt->Skill("TBARoom");
       if (tnum > 0 && (tnum % 1000000) == rnum) {
-        room = (*opt);
+        room = opt;
         break;
       }
     }
@@ -2100,12 +2096,11 @@ int Mind::TBARunLine(std::string line) {
       //	);
       if (door)
         door->Recycle();
-      std::list<Object*>::iterator opt = options.begin();
       Object* toroom = nullptr;
-      for (; opt != options.end(); ++opt) {
-        int onum = (*opt)->Skill("TBARoom");
+      for (auto opt : options) {
+        int onum = opt->Skill("TBARoom");
         if (tnum > 0 && (onum % 1000000) == tnum) {
-          toroom = (*opt);
+          toroom = opt;
           break;
         }
       }
@@ -2184,21 +2179,19 @@ int Mind::TBARunLine(std::string line) {
     }
     Object* dest = ovars["self"]->World();
     std::list<Object*> options = dest->Contents();
-    std::list<Object*>::iterator opt = options.begin();
     dest = nullptr;
-    for (; opt != options.end(); ++opt) {
-      int tnum = (*opt)->Skill("TBARoom");
+    for (auto opt : options) {
+      int tnum = opt->Skill("TBARoom");
       if (tnum > 0 && (tnum % 1000000) == dnum) {
-        dest = (*opt);
+        dest = opt;
         break;
       }
     }
     options = room->Contents();
-    opt = options.begin();
-    for (; opt != options.end(); ++opt) {
-      if ((*opt)->Matches(buf)) {
-        (*opt)->Parent()->RemoveLink(*opt);
-        (*opt)->SetParent(dest);
+    for (auto opt : options) {
+      if (opt->Matches(buf)) {
+        opt->Parent()->RemoveLink(opt);
+        opt->SetParent(dest);
         nocheck = 1;
       }
     }
@@ -2226,10 +2219,9 @@ int Mind::TBARunLine(std::string line) {
       std::list<Object*> tokill2 =
           room->PickObjects("everything", LOC_DARK | LOC_HEAT | LOC_INTERNAL);
       tokill.splice(tokill.end(), tokill2);
-      std::list<Object*>::iterator item = tokill.begin();
-      for (; item != tokill.end(); ++item) {
-        if (!is_pc(*item))
-          (*item)->Recycle();
+      for (auto item : tokill) {
+        if (!is_pc(item))
+          item->Recycle();
       }
     } else {
       fprintf(
@@ -2275,10 +2267,9 @@ int Mind::TBARunLine(std::string line) {
         return 1;
       }
       std::list<Object*> options = src->Contents();
-      std::list<Object*>::iterator opt = options.begin();
-      for (; opt != options.end(); ++opt) {
-        if ((*opt)->Skill("TBAObject") == vnum + 2000000) {
-          item = new Object(*(*opt));
+      for (auto opt : options) {
+        if (opt->Skill("TBAObject") == vnum + 2000000) {
+          item = new Object(*opt);
           break;
         }
       }
@@ -2294,10 +2285,9 @@ int Mind::TBARunLine(std::string line) {
         return 1;
       }
       std::list<Object*> options = src->Contents();
-      std::list<Object*>::iterator opt = options.begin();
-      for (; opt != options.end(); ++opt) {
-        if ((*opt)->Skill("TBAMOB") == vnum + 1000000) {
-          item = new Object(*(*opt));
+      for (auto opt : options) {
+        if (opt->Skill("TBAMOB") == vnum + 1000000) {
+          item = new Object(*opt);
           break;
         }
       }
@@ -2639,19 +2629,19 @@ void Mind::Think(int istick) {
     if (body && body->Parent() && (body->Skill("TBAAction") & 160) == 160 &&
         (!body->IsAct(ACT_FIGHT))) {
       auto others = body->PickObjects("everyone", LOC_NEARBY);
-      for (auto other = others.begin(); other != others.end(); ++other) {
-        if ((!(*other)->Skill("TBAAction")) // FIXME: Other mobs?
+      for (auto other : others) {
+        if ((!other->Skill("TBAAction")) // FIXME: Other mobs?
             && body->Stun() < 6 // I'm not stunned
             && body->Phys() < 6 // I'm not injured
             && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
             && (!body->IsAct(ACT_REST)) // I'm not resting
-            && (*other)->IsAct(ACT_SLEEP) // It's not awake (wuss!)
-            && (*other)->Attribute(1) // It's not a rock
-            && (!(*other)->IsAct(ACT_UNCONSCIOUS)) // It's not already KOed
-            && (!(*other)->IsAct(ACT_DYING)) // It's not already dying
-            && (!(*other)->IsAct(ACT_DEAD)) // It's not already dead
+            && other->IsAct(ACT_SLEEP) // It's not awake (wuss!)
+            && other->Attribute(1) // It's not a rock
+            && (!other->IsAct(ACT_UNCONSCIOUS)) // It's not already KOed
+            && (!other->IsAct(ACT_DYING)) // It's not already dying
+            && (!other->IsAct(ACT_DEAD)) // It's not already dead
         ) {
-          std::string command = std::string("attack ") + (*other)->ShortDesc();
+          std::string command = std::string("attack ") + other->ShortDesc();
           body->BusyFor(500, command.c_str());
           // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(),
           // command.c_str());
@@ -2677,18 +2667,18 @@ void Mind::Think(int istick) {
         body && body->Parent() && (body->Skill("TBAAction") & 160) == 32 &&
         (!body->IsAct(ACT_FIGHT))) {
       auto others = body->PickObjects("everyone", LOC_NEARBY);
-      for (auto other = others.begin(); other != others.end(); ++other) {
-        if ((!(*other)->Skill("TBAAction")) // FIXME: Other mobs?
+      for (auto other : others) {
+        if ((!other->Skill("TBAAction")) // FIXME: Other mobs?
             && body->Stun() < 6 // I'm not stunned
             && body->Phys() < 6 // I'm not injured
             && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
             && (!body->IsAct(ACT_REST)) // I'm not resting
-            && (*other)->Attribute(1) // It's not a rock
-            && (!(*other)->IsAct(ACT_UNCONSCIOUS)) // It's not already KOed
-            && (!(*other)->IsAct(ACT_DYING)) // It's not already dying
-            && (!(*other)->IsAct(ACT_DEAD)) // It's not already dead
+            && other->Attribute(1) // It's not a rock
+            && (!other->IsAct(ACT_UNCONSCIOUS)) // It's not already KOed
+            && (!other->IsAct(ACT_DYING)) // It's not already dying
+            && (!other->IsAct(ACT_DEAD)) // It's not already dead
         ) {
-          std::string command = std::string("attack ") + (*other)->ShortDesc();
+          std::string command = std::string("attack ") + other->ShortDesc();
           body->BusyFor(500, command.c_str());
           // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(),
           // command.c_str());
@@ -2712,19 +2702,19 @@ void Mind::Think(int istick) {
     // HELPER TBA Mobs
     if (body && body->Parent() && (body->Skill("TBAAction") & 4096) && (!body->IsAct(ACT_FIGHT))) {
       auto others = body->PickObjects("everyone", LOC_NEARBY);
-      for (auto other = others.begin(); other != others.end(); ++other) {
-        if ((!(*other)->Skill("TBAAction")) // FIXME: Other mobs?
+      for (auto other : others) {
+        if ((!other->Skill("TBAAction")) // FIXME: Other mobs?
             && body->Stun() < 6 // I'm not stunned
             && body->Phys() < 6 // I'm not injured
             && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
             && (!body->IsAct(ACT_REST)) // I'm not resting
-            && (*other)->Attribute(1) // It's not a rock
-            && (!(*other)->IsAct(ACT_DEAD)) // It's not already dead
-            && (*other)->IsAct(ACT_FIGHT) // It's figting someone
-            && (*other)->ActTarg(ACT_FIGHT)->HasSkill("TBAAction")
+            && other->Attribute(1) // It's not a rock
+            && (!other->IsAct(ACT_DEAD)) // It's not already dead
+            && other->IsAct(ACT_FIGHT) // It's figting someone
+            && other->ActTarg(ACT_FIGHT)->HasSkill("TBAAction")
             //...against another MOB
         ) {
-          std::string command = std::string("call ALARM; attack ") + (*other)->ShortDesc();
+          std::string command = std::string("call ALARM; attack ") + other->ShortDesc();
           body->BusyFor(500, command.c_str());
           // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(),
           // command.c_str());
@@ -2759,17 +2749,16 @@ void Mind::Think(int istick) {
       cons.erase(nullptr);
 
       std::map<Object*, const char*> cons2 = cons;
-      std::map<Object*, const char*>::iterator dir = cons2.begin();
-      for (; dir != cons2.end(); ++dir) {
-        if ((!dir->first->ActTarg(ACT_SPECIAL_LINKED)) ||
-            (!dir->first->ActTarg(ACT_SPECIAL_LINKED)->Parent())) {
-          cons.erase(dir->first);
+      for (auto dir : cons2) {
+        if ((!dir.first->ActTarg(ACT_SPECIAL_LINKED)) ||
+            (!dir.first->ActTarg(ACT_SPECIAL_LINKED)->Parent())) {
+          cons.erase(dir.first);
           continue;
         }
 
-        Object* dest = dir->first->ActTarg(ACT_SPECIAL_LINKED)->Parent();
+        Object* dest = dir.first->ActTarg(ACT_SPECIAL_LINKED)->Parent();
         if (!TBACanWanderTo(dest)) {
-          cons.erase(dir->first);
+          cons.erase(dir.first);
         }
       }
 
