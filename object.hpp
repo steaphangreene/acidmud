@@ -286,24 +286,14 @@ class Object {
   void DynamicInit8();
   void DynamicInit9();
 
-  std::list<int> RollInitiative() const;
+  int RollInitiative() const;
   int Roll(
       const std::string&,
       const Object*,
       const std::string&,
       int bias = 0,
       std::string* res = nullptr) const;
-  int Roll(
-      const std::string&,
-      const Object*,
-      const std::string&,
-      int bias = 0,
-      std::list<int>* wraps = nullptr,
-      std::string* res = nullptr) const;
-  int Roll(const std::string&, int, std::list<int>* wraps, std::string* res = nullptr) const;
   int Roll(const std::string&, int, std::string* res = nullptr) const;
-  int RollNoWounds(const std::string&, int, std::list<int>* wraps, std::string* res = nullptr)
-      const;
   int RollNoWounds(const std::string&, int, std::string* res = nullptr) const;
 
   int WoundPenalty() const;
@@ -451,7 +441,7 @@ class Object {
   friend void player_rooms_erase(Object*);
 };
 
-int roll(int ndice, int targ, std::list<int>* wraps = nullptr);
+int roll(int ndice, int targ);
 
 void init_world();
 void save_world(int with_net = 0);

@@ -3309,12 +3309,12 @@ int Object::BusyAct() {
 
 void Object::FreeActions() {
   int maxinit = 0;
-  std::unordered_map<Object*, std::list<int>> initlist;
+  std::unordered_map<Object*, int> initlist;
   for (auto busy : busylist) {
     if (!busy->StillBusy()) {
       initlist[busy] = busy->RollInitiative();
-      if (maxinit < initlist[busy].front()) {
-        maxinit = initlist[busy].front();
+      if (maxinit < initlist[busy]) {
+        maxinit = initlist[busy];
       }
     }
   }
@@ -3322,15 +3322,11 @@ void Object::FreeActions() {
     for (auto init : initlist) {
       // Make sure it's still in busylist
       // (hasn't been deleted by another's BusyAct)!
-      if (init.second.front() == phase && busylist.count(init.first)) {
+      if (init.second == phase && busylist.count(init.first)) {
         //	if(init.first->IsAct(ACT_FIGHT))
         //	  fprintf(stderr, "Going at %d (%s)\n", phase,
         // init.first->Name());
-        int ret = init.first->BusyAct();
-        if (ret || init.second.size() <= 1)
-          init.second.front() = 0;
-        else
-          init.second.pop_front();
+        init.first->BusyAct();
       }
     }
   }
