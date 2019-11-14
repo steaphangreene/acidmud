@@ -109,8 +109,8 @@ int Object::SaveTo(FILE* fl) {
   fprintf(fl, "%d %d %d %d %c\n", weight, size, volume, value, gender);
 
   fprintf(fl, "%d", exp);
-  for (auto ind = completed.begin(); ind != completed.end(); ++ind) {
-    fprintf(fl, ";%ld", *ind);
+  for (auto ind : completed) {
+    fprintf(fl, ";%ld", ind);
   }
 
   fprintf(fl, " %d\n", sexp);
@@ -131,31 +131,29 @@ int Object::SaveTo(FILE* fl) {
       stru,
       IsActive());
 
-  std::map<std::string, int>::const_iterator sk = skills.begin();
-  for (; sk != skills.end(); ++sk)
-    fprintf(fl, "|%s|%d", sk->first.c_str(), sk->second);
+  for (const auto sk : skills)
+    fprintf(fl, "|%s|%d", sk.first.c_str(), sk.second);
   if (cur_skill != "") { // Added current skill to end in v0x13
     fprintf(fl, "|%s", cur_skill.c_str());
   }
   fprintf(fl, ";\n");
 
   fprintf(fl, "%d\n", (int)(contents.size()));
-  for (auto cind = contents.begin(); cind != contents.end(); ++cind) {
-    fprintf(fl, "%d\n", getnum(*cind));
+  for (auto cind : contents) {
+    fprintf(fl, "%d\n", getnum(cind));
   }
 
   fprintf(fl, "%d\n", pos);
 
   fprintf(fl, "%d\n", (int)(act.size()));
-  std::map<act_t, Object*>::iterator aind;
-  for (aind = act.begin(); aind != act.end(); ++aind) {
-    fprintf(fl, "%s;%d\n", act_save[aind->first], getnum(aind->second));
+  for (auto aind : act) {
+    fprintf(fl, "%s;%d\n", act_save[aind.first], getnum(aind.second));
   }
 
   fprintf(fl, "\n");
 
-  for (auto cind = contents.begin(); cind != contents.end(); ++cind) {
-    (*cind)->SaveTo(fl);
+  for (auto cind : contents) {
+    cind->SaveTo(fl);
   }
 
   // fprintf(stderr, "Saved %s\n", Name());
@@ -179,31 +177,28 @@ int Object::Load(const char* fn) {
     return -1;
   }
 
-  std::vector<Object*>::iterator ind;
-  for (ind = todo.begin(); ind != todo.end(); ++ind) {
+  for (auto ind : todo) {
     std::list<act_t> killacts;
-    std::map<act_t, Object*>::iterator aind = (*ind)->act.begin();
-    for (; aind != (*ind)->act.end(); ++aind) {
+    for (auto aind : ind->act) {
       /* Decode the Object Number from a pointer, Encoded in LoadFrom() */
-      int num = int(aind->second - ((Object*)(nullptr)));
-      aind->second = num2obj[num];
-      if (aind->second) {
-        aind->second->touching_me.insert(*ind);
-      } else if (aind->first <= ACT_REST) { // Targetless Actions
-        aind->second = nullptr;
+      int num = int(aind.second - ((Object*)(nullptr)));
+      aind.second = num2obj[num];
+      if (aind.second) {
+        aind.second->touching_me.insert(ind);
+      } else if (aind.first <= ACT_REST) { // Targetless Actions
+        aind.second = nullptr;
       } else { // Act Targ No Longer Exists ("junkrestart", I hope)!
-        killacts.push_back(aind->first);
+        killacts.push_back(aind.first);
       }
-      if (aind->first == ACT_FIGHT) {
-        (*ind)->BusyFor(500, (*ind)->Tactics().c_str());
+      if (aind.first == ACT_FIGHT) {
+        ind->BusyFor(500, ind->Tactics().c_str());
       }
     }
-    std::list<act_t>::iterator kill = killacts.begin();
-    for (; kill != killacts.end(); ++kill) { // Kill Actions on Non-Existent
-      act.erase(*kill);
+    for (auto kill : killacts) { // Kill Actions on Non-Existent
+      act.erase(kill);
     }
-    if ((*ind)->IsUsing("Lumberjack")) { // FIXME: All long-term skills?
-      (*ind)->BusyFor(500, "use Lumberjack");
+    if (ind->IsUsing("Lumberjack")) { // FIXME: All long-term skills?
+      ind->BusyFor(500, "use Lumberjack");
     }
   }
   todo.clear();
@@ -379,20 +374,19 @@ int Object::LoadFrom(FILE* fl) {
   //  if(parent && (!(parent->parent))) {
   //    fprintf(stderr, "Loading: %s\n", short_desc.c_str());
   //    }
-  std::vector<Object*>::iterator cind;
-  for (cind = toload.begin(); cind != toload.end(); ++cind) {
+  for (auto cind : toload) {
     // fprintf(stderr, "%sCalling loader from %s\n", debug_indent.c_str(),
     // short_desc.c_str());
     // std::string tmp = debug_indent;
     // debug_indent += "  ";
-    (*cind)->LoadFrom(fl);
+    cind->LoadFrom(fl);
     // debug_indent = tmp;
     // fprintf(stderr, "%sCalled loader from %s\n", debug_indent.c_str(),
     // short_desc.c_str());
 
     //    if(parent && (!(parent->parent))) {
     //      fprintf(stderr, "\rLoaded: %d/%d (%s)    ",
-    //	++num_loaded, int(toload.size()), (*cind)->short_desc.c_str()
+    //	++num_loaded, int(toload.size()), cind->short_desc.c_str()
     //	);
     //      }
   }
