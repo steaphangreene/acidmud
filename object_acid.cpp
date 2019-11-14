@@ -1,6 +1,8 @@
 #include <cstdlib>
 #include <cstring>
+#include <unordered_map>
 
+#include "color.hpp"
 #include "mind.hpp"
 #include "object.hpp"
 #include "version.hpp"
@@ -63,32 +65,32 @@ static act_t act_load(const std::string& str) {
 
 static char buf[65536];
 static std::vector<Object*> todo;
-static std::map<int, Object*> num2obj;
-static std::map<Object*, int> obj2num;
 
+static std::unordered_map<int, Object*> num2obj;
 Object* getbynum(int num) {
   if (num2obj.count(num) < 1)
-    return nullptr;
+    num2obj[num] = new Object();
   return num2obj[num];
 }
 
+static int last_object_number = 0;
+static std::unordered_map<Object*, int> obj2num;
 int getnum(Object* obj) {
-  static int curnum = 0;
   if (!obj2num.count(obj))
-    obj2num[obj] = ++curnum;
+    obj2num[obj] = ++last_object_number;
   return obj2num[obj];
 }
 
 int Object::Save(const char* filename) {
-  num2obj[0] = nullptr;
-  obj2num[nullptr] = 0;
-
   FILE* fl = fopen(filename, "w");
   if (!fl)
     return -1;
 
   fprintf(fl, "%.8X\n", CurrentVersion.savefile_version_object);
 
+  obj2num.clear();
+  obj2num[nullptr] = 0;
+  last_object_number = 0;
   if (SaveTo(fl)) {
     fclose(fl);
     return -1;
@@ -162,9 +164,6 @@ int Object::SaveTo(FILE* fl) {
 
 static unsigned int ver;
 int Object::Load(const char* fn) {
-  num2obj[0] = nullptr;
-  obj2num[nullptr] = 0;
-
   FILE* fl = fopen(fn, "r");
   if (!fl)
     return -1;
@@ -172,6 +171,9 @@ int Object::Load(const char* fn) {
   fscanf(fl, "%X\n", &ver);
 
   todo.clear();
+  num2obj.clear();
+  num2obj[0] = nullptr;
+  num2obj[1] = this;
   if (LoadFrom(fl)) {
     fclose(fl);
     return -1;
@@ -180,9 +182,6 @@ int Object::Load(const char* fn) {
   for (auto ind : todo) {
     std::list<act_t> killacts;
     for (auto aind : ind->act) {
-      /* Decode the Object Number from a pointer, Encoded in LoadFrom() */
-      int num = int(aind.second - ((Object*)(nullptr)));
-      aind.second = num2obj[num];
       if (aind.second) {
         aind.second->touching_me.insert(ind);
       } else if (aind.first <= ACT_REST) { // Targetless Actions
@@ -216,7 +215,9 @@ int Object::LoadFrom(FILE* fl) {
 
   int num, res;
   fscanf(fl, "%d ", &num);
-  num2obj[num] = this;
+  if (num2obj[num] != this) {
+    fprintf(stderr, CRED "Error: Acid number mismatch (%d)!\n" CNRM, num);
+  }
   todo.push_back(this);
 
   memset(buf, 0, 65536);
@@ -337,7 +338,8 @@ int Object::LoadFrom(FILE* fl) {
   for (int ctr = 0; ctr < num; ++ctr) {
     int num2;
     fscanf(fl, "%d ", &num2);
-    Object* obj = new Object(this);
+    Object* obj = getbynum(num2);
+    obj->SetParent(this);
     toload.push_back(obj);
     AddLink(obj);
   }
@@ -355,9 +357,7 @@ int Object::LoadFrom(FILE* fl) {
       fscanf(fl, "%65535[^;];%d ", buf, &num2);
       anum = act_load(std::string(buf));
     }
-
-    /* Encode the Object Number as a pointer, Decoded in Load() */
-    act[(act_t)anum] = (Object*)((Object*)(nullptr) + num2);
+    act[(act_t)anum] = getbynum(num2);
   }
 
   if (Skill("Personality"))
