@@ -565,7 +565,7 @@ void Mind::TBAVarSub(std::string& line) {
       }
       end = line.find_first_of("% \t", cur + 1); // Done.  Replace All.
     } else if (!strncmp(line.c_str() + cur, "%random.char%", 13)) {
-      std::list<Object*> others;
+      std::vector<Object*> others;
       if (ovars["self"]->HasSkill("TBARoom")) {
         others = ovars["self"]->PickObjects("everyone", LOC_INTERNAL);
       } else if (ovars["self"]->Owner()) {
@@ -575,7 +575,7 @@ void Mind::TBAVarSub(std::string& line) {
       }
       if (others.size() > 0) {
         int num = rand() % others.size();
-        std::list<Object*>::iterator item = others.begin();
+        auto item = others.begin();
         for (; num > 0; --num) {
           ++item;
         }
@@ -651,7 +651,7 @@ void Mind::TBAVarSub(std::string& line) {
         } else if (!strcmp(field.c_str(), "gold")) {
           int gold = 0;
           if (obj) {
-            std::list<Object*> pay = obj->PickObjects("all a gold piece", LOC_INTERNAL);
+            auto pay = obj->PickObjects("all a gold piece", LOC_INTERNAL);
             for (auto coin : pay) {
               gold += coin->Quantity();
             }
@@ -1092,8 +1092,8 @@ void Mind::TBAVarSub(std::string& line) {
             if (!par)
               par = obj->Parent();
             if (par) {
-              std::list<Object*> stf = par->PickObjects("everything", LOC_INTERNAL);
-              std::list<Object*>::iterator item = stf.begin();
+              auto stf = par->PickObjects("everything", LOC_INTERNAL);
+              auto item = stf.begin();
               while (item != stf.end() && (*item) != obj)
                 ++item;
               if (item != stf.end())
@@ -1111,8 +1111,8 @@ void Mind::TBAVarSub(std::string& line) {
             while (room && room->Skill("TBARoom") == 0)
               room = room->Parent();
             if (room) {
-              std::list<Object*> stf = room->PickObjects("everyone", LOC_INTERNAL);
-              std::list<Object*>::iterator item = stf.begin();
+              auto stf = room->PickObjects("everyone", LOC_INTERNAL);
+              auto item = stf.begin();
               while (item != stf.end() && (*item) != obj)
                 ++item;
               if (item != stf.end())
@@ -1168,7 +1168,7 @@ void Mind::TBAVarSub(std::string& line) {
           val = "";
           if (obj && vnum != -1 && field[num] == ')') {
             vnum += 2000000;
-            std::list<Object*> pos = obj->PickObjects("all", LOC_INTERNAL);
+            auto pos = obj->PickObjects("all", LOC_INTERNAL);
             for (auto item : pos) {
               if (vnum == item->Skill("TBAObject")) {
                 val = "1";
@@ -1519,7 +1519,7 @@ int Mind::TBARunLine(std::string line) {
       return 1;
     }
     room = room->World();
-    std::list<Object*> options = room->Contents();
+    auto options = room->Contents();
 
     room = nullptr;
     for (auto opt : options) {
@@ -1945,7 +1945,7 @@ int Mind::TBARunLine(std::string line) {
       if (dam < 0)
         dam = (dam - 180) / 100;
     }
-    std::list<Object*> options = room->Contents();
+    auto options = room->Contents();
     for (auto opt : options) {
       if (opt->Matches(buf2)) {
         if (dam > 0) {
@@ -1993,7 +1993,7 @@ int Mind::TBARunLine(std::string line) {
     else if (!strncmp("down", dir, strlen(dir)))
       dir = "down";
 
-    std::list<Object*> options = room->World()->Contents();
+    auto options = room->World()->Contents();
     room = nullptr;
     for (auto opt : options) {
       int tbanum = opt->Skill("TBARoom");
@@ -2178,7 +2178,7 @@ int Mind::TBARunLine(std::string line) {
       nocheck = 1;
     }
     Object* dest = ovars["self"]->World();
-    std::list<Object*> options = dest->Contents();
+    auto options = dest->Contents();
     dest = nullptr;
     for (auto opt : options) {
       int tnum = opt->Skill("TBARoom");
@@ -2215,10 +2215,9 @@ int Mind::TBARunLine(std::string line) {
       if (!is_pc(targ))
         targ->Recycle();
     } else if (line.length() <= 6) { // No Args: Nuke All (but dirs and PCs)!
-      std::list<Object*> tokill = room->PickObjects("everyone", LOC_DARK | LOC_HEAT | LOC_INTERNAL);
-      std::list<Object*> tokill2 =
-          room->PickObjects("everything", LOC_DARK | LOC_HEAT | LOC_INTERNAL);
-      tokill.splice(tokill.end(), tokill2);
+      auto tokill = room->PickObjects("everyone", LOC_DARK | LOC_HEAT | LOC_INTERNAL);
+      auto tokill2 = room->PickObjects("everything", LOC_DARK | LOC_HEAT | LOC_INTERNAL);
+      tokill.insert(tokill.end(), tokill2.begin(), tokill2.end());
       for (auto item : tokill) {
         if (!is_pc(item))
           item->Recycle();
@@ -2266,7 +2265,7 @@ int Mind::TBARunLine(std::string line) {
             line.c_str());
         return 1;
       }
-      std::list<Object*> options = src->Contents();
+      auto options = src->Contents();
       for (auto opt : options) {
         if (opt->Skill("TBAObject") == valnum + 2000000) {
           item = new Object(*opt);
@@ -2284,7 +2283,7 @@ int Mind::TBARunLine(std::string line) {
             line.c_str());
         return 1;
       }
-      std::list<Object*> options = src->Contents();
+      auto options = src->Contents();
       for (auto opt : options) {
         if (opt->Skill("TBAMOB") == valnum + 1000000) {
           item = new Object(*opt);

@@ -812,16 +812,18 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   trim_string(cmd);
 
   if ((!nmode) && com != COM_RECALL && body && body->Parent()) {
-    std::list<Object*> items;
+    std::vector<Object*> items;
     Object* room = body->PickObject("here", LOC_HERE);
-    if (room)
+    auto items2 = body->PickObjects("everything", LOC_INTERNAL | LOC_NEARBY);
+    auto items3 = body->PickObjects("everyone", LOC_NEARBY);
+    items.reserve(items2.size() + items3.size() + (room != nullptr));
+    if (room != nullptr)
       items.push_back(room);
-    items.splice(items.end(), body->PickObjects("everything", LOC_INTERNAL | LOC_NEARBY));
-    items.splice(items.end(), body->PickObjects("everyone", LOC_NEARBY));
+    items.insert(items.end(), items2.begin(), items2.end());
+    items.insert(items.end(), items3.begin(), items3.end());
 
     for (auto obj : items) {
-      std::list<Object*> trigs =
-          obj->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
+      auto trigs = obj->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
       for (auto trig : trigs) {
         if (trig->Skill("TBAScriptType") & 0x04) { //*-COMMAND trigs
           if ((com == COM_NONE && (!strncmp(inpline, trig->Desc(), len))) ||
@@ -1075,14 +1077,11 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   }
 
   if (com == COM_FLEE) {
-    std::list<Object*> dirs = body->PickObjects("everywhere", vmode | LOC_NEARBY);
-    std::list<Object*>::iterator dir = dirs.begin();
-    while (dir != dirs.end()) {
-      std::list<Object*>::iterator cur = dir;
-      ++dir; // Inc first, in case I remove it.
-      if ((*cur)->Skill("Open") < 1)
-        dirs.erase(cur);
-    }
+    auto dirs = body->PickObjects("everywhere", vmode | LOC_NEARBY);
+    dirs.erase(
+        std::remove_if(
+            dirs.begin(), dirs.end(), [](const Object* o) { return o->Skill("Open") < 1; }),
+        dirs.end());
     if (dirs.size() < 1) {
       if (mind)
         mind->Send("There is nowhere go, you can't flee!\n");
@@ -1092,7 +1091,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     body->StartUsing("Sprinting");
     body->SetSkill("Hidden", 0);
 
-    dir = dirs.begin();
+    auto dir = dirs.begin();
     int sel = rand() % dirs.size();
     while (sel > 0) {
       ++dir;
@@ -1566,7 +1565,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       within = 1;
     }
 
-    std::list<Object*> targs;
+    std::vector<Object*> targs;
     if (strlen(cmd.c_str() + len) > 0) {
       targs = body->PickObjects(
           cmd.c_str() + len, vmode | LOC_NEARBY | LOC_ADJACENT | LOC_SELF | LOC_INTERNAL);
@@ -1653,7 +1652,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
       ++len;
 
-    std::list<Object*> targs;
+    std::vector<Object*> targs;
     if (strlen(cmd.c_str() + len) > 0) {
       targs = body->PickObjects(
           cmd.c_str() + len, vmode | LOC_NEARBY | LOC_ADJACENT | LOC_SELF | LOC_INTERNAL);
@@ -1711,8 +1710,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s searches ;s.\n", "you search ;s.\n", body, targ);
 
-      std::list<Object*> objs;
-      objs = targ->Contents(vmode);
+      auto objs = targ->Contents(vmode);
       for (auto obj : objs) {
         if (obj->Skill("Hidden")) {
           if (body->Roll("Perception", obj->Skill("Hidden"))) {
@@ -1735,7 +1733,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
       ++len;
 
-    std::list<Object*> targs;
+    std::vector<Object*> targs;
     if (strlen(cmd.c_str() + len) <= 0) {
       targs.push_back(body);
     } else {
@@ -2347,7 +2345,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("It does not seem to have a keyhole!\n");
     } else {
       if (!nmode) {
-        std::list<Object*> keys = body->PickObjects("all", vmode | LOC_INTERNAL);
+        auto keys = body->PickObjects("all", vmode | LOC_INTERNAL);
         bool can_open = false;
         for (auto key : keys) {
           if (key->Skill("Key") == targ->Skill("Lock")) {
@@ -2393,7 +2391,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("It does not seem to have a keyhole!\n");
     } else {
       if (!nmode) {
-        std::list<Object*> keys = body->PickObjects("all", vmode | LOC_INTERNAL);
+        auto keys = body->PickObjects("all", vmode | LOC_INTERNAL);
         bool can_open = false;
         for (auto key : keys) {
           if (key->Skill("Key") == targ->Skill("Lock")) {
@@ -2494,8 +2492,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (!mind)
       return 0;
 
-    std::list<Object*> objs = body->Parent()->Contents(vmode);
-    std::list<Object*> shpkps;
+    auto objs = body->Parent()->Contents(vmode);
+    std::vector<Object*> shpkps;
     std::string reason = "";
     for (auto shpkp : objs) {
       if (shpkp->Skill("Sell Profit")) {
@@ -2550,8 +2548,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    std::list<Object*> objs = body->Parent()->Contents(vmode);
-    std::list<Object*> shpkps;
+    auto objs = body->Parent()->Contents(vmode);
+    std::vector<Object*> shpkps;
     std::string reason = "";
     for (auto shpkp : objs) {
       if (shpkp->Skill("Sell Profit")) {
@@ -2610,7 +2608,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           mind->SendF("%d gp: %s\n", price, targ->ShortDesc());
 
           int togo = price, ord = -price;
-          std::list<Object*> pay = body->PickObjects("a gold piece", vmode | LOC_INTERNAL, &ord);
+          auto pay = body->PickObjects("a gold piece", vmode | LOC_INTERNAL, &ord);
           for (auto coin : pay) {
             togo -= coin->Quantity();
           }
@@ -2767,8 +2765,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (targ->HasSkill("Wearable on Right Hip"))
       wearable = 1;
 
-    std::list<Object*> objs = body->Parent()->Contents();
-    std::list<Object*> shpkps;
+    auto objs = body->Parent()->Contents();
+    std::vector<Object*> shpkps;
     std::string reason = "Sorry, nobody is buying that sort of thing here.\n";
     std::string skill = "";
     for (auto shpkp : objs) {
@@ -2885,7 +2883,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
         if (com == COM_SELL) {
           int togo = price, ord = -price;
-          std::list<Object*> pay = shpkp->PickObjects("a gold piece", vmode | LOC_INTERNAL, &ord);
+          auto pay = shpkp->PickObjects("a gold piece", vmode | LOC_INTERNAL, &ord);
           for (auto coin : pay) {
             togo -= MAX(1, coin->Skill("Quantity"));
           }
@@ -2968,7 +2966,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    std::list<Object*> targs = body->PickObjects(cmd.c_str() + len, vmode | LOC_NEARBY);
+    auto targs = body->PickObjects(cmd.c_str() + len, vmode | LOC_NEARBY);
     if (targs.size() == 0) {
       if (mind)
         mind->Send("You want to get what?\n");
@@ -2976,8 +2974,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     for (auto targ : targs) {
-      std::list<Object*> trigs =
-          targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
+      auto trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
       for (auto trig : trigs) {
         int ttype = trig->Skill("TBAScriptType");
         if ((ttype & 0x2000040) == 0x2000040) { // OBJ-GET trigs
@@ -3552,7 +3549,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   }
 
   if (com == COM_WEAR) {
-    std::list<Object*> targs;
+    std::vector<Object*> targs;
 
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
       ++len;

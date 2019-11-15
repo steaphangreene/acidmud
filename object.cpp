@@ -450,11 +450,10 @@ int Object::Tick() {
       corpse->SetVolume(Volume());
 
       std::set<Object*> todrop;
-      std::list<Object*> todropfrom;
+      std::vector<Object*> todropfrom;
       todropfrom.push_back(this);
 
       for (auto con : todropfrom) {
-        std::list<Object*>::iterator cur;
         for (auto item : con->contents) {
           if (item->contents.size() > 0 && item->Pos() == POS_NONE) {
             todropfrom.push_back(item);
@@ -471,7 +470,7 @@ int Object::Tick() {
           td->Recycle();
       }
 
-      std::list<Object*> cont = contents;
+      auto cont = contents;
       for (auto todel : cont) {
         todel->Recycle();
       }
@@ -1137,7 +1136,7 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
 }
 
 void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
-  std::list<Object*> cont = contents;
+  auto cont = contents;
 
   if (!b.empty())
     base += b;
@@ -1878,7 +1877,7 @@ int Object::Travel(Object* dest, int try_combine) {
   }
 
   if (att[1] > 0) {
-    std::list<Object*> trigs = parent->contents;
+    auto trigs = parent->contents;
     for (auto src : parent->contents) {
       trigs.insert(trigs.end(), src->contents.begin(), src->contents.end());
     }
@@ -2148,7 +2147,7 @@ int strip_ordinal(const char** text) {
 }
 
 Object* Object::PickObject(const char* name, int loc, int* ordinal) const {
-  std::list<Object*> ret = PickObjects(name, loc, ordinal);
+  auto ret = PickObjects(name, loc, ordinal);
   if (ret.size() != 1) {
     return nullptr;
   }
@@ -2180,7 +2179,7 @@ Object* Object::Split(int nqty) {
   return nobj;
 }
 
-static int tag(Object* obj, std::list<Object*>& ret, int* ordinal, int vmode = 0) {
+static int tag(Object* obj, std::vector<Object*>& ret, int* ordinal, int vmode = 0) {
   // Only Ninjas in Ninja-Mode should detect these
   if (obj->Skill("Invisible") > 999 && (vmode & LOC_NINJA) == 0)
     return 0;
@@ -2247,8 +2246,8 @@ static int tag(Object* obj, std::list<Object*>& ret, int* ordinal, int vmode = 0
   return 0;
 }
 
-std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) const {
-  std::list<Object*> ret;
+std::vector<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) const {
+  std::vector<Object*> ret;
 
   while ((!isgraph(*name)) && (*name))
     ++name;
@@ -2281,14 +2280,14 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
     char* keyword3 = strdup(name);
     keyword3[keyword - name] = 0;
 
-    std::list<Object*> masters = PickObjects(keyword3, loc, ordinal);
+    auto masters = PickObjects(keyword3, loc, ordinal);
     if (!masters.size()) {
       free(keyword3);
       return ret;
     }
 
     for (auto master : masters) {
-      std::list<Object*> add =
+      auto add =
           master->PickObjects(keyword3 + (keyword - name) + 3, (loc & LOC_SPECIAL) | LOC_INTERNAL);
       ret.insert(ret.end(), add.begin(), add.end());
     }
@@ -2325,7 +2324,7 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
   }
 
   if ((loc & LOC_NEARBY) && (parent != nullptr)) {
-    std::list<Object*> cont = parent->Contents(loc); //"loc" includes vmode.
+    auto cont = parent->Contents(loc); //"loc" includes vmode.
 
     for (auto ind : cont)
       if (!ind->no_seek) {
@@ -2337,8 +2336,7 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
           }
         }
         if (ind->Skill("Open") || ind->Skill("Transparent")) {
-          std::list<Object*> add =
-              ind->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
+          auto add = ind->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
           ret.insert(ret.end(), add.begin(), add.end());
 
           if ((*ordinal) == 0)
@@ -2349,8 +2347,7 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
       if (parent->parent) {
         parent->no_seek = 1;
 
-        std::list<Object*> add =
-            parent->PickObjects(name, (loc & LOC_SPECIAL) | LOC_NEARBY, ordinal);
+        auto add = parent->PickObjects(name, (loc & LOC_SPECIAL) | LOC_NEARBY, ordinal);
         ret.insert(ret.end(), add.begin(), add.end());
 
         parent->no_seek = 0;
@@ -2361,7 +2358,7 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
   }
 
   if (loc & LOC_INTERNAL) {
-    std::list<Object*> cont(contents);
+    auto cont(contents);
 
     for (auto action : act) {
       auto ind = find(cont.begin(), cont.end(), action.second);
@@ -2375,8 +2372,7 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
           }
         }
         if (action.second->HasSkill("Container")) {
-          std::list<Object*> add =
-              action.second->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
+          auto add = action.second->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
           ret.insert(ret.end(), add.begin(), add.end());
 
           if ((*ordinal) == 0)
@@ -2394,8 +2390,7 @@ std::list<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) 
         }
       }
       if (ind->Skill("Container") && (loc & LOC_NOTUNWORN) == 0) {
-        std::list<Object*> add =
-            ind->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
+        auto add = ind->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
         ret.insert(ret.end(), add.begin(), add.end());
 
         if ((*ordinal) == 0)
@@ -3131,8 +3126,7 @@ void Object::LoudF(int str, const char* mes, ...) {
 
 void Object::Loud(std::set<Object*>& visited, int str, const char* mes) {
   visited.insert(this);
-  std::list<Object*> targs;
-  targs = PickObjects("all", LOC_INTERNAL);
+  auto targs = PickObjects("all", LOC_INTERNAL);
   for (auto dest : targs) {
     if (dest->HasSkill("Enterable")) {
       int ostr = str;
@@ -3469,26 +3463,28 @@ void Object::operator=(const Object& in) {
   //  act = in.act;
 }
 
-std::list<Object*> Object::Contents(int vmode) {
-  if (vmode & LOC_NINJA)
-    return contents;
-  std::list<Object*> ret;
-  for (auto item : contents) {
-    if (item->Skill("Invisible") >= 1000)
-      continue; // Not Really There
-    if ((vmode & (LOC_HEAT | LOC_TOUCH)) == 0 && item->Skill("Invisible")) {
-      continue;
+std::vector<Object*> Object::Contents(int vmode) {
+  std::vector<Object*> ret;
+  if (vmode & LOC_NINJA) {
+    ret = contents;
+  } else {
+    for (auto item : contents) {
+      if (item->Skill("Invisible") >= 1000)
+        continue; // Not Really There
+      if ((vmode & (LOC_HEAT | LOC_TOUCH)) == 0 && item->Skill("Invisible")) {
+        continue;
+      }
+      if ((vmode & LOC_FIXED) && item->Pos() != POS_NONE)
+        continue;
+      if ((vmode & LOC_NOTFIXED) && item->Pos() == POS_NONE)
+        continue;
+      ret.push_back(item);
     }
-    if ((vmode & LOC_FIXED) && item->Pos() != POS_NONE)
-      continue;
-    if ((vmode & LOC_NOTFIXED) && item->Pos() == POS_NONE)
-      continue;
-    ret.push_back(item);
   }
   return ret;
 }
 
-std::list<Object*> Object::Contents() {
+std::vector<Object*> Object::Contents() {
   return contents;
 }
 
@@ -4013,8 +4009,8 @@ std::string Object::WearNames(int m) const {
 }
 
 Object* Object::Stash(Object* item, int message, int force, int try_combine) {
-  std::list<Object*> containers, my_cont;
-  my_cont = PickObjects("all", LOC_INTERNAL);
+  std::vector<Object*> containers;
+  auto my_cont = PickObjects("all", LOC_INTERNAL);
   for (auto ind : my_cont) {
     if (ind->Skill("Container") && ((!ind->Skill("Locked")) || ind->Skill("Open"))) {
       containers.push_back(ind);

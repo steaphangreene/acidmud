@@ -2,6 +2,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <vector>
 
 #include <fcntl.h>
 #include <sys/time.h>
@@ -183,13 +184,13 @@ class Object {
   void NotifyGone(Object* obj, Object* newloc = nullptr, int up = 1);
 
   Object* PickObject(const char*, int loc, int* ordinal = nullptr) const;
-  std::list<Object*> PickObjects(const char*, int loc, int* ordinal = nullptr) const;
+  std::vector<Object*> PickObjects(const char*, int loc, int* ordinal = nullptr) const;
   int IsNearBy(const Object* obj);
   int SeeWithin(const Object* obj); // Recursive & Visible
   int HasWithin(const Object* obj); // Recursive (All)
   int Contains(const Object* obj); // Only Immediately (No Recursion)
-  std::list<Object*> Contents(int vmode);
-  std::list<Object*> Contents();
+  std::vector<Object*> Contents(int vmode);
+  std::vector<Object*> Contents();
 
   int ContainedWeight();
   int ContainedVolume();
@@ -413,7 +414,7 @@ class Object {
   std::string short_desc;
   std::string desc;
   std::string long_desc;
-  std::list<Object*> contents;
+  std::vector<Object*> contents;
   Object* parent;
   std::set<Mind*> minds;
   pos_t pos;
