@@ -1,5 +1,5 @@
+#include <map>
 #include <string>
-#include <unordered_map>
 
 #include <arpa/telnet.h>
 
@@ -229,7 +229,7 @@ int Mind::TBAEval(std::string expr) {
   return 1; // Non-Numberic, Non-nullptr, Non-Object
 }
 
-std::unordered_map<std::string, std::string> Mind::cvars;
+std::map<std::string, std::string> Mind::cvars;
 
 void Mind::Init() {
   body = nullptr;
@@ -2739,7 +2739,7 @@ void Mind::Think(int istick) {
         (!body->IsAct(ACT_FIGHT)) && (istick == 1) && (!body->IsAct(ACT_REST)) &&
         (!body->IsAct(ACT_SLEEP)) && body->Stun() < 6 && body->Phys() < 6 &&
         body->Roll("Willpower", 9)) {
-      std::unordered_map<Object*, const char*> cons;
+      std::map<Object*, const char*> cons;
       cons[body->PickObject("north", LOC_NEARBY)] = "north";
       cons[body->PickObject("south", LOC_NEARBY)] = "south";
       cons[body->PickObject("east", LOC_NEARBY)] = "east";
@@ -2748,7 +2748,7 @@ void Mind::Think(int istick) {
       cons[body->PickObject("down", LOC_NEARBY)] = "down";
       cons.erase(nullptr);
 
-      std::unordered_map<Object*, const char*> cons2 = cons;
+      std::map<Object*, const char*> cons2 = cons;
       for (auto dir : cons2) {
         if ((!dir.first->ActTarg(ACT_SPECIAL_LINKED)) ||
             (!dir.first->ActTarg(ACT_SPECIAL_LINKED)->Parent())) {
@@ -2764,7 +2764,7 @@ void Mind::Think(int istick) {
 
       if (cons.size()) {
         int res = rand() % cons.size();
-        std::unordered_map<Object*, const char*>::iterator dir = cons.begin();
+        std::map<Object*, const char*>::iterator dir = cons.begin();
         while (res > 0) {
           ++dir;
           --res;
@@ -2916,10 +2916,10 @@ int Mind::IsSVar(const std::string& var) const {
   return (svars.count(var) > 0);
 }
 
-const std::unordered_map<std::string, std::string> Mind::SVars() const {
+const std::map<std::string, std::string> Mind::SVars() const {
   return svars;
 }
 
-void Mind::SetSVars(const std::unordered_map<std::string, std::string>& sv) {
+void Mind::SetSVars(const std::map<std::string, std::string>& sv) {
   svars = sv;
 }

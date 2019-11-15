@@ -2,15 +2,15 @@
 #include <cstdlib>
 #include <cstring>
 #include <list>
+#include <map>
 #include <string>
-#include <unordered_map>
 
 #include "object.hpp"
 
-static std::unordered_map<std::string, int> defaults;
-static std::unordered_map<int, std::string> weaponskills;
-static std::unordered_map<std::string, int> weapontypes;
-static std::unordered_map<std::string, std::list<std::string>> skcat;
+static std::map<std::string, int> defaults;
+static std::map<int, std::string> weaponskills;
+static std::map<std::string, int> weapontypes;
+static std::map<std::string, std::list<std::string>> skcat;
 
 static int last_wtype = 0;
 static void add_wts(const std::string& sk) {

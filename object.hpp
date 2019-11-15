@@ -1,6 +1,6 @@
 #include <list>
+#include <map>
 #include <string>
-#include <unordered_map>
 #include <unordered_set>
 
 #include <fcntl.h>
@@ -146,8 +146,8 @@ class Object {
   void SendLongDesc(Mind* m, Object* o = nullptr);
   void SendLongDesc(Object* m, Object* o = nullptr);
   void SendScore(Mind* m, Object* o = nullptr);
-  std::list<std::string> FormatStats(std::unordered_map<std::string, int>& skls); // Modifies skls
-  std::list<std::string> FormatSkills(std::unordered_map<std::string, int>& skls); // Modifies skls
+  std::list<std::string> FormatStats(std::map<std::string, int>& skls); // Modifies skls
+  std::list<std::string> FormatSkills(std::map<std::string, int>& skls); // Modifies skls
 
   void Link(
       Object* other,
@@ -268,7 +268,7 @@ class Object {
   int SubHasSkill(const std::string&) const;
   int SubMaxSkill(const std::string&) const;
   Object* NextHasSkill(const std::string&, const Object* last = nullptr);
-  const std::unordered_map<std::string, int>& GetSkills() const {
+  const std::map<std::string, int>& GetSkills() const {
     return skills;
   }
 
@@ -428,12 +428,12 @@ class Object {
 
   int phys, stun, stru;
   int att[8];
-  std::unordered_map<std::string, int> skills;
+  std::map<std::string, int> skills;
 
   int no_seek; // Recursion protection
   int no_hear; // For Send() protection
 
-  std::unordered_map<act_t, Object*> act;
+  std::map<act_t, Object*> act;
   std::unordered_set<Object*> touching_me;
 
   timeval busytill;

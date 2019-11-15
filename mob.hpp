@@ -1,5 +1,5 @@
+#include <map>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include "object.hpp"
@@ -92,7 +92,7 @@ class MOBType {
   int i, im;
   int w, wm;
   int g, gm;
-  std::unordered_map<std::string, std::pair<int, int>> skills;
+  std::map<std::string, std::pair<int, int>> skills;
   WeaponType* armed;
   std::vector<ArmorType*> armor;
 };

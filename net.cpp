@@ -1,6 +1,6 @@
 #include <algorithm>
+#include <map>
 #include <string>
-#include <unordered_map>
 #include <unordered_set>
 
 #include <arpa/telnet.h>
@@ -26,10 +26,10 @@ typedef int socket_t;
 #include "version.hpp"
 
 static std::unordered_set<socket_t> fds;
-static std::unordered_map<socket_t, Mind*> minds;
-static std::unordered_map<socket_t, std::string> comlines;
-static std::unordered_map<socket_t, std::string> outbufs;
-static std::unordered_map<socket_t, std::string> prompts;
+static std::map<socket_t, Mind*> minds;
+static std::map<socket_t, std::string> comlines;
+static std::map<socket_t, std::string> outbufs;
+static std::map<socket_t, std::string> prompts;
 static struct timeval null_time = {0, 0};
 static socket_t acceptor, maxfd;
 

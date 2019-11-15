@@ -8,7 +8,7 @@
 #include "player.hpp"
 #include "version.hpp"
 
-static std::unordered_map<std::string, Player*> player_list;
+static std::map<std::string, Player*> player_list;
 static std::unordered_set<Player*> non_init;
 
 static const char* salt_char = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";

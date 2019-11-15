@@ -124,15 +124,15 @@ void Object::TBALoadAll() {
 }
 
 static std::list<Object*> todotrg;
-static std::unordered_map<int, Object*> bynumtrg;
-static std::unordered_map<int, Object*> bynumwld;
-static std::unordered_map<int, Object*> bynumobj;
-static std::unordered_map<int, Object*> bynummob;
-static std::unordered_map<int, Object*> bynummobinst;
-static std::unordered_map<Object*, int> tonum[6];
-static std::unordered_map<Object*, int> tynum[6];
-static std::unordered_map<Object*, int> knum[6];
-static std::unordered_map<Object*, std::string> nmnum[6];
+static std::map<int, Object*> bynumtrg;
+static std::map<int, Object*> bynumwld;
+static std::map<int, Object*> bynumobj;
+static std::map<int, Object*> bynummob;
+static std::map<int, Object*> bynummobinst;
+static std::map<Object*, int> tonum[6];
+static std::map<Object*, int> tynum[6];
+static std::map<Object*, int> knum[6];
+static std::map<Object*, std::string> nmnum[6];
 static std::vector<Object*> olist;
 static Object* objroom = nullptr;
 static Object* mobroom = nullptr;
@@ -328,7 +328,7 @@ void Object::TBAFinishMOB(Object* mob) {
 }
 
 static Object *lastmob = nullptr, *lastbag = nullptr;
-static std::unordered_map<int, Object*> lastobj;
+static std::map<int, Object*> lastobj;
 void Object::TBALoadZON(const char* fn) {
   FILE* mudz = fopen(fn, "r");
   if (mudz) {

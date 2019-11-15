@@ -1033,7 +1033,7 @@ void Object::SendActions(Mind* m) {
 }
 
 void Object::SendExtendedActions(Mind* m, int vmode) {
-  std::unordered_map<Object*, std::string> shown;
+  std::map<Object*, std::string> shown;
   for (auto cur : act) {
     if ((vmode & (LOC_TOUCH | LOC_HEAT | LOC_NINJA)) == 0 // Can't See/Feel Invis
         && cur.second && cur.second->Skill("Invisible") > 0) {
@@ -1526,8 +1526,8 @@ void Object::SendScore(Mind* m, Object* o) {
 
   std::list<std::string> col1;
   std::list<std::string>::iterator c1;
-  std::unordered_map<std::string, int> skls = GetSkills();
-  std::unordered_map<std::string, int>::iterator c2;
+  std::map<std::string, int> skls = GetSkills();
+  std::map<std::string, int>::iterator c2;
 
   if (BaseAttribute(1) <= 0) { // Inanimate
     col1 = FormatStats(skls);
@@ -1593,10 +1593,10 @@ void Object::SendScore(Mind* m, Object* o) {
   }
 }
 
-std::list<std::string> Object::FormatSkills(std::unordered_map<std::string, int>& skls) {
+std::list<std::string> Object::FormatSkills(std::map<std::string, int>& skls) {
   std::list<std::string> ret;
 
-  std::unordered_map<std::string, int> save = skls;
+  std::map<std::string, int> save = skls;
   for (auto skl : save) {
     if (is_skill(skl.first)) {
       skls.erase(skl.first); // Remove it from to-show list.
@@ -1610,7 +1610,7 @@ std::list<std::string> Object::FormatSkills(std::unordered_map<std::string, int>
 
 static void stick_on(
     std::list<std::string>& out,
-    std::unordered_map<std::string, int>& skls,
+    std::map<std::string, int>& skls,
     const char* skn,
     const char* label) {
   char buf2[256];
@@ -1624,7 +1624,7 @@ static void stick_on(
   }
 }
 
-std::list<std::string> Object::FormatStats(std::unordered_map<std::string, int>& skls) {
+std::list<std::string> Object::FormatStats(std::map<std::string, int>& skls) {
   std::list<std::string> ret;
 
   if (HasSkill("WeaponType")) { // It's a Weapon
@@ -2523,7 +2523,7 @@ void Object::NotifyGone(Object* obj, Object* newloc, int up) {
 
   NotifyLeft(obj, newloc);
 
-  std::unordered_map<Object*, int> tonotify;
+  std::map<Object*, int> tonotify;
 
   for (auto ind : contents) {
     if (up >= 0) {
@@ -3310,7 +3310,7 @@ int Object::BusyAct() {
 
 void Object::FreeActions() {
   int maxinit = 0;
-  std::unordered_map<Object*, int> initlist;
+  std::map<Object*, int> initlist;
   for (auto busy : busylist) {
     if (!busy->StillBusy()) {
       initlist[busy] = busy->RollInitiative();
@@ -3419,8 +3419,8 @@ int Object::operator==(const Object& in) const {
   if (contents.size() != 0 || in.contents.size() != 0)
     return 0;
 
-  std::unordered_map<std::string, int> sk1 = skills;
-  std::unordered_map<std::string, int> sk2 = in.skills;
+  std::map<std::string, int> sk1 = skills;
+  std::map<std::string, int> sk2 = in.skills;
   sk1.erase("Quantity");
   sk2.erase("Quantity");
   sk1.erase("Hungry");

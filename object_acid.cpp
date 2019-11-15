@@ -1,6 +1,6 @@
 #include <cstdlib>
 #include <cstring>
-#include <unordered_map>
+#include <map>
 
 #include "color.hpp"
 #include "mind.hpp"
@@ -51,7 +51,7 @@ const char* act_save[ACT_SPECIAL_MAX] = {
     //	"SPECIAL_MAX"
 };
 
-static std::unordered_map<std::string, act_t> act_load_map;
+static std::map<std::string, act_t> act_load_map;
 static act_t act_load(const std::string& str) {
   if (act_load_map.size() < 1) {
     for (int a = 0; a < ACT_SPECIAL_MAX; ++a) {
@@ -66,7 +66,7 @@ static act_t act_load(const std::string& str) {
 static char buf[65536];
 static std::vector<Object*> todo;
 
-static std::unordered_map<int, Object*> num2obj;
+static std::map<int, Object*> num2obj;
 Object* getbynum(int num) {
   if (num2obj.count(num) < 1)
     num2obj[num] = new Object();
@@ -74,7 +74,7 @@ Object* getbynum(int num) {
 }
 
 static int last_object_number = 0;
-static std::unordered_map<Object*, int> obj2num;
+static std::map<Object*, int> obj2num;
 int getnum(Object* obj) {
   if (!obj2num.count(obj))
     obj2num[obj] = ++last_object_number;

@@ -1,7 +1,7 @@
 #include "player.hpp"
 
 #include <list>
-#include <unordered_map>
+#include <map>
 
 #define MIND_MORON 0
 #define MIND_REMOTE 1
@@ -77,8 +77,8 @@ class Mind {
   void ClearSVar(const std::string& var);
   const std::string& SVar(const std::string& var) const;
   int IsSVar(const std::string& var) const;
-  void SetSVars(const std::unordered_map<std::string, std::string>& sv);
-  const std::unordered_map<std::string, std::string> SVars() const;
+  void SetSVars(const std::map<std::string, std::string>& sv);
+  const std::map<std::string, std::string> SVars() const;
 
  private:
   int TBACanWanderTo(Object* dest);
@@ -97,9 +97,9 @@ class Mind {
   std::string prompt;
   int log;
 
-  static std::unordered_map<std::string, std::string> cvars;
-  std::unordered_map<std::string, std::string> svars;
-  std::unordered_map<std::string, Object*> ovars;
+  static std::map<std::string, std::string> cvars;
+  std::map<std::string, std::string> svars;
+  std::map<std::string, Object*> ovars;
   int status;
   std::string script;
   std::list<size_t> spos_s;
