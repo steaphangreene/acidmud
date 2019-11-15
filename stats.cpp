@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "color.hpp"
 #include "object.hpp"
 
 static std::map<std::string, int> defaults;
@@ -2583,11 +2584,19 @@ int roll(int ndice, int targ) {
 }
 
 void Object::SetAttribute(int a, int v) {
-  if (v > 1000000000)
-    v = 1000000000;
-  else if (v < -1000000000)
-    v = -1000000000;
-  att[a] = v;
+  if (v > 100)
+    v = 100;
+  else if (v < 0)
+    v = 0;
+  att[a].cur = v;
+}
+
+void Object::SetModifier(int a, int v) {
+  if (v > 10000)
+    v = 10000;
+  else if (v < -10000)
+    v = -10000;
+  att[a].mod = v;
 }
 
 void Object::SetSkill(const std::string& s, int v) {
@@ -2613,26 +2622,26 @@ int Object::Skill(const std::string& s, int* tnum) const {
   if (strlen(s.c_str()) == 0)
     return 0;
   if (!strncmp(s.c_str(), "Body", s.length()))
-    return Attribute(0);
+    return ModAttribute(0);
   if (!strncmp(s.c_str(), "Quickness", s.length()))
-    return Attribute(1);
+    return ModAttribute(1);
   if (!strncmp(s.c_str(), "Strength", s.length()))
-    return Attribute(2);
+    return ModAttribute(2);
   if (!strncmp(s.c_str(), "Charisma", s.length()))
-    return Attribute(3);
+    return ModAttribute(3);
   if (!strncmp(s.c_str(), "Intelligence", s.length()))
-    return Attribute(4);
+    return ModAttribute(4);
   if (!strncmp(s.c_str(), "Willpower", s.length()))
-    return Attribute(5);
+    return ModAttribute(5);
   if (!strncmp(s.c_str(), "Reaction", s.length()))
-    return (Attribute(1) + Attribute(4)) / 2;
+    return ModAttribute(6);
   if (!defaults_init)
     init_defaults();
   if (skills.count(s))
     return (skills.find(s))->second; // const for 'skills[s]'
   if (tnum) {
     (*tnum) += 4;
-    return Attribute(defaults[s]);
+    return ModAttribute(defaults[s]);
   }
   return 0;
 }
@@ -2662,7 +2671,8 @@ int Object::Roll(
 }
 
 int Object::Roll(const std::string& s1, int targ, std::string* res) const {
-  if (phys >= 10 || stun >= 10 || ((att[0] * att[1] * att[2] * att[3] * att[4] * att[5]) == 0)) {
+  if (phys >= 10 || stun >= 10 || att[0].cur == 0 || att[1].cur == 0 || att[2].cur == 0 ||
+      att[3].cur == 0 || att[4].cur == 0 || att[5].cur == 0) {
     if (res)
       (*res) += "N/A";
     return 0;
@@ -2714,5 +2724,5 @@ int Object::WoundPenalty() const {
 }
 
 int Object::RollInitiative() const {
-  return Roll("Reaction", 6 - att[5]);
+  return Roll("Reaction", 6 - ModAttribute(5));
 }

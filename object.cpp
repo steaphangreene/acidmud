@@ -211,43 +211,43 @@ int Object::Matches(const char* seek) {
 
   // Keywords Only
   if (!strcmp(targ.c_str(), "everyone")) {
-    return (BaseAttribute(1) > 0);
+    return (IsAnimate());
   }
   if (!strcmp(targ.c_str(), "someone")) {
-    return (BaseAttribute(1) > 0);
+    return (IsAnimate());
   }
   if (!strcmp(targ.c_str(), "anyone")) {
-    return (BaseAttribute(1) > 0);
+    return (IsAnimate());
   }
   if (!strcmp(targ.c_str(), "everything")) {
     if (IsAct(ACT_SPECIAL_LINKED))
       return 0;
-    return (BaseAttribute(1) == 0);
+    return (!IsAnimate());
   }
   if (!strcmp(targ.c_str(), "something")) {
     if (IsAct(ACT_SPECIAL_LINKED))
       return 0;
-    return (BaseAttribute(1) == 0);
+    return (!IsAnimate());
   }
   if (!strcmp(targ.c_str(), "anything")) {
     if (IsAct(ACT_SPECIAL_LINKED))
       return 0;
-    return (BaseAttribute(1) == 0);
+    return (!IsAnimate());
   }
   if (!strcmp(targ.c_str(), "everywhere")) {
     if (!IsAct(ACT_SPECIAL_LINKED))
       return 0;
-    return (BaseAttribute(1) == 0);
+    return (!IsAnimate());
   }
   if (!strcmp(targ.c_str(), "somewhere")) {
     if (!IsAct(ACT_SPECIAL_LINKED))
       return 0;
-    return (BaseAttribute(1) == 0);
+    return (!IsAnimate());
   }
   if (!strcmp(targ.c_str(), "anywhere")) {
     if (!IsAct(ACT_SPECIAL_LINKED))
       return 0;
-    return (BaseAttribute(1) == 0);
+    return (!IsAnimate());
   }
 
   // Keywords which can also be things
@@ -275,8 +275,8 @@ Object* new_body() {
     start = universe;
   body->SetParent(start);
 
-  body->SetWeight(body->Attribute(0) * 20000);
-  body->SetSize(1000 + body->Attribute(0) * 200);
+  body->SetWeight(body->NormAttribute(0) * 20000);
+  body->SetSize(1000 + body->NormAttribute(0) * 200);
   body->SetVolume(100);
   body->SetValue(-1);
   body->SetWeight(80000);
@@ -369,7 +369,7 @@ int Object::Tick() {
     m->Think(1);
   }
 
-  if (phys > (10 + Attribute(2))) {
+  if (phys > (10 + ModAttribute(2))) {
     // You are already dead.
   } else if (phys >= 10) {
     int rec = RollNoWounds("Body", phys - 4);
@@ -517,7 +517,7 @@ int Object::Tick() {
     }
   }
 
-  if (Attribute(2) > 0 // Needs Food & Water
+  if (BaseAttribute(2) > 0 // Needs Food & Water
       && (!HasSkill("TBAAction")) // MOBs don't
   ) {
     int level;
@@ -525,9 +525,9 @@ int Object::Tick() {
     // Get Hungrier
     level = Skill("Hungry");
     if (level < 1)
-      level = att[2];
+      level = ModAttribute(2);
     else
-      level += att[2]; // Base Strength Scales Food Req
+      level += ModAttribute(2); // Base Strength Scales Food Req
     if (level > 29999)
       level = 29999;
     SetSkill("Hungry", level);
@@ -560,9 +560,9 @@ int Object::Tick() {
     // Get Thurstier
     level = Skill("Thirsty");
     if (level < 1)
-      level = att[0];
+      level = ModAttribute(0);
     else
-      level += att[0]; // Body Scales Water Req
+      level += ModAttribute(0); // Body Scales Water Req
     if (level > 29999)
       level = 29999;
     SetSkill("Thirsty", level);
@@ -675,14 +675,13 @@ Object::Object() {
   stun = 0;
   phys = 0;
   stru = 0;
-  att[0] = 0;
-  att[1] = 0;
-  att[2] = 0;
-  att[3] = 0;
-  att[4] = 0;
-  att[5] = 0;
-  att[6] = 0;
-  att[7] = 0;
+
+  att[0] = {0, 0, 0};
+  att[1] = {0, 0, 0};
+  att[2] = {0, 0, 0};
+  att[3] = {0, 0, 0};
+  att[4] = {0, 0, 0};
+  att[5] = {0, 0, 0};
 
   no_seek = 0;
   no_hear = 0;
@@ -709,14 +708,13 @@ Object::Object(Object* o) {
   stun = 0;
   phys = 0;
   stru = 0;
-  att[0] = 0;
-  att[1] = 0;
-  att[2] = 0;
-  att[3] = 0;
-  att[4] = 0;
-  att[5] = 0;
-  att[6] = 0;
-  att[7] = 0;
+
+  att[0] = {0, 0, 0};
+  att[1] = {0, 0, 0};
+  att[2] = {0, 0, 0};
+  att[3] = {0, 0, 0};
+  att[4] = {0, 0, 0};
+  att[5] = {0, 0, 0};
 
   no_seek = 0;
   no_hear = 0;
@@ -744,14 +742,13 @@ Object::Object(const Object& o) {
   stun = o.stun;
   phys = o.phys;
   stru = o.stru;
+
   att[0] = o.att[0];
   att[1] = o.att[1];
   att[2] = o.att[2];
   att[3] = o.att[3];
   att[4] = o.att[4];
   att[5] = o.att[5];
-  att[6] = o.att[6];
-  att[7] = o.att[7];
 
   skills = o.skills;
 
@@ -861,7 +858,7 @@ const char* Object::Name(int definite, Object* rel, Object* sub) const {
     proper = 1;
   }
 
-  if (!BaseAttribute(1)) {
+  if (!IsAnimate()) {
     Object* own = Owner();
     if (own && own == rel) {
       ret = std::string("your ") + ret;
@@ -1227,7 +1224,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
           }
         }
 
-        if (ind->BaseAttribute(1) > 0)
+        if (ind->IsAnimate())
           m->Send(CYEL);
         else
           m->Send(CGRN);
@@ -1459,12 +1456,14 @@ void Object::SendScore(Mind* m, Object* o) {
     return;
   m->SendF("\n%s", CNRM);
   for (int ctr = 0; ctr < 6; ++ctr) {
-    if (MIN(att[ctr], 99) == MIN(Attribute(ctr), 99)) {
-      m->SendF("%s: %2d     ", atnames[ctr], MIN(Attribute(ctr), 99));
-    } else if (Attribute(ctr) > 9) { // 2-Digits!
-      m->SendF("%s: %2d (%d)", atnames[ctr], MIN(att[ctr], 99), MIN(Attribute(ctr), 99));
+    if (MIN(NormAttribute(ctr), 99) == MIN(ModAttribute(ctr), 99)) {
+      m->SendF("%s: %2d     ", atnames[ctr], MIN(ModAttribute(ctr), 99));
+    } else if (ModAttribute(ctr) > 9) { // 2-Digits!
+      m->SendF(
+          "%s: %2d (%d)", atnames[ctr], MIN(NormAttribute(ctr), 99), MIN(ModAttribute(ctr), 99));
     } else { // 1 Digit!
-      m->SendF("%s: %2d (%d) ", atnames[ctr], MIN(att[ctr], 99), MIN(Attribute(ctr), 99));
+      m->SendF(
+          "%s: %2d (%d) ", atnames[ctr], MIN(NormAttribute(ctr), 99), MIN(ModAttribute(ctr), 99));
     }
     if (ctr == 0) {
       m->Send("         L     M        S           D");
@@ -1527,7 +1526,7 @@ void Object::SendScore(Mind* m, Object* o) {
   std::vector<std::string> col1;
   std::map<std::string, int> skls = GetSkills();
 
-  if (BaseAttribute(1) <= 0) { // Inanimate
+  if (!IsAnimate()) { // Inanimate
     col1 = FormatStats(skls);
   } else {
     col1 = FormatSkills(skls);
@@ -1577,7 +1576,7 @@ void Object::SendScore(Mind* m, Object* o) {
     }
   }
 
-  if (Attribute(1) > 0) {
+  if (IsAnimate()) {
     m->Send(CYEL);
     m->SendF(
         "\nEarned Exp: %4d  Player Exp: %4d  Unspent Exp: %4d\n",
@@ -1875,7 +1874,7 @@ int Object::Travel(Object* dest, int try_combine) {
     }
   }
 
-  if (att[1] > 0) {
+  if (IsAnimate()) {
     auto trigs = parent->contents;
     for (auto src : parent->contents) {
       trigs.insert(trigs.end(), src->contents.begin(), src->contents.end());
@@ -2630,8 +2629,8 @@ void Object::UpdateDamage() {
   if (phys < Skill("Thirsty") / 5000) { // Thirsty Wounds
     phys = Skill("Thirsty") / 5000;
   }
-  if (phys > 10 + Attribute(2)) {
-    phys = 10 + Attribute(2) + 1;
+  if (phys > 10 + ModAttribute(2)) {
+    phys = 10 + ModAttribute(2) + 1;
 
     if (IsAct(ACT_DEAD) == 0) {
       parent->SendOut(
@@ -2712,7 +2711,7 @@ void Object::UpdateDamage() {
 }
 
 int Object::HealStun(int boxes) {
-  if (Attribute(1) <= 0)
+  if (!IsAnimate())
     return 0;
   if (phys >= 10)
     return 0;
@@ -2724,7 +2723,7 @@ int Object::HealStun(int boxes) {
 }
 
 int Object::HealPhys(int boxes) {
-  if (Attribute(1) <= 0)
+  if (!IsAnimate())
     return 0;
   if (boxes > phys)
     boxes = phys;
@@ -2742,9 +2741,9 @@ int Object::HealStru(int boxes) {
 }
 
 int Object::HitMent(int force, int sev, int succ) {
-  if (Attribute(1) <= 0)
+  if (!IsAnimate())
     return 0;
-  succ -= roll(Attribute(0) + Modifier("Resilience"), force);
+  succ -= roll(ModAttribute(0) + Modifier("Resilience"), force);
   sev *= 2;
   sev += succ;
   for (int ctr = 0; ctr <= (sev / 2) && ctr <= 4; ++ctr)
@@ -2758,9 +2757,9 @@ int Object::HitMent(int force, int sev, int succ) {
 }
 
 int Object::HitStun(int force, int sev, int succ) {
-  if (Attribute(1) <= 0)
+  if (!IsAnimate())
     return 0;
-  succ -= roll(Attribute(0) + Modifier("Resilience"), force);
+  succ -= roll(ModAttribute(0) + Modifier("Resilience"), force);
   sev *= 2;
   sev += succ;
   for (int ctr = 0; ctr <= (sev / 2) && ctr <= 4; ++ctr)
@@ -2772,9 +2771,9 @@ int Object::HitStun(int force, int sev, int succ) {
 }
 
 int Object::HitPhys(int force, int sev, int succ) {
-  if (Attribute(1) <= 0)
+  if (!IsAnimate())
     return 0;
-  succ -= roll(Attribute(0) + Modifier("Resilience"), force);
+  succ -= roll(ModAttribute(0) + Modifier("Resilience"), force);
   sev *= 2;
   sev += succ;
   for (int ctr = 0; ctr <= (sev / 2) && ctr <= 4; ++ctr)
@@ -2786,7 +2785,7 @@ int Object::HitPhys(int force, int sev, int succ) {
 }
 
 int Object::HitStru(int force, int sev, int succ) {
-  succ -= roll(Attribute(0) + Modifier("Resilience"), force);
+  succ -= roll(ModAttribute(0) + Modifier("Resilience"), force);
   sev *= 2;
   sev += succ;
   for (int ctr = 0; ctr <= (sev / 2) && ctr <= 4; ++ctr)
@@ -3376,21 +3375,41 @@ int Object::operator==(const Object& in) const {
   if (gender != in.gender)
     return 0;
 
-  if (att[0] != in.att[0])
+  if (att[0].base != in.att[0].base)
     return 0;
-  if (att[1] != in.att[1])
+  if (att[0].cur != in.att[0].cur)
     return 0;
-  if (att[2] != in.att[2])
+  if (att[0].mod != in.att[0].mod)
     return 0;
-  if (att[3] != in.att[3])
+  if (att[1].base != in.att[1].base)
     return 0;
-  if (att[4] != in.att[4])
+  if (att[1].cur != in.att[1].cur)
     return 0;
-  if (att[5] != in.att[5])
+  if (att[1].mod != in.att[1].mod)
     return 0;
-  if (att[6] != in.att[6])
+  if (att[2].base != in.att[2].base)
     return 0;
-  if (att[7] != in.att[7])
+  if (att[2].cur != in.att[2].cur)
+    return 0;
+  if (att[2].mod != in.att[2].mod)
+    return 0;
+  if (att[3].base != in.att[3].base)
+    return 0;
+  if (att[3].cur != in.att[3].cur)
+    return 0;
+  if (att[3].mod != in.att[3].mod)
+    return 0;
+  if (att[4].base != in.att[4].base)
+    return 0;
+  if (att[4].cur != in.att[4].cur)
+    return 0;
+  if (att[4].mod != in.att[4].mod)
+    return 0;
+  if (att[5].base != in.att[5].base)
+    return 0;
+  if (att[5].cur != in.att[5].cur)
+    return 0;
+  if (att[5].mod != in.att[5].mod)
     return 0;
 
   if (phys != in.phys)
@@ -3446,8 +3465,6 @@ void Object::operator=(const Object& in) {
   att[3] = in.att[3];
   att[4] = in.att[4];
   att[5] = in.att[5];
-  att[6] = in.att[6];
-  att[7] = in.att[7];
 
   skills = in.skills;
 
@@ -3599,7 +3616,7 @@ void Object::SetPos(pos_t p) {
 
 int Object::Filter(int loc) {
   if (loc & (LOC_ALIVE | LOC_CONSCIOUS)) {
-    if (Attribute(1) <= 0 || IsAct(ACT_DEAD))
+    if (!IsAnimate() || IsAct(ACT_DEAD))
       return 0;
   }
   if (loc & LOC_CONSCIOUS) {
@@ -3832,12 +3849,38 @@ int Object::LightLevel(int updown) {
   return level;
 }
 
-const char* const attnames[] =
-    {"Body", "Quickness", "Strength", "Charisma", "Intelligence", "Willpower"};
-int Object::Attribute(int a) const {
-  if (att[a] == 0)
+int Object::BaseAttribute(int a) const {
+  return att[a].base;
+}
+
+int Object::NormAttribute(int a) const {
+  if (a >= 6) { // Reaction = (Q+I)/2
+    return (att[1].cur + att[4].cur) / 2;
+  }
+  return att[a].cur;
+}
+
+int Object::ModAttribute(int a) const {
+  if (a >= 6) { // Reaction
+    return (ModAttribute(1) + ModAttribute(4)) / 2 + Modifier("Reaction");
+  }
+  if (att[a].cur == 0) {
     return 0; // Can't Enhance Nothing
-  return att[a] + Modifier(attnames[a]);
+  }
+  return att[a].cur + Modifier(a);
+}
+
+int Object::Modifier(int a) const {
+  int ret = 0;
+  for (auto item : contents) {
+    if (Wearing(item) || item->Skill("Magical Spell")) {
+      ret += item->att[a].mod;
+    }
+  }
+  ret += att[a].mod;
+  if (ret < 0)
+    return (ret - 999) / 1000;
+  return (ret / 1000);
 }
 
 int Object::Modifier(const std::string& m) const {
@@ -4132,7 +4175,7 @@ Object* Object::NextHasSkill(const std::string& s, const Object* last) {
 
 Object* Object::Owner() const {
   Object* owner = parent;
-  while (owner && (!owner->Attribute(1)))
+  while (owner && (!owner->IsAnimate()))
     owner = owner->Parent();
   return owner;
 }

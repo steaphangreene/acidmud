@@ -1683,7 +1683,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     for (auto targ : targs) {
       std::string denied = "";
       for (Object* own = targ; own; own = own->Parent()) {
-        if (own->Attribute(1) && own != body && (!own->IsAct(ACT_SLEEP)) &&
+        if (own->IsAnimate() && own != body && (!own->IsAct(ACT_SLEEP)) &&
             (!own->IsAct(ACT_DEAD)) && (!own->IsAct(ACT_DYING)) && (!own->IsAct(ACT_UNCONSCIOUS))) {
           denied = "You would need ";
           denied += own->Name(1);
@@ -1749,7 +1749,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     for (auto targ : targs) {
       std::string denied = "";
       for (Object* own = targ; own; own = own->Parent()) {
-        if (own->Attribute(1) && own != body && (!own->IsAct(ACT_SLEEP)) &&
+        if (own->IsAnimate() && own != body && (!own->IsAct(ACT_SLEEP)) &&
             (!own->IsAct(ACT_DEAD)) && (!own->IsAct(ACT_DYING)) && (!own->IsAct(ACT_UNCONSCIOUS))) {
           denied = "You would need ";
           denied += own->Name(1);
@@ -1828,7 +1828,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (!targ) {
       if (mind)
         mind->Send("You don't see that here.\n");
-    } else if (targ->BaseAttribute(1) <= 0) { // Inanimate Object (Consider Using)
+    } else if (!targ->IsAnimate()) { // Inanimate Object (Consider Using)
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s considers using ;s.\n", "You consider using ;s.\n", body, targ);
       if (!mind)
@@ -2027,8 +2027,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             if (repl != targ) {
               mind->SendF("   ...it would replace %s.\n", repl->Name(0, body));
 
-              int diff = targ->Attribute(0);
-              diff -= repl->Attribute(0);
+              int diff = targ->NormAttribute(0);
+              diff -= repl->NormAttribute(0);
               if (diff > 0) {
                 mind->Send(CGRN "      ...and would provide better protection.\n" CNRM);
               } else if (diff < 0) {
@@ -2155,7 +2155,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         else
           mind->Send("   ...is about as skilled as you.\n");
 
-        diff = body->Attribute(0) - targ->Attribute(0);
+        diff = body->NormAttribute(0) - targ->NormAttribute(0);
         if (diff < -10)
           mind->Send(CRED "   ...is titanic.\n" CNRM);
         else if (diff < -5)
@@ -2179,7 +2179,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         else
           mind->Send("   ...is about your size.\n");
 
-        diff = body->Attribute(1) - targ->Attribute(1);
+        diff = body->NormAttribute(1) - targ->NormAttribute(1);
         if (diff < -10)
           mind->Send(CRED "   ...is a blur of speed.\n" CNRM);
         else if (diff < -5)
@@ -2203,7 +2203,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         else
           mind->Send("   ...is about your speed.\n");
 
-        diff = body->Attribute(2) - targ->Attribute(2);
+        diff = body->NormAttribute(2) - targ->NormAttribute(2);
         if (diff < -10)
           mind->Send(CRED "   ...is the strongest thing you've ever seen.\n" CNRM);
         else if (diff < -5)
@@ -2786,7 +2786,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             break;
           }
         }
-      } else if (wearable && targ->Attribute(0) > 0) {
+      } else if (wearable && targ->NormAttribute(0) > 0) {
         if (shpkp->HasSkill("Buy Armor")) {
           skill = "Buy Armor";
         }
@@ -2843,7 +2843,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         if (shpkp->HasSkill("Buy Weapon")) {
           skill = "Buy Weapon";
         }
-      } else if (wearable && targ->Attribute(0) < 0) {
+      } else if (wearable && targ->NormAttribute(0) == 0) {
         if (shpkp->HasSkill("Buy Worn")) {
           skill = "Buy Worn";
         }
@@ -2939,7 +2939,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (targ->Pos() == POS_NONE) {
       if (mind)
         mind->SendF("You can't drag %s, it is fixed in place!\n", targ->Name());
-    } else if (targ->Attribute(1)) {
+    } else if (targ->IsAnimate()) {
       std::string denied = "You would need ";
       denied += targ->Name(1);
       denied += "'s permission to drag ";
@@ -2947,7 +2947,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       denied += ".\n";
       if (mind)
         mind->SendF(denied.c_str(), targ->Name());
-    } else if (targ->Weight() > body->Attribute(2) * 50000) {
+    } else if (targ->Weight() > body->ModAttribute(2) * 50000) {
       if (mind)
         mind->SendF("You could never lift %s, it is too heavy.\n", targ->Name());
     } else {
@@ -2991,19 +2991,19 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       if ((!nmode) && targ->Pos() == POS_NONE) {
         if (mind)
           mind->SendF("You can't get %s, it is fixed in place!\n", targ->Name());
-      } else if ((!nmode) && targ->Attribute(1)) {
+      } else if ((!nmode) && targ->IsAnimate()) {
         if (mind)
           mind->SendF("You can't get %s, it is not inanimate.\n", targ->Name());
-      } else if ((!nmode) && targ->Weight() > body->Attribute(2) * 50000) {
+      } else if ((!nmode) && targ->Weight() > body->ModAttribute(2) * 50000) {
         if (mind)
           mind->SendF("You could never lift %s, it is too heavy.\n", targ->Name());
-      } else if ((!nmode) && targ->Weight() > body->Attribute(2) * 10000) {
+      } else if ((!nmode) && targ->Weight() > body->ModAttribute(2) * 10000) {
         if (mind)
           mind->SendF("You can't carry %s, it is too heavy.  Try 'drag' instead.\n", targ->Name());
       } else {
         std::string denied = "";
         for (Object* owner = targ->Parent(); owner; owner = owner->Parent()) {
-          if (owner->Attribute(1) && owner != body && (!owner->IsAct(ACT_SLEEP)) &&
+          if (owner->IsAnimate() && owner != body && (!owner->IsAct(ACT_SLEEP)) &&
               (!owner->IsAct(ACT_DEAD)) && (!owner->IsAct(ACT_DYING)) &&
               (!owner->IsAct(ACT_UNCONSCIOUS))) {
             denied = "You would need ";
@@ -3200,7 +3200,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             "I don't see '%s' to put '%s' in!\n",
             cmd.c_str() + len,
             body->ActTarg(ACT_HOLD)->Name(0, body));
-    } else if (targ->Attribute(1)) {
+    } else if (targ->IsAnimate()) {
       if (mind)
         mind->Send("You can only put things in inanimate objects!\n");
     } else if (!targ->Skill("Container")) {
@@ -3763,7 +3763,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     } else {
       std::string denied = "";
       for (Object* own = targ; own; own = own->Parent()) {
-        if (own->Attribute(1) && own != body && (!own->IsAct(ACT_SLEEP)) &&
+        if (own->IsAnimate() && own != body && (!own->IsAct(ACT_SLEEP)) &&
             (!own->IsAct(ACT_DEAD)) && (!own->IsAct(ACT_DYING)) && (!own->IsAct(ACT_UNCONSCIOUS))) {
           denied = "You would need ";
           denied += own->Name(1);
@@ -3912,7 +3912,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     } else if (!dst->HasSkill("Liquid Container")) {
       if (mind)
         mind->SendF("You can not fill %s, it is not a liquid container.\n", dst->Name(0, body));
-    } else if (src->Attribute(1)) {
+    } else if (src->IsAnimate()) {
       if (mind)
         mind->Send("You can only fill things from inanimate objects!\n");
     } else if (!src->HasSkill("Liquid Container")) {
@@ -4646,7 +4646,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     if (com == COM_ATTACK &&
-        (targ->Attribute(1) <= 0 || targ->IsAct(ACT_DEAD) || targ->IsAct(ACT_DYING) ||
+        (!targ->IsAnimate() || targ->IsAct(ACT_DEAD) || targ->IsAct(ACT_DYING) ||
          targ->IsAct(ACT_UNCONSCIOUS))) {
       if (mind)
         mind->Send("No need, target is down!\n");
@@ -4673,7 +4673,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
     body->BusyFor(3000); // Overridden below if is alive/animate
 
-    if (!(targ->Attribute(1) <= 0 || targ->IsAct(ACT_DEAD) || targ->IsAct(ACT_DYING) ||
+    if (!(!targ->IsAnimate() || targ->IsAct(ACT_DEAD) || targ->IsAct(ACT_DYING) ||
           targ->IsAct(ACT_UNCONSCIOUS))) {
       body->AddAct(ACT_FIGHT, targ);
       body->BusyFor(3000, body->Tactics().c_str());
@@ -4951,7 +4951,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       }
 
       int sev = 0;
-      int force = body->Attribute(2) + body->Modifier("Damage");
+      int force = body->ModAttribute(2) + body->Modifier("Damage");
 
       if (com == COM_KICK) {
         force -= 2;
@@ -4960,7 +4960,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       if (body->IsAct(ACT_WIELD)) {
         force += body->ActTarg(ACT_WIELD)->Skill("WeaponForce");
         if (two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType"))) {
-          force += body->Attribute(2);
+          force += body->ModAttribute(2);
         }
         stage += body->ActTarg(ACT_WIELD)->Skill("WeaponSeverity");
       } else {
@@ -4970,7 +4970,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
       if (targ->ActTarg(loca)) {
         // FIXME: Implement the rest of the Armor Effect types
-        succ -= roll(targ->ActTarg(loca)->Attribute(0), force);
+        succ -= roll(targ->ActTarg(loca)->ModAttribute(0), force);
       }
 
       if (stun) {
@@ -5029,7 +5029,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       }
     }
 
-    if (targ->Attribute(1) <= 0 || targ->IsAct(ACT_DEAD) || targ->IsAct(ACT_DYING) ||
+    if (!targ->IsAnimate() || targ->IsAct(ACT_DEAD) || targ->IsAct(ACT_DYING) ||
         targ->IsAct(ACT_UNCONSCIOUS)) {
       body->StopAct(ACT_FIGHT);
       body->BusyFor(3000);
@@ -5068,16 +5068,16 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    while (chr->Skill("Attributes") > chr->Attribute(0) ||
-           chr->Skill("Attributes") > chr->Attribute(1) ||
-           chr->Skill("Attributes") > chr->Attribute(2) ||
-           chr->Skill("Attributes") > chr->Attribute(3) ||
-           chr->Skill("Attributes") > chr->Attribute(4) ||
-           chr->Skill("Attributes") > chr->Attribute(5)) {
+    while (chr->Skill("Attributes") > chr->NormAttribute(0) ||
+           chr->Skill("Attributes") > chr->NormAttribute(1) ||
+           chr->Skill("Attributes") > chr->NormAttribute(2) ||
+           chr->Skill("Attributes") > chr->NormAttribute(3) ||
+           chr->Skill("Attributes") > chr->NormAttribute(4) ||
+           chr->Skill("Attributes") > chr->NormAttribute(5)) {
       int which = (rand() % 6);
-      if (chr->Attribute(which) < 6 && chr->Skill("Attributes") > chr->Attribute(which)) {
-        chr->SetAttribute(which, chr->Attribute(which) + 1);
-        chr->SetSkill("Attributes", chr->Skill("Attributes") - chr->Attribute(which));
+      if (chr->NormAttribute(which) < 6 && chr->Skill("Attributes") > chr->NormAttribute(which)) {
+        chr->SetAttribute(which, chr->NormAttribute(which) + 1);
+        chr->SetSkill("Attributes", chr->Skill("Attributes") - chr->NormAttribute(which));
       }
     }
     chr->SetSkill("Senses", chr->Skill("Attributes"));
@@ -5091,7 +5091,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         ++skl;
         --which;
       }
-      if (chr->Skill(*skl) < (chr->Attribute(get_linked(*skl)) + 1) / 2 &&
+      if (chr->Skill(*skl) < (chr->NormAttribute(get_linked(*skl)) + 1) / 2 &&
           chr->Skill("Skills") > chr->Skill(*skl)) {
         chr->SetSkill(*skl, chr->Skill(*skl) + 1);
         chr->SetSkill("Skills", chr->Skill("Skills") - chr->Skill(*skl));
@@ -5144,7 +5144,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       else if (toupper(*(cmd.c_str() + len)) == 'W')
         attr = 5;
 
-      cost = chr->BaseAttribute(attr) + 1;
+      cost = chr->NormAttribute(attr) + 1;
 
       if (body && chr->Exp(mind->Owner()) < (cost * 4)) {
         mind->SendF(
@@ -5167,19 +5167,19 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
                                "MaxIntelligence",
                                "MaxWillpower"};
       if ((body) && (!body->Skill(maxask[attr]))) {
-        body->SetSkill(maxask[attr], (body->BaseAttribute(attr) * 3) / 2);
+        body->SetSkill(maxask[attr], (body->NormAttribute(attr) * 3) / 2);
       }
 
-      if ((!body) && chr->BaseAttribute(attr) >= 6) {
+      if ((!body) && chr->NormAttribute(attr) >= 6) {
         mind->SendF("Your %s is already at the maximum.\n", statnames[attr]);
-      } else if (body && chr->BaseAttribute(attr) >= body->Skill(maxask[attr])) {
+      } else if (body && chr->NormAttribute(attr) >= body->Skill(maxask[attr])) {
         mind->SendF("Your %s is already at the maximum.\n", statnames[attr]);
       } else {
         if (!body)
           chr->SetSkill("Attributes", chr->Skill("Attributes") - cost);
         else
           chr->SpendExp(cost * 4);
-        chr->SetAttribute(attr, chr->BaseAttribute(attr) + 1);
+        chr->SetAttribute(attr, chr->NormAttribute(attr) + 1);
         mind->SendF("You raise your %s.\n", statnames[attr]);
       }
     } else if ((!body) && (!strncmp(cmd.c_str() + len, "senses", strlen(cmd.c_str() + len)))) {
@@ -5193,17 +5193,17 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     } else {
       std::string skill = get_skill(cmd.c_str() + len);
       if (skill != "") {
-        if (body && (chr->Skill(skill) >= (chr->BaseAttribute(get_linked(skill)) * 3 + 1) / 2)) {
+        if (body && (chr->Skill(skill) >= (chr->NormAttribute(get_linked(skill)) * 3 + 1) / 2)) {
           mind->SendF("Your %s is already at the maximum.\n", skill.c_str());
           return 0;
         } else if (
-            (!body) && (chr->Skill(skill) >= (chr->BaseAttribute(get_linked(skill)) + 1) / 2)) {
+            (!body) && (chr->Skill(skill) >= (chr->NormAttribute(get_linked(skill)) + 1) / 2)) {
           mind->SendF("Your %s is already at the maximum.\n", skill.c_str());
           return 0;
         }
         cost = (chr->Skill(skill) + 1);
         if (body) {
-          if (cost > chr->BaseAttribute(get_linked(skill)))
+          if (cost > chr->NormAttribute(get_linked(skill)))
             cost *= 2;
           if (chr->Exp(mind->Owner()) < (cost * 2)) {
             mind->SendF(
@@ -5829,7 +5829,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     Object* targ = body->PickObject(cmd.c_str() + len, vmode | LOC_NEARBY);
     if (!targ) {
       mind->Send("You want to control who?\n");
-    } else if (targ->Attribute(1) <= 0) {
+    } else if (!targ->IsAnimate()) {
       mind->Send("You can't control inanimate objects!\n");
     } else {
       body->Parent()->SendOut(
@@ -5855,7 +5855,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       mind->Send("You need to be pointing at your target.\n");
     } else if (len >= int(cmd.length())) {
       mind->SendF("Command %s to do what?\n", targ->ShortDesc());
-    } else if (targ->Attribute(5) <= 0) {
+    } else if (targ->NormAttribute(5) <= 0) {
       mind->Send("You can't command an object that has no will of its own.\n");
     } else {
       body->Parent()->SendOutF(
@@ -6320,8 +6320,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (!targ) {
       if (!finished)
         mind->Send("You want to heal what?\n");
-    } else if (targ->Attribute(2) < 1) {
-      mind->SendF("You can't heal %s, it's an inanimate object.\n", targ->Name(0, body));
+    } else if (targ->NormAttribute(2) < 1) {
+      mind->SendF("You can't heal %s, it is not alive.\n", targ->Name(0, body));
     } else if (nmode) {
       // This is ninja-healing and bypasses all healing mechanisms.
       targ->SetSkill("Poisoned", 0);
@@ -6417,12 +6417,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (toupper(cmd[len]) == 'W')
       stat = 5;
 
-    if (targ->Attribute(stat) == 0) {
+    if (targ->NormAttribute(stat) == 0) {
       mind->Send("This object doesn't have that stat.\n");
       return 0;
     }
 
-    targ->SetAttribute(stat, targ->Attribute(stat) + 1);
+    targ->SetAttribute(stat, targ->NormAttribute(stat) + 1);
 
     body->Parent()->SendOutF(
         stealth_t,
@@ -6458,16 +6458,16 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (toupper(cmd[len]) == 'W')
       stat = 5;
 
-    if (targ->Attribute(stat) == 0) {
+    if (targ->NormAttribute(stat) == 0) {
       mind->Send("This object doesn't have that stat.\n");
       return 0;
     }
-    if (targ->Attribute(stat) == 1) {
+    if (targ->NormAttribute(stat) == 1) {
       mind->Send("It is already a 1 (the minimum!).\n");
       return 0;
     }
 
-    targ->SetAttribute(stat, targ->Attribute(stat) - 1);
+    targ->SetAttribute(stat, targ->NormAttribute(stat) - 1);
 
     body->Parent()->SendOutF(
         stealth_t,

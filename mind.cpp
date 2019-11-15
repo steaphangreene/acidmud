@@ -711,7 +711,7 @@ void Mind::TBAVarSub(std::string& line) {
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "race")) {
           val = "";
-          if (obj && obj->BaseAttribute(1) > 0) {
+          if (obj && obj->IsAnimate()) {
             val = "human"; // FIXME: Implement Race!
           }
           obj = nullptr;
@@ -796,19 +796,19 @@ void Mind::TBAVarSub(std::string& line) {
         } else if (!strcmp(field.c_str(), "con")) {
           val = "";
           if (obj)
-            val = itos((obj->Attribute(0) - 2) * 3);
+            val = itos((obj->NormAttribute(0) - 2) * 3);
           obj = nullptr;
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "dex")) {
           val = "";
           if (obj)
-            val = itos((obj->Attribute(1) - 2) * 3);
+            val = itos((obj->NormAttribute(1) - 2) * 3);
           obj = nullptr;
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "str")) {
           val = "";
           if (obj)
-            val = itos((obj->Attribute(2) - 2) * 3);
+            val = itos((obj->NormAttribute(2) - 2) * 3);
           obj = nullptr;
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "stradd")) { // D&D is Dumb
@@ -818,19 +818,19 @@ void Mind::TBAVarSub(std::string& line) {
         } else if (!strcmp(field.c_str(), "cha")) {
           val = "";
           if (obj)
-            val = itos((obj->Attribute(3) - 2) * 3);
+            val = itos((obj->NormAttribute(3) - 2) * 3);
           obj = nullptr;
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "int")) {
           val = "";
           if (obj)
-            val = itos((obj->Attribute(4) - 2) * 3);
+            val = itos((obj->NormAttribute(4) - 2) * 3);
           obj = nullptr;
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "wis")) {
           val = "";
           if (obj)
-            val = itos((obj->Attribute(5) - 2) * 3);
+            val = itos((obj->NormAttribute(5) - 2) * 3);
           obj = nullptr;
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "pos")) {
@@ -2634,7 +2634,7 @@ void Mind::Think(int istick) {
             && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
             && (!body->IsAct(ACT_REST)) // I'm not resting
             && other->IsAct(ACT_SLEEP) // It's not awake (wuss!)
-            && other->Attribute(1) // It's not a rock
+            && other->IsAnimate() // It's not a rock
             && (!other->IsAct(ACT_UNCONSCIOUS)) // It's not already KOed
             && (!other->IsAct(ACT_DYING)) // It's not already dying
             && (!other->IsAct(ACT_DEAD)) // It's not already dead
@@ -2671,7 +2671,7 @@ void Mind::Think(int istick) {
             && body->Phys() < 6 // I'm not injured
             && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
             && (!body->IsAct(ACT_REST)) // I'm not resting
-            && other->Attribute(1) // It's not a rock
+            && other->IsAnimate() // It's not a rock
             && (!other->IsAct(ACT_UNCONSCIOUS)) // It's not already KOed
             && (!other->IsAct(ACT_DYING)) // It's not already dying
             && (!other->IsAct(ACT_DEAD)) // It's not already dead
@@ -2706,7 +2706,7 @@ void Mind::Think(int istick) {
             && body->Phys() < 6 // I'm not injured
             && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
             && (!body->IsAct(ACT_REST)) // I'm not resting
-            && other->Attribute(1) // It's not a rock
+            && other->IsAnimate() // It's not a rock
             && (!other->IsAct(ACT_DEAD)) // It's not already dead
             && other->IsAct(ACT_FIGHT) // It's figting someone
             && other->ActTarg(ACT_FIGHT)->HasSkill("TBAAction")

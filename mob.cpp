@@ -165,7 +165,8 @@ void Object::AddMOB(const MOBType* type) {
     } else {
       mob->SetSkill(
           sk.first,
-          mob->Attribute(get_linked(sk.first)) * sk.second.first / 100 - rand() % sk.second.second);
+          mob->NormAttribute(get_linked(sk.first)) * sk.second.first / 100 -
+              rand() % sk.second.second);
     }
     // fprintf(stderr, "DBG: %d %d %d\n", get_linked(sk.first),
     // sk.second.first, sk.second.second);

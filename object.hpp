@@ -256,10 +256,15 @@ class Object {
 
   void Consume(const Object* item); // Eat/Drink/Potions/Poison/etc....
 
-  int Attribute(int) const;
-  int BaseAttribute(int a) const {
-    return att[a];
+  bool IsAnimate() const {
+    return (att[1].cur != 0);
   };
+
+  int BaseAttribute(int) const;
+  int NormAttribute(int) const;
+  int ModAttribute(int) const;
+
+  int Modifier(int a) const;
   int Modifier(const std::string& m) const;
   int Power(const std::string& m) const;
   int Skill(const std::string&, int* tnum = nullptr) const;
@@ -272,6 +277,7 @@ class Object {
   }
 
   void SetAttribute(int, int);
+  void SetModifier(int, int);
   void SetSkill(const std::string&, int);
 
   void DynamicInit();
@@ -418,15 +424,19 @@ class Object {
   pos_t pos;
   std::string cur_skill;
 
-  int weight, volume, size;
-  int value;
-  char gender;
-
   std::set<unsigned long> completed;
   int exp, sexp;
 
-  int phys, stun, stru;
-  int att[8];
+  int weight, volume, size;
+  int value;
+  int8_t gender;
+
+  int8_t phys, stun, stru;
+  struct {
+    int8_t base = 0;
+    int8_t cur = 0;
+    int16_t mod = 0;
+  } att[6];
   std::map<std::string, int> skills;
 
   int no_seek; // Recursion protection

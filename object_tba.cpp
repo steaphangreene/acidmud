@@ -325,7 +325,7 @@ void Object::TBAFinishMOB(Object* mob) {
   }
 
   if (Matches("snake") || Matches("spider") || Matches("poisonous")) {
-    SetSkill("Poisonous", att[2]);
+    SetSkill("Poisonous", NormAttribute(2));
   }
 }
 
@@ -825,7 +825,7 @@ void Object::TBALoadMOB(const char* fn) {
       if (tp == 'E' || tp == 'S') {
         fscanf(mudm, "%d %d %d", &val, &val2, &val3);
         for (int ctr = 0; ctr < val; ++ctr)
-          obj->SetAttribute(ctr % 6, obj->Attribute(ctr % 6) + 1); // val1 = Level
+          obj->SetAttribute(ctr % 6, obj->NormAttribute(ctr % 6) + 1); // val1 = Level
         obj->SetSkill("TBAAttack", ((20 - val2) / 3) + 3); // val2 = THAC0
         obj->SetSkill("TBADefense", ((10 - val3) / 3) + 3); // val2 = AC
 
@@ -862,22 +862,22 @@ void Object::TBALoadMOB(const char* fn) {
       memset(buf, 0, 65536);
       while (tp == 'E') { // Basically an if with an infinite loop ;)
         if (fscanf(mudm, "Con: %d\n", &val))
-          obj->SetAttribute(0, MAX(obj->Attribute(0), (val / 3) + 3));
+          obj->SetAttribute(0, MAX(obj->NormAttribute(0), (val / 3) + 3));
 
         else if (fscanf(mudm, "Dex: %d\n", &val))
-          obj->SetAttribute(1, MAX(obj->Attribute(1), (val / 3) + 3));
+          obj->SetAttribute(1, MAX(obj->NormAttribute(1), (val / 3) + 3));
 
         else if (fscanf(mudm, "Str: %d\n", &val))
-          obj->SetAttribute(2, MAX(obj->Attribute(2), (val / 3) + 3));
+          obj->SetAttribute(2, MAX(obj->NormAttribute(2), (val / 3) + 3));
 
         else if (fscanf(mudm, "ha: %d\n", &val)) //'Cha' minus 'Con' Conflict!
-          obj->SetAttribute(3, MAX(obj->Attribute(3), (val / 3) + 3));
+          obj->SetAttribute(3, MAX(obj->NormAttribute(3), (val / 3) + 3));
 
         else if (fscanf(mudm, "Int: %d\n", &val))
-          obj->SetAttribute(4, MAX(obj->Attribute(4), (val / 3) + 3));
+          obj->SetAttribute(4, MAX(obj->NormAttribute(4), (val / 3) + 3));
 
         else if (fscanf(mudm, "Wis: %d\n", &val))
-          obj->SetAttribute(5, MAX(obj->Attribute(5), (val / 3) + 3));
+          obj->SetAttribute(5, MAX(obj->NormAttribute(5), (val / 3) + 3));
 
         else if (fscanf(mudm, "Add: %d\n", &val))
           ; //'StrAdd' - Do Nothing
@@ -893,21 +893,21 @@ void Object::TBALoadMOB(const char* fn) {
       }
       fscanf(mudm, " E"); // Nuke the terminating "E", if present.
 
-      obj->SetWeight(obj->Attribute(0) * 20000);
-      obj->SetSize(1000 + obj->Attribute(0) * 200);
+      obj->SetWeight(obj->NormAttribute(0) * 20000);
+      obj->SetSize(1000 + obj->NormAttribute(0) * 200);
       obj->SetVolume(100);
       obj->SetValue(-1);
 
       if (aware) { // Perception = Int
-        obj->SetSkill("Perception", obj->Attribute(4));
+        obj->SetSkill("Perception", obj->NormAttribute(4));
       }
 
       if (sneak && hidden) { // Stealth = 3Q/2
-        obj->SetSkill("Stealth", (3 * obj->Attribute(1) + 1) / 2);
+        obj->SetSkill("Stealth", (3 * obj->NormAttribute(1) + 1) / 2);
       } else if (hidden) { // Stealth = Q
-        obj->SetSkill("Stealth", obj->Attribute(1));
+        obj->SetSkill("Stealth", obj->NormAttribute(1));
       } else if (sneak) { // Stealth = Q/2
-        obj->SetSkill("Stealth", (obj->Attribute(1) + 1) / 2);
+        obj->SetSkill("Stealth", (obj->NormAttribute(1) + 1) / 2);
       }
 
       if (hidden) {
@@ -1997,41 +1997,23 @@ void Object::TBALoadOBJ(const char* fn) {
           int anum, aval;
           fscanf(mudo, "%d %d\n", &anum, &aval);
           switch (anum) {
-            case (1): { // STR
-              if (aval > 0)
-                obj->SetSkill("Strength Bonus", aval * 400 / powmod);
-              else if (aval < 0)
-                obj->SetSkill("Strength Penalty", -aval * 400 / powmod);
+            case (1): { // STR -> Strength
+              obj->SetModifier(2, aval * 400 / powmod);
             } break;
-            case (2): { // DEX
-              if (aval > 0)
-                obj->SetSkill("Quickness Bonus", aval * 400 / powmod);
-              else if (aval < 0)
-                obj->SetSkill("Quickness Penalty", -aval * 400 / powmod);
+            case (2): { // DEX -> Quickness
+              obj->SetModifier(1, aval * 400 / powmod);
             } break;
-            case (3): { // INT
-              if (aval > 0)
-                obj->SetSkill("Intelligence Bonus", aval * 400 / powmod);
-              else if (aval < 0)
-                obj->SetSkill("Intelligence Penalty", -aval * 400 / powmod);
+            case (3): { // INT -> Intelligence
+              obj->SetModifier(4, aval * 400 / powmod);
             } break;
-            case (4): { // WIS
-              if (aval > 0)
-                obj->SetSkill("Willpower Bonus", aval * 400 / powmod);
-              else if (aval < 0)
-                obj->SetSkill("Willpower Penalty", -aval * 400 / powmod);
+            case (4): { // WIS -> Willpower
+              obj->SetModifier(5, aval * 400 / powmod);
             } break;
-            case (5): { // CON
-              if (aval > 0)
-                obj->SetSkill("Body Bonus", aval * 400 / powmod);
-              else if (aval < 0)
-                obj->SetSkill("Body Penalty", -aval * 400 / powmod);
+            case (5): { // CON -> Body
+              obj->SetModifier(0, aval * 400 / powmod);
             } break;
-            case (6): { // CHA
-              if (aval > 0)
-                obj->SetSkill("Charisma Bonus", aval * 400 / powmod);
-              else if (aval < 0)
-                obj->SetSkill("Charisma Penalty", -aval * 400 / powmod);
+            case (6): { // CHA -> Charisma
+              obj->SetModifier(3, aval * 400 / powmod);
             } break;
             //	    case(7): {	// CLASS (Even TBAMUD Doesn't Use This!)
             //	      } break;
