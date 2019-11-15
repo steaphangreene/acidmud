@@ -763,9 +763,9 @@ Object::Object(const Object& o) {
       AddAct(ACT_HOLD, nobj);
     if (o.ActTarg(ACT_WIELD) == ind)
       AddAct(ACT_WIELD, nobj);
-    for (act_t act = ACT_WEAR_BACK; act < ACT_MAX; act = act_t(int(act) + 1))
-      if (o.ActTarg(act) == ind)
-        AddAct(act, nobj);
+    for (act_t actt = ACT_WEAR_BACK; actt < ACT_MAX; actt = act_t(int(actt) + 1))
+      if (o.ActTarg(actt) == ind)
+        AddAct(actt, nobj);
   }
   if (o.IsAct(ACT_DEAD))
     AddAct(ACT_DEAD);
@@ -862,17 +862,17 @@ const char* Object::Name(int definite, Object* rel, Object* sub) const {
   }
 
   if (!BaseAttribute(1)) {
-    Object* pos = Owner();
-    if (pos && pos == rel) {
+    Object* own = Owner();
+    if (own && own == rel) {
       ret = std::string("your ") + ret;
-    } else if (pos && pos == sub && pos->Gender() == 'F') {
+    } else if (own && own == sub && own->Gender() == 'F') {
       ret = std::string("her ") + ret;
-    } else if (pos && pos == sub && pos->Gender() == 'M') {
+    } else if (own && own == sub && own->Gender() == 'M') {
       ret = std::string("his ") + ret;
-    } else if (pos && pos == sub) {
+    } else if (own && own == sub) {
       ret = std::string("its ") + ret;
-    } else if (pos) {
-      ret = std::string(pos->Name()) + "'s " + ret;
+    } else if (own) {
+      ret = std::string(own->Name()) + "'s " + ret;
     } else if (definite && (!proper)) {
       ret = std::string("the ") + ret;
     } else if ((!proper) && need_an) {
@@ -1145,8 +1145,8 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
   std::unordered_set<Object*> master;
   master.insert(cont.begin(), cont.end());
 
-  for (act_t act = ACT_HOLD; act < ACT_MAX; act = act_t(int(act) + 1)) {
-    master.erase(ActTarg(act)); // Don't show worn/wielded stuff.
+  for (act_t actt = ACT_HOLD; actt < ACT_MAX; actt = act_t(int(actt) + 1)) {
+    master.erase(ActTarg(actt)); // Don't show worn/wielded stuff.
   }
 
   int tlines = 0, total = 0;
@@ -1526,18 +1526,18 @@ void Object::SendScore(Mind* m, Object* o) {
 
   std::list<std::string> col1;
   std::list<std::string>::iterator c1;
-  std::unordered_map<std::string, int> skills = GetSkills();
+  std::unordered_map<std::string, int> skls = GetSkills();
   std::unordered_map<std::string, int>::iterator c2;
 
   if (BaseAttribute(1) <= 0) { // Inanimate
-    col1 = FormatStats(skills);
+    col1 = FormatStats(skls);
   } else {
-    col1 = FormatSkills(skills);
+    col1 = FormatSkills(skls);
   }
 
   c1 = col1.begin();
-  c2 = skills.begin();
-  while (c2 != skills.end() || c1 != col1.end()) {
+  c2 = skls.begin();
+  while (c2 != skls.end() || c1 != col1.end()) {
     if (c1 != col1.end()) {
       m->SendF("%41s ", c1->c_str()); // Note: 41 is 32 (2 Color Escape Codes)
       ++c1;
@@ -1545,7 +1545,7 @@ void Object::SendScore(Mind* m, Object* o) {
       m->SendF("%32s ", "");
     }
 
-    if (c2 != skills.end()) {
+    if (c2 != skls.end()) {
       m->SendF("%28s: %8d", c2->first.c_str(), c2->second);
       ++c2;
     }
@@ -1553,11 +1553,11 @@ void Object::SendScore(Mind* m, Object* o) {
     m->Send("\n");
   }
 
-  for (act_t act = ACT_MAX; act < ACT_SPECIAL_MAX; act = act_t(int(act) + 1)) {
-    if (ActTarg(act)) {
-      m->SendF(CGRN "  %s -> %s\n" CNRM, act_str[act], ActTarg(act)->Name());
-    } else if (IsAct(act)) {
-      m->SendF(CGRN "  %s\n" CNRM, act_str[act]);
+  for (act_t actt = ACT_MAX; actt < ACT_SPECIAL_MAX; actt = act_t(int(actt) + 1)) {
+    if (ActTarg(actt)) {
+      m->SendF(CGRN "  %s -> %s\n" CNRM, act_str[actt], ActTarg(actt)->Name());
+    } else if (IsAct(actt)) {
+      m->SendF(CGRN "  %s\n" CNRM, act_str[actt]);
     }
   }
 
@@ -1596,14 +1596,13 @@ void Object::SendScore(Mind* m, Object* o) {
 std::list<std::string> Object::FormatSkills(std::unordered_map<std::string, int>& skls) {
   std::list<std::string> ret;
 
-  std::unordered_map<std::string, int> skills = skls;
-
-  for (auto skl : skills) {
+  std::unordered_map<std::string, int> save = skls;
+  for (auto skl : save) {
     if (is_skill(skl.first)) {
       skls.erase(skl.first); // Remove it from to-show list.
-      char buf[256];
-      sprintf(buf, "%28s: " CYEL "%2d" CNRM, skl.first.c_str(), MIN(99, skl.second));
-      ret.push_back(buf);
+      char buf2[256];
+      sprintf(buf2, "%28s: " CYEL "%2d" CNRM, skl.first.c_str(), MIN(99, skl.second));
+      ret.push_back(buf2);
     }
   }
   return ret;
@@ -1614,12 +1613,12 @@ static void stick_on(
     std::unordered_map<std::string, int>& skls,
     const char* skn,
     const char* label) {
-  char buf[256];
+  char buf2[256];
   if (skls.count(skn) > 0) {
     int sk = skls[skn];
     if (sk > 0) {
-      sprintf(buf, "  %18s: " CYEL "%d.%.3d" CNRM, label, sk / 1000, sk % 1000);
-      out.push_back(buf);
+      sprintf(buf2, "  %18s: " CYEL "%d.%.3d" CNRM, label, sk / 1000, sk % 1000);
+      out.push_back(buf2);
     }
     skls.erase(skn);
   }
@@ -1662,26 +1661,26 @@ std::list<std::string> Object::FormatStats(std::unordered_map<std::string, int>&
     ret.push_back(" Old Weapon: " CYEL + get_weapon_skill(Skill("WeaponType")) + CNRM);
     skls.erase("WeaponType");
 
-    char buf[256];
+    char buf2[256];
     sprintf(
-        buf,
+        buf2,
         "  Damage: " CYEL "(Str+%d)%c",
         Skill("WeaponForce"),
         sevs[MIN(4, Skill("WeaponSeverity"))]);
     if (Skill("WeaponSeverity") > 4) {
-      sprintf(buf + strlen(buf), "%d", (Skill("WeaponSeverity") - 4) * 2);
+      sprintf(buf2 + strlen(buf2), "%d", (Skill("WeaponSeverity") - 4) * 2);
     }
-    strcat(buf, CNRM);
-    ret.push_back(buf);
+    strcat(buf2, CNRM);
+    ret.push_back(buf2);
     skls.erase("WeaponForce");
     skls.erase("WeaponSeverity");
 
     if (Skill("WeaponReach") > 4) {
-      sprintf(buf, "  Range: " CYEL "%d" CNRM, Skill("WeaponReach"));
-      ret.push_back(buf);
+      sprintf(buf2, "  Range: " CYEL "%d" CNRM, Skill("WeaponReach"));
+      ret.push_back(buf2);
     } else if (Skill("WeaponReach") >= 0) {
-      sprintf(buf, "  Reach: " CYEL "%d" CNRM, Skill("WeaponReach"));
-      ret.push_back(buf);
+      sprintf(buf2, "  Reach: " CYEL "%d" CNRM, Skill("WeaponReach"));
+      ret.push_back(buf2);
     }
     skls.erase("WeaponReach");
   }
@@ -1712,13 +1711,15 @@ std::list<std::string> Object::FormatStats(std::unordered_map<std::string, int>&
 
   // Other Misc Stats
   if (HasSkill("Light Source")) {
-    sprintf(buf, CYEL "  Light Level: %d (%d)" CNRM, Skill("Light Source"), LightLevel());
-    ret.push_back(buf);
+    char buf2[256];
+    sprintf(buf2, CYEL "  Light Level: %d (%d)" CNRM, Skill("Light Source"), LightLevel());
+    ret.push_back(buf2);
     skls.erase("Light Source");
   }
   if (HasSkill("Cursed")) {
-    sprintf(buf, CRED "  Cursed: %d" CNRM, Skill("Cursed"));
-    ret.push_back(buf);
+    char buf2[256];
+    sprintf(buf2, CRED "  Cursed: %d" CNRM, Skill("Cursed"));
+    ret.push_back(buf2);
     skls.erase("Cursed");
   }
 
@@ -1752,15 +1753,15 @@ void Object::RemoveLink(Object* ob) {
 void Object::Link(
     Object* other,
     const std::string& name,
-    const std::string& desc,
+    const std::string& dsc,
     const std::string& oname,
-    const std::string& odesc) {
+    const std::string& odsc) {
   Object* door1 = new Object(this);
   Object* door2 = new Object(other);
   door1->SetShortDesc(name.c_str());
   door2->SetShortDesc(oname.c_str());
-  door1->SetDesc(desc.c_str());
-  door2->SetDesc(odesc.c_str());
+  door1->SetDesc(dsc.c_str());
+  door2->SetDesc(odsc.c_str());
   door1->AddAct(ACT_SPECIAL_LINKED, door2);
   door1->AddAct(ACT_SPECIAL_MASTER, door2);
   door1->SetSkill("Open", 1000);
@@ -1774,15 +1775,15 @@ void Object::Link(
 void Object::LinkClosed(
     Object* other,
     const std::string& name,
-    const std::string& desc,
+    const std::string& dsc,
     const std::string& oname,
-    const std::string& odesc) {
+    const std::string& odsc) {
   Object* door1 = new Object(this);
   Object* door2 = new Object(other);
   door1->SetShortDesc(name.c_str());
   door2->SetShortDesc(oname.c_str());
-  door1->SetDesc(desc.c_str());
-  door2->SetDesc(odesc.c_str());
+  door1->SetDesc(dsc.c_str());
+  door2->SetDesc(odsc.c_str());
   door1->AddAct(ACT_SPECIAL_LINKED, door2);
   door1->AddAct(ACT_SPECIAL_MASTER, door2);
   door1->SetSkill("Closeable", 1);
@@ -2646,12 +2647,12 @@ void Object::UpdateDamage() {
       AddAct(ACT_DEAD);
       std::unordered_set<Mind*> removals;
       std::unordered_set<Mind*>::iterator mind;
-      for (auto mind : minds) {
-        if (mind->Type() == MIND_REMOTE)
-          removals.insert(mind);
+      for (auto mnd : minds) {
+        if (mnd->Type() == MIND_REMOTE)
+          removals.insert(mnd);
       }
-      for (auto mind : removals) {
-        Unattach(mind);
+      for (auto mnd : removals) {
+        Unattach(mnd);
       }
     }
     SetPos(POS_LIE);
@@ -3187,17 +3188,17 @@ void init_world() {
 
     int len = lseek(fd, 0, SEEK_END);
     lseek(fd, 0, SEEK_SET);
-    char* buf = new char[len + 1];
-    read(fd, buf, len);
-    buf[len] = 0;
+    char* buf2 = new char[len + 1];
+    read(fd, buf2, len);
+    buf2[len] = 0;
 
-    handle_command(autoninja, buf, automind);
+    handle_command(autoninja, buf2, automind);
     close(fd);
 
     delete automind;
     delete anp;
     autoninja->Recycle();
-    delete[] buf;
+    delete[] buf2;
   }
 }
 
@@ -3209,13 +3210,13 @@ void save_world(int with_net) {
     if (!save_players(pfn.c_str())) {
       std::string nfn = fn + ".nst";
       if ((!with_net) || (!save_net(nfn.c_str()))) {
-        std::string nfn = fn + ".wld";
-        unlink(nfn.c_str());
-        rename(wfn.c_str(), nfn.c_str());
+        std::string dfn = fn + ".wld";
+        unlink(dfn.c_str());
+        rename(wfn.c_str(), dfn.c_str());
 
-        nfn = fn + ".plr";
-        unlink(nfn.c_str());
-        rename(pfn.c_str(), nfn.c_str());
+        dfn = fn + ".plr";
+        unlink(dfn.c_str());
+        rename(pfn.c_str(), dfn.c_str());
       } else {
         fprintf(stderr, "Unable to save network status!\n");
         perror("save_world");
@@ -3270,10 +3271,10 @@ int Object::StillBusy() {
   return ret;
 }
 
-void Object::DoWhenFree(const char* act) {
-  //  fprintf(stderr, "Adding busyact for %p of '%s'!\n", this, act);
+void Object::DoWhenFree(const char* action) {
+  //  fprintf(stderr, "Adding busyact for %p of '%s'!\n", this, action);
   dowhenfree += ";";
-  dowhenfree += act;
+  dowhenfree += action;
   busylist.insert(this);
 }
 
@@ -3637,17 +3638,17 @@ int Object::LooksLike(Object* other, int vmode) {
     }
   }
 
-  for (act_t act = ACT_NONE; act < ACT_WIELD;) { // Off-By-One!
-    act = act_t(int(act) + 1); // Increments First!
-    if (IsAct(act) != other->IsAct(act))
+  for (act_t actt = ACT_NONE; actt < ACT_WIELD;) { // Off-By-One!
+    actt = act_t(int(actt) + 1); // Increments First!
+    if (IsAct(actt) != other->IsAct(actt))
       return 0;
-    if (ActTarg(act) != other->ActTarg(act)) {
+    if (ActTarg(actt) != other->ActTarg(actt)) {
       std::string s1 = "";
-      if (ActTarg(act))
-        s1 = ActTarg(act)->Name(0, this);
+      if (ActTarg(actt))
+        s1 = ActTarg(actt)->Name(0, this);
       std::string s2 = "";
-      if (ActTarg(act))
-        s2 = other->ActTarg(act)->Name(0, other);
+      if (ActTarg(actt))
+        s2 = other->ActTarg(actt)->Name(0, other);
       if (s1 != s2)
         return 0;
     }
@@ -3873,8 +3874,8 @@ int Object::Power(const std::string& m) const {
 }
 
 int Object::Wearing(const Object* obj) const {
-  for (act_t act = ACT_HOLD; act < ACT_MAX; act = act_t(act + 1)) {
-    if (ActTarg(act) == obj)
+  for (act_t actt = ACT_HOLD; actt < ACT_MAX; actt = act_t(actt + 1)) {
+    if (ActTarg(actt) == obj)
       return 1;
   }
   return 0;

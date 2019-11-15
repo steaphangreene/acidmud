@@ -138,8 +138,6 @@ static Object* objroom = nullptr;
 static Object* mobroom = nullptr;
 
 void Object::TBACleanup() {
-  std::unordered_map<int, Object*>::iterator ind;
-
   //  for(ind : bynumobj) {
   //    ind.second->Recycle();
   //    }
@@ -403,9 +401,9 @@ void Object::TBALoadZON(const char* fn) {
         } break;
         case ('G'):
         case ('E'): {
-          int num, pos = -1;
+          int num, posit = -1;
           if (type == 'E')
-            fscanf(mudz, " %*d %d %*d %d%*[^\n\r]\n", &num, &pos);
+            fscanf(mudz, " %*d %d %*d %d%*[^\n\r]\n", &num, &posit);
           if (type == 'G')
             fscanf(mudz, " %*d %d %*d%*[^\n\r]\n", &num);
           if (lastmob && bynumobj.count(num)) {
@@ -417,7 +415,7 @@ void Object::TBALoadZON(const char* fn) {
             lastobj[num] = obj;
 
             int bagit = 0;
-            switch (pos) {
+            switch (posit) {
               case (1): { // Worn
                 lastmob->AddAct(ACT_WEAR_RFINGER, obj);
                 if (obj->Skill("Wearable on Right Finger") == 0) {
@@ -1978,16 +1976,16 @@ void Object::TBALoadOBJ(const char* fn) {
         obj->SetSkill("WeaponReach", wreach);
       }
 
-      int weight, value;
-      fscanf(mudo, "%d %d %*[^\n\r]\n", &weight, &value);
+      int wt, vl;
+      fscanf(mudo, "%d %d %*[^\n\r]\n", &wt, &vl);
 
       if (tp != 20) { // MONEY DOESN'T WORK THIS WAY
-        obj->SetWeight((weight >= 1000000) ? 1000000 : weight * 454);
-        obj->SetVolume(weight); // FIXME: Better guess within units?
+        obj->SetWeight((wt >= 1000000) ? 1000000 : wt * 454);
+        obj->SetVolume(wt); // FIXME: Better guess within units?
         obj->SetSize(1);
-        obj->SetValue((value * valmod) / 1000);
+        obj->SetValue((vl * valmod) / 1000);
         if (obj->Matches("cashcard")) { // Is Script Now
-          obj->SetSkill("Money", (value * valmod) / 1000);
+          obj->SetSkill("Money", (vl * valmod) / 1000);
         }
       }
 

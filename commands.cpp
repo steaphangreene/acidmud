@@ -1030,15 +1030,15 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   }
 
   if (com == COM_SELECT) {
-    Object* body = mind->Owner()->Room()->PickObject(cmd.c_str() + len, vmode | LOC_INTERNAL);
-    if (!body) {
+    Object* sel = mind->Owner()->Room()->PickObject(cmd.c_str() + len, vmode | LOC_INTERNAL);
+    if (!sel) {
       mind->Send(
           "Sorry, that character doesn't exist.\n"
           "Use the 'newcharacter' command to create a new character.\n");
       return 0;
     } else {
-      mind->SendF("'%s' is now selected as your currect character to work on.\n", body->Name());
-      mind->Owner()->SetCreator(body);
+      mind->SendF("'%s' is now selected as your currect character to work on.\n", sel->Name());
+      mind->Owner()->SetCreator(sel);
       return 0;
     }
   }
@@ -1115,13 +1115,13 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         return 0;
       }
       if (!mind->Owner()) { // The Autoninja (Initial Startup)
-        Object* body = new_body();
-        body->SetShortDesc(cmd.c_str() + len);
-        mind->Attach(body);
+        Object* god = new_body();
+        god->SetShortDesc(cmd.c_str() + len);
+        mind->Attach(god);
         return 0;
       }
 
-      Object* body = mind->Owner()->Room()->PickObject(cmd.c_str() + len, vmode | LOC_INTERNAL);
+      body = mind->Owner()->Room()->PickObject(cmd.c_str() + len, vmode | LOC_INTERNAL);
       if (!body) {
         mind->Send(
             "Sorry, that character doesn't exist.\n"
@@ -3365,10 +3365,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         }
       }
 
-      std::list<Object*> trigs;
-      std::list<Object*>::iterator trig;
-
-      trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
+      auto trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
       for (auto trig : trigs) {
         int ttype = trig->Skill("TBAScriptType");
         if ((ttype & 0x2000200) == 0x2000200) { // OBJ-WEAR trigs
@@ -3491,10 +3488,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     for (auto targ : targs) {
-      std::list<Object*> trigs;
-      std::list<Object*>::iterator trig;
-
-      trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
+      auto trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
       for (auto trig : trigs) {
         int ttype = trig->Skill("TBAScriptType");
         if ((ttype & 0x2000800) == 0x2000800) { // OBJ-REMOVE trigs
@@ -3602,10 +3596,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         if (mind && targs.size() == 1)
           mind->SendF("You are already wearing %s!\n", targ->Name(0, body));
       } else {
-        std::list<Object*> trigs;
-        std::list<Object*>::iterator trig;
-
-        trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
+        auto trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
         for (auto trig : trigs) {
           int ttype = trig->Skill("TBAScriptType");
           if ((ttype & 0x2000200) == 0x2000200) { // OBJ-WEAR trigs
@@ -3696,10 +3687,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("You want to drop what?\n");
     } else {
       for (auto targ : targs) {
-        std::list<Object*> trigs;
-        std::list<Object*>::iterator trig;
-
-        trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
+        auto trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
         for (auto trig : trigs) {
           int ttype = trig->Skill("TBAScriptType");
           if ((ttype & 0x2000080) == 0x2000080) { // OBJ-DROP trigs
@@ -4743,19 +4731,20 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
               body->ActTarg(ACT_HOLD));
           body->StopAct(ACT_HOLD);
         }
-        Object* targ = body->ActTarg(ACT_WIELD); // Hold your 2-hander
-        body->AddAct(ACT_HOLD, targ);
+        Object* weap = body->ActTarg(ACT_WIELD); // Hold your 2-hander
+        body->AddAct(ACT_HOLD, weap);
         body->Parent()->SendOut(
-            stealth_t, stealth_s, ";s holds ;s.\n", "You hold ;s.\n", body, targ);
+            stealth_t, stealth_s, ";s holds ;s.\n", "You hold ;s.\n", body, weap);
       }
     }
 
     // If you're hand's now free, and you have a shield, use it.
     if (body->ActTarg(ACT_WEAR_SHIELD) && (!body->IsAct(ACT_HOLD))) {
-      Object* targ = body->ActTarg(ACT_WEAR_SHIELD);
+      Object* shield = body->ActTarg(ACT_WEAR_SHIELD);
 
-      body->AddAct(ACT_HOLD, targ);
-      body->Parent()->SendOut(stealth_t, stealth_s, ";s holds ;s.\n", "You hold ;s.\n", body, targ);
+      body->AddAct(ACT_HOLD, shield);
+      body->Parent()->SendOut(
+          stealth_t, stealth_s, ";s holds ;s.\n", "You hold ;s.\n", body, shield);
     } else if (
         mind && body->ActTarg(ACT_WEAR_SHIELD) &&
         body->ActTarg(ACT_WEAR_SHIELD) != body->ActTarg(ACT_HOLD)) {
@@ -5267,7 +5256,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    Object* body = mind->Owner()->Room()->PickObject(cmd.c_str() + len, vmode | LOC_INTERNAL);
+    body = mind->Owner()->Room()->PickObject(cmd.c_str() + len, vmode | LOC_INTERNAL);
     if (body) {
       mind->Send(
           "Sorry, you already have a character with that name.\n"
@@ -5330,10 +5319,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         src = body->NextHasSkill("Restricted Item", src);
         continue;
       }
-      std::string com = "teleport ";
-      com += (cmd.c_str() + len);
-      com += "\n";
-      if (!strcasestr(src->LongDesc(), com.c_str())) {
+      std::string comline = "teleport ";
+      comline += (cmd.c_str() + len);
+      comline += "\n";
+      if (!strcasestr(src->LongDesc(), comline.c_str())) {
         src = body->NextHasSkill("Restricted Item", src);
         continue;
       }

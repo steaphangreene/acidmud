@@ -424,9 +424,9 @@ void Mind::Send(const char* mes) {
         if (door && door->ActTarg(ACT_SPECIAL_LINKED) &&
             door->ActTarg(ACT_SPECIAL_LINKED)->Parent() &&
             TBACanWanderTo(door->ActTarg(ACT_SPECIAL_LINKED)->Parent())) {
-          char buf[256] = "enter                                          ";
-          sscanf(mes + 4, "%128s", buf + 6);
-          body->BusyFor(500, buf);
+          char buf2[256] = "enter                                          ";
+          sscanf(mes + 4, "%128s", buf2 + 6);
+          body->BusyFor(500, buf2);
         }
         return;
       }
@@ -1287,9 +1287,9 @@ void Mind::TBAVarSub(std::string& line) {
     else if (line[end] == '%')
       ++end;
     if (is_obj) {
-      char buf[256] = "";
-      sprintf(buf, "OBJ:%p", obj);
-      line.replace(cur, end - cur, buf);
+      char buf2[256] = "";
+      sprintf(buf2, "OBJ:%p", obj);
+      line.replace(cur, end - cur, buf2);
     } else { // std::string OR ""
       line.replace(cur, end - cur, val);
     }
@@ -1418,10 +1418,10 @@ int Mind::TBARunLine(std::string line) {
                 val.c_str());
           }
           if (coml == 'e') {
-            int vnum = body->Skill("TBAScript");
+            int valnum = body->Skill("TBAScript");
             TBAVarSub(val);
             if (type == MIND_MORON) {
-              fprintf(stderr, CRED "#%d Error: Eval failed in '%s'\n" CNRM, vnum, line.c_str());
+              fprintf(stderr, CRED "#%d Error: Eval failed in '%s'\n" CNRM, valnum, line.c_str());
               return 1;
             }
             val = TBAComp(val);
@@ -1934,10 +1934,10 @@ int Mind::TBARunLine(std::string line) {
     //	);
     int pos = 0;
     int dam = 0;
-    char buf[256];
-    if (sscanf(line.c_str() + 8, " %s %n", buf, &pos) >= 1) {
-      if (!strcmp(buf, "all")) {
-        strcpy(buf, "everyone");
+    char buf2[256];
+    if (sscanf(line.c_str() + 8, " %s %n", buf2, &pos) >= 1) {
+      if (!strcmp(buf2, "all")) {
+        strcpy(buf2, "everyone");
       }
       dam = TBAEval(line.c_str() + 8 + pos);
       if (dam > 0)
@@ -1947,7 +1947,7 @@ int Mind::TBARunLine(std::string line) {
     }
     std::list<Object*> options = room->Contents();
     for (auto opt : options) {
-      if (opt->Matches(buf)) {
+      if (opt->Matches(buf2)) {
         if (dam > 0) {
           opt->HitMent(1000, dam, 0);
           //	  fprintf(stderr, CGRN "#%d Debug: WDamage '%s', %d\n" CNRM,
@@ -1996,8 +1996,8 @@ int Mind::TBARunLine(std::string line) {
     std::list<Object*> options = room->World()->Contents();
     room = nullptr;
     for (auto opt : options) {
-      int tnum = opt->Skill("TBARoom");
-      if (tnum > 0 && (tnum % 1000000) == rnum) {
+      int tbanum = opt->Skill("TBARoom");
+      if (tbanum > 0 && (tbanum % 1000000) == rnum) {
         room = opt;
         break;
       }
@@ -2163,8 +2163,8 @@ int Mind::TBARunLine(std::string line) {
   else if (!strncmp(line.c_str(), "transport ", 10)) {
     int dnum;
     int nocheck = 0;
-    char buf[256];
-    if (sscanf(line.c_str() + 10, "%s %d", buf, &dnum) != 2) {
+    char buf2[256];
+    if (sscanf(line.c_str() + 10, "%s %d", buf2, &dnum) != 2) {
       fprintf(
           stderr,
           CRED "#%d Error: Bad teleport line '%s'\n" CNRM,
@@ -2173,8 +2173,8 @@ int Mind::TBARunLine(std::string line) {
       Disable();
       return 1;
     }
-    if (!strcmp(buf, "all")) {
-      strcpy(buf, "everyone");
+    if (!strcmp(buf2, "all")) {
+      strcpy(buf2, "everyone");
       nocheck = 1;
     }
     Object* dest = ovars["self"]->World();
@@ -2189,7 +2189,7 @@ int Mind::TBARunLine(std::string line) {
     }
     options = room->Contents();
     for (auto opt : options) {
-      if (opt->Matches(buf)) {
+      if (opt->Matches(buf2)) {
         opt->Parent()->RemoveLink(opt);
         opt->SetParent(dest);
         nocheck = 1;
@@ -2197,7 +2197,7 @@ int Mind::TBARunLine(std::string line) {
     }
     if (!nocheck) { // Check for a MOB by that UNIQUE name ANYWHERE.
       room = room->Parent();
-      Object* targ = room->PickObject((std::string("all's ") + buf).c_str(), LOC_INTERNAL);
+      Object* targ = room->PickObject((std::string("all's ") + buf2).c_str(), LOC_INTERNAL);
       if (targ) {
         targ->Parent()->RemoveLink(targ);
         targ->SetParent(dest);
@@ -2238,15 +2238,15 @@ int Mind::TBARunLine(std::string line) {
   }
 
   else if (!strncmp(line.c_str(), "load ", 5)) {
-    int vnum, params, type, loc = 0, mask = 0;
-    char buf[256] = "";
+    int valnum, params, tbatype, loc = 0, mask = 0;
+    char buf2[256] = "";
     char targ[256] = "";
     char where[256] = "";
     Object* dest = ovars["self"];
     Object* item = nullptr;
-    params = sscanf(line.c_str() + 5, " %s %d %s %s", buf, &vnum, targ, where);
-    type = tolower(buf[0]);
-    if ((params != 2 && params != 4) || (type != 'o' && type != 'm')) {
+    params = sscanf(line.c_str() + 5, " %s %d %s %s", buf2, &valnum, targ, where);
+    tbatype = tolower(buf2[0]);
+    if ((params != 2 && params != 4) || (tbatype != 'o' && tbatype != 'm')) {
       fprintf(
           stderr,
           CRED "#%d Error: Gibberish script line '%s'\n" CNRM,
@@ -2256,7 +2256,7 @@ int Mind::TBARunLine(std::string line) {
       return 1;
     }
     Object* src = room->World();
-    if (type == 'o') {
+    if (tbatype == 'o') {
       src = src->PickObject("TBAMUD Object Room", LOC_NINJA | LOC_INTERNAL);
       if (src == nullptr) {
         fprintf(
@@ -2268,12 +2268,12 @@ int Mind::TBARunLine(std::string line) {
       }
       std::list<Object*> options = src->Contents();
       for (auto opt : options) {
-        if (opt->Skill("TBAObject") == vnum + 2000000) {
+        if (opt->Skill("TBAObject") == valnum + 2000000) {
           item = new Object(*opt);
           break;
         }
       }
-    } else if (type == 'm') {
+    } else if (tbatype == 'm') {
       dest = room;
       src = src->PickObject("TBAMUD MOB Room", LOC_NINJA | LOC_INTERNAL);
       if (src == nullptr) {
@@ -2286,7 +2286,7 @@ int Mind::TBARunLine(std::string line) {
       }
       std::list<Object*> options = src->Contents();
       for (auto opt : options) {
-        if (opt->Skill("TBAMOB") == vnum + 1000000) {
+        if (opt->Skill("TBAMOB") == valnum + 1000000) {
           item = new Object(*opt);
           break;
         }
