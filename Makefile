@@ -10,18 +10,18 @@ LIBS:=	-lstdc++ -lcrypt
 all:	acidmud
 
 #Production Settings (dynamic)
-CXX=	clang++ -std=c++17 -O3 -g -Wall -Werror -ferror-limit=2
+CXX=	clang++ -std=c++17 -O3 -g -Wall -Wshadow -Werror -ferror-limit=2
 
 #Use debugging settings
 debug:
-	+make CXX='clang++ -std=c++17 -Og -fno-omit-frame-pointer -g -fsanitize=address -fsanitize=undefined -fno-sanitize-recover=undefined -Wall -Werror -ferror-limit=2'
+	+make CXX='clang++ -std=c++17 -Og -fno-omit-frame-pointer -g -fsanitize=address -fsanitize=undefined -fno-sanitize-recover=undefined -Wall -Wshadow -Werror -ferror-limit=2'
 
 #Use profiling settings
 profile:
-	+make CXX='clang++ -std=c++17 -O3 -fno-omit-frame-pointer -g -Wall -Werror -ferror-limit=2'
+	+make CXX='clang++ -std=c++17 -O3 -fno-omit-frame-pointer -g -Wall -Wshadow -Werror -ferror-limit=2'
 
 gcc:
-	+make CXX='g++ -std=c++17 -Og -fno-omit-frame-pointer -g -Wall -Werror -fmax-errors=2'
+	+make CXX='g++ -std=c++17 -Og -fno-omit-frame-pointer -g -Wall -Wshadow -Werror -fmax-errors=2'
 
 clean:
 	rm -f gmon.out deps.mk *.o *.da acidmud ChangeLog ChangeLog.bak
