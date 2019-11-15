@@ -2,6 +2,7 @@
 
 #include <list>
 #include <map>
+#include <vector>
 
 #define MIND_MORON 0
 #define MIND_REMOTE 1
@@ -102,7 +103,7 @@ class Mind {
   std::map<std::string, Object*> ovars;
   int status;
   std::string script;
-  std::list<size_t> spos_s;
+  std::vector<size_t> spos_s;
 
   static std::list<std::pair<int, Mind*>> waiting;
 };

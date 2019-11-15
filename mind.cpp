@@ -315,7 +315,7 @@ void Mind::SetTBATrigger(Object* tr, Object* tripper, Object* targ, std::string 
   pers = fileno(stderr);
   Attach(tr);
   spos_s.clear();
-  spos_s.push_front(0);
+  spos_s.push_back(0);
   script = body->LongDesc();
   script += "\n";
   if (tripper)
@@ -1350,12 +1350,12 @@ int Mind::TBARunLine(std::string line) {
       //      fprintf(stderr, CGRN "#%d Debug: Triggered on downed MOB.\n" CNRM,
       //	body->Skill("TBAScript")
       //	);
-      spos_s.front() = std::string::npos; // Jump to End
+      spos_s.back() = std::string::npos; // Jump to End
       return 0; // Allow re-run (in case of resurrection/waking/etc...).
     }
   }
 
-  size_t spos = spos_s.front();
+  size_t spos = spos_s.back();
   int vnum = body->Skill("TBAScript");
   TBAVarSub(line);
   if (type == MIND_MORON) {
@@ -1735,7 +1735,7 @@ int Mind::TBARunLine(std::string line) {
         }
         spos = skip_line(script, spos);
       }
-      spos_s.front() = spos; // Save skip-to position in real PC
+      spos_s.back() = spos; // Save skip-to position in real PC
     }
   }
 
@@ -1754,7 +1754,7 @@ int Mind::TBARunLine(std::string line) {
       }
       spos = skip_line(script, spos);
     }
-    spos_s.front() = spos; // Save skip-to position in real PC
+    spos_s.back() = spos; // Save skip-to position in real PC
   }
 
   else if (!strncmp(line.c_str(), "while ", 6)) {
@@ -1777,10 +1777,10 @@ int Mind::TBARunLine(std::string line) {
       spos = skip_line(script, spos);
     }
     if (TBAEval(line.c_str() + 6)) {
-      spos_s.front() = rep; // Will repeat the "while"
-      spos_s.push_front(begin); // But run the inside of the loop first.
+      spos_s.back() = rep; // Will repeat the "while"
+      spos_s.push_back(begin); // But run the inside of the loop first.
     } else {
-      spos_s.front() = spos; // Save after-done position in real PC
+      spos_s.back() = spos; // Save after-done position in real PC
     }
   }
 
@@ -1821,9 +1821,9 @@ int Mind::TBARunLine(std::string line) {
       }
       spos = skip_line(script, spos);
     }
-    spos_s.front() = spos; // Save after-done position in real PC
+    spos_s.back() = spos; // Save after-done position in real PC
     if (targ != 0) { // Got a case to go to
-      spos_s.push_front(targ); // Push jump-to position above real PC
+      spos_s.push_back(targ); // Push jump-to position above real PC
     }
   }
 
@@ -1843,7 +1843,7 @@ int Mind::TBARunLine(std::string line) {
       }
       spos = skip_line(script, spos);
     }
-    spos_s.front() = spos; // Save done position in real PC
+    spos_s.back() = spos; // Save done position in real PC
   }
 
   else if ((!strncmp(line.c_str(), "asound ", 7))) {
@@ -2425,7 +2425,7 @@ int Mind::TBARunLine(std::string line) {
       Disable();
       return 1;
     }
-    spos_s.pop_front();
+    spos_s.pop_back();
   } else if (!strncmp(line.c_str(), "return ", 7)) {
     int retval = TBAEval(line.c_str() + 7);
     if (retval == 0) {
@@ -2556,7 +2556,7 @@ void Mind::Think(int istick) {
       //	}
     }
   } else if (type == MIND_TBATRIG) {
-    if (body && body->Parent() && spos_s.size() > 0 && spos_s.front() < script.length()) {
+    if (body && body->Parent() && spos_s.size() > 0 && spos_s.back() < script.length()) {
       //      fprintf(stderr, CGRN "#%d Debug: Running Trigger.\n" CNRM,
       //	body->Skill("TBAScript")
       //	);
@@ -2565,15 +2565,15 @@ void Mind::Think(int istick) {
 
       int quota = 1024;
       int stype = body->Skill("TBAScriptType");
-      while (spos_s.size() > 0 && spos_s.front() != std::string::npos) {
+      while (spos_s.size() > 0 && spos_s.back() != std::string::npos) {
         std::string line;
-        size_t endl = script.find_first_of("\n\r", spos_s.front());
+        size_t endl = script.find_first_of("\n\r", spos_s.back());
         if (endl == std::string::npos)
-          line = script.substr(spos_s.front());
+          line = script.substr(spos_s.back());
         else
-          line = script.substr(spos_s.front(), endl - spos_s.front());
+          line = script.substr(spos_s.back(), endl - spos_s.back());
 
-        spos_s.front() = skip_line(script, spos_s.front());
+        spos_s.back() = skip_line(script, spos_s.back());
 
         if (line[0] == '*')
           continue; // Comments
@@ -2593,7 +2593,7 @@ void Mind::Think(int istick) {
           while (delay < 13000000 && (rand() % 100) >= chance)
             delay += 13000;
           spos_s.clear();
-          spos_s.push_front(0); // We never die!
+          spos_s.push_back(0); // We never die!
           Suspend(delay); // We'll be back!
           return;
         }
