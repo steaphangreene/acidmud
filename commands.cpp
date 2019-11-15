@@ -1848,8 +1848,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         }
         std::string sk = (get_weapon_skill(targ->Skill("WeaponType")));
         if (!body->HasSkill(sk)) {
-          mind->SendF("You don't know much about weapons like %s.\n", targ->Name(1, body));
-          mind->SendF("You would need to learn the %s skill to know more.\n", sk.c_str());
+          mind->SendF(
+              CYEL "You don't know much about weapons like %s.\n" CNRM, targ->Name(1, body));
+          mind->SendF(CYEL "You would need to learn the %s skill to know more.\n" CNRM, sk.c_str());
         } else {
           int diff;
           mind->SendF("Use of this weapon would use your %s skill.\n", sk.c_str());
@@ -1860,9 +1861,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           else
             diff -= body->Skill("Punching");
           if (diff > 0)
-            mind->Send("   ...would be a weapon you are more skilled with.\n");
+            mind->Send(CGRN "   ...would be a weapon you are more skilled with.\n" CNRM);
           else if (diff < 0)
-            mind->Send("   ...would be a weapon you are less skilled with.\n");
+            mind->Send(CYEL "   ...would be a weapon you are less skilled with.\n" CNRM);
           else
             mind->Send("   ...would be a weapon you are similarly skilled with.\n");
 
@@ -1870,9 +1871,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           if (base)
             diff -= base->Skill("WeaponReach");
           if (diff > 0)
-            mind->Send("   ...would give you more reach.\n");
+            mind->Send(CGRN "   ...would give you more reach.\n" CNRM);
           else if (diff < 0)
-            mind->Send("   ...would give you less reach.\n");
+            mind->Send(CYEL "   ...would give you less reach.\n" CNRM);
           else
             mind->Send("   ...would give you similar reach.\n");
 
@@ -1880,9 +1881,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           if (base)
             diff -= base->Skill("WeaponForce");
           if (diff > 0)
-            mind->Send("   ...would be more likely to do damage.\n");
+            mind->Send(CGRN "   ...would be more likely to do damage.\n" CNRM);
           else if (diff < 0)
-            mind->Send("   ...would be less likely to do damage.\n");
+            mind->Send(CYEL "   ...would be less likely to do damage.\n" CNRM);
           else
             mind->Send("   ...would be about as likely to do damage.\n");
 
@@ -1890,9 +1891,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           if (base)
             diff -= base->Skill("WeaponSeverity");
           if (diff > 0)
-            mind->Send("   ...would do more damage.\n");
+            mind->Send(CGRN "   ...would do more damage.\n" CNRM);
           else if (diff < 0)
-            mind->Send("   ...would do less damage.\n");
+            mind->Send(CYEL "   ...would do less damage.\n" CNRM);
           else
             mind->Send("   ...would do similar damage.\n");
 
@@ -1900,9 +1901,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           if (base)
             diff -= two_handed(base->Skill("WeaponType"));
           if (diff > 0)
-            mind->Send("   ...would require both hands to use.\n");
+            mind->Send(CYEL "   ...would require both hands to use.\n" CNRM);
           else if (diff < 0)
-            mind->Send("   ...would not reqire both hands to use.\n");
+            mind->Send(CGRN "   ...would not reqire both hands to use.\n" CNRM);
         }
       }
 
@@ -1970,18 +1971,18 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         // Containers
         if (szlimit && other->HasSkill("Capacity")) {
           if (szlimit < other->Skill("Capacity")) {
-            mind->Send("   ...it can't fit as much, ");
+            mind->Send(CYEL "   ...it can't fit as much, " CNRM);
           } else if (szlimit > other->Skill("Capacity")) {
-            mind->Send("   ...it can fit more, ");
+            mind->Send(CGRN "   ...it can fit more, " CNRM);
           } else {
             mind->Send("   ...it can fit the same, ");
           }
         }
         if (wtlimit && other->HasSkill("Container")) {
           if (wtlimit < other->Skill("Container")) {
-            mind->SendF("and can't carry as much as %s.\n", other->Name(0, body));
+            mind->SendF(CYEL "and can't carry as much as %s.\n" CNRM, other->Name(0, body));
           } else if (wtlimit > other->Skill("Container")) {
-            mind->SendF("and can carry more than %s.\n", other->Name(0, body));
+            mind->SendF(CGRN "and can carry more than %s.\n" CNRM, other->Name(0, body));
           } else {
             mind->SendF("and can carry the same as %s.\n", other->Name(0, body));
           }
@@ -1990,9 +1991,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         // Liquid Containers
         if (volume && other->HasSkill("Liquid Container")) {
           if (volume < other->Skill("Liquid Container")) {
-            mind->SendF("   ...it can't hold as much as %s.\n", other->Name(0, body));
+            mind->SendF(CYEL "   ...it can't hold as much as %s.\n" CNRM, other->Name(0, body));
           } else if (volume > other->Skill("Liquid Container")) {
-            mind->SendF("   ...it can hold more than %s.\n", other->Name(0, body));
+            mind->SendF(CGRN "   ...it can hold more than %s.\n" CNRM, other->Name(0, body));
           } else {
             mind->SendF("   ...it can hold about the same amount as %s.\n", other->Name(0, body));
           }
@@ -2030,9 +2031,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
               int diff = targ->Attribute(0);
               diff -= repl->Attribute(0);
               if (diff > 0) {
-                mind->Send("      ...and would provide better protection.\n");
+                mind->Send(CGRN "      ...and would provide better protection.\n" CNRM);
               } else if (diff < 0) {
-                mind->Send("      ...and would not provide as much protection.\n");
+                mind->Send(CYEL "      ...and would not provide as much protection.\n" CNRM);
               } else {
                 mind->Send("      ...and would provide similar protection.\n");
               }
@@ -2064,17 +2065,17 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         if ((!targ->ActTarg(ACT_WIELD)) && (!body->ActTarg(ACT_WIELD))) {
           mind->Send("   ...is unarmed, but so are you.\n");
         } else if (!targ->ActTarg(ACT_WIELD)) {
-          mind->Send("   ...is unarmed.\n");
+          mind->Send(CGRN "   ...is unarmed.\n" CNRM);
         } else if (!body->ActTarg(ACT_WIELD)) {
-          mind->Send("   ...is armed, and you are not!\n");
+          mind->Send(CYEL "   ...is armed, and you are not!\n" CNRM);
         }
 
         if (targ->HasSkill("NaturalWeapon") && body->HasSkill("NaturalWeapon")) {
           mind->Send("   ...has natural weaponry, but so do you.\n");
         } else if (body->HasSkill("NaturalWeapon")) {
-          mind->Send("   ...has no natural weaponry, but you do.\n");
+          mind->Send(CGRN "   ...has no natural weaponry, but you do.\n" CNRM);
         } else if (targ->HasSkill("NaturalWeapon")) {
-          mind->Send("   ...has natural weaponry, and you do not!\n");
+          mind->Send(CYEL "   ...has natural weaponry, and you do not!\n" CNRM);
         }
 
         diff = 0;
@@ -2084,9 +2085,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           if (diff)
             mind->Send("   ...has a ranged weapon, and so do you!\n");
           else
-            mind->Send("   ...has a ranged weapon!\n");
+            mind->Send(CYEL "   ...has a ranged weapon!\n" CNRM);
         } else if (diff) {
-          mind->Send("   ...doesn't have a ranged weapon, and you do!\n");
+          mind->Send(CGRN "   ...doesn't have a ranged weapon, and you do!\n" CNRM);
         } else {
           diff = 0;
           if (body->ActTarg(ACT_WIELD))
@@ -2094,21 +2095,21 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           if (targ->ActTarg(ACT_WIELD))
             diff -= targ->ActTarg(ACT_WIELD)->Skill("WeaponReach");
           if (diff < -5)
-            mind->Send("   ...outreaches you by a mile.\n");
+            mind->Send(CRED "   ...outreaches you by a mile.\n" CNRM);
           else if (diff < -2)
-            mind->Send("   ...has much greater reach than you.\n");
+            mind->Send(CRED "   ...has much greater reach than you.\n" CNRM);
           else if (diff < -1)
-            mind->Send("   ...has greater reach than you.\n");
+            mind->Send(CYEL "   ...has greater reach than you.\n" CNRM);
           else if (diff < 0)
-            mind->Send("   ...has a bit greater reach than you.\n");
+            mind->Send(CYEL "   ...has a bit greater reach than you.\n" CNRM);
           else if (diff > 5)
-            mind->Send("   ...has a mile less reach than you.\n");
+            mind->Send(CGRN "   ...has a mile less reach than you.\n" CNRM);
           else if (diff > 2)
-            mind->Send("   ...has much less reach than you.\n");
+            mind->Send(CGRN "   ...has much less reach than you.\n" CNRM);
           else if (diff > 1)
-            mind->Send("   ...has less reach than you.\n");
+            mind->Send(CGRN "   ...has less reach than you.\n" CNRM);
           else if (diff > 0)
-            mind->Send("   ...has a bit less reach than you.\n");
+            mind->Send(CGRN "   ...has a bit less reach than you.\n" CNRM);
           else
             mind->Send("   ...has about your reach.\n");
         }
@@ -2116,9 +2117,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         if ((!targ->ActTarg(ACT_WEAR_SHIELD)) && (!body->ActTarg(ACT_WEAR_SHIELD))) {
           mind->Send("   ...has no shield, but neither do you.\n");
         } else if (!targ->ActTarg(ACT_WEAR_SHIELD)) {
-          mind->Send("   ...has no shield.\n");
+          mind->Send(CGRN "   ...has no shield.\n" CNRM);
         } else if (!body->ActTarg(ACT_WEAR_SHIELD)) {
-          mind->Send("   ...has a shield, and you do not!\n");
+          mind->Send(CYEL "   ...has a shield, and you do not!\n" CNRM);
         }
 
         diff = 0;
@@ -2137,105 +2138,105 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           diff -= targ->Skill(sk);
         }
         if (diff < -5)
-          mind->Send("   ...is far more skilled than you.\n");
+          mind->Send(CRED "   ...is far more skilled than you.\n" CNRM);
         else if (diff < -2)
-          mind->Send("   ...is much more skilled than you.\n");
+          mind->Send(CRED "   ...is much more skilled than you.\n" CNRM);
         else if (diff < -1)
-          mind->Send("   ...is more skilled than you.\n");
+          mind->Send(CYEL "   ...is more skilled than you.\n" CNRM);
         else if (diff < 0)
-          mind->Send("   ...is a bit more skilled than you.\n");
+          mind->Send(CYEL "   ...is a bit more skilled than you.\n" CNRM);
         else if (diff > 5)
-          mind->Send("   ...is far less skilled than you.\n");
+          mind->Send(CGRN "   ...is far less skilled than you.\n" CNRM);
         else if (diff > 2)
-          mind->Send("   ...is much less skilled than you.\n");
+          mind->Send(CGRN "   ...is much less skilled than you.\n" CNRM);
         else if (diff > 1)
-          mind->Send("   ...is less skilled than you.\n");
+          mind->Send(CGRN "   ...is less skilled than you.\n" CNRM);
         else if (diff > 0)
-          mind->Send("   ...is a bit less skilled than you.\n");
+          mind->Send(CGRN "   ...is a bit less skilled than you.\n" CNRM);
         else
           mind->Send("   ...is about as skilled as you.\n");
 
         diff = body->Attribute(0) - targ->Attribute(0);
         if (diff < -10)
-          mind->Send("   ...is titanic.\n");
+          mind->Send(CRED "   ...is titanic.\n" CNRM);
         else if (diff < -5)
-          mind->Send("   ...is gargantuan.\n");
+          mind->Send(CRED "   ...is gargantuan.\n" CNRM);
         else if (diff < -2)
-          mind->Send("   ...is much larger than you.\n");
+          mind->Send(CRED "   ...is much larger than you.\n" CNRM);
         else if (diff < -1)
-          mind->Send("   ...is larger than you.\n");
+          mind->Send(CYEL "   ...is larger than you.\n" CNRM);
         else if (diff < 0)
-          mind->Send("   ...is a bit larger than you.\n");
+          mind->Send(CYEL "   ...is a bit larger than you.\n" CNRM);
         else if (diff > 10)
-          mind->Send("   ...is an ant compared to you.\n");
+          mind->Send(CGRN "   ...is an ant compared to you.\n" CNRM);
         else if (diff > 5)
-          mind->Send("   ...is tiny compared to you.\n");
+          mind->Send(CGRN "   ...is tiny compared to you.\n" CNRM);
         else if (diff > 2)
-          mind->Send("   ...is much smaller than you.\n");
+          mind->Send(CGRN "   ...is much smaller than you.\n" CNRM);
         else if (diff > 1)
-          mind->Send("   ...is smaller than you.\n");
+          mind->Send(CGRN "   ...is smaller than you.\n" CNRM);
         else if (diff > 0)
-          mind->Send("   ...is a bit smaller than you.\n");
+          mind->Send(CGRN "   ...is a bit smaller than you.\n" CNRM);
         else
           mind->Send("   ...is about your size.\n");
 
         diff = body->Attribute(1) - targ->Attribute(1);
         if (diff < -10)
-          mind->Send("   ...is a blur of speed.\n");
+          mind->Send(CRED "   ...is a blur of speed.\n" CNRM);
         else if (diff < -5)
-          mind->Send("   ...is lightning fast.\n");
+          mind->Send(CRED "   ...is lightning fast.\n" CNRM);
         else if (diff < -2)
-          mind->Send("   ...is much faster than you.\n");
+          mind->Send(CRED "   ...is much faster than you.\n" CNRM);
         else if (diff < -1)
-          mind->Send("   ...is faster than you.\n");
+          mind->Send(CYEL "   ...is faster than you.\n" CNRM);
         else if (diff < 0)
-          mind->Send("   ...is a bit faster than you.\n");
+          mind->Send(CYEL "   ...is a bit faster than you.\n" CNRM);
         else if (diff > 10)
-          mind->Send("   ...is a turtle on valium.\n");
+          mind->Send(CGRN "   ...is a turtle on valium.\n" CNRM);
         else if (diff > 5)
-          mind->Send("   ...is slower than dial-up.\n");
+          mind->Send(CGRN "   ...is slower than dial-up.\n" CNRM);
         else if (diff > 2)
-          mind->Send("   ...is much slower than you.\n");
+          mind->Send(CGRN "   ...is much slower than you.\n" CNRM);
         else if (diff > 1)
-          mind->Send("   ...is slower than you.\n");
+          mind->Send(CGRN "   ...is slower than you.\n" CNRM);
         else if (diff > 0)
-          mind->Send("   ...is a bit slower than you.\n");
+          mind->Send(CGRN "   ...is a bit slower than you.\n" CNRM);
         else
           mind->Send("   ...is about your speed.\n");
 
         diff = body->Attribute(2) - targ->Attribute(2);
         if (diff < -10)
-          mind->Send("   ...is the strongest thing you've ever seen.\n");
+          mind->Send(CRED "   ...is the strongest thing you've ever seen.\n" CNRM);
         else if (diff < -5)
-          mind->Send("   ...is super-strong.\n");
+          mind->Send(CRED "   ...is super-strong.\n" CNRM);
         else if (diff < -2)
-          mind->Send("   ...is much stronger than you.\n");
+          mind->Send(CRED "   ...is much stronger than you.\n" CNRM);
         else if (diff < -1)
-          mind->Send("   ...is stronger than you.\n");
+          mind->Send(CYEL "   ...is stronger than you.\n" CNRM);
         else if (diff < 0)
-          mind->Send("   ...is a bit stronger than you.\n");
+          mind->Send(CYEL "   ...is a bit stronger than you.\n" CNRM);
         else if (diff > 10)
-          mind->Send("   ...is a complete push-over.\n");
+          mind->Send(CGRN "   ...is a complete push-over.\n" CNRM);
         else if (diff > 5)
-          mind->Send("   ...is a wuss compared to you.\n");
+          mind->Send(CGRN "   ...is a wimp compared to you.\n" CNRM);
         else if (diff > 2)
-          mind->Send("   ...is much weaker than you.\n");
+          mind->Send(CGRN "   ...is much weaker than you.\n" CNRM);
         else if (diff > 1)
-          mind->Send("   ...is weaker than you.\n");
+          mind->Send(CGRN "   ...is weaker than you.\n" CNRM);
         else if (diff > 0)
-          mind->Send("   ...is a bit weaker than you.\n");
+          mind->Send(CGRN "   ...is a bit weaker than you.\n" CNRM);
         else
           mind->Send("   ...is about your strength.\n");
 
         if (targ->HasSkill("TBAAction")) {
           if ((targ->Skill("TBAAction") & 4128) == 0) {
-            mind->Send("   ...does not seem threatening.\n");
+            mind->Send(CGRN "   ...does not seem threatening.\n" CNRM);
           } else if ((targ->Skill("TBAAction") & 160) == 32) {
-            mind->Send("   ...is spoiling for a fight.\n");
+            mind->Send(CRED "   ...is spoiling for a fight.\n" CNRM);
           } else if ((targ->Skill("TBAAction") & 160) == 160) {
-            mind->Send("   ...seems to be trolling for victems.\n");
+            mind->Send(CRED "   ...seems to be trolling for victems.\n" CNRM);
           } else if (targ->Skill("TBAAction") & 4096) {
-            mind->Send("   ...seems to be on the look-out for trouble.\n");
+            mind->Send(CYEL "   ...seems to be on the look-out for trouble.\n" CNRM);
           } else {
             mind->Send("   ...is impossible - tell the Ninjas[TM].\n");
           }
