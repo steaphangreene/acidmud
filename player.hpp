@@ -1,5 +1,5 @@
 #include <map>
-#include <unordered_set>
+#include <set>
 #include <vector>
 
 #include "object.hpp"
@@ -59,7 +59,7 @@ class Player {
   std::string name, pass;
   Object *room, *creator;
   unsigned long flags;
-  std::unordered_set<unsigned long> completed;
+  std::set<unsigned long> completed;
   int exp;
   std::map<std::string, std::string> vars;
 

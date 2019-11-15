@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <map>
+#include <set>
 #include <string>
-#include <unordered_set>
 
 #include <arpa/telnet.h>
 #include <fcntl.h>
@@ -25,7 +25,7 @@ typedef int socket_t;
 #include "utils.hpp"
 #include "version.hpp"
 
-static std::unordered_set<socket_t> fds;
+static std::set<socket_t> fds;
 static std::map<socket_t, Mind*> minds;
 static std::map<socket_t, std::string> comlines;
 static std::map<socket_t, std::string> outbufs;
@@ -229,7 +229,7 @@ void update_net() {
     minds[newsock]->Send("Welcome to AcidMUD!\n");
   }
 
-  std::unordered_set<socket_t> killfds;
+  std::set<socket_t> killfds;
   for (auto sock : fds) {
     if (FD_ISSET(sock, &exc_set)) {
       killfds.insert(sock);

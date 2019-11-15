@@ -50,7 +50,7 @@ const char* act_str[ACT_SPECIAL_MAX] = {
 static Object* universe = nullptr;
 static Object* trash_bin = nullptr;
 
-static std::unordered_set<Object*> busylist;
+static std::set<Object*> busylist;
 extern timeval current_time; // From main.cpp
 
 Object* Object::Universe() {
@@ -313,7 +313,7 @@ Object* new_body() {
 }
 
 #define TICKSPLIT 6000 // 60 seconds
-static std::unordered_set<Object*> ticklist[TICKSPLIT];
+static std::set<Object*> ticklist[TICKSPLIT];
 int Object::IsActive() const {
   return (tickstep >= 0);
 }
@@ -337,7 +337,7 @@ void Object::Deactivate() {
 
 void tick_world() {
   static int tickstage = 0;
-  std::unordered_set<Object*> todel, todeact;
+  std::set<Object*> todel, todeact;
   //  fprintf(stderr, "Ticking %d items\n", ticklist[tickstage].size());
   for (auto ind : ticklist[tickstage]) {
     int res = ind->Tick();
@@ -449,7 +449,7 @@ int Object::Tick() {
       corpse->SetSize(Size());
       corpse->SetVolume(Volume());
 
-      std::unordered_set<Object*> todrop;
+      std::set<Object*> todrop;
       std::list<Object*> todropfrom;
       todropfrom.push_back(this);
 
@@ -1142,7 +1142,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
   if (!b.empty())
     base += b;
 
-  std::unordered_set<Object*> master;
+  std::set<Object*> master;
   master.insert(cont.begin(), cont.end());
 
   for (act_t actt = ACT_HOLD; actt < ACT_MAX; actt = act_t(int(actt) + 1)) {
@@ -1955,8 +1955,8 @@ void Object::Recycle(int inbin) {
 
   // fprintf(stderr, "Deleting: %s\n", Name(0));
 
-  std::unordered_set<Object*> movers;
-  std::unordered_set<Object*> killers;
+  std::set<Object*> movers;
+  std::set<Object*> killers;
   for (auto ind : contents) {
     if (is_pc(ind)) {
       movers.insert(ind);
@@ -2014,7 +2014,7 @@ void Object::Recycle(int inbin) {
   }
 
   // Actions over long distances must be notified!
-  std::unordered_set<Object*> tonotify;
+  std::set<Object*> tonotify;
   if (ActTarg(ACT_SPECIAL_MASTER))
     tonotify.insert(ActTarg(ACT_SPECIAL_MASTER));
   if (ActTarg(ACT_SPECIAL_MONITOR))
@@ -2457,7 +2457,7 @@ int Object::IsNearBy(const Object* obj) {
 }
 
 void Object::NotifyLeft(Object* obj, Object* newloc) {
-  std::unordered_set<act_t> stops, stops2;
+  std::set<act_t> stops, stops2;
   int following = 0;
   for (auto curact : act) {
     if (curact.second && curact.first < ACT_MAX &&
@@ -2645,8 +2645,8 @@ void Object::UpdateDamage() {
       stun = 10;
       Collapse();
       AddAct(ACT_DEAD);
-      std::unordered_set<Mind*> removals;
-      std::unordered_set<Mind*>::iterator mind;
+      std::set<Mind*> removals;
+      std::set<Mind*>::iterator mind;
       for (auto mnd : minds) {
         if (mnd->Type() == MIND_REMOTE)
           removals.insert(mnd);
@@ -3109,7 +3109,7 @@ void Object::SendOutF(
 }
 
 void Object::Loud(int str, const char* mes) {
-  std::unordered_set<Object*> visited;
+  std::set<Object*> visited;
   Loud(visited, str, mes);
 }
 
@@ -3125,11 +3125,11 @@ void Object::LoudF(int str, const char* mes, ...) {
   vsprintf(buf, mes, stuff);
   va_end(stuff);
 
-  std::unordered_set<Object*> visited;
+  std::set<Object*> visited;
   Loud(visited, str, buf);
 }
 
-void Object::Loud(std::unordered_set<Object*>& visited, int str, const char* mes) {
+void Object::Loud(std::set<Object*>& visited, int str, const char* mes) {
   visited.insert(this);
   std::list<Object*> targs;
   targs = PickObjects("all", LOC_INTERNAL);
@@ -3527,7 +3527,7 @@ int Object::Exp(const Player* p) const {
 }
 
 int two_handed(int wtype) {
-  static std::unordered_set<int> thsks;
+  static std::set<int> thsks;
   if (thsks.size() == 0) {
     thsks.insert(get_weapon_type("Two-Handed Blades"));
     thsks.insert(get_weapon_type("Two-Handed Cleaves"));
@@ -3895,8 +3895,8 @@ int Object::WearMask() const {
       Skill("Wearable on Left Hip") | Skill("Wearable on Right Hip"));
 }
 
-std::unordered_set<act_t> Object::WearSlots(int m) const {
-  std::unordered_set<act_t> locs;
+std::set<act_t> Object::WearSlots(int m) const {
+  std::set<act_t> locs;
   if (Skill("Wearable on Back") & m)
     locs.insert(ACT_WEAR_BACK);
   if (Skill("Wearable on Chest") & m)
@@ -3946,9 +3946,9 @@ std::unordered_set<act_t> Object::WearSlots(int m) const {
   return locs;
 }
 
-std::string Object::WearNames(const std::unordered_set<act_t>& locs) const {
+std::string Object::WearNames(const std::set<act_t>& locs) const {
   std::string ret = "";
-  std::unordered_set<act_t>::const_iterator loc = locs.begin();
+  std::set<act_t>::const_iterator loc = locs.begin();
   for (; loc != locs.end(); ++loc) {
     if (loc != locs.begin()) {
       auto tmp = loc;
@@ -4158,7 +4158,7 @@ int Object::Wear(Object* targ, unsigned long masks, int mes) {
     mask <<= 1;
   int success = 0;
   while (!success && mask != 0) {
-    std::unordered_set<act_t> locations;
+    std::set<act_t> locations;
 
     if (targ->Skill("Wearable on Back") & mask)
       locations.insert(ACT_WEAR_BACK);

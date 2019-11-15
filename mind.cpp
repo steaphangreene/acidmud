@@ -596,7 +596,7 @@ void Mind::TBAVarSub(std::string& line) {
       while (room && room->Skill("TBARoom") == 0)
         room = room->Parent();
       if (room) {
-        std::unordered_set<Object*> options;
+        std::set<Object*> options;
         options.insert(room->PickObject("north", LOC_INTERNAL));
         options.insert(room->PickObject("south", LOC_INTERNAL));
         options.insert(room->PickObject("east", LOC_INTERNAL));
@@ -606,7 +606,7 @@ void Mind::TBAVarSub(std::string& line) {
         options.erase(nullptr);
         if (options.size() > 0) {
           int num = rand() % options.size();
-          std::unordered_set<Object*>::iterator item = options.begin();
+          std::set<Object*>::iterator item = options.begin();
           for (; num > 0; --num) {
             ++item;
           }
@@ -1129,7 +1129,7 @@ void Mind::TBAVarSub(std::string& line) {
             obj = obj->ActTarg(ACT_FOLLOW); // FIXME: More Kinds?
         } else if (!strcmp(field.c_str(), "follower")) {
           if (obj) {
-            std::unordered_set<Object*> touch = obj->Touching();
+            std::set<Object*> touch = obj->Touching();
             bool found = false;
             for (auto tent : touch) {
               if (tent->ActTarg(ACT_FOLLOW) == obj) {

@@ -2013,12 +2013,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->SendF("%s can only be worn one way:\n", targ->Name(0, body));
       }
       for (int mask = 1; mask <= all; mask <<= 1) {
-        std::unordered_set<act_t> locs = targ->WearSlots(mask);
+        std::set<act_t> locs = targ->WearSlots(mask);
         if (locs.size() > 0) {
           mind->SendF("It can be worn on %s.\n", targ->WearNames(locs).c_str());
           handled = 1;
 
-          std::unordered_set<Object*> repls;
+          std::set<Object*> repls;
           for (const auto loc : locs) {
             if (body->ActTarg(loc))
               repls.insert(body->ActTarg(loc));

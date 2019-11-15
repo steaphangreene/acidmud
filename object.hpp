@@ -1,7 +1,7 @@
 #include <list>
 #include <map>
+#include <set>
 #include <string>
-#include <unordered_set>
 
 #include <fcntl.h>
 #include <sys/time.h>
@@ -127,7 +127,7 @@ class Object {
   Object* Parent() const {
     return parent;
   };
-  std::unordered_set<Object*> Touching() const {
+  std::set<Object*> Touching() const {
     return touching_me;
   };
 
@@ -309,8 +309,8 @@ class Object {
 
   int Wearing(const Object* obj) const;
   int WearMask() const;
-  std::unordered_set<act_t> WearSlots(int m = -1) const;
-  std::string WearNames(const std::unordered_set<act_t>& locs) const;
+  std::set<act_t> WearSlots(int m = -1) const;
+  std::string WearNames(const std::set<act_t>& locs) const;
   std::string WearNames(int m = -1) const;
 
   int Quantity() const;
@@ -404,7 +404,7 @@ class Object {
  private:
   void NotifyLeft(Object* obj, Object* newloc = nullptr);
 
-  void Loud(std::unordered_set<Object*>& visited, int str, const char* mes);
+  void Loud(std::set<Object*>& visited, int str, const char* mes);
 
   int Filter(int loc);
 
@@ -415,7 +415,7 @@ class Object {
   std::string long_desc;
   std::list<Object*> contents;
   Object* parent;
-  std::unordered_set<Mind*> minds;
+  std::set<Mind*> minds;
   pos_t pos;
   std::string cur_skill;
 
@@ -423,7 +423,7 @@ class Object {
   int value;
   char gender;
 
-  std::unordered_set<unsigned long> completed;
+  std::set<unsigned long> completed;
   int exp, sexp;
 
   int phys, stun, stru;
@@ -434,7 +434,7 @@ class Object {
   int no_hear; // For Send() protection
 
   std::map<act_t, Object*> act;
-  std::unordered_set<Object*> touching_me;
+  std::set<Object*> touching_me;
 
   timeval busytill;
   std::string dowhenfree, defact;

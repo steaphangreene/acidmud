@@ -2386,8 +2386,8 @@ void Object::TBALoadWLD(const char* fn) {
 }
 
 const char* base = "'^&*abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ";
-static std::unordered_set<std::string> parse_tba_shop_rules(std::string rules) {
-  std::unordered_set<std::string> ret;
+static std::set<std::string> parse_tba_shop_rules(std::string rules) {
+  std::set<std::string> ret;
   if (rules[0]) {
     //    fprintf(stderr, "Initial: '%s'\n", rules.c_str());
     size_t done = rules.find_first_not_of(base);
@@ -2404,7 +2404,7 @@ static std::unordered_set<std::string> parse_tba_shop_rules(std::string rules) {
         size_t end = rules.find_first_of(")]");
         if (end == std::string::npos)
           end = rules.length();
-        std::unordered_set<std::string> tmp = parse_tba_shop_rules(rules.substr(done + 1));
+        std::set<std::string> tmp = parse_tba_shop_rules(rules.substr(done + 1));
         for (auto next : tmp) {
           ret.insert(next + rules.substr(end + 1));
           //	  fprintf(stderr, "  Built: '%s'\n",
@@ -2579,7 +2579,7 @@ void Object::TBALoadSHP(const char* fn) {
 
             if (extra[0]) {
               // fprintf(stderr, "Rule: '%s'\n", extra.c_str());
-              std::unordered_set<std::string> extras = parse_tba_shop_rules(extra);
+              std::set<std::string> extras = parse_tba_shop_rules(extra);
               for (auto ex : extras) {
                 // fprintf(stderr, "Adding: 'Accept %s'\n", ex.c_str());
                 // keeper->SetSkill("Accept " + ex, 1);
