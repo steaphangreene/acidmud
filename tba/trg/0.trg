@@ -114,7 +114,8 @@ shake~
 * mostly positive, three are mostly negative, and five are abstentions. 
 *
 * Check arguments if they match. /= checks abbreviations.
-if ball /= %arg% || eightball /= %arg%
+set argcheck 'ball 'eightball
+if %argcheck.contains('%arg%)%
   * Echo text to everyone else in the room and the actor.
   %echoaround% %actor% %actor.name% shakes %self.shortdesc% vigorously.
   %send% %actor% You shake %self.shortdesc% vigorously.
@@ -296,7 +297,8 @@ wait 1 sec
 Restorative Comfy Bed 1401 - Sleep~
 1 c 4
 sl~
-if %mud.mudcommand% == sleep && %arg% == bed
+set argcheck 'bed
+if %cmd.mudcommand% == sleep && %argcheck.contains('%arg%)%
   %force% %actor% sleep
   set laying_in_comfy_bed_14 1
   remote laying_in_comfy_bed_14 %actor.id%
@@ -408,11 +410,12 @@ Switch Echo Example~
 2 g 100
 ~
 * By Rumble of The Builder Academy    tbamud.com 9091
-* put a wait in here so it doesn't fire before the player enters the room
+* Since this is an ENTER trigger we must put a wait in here 
+* so it doesn't fire before the player enters the room
 wait 1
-switch %random.3%
+switch %random.4%
   case 1
-    * only the person entering the room will see this.
+    * only the person (actor) entering the room will see this.
     %send% %actor% You trip over a root as you walk into the room. 
     * everyone in the room except the actor will see this.
     %echoaround% %actor% %actor.name% trips on a root while walking into the room.
@@ -428,6 +431,19 @@ switch %random.3%
   break
   case 3
     %echo% A light breeze picks up, causing the leaves to rustle quietly.
+  break
+  case 4
+    * echoes go to everyone, even sleeping players. To prevent this try:
+    set target_char %self.people%
+    while %target_char%
+      set tmp_target %target_char.next_in_room%
+      if %target_char.pos% != sleeping
+        %send% %target_char% You are not sleeping
+      else
+        %send% %target_char% You are sleeping
+      end
+      set target_char %tmp_target%
+    done
   break
   default
     * this should be here, even if it's never reached
@@ -1604,7 +1620,8 @@ Room Command Example~
 2 c 100
 l~
 * By Rumble of The Builder Academy    tbamud.com 9091
-if %cmd.mudcommand% == look && bridge /= %arg%
+set bridge 'bridge
+if %cmd.mudcommand% == look && %bridge.contains('%arg%)%
   %send% %actor% As you look at the bridge a small form staggers out from underneath it.
   %echoaround% %actor% As %actor.name% peers under the bridge a small form emerges.
   %load% mob 207
@@ -1634,7 +1651,7 @@ Room Speech Example~
 * set the first word
 set word %speech.car%
 * set the rest of the speech string
-se rest %speech.cdr%
+set rest %speech.cdr%
 * while there is a first word keep going
 while %word%
   %echo% the first word is: %word%
@@ -1754,15 +1771,15 @@ Mob Random Example~
 0 b 2
 ~
 * By Rumble of The Builder Academy    tbamud.com 9091
-* don't let him cast while incapacitated.
+* With random triggers ACTOR is NOT defined. So set it.
+set actor %random.char%
+wait 1 sec
+say Hey!  You don't belong here!
+emote mumbles, 'Now what was that spell...'
+wait 1 sec
+* Senile old guard casts random spells on intruders.
+* Don't cast if incapacitated 
 if %self.hitp% > 0
-  * With random triggers ACTOR is NOT defined. So set it.
-  set actor %random.char%
-  wait 1 sec
-  say Hey!  You don't belong here!
-  emote mumbles, 'Now what was that spell...'
-  wait 1 sec
-  * Senile old guard casts random spells on intruders.
   switch %random.17%
     case 1
       dg_cast 'cure light' %actor%
@@ -1830,11 +1847,13 @@ Mob Command Example~
 0 c 100
 l~
 * By Rumble of The Builder Academy    tbamud.com 9091
-* Make sure the command is look, check for any abbrev of window
-if %cmd.mudcommand% == look && %arg% /= orb
+* does not work for level 32 and above.
+* Make sure the command is look, check for any abbrev of orb
+if %cmd.mudcommand% == look && orb /= %arg%
   %send% %actor% As you look at the orb a feeling of peace and serenity comes over you.
   %echoround% %actor% %actor.name% stares at the orb.
 else
+  * If it doesn't match let the command continue.
   return 0
 end
 ~
@@ -2264,6 +2283,7 @@ Obj Load Example~
 1 n 50
 ~
 * By Rumble of The Builder Academy    tbamud.com 9091
+* Squeak when loading.
 %echo% %self.shortdesc% lets out a faint squeak as if gasping for breath.
 ~
 #89
@@ -2801,12 +2821,12 @@ end
 Obj Command 82 - Teleporter~
 1 c 3
 teleport~
-* By Rumble w/help from Jamie Nelson on http://groups.yahoo.com/group/dg_scripts/
+* By Rumble and Jamie Nelson of The Builder Academy    tbamud.com 9091
 %send% %actor% You attempt to manipulate space and time.
 %echoaround% %actor% %actor.name% attempts to manipulate space and time.
 wait 1 sec
 set sanctus 100
-set jade 499
+set jade 400
 set newbie 500
 set sea 600
 set camelot 775
@@ -2924,7 +2944,7 @@ set leper 31200
 set altar 31400
 set mcgintey 31500
 set wharf 31700
-set dock 31800
+set dock 31801
 set yllnthad 31900
 set bay 32200
 set pale 32300
@@ -2933,6 +2953,7 @@ set revelry 32500
 set perimeter 32600
 set asylum 34501
 set ultima 55685
+set tarot 21101
 if !%arg%
   *they didnt type a location
   set fail 1
