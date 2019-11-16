@@ -231,7 +231,9 @@ class Object {
   void SpendExp(int);
   int Accomplish(unsigned long);
   int TotalExp(Player* p = nullptr) const;
-  int Exp(const Player* p = nullptr) const;
+  int Exp() const {
+    return exp;
+  };
 
   int Stun() const {
     return stun;

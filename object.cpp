@@ -1580,9 +1580,9 @@ void Object::SendScore(Mind* m, Object* o) {
     m->Send(CYEL);
     m->SendF(
         "\nEarned Exp: %4d  Player Exp: %4d  Unspent Exp: %4d\n",
-        exp,
+        Exp(),
         (minds.count(m) && m->Owner()) ? m->Owner()->Exp() : -1,
-        (minds.count(m) && m->Owner()) ? Exp(m->Owner()) : 0);
+        (minds.count(m) && m->Owner()) ? TotalExp(m->Owner()) : 0);
     if (Power("Heat Vision Spell") || Power("Dark Vision Spell")) {
       m->SendF("Heat/Dark Vision: %d/%d\n", Power("Heat Vision Spell"), Power("Dark Vision Spell"));
     }
@@ -3525,14 +3525,7 @@ int Object::Accomplish(unsigned long acc) {
 }
 
 int Object::TotalExp(Player* p) const {
-  int ret = exp;
-  if (p)
-    ret += p->Exp();
-  return ret;
-}
-
-int Object::Exp(const Player* p) const {
-  int ret = (exp - sexp);
+  int ret = Exp();
   if (p)
     ret += p->Exp();
   return ret;

@@ -719,7 +719,7 @@ void Mind::TBAVarSub(std::string& line) {
         } else if (!strcmp(field.c_str(), "level")) {
           val = "";
           if (obj)
-            val = itos(obj->Exp() / 10 + 1);
+            val = itos(obj->TotalExp() / 10 + 1);
           obj = nullptr;
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "name")) {
@@ -956,7 +956,7 @@ void Mind::TBAVarSub(std::string& line) {
         } else if (!strcmp(field.c_str(), "exp")) {
           val = "";
           if (obj)
-            val = itos(obj->Exp());
+            val = itos(obj->TotalExp());
           obj = nullptr;
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "hunger")) {
