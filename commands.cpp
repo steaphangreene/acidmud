@@ -1128,7 +1128,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             "Use the 'newcharacter' command to create a new character.\n");
         return 0;
       }
-      if (body->Skill("Attributes") || body->Skill("Skills")) {
+      if (body->Skill("Attribute Points") > 0 || body->Skill("Skill Points") > 0) {
         mind->Send("You need to finish that character before you can use it.\n");
         mind->SendF("'%s' is now selected as your currect character to work on.\n", body->Name());
         mind->Owner()->SetCreator(body);
@@ -5068,23 +5068,16 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    while (chr->Skill("Attributes") > chr->NormAttribute(0) ||
-           chr->Skill("Attributes") > chr->NormAttribute(1) ||
-           chr->Skill("Attributes") > chr->NormAttribute(2) ||
-           chr->Skill("Attributes") > chr->NormAttribute(3) ||
-           chr->Skill("Attributes") > chr->NormAttribute(4) ||
-           chr->Skill("Attributes") > chr->NormAttribute(5)) {
+    while (chr->Skill("Attribute Points") > 0) {
       int which = (rand() % 6);
-      if (chr->NormAttribute(which) < 6 && chr->Skill("Attributes") > chr->NormAttribute(which)) {
+      if (chr->NormAttribute(which) < 6) {
+        chr->SetSkill("Attribute Points", chr->Skill("Attribute Points") - 1);
         chr->SetAttribute(which, chr->NormAttribute(which) + 1);
-        chr->SetSkill("Attributes", chr->Skill("Attributes") - chr->NormAttribute(which));
       }
     }
-    chr->SetSkill("Senses", chr->Skill("Attributes"));
-    chr->SetSkill("Attributes", 0);
 
     auto skills = get_skills("all");
-    while (chr->Skill("Skills")) {
+    while (chr->Skill("Skill Points")) {
       int which = (rand() % skills.size());
       auto skl = skills.begin();
       while (which) {
@@ -5092,9 +5085,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         --which;
       }
       if (chr->Skill(*skl) < (chr->NormAttribute(get_linked(*skl)) + 1) / 2 &&
-          chr->Skill("Skills") > chr->Skill(*skl)) {
+          chr->Skill("Skill Points") > chr->Skill(*skl)) {
         chr->SetSkill(*skl, chr->Skill(*skl) + 1);
-        chr->SetSkill("Skills", chr->Skill("Skills") - chr->Skill(*skl));
+        chr->SetSkill("Skill Points", chr->Skill("Skill Points") - chr->Skill(*skl));
       }
     }
     mind->SendF("You randomly spend all remaining points for '%s'.\n", chr->ShortDesc());
@@ -5119,14 +5112,13 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    int cost = 1;
     if ((!strncmp(cmd.c_str() + len, "body", strlen(cmd.c_str() + len))) ||
         (!strncmp(cmd.c_str() + len, "quickness", strlen(cmd.c_str() + len))) ||
         (!strncmp(cmd.c_str() + len, "strength", strlen(cmd.c_str() + len))) ||
         (!strncmp(cmd.c_str() + len, "charisma", strlen(cmd.c_str() + len))) ||
         (!strncmp(cmd.c_str() + len, "intelligence", strlen(cmd.c_str() + len))) ||
         (!strncmp(cmd.c_str() + len, "willpower", strlen(cmd.c_str() + len)))) {
-      if ((!body) && (!chr->Skill("Attributes"))) {
+      if ((!body) && (chr->Skill("Attribute Points") < 1)) {
         mind->Send("You have no free attribute points left.\n");
         return 0;
       }
@@ -5144,19 +5136,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       else if (toupper(*(cmd.c_str() + len)) == 'W')
         attr = 5;
 
-      cost = chr->NormAttribute(attr) + 1;
-
-      if (body && chr->Exp(mind->Owner()) < (cost * 4)) {
+      if (body && chr->Exp(mind->Owner()) < 20) {
         mind->SendF(
             "You don't have enough experience to raise your %s.\n"
-            "You need %d, but you only have %d\n",
+            "You need 20, but you only have %d\n",
             statnames[attr],
-            cost * 4,
             chr->Exp(mind->Owner()));
-        return 0;
-      }
-      if ((!body) && (chr->Skill("Attributes") < cost)) {
-        mind->Send("You don't have enough free attribute points left.\n");
         return 0;
       }
 
@@ -5176,20 +5161,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->SendF("Your %s is already at the maximum.\n", statnames[attr]);
       } else {
         if (!body)
-          chr->SetSkill("Attributes", chr->Skill("Attributes") - cost);
+          chr->SetSkill("Attribute Points", chr->Skill("Attribute Points") - 1);
         else
-          chr->SpendExp(cost * 4);
+          chr->SpendExp(20);
         chr->SetAttribute(attr, chr->NormAttribute(attr) + 1);
         mind->SendF("You raise your %s.\n", statnames[attr]);
       }
-    } else if ((!body) && (!strncmp(cmd.c_str() + len, "senses", strlen(cmd.c_str() + len)))) {
-      if (!chr->Skill("Attributes")) {
-        mind->Send("You have no free attribute points left.\n");
-        return 0;
-      }
-      chr->SetSkill("Attributes", chr->Skill("Attributes") - 1);
-      chr->SetSkill("Senses", chr->Skill("Senses") + 1);
-      mind->Send("You set aside an attribute point for senses.\n");
     } else {
       std::string skill = get_skill(cmd.c_str() + len);
       if (skill != "") {
@@ -5201,7 +5178,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           mind->SendF("Your %s is already at the maximum.\n", skill.c_str());
           return 0;
         }
-        cost = (chr->Skill(skill) + 1);
+        int cost = (chr->Skill(skill) + 1);
         if (body) {
           if (cost > chr->NormAttribute(get_linked(skill)))
             cost *= 2;
@@ -5214,21 +5191,21 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
                 chr->Exp(mind->Owner()));
             return 0;
           }
-        } else if (!chr->Skill("Skills")) {
+        } else if (!chr->Skill("Skill Points")) {
           mind->Send("You have no free skill points left.\n");
           return 0;
-        } else if (chr->Skill("Skills") < cost) {
+        } else if (chr->Skill("Skill Points") < cost) {
           mind->Send("You don't have enough free skill points left.\n");
           return 0;
         }
         if (body)
           chr->SpendExp(cost * 2);
         else
-          chr->SetSkill("Skills", chr->Skill("Skills") - cost);
+          chr->SetSkill("Skill Points", chr->Skill("Skill Points") - cost);
         chr->SetSkill(skill, chr->Skill(skill) + 1);
         mind->SendF("You raise your %s skill.\n", skill.c_str());
       } else {
-        mind->Send("I'm not sure what you are trying to buy.\n");
+        mind->Send("I'm not sure what you are trying to raise.\n");
       }
     }
     return 0;

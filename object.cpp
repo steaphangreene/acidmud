@@ -282,9 +282,9 @@ Object* new_body() {
   body->SetWeight(80000);
   body->SetGender('M');
 
-  body->SetSkill("Attributes", 59);
-  body->SetSkill("Skills", 60);
-  body->SetSkill("Resources", 90000);
+  body->SetSkill("Attribute Points", 12);
+  body->SetSkill("Skill Points", 64);
+  body->SetSkill("Status Points", 6);
 
   body->SetPos(POS_STAND);
 
