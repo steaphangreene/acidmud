@@ -113,19 +113,19 @@ MOBType::MOBType(
   long_desc = lds;
   genders = gens;
   b = ib;
-  bm = MAX(ibm, 1);
+  bm = std::max(ibm, 1);
   q = iq;
-  qm = MAX(iqm, 1);
+  qm = std::max(iqm, 1);
   s = is;
-  sm = MAX(ism, 1);
+  sm = std::max(ism, 1);
   c = ic;
-  cm = MAX(icm, 1);
+  cm = std::max(icm, 1);
   i = ii;
-  im = MAX(iim, 1);
+  im = std::max(iim, 1);
   w = iw;
-  wm = MAX(iwm, 1);
+  wm = std::max(iwm, 1);
   g = ig;
-  gm = MAX(igm, 1);
+  gm = std::max(igm, 1);
 
   armed = nullptr;
 }
@@ -246,9 +246,9 @@ WeaponType::WeaponType(
   type = get_weapon_type(t);
   reach = r;
   force = f;
-  forcem = MAX(fm, 1);
+  forcem = std::max(fm, 1);
   sev = s;
-  sevm = MAX(sm, 1);
+  sevm = std::max(sm, 1);
   weight = w;
   volume = vol;
   value = val;
@@ -280,13 +280,13 @@ ArmorType::ArmorType(
   long_desc = lds;
 
   bulk = b;
-  bulkm = MAX(bm, 1);
+  bulkm = std::max(bm, 1);
   impact = i;
-  impactm = MAX(im, 1);
+  impactm = std::max(im, 1);
   thread = t;
-  threadm = MAX(tm, 1);
+  threadm = std::max(tm, 1);
   planar = p;
-  planarm = MAX(pm, 1);
+  planarm = std::max(pm, 1);
 
   if (l1 != ACT_NONE)
     loc.push_back(l1);

@@ -375,8 +375,8 @@ void Mind::UpdatePrompt() {
     sprintf(
         buf,
         "[%s][%s] %s> %c",
-        sevs_p[MIN(10, Body()->Phys())],
-        sevs_s[MIN(10, Body()->Stun())],
+        sevs_p[std::min(10, Body()->Phys())],
+        sevs_s[std::min(10, Body()->Stun())],
         Body()->ShortDesc(),
         0);
     SetPrompt(pers, buf);

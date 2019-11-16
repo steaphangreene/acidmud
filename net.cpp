@@ -165,7 +165,7 @@ ssize_t sock_write(int fd, const char* mes) {
 void connect_sock(int newsock) {
   nonblock(newsock);
   fds.insert(newsock);
-  maxfd = MAX(maxfd, newsock);
+  maxfd = std::max(maxfd, newsock);
   Mind* mind = new Mind(newsock);
   minds[newsock] = mind;
 }
@@ -173,7 +173,7 @@ void connect_sock(int newsock) {
 void reconnect_sock(int newsock, int log) {
   nonblock(newsock);
   fds.insert(newsock);
-  maxfd = MAX(maxfd, newsock);
+  maxfd = std::max(maxfd, newsock);
   Mind* mind = new Mind(newsock, log);
   minds[newsock] = mind;
 }

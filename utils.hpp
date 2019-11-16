@@ -1,8 +1,5 @@
 #include <string>
 
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
-
 // String Functions
 void replace_all(std::string& str, const std::string& oldt, const std::string& newt, size_t st = 0);
 

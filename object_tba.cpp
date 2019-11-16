@@ -862,22 +862,22 @@ void Object::TBALoadMOB(const char* fn) {
       memset(buf, 0, 65536);
       while (tp == 'E') { // Basically an if with an infinite loop ;)
         if (fscanf(mudm, "Con: %d\n", &val))
-          obj->SetAttribute(0, MAX(obj->NormAttribute(0), (val / 3) + 3));
+          obj->SetAttribute(0, std::max(obj->NormAttribute(0), (val / 3) + 3));
 
         else if (fscanf(mudm, "Dex: %d\n", &val))
-          obj->SetAttribute(1, MAX(obj->NormAttribute(1), (val / 3) + 3));
+          obj->SetAttribute(1, std::max(obj->NormAttribute(1), (val / 3) + 3));
 
         else if (fscanf(mudm, "Str: %d\n", &val))
-          obj->SetAttribute(2, MAX(obj->NormAttribute(2), (val / 3) + 3));
+          obj->SetAttribute(2, std::max(obj->NormAttribute(2), (val / 3) + 3));
 
         else if (fscanf(mudm, "ha: %d\n", &val)) //'Cha' minus 'Con' Conflict!
-          obj->SetAttribute(3, MAX(obj->NormAttribute(3), (val / 3) + 3));
+          obj->SetAttribute(3, std::max(obj->NormAttribute(3), (val / 3) + 3));
 
         else if (fscanf(mudm, "Int: %d\n", &val))
-          obj->SetAttribute(4, MAX(obj->NormAttribute(4), (val / 3) + 3));
+          obj->SetAttribute(4, std::max(obj->NormAttribute(4), (val / 3) + 3));
 
         else if (fscanf(mudm, "Wis: %d\n", &val))
-          obj->SetAttribute(5, MAX(obj->NormAttribute(5), (val / 3) + 3));
+          obj->SetAttribute(5, std::max(obj->NormAttribute(5), (val / 3) + 3));
 
         else if (fscanf(mudm, "Add: %d\n", &val))
           ; //'StrAdd' - Do Nothing

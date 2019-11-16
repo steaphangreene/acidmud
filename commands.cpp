@@ -688,10 +688,10 @@ com_t identify_command(const std::string& str) {
     if (comlist[ctr].id == COM_SAY && (str[0] == '\'' || str[0] == '"')) {
       return comlist[ctr].id;
     }
-    if (comlist[ctr].id == COM_DUMP && (!strncmp(str.c_str(), "empty", MAX(len, 3)))) {
+    if (comlist[ctr].id == COM_DUMP && (!strncmp(str.c_str(), "empty", std::max(len, 3)))) {
       return comlist[ctr].id;
     }
-    if (comlist[ctr].id == COM_GET && (!strncmp(str.c_str(), "take", MAX(len, 1)))) {
+    if (comlist[ctr].id == COM_GET && (!strncmp(str.c_str(), "take", std::max(len, 1)))) {
       return comlist[ctr].id;
     }
   }
@@ -797,12 +797,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       cnum = ctr;
       break;
     }
-    if (comlist[ctr].id == COM_DUMP && (!strncmp(cmd.c_str(), "empty", MAX(len, 3)))) {
+    if (comlist[ctr].id == COM_DUMP && (!strncmp(cmd.c_str(), "empty", std::max(len, 3)))) {
       com = comlist[ctr].id;
       cnum = ctr;
       break;
     }
-    if (comlist[ctr].id == COM_GET && (!strncmp(cmd.c_str(), "take", MAX(len, 1)))) {
+    if (comlist[ctr].id == COM_GET && (!strncmp(cmd.c_str(), "take", std::max(len, 1)))) {
       com = comlist[ctr].id;
       cnum = ctr;
       break;
@@ -816,7 +816,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         cnum = ctr;
         break;
       }
-      if (comlist[ctr].id == COM_CHARACTERS && (!strncmp(cmd.c_str(), "chars", MAX(len, 5)))) {
+      if (comlist[ctr].id == COM_CHARACTERS && (!strncmp(cmd.c_str(), "chars", std::max(len, 5)))) {
         com = comlist[ctr].id;
         cnum = ctr;
         break;
@@ -2901,7 +2901,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           int togo = price, ord = -price;
           auto pay = shpkp->PickObjects("a gold piece", vmode | LOC_INTERNAL, &ord);
           for (auto coin : pay) {
-            togo -= MAX(1, coin->Skill("Quantity"));
+            togo -= std::max(1, coin->Skill("Quantity"));
           }
 
           if (togo <= 0) {
@@ -4361,7 +4361,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         obj->SetSkill("WeaponType", 13);
         obj->SetSkill("WeaponReach", 1);
         obj->SetSkill("WeaponSeverity", 2);
-        obj->SetSkill("WeaponForce", MIN(100, force));
+        obj->SetSkill("WeaponForce", std::min(100, force));
       }
       obj->SetWeight(1);
       obj->SetVolume(1);
@@ -4796,7 +4796,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     else {
       if (body->IsAct(ACT_WIELD)) {
         sk1 = get_weapon_skill(body->ActTarg(ACT_WIELD)->Skill("WeaponType"));
-        reachmod += MAX(0, body->ActTarg(ACT_WIELD)->Skill("WeaponReach"));
+        reachmod += std::max(0, body->ActTarg(ACT_WIELD)->Skill("WeaponReach"));
         if (reachmod > 9)
           reachmod = 0;
       }
@@ -4814,7 +4814,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       } else if (targ->ActTarg(ACT_WIELD)) {
         if (sk2 == "Punching")
           sk2 = get_weapon_skill(targ->ActTarg(ACT_WIELD)->Skill("WeaponType"));
-        reachmod -= MAX(0, targ->ActTarg(ACT_WIELD)->Skill("WeaponReach"));
+        reachmod -= std::max(0, targ->ActTarg(ACT_WIELD)->Skill("WeaponReach"));
         if (reachmod < -9)
           reachmod = 0;
       }
@@ -6703,7 +6703,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       mind->SendF("Warning, '%s' is not a real skill name!\n", cmd.c_str() + len);
     }
 
-    targ->SetSkill(cmd.c_str() + len, MAX(targ->Skill(cmd.c_str() + len), 0) + amt);
+    targ->SetSkill(cmd.c_str() + len, std::max(targ->Skill(cmd.c_str() + len), 0) + amt);
 
     body->Parent()->SendOutF(
         stealth_t,

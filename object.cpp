@@ -388,14 +388,14 @@ int Object::Tick() {
       ++phys;
     else
       phys -= rec / 2;
-    phys = MAX(0, phys);
+    phys = std::max(int8_t(0), phys);
     UpdateDamage();
   }
   if (phys < 10 && stun >= 10) {
     int rec = 0;
     rec = RollNoWounds("Willpower", 12);
     stun -= rec;
-    stun = MAX(0, stun);
+    stun = std::max(int8_t(0), stun);
     UpdateDamage();
   } else if (phys < 6 && stun > 0) {
     int rec = 0;
@@ -406,7 +406,7 @@ int Object::Tick() {
     else if (!IsAct(ACT_FIGHT))
       rec = Roll("Willpower", 6);
     stun -= rec;
-    stun = MAX(0, stun);
+    stun = std::max(int8_t(0), stun);
     UpdateDamage();
   }
 
@@ -1213,14 +1213,14 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
 
         /*	Uncomment this and comment the block below to disable
            auto-pluralizing.
-              int qty = MAX(1, ind->Skill("Quantity"));
+              int qty = std::max(1, ind->Skill("Quantity"));
         */
         int qty = 1; // Even animate objects can have higher quantities.
         auto oth = std::find(cont.begin(), cont.end(), ind);
         for (qty = 0; oth != cont.end(); ++oth) {
           if (ind->LooksLike(*oth, vmode)) {
             master.erase(*oth);
-            qty += MAX(1, (*oth)->Skill("Quantity"));
+            qty += std::max(1, (*oth)->Skill("Quantity"));
           }
         }
 
@@ -1456,14 +1456,20 @@ void Object::SendScore(Mind* m, Object* o) {
     return;
   m->SendF("\n%s", CNRM);
   for (int ctr = 0; ctr < 6; ++ctr) {
-    if (MIN(NormAttribute(ctr), 99) == MIN(ModAttribute(ctr), 99)) {
-      m->SendF("%s: %2d     ", atnames[ctr], MIN(ModAttribute(ctr), 99));
+    if (std::min(NormAttribute(ctr), 99) == std::min(ModAttribute(ctr), 99)) {
+      m->SendF("%s: %2d     ", atnames[ctr], std::min(ModAttribute(ctr), 99));
     } else if (ModAttribute(ctr) > 9) { // 2-Digits!
       m->SendF(
-          "%s: %2d (%d)", atnames[ctr], MIN(NormAttribute(ctr), 99), MIN(ModAttribute(ctr), 99));
+          "%s: %2d (%d)",
+          atnames[ctr],
+          std::min(NormAttribute(ctr), 99),
+          std::min(ModAttribute(ctr), 99));
     } else { // 1 Digit!
       m->SendF(
-          "%s: %2d (%d) ", atnames[ctr], MIN(NormAttribute(ctr), 99), MIN(ModAttribute(ctr), 99));
+          "%s: %2d (%d) ",
+          atnames[ctr],
+          std::min(NormAttribute(ctr), 99),
+          std::min(ModAttribute(ctr), 99));
     }
     if (ctr == 0) {
       m->Send("         L     M        S           D");
@@ -1598,7 +1604,7 @@ std::vector<std::string> Object::FormatSkills(std::map<std::string, int>& skls) 
     if (is_skill(skl.first)) {
       skls.erase(skl.first); // Remove it from to-show list.
       char buf2[256];
-      sprintf(buf2, "%28s: " CYEL "%2d" CNRM, skl.first.c_str(), MIN(99, skl.second));
+      sprintf(buf2, "%28s: " CYEL "%2d" CNRM, skl.first.c_str(), std::min(99, skl.second));
       ret.push_back(buf2);
     }
   }
@@ -1663,7 +1669,7 @@ std::vector<std::string> Object::FormatStats(std::map<std::string, int>& skls) {
         buf2,
         "  Damage: " CYEL "(Str+%d)%c",
         Skill("WeaponForce"),
-        sevs[MIN(4, Skill("WeaponSeverity"))]);
+        sevs[std::min(4, Skill("WeaponSeverity"))]);
     if (Skill("WeaponSeverity") > 4) {
       sprintf(buf2 + strlen(buf2), "%d", (Skill("WeaponSeverity") - 4) * 2);
     }
@@ -1816,7 +1822,7 @@ void Object::TryCombine() {
       // fprintf(stderr, "Combining '%s'\n", Name());
       int val;
 
-      val = MAX(1, Skill("Quantity")) + MAX(1, obj->Skill("Quantity"));
+      val = std::max(1, Skill("Quantity")) + std::max(1, obj->Skill("Quantity"));
       SetSkill("Quantity", val);
 
       val = Skill("Hungry") + obj->Skill("Hungry");
@@ -2272,7 +2278,7 @@ std::vector<Object*> Object::PickObjects(const char* name, int loc, int* ordinal
   const char* keyword2 = nullptr;
   if ((keyword = strstr(name, "'s ")) || (keyword2 = strstr(name, "'S "))) {
     if (keyword && keyword2)
-      keyword = MIN(keyword, keyword2);
+      keyword = std::min(keyword, keyword2);
     else if (!keyword)
       keyword = keyword2;
     char* keyword3 = strdup(name);
@@ -3749,7 +3755,7 @@ void Object::Consume(const Object* item) {
   if (item->Skill("Heat Vision Spell")) {
     int force = item->Skill("Heat Vision Spell");
     Object* spell = new Object(this);
-    spell->SetSkill("Heat Vision Spell", MIN(100, force));
+    spell->SetSkill("Heat Vision Spell", std::min(100, force));
     spell->SetShortDesc("a spell");
     spell->SetSkill("Magical", force);
     spell->SetSkill("Magical Spell", force);
@@ -3763,7 +3769,7 @@ void Object::Consume(const Object* item) {
   if (item->Skill("Dark Vision Spell")) {
     int force = item->Skill("Dark Vision Spell");
     Object* spell = new Object(this);
-    spell->SetSkill("Dark Vision Spell", MIN(100, force));
+    spell->SetSkill("Dark Vision Spell", std::min(100, force));
     spell->SetShortDesc("a spell");
     spell->SetSkill("Magical", force);
     spell->SetSkill("Magical Spell", force);
