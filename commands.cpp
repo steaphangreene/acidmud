@@ -377,6 +377,11 @@ Command comlist[1024] = {
      "Spend a skill or attribute point of current character.",
      "Spend a skill or attribute point of current character.",
      (REQ_ETHEREAL | REQ_CORPOREAL)},
+    {COM_LOWER,
+     "lower",
+     "Lower a skill or attribute point of current in-progress character.",
+     "Lower a skill or attribute point of current in-progress character.",
+     (REQ_ETHEREAL)},
     {COM_RANDOMIZE,
      "randomize",
      "Spend all remaining points of current character randomly.",
@@ -5091,6 +5096,53 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       }
     }
     mind->SendF("You randomly spend all remaining points for '%s'.\n", chr->ShortDesc());
+    return 0;
+  }
+
+  if (com == COM_LOWER) {
+    if ((!mind) || (!mind->Owner()))
+      return 0;
+
+    while (len < int(cmd.length()) && (!isgraph(cmd[len])))
+      ++len;
+
+    Object* chr = mind->Owner()->Creator();
+    if (!chr) {
+      mind->Send("You need to be working on a character first (use 'select <character>'.\n");
+      return 0;
+    }
+
+    if ((!strncmp(cmd.c_str() + len, "body", strlen(cmd.c_str() + len))) ||
+        (!strncmp(cmd.c_str() + len, "quickness", strlen(cmd.c_str() + len))) ||
+        (!strncmp(cmd.c_str() + len, "strength", strlen(cmd.c_str() + len))) ||
+        (!strncmp(cmd.c_str() + len, "charisma", strlen(cmd.c_str() + len))) ||
+        (!strncmp(cmd.c_str() + len, "intelligence", strlen(cmd.c_str() + len))) ||
+        (!strncmp(cmd.c_str() + len, "willpower", strlen(cmd.c_str() + len)))) {
+      int attr = 0;
+      if (toupper(*(cmd.c_str() + len)) == 'B')
+        attr = 0;
+      else if (toupper(*(cmd.c_str() + len)) == 'Q')
+        attr = 1;
+      else if (toupper(*(cmd.c_str() + len)) == 'S')
+        attr = 2;
+      else if (toupper(*(cmd.c_str() + len)) == 'C')
+        attr = 3;
+      else if (toupper(*(cmd.c_str() + len)) == 'I')
+        attr = 4;
+      else if (toupper(*(cmd.c_str() + len)) == 'W')
+        attr = 5;
+
+      if (chr->NormAttribute(attr) < 3) {
+        mind->SendF("Your %s is already at the minimum.\n", statnames[attr]);
+        return 0;
+      } else {
+        chr->SetAttribute(attr, chr->NormAttribute(attr) - 1);
+        chr->SetSkill("Attribute Points", chr->Skill("Attribute Points") + 1);
+        mind->SendF("You lower your %s.\n", statnames[attr]);
+      }
+    } else {
+      mind->Send("I'm not sure what you are trying to lower.\n");
+    }
     return 0;
   }
 

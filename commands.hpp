@@ -94,6 +94,7 @@ typedef enum {
 
   COM_NEWCHARACTER,
   COM_RAISE,
+  COM_LOWER,
   COM_RANDOMIZE,
 
   COM_SKILLLIST,
