@@ -5084,6 +5084,11 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
+    if (chr->Exp() > 0) {
+      mind->Send("This is not a new character, you can't modify the chargen steps anymore.\n");
+      return 0;
+    }
+
     body = new_body();
     body->SetShortDesc(chr->ShortDesc());
     mind->Owner()->AddChar(body);
@@ -5105,6 +5110,11 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     } else if (strlen(cmd.c_str() + len) > 0) {
       mind->SendF("Just type 'randomize' to randomly spend all points for %s\n", chr->ShortDesc());
+      return 0;
+    }
+
+    if (chr->Exp() > 0) {
+      mind->Send("This is not a new character, you can't modify the chargen steps anymore.\n");
       return 0;
     }
 
@@ -5148,6 +5158,11 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       mind->SendF("You need to select an archtype to apply to %s.\n", chr->ShortDesc());
       mind->SendF("Supported archtypes are:\n");
       mind->SendF("  1. Fighter\n");
+      return 0;
+    }
+
+    if (chr->Exp() > 0) {
+      mind->Send("This is not a new character, you can't modify the chargen steps anymore.\n");
       return 0;
     }
 
@@ -5247,6 +5262,11 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
+    if (chr->Exp() > 0) {
+      mind->Send("This is not a new character, you can't modify the chargen steps anymore.\n");
+      return 0;
+    }
+
     if ((!strncmp(cmd.c_str() + len, "body", strlen(cmd.c_str() + len))) ||
         (!strncmp(cmd.c_str() + len, "quickness", strlen(cmd.c_str() + len))) ||
         (!strncmp(cmd.c_str() + len, "strength", strlen(cmd.c_str() + len))) ||
@@ -5302,6 +5322,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       chr = mind->Owner()->Creator();
       if (!chr) {
         mind->Send("You need to be working on a character first (use 'select <character>'.\n");
+        return 0;
+      } else if (chr->Exp() > 0) {
+        mind->Send("This is not a new character, you can't modify the chargen steps anymore.\n");
         return 0;
       }
     }
