@@ -20,7 +20,7 @@
 #include "player.hpp"
 #include "utils.hpp"
 
-std::list<Mind*> recycle_bin;
+std::vector<Mind*> recycle_bin;
 
 static const char* bstr[2] = {"0", "1"};
 
@@ -2809,8 +2809,8 @@ const char* Mind::SpecialPrompt() {
 Mind* new_mind(int tp, Object* obj, Object* obj2, Object* obj3, std::string text) {
   Mind* m = nullptr;
   if (recycle_bin.size() > 0) {
-    m = recycle_bin.front();
-    recycle_bin.pop_front();
+    m = recycle_bin.back();
+    recycle_bin.pop_back();
     m->ClearStatus(); // Clear special state!
     //    fprintf(stderr, "Suspending(%p)\n", m);
   } else {
