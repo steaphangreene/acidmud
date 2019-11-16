@@ -5141,7 +5141,18 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->SendF("You lower your %s.\n", statnames[attr]);
       }
     } else {
-      mind->Send("I'm not sure what you are trying to lower.\n");
+      std::string skill = get_skill(cmd.c_str() + len);
+      if (skill != "") {
+        if (chr->Skill(skill) < 1) {
+          mind->SendF("You don't have %s.\n", skill.c_str());
+          return 0;
+        }
+        chr->SetSkill(skill, chr->Skill(skill) - 1);
+        chr->SetSkill("Skill Points", chr->Skill("Skill Points") + chr->Skill(skill) + 1);
+        mind->SendF("You lower your %s skill.\n", skill.c_str());
+      } else {
+        mind->Send("I'm not sure what you are trying to lower.\n");
+      }
     }
     return 0;
   }
