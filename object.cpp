@@ -2818,8 +2818,6 @@ void Object::Send(int tnum, int rsucc, const char* mes) {
 }
 
 void Object::SendF(int tnum, int rsucc, const char* mes, ...) {
-  static char buf[65536];
-
   if (mes[0] == 0)
     return;
 
@@ -2827,13 +2825,13 @@ void Object::SendF(int tnum, int rsucc, const char* mes, ...) {
     return;
   }
 
-  memset(buf, 0, 65536);
+  char buf2[65536];
   va_list stuff;
   va_start(stuff, mes);
-  vsprintf(buf, mes, stuff);
+  vsprintf(buf2, mes, stuff);
   va_end(stuff);
 
-  Send(tnum, rsucc, buf);
+  Send(tnum, rsucc, buf2);
 }
 
 void Object::SendIn(
@@ -2964,20 +2962,17 @@ void Object::SendInF(
   if (no_seek)
     return;
 
-  static char buf[65536];
-  static char youbuf[65536];
-
-  memset(buf, 0, 65536);
-  memset(youbuf, 0, 65536);
+  char buf2[65536];
+  char youbuf[65536];
   va_list stuff;
   va_start(stuff, targ);
-  vsprintf(buf, mes, stuff);
+  vsprintf(buf2, mes, stuff);
   va_end(stuff);
   va_start(stuff, targ);
   vsprintf(youbuf, youmes, stuff);
   va_end(stuff);
 
-  SendIn(tnum, rsucc, buf, youbuf, actor, targ);
+  SendIn(tnum, rsucc, buf2, youbuf, actor, targ);
 }
 
 void Object::SendOut(
@@ -3091,20 +3086,17 @@ void Object::SendOutF(
   if (no_seek)
     return;
 
-  static char buf[65536];
-  static char youbuf[65536];
-
-  memset(buf, 0, 65536);
-  memset(youbuf, 0, 65536);
+  char buf2[65536];
+  char youbuf[65536];
   va_list stuff;
   va_start(stuff, targ);
-  vsprintf(buf, mes, stuff);
+  vsprintf(buf2, mes, stuff);
   va_end(stuff);
   va_start(stuff, targ);
   vsprintf(youbuf, youmes, stuff);
   va_end(stuff);
 
-  SendOut(tnum, rsucc, buf, youbuf, actor, targ);
+  SendOut(tnum, rsucc, buf2, youbuf, actor, targ);
 }
 
 void Object::Loud(int str, const char* mes) {
@@ -3113,19 +3105,17 @@ void Object::Loud(int str, const char* mes) {
 }
 
 void Object::LoudF(int str, const char* mes, ...) {
-  static char buf[65536];
-
   if (mes[0] == 0)
     return;
 
-  memset(buf, 0, 65536);
+  char buf2[65536];
   va_list stuff;
   va_start(stuff, mes);
-  vsprintf(buf, mes, stuff);
+  vsprintf(buf2, mes, stuff);
   va_end(stuff);
 
   std::set<Object*> visited;
-  Loud(visited, str, buf);
+  Loud(visited, str, buf2);
 }
 
 void Object::Loud(std::set<Object*>& visited, int str, const char* mes) {
@@ -3551,35 +3541,35 @@ int two_handed(int wtype) {
 }
 
 const char* Object::PosString() {
-  static char buf[128];
+  static char buf2[128];
   if (pos == POS_USE) {
-    sprintf(buf, "is %s here", UsingString());
-    return buf;
+    sprintf(buf2, "is %s here", UsingString());
+    return buf2;
   }
   return pos_str[pos];
 }
 
 const char* Object::UsingString() {
-  static char buf[128];
+  static char buf2[128];
   if (pos == POS_USE) {
     if (cur_skill == "Stealth") {
-      sprintf(buf, "sneaking around");
+      sprintf(buf2, "sneaking around");
     } else if (cur_skill == "Perception") {
-      sprintf(buf, "keeping an eye out");
+      sprintf(buf2, "keeping an eye out");
     } else if (cur_skill == "Healing") {
-      sprintf(buf, "caring for others' wounds");
+      sprintf(buf2, "caring for others' wounds");
     } else if (cur_skill == "First Aid") {
-      sprintf(buf, "giving first-aid");
+      sprintf(buf2, "giving first-aid");
     } else if (cur_skill == "Treatment") {
-      sprintf(buf, "treating others' wounds");
+      sprintf(buf2, "treating others' wounds");
     } else if (cur_skill == "Lumberjack") {
-      sprintf(buf, "chopping down trees");
+      sprintf(buf2, "chopping down trees");
     } else if (cur_skill == "Sprinting") {
-      sprintf(buf, "running as fast as possible");
+      sprintf(buf2, "running as fast as possible");
     } else {
-      sprintf(buf, "using the %s skill", Using());
+      sprintf(buf2, "using the %s skill", Using());
     }
-    return buf;
+    return buf2;
   }
   return "doing nothing";
 }
