@@ -1595,8 +1595,8 @@ void Object::SendScore(Mind* m, Object* o) {
         Exp(),
         (minds.count(m) && m->Owner()) ? m->Owner()->Exp() : -1,
         (minds.count(m) && m->Owner()) ? TotalExp(m->Owner()) : 0);
-    if (Power("Heat Vision Spell") || Power("Dark Vision Spell")) {
-      m->SendF("Heat/Dark Vision: %d/%d\n", Power("Heat Vision Spell"), Power("Dark Vision Spell"));
+    if (Power("Heat Vision") || Power("Dark Vision")) {
+      m->SendF("Heat/Dark Vision: %d/%d\n", Power("Heat Vision"), Power("Dark Vision"));
     }
     m->Send(CNRM);
   }
@@ -3761,7 +3761,7 @@ void Object::Consume(const Object* item) {
   if (item->Skill("Heat Vision Spell")) {
     int force = item->Skill("Heat Vision Spell");
     Object* spell = new Object(this);
-    spell->SetSkill("Heat Vision Spell", std::min(100, force));
+    spell->SetSkill("Heat Vision", std::min(100, force));
     spell->SetShortDesc("a spell");
     spell->SetSkill("Magical", force);
     spell->SetSkill("Magical Spell", force);
@@ -3775,7 +3775,7 @@ void Object::Consume(const Object* item) {
   if (item->Skill("Dark Vision Spell")) {
     int force = item->Skill("Dark Vision Spell");
     Object* spell = new Object(this);
-    spell->SetSkill("Dark Vision Spell", std::min(100, force));
+    spell->SetSkill("Dark Vision", std::min(100, force));
     spell->SetShortDesc("a spell");
     spell->SetSkill("Magical", force);
     spell->SetSkill("Magical Spell", force);

@@ -40,6 +40,198 @@ static uint32_t tba_bitvec(const std::string& val) {
   return ret;
 }
 
+static std::string tba_spellconvert(const std::string& tba) {
+  std::string acid;
+
+  switch (tokenize_string(tba.c_str())) {
+    case (tokenize_string("animate dead")): {
+      acid = "Zombie Follower";
+      break;
+    }
+    case (tokenize_string("armor")): {
+      acid = "Armor";
+      break;
+    }
+    case (tokenize_string("bless")): {
+      acid = "Fortune";
+      break;
+    }
+    case (tokenize_string("blind")):
+    case (tokenize_string("blindness")): {
+      acid = "Blindness";
+      break;
+    }
+    case (tokenize_string("burning hands")): {
+      acid = "Burning Hands";
+      break;
+    }
+    case (tokenize_string("call lightning")): {
+      acid = "Lightning Bolt";
+      break;
+    }
+    case (tokenize_string("charm")): {
+      acid = "Influence";
+      break;
+    }
+    case (tokenize_string("chill touch")): {
+      acid = "Ice Bolt";
+      break;
+    }
+    case (tokenize_string("clot minor")): {
+      acid = "Shove";
+      break;
+    }
+    case (tokenize_string("color spray")): {
+      acid = "Color Spray";
+      break;
+    }
+    case (tokenize_string("cure blind")): {
+      acid = "Cure Blindness";
+      break;
+    }
+    case (tokenize_string("cure critic")): {
+      acid = "Cure Critical Wounds";
+      break;
+    }
+    case (tokenize_string("cure light")): {
+      acid = "Cure Light Wounds";
+      break;
+    }
+    case (tokenize_string("heal")): {
+      acid = "Healing";
+      break;
+    }
+    case (tokenize_string("harm")): {
+      acid = "Clout";
+      break;
+    }
+    case (tokenize_string("cure poison")): {
+      acid = "Cure Poison";
+      break;
+    }
+    case (tokenize_string("curse")): {
+      acid = "Cursed";
+      break;
+    }
+    case (tokenize_string("detect align")):
+    case (tokenize_string("det-align")): {
+      acid = "Identify Character";
+      break;
+    }
+    case (tokenize_string("detect magic")):
+    case (tokenize_string("det-magic")): {
+      acid = "Illuminate Magic";
+      break;
+    }
+    case (tokenize_string("detect invisibility")): {
+      acid = "See Invisible";
+      break;
+    }
+    case (tokenize_string("detect poison")): {
+      acid = "Detect Poison";
+      break;
+    }
+    case (tokenize_string("dispel evil")):
+    case (tokenize_string("dispel good")): {
+      acid = "Bang and Puff";
+      break;
+    }
+    case (tokenize_string("earthquake")): {
+      acid = "Earth Cataclysm";
+      break;
+    }
+    case (tokenize_string("energy drain")): {
+      acid = "Weaken Subject";
+      break;
+    }
+    case (tokenize_string("fireball")): {
+      acid = "Fireball";
+      break;
+    }
+    case (tokenize_string("fly")): {
+      acid = "Fly";
+      break;
+    }
+    case (tokenize_string("infravision")):
+    case (tokenize_string("infra")): {
+      acid = "Heat Vision";
+      break;
+    }
+    case (tokenize_string("invisibility")):
+    case (tokenize_string("invis")): {
+      acid = "Invisibilty";
+      break;
+    }
+    case (tokenize_string("lightning bolt")): {
+      acid = "Spark";
+      break;
+    }
+    case (tokenize_string("magic missile")): {
+      acid = "Magic Missile";
+      break;
+    }
+    case (tokenize_string("poison")): {
+      acid = "Poison";
+      break;
+    }
+    case (tokenize_string("protection from evil")):
+    case (tokenize_string("prot-evil")): {
+      acid = "Protection";
+      break;
+    }
+    case (tokenize_string("refresh")): {
+      acid = "Refresh";
+      break;
+    }
+    case (tokenize_string("remove curse")): {
+      acid = "Remove Curse";
+      break;
+    }
+    case (tokenize_string("remove poison")): {
+      acid = "Neutralize Poison";
+      break;
+    }
+    case (tokenize_string("sanctuary")):
+    case (tokenize_string("sanct")):
+    case (tokenize_string("sanc")): {
+      acid = "Protection";
+      break;
+    }
+    case (tokenize_string("sense life")):
+    case (tokenize_string("sense-life")): {
+      acid = "Sense Movement";
+      break;
+    }
+    case (tokenize_string("shocking grasp")): {
+      acid = "Shocking Grasp";
+      break;
+    }
+    case (tokenize_string("silence")): {
+      acid = "Silence";
+      break;
+    }
+    case (tokenize_string("strength")): {
+      acid = "Strength";
+      break;
+    }
+    case (tokenize_string("sleep")): {
+      acid = "Sleep Other";
+      break;
+    }
+    case (tokenize_string("waterwalk")):
+    case (tokenize_string("watwalk")): {
+      acid = "Float";
+      break;
+    }
+    case (tokenize_string("word of recall")): {
+      acid = "Recall";
+      break;
+    }
+  }
+
+  return acid;
+}
+
 std::string Mind::TBAComp(std::string expr) {
   size_t end = expr.find_first_of("\n\r");
   if (end != std::string::npos)
@@ -1174,6 +1366,20 @@ void Mind::TBAVarSub(std::string& line) {
                 break;
               }
             }
+          }
+          obj = nullptr;
+          is_obj = 0;
+        } else if (!strncmp(field.c_str(), "affect(", 7)) {
+          size_t len = field.find_first_not_of("abcdefghijklmnopqrstuvwxyz-", 7);
+          auto spell = tba_spellconvert(field.substr(7, len - 7));
+          // fprintf(
+          //    stderr,
+          //    CBLU "Interpreting '%s' as 'spell = %s'\n" CNRM,
+          //    field.c_str(),
+          //    spell.c_str());
+          val = "";
+          if (obj) {
+            val = itos(obj->Power(spell));
           }
           obj = nullptr;
           is_obj = 0;

@@ -927,10 +927,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     nmode = LOC_NINJA;
     vmode |= LOC_NINJA;
   }
-  if (body && body->Power("Dark Vision Spell")) {
+  if (body && body->Power("Dark Vision")) {
     vmode |= LOC_DARK;
   }
-  if (body && body->Power("Heat Vision Spell")) {
+  if (body && body->Power("Heat Vision")) {
     vmode |= LOC_HEAT;
   }
 
