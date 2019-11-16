@@ -574,7 +574,7 @@ done
 ~
 #24
 Room While Teleport Example~
-2 b 100
+2 bg 100
 ~
 * By Rumble of The Builder Academy    tbamud.com 9091
 * Target the first person or mob in the room.
