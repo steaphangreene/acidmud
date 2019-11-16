@@ -1,4 +1,4 @@
-#include <list>
+#include <vector>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -125,7 +125,7 @@ void Object::TBALoadAll() {
   fprintf(stderr, "Warning: %d untranslated triggers!\n", untrans_trig);
 }
 
-static std::list<Object*> todotrg;
+static std::vector<Object*> todotrg;
 static std::map<int, Object*> bynumtrg;
 static std::map<int, Object*> bynumwld;
 static std::map<int, Object*> bynumobj;
@@ -2475,7 +2475,7 @@ void Object::TBALoadSHP(const char* fn) {
         memset(buf, 0, 65536);
         fscanf(mud, "%65535[^\n\r]\n", buf); // Item types bought
         val = atoi(buf);
-        std::list<std::string> types;
+        std::vector<std::string> types;
         while (val >= 0) {
           types.push_back(std::string(buf));
           memset(buf, 0, 65536);

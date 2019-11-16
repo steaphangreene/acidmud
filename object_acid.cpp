@@ -1,6 +1,5 @@
 #include <cstdlib>
 #include <cstring>
-#include <list>
 #include <map>
 
 #include "color.hpp"
@@ -181,7 +180,7 @@ int Object::Load(const char* fn) {
   }
 
   for (auto ind : todo) {
-    std::list<act_t> killacts;
+    std::vector<act_t> killacts;
     for (auto aind : ind->act) {
       if (aind.second) {
         aind.second->touching_me.insert(ind);
