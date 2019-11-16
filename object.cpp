@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <vector>
 
 #include "color.hpp"
 #include "commands.hpp"
@@ -1523,10 +1524,8 @@ void Object::SendScore(Mind* m, Object* o) {
     m->Send("\n");
   }
 
-  std::list<std::string> col1;
-  std::list<std::string>::iterator c1;
+  std::vector<std::string> col1;
   std::map<std::string, int> skls = GetSkills();
-  std::map<std::string, int>::iterator c2;
 
   if (BaseAttribute(1) <= 0) { // Inanimate
     col1 = FormatStats(skls);
@@ -1534,8 +1533,8 @@ void Object::SendScore(Mind* m, Object* o) {
     col1 = FormatSkills(skls);
   }
 
-  c1 = col1.begin();
-  c2 = skls.begin();
+  auto c1 = col1.begin();
+  auto c2 = skls.begin();
   while (c2 != skls.end() || c1 != col1.end()) {
     if (c1 != col1.end()) {
       m->SendF("%41s ", c1->c_str()); // Note: 41 is 32 (2 Color Escape Codes)
@@ -1592,8 +1591,8 @@ void Object::SendScore(Mind* m, Object* o) {
   }
 }
 
-std::list<std::string> Object::FormatSkills(std::map<std::string, int>& skls) {
-  std::list<std::string> ret;
+std::vector<std::string> Object::FormatSkills(std::map<std::string, int>& skls) {
+  std::vector<std::string> ret;
 
   std::map<std::string, int> save = skls;
   for (auto skl : save) {
@@ -1608,7 +1607,7 @@ std::list<std::string> Object::FormatSkills(std::map<std::string, int>& skls) {
 }
 
 static void stick_on(
-    std::list<std::string>& out,
+    std::vector<std::string>& out,
     std::map<std::string, int>& skls,
     const char* skn,
     const char* label) {
@@ -1623,8 +1622,8 @@ static void stick_on(
   }
 }
 
-std::list<std::string> Object::FormatStats(std::map<std::string, int>& skls) {
-  std::list<std::string> ret;
+std::vector<std::string> Object::FormatStats(std::map<std::string, int>& skls) {
+  std::vector<std::string> ret;
 
   if (HasSkill("WeaponType")) { // It's a Weapon
     // Detailed Weapon Stats

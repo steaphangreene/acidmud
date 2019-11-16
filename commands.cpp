@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstring>
 #include <string>
+#include <vector>
 
 #include "color.hpp"
 #include "commands.hpp"
@@ -5082,10 +5083,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     chr->SetSkill("Senses", chr->Skill("Attributes"));
     chr->SetSkill("Attributes", 0);
 
-    std::list<std::string> skills = get_skills("all");
+    auto skills = get_skills("all");
     while (chr->Skill("Skills")) {
       int which = (rand() % skills.size());
-      std::list<std::string>::iterator skl = skills.begin();
+      auto skl = skills.begin();
       while (which) {
         ++skl;
         --which;
@@ -5428,7 +5429,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       ++len;
 
     std::string skills;
-    std::list<std::string> skls;
+    std::vector<std::string> skls;
     if (len >= int(cmd.length())) {
       skills =
           "Here are all the skill categories (use 'skill <Category>' to "

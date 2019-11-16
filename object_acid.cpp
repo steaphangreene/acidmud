@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cstring>
+#include <list>
 #include <map>
 
 #include "color.hpp"

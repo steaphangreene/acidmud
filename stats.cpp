@@ -1,16 +1,16 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
-#include <list>
 #include <map>
 #include <string>
+#include <vector>
 
 #include "object.hpp"
 
 static std::map<std::string, int> defaults;
 static std::map<int, std::string> weaponskills;
 static std::map<std::string, int> weapontypes;
-static std::map<std::string, std::list<std::string>> skcat;
+static std::map<std::string, std::vector<std::string>> skcat;
 
 static int last_wtype = 0;
 static void add_wts(const std::string& sk) {
@@ -2542,10 +2542,11 @@ int get_linked(std::string sk) {
   return 4; // Default to Int for knowledges
 }
 
-std::list<std::string> get_skills(std::string cat) {
+std::vector<std::string> get_skills(std::string cat) {
+  std::vector<std::string> ret;
+
   if (!defaults_init)
     init_defaults();
-  std::list<std::string> ret;
 
   while (isspace(cat.back()))
     cat.pop_back();

@@ -1,4 +1,3 @@
-#include <list>
 #include <map>
 #include <set>
 #include <string>
@@ -8,7 +7,6 @@
 #include <sys/time.h>
 #include <cstdio>
 #include <ctime>
-#include <list>
 
 class Object;
 class Player;
@@ -147,8 +145,8 @@ class Object {
   void SendLongDesc(Mind* m, Object* o = nullptr);
   void SendLongDesc(Object* m, Object* o = nullptr);
   void SendScore(Mind* m, Object* o = nullptr);
-  std::list<std::string> FormatStats(std::map<std::string, int>& skls); // Modifies skls
-  std::list<std::string> FormatSkills(std::map<std::string, int>& skls); // Modifies skls
+  std::vector<std::string> FormatStats(std::map<std::string, int>& skls); // Modifies skls
+  std::vector<std::string> FormatSkills(std::map<std::string, int>& skls); // Modifies skls
 
   void Link(
       Object* other,
@@ -456,7 +454,7 @@ Mind* get_tba_mob_mind();
 std::string get_skill(std::string sk);
 std::string get_skill_cat(std::string cat);
 int get_linked(std::string sk);
-std::list<std::string> get_skills(std::string cat = "Categories");
+std::vector<std::string> get_skills(std::string cat = "Categories");
 int is_skill(std::string sk);
 std::string get_weapon_skill(int wtype);
 int get_weapon_type(std::string wskill);
