@@ -382,6 +382,11 @@ Command comlist[1024] = {
      "Lower a skill or attribute point of current in-progress character.",
      "Lower a skill or attribute point of current in-progress character.",
      (REQ_ETHEREAL)},
+    {COM_RESETCHARACTER,
+     "resetcharacter",
+     "Undo (erase!) *all* work on in-progress character.",
+     "Undo (erase!) *all* work on in-progress character.",
+     (REQ_ETHEREAL)},
     {COM_RANDOMIZE,
      "randomize",
      "Spend all remaining points of current character randomly.",
@@ -5057,6 +5062,31 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
   const char* statnames[] = {
       "Body", "Quickness", "Strength", "Charisma", "Intelligence", "Willpower"};
+
+  if (com == COM_RESETCHARACTER) {
+    while (len < int(cmd.length()) && (!isgraph(cmd[len])))
+      ++len;
+
+    Object* chr = mind->Owner()->Creator();
+    if (!chr) {
+      mind->Send(
+          "You need to be working on a character first (use 'select "
+          "<character>'.\n");
+      return 0;
+    } else if (strlen(cmd.c_str() + len) > 0) {
+      mind->SendF(
+          "Just type 'reset' to undo all your work and start over on %s\n", chr->ShortDesc());
+      return 0;
+    }
+
+    body = new_body();
+    body->SetShortDesc(chr->ShortDesc());
+    mind->Owner()->AddChar(body);
+    delete chr;
+
+    mind->SendF("You reset all chargen work for '%s'.\n", body->ShortDesc());
+    return 0;
+  }
 
   if (com == COM_RANDOMIZE) {
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
