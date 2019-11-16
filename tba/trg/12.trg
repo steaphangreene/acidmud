@@ -1608,52 +1608,14 @@ if %actor.inventory(14911)%
 end
 ~
 #1295
-free~
-0 d 100
+Login Christmas~
+2 s 100
 ~
 * By Rumble of The Builder Academy    tbamud.com 9091
-if %actor.level% > 31
-  switch %speech.car%
-    case christmas
-      %at% 1204 %load% obj 1299
-      %at% 1204 %load% obj 1318
-      %at% 1204 %load% obj 1319
-      %at% 1204 %load% obj 1236
-      %at% 1204 %load% obj 1237
-      %at% 1204 %load% obj 1238
-      %at% 1204 %load% obj 1239
-      %at% 1204 %load% obj 1240
-      %at% 1204 %load% obj 1241
-      %at% 1204 %load% obj 1397
-      %at% 1204 %load% mob 1308
-      %at% 2 %load% obj 1299
-      %at% 2 %load% obj 1318
-      %at% 2 %load% obj 1319
-      %at% 2 %load% obj 1236
-      %at% 2 %load% obj 1237
-      %at% 2 %load% obj 1238
-      %at% 2 %load% obj 1239
-      %at% 2 %load% obj 1240
-      %at% 2 %load% obj 1241
-      %at% 2 %load% obj 1397
-      %at% 1204 %load% mob 1308
-    break
-    case new years
-    break
-    case valentines
-    break
-    case Easter
-    break
-    case 4th
-    break
-    case Halloween
-    break
-    case thanksgiving
-    break
-    default
-      * nothing is going to happen
-    break
-  done
+if !%actor.has_item(222)%
+  wait 1 s
+  %echo% Santa bellows, 'Merry Christmas'
+  %load% obj 222 %actor% inv
 end
 ~
 #1296
