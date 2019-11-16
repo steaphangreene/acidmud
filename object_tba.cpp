@@ -1358,7 +1358,14 @@ void Object::TBALoadOBJ(const char* fn) {
           obj->SetSkill("Light Source", 100); // All TBAMUD Lights
         }
       } else if (tp == 9) { // ARMOR
-        obj->SetAttribute(0, val[0]);
+        if (val[0] < 0) { // Cursed Armor
+          obj->SetAttribute(0, -val[0]);
+          obj->SetModifier(0, val[0] * 100);
+          obj->SetModifier(1, val[0] * 100);
+        } else {
+          obj->SetAttribute(0, val[0]);
+          obj->SetModifier(0, val[0] * 200);
+        }
       } else if (tp == 20) { // MONEY
         if (!gold)
           init_gold();
