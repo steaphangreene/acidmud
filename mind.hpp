@@ -1,6 +1,5 @@
 #include "player.hpp"
 
-#include <list>
 #include <map>
 #include <vector>
 
@@ -105,7 +104,7 @@ class Mind {
   std::string script;
   std::vector<size_t> spos_s;
 
-  static std::list<std::pair<int, Mind*>> waiting;
+  static std::vector<std::pair<int, Mind*>> waiting;
 };
 
 Mind* new_mind(

@@ -1,4 +1,3 @@
-#include <map>
 #include <string>
 
 #include <arpa/telnet.h>
@@ -2844,7 +2843,7 @@ int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, std::strin
   return 0;
 }
 
-std::list<std::pair<int, Mind*>> Mind::waiting;
+std::vector<std::pair<int, Mind*>> Mind::waiting;
 void Mind::Suspend(int msec) {
   //  fprintf(stderr, "Suspening(%p)\n", this);
   waiting.push_back(std::make_pair(msec, this));
@@ -2859,33 +2858,32 @@ void Mind::Disable() {
   if (log >= 0)
     close(log);
   log = -1;
-  std::list<std::pair<int, Mind*>>::iterator cur = waiting.begin();
-  while (cur != waiting.end()) {
-    std::list<std::pair<int, Mind*>>::iterator tmp = cur;
-    ++cur; // Inc cur first, in case I erase tmp.
-    if (tmp->second == this) {
-      waiting.erase(tmp);
-    }
-  }
+  waiting.erase(
+      std::remove_if(
+          waiting.begin(),
+          waiting.end(),
+          [this](const std::pair<int, Mind*> m) { return (m.second == this); }),
+      waiting.end());
   svars = cvars; // Reset all variables
   ovars.clear();
   recycle_bin.push_back(this); // Ready for re-use
 }
 
 void Mind::Resume(int passed) {
-  std::list<std::pair<int, Mind*>>::iterator cur = waiting.begin();
-  while (cur != waiting.end()) {
-    std::list<std::pair<int, Mind*>>::iterator tmp = cur;
-    ++cur; // Inc cur first, in case I erase tmp.
-    if (tmp->first <= passed) {
-      Mind* mind = tmp->second;
-      waiting.erase(tmp);
-      //      fprintf(stderr, "Resuming(%p)\n", mind);
-      mind->Think(0);
-    } else {
-      tmp->first -= passed;
-    }
-  }
+  waiting.erase(
+      std::remove_if(
+          waiting.begin(),
+          waiting.end(),
+          [passed](std::pair<int, Mind*> m) {
+            if (m.first <= passed) {
+              m.second->Think(0);
+              return true;
+            } else {
+              m.first -= passed;
+              return false;
+            }
+          }),
+      waiting.end());
 }
 
 int Mind::Status() const {
