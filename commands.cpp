@@ -392,6 +392,11 @@ Command comlist[1024] = {
      "Spend all remaining points of current character randomly.",
      "Spend all remaining points of current character randomly.",
      (REQ_ETHEREAL)},
+    {COM_ARCHTYPE,
+     "archtype",
+     "Replace (erase!) *all* work on in-progress character with preset.",
+     "Replace (erase!) *all* work on in-progress character with preset.",
+     (REQ_ETHEREAL)},
     {COM_SCORE,
      "score",
      "Get your current character and/or player's stats and score.",
@@ -5126,6 +5131,106 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       }
     }
     mind->SendF("You randomly spend all remaining points for '%s'.\n", chr->ShortDesc());
+    return 0;
+  }
+
+  if (com == COM_ARCHTYPE) {
+    while (len < int(cmd.length()) && (!isgraph(cmd[len])))
+      ++len;
+
+    Object* chr = mind->Owner()->Creator();
+    if (!chr) {
+      mind->Send(
+          "You need to be working on a character first (use 'select "
+          "<character>'.\n");
+      return 0;
+    } else if (strlen(cmd.c_str() + len) <= 0) {
+      mind->SendF("You need to select an archtype to apply to %s.\n", chr->ShortDesc());
+      mind->SendF("Supported archtypes are:\n");
+      mind->SendF("  1. Fighter\n");
+      return 0;
+    }
+
+    if (!strncmp(cmd.c_str() + len, "fighter", strlen(cmd.c_str() + len))) {
+      body = new_body();
+      body->SetShortDesc(chr->ShortDesc());
+      mind->Owner()->AddChar(body);
+      delete chr;
+
+      body->SetAttribute(0, 5);
+      body->SetAttribute(1, 6);
+      body->SetAttribute(2, 6);
+      body->SetAttribute(3, 2);
+      body->SetAttribute(4, 6);
+      body->SetAttribute(5, 5);
+      body->SetSkill("Attribute Points", 0);
+
+      body->SetSkill("Long Blades", 3);
+      body->SetSkill("Two-Handed Blades", 3);
+      body->SetSkill("Short Piercing", 3);
+      body->SetSkill("Shields", 3);
+      body->SetSkill("Running", 2);
+      body->SetSkill("Climbing", 2);
+      body->SetSkill("Sprinting", 2);
+      body->SetSkill("Swimming", 2);
+      body->SetSkill("Lifting", 2);
+      body->SetSkill("Acrobatics", 2);
+      body->SetSkill("Punching", 3);
+      body->SetSkill("Kicking", 3);
+      body->SetSkill("Grappling", 3);
+      body->SetSkill("Skill Points", 4);
+
+      auto weap = new Object(body);
+      weap->SetShortDesc("a dull arming sword");
+      weap->SetDesc("This sword really isn't that great.  Is even metal?  It's sure not steel.");
+      weap->SetSkill("WeaponType", get_weapon_type("Long Blades"));
+      weap->SetSkill("WeaponForce", -2);
+      weap->SetSkill("WeaponSeverity", 1);
+      weap->SetSkill("WeaponReach", 1);
+      body->AddAct(ACT_WIELD, weap);
+
+      auto shi = new Object(body);
+      shi->SetShortDesc("a cracked leather shield");
+      shi->SetDesc("This shield has seen better days... but, it was pretty bad back then too.");
+      shi->SetSkill("Wearable on Shield", 1);
+      shi->SetAttribute(0, 1);
+      body->AddAct(ACT_WEAR_SHIELD, shi);
+
+      auto arm = new Object(body);
+      arm->SetShortDesc("a full suit of old padded armor");
+      arm->SetDesc("This armor smells pretty bad, but it's better than nothing... maybe.");
+      arm->SetSkill("Wearable on Back", 1);
+      arm->SetSkill("Wearable on Chest", 1);
+      arm->SetSkill("Wearable on Left Arm", 1);
+      arm->SetSkill("Wearable on Right Arm", 1);
+      arm->SetSkill("Wearable on Left Leg", 1);
+      arm->SetSkill("Wearable on Right Leg", 1);
+      arm->SetAttribute(0, 1);
+      body->AddAct(ACT_WEAR_BACK, arm);
+      body->AddAct(ACT_WEAR_CHEST, arm);
+      body->AddAct(ACT_WEAR_LARM, arm);
+      body->AddAct(ACT_WEAR_RARM, arm);
+      body->AddAct(ACT_WEAR_LLEG, arm);
+      body->AddAct(ACT_WEAR_RLEG, arm);
+
+      auto helm = new Object(body);
+      helm->SetShortDesc("a soft leather cap");
+      helm->SetDesc("This is... armor... probably.");
+      helm->SetSkill("Wearable on Head", 1);
+      helm->SetAttribute(0, 1);
+      body->AddAct(ACT_WEAR_HEAD, helm);
+
+      body->SetSkill("Status Points", 0);
+
+      mind->SendF("You reform '%s' into a %s.\n", body->ShortDesc(), "Fighter");
+      mind->SendF("You now have only a few points left to spend.\n");
+
+    } else {
+      mind->SendF("You need to select a *supported* archtype to apply to %s.\n", chr->ShortDesc());
+      mind->SendF("Supported archtypes are:\n");
+      mind->SendF("  1. Fighter\n");
+    }
+
     return 0;
   }
 
