@@ -1097,6 +1097,12 @@ static void add_tba_spell(Object* obj, int spell, int power) {
     case (201): { // IDENTIFY
       obj->SetSkill("Identify Spell", power);
     } break;
+    case (53): { // FLY
+      obj->SetSkill("Fly Spell", power);
+    } break;
+    case (54): { // DARKNESS
+      obj->SetSkill("Darkness Spell", power);
+    } break;
     default: {
       fprintf(stderr, "Warning: Unhandled CicleMUD Spell: %d\n", spell);
     }
