@@ -261,13 +261,12 @@ grey robe~
 a grey robe~
 An exquisite grey robe is rumpled in a corner.~
 ~
-9 0 0 0 0 a 0 0 0 0 0 0 0
+9 0 0 0 0 ak 0 0 0 0 0 0 0
 4 0 0 0
 3 500 0 0 0
 E
 grey robe~
-   The robe is the type used by Magi of the grey order.  Wonder why someone
-would just leave it here.    
+   This simple robe is the type used by Magi of the grey order.
 ~
 #123
 club wooden~
@@ -1451,7 +1450,7 @@ A pair of strange looking lungs have been left here.~
 ~
 12 0 0 0 0 ac 0 0 0 s 0 0 0
 0 0 0 0
-1 0 0 0 0
+1 10 0 0 0
 E
 pair lungs scuba underwater~
    This contraption seems to be made from a set of lungs pulled out of some very
