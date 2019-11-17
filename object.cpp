@@ -364,7 +364,8 @@ void tick_world() {
 }
 
 int Object::Tick() {
-  for (auto m : minds) {
+  auto mnds = minds;
+  for (auto m : mnds) {
     m->Attach(this);
     m->Think(1);
   }
