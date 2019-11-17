@@ -1362,7 +1362,7 @@ int Mind::TBARunLine(std::string line) {
     return 1;
   }
 
-  com_t com = identify_command(line); // ComNum for Pass-Through
+  com_t com = identify_command(line, true); // ComNum for Pass-Through
 
   //  //Start of script command if/else if/else
   //  if(line.find("%") != line.rfind("%")) {		//More than one '%'
