@@ -1900,10 +1900,12 @@ int Object::Travel(Object* dest, int try_combine) {
     for (auto trig : trigs) {
       if ((trig->Skill("TBAScriptType") & 0x0000040) &&
           (trig->Skill("TBAScriptType") & 0x5000000)) {
-        if ((rand() % 100) < trig->Skill("TBAScriptNArg")) { // % Chance
-          // fprintf(stderr, "Triggering: %s\n", trig->Name());
-          if (new_trigger(0, trig, this, rdir))
-            return 1;
+        if (trig != this && trig->Parent() != this) {
+          if ((rand() % 100) < trig->Skill("TBAScriptNArg")) { // % Chance
+            // fprintf(stderr, "Triggering: %s\n", trig->Name());
+            if (new_trigger(0, trig, this, rdir))
+              return 1;
+          }
         }
       }
     }
