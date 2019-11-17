@@ -2663,7 +2663,7 @@ int Mind::TBARunLine(std::string line) {
   else if (
       com == COM_SAY || com == COM_SHOUT || com == COM_EMOTE || com == COM_LOCK ||
       com == COM_UNLOCK || com == COM_OPEN || com == COM_CLOSE || com == COM_GET ||
-      com == COM_DROP) {
+      com == COM_DROP || com == COM_WEAR || com == COM_WIELD || com == COM_FOLLOW) {
     size_t stuff = line.find_first_of(" ");
     if (stuff != std::string::npos) {
       stuff = line.find_first_not_of(" \t\r\n", stuff);
