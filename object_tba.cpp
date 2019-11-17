@@ -203,7 +203,7 @@ void Object::TBAFinalizeTriggers() {
       trg->Parent()->SetLongDesc(newtext.c_str());
       trg->Recycle();
       // fprintf(stderr, "%s", newtext.c_str());
-    } else {
+    } else if (trg->Skill("TBAScriptType") & 0x6000000) { // Room or Obj
       trg->Activate();
       new_trigger(13000 + (rand() % 13000), trg, nullptr, nullptr, "");
     }

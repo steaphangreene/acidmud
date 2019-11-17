@@ -419,6 +419,12 @@ int Object::Tick() {
       obj->Attach(get_tba_mob_mind());
       obj->Activate();
       parent->SendOut(ALL, -1, ";s arrives.\n", "", obj, nullptr);
+      for (auto trg : obj->Contents()) {
+        if (trg->HasSkill("TBAScript")) {
+          trg->Activate();
+          new_trigger(13000 + (rand() % 13000), trg, nullptr, nullptr, "");
+        }
+      }
     }
   }
 
