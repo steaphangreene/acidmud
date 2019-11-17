@@ -1588,6 +1588,15 @@ void Object::SendScore(Mind* m, Object* o) {
     }
   }
 
+  // Other Misc Stats
+  if (HasSkill("Light Source")) {
+    m->SendF(CYEL "  Light Level: %d (%d)\n" CNRM, Skill("Light Source"), LightLevel());
+  }
+  if (Power("Cursed")) {
+    m->SendF(CRED "  Cursed: %d\n" CNRM, Power("Cursed"));
+  }
+
+  // Experience Summary
   if (IsAnimate()) {
     m->Send(CYEL);
     m->SendF(
@@ -1717,23 +1726,6 @@ std::vector<std::string> Object::FormatStats(std::map<std::string, int>& skls) {
   }
 
   ret.push_back(CYEL CNRM); // Leave a blank line between weap/arm and gen
-
-  // Other Misc Stats
-  if (HasSkill("Light Source")) {
-    char buf2[256];
-    sprintf(buf2, CYEL "  Light Level: %d (%d)" CNRM, Skill("Light Source"), LightLevel());
-    ret.push_back(buf2);
-    skls.erase("Light Source");
-  }
-  if (HasSkill("Cursed")) {
-    char buf2[256];
-    sprintf(buf2, CRED "  Cursed: %d" CNRM, Skill("Cursed"));
-    ret.push_back(buf2);
-    skls.erase("Cursed");
-  }
-
-  if (ret.back() != CYEL CNRM)
-    ret.pop_back(); // Make sure last line is blank
 
   return ret;
 }
