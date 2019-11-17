@@ -121,6 +121,7 @@ typedef enum {
   COM_CLONE,
   COM_MIRROR,
   COM_JUNK,
+  COM_PROD,
 
   COM_RESET,
   COM_PLAYERS,

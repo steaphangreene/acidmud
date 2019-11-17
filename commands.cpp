@@ -516,6 +516,11 @@ constexpr Command static_comlist[COM_MAX] = {
      "Ninja command.",
      "Ninja command - ninjas only!",
      (REQ_ALERT | REQ_NINJAMODE)},
+    {COM_PROD,
+     "prod",
+     "Ninja command.",
+     "Ninja command - ninjas only!",
+     (REQ_ALERT | REQ_NINJAMODE)},
     {COM_RESET,
      "reset",
      "Ninja command.",
@@ -733,6 +738,7 @@ static_assert(static_comlist[COM_CONTROL].id == COM_CONTROL);
 static_assert(static_comlist[COM_CLONE].id == COM_CLONE);
 static_assert(static_comlist[COM_MIRROR].id == COM_MIRROR);
 static_assert(static_comlist[COM_JUNK].id == COM_JUNK);
+static_assert(static_comlist[COM_PROD].id == COM_PROD);
 static_assert(static_comlist[COM_RESET].id == COM_RESET);
 static_assert(static_comlist[COM_PLAYERS].id == COM_PLAYERS);
 static_assert(static_comlist[COM_DELPLAYER].id == COM_DELPLAYER);
@@ -6576,6 +6582,29 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           "You clone ;s.\n",
           body,
           targ);
+    }
+    return 0;
+  }
+
+  if (cnum == COM_PROD) {
+    if (!mind)
+      return 0;
+    while (len < int(cmd.length()) && (!isgraph(cmd[len])))
+      ++len;
+    auto targs = body->PickObjects(cmd.c_str() + len, vmode | LOC_NEARBY);
+    if (targs.size() == 0) {
+      mind->Send("You want to prod what?\n");
+      return 0;
+    }
+    for (auto targ : targs) {
+      body->Parent()->SendOut(
+          stealth_t,
+          stealth_s,
+          ";s prods ;s with Ninja Powers[TM].\n",
+          "You prod ;s.\n",
+          body,
+          targ);
+      targ->Activate();
     }
     return 0;
   }
