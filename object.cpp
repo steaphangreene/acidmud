@@ -3899,7 +3899,7 @@ int Object::Power(const std::string& m) const {
   int ret = 0;
   ret = Skill(m);
   for (auto item : contents) {
-    if (Wearing(item) || item->Skill("Magical Spell")) {
+    if (ActTarg(ACT_WIELD) == item || Wearing(item) || item->Skill("Magical Spell")) {
       int val = item->Skill(m);
       if (val > ret)
         ret = val;
