@@ -203,6 +203,9 @@ void Object::TBAFinalizeTriggers() {
       trg->Parent()->SetLongDesc(newtext.c_str());
       trg->Recycle();
       // fprintf(stderr, "%s", newtext.c_str());
+    } else {
+      trg->Activate();
+      new_trigger(13000 + (rand() % 13000), trg, nullptr, nullptr, "");
     }
   }
   todotrg.clear();
