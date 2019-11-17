@@ -30,6 +30,8 @@
 #define SIT_NINJA 16384
 #define SIT_SUPERNINJA 32768
 
+#define CMD_FLAVORTEXT 65536
+
 #define REQ_ETHEREAL (SIT_ETHEREAL)
 #define REQ_CORPOREAL (SIT_CORPOREAL)
 #define REQ_ALIVE (SIT_ALIVE | REQ_CORPOREAL)
@@ -68,7 +70,8 @@ struct Command {
   int sit;
 };
 
-Command comlist[1024] = {
+constexpr Command static_comlist[COM_MAX] = {
+    {COM_NONE, nullptr, nullptr, nullptr, 0},
     {COM_HELP,
      "help",
      "Get help for a topic or command.",
@@ -177,26 +180,6 @@ Command comlist[1024] = {
      "Store an item you are holding in one of your containers.",
      "Store an item you are holding in one of your containers.",
      (REQ_ALERT | REQ_ACTION)},
-    {COM_DUMP,
-     "dump",
-     "Dump all liquid out of a container you are carrying.",
-     "Dump all liquid out of a container you are carrying.",
-     (REQ_ALERT | REQ_ACTION)},
-    {COM_FILL,
-     "fill",
-     "Fill a held liquid container from another.",
-     "Fill a held liquid container from another.",
-     (REQ_ALERT | REQ_ACTION)},
-    {COM_EAT,
-     "eat",
-     "Eat an item you are carrying.",
-     "Eat an item you are carrying.",
-     (REQ_ALERT | REQ_ACTION)},
-    {COM_DRINK,
-     "drink",
-     "Drink from an item you are carrying.",
-     "Drink from an item you are carrying.",
-     (REQ_ALERT | REQ_ACTION)},
     {COM_WIELD,
      "wield",
      "Wield a weapon you are carrying.",
@@ -231,7 +214,7 @@ Command comlist[1024] = {
      "label",
      "Label, or read the label of, an item you are holding.",
      "Label, or read the label of, an item you are holding.",
-     (REQ_ALERT | REQ_ACTION)},
+     (REQ_ALERT | REQ_ACTION | CMD_FLAVORTEXT)},
     {COM_UNLABEL,
      "unlabel",
      "Remove the label the item you are holding.",
@@ -242,6 +225,27 @@ Command comlist[1024] = {
      "Use healing/first-aid skills to help another, or yourself.",
      "Use healing/first-aid skills to help another, or yourself.",
      (REQ_CORPOREAL | REQ_ACTION)},
+
+    {COM_EAT,
+     "eat",
+     "Eat an item you are carrying.",
+     "Eat an item you are carrying.",
+     (REQ_ALERT | REQ_ACTION)},
+    {COM_DRINK,
+     "drink",
+     "Drink from an item you are carrying.",
+     "Drink from an item you are carrying.",
+     (REQ_ALERT | REQ_ACTION)},
+    {COM_FILL,
+     "fill",
+     "Fill a held liquid container from another.",
+     "Fill a held liquid container from another.",
+     (REQ_ALERT | REQ_ACTION)},
+    {COM_DUMP,
+     "dump",
+     "Dump all liquid out of a container you are carrying.",
+     "Dump all liquid out of a container you are carrying.",
+     (REQ_ALERT | REQ_ACTION)},
 
     {COM_SLEEP, "sleep", "Go to sleep.", "Go to sleep.", (REQ_CONSCIOUS | REQ_ACTION)},
     {COM_WAKE,
@@ -274,23 +278,23 @@ Command comlist[1024] = {
      "shout",
      "Shout something to all nearby.",
      "Shout something to all nearby.",
-     (REQ_AWAKE)},
+     (REQ_AWAKE | CMD_FLAVORTEXT)},
     {COM_YELL,
      "yell",
      "Shout something to all nearby.",
      "Shout something to all nearby.",
-     (REQ_AWAKE)},
+     (REQ_AWAKE | CMD_FLAVORTEXT)},
     {COM_CALL,
      "call",
      "Shout something to all nearby.",
      "Shout something to all nearby.",
-     (REQ_AWAKE)},
-    {COM_SAY, "say", "Say something.", "Say something.", (REQ_AWAKE)},
+     (REQ_AWAKE | CMD_FLAVORTEXT)},
+    {COM_SAY, "say", "Say something.", "Say something.", (REQ_AWAKE | CMD_FLAVORTEXT)},
     {COM_EMOTE,
      "emote",
      "Indicate to others that you are doing something.",
      "Indicate to others that you are doing something.",
-     (REQ_AWAKE)},
+     (REQ_AWAKE | CMD_FLAVORTEXT)},
 
     {COM_POINT,
      "point",
@@ -360,18 +364,18 @@ Command comlist[1024] = {
      "ooc",
      "Toggle or use ooc (Out-Of-Character) chat.",
      "Toggle or use ooc (Out-Of-Character) chat.",
-     (REQ_ANY)},
+     (REQ_ANY | CMD_FLAVORTEXT)},
     {COM_NEWBIE,
      "newbie",
      "Toggle or use newbie (new player) chat (use this to ask for help).",
      "Toggle or use newbie (new player) chat (use this to ask for help).",
-     (REQ_ANY)},
+     (REQ_ANY | CMD_FLAVORTEXT)},
 
     {COM_NEWCHARACTER,
      "newcharacter",
      "Create a new character.",
      "Create a new character.",
-     (REQ_ETHEREAL)},
+     (REQ_ETHEREAL | CMD_FLAVORTEXT)},
     {COM_RAISE,
      "raise",
      "Spend a skill or attribute point of current character.",
@@ -403,6 +407,22 @@ Command comlist[1024] = {
      "Get your current character and/or player's stats and score.",
      (REQ_ETHEREAL | REQ_CORPOREAL)},
 
+    {COM_TIME,
+     "time",
+     "Get the current world's MUD time.",
+     "Get the current world's MUD time.",
+     (REQ_ETHEREAL | REQ_CORPOREAL)},
+    {COM_WORLD,
+     "world",
+     "Get the name of the current world.",
+     "Get the name of the current world.",
+     (REQ_ETHEREAL | REQ_CORPOREAL)},
+    {COM_VERSION,
+     "version",
+     "Query the version information of running AcidMUD.",
+     "Query the version information of running AcidMUD.",
+     (REQ_ANY)},
+
     {COM_SKILLLIST,
      "skilllist",
      "List all available skill categories, or all skills in a category.",
@@ -425,27 +445,11 @@ Command comlist[1024] = {
      "Resurrect a long-dead character (one with no corpse left).",
      (REQ_STAND)},
 
-    {COM_TIME,
-     "time",
-     "Get the current world's MUD time.",
-     "Get the current world's MUD time.",
-     (REQ_ETHEREAL | REQ_CORPOREAL)},
-    {COM_WORLD,
-     "world",
-     "Get the name of the current world.",
-     "Get the name of the current world.",
-     (REQ_ETHEREAL | REQ_CORPOREAL)},
-    {COM_VERSION,
-     "version",
-     "Query the version information of running AcidMUD.",
-     "Query the version information of running AcidMUD.",
-     (REQ_ANY)},
-
     {COM_NINJAMODE,
      "ninjamode",
      "Ninja command: run a command in Ninja Mode[TM].",
      "Ninja command: run a command in Ninja Mode[TM].",
-     (REQ_ETHEREAL | REQ_ANY | REQ_ACTION | REQ_NINJA)},
+     (REQ_ETHEREAL | REQ_ANY | REQ_ACTION | REQ_NINJA | CMD_FLAVORTEXT)},
     {COM_MAKENINJA,
      "makeninja",
      "Ninja command: make (or unmake) another player into a True Ninja[TM].",
@@ -457,16 +461,11 @@ Command comlist[1024] = {
      "Ninja command: make (or unmake) a True Ninja into a Super Ninja[TM].",
      (REQ_ANY | REQ_SUPERNINJA | REQ_NINJAMODE)},
 
-    {COM_STATS,
-     "stats",
-     "Ninja command: Get stats of a character, object or creature.",
-     "Ninja command: Get stats of a character, object or creature.",
-     (REQ_ALERT | REQ_NINJAMODE)},
     {COM_CREATE,
      "create",
      "Ninja command.",
      "Ninja command - ninjas only!",
-     (REQ_ALERT | REQ_NINJAMODE)},
+     (REQ_ALERT | REQ_NINJAMODE | CMD_FLAVORTEXT)},
     {COM_DCREATE,
      "dcreate",
      "Ninja command.",
@@ -496,7 +495,7 @@ Command comlist[1024] = {
      "command",
      "Ninja command.",
      "Ninja command - ninjas only!",
-     (REQ_CORPOREAL | REQ_NINJAMODE)},
+     (REQ_CORPOREAL | REQ_NINJAMODE | CMD_FLAVORTEXT)},
     {COM_CONTROL,
      "control",
      "Ninja command.",
@@ -553,16 +552,53 @@ Command comlist[1024] = {
      "increment",
      "Ninja command.",
      "Ninja command - ninjas only!",
-     (REQ_ALERT | REQ_NINJAMODE)},
+     (REQ_ALERT | REQ_NINJAMODE | CMD_FLAVORTEXT)},
     {COM_DECREMENT,
      "decrement",
      "Ninja command.",
      "Ninja command - ninjas only!",
-     (REQ_ALERT | REQ_NINJAMODE)},
+     (REQ_ALERT | REQ_NINJAMODE | CMD_FLAVORTEXT)},
     {COM_DOUBLE,
      "double",
      "Ninja command.",
      "Ninja command - ninjas only!",
+     (REQ_ALERT | REQ_NINJAMODE)},
+
+    {COM_SETSTATS,
+     "setstats",
+     "Ninja command.",
+     "Ninja command - ninjas only!",
+     (REQ_ALERT | REQ_NINJAMODE)},
+    {COM_NAME,
+     "name",
+     "Ninja command.",
+     "Ninja command - ninjas only!",
+     (REQ_ALERT | REQ_NINJAMODE)},
+    {COM_UNDESCRIBE,
+     "undescribe",
+     "Ninja command.",
+     "Ninja command - ninjas only!",
+     (REQ_ALERT | REQ_NINJAMODE)},
+    {COM_DESCRIBE,
+     "describe",
+     "Ninja command.",
+     "Ninja command - ninjas only!",
+     (REQ_ALERT | REQ_NINJAMODE | CMD_FLAVORTEXT)},
+    {COM_UNDEFINE,
+     "undefine",
+     "Ninja command.",
+     "Ninja command - ninjas only!",
+     (REQ_ALERT | REQ_NINJAMODE)},
+    {COM_DEFINE,
+     "define",
+     "Ninja command.",
+     "Ninja command - ninjas only!",
+     (REQ_ALERT | REQ_NINJAMODE | CMD_FLAVORTEXT)},
+
+    {COM_STATS,
+     "stats",
+     "Ninja command: Get stats of a character, object or creature.",
+     "Ninja command: Get stats of a character, object or creature.",
      (REQ_ALERT | REQ_NINJAMODE)},
 
     {COM_SHUTDOWN,
@@ -586,59 +622,152 @@ Command comlist[1024] = {
      "Ninja command.",
      "Ninja command - ninjas only!",
      (REQ_ALERT | REQ_NINJAMODE)},
-    {COM_SETSTATS,
-     "setstats",
-     "Ninja command.",
-     "Ninja command - ninjas only!",
-     (REQ_ALERT | REQ_NINJAMODE)},
-    {COM_NAME,
-     "name",
-     "Ninja command.",
-     "Ninja command - ninjas only!",
-     (REQ_ALERT | REQ_NINJAMODE)},
-    {COM_DESCRIBE,
-     "describe",
-     "Ninja command.",
-     "Ninja command - ninjas only!",
-     (REQ_ALERT | REQ_NINJAMODE)},
-    {COM_UNDESCRIBE,
-     "undescribe",
-     "Ninja command.",
-     "Ninja command - ninjas only!",
-     (REQ_ALERT | REQ_NINJAMODE)},
-    {COM_DEFINE,
-     "define",
-     "Ninja command.",
-     "Ninja command - ninjas only!",
-     (REQ_ALERT | REQ_NINJAMODE)},
-    {COM_UNDEFINE,
-     "undefine",
-     "Ninja command.",
-     "Ninja command - ninjas only!",
-     (REQ_ALERT | REQ_NINJAMODE)},
 
     {COM_TLOAD,
      "tload",
      "Ninja command.",
      "Ninja command - ninjas only!",
-     (REQ_ALERT | REQ_NINJAMODE)},
+     (REQ_ALERT | REQ_NINJAMODE | CMD_FLAVORTEXT)},
     {COM_TCLEAN,
      "tclean",
      "Ninja command.",
      "Ninja command - ninjas only!",
      (REQ_ALERT | REQ_NINJAMODE)},
-
-    {COM_NONE, nullptr, nullptr, nullptr, 0} // More get filled in by load_socials
 };
 
-const char* socials[1024][13];
+static_assert(static_comlist[COM_HELP].id == COM_HELP);
+static_assert(static_comlist[COM_QUIT].id == COM_QUIT);
+static_assert(static_comlist[COM_NORTH].id == COM_NORTH);
+static_assert(static_comlist[COM_SOUTH].id == COM_SOUTH);
+static_assert(static_comlist[COM_EAST].id == COM_EAST);
+static_assert(static_comlist[COM_WEST].id == COM_WEST);
+static_assert(static_comlist[COM_UP].id == COM_UP);
+static_assert(static_comlist[COM_DOWN].id == COM_DOWN);
+static_assert(static_comlist[COM_LOOK].id == COM_LOOK);
+static_assert(static_comlist[COM_EXAMINE].id == COM_EXAMINE);
+static_assert(static_comlist[COM_CONSIDER].id == COM_CONSIDER);
+static_assert(static_comlist[COM_INVENTORY].id == COM_INVENTORY);
+static_assert(static_comlist[COM_EQUIPMENT].id == COM_EQUIPMENT);
+static_assert(static_comlist[COM_SEARCH].id == COM_SEARCH);
+static_assert(static_comlist[COM_HIDE].id == COM_HIDE);
+static_assert(static_comlist[COM_LEAVE].id == COM_LEAVE);
+static_assert(static_comlist[COM_ENTER].id == COM_ENTER);
+static_assert(static_comlist[COM_SELECT].id == COM_SELECT);
+static_assert(static_comlist[COM_OPEN].id == COM_OPEN);
+static_assert(static_comlist[COM_CLOSE].id == COM_CLOSE);
+static_assert(static_comlist[COM_UNLOCK].id == COM_UNLOCK);
+static_assert(static_comlist[COM_LOCK].id == COM_LOCK);
+static_assert(static_comlist[COM_GET].id == COM_GET);
+static_assert(static_comlist[COM_DRAG].id == COM_DRAG);
+static_assert(static_comlist[COM_PUT].id == COM_PUT);
+static_assert(static_comlist[COM_DROP].id == COM_DROP);
+static_assert(static_comlist[COM_STASH].id == COM_STASH);
+static_assert(static_comlist[COM_WIELD].id == COM_WIELD);
+static_assert(static_comlist[COM_UNWIELD].id == COM_UNWIELD);
+static_assert(static_comlist[COM_HOLD].id == COM_HOLD);
+static_assert(static_comlist[COM_LIGHT].id == COM_LIGHT);
+static_assert(static_comlist[COM_WEAR].id == COM_WEAR);
+static_assert(static_comlist[COM_REMOVE].id == COM_REMOVE);
+static_assert(static_comlist[COM_LABEL].id == COM_LABEL);
+static_assert(static_comlist[COM_UNLABEL].id == COM_UNLABEL);
+static_assert(static_comlist[COM_HEAL].id == COM_HEAL);
+static_assert(static_comlist[COM_EAT].id == COM_EAT);
+static_assert(static_comlist[COM_DRINK].id == COM_DRINK);
+static_assert(static_comlist[COM_FILL].id == COM_FILL);
+static_assert(static_comlist[COM_DUMP].id == COM_DUMP);
+static_assert(static_comlist[COM_SLEEP].id == COM_SLEEP);
+static_assert(static_comlist[COM_WAKE].id == COM_WAKE);
+static_assert(static_comlist[COM_LIE].id == COM_LIE);
+static_assert(static_comlist[COM_REST].id == COM_REST);
+static_assert(static_comlist[COM_SIT].id == COM_SIT);
+static_assert(static_comlist[COM_STAND].id == COM_STAND);
+static_assert(static_comlist[COM_USE].id == COM_USE);
+static_assert(static_comlist[COM_STOP].id == COM_STOP);
+static_assert(static_comlist[COM_CAST].id == COM_CAST);
+static_assert(static_comlist[COM_PRAY].id == COM_PRAY);
+static_assert(static_comlist[COM_SHOUT].id == COM_SHOUT);
+static_assert(static_comlist[COM_YELL].id == COM_YELL);
+static_assert(static_comlist[COM_CALL].id == COM_CALL);
+static_assert(static_comlist[COM_SAY].id == COM_SAY);
+static_assert(static_comlist[COM_EMOTE].id == COM_EMOTE);
+static_assert(static_comlist[COM_POINT].id == COM_POINT);
+static_assert(static_comlist[COM_FOLLOW].id == COM_FOLLOW);
+static_assert(static_comlist[COM_ATTACK].id == COM_ATTACK);
+static_assert(static_comlist[COM_KILL].id == COM_KILL);
+static_assert(static_comlist[COM_PUNCH].id == COM_PUNCH);
+static_assert(static_comlist[COM_KICK].id == COM_KICK);
+static_assert(static_comlist[COM_FLEE].id == COM_FLEE);
+static_assert(static_comlist[COM_LIST].id == COM_LIST);
+static_assert(static_comlist[COM_BUY].id == COM_BUY);
+static_assert(static_comlist[COM_VALUE].id == COM_VALUE);
+static_assert(static_comlist[COM_SELL].id == COM_SELL);
+static_assert(static_comlist[COM_TOGGLE].id == COM_TOGGLE);
+static_assert(static_comlist[COM_WHO].id == COM_WHO);
+static_assert(static_comlist[COM_OOC].id == COM_OOC);
+static_assert(static_comlist[COM_NEWBIE].id == COM_NEWBIE);
+static_assert(static_comlist[COM_NEWCHARACTER].id == COM_NEWCHARACTER);
+static_assert(static_comlist[COM_RAISE].id == COM_RAISE);
+static_assert(static_comlist[COM_LOWER].id == COM_LOWER);
+static_assert(static_comlist[COM_RESETCHARACTER].id == COM_RESETCHARACTER);
+static_assert(static_comlist[COM_RANDOMIZE].id == COM_RANDOMIZE);
+static_assert(static_comlist[COM_ARCHTYPE].id == COM_ARCHTYPE);
+static_assert(static_comlist[COM_SCORE].id == COM_SCORE);
+static_assert(static_comlist[COM_TIME].id == COM_TIME);
+static_assert(static_comlist[COM_WORLD].id == COM_WORLD);
+static_assert(static_comlist[COM_VERSION].id == COM_VERSION);
+static_assert(static_comlist[COM_SKILLLIST].id == COM_SKILLLIST);
+static_assert(static_comlist[COM_RECALL].id == COM_RECALL);
+static_assert(static_comlist[COM_TELEPORT].id == COM_TELEPORT);
+static_assert(static_comlist[COM_RESURRECT].id == COM_RESURRECT);
+static_assert(static_comlist[COM_NINJAMODE].id == COM_NINJAMODE);
+static_assert(static_comlist[COM_MAKENINJA].id == COM_MAKENINJA);
+static_assert(static_comlist[COM_MAKESUPERNINJA].id == COM_MAKESUPERNINJA);
+static_assert(static_comlist[COM_CREATE].id == COM_CREATE);
+static_assert(static_comlist[COM_DCREATE].id == COM_DCREATE);
+static_assert(static_comlist[COM_CCREATE].id == COM_CCREATE);
+static_assert(static_comlist[COM_ANCHOR].id == COM_ANCHOR);
+static_assert(static_comlist[COM_LINK].id == COM_LINK);
+static_assert(static_comlist[COM_CONNECT].id == COM_CONNECT);
+static_assert(static_comlist[COM_COMMAND].id == COM_COMMAND);
+static_assert(static_comlist[COM_CONTROL].id == COM_CONTROL);
+static_assert(static_comlist[COM_CLONE].id == COM_CLONE);
+static_assert(static_comlist[COM_MIRROR].id == COM_MIRROR);
+static_assert(static_comlist[COM_JUNK].id == COM_JUNK);
+static_assert(static_comlist[COM_RESET].id == COM_RESET);
+static_assert(static_comlist[COM_PLAYERS].id == COM_PLAYERS);
+static_assert(static_comlist[COM_DELPLAYER].id == COM_DELPLAYER);
+static_assert(static_comlist[COM_CHARACTERS].id == COM_CHARACTERS);
+static_assert(static_comlist[COM_JACK].id == COM_JACK);
+static_assert(static_comlist[COM_CHUMP].id == COM_CHUMP);
+static_assert(static_comlist[COM_INCREMENT].id == COM_INCREMENT);
+static_assert(static_comlist[COM_DECREMENT].id == COM_DECREMENT);
+static_assert(static_comlist[COM_DOUBLE].id == COM_DOUBLE);
+static_assert(static_comlist[COM_SETSTATS].id == COM_SETSTATS);
+static_assert(static_comlist[COM_NAME].id == COM_NAME);
+static_assert(static_comlist[COM_UNDESCRIBE].id == COM_UNDESCRIBE);
+static_assert(static_comlist[COM_DESCRIBE].id == COM_DESCRIBE);
+static_assert(static_comlist[COM_UNDEFINE].id == COM_UNDEFINE);
+static_assert(static_comlist[COM_DEFINE].id == COM_DEFINE);
+static_assert(static_comlist[COM_STATS].id == COM_STATS);
+static_assert(static_comlist[COM_SHUTDOWN].id == COM_SHUTDOWN);
+static_assert(static_comlist[COM_RESTART].id == COM_RESTART);
+static_assert(static_comlist[COM_SAVEALL].id == COM_SAVEALL);
+static_assert(static_comlist[COM_MAKESTART].id == COM_MAKESTART);
+static_assert(static_comlist[COM_TLOAD].id == COM_TLOAD);
+static_assert(static_comlist[COM_TCLEAN].id == COM_TCLEAN);
 
-static void load_socials() {
+Command comlist[1024] = {};
+
+const char* socials[1024][13] = {};
+
+static void load_commands() {
+  int cnum = 1;
+  while (cnum < COM_MAX) {
+    comlist[cnum] = static_comlist[cnum];
+    ++cnum;
+  }
   FILE* soc = fopen("tba/socials.new", "r");
   if (soc) {
-    int cnum = 0;
-    while (comlist[cnum].id != COM_NONE)
-      ++cnum;
     // fprintf(stderr, "There were %d commands!\n", cnum);
     char com[64] = "";
     int v1, v2, v3, v4;
@@ -656,7 +785,7 @@ static void load_socials() {
       comlist[cnum].id = COM_SOCIAL;
       comlist[cnum].shortdesc = "Social command.";
       comlist[cnum].longdesc = "Social command.";
-      comlist[cnum].sit = REQ_ALERT; // FIXME: Import This?
+      comlist[cnum].sit = (REQ_ALERT | CMD_FLAVORTEXT); // FIXME: Import This?
       ++cnum;
     }
     // fprintf(stderr, "There are now %d commands!\n", cnum);
@@ -666,8 +795,8 @@ static void load_socials() {
 
 com_t identify_command(const std::string& str) {
   int len;
-  if (comlist[256].id == COM_NONE) { // Haven't loaded socials yet
-    load_socials();
+  if (comlist[COM_MAX].id == COM_NONE) { // Haven't loaded commands yet
+    load_commands();
   }
   if (str[0] == '\'' || str[0] == '"') { // Command Alias: "say"
     len = 1;
@@ -677,7 +806,7 @@ com_t identify_command(const std::string& str) {
   }
   if (len == 0)
     return COM_NONE;
-  for (int ctr = 0; comlist[ctr].id != COM_NONE; ++ctr) {
+  for (int ctr = 1; comlist[ctr].id != COM_NONE; ++ctr) {
     if (comlist[ctr].sit & SIT_NINJAMODE)
       continue; // Don't match ninjas
 
@@ -703,12 +832,26 @@ com_t identify_command(const std::string& str) {
 //                1: Command NOT Understood
 //                2: Command Understood - No More Actions This Round
 int handle_single_command(Object* body, const char* inpline, Mind* mind) {
+  if (comlist[COM_MAX].id == COM_NONE) { // Haven't loaded commands yet
+    load_commands();
+  }
+
   std::string cmd = inpline;
   trim_string(cmd);
-  std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
 
-  if (comlist[256].id == COM_NONE) { // Haven't loaded socials yet
-    load_socials();
+  // Lowercase the command portion, and only that portion, for now.
+  auto clen = cmd.find_first_not_of("abcdefghijklmnopqrstuvwxyz");
+  if (clen != std::string::npos && clen < cmd.length() && std::isupper(cmd[clen])) {
+    clen = cmd.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    if (clen == std::string::npos || clen >= cmd.length()) {
+      std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
+    } else {
+      std::transform(cmd.begin(), cmd.begin() + clen, cmd.begin(), ::tolower);
+    }
+  }
+
+  if (comlist[COM_MAX].id == COM_NONE) { // Haven't loaded commands yet
+    load_commands();
   }
 
   if ((!body) && (!mind)) { // Nobody doing something?
@@ -780,7 +923,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   }
 
   int com = COM_NONE, cnum = -1;
-  for (int ctr = 0; comlist[ctr].id != COM_NONE; ++ctr) {
+  for (int ctr = 1; comlist[ctr].id != COM_NONE; ++ctr) {
     // Always match ninjas last (and only in ninja mode)
     if (comlist[ctr].sit & SIT_NINJAMODE)
       continue;
@@ -810,7 +953,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   }
 
   if (com == COM_NONE && ninja) { // Now match ninja commands (for ninjas)
-    for (int ctr = 0; comlist[ctr].id != COM_NONE; ++ctr) {
+    for (int ctr = 1; comlist[ctr].id != COM_NONE; ++ctr) {
       if (!strncmp(cmd.c_str(), comlist[ctr].command, len)) {
         com = comlist[ctr].id;
         cnum = ctr;
@@ -821,6 +964,14 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         cnum = ctr;
         break;
       }
+    }
+  }
+
+  // Lowercase the entire command, for non-flavortext commands.
+  if (com != COM_NONE && (comlist[com].sit & CMD_FLAVORTEXT) == 0) {
+    auto fclen = cmd.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    if (fclen != std::string::npos && fclen < cmd.length()) {
+      std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
     }
   }
 
@@ -1331,7 +1482,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       ++len;
     if (!strcmp(cmd.c_str() + len, "commands")) {
       std::string mes = "";
-      for (int ctr = 0; comlist[ctr].id != COM_NONE; ++ctr) {
+      for (int ctr = 1; comlist[ctr].id != COM_NONE; ++ctr) {
         if (comlist[ctr].id == COM_SOCIAL)
           continue;
         if ((comlist[ctr].sit & SIT_NINJAMODE) && (!nmode))
@@ -1355,7 +1506,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     } else if (!strcmp(cmd.c_str() + len, "socials")) {
       std::string mes = "";
-      for (int ctr = 0; comlist[ctr].id != COM_NONE; ++ctr) {
+      for (int ctr = 1; comlist[ctr].id != COM_NONE; ++ctr) {
         if (comlist[ctr].id != COM_SOCIAL)
           continue;
         if ((comlist[ctr].sit & SIT_NINJAMODE) && (!nmode))
@@ -4258,41 +4409,41 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     int special = 0;
     int freehand = 0;
     std::string spname = "";
-    if (!strncmp("Identify", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    if (!strncmp("identify", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       special = 1;
       spname = "Identify";
-    } else if (!strncmp("Create Food", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("create food", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = -1;
       special = 2;
       freehand = 1;
       spname = "Create Food";
-    } else if (!strncmp("Force Sword", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("force sword", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = -1;
       special = 2;
       freehand = 1;
       spname = "Force Sword";
-    } else if (!strncmp("Heat Vision", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("heat vision", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
       spname = "Heat Vision";
-    } else if (!strncmp("Dark Vision", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("dark vision", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
       spname = "Dark Vision";
-    } else if (!strncmp("Recall", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("recall", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
       spname = "Recall";
-    } else if (!strncmp("Teleport", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("teleport", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
       spname = "Teleport";
-    } else if (!strncmp("Resurrect", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("resurrect", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
       spname = "Resurrect";
-    } else if (!strncmp("Remove Curse", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("remove curse", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
       spname = "Remove Curse";
-    } else if (!strncmp("Cure Poison", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("cure poison", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
       spname = "Cure Poison";
-    } else if (!strncmp("Sleep Other", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
+    } else if (!strncmp("sleep other", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       spname = "Sleep Other";
     } else {
       if (mind)
@@ -4326,7 +4477,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
     Object* targ = body->ActTarg(ACT_POINT);
     if (!targ)
-      targ = body; // Defaults to SELF (If not, caught above!)
+      targ = body; // Defaults to SELF if not, caught above!)
     if (src) {
       std::string youmes = "You use ;s to cast " + spname + ".\n";
       body->Parent()->SendOut(

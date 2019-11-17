@@ -68,7 +68,6 @@ typedef enum {
   COM_CALL,
   COM_SAY,
   COM_EMOTE,
-  COM_SOCIAL, // Many commands, which all have no real effect.
 
   COM_POINT,
   COM_FOLLOW,
@@ -85,9 +84,6 @@ typedef enum {
 
   COM_TOGGLE,
 
-  COM_PLAYERS,
-  COM_DELPLAYER,
-  COM_CHARACTERS,
   COM_WHO,
   COM_OOC,
   COM_NEWBIE,
@@ -99,6 +95,11 @@ typedef enum {
   COM_RANDOMIZE,
   COM_ARCHTYPE,
 
+  COM_SCORE,
+  COM_TIME,
+  COM_WORLD,
+  COM_VERSION,
+
   COM_SKILLLIST,
 
   COM_RECALL,
@@ -109,7 +110,6 @@ typedef enum {
   COM_MAKENINJA,
   COM_MAKESUPERNINJA,
 
-  COM_RESET,
   COM_CREATE,
   COM_DCREATE,
   COM_CCREATE,
@@ -121,7 +121,12 @@ typedef enum {
   COM_CLONE,
   COM_MIRROR,
   COM_JUNK,
-  COM_JUNKRESTART,
+
+  COM_RESET,
+  COM_PLAYERS,
+  COM_DELPLAYER,
+  COM_CHARACTERS,
+
   COM_JACK,
   COM_CHUMP,
   COM_INCREMENT,
@@ -134,20 +139,18 @@ typedef enum {
   COM_UNDEFINE,
   COM_DEFINE,
 
-  COM_SCORE,
-  COM_TIME,
-  COM_WORLD,
-
   COM_STATS,
   COM_SHUTDOWN,
   COM_RESTART,
   COM_SAVEALL,
-  COM_VERSION,
 
   COM_MAKESTART,
 
   COM_TLOAD,
   COM_TCLEAN,
+
+  COM_MAX,
+  COM_SOCIAL = COM_MAX, // Many commands, which all have no real effect.
 } com_t;
 
 // int handle_command(Object *, const char *);
