@@ -681,7 +681,7 @@ void Object::TBALoadZON(const char* fn) {
 
 void Object::TBALoadMOB(const char* fn) {
   if (mobroom == nullptr) {
-    mobroom = new Object(this);
+    mobroom = new Object(this->World());
     mobroom->SetSkill("Invisible", 1000);
     mobroom->SetShortDesc("The TBAMUD MOB Room");
   }
@@ -1114,7 +1114,7 @@ static void add_tba_spell(Object* obj, int spell, int power) {
 
 void Object::TBALoadOBJ(const char* fn) {
   if (objroom == nullptr) {
-    objroom = new Object(this);
+    objroom = new Object(this->World());
     objroom->SetSkill("Invisible", 1000);
     objroom->SetShortDesc("The TBAMUD Object Room");
   }

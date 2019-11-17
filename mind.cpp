@@ -2461,7 +2461,7 @@ int Mind::TBARunLine(std::string line) {
     }
     Object* src = room->World();
     if (tbatype == 'o') {
-      src = src->PickObject("TBAMUD Object Room", LOC_NINJA | LOC_INTERNAL);
+      src = src->World()->PickObject("tbamud object room", LOC_NINJA | LOC_INTERNAL);
       if (src == nullptr) {
         fprintf(
             stderr,
@@ -2479,7 +2479,7 @@ int Mind::TBARunLine(std::string line) {
       }
     } else if (tbatype == 'm') {
       dest = room;
-      src = src->PickObject("TBAMUD MOB Room", LOC_NINJA | LOC_INTERNAL);
+      src = src->World()->PickObject("tbamud mob room", LOC_NINJA | LOC_INTERNAL);
       if (src == nullptr) {
         fprintf(
             stderr,
