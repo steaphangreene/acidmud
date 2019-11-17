@@ -1896,19 +1896,6 @@ int Object::Travel(Object* dest, int try_combine) {
         }
       }
     }
-    // Type 0x4000040 or 0x1000040 (ROOM-ENTER or MOB-GREET)
-    for (auto trig : trigs) {
-      if ((trig->Skill("TBAScriptType") & 0x0000040) &&
-          (trig->Skill("TBAScriptType") & 0x5000000)) {
-        if (trig != this && trig->Parent() != this) {
-          if ((rand() % 100) < trig->Skill("TBAScriptNArg")) { // % Chance
-            // fprintf(stderr, "Triggering: %s\n", trig->Name());
-            if (new_trigger(0, trig, this, rdir))
-              return 1;
-          }
-        }
-      }
-    }
   }
 
   Object* oldp = parent;
@@ -1943,6 +1930,27 @@ int Object::Travel(Object* dest, int try_combine) {
       if (m->Owner()) {
         if (m->Owner()->Accomplish(parent->Skill("Secret"))) {
           m->SendF("%sYou gain a player experience point for finding a secret!\n%s", CYEL, CNRM);
+        }
+      }
+    }
+  }
+
+  if (IsAnimate()) {
+    auto trigs = parent->contents;
+    for (auto src : parent->contents) {
+      trigs.insert(trigs.end(), src->contents.begin(), src->contents.end());
+    }
+
+    // Type 0x4000040 or 0x1000040 (ROOM-ENTER or MOB-GREET)
+    for (auto trig : trigs) {
+      if ((trig->Skill("TBAScriptType") & 0x0000040) &&
+          (trig->Skill("TBAScriptType") & 0x5000000)) {
+        if (trig != this && trig->Parent() != this) {
+          if ((rand() % 100) < 1000 * trig->Skill("TBAScriptNArg")) { // % Chance
+            // fprintf(stderr, "Triggering: %s\n", trig->Name());
+            // new_trigger((rand() % 40) + 10, trig, this, rdir);
+            new_trigger(0, trig, this, rdir);
+          }
         }
       }
     }
