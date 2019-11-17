@@ -199,7 +199,7 @@ int matches(const char* name, const char* seek) {
 
 int Object::Matches(const char* seek) {
   std::string targ = seek;
-  while (isspace(targ.back()))
+  while (targ.length() > 0 && isspace(targ.back()))
     targ.pop_back();
 
   // Pointer Matches
@@ -339,8 +339,9 @@ void Object::Deactivate() {
 void tick_world() {
   static int tickstage = 0;
   std::set<Object*> todel, todeact;
-  //  fprintf(stderr, "Ticking %d items\n", ticklist[tickstage].size());
-  for (auto ind : ticklist[tickstage]) {
+
+  auto tkl = ticklist[tickstage];
+  for (auto ind : tkl) {
     int res = ind->Tick();
     if (res != 0) {
       if (res == 1) {

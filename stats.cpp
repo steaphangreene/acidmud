@@ -2407,7 +2407,7 @@ int get_weapon_type(std::string wskill) {
 }
 
 std::string get_skill(std::string sk) {
-  while (isspace(sk.back()))
+  while (sk.length() > 0 && isspace(sk.back()))
     sk.pop_back();
 
   if (defaults.count(sk))
@@ -2426,7 +2426,7 @@ std::string get_skill(std::string sk) {
 }
 
 std::string get_skill_cat(std::string cat) {
-  while (isspace(cat.back()))
+  while (cat.length() > 0 && isspace(cat.back()))
     cat.pop_back();
   if (skcat.count(cat))
     return cat;
@@ -2442,7 +2442,7 @@ std::string get_skill_cat(std::string cat) {
 }
 
 int get_linked(std::string sk) {
-  while (isspace(sk.back()))
+  while (sk.length() > 0 && isspace(sk.back()))
     sk.pop_back();
   if (defaults.count(sk))
     return defaults[sk];
@@ -2455,7 +2455,7 @@ std::vector<std::string> get_skills(std::string cat) {
   if (!defaults_init)
     init_defaults();
 
-  while (isspace(cat.back()))
+  while (cat.length() > 0 && isspace(cat.back()))
     cat.pop_back();
 
   if (cat == "Categories") {

@@ -2526,7 +2526,7 @@ void Object::TBALoadSHP(const char* fn) {
               while (isgraph(extra[0]))
                 extra = extra.substr(1);
             }
-            while (isspace(extra[0]))
+            while (extra.length() > 0 && isspace(extra[0]))
               extra = extra.substr(1);
 
             if (itnum == 1)

@@ -31,7 +31,7 @@ void trim_string(std::string& str) { // Remove extra whitespace from std::string
 
 size_t skip_line(const std::string& str, size_t pos) {
   pos = str.find_first_of("\n\r", pos + 1);
-  while (pos != std::string::npos && str[pos] && isspace(str[pos]))
+  while (pos != std::string::npos && pos < str.length() && isspace(str[pos]))
     ++pos;
   if (pos >= str.length())
     pos = std::string::npos;
@@ -44,7 +44,7 @@ size_t prev_line(const std::string& str, size_t pos) {
     --pos;
   if (pos != std::string::npos)
     pos = str.find_last_of("\n\r", pos);
-  while (pos != std::string::npos && str[pos] && isspace(str[pos]))
+  while (pos != std::string::npos && pos < str.length() && isspace(str[pos]))
     ++pos;
   if (pos >= str.length())
     pos = std::string::npos;
