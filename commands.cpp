@@ -5330,6 +5330,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       weap->SetSkill("WeaponForce", -2);
       weap->SetSkill("WeaponSeverity", 1);
       weap->SetSkill("WeaponReach", 1);
+      weap->SetPos(POS_LIE);
       body->AddAct(ACT_WIELD, weap);
 
       auto shi = new Object(body);
@@ -5337,6 +5338,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       shi->SetDesc("This shield has seen better days... but, it was pretty bad back then too.");
       shi->SetSkill("Wearable on Shield", 1);
       shi->SetAttribute(0, 1);
+      shi->SetPos(POS_LIE);
       body->AddAct(ACT_WEAR_SHIELD, shi);
 
       auto arm = new Object(body);
@@ -5349,6 +5351,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       arm->SetSkill("Wearable on Left Leg", 1);
       arm->SetSkill("Wearable on Right Leg", 1);
       arm->SetAttribute(0, 1);
+      arm->SetPos(POS_LIE);
       body->AddAct(ACT_WEAR_BACK, arm);
       body->AddAct(ACT_WEAR_CHEST, arm);
       body->AddAct(ACT_WEAR_LARM, arm);
@@ -5361,6 +5364,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       helm->SetDesc("This is... armor... probably.");
       helm->SetSkill("Wearable on Head", 1);
       helm->SetAttribute(0, 1);
+      helm->SetPos(POS_LIE);
       body->AddAct(ACT_WEAR_HEAD, helm);
 
       body->SetSkill("Status Points", 0);
