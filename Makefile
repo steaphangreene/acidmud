@@ -14,7 +14,7 @@ CXX=	clang++ -std=c++17 -O3 -g -Wall -Wshadow -Werror -ferror-limit=2
 
 #Use debugging settings
 debug:
-	+make CXX='clang++ -std=c++17 -Og -fno-omit-frame-pointer -g -fsanitize=address -fsanitize=undefined -fno-sanitize-recover=undefined -Wall -Wshadow -Werror -ferror-limit=2'
+	+make CXX='clang++ -std=c++17 -Og -fno-omit-frame-pointer -g -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined -Wall -Wshadow -Werror -ferror-limit=2'
 
 #Use profiling settings
 profile:
