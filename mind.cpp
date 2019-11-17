@@ -2589,7 +2589,7 @@ void Mind::Think(int istick) {
         int chance = body->Skill("TBAScriptNArg"); // Percent Chance
         if (chance > 0) {
           int delay = 13000; // Next try in 13 seconds.
-          while (delay < 13000000 && (rand() % 100) >= chance)
+          while (delay < 1300000 && (rand() % 100) >= chance)
             delay += 13000;
           spos_s.clear();
           spos_s.push_back(0); // We never die!

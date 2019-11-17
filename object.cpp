@@ -313,7 +313,7 @@ Object* new_body() {
   return body;
 }
 
-#define TICKSPLIT 6000 // 60 seconds
+#define TICKSPLIT 300 // 3 seconds
 static std::set<Object*> ticklist[TICKSPLIT];
 int Object::IsActive() const {
   return (tickstep >= 0);
