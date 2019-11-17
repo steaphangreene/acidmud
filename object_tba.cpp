@@ -1411,6 +1411,7 @@ void Object::TBALoadOBJ(const char* fn) {
       } else if (tp == 2) { // SCROLL
         obj->SetSkill("Magical", val[0]);
         obj->SetSkill("Magical Scroll", val[0]);
+        obj->SetSkill("Magical Charges", 1);
         for (int idx = 1; idx < 4; ++idx) {
           add_tba_spell(obj, val[idx], val[0]);
         }

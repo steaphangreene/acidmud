@@ -4478,7 +4478,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     Object* targ = body->ActTarg(ACT_POINT);
     if (!targ)
       targ = body; // Defaults to SELF if not, caught above!)
-    if (src) {
+    if (src && src != body) {
       std::string youmes = "You use ;s to cast " + spname + ".\n";
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s uses ;s to cast a spell.\n", youmes.c_str(), body, src);
@@ -4541,14 +4541,16 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       }
     }
 
-    if (src) { // FIXME: Handle Multi-Charged Items (Rod/Staff/Wand)
+    if (src) {
       if (src->Skill("Quantity") > 1) {
         src->Split(src->Skill("Quantity") - 1); // Split off the rest
       }
-      if (src->Skill("Magical Charges") > 1) {
-        src->SetSkill("Magical Charges", src->Skill("Magical Charges") - 1);
-      } else {
-        delete (src);
+      if (src->HasSkill("Magical Charges")) {
+        if (src->Skill("Magical Charges") > 1) {
+          src->SetSkill("Magical Charges", src->Skill("Magical Charges") - 1);
+        } else {
+          delete (src);
+        }
       }
     }
 
