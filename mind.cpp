@@ -2453,7 +2453,7 @@ int Mind::TBARunLine(std::string line) {
     if ((params != 2 && params != 4) || (tbatype != 'o' && tbatype != 'm')) {
       fprintf(
           stderr,
-          CRED "#%d Error: Gibberish script line '%s'\n" CNRM,
+          CRED "#%d Error: Nonsensical script load '%s'\n" CNRM,
           body->Skill("TBAScript"),
           line.c_str());
       Disable();
@@ -2609,9 +2609,28 @@ int Mind::TBARunLine(std::string line) {
     } else if (dest != room) { // Have it
       dest->StashOrDrop(item);
     }
-  }
 
-  else if (!strncmp(line.c_str(), "case ", 5)) {
+  } else if (!strncmp(line.c_str(), "dg_cast '", 9)) {
+    auto splen = line.find_first_of("'", 9);
+    if (splen != std::string::npos) {
+      auto spell = tba_spellconvert(line.substr(9, splen - 9));
+      // fprintf(stderr, CBLU "Cast[Acid]: %s\n" CNRM, spell.c_str());
+      // fprintf(stderr, CYEL "Cast[TBA]: %s\n" CNRM, line.substr(9, splen - 9).c_str());
+      ovars["self"]->SetSkill(spell + " Spell", 5);
+      std::string cline = "shout " + spell;
+      if (splen + 1 < line.length()) {
+        Object* targ;
+        if (sscanf(line.c_str() + splen + 1, " OBJ:%p", &targ) > 0) {
+          ovars["self"]->AddAct(ACT_POINT, targ);
+        }
+      }
+      cline += ";cast " + spell + ";point";
+      handle_command(ovars["self"], cline.c_str());
+    } else {
+      fprintf(stderr, CRED "Error: Bad casting command: '%s'\n" CNRM, line.c_str());
+    }
+
+  } else if (!strncmp(line.c_str(), "case ", 5)) {
     // Ignore these, as we only hit them here when when running over them
   } else if (!strncmp(line.c_str(), "default", 7)) {
     // Ignore these, as we only hit them here when when running over them
