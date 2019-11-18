@@ -52,7 +52,7 @@ static Object* universe = nullptr;
 static Object* trash_bin = nullptr;
 
 static std::set<Object*> busylist;
-extern timeval current_time; // From main.cpp
+extern int64_t current_time; // From main.cpp
 
 Object* Object::Universe() {
   return universe;
@@ -361,7 +361,7 @@ void tick_world() {
   ++tickstage;
   if (tickstage >= TICKSPLIT)
     tickstage = 0;
-  Mind::Resume(10); // Tell suspended minds to resume if their time is up
+  Mind::Resume(); // Tell suspended minds to resume if their time is up
 }
 
 int Object::Tick() {
@@ -665,8 +665,7 @@ int Object::Tick() {
 }
 
 Object::Object() {
-  busytill.tv_sec = 0;
-  busytill.tv_usec = 0;
+  busy_until = 0;
   short_desc = "new object";
   parent = nullptr;
   pos = POS_NONE;
@@ -697,8 +696,7 @@ Object::Object() {
 }
 
 Object::Object(Object* o) {
-  busytill.tv_sec = 0;
-  busytill.tv_usec = 0;
+  busy_until = 0;
   short_desc = "new object";
   parent = nullptr;
   SetParent(o);
@@ -730,8 +728,7 @@ Object::Object(Object* o) {
 }
 
 Object::Object(const Object& o) {
-  busytill.tv_sec = 0;
-  busytill.tv_usec = 0;
+  busy_until = 0;
   short_desc = o.short_desc;
   desc = o.desc;
   long_desc = o.long_desc;
@@ -3244,13 +3241,8 @@ int Object::WriteContentsTo(FILE* fl) {
 void Object::BusyFor(long msec, const char* default_next) {
   //  fprintf(stderr, "Holding %p, will default do '%s'!\n", this,
   //  default_next);
-  busytill = current_time;
-  busytill.tv_sec += msec / 1000;
-  busytill.tv_usec += (msec % 1000) * 1000;
-  if (busytill.tv_usec >= 1000000) {
-    ++busytill.tv_sec;
-    busytill.tv_usec -= 1000000;
-  }
+  busy_until = current_time;
+  busy_until += (msec * 1000);
   defact = default_next;
   busylist.insert(this);
 }
@@ -3258,20 +3250,13 @@ void Object::BusyFor(long msec, const char* default_next) {
 void Object::BusyWith(Object* other, const char* default_next) {
   //  fprintf(stderr, "Holding %p, will default do '%s'!\n", this,
   //  default_next);
-  busytill = other->busytill;
+  busy_until = other->busy_until;
   defact = default_next;
   busylist.insert(this);
 }
 
 int Object::StillBusy() {
-  int ret = 1;
-  if (current_time.tv_sec > busytill.tv_sec)
-    ret = 0;
-  else if (current_time.tv_sec < busytill.tv_sec)
-    ret = 1;
-  else if (current_time.tv_usec >= busytill.tv_usec)
-    ret = 0;
-  return ret;
+  return (current_time <= busy_until);
 }
 
 void Object::DoWhenFree(const char* action) {
@@ -3284,12 +3269,6 @@ void Object::DoWhenFree(const char* action) {
 int Object::BusyAct() {
   //  fprintf(stderr, "Taking busyact %p!\n", this);
   busylist.erase(this);
-
-  if (StillBusy()) { // Should only be true on non-first round action
-    if (IsAct(ACT_FIGHT)) { // If in actual combat (real rounds)
-      busytill.tv_sec -= 3; //...remove the time used of last action
-    }
-  }
 
   std::string comm = dowhenfree;
   std::string def = defact;

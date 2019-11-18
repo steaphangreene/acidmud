@@ -63,7 +63,7 @@ class Mind {
   void Think(int istick = 0);
   std::string Tactics(int phase = -1);
 
-  static void Resume(int passed);
+  static void Resume();
   void Suspend(int msec);
   void Disable();
 
@@ -104,7 +104,7 @@ class Mind {
   std::string script;
   std::vector<size_t> spos_s;
 
-  static std::vector<std::pair<int, Mind*>> waiting;
+  static std::vector<std::pair<int64_t, Mind*>> waiting;
 };
 
 Mind* new_mind(

@@ -448,7 +448,7 @@ class Object {
   std::map<act_t, Object*> act;
   std::set<Object*> touching_me;
 
-  timeval busytill;
+  int64_t busy_until;
   std::string dowhenfree, defact;
   friend void player_rooms_erase(Object*);
 };

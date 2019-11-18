@@ -12,6 +12,7 @@
 #include <cstring>
 #include <ctime>
 
+#include "color.hpp"
 #include "net.hpp"
 #include "object.hpp"
 
@@ -25,8 +26,17 @@ static void do_shutdown(int) {
   shutdn = 1;
 }
 
-timeval current_time = {0, 0};
-timeval lastsave_time = {0, 0};
+int64_t current_time;
+static int64_t get_time() {
+  timeval cur_time = {0, 0};
+  gettimeofday(&cur_time, nullptr);
+
+  int64_t ret = cur_time.tv_sec;
+  ret *= 1000000;
+  ret += cur_time.tv_usec;
+
+  return ret;
+}
 
 int main(int argc, char** argv) {
   const char* host = "";
@@ -74,50 +84,32 @@ int main(int argc, char** argv) {
     unwarn_net(2);
   }
 
-  gettimeofday(&lastsave_time, nullptr);
+  current_time = get_time();
+  auto lastsave_time = current_time;
   fprintf(stdout, "Ready to play!\n");
   while (shutdn <= 0) {
-    gettimeofday(&current_time, nullptr);
     tick_world();
-
-    // timeval now_time;
-    // timeval then_time;
-
-    // static long long diff1;
-    // gettimeofday(&now_time, nullptr);
     update_net();
-    // gettimeofday(&then_time, nullptr);
-    // diff1 = (long long)(then_time.tv_usec - now_time.tv_usec);
-    // diff1 += (long long)(1000000) * (long long)(then_time.tv_sec -
-    // now_time.tv_sec);
-
-    usleep(10000);
-
-    // static long long diff2;
-    // gettimeofday(&now_time, nullptr);
     Object::FreeActions();
-    // gettimeofday(&then_time, nullptr);
-    // diff2 = (long long)(then_time.tv_usec - now_time.tv_usec);
-    // diff2 += (long long)(1000000) * (long long)(then_time.tv_sec -
-    // now_time.tv_sec);
 
-    // static long long diff3;
-    // gettimeofday(&now_time, nullptr);
+    auto last_time = current_time;
+    current_time = get_time();
+    if (last_time + 100000 > current_time)
+      usleep(last_time + 100000 - current_time);
+    else
+      fprintf(stderr, CRED "Warning: Slow tick: %ldus > 100000us\n" CNRM, current_time - last_time);
 
     // FIXME: Do real (adjustable) autosave times - hardcoded to 15 minutes!
-    if (shutdn < 0 || (current_time.tv_sec > lastsave_time.tv_sec + 900)) {
+    if (shutdn < 0 || current_time > lastsave_time + int64_t(900000000)) {
       warn_net(shutdn);
       save_world();
       unwarn_net(shutdn);
       shutdn = 0;
+
+      // World save time doesn't count toward the clock
+      current_time = get_time();
       lastsave_time = current_time;
     }
-    // gettimeofday(&then_time, nullptr);
-    // diff3 = (long long)(then_time.tv_usec - now_time.tv_usec);
-    // diff3 += (long long)(1000000) * (long long)(then_time.tv_sec -
-    // now_time.tv_sec);
-
-    // fprintf(stderr, "times: %Ld, %Ld, %Ld\n", diff1, diff2, diff3);
   }
   if (shutdn == 2) { // Do Ninja Restart
     warn_net(2);

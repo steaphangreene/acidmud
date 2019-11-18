@@ -20,6 +20,8 @@
 #include "player.hpp"
 #include "utils.hpp"
 
+extern int64_t current_time; // From main.cpp
+
 std::vector<Mind*> recycle_bin;
 
 static const char* bstr[2] = {"0", "1"};
@@ -454,7 +456,7 @@ Mind::~Mind() {
   if (type == MIND_REMOTE)
     close_socket(pers);
   type = MIND_MORON;
-  Unattach();
+  Disable();
   if (log >= 0)
     close(log);
 }
@@ -3068,10 +3070,19 @@ int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, std::strin
   return 0;
 }
 
-std::vector<std::pair<int, Mind*>> Mind::waiting;
+std::vector<std::pair<int64_t, Mind*>> Mind::waiting;
 void Mind::Suspend(int msec) {
   //  fprintf(stderr, "Suspening(%p)\n", this);
-  waiting.push_back(std::make_pair(msec, this));
+
+  waiting.erase(
+      std::remove_if(
+          waiting.begin(),
+          waiting.end(),
+          [this](const std::pair<int, Mind*> m) { return (m.second == this); }),
+      waiting.end());
+
+  int64_t when = current_time + int64_t(msec) * int64_t(1000);
+  waiting.emplace_back(std::make_pair(when, this));
 }
 
 void Mind::Disable() {
@@ -3083,32 +3094,26 @@ void Mind::Disable() {
   if (log >= 0)
     close(log);
   log = -1;
+
   waiting.erase(
       std::remove_if(
           waiting.begin(),
           waiting.end(),
           [this](const std::pair<int, Mind*> m) { return (m.second == this); }),
       waiting.end());
+
   svars = cvars; // Reset all variables
   ovars.clear();
   recycle_bin.push_back(this); // Ready for re-use
 }
 
-void Mind::Resume(int passed) {
-  waiting.erase(
-      std::remove_if(
-          waiting.begin(),
-          waiting.end(),
-          [passed](std::pair<int, Mind*> m) {
-            if (m.first <= passed) {
-              m.second->Think(0);
-              return true;
-            } else {
-              m.first -= passed;
-              return false;
-            }
-          }),
-      waiting.end());
+void Mind::Resume() {
+  auto waiters = waiting;
+  for (auto m : waiters) {
+    if (m.first <= current_time) {
+      m.second->Think(0);
+    }
+  }
 }
 
 int Mind::Status() const {
