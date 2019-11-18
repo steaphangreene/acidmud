@@ -38,6 +38,7 @@ static void init_wear_attribs() {
   wear_attribs[ACT_WEAR_RSHOULDER] = "Wearable on Right Shoulder";
   wear_attribs[ACT_WEAR_LHIP] = "Wearable on Left Hip";
   wear_attribs[ACT_WEAR_RHIP] = "Wearable on Right Hip";
+  wear_attribs[ACT_WEAR_FACE] = "Wearable on Face";
 }
 
 static Mind* mob_mind = nullptr;

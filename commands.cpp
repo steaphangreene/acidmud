@@ -3474,7 +3474,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         body->ActTarg(ACT_WEAR_RLEG) == targ || body->ActTarg(ACT_WEAR_LWRIST) == targ ||
         body->ActTarg(ACT_WEAR_RWRIST) == targ || body->ActTarg(ACT_WEAR_LSHOULDER) == targ ||
         body->ActTarg(ACT_WEAR_RSHOULDER) == targ || body->ActTarg(ACT_WEAR_LHIP) == targ ||
-        body->ActTarg(ACT_WEAR_RHIP) == targ) {
+        body->ActTarg(ACT_WEAR_RHIP) == targ || body->ActTarg(ACT_WEAR_FACE) == targ) {
       if (mind)
         mind->Send("You are wearing that, perhaps you want to 'remove' it?\n");
     } else {
@@ -3737,7 +3737,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           body->ActTarg(ACT_WEAR_RLEG) == targ || body->ActTarg(ACT_WEAR_LWRIST) == targ ||
           body->ActTarg(ACT_WEAR_RWRIST) == targ || body->ActTarg(ACT_WEAR_LSHOULDER) == targ ||
           body->ActTarg(ACT_WEAR_RSHOULDER) == targ || body->ActTarg(ACT_WEAR_LHIP) == targ ||
-          body->ActTarg(ACT_WEAR_RHIP) == targ) {
+          body->ActTarg(ACT_WEAR_RHIP) == targ || body->ActTarg(ACT_WEAR_FACE) == targ) {
         if (mind && targs.size() == 1)
           mind->SendF("You are already wearing %s!\n", targ->Name(0, body));
       } else {
@@ -4968,27 +4968,31 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     } else if (loc < 56) {
       loca = ACT_WEAR_BACK;
       locm = " in the back";
-    } else if (loc < 58) {
+    } else if (loc < 59) {
       loca = ACT_WEAR_HEAD;
       locm = " in the head";
       stage = 1;
-    } else if (loc < 59) {
+    } else if (loc < 60) {
+      loca = ACT_WEAR_FACE;
+      locm = " in the face";
+      stage = 2;
+    } else if (loc < 61) {
       loca = ACT_WEAR_NECK;
       locm = " in the neck";
       stage = 2;
-    } else if (loc < 69) {
+    } else if (loc < 62) {
       loca = ACT_WEAR_COLLAR;
       locm = " in the throat";
       stage = 2;
-    } else if (loc < 70) {
+    } else if (loc < 72) {
       loca = ACT_WEAR_LARM;
       locm = " in the left arm";
       stage = -1;
-    } else if (loc < 80) {
+    } else if (loc < 82) {
       loca = ACT_WEAR_RARM;
       locm = " in the right arm";
       stage = -1;
-    } else if (loc < 85) {
+    } else if (loc < 86) {
       loca = ACT_WEAR_LLEG;
       locm = " in the left leg";
       stage = -1;

@@ -444,31 +444,47 @@ void Object::TBALoadZON(const char* fn) {
                 }
               } break;
               case (3): { // TBA MOBs have two necks (1/2)
-                if (lastmob->IsAct(ACT_WEAR_NECK))
-                  bagit = 1;
-                else
-                  lastmob->AddAct(ACT_WEAR_NECK, obj);
                 if (obj->Skill("Wearable on Neck") == 0) {
-                  fprintf(
-                      stderr,
-                      CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn,
-                      fline(mudz),
-                      obj->ShortDesc());
+                  if (obj->Skill("Wearable on Face") == 0) {
+                    fprintf(
+                        stderr,
+                        CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
+                        fn,
+                        fline(mudz),
+                        obj->ShortDesc());
+                  } else {
+                    if (lastmob->IsAct(ACT_WEAR_FACE))
+                      bagit = 1;
+                    else
+                      lastmob->AddAct(ACT_WEAR_FACE, obj);
+                  }
+                } else {
+                  if (lastmob->IsAct(ACT_WEAR_NECK))
+                    bagit = 1;
+                  else
+                    lastmob->AddAct(ACT_WEAR_NECK, obj);
                 }
               } break;
               case (4): { // TBA MOBs have two necks (2/2)
-                if (lastmob->IsAct(ACT_WEAR_COLLAR))
-                  bagit = 1;
-                else
-                  lastmob->AddAct(ACT_WEAR_COLLAR, obj);
                 if (obj->Skill("Wearable on Collar") == 0) {
-                  fprintf(
-                      stderr,
-                      CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn,
-                      fline(mudz),
-                      obj->ShortDesc());
+                  if (obj->Skill("Wearable on Face") == 0) {
+                    fprintf(
+                        stderr,
+                        CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
+                        fn,
+                        fline(mudz),
+                        obj->ShortDesc());
+                  } else {
+                    if (lastmob->IsAct(ACT_WEAR_FACE))
+                      bagit = 1;
+                    else
+                      lastmob->AddAct(ACT_WEAR_FACE, obj);
+                  }
+                } else {
+                  if (lastmob->IsAct(ACT_WEAR_COLLAR))
+                    bagit = 1;
+                  else
+                    lastmob->AddAct(ACT_WEAR_COLLAR, obj);
                 }
               } break;
               case (5): { // Worn
@@ -484,14 +500,22 @@ void Object::TBALoadZON(const char* fn) {
                 }
               } break;
               case (6): { // Worn
-                lastmob->AddAct(ACT_WEAR_HEAD, obj);
                 if (obj->Skill("Wearable on Head") == 0) {
-                  fprintf(
-                      stderr,
-                      CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn,
-                      fline(mudz),
-                      obj->ShortDesc());
+                  if (obj->Skill("Wearable on Face") == 0) {
+                    fprintf(
+                        stderr,
+                        CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
+                        fn,
+                        fline(mudz),
+                        obj->ShortDesc());
+                  } else {
+                    if (lastmob->IsAct(ACT_WEAR_FACE))
+                      bagit = 1;
+                    else
+                      lastmob->AddAct(ACT_WEAR_FACE, obj);
+                  }
+                } else {
+                  lastmob->AddAct(ACT_WEAR_HEAD, obj);
                 }
               } break;
               case (7): { // Worn
@@ -1254,8 +1278,15 @@ void Object::TBALoadOBJ(const char* fn) {
         obj->SetSkill("Wearable on Right Finger", 2);
       }
       if (strcasestr(buf, "c") || (atoi(buf) & 4)) {
-        obj->SetSkill("Wearable on Neck", 1);
-        obj->SetSkill("Wearable on Collar", 2);
+        if (matches(name.c_str(), "mask") || matches(name.c_str(), "sunglasses") ||
+            matches(name.c_str(), "eyeglasses") || matches(name.c_str(), "spectacles") ||
+            matches(name.c_str(), "glasses") || matches(name.c_str(), "goggles") ||
+            matches(name.c_str(), "visor") || matches(name.c_str(), "eyelets")) {
+          obj->SetSkill("Wearable on Face", 1);
+        } else {
+          obj->SetSkill("Wearable on Neck", 1);
+          obj->SetSkill("Wearable on Collar", 2);
+        }
       }
       if (strcasestr(buf, "d") || (atoi(buf) & 8)) {
         obj->SetSkill("Wearable on Chest", 1);
@@ -1269,7 +1300,14 @@ void Object::TBALoadOBJ(const char* fn) {
         }
       }
       if (strcasestr(buf, "e") || (atoi(buf) & 16)) {
-        obj->SetSkill("Wearable on Head", 1);
+        if (matches(name.c_str(), "mask") || matches(name.c_str(), "sunglasses") ||
+            matches(name.c_str(), "eyeglasses") || matches(name.c_str(), "spectacles") ||
+            matches(name.c_str(), "glasses") || matches(name.c_str(), "goggles") ||
+            matches(name.c_str(), "visor") || matches(name.c_str(), "eyelets")) {
+          obj->SetSkill("Wearable on Face", 1);
+        } else {
+          obj->SetSkill("Wearable on Head", 1);
+        }
       }
       if (strcasestr(buf, "f") || (atoi(buf) & 32)) {
         obj->SetSkill("Wearable on Left Leg", 1);
