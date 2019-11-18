@@ -516,7 +516,7 @@ void Mind::SetTBATrigger(Object* tr, Object* tripper, Object* targ, std::string 
     ovars["actor"] = tripper;
 
   int stype = body->Skill("TBAScriptType");
-  if (stype & 0x0000008) { //-SPEECH Triggers
+  if ((stype & 0x2000008) == 0x0000008) { //-SPEECH MOB/ROOM Triggers
     svars["speech"] = text;
   }
   if ((stype & 0x4000040) == 0x4000040 // ROOM-ENTER Triggers
@@ -1877,6 +1877,9 @@ int Mind::TBARunLine(std::string line) {
     int time = 0;
     sscanf(line.c_str() + 5, "%d", &time);
     if (time > 0) {
+      // if(body->Skill("TBAScript") >= 5034503 && body->Skill("TBAScript") <= 5034507)
+      //  fprintf(stderr, CBLU "#%d Suspending for: %d\n" CNRM, body->Skill("TBAScript"), time *
+      //  1000);
       Suspend(time * 1000);
       return 1;
     } else {
@@ -2667,6 +2670,13 @@ int Mind::TBARunLine(std::string line) {
       com == COM_SAY || com == COM_SHOUT || com == COM_EMOTE || com == COM_LOCK ||
       com == COM_UNLOCK || com == COM_OPEN || com == COM_CLOSE || com == COM_GET ||
       com == COM_DROP || com == COM_WEAR || com == COM_WIELD || com == COM_FOLLOW) {
+    // if (body->Skill("TBAScript") >= 5034503 && body->Skill("TBAScript") <= 5034507)
+    //  fprintf(
+    //      stderr,
+    //      CMAG "[#%d] Running command: '%s'\n" CNRM,
+    //      body->Skill("TBAScript"),
+    //      line.c_str());
+
     size_t stuff = line.find_first_of(" ");
     if (stuff != std::string::npos) {
       stuff = line.find_first_not_of(" \t\r\n", stuff);
@@ -3073,7 +3083,8 @@ int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, std::strin
 
 std::vector<std::pair<int64_t, Mind*>> Mind::waiting;
 void Mind::Suspend(int msec) {
-  //  fprintf(stderr, "Suspening(%p)\n", this);
+  // if(body && body->Skill("TBAScript") >= 5034503 && body->Skill("TBAScript") <= 5034507)
+  //  fprintf(stderr, CBLU "Suspended(%d): '%d'\n" CNRM, msec, body->Skill("TBAScript"));
 
   waiting.erase(
       std::remove_if(
@@ -3087,7 +3098,8 @@ void Mind::Suspend(int msec) {
 }
 
 void Mind::Disable() {
-  //  fprintf(stderr, "Disabled(%p)\n", this);
+  // if(body && body->Skill("TBAScript") >= 5034503 && body->Skill("TBAScript") <= 5034507)
+  //  fprintf(stderr, CBLU "Disabled(%p): '%d'\n" CNRM, this, body->Skill("TBAScript"));
   if (type == MIND_REMOTE)
     close_socket(pers);
   type = MIND_MORON;

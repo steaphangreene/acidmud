@@ -1892,7 +1892,7 @@ int Object::Travel(Object* dest, int try_combine) {
     for (auto trig : trigs) {
       if (trig->Skill("TBAScriptType") & 0x0010000) {
         if ((rand() % 100) < trig->Skill("TBAScriptNArg")) { // % Chance
-          // fprintf(stderr, "Triggering: %s\n", trig->Name());
+          // fprintf(stderr, CBLU "Triggering: %s\n" CNRM, trig->Name());
           if (new_trigger(0, trig, this, dir))
             return 1;
         }
@@ -1948,11 +1948,15 @@ int Object::Travel(Object* dest, int try_combine) {
       if ((trig->Skill("TBAScriptType") & 0x0000040) &&
           (trig->Skill("TBAScriptType") & 0x5000000)) {
         if (trig != this && trig->Parent() != this) {
-          if ((rand() % 100) < 1000 * trig->Skill("TBAScriptNArg")) { // % Chance
-            // fprintf(stderr, "Triggering: %s\n", trig->Name());
-            // new_trigger((rand() % 40) + 10, trig, this, rdir);
-            new_trigger(0, trig, this, rdir);
-          }
+          if (trig->Skill("TBAScript") >= 5034503 && trig->Skill("TBAScript") <= 5034507)
+            // fprintf(
+            //    stderr, CBLU "[#%d] Greeting: '%s'\n" CNRM, trig->Skill("TBAScript"),
+            //    ShortDesc());
+            if ((rand() % 100) < 1000 * trig->Skill("TBAScriptNArg")) { // % Chance
+              // if (trig->Skill("TBAScript") >= 5034503 && trig->Skill("TBAScript") <= 5034507)
+              //  fprintf(stderr, CBLU "Triggering: %s\n" CNRM, trig->Name());
+              new_trigger((rand() % 400) + 300, trig, this, rdir);
+            }
         }
       }
     }
@@ -2874,6 +2878,8 @@ void Object::SendIn(
         }
       } else { // Type 0x1000008 (MOB + MOB-SPEECH)
         if ((trig->Skill("TBAScriptType") & 0x1000008) == 0x1000008) {
+          // if (trig->Skill("TBAScript") >= 5034503 && trig->Skill("TBAScript") <= 5034507)
+          //  fprintf(stderr, CBLU "[#%d] Got message: '%s'\n" CNRM, trig->Skill("TBAScript"), mes);
           std::string speech = (mes + 9);
           while (!speech.empty() && speech.back() != '\'') {
             speech.pop_back();
@@ -2885,10 +2891,14 @@ void Object::SendIn(
             new_trigger((rand() % 400) + 300, trig, actor, speech);
           } else if (trig->Skill("TBAScriptNArg") == 0) { // Match Full Phrase
             if (phrase_match(speech, trig->Desc())) {
+              // if (trig->Skill("TBAScript") >= 5034503 && trig->Skill("TBAScript") <= 5034507)
+              //  fprintf(stderr, CBLU "Triggering(f): %s\n" CNRM, trig->Name());
               new_trigger((rand() % 400) + 300, trig, actor, speech);
             }
           } else { // Match Words
             if (words_match(speech, trig->Desc())) {
+              // if (trig->Skill("TBAScript") >= 5034503 && trig->Skill("TBAScript") <= 5034507)
+              //  fprintf(stderr, CBLU "Triggering(w): %s\n" CNRM, trig->Name());
               new_trigger((rand() % 400) + 300, trig, actor, speech);
             }
           }
