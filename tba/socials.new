@@ -245,7 +245,7 @@ You look at $N, crossing your arms and being somewhat deffensive.
 $n looks at $N, crossing $s arms and being somewhat deffensive.
 $n looks at you, crossing $s arms and being somewhat deffensive.
 They left before you had the chance to become deffensive.
-You cross your arms and look at yourself deffensively? 
+You cross your arms and look at yourself deffensively?
 $n crosses $s arms and looks at $mself deffensively.
 You look at $S $t and cross your arms deffensively.
 $n looks at $N's $t and crosses $s arms deffensively.
@@ -255,7 +255,7 @@ $n looks at $p and crosses $s arms deffensively.
 
 ~arrest arrest 0 5 0 0
 You read everyone their rights. But you skip the part about the phonecall... ;)
-$n has placed you all under arrest. 'You have the right to...bla bla bla...' 
+$n has placed you all under arrest. 'You have the right to...bla bla bla...'
 You read $N $S rights.
 $n has placed $N under arrest. Everything $E will, and can say, will be used against $M.
 $n says, 'You have the right to remain silent. You have the right to....' $e just arrested you!
@@ -1982,10 +1982,10 @@ $n with the grotesque face screams, 'I AM NOT AN ANIMAL!!'
 You reach but come away empty.  :(
 $n reaches out for an embrace, but no one is there.
 You embrace $M warmly.
-$n embraces $N warmly.  
-$n embraces you warmly.  
-Alas, your embracee is not here.  
-You embrace yourself??  
+$n embraces $N warmly.
+$n embraces you warmly.
+Alas, your embracee is not here.
+You embrace yourself??
 $n wraps $s arms around $mself for a warm self-embrace.
 You embrace $S $t warmly.
 $n embraces $N's $t warmly.
@@ -2134,7 +2134,7 @@ $n plants $s face into the palm of $s hand, full of disbelief.
 You plant your face in the palm of your hand, mumbling something about $N's ways.
 $n plants $s face into the palm of $s hand, mumbling something about $N's ways.
 $n plants $s face into the palm of $s hand, mumbling something about your ways.
-They're not around, bub.     
+They're not around, bub.
 You plant your face in the palm of your hand, not quite sure where you went wrong.
 $n plants $s face into the palm of $s hand at $s own mistake.
 #
@@ -4499,7 +4499,7 @@ You pinch $p.
 $n pinches $p.
 
 ~pity pity 0 5 0 0
-You pity the world. 
+You pity the world.
 $n is looking for something to pity.
 You pity $M, $E is so pathetic.
 $n pities $N and everything $E stands for.
@@ -4699,7 +4699,7 @@ $n looks around for $s lost love.
 You kneel before $N vowing your love asking for $S hand in marriage.
 $n kneels before $N vowing $s eternal love and devotion.
 $n kneels before you proclaiming $s love for you saying, "Will you marry me?"
-Who are you proposing to? 
+Who are you proposing to?
 Proposing to yourself now? Are you a little desperate?
 $n kneels down, gets a funny look on $s face as $e proclaims selflove!
 You propose to $S $t.
@@ -5225,7 +5225,7 @@ You give $N the secret TBA handshake.
 $n gives $N the secret TBA handshake.
 $n gives you the secret TBA handshake.
 They are not cool enough to know the secret TBA handshake anyways.
-You give yourself the secret TBA handshake. 
+You give yourself the secret TBA handshake.
 $n gives $mself the secret TBA handshake.
 $n shakes $S $t.
 $n shakes $N's $t.
@@ -5961,11 +5961,11 @@ $n splashes water on $N soaking $M.... run you might be next.
 $n splashes you with water... you are soaked... REVENGE!
 Whom do you want to splash water on again?
 You splash water all over yourself..... FOOL you are drenched.....
-$n splashes water all over $mself... the FOOL is drenched... 
+$n splashes water all over $mself... the FOOL is drenched...
 You playfully splash $N's $t with water.
 $n playfully splashes $N's $t with water.
 $n playfully splashes water at your $t...... going to take that?
-You splash $p with water, trying to clean off those nasty bloodstains. 
+You splash $p with water, trying to clean off those nasty bloodstains.
 $n splashes $p with water, and starts to wash away an imaginary bloodstain.
 
 ~spongebath spongebath 0 6 0 0
@@ -6479,7 +6479,7 @@ You target $p.
 $n targets $p.
 
 ~taunt taunt 0 5 0 0
-You taunt the nothing in front of you. 
+You taunt the nothing in front of you.
 $n taunts something that seems to be right in front of $m.
 You taunt $M, to your own delight.
 $n taunts $N rather insultingly.  $n seems to enjoy it tremendously.
@@ -6888,8 +6888,8 @@ You perform careful maintenance on your vice and attach the four foot crank exte
 $n expertly strips down the vice and carefully oils the steel parts. Satisfied, $n reassembles the vice and attaches the four-foot extension to the crank.
 You place $S head in the jaws of the vice and tighten them enough to prevent movement. Slowly, you crank the vice tighter and tighter, enjoying the rising amplitude of the screams until the splintering climax when the skull shatters. $N is quiet now.
 $n stuns $N with a quick punch and forces $S head into the vice. $N screams and thrashes helplessly but the steel jaws hold $M tight. Grinning sadistically, $n slowly turns the crank until the skull cracks with a sickening pop. $N has been silenced.
-$n forces your head into the vice and tightens the steel jaws preventing all movement. Smiling sadistically, $e cranks the handle as your screaming headache becomes everything. Then there is nothing but peace. 
-Your vice remains empty. 
+$n forces your head into the vice and tightens the steel jaws preventing all movement. Smiling sadistically, $e cranks the handle as your screaming headache becomes everything. Then there is nothing but peace.
+Your vice remains empty.
 You place your own head into a vice and turn the crank until your consciousness fades.
 $n puts $s own head into a vice and turns the crank until there is a loud pop.
 You place $S $t in the jaws of the vice and tighten them enough to prevent movement. Slowly, you crank the vice tighter and tighter, enjoying the rising amplitude of the screams until the splintering climax when the $t shatters. $N is quiet now.
@@ -7341,7 +7341,7 @@ $n summons zeke and zaps the hell out of $N.
 $n summons zeke and zaps the hell out of you! You feel fried.
 Zap who?
 That HURT! Didn't your mother teach you better?
-$n screams in pain as $e zaps $mself. 
+$n screams in pain as $e zaps $mself.
 You zap $S $t.
 $n zaps $N's $t.
 $n zaps your $t.
