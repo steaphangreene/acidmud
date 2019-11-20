@@ -3177,6 +3177,7 @@ void Object::Loud(std::set<Object*>& visited, int str, const char* mes) {
 }
 
 void init_world() {
+  is_skill(0); // Force runtime string initialization
   universe = new Object;
   universe->SetShortDesc("The Universe");
   universe->SetDesc("An Infinite Universe within which to play.");
