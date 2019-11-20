@@ -973,11 +973,11 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     for (auto obj : items) {
       auto trigs = obj->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
       for (auto trig : trigs) {
-        if (trig->Skill("TBAScriptType") & 0x04) { //*-COMMAND trigs
+        if (trig->Skill(crc32c("TBAScriptType")) & 0x04) { //*-COMMAND trigs
           if ((cnum == COM_NONE && (!strncmp(inpline, trig->Desc(), len))) ||
               (cnum && cnum == identify_command(trig->Desc(), true))) {
-            if (trig->Skill("TBAScriptType") & 0x2000000) { // OBJ
-              int narg = trig->Skill("TBAScriptNArg");
+            if (trig->Skill(crc32c("TBAScriptType")) & 0x2000000) { // OBJ
+              int narg = trig->Skill(crc32c("TBAScriptNArg"));
               if ((narg & 3) == 0 && body->HasWithin(obj)) {
                 continue;
               } else if ((narg & 3) == 2 && body->Wearing(obj)) {
@@ -1141,9 +1141,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
   int stealth_t = 0, stealth_s = 0;
 
-  if (body && body->IsUsing("Stealth") && body->Skill("Stealth") > 0) {
-    stealth_t = body->Skill("Stealth");
-    stealth_s = body->Roll("Stealth", 2);
+  if (body && body->IsUsing(crc32c("Stealth")) && body->Skill(crc32c("Stealth")) > 0) {
+    stealth_t = body->Skill(crc32c("Stealth"));
+    stealth_s = body->Roll(crc32c("Stealth"), 2);
   }
 
   if (cnum == COM_VERSION) {
@@ -1228,7 +1228,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     auto dirs = body->PickObjects("everywhere", vmode | LOC_NEARBY);
     dirs.erase(
         std::remove_if(
-            dirs.begin(), dirs.end(), [](const Object* o) { return o->Skill("Open") < 1; }),
+            dirs.begin(), dirs.end(), [](const Object* o) { return o->Skill(crc32c("Open")) < 1; }),
         dirs.end());
     if (dirs.size() < 1) {
       if (mind)
@@ -1236,8 +1236,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    body->StartUsing("Sprinting");
-    body->SetSkill("Hidden", 0);
+    body->StartUsing(crc32c("Sprinting"));
+    body->SetSkill(crc32c("Hidden"), 0);
 
     auto dir = dirs.begin();
     int sel = rand() % dirs.size();
@@ -1275,7 +1275,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             "Use the 'newcharacter' command to create a new character.\n");
         return 0;
       }
-      if (body->Skill("Attribute Points") > 0 || body->Skill("Skill Points") > 0) {
+      if (body->Skill(crc32c("Attribute Points")) > 0 || body->Skill(crc32c("Skill Points")) > 0) {
         mind->Send("You need to finish that character before you can use it.\n");
         mind->SendF("'%s' is now selected as your currect character to work on.\n", body->Name());
         mind->Owner()->SetCreator(body);
@@ -1288,7 +1288,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         return 0;
       }
 
-      // FIXME: Handle conversion of body->Skill("Resources").
+      // FIXME: Handle conversion of body->Skill(crc32c("Resources")).
       if (mind->Owner()->Creator() == body)
         mind->Owner()->SetCreator(nullptr);
 
@@ -1296,9 +1296,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
       if (nmode) {
         // This is ninja-healing and bypasses all healing mechanisms.
-        body->SetSkill("Poisoned", 0);
-        body->SetSkill("Thirsty", 0);
-        body->SetSkill("Hungry", 0);
+        body->SetSkill(crc32c("Poisoned"), 0);
+        body->SetSkill(crc32c("Thirsty"), 0);
+        body->SetSkill(crc32c("Hungry"), 0);
         body->SetStun(0);
         body->SetPhys(0);
         body->SetStru(0);
@@ -1338,24 +1338,25 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       rdest = dest->ActTarg(ACT_SPECIAL_LINKED)->Parent();
     }
 
-    if ((!dest->Skill("Enterable")) && (!ninja)) {
+    if ((!dest->Skill(crc32c("Enterable"))) && (!ninja)) {
       if (mind)
         mind->Send("It is not possible to enter that object!\n");
-    } else if ((!dest->Skill("Enterable")) && (!nmode)) {
+    } else if ((!dest->Skill(crc32c("Enterable"))) && (!nmode)) {
       if (mind)
         mind->Send("You need to be in ninja mode to enter that object!\n");
-    } else if (dest->Skill("Open") < 1 && (!nmode)) {
+    } else if (dest->Skill(crc32c("Open")) < 1 && (!nmode)) {
       if (mind)
         mind->SendF("Sorry, %s is closed!\n", dest->Name());
     } else if (
         dest->Parent() != body->Parent() && dest->Parent() == body->Parent()->Parent() &&
-        body->Parent()->Skill("Vehicle") == 0) {
+        body->Parent()->Skill(crc32c("Vehicle")) == 0) {
       if (mind)
         mind->SendF("You can't get %s to go there!\n", body->Parent()->Name(1));
     } else if (
         dest->Parent() != body->Parent() && dest->Parent() == body->Parent()->Parent() &&
-        (!(body->Parent()->Skill("Vehicle") & 0xFFF0)) // No Land Travel!
-        && body->Parent()->Parent()->Skill("WaterDepth") == 0 && rdest->Skill("WaterDepth") == 0) {
+        (!(body->Parent()->Skill(crc32c("Vehicle")) & 0xFFF0)) // No Land Travel!
+        && body->Parent()->Parent()->Skill(crc32c("WaterDepth")) == 0 &&
+        rdest->Skill(crc32c("WaterDepth")) == 0) {
       if (mind)
         mind->SendF("You can't get %s to go there!\n", body->Parent()->Name(1));
     } else {
@@ -1365,7 +1366,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           body->Parent()->NotifyGone(body);
       }
       if (dest->Parent() != body->Parent() && dest->Parent() == body->Parent()->Parent()) {
-        if (body->Parent()->Skill("Vehicle") == 4 && body->Skill("Boat") == 0) {
+        if (body->Parent()->Skill(crc32c("Vehicle")) == 4 && body->Skill(crc32c("Boat")) == 0) {
           if (mind)
             mind->SendF("You don't know how to operate %s!\n", body->Parent()->Name(1));
           return 0;
@@ -1373,14 +1374,14 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         veh = body->Parent();
       }
 
-      if (rdest->Skill("WaterDepth") == 1 && body->Skill("Swimming") == 0) {
-        if (veh == body || (veh->Skill("Vehicle") & 4) == 0) { // Have boat?
+      if (rdest->Skill(crc32c("WaterDepth")) == 1 && body->Skill(crc32c("Swimming")) == 0) {
+        if (veh == body || (veh->Skill(crc32c("Vehicle")) & 4) == 0) { // Have boat?
           if (mind)
             mind->Send("Sorry, but you can't swim!\n");
           return 0;
         }
-      } else if (rdest->Skill("WaterDepth") > 1) {
-        if (veh == body || (veh->Skill("Vehicle") & 4) == 0) { // Have boat?
+      } else if (rdest->Skill(crc32c("WaterDepth")) > 1) {
+        if (veh == body || (veh->Skill(crc32c("Vehicle")) & 4) == 0) { // Have boat?
           if (mind)
             mind->Send("Sorry, you need a boat to go there!\n");
           return 0;
@@ -1424,9 +1425,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           mind->SendF(CMAG "You have entered: %s\n" CNRM, body->World()->ShortDesc());
         }
         if (stealth_t > 0) {
-          body->SetSkill("Hidden", body->Roll("Stealth", 2) * 2);
+          body->SetSkill(crc32c("Hidden"), body->Roll(crc32c("Stealth"), 2) * 2);
         }
-        if (body->Roll("Running", 2) < 1) { // FIXME: Terrain/Direction Mods?
+        if (body->Roll(crc32c("Running"), 2) < 1) { // FIXME: Terrain/Direction Mods?
           if (mind) {
             mind->Send(CRED "\nYou are winded, and have to catch your breath." CNRM
                             "  Raise the " CMAG "Running" CNRM " skill.\n");
@@ -1540,7 +1541,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       if (!shouting) {
         body->Parent()->SendOutF(
             ALL, 0, ";s says '%s'\n", "You say '%s'\n", body, body, cmd.c_str() + len);
-        body->SetSkill("Hidden", 0);
+        body->SetSkill(crc32c("Hidden"), 0);
         return 0;
       } else {
         cnum = COM_SHOUT;
@@ -1571,10 +1572,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       }
       body->Parent()->SendOutF(
           ALL, 0, ";s shouts '%s'!!!\n", "You shout '%s'!!!\n", body, body, mes);
-      body->Parent()->LoudF(body->Skill("Strength"), "someone shout '%s'!!!", mes);
+      body->Parent()->LoudF(body->Skill(crc32c("Strength")), "someone shout '%s'!!!", mes);
       free(mes);
     }
-    body->SetSkill("Hidden", 0);
+    body->SetSkill(crc32c("Hidden"), 0);
     return 0;
   }
 
@@ -1666,7 +1667,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
     body->Parent()->SendOutF(
         ALL, 0, ";s %s%s\n", "Your character %s%s\n", body, body, cmd.c_str() + len, dot);
-    body->SetSkill("Hidden", 0);
+    body->SetSkill(crc32c("Hidden"), 0);
     return 0;
   }
 
@@ -1728,19 +1729,20 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     for (auto targ : targs) {
-      if (within && (!targ->Skill("Container")) && (!targ->Skill("Liquid Container"))) {
+      if (within && (!targ->Skill(crc32c("Container"))) &&
+          (!targ->Skill(crc32c("Liquid Container")))) {
         if (mind)
           mind->SendF("You can't look inside %s, it is not a container.\n", targ->Name());
-      } else if (within && (targ->Skill("Locked"))) {
+      } else if (within && (targ->Skill(crc32c("Locked")))) {
         if (mind)
           mind->SendF("You can't look inside %s, it is locked.\n", targ->Name());
       } else {
         int must_open = within;
-        if (within && targ->Skill("Open"))
+        if (within && targ->Skill(crc32c("Open")))
           must_open = 0;
 
         if (must_open) {
-          targ->SetSkill("Open", 1000);
+          targ->SetSkill(crc32c("Open"), 1000);
           body->Parent()->SendOut(
               stealth_t, stealth_s, ";s opens ;s.\n", "You open ;s.\n", body, targ);
         }
@@ -1774,7 +1776,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         }
 
         if (must_open) {
-          targ->SetSkill("Open", 0);
+          targ->SetSkill(crc32c("Open"), 0);
           body->Parent()->SendOut(
               stealth_t, stealth_s, ";s closes ;s.\n", "You close ;s.\n", body, targ);
         }
@@ -1815,7 +1817,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
     stealth_t = 0;
     stealth_s = 0;
-    if (body->Pos() == POS_USE && (!body->IsUsing("Perception"))) {
+    if (body->Pos() == POS_USE && (!body->IsUsing(crc32c("Perception")))) {
       body->Parent()->SendOutF(
           stealth_t,
           stealth_s,
@@ -1825,8 +1827,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           nullptr,
           body->UsingString());
     }
-    body->StartUsing("Perception");
-    body->SetSkill("Hidden", 0);
+    body->StartUsing(crc32c("Perception"));
+    body->SetSkill(crc32c("Hidden"), 0);
     for (auto targ : targs) {
       std::string denied = "";
       for (Object* own = targ; own; own = own->Parent()) {
@@ -1837,7 +1839,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           denied += "'s permission to search ";
           denied += targ->Name(0, nullptr, own);
           denied += ".\n";
-        } else if (own->Skill("Container") && (!own->Skill("Open")) && own->Skill("Locked")) {
+        } else if (
+            own->Skill(crc32c("Container")) && (!own->Skill(crc32c("Open"))) &&
+            own->Skill(crc32c("Locked"))) {
           denied = own->Name(1);
           if (own == targ) {
             denied += " is closed and locked so you can't search it.\n";
@@ -1860,9 +1864,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
       auto objs = targ->Contents(vmode);
       for (auto obj : objs) {
-        if (obj->Skill("Hidden")) {
-          if (body->Roll("Perception", obj->Skill("Hidden"))) {
-            obj->SetSkill("Hidden", 0);
+        if (obj->Skill(crc32c("Hidden"))) {
+          if (body->Roll(crc32c("Perception"), obj->Skill(crc32c("Hidden")))) {
+            obj->SetSkill(crc32c("Hidden"), 0);
             body->Parent()->SendOut(
                 stealth_t, stealth_s, ";s reveals ;s.\n", "you reveal ;s.\n", body, obj);
           }
@@ -1903,7 +1907,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           denied += "'s permission to hide ";
           denied += targ->Name(0, nullptr, own);
           denied += ".\n";
-        } else if (own->Skill("Container") && (!own->Skill("Open")) && own->Skill("Locked")) {
+        } else if (
+            own->Skill(crc32c("Container")) && (!own->Skill(crc32c("Open"))) &&
+            own->Skill(crc32c("Locked"))) {
           if (own != targ) {
             denied = own->Name(1);
             denied += " is closed and locked so you can't get to ";
@@ -1918,13 +1924,13 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           mind->Send(denied.c_str());
         continue;
       }
-      if ((!nmode) && targ->Skill("Obvious")) {
+      if ((!nmode) && targ->Skill(crc32c("Obvious"))) {
         if (mind)
           mind->SendF("You could never hide %s, it's too obvious.", targ->Name(0, body));
         continue;
       }
-      if ((!nmode) && targ->Skill("Open")) {
-        if (targ->Skill("Closeable")) {
+      if ((!nmode) && targ->Skill(crc32c("Open"))) {
+        if (targ->Skill(crc32c("Closeable"))) {
           if (mind)
             mind->SendF("You can't hide %s while it's open.", targ->Name(0, body));
         } else {
@@ -1936,7 +1942,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
       body->Parent()->SendOut(stealth_t, stealth_s, ";s hides ;s.\n", "you hide ;s.\n", body, targ);
 
-      targ->SetSkill("Hidden", body->Roll("Stealth", 2) * 2);
+      targ->SetSkill(crc32c("Hidden"), body->Roll(crc32c("Stealth"), 2) * 2);
     }
     return 0;
   }
@@ -1984,7 +1990,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       int handled = 0;
 
       // Weapons
-      if (targ->HasSkill("WeaponType")) {
+      if (targ->HasSkill(crc32c("WeaponType"))) {
         handled = 1;
         Object* base = body->ActTarg(ACT_WIELD);
         if (base == targ) {
@@ -1992,20 +1998,22 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           mind->Send("Consider using something else for comparison.\n");
           return 0;
         }
-        std::string sk = (get_weapon_skill(targ->Skill("WeaponType")));
+        uint32_t sk = (get_weapon_skill(targ->Skill(crc32c("WeaponType"))));
         if (!body->HasSkill(sk)) {
           mind->SendF(
               CYEL "You don't know much about weapons like %s.\n" CNRM, targ->Name(1, body));
-          mind->SendF(CYEL "You would need to learn the %s skill to know more.\n" CNRM, sk.c_str());
+          mind->SendF(
+              CYEL "You would need to learn the %s skill to know more.\n" CNRM,
+              SkillName(sk).c_str());
         } else {
           int diff;
-          mind->SendF("Use of this weapon would use your %s skill.\n", sk.c_str());
+          mind->SendF("Use of this weapon would use your %s skill.\n", SkillName(sk).c_str());
 
           diff = body->Skill(sk);
           if (base)
-            diff -= body->Skill(get_weapon_skill(base->Skill("WeaponType")));
+            diff -= body->Skill(get_weapon_skill(base->Skill(crc32c("WeaponType"))));
           else
-            diff -= body->Skill("Punching");
+            diff -= body->Skill(crc32c("Punching"));
           if (diff > 0)
             mind->Send(CGRN "   ...would be a weapon you are more skilled with.\n" CNRM);
           else if (diff < 0)
@@ -2013,9 +2021,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           else
             mind->Send("   ...would be a weapon you are similarly skilled with.\n");
 
-          diff = targ->Skill("WeaponReach");
+          diff = targ->Skill(crc32c("WeaponReach"));
           if (base)
-            diff -= base->Skill("WeaponReach");
+            diff -= base->Skill(crc32c("WeaponReach"));
           if (diff > 0)
             mind->Send(CGRN "   ...would give you more reach.\n" CNRM);
           else if (diff < 0)
@@ -2023,9 +2031,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           else
             mind->Send("   ...would give you similar reach.\n");
 
-          diff = targ->Skill("WeaponForce");
+          diff = targ->Skill(crc32c("WeaponForce"));
           if (base)
-            diff -= base->Skill("WeaponForce");
+            diff -= base->Skill(crc32c("WeaponForce"));
           if (diff > 0)
             mind->Send(CGRN "   ...would be more likely to do damage.\n" CNRM);
           else if (diff < 0)
@@ -2033,9 +2041,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           else
             mind->Send("   ...would be about as likely to do damage.\n");
 
-          diff = targ->Skill("WeaponSeverity");
+          diff = targ->Skill(crc32c("WeaponSeverity"));
           if (base)
-            diff -= base->Skill("WeaponSeverity");
+            diff -= base->Skill(crc32c("WeaponSeverity"));
           if (diff > 0)
             mind->Send(CGRN "   ...would do more damage.\n" CNRM);
           else if (diff < 0)
@@ -2043,9 +2051,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           else
             mind->Send("   ...would do similar damage.\n");
 
-          diff = two_handed(targ->Skill("WeaponType"));
+          diff = two_handed(targ->Skill(crc32c("WeaponType")));
           if (base)
-            diff -= two_handed(base->Skill("WeaponType"));
+            diff -= two_handed(base->Skill(crc32c("WeaponType")));
           if (diff > 0)
             mind->Send(CYEL "   ...would require both hands to use.\n" CNRM);
           else if (diff < 0)
@@ -2056,11 +2064,11 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       // Containers
       int wtlimit = 0;
       int szlimit = 0;
-      if (targ->HasSkill("Container")) {
+      if (targ->HasSkill(crc32c("Container"))) {
         mind->SendF("%s is a container\n", targ->Name(1, body));
 
-        wtlimit = targ->Skill("Container");
-        szlimit = targ->Skill("Capacity");
+        wtlimit = targ->Skill(crc32c("Container"));
+        szlimit = targ->Skill(crc32c("Capacity"));
         if (targ->Contents(vmode).size() == 0) {
           mind->Send("   ...it appears to be empty.\n");
         } else {
@@ -2092,9 +2100,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
       // Liquid Containers
       int volume = 0;
-      if (targ->HasSkill("Liquid Container")) {
+      if (targ->HasSkill(crc32c("Liquid Container"))) {
         mind->SendF("%s is a liquid container\n", targ->Name(1, body));
-        volume = targ->Skill("Liquid Container");
+        volume = targ->Skill(crc32c("Liquid Container"));
         if (targ->Contents(vmode).size() == 0) {
           mind->Send("   ...it appears to be empty.\n");
         } else {
@@ -2115,19 +2123,19 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       Object* other = body->ActTarg(ACT_HOLD);
       if ((volume || wtlimit || szlimit) && other && other != targ) {
         // Containers
-        if (szlimit && other->HasSkill("Capacity")) {
-          if (szlimit < other->Skill("Capacity")) {
+        if (szlimit && other->HasSkill(crc32c("Capacity"))) {
+          if (szlimit < other->Skill(crc32c("Capacity"))) {
             mind->Send(CYEL "   ...it can't fit as much, " CNRM);
-          } else if (szlimit > other->Skill("Capacity")) {
+          } else if (szlimit > other->Skill(crc32c("Capacity"))) {
             mind->Send(CGRN "   ...it can fit more, " CNRM);
           } else {
             mind->Send("   ...it can fit the same, ");
           }
         }
-        if (wtlimit && other->HasSkill("Container")) {
-          if (wtlimit < other->Skill("Container")) {
+        if (wtlimit && other->HasSkill(crc32c("Container"))) {
+          if (wtlimit < other->Skill(crc32c("Container"))) {
             mind->SendF(CYEL "and can't carry as much as %s.\n" CNRM, other->Name(0, body));
-          } else if (wtlimit > other->Skill("Container")) {
+          } else if (wtlimit > other->Skill(crc32c("Container"))) {
             mind->SendF(CGRN "and can carry more than %s.\n" CNRM, other->Name(0, body));
           } else {
             mind->SendF("and can carry the same as %s.\n", other->Name(0, body));
@@ -2135,10 +2143,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         }
 
         // Liquid Containers
-        if (volume && other->HasSkill("Liquid Container")) {
-          if (volume < other->Skill("Liquid Container")) {
+        if (volume && other->HasSkill(crc32c("Liquid Container"))) {
+          if (volume < other->Skill(crc32c("Liquid Container"))) {
             mind->SendF(CYEL "   ...it can't hold as much as %s.\n" CNRM, other->Name(0, body));
-          } else if (volume > other->Skill("Liquid Container")) {
+          } else if (volume > other->Skill(crc32c("Liquid Container"))) {
             mind->SendF(CGRN "   ...it can hold more than %s.\n" CNRM, other->Name(0, body));
           } else {
             mind->SendF("   ...it can hold about the same amount as %s.\n", other->Name(0, body));
@@ -2216,18 +2224,19 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           mind->Send(CYEL "   ...is armed, and you are not!\n" CNRM);
         }
 
-        if (targ->HasSkill("NaturalWeapon") && body->HasSkill("NaturalWeapon")) {
+        if (targ->HasSkill(crc32c("NaturalWeapon")) && body->HasSkill(crc32c("NaturalWeapon"))) {
           mind->Send("   ...has natural weaponry, but so do you.\n");
-        } else if (body->HasSkill("NaturalWeapon")) {
+        } else if (body->HasSkill(crc32c("NaturalWeapon"))) {
           mind->Send(CGRN "   ...has no natural weaponry, but you do.\n" CNRM);
-        } else if (targ->HasSkill("NaturalWeapon")) {
+        } else if (targ->HasSkill(crc32c("NaturalWeapon"))) {
           mind->Send(CYEL "   ...has natural weaponry, and you do not!\n" CNRM);
         }
 
         diff = 0;
         if (body->ActTarg(ACT_WIELD))
-          diff = (body->ActTarg(ACT_WIELD)->Skill("WeaponReach") > 9);
-        if (targ->ActTarg(ACT_WIELD) && targ->ActTarg(ACT_WIELD)->Skill("WeaponReach") > 9) {
+          diff = (body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponReach")) > 9);
+        if (targ->ActTarg(ACT_WIELD) &&
+            targ->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponReach")) > 9) {
           if (diff)
             mind->Send("   ...has a ranged weapon, and so do you!\n");
           else
@@ -2237,9 +2246,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         } else {
           diff = 0;
           if (body->ActTarg(ACT_WIELD))
-            diff += body->ActTarg(ACT_WIELD)->Skill("WeaponReach");
+            diff += body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponReach"));
           if (targ->ActTarg(ACT_WIELD))
-            diff -= targ->ActTarg(ACT_WIELD)->Skill("WeaponReach");
+            diff -= targ->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponReach"));
           if (diff < -5)
             mind->Send(CRED "   ...outreaches you by a mile.\n" CNRM);
           else if (diff < -2)
@@ -2269,16 +2278,16 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         }
 
         diff = 0;
-        std::string sk = "Punching";
+        uint32_t sk = crc32c("Punching");
         if (body->IsAct(ACT_WIELD)) {
-          sk = get_weapon_skill(body->ActTarg(ACT_WIELD)->Skill("WeaponType"));
+          sk = get_weapon_skill(body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")));
         }
         if (body->HasSkill(sk)) {
           diff += body->Skill(sk);
         }
-        sk = "Punching";
+        sk = crc32c("Punching");
         if (targ->IsAct(ACT_WIELD)) {
-          sk = get_weapon_skill(targ->ActTarg(ACT_WIELD)->Skill("WeaponType"));
+          sk = get_weapon_skill(targ->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")));
         }
         if (targ->HasSkill(sk)) {
           diff -= targ->Skill(sk);
@@ -2374,14 +2383,14 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         else
           mind->Send("   ...is about your strength.\n");
 
-        if (targ->HasSkill("TBAAction")) {
-          if ((targ->Skill("TBAAction") & 4128) == 0) {
+        if (targ->HasSkill(crc32c("TBAAction"))) {
+          if ((targ->Skill(crc32c("TBAAction")) & 4128) == 0) {
             mind->Send(CGRN "   ...does not seem threatening.\n" CNRM);
-          } else if ((targ->Skill("TBAAction") & 160) == 32) {
+          } else if ((targ->Skill(crc32c("TBAAction")) & 160) == 32) {
             mind->Send(CRED "   ...is spoiling for a fight.\n" CNRM);
-          } else if ((targ->Skill("TBAAction") & 160) == 160) {
+          } else if ((targ->Skill(crc32c("TBAAction")) & 160) == 160) {
             mind->Send(CRED "   ...seems to be trolling for victems.\n" CNRM);
-          } else if (targ->Skill("TBAAction") & 4096) {
+          } else if (targ->Skill(crc32c("TBAAction")) & 4096) {
             mind->Send(CYEL "   ...seems to be on the look-out for trouble.\n" CNRM);
           } else {
             mind->Send("   ...is impossible - tell the Ninjas[TM].\n");
@@ -2416,10 +2425,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (body) {
       Object* world = body->World();
       if (world) {
-        if (world->Skill("Day Time") && world->Skill("Day Length")) {
-          int curtime = world->Skill("Day Time");
+        if (world->Skill(crc32c("Day Time")) && world->Skill(crc32c("Day Length"))) {
+          int curtime = world->Skill(crc32c("Day Time"));
           curtime *= 24 * 60;
-          curtime /= world->Skill("Day Length");
+          curtime /= world->Skill(crc32c("Day Length"));
           mind->SendF("The time is now %d:%.2d in this world.\n", curtime / 60, curtime % 60);
         } else {
           mind->SendF("This world as no concept of time....\n");
@@ -2485,10 +2494,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (!targ) {
       if (mind)
         mind->Send("You don't see that here.\n");
-    } else if (targ->Skill("Locked")) {
+    } else if (targ->Skill(crc32c("Locked"))) {
       if (mind)
         mind->Send("It is already locked!\n");
-    } else if (targ->Skill("Lock") <= 0 && (!nmode)) {
+    } else if (targ->Skill(crc32c("Lock")) <= 0 && (!nmode)) {
       if (mind)
         mind->Send("It does not seem to have a keyhole!\n");
     } else {
@@ -2496,7 +2505,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         auto keys = body->PickObjects("all", vmode | LOC_INTERNAL);
         bool can_open = false;
         for (auto key : keys) {
-          if (key->Skill("Key") == targ->Skill("Lock")) {
+          if (key->Skill(crc32c("Key")) == targ->Skill(crc32c("Lock"))) {
             can_open = true;
             break;
           }
@@ -2507,12 +2516,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           return 0;
         }
       }
-      targ->SetSkill("Locked", 1);
+      targ->SetSkill(crc32c("Locked"), 1);
       body->Parent()->SendOut(stealth_t, stealth_s, ";s locks ;s.\n", "You lock ;s.\n", body, targ);
       if (targ->ActTarg(ACT_SPECIAL_MASTER)) {
         Object* targ2 = targ->ActTarg(ACT_SPECIAL_MASTER);
         targ2->Parent()->SendOut(stealth_t, stealth_s, ";s locks.\n", "", targ2, nullptr);
-        targ2->SetSkill("Locked", 1);
+        targ2->SetSkill(crc32c("Locked"), 1);
       }
     }
     return 0;
@@ -2531,10 +2540,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (!targ) {
       if (mind)
         mind->Send("You don't see that here.\n");
-    } else if (!targ->Skill("Locked")) {
+    } else if (!targ->Skill(crc32c("Locked"))) {
       if (mind)
         mind->Send("It is not locked!\n");
-    } else if (targ->Skill("Lock") <= 0 && (!nmode)) {
+    } else if (targ->Skill(crc32c("Lock")) <= 0 && (!nmode)) {
       if (mind)
         mind->Send("It does not seem to have a keyhole!\n");
     } else {
@@ -2542,7 +2551,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         auto keys = body->PickObjects("all", vmode | LOC_INTERNAL);
         bool can_open = false;
         for (auto key : keys) {
-          if (key->Skill("Key") == targ->Skill("Lock")) {
+          if (key->Skill(crc32c("Key")) == targ->Skill(crc32c("Lock"))) {
             can_open = true;
             break;
           }
@@ -2553,13 +2562,13 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           return 0;
         }
       }
-      targ->SetSkill("Locked", 0);
+      targ->SetSkill(crc32c("Locked"), 0);
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s unlocks ;s.\n", "You unlock ;s.\n", body, targ);
       if (targ->ActTarg(ACT_SPECIAL_MASTER)) {
         Object* targ2 = targ->ActTarg(ACT_SPECIAL_MASTER);
         targ2->Parent()->SendOut(stealth_t, stealth_s, ";s unlocks.\n", "", targ2, nullptr);
-        targ2->SetSkill("Locked", 1);
+        targ2->SetSkill(crc32c("Locked"), 1);
       }
     }
     return 0;
@@ -2578,23 +2587,23 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (!targ) {
       if (mind)
         mind->Send("You don't see that here.\n");
-    } else if (!targ->Skill("Closeable")) {
+    } else if (!targ->Skill(crc32c("Closeable"))) {
       if (mind)
         mind->Send("That can't be opened or closed.\n");
-    } else if (targ->Skill("Open")) {
+    } else if (targ->Skill(crc32c("Open"))) {
       if (mind)
         mind->Send("It's already open!\n");
-    } else if (targ->Skill("Locked")) {
+    } else if (targ->Skill(crc32c("Locked"))) {
       if (mind)
         mind->Send("It is locked!\n");
     } else {
-      targ->SetSkill("Open", 1000);
+      targ->SetSkill(crc32c("Open"), 1000);
       body->Parent()->SendOut(stealth_t, stealth_s, ";s opens ;s.\n", "You open ;s.\n", body, targ);
       if (targ->ActTarg(ACT_SPECIAL_MASTER)) {
         Object* targ2 = targ->ActTarg(ACT_SPECIAL_MASTER);
         targ2->Parent()->SendOut(stealth_t, stealth_s, ";s opens.\n", "", targ2, nullptr);
-        targ2->SetSkill("Open", 1000);
-        targ2->SetSkill("Locked", 0); // FIXME: Do I want to do this?
+        targ2->SetSkill(crc32c("Open"), 1000);
+        targ2->SetSkill(crc32c("Locked"), 0); // FIXME: Do I want to do this?
       }
     }
     return 0;
@@ -2613,24 +2622,24 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (!targ) {
       if (mind)
         mind->Send("You don't see that here.\n");
-    } else if (!targ->Skill("Closeable")) {
+    } else if (!targ->Skill(crc32c("Closeable"))) {
       if (mind)
         mind->Send("That can't be opened or closed.\n");
-    } else if (!targ->Skill("Open")) {
+    } else if (!targ->Skill(crc32c("Open"))) {
       if (mind)
         mind->Send("It's already closed!\n");
-    } else if (targ->Skill("Locked")) {
+    } else if (targ->Skill(crc32c("Locked"))) {
       if (mind)
         mind->Send("It is locked!\n");
     } else {
-      targ->SetSkill("Open", 0);
+      targ->SetSkill(crc32c("Open"), 0);
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s closes ;s.\n", "You close ;s.\n", body, targ);
       if (targ->ActTarg(ACT_SPECIAL_MASTER)) {
         Object* targ2 = targ->ActTarg(ACT_SPECIAL_MASTER);
         targ2->Parent()->SendOut(stealth_t, stealth_s, ";s closes.\n", "", targ2, nullptr);
-        targ2->SetSkill("Open", 0);
-        targ2->SetSkill("Locked", 0); // FIXME: Do I want to do this?
+        targ2->SetSkill(crc32c("Open"), 0);
+        targ2->SetSkill(crc32c("Locked"), 0); // FIXME: Do I want to do this?
       }
     }
     return 0;
@@ -2644,7 +2653,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     std::vector<Object*> shpkps;
     std::string reason = "";
     for (auto shpkp : objs) {
-      if (shpkp->Skill("Sell Profit")) {
+      if (shpkp->Skill(crc32c("Sell Profit"))) {
         if (shpkp->IsAct(ACT_DEAD)) {
           reason = "Sorry, the shopkeeper is dead!\n";
         } else if (shpkp->IsAct(ACT_DYING)) {
@@ -2666,7 +2675,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     } else {
       Object* shpkp = shpkps.front();
       if (shpkp->ActTarg(ACT_WEAR_RSHOULDER) &&
-          shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
+          shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill(crc32c("Vortex"))) {
         Object* vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
         objs = vortex->Contents(vmode);
         auto oobj = objs.front();
@@ -2674,8 +2683,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           if (obj != objs.front() && (*obj) == (*oobj))
             continue;
           int price = obj->Value();
-          if (obj->Skill("Money") != obj->Value()) { // Not 1-1 Money
-            price *= shpkp->Skill("Sell Profit");
+          if (obj->Skill(crc32c("Money")) != obj->Value()) { // Not 1-1 Money
+            price *= shpkp->Skill(crc32c("Sell Profit"));
             price += 999;
             price /= 1000;
           }
@@ -2700,7 +2709,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     std::vector<Object*> shpkps;
     std::string reason = "";
     for (auto shpkp : objs) {
-      if (shpkp->Skill("Sell Profit")) {
+      if (shpkp->Skill(crc32c("Sell Profit"))) {
         if (shpkp->IsAct(ACT_DEAD)) {
           reason = "Sorry, the shopkeeper is dead!\n";
         } else if (shpkp->IsAct(ACT_DYING)) {
@@ -2722,7 +2731,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     } else {
       Object* shpkp = shpkps.front();
       if (shpkp->ActTarg(ACT_WEAR_RSHOULDER) &&
-          shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
+          shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill(crc32c("Vortex"))) {
         Object* vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 
         auto targs = vortex->PickObjects(cmd.c_str() + len, vmode | LOC_INTERNAL);
@@ -2748,8 +2757,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             continue;
           }
 
-          if (targ->Skill("Money") != targ->Value()) { // Not 1-1 Money
-            price *= shpkp->Skill("Sell Profit");
+          if (targ->Skill(crc32c("Money")) != targ->Value()) { // Not 1-1 Money
+            price *= shpkp->Skill(crc32c("Sell Profit"));
             price += 999;
             price /= 1000;
           }
@@ -2831,7 +2840,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    if (targ->Skill("Container") || targ->Skill("Liquid Container")) {
+    if (targ->Skill(crc32c("Container")) || targ->Skill(crc32c("Liquid Container"))) {
       if (mind) {
         std::string mes = targ->Name(0, body);
         mes += " is a container.";
@@ -2854,7 +2863,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     int price = targ->Value() * targ->Quantity();
-    if (price < 0 || targ->HasSkill("Priceless") || targ->HasSkill("Cursed")) {
+    if (price < 0 || targ->HasSkill(crc32c("Priceless")) || targ->HasSkill(crc32c("Cursed"))) {
       if (mind)
         mind->SendF("You can't sell %s.\n", targ->Name(0, body));
       return 0;
@@ -2866,57 +2875,57 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     int wearable = 0;
-    if (targ->HasSkill("Wearable on Back"))
+    if (targ->HasSkill(crc32c("Wearable on Back")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Chest"))
+    if (targ->HasSkill(crc32c("Wearable on Chest")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Head"))
+    if (targ->HasSkill(crc32c("Wearable on Head")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Neck"))
+    if (targ->HasSkill(crc32c("Wearable on Neck")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Collar"))
+    if (targ->HasSkill(crc32c("Wearable on Collar")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Waist"))
+    if (targ->HasSkill(crc32c("Wearable on Waist")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Shield"))
+    if (targ->HasSkill(crc32c("Wearable on Shield")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Left Arm"))
+    if (targ->HasSkill(crc32c("Wearable on Left Arm")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Right Arm"))
+    if (targ->HasSkill(crc32c("Wearable on Right Arm")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Left Finger"))
+    if (targ->HasSkill(crc32c("Wearable on Left Finger")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Right Finger"))
+    if (targ->HasSkill(crc32c("Wearable on Right Finger")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Left Foot"))
+    if (targ->HasSkill(crc32c("Wearable on Left Foot")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Right Foot"))
+    if (targ->HasSkill(crc32c("Wearable on Right Foot")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Left Hand"))
+    if (targ->HasSkill(crc32c("Wearable on Left Hand")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Right Hand"))
+    if (targ->HasSkill(crc32c("Wearable on Right Hand")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Left Leg"))
+    if (targ->HasSkill(crc32c("Wearable on Left Leg")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Right Leg"))
+    if (targ->HasSkill(crc32c("Wearable on Right Leg")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Left Wrist"))
+    if (targ->HasSkill(crc32c("Wearable on Left Wrist")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Right Wrist"))
+    if (targ->HasSkill(crc32c("Wearable on Right Wrist")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Left Shoulder"))
+    if (targ->HasSkill(crc32c("Wearable on Left Shoulder")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Right Shoulder"))
+    if (targ->HasSkill(crc32c("Wearable on Right Shoulder")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Left Hip"))
+    if (targ->HasSkill(crc32c("Wearable on Left Hip")))
       wearable = 1;
-    if (targ->HasSkill("Wearable on Right Hip"))
+    if (targ->HasSkill(crc32c("Wearable on Right Hip")))
       wearable = 1;
 
     auto objs = body->Parent()->Contents();
     std::vector<Object*> shpkps;
     std::string reason = "Sorry, nobody is buying that sort of thing here.\n";
-    std::string skill = "";
+    uint32_t skill = crc32c("None");
     for (auto shpkp : objs) {
       if (shpkp->IsAct(ACT_DEAD)) {
         reason = "Sorry, the shopkeeper is dead!\n";
@@ -2926,87 +2935,87 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         reason = "Sorry, the shopkeeper is unconscious!\n";
       } else if (shpkp->IsAct(ACT_SLEEP)) {
         reason = "Sorry, the shopkeeper is asleep!\n";
-      } else if (targ->Skill("Money") == targ->Value()) { // 1-1 Money
+      } else if (targ->Skill(crc32c("Money")) == targ->Value()) { // 1-1 Money
         for (auto skl : shpkp->GetSkills()) {
-          if (!strncmp(skl.first.c_str(), "Buy ", 4)) {
-            skill = "Money";
+          if (!strncmp(SkillName(skl.first).c_str(), "Buy ", 4)) {
+            skill = crc32c("Money");
             break;
           }
         }
       } else if (wearable && targ->NormAttribute(0) > 0) {
-        if (shpkp->HasSkill("Buy Armor")) {
-          skill = "Buy Armor";
+        if (shpkp->HasSkill(crc32c("Buy Armor"))) {
+          skill = crc32c("Buy Armor");
         }
-      } else if (targ->Skill("Vehicle") == 4) {
-        if (shpkp->HasSkill("Buy Boat")) {
-          skill = "Buy Boat";
+      } else if (targ->Skill(crc32c("Vehicle")) == 4) {
+        if (shpkp->HasSkill(crc32c("Buy Boat"))) {
+          skill = crc32c("Buy Boat");
         }
-      } else if (targ->HasSkill("Container")) {
-        if (shpkp->HasSkill("Buy Container")) {
-          skill = "Buy Container";
+      } else if (targ->HasSkill(crc32c("Container"))) {
+        if (shpkp->HasSkill(crc32c("Buy Container"))) {
+          skill = crc32c("Buy Container");
         }
-      } else if (targ->HasSkill("Food") && (!targ->HasSkill("Drink"))) {
-        if (shpkp->HasSkill("Buy Food")) {
-          skill = "Buy Food";
-        }
-      }
-      //      else if(false) {				//FIXME: Implement
-      //	if(shpkp->HasSkill("Buy Light")) {
-      //	  skill = "Buy Light";
-      //	  }
-      //	}
-      else if (targ->HasSkill("Liquid Container")) { // FIXME: Not Potions?
-        if (shpkp->HasSkill("Buy Liquid Container")) {
-          skill = "Buy Liquid Container";
-        }
-      } else if (targ->HasSkill("Liquid Container")) { // FIXME: Not Bottles?
-        if (shpkp->HasSkill("Buy Potion")) {
-          skill = "Buy Potion";
-        }
-      } else if (targ->HasSkill("Magical Scroll")) {
-        if (shpkp->HasSkill("Buy Scroll")) {
-          skill = "Buy Scroll";
-        }
-      } else if (targ->HasSkill("Magical Staff")) {
-        if (shpkp->HasSkill("Buy Staff")) {
-          skill = "Buy Staff";
-        }
-      } else if (targ->HasSkill("Magical Wand")) {
-        if (shpkp->HasSkill("Buy Wand")) {
-          skill = "Buy Wand";
+      } else if (targ->HasSkill(crc32c("Food")) && (!targ->HasSkill(crc32c("Drink")))) {
+        if (shpkp->HasSkill(crc32c("Buy Food"))) {
+          skill = crc32c("Buy Food");
         }
       }
       //      else if(false) {				//FIXME: Implement
-      //	if(shpkp->HasSkill("Buy Trash")) {
-      //	  skill = "Buy Trash";
+      //	if(shpkp->HasSkill(crc32c("Buy Light"))) {
+      //	  skill = crc32c("Buy Light");
+      //	  }
+      //	}
+      else if (targ->HasSkill(crc32c("Liquid Container"))) { // FIXME: Not Potions?
+        if (shpkp->HasSkill(crc32c("Buy Liquid Container"))) {
+          skill = crc32c("Buy Liquid Container");
+        }
+      } else if (targ->HasSkill(crc32c("Liquid Container"))) { // FIXME: Not Bottles?
+        if (shpkp->HasSkill(crc32c("Buy Potion"))) {
+          skill = crc32c("Buy Potion");
+        }
+      } else if (targ->HasSkill(crc32c("Magical Scroll"))) {
+        if (shpkp->HasSkill(crc32c("Buy Scroll"))) {
+          skill = crc32c("Buy Scroll");
+        }
+      } else if (targ->HasSkill(crc32c("Magical Staff"))) {
+        if (shpkp->HasSkill(crc32c("Buy Staff"))) {
+          skill = crc32c("Buy Staff");
+        }
+      } else if (targ->HasSkill(crc32c("Magical Wand"))) {
+        if (shpkp->HasSkill(crc32c("Buy Wand"))) {
+          skill = crc32c("Buy Wand");
+        }
+      }
+      //      else if(false) {				//FIXME: Implement
+      //	if(shpkp->HasSkill(crc32c("Buy Trash"))) {
+      //	  skill = crc32c("Buy Trash");
       //	  }
       //	}
       //      else if(false) {				//FIXME: Implement
-      //	if(shpkp->HasSkill("Buy Treasure")) {
-      //	  skill = "Buy Treasure";
+      //	if(shpkp->HasSkill(crc32c("Buy Treasure"))) {
+      //	  skill = crc32c("Buy Treasure");
       //	  }
       //	}
-      else if (targ->Skill("WeaponType") > 0) {
-        if (shpkp->HasSkill("Buy Weapon")) {
-          skill = "Buy Weapon";
+      else if (targ->Skill(crc32c("WeaponType")) > 0) {
+        if (shpkp->HasSkill(crc32c("Buy Weapon"))) {
+          skill = crc32c("Buy Weapon");
         }
       } else if (wearable && targ->NormAttribute(0) == 0) {
-        if (shpkp->HasSkill("Buy Worn")) {
-          skill = "Buy Worn";
+        if (shpkp->HasSkill(crc32c("Buy Worn"))) {
+          skill = crc32c("Buy Worn");
         }
       }
       //      else if(false) {					//FIXME:
       //      Implement
-      //	if(shpkp->HasSkill("Buy Other")) {
-      //	  skill = "Buy Other";
+      //	if(shpkp->HasSkill(crc32c("Buy Other"))) {
+      //	  skill = crc32c("Buy Other");
       //	  }
       //	}
 
-      if (skill.empty() && shpkp->HasSkill("Buy All")) {
-        skill = "Buy All";
+      if (skill == crc32c("None") && shpkp->HasSkill(crc32c("Buy All"))) {
+        skill = crc32c("Buy All");
       }
 
-      if ((!skill.empty())) {
+      if (skill != crc32c("None")) {
         shpkps.push_back(shpkp);
       }
     }
@@ -3017,10 +3026,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     } else {
       Object* shpkp = shpkps.front();
       if (shpkp->ActTarg(ACT_WEAR_RSHOULDER) &&
-          shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill("Vortex")) {
+          shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill(crc32c("Vortex"))) {
         Object* vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
 
-        if (skill != "Money") { // Not 1-1 Money
+        if (skill != crc32c("Money")) { // Not 1-1 Money
           price *= shpkp->Skill(skill);
           price += 0;
           price /= 1000;
@@ -3033,7 +3042,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           int togo = price, ord = -price;
           auto pay = shpkp->PickObjects("a gold piece", vmode | LOC_INTERNAL, &ord);
           for (auto coin : pay) {
-            togo -= std::max(1, coin->Skill("Quantity"));
+            togo -= std::max(1, coin->Skill(crc32c("Quantity")));
           }
 
           if (togo <= 0) {
@@ -3124,9 +3133,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     for (auto targ : targs) {
       auto trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
       for (auto trig : trigs) {
-        int ttype = trig->Skill("TBAScriptType");
+        int ttype = trig->Skill(crc32c("TBAScriptType"));
         if ((ttype & 0x2000040) == 0x2000040) { // OBJ-GET trigs
-          if ((rand() % 100) < trig->Skill("TBAScriptNArg")) { // % Chance
+          if ((rand() % 100) < trig->Skill(crc32c("TBAScriptNArg"))) { // % Chance
             if (new_trigger(0, trig, body))
               return 0; // Says fail!
             if (targ->Parent() == targ->TrashBin())
@@ -3159,7 +3168,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             denied += targ->Name(0, nullptr, owner);
             denied += ".\n";
           } else if (
-              owner->Skill("Container") && (!owner->Skill("Open")) && owner->Skill("Locked")) {
+              owner->Skill(crc32c("Container")) && (!owner->Skill(crc32c("Open"))) &&
+              owner->Skill(crc32c("Locked"))) {
             denied = owner->Name(1);
             denied += " is closed and locked so you can't get to ";
             denied += targ->Name(1);
@@ -3179,7 +3189,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
               "You get and stash ;s.\n",
               body,
               targ);
-          if (targ->HasSkill("Perishable")) {
+          if (targ->HasSkill(crc32c("Perishable"))) {
             targ->Deactivate();
           }
         } else if (
@@ -3187,7 +3197,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)) {
           if (mind)
             mind->SendF("You have no place to stash %s.\n", targ->Name());
-        } else if (targ->Skill("Quantity") > 1) {
+        } else if (targ->Skill(crc32c("Quantity")) > 1) {
           if (mind)
             mind->SendF("You have no place to stash %s.\n", targ->Name());
         } else {
@@ -3210,7 +3220,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
               "You get and hold ;s.\n",
               body,
               targ);
-          if (targ->HasSkill("Perishable")) {
+          if (targ->HasSkill(crc32c("Perishable"))) {
             targ->Deactivate();
           }
         }
@@ -3350,17 +3360,18 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     } else if (targ->IsAnimate()) {
       if (mind)
         mind->Send("You can only put things in inanimate objects!\n");
-    } else if (!targ->Skill("Container")) {
+    } else if (!targ->Skill(crc32c("Container"))) {
       if (mind)
         mind->Send("You can't put anything in that, it is not a container.\n");
-    } else if (targ->Skill("Locked")) {
+    } else if (targ->Skill(crc32c("Locked"))) {
       if (mind)
         mind->Send("You can't put anything in that, it is locked.\n");
     } else if (targ == body->ActTarg(ACT_HOLD)) {
       if (mind)
         mind->SendF("You can't put %s into itself.\n", body->ActTarg(ACT_HOLD)->Name(0, body));
     } else if (
-        (!nmode) && body->ActTarg(ACT_HOLD)->SubHasSkill("Cursed") && targ->Owner() != body) {
+        (!nmode) && body->ActTarg(ACT_HOLD)->SubHasSkill(crc32c("Cursed")) &&
+        targ->Owner() != body) {
       if (mind)
         mind->SendF("You can't seem to part with %s.\n", body->ActTarg(ACT_HOLD)->Name(0, body));
     } else {
@@ -3377,7 +3388,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         if (mind)
           mind->Send("You can't put it in there.\n");
       } else {
-        if (!targ->Skill("Open"))
+        if (!targ->Skill(crc32c("Open")))
           closed = 1;
         if (closed)
           body->Parent()->SendOut(
@@ -3416,7 +3427,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (len >= int(cmd.length())) {
       if (body->IsAct(ACT_WIELD)) {
         Object* wield = body->ActTarg(ACT_WIELD);
-        if ((!nmode) && wield && wield->SubHasSkill("Cursed")) {
+        if ((!nmode) && wield && wield->SubHasSkill(crc32c("Cursed"))) {
           if (mind)
             mind->SendF("You can't seem to stop wielding %s!\n", wield->Name(0, body));
         } else if (wield && body->Stash(wield, 0)) {
@@ -3459,7 +3470,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (!targ) {
       if (mind)
         mind->Send("You want to wield what?\n");
-    } else if (targ->Skill("WeaponType") <= 0) {
+    } else if (targ->Skill(crc32c("WeaponType")) <= 0) {
       if (mind)
         mind->Send("You can't wield that - it's not a weapon!\n");
     } else if (
@@ -3490,7 +3501,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
       // Auto-unwield (trying to wield something else)
       Object* wield = body->ActTarg(ACT_WIELD);
-      if ((!nmode) && wield && wield->SubHasSkill("Cursed")) {
+      if ((!nmode) && wield && wield->SubHasSkill(crc32c("Cursed"))) {
         if (mind)
           mind->SendF("You can't seem to stop wielding %s!\n", wield->Name(0, body));
         return 0;
@@ -3512,7 +3523,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
       auto trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
       for (auto trig : trigs) {
-        int ttype = trig->Skill("TBAScriptType");
+        int ttype = trig->Skill(crc32c("TBAScriptType"));
         if ((ttype & 0x2000200) == 0x2000200) { // OBJ-WEAR trigs
           if (new_trigger(0, trig, body))
             return 0; // Says FAIL!
@@ -3541,7 +3552,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("You want to hold what?\n");
     }
     // FIXME - Implement Str-based Holding Capacity
-    //    else if(targ->Skill("WeaponType") <= 0) {
+    //    else if(targ->Skill(crc32c("WeaponType")) <= 0) {
     //      if(mind) mind->Send("You can't hold that - you are too weak!\n");
     //      }
     else if (body->ActTarg(ACT_HOLD) == targ) {
@@ -3554,7 +3565,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("You are already holding something!\n");
     } else if (
         body->ActTarg(ACT_WIELD) == targ &&
-        two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType"))) {
+        two_handed(body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")))) {
       body->AddAct(ACT_HOLD, targ);
       body->Parent()->SendOut(
           stealth_t,
@@ -3566,7 +3577,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     } else if (body->ActTarg(ACT_WEAR_SHIELD) == targ) {
       body->AddAct(ACT_HOLD, targ);
       body->Parent()->SendOut(stealth_t, stealth_s, ";s holds ;s.\n", "You hold ;s.\n", body, targ);
-    } else if (body->Wearing(targ) && targ->SubHasSkill("Cursed")) {
+    } else if (body->Wearing(targ) && targ->SubHasSkill(crc32c("Cursed"))) {
       if (mind) {
         if (body->ActTarg(ACT_WIELD) == targ) {
           mind->SendF("You can't seem to stop wielding %s!\n", targ->Name(0, body));
@@ -3588,7 +3599,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       targ->Travel(body, 0); // Kills Holds, Wears and Wields on "targ"
       body->AddAct(ACT_HOLD, targ);
       if (cnum == COM_LIGHT) {
-        if (targ->HasSkill("Lightable")) {
+        if (targ->HasSkill(crc32c("Lightable"))) {
           body->Parent()->SendOut(
               stealth_t,
               stealth_s,
@@ -3596,8 +3607,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
               "You hold and light ;s.\n",
               body,
               targ);
-          targ->SetSkill("Lightable", targ->Skill("Lightable") - 1);
-          targ->SetSkill("Light Source", targ->Skill("Brightness"));
+          targ->SetSkill(crc32c("Lightable"), targ->Skill(crc32c("Lightable")) - 1);
+          targ->SetSkill(crc32c("Light Source"), targ->Skill(crc32c("Brightness")));
           targ->Activate();
         } else {
           body->Parent()->SendOut(
@@ -3635,7 +3646,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     for (auto targ : targs) {
       auto trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
       for (auto trig : trigs) {
-        int ttype = trig->Skill("TBAScriptType");
+        int ttype = trig->Skill(crc32c("TBAScriptType"));
         if ((ttype & 0x2000800) == 0x2000800) { // OBJ-REMOVE trigs
           if (new_trigger(0, trig, body))
             return 0; // Says FAIL!
@@ -3643,7 +3654,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       }
 
       int removed = 0;
-      if ((!nmode) && targ->HasSkill("Cursed")) {
+      if ((!nmode) && targ->HasSkill(crc32c("Cursed"))) {
         if (mind)
           mind->SendF("%s won't come off!\n", targ->Name(0, body));
         return 0;
@@ -3743,7 +3754,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       } else {
         auto trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
         for (auto trig : trigs) {
-          int ttype = trig->Skill("TBAScriptType");
+          int ttype = trig->Skill(crc32c("TBAScriptType"));
           if ((ttype & 0x2000200) == 0x2000200) { // OBJ-WEAR trigs
             if (new_trigger(0, trig, body))
               return 0; // Says FAIL!
@@ -3768,7 +3779,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("What do you want to eat?\n");
       return 0;
     }
-    if (!body->HasSkill("Hungry")) {
+    if (!body->HasSkill(crc32c("Hungry"))) {
       if (mind)
         mind->Send("You are not hungry, you can't eat any more.\n");
       return 0;
@@ -3783,7 +3794,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("You want to eat what?\n");
     } else {
       for (auto targ : targs) {
-        if (!(targ->HasSkill("Ingestible"))) {
+        if (!(targ->HasSkill(crc32c("Ingestible")))) {
           if (mind)
             mind->SendF("You don't want to eat %s.\n", targ->Name(0, body));
         } else {
@@ -3834,9 +3845,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       for (auto targ : targs) {
         auto trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
         for (auto trig : trigs) {
-          int ttype = trig->Skill("TBAScriptType");
+          int ttype = trig->Skill(crc32c("TBAScriptType"));
           if ((ttype & 0x2000080) == 0x2000080) { // OBJ-DROP trigs
-            if ((rand() % 100) < trig->Skill("TBAScriptNArg")) { // % Chance
+            if ((rand() % 100) < trig->Skill(crc32c("TBAScriptNArg"))) { // % Chance
               if (new_trigger(0, trig, body))
                 return 0; // Says FAIL!
               if (targ->Parent() == targ->TrashBin())
@@ -3850,9 +3861,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         if (room)
           trigs = room->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
         for (auto trig : trigs) {
-          int ttype = trig->Skill("TBAScriptType");
+          int ttype = trig->Skill(crc32c("TBAScriptType"));
           if ((ttype & 0x4000080) == 0x4000080) { // ROOM-DROP trigs
-            if ((rand() % 100) < trig->Skill("TBAScriptNArg")) { // % Chance
+            if ((rand() % 100) < trig->Skill(crc32c("TBAScriptNArg"))) { // % Chance
               if (new_trigger(0, trig, body, targ))
                 return 0; // Says FAIL!
               if (targ->Parent() == targ->TrashBin())
@@ -3891,7 +3902,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("What do you want to drink from?\n");
       return 0;
     }
-    if (!body->HasSkill("Thirsty")) {
+    if (!body->HasSkill(crc32c("Thirsty"))) {
       if (mind)
         mind->Send("You are not thirsty, you can't drink any more.\n");
       return 0;
@@ -3917,7 +3928,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           denied += "'s permission to drink from ";
           denied += targ->Name(0, nullptr, own);
           denied += ".\n";
-        } else if (own->Skill("Container") && (!own->Skill("Open")) && own->Skill("Locked")) {
+        } else if (
+            own->Skill(crc32c("Container")) && (!own->Skill(crc32c("Open"))) &&
+            own->Skill(crc32c("Locked"))) {
           denied = own->Name(1);
           if (own == targ) {
             denied += " is closed and locked so you can't drink from it.\n";
@@ -3934,7 +3947,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           mind->Send(denied.c_str());
         return 0;
       }
-      if (!(targ->HasSkill("Liquid Container"))) {
+      if (!(targ->HasSkill(crc32c("Liquid Container")))) {
         if (mind)
           mind->SendF(
               "%s is not a liquid container.  You can't drink from it.\n", targ->Name(0, body));
@@ -3946,12 +3959,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         return 0;
       }
       Object* obj = targ->Contents(vmode).front();
-      if (targ->HasSkill("Liquid Source") && obj->Skill("Quantity") < 2) {
+      if (targ->HasSkill(crc32c("Liquid Source")) && obj->Skill(crc32c("Quantity")) < 2) {
         if (mind)
           mind->SendF("%s is almost empty.  There is nothing to drink\n", targ->Name(0, body));
         return 0;
       }
-      if ((!(obj->HasSkill("Ingestible")))) {
+      if ((!(obj->HasSkill(crc32c("Ingestible"))))) {
         if (mind)
           mind->SendF("You don't want to drink what's in %s.\n", targ->Name(0, body));
         return 0;
@@ -3968,13 +3981,13 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       // Hunger/Thirst/Posion/Potion Effects
       body->Consume(obj);
 
-      if (obj->Skill("Quantity") < 2) {
+      if (obj->Skill(crc32c("Quantity")) < 2) {
         obj->Recycle();
-        if (targ->HasSkill("Perishable")) { // One-Use Vials
+        if (targ->HasSkill(crc32c("Perishable"))) { // One-Use Vials
           targ->Recycle();
         }
       } else {
-        obj->SetSkill("Quantity", obj->Skill("Quantity") - 1);
+        obj->SetSkill(crc32c("Quantity"), obj->Skill(crc32c("Quantity")) - 1);
       }
     }
     return 0;
@@ -3998,7 +4011,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("You want to dump what?\n");
     } else {
       for (auto targ : targs) {
-        if (!(targ->HasSkill("Liquid Container"))) {
+        if (!(targ->HasSkill(crc32c("Liquid Container")))) {
           if (mind)
             mind->SendF(
                 "%s is not a liquid container.  It can't be dumped.\n", targ->Name(0, body));
@@ -4056,21 +4069,21 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (!src) {
       if (mind)
         mind->SendF("I don't see '%s' to fill %s from!\n", cmd.c_str() + len, dst->Name(0, body));
-    } else if (!dst->HasSkill("Liquid Container")) {
+    } else if (!dst->HasSkill(crc32c("Liquid Container"))) {
       if (mind)
         mind->SendF("You can not fill %s, it is not a liquid container.\n", dst->Name(0, body));
     } else if (src->IsAnimate()) {
       if (mind)
         mind->Send("You can only fill things from inanimate objects!\n");
-    } else if (!src->HasSkill("Liquid Container")) {
+    } else if (!src->HasSkill(crc32c("Liquid Container"))) {
       if (mind)
         mind->Send(
             "You can't fill anything from that, it's not a liquid "
             "container.\n");
-    } else if (dst->Skill("Locked")) {
+    } else if (dst->Skill(crc32c("Locked"))) {
       if (mind)
         mind->SendF("You can't fill %s, it is locked.\n", dst->Name(0, body));
-    } else if (src->Skill("Locked")) {
+    } else if (src->Skill(crc32c("Locked"))) {
       if (mind)
         mind->Send("You can't fill anything from that, it is locked.\n");
     } else if (src == dst) {
@@ -4080,19 +4093,20 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       if (mind)
         mind->Send("You can't fill anything from that, it is empty.\n");
     } else if (
-        src->HasSkill("Liquid Source") && src->Contents(vmode).front()->Skill("Quantity") < 2) {
+        src->HasSkill(crc32c("Liquid Source")) &&
+        src->Contents(vmode).front()->Skill(crc32c("Quantity")) < 2) {
       if (mind)
         mind->Send("You can't fill anything from that, it is almost empty.\n");
     } else {
       int myclosed = 0, itclosed = 0;
 
       int sqty = 1;
-      int dqty = dst->Skill("Capacity");
-      if (src->Contents(vmode).front()->Skill("Quantity") > 0) {
-        sqty = src->Contents(vmode).front()->Skill("Quantity");
+      int dqty = dst->Skill(crc32c("Capacity"));
+      if (src->Contents(vmode).front()->Skill(crc32c("Quantity")) > 0) {
+        sqty = src->Contents(vmode).front()->Skill(crc32c("Quantity"));
       }
 
-      if (src->HasSkill("Liquid Source")) {
+      if (src->HasSkill(crc32c("Liquid Source"))) {
         if (dqty > (sqty - 1))
           dqty = (sqty - 1);
       } else {
@@ -4108,16 +4122,16 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         liq = new Object(dst);
       }
       (*liq) = (*(src->Contents(vmode).front()));
-      liq->SetSkill("Quantity", dqty);
+      liq->SetSkill(crc32c("Quantity"), dqty);
       if (sqty > 0) {
-        src->Contents(vmode).front()->SetSkill("Quantity", sqty);
+        src->Contents(vmode).front()->SetSkill(crc32c("Quantity"), sqty);
       } else {
         src->Contents(vmode).front()->Recycle();
       }
 
-      if (!src->Skill("Open"))
+      if (!src->Skill(crc32c("Open")))
         itclosed = 1;
-      if (!dst->Skill("Open"))
+      if (!dst->Skill(crc32c("Open")))
         myclosed = 1;
 
       // FIXME: Really open/close stuff!
@@ -4154,10 +4168,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (!body->Parent()->Parent()) {
       if (mind)
         mind->Send("It is not possible to leave this object!\n");
-    } else if ((!body->Parent()->Skill("Enterable")) && (!ninja)) {
+    } else if ((!body->Parent()->Skill(crc32c("Enterable"))) && (!ninja)) {
       if (mind)
         mind->Send("It is not possible to leave this object!\n");
-    } else if ((!body->Parent()->Skill("Enterable")) && (!nmode)) {
+    } else if ((!body->Parent()->Skill(crc32c("Enterable"))) && (!nmode)) {
       if (mind)
         mind->Send("You need to be in ninja mode to leave this object!\n");
     } else {
@@ -4382,50 +4396,50 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       ++len;
     if (len >= int(cmd.length())) {
       if (mind)
-        mind->Send("What spell you want to cast?\n");
+        mind->Send("What spell do you want to cast?\n");
       return 0;
     }
 
     int defself = 0;
     int special = 0;
     int freehand = 0;
-    std::string spname = "";
+    uint32_t spname = crc32c("None");
     if (!strncmp("identify", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       special = 1;
-      spname = "Identify";
+      spname = crc32c("Identify");
     } else if (!strncmp("create food", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = -1;
       special = 2;
       freehand = 1;
-      spname = "Create Food";
+      spname = crc32c("Create Food");
     } else if (!strncmp("force sword", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = -1;
       special = 2;
       freehand = 1;
-      spname = "Force Sword";
+      spname = crc32c("Force Sword");
     } else if (!strncmp("heat vision", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
-      spname = "Heat Vision";
+      spname = crc32c("Heat Vision");
     } else if (!strncmp("dark vision", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
-      spname = "Dark Vision";
+      spname = crc32c("Dark Vision");
     } else if (!strncmp("recall", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
-      spname = "Recall";
+      spname = crc32c("Recall");
     } else if (!strncmp("teleport", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
-      spname = "Teleport";
+      spname = crc32c("Teleport");
     } else if (!strncmp("resurrect", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
-      spname = "Resurrect";
+      spname = crc32c("Resurrect");
     } else if (!strncmp("remove curse", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
-      spname = "Remove Curse";
+      spname = crc32c("Remove Curse");
     } else if (!strncmp("cure poison", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
       defself = 1;
-      spname = "Cure Poison";
+      spname = crc32c("Cure Poison");
     } else if (!strncmp("sleep other", cmd.c_str() + len, strlen(cmd.c_str() + len))) {
-      spname = "Sleep Other";
+      spname = crc32c("Sleep Other");
     } else {
       if (mind)
         mind->Send("Never heard of that spell.\n");
@@ -4434,13 +4448,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
     Object* src = nullptr;
     if (!nmode)
-      src = body->NextHasSkill(spname + " Spell");
+      src = body->NextHasSkill(crc32c(SkillName(spname) + " Spell"));
     if ((!nmode) && (!src)) {
       if (mind)
         mind->SendF(
-            "You don't know the %s Spell and have no items enchanted "
-            "with it.\n",
-            spname.c_str());
+            "You don't know the %s Spell and have no items enchanted with it.\n",
+            SkillName(spname).c_str());
       return 0;
     }
 
@@ -4460,47 +4473,47 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (!targ)
       targ = body; // Defaults to SELF if not, caught above!)
     if (src && src != body) {
-      std::string youmes = "You use ;s to cast " + spname + ".\n";
+      std::string youmes = "You use ;s to cast " + SkillName(spname) + ".\n";
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s uses ;s to cast a spell.\n", youmes.c_str(), body, src);
     }
     if (defself >= 0) { // Targeted
-      std::string youmes = "You cast " + spname + " on ;s.\n";
+      std::string youmes = "You cast " + SkillName(spname) + " on ;s.\n";
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s casts a spell on ;s.\n", youmes.c_str(), body, targ);
     } else { // Not Targeted
-      std::string youmes = "You cast " + spname + ".\n";
+      std::string youmes = "You cast " + SkillName(spname) + ".\n";
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s casts a spell.\n", youmes.c_str(), body, nullptr);
     }
 
     int force = 1000; // FIXME: Magic Force!
     if (src)
-      force = src->Skill(spname + " Spell");
+      force = src->Skill(crc32c(SkillName(spname) + " Spell"));
     if (!special) { // Effect Person/Creature Spells
       Object* spell = new Object();
-      spell->SetSkill(spname + " Spell", force);
+      spell->SetSkill(SkillName(spname) + " Spell", force);
       targ->Consume(spell);
       delete (spell);
     } else if (special == 2) { // Temporary Object Creation Spells
       Object* obj = new Object(body);
-      if (spname == "Create Food") {
+      if (spname == crc32c("Create Food")) {
         obj->SetShortDesc("a piece of magical food");
-        obj->SetSkill("Food", force * 100);
-        obj->SetSkill("Ingestible", force);
-      } else if (spname == "Force Sword") {
+        obj->SetSkill(crc32c("Food"), force * 100);
+        obj->SetSkill(crc32c("Ingestible"), force);
+      } else if (spname == crc32c("Force Sword")) {
         obj->SetShortDesc("a sword of force");
-        obj->SetSkill("WeaponType", 13);
-        obj->SetSkill("WeaponReach", 1);
-        obj->SetSkill("WeaponSeverity", 2);
-        obj->SetSkill("WeaponForce", std::min(100, force));
+        obj->SetSkill(crc32c("WeaponType"), 13);
+        obj->SetSkill(crc32c("WeaponReach"), 1);
+        obj->SetSkill(crc32c("WeaponSeverity"), 2);
+        obj->SetSkill(crc32c("WeaponForce"), std::min(100, force));
       }
       obj->SetWeight(1);
       obj->SetVolume(1);
       obj->SetSize(1);
-      obj->SetSkill("Magical", force);
-      obj->SetSkill("Light Source", 10);
-      obj->SetSkill("Temporary", force);
+      obj->SetSkill(crc32c("Magical"), force);
+      obj->SetSkill(crc32c("Light Source"), 10);
+      obj->SetSkill(crc32c("Temporary"), force);
       obj->Activate();
       obj->SetPos(POS_LIE);
       body->AddAct(ACT_HOLD, obj);
@@ -4512,7 +4525,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           body,
           nullptr,
           obj->Name());
-    } else if (spname == "Identify") { // Other kinds of spells
+    } else if (spname == crc32c("Identify")) { // Other kinds of spells
       if (mind) {
         mind->Send(CCYN);
         targ->SendFullSituation(mind, body);
@@ -4523,12 +4536,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     if (src) {
-      if (src->Skill("Quantity") > 1) {
-        src->Split(src->Skill("Quantity") - 1); // Split off the rest
+      if (src->Skill(crc32c("Quantity")) > 1) {
+        src->Split(src->Skill(crc32c("Quantity")) - 1); // Split off the rest
       }
-      if (src->HasSkill("Magical Charges")) {
-        if (src->Skill("Magical Charges") > 1) {
-          src->SetSkill("Magical Charges", src->Skill("Magical Charges") - 1);
+      if (src->HasSkill(crc32c("Magical Charges"))) {
+        if (src->Skill(crc32c("Magical Charges")) > 1) {
+          src->SetSkill(crc32c("Magical Charges"), src->Skill(crc32c("Magical Charges")) - 1);
         } else {
           delete (src);
         }
@@ -4582,13 +4595,13 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     int longterm = 0; // Long-running skills for results
-    std::string skill = get_skill(cmd.c_str() + len);
-    if (skill == "") {
+    auto skill = get_skill(cmd.c_str() + len);
+    if (skill == crc32c("None")) {
       mind->Send("Don't know what skill you're trying to use.\n");
       return 0;
     }
 
-    if (skill == "Lumberjack") {
+    if (skill == crc32c("Lumberjack")) {
       if (!body->HasSkill(skill)) {
         mind->SendF("%sYou don't know how to do that.%s\n", CYEL, CNRM);
         return 0;
@@ -4597,27 +4610,29 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->SendF("%sThere are no trees here.%s\n", CYEL, CNRM);
         return 0;
       }
-      if (strcasestr(body->Parent()->Name(), "forest") && body->Parent()->HasSkill("TBAZone") &&
-          (!body->Parent()->HasSkill("Mature Trees"))) {
-        body->Parent()->SetSkill("Mature Trees", 100);
+      if (strcasestr(body->Parent()->Name(), "forest") &&
+          body->Parent()->HasSkill(crc32c("TBAZone")) &&
+          (!body->Parent()->HasSkill(crc32c("Mature Trees")))) {
+        body->Parent()->SetSkill(crc32c("Mature Trees"), 100);
         body->Parent()->Activate();
       }
-      if (!body->Parent()->HasSkill("Mature Trees")) {
+      if (!body->Parent()->HasSkill(crc32c("Mature Trees"))) {
         mind->SendF("%sThere are no trees here.%s\n", CYEL, CNRM);
         return 0;
-      } else if (body->Parent()->Skill("Mature Trees") < 10) {
+      } else if (body->Parent()->Skill(crc32c("Mature Trees")) < 10) {
         mind->SendF("%sThere are too few trees to harvest here.%s\n", CYEL, CNRM);
         return 0;
       } else {
         longterm = 3000; // FIXME: Temporary - should take longer!
       }
-      if (body->IsUsing("Lumberjack")) { // Already been doing it
+      if (body->IsUsing(crc32c("Lumberjack"))) { // Already been doing it
         if (body->Roll(skill, 10) > 0) { // Succeeded!
           body->Parent()->SendOut(
               ALL, 0, ";s shouts 'TIMBER'!!!\n", "You shout 'TIMBER'!!!\n", body, body);
-          body->Parent()->Loud(body->Skill("Strength"), "someone shout 'TIMBER'!!!");
-          body->Parent()->SetSkill("Mature Trees", body->Parent()->Skill("Mature Trees") - 1);
-          body->SetSkill("Hidden", 0);
+          body->Parent()->Loud(body->Skill(crc32c("Strength")), "someone shout 'TIMBER'!!!");
+          body->Parent()->SetSkill(
+              crc32c("Mature Trees"), body->Parent()->Skill(crc32c("Mature Trees")) - 1);
+          body->SetSkill(crc32c("Hidden"), 0);
 
           Object* log = new Object(body->Parent());
           log->SetShortDesc("a log");
@@ -4628,7 +4643,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           log->SetVolume(1000);
           log->SetWeight(220000);
           log->SetSize(8000);
-          log->SetSkill("Made of Wood", 200000);
+          log->SetSkill(crc32c("Made of Wood"), 200000);
         }
         body->Parent()->SendOut(
             ALL,
@@ -4637,8 +4652,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             "You continue chopping down trees.\n",
             body,
             body);
-        body->Parent()->Loud(body->Skill("Strength") / 2, "loud chopping sounds.");
-        body->SetSkill("Hidden", 0);
+        body->Parent()->Loud(body->Skill(crc32c("Strength")) / 2, "loud chopping sounds.");
+        body->SetSkill(crc32c("Hidden"), 0);
       }
     }
 
@@ -4648,9 +4663,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       // In case Stealth was started, re-calc (to hide going into stealth).
       stealth_t = 0;
       stealth_s = 0;
-      if (body->IsUsing("Stealth") && body->Skill("Stealth") > 0) {
-        stealth_t = body->Skill("Stealth");
-        stealth_s = body->Roll("Stealth", 2);
+      if (body->IsUsing(crc32c("Stealth")) && body->Skill(crc32c("Stealth")) > 0) {
+        stealth_t = body->Skill(crc32c("Stealth"));
+        stealth_s = body->Roll(crc32c("Stealth"), 2);
       }
 
       if (body->Pos() != POS_STAND && body->Pos() != POS_USE) { // FIXME: Unused
@@ -4676,11 +4691,11 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->SendF(
             "%s...you don't have the '%s' skill, so you're bad at this.%s\n",
             CYEL,
-            skill.c_str(),
+            SkillName(skill).c_str(),
             CNRM);
       }
     } else if (longterm == 0) {
-      mind->SendF("You are already using %s\n", skill.c_str());
+      mind->SendF("You are already using %s\n", SkillName(skill).c_str());
     }
 
     if (longterm > 0) { // Long-running skills for results
@@ -4813,7 +4828,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    if ((!body->Parent()) || body->Parent()->HasSkill("Peaceful")) {
+    if ((!body->Parent()) || body->Parent()->HasSkill(crc32c("Peaceful"))) {
       if (mind) {
         mind->Send("You can't fight here.  This is a place of peace.\n");
       }
@@ -4842,7 +4857,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD) &&
         (body->ActTarg(ACT_WEAR_SHIELD) // Need Off-Hand for shield
          || (body->ActTarg(ACT_WIELD) //...or for two-hander
-             && two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType"))))) {
+             && two_handed(body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")))))) {
       if (body->DropOrStash(body->ActTarg(ACT_HOLD))) {
         if (mind)
           mind->SendF(
@@ -4855,7 +4870,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     // Hold your 2-hander, even if you have to let go of your shield
     if (body->ActTarg(ACT_WIELD) // Half-Wielding a 2-Hander
         && body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD) &&
-        two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType"))) {
+        two_handed(body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")))) {
       if (body->ActTarg(ACT_HOLD) // Some non-shield stuck in other hand!
           && body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)) {
         if (mind)
@@ -4908,47 +4923,47 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     // Attacking, or being attacked removes hidden-ness.
-    body->SetSkill("Hidden", 0);
-    targ->SetSkill("Hidden", 0);
+    body->SetSkill(crc32c("Hidden"), 0);
+    targ->SetSkill(crc32c("Hidden"), 0);
 
     int reachmod = 0;
-    std::string sk1 = "Punching", sk2 = "Punching";
+    auto sk1 = crc32c("Punching"), sk2 = crc32c("Punching");
 
     if (cnum == COM_KICK) {
-      sk1 = "Kicking";
-      sk2 = "Kicking";
+      sk1 = crc32c("Kicking");
+      sk2 = crc32c("Kicking");
     }
 
     else if (
         body->ActTarg(ACT_WIELD) // Not Holding your 2-Hander
-        && two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType")) &&
+        && two_handed(body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType"))) &&
         body->ActTarg(ACT_WIELD) != body->ActTarg(ACT_HOLD)) {
-      sk1 = "Kicking";
-      sk2 = "Kicking";
+      sk1 = crc32c("Kicking");
+      sk2 = crc32c("Kicking");
     }
 
     else {
       if (body->IsAct(ACT_WIELD)) {
-        sk1 = get_weapon_skill(body->ActTarg(ACT_WIELD)->Skill("WeaponType"));
-        reachmod += std::max(0, body->ActTarg(ACT_WIELD)->Skill("WeaponReach"));
+        sk1 = get_weapon_skill(body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")));
+        reachmod += std::max(0, body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponReach")));
         if (reachmod > 9)
           reachmod = 0;
       }
       if (body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD) && body->ActTarg(ACT_HOLD)) {
-        sk2 = "";
+        sk2 = crc32c("");
       }
       if (targ->ActTarg(ACT_HOLD) == targ->ActTarg(ACT_WEAR_SHIELD) && targ->ActTarg(ACT_HOLD)) {
-        sk2 = "Shields";
+        sk2 = crc32c("Shields");
         reachmod = 0;
       } else if (
           targ->ActTarg(ACT_WIELD) // Not Holding his 2-Hander
-          && two_handed(targ->ActTarg(ACT_WIELD)->Skill("WeaponType")) &&
+          && two_handed(targ->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType"))) &&
           targ->ActTarg(ACT_WIELD) != targ->ActTarg(ACT_HOLD)) {
-        sk2 = ""; // Can't defend himself
+        sk2 = crc32c(""); // Can't defend himself
       } else if (targ->ActTarg(ACT_WIELD)) {
-        if (sk2 == "Punching")
-          sk2 = get_weapon_skill(targ->ActTarg(ACT_WIELD)->Skill("WeaponType"));
-        reachmod -= std::max(0, targ->ActTarg(ACT_WIELD)->Skill("WeaponReach"));
+        if (sk2 == crc32c("Punching"))
+          sk2 = get_weapon_skill(targ->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")));
+        reachmod -= std::max(0, targ->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponReach")));
         if (reachmod < -9)
           reachmod = 0;
       }
@@ -5020,58 +5035,58 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
     const char* verb = "punch"; // Non-weapon verb
     const char* verb3 = "punches"; // 3rd Person
-    if (body->Skill("NaturalWeapon") == 14) { // Natural Weapon: stab
+    if (body->Skill(crc32c("NaturalWeapon")) == 14) { // Natural Weapon: stab
       verb = "stab";
       verb3 = "stabs";
-    } else if (body->Skill("NaturalWeapon") == 13) { // Natural Weapon: hit
+    } else if (body->Skill(crc32c("NaturalWeapon")) == 13) { // Natural Weapon: hit
       verb = "hit";
       verb3 = "hits";
-    } else if (body->Skill("NaturalWeapon") == 12) { // Natural Weapon: blast
+    } else if (body->Skill(crc32c("NaturalWeapon")) == 12) { // Natural Weapon: blast
       verb = "blast";
       verb3 = "blasts";
-    } else if (body->Skill("NaturalWeapon") == 11) { // Natural Weapon: pierce
+    } else if (body->Skill(crc32c("NaturalWeapon")) == 11) { // Natural Weapon: pierce
       verb = "pierce";
       verb3 = "pierces";
-    } else if (body->Skill("NaturalWeapon") == 10) { // Natural Weapon: thrash
+    } else if (body->Skill(crc32c("NaturalWeapon")) == 10) { // Natural Weapon: thrash
       verb = "thrash";
       verb3 = "thrashes";
-    } else if (body->Skill("NaturalWeapon") == 9) { // Natural Weapon: maul
+    } else if (body->Skill(crc32c("NaturalWeapon")) == 9) { // Natural Weapon: maul
       verb = "maul";
       verb3 = "mauls";
-    } else if (body->Skill("NaturalWeapon") == 8) { // Natural Weapon: claw
+    } else if (body->Skill(crc32c("NaturalWeapon")) == 8) { // Natural Weapon: claw
       verb = "claw";
       verb3 = "claws";
-    } else if (body->Skill("NaturalWeapon") == 7) { // Natural Weapon: pound
+    } else if (body->Skill(crc32c("NaturalWeapon")) == 7) { // Natural Weapon: pound
       verb = "pound";
       verb3 = "pounds";
-    } else if (body->Skill("NaturalWeapon") == 6) { // Natural Weapon: crush
+    } else if (body->Skill(crc32c("NaturalWeapon")) == 6) { // Natural Weapon: crush
       verb = "crush";
       verb3 = "crushes";
-    } else if (body->Skill("NaturalWeapon") == 5) { // Natural Weapon: bludgeon
+    } else if (body->Skill(crc32c("NaturalWeapon")) == 5) { // Natural Weapon: bludgeon
       verb = "bludgeon";
       verb3 = "bludgeons";
-    } else if (body->Skill("NaturalWeapon") == 4) { // Natural Weapon: bite
+    } else if (body->Skill(crc32c("NaturalWeapon")) == 4) { // Natural Weapon: bite
       verb = "bite";
       verb3 = "bites";
-    } else if (body->Skill("NaturalWeapon") == 3) { // Natural Weapon: slash
+    } else if (body->Skill(crc32c("NaturalWeapon")) == 3) { // Natural Weapon: slash
       verb = "slash";
       verb3 = "slashes";
-    } else if (body->Skill("NaturalWeapon") == 2) { // Natural Weapon: whip
+    } else if (body->Skill(crc32c("NaturalWeapon")) == 2) { // Natural Weapon: whip
       verb = "whip";
       verb3 = "whips";
-    } else if (body->Skill("NaturalWeapon") == 1) { // Natural Weapon: sting
+    } else if (body->Skill(crc32c("NaturalWeapon")) == 1) { // Natural Weapon: sting
       verb = "sting";
       verb3 = "stings";
     }
     if (succ > 0) {
       int stun = 0;
-      if (sk1 == "Kicking") { // Kicking Action
+      if (sk1 == crc32c("Kicking")) { // Kicking Action
         stun = 1;
         body->Parent()->SendOutF(
             ALL, -1, "*;s kicks ;s%s.\n", "*You kick ;s%s.\n", body, targ, locm.c_str());
       } else if (
           body->IsAct(ACT_WIELD) // Ranged Weapon
-          && body->ActTarg(ACT_WIELD)->Skill("WeaponReach") > 9) {
+          && body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponReach")) > 9) {
         body->Parent()->SendOutF(
             ALL,
             -1,
@@ -5094,7 +5109,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             locm.c_str(),
             body->ActTarg(ACT_WIELD)->ShortDesc());
       } else { // No Weapon or Natural Weapon
-        if (!body->HasSkill("NaturalWeapon"))
+        if (!body->HasSkill(crc32c("NaturalWeapon")))
           stun = 1;
         char mes[128] = "";
         char mes3[128] = "";
@@ -5111,11 +5126,11 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         stage += 2;
       }
       if (body->IsAct(ACT_WIELD)) {
-        force += body->ActTarg(ACT_WIELD)->Skill("WeaponForce");
-        if (two_handed(body->ActTarg(ACT_WIELD)->Skill("WeaponType"))) {
+        force += body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponForce"));
+        if (two_handed(body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")))) {
           force += body->ModAttribute(2);
         }
-        stage += body->ActTarg(ACT_WIELD)->Skill("WeaponSeverity");
+        stage += body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponSeverity"));
       } else {
         force -= 1;
         stage += 1;
@@ -5131,8 +5146,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       } else {
         sev = targ->HitPhys(force, stage, succ);
       }
-      if (body->Skill("Poisonous") > 0) { // Injects poison!
-        targ->SetSkill("Poisoned", targ->Skill("Poisoned") + body->Skill("Poisonous"));
+      if (body->Skill(crc32c("Poisonous")) > 0) { // Injects poison!
+        targ->SetSkill(
+            crc32c("Poisoned"), targ->Skill(crc32c("Poisoned")) + body->Skill(crc32c("Poisonous")));
       }
 
       if (sev <= 0) {
@@ -5151,7 +5167,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             targ);
       } else if (
           body->IsAct(ACT_WIELD) // Ranged Weapon
-          && body->ActTarg(ACT_WIELD)->Skill("WeaponReach") > 9) {
+          && body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponReach")) > 9) {
         body->Parent()->SendOutF(
             ALL,
             -1,
@@ -5186,8 +5202,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         targ->IsAct(ACT_UNCONSCIOUS)) {
       body->StopAct(ACT_FIGHT);
       body->BusyFor(3000);
-      if (targ->Skill("Accomplishment")) {
-        if (body->Accomplish(targ->Skill("Accomplishment"))) {
+      if (targ->Skill(crc32c("Accomplishment"))) {
+        if (body->Accomplish(targ->Skill(crc32c("Accomplishment")))) {
           if (mind) {
             mind->SendF(
                 "%sYour character gains an experience point for this "
@@ -5196,7 +5212,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
                 CNRM);
           }
         }
-        targ->SetSkill("Accomplishment", 0);
+        targ->SetSkill(crc32c("Accomplishment"), 0);
       }
     }
 
@@ -5256,16 +5272,16 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    while (chr->Skill("Attribute Points") > 0) {
+    while (chr->Skill(crc32c("Attribute Points")) > 0) {
       int which = (rand() % 6);
       if (chr->NormAttribute(which) < 6) {
-        chr->SetSkill("Attribute Points", chr->Skill("Attribute Points") - 1);
+        chr->SetSkill(crc32c("Attribute Points"), chr->Skill(crc32c("Attribute Points")) - 1);
         chr->SetAttribute(which, chr->NormAttribute(which) + 1);
       }
     }
 
     auto skills = get_skills("all");
-    while (chr->Skill("Skill Points")) {
+    while (chr->Skill(crc32c("Skill Points"))) {
       int which = (rand() % skills.size());
       auto skl = skills.begin();
       while (which) {
@@ -5273,9 +5289,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         --which;
       }
       if (chr->Skill(*skl) < (chr->NormAttribute(get_linked(*skl)) + 1) / 2 &&
-          chr->Skill("Skill Points") > chr->Skill(*skl)) {
+          chr->Skill(crc32c("Skill Points")) > chr->Skill(*skl)) {
         chr->SetSkill(*skl, chr->Skill(*skl) + 1);
-        chr->SetSkill("Skill Points", chr->Skill("Skill Points") - chr->Skill(*skl));
+        chr->SetSkill(
+            crc32c("Skill Points"), chr->Skill(crc32c("Skill Points")) - chr->Skill(*skl));
       }
     }
     mind->SendF("You randomly spend all remaining points for '%s'.\n", chr->ShortDesc());
@@ -5316,37 +5333,37 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       body->SetAttribute(3, 2);
       body->SetAttribute(4, 6);
       body->SetAttribute(5, 5);
-      body->SetSkill("Attribute Points", 0);
+      body->SetSkill(crc32c("Attribute Points"), 0);
 
-      body->SetSkill("Long Blades", 3);
-      body->SetSkill("Two-Handed Blades", 3);
-      body->SetSkill("Short Piercing", 3);
-      body->SetSkill("Shields", 3);
-      body->SetSkill("Running", 2);
-      body->SetSkill("Climbing", 2);
-      body->SetSkill("Sprinting", 2);
-      body->SetSkill("Swimming", 2);
-      body->SetSkill("Lifting", 2);
-      body->SetSkill("Acrobatics", 2);
-      body->SetSkill("Punching", 3);
-      body->SetSkill("Kicking", 3);
-      body->SetSkill("Grappling", 3);
-      body->SetSkill("Skill Points", 4);
+      body->SetSkill(crc32c("Long Blades"), 3);
+      body->SetSkill(crc32c("Two-Handed Blades"), 3);
+      body->SetSkill(crc32c("Short Piercing"), 3);
+      body->SetSkill(crc32c("Shields"), 3);
+      body->SetSkill(crc32c("Running"), 2);
+      body->SetSkill(crc32c("Climbing"), 2);
+      body->SetSkill(crc32c("Sprinting"), 2);
+      body->SetSkill(crc32c("Swimming"), 2);
+      body->SetSkill(crc32c("Lifting"), 2);
+      body->SetSkill(crc32c("Acrobatics"), 2);
+      body->SetSkill(crc32c("Punching"), 3);
+      body->SetSkill(crc32c("Kicking"), 3);
+      body->SetSkill(crc32c("Grappling"), 3);
+      body->SetSkill(crc32c("Skill Points"), 4);
 
       auto weap = new Object(body);
       weap->SetShortDesc("a dull arming sword");
       weap->SetDesc("This sword really isn't that great.  Is even metal?  It's sure not steel.");
-      weap->SetSkill("WeaponType", get_weapon_type("Long Blades"));
-      weap->SetSkill("WeaponForce", -2);
-      weap->SetSkill("WeaponSeverity", 1);
-      weap->SetSkill("WeaponReach", 1);
+      weap->SetSkill(crc32c("WeaponType"), get_weapon_type("Long Blades"));
+      weap->SetSkill(crc32c("WeaponForce"), -2);
+      weap->SetSkill(crc32c("WeaponSeverity"), 1);
+      weap->SetSkill(crc32c("WeaponReach"), 1);
       weap->SetPos(POS_LIE);
       body->AddAct(ACT_WIELD, weap);
 
       auto shi = new Object(body);
       shi->SetShortDesc("a cracked leather shield");
       shi->SetDesc("This shield has seen better days... but, it was pretty bad back then too.");
-      shi->SetSkill("Wearable on Shield", 1);
+      shi->SetSkill(crc32c("Wearable on Shield"), 1);
       shi->SetAttribute(0, 1);
       shi->SetPos(POS_LIE);
       body->AddAct(ACT_WEAR_SHIELD, shi);
@@ -5354,12 +5371,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       auto arm = new Object(body);
       arm->SetShortDesc("a full suit of old padded armor");
       arm->SetDesc("This armor smells pretty bad, but it's better than nothing... maybe.");
-      arm->SetSkill("Wearable on Back", 1);
-      arm->SetSkill("Wearable on Chest", 1);
-      arm->SetSkill("Wearable on Left Arm", 1);
-      arm->SetSkill("Wearable on Right Arm", 1);
-      arm->SetSkill("Wearable on Left Leg", 1);
-      arm->SetSkill("Wearable on Right Leg", 1);
+      arm->SetSkill(crc32c("Wearable on Back"), 1);
+      arm->SetSkill(crc32c("Wearable on Chest"), 1);
+      arm->SetSkill(crc32c("Wearable on Left Arm"), 1);
+      arm->SetSkill(crc32c("Wearable on Right Arm"), 1);
+      arm->SetSkill(crc32c("Wearable on Left Leg"), 1);
+      arm->SetSkill(crc32c("Wearable on Right Leg"), 1);
       arm->SetAttribute(0, 1);
       arm->SetPos(POS_LIE);
       body->AddAct(ACT_WEAR_BACK, arm);
@@ -5372,12 +5389,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       auto helm = new Object(body);
       helm->SetShortDesc("a soft leather cap");
       helm->SetDesc("This is... armor... probably.");
-      helm->SetSkill("Wearable on Head", 1);
+      helm->SetSkill(crc32c("Wearable on Head"), 1);
       helm->SetAttribute(0, 1);
       helm->SetPos(POS_LIE);
       body->AddAct(ACT_WEAR_HEAD, helm);
 
-      body->SetSkill("Status Points", 0);
+      body->SetSkill(crc32c("Status Points"), 0);
 
       mind->SendF("You reform '%s' into a %s.\n", body->ShortDesc(), "Fighter");
       mind->SendF("You now have only a few points left to spend.\n");
@@ -5434,19 +5451,20 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         return 0;
       } else {
         chr->SetAttribute(attr, chr->NormAttribute(attr) - 1);
-        chr->SetSkill("Attribute Points", chr->Skill("Attribute Points") + 1);
+        chr->SetSkill(crc32c("Attribute Points"), chr->Skill(crc32c("Attribute Points")) + 1);
         mind->SendF("You lower your %s.\n", statnames[attr]);
       }
     } else {
-      std::string skill = get_skill(cmd.c_str() + len);
-      if (skill != "") {
+      auto skill = get_skill(cmd.c_str() + len);
+      if (skill != crc32c("None")) {
         if (chr->Skill(skill) < 1) {
-          mind->SendF("You don't have %s.\n", skill.c_str());
+          mind->SendF("You don't have %s.\n", SkillName(skill).c_str());
           return 0;
         }
         chr->SetSkill(skill, chr->Skill(skill) - 1);
-        chr->SetSkill("Skill Points", chr->Skill("Skill Points") + chr->Skill(skill) + 1);
-        mind->SendF("You lower your %s skill.\n", skill.c_str());
+        chr->SetSkill(
+            crc32c("Skill Points"), chr->Skill(crc32c("Skill Points")) + chr->Skill(skill) + 1);
+        mind->SendF("You lower your %s skill.\n", SkillName(skill).c_str());
       } else {
         mind->Send("I'm not sure what you are trying to lower.\n");
       }
@@ -5481,7 +5499,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         (!strncmp(cmd.c_str() + len, "charisma", strlen(cmd.c_str() + len))) ||
         (!strncmp(cmd.c_str() + len, "intelligence", strlen(cmd.c_str() + len))) ||
         (!strncmp(cmd.c_str() + len, "willpower", strlen(cmd.c_str() + len)))) {
-      if ((!body) && (chr->Skill("Attribute Points") < 1)) {
+      if ((!body) && (chr->Skill(crc32c("Attribute Points")) < 1)) {
         mind->Send("You have no free attribute points left.\n");
         return 0;
       }
@@ -5508,12 +5526,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         return 0;
       }
 
-      const char* maxask[6] = {"MaxBody",
-                               "MaxQuickness",
-                               "MaxStrength",
-                               "MaxCharisma",
-                               "MaxIntelligence",
-                               "MaxWillpower"};
+      uint32_t maxask[6] = {crc32c("MaxBody"),
+                            crc32c("MaxQuickness"),
+                            crc32c("MaxStrength"),
+                            crc32c("MaxCharisma"),
+                            crc32c("MaxIntelligence"),
+                            crc32c("MaxWillpower")};
       if ((body) && (!body->Skill(maxask[attr]))) {
         body->SetSkill(maxask[attr], (body->NormAttribute(attr) * 3) / 2);
       }
@@ -5524,21 +5542,21 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->SendF("Your %s is already at the maximum.\n", statnames[attr]);
       } else {
         if (!body)
-          chr->SetSkill("Attribute Points", chr->Skill("Attribute Points") - 1);
+          chr->SetSkill(crc32c("Attribute Points"), chr->Skill(crc32c("Attribute Points")) - 1);
         else
           chr->SpendExp(20);
         chr->SetAttribute(attr, chr->NormAttribute(attr) + 1);
         mind->SendF("You raise your %s.\n", statnames[attr]);
       }
     } else {
-      std::string skill = get_skill(cmd.c_str() + len);
-      if (skill != "") {
+      auto skill = get_skill(cmd.c_str() + len);
+      if (skill != crc32c("None")) {
         if (body && (chr->Skill(skill) >= (chr->NormAttribute(get_linked(skill)) * 3 + 1) / 2)) {
-          mind->SendF("Your %s is already at the maximum.\n", skill.c_str());
+          mind->SendF("Your %s is already at the maximum.\n", SkillName(skill).c_str());
           return 0;
         } else if (
             (!body) && (chr->Skill(skill) >= (chr->NormAttribute(get_linked(skill)) + 1) / 2)) {
-          mind->SendF("Your %s is already at the maximum.\n", skill.c_str());
+          mind->SendF("Your %s is already at the maximum.\n", SkillName(skill).c_str());
           return 0;
         }
         int cost = (chr->Skill(skill) + 1);
@@ -5549,24 +5567,24 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             mind->SendF(
                 "You don't have enough experience to raise your %s.\n"
                 "You need %d, but you only have %d\n",
-                skill.c_str(),
+                SkillName(skill).c_str(),
                 cost * 2,
                 chr->TotalExp(mind->Owner()));
             return 0;
           }
-        } else if (!chr->Skill("Skill Points")) {
+        } else if (!chr->Skill(crc32c("Skill Points"))) {
           mind->Send("You have no free skill points left.\n");
           return 0;
-        } else if (chr->Skill("Skill Points") < cost) {
+        } else if (chr->Skill(crc32c("Skill Points")) < cost) {
           mind->Send("You don't have enough free skill points left.\n");
           return 0;
         }
         if (body)
           chr->SpendExp(cost * 2);
         else
-          chr->SetSkill("Skill Points", chr->Skill("Skill Points") - cost);
+          chr->SetSkill(crc32c("Skill Points"), chr->Skill(crc32c("Skill Points")) - cost);
         chr->SetSkill(skill, chr->Skill(skill) + 1);
-        mind->SendF("You raise your %s skill.\n", skill.c_str());
+        mind->SendF("You raise your %s skill.\n", SkillName(skill).c_str());
       } else {
         mind->Send("I'm not sure what you are trying to raise.\n");
       }
@@ -5651,23 +5669,23 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
     Object* src = nullptr;
     if (!nmode)
-      src = body->NextHasSkill("Restricted Item");
+      src = body->NextHasSkill(crc32c("Restricted Item"));
     while (src) {
-      if (!src->HasSkill("Teleport")) {
-        src = body->NextHasSkill("Restricted Item", src);
+      if (!src->HasSkill(crc32c("Teleport"))) {
+        src = body->NextHasSkill(crc32c("Restricted Item"), src);
         continue;
       }
       std::string comline = "teleport ";
       comline += (cmd.c_str() + len);
       comline += "\n";
       if (!strcasestr(src->LongDesc(), comline.c_str())) {
-        src = body->NextHasSkill("Restricted Item", src);
+        src = body->NextHasSkill(crc32c("Restricted Item"), src);
         continue;
       }
       break;
     }
 
-    if ((!nmode) && (!src) && body->Skill("Teleport") < 1) {
+    if ((!nmode) && (!src) && body->Skill(crc32c("Teleport")) < 1) {
       if (mind)
         mind->Send("You don't have the power to teleport!\n");
       return 0;
@@ -5694,7 +5712,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       if (mind)
         mind->Send("No such teleportation destination found.\n");
     } else {
-      body->SetSkill("Teleport", 0); // Use it up
+      body->SetSkill(crc32c("Teleport"), 0); // Use it up
       body->Parent()->SendOut(
           0,
           0, // Not Stealthy!
@@ -5717,7 +5735,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   }
 
   if (cnum == COM_RESURRECT) {
-    if ((!nmode) && body->Skill("Resurrect") < 1) {
+    if ((!nmode) && body->Skill(crc32c("Resurrect")) < 1) {
       if (mind)
         mind->Send("You don't have the power to resurrect!\n");
       return 0;
@@ -5738,10 +5756,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             if (mind)
               mind->SendF("%s is not long dead (yet).\n", ch->Name());
           } else {
-            body->SetSkill("Resurrect", 0); // Use it up
-            ch->SetSkill("Poisoned", 0);
-            ch->SetSkill("Thirsty", 0);
-            ch->SetSkill("Hungry", 0);
+            body->SetSkill(crc32c("Resurrect"), 0); // Use it up
+            ch->SetSkill(crc32c("Poisoned"), 0);
+            ch->SetSkill(crc32c("Thirsty"), 0);
+            ch->SetSkill(crc32c("Hungry"), 0);
             ch->SetPhys(0);
             ch->SetStun(0);
             ch->SetStru(0);
@@ -5769,7 +5787,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       ++len;
 
     std::string skills;
-    std::vector<std::string> skls;
+    std::vector<uint32_t> skls;
     if (len >= int(cmd.length())) {
       skills =
           "Here are all the skill categories (use 'skill <Category>' to "
@@ -6236,9 +6254,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       Object* exit = new Object(dest);
       exit->SetShortDesc("a passage exit");
       exit->SetDesc("A passage exit.");
-      exit->SetSkill("Invisible", 1000);
-      src->SetSkill("Open", 1000);
-      src->SetSkill("Enterable", 1);
+      exit->SetSkill(crc32c("Invisible"), 1000);
+      src->SetSkill(crc32c("Open"), 1000);
+      src->SetSkill(crc32c("Enterable"), 1);
       src->AddAct(ACT_SPECIAL_LINKED, exit);
       exit->AddAct(ACT_SPECIAL_MASTER, src);
       if (mind) {
@@ -6306,9 +6324,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           "This tunnel looks to have been carved centuries ago.  It is so well "
           "crafted\n"
           "that you think it will stand as-is for another millenium.\n");
-      next->SetSkill("DynamicInit", 1);
-      next->SetSkill("DynamicPhase", 0); // Entrance
-      next->SetSkill("DynamicMojo", 1000000);
+      next->SetSkill(crc32c("DynamicInit"), 1);
+      next->SetSkill(crc32c("DynamicPhase"), 0); // Entrance
+      next->SetSkill(crc32c("DynamicMojo"), 1000000);
 
       body->Parent()->Link(
           next,
@@ -6386,12 +6404,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       link->SetShortDesc(cmd.c_str() + len);
       link->AddAct(ACT_SPECIAL_LINKED, anchor);
       link->AddAct(ACT_SPECIAL_MASTER, anchor);
-      link->SetSkill("Open", 1000);
-      link->SetSkill("Enterable", 1);
+      link->SetSkill(crc32c("Open"), 1000);
+      link->SetSkill(crc32c("Enterable"), 1);
       anchor->AddAct(ACT_SPECIAL_LINKED, link);
       anchor->AddAct(ACT_SPECIAL_MASTER, link);
-      anchor->SetSkill("Open", 1000);
-      anchor->SetSkill("Enterable", 1);
+      anchor->SetSkill(crc32c("Open"), 1000);
+      anchor->SetSkill(crc32c("Enterable"), 1);
       std::string other = cmd.c_str() + len;
       if (!strncmp(cmd.c_str() + len, "east", 4)) {
         other = "west";
@@ -6524,23 +6542,33 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       Object* nobj = new Object(*targ);
       nobj->SetParent(targ->Parent());
 
-      nobj->SetSkill("Wearable on Left Arm", targ->Skill("Wearable on Right Arm"));
-      nobj->SetSkill("Wearable on Left Finger", targ->Skill("Wearable on Right Finger"));
-      nobj->SetSkill("Wearable on Left Foot", targ->Skill("Wearable on Right Foot"));
-      nobj->SetSkill("Wearable on Left Hand", targ->Skill("Wearable on Right Hand"));
-      nobj->SetSkill("Wearable on Left Leg", targ->Skill("Wearable on Right Leg"));
-      nobj->SetSkill("Wearable on Left Wrist", targ->Skill("Wearable on Right Wrist"));
-      nobj->SetSkill("Wearable on Left Shoulder", targ->Skill("Wearable on Right Shoulder"));
-      nobj->SetSkill("Wearable on Left Hip", targ->Skill("Wearable on Right Hip"));
+      nobj->SetSkill(crc32c("Wearable on Left Arm"), targ->Skill(crc32c("Wearable on Right Arm")));
+      nobj->SetSkill(
+          crc32c("Wearable on Left Finger"), targ->Skill(crc32c("Wearable on Right Finger")));
+      nobj->SetSkill(
+          crc32c("Wearable on Left Foot"), targ->Skill(crc32c("Wearable on Right Foot")));
+      nobj->SetSkill(
+          crc32c("Wearable on Left Hand"), targ->Skill(crc32c("Wearable on Right Hand")));
+      nobj->SetSkill(crc32c("Wearable on Left Leg"), targ->Skill(crc32c("Wearable on Right Leg")));
+      nobj->SetSkill(
+          crc32c("Wearable on Left Wrist"), targ->Skill(crc32c("Wearable on Right Wrist")));
+      nobj->SetSkill(
+          crc32c("Wearable on Left Shoulder"), targ->Skill(crc32c("Wearable on Right Shoulder")));
+      nobj->SetSkill(crc32c("Wearable on Left Hip"), targ->Skill(crc32c("Wearable on Right Hip")));
 
-      nobj->SetSkill("Wearable on Right Arm", targ->Skill("Wearable on Left Arm"));
-      nobj->SetSkill("Wearable on Right Finger", targ->Skill("Wearable on Left Finger"));
-      nobj->SetSkill("Wearable on Right Foot", targ->Skill("Wearable on Left Foot"));
-      nobj->SetSkill("Wearable on Right Hand", targ->Skill("Wearable on Left Hand"));
-      nobj->SetSkill("Wearable on Right Leg", targ->Skill("Wearable on Left Leg"));
-      nobj->SetSkill("Wearable on Right Wrist", targ->Skill("Wearable on Left Wrist"));
-      nobj->SetSkill("Wearable on Right Shoulder", targ->Skill("Wearable on Left Shoulder"));
-      nobj->SetSkill("Wearable on Right Hip", targ->Skill("Wearable on Left Hip"));
+      nobj->SetSkill(crc32c("Wearable on Right Arm"), targ->Skill(crc32c("Wearable on Left Arm")));
+      nobj->SetSkill(
+          crc32c("Wearable on Right Finger"), targ->Skill(crc32c("Wearable on Left Finger")));
+      nobj->SetSkill(
+          crc32c("Wearable on Right Foot"), targ->Skill(crc32c("Wearable on Left Foot")));
+      nobj->SetSkill(
+          crc32c("Wearable on Right Hand"), targ->Skill(crc32c("Wearable on Left Hand")));
+      nobj->SetSkill(crc32c("Wearable on Right Leg"), targ->Skill(crc32c("Wearable on Left Leg")));
+      nobj->SetSkill(
+          crc32c("Wearable on Right Wrist"), targ->Skill(crc32c("Wearable on Left Wrist")));
+      nobj->SetSkill(
+          crc32c("Wearable on Right Shoulder"), targ->Skill(crc32c("Wearable on Left Shoulder")));
+      nobj->SetSkill(crc32c("Wearable on Right Hip"), targ->Skill(crc32c("Wearable on Left Hip")));
 
       int start;
       std::string name = nobj->ShortDesc();
@@ -6646,35 +6674,36 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
     int finished = 0;
     if (body->IsAct(ACT_HEAL) // Finish Previous Healing
-        || body->IsUsing("Healing") || body->IsUsing("First Aid") || body->IsUsing("Treatment")) {
+        || body->IsUsing(crc32c("Healing")) || body->IsUsing(crc32c("First Aid")) ||
+        body->IsUsing(crc32c("Treatment"))) {
       finished = 1;
       if (body->IsAct(ACT_HEAL)) {
-        if (body->IsUsing("Healing")) {
+        if (body->IsUsing(crc32c("Healing"))) {
           mind->Send("You complete your healing efforts.\n");
           int phys = body->ActTarg(ACT_HEAL)->Phys();
-          phys -= body->Roll("Healing", phys + 2);
+          phys -= body->Roll(crc32c("Healing"), phys + 2);
           if (phys < 0)
             phys = 0;
           body->ActTarg(ACT_HEAL)->SetPhys(phys);
-          int pois = body->ActTarg(ACT_HEAL)->Skill("Poisoned");
-          pois -= body->Roll("Healing", pois + 2);
+          int pois = body->ActTarg(ACT_HEAL)->Skill(crc32c("Poisoned"));
+          pois -= body->Roll(crc32c("Healing"), pois + 2);
           if (pois < 0)
             pois = 0;
-          body->ActTarg(ACT_HEAL)->SetSkill("Poisoned", pois);
-        } else if (body->IsUsing("First Aid")) {
+          body->ActTarg(ACT_HEAL)->SetSkill(crc32c("Poisoned"), pois);
+        } else if (body->IsUsing(crc32c("First Aid"))) {
           mind->Send("You complete your first-aid efforts.\n");
           int phys = body->ActTarg(ACT_HEAL)->Phys();
-          phys -= body->Roll("First Aid", phys);
+          phys -= body->Roll(crc32c("First Aid"), phys);
           if (phys < 0)
             phys = 0;
           body->ActTarg(ACT_HEAL)->SetPhys(phys);
-        } else if (body->IsUsing("Treatment")) {
+        } else if (body->IsUsing(crc32c("Treatment"))) {
           mind->Send("You complete your treatment efforts.\n");
-          int pois = body->ActTarg(ACT_HEAL)->Skill("Poisoned");
-          pois -= body->Roll("Treatment", pois);
+          int pois = body->ActTarg(ACT_HEAL)->Skill(crc32c("Poisoned"));
+          pois -= body->Roll(crc32c("Treatment"), pois);
           if (pois < 0)
             pois = 0;
-          body->ActTarg(ACT_HEAL)->SetSkill("Poisoned", pois);
+          body->ActTarg(ACT_HEAL)->SetSkill(crc32c("Poisoned"), pois);
         }
         body->StopUsing();
         body->StopAct(ACT_HEAL);
@@ -6687,9 +6716,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       mind->SendF("You can't heal %s, it is not alive.\n", targ->Name(0, body));
     } else if (nmode) {
       // This is ninja-healing and bypasses all healing mechanisms.
-      targ->SetSkill("Poisoned", 0);
-      targ->SetSkill("Thirsty", 0);
-      targ->SetSkill("Hungry", 0);
+      targ->SetSkill(crc32c("Poisoned"), 0);
+      targ->SetSkill(crc32c("Thirsty"), 0);
+      targ->SetSkill(crc32c("Hungry"), 0);
       targ->SetPhys(0);
       targ->SetStun(0);
       targ->SetStru(0);
@@ -6703,51 +6732,51 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           body,
           targ);
     } else if (
-        (!body->HasSkill("Healing")) && (!body->HasSkill("First Aid")) &&
-        (!body->HasSkill("Treatment"))) {
+        (!body->HasSkill(crc32c("Healing"))) && (!body->HasSkill(crc32c("First Aid"))) &&
+        (!body->HasSkill(crc32c("Treatment")))) {
       if (mind) {
         mind->SendF("You don't know how to help %s.\n", targ->Name(0, body));
       }
     } else {
       int duration = 0;
-      std::string skill = "";
+      auto skill = crc32c("None");
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s tries to heal ;s.\n", "You try to heal ;s.\n", body, targ);
-      if (body->HasSkill("First Aid")) {
+      if (body->HasSkill(crc32c("First Aid"))) {
         if (targ->Phys() < 1) {
           mind->SendF("%s is not injured.\n", targ->Name());
         } else {
           mind->SendF("%s is injured.\n", targ->Name());
-          skill = "First Aid";
+          skill = crc32c("First Aid");
           duration = 3000;
         }
-      } else if (body->HasSkill("Healing")) {
+      } else if (body->HasSkill(crc32c("Healing"))) {
         if (targ->Phys() < 1) {
           mind->SendF("%s is not injured.\n", targ->Name());
         } else {
           mind->SendF("%s is injured.\n", targ->Name());
-          skill = "Healing";
+          skill = crc32c("Healing");
           duration = 3000;
         }
       }
-      if (body->HasSkill("Treatment")) {
-        if (targ->Skill("Poisoned") < 1) {
+      if (body->HasSkill(crc32c("Treatment"))) {
+        if (targ->Skill(crc32c("Poisoned")) < 1) {
           mind->SendF("%s does not need other help.\n", targ->Name());
         } else {
           mind->SendF("%s is poisoned.\n", targ->Name());
-          skill = "Treatment";
+          skill = crc32c("Treatment");
           duration = 3000;
         }
-      } else if (body->HasSkill("Healing")) {
-        if (targ->Skill("Poisoned") < 1) {
+      } else if (body->HasSkill(crc32c("Healing"))) {
+        if (targ->Skill(crc32c("Poisoned")) < 1) {
           mind->SendF("%s does not need other help.\n", targ->Name());
         } else {
           mind->SendF("%s is poisoned.\n", targ->Name());
-          skill = "Healing";
+          skill = crc32c("Healing");
           duration = 3000;
         }
       }
-      if (skill != "") {
+      if (skill != crc32c("None")) {
         body->AddAct(ACT_HEAL, targ);
         body->StartUsing(skill);
       }
@@ -6864,11 +6893,11 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         ++len;
     }
 
-    if (!is_skill(cmd.c_str() + len)) {
+    if (!is_skill(crc32c(cmd.c_str() + len))) {
       mind->SendF("Warning, '%s' is not a real skill name!\n", cmd.c_str() + len);
     }
 
-    targ->SetSkill(cmd.c_str() + len, std::max(targ->Skill(cmd.c_str() + len), 0) + amt);
+    targ->SetSkill(cmd.c_str() + len, std::max(targ->Skill(crc32c(cmd.c_str() + len)), 0) + amt);
 
     body->Parent()->SendOutF(
         stealth_t,
@@ -6902,7 +6931,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         ++len;
     }
 
-    targ->SetSkill(cmd.c_str() + len, targ->Skill(cmd.c_str() + len) - amt);
+    targ->SetSkill(cmd.c_str() + len, targ->Skill(crc32c(cmd.c_str() + len)) - amt);
 
     body->Parent()->SendOutF(
         stealth_t,
@@ -6934,10 +6963,10 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           "You double ;s.\n",
           body,
           targ);
-      if (targ->Skill("Quantity") > 1) {
-        targ->SetSkill("Quantity", targ->Skill("Quantity") * 2);
+      if (targ->Skill(crc32c("Quantity")) > 1) {
+        targ->SetSkill(crc32c("Quantity"), targ->Skill(crc32c("Quantity")) * 2);
       } else {
-        targ->SetSkill("Quantity", 2);
+        targ->SetSkill(crc32c("Quantity"), 2);
       }
     }
     return 0;
@@ -6951,9 +6980,9 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (len >= int(cmd.length())) {
       Object* world = new Object(body->Parent());
       world->SetShortDesc("The tbaMUD World");
-      world->SetSkill("Light Source", 1000);
-      world->SetSkill("Day Length", 240);
-      world->SetSkill("Day Time", 120);
+      world->SetSkill(crc32c("Light Source"), 1000);
+      world->SetSkill(crc32c("Day Length"), 240);
+      world->SetSkill(crc32c("Day Time"), 120);
       world->TBALoadAll();
       body->Parent()->SendOut(
           stealth_t,

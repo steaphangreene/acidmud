@@ -10,6 +10,7 @@
 #include "mind.hpp"
 #include "mob.hpp"
 #include "object.hpp"
+#include "utils.hpp"
 
 void Object::DynamicInit9() {}
 
@@ -98,7 +99,7 @@ void Object::DynamicInit1() { // Dwarven mine
         7,
         500,
         2001);
-    dwarf_miner->Skill("Two-Handed Cleaves", 100, 4);
+    dwarf_miner->Skill(crc32c("Two-Handed Cleaves"), 100, 4);
     weap = new WeaponType(
         "a dwarven mining pickaxe",
         "A super-strong, super-sharp, super-heavy pickaxe.",
@@ -151,7 +152,7 @@ void Object::DynamicInit1() { // Dwarven mine
         7,
         2000,
         8001);
-    dwarf_engineer->Skill("Long Cleaves", 100, 2);
+    dwarf_engineer->Skill(crc32c("Long Cleaves"), 100, 2);
     weap = new WeaponType(
         "a dwarven combat axe",
         "A super-strong, super-sharp combat axe.",
@@ -204,7 +205,7 @@ void Object::DynamicInit1() { // Dwarven mine
         4,
         100,
         401);
-    dwarf_guard->Skill("Two-Handed Cleaves", 100, 4);
+    dwarf_guard->Skill(crc32c("Two-Handed Cleaves"), 100, 4);
     weap = new WeaponType(
         "a dwarven war axe",
         "A super-strong, super-sharp, super-heavy, high-quality war axe.",
@@ -326,7 +327,7 @@ void Object::DynamicInit1() { // Dwarven mine
         5,
         1000,
         4001);
-    dwarf_explorer->Skill("Long Cleaves", 100, 4);
+    dwarf_explorer->Skill(crc32c("Long Cleaves"), 100, 4);
     weap = new WeaponType(
         "a dwarven climbing pick",
         "A super-sharp, lightweight pick.",
@@ -380,16 +381,16 @@ void Object::DynamicInit1() { // Dwarven mine
         4,
         0,
         0);
-    elf_prisoner->Skill("Carromeleg - Tier I", 2);
-    elf_prisoner->Skill("Carromeleg - Tier II", 2);
-    elf_prisoner->Skill("Carromeleg - Tier III", 2);
-    elf_prisoner->Skill("Carromeleg - Tier IV", 2);
-    elf_prisoner->Skill("Carromeleg - Tier V", 2);
-    elf_prisoner->Skill("Carromeleg - Tier VI", 2);
+    elf_prisoner->Skill(crc32c("Carromeleg - Tier I"), 2);
+    elf_prisoner->Skill(crc32c("Carromeleg - Tier II"), 2);
+    elf_prisoner->Skill(crc32c("Carromeleg - Tier III"), 2);
+    elf_prisoner->Skill(crc32c("Carromeleg - Tier IV"), 2);
+    elf_prisoner->Skill(crc32c("Carromeleg - Tier V"), 2);
+    elf_prisoner->Skill(crc32c("Carromeleg - Tier VI"), 2);
   }
 
-  int mojo = Skill("DynamicMojo");
-  SetSkill("DynamicMojo", 0);
+  int mojo = Skill(crc32c("DynamicMojo"));
+  SetSkill(crc32c("DynamicMojo"), 0);
 
   // Tree structure, start with one door - dir of travel is opposite it.
   const char* dirb = "south";
@@ -415,7 +416,7 @@ void Object::DynamicInit1() { // Dwarven mine
   }
   // Up and Down shafts are handled specially.
 
-  switch (Skill("DynamicPhase")) {
+  switch (Skill(crc32c("DynamicPhase"))) {
     case (0): { // Entrance
       if (mojo == 0)
         mojo = 100000;
@@ -423,9 +424,9 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* next = new Object(parent);
       next->SetShortDesc(names[1]);
       next->SetDesc(descs[1]);
-      next->SetSkill("DynamicInit", 1);
-      next->SetSkill("DynamicPhase", 1); // Major Shaft
-      next->SetSkill("DynamicMojo", mojo - 1000);
+      next->SetSkill(crc32c("DynamicInit"), 1);
+      next->SetSkill(crc32c("DynamicPhase"), 1); // Major Shaft
+      next->SetSkill(crc32c("DynamicMojo"), mojo - 1000);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
@@ -435,12 +436,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetDesc((std::string("You see a solid passage leading ") + dirb + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1000);
-      door1->SetSkill("Enterable", 1);
+      door1->SetSkill(crc32c("Open"), 1000);
+      door1->SetSkill(crc32c("Enterable"), 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1000);
-      door2->SetSkill("Enterable", 1);
+      door2->SetSkill(crc32c("Open"), 1000);
+      door2->SetSkill(crc32c("Enterable"), 1);
 
     } break;
     case (1): { // Major Shaft
@@ -470,9 +471,9 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
-      next->SetSkill("DynamicInit", 1);
-      next->SetSkill("DynamicPhase", ntype);
-      next->SetSkill("DynamicMojo", mojo - 1000);
+      next->SetSkill(crc32c("DynamicInit"), 1);
+      next->SetSkill(crc32c("DynamicPhase"), ntype);
+      next->SetSkill(crc32c("DynamicMojo"), mojo - 1000);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
@@ -482,12 +483,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetDesc((std::string("You see a solid passage leading ") + dirb + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1000);
-      door1->SetSkill("Enterable", 1);
+      door1->SetSkill(crc32c("Open"), 1000);
+      door1->SetSkill(crc32c("Enterable"), 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1000);
-      door2->SetSkill("Enterable", 1);
+      door2->SetSkill(crc32c("Open"), 1000);
+      door2->SetSkill(crc32c("Enterable"), 1);
     } break;
     case (2): { // Major Shaft w/ Minor Offshoot
       if ((rand() % 100) < 30) {
@@ -516,9 +517,9 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
-      next->SetSkill("DynamicInit", 1);
-      next->SetSkill("DynamicPhase", ntype);
-      next->SetSkill("DynamicMojo", (mojo - 1000) * 9 / 10);
+      next->SetSkill(crc32c("DynamicInit"), 1);
+      next->SetSkill(crc32c("DynamicPhase"), ntype);
+      next->SetSkill(crc32c("DynamicMojo"), (mojo - 1000) * 9 / 10);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
@@ -528,21 +529,21 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetDesc((std::string("You see a solid passage leading ") + dirb + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1000);
-      door1->SetSkill("Enterable", 1);
+      door1->SetSkill(crc32c("Open"), 1000);
+      door1->SetSkill(crc32c("Enterable"), 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1000);
-      door2->SetSkill("Enterable", 1);
+      door2->SetSkill(crc32c("Open"), 1000);
+      door2->SetSkill(crc32c("Enterable"), 1);
 
       if (rand() % 2)
         std::swap(dir2, dir3); // Half left, half right
       next = new Object(parent);
       next->SetShortDesc(names[5]);
       next->SetDesc(descs[5]);
-      next->SetSkill("DynamicInit", 1);
-      next->SetSkill("DynamicPhase", 5); // Minor Shaft
-      next->SetSkill("DynamicMojo", (mojo - 1000) / 10);
+      next->SetSkill(crc32c("DynamicInit"), 1);
+      next->SetSkill(crc32c("DynamicPhase"), 5); // Minor Shaft
+      next->SetSkill(crc32c("DynamicMojo"), (mojo - 1000) / 10);
 
       door1 = new Object(this);
       door2 = new Object(next);
@@ -552,12 +553,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetDesc((std::string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1000);
-      door1->SetSkill("Enterable", 1);
+      door1->SetSkill(crc32c("Open"), 1000);
+      door1->SetSkill(crc32c("Enterable"), 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1000);
-      door2->SetSkill("Enterable", 1);
+      door2->SetSkill(crc32c("Open"), 1000);
+      door2->SetSkill(crc32c("Enterable"), 1);
     } break;
     case (3): { // Major Shaft w/ Secret Minor Offshoot
       if ((rand() % 100) < 30) {
@@ -586,9 +587,9 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
-      next->SetSkill("DynamicInit", 1);
-      next->SetSkill("DynamicPhase", ntype);
-      next->SetSkill("DynamicMojo", (mojo - 1000) * 3 / 4);
+      next->SetSkill(crc32c("DynamicInit"), 1);
+      next->SetSkill(crc32c("DynamicPhase"), ntype);
+      next->SetSkill(crc32c("DynamicMojo"), (mojo - 1000) * 3 / 4);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
@@ -598,21 +599,21 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetDesc((std::string("You see a solid passage leading ") + dirb + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1000);
-      door1->SetSkill("Enterable", 1);
+      door1->SetSkill(crc32c("Open"), 1000);
+      door1->SetSkill(crc32c("Enterable"), 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1000);
-      door2->SetSkill("Enterable", 1);
+      door2->SetSkill(crc32c("Open"), 1000);
+      door2->SetSkill(crc32c("Enterable"), 1);
 
       if (rand() % 2)
         std::swap(dir2, dir3); // Half left, half right
       next = new Object(parent);
       next->SetShortDesc(names[5]);
       next->SetDesc(descs[5]);
-      next->SetSkill("DynamicInit", 1);
-      next->SetSkill("DynamicPhase", 5); // Minor Shaft
-      next->SetSkill("DynamicMojo", (mojo - 1000) / 4);
+      next->SetSkill(crc32c("DynamicInit"), 1);
+      next->SetSkill(crc32c("DynamicPhase"), 5); // Minor Shaft
+      next->SetSkill(crc32c("DynamicMojo"), (mojo - 1000) / 4);
 
       door1 = new Object(this);
       door2 = new Object(next);
@@ -622,13 +623,13 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetDesc((std::string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1000);
-      door1->SetSkill("Enterable", 1);
+      door1->SetSkill(crc32c("Open"), 1000);
+      door1->SetSkill(crc32c("Enterable"), 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1000);
-      door2->SetSkill("Enterable", 1);
-      door1->SetSkill("Hidden", 4 + rand() % 13);
+      door2->SetSkill(crc32c("Open"), 1000);
+      door2->SetSkill(crc32c("Enterable"), 1);
+      door1->SetSkill(crc32c("Hidden"), 4 + rand() % 13);
     } break;
     case (4): { // Major Chamber
       if ((rand() % 100) < 30) {
@@ -677,10 +678,10 @@ void Object::DynamicInit1() { // Dwarven mine
       cage->SetDesc(
           "This is a very old, large, rugged cage - probably built by "
           "dwarves.\n");
-      cage->SetSkill("Transparent", 900);
-      cage->SetSkill("Container", 100000);
-      cage->SetSkill("Locked", 1);
-      cage->SetSkill("Closeable", 1);
+      cage->SetSkill(crc32c("Transparent"), 900);
+      cage->SetSkill(crc32c("Container"), 100000);
+      cage->SetSkill(crc32c("Locked"), 1);
+      cage->SetSkill(crc32c("Closeable"), 1);
 
       if ((rand() % 100) < 20) {
         mojo -= 500;
@@ -700,9 +701,9 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
-      next->SetSkill("DynamicInit", 1);
-      next->SetSkill("DynamicPhase", ntype);
-      next->SetSkill("DynamicMojo", mojo - 1000);
+      next->SetSkill(crc32c("DynamicInit"), 1);
+      next->SetSkill(crc32c("DynamicPhase"), ntype);
+      next->SetSkill(crc32c("DynamicMojo"), mojo - 1000);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
@@ -712,12 +713,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetDesc((std::string("You see a solid passage leading ") + dirb + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1000);
-      door1->SetSkill("Enterable", 1);
+      door1->SetSkill(crc32c("Open"), 1000);
+      door1->SetSkill(crc32c("Enterable"), 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1000);
-      door2->SetSkill("Enterable", 1);
+      door2->SetSkill(crc32c("Open"), 1000);
+      door2->SetSkill(crc32c("Enterable"), 1);
     } break;
     case (5): { // Minor Shaft
       if ((rand() % 100) < 30) {
@@ -747,9 +748,9 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
-      next->SetSkill("DynamicInit", 1);
-      next->SetSkill("DynamicPhase", ntype);
-      next->SetSkill("DynamicMojo", mojo - 100);
+      next->SetSkill(crc32c("DynamicInit"), 1);
+      next->SetSkill(crc32c("DynamicPhase"), ntype);
+      next->SetSkill(crc32c("DynamicMojo"), mojo - 100);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
@@ -759,12 +760,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetDesc((std::string("You see a crumbling passage leading ") + dirb + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1000);
-      door1->SetSkill("Enterable", 1);
+      door1->SetSkill(crc32c("Open"), 1000);
+      door1->SetSkill(crc32c("Enterable"), 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1000);
-      door2->SetSkill("Enterable", 1);
+      door2->SetSkill(crc32c("Open"), 1000);
+      door2->SetSkill(crc32c("Enterable"), 1);
     } break;
     case (6): { // Minor Shaft (Bend)
       if ((rand() % 100) < 30) {
@@ -793,9 +794,9 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
-      next->SetSkill("DynamicInit", 1);
-      next->SetSkill("DynamicPhase", ntype);
-      next->SetSkill("DynamicMojo", mojo - 100);
+      next->SetSkill(crc32c("DynamicInit"), 1);
+      next->SetSkill(crc32c("DynamicPhase"), ntype);
+      next->SetSkill(crc32c("DynamicMojo"), mojo - 100);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
@@ -805,12 +806,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetDesc((std::string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1000);
-      door1->SetSkill("Enterable", 1);
+      door1->SetSkill(crc32c("Open"), 1000);
+      door1->SetSkill(crc32c("Enterable"), 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1000);
-      door2->SetSkill("Enterable", 1);
+      door2->SetSkill(crc32c("Open"), 1000);
+      door2->SetSkill(crc32c("Enterable"), 1);
     } break;
     case (7): { // Minor Shaft Fork
       if ((rand() % 100) < 30) {
@@ -837,9 +838,9 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
-      next->SetSkill("DynamicInit", 1);
-      next->SetSkill("DynamicPhase", ntype);
-      next->SetSkill("DynamicMojo", (mojo - 100) / 2);
+      next->SetSkill(crc32c("DynamicInit"), 1);
+      next->SetSkill(crc32c("DynamicPhase"), ntype);
+      next->SetSkill(crc32c("DynamicMojo"), (mojo - 100) / 2);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
@@ -849,21 +850,21 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetDesc((std::string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1000);
-      door1->SetSkill("Enterable", 1);
+      door1->SetSkill(crc32c("Open"), 1000);
+      door1->SetSkill(crc32c("Enterable"), 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1000);
-      door2->SetSkill("Enterable", 1);
+      door2->SetSkill(crc32c("Open"), 1000);
+      door2->SetSkill(crc32c("Enterable"), 1);
 
       ntype = ntypes[rand() % (sizeof(ntypes) / sizeof(int))];
       std::swap(dir2, dir3); // Same code, opposite dir.
       next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
-      next->SetSkill("DynamicInit", 1);
-      next->SetSkill("DynamicPhase", ntype);
-      next->SetSkill("DynamicMojo", (mojo - 100) / 2);
+      next->SetSkill(crc32c("DynamicInit"), 1);
+      next->SetSkill(crc32c("DynamicPhase"), ntype);
+      next->SetSkill(crc32c("DynamicMojo"), (mojo - 100) / 2);
 
       door1 = new Object(this);
       door2 = new Object(next);
@@ -873,12 +874,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetDesc((std::string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1000);
-      door1->SetSkill("Enterable", 1);
+      door1->SetSkill(crc32c("Open"), 1000);
+      door1->SetSkill(crc32c("Enterable"), 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1000);
-      door2->SetSkill("Enterable", 1);
+      door2->SetSkill(crc32c("Open"), 1000);
+      door2->SetSkill(crc32c("Enterable"), 1);
     } break;
     case (8): { // Minor Shaft Alcove
       if ((rand() % 100) < 30) {
@@ -920,9 +921,9 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
-      next->SetSkill("DynamicInit", 1);
-      next->SetSkill("DynamicPhase", ntype);
-      next->SetSkill("DynamicMojo", mojo - 500);
+      next->SetSkill(crc32c("DynamicInit"), 1);
+      next->SetSkill(crc32c("DynamicPhase"), ntype);
+      next->SetSkill(crc32c("DynamicMojo"), mojo - 500);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
@@ -932,27 +933,27 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetDesc((std::string("You see a crumbling passage leading ") + dirb + ".\n").c_str());
       door1->AddAct(ACT_SPECIAL_LINKED, door2);
       door1->AddAct(ACT_SPECIAL_MASTER, door2);
-      door1->SetSkill("Open", 1000);
-      door1->SetSkill("Enterable", 1);
+      door1->SetSkill(crc32c("Open"), 1000);
+      door1->SetSkill(crc32c("Enterable"), 1);
       door2->AddAct(ACT_SPECIAL_LINKED, door1);
       door2->AddAct(ACT_SPECIAL_MASTER, door1);
-      door2->SetSkill("Open", 1000);
-      door2->SetSkill("Enterable", 1);
-      door1->SetSkill("Hidden", 4 + rand() % 13);
+      door2->SetSkill(crc32c("Open"), 1000);
+      door2->SetSkill(crc32c("Enterable"), 1);
+      door1->SetSkill(crc32c("Hidden"), 4 + rand() % 13);
     } break;
     default: {
       fprintf(
           stderr,
           "Unknown dynamic-phase-type (%d-%d) init requested!\n",
-          Skill("DynamicInit"),
-          Skill("DynamicPhase"));
+          Skill(crc32c("DynamicInit")),
+          Skill(crc32c("DynamicPhase")));
     } break;
   }
-  SetSkill("DynamicPhase", 0);
+  SetSkill(crc32c("DynamicPhase"), 0);
 }
 
 void Object::DynamicInit() {
-  switch (Skill("DynamicInit")) {
+  switch (Skill(crc32c("DynamicInit"))) {
     case (2): { // Cyberpunk City
       DynamicInit2();
     } break;
@@ -960,8 +961,8 @@ void Object::DynamicInit() {
       DynamicInit1();
     } break;
     default: {
-      fprintf(stderr, "Unknown dynamic-type (%d) init requested!\n", Skill("DynamicInit"));
+      fprintf(stderr, "Unknown dynamic-type (%d) init requested!\n", Skill(crc32c("DynamicInit")));
     } break;
   }
-  SetSkill("DynamicInit", 0);
+  SetSkill(crc32c("DynamicInit"), 0);
 }

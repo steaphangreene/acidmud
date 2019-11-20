@@ -69,11 +69,11 @@ static void give_gold(Object* mob, int qty) {
   bag->SetShortDesc("a small purse");
   bag->SetDesc("A small, durable, practical moneypurse.");
 
-  bag->SetSkill("Wearable on Left Hip", 1);
-  bag->SetSkill("Wearable on Right Hip", 2);
-  bag->SetSkill("Container", 5 * 454);
-  bag->SetSkill("Capacity", 5);
-  bag->SetSkill("Closeable", 1);
+  bag->SetSkill(crc32c("Wearable on Left Hip"), 1);
+  bag->SetSkill(crc32c("Wearable on Right Hip"), 2);
+  bag->SetSkill(crc32c("Container"), 5 * 454);
+  bag->SetSkill(crc32c("Capacity"), 5);
+  bag->SetSkill(crc32c("Closeable"), 1);
 
   bag->SetWeight(1 * 454);
   bag->SetSize(2);
@@ -87,7 +87,7 @@ static void give_gold(Object* mob, int qty) {
     init_gold();
   Object* g = new Object(*gold);
   g->SetParent(bag);
-  g->SetSkill("Quantity", qty);
+  g->SetSkill(crc32c("Quantity"), qty);
 }
 
 MOBType::MOBType(
@@ -131,12 +131,12 @@ MOBType::MOBType(
   armed = nullptr;
 }
 
-void MOBType::Skill(const char* nm, int percent, int mod) {
-  skills[nm] = std::make_pair(percent, mod);
+void MOBType::Skill(uint32_t stok, int percent, int mod) {
+  skills[stok] = std::make_pair(percent, mod);
 }
 
-void MOBType::Skill(const char* nm, int val) {
-  skills[nm] = std::make_pair(-1, val);
+void MOBType::Skill(uint32_t stok, int val) {
+  skills[stok] = std::make_pair(-1, val);
 }
 
 void MOBType::Arm(WeaponType* weap) {
@@ -187,10 +187,10 @@ void Object::AddMOB(const MOBType* type) {
 
   if (type->armed) {
     Object* obj = new Object(mob);
-    obj->SetSkill("WeaponType", type->armed->type);
-    obj->SetSkill("WeaponReach", type->armed->reach);
-    obj->SetSkill("WeaponForce", type->armed->force + rand() % type->armed->forcem);
-    obj->SetSkill("WeaponSeverity", type->armed->sev + rand() % type->armed->sevm);
+    obj->SetSkill(crc32c("WeaponType"), type->armed->type);
+    obj->SetSkill(crc32c("WeaponReach"), type->armed->reach);
+    obj->SetSkill(crc32c("WeaponForce"), type->armed->force + rand() % type->armed->forcem);
+    obj->SetSkill(crc32c("WeaponSeverity"), type->armed->sev + rand() % type->armed->sevm);
     obj->SetShortDesc(type->armed->name.c_str());
     obj->SetDesc(type->armed->desc.c_str());
     obj->SetLongDesc(type->armed->long_desc.c_str());
@@ -209,10 +209,10 @@ void Object::AddMOB(const MOBType* type) {
     }
     Object* obj = new Object(mob);
     obj->SetAttribute(0, ar->bulk + rand() % ar->bulkm);
-    obj->SetSkill("ArmorB", ar->bulk + rand() % ar->bulkm);
-    obj->SetSkill("ArmorI", ar->impact + rand() % ar->impactm);
-    obj->SetSkill("ArmorT", ar->thread + rand() % ar->threadm);
-    obj->SetSkill("ArmorP", ar->planar + rand() % ar->planarm);
+    obj->SetSkill(crc32c("ArmorB"), ar->bulk + rand() % ar->bulkm);
+    obj->SetSkill(crc32c("ArmorI"), ar->impact + rand() % ar->impactm);
+    obj->SetSkill(crc32c("ArmorT"), ar->thread + rand() % ar->threadm);
+    obj->SetSkill(crc32c("ArmorP"), ar->planar + rand() % ar->planarm);
     obj->SetShortDesc(ar->name.c_str());
     obj->SetDesc(ar->desc.c_str());
     obj->SetLongDesc(ar->long_desc.c_str());

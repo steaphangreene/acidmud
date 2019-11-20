@@ -79,8 +79,8 @@ class MOBType {
       int,
       int,
       int);
-  void Skill(const char* name, int, int);
-  void Skill(const char* name, int);
+  void Skill(uint32_t, int, int);
+  void Skill(uint32_t, int);
   void Arm(WeaponType*);
   void Armor(ArmorType*);
 
@@ -92,7 +92,7 @@ class MOBType {
   int i, im;
   int w, wm;
   int g, gm;
-  std::map<std::string, std::pair<int, int>> skills;
+  std::map<uint32_t, std::pair<int, int>> skills;
   WeaponType* armed;
   std::vector<ArmorType*> armor;
 };

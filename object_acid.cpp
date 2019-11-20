@@ -5,6 +5,7 @@
 #include "color.hpp"
 #include "mind.hpp"
 #include "object.hpp"
+#include "utils.hpp"
 #include "version.hpp"
 
 const char* act_save[ACT_SPECIAL_MAX] = {
@@ -144,9 +145,9 @@ int Object::SaveTo(FILE* fl) {
       IsActive());
 
   for (const auto sk : skills)
-    fprintf(fl, "|%s|%d", sk.first.c_str(), sk.second);
-  if (cur_skill != "") { // Added current skill to end in v0x13
-    fprintf(fl, "|%s", cur_skill.c_str());
+    fprintf(fl, "|%s|%d", SkillName(sk.first).c_str(), sk.second);
+  if (cur_skill != crc32c("None")) { // Added current skill to end in v0x13
+    fprintf(fl, "|%s", SkillName(cur_skill).c_str());
   }
   fprintf(fl, ";\n");
 
@@ -206,7 +207,7 @@ int Object::Load(const char* fn) {
     for (auto kill : killacts) { // Kill Actions on Non-Existent
       act.erase(kill);
     }
-    if (ind->IsUsing("Lumberjack")) { // FIXME: All long-term skills?
+    if (ind->IsUsing(crc32c("Lumberjack"))) { // FIXME: All long-term skills?
       ind->BusyFor(500, "use Lumberjack");
     }
   }
@@ -368,7 +369,7 @@ int Object::LoadFrom(FILE* fl) {
       ret = fscanf(fl, "|%[^\n|;]|%d", buf, &val);
     }
     if (ret > 0) { // Added the currently used skill to the end in v0x13
-      StartUsing(buf);
+      StartUsing(get_skill(buf));
     }
   }
   fscanf(fl, ";\n");
@@ -401,12 +402,12 @@ int Object::LoadFrom(FILE* fl) {
     act[(act_t)anum] = getbynum(num2);
   }
 
-  if (Skill("Personality"))
+  if (Skill(crc32c("Personality")))
     get_mob_mind()->Attach(this);
-  else if (Skill("TBAAction"))
+  else if (Skill(crc32c("TBAAction")))
     get_tba_mob_mind()->Attach(this);
 
-  if (Skill("TBAScriptType") & 2) { // Random/Permanent Triggers
+  if (Skill(crc32c("TBAScriptType")) & 2) { // Random/Permanent Triggers
     Mind* trig = new_mind(MIND_TBATRIG, this);
     trig->Suspend((rand() % 13000) + 3000); // 3-16 Seconds
   }
@@ -437,42 +438,42 @@ int Object::LoadFrom(FILE* fl) {
 
   // fprintf(stderr, "%sLoaded %s\n", debug_indent.c_str(), short_desc.c_str());
 
-  //  if(HasSkill("Drink")) {
-  //    SetSkill("Drink", Skill("Drink") * 15);
-  //    SetSkill("Food", Skill("Food") * 15);
+  //  if(HasSkill(crc32c("Drink"))) {
+  //    SetSkill(crc32c("Drink"), Skill(crc32c("Drink")) * 15);
+  //    SetSkill(crc32c("Food"), Skill(crc32c("Food")) * 15);
   //    }
-  //  else if(HasSkill("Food")) {
-  //    SetSkill("Food", Skill("Food") * 60);
-  //    }
-
-  //  if(HasSkill("Heal Effect")) {
-  //    SetSkill("Heal Spell", Skill("Heal Effect"));
-  //    SetSkill("Heal Effect", 0);
+  //  else if(HasSkill(crc32c("Food"))) {
+  //    SetSkill(crc32c("Food"), Skill(crc32c("Food")) * 60);
   //    }
 
-  //  if(HasSkill("Open")) {
-  //    SetSkill("Open", 1000);
+  //  if(HasSkill(crc32c("Heal Effect"))) {
+  //    SetSkill(crc32c("Heal Spell"), Skill(crc32c("Heal Effect")));
+  //    SetSkill(crc32c("Heal Effect"), 0);
   //    }
 
-  //  if(HasSkill("Day Time")) {
+  //  if(HasSkill(crc32c("Open"))) {
+  //    SetSkill(crc32c("Open"), 1000);
+  //    }
+
+  //  if(HasSkill(crc32c("Day Time"))) {
   //    Activate();
   //    }
 
   //  if(IsAct(ACT_SPECIAL_NOTSHOWN)) {
-  //    SetSkill("Invisible", 1000);
+  //    SetSkill(crc32c("Invisible"), 1000);
   //    }
 
   //  if(short_desc == "A passage exit.") {
   //    short_desc = "a passage exit";
   //    }
 
-  //  if(HasSkill("Evasion Penalty")) {
-  //    SetSkill("Evasion Bonus", Skill("Evasion Penalty"));
-  //    SetSkill("Evasion Penalty", 0);
+  //  if(HasSkill(crc32c("Evasion Penalty"))) {
+  //    SetSkill(crc32c("Evasion Bonus"), Skill(crc32c("Evasion Penalty")));
+  //    SetSkill(crc32c("Evasion Penalty"), 0);
   //    }
-  //  else if(HasSkill("Evasion Bonus")) {
-  //    SetSkill("Evasion Penalty", Skill("Evasion Bonus"));
-  //    SetSkill("Evasion Bonus", 0);
+  //  else if(HasSkill(crc32c("Evasion Bonus"))) {
+  //    SetSkill(crc32c("Evasion Penalty"), Skill(crc32c("Evasion Bonus")));
+  //    SetSkill(crc32c("Evasion Bonus"), 0);
   //    }
 
   //  if(IsAct(ACT_SPECIAL_PREPARE)) {
@@ -481,7 +482,7 @@ int Object::LoadFrom(FILE* fl) {
   //    }
 
   //  if(short_desc == "a gold piece") {
-  //    SetSkill("Money", 1);
+  //    SetSkill(crc32c("Money"), 1);
   //    }
 
   return 0;

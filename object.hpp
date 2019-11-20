@@ -146,8 +146,10 @@ class Object {
   void SendLongDesc(Mind* m, Object* o = nullptr);
   void SendLongDesc(Object* m, Object* o = nullptr);
   void SendScore(Mind* m, Object* o = nullptr);
-  std::vector<std::string> FormatStats(std::map<std::string, int>& skls); // Modifies skls
-  std::vector<std::string> FormatSkills(std::map<std::string, int>& skls); // Modifies skls
+  std::vector<std::string> FormatStats(
+      const std::vector<std::pair<uint32_t, int32_t>>& skls); // Modifies skls
+  std::vector<std::string> FormatSkills(
+      const std::vector<std::pair<uint32_t, int32_t>>& skls); // Modifies skls
 
   void Link(
       Object* other,
@@ -270,17 +272,17 @@ class Object {
   int Modifier(int a) const;
   int Modifier(const std::string& m) const;
   int Power(const std::string& m) const;
-  int Skill(const std::string&, int* tnum = nullptr) const;
-  int HasSkill(const std::string&) const;
-  int SubHasSkill(const std::string&) const;
-  int SubMaxSkill(const std::string&) const;
-  Object* NextHasSkill(const std::string&, const Object* last = nullptr);
-  const std::map<std::string, int>& GetSkills() const {
+  int Skill(uint32_t, int* tnum = nullptr) const;
+  int HasSkill(uint32_t) const;
+  int SubHasSkill(uint32_t) const;
+  int SubMaxSkill(uint32_t) const;
+  Object* NextHasSkill(uint32_t, const Object* last = nullptr);
+  const std::vector<std::pair<uint32_t, int32_t>>& GetSkills() const {
     return skills;
   }
-
   void SetAttribute(int, int);
   void SetModifier(int, int);
+  void SetSkill(uint32_t, int);
   void SetSkill(const std::string&, int);
 
   void DynamicInit();
@@ -295,24 +297,19 @@ class Object {
   void DynamicInit9();
 
   int RollInitiative() const;
-  int Roll(
-      const std::string&,
-      const Object*,
-      const std::string&,
-      int bias = 0,
-      std::string* res = nullptr) const;
-  int Roll(const std::string&, int, std::string* res = nullptr) const;
-  int RollNoWounds(const std::string&, int, std::string* res = nullptr) const;
+  int Roll(uint32_t, const Object*, uint32_t, int bias = 0, std::string* res = nullptr) const;
+  int Roll(uint32_t, int, std::string* res = nullptr) const;
+  int RollNoWounds(uint32_t, int, std::string* res = nullptr) const;
 
   int WoundPenalty() const;
 
   pos_t Pos();
   void SetPos(pos_t p);
   const char* PosString();
-  void StartUsing(const std::string& skill);
+  void StartUsing(uint32_t skill);
   void StopUsing();
-  const char* Using();
-  int IsUsing(const std::string& skill);
+  uint32_t Using();
+  int IsUsing(uint32_t);
   const char* UsingString();
 
   int Wearing(const Object* obj) const;
@@ -425,7 +422,7 @@ class Object {
   Object* parent;
   std::set<Mind*> minds;
   pos_t pos;
-  std::string cur_skill;
+  uint32_t cur_skill;
 
   std::set<unsigned long> completed;
   int exp, sexp;
@@ -440,7 +437,7 @@ class Object {
     int8_t cur = 0;
     int16_t mod = 0;
   } att[6];
-  std::map<std::string, int> skills;
+  std::vector<std::pair<uint32_t, int32_t>> skills;
 
   int no_seek; // Recursion protection
   int no_hear; // For Send() protection
@@ -464,12 +461,13 @@ int matches(const char* name, const char* seek);
 Mind* get_mob_mind();
 Mind* get_tba_mob_mind();
 
-std::string get_skill(std::string sk);
+uint32_t get_skill(std::string sk);
 std::string get_skill_cat(std::string cat);
 int get_linked(std::string sk);
-std::vector<std::string> get_skills(std::string cat = "Categories");
-int is_skill(std::string sk);
-std::string get_weapon_skill(int wtype);
+int get_linked(uint32_t sk);
+std::vector<uint32_t> get_skills(std::string cat = "Categories");
+int is_skill(uint32_t stok);
+uint32_t get_weapon_skill(int wtype);
 int get_weapon_type(std::string wskill);
 int two_handed(int wtype);
 
@@ -478,5 +476,7 @@ void tick_world();
 Object* new_obj();
 Object* new_obj(Object*);
 Object* new_obj(const Object&);
+
+std::string SkillName(uint32_t);
 
 #endif

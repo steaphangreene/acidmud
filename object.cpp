@@ -253,7 +253,7 @@ int Object::Matches(const char* seek) {
   // Keywords which can also be things
   if ((!strcmp(targ.c_str(), "corpse")) && IsAct(ACT_DEAD))
     return 1;
-  if ((!strcmp(targ.c_str(), "money")) && Skill("Money"))
+  if ((!strcmp(targ.c_str(), "money")) && Skill(crc32c("Money")))
     return 1;
 
   return matches(ShortDesc(), targ.c_str());
@@ -282,21 +282,21 @@ Object* new_body() {
   body->SetWeight(80000);
   body->SetGender('M');
 
-  body->SetSkill("Attribute Points", 12);
-  body->SetSkill("Skill Points", 64);
-  body->SetSkill("Status Points", 6);
+  body->SetSkill(crc32c("Attribute Points"), 12);
+  body->SetSkill(crc32c("Skill Points"), 64);
+  body->SetSkill(crc32c("Status Points"), 6);
 
   body->SetPos(POS_STAND);
 
   body->Activate();
 
   Object* bag = new Object(body);
-  bag->SetSkill("Capacity", 40);
-  bag->SetSkill("Closeable", 1);
-  bag->SetSkill("Container", 20000);
-  bag->SetSkill("Open", 1000);
-  bag->SetSkill("Wearable on Left Hip", 1);
-  bag->SetSkill("Wearable on Right Hip", 2);
+  bag->SetSkill(crc32c("Capacity"), 40);
+  bag->SetSkill(crc32c("Closeable"), 1);
+  bag->SetSkill(crc32c("Container"), 20000);
+  bag->SetSkill(crc32c("Open"), 1000);
+  bag->SetSkill(crc32c("Wearable on Left Hip"), 1);
+  bag->SetSkill(crc32c("Wearable on Right Hip"), 2);
 
   bag->SetShortDesc("a small bag");
   bag->SetDesc("A small bag is here.");
@@ -374,18 +374,18 @@ int Object::Tick() {
   if (phys > (10 + ModAttribute(2))) {
     // You are already dead.
   } else if (phys >= 10) {
-    int rec = RollNoWounds("Body", phys - 4);
+    int rec = RollNoWounds(crc32c("Body"), phys - 4);
     if (!rec)
       ++phys;
     UpdateDamage();
   } else if (phys > 0) {
     int rec = 0;
     if (IsAct(ACT_SLEEP))
-      rec = Roll("Body", 2);
+      rec = Roll(crc32c("Body"), 2);
     else if (IsAct(ACT_REST))
-      rec = Roll("Body", 4);
+      rec = Roll(crc32c("Body"), 4);
     else if (!IsAct(ACT_FIGHT))
-      rec = Roll("Body", 6);
+      rec = Roll(crc32c("Body"), 6);
     if (phys >= 6 && (!rec))
       ++phys;
     else
@@ -395,24 +395,24 @@ int Object::Tick() {
   }
   if (phys < 10 && stun >= 10) {
     int rec = 0;
-    rec = RollNoWounds("Willpower", 12);
+    rec = RollNoWounds(crc32c("Willpower"), 12);
     stun -= rec;
     stun = std::max(int8_t(0), stun);
     UpdateDamage();
   } else if (phys < 6 && stun > 0) {
     int rec = 0;
     if (IsAct(ACT_SLEEP))
-      rec = Roll("Willpower", 2);
+      rec = Roll(crc32c("Willpower"), 2);
     else if (IsAct(ACT_REST))
-      rec = Roll("Willpower", 4);
+      rec = Roll(crc32c("Willpower"), 4);
     else if (!IsAct(ACT_FIGHT))
-      rec = Roll("Willpower", 6);
+      rec = Roll(crc32c("Willpower"), 6);
     stun -= rec;
     stun = std::max(int8_t(0), stun);
     UpdateDamage();
   }
 
-  if (parent && Skill("TBAPopper") > 0 && contents.size() > 0) {
+  if (parent && Skill(crc32c("TBAPopper")) > 0 && contents.size() > 0) {
     if (!ActTarg(ACT_SPECIAL_MONITOR)) {
       Object* obj = new Object(*(contents.front()));
       obj->SetParent(this);
@@ -422,7 +422,8 @@ int Object::Tick() {
       obj->Activate();
       parent->SendOut(ALL, -1, ";s arrives.\n", "", obj, nullptr);
       for (auto trg : obj->Contents()) { // Enable any untriggered triggers
-        if (trg->HasSkill("TBAScript") && (trg->Skill("TBAScriptType") & 0x0000002)) {
+        if (trg->HasSkill(crc32c("TBAScript")) &&
+            (trg->Skill(crc32c("TBAScriptType")) & 0x0000002)) {
           trg->Activate();
           new_trigger(13000 + (rand() % 13000), trg, nullptr, nullptr, "");
         }
@@ -431,8 +432,8 @@ int Object::Tick() {
   }
 
   // Grow Trees (Silently)
-  if (HasSkill("Mature Trees") && Skill("Mature Trees") < 100) {
-    SetSkill("Mature Trees", Skill("Mature Trees") + 1);
+  if (HasSkill(crc32c("Mature Trees")) && Skill(crc32c("Mature Trees")) < 100) {
+    SetSkill(crc32c("Mature Trees"), Skill(crc32c("Mature Trees")) + 1);
   }
 
   if (IsAct(ACT_DEAD)) { // Rotting corpses
@@ -450,8 +451,8 @@ int Object::Tick() {
       corpse->SetDesc("A pile of rotting remains.");
       corpse->SetPos(POS_LIE);
 
-      corpse->SetSkill("Perishable", 1);
-      corpse->SetSkill("Rot", 1);
+      corpse->SetSkill(crc32c("Perishable"), 1);
+      corpse->SetSkill(crc32c("Rot"), 1);
       corpse->Activate();
 
       corpse->SetWeight(Weight());
@@ -495,7 +496,7 @@ int Object::Tick() {
           dest = dest->ActTarg(ACT_SPECIAL_HOME);
         }
         Travel(dest);
-        SetSkill("Hidden", 65535);
+        SetSkill(crc32c("Hidden"), 65535);
         return -1; // Deactivate Me!
       } else {
         return 1; // Delete Me!
@@ -503,21 +504,21 @@ int Object::Tick() {
     }
   }
 
-  if (HasSkill("Perishable")) { // Degrading Items
-    SetSkill("Rot", Skill("Rot") - 1);
-    if (Skill("Rot") < 1) {
+  if (HasSkill(crc32c("Perishable"))) { // Degrading Items
+    SetSkill(crc32c("Rot"), Skill(crc32c("Rot")) - 1);
+    if (Skill(crc32c("Rot")) < 1) {
       ++stru;
       if (stru < 10) {
-        SetSkill("Rot", Skill("Perishable"));
+        SetSkill(crc32c("Rot"), Skill(crc32c("Perishable")));
       } else {
         return 1; // Delete Me!
       }
     }
   }
 
-  if (HasSkill("Temporary")) { // Temporary Items
-    SetSkill("Temporary", Skill("Temporary") - 1);
-    if (Skill("Temporary") < 1) {
+  if (HasSkill(crc32c("Temporary"))) { // Temporary Items
+    SetSkill(crc32c("Temporary"), Skill(crc32c("Temporary")) - 1);
+    if (Skill(crc32c("Temporary")) < 1) {
       if (Owner() && Owner()->Parent()) {
         Owner()->Parent()->SendOut(0, 0, ";s vanishes in a flash of light.", "", this, nullptr);
       }
@@ -526,19 +527,19 @@ int Object::Tick() {
   }
 
   if (BaseAttribute(2) > 0 // Needs Food & Water
-      && (!HasSkill("TBAAction")) // MOBs don't
+      && (!HasSkill(crc32c("TBAAction"))) // MOBs don't
   ) {
     int level;
 
     // Get Hungrier
-    level = Skill("Hungry");
+    level = Skill(crc32c("Hungry"));
     if (level < 1)
       level = ModAttribute(2);
     else
       level += ModAttribute(2); // Base Strength Scales Food Req
     if (level > 29999)
       level = 29999;
-    SetSkill("Hungry", level);
+    SetSkill(crc32c("Hungry"), level);
 
     if (level == 500)
       Send(ALL, -1, "You could use a snack.\n");
@@ -566,14 +567,14 @@ int Object::Tick() {
     }
 
     // Get Thurstier
-    level = Skill("Thirsty");
+    level = Skill(crc32c("Thirsty"));
     if (level < 1)
       level = ModAttribute(0);
     else
       level += ModAttribute(0); // Body Scales Water Req
     if (level > 29999)
       level = 29999;
-    SetSkill("Thirsty", level);
+    SetSkill(crc32c("Thirsty"), level);
 
     if (level == 500)
       Send(ALL, -1, "You could use a drink.\n");
@@ -601,16 +602,16 @@ int Object::Tick() {
     }
   }
 
-  if (HasSkill("Liquid Source")) { // Refills Itself
+  if (HasSkill(crc32c("Liquid Source"))) { // Refills Itself
     if (contents.size() > 0) {
       int qty = 1;
-      if (contents.front()->Skill("Quantity") > 1) {
-        qty = contents.front()->Skill("Quantity");
+      if (contents.front()->Skill(crc32c("Quantity")) > 1) {
+        qty = contents.front()->Skill(crc32c("Quantity"));
       }
-      if (qty < Skill("Liquid Container")) {
-        contents.front()->SetSkill("Quantity", qty + Skill("Liquid Source"));
-        if (contents.front()->Skill("Quantity") > Skill("Liquid Container")) {
-          contents.front()->SetSkill("Quantity", Skill("Liquid Container"));
+      if (qty < Skill(crc32c("Liquid Container"))) {
+        contents.front()->SetSkill(crc32c("Quantity"), qty + Skill(crc32c("Liquid Source")));
+        if (contents.front()->Skill(crc32c("Quantity")) > Skill(crc32c("Liquid Container"))) {
+          contents.front()->SetSkill(crc32c("Quantity"), Skill(crc32c("Liquid Container")));
         }
       }
     } else {
@@ -619,32 +620,32 @@ int Object::Tick() {
   }
 
   // Lit Torches/Lanterns
-  if (HasSkill("Brightness") && HasSkill("Light Source")) {
-    SetSkill("Lightable", Skill("Lightable") - 1);
-    if (Skill("Lightable") < 1) {
-      SetSkill("Light Source", 0);
+  if (HasSkill(crc32c("Brightness")) && HasSkill(crc32c("Light Source"))) {
+    SetSkill(crc32c("Lightable"), Skill(crc32c("Lightable")) - 1);
+    if (Skill(crc32c("Lightable")) < 1) {
+      SetSkill(crc32c("Light Source"), 0);
       return -1; // Deactivate Me!
     }
   }
 
   // Skys
-  if (Skill("Day Length") > 1) { // Must be > 1 (divide by it/2 below!)
-    SetSkill("Day Time", Skill("Day Time") + 1);
-    if (Skill("Day Time") >= Skill("Day Length")) {
-      SetSkill("Day Time", 0);
+  if (Skill(crc32c("Day Length")) > 1) { // Must be > 1 (divide by it/2 below!)
+    SetSkill(crc32c("Day Time"), Skill(crc32c("Day Time")) + 1);
+    if (Skill(crc32c("Day Time")) >= Skill(crc32c("Day Length"))) {
+      SetSkill(crc32c("Day Time"), 0);
     }
-    int light = Skill("Day Time") - (Skill("Day Length") / 2);
+    int light = Skill(crc32c("Day Time")) - (Skill(crc32c("Day Length")) / 2);
     if (light < 0)
       light = -light;
     light *= 900;
-    light /= (Skill("Day Length") / 2);
-    SetSkill("Light Source", 1000 - light);
+    light /= (Skill(crc32c("Day Length")) / 2);
+    SetSkill(crc32c("Light Source"), 1000 - light);
   }
 
   // Poisoned
-  if (Skill("Poisoned") > 0) {
-    int succ = Roll("Strength", Skill("Poisoned"));
-    SetSkill("Poisoned", Skill("Poisoned") - succ);
+  if (Skill(crc32c("Poisoned")) > 0) {
+    int succ = Roll(crc32c("Strength"), Skill(crc32c("Poisoned")));
+    SetSkill(crc32c("Poisoned"), Skill(crc32c("Poisoned")) - succ);
     Parent()->SendOut(
         0,
         0,
@@ -669,6 +670,7 @@ Object::Object() {
   short_desc = "new object";
   parent = nullptr;
   pos = POS_NONE;
+  cur_skill = crc32c("None");
 
   weight = 0;
   volume = 0;
@@ -701,6 +703,7 @@ Object::Object(Object* o) {
   parent = nullptr;
   SetParent(o);
   pos = POS_NONE;
+  cur_skill = crc32c("None");
 
   weight = 0;
   volume = 0;
@@ -734,6 +737,7 @@ Object::Object(const Object& o) {
   long_desc = o.long_desc;
   act.clear();
   pos = o.pos;
+  cur_skill = o.cur_skill;
 
   weight = o.weight;
   volume = o.volume;
@@ -1010,23 +1014,23 @@ void Object::SendActions(Mind* m) {
       m->SendF(act_str[cur.first], targ, dirn, dirp);
     }
   }
-  if (HasSkill("Invisible")) {
+  if (HasSkill(crc32c("Invisible"))) {
     m->Send(", invisible");
   }
-  if (HasSkill("Light Source")) {
-    if (Skill("Light Source") < 20)
+  if (HasSkill(crc32c("Light Source"))) {
+    if (Skill(crc32c("Light Source")) < 20)
       m->Send(", glowing");
-    else if (HasSkill("Brightness"))
+    else if (HasSkill(crc32c("Brightness")))
       m->Send(", burning");
-    else if (Skill("Light Source") < 200)
+    else if (Skill(crc32c("Light Source")) < 200)
       m->Send(", lighting the area");
     else
       m->Send(", shining");
   }
-  if (HasSkill("Noise Source")) {
-    if (Skill("Noise Source") < 20)
+  if (HasSkill(crc32c("Noise Source"))) {
+    if (Skill(crc32c("Noise Source")) < 20)
       m->Send(", humming");
-    else if (Skill("Noise Source") < 200)
+    else if (Skill(crc32c("Noise Source")) < 200)
       m->Send(", buzzing");
     else
       m->Send(", roaring");
@@ -1038,7 +1042,7 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
   std::map<Object*, std::string> shown;
   for (auto cur : act) {
     if ((vmode & (LOC_TOUCH | LOC_HEAT | LOC_NINJA)) == 0 // Can't See/Feel Invis
-        && cur.second && cur.second->Skill("Invisible") > 0) {
+        && cur.second && cur.second->Skill(crc32c("Invisible")) > 0) {
       continue; // Don't show invisible equip
     }
     if (cur.first == ACT_HOLD)
@@ -1097,7 +1101,7 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
       continue;
 
     if ((vmode & (LOC_HEAT | LOC_NINJA)) == 0 // Can't see (but can touch)
-        && cur.second && cur.second->Skill("Invisible") > 0) {
+        && cur.second && cur.second->Skill(crc32c("Invisible")) > 0) {
       m->Send(CGRN "Something invisible.\n" CNRM);
       continue; // Don't show details of invisible equip
     }
@@ -1109,21 +1113,21 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
       targ = (char*)cur.second->Name(0, m->Body(), this);
 
     char qty[256] = {0};
-    if (cur.second->Skill("Quantity") > 1)
-      sprintf(qty, "(x%d) ", cur.second->Skill("Quantity"));
+    if (cur.second->Skill(crc32c("Quantity")) > 1)
+      sprintf(qty, "(x%d) ", cur.second->Skill(crc32c("Quantity")));
 
     if (shown.count(cur.second) > 0) {
       m->SendF("%s%s (%s).\n", qty, targ, shown[cur.second].c_str());
     } else {
       m->SendF(CGRN "%s%s.\n" CNRM, qty, targ);
-      if (cur.second->Skill("Open") || cur.second->Skill("Transparent")) {
+      if (cur.second->Skill(crc32c("Open")) || cur.second->Skill(crc32c("Transparent"))) {
         sprintf(buf, "%16s  %c", " ", 0);
         base = buf;
         cur.second->SendContents(m, nullptr, vmode);
         base = "";
         m->Send(CNRM);
-      } else if (cur.second->Skill("Container")) {
-        if ((vmode & 1) && cur.second->Skill("Locked")) {
+      } else if (cur.second->Skill(crc32c("Container"))) {
+        if ((vmode & 1) && cur.second->Skill(crc32c("Locked"))) {
           std::string mes =
               base + CNRM + "                " + "  It is closed and locked.\n" + CGRN;
           m->Send(mes.c_str());
@@ -1157,9 +1161,9 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
   for (auto ind : cont)
     if (master.count(ind)) {
       if ((vmode & LOC_NINJA) == 0 && Parent() != nullptr) { // NinjaMode/CharRoom
-        if (ind->Skill("Invisible") > 999)
+        if (ind->Skill(crc32c("Invisible")) > 999)
           continue;
-        if (ind->HasSkill("Invisible")) {
+        if (ind->HasSkill(crc32c("Invisible"))) {
           // Can't detect it at all
           if ((vmode & (LOC_TOUCH | LOC_HEAT)) == 0)
             continue;
@@ -1167,11 +1171,11 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
           if ((vmode & LOC_TOUCH) == 0 && ind->Pos() > POS_SIT)
             continue;
         }
-        if (ind->Skill("Hidden") > 0)
+        if (ind->Skill(crc32c("Hidden")) > 0)
           continue;
       }
 
-      if (ind->HasSkill("Invisible") && (vmode & (LOC_HEAT | LOC_NINJA)) == 0) {
+      if (ind->HasSkill(crc32c("Invisible")) && (vmode & (LOC_HEAT | LOC_NINJA)) == 0) {
         if (base != "")
           m->SendF("%s%sInside: ", base.c_str(), CNRM);
         m->Send(CGRN "Something invisible is here.\n" CNRM);
@@ -1184,10 +1188,10 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
             m->SendF("%s%sInside: ", base.c_str(), CNRM);
           m->Send(CCYN);
           std::string send = ind->ShortDesc();
-          if (!(ind->Skill("Open") || ind->Skill("Transparent"))) {
+          if (!(ind->Skill(crc32c("Open")) || ind->Skill(crc32c("Transparent")))) {
             send += ", the door is closed.\n";
           } else {
-            if (ind->Skill("Closeable"))
+            if (ind->Skill(crc32c("Closeable")))
               send += ", through an open door,";
             send += " you see ";
             send += ind->ActTarg(ACT_SPECIAL_LINKED)->Parent()->ShortDesc();
@@ -1220,14 +1224,14 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
 
         /*	Uncomment this and comment the block below to disable
            auto-pluralizing.
-              int qty = std::max(1, ind->Skill("Quantity"));
+              int qty = std::max(1, ind->Skill(crc32c("Quantity")));
         */
         int qty = 1; // Even animate objects can have higher quantities.
         auto oth = std::find(cont.begin(), cont.end(), ind);
         for (qty = 0; oth != cont.end(); ++oth) {
           if (ind->LooksLike(*oth, vmode)) {
             master.erase(*oth);
-            qty += std::max(1, (*oth)->Skill("Quantity"));
+            qty += std::max(1, (*oth)->Skill(crc32c("Quantity")));
           }
         }
 
@@ -1241,7 +1245,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
         total += qty;
         ++tlines;
 
-        if (ind->parent && ind->parent->Skill("Container"))
+        if (ind->parent && ind->parent->Skill(crc32c("Container")))
           sprintf(buf, "%s%c", ind->ShortDesc(), 0);
         else
           sprintf(buf, "%s %s%c", ind->ShortDesc(), ind->PosString(), 0);
@@ -1251,13 +1255,13 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
         ind->SendActions(m);
 
         m->Send(CNRM);
-        if (ind->Skill("Open") || ind->Skill("Transparent")) {
+        if (ind->Skill(crc32c("Open")) || ind->Skill(crc32c("Transparent"))) {
           std::string tmp = base;
           base += "  ";
           ind->SendContents(m, o, vmode);
           base = tmp;
-        } else if (ind->Skill("Container") || ind->Skill("Liquid Container")) {
-          if ((vmode & 1) && ind->Skill("Locked")) {
+        } else if (ind->Skill(crc32c("Container")) || ind->Skill(crc32c("Liquid Container"))) {
+          if ((vmode & 1) && ind->Skill(crc32c("Locked"))) {
             std::string mes = base + "  It is closed and locked, you can't see inside.\n";
             m->Send(mes.c_str());
           } else if (vmode & 1) {
@@ -1286,8 +1290,8 @@ void Object::SendFullSituation(Mind* m, Object* o) {
   else if (parent && parent->Gender() == 'F')
     pname = "her";
 
-  if (Skill("Quantity") > 1) {
-    sprintf(buf, "(x%d) ", Skill("Quantity"));
+  if (Skill(crc32c("Quantity")) > 1) {
+    sprintf(buf, "(x%d) ", Skill(crc32c("Quantity")));
     m->Send(buf);
   }
 
@@ -1426,11 +1430,11 @@ void Object::SendDescSurround(Mind* m, Object* o, int vmode) {
   m->Send(CNRM);
   SendExtendedActions(m, vmode);
 
-  if ((!parent) || Contains(o) || Skill("Open") || Skill("Transparent")) {
+  if ((!parent) || Contains(o) || Skill(crc32c("Open")) || Skill(crc32c("Transparent"))) {
     SendContents(m, o, vmode);
   }
 
-  if (parent && (Skill("Open") || Skill("Transparent"))) {
+  if (parent && (Skill(crc32c("Open")) || Skill(crc32c("Transparent")))) {
     m->Send(CCYN);
     m->Send("Outside you see: ");
     no_seek = 1;
@@ -1540,7 +1544,7 @@ void Object::SendScore(Mind* m, Object* o) {
   }
 
   std::vector<std::string> col1;
-  std::map<std::string, int> skls = GetSkills();
+  auto skls = GetSkills();
 
   if (!IsAnimate()) { // Inanimate
     col1 = FormatStats(skls);
@@ -1549,8 +1553,8 @@ void Object::SendScore(Mind* m, Object* o) {
   }
 
   auto c1 = col1.begin();
-  auto c2 = skls.begin();
-  while (c2 != skls.end() || c1 != col1.end()) {
+  auto c2 = find_if(skls.begin(), skls.end(), [](auto skl) { return !is_skill(skl.first); });
+  while (c1 != col1.end() || c2 != skls.end()) {
     if (c1 != col1.end()) {
       m->SendF("%41s ", c1->c_str()); // Note: 41 is 32 (2 Color Escape Codes)
       ++c1;
@@ -1559,8 +1563,11 @@ void Object::SendScore(Mind* m, Object* o) {
     }
 
     if (c2 != skls.end()) {
-      m->SendF("%28s: %8d", c2->first.c_str(), c2->second);
-      ++c2;
+      m->SendF("%28s: %8d", SkillName(c2->first).c_str(), c2->second);
+      c2++;
+      if (c2 != skls.end()) {
+        c2 = find_if(c2, skls.end(), [](auto skl) { return !is_skill(skl.first); });
+      }
     }
 
     m->Send("\n");
@@ -1593,8 +1600,8 @@ void Object::SendScore(Mind* m, Object* o) {
   }
 
   // Other Misc Stats
-  if (HasSkill("Light Source")) {
-    m->SendF(CYEL "  Light Level: %d (%d)\n" CNRM, Skill("Light Source"), LightLevel());
+  if (HasSkill(crc32c("Light Source"))) {
+    m->SendF(CYEL "  Light Level: %d (%d)\n" CNRM, Skill(crc32c("Light Source")), LightLevel());
   }
   if (Power("Cursed")) {
     m->SendF(CRED "  Cursed: %d\n" CNRM, Power("Cursed"));
@@ -1615,15 +1622,16 @@ void Object::SendScore(Mind* m, Object* o) {
   }
 }
 
-std::vector<std::string> Object::FormatSkills(std::map<std::string, int>& skls) {
+std::vector<std::string> Object::FormatSkills(
+    const std::vector<std::pair<uint32_t, int32_t>>& skls) {
   std::vector<std::string> ret;
 
-  std::map<std::string, int> save = skls;
+  auto save = skls;
   for (auto skl : save) {
     if (is_skill(skl.first)) {
-      skls.erase(skl.first); // Remove it from to-show list.
       char buf2[256];
-      sprintf(buf2, "%28s: " CYEL "%2d" CNRM, skl.first.c_str(), std::min(99, skl.second));
+      sprintf(
+          buf2, "%28s: " CYEL "%2d" CNRM, SkillName(skl.first).c_str(), std::min(99, skl.second));
       ret.push_back(buf2);
     }
   }
@@ -1632,101 +1640,99 @@ std::vector<std::string> Object::FormatSkills(std::map<std::string, int>& skls) 
 
 static void stick_on(
     std::vector<std::string>& out,
-    std::map<std::string, int>& skls,
-    const char* skn,
+    const std::vector<std::pair<uint32_t, int32_t>>& skls,
+    uint32_t stok,
     const char* label) {
   char buf2[256];
-  if (skls.count(skn) > 0) {
-    int sk = skls[skn];
-    if (sk > 0) {
-      sprintf(buf2, "  %18s: " CYEL "%d.%.3d" CNRM, label, sk / 1000, sk % 1000);
+
+  auto itr = find_if(skls.begin(), skls.end(), [stok](auto skl) { return (skl.first == stok); });
+  if (itr != skls.end()) {
+    if (itr->second > 0) {
+      sprintf(buf2, "  %18s: " CYEL "%d.%.3d" CNRM, label, itr->second / 1000, itr->second % 1000);
       out.push_back(buf2);
     }
-    skls.erase(skn);
   }
 }
 
-std::vector<std::string> Object::FormatStats(std::map<std::string, int>& skls) {
+std::vector<std::string> Object::FormatStats(
+    const std::vector<std::pair<uint32_t, int32_t>>& skls) {
   std::vector<std::string> ret;
 
-  if (HasSkill("WeaponType")) { // It's a Weapon
+  if (HasSkill(crc32c("WeaponType"))) { // It's a Weapon
     // Detailed Weapon Stats
-    ret.push_back("Weapon: " CYEL + get_weapon_skill(Skill("WeaponType")) + CNRM);
-    // skls.erase("WeaponType");
-    stick_on(ret, skls, "Durability", "Durability");
-    stick_on(ret, skls, "Hardness", "Hardness");
-    stick_on(ret, skls, "Flexibility", "Flexibility");
-    stick_on(ret, skls, "Sharpness", "Sharpness");
-    stick_on(ret, skls, "Distance", "Pen. Dist");
-    stick_on(ret, skls, "Width", "Pen. Width");
-    stick_on(ret, skls, "Ratio", "Pen. Ratio");
-    stick_on(ret, skls, "Hit Weight", "Hit Weight");
-    stick_on(ret, skls, "Velocity", "Velocity");
-    stick_on(ret, skls, "Leverage", "Leverage");
-    stick_on(ret, skls, "Burn", "Burn");
-    stick_on(ret, skls, "Chill", "Chill");
-    stick_on(ret, skls, "Zap", "Zap");
-    stick_on(ret, skls, "Concuss", "Concuss");
-    stick_on(ret, skls, "Flash", "Flash");
-    stick_on(ret, skls, "Bang", "Bang");
-    stick_on(ret, skls, "Irradiate", "Irradiate");
-    stick_on(ret, skls, "Reach", "Reach");
-    stick_on(ret, skls, "Range", "Range");
-    stick_on(ret, skls, "Strength Required", "Str Req");
-    stick_on(ret, skls, "Multiple", "Multiple");
+    ret.push_back(
+        "Weapon: " CYEL + SkillName(get_weapon_skill(Skill(crc32c("WeaponType")))) + CNRM);
+    stick_on(ret, skls, crc32c("Durability"), "Durability");
+    stick_on(ret, skls, crc32c("Hardness"), "Hardness");
+    stick_on(ret, skls, crc32c("Flexibility"), "Flexibility");
+    stick_on(ret, skls, crc32c("Sharpness"), "Sharpness");
+    stick_on(ret, skls, crc32c("Distance"), "Pen. Dist");
+    stick_on(ret, skls, crc32c("Width"), "Pen. Width");
+    stick_on(ret, skls, crc32c("Ratio"), "Pen. Ratio");
+    stick_on(ret, skls, crc32c("Hit Weight"), "Hit Weight");
+    stick_on(ret, skls, crc32c("Velocity"), "Velocity");
+    stick_on(ret, skls, crc32c("Leverage"), "Leverage");
+    stick_on(ret, skls, crc32c("Burn"), "Burn");
+    stick_on(ret, skls, crc32c("Chill"), "Chill");
+    stick_on(ret, skls, crc32c("Zap"), "Zap");
+    stick_on(ret, skls, crc32c("Concuss"), "Concuss");
+    stick_on(ret, skls, crc32c("Flash"), "Flash");
+    stick_on(ret, skls, crc32c("Bang"), "Bang");
+    stick_on(ret, skls, crc32c("Irradiate"), "Irradiate");
+    stick_on(ret, skls, crc32c("Reach"), "Reach");
+    stick_on(ret, skls, crc32c("Range"), "Range");
+    stick_on(ret, skls, crc32c("Strength Required"), "Str Req");
+    stick_on(ret, skls, crc32c("Multiple"), "Multiple");
 
     ret.push_back(CYEL CNRM); // Leave a blank line between new and old
     // Must include color escapes for formatting
 
     // Old-Style (Shadowrun) Weapon Stats
     static char sevs[] = {'-', 'L', 'M', 'S', 'D'};
-    ret.push_back(" Old Weapon: " CYEL + get_weapon_skill(Skill("WeaponType")) + CNRM);
-    skls.erase("WeaponType");
+    ret.push_back(
+        " Old Weapon: " CYEL + SkillName(get_weapon_skill(Skill(crc32c("WeaponType")))) + CNRM);
 
     char buf2[256];
     sprintf(
         buf2,
         "  Damage: " CYEL "(Str+%d)%c",
-        Skill("WeaponForce"),
-        sevs[std::min(4, Skill("WeaponSeverity"))]);
-    if (Skill("WeaponSeverity") > 4) {
-      sprintf(buf2 + strlen(buf2), "%d", (Skill("WeaponSeverity") - 4) * 2);
+        Skill(crc32c("WeaponForce")),
+        sevs[std::min(4, Skill(crc32c("WeaponSeverity")))]);
+    if (Skill(crc32c("WeaponSeverity")) > 4) {
+      sprintf(buf2 + strlen(buf2), "%d", (Skill(crc32c("WeaponSeverity")) - 4) * 2);
     }
     strcat(buf2, CNRM);
     ret.push_back(buf2);
-    skls.erase("WeaponForce");
-    skls.erase("WeaponSeverity");
 
-    if (Skill("WeaponReach") > 4) {
-      sprintf(buf2, "  Range: " CYEL "%d" CNRM, Skill("WeaponReach"));
+    if (Skill(crc32c("WeaponReach")) > 4) {
+      sprintf(buf2, "  Range: " CYEL "%d" CNRM, Skill(crc32c("WeaponReach")));
       ret.push_back(buf2);
-    } else if (Skill("WeaponReach") >= 0) {
-      sprintf(buf2, "  Reach: " CYEL "%d" CNRM, Skill("WeaponReach"));
+    } else if (Skill(crc32c("WeaponReach")) >= 0) {
+      sprintf(buf2, "  Reach: " CYEL "%d" CNRM, Skill(crc32c("WeaponReach")));
       ret.push_back(buf2);
     }
-    skls.erase("WeaponReach");
   }
-  if (HasSkill("Thickness")) { // It's Armor (or just Clothing)
-    // stick_on(ret, skls, "Coverage", "Coverage");
-    stick_on(ret, skls, "Durability", "Durability");
-    stick_on(ret, skls, "Hardness", "Hardness");
-    stick_on(ret, skls, "Flexibility", "Flexibility");
-    stick_on(ret, skls, "Sharpness", "Sharpness");
-    stick_on(ret, skls, "Thickness", "Thickness");
-    stick_on(ret, skls, "Max Gap", "Max Gap");
-    stick_on(ret, skls, "Min Gap", "Min Gap");
-    stick_on(ret, skls, "Hit Weight", "Hit Weight");
-    stick_on(ret, skls, "Ballistic", "Ballistic");
-    stick_on(ret, skls, "Bulk", "Bulk");
-    stick_on(ret, skls, "Warm", "Warm");
-    stick_on(ret, skls, "Reflect", "Reflect");
-    stick_on(ret, skls, "Insulate", "Insulate");
-    stick_on(ret, skls, "Padding", "Padding");
-    stick_on(ret, skls, "Shade", "Shade");
-    stick_on(ret, skls, "Muffle", "Muffle");
-    stick_on(ret, skls, "Shielding", "Shielding");
-    stick_on(ret, skls, "Defense Range", "Def Range");
-    stick_on(ret, skls, "Strength Required", "Str Req");
+  if (HasSkill(crc32c("Thickness"))) { // It's Armor (or just Clothing)
+    // stick_on(ret, skls, crc32c("Coverage"), "Coverage");
+    stick_on(ret, skls, crc32c("Durability"), "Durability");
+    stick_on(ret, skls, crc32c("Hardness"), "Hardness");
+    stick_on(ret, skls, crc32c("Flexibility"), "Flexibility");
+    stick_on(ret, skls, crc32c("Sharpness"), "Sharpness");
+    stick_on(ret, skls, crc32c("Thickness"), "Thickness");
+    stick_on(ret, skls, crc32c("Max Gap"), "Max Gap");
+    stick_on(ret, skls, crc32c("Min Gap"), "Min Gap");
+    stick_on(ret, skls, crc32c("Hit Weight"), "Hit Weight");
+    stick_on(ret, skls, crc32c("Ballistic"), "Ballistic");
+    stick_on(ret, skls, crc32c("Bulk"), "Bulk");
+    stick_on(ret, skls, crc32c("Warm"), "Warm");
+    stick_on(ret, skls, crc32c("Reflect"), "Reflect");
+    stick_on(ret, skls, crc32c("Insulate"), "Insulate");
+    stick_on(ret, skls, crc32c("Padding"), "Padding");
+    stick_on(ret, skls, crc32c("Shade"), "Shade");
+    stick_on(ret, skls, crc32c("Muffle"), "Muffle");
+    stick_on(ret, skls, crc32c("Shielding"), "Shielding");
+    stick_on(ret, skls, crc32c("Defense Range"), "Def Range");
+    stick_on(ret, skls, crc32c("Strength Required"), "Str Req");
   }
 
   ret.push_back(CYEL CNRM); // Leave a blank line between weap/arm and gen
@@ -1769,12 +1775,12 @@ void Object::Link(
   door2->SetDesc(odsc.c_str());
   door1->AddAct(ACT_SPECIAL_LINKED, door2);
   door1->AddAct(ACT_SPECIAL_MASTER, door2);
-  door1->SetSkill("Open", 1000);
-  door1->SetSkill("Enterable", 1);
+  door1->SetSkill(crc32c("Open"), 1000);
+  door1->SetSkill(crc32c("Enterable"), 1);
   door2->AddAct(ACT_SPECIAL_LINKED, door1);
   door2->AddAct(ACT_SPECIAL_MASTER, door1);
-  door2->SetSkill("Open", 1000);
-  door2->SetSkill("Enterable", 1);
+  door2->SetSkill(crc32c("Open"), 1000);
+  door2->SetSkill(crc32c("Enterable"), 1);
 }
 
 void Object::LinkClosed(
@@ -1791,14 +1797,14 @@ void Object::LinkClosed(
   door2->SetDesc(odsc.c_str());
   door1->AddAct(ACT_SPECIAL_LINKED, door2);
   door1->AddAct(ACT_SPECIAL_MASTER, door2);
-  door1->SetSkill("Closeable", 1);
-  door1->SetSkill("Enterable", 1);
-  door1->SetSkill("Transparent", 1000);
+  door1->SetSkill(crc32c("Closeable"), 1);
+  door1->SetSkill(crc32c("Enterable"), 1);
+  door1->SetSkill(crc32c("Transparent"), 1000);
   door2->AddAct(ACT_SPECIAL_LINKED, door1);
   door2->AddAct(ACT_SPECIAL_MASTER, door1);
-  door2->SetSkill("Closeable", 1);
-  door2->SetSkill("Enterable", 1);
-  door2->SetSkill("Transparent", 1000);
+  door2->SetSkill(crc32c("Closeable"), 1);
+  door2->SetSkill(crc32c("Enterable"), 1);
+  door2->SetSkill(crc32c("Transparent"), 1000);
 }
 
 void Object::TryCombine() {
@@ -1824,20 +1830,20 @@ void Object::TryCombine() {
       // fprintf(stderr, "Combining '%s'\n", Name());
       int val;
 
-      val = std::max(1, Skill("Quantity")) + std::max(1, obj->Skill("Quantity"));
-      SetSkill("Quantity", val);
+      val = std::max(1, Skill(crc32c("Quantity"))) + std::max(1, obj->Skill(crc32c("Quantity")));
+      SetSkill(crc32c("Quantity"), val);
 
-      val = Skill("Hungry") + obj->Skill("Hungry");
-      SetSkill("Hungry", val);
+      val = Skill(crc32c("Hungry")) + obj->Skill(crc32c("Hungry"));
+      SetSkill(crc32c("Hungry"), val);
 
-      val = Skill("Bored") + obj->Skill("Bored");
-      SetSkill("Bored", val);
+      val = Skill(crc32c("Bored")) + obj->Skill(crc32c("Bored"));
+      SetSkill(crc32c("Bored"), val);
 
-      val = Skill("Needy") + obj->Skill("Needy");
-      SetSkill("Needy", val);
+      val = Skill(crc32c("Needy")) + obj->Skill(crc32c("Needy"));
+      SetSkill(crc32c("Needy"), val);
 
-      val = Skill("Tired") + obj->Skill("Tired");
-      SetSkill("Tired", val);
+      val = Skill(crc32c("Tired")) + obj->Skill(crc32c("Tired"));
+      SetSkill(crc32c("Tired"), val);
 
       obj->Recycle();
       break;
@@ -1854,14 +1860,14 @@ int Object::Travel(Object* dest, int try_combine) {
       return -1; // Check for Recursive Loops
   }
 
-  int cap = dest->Skill("Capacity");
+  int cap = dest->Skill(crc32c("Capacity"));
   if (cap > 0) {
     cap -= dest->ContainedVolume();
     if (Volume() > cap)
       return -2;
   }
 
-  int con = dest->Skill("Container");
+  int con = dest->Skill(crc32c("Container"));
   if (con > 0) {
     con -= dest->ContainedWeight();
     if (Weight() > con)
@@ -1890,8 +1896,8 @@ int Object::Travel(Object* dest, int try_combine) {
 
     // Type 0x0010000 (*-LEAVE)
     for (auto trig : trigs) {
-      if (trig->Skill("TBAScriptType") & 0x0010000) {
-        if ((rand() % 100) < trig->Skill("TBAScriptNArg")) { // % Chance
+      if (trig->Skill(crc32c("TBAScriptType")) & 0x0010000) {
+        if ((rand() % 100) < trig->Skill(crc32c("TBAScriptNArg"))) { // % Chance
           // fprintf(stderr, CBLU "Triggering: %s\n" CNRM, trig->Name());
           if (new_trigger(0, trig, this, dir))
             return 1;
@@ -1921,16 +1927,16 @@ int Object::Travel(Object* dest, int try_combine) {
       StopAct(ACT_HOLD);
     }
   }
-  SetSkill("Hidden", 0);
+  SetSkill(crc32c("Hidden"), 0);
 
-  if (parent->Skill("DynamicInit") > 0) { // Room is dynamic, but uninitialized
+  if (parent->Skill(crc32c("DynamicInit")) > 0) { // Room is dynamic, but uninitialized
     parent->DynamicInit();
   }
 
-  if (parent->Skill("Secret")) {
+  if (parent->Skill(crc32c("Secret"))) {
     for (auto m : minds) {
       if (m->Owner()) {
-        if (m->Owner()->Accomplish(parent->Skill("Secret"))) {
+        if (m->Owner()->Accomplish(parent->Skill(crc32c("Secret")))) {
           m->SendF("%sYou gain a player experience point for finding a secret!\n%s", CYEL, CNRM);
         }
       }
@@ -1945,15 +1951,17 @@ int Object::Travel(Object* dest, int try_combine) {
 
     // Type 0x4000040 or 0x1000040 (ROOM-ENTER or MOB-GREET)
     for (auto trig : trigs) {
-      if ((trig->Skill("TBAScriptType") & 0x0000040) &&
-          (trig->Skill("TBAScriptType") & 0x5000000)) {
+      if ((trig->Skill(crc32c("TBAScriptType")) & 0x0000040) &&
+          (trig->Skill(crc32c("TBAScriptType")) & 0x5000000)) {
         if (trig != this && trig->Parent() != this) {
-          if (trig->Skill("TBAScript") >= 5034503 && trig->Skill("TBAScript") <= 5034507)
+          if (trig->Skill(crc32c("TBAScript")) >= 5034503 &&
+              trig->Skill(crc32c("TBAScript")) <= 5034507)
             // fprintf(
-            //    stderr, CBLU "[#%d] Greeting: '%s'\n" CNRM, trig->Skill("TBAScript"),
+            //    stderr, CBLU "[#%d] Greeting: '%s'\n" CNRM, trig->Skill(crc32c("TBAScript")),
             //    ShortDesc());
-            if ((rand() % 100) < 1000 * trig->Skill("TBAScriptNArg")) { // % Chance
-              // if (trig->Skill("TBAScript") >= 5034503 && trig->Skill("TBAScript") <= 5034507)
+            if ((rand() % 100) < 1000 * trig->Skill(crc32c("TBAScriptNArg"))) { // % Chance
+              // if (trig->Skill(crc32c("TBAScript")) >= 5034503 && trig->Skill(crc32c("TBAScript"))
+              // <= 5034507)
               //  fprintf(stderr, CBLU "Triggering: %s\n" CNRM, trig->Name());
               new_trigger((rand() % 400) + 300, trig, this, rdir);
             }
@@ -2174,19 +2182,19 @@ Object* Object::PickObject(const char* name, int loc, int* ordinal) const {
   return ret.front();
 }
 
-static const char* splits[4] = {"Hungry", "Bored", "Tired", "Needy"};
+uint32_t splits[4] = {crc32c("Hungry"), crc32c("Bored"), crc32c("Tired"), crc32c("Needy")};
 Object* Object::Split(int nqty) {
   if (nqty < 1)
     nqty = 1;
-  int qty = Skill("Quantity") - nqty;
+  int qty = Skill(crc32c("Quantity")) - nqty;
   if (qty < 1)
     qty = 1;
 
   Object* nobj = new Object(*this);
   nobj->SetParent(Parent());
-  nobj->SetSkill("Quantity", (nqty <= 1) ? 0 : nqty);
+  nobj->SetSkill(crc32c("Quantity"), (nqty <= 1) ? 0 : nqty);
 
-  SetSkill("Quantity", (qty <= 1) ? 0 : qty);
+  SetSkill(crc32c("Quantity"), (qty <= 1) ? 0 : qty);
 
   for (int ctr = 0; ctr < 4; ++ctr) {
     int val = Skill(splits[ctr]);
@@ -2201,22 +2209,22 @@ Object* Object::Split(int nqty) {
 
 static int tag(Object* obj, std::vector<Object*>& ret, int* ordinal, int vmode = 0) {
   // Only Ninjas in Ninja-Mode should detect these
-  if (obj->Skill("Invisible") > 999 && (vmode & LOC_NINJA) == 0)
+  if (obj->Skill(crc32c("Invisible")) > 999 && (vmode & LOC_NINJA) == 0)
     return 0;
 
   // Need Heat Vision to see these
-  if (obj->HasSkill("Invisible") && (vmode & (LOC_NINJA | LOC_HEAT)) == 0)
+  if (obj->HasSkill(crc32c("Invisible")) && (vmode & (LOC_NINJA | LOC_HEAT)) == 0)
     return 0;
 
   // Can't be seen/affected (except in char rooms)
-  if (obj->Skill("Hidden") > 0 && (vmode & (LOC_NINJA | 1)) == 0)
+  if (obj->Skill(crc32c("Hidden")) > 0 && (vmode & (LOC_NINJA | 1)) == 0)
     return 0;
   Object* nobj = nullptr;
 
   int cqty = 1, rqty = 1; // Contains / Requires
 
-  if (obj->Skill("Quantity"))
-    cqty = obj->Skill("Quantity");
+  if (obj->Skill(crc32c("Quantity")))
+    cqty = obj->Skill(crc32c("Quantity"));
 
   if (*ordinal == -1)
     (*ordinal) = 1; // Need one - make it the first one!
@@ -2355,7 +2363,7 @@ std::vector<Object*> Object::PickObjects(const char* name, int loc, int* ordinal
             return ret;
           }
         }
-        if (ind->Skill("Open") || ind->Skill("Transparent")) {
+        if (ind->Skill(crc32c("Open")) || ind->Skill(crc32c("Transparent"))) {
           auto add = ind->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
           ret.insert(ret.end(), add.begin(), add.end());
 
@@ -2363,7 +2371,7 @@ std::vector<Object*> Object::PickObjects(const char* name, int loc, int* ordinal
             return ret;
         }
       }
-    if (parent->Skill("Open") || parent->Skill("Transparent")) {
+    if (parent->Skill(crc32c("Open")) || parent->Skill(crc32c("Transparent"))) {
       if (parent->parent) {
         parent->no_seek = 1;
 
@@ -2391,7 +2399,7 @@ std::vector<Object*> Object::PickObjects(const char* name, int loc, int* ordinal
             return ret;
           }
         }
-        if (action.second->HasSkill("Container")) {
+        if (action.second->HasSkill(crc32c("Container"))) {
           auto add = action.second->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
           ret.insert(ret.end(), add.begin(), add.end());
 
@@ -2409,7 +2417,7 @@ std::vector<Object*> Object::PickObjects(const char* name, int loc, int* ordinal
           return ret;
         }
       }
-      if (ind->Skill("Container") && (loc & LOC_NOTUNWORN) == 0) {
+      if (ind->Skill(crc32c("Container")) && (loc & LOC_NOTUNWORN) == 0) {
         auto add = ind->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
         ret.insert(ret.end(), add.begin(), add.end());
 
@@ -2439,7 +2447,7 @@ int Object::SeeWithin(const Object* obj) {
   for (auto ind : contents) {
     if (ind == obj)
       return 1;
-    if (ind->Skill("Open") || ind->Skill("Transparent")) {
+    if (ind->Skill(crc32c("Open")) || ind->Skill(crc32c("Transparent"))) {
       if (ind->SeeWithin(obj))
         return 1;
     }
@@ -2455,13 +2463,13 @@ int Object::IsNearBy(const Object* obj) {
       return 1;
     if (ind == this)
       continue; // Not Nearby Self
-    if (ind->Skill("Open") || ind->Skill("Transparent")) {
+    if (ind->Skill(crc32c("Open")) || ind->Skill(crc32c("Transparent"))) {
       int ret = ind->SeeWithin(obj);
       if (ret)
         return ret;
     }
   }
-  if (parent->parent && (parent->Skill("Open") || parent->Skill("Transparent"))) {
+  if (parent->parent && (parent->Skill(crc32c("Open")) || parent->Skill(crc32c("Transparent")))) {
     parent->no_seek = 1;
     int ret = parent->IsNearBy(obj);
     parent->no_seek = 0;
@@ -2497,16 +2505,16 @@ void Object::NotifyLeft(Object* obj, Object* newloc) {
 
   if (following) {
     int stealth_t = 0, stealth_s = 0;
-    if (IsUsing("Stealth") && Skill("Stealth") > 0) {
-      stealth_t = Skill("Stealth");
-      stealth_s = Roll("Stealth", 2);
+    if (IsUsing(crc32c("Stealth")) && Skill(crc32c("Stealth")) > 0) {
+      stealth_t = Skill(crc32c("Stealth"));
+      stealth_s = Roll(crc32c("Stealth"), 2);
     }
     parent->SendOut(stealth_t, stealth_s, ";s follows ;s.\n", "You follow ;s.\n", this, obj);
     Travel(newloc);
     parent->SendOut(stealth_t, stealth_s, ";s follows ;s.\n", "", this, obj);
     AddAct(ACT_FOLLOW, obj); // Needed since Travel Kills Follow Act
     if (stealth_t > 0) {
-      SetSkill("Hidden", Roll("Stealth", 2) * 2);
+      SetSkill(crc32c("Hidden"), Roll(crc32c("Stealth"), 2) * 2);
     }
   }
 
@@ -2531,7 +2539,7 @@ void Object::NotifyGone(Object* obj, Object* newloc, int up) {
     return; // Never notify self or sub-self objects.
 
   // Climb to top first!
-  if (up == 1 && parent && (Skill("Open") || Skill("Transparent"))) {
+  if (up == 1 && parent && (Skill(crc32c("Open")) || Skill(crc32c("Transparent")))) {
     parent->NotifyGone(obj, newloc, 1);
     return;
   }
@@ -2543,7 +2551,7 @@ void Object::NotifyGone(Object* obj, Object* newloc, int up) {
   for (auto ind : contents) {
     if (up >= 0) {
       tonotify[ind] = -1;
-    } else if (ind->Skill("Open") || ind->Skill("Transparent")) {
+    } else if (ind->Skill(crc32c("Open")) || ind->Skill(crc32c("Transparent"))) {
       tonotify[ind] = 0;
     }
   }
@@ -2569,8 +2577,8 @@ void Object::AddAct(act_t a, Object* o) {
 void Object::StopAct(act_t a) {
   Object* obj = act[a];
   act.erase(a);
-  if (obj && obj->HasSkill("Brightness") && obj->HasSkill("Light Source")) {
-    obj->SetSkill("Light Source", 0);
+  if (obj && obj->HasSkill(crc32c("Brightness")) && obj->HasSkill(crc32c("Light Source"))) {
+    obj->SetSkill(crc32c("Light Source"), 0);
     // obj->SendOut(0, 0, ";s goes out.\n", "", obj, nullptr);
     obj->Deactivate();
   }
@@ -2645,11 +2653,11 @@ void Object::UpdateDamage() {
     phys += stun - 10;
     stun = 10;
   }
-  if (stun < Skill("Hungry") / 5000) { // Hungry Stuns
-    stun = Skill("Hungry") / 5000;
+  if (stun < Skill(crc32c("Hungry")) / 5000) { // Hungry Stuns
+    stun = Skill(crc32c("Hungry")) / 5000;
   }
-  if (phys < Skill("Thirsty") / 5000) { // Thirsty Wounds
-    phys = Skill("Thirsty") / 5000;
+  if (phys < Skill(crc32c("Thirsty")) / 5000) { // Thirsty Wounds
+    phys = Skill(crc32c("Thirsty")) / 5000;
   }
   if (phys > 10 + ModAttribute(2)) {
     phys = 10 + ModAttribute(2) + 1;
@@ -2837,7 +2845,7 @@ void Object::SendF(int tnum, int rsucc, const char* mes, ...) {
   if (mes[0] == 0)
     return;
 
-  if (tnum != ALL && rsucc >= 0 && Roll("Perception", tnum) <= rsucc) {
+  if (tnum != ALL && rsucc >= 0 && Roll(crc32c("Perception"), tnum) <= rsucc) {
     return;
   }
 
@@ -2863,10 +2871,10 @@ void Object::SendIn(
   if (this != actor) { // Don't trigger yourself!
     for (auto trig : contents) {
       if (strncmp(mes, ";s says '", 9)) { // Type 0x1000010 (MOB + MOB-ACT)
-        if ((trig->Skill("TBAScriptType") & 0x1000010) == 0x1000010) {
+        if ((trig->Skill(crc32c("TBAScriptType")) & 0x1000010) == 0x1000010) {
           if (trig->Desc()[0] == '*') { // All Actions
             new_trigger((rand() % 400) + 300, trig, actor, mes);
-          } else if (trig->Skill("TBAScriptNArg") == 0) { // Match Full Phrase
+          } else if (trig->Skill(crc32c("TBAScriptNArg")) == 0) { // Match Full Phrase
             if (phrase_match(mes, trig->Desc())) {
               new_trigger((rand() % 400) + 300, trig, actor, mes);
             }
@@ -2877,9 +2885,11 @@ void Object::SendIn(
           }
         }
       } else { // Type 0x1000008 (MOB + MOB-SPEECH)
-        if ((trig->Skill("TBAScriptType") & 0x1000008) == 0x1000008) {
-          // if (trig->Skill("TBAScript") >= 5034503 && trig->Skill("TBAScript") <= 5034507)
-          //  fprintf(stderr, CBLU "[#%d] Got message: '%s'\n" CNRM, trig->Skill("TBAScript"), mes);
+        if ((trig->Skill(crc32c("TBAScriptType")) & 0x1000008) == 0x1000008) {
+          // if (trig->Skill(crc32c("TBAScript")) >= 5034503 && trig->Skill(crc32c("TBAScript")) <=
+          // 5034507)
+          //  fprintf(stderr, CBLU "[#%d] Got message: '%s'\n" CNRM,
+          //  trig->Skill(crc32c("TBAScript")), mes);
           std::string speech = (mes + 9);
           while (!speech.empty() && speech.back() != '\'') {
             speech.pop_back();
@@ -2889,15 +2899,17 @@ void Object::SendIn(
 
           if (trig->Desc()[0] == '*') { // All Speech
             new_trigger((rand() % 400) + 300, trig, actor, speech);
-          } else if (trig->Skill("TBAScriptNArg") == 0) { // Match Full Phrase
+          } else if (trig->Skill(crc32c("TBAScriptNArg")) == 0) { // Match Full Phrase
             if (phrase_match(speech, trig->Desc())) {
-              // if (trig->Skill("TBAScript") >= 5034503 && trig->Skill("TBAScript") <= 5034507)
+              // if (trig->Skill(crc32c("TBAScript")) >= 5034503 && trig->Skill(crc32c("TBAScript"))
+              // <= 5034507)
               //  fprintf(stderr, CBLU "Triggering(f): %s\n" CNRM, trig->Name());
               new_trigger((rand() % 400) + 300, trig, actor, speech);
             }
           } else { // Match Words
             if (words_match(speech, trig->Desc())) {
-              // if (trig->Skill("TBAScript") >= 5034503 && trig->Skill("TBAScript") <= 5034507)
+              // if (trig->Skill(crc32c("TBAScript")) >= 5034503 && trig->Skill(crc32c("TBAScript"))
+              // <= 5034507)
               //  fprintf(stderr, CBLU "Triggering(w): %s\n" CNRM, trig->Name());
               new_trigger((rand() % 400) + 300, trig, actor, speech);
             }
@@ -2966,7 +2978,7 @@ void Object::SendIn(
   free(youstr);
 
   for (auto ind : contents) {
-    if (ind->Skill("Open") || ind->Skill("Transparent"))
+    if (ind->Skill(crc32c("Open")) || ind->Skill(crc32c("Transparent")))
       ind->SendIn(tnum, rsucc, mes, youmes, actor, targ);
     else if (ind->Pos() != POS_NONE) // FIXME - Understand Transparency
       ind->SendIn(tnum, rsucc, mes, youmes, actor, targ);
@@ -3009,7 +3021,7 @@ void Object::SendOut(
 
   if (!strncmp(mes, ";s says '", 9)) { // Type 0x4000008 (ROOM + ROOM-SPEECH)
     for (auto trig : contents) {
-      if ((trig->Skill("TBAScriptType") & 0x4000008) == 0x4000008) {
+      if ((trig->Skill(crc32c("TBAScriptType")) & 0x4000008) == 0x4000008) {
         std::string speech = (mes + 9);
         while (!speech.empty() && speech.back() != '\'') {
           speech.pop_back();
@@ -3019,7 +3031,7 @@ void Object::SendOut(
 
         if (trig->Desc()[0] == '*') { // All Speech
           new_trigger((rand() % 400) + 300, trig, actor, speech);
-        } else if (trig->Skill("TBAScriptNArg") == 0) { // Match Full Phrase
+        } else if (trig->Skill(crc32c("TBAScriptNArg")) == 0) { // Match Full Phrase
           if (phrase_match(speech, trig->Desc())) {
             new_trigger((rand() % 400) + 300, trig, actor, speech);
           }
@@ -3084,13 +3096,13 @@ void Object::SendOut(
   free(youstr);
 
   for (auto ind : contents) {
-    if (ind->Skill("Open") || ind->Skill("Transparent"))
+    if (ind->Skill(crc32c("Open")) || ind->Skill(crc32c("Transparent")))
       ind->SendIn(tnum, rsucc, mes, youmes, actor, targ);
     else if (ind->Pos() != POS_NONE) // FIXME - Understand Transparency
       ind->SendIn(tnum, rsucc, mes, youmes, actor, targ);
   }
 
-  if (parent && (Skill("Open") || Skill("Transparent"))) {
+  if (parent && (Skill(crc32c("Open")) || Skill(crc32c("Transparent")))) {
     no_seek = 1;
     parent->SendOut(tnum, rsucc, mes, youmes, actor, targ);
     no_seek = 0;
@@ -3144,10 +3156,10 @@ void Object::Loud(std::set<Object*>& visited, int str, const char* mes) {
   visited.insert(this);
   auto targs = PickObjects("all", LOC_INTERNAL);
   for (auto dest : targs) {
-    if (dest->HasSkill("Enterable")) {
+    if (dest->HasSkill(crc32c("Enterable"))) {
       int ostr = str;
       --str;
-      if (dest->Skill("Open") < 1) {
+      if (dest->Skill(crc32c("Open")) < 1) {
         --str;
       }
       if (str >= 0) {
@@ -3169,7 +3181,7 @@ void init_world() {
   universe->SetShortDesc("The Universe");
   universe->SetDesc("An Infinite Universe within which to play.");
   universe->SetLongDesc("A Really Big Infinite Universe within which to play.");
-  universe->SetSkill("Light Source", 1000); // Ninjas need to see too.
+  universe->SetSkill(crc32c("Light Source"), 1000); // Ninjas need to see too.
   trash_bin = new Object;
   trash_bin->SetShortDesc("The Trash Bin");
   trash_bin->SetDesc("The place objects come to die.");
@@ -3332,8 +3344,8 @@ void Object::FreeActions() {
 
       // Type 0x1000400 (MOB + MOB-FIGHT)
       for (auto trig : init.first->contents) {
-        if ((trig->Skill("TBAScriptType") & 0x1000400) == 0x1000400) {
-          if ((rand() % 100) < trig->Skill("TBAScriptNArg")) { // % Chance
+        if ((trig->Skill(crc32c("TBAScriptType")) & 0x1000400) == 0x1000400) {
+          if ((rand() % 100) < trig->Skill(crc32c("TBAScriptNArg"))) { // % Chance
             new_trigger(0, trig, init.first->ActTarg(ACT_FIGHT));
           }
         }
@@ -3431,18 +3443,20 @@ int Object::operator==(const Object& in) const {
   if (contents.size() != 0 || in.contents.size() != 0)
     return 0;
 
-  std::map<std::string, int> sk1 = skills;
-  std::map<std::string, int> sk2 = in.skills;
-  sk1.erase("Quantity");
-  sk2.erase("Quantity");
-  sk1.erase("Hungry");
-  sk2.erase("Hungry");
-  sk1.erase("Bored");
-  sk2.erase("Bored");
-  sk1.erase("Needy");
-  sk2.erase("Needy");
-  sk1.erase("Tired");
-  sk2.erase("Tired");
+  auto sk1 = skills;
+  auto sk2 = in.skills;
+  /*
+    sk1.erase("Quantity");
+    sk2.erase("Quantity");
+    sk1.erase("Hungry");
+    sk2.erase("Hungry");
+    sk1.erase("Bored");
+    sk2.erase("Bored");
+    sk1.erase("Needy");
+    sk2.erase("Needy");
+    sk1.erase("Tired");
+    sk2.erase("Tired");
+  */
   if (sk1 != sk2)
     return 0;
 
@@ -3485,9 +3499,9 @@ std::vector<Object*> Object::Contents(int vmode) {
     ret = contents;
   } else {
     for (auto item : contents) {
-      if (item->Skill("Invisible") >= 1000)
+      if (item->Skill(crc32c("Invisible")) >= 1000)
         continue; // Not Really There
-      if ((vmode & (LOC_HEAT | LOC_TOUCH)) == 0 && item->Skill("Invisible")) {
+      if ((vmode & (LOC_HEAT | LOC_TOUCH)) == 0 && item->Skill(crc32c("Invisible"))) {
         continue;
       }
       if ((vmode & LOC_FIXED) && item->Pos() != POS_NONE)
@@ -3556,29 +3570,29 @@ const char* Object::PosString() {
 const char* Object::UsingString() {
   static char buf2[128];
   if (pos == POS_USE) {
-    if (cur_skill == "Stealth") {
+    if (cur_skill == crc32c("Stealth")) {
       sprintf(buf2, "sneaking around");
-    } else if (cur_skill == "Perception") {
+    } else if (cur_skill == crc32c("Perception")) {
       sprintf(buf2, "keeping an eye out");
-    } else if (cur_skill == "Healing") {
+    } else if (cur_skill == crc32c("Healing")) {
       sprintf(buf2, "caring for others' wounds");
-    } else if (cur_skill == "First Aid") {
+    } else if (cur_skill == crc32c("First Aid")) {
       sprintf(buf2, "giving first-aid");
-    } else if (cur_skill == "Treatment") {
+    } else if (cur_skill == crc32c("Treatment")) {
       sprintf(buf2, "treating others' wounds");
-    } else if (cur_skill == "Lumberjack") {
+    } else if (cur_skill == crc32c("Lumberjack")) {
       sprintf(buf2, "chopping down trees");
-    } else if (cur_skill == "Sprinting") {
+    } else if (cur_skill == crc32c("Sprinting")) {
       sprintf(buf2, "running as fast as possible");
     } else {
-      sprintf(buf2, "using the %s skill", Using());
+      sprintf(buf2, "using the %s skill", SkillName(Using()).c_str());
     }
     return buf2;
   }
   return "doing nothing";
 }
 
-void Object::StartUsing(const std::string& skill) {
+void Object::StartUsing(uint32_t skill) {
   cur_skill = skill;
   pos = POS_USE;
 }
@@ -3586,15 +3600,15 @@ void Object::StartUsing(const std::string& skill) {
 void Object::StopUsing() {
   if (pos == POS_USE)
     pos = POS_STAND;
-  cur_skill = "";
+  cur_skill = crc32c("None");
 }
 
-const char* Object::Using() {
-  return cur_skill.c_str();
+uint32_t Object::Using() {
+  return cur_skill;
 }
 
-int Object::IsUsing(const std::string& skill) {
-  return (std::string(skill) == std::string(cur_skill));
+int Object::IsUsing(uint32_t skill) {
+  return (skill == cur_skill);
 }
 
 pos_t Object::Pos() {
@@ -3624,21 +3638,21 @@ int Object::LooksLike(Object* other, int vmode) {
     return 0;
   if (Pos() != other->Pos())
     return 0;
-  if (std::string(Using()) != std::string(other->Using()))
+  if (Using() != other->Using())
     return 0;
 
   // Neither open/trans/seen inside (if either contain anything)
   if (Contents(vmode).size() > 0 || other->Contents(vmode).size() > 0) {
-    if (Skill("Open") || Skill("Transparent"))
+    if (Skill(crc32c("Open")) || Skill(crc32c("Transparent")))
       return 0;
-    if (other->Skill("Open") || other->Skill("Transparent"))
+    if (other->Skill(crc32c("Open")) || other->Skill(crc32c("Transparent")))
       return 0;
-    if (Skill("Container") || Skill("Liquid Container")) {
-      if (vmode && (!Skill("Locked")))
+    if (Skill(crc32c("Container")) || Skill(crc32c("Liquid Container"))) {
+      if (vmode && (!Skill(crc32c("Locked"))))
         return 0;
     }
-    if (other->Skill("Container") || other->Skill("Liquid Container")) {
-      if (vmode && (!other->Skill("Locked")))
+    if (other->Skill(crc32c("Container")) || other->Skill(crc32c("Liquid Container"))) {
+      if (vmode && (!other->Skill(crc32c("Locked"))))
         return 0;
     }
   }
@@ -3663,35 +3677,35 @@ int Object::LooksLike(Object* other, int vmode) {
 
 void Object::Consume(const Object* item) {
   // Standard food/drink effects
-  int hung = Skill("Hungry");
-  SetSkill("Hungry", Skill("Hungry") - item->Skill("Food"));
-  int thir = Skill("Thirsty");
-  SetSkill("Thirsty", Skill("Thirsty") - item->Skill("Drink"));
-  SetSkill("Thirsty", Skill("Thirsty") + item->Skill("Dehydrate Effect"));
+  int hung = Skill(crc32c("Hungry"));
+  SetSkill(crc32c("Hungry"), Skill(crc32c("Hungry")) - item->Skill(crc32c("Food")));
+  int thir = Skill(crc32c("Thirsty"));
+  SetSkill(crc32c("Thirsty"), Skill(crc32c("Thirsty")) - item->Skill(crc32c("Drink")));
+  SetSkill(crc32c("Thirsty"), Skill(crc32c("Thirsty")) + item->Skill(crc32c("Dehydrate Effect")));
   // Heal back dehydrate/hunger wounds
-  if ((hung / 5000) > (Skill("Hungry") / 5000)) {
-    HealStun((hung / 5000) - (Skill("Hungry") / 5000));
+  if ((hung / 5000) > (Skill(crc32c("Hungry")) / 5000)) {
+    HealStun((hung / 5000) - (Skill(crc32c("Hungry")) / 5000));
   }
-  if ((thir / 5000) > (Skill("Thirsty") / 5000)) {
-    HealPhys((thir / 5000) - (Skill("Thirsty") / 5000));
+  if ((thir / 5000) > (Skill(crc32c("Thirsty")) / 5000)) {
+    HealPhys((thir / 5000) - (Skill(crc32c("Thirsty")) / 5000));
   }
 
   // Special effect: Poisonous
-  if (item->Skill("Poisonous") > 0) {
-    SetSkill("Poisoned", Skill("Poisoned") + item->Skill("Poisonous"));
+  if (item->Skill(crc32c("Poisonous")) > 0) {
+    SetSkill(crc32c("Poisoned"), Skill(crc32c("Poisoned")) + item->Skill(crc32c("Poisonous")));
   }
 
   // Special effect: Cure Poison
-  if (item->Skill("Cure Poison Spell") > 0 && Skill("Poisoned") > 0) {
-    if (item->Skill("Cure Poison Spell") >= Skill("Poisoned")) {
-      SetSkill("Poisoned", 0);
+  if (item->Skill(crc32c("Cure Poison Spell")) > 0 && Skill(crc32c("Poisoned")) > 0) {
+    if (item->Skill(crc32c("Cure Poison Spell")) >= Skill(crc32c("Poisoned"))) {
+      SetSkill(crc32c("Poisoned"), 0);
       Send(ALL, 0, "You feel better.\n");
     }
   }
 
   // Special effect: Heal
-  if (item->Skill("Heal Spell") > 0) {
-    int succ = Roll("Strength", 12 - item->Skill("Heal Spell"));
+  if (item->Skill(crc32c("Heal Spell")) > 0) {
+    int succ = Roll(crc32c("Strength"), 12 - item->Skill(crc32c("Heal Spell")));
     if (phys > 0 && succ > 0)
       Send(ALL, 0, "You feel a bit less pain.\n");
     phys -= succ;
@@ -3701,8 +3715,8 @@ void Object::Consume(const Object* item) {
   }
 
   // Special effect: Energize
-  if (item->Skill("Energize Spell") > 0) {
-    int succ = Roll("Strength", 12 - item->Skill("Energize Spell"));
+  if (item->Skill(crc32c("Energize Spell")) > 0) {
+    int succ = Roll(crc32c("Strength"), 12 - item->Skill(crc32c("Energize Spell")));
     if (stun > 0 && succ > 0)
       Send(ALL, 0, "You feel a bit more rested.\n");
     stun -= succ;
@@ -3712,20 +3726,20 @@ void Object::Consume(const Object* item) {
   }
 
   // Special effect: Remove Curse - Note: Can't remove curse from cursed items
-  if (item->Skill("Remove Curse Spell") > 0 && (!HasSkill("Cursed"))) {
-    Object* cursed = NextHasSkill("Cursed");
+  if (item->Skill(crc32c("Remove Curse Spell")) > 0 && (!HasSkill(crc32c("Cursed")))) {
+    Object* cursed = NextHasSkill(crc32c("Cursed"));
     while (cursed) {
-      if (cursed->Skill("Cursed") <= item->Skill("Remove Curse Spell")) {
+      if (cursed->Skill(crc32c("Cursed")) <= item->Skill(crc32c("Remove Curse Spell"))) {
         Drop(cursed, 1, 1);
-        cursed = NextHasSkill("Cursed");
+        cursed = NextHasSkill(crc32c("Cursed"));
       } else {
-        cursed = NextHasSkill("Cursed", cursed);
+        cursed = NextHasSkill(crc32c("Cursed"), cursed);
       }
     }
   }
 
   // Special effect: Recall
-  if (item->Skill("Recall Spell") > 0) {
+  if (item->Skill(crc32c("Recall Spell")) > 0) {
     if (parent) {
       parent->SendOut(
           0, 0, "BAMF! ;s teleports away.\n", "BAMF! You teleport home.\n", this, nullptr);
@@ -3746,48 +3760,48 @@ void Object::Consume(const Object* item) {
 
   // Special effect: Heat Vision Spell (Grants Ability)
 
-  if (item->Skill("Heat Vision Spell")) {
-    int force = item->Skill("Heat Vision Spell");
+  if (item->Skill(crc32c("Heat Vision Spell"))) {
+    int force = item->Skill(crc32c("Heat Vision Spell"));
     Object* spell = new Object(this);
-    spell->SetSkill("Heat Vision", std::min(100, force));
+    spell->SetSkill(crc32c("Heat Vision"), std::min(100, force));
     spell->SetShortDesc("a spell");
-    spell->SetSkill("Magical", force);
-    spell->SetSkill("Magical Spell", force);
-    spell->SetSkill("Temporary", force);
-    spell->SetSkill("Invisible", 1000);
+    spell->SetSkill(crc32c("Magical"), force);
+    spell->SetSkill(crc32c("Magical Spell"), force);
+    spell->SetSkill(crc32c("Temporary"), force);
+    spell->SetSkill(crc32c("Invisible"), 1000);
     spell->Activate();
     Send(ALL, 0, "You can now see better!\n");
   }
 
   // Special effect: Dark Vision Spell (Grants Ability)
-  if (item->Skill("Dark Vision Spell")) {
-    int force = item->Skill("Dark Vision Spell");
+  if (item->Skill(crc32c("Dark Vision Spell"))) {
+    int force = item->Skill(crc32c("Dark Vision Spell"));
     Object* spell = new Object(this);
-    spell->SetSkill("Dark Vision", std::min(100, force));
+    spell->SetSkill(crc32c("Dark Vision"), std::min(100, force));
     spell->SetShortDesc("a spell");
-    spell->SetSkill("Magical", force);
-    spell->SetSkill("Magical Spell", force);
-    spell->SetSkill("Temporary", force);
-    spell->SetSkill("Invisible", 1000);
+    spell->SetSkill(crc32c("Magical"), force);
+    spell->SetSkill(crc32c("Magical Spell"), force);
+    spell->SetSkill(crc32c("Temporary"), force);
+    spell->SetSkill(crc32c("Invisible"), 1000);
     spell->Activate();
     Send(ALL, 0, "You can now see better!\n");
   }
 
   // Special effect: Teleport Spell (Grants Ability)
-  if (item->Skill("Teleport Spell")) {
-    SetSkill("Teleport", 1); // Can use once!
+  if (item->Skill(crc32c("Teleport Spell"))) {
+    SetSkill(crc32c("Teleport"), 1); // Can use once!
     Send(ALL, 0, "You can now teleport once!\n");
   }
 
   // Special effect: Resurrect Spell (Grants Ability)
-  if (item->Skill("Resurrect Spell")) {
-    SetSkill("Resurrect", 1); // Can use once!
+  if (item->Skill(crc32c("Resurrect Spell"))) {
+    SetSkill(crc32c("Resurrect"), 1); // Can use once!
     Send(ALL, 0, "You can now resurrect a character once!\n");
   }
 
   // Special effect: Sleep Other
-  if (item->Skill("Sleep Other Spell") > 0) {
-    int succ = Roll("Willpower", item->Skill("Sleep Other Spell"));
+  if (item->Skill(crc32c("Sleep Other Spell")) > 0) {
+    int succ = Roll(crc32c("Willpower"), item->Skill(crc32c("Sleep Other Spell")));
     if (succ > 0) {
       if (parent) {
         parent->SendOut(
@@ -3808,7 +3822,7 @@ int Object::LightLevel(int updown) {
   int level = 0;
 
   if (updown != -1 && Parent()) { // Go Up
-    int fac = Skill("Open") + Skill("Transparent") + Skill("Translucent");
+    int fac = Skill(crc32c("Open")) + Skill(crc32c("Transparent")) + Skill(crc32c("Translucent"));
     if (fac > 1000)
       fac = 1000;
     if (fac > 0) {
@@ -3818,7 +3832,8 @@ int Object::LightLevel(int updown) {
   if (updown != 1) { // Go Down
     for (auto item : contents) {
       if (!Wearing(item)) { // Containing it (internal)
-        int fac = item->Skill("Open") + item->Skill("Transparent") + item->Skill("Translucent");
+        int fac = item->Skill(crc32c("Open")) + item->Skill(crc32c("Transparent")) +
+            item->Skill(crc32c("Translucent"));
         if (fac > 1000)
           fac = 1000;
         if (fac > 0) {
@@ -3836,7 +3851,7 @@ int Object::LightLevel(int updown) {
     }
   }
   level /= 1000;
-  level += Skill("Light Source");
+  level += Skill(crc32c("Light Source"));
   if (level > 1000)
     level = 1000;
   return level;
@@ -3866,7 +3881,7 @@ int Object::ModAttribute(int a) const {
 int Object::Modifier(int a) const {
   int ret = 0;
   for (auto item : contents) {
-    if (Wearing(item) || item->Skill("Magical Spell")) {
+    if (Wearing(item) || item->Skill(crc32c("Magical Spell"))) {
       ret += item->att[a].mod;
     }
   }
@@ -3879,13 +3894,13 @@ int Object::Modifier(int a) const {
 int Object::Modifier(const std::string& m) const {
   int ret = 0;
   for (auto item : contents) {
-    if (Wearing(item) || item->Skill("Magical Spell")) {
-      ret += item->Skill(m + " Bonus");
-      ret -= item->Skill(m + " Penalty");
+    if (Wearing(item) || item->Skill(crc32c("Magical Spell"))) {
+      ret += item->Skill(crc32c(m + " Bonus"));
+      ret -= item->Skill(crc32c(m + " Penalty"));
     }
   }
-  ret += Skill(m + " Bonus");
-  ret -= Skill(m + " Penalty");
+  ret += Skill(crc32c(m + " Bonus"));
+  ret -= Skill(crc32c(m + " Penalty"));
   if (ret < 0)
     return (ret - 999) / 1000;
   return (ret / 1000);
@@ -3893,10 +3908,10 @@ int Object::Modifier(const std::string& m) const {
 
 int Object::Power(const std::string& m) const {
   int ret = 0;
-  ret = Skill(m);
+  ret = Skill(crc32c(m));
   for (auto item : contents) {
-    if (ActTarg(ACT_WIELD) == item || Wearing(item) || item->Skill("Magical Spell")) {
-      int val = item->Skill(m);
+    if (ActTarg(ACT_WIELD) == item || Wearing(item) || item->Skill(crc32c("Magical Spell"))) {
+      int val = item->Skill(crc32c(m));
       if (val > ret)
         ret = val;
     }
@@ -3914,67 +3929,69 @@ int Object::Wearing(const Object* obj) const {
 
 int Object::WearMask() const {
   return (
-      Skill("Wearable on Back") | Skill("Wearable on Chest") | Skill("Wearable on Head") |
-      Skill("Wearable on Neck") | Skill("Wearable on Collar") | Skill("Wearable on Waist") |
-      Skill("Wearable on Shield") | Skill("Wearable on Left Arm") | Skill("Wearable on Right Arm") |
-      Skill("Wearable on Left Finger") | Skill("Wearable on Right Finger") |
-      Skill("Wearable on Left Foot") | Skill("Wearable on Right Foot") |
-      Skill("Wearable on Left Hand") | Skill("Wearable on Right Hand") |
-      Skill("Wearable on Left Leg") | Skill("Wearable on Right Leg") |
-      Skill("Wearable on Left Wrist") | Skill("Wearable on Right Wrist") |
-      Skill("Wearable on Left Shoulder") | Skill("Wearable on Right Shoulder") |
-      Skill("Wearable on Left Hip") | Skill("Wearable on Right Hip"));
+      Skill(crc32c("Wearable on Back")) | Skill(crc32c("Wearable on Chest")) |
+      Skill(crc32c("Wearable on Head")) | Skill(crc32c("Wearable on Neck")) |
+      Skill(crc32c("Wearable on Collar")) | Skill(crc32c("Wearable on Waist")) |
+      Skill(crc32c("Wearable on Shield")) | Skill(crc32c("Wearable on Left Arm")) |
+      Skill(crc32c("Wearable on Right Arm")) | Skill(crc32c("Wearable on Left Finger")) |
+      Skill(crc32c("Wearable on Right Finger")) | Skill(crc32c("Wearable on Left Foot")) |
+      Skill(crc32c("Wearable on Right Foot")) | Skill(crc32c("Wearable on Left Hand")) |
+      Skill(crc32c("Wearable on Right Hand")) | Skill(crc32c("Wearable on Left Leg")) |
+      Skill(crc32c("Wearable on Right Leg")) | Skill(crc32c("Wearable on Left Wrist")) |
+      Skill(crc32c("Wearable on Right Wrist")) | Skill(crc32c("Wearable on Left Shoulder")) |
+      Skill(crc32c("Wearable on Right Shoulder")) | Skill(crc32c("Wearable on Left Hip")) |
+      Skill(crc32c("Wearable on Right Hip")));
 }
 
 std::set<act_t> Object::WearSlots(int m) const {
   std::set<act_t> locs;
-  if (Skill("Wearable on Back") & m)
+  if (Skill(crc32c("Wearable on Back")) & m)
     locs.insert(ACT_WEAR_BACK);
-  if (Skill("Wearable on Chest") & m)
+  if (Skill(crc32c("Wearable on Chest")) & m)
     locs.insert(ACT_WEAR_CHEST);
-  if (Skill("Wearable on Head") & m)
+  if (Skill(crc32c("Wearable on Head")) & m)
     locs.insert(ACT_WEAR_HEAD);
-  if (Skill("Wearable on Face") & m)
+  if (Skill(crc32c("Wearable on Face")) & m)
     locs.insert(ACT_WEAR_FACE);
-  if (Skill("Wearable on Neck") & m)
+  if (Skill(crc32c("Wearable on Neck")) & m)
     locs.insert(ACT_WEAR_NECK);
-  if (Skill("Wearable on Collar") & m)
+  if (Skill(crc32c("Wearable on Collar")) & m)
     locs.insert(ACT_WEAR_COLLAR);
-  if (Skill("Wearable on Waist") & m)
+  if (Skill(crc32c("Wearable on Waist")) & m)
     locs.insert(ACT_WEAR_WAIST);
-  if (Skill("Wearable on Shield") & m)
+  if (Skill(crc32c("Wearable on Shield")) & m)
     locs.insert(ACT_WEAR_SHIELD);
-  if (Skill("Wearable on Left Arm") & m)
+  if (Skill(crc32c("Wearable on Left Arm")) & m)
     locs.insert(ACT_WEAR_LARM);
-  if (Skill("Wearable on Right Arm") & m)
+  if (Skill(crc32c("Wearable on Right Arm")) & m)
     locs.insert(ACT_WEAR_RARM);
-  if (Skill("Wearable on Left Finger") & m)
+  if (Skill(crc32c("Wearable on Left Finger")) & m)
     locs.insert(ACT_WEAR_LFINGER);
-  if (Skill("Wearable on Right Finger") & m)
+  if (Skill(crc32c("Wearable on Right Finger")) & m)
     locs.insert(ACT_WEAR_RFINGER);
-  if (Skill("Wearable on Left Foot") & m)
+  if (Skill(crc32c("Wearable on Left Foot")) & m)
     locs.insert(ACT_WEAR_LFOOT);
-  if (Skill("Wearable on Right Foot") & m)
+  if (Skill(crc32c("Wearable on Right Foot")) & m)
     locs.insert(ACT_WEAR_RFOOT);
-  if (Skill("Wearable on Left Hand") & m)
+  if (Skill(crc32c("Wearable on Left Hand")) & m)
     locs.insert(ACT_WEAR_LHAND);
-  if (Skill("Wearable on Right Hand") & m)
+  if (Skill(crc32c("Wearable on Right Hand")) & m)
     locs.insert(ACT_WEAR_RHAND);
-  if (Skill("Wearable on Left Leg") & m)
+  if (Skill(crc32c("Wearable on Left Leg")) & m)
     locs.insert(ACT_WEAR_LLEG);
-  if (Skill("Wearable on Right Leg") & m)
+  if (Skill(crc32c("Wearable on Right Leg")) & m)
     locs.insert(ACT_WEAR_RLEG);
-  if (Skill("Wearable on Left Wrist") & m)
+  if (Skill(crc32c("Wearable on Left Wrist")) & m)
     locs.insert(ACT_WEAR_LWRIST);
-  if (Skill("Wearable on Right Wrist") & m)
+  if (Skill(crc32c("Wearable on Right Wrist")) & m)
     locs.insert(ACT_WEAR_RWRIST);
-  if (Skill("Wearable on Left Shoulder") & m)
+  if (Skill(crc32c("Wearable on Left Shoulder")) & m)
     locs.insert(ACT_WEAR_LSHOULDER);
-  if (Skill("Wearable on Right Shoulder") & m)
+  if (Skill(crc32c("Wearable on Right Shoulder")) & m)
     locs.insert(ACT_WEAR_RSHOULDER);
-  if (Skill("Wearable on Left Hip") & m)
+  if (Skill(crc32c("Wearable on Left Hip")) & m)
     locs.insert(ACT_WEAR_LHIP);
-  if (Skill("Wearable on Right Hip") & m)
+  if (Skill(crc32c("Wearable on Right Hip")) & m)
     locs.insert(ACT_WEAR_RHIP);
   return locs;
 }
@@ -4051,16 +4068,17 @@ Object* Object::Stash(Object* item, int message, int force, int try_combine) {
   std::vector<Object*> containers;
   auto my_cont = PickObjects("all", LOC_INTERNAL);
   for (auto ind : my_cont) {
-    if (ind->Skill("Container") && ((!ind->Skill("Locked")) || ind->Skill("Open"))) {
+    if (ind->Skill(crc32c("Container")) &&
+        ((!ind->Skill(crc32c("Locked"))) || ind->Skill(crc32c("Open")))) {
       containers.push_back(ind);
     }
   }
 
   Object* dest = nullptr;
   for (auto con : containers) {
-    if (con->Skill("Capacity") - con->ContainedVolume() < item->Volume())
+    if (con->Skill(crc32c("Capacity")) - con->ContainedVolume() < item->Volume())
       continue;
-    if (con->Skill("Container") - con->ContainedWeight() < item->Weight())
+    if (con->Skill(crc32c("Container")) - con->ContainedWeight() < item->Weight())
       continue;
     if (!dest)
       dest = con; // It CAN go here....
@@ -4078,7 +4096,7 @@ Object* Object::Stash(Object* item, int message, int force, int try_combine) {
 
   if (message && dest) {
     int openclose = 0;
-    if (dest->Skill("Open") < 1)
+    if (dest->Skill(crc32c("Open")) < 1)
       openclose = 1;
 
     if (openclose)
@@ -4098,7 +4116,7 @@ int Object::Drop(Object* item, int message, int force, int try_combine) {
     return 1;
 
   // Can't drop cursed stuff (unless ninja or otherwise forcing)
-  if ((!force) && item->SubHasSkill("Cursed")) {
+  if ((!force) && item->SubHasSkill(crc32c("Cursed"))) {
     return -4;
   }
 
@@ -4107,7 +4125,7 @@ int Object::Drop(Object* item, int message, int force, int try_combine) {
     return ret;
 
   // Activate perishable dropped stuff, so it will rot
-  if (item->HasSkill("Perishable")) {
+  if (item->HasSkill(crc32c("Perishable"))) {
     item->Activate();
   }
 
@@ -4134,33 +4152,33 @@ int Object::StashOrDrop(Object* item, int message, int force, int try_combine) {
   return 0;
 }
 
-int Object::SubMaxSkill(const std::string& s) const {
-  int ret = Skill(s);
+int Object::SubMaxSkill(uint32_t stok) const {
+  int ret = Skill(stok);
   for (auto item : contents) {
-    int sub = item->SubMaxSkill(s);
+    int sub = item->SubMaxSkill(stok);
     if (sub > ret)
       ret = sub;
   }
   return ret;
 }
 
-int Object::SubHasSkill(const std::string& s) const {
-  if (HasSkill(s))
+int Object::SubHasSkill(uint32_t stok) const {
+  if (HasSkill(stok))
     return 1;
   for (auto item : contents) {
-    if (item->SubHasSkill(s))
+    if (item->SubHasSkill(stok))
       return 1;
   }
   return 0;
 }
 
-Object* Object::NextHasSkill(const std::string& s, const Object* last) {
-  if (HasSkill(s) && (!last))
+Object* Object::NextHasSkill(uint32_t stok, const Object* last) {
+  if (HasSkill(stok) && (!last))
     return this;
   if (last == this)
     last = nullptr; // I was last one
   for (auto item : contents) {
-    Object* found = item->NextHasSkill(s, last);
+    Object* found = item->NextHasSkill(stok, last);
     if (found)
       return found;
     if (last && (last == item || item->HasWithin(last))) {
@@ -4178,9 +4196,9 @@ Object* Object::Owner() const {
 }
 
 int Object::Quantity() const {
-  if (!HasSkill("Quantity"))
+  if (!HasSkill(crc32c("Quantity")))
     return 1;
-  return Skill("Quantity");
+  return Skill(crc32c("Quantity"));
 }
 
 void Object::Deafen(int deaf) {
@@ -4195,76 +4213,76 @@ int Object::Wear(Object* targ, unsigned long masks, int mes) {
   while (!success && mask != 0) {
     std::set<act_t> locations;
 
-    if (targ->Skill("Wearable on Back") & mask)
+    if (targ->Skill(crc32c("Wearable on Back")) & mask)
       locations.insert(ACT_WEAR_BACK);
 
-    if (targ->Skill("Wearable on Chest") & mask)
+    if (targ->Skill(crc32c("Wearable on Chest")) & mask)
       locations.insert(ACT_WEAR_CHEST);
 
-    if (targ->Skill("Wearable on Head") & mask)
+    if (targ->Skill(crc32c("Wearable on Head")) & mask)
       locations.insert(ACT_WEAR_HEAD);
 
-    if (targ->Skill("Wearable on Face") & mask)
+    if (targ->Skill(crc32c("Wearable on Face")) & mask)
       locations.insert(ACT_WEAR_FACE);
 
-    if (targ->Skill("Wearable on Neck") & mask)
+    if (targ->Skill(crc32c("Wearable on Neck")) & mask)
       locations.insert(ACT_WEAR_NECK);
 
-    if (targ->Skill("Wearable on Collar") & mask)
+    if (targ->Skill(crc32c("Wearable on Collar")) & mask)
       locations.insert(ACT_WEAR_COLLAR);
 
-    if (targ->Skill("Wearable on Waist") & mask)
+    if (targ->Skill(crc32c("Wearable on Waist")) & mask)
       locations.insert(ACT_WEAR_WAIST);
 
-    if (targ->Skill("Wearable on Shield") & mask)
+    if (targ->Skill(crc32c("Wearable on Shield")) & mask)
       locations.insert(ACT_WEAR_SHIELD);
 
-    if (targ->Skill("Wearable on Left Arm") & mask)
+    if (targ->Skill(crc32c("Wearable on Left Arm")) & mask)
       locations.insert(ACT_WEAR_LARM);
 
-    if (targ->Skill("Wearable on Right Arm") & mask)
+    if (targ->Skill(crc32c("Wearable on Right Arm")) & mask)
       locations.insert(ACT_WEAR_RARM);
 
-    if (targ->Skill("Wearable on Left Finger") & mask)
+    if (targ->Skill(crc32c("Wearable on Left Finger")) & mask)
       locations.insert(ACT_WEAR_LFINGER);
 
-    if (targ->Skill("Wearable on Right Finger") & mask)
+    if (targ->Skill(crc32c("Wearable on Right Finger")) & mask)
       locations.insert(ACT_WEAR_RFINGER);
 
-    if (targ->Skill("Wearable on Left Foot") & mask)
+    if (targ->Skill(crc32c("Wearable on Left Foot")) & mask)
       locations.insert(ACT_WEAR_LFOOT);
 
-    if (targ->Skill("Wearable on Right Foot") & mask)
+    if (targ->Skill(crc32c("Wearable on Right Foot")) & mask)
       locations.insert(ACT_WEAR_RFOOT);
 
-    if (targ->Skill("Wearable on Left Hand") & mask)
+    if (targ->Skill(crc32c("Wearable on Left Hand")) & mask)
       locations.insert(ACT_WEAR_LHAND);
 
-    if (targ->Skill("Wearable on Right Hand") & mask)
+    if (targ->Skill(crc32c("Wearable on Right Hand")) & mask)
       locations.insert(ACT_WEAR_RHAND);
 
-    if (targ->Skill("Wearable on Left Leg") & mask)
+    if (targ->Skill(crc32c("Wearable on Left Leg")) & mask)
       locations.insert(ACT_WEAR_LLEG);
 
-    if (targ->Skill("Wearable on Right Leg") & mask)
+    if (targ->Skill(crc32c("Wearable on Right Leg")) & mask)
       locations.insert(ACT_WEAR_RLEG);
 
-    if (targ->Skill("Wearable on Left Wrist") & mask)
+    if (targ->Skill(crc32c("Wearable on Left Wrist")) & mask)
       locations.insert(ACT_WEAR_LWRIST);
 
-    if (targ->Skill("Wearable on Right Wrist") & mask)
+    if (targ->Skill(crc32c("Wearable on Right Wrist")) & mask)
       locations.insert(ACT_WEAR_RWRIST);
 
-    if (targ->Skill("Wearable on Left Shoulder") & mask)
+    if (targ->Skill(crc32c("Wearable on Left Shoulder")) & mask)
       locations.insert(ACT_WEAR_LSHOULDER);
 
-    if (targ->Skill("Wearable on Right Shoulder") & mask)
+    if (targ->Skill(crc32c("Wearable on Right Shoulder")) & mask)
       locations.insert(ACT_WEAR_RSHOULDER);
 
-    if (targ->Skill("Wearable on Left Hip") & mask)
+    if (targ->Skill(crc32c("Wearable on Left Hip")) & mask)
       locations.insert(ACT_WEAR_LHIP);
 
-    if (targ->Skill("Wearable on Right Hip") & mask)
+    if (targ->Skill(crc32c("Wearable on Right Hip")) & mask)
       locations.insert(ACT_WEAR_RHIP);
 
     if (locations.size() < 1) {
@@ -4286,7 +4304,7 @@ int Object::Wear(Object* targ, unsigned long masks, int mes) {
     while ((mask & masks) == 0 && mask != 0)
       mask <<= 1;
 
-    if (targ->Skill("Quantity") > 1) { // One at a time!
+    if (targ->Skill(crc32c("Quantity")) > 1) { // One at a time!
       targ = targ->Split(1);
     }
 
