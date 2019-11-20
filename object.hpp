@@ -399,7 +399,7 @@ class Object {
   int operator==(const Object& in) const;
   int operator!=(const Object& in) const;
 
-  int Matches(const char* seek);
+  int Matches(std::string seek);
   int LooksLike(Object* other, int vmode = 0);
 
   void AddMOB(const MOBType*);
@@ -457,7 +457,7 @@ void save_world(int with_net = 0);
 Object* new_body();
 Object* getbynum(int);
 int getnum(Object*);
-int matches(const char* name, const char* seek);
+int matches(const std::string& name, const std::string& seek);
 Mind* get_mob_mind();
 Mind* get_tba_mob_mind();
 

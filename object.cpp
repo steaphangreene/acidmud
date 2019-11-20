@@ -71,10 +71,12 @@ Object* Object::World() {
   return world;
 }
 
-int matches(const char* name, const char* seek) {
-  if (*seek == 0)
+int matches(const std::string& name, const std::string& seek) {
+  if (seek.empty())
     return 0;
-  if (!strcmp(seek, "all"))
+
+  auto stok = crc32c(seek);
+  if (stok == crc32c("all"))
     return 1;
 
   if (phrase_match(name, seek))
@@ -88,119 +90,117 @@ int matches(const char* name, const char* seek) {
   int ret = 0;
 
   // special SMART[TM] searches
-  if ((!strcmp(seek, "guard")) && matches(name, "cityguard"))
+  if ((stok == crc32c("guard")) && matches(name, "cityguard"))
     ret = 1;
-  else if ((!strcmp(seek, "guard")) && matches(name, "guildguard"))
+  else if ((stok == crc32c("guard")) && matches(name, "guildguard"))
     ret = 1;
-  else if ((!strcmp(seek, "guard")) && matches(name, "gateguard"))
+  else if ((stok == crc32c("guard")) && matches(name, "gateguard"))
     ret = 1;
-  else if ((!strcmp(seek, "guard")) && matches(name, "bodyguard"))
+  else if ((stok == crc32c("guard")) && matches(name, "bodyguard"))
     ret = 1;
-  else if ((!strcmp(seek, "merc")) && matches(name, "mercenary"))
+  else if ((stok == crc32c("merc")) && matches(name, "mercenary"))
     ret = 1;
-  else if ((!strcmp(seek, "smith")) && matches(name, "weaponsmith"))
+  else if ((stok == crc32c("smith")) && matches(name, "weaponsmith"))
     ret = 1;
-  else if ((!strcmp(seek, "smith")) && matches(name, "swordsmith"))
+  else if ((stok == crc32c("smith")) && matches(name, "swordsmith"))
     ret = 1;
-  else if ((!strcmp(seek, "smith")) && matches(name, "blacksmith"))
+  else if ((stok == crc32c("smith")) && matches(name, "blacksmith"))
     ret = 1;
-  else if ((!strcmp(seek, "bolt")) && matches(name, "thunderbolt"))
+  else if ((stok == crc32c("bolt")) && matches(name, "thunderbolt"))
     ret = 1;
-  else if ((!strcmp(seek, "sword")) && matches(name, "longsword"))
+  else if ((stok == crc32c("sword")) && matches(name, "longsword"))
     ret = 1;
-  else if ((!strcmp(seek, "sword")) && matches(name, "broadsword"))
+  else if ((stok == crc32c("sword")) && matches(name, "broadsword"))
     ret = 1;
-  else if ((!strcmp(seek, "sword")) && matches(name, "shortsword"))
+  else if ((stok == crc32c("sword")) && matches(name, "shortsword"))
     ret = 1;
-  else if ((!strcmp(seek, "hammer")) && matches(name, "warhammer"))
+  else if ((stok == crc32c("hammer")) && matches(name, "warhammer"))
     ret = 1;
-  else if ((!strcmp(seek, "hammer")) && matches(name, "battlehammer"))
+  else if ((stok == crc32c("hammer")) && matches(name, "battlehammer"))
     ret = 1;
-  else if ((!strcmp(seek, "battle hammer")) && matches(name, "battlehammer"))
+  else if ((stok == crc32c("battle hammer")) && matches(name, "battlehammer"))
     ret = 1;
-  else if ((!strcmp(seek, "battlehammer")) && matches(name, "battle hammer"))
+  else if ((stok == crc32c("battlehammer")) && matches(name, "battle hammer"))
     ret = 1;
-  else if ((!strcmp(seek, "war hammer")) && matches(name, "warhammer"))
+  else if ((stok == crc32c("war hammer")) && matches(name, "warhammer"))
     ret = 1;
-  else if ((!strcmp(seek, "warhammer")) && matches(name, "war hammer"))
+  else if ((stok == crc32c("warhammer")) && matches(name, "war hammer"))
     ret = 1;
-  else if ((!strcmp(seek, "axe")) && matches(name, "waraxe"))
+  else if ((stok == crc32c("axe")) && matches(name, "waraxe"))
     ret = 1;
-  else if ((!strcmp(seek, "axe")) && matches(name, "battleaxe"))
+  else if ((stok == crc32c("axe")) && matches(name, "battleaxe"))
     ret = 1;
-  else if ((!strcmp(seek, "battle axe")) && matches(name, "battleaxe"))
+  else if ((stok == crc32c("battle axe")) && matches(name, "battleaxe"))
     ret = 1;
-  else if ((!strcmp(seek, "battleaxe")) && matches(name, "battle axe"))
+  else if ((stok == crc32c("battleaxe")) && matches(name, "battle axe"))
     ret = 1;
-  else if ((!strcmp(seek, "war axe")) && matches(name, "waraxe"))
+  else if ((stok == crc32c("war axe")) && matches(name, "waraxe"))
     ret = 1;
-  else if ((!strcmp(seek, "waraxe")) && matches(name, "war axe"))
+  else if ((stok == crc32c("waraxe")) && matches(name, "war axe"))
     ret = 1;
-  else if ((!strcmp(seek, "morning star")) && matches(name, "morningstar"))
+  else if ((stok == crc32c("morning star")) && matches(name, "morningstar"))
     ret = 1;
-  else if ((!strcmp(seek, "morningstar")) && matches(name, "morning star"))
+  else if ((stok == crc32c("morningstar")) && matches(name, "morning star"))
     ret = 1;
-  else if ((!strcmp(seek, "bisarme")) && matches(name, "gisarme"))
+  else if ((stok == crc32c("bisarme")) && matches(name, "gisarme"))
     ret = 1;
-  else if ((!strcmp(seek, "bisarme")) && matches(name, "guisarme"))
+  else if ((stok == crc32c("bisarme")) && matches(name, "guisarme"))
     ret = 1;
-  else if ((!strcmp(seek, "gisarme")) && matches(name, "bisarme"))
+  else if ((stok == crc32c("gisarme")) && matches(name, "bisarme"))
     ret = 1;
-  else if ((!strcmp(seek, "gisarme")) && matches(name, "guisarme"))
+  else if ((stok == crc32c("gisarme")) && matches(name, "guisarme"))
     ret = 1;
-  else if ((!strcmp(seek, "guisarme")) && matches(name, "bisarme"))
+  else if ((stok == crc32c("guisarme")) && matches(name, "bisarme"))
     ret = 1;
-  else if ((!strcmp(seek, "guisarme")) && matches(name, "gisarme"))
+  else if ((stok == crc32c("guisarme")) && matches(name, "gisarme"))
     ret = 1;
-  else if ((!strcmp(seek, "bill-bisarme")) && matches(name, "bill-gisarme"))
+  else if ((stok == crc32c("bill-bisarme")) && matches(name, "bill-gisarme"))
     ret = 1;
-  else if ((!strcmp(seek, "bill-bisarme")) && matches(name, "bill-guisarme"))
+  else if ((stok == crc32c("bill-bisarme")) && matches(name, "bill-guisarme"))
     ret = 1;
-  else if ((!strcmp(seek, "bill-gisarme")) && matches(name, "bill-bisarme"))
+  else if ((stok == crc32c("bill-gisarme")) && matches(name, "bill-bisarme"))
     ret = 1;
-  else if ((!strcmp(seek, "bill-gisarme")) && matches(name, "bill-guisarme"))
+  else if ((stok == crc32c("bill-gisarme")) && matches(name, "bill-guisarme"))
     ret = 1;
-  else if ((!strcmp(seek, "bill-guisarme")) && matches(name, "bill-bisarme"))
+  else if ((stok == crc32c("bill-guisarme")) && matches(name, "bill-bisarme"))
     ret = 1;
-  else if ((!strcmp(seek, "bill-guisarme")) && matches(name, "bill-gisarme"))
+  else if ((stok == crc32c("bill-guisarme")) && matches(name, "bill-gisarme"))
     ret = 1;
-  else if ((!strcmp(seek, "staff")) && matches(name, "quarterstaff"))
+  else if ((stok == crc32c("staff")) && matches(name, "quarterstaff"))
     ret = 1;
-  else if ((!strcmp(seek, "bow")) && matches(name, "longbow"))
+  else if ((stok == crc32c("bow")) && matches(name, "longbow"))
     ret = 1;
-  else if ((!strcmp(seek, "bow")) && matches(name, "shortbow"))
+  else if ((stok == crc32c("bow")) && matches(name, "shortbow"))
     ret = 1;
-  else if ((!strcmp(seek, "armor")) && matches(name, "armour"))
+  else if ((stok == crc32c("armor")) && matches(name, "armour"))
     ret = 1;
-  else if ((!strcmp(seek, "armour")) && matches(name, "armor"))
+  else if ((stok == crc32c("armour")) && matches(name, "armor"))
     ret = 1;
-  else if ((!strcmp(seek, "armorer")) && matches(name, "armourer"))
+  else if ((stok == crc32c("armorer")) && matches(name, "armourer"))
     ret = 1;
-  else if ((!strcmp(seek, "armourer")) && matches(name, "armorer"))
+  else if ((stok == crc32c("armourer")) && matches(name, "armorer"))
     ret = 1;
-  else if ((!strcmp(seek, "scepter")) && matches(name, "sceptre"))
+  else if ((stok == crc32c("scepter")) && matches(name, "sceptre"))
     ret = 1;
-  else if ((!strcmp(seek, "sceptre")) && matches(name, "scepter"))
+  else if ((stok == crc32c("sceptre")) && matches(name, "scepter"))
     ret = 1;
-  else if ((!strcmp(seek, "grey")) && matches(name, "gray"))
+  else if ((stok == crc32c("grey")) && matches(name, "gray"))
     ret = 1;
-  else if ((!strcmp(seek, "gray")) && matches(name, "grey"))
+  else if ((stok == crc32c("gray")) && matches(name, "grey"))
     ret = 1;
-  else if ((!strcmp(seek, "bread")) && matches(name, "waybread"))
+  else if ((stok == crc32c("bread")) && matches(name, "waybread"))
     ret = 1;
 
   // One-way purposeful mis-spellings to silence some extra labelling from TBA
-  else if ((!strcmp(seek, "potatoe")) && matches(name, "potato"))
+  else if ((stok == crc32c("potatoe")) && matches(name, "potato"))
     ret = 1;
 
   dont_recur = false;
   return ret;
 }
 
-int Object::Matches(const char* seek) {
-  std::string targ = seek;
-  while (targ.length() > 0 && isspace(targ.back()))
-    targ.pop_back();
+int Object::Matches(std::string targ) {
+  trim_string(targ);
 
   // Pointer Matches
   if (!strncmp(targ.c_str(), "OBJ:", 4)) {
@@ -209,54 +209,56 @@ int Object::Matches(const char* seek) {
     return (this == tofind);
   }
 
+  auto ttok = crc32c(targ);
+
   // Keywords Only
-  if (!strcmp(targ.c_str(), "everyone")) {
+  if (ttok == crc32c("everyone")) {
     return (IsAnimate());
   }
-  if (!strcmp(targ.c_str(), "someone")) {
+  if (ttok == crc32c("someone")) {
     return (IsAnimate());
   }
-  if (!strcmp(targ.c_str(), "anyone")) {
+  if (ttok == crc32c("anyone")) {
     return (IsAnimate());
   }
-  if (!strcmp(targ.c_str(), "everything")) {
+  if (ttok == crc32c("everything")) {
     if (IsAct(ACT_SPECIAL_LINKED))
       return 0;
     return (!IsAnimate());
   }
-  if (!strcmp(targ.c_str(), "something")) {
+  if (ttok == crc32c("something")) {
     if (IsAct(ACT_SPECIAL_LINKED))
       return 0;
     return (!IsAnimate());
   }
-  if (!strcmp(targ.c_str(), "anything")) {
+  if (ttok == crc32c("anything")) {
     if (IsAct(ACT_SPECIAL_LINKED))
       return 0;
     return (!IsAnimate());
   }
-  if (!strcmp(targ.c_str(), "everywhere")) {
+  if (ttok == crc32c("everywhere")) {
     if (!IsAct(ACT_SPECIAL_LINKED))
       return 0;
     return (!IsAnimate());
   }
-  if (!strcmp(targ.c_str(), "somewhere")) {
+  if (ttok == crc32c("somewhere")) {
     if (!IsAct(ACT_SPECIAL_LINKED))
       return 0;
     return (!IsAnimate());
   }
-  if (!strcmp(targ.c_str(), "anywhere")) {
+  if (ttok == crc32c("anywhere")) {
     if (!IsAct(ACT_SPECIAL_LINKED))
       return 0;
     return (!IsAnimate());
   }
 
   // Keywords which can also be things
-  if ((!strcmp(targ.c_str(), "corpse")) && IsAct(ACT_DEAD))
+  if ((ttok == crc32c("Corpse")) && IsAct(ACT_DEAD))
     return 1;
-  if ((!strcmp(targ.c_str(), "money")) && Skill(crc32c("Money")))
+  if ((ttok == crc32c("Money")) && Skill(crc32c("Money")))
     return 1;
 
-  return matches(ShortDesc(), targ.c_str());
+  return matches(ShortDesc(), targ);
 }
 
 Object* new_body() {
