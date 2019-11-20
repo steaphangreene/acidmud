@@ -457,6 +457,7 @@ Mind::~Mind() {
     close_socket(pers);
   type = MIND_MORON;
   Disable();
+  recycle_bin.pop_back();
   if (log >= 0)
     close(log);
 }
@@ -3104,7 +3105,7 @@ void Mind::Disable() {
 
   svars = cvars; // Reset all variables
   ovars.clear();
-  recycle_bin.push_back(this); // Ready for re-use
+  recycle_bin.push_back(this); // Ready for re-use/removal by destructor
 }
 
 void Mind::Resume() {
