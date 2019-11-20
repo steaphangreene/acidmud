@@ -3,6 +3,7 @@
 #include <cstring>
 #include <string>
 
+#include "color.hpp"
 #include "utils.hpp"
 
 void replace_all(std::string& str, const std::string& oldt, const std::string& newt, size_t st) {
@@ -52,17 +53,21 @@ size_t prev_line(const std::string& str, size_t pos) {
 }
 
 int phrase_match_sensitive(const std::string& str, const std::string& phrase) {
-  int len = phrase.length();
-
-  const char* desc = str.c_str();
-  while (*desc) {
-    if ((!strncmp(desc, phrase.c_str(), len)) && (!isalnum(desc[len]))) {
+  auto len = phrase.length();
+  auto desc = str.data();
+  auto off = desc - str.data();
+  while ((str.length() - off) >= len) {
+    if ((!strncmp(desc, phrase.data(), len)) && ((str.length() - off) == len || desc[len] == ' ')) {
       return 1;
     }
-    while (isalnum(*desc))
+    while ((str.length() - off) >= len && desc[0] != ' ') {
       ++desc;
-    while ((!isalnum(*desc)) && (*desc))
+      off = desc - str.data();
+    }
+    while ((str.length() - off) >= len && desc[0] == ' ') {
       ++desc;
+      off = desc - str.data();
+    }
   }
   return 0;
 }
