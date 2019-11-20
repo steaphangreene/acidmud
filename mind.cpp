@@ -45,187 +45,187 @@ static uint32_t tba_bitvec(const std::string& val) {
 static std::string tba_spellconvert(const std::string& tba) {
   std::string acid;
 
-  switch (tokenize_string(tba.c_str())) {
-    case (tokenize_string("animate dead")): {
+  switch (crc32c(tba)) {
+    case (crc32c("animate dead")): {
       acid = "Zombie Follower";
       break;
     }
-    case (tokenize_string("armor")): {
+    case (crc32c("armor")): {
       acid = "Armor";
       break;
     }
-    case (tokenize_string("bless")): {
+    case (crc32c("bless")): {
       acid = "Fortune";
       break;
     }
-    case (tokenize_string("blind")):
-    case (tokenize_string("blindness")): {
+    case (crc32c("blind")):
+    case (crc32c("blindness")): {
       acid = "Blindness";
       break;
     }
-    case (tokenize_string("burning hands")): {
+    case (crc32c("burning hands")): {
       acid = "Burning Hands";
       break;
     }
-    case (tokenize_string("call lightning")): {
+    case (crc32c("call lightning")): {
       acid = "Lightning Bolt";
       break;
     }
-    case (tokenize_string("charm")): {
+    case (crc32c("charm")): {
       acid = "Influence";
       break;
     }
-    case (tokenize_string("chill touch")): {
+    case (crc32c("chill touch")): {
       acid = "Ice Bolt";
       break;
     }
-    case (tokenize_string("clot minor")): {
+    case (crc32c("clot minor")): {
       acid = "Shove";
       break;
     }
-    case (tokenize_string("color spray")): {
+    case (crc32c("color spray")): {
       acid = "Color Spray";
       break;
     }
-    case (tokenize_string("cure blind")): {
+    case (crc32c("cure blind")): {
       acid = "Cure Blindness";
       break;
     }
-    case (tokenize_string("cure critic")): {
+    case (crc32c("cure critic")): {
       acid = "Cure Critical Wounds";
       break;
     }
-    case (tokenize_string("cure light")): {
+    case (crc32c("cure light")): {
       acid = "Cure Light Wounds";
       break;
     }
-    case (tokenize_string("heal")): {
+    case (crc32c("heal")): {
       acid = "Healing";
       break;
     }
-    case (tokenize_string("harm")): {
+    case (crc32c("harm")): {
       acid = "Clout";
       break;
     }
-    case (tokenize_string("cure poison")): {
+    case (crc32c("cure poison")): {
       acid = "Cure Poison";
       break;
     }
-    case (tokenize_string("curse")): {
+    case (crc32c("curse")): {
       acid = "Cursed";
       break;
     }
-    case (tokenize_string("detect align")):
-    case (tokenize_string("det-align")): {
+    case (crc32c("detect align")):
+    case (crc32c("det-align")): {
       acid = "Identify Character";
       break;
     }
-    case (tokenize_string("detect magic")):
-    case (tokenize_string("det-magic")): {
+    case (crc32c("detect magic")):
+    case (crc32c("det-magic")): {
       acid = "Illuminate Magic";
       break;
     }
-    case (tokenize_string("detect invisibility")): {
+    case (crc32c("detect invisibility")): {
       acid = "See Invisible";
       break;
     }
-    case (tokenize_string("detect poison")): {
+    case (crc32c("detect poison")): {
       acid = "Detect Poison";
       break;
     }
-    case (tokenize_string("dispel evil")):
-    case (tokenize_string("dispel good")): {
+    case (crc32c("dispel evil")):
+    case (crc32c("dispel good")): {
       acid = "Bang and Puff";
       break;
     }
-    case (tokenize_string("earthquake")): {
+    case (crc32c("earthquake")): {
       acid = "Earth Cataclysm";
       break;
     }
-    case (tokenize_string("energy drain")): {
+    case (crc32c("energy drain")): {
       acid = "Weaken Subject";
       break;
     }
-    case (tokenize_string("fireball")): {
+    case (crc32c("fireball")): {
       acid = "Fireball";
       break;
     }
-    case (tokenize_string("fly")): {
+    case (crc32c("fly")): {
       acid = "Fly";
       break;
     }
-    case (tokenize_string("infravision")):
-    case (tokenize_string("infra")): {
+    case (crc32c("infravision")):
+    case (crc32c("infra")): {
       acid = "Heat Vision";
       break;
     }
-    case (tokenize_string("invisibility")):
-    case (tokenize_string("invis")): {
+    case (crc32c("invisibility")):
+    case (crc32c("invis")): {
       acid = "Invisibilty";
       break;
     }
-    case (tokenize_string("lightning bolt")): {
+    case (crc32c("lightning bolt")): {
       acid = "Spark";
       break;
     }
-    case (tokenize_string("magic missile")): {
+    case (crc32c("magic missile")): {
       acid = "Magic Missile";
       break;
     }
-    case (tokenize_string("poison")): {
+    case (crc32c("poison")): {
       acid = "Poison";
       break;
     }
-    case (tokenize_string("protection from evil")):
-    case (tokenize_string("prot-evil")): {
+    case (crc32c("protection from evil")):
+    case (crc32c("prot-evil")): {
       acid = "Protection";
       break;
     }
-    case (tokenize_string("refresh")): {
+    case (crc32c("refresh")): {
       acid = "Refresh";
       break;
     }
-    case (tokenize_string("remove curse")): {
+    case (crc32c("remove curse")): {
       acid = "Remove Curse";
       break;
     }
-    case (tokenize_string("remove poison")): {
+    case (crc32c("remove poison")): {
       acid = "Neutralize Poison";
       break;
     }
-    case (tokenize_string("sanctuary")):
-    case (tokenize_string("sanct")):
-    case (tokenize_string("sanc")): {
+    case (crc32c("sanctuary")):
+    case (crc32c("sanct")):
+    case (crc32c("sanc")): {
       acid = "Protection";
       break;
     }
-    case (tokenize_string("sense life")):
-    case (tokenize_string("sense-life")): {
+    case (crc32c("sense life")):
+    case (crc32c("sense-life")): {
       acid = "Sense Movement";
       break;
     }
-    case (tokenize_string("shocking grasp")): {
+    case (crc32c("shocking grasp")): {
       acid = "Shocking Grasp";
       break;
     }
-    case (tokenize_string("silence")): {
+    case (crc32c("silence")): {
       acid = "Silence";
       break;
     }
-    case (tokenize_string("strength")): {
+    case (crc32c("strength")): {
       acid = "Strength";
       break;
     }
-    case (tokenize_string("sleep")): {
+    case (crc32c("sleep")): {
       acid = "Sleep Other";
       break;
     }
-    case (tokenize_string("waterwalk")):
-    case (tokenize_string("watwalk")): {
+    case (crc32c("waterwalk")):
+    case (crc32c("watwalk")): {
       acid = "Float";
       break;
     }
-    case (tokenize_string("word of recall")): {
+    case (crc32c("word of recall")): {
       acid = "Recall";
       break;
     }
