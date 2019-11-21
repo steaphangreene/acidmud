@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
     if (last_time + 100000 > current_time)
       usleep(last_time + 100000 - current_time);
     else
-      fprintf(stderr, CRED "Warning: Slow tick: %ldus > 100000us\n" CNRM, current_time - last_time);
+      fprintf(stderr, CYEL "Warning: Slow tick: %ldus > 100000us\n" CNRM, current_time - last_time);
 
     // FIXME: Do real (adjustable) autosave times - hardcoded to 15 minutes!
     if (shutdn < 0 || current_time > lastsave_time + int64_t(900000000)) {
