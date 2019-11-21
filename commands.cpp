@@ -971,7 +971,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     items.insert(items.end(), items3.begin(), items3.end());
 
     for (auto obj : items) {
-      auto trigs = obj->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
+      auto trigs = obj->PickObjects("all tbamud trigger script", LOC_NINJA | LOC_INTERNAL);
       for (auto trig : trigs) {
         if (trig->Skill(crc32c("TBAScriptType")) & 0x04) { //*-COMMAND trigs
           if ((cnum == COM_NONE && (!strncmp(inpline, trig->Desc(), len))) ||
@@ -3131,7 +3131,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     for (auto targ : targs) {
-      auto trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
+      auto trigs = targ->PickObjects("all tbamud trigger script", LOC_NINJA | LOC_INTERNAL);
       for (auto trig : trigs) {
         int ttype = trig->Skill(crc32c("TBAScriptType"));
         if ((ttype & 0x2000040) == 0x2000040) { // OBJ-GET trigs
@@ -3521,7 +3521,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         }
       }
 
-      auto trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
+      auto trigs = targ->PickObjects("all tbamud trigger script", LOC_NINJA | LOC_INTERNAL);
       for (auto trig : trigs) {
         int ttype = trig->Skill(crc32c("TBAScriptType"));
         if ((ttype & 0x2000200) == 0x2000200) { // OBJ-WEAR trigs
@@ -3644,7 +3644,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     }
 
     for (auto targ : targs) {
-      auto trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
+      auto trigs = targ->PickObjects("all tbamud trigger script", LOC_NINJA | LOC_INTERNAL);
       for (auto trig : trigs) {
         int ttype = trig->Skill(crc32c("TBAScriptType"));
         if ((ttype & 0x2000800) == 0x2000800) { // OBJ-REMOVE trigs
@@ -3752,7 +3752,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         if (mind && targs.size() == 1)
           mind->SendF("You are already wearing %s!\n", targ->Name(0, body));
       } else {
-        auto trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
+        auto trigs = targ->PickObjects("all tbamud trigger script", LOC_NINJA | LOC_INTERNAL);
         for (auto trig : trigs) {
           int ttype = trig->Skill(crc32c("TBAScriptType"));
           if ((ttype & 0x2000200) == 0x2000200) { // OBJ-WEAR trigs
@@ -3843,7 +3843,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->Send("You want to drop what?\n");
     } else {
       for (auto targ : targs) {
-        auto trigs = targ->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
+        auto trigs = targ->PickObjects("all tbamud trigger script", LOC_NINJA | LOC_INTERNAL);
         for (auto trig : trigs) {
           int ttype = trig->Skill(crc32c("TBAScriptType"));
           if ((ttype & 0x2000080) == 0x2000080) { // OBJ-DROP trigs
@@ -3859,7 +3859,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         Object* room = body->PickObject("here", LOC_HERE);
         trigs.clear();
         if (room)
-          trigs = room->PickObjects("all tbaMUD trigger script", LOC_NINJA | LOC_INTERNAL);
+          trigs = room->PickObjects("all tbamud trigger script", LOC_NINJA | LOC_INTERNAL);
         for (auto trig : trigs) {
           int ttype = trig->Skill(crc32c("TBAScriptType"));
           if ((ttype & 0x4000080) == 0x4000080) { // ROOM-DROP trigs
