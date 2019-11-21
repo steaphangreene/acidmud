@@ -14,6 +14,96 @@ static std::map<int32_t, uint32_t> weaponskills;
 static std::map<uint32_t, int32_t> weapontypes;
 static std::map<std::string, std::vector<uint32_t>> skcat;
 
+template <typename T>
+typename std::vector<std::pair<uint32_t, T>>::iterator hash_guess(
+    std::vector<std::pair<uint32_t, T>>& data,
+    uint32_t hash) {
+  if (data.empty())
+    return data.end();
+
+  int64_t off = (int64_t(data.size()) * int64_t(hash)) / int64_t(0x100000000);
+  return data.begin() + off;
+}
+
+template <typename T>
+typename std::vector<std::pair<uint32_t, T>>::iterator hash_locate(
+    std::vector<std::pair<uint32_t, T>>& data,
+    uint32_t hash) {
+  if (data.empty())
+    return data.end();
+
+  auto itr = hash_guess(data, hash);
+  if (itr == data.end())
+    --itr;
+  if (itr->first > hash) {
+    while (itr != data.begin() && itr->first > hash)
+      --itr;
+  }
+  if (itr != data.end() && itr->first < hash) {
+    while (itr != data.end() && itr->first < hash)
+      ++itr;
+  }
+  return itr;
+}
+
+template <typename T>
+typename std::vector<std::pair<uint32_t, T>>::iterator hash_find(
+    std::vector<std::pair<uint32_t, T>>& data,
+    uint32_t hash) {
+  if (data.empty())
+    return data.end();
+
+  auto itr = hash_locate(data, hash);
+  if (itr != data.end() && itr->first != hash)
+    itr = data.end();
+  return itr;
+}
+
+template <typename T>
+typename std::vector<std::pair<uint32_t, T>>::const_iterator hash_guess(
+    const std::vector<std::pair<uint32_t, T>>& data,
+    uint32_t hash) {
+  if (data.empty())
+    return data.end();
+
+  int64_t off = (int64_t(data.size()) * int64_t(hash)) / int64_t(0x100000000);
+  return data.cbegin() + off;
+}
+
+template <typename T>
+typename std::vector<std::pair<uint32_t, T>>::const_iterator hash_locate(
+    const std::vector<std::pair<uint32_t, T>>& data,
+    uint32_t hash) {
+  if (data.empty())
+    return data.end();
+
+  auto itr = hash_guess(data, hash);
+  if (itr == data.cend())
+    --itr;
+  if (itr->first > hash) {
+    while (itr != data.cbegin() && itr->first > hash)
+      --itr;
+  }
+  if (itr != data.cend() && itr->first < hash) {
+    while (itr != data.cend() && itr->first < hash)
+      ++itr;
+  }
+  return itr;
+}
+
+template <typename T>
+typename std::vector<std::pair<uint32_t, T>>::const_iterator hash_find(
+    const std::vector<std::pair<uint32_t, T>>& data,
+    uint32_t hash) {
+  if (data.empty())
+    return data.end();
+
+  auto itr = hash_locate(data, hash);
+  if (itr != data.cend() && itr->first != hash)
+    itr = data.cend();
+  return itr;
+}
+
 static int last_wtype = 0;
 static void add_wts(uint32_t sk) {
   if (defaults.count(sk) == 0) {
@@ -579,6 +669,8 @@ static void init_defaults() {
   if (defaults_init)
     return;
   defaults_init = 1;
+
+  std::sort(skill_names.begin(), skill_names.end());
 
   // Skill Definition: Acrobatics
   defaults[crc32c("Acrobatics")] = 1;
@@ -3072,17 +3164,15 @@ void Object::SetSkill(uint32_t stok, int v) {
   else if (v < -1000000000)
     v = -1000000000;
 
-  auto itn = find_if(
-      skill_names.begin(), skill_names.end(), [stok](auto skl) { return (skl.first == stok); });
-  if (itn == skill_names.end()) {
+  auto itn = hash_locate(skill_names, stok);
+  if (itn == skill_names.end() || itn->first != stok) {
     fprintf(stderr, CRED "Error: bogus skill hash (x%X)\n" CNRM, stok);
-    skill_names.emplace_back(std::make_pair(stok, "Unknown"));
+    skill_names.emplace(itn, std::make_pair(stok, "Unknown"));
   }
-  auto itr =
-      find_if(skills.begin(), skills.end(), [stok](auto skl) { return (skl.first == stok); });
-  if (itr == skills.end()) {
+  auto itr = hash_locate(skills, stok);
+  if (itr == skills.end() || itr->first != stok) {
     if (v > 0) {
-      skills.push_back(std::make_pair(stok, v));
+      skills.emplace(itr, std::make_pair(stok, v));
     }
   } else if (v <= 0) {
     skills.erase(itr);
@@ -3098,16 +3188,14 @@ void Object::SetSkill(const std::string& s, int v) {
     v = -1000000000;
 
   auto stok = crc32c(s);
-  auto itn = find_if(
-      skill_names.begin(), skill_names.end(), [stok](auto skl) { return (skl.first == stok); });
-  if (itn == skill_names.end()) {
-    skill_names.emplace_back(std::make_pair(stok, s));
+  auto itn = hash_locate(skill_names, stok);
+  if (itn == skill_names.end() || itn->first != stok) {
+    skill_names.emplace(itn, std::make_pair(stok, s));
   }
-  auto itr =
-      find_if(skills.begin(), skills.end(), [stok](auto skl) { return (skl.first == stok); });
-  if (itr == skills.end()) {
+  auto itr = hash_locate(skills, stok);
+  if (itr == skills.end() || itr->first != stok) {
     if (v > 0) {
-      skills.push_back(std::make_pair(stok, v));
+      skills.emplace(itr, std::make_pair(stok, v));
     }
   } else if (v <= 0) {
     skills.erase(itr);
@@ -3117,8 +3205,7 @@ void Object::SetSkill(const std::string& s, int v) {
 }
 
 int Object::HasSkill(uint32_t stok) const {
-  auto itr =
-      find_if(skills.begin(), skills.end(), [stok](auto skl) { return (skl.first == stok); });
+  auto itr = hash_find(skills, stok);
   return (itr != skills.end());
 }
 
@@ -3141,8 +3228,7 @@ int Object::Skill(uint32_t stok, int* tnum) const {
   if (!defaults_init)
     init_defaults();
 
-  auto itr =
-      find_if(skills.begin(), skills.end(), [stok](auto skl) { return (skl.first == stok); });
+  auto itr = hash_find(skills, stok);
   if (itr != skills.end())
     return itr->second;
   if (tnum) {
