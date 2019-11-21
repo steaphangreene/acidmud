@@ -44,7 +44,7 @@ const char* act_save[ACT_SPECIAL_MAX] = {
     "WEAR_RSHOULDER",
     "WEAR_LHIP",
     "WEAR_RHIP",
-    "MAX",
+    "WEAR_FACE",
     "SPECIAL_MONITOR",
     "SPECIAL_MASTER",
     "SPECIAL_LINKED",
