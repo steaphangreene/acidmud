@@ -1,3 +1,5 @@
+#define TICK_USECS 100000
+
 #include <set>
 #include <vector>
 
@@ -94,10 +96,16 @@ int main(int argc, char** argv) {
 
     auto last_time = current_time;
     current_time = get_time();
-    if (last_time + 100000 > current_time)
-      usleep(last_time + 100000 - current_time);
-    else
-      fprintf(stderr, CYEL "Warning: Slow tick: %ldus > 100000us\n" CNRM, current_time - last_time);
+    if (last_time + TICK_USECS > current_time) {
+      usleep(last_time + TICK_USECS - current_time);
+      current_time = get_time();
+    } else {
+      fprintf(
+          stderr,
+          CYEL "Warning: Slow tick: %ldus > %dus\n" CNRM,
+          current_time - last_time,
+          TICK_USECS);
+    }
 
     // FIXME: Do real (adjustable) autosave times - hardcoded to 15 minutes!
     if (shutdn < 0 || current_time > lastsave_time + int64_t(900000000)) {
