@@ -25,26 +25,47 @@ const char* pos_str[POS_MAX] = {
 };
 
 const char* act_str[ACT_SPECIAL_MAX] = {
-    "doing nothing",       "dead",
-    "bleeding and dying",  "unconscious",
-    "fast asleep",         "resting",
-    "healing %1$s",        "pointing %2$s%3$sat %1$s",
-    "following %1$s",      "fighting %1$s",
-    "holding %1$s",        "wielding %1$s",
-    "wearing %1$s",        "wearing %1$s",
-    "wearing %1$s",        "wearing %1$s",
-    "wearing %1$s",        "wearing %1$s",
-    "wearing %1$s",        "wearing %1$s",
-    "wearing %1$s",        "wearing %1$s",
-    "wearing %1$s",        "wearing %1$s",
-    "wearing %1$s",        "wearing %1$s",
-    "wearing %1$s",        "wearing %1$s",
-    "wearing %1$s",        "wearing %1$s",
-    "wearing %1$s",        "wearing %1$s",
-    "wearing %1$s",        "wearing %1$s",
-    "wearing %1$s",        "wearing_%1$s",
-    "ACT_SPECIAL_MONITOR", "ACT_SPECIAL_MASTER",
-    "ACT_SPECIAL_LINKED",  "ACT_SPECIAL_HOME",
+    "doing nothing",
+    "dead",
+    "bleeding and dying",
+    "unconscious",
+    "fast asleep",
+    "resting",
+    "healing %1$s",
+    "pointing %2$s%3$sat %1$s",
+    "following %1$s",
+    "fighting %1$s",
+    "offering something to %1$s",
+    "holding %1$s",
+    "wielding %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing %1$s",
+    "wearing_%1$s",
+    "ACT_SPECIAL_MONITOR",
+    "ACT_SPECIAL_MASTER",
+    "ACT_SPECIAL_LINKED",
+    "ACT_SPECIAL_HOME",
     //"ACT_SPECIAL_MAX"
 };
 
@@ -2583,6 +2604,10 @@ void Object::StopAct(act_t a) {
     obj->SetSkill(crc32c("Light Source"), 0);
     // obj->SendOut(0, 0, ";s goes out.\n", "", obj, nullptr);
     obj->Deactivate();
+  }
+  if (a == ACT_HOLD && IsAct(ACT_OFFER)) {
+    // obj->SendOut(0, 0, ";s stops offering.\n", "", obj, nullptr);
+    StopAct(ACT_OFFER);
   }
   if (obj) {
     for (auto opt : act) {

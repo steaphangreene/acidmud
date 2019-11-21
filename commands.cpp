@@ -160,6 +160,17 @@ constexpr Command static_comlist[COM_MAX] = {
      "Get an item from your surroundings.",
      "Get an item from your surroundings.",
      (REQ_ALERT | REQ_UP | REQ_ACTION)},
+    {COM_HOLD,
+     "hold",
+     "Hold an item you are carrying in your off-hand.",
+     "Hold an item you are carrying in your off-hand.",
+     (REQ_ALERT | REQ_ACTION)},
+    {COM_OFFER,
+     "offer",
+     "Offer to give your held item to someone, or stop offering.",
+     "Offer to give your held item to someone, or stop offering.",
+     (REQ_ALERT | REQ_ACTION)},
+
     {COM_DRAG,
      "drag",
      "Drag a heavy item with you when you next move.",
@@ -189,11 +200,6 @@ constexpr Command static_comlist[COM_MAX] = {
      "unwield",
      "Unwield the weapon you are currently wielding.",
      "Unwield the weapon you are currently wielding.",
-     (REQ_ALERT | REQ_ACTION)},
-    {COM_HOLD,
-     "hold",
-     "Hold an item you are carrying in your off-hand.",
-     "Hold an item you are carrying in your off-hand.",
      (REQ_ALERT | REQ_ACTION)},
     {COM_LIGHT,
      "light",
@@ -670,6 +676,7 @@ static_assert(static_comlist[COM_STASH].id == COM_STASH);
 static_assert(static_comlist[COM_WIELD].id == COM_WIELD);
 static_assert(static_comlist[COM_UNWIELD].id == COM_UNWIELD);
 static_assert(static_comlist[COM_HOLD].id == COM_HOLD);
+static_assert(static_comlist[COM_OFFER].id == COM_OFFER);
 static_assert(static_comlist[COM_LIGHT].id == COM_LIGHT);
 static_assert(static_comlist[COM_WEAR].id == COM_WEAR);
 static_assert(static_comlist[COM_REMOVE].id == COM_REMOVE);
@@ -3161,7 +3168,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         for (Object* owner = targ->Parent(); owner; owner = owner->Parent()) {
           if (owner->IsAnimate() && owner != body && (!owner->IsAct(ACT_SLEEP)) &&
               (!owner->IsAct(ACT_DEAD)) && (!owner->IsAct(ACT_DYING)) &&
-              (!owner->IsAct(ACT_UNCONSCIOUS))) {
+              (!owner->IsAct(ACT_UNCONSCIOUS)) &&
+              (owner->ActTarg(ACT_OFFER) != body || owner->ActTarg(ACT_HOLD) != targ)) {
             denied = "You would need ";
             denied += owner->Name(1);
             denied += "'s permission to get ";
@@ -4737,6 +4745,47 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     } else {
       if (mind)
         mind->Send("But, you aren't pointing at anyting!\n");
+    }
+    return 0;
+  }
+
+  if (cnum == COM_OFFER) {
+    while (len < int(cmd.length()) && (!isgraph(cmd[len])))
+      ++len;
+    if (strlen(cmd.c_str() + len) > 0) {
+      Object* targ = body->PickObject(cmd.c_str() + len, vmode | LOC_NEARBY);
+      if (!targ) {
+        if (mind)
+          mind->Send("You don't see that person here.\n");
+      } else if (!body->ActTarg(ACT_HOLD)) {
+        if (mind)
+          mind->Send("You aren't holding anything to offer.\n");
+      } else if (!targ->IsAnimate()) {
+        if (mind)
+          mind->Send("You can't offer anything to that.\n");
+      } else {
+        body->AddAct(ACT_OFFER, targ);
+        body->Parent()->SendOut(
+            stealth_t,
+            stealth_s,
+            ";s offers something to ;s.\n",
+            "You offer something to ;s.\n",
+            body,
+            targ);
+      }
+    } else if (body->IsAct(ACT_OFFER)) {
+      Object* targ = body->ActTarg(ACT_OFFER);
+      body->StopAct(ACT_OFFER);
+      body->Parent()->SendOut(
+          stealth_t,
+          stealth_s,
+          ";s stops offering something to ;s.\n",
+          "You stop offering something to ;s.\n",
+          body,
+          targ);
+    } else {
+      if (mind)
+        mind->Send("But, you aren't offering anything to anyone!\n");
     }
     return 0;
   }

@@ -33,13 +33,15 @@ typedef enum {
   COM_LOCK,
 
   COM_GET,
+  COM_HOLD,
+  COM_OFFER,
+
   COM_DRAG,
   COM_PUT,
   COM_DROP,
   COM_STASH,
   COM_WIELD,
   COM_UNWIELD,
-  COM_HOLD,
   COM_LIGHT,
   COM_WEAR,
   COM_REMOVE,

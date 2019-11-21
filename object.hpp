@@ -54,6 +54,7 @@ enum act_t { // Changing these requires change to:
   ACT_POINT,
   ACT_FOLLOW,
   ACT_FIGHT,
+  ACT_OFFER,
   ACT_HOLD,
   ACT_WIELD,
   ACT_WEAR_BACK,
