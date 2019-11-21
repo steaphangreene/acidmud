@@ -4772,6 +4772,17 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             "You offer something to ;s.\n",
             body,
             targ);
+
+        auto trigs = targ->PickObjects("all tbamud trigger script", LOC_NINJA | LOC_INTERNAL);
+        for (auto trig : trigs) {
+          if ((trig->Skill(crc32c("TBAScriptType")) & 0x1000200) ==
+              0x1000200) { // MOB-RECEIVE trigs
+            if (!new_trigger(0, trig, body, body->ActTarg(ACT_HOLD))) {
+              body->ActTarg(ACT_OFFER)->Travel(targ, 0);
+              return 0; // Handled, unless script says not.
+            }
+          }
+        }
       }
     } else if (body->IsAct(ACT_OFFER)) {
       Object* targ = body->ActTarg(ACT_OFFER);

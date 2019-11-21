@@ -527,6 +527,9 @@ void Mind::SetTBATrigger(Object* tr, Object* tripper, Object* targ, std::string 
   if ((stype & 0x4000080) == 0x4000080) { // ROOM-DROP Triggers
     ovars["object"] = targ;
   }
+  if ((stype & 0x1000200) == 0x1000200) { // MOB-RECEIVE Triggers
+    ovars["object"] = targ;
+  }
   if (stype & 0x0000004) { //-COMMAND Triggers
     size_t part = text.find_first_of(" \t\n\r");
     if (part == std::string::npos)
