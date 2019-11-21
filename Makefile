@@ -10,18 +10,19 @@ LIBS:=	-lstdc++ -lcrypt
 all:	acidmud
 
 #Production Settings (dynamic)
-CXX=	clang++ -std=c++17 -O3 -g -Wall -Wshadow -Werror -ferror-limit=2
+CXX=clang++
+CXXFLAGS=-std=c++17 -O3 -g -Wall -Wshadow -Werror -ferror-limit=2
 
 #Use debugging settings
 debug:
-	+make CXX='clang++ -std=c++17 -Og -fno-omit-frame-pointer -g -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined -Wall -Wshadow -Werror -ferror-limit=2'
+	+make CXXFLAGS='-std=c++17 -Og -fno-omit-frame-pointer -g -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined -Wall -Wshadow -Werror -ferror-limit=2'
 
 #Use profiling settings
 profile:
-	+make CXX='clang++ -std=c++17 -O3 -fno-omit-frame-pointer -g -Wall -Wshadow -Werror -ferror-limit=2'
+	+make CXXFLAGS='-std=c++17 -O3 -fno-omit-frame-pointer -g -Wall -Wshadow -Werror -ferror-limit=2'
 
 gcc:
-	+make CXX='g++ -std=c++17 -Og -fno-omit-frame-pointer -g -Wall -Wshadow -Werror -fmax-errors=2'
+	+make CXX='g++' CXXFLAGS='-std=c++17 -Og -fno-omit-frame-pointer -g -Wall -Wshadow -Werror -fmax-errors=2'
 
 clean:
 	rm -f gmon.out deps.mk *.o *.da acidmud ChangeLog ChangeLog.bak
@@ -40,10 +41,10 @@ upload:
 
 acidmud: $(OBJS)
 	rm -f acidmud
-	$(CXX) -o acidmud $(OBJS) $(LIBS)
+	$(CXX) $(CXXFLAGS) -o acidmud $(OBJS) $(LIBS)
 
 %.o: %.cpp
-	$(CXX) -c $<
+	$(CXX) $(CXXFLAGS) -c $<
 
 version.cpp:	version.cpp.template *.hpp [a-uw-z]*.cpp
 	cat version.cpp.template \
@@ -54,4 +55,4 @@ version.cpp:	version.cpp.template *.hpp [a-uw-z]*.cpp
 include deps.mk
 
 deps.mk:	*.cpp *.hpp
-	$(CXX) -MM *.cpp > deps.mk
+	$(CXX) $(CXXFLAGS) -MM *.cpp > deps.mk
