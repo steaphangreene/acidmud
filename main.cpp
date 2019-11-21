@@ -109,6 +109,7 @@ int main(int argc, char** argv) {
 
     // FIXME: Do real (adjustable) autosave times - hardcoded to 15 minutes!
     if (shutdn < 0 || current_time > lastsave_time + int64_t(900000000)) {
+      auto before_save = get_time();
       warn_net(shutdn);
       save_world();
       unwarn_net(shutdn);
@@ -116,6 +117,12 @@ int main(int argc, char** argv) {
 
       // World save time doesn't count toward the clock
       current_time = get_time();
+      fprintf(
+          stderr,
+          CCYN "World save took %ld,%.3ld,%.3ldus.\n" CNRM,
+          (current_time - before_save) / 1000000,
+          ((current_time - before_save) / 1000) % 1000,
+          (current_time - before_save) % 1000);
       lastsave_time = current_time;
     }
   }
