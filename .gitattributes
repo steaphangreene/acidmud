@@ -1,0 +1,9 @@
+*.mini linguist-vendored
+*.mob linguist-vendored
+*.new linguist-vendored
+*.obj linguist-vendored
+*.qst linguist-vendored
+*.shp linguist-vendored
+*.trg linguist-vendored
+*.wld linguist-vendored
+*.zon linguist-vendored
