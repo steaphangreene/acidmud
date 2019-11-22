@@ -64,7 +64,6 @@ Handle liquids mixing?
 
 Unify SendOut() and SendIn().
 Get rid of obsolete "_MASTER" action?
-Get rid of uses of "typeof" - going away, and has poor code readability.
 
 Implement object categories (people, weapons, creatures, axes, etc...).
 
@@ -80,8 +79,6 @@ Curse-ditch police: Throwing a cursed ranged weapon in combat.
 Are TBA keys too big/heavy?
 
 Tell how wounded an enemy is.
-
-Implement Raising.
 
 Implement effects of the Cure Blindness Spell
 Implement effects of the Detect Cursed Items Spell
@@ -166,7 +163,6 @@ Check for circle rooms with no exits and add one.
 Implement real Reaction Action.
 Create Real Tie-Breaker for Tied Initiative.
 
-Improve character creation interface.
 Implement character creation priorities.
 Implement character creation resources.
 Implement character creation race.
