@@ -3179,52 +3179,52 @@ void Object::Loud(std::set<Object*>& visited, int str, const char* mes) {
 }
 
 void init_world() {
-  is_skill(0); // Force runtime string initialization
   universe = new Object;
   universe->SetShortDesc("The Universe");
   universe->SetDesc("An Infinite Universe within which to play.");
   universe->SetLongDesc("A Really Big Infinite Universe within which to play.");
-  universe->SetSkill(crc32c("Light Source"), 1000); // Ninjas need to see too.
   trash_bin = new Object;
   trash_bin->SetShortDesc("The Trash Bin");
   trash_bin->SetDesc("The place objects come to die.");
 
   if (!universe->Load("acid/current.wld")) {
     load_players("acid/current.plr");
-    return;
+  } else {
+    is_skill(0); // Force runtime string initialization
+
+    int fd = open("startup.conf", O_RDONLY);
+    if (fd >= 0) {
+      Object* autoninja = new Object(universe);
+      autoninja->SetShortDesc("The AutoNinja");
+      autoninja->SetDesc("The AutoNinja - you should NEVER see this!");
+      autoninja->SetPos(POS_STAND);
+
+      Player* anp = new Player("AutoNinja", "AutoNinja");
+      anp->Set(PLAYER_SUPERNINJA);
+      anp->Set(PLAYER_NINJA);
+      anp->Set(PLAYER_NINJAMODE);
+
+      Mind* automind = new Mind();
+      automind->SetPlayer("AutoNinja");
+      automind->SetSystem();
+      automind->Attach(autoninja);
+
+      int len = lseek(fd, 0, SEEK_END);
+      lseek(fd, 0, SEEK_SET);
+      char* buf2 = new char[len + 1];
+      read(fd, buf2, len);
+      buf2[len] = 0;
+
+      handle_command(autoninja, buf2, automind);
+      close(fd);
+
+      delete automind;
+      delete anp;
+      autoninja->Recycle();
+      delete[] buf2;
+    }
   }
-
-  int fd = open("startup.conf", O_RDONLY);
-  if (fd >= 0) {
-    Object* autoninja = new Object(universe);
-    autoninja->SetShortDesc("The AutoNinja");
-    autoninja->SetDesc("The AutoNinja - you should NEVER see this!");
-    autoninja->SetPos(POS_STAND);
-
-    Player* anp = new Player("AutoNinja", "AutoNinja");
-    anp->Set(PLAYER_SUPERNINJA);
-    anp->Set(PLAYER_NINJA);
-    anp->Set(PLAYER_NINJAMODE);
-
-    Mind* automind = new Mind();
-    automind->SetPlayer("AutoNinja");
-    automind->SetSystem();
-    automind->Attach(autoninja);
-
-    int len = lseek(fd, 0, SEEK_END);
-    lseek(fd, 0, SEEK_SET);
-    char* buf2 = new char[len + 1];
-    read(fd, buf2, len);
-    buf2[len] = 0;
-
-    handle_command(autoninja, buf2, automind);
-    close(fd);
-
-    delete automind;
-    delete anp;
-    autoninja->Recycle();
-    delete[] buf2;
-  }
+  universe->SetSkill(crc32c("Light Source"), 1000); // Ninjas need to see too.
 }
 
 void save_world(int with_net) {
