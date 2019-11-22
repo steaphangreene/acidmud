@@ -89,6 +89,9 @@ int Object::Save(const char* filename) {
 
   fprintf(fl, "%.8X\n", CurrentVersion.savefile_version_object);
 
+  // Save 'skill_names' hashes and strings.
+  save_skill_names_to(fl);
+
   obj2num.clear();
   obj2num[nullptr] = 0;
   last_object_number = 0;
@@ -145,9 +148,9 @@ int Object::SaveTo(FILE* fl) {
       IsActive());
 
   for (const auto sk : skills)
-    fprintf(fl, "|%s|%d", SkillName(sk.first).c_str(), sk.second);
+    fprintf(fl, "|%.8X|%d", sk.first, sk.second);
   if (cur_skill != crc32c("None")) { // Added current skill to end in v0x13
-    fprintf(fl, "|%s", SkillName(cur_skill).c_str());
+    fprintf(fl, "|%.8X", cur_skill);
   }
   fprintf(fl, ";\n");
 
@@ -180,6 +183,11 @@ int Object::Load(const char* fn) {
     return -1;
 
   fscanf(fl, "%X\n", &ver);
+
+  // Load 'skill_names' hashes and strings.
+  if (ver >= 0x0018) {
+    load_skill_names_from(fl);
+  }
 
   todo.clear();
   num2obj.clear();
@@ -360,7 +368,7 @@ int Object::LoadFrom(FILE* fl) {
       // fprintf(stderr, "Loaded %s: %d\n", buf, val);
       SetSkill(buf, val);
     }
-  } else { // Backward compatible load between v0x12 and v0x13
+  } else if (ver < 0x0018) { // Backward compatible load between v0x12 and v0x13
     int ret;
     ret = fscanf(fl, "|%[^\n|;]|%d", buf, &val);
     while (ret > 1) {
@@ -370,6 +378,18 @@ int Object::LoadFrom(FILE* fl) {
     }
     if (ret > 0) { // Added the currently used skill to the end in v0x13
       StartUsing(get_skill(buf));
+    }
+  } else { // Skills now saved/loaded by hash, not name
+    int ret;
+    uint32_t stok;
+    ret = fscanf(fl, "|%X|%d", &stok, &val);
+    while (ret > 1) {
+      // fprintf(stderr, "Loaded %s: %d\n", buf, val);
+      SetSkill(stok, val);
+      ret = fscanf(fl, "|%X|%d", &stok, &val);
+    }
+    if (ret > 0) { // Added the currently used skill to the end in v0x13
+      StartUsing(stok);
     }
   }
   fscanf(fl, ";\n");

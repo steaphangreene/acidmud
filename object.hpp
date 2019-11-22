@@ -478,5 +478,7 @@ Object* new_obj(Object*);
 Object* new_obj(const Object&);
 
 std::string SkillName(uint32_t);
+void save_skill_names_to(FILE* fl);
+void load_skill_names_from(FILE* fl);
 
 #endif

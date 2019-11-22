@@ -664,6 +664,31 @@ static std::vector<std::pair<uint32_t, std::string>> skill_names = {
     {crc32c("Zero-G Ops"), "Zero-G Ops"},
 };
 
+void save_skill_names_to(FILE* fl) {
+  fprintf(fl, "%lu\n", skill_names.size());
+  for (auto skn : skill_names) {
+    if (skn.second.length() > 255) {
+      fprintf(stderr, CRED "Error: Skill name too long: '%s'\n", skn.second.c_str());
+      fprintf(fl, "%.8X:Undefined\n", skn.first);
+    } else {
+      fprintf(fl, "%.8X:%s\n", skn.first, skn.second.c_str());
+    }
+  }
+}
+
+void load_skill_names_from(FILE* fl) {
+  int32_t size;
+  fscanf(fl, "%d\n", &size);
+  char buf[256];
+  skill_names.reserve(size);
+  for (int sk = 0; sk < size; ++sk) {
+    uint32_t hash;
+    fscanf(fl, "%X:%255[^\n]\n", &hash, buf);
+    skill_names.emplace_back(std::make_pair(hash, buf));
+  }
+  std::sort(skill_names.begin(), skill_names.end());
+}
+
 static int defaults_init = 0;
 static void init_defaults() {
   if (defaults_init)
