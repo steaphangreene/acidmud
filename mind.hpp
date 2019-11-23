@@ -14,8 +14,8 @@
 class Mind;
 class Object;
 
-#ifndef MIND_H
-#define MIND_H
+#ifndef MIND_HPP
+#define MIND_HPP
 
 class Mind {
  public:
@@ -116,4 +116,4 @@ Mind* new_mind(
 int new_trigger(int msec, Object* obj, Object* tripper = nullptr, std::string text = "");
 int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, std::string text = "");
 
-#endif
+#endif // MIND_HPP

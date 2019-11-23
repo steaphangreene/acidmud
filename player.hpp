@@ -6,8 +6,8 @@
 
 class Player;
 
-#ifndef PLAYER_H
-#define PLAYER_H
+#ifndef PLAYER_HPP
+#define PLAYER_HPP
 
 #define PLAYER_NINJAMODE (1 << 29)
 #define PLAYER_NINJA (1 << 30)
@@ -72,4 +72,4 @@ int is_pc(const Object*);
 std::vector<Player*> get_current_players();
 std::vector<Player*> get_all_players();
 
-#endif
+#endif // PLAYER_HPP

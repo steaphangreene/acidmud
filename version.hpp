@@ -1,5 +1,5 @@
-#ifndef VERSION_H
-#define VERSION_H
+#ifndef VERSION_HPP
+#define VERSION_HPP
 
 #include <string>
 
@@ -19,4 +19,4 @@ extern VersionInformation CurrentVersion;
 
 #endif // VERSION_DEFINED
 
-#endif // VERSION_H
+#endif // VERSION_HPP

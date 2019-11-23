@@ -15,8 +15,8 @@ class Player;
 class Mind;
 class MOBType;
 
-#ifndef OBJECT_H
-#define OBJECT_H
+#ifndef OBJECT_HPP
+#define OBJECT_HPP
 
 #define LOC_RESERVED 0x0001 // Reserved for individual funcion flags
 #define LOC_SELF 0x0002
@@ -482,4 +482,4 @@ Object* new_obj();
 Object* new_obj(Object*);
 Object* new_obj(const Object&);
 
-#endif
+#endif // OBJECT_HPP
