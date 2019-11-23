@@ -5841,13 +5841,11 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     std::string skills;
     std::vector<uint32_t> skls;
     if (len >= int(cmd.length())) {
-      skills =
-          "Here are all the skill categories (use 'skill <Category>' to "
-          "see the skills):\n";
+      skills = "Here are all the skill categories (use 'skill <Category>' to see the skills):\n";
       skls = get_skills();
     } else {
       std::string cat = get_skill_cat(cmd.c_str() + len);
-      if (std::string(cmd.c_str() + len) != "all") {
+      if (cmd.substr(len) != "all") {
         if (cat == "") {
           mind->SendF("There is no skill category called '%s'.\n", cmd.c_str() + len);
           return 0;
@@ -5860,8 +5858,13 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       skls = get_skills(cat);
     }
 
+    std::vector<std::string> sknms;
     for (auto skl : skls) {
-      skills += skl;
+      sknms.push_back(SkillName(skl));
+    }
+    std::sort(sknms.begin(), sknms.end());
+    for (auto skn : sknms) {
+      skills += skn;
       skills += "\n";
     }
     mind->Send(skills.c_str());

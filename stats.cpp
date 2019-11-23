@@ -62,7 +62,7 @@ uint32_t get_skill(std::string sk) {
 
   for (auto itr : defaults) {
     std::string lc = SkillName(itr.first);
-    std::transform(lc.begin(), lc.end(), lc.begin(), ::tolower);
+    std::transform(lc.begin(), lc.end(), lc.begin(), ascii_tolower);
     if (!strncmp(sk.c_str(), lc.c_str(), sk.length())) {
       return itr.first;
     }
@@ -71,15 +71,15 @@ uint32_t get_skill(std::string sk) {
 }
 
 std::string get_skill_cat(std::string cat) {
-  while (cat.length() > 0 && isspace(cat.back()))
-    cat.pop_back();
-  if (skcat.count(cat))
-    return cat;
+  trim_string(cat);
+
   if (cat.length() < 2)
     return "";
 
   for (auto itr : skcat) {
-    if (!strncmp(cat.c_str(), itr.first.c_str(), cat.length())) {
+    auto skn = itr.first;
+    std::transform(skn.begin(), skn.end(), skn.begin(), ascii_tolower);
+    if (!strncmp(cat.c_str(), skn.c_str(), cat.length())) {
       return itr.first;
     }
   }
