@@ -7,6 +7,10 @@ wget 'https://biaszero.com/~stea/gaming/wiki/index.php/SkillsData' -o /dev/null 
 tail -n +2 ${tmpdir}/skills0 | cut -f3- -d'>' | grep '^S;' > ${tmpdir}/skills
 rm -f ${tmpdir}/skills[01]
 
+echo "// @generated code file: Do not edit.  Edit update_skills.sh instead."
+echo ""
+echo "// clang-format off"
+echo ""
 echo "#include <map>"
 echo ""
 echo "#include \"stats.hpp\""
@@ -43,10 +47,39 @@ for sk in $(cat ${tmpdir}/skills | cut -f3-4 -d";" | sed "s- -_-g" | sort -uk1.3
 done
 echo '};'
 
+for sk in $(cat ${tmpdir}/skills | cut -f3-4 -d";" | sed "s- -_-g" | sort -uk1.3,2); do
+  weapon=
+  skname="$(echo "$sk" | cut -f2 -d";" | sed "s-_- -g")"
+  sklink="$(echo $skname | sed "s| |_|g")"
+  for skcat in $(wget https://biaszero.com/~stea/gaming/wiki/index.php/Skill:${sklink} -q -O - \
+        | sed 's/title=Category:\([A-Za-z0-9_/\-]*\)&/@\1@/g' \
+	| tr '\n' '?' | tr @ '\n' | grep -v '\?'); do
+    catname="$(echo "$skcat" | sed "s-_- -g" | sed "s-/-_-g")"
+    echo "         crc32c(\"${skname}\")," >> "${tmpdir}/skcat#$catname"
+    if [ -n "$(echo "$catname" | grep -E "(Combat|Pistol|Rifle|Weapon) Skills")" ]; then
+      weapon=1
+    fi
+  done
+  if [ -n "$weapon" ]; then
+    echo "  add_wts(crc32c(\"${skname}\"));" >> "${tmpdir}/weapons"
+    weapon=1
+  fi
+done
+
+echo ""
+echo "std::map<std::string, std::vector<uint32_t>> skcat = {"
+for cat in ${tmpdir}/skcat#*; do
+    catname="$(echo "$cat" | cut -f2 -d"#" | sed "s-_-/-g")"
+    echo "    {\"${catname}\","
+    echo "     {"
+    cat "$cat"
+    echo "     }},"
+done
+echo "};"
+
 echo ""
 echo "std::map<int32_t, uint32_t> weaponskills;"
 echo "std::map<uint32_t, int32_t> weapontypes;"
-echo "std::map<std::string, std::vector<uint32_t>> skcat;"
 echo ""
 echo "static int last_wtype = 0;"
 echo "static void add_wts(uint32_t sk) {"
@@ -65,30 +98,6 @@ echo "}"
 
 echo ""
 echo "void init_skill_list() {"
-
-started=
-for sk in $(cat ${tmpdir}/skills | cut -f3-4 -d";" | sed "s- -_-g" | sort -uk1.3,2); do
-  weapon=
-  skname="$(echo "$sk" | cut -f2 -d";" | sed "s-_- -g")"
-  if [ -n "$started" ]; then
-    echo ''
-  fi
-  started=1
-
-  echo "  // Skill Definition: $skname"
-  sklink="$(echo $skname | sed "s| |_|g")"
-  for skcat in $(wget https://biaszero.com/~stea/gaming/wiki/index.php/Skill:${sklink} -q -O - \
-        | sed 's/title=Category:\([A-Za-z0-9_/\-]*\)&/@\1@/g' \
-	| tr '\n' '?' | tr @ '\n' | grep -v '\?'); do
-    catname="$(echo "$skcat" | sed "s-_- -g")"
-    echo "  skcat[\"${catname}\"].push_back(crc32c(\"${skname}\"));"
-    if [ -n "$(echo "$catname" | grep -E "(Combat|Pistol|Rifle|Weapon) Skills")" ]; then
-      weapon=1
-    fi
-  done
-  if [ -n "$weapon" ]; then
-    echo "  add_wts(crc32c(\"${skname}\"));"
-    weapon=1
-  fi
-done
+cat "${tmpdir}/weapons"
 echo '}'
+echo "// clang-format on"
