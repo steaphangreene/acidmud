@@ -1956,10 +1956,10 @@ int Object::Travel(Object* dest, int try_combine) {
     parent->DynamicInit();
   }
 
-  if (parent->Skill(crc32c("Secret"))) {
+  if (parent->Skill(crc32c("Accomplishment"))) {
     for (auto m : minds) {
       if (m->Owner()) {
-        if (m->Owner()->Accomplish(parent->Skill(crc32c("Secret")))) {
+        if (m->Owner()->Accomplish(parent->Skill(crc32c("Accomplishment")))) {
           m->SendF("%sYou gain a player experience point for finding a secret!\n%s", CYEL, CNRM);
         }
       }

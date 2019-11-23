@@ -2263,7 +2263,7 @@ void Object::TBALoadWLD(const char* fn) {
 
       std::string name = obj->ShortDesc();
       if (name.find("Secret") >= 0 && name.find("Secret") < name.length()) {
-        obj->SetSkill(crc32c("Secret"), 4000000 + onum);
+        obj->SetSkill(crc32c("Accomplishment"), 4000000 + onum);
       }
 
       obj->SetSkill(crc32c("Translucent"), 1000); // Full sky, by default
@@ -2276,7 +2276,7 @@ void Object::TBALoadWLD(const char* fn) {
         obj->SetSkill(crc32c("Light Source"), 0); // No torches
       }
       if (strcasestr(buf, "b") || (atoi(buf) & 2)) { // DEATH
-        obj->SetSkill(crc32c("Secret"), 4000000 + onum);
+        obj->SetSkill(crc32c("Accomplishment"), 4000000 + onum);
         //	obj->SetSkill(crc32c("Hazardous"), 2);		//FIXME: Actually
         // Dangerous?
       }

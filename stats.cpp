@@ -504,7 +504,6 @@ static std::vector<std::pair<uint32_t, std::string>> skill_names = {
     {crc32c("Running"), "Running"},
     {crc32c("Saurian Line Attacking"), "Saurian Line Attacking"},
     {crc32c("Sci-Fi Skills"), "Sci-Fi Skills"},
-    {crc32c("Secret"), "Secret"},
     {crc32c("Security"), "Security"},
     {crc32c("Seduction"), "Seduction"},
     {crc32c("Self Artificing"), "Self Artificing"},
