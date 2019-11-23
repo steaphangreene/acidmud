@@ -836,7 +836,7 @@ void Mind::TBAVarSub(std::string& line) {
         } else if (!strcmp(field.c_str(), "vnum")) {
           int vnum = 0;
           if (obj) {
-            obj->Skill(crc32c("TBAMOB"));
+            vnum = obj->Skill(crc32c("TBAMOB"));
             if (vnum < 1)
               vnum = obj->Skill(crc32c("TBAObject"));
             if (vnum < 1)
