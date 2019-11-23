@@ -43,10 +43,6 @@ class Player {
     return name.c_str();
   }
   void AddChar(Object*);
-  int Accomplish(unsigned long);
-  int Exp() const {
-    return exp;
-  }
   const std::map<std::string, std::string> Vars() {
     return vars;
   };
@@ -59,8 +55,6 @@ class Player {
   std::string name, pass;
   Object *room, *creator;
   unsigned long flags;
-  std::set<unsigned long> completed;
-  int exp;
   std::map<std::string, std::string> vars;
 
   friend Player* player_login(std::string name, std::string pass);

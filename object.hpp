@@ -234,7 +234,9 @@ class Object {
   void EarnExp(int);
   void SpendExp(int);
   int Accomplish(unsigned long);
-  int TotalExp(Player* p = nullptr) const;
+  int TotalExp() const {
+    return exp - sexp;
+  };
   int Exp() const {
     return exp;
   };

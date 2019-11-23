@@ -1609,10 +1609,7 @@ void Object::SendScore(Mind* m, Object* o) {
 
   for (auto mind : minds) {
     if (mind->Owner()) {
-      m->SendF(
-          CBLU "->Player Connected: %s (%d exp)\n" CNRM,
-          mind->Owner()->Name(),
-          mind->Owner()->Exp());
+      m->SendF(CBLU "->Player Connected: %s\n" CNRM, mind->Owner()->Name());
     } else if (mind == get_mob_mind()) {
       m->Send(CBLU "->MOB_MIND\n" CNRM);
     } else if (mind == get_tba_mob_mind()) {
@@ -1633,11 +1630,7 @@ void Object::SendScore(Mind* m, Object* o) {
   // Experience Summary
   if (IsAnimate()) {
     m->Send(CYEL);
-    m->SendF(
-        "\nEarned Exp: %4d  Player Exp: %4d  Unspent Exp: %4d\n",
-        Exp(),
-        (minds.count(m) && m->Owner()) ? m->Owner()->Exp() : -1,
-        (minds.count(m) && m->Owner()) ? TotalExp(m->Owner()) : 0);
+    m->SendF("\nEarned Exp: %4d  Unspent Exp: %4d\n", Exp(), TotalExp());
     if (Power("Heat Vision") || Power("Dark Vision")) {
       m->SendF("Heat/Dark Vision: %d/%d\n", Power("Heat Vision"), Power("Dark Vision"));
     }
@@ -1959,8 +1952,9 @@ int Object::Travel(Object* dest, int try_combine) {
   if (parent->Skill(crc32c("Accomplishment"))) {
     for (auto m : minds) {
       if (m->Owner()) {
-        if (m->Owner()->Accomplish(parent->Skill(crc32c("Accomplishment")))) {
-          m->SendF("%sYou gain a player experience point for finding a secret!\n%s", CYEL, CNRM);
+        if (Accomplish(parent->Skill(crc32c("Accomplishment")))) {
+          m->SendF("%sYou gain an experience point for finding a secret!\n%s", CYEL, CNRM);
+          break;
         }
       }
     }
@@ -3567,13 +3561,6 @@ int Object::Accomplish(unsigned long acc) {
   completed.insert(acc);
   ++exp;
   return 1;
-}
-
-int Object::TotalExp(Player* p) const {
-  int ret = Exp();
-  if (p)
-    ret += p->Exp();
-  return ret;
 }
 
 int two_handed(int wtype) {

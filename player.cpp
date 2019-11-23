@@ -15,7 +15,6 @@ static const char* salt_char = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUV
 
 Player::Player(std::string nm, std::string ps) {
   flags = 0;
-  exp = 0;
 
   room = new Object();
   creator = nullptr;
@@ -117,12 +116,13 @@ int Player::LoadFrom(FILE* fl) {
   memset(buf, 0, 65536);
   fscanf(fl, "%s\n", buf);
   pass = buf;
-  fscanf(fl, ":%d", &exp);
 
-  unsigned long newcom;
-  while (fscanf(fl, ";%ld", &newcom) > 0) {
-    completed.insert(newcom);
+  // Player experience - obsolete, ignored
+  fscanf(fl, ":%*d");
+  while (fscanf(fl, ";%*ld") > 0) {
+    // Do nothing - ignore these
   }
+
   fscanf(fl, ":%lX\n", &flags);
 
   int num;
@@ -164,11 +164,7 @@ int load_players(const char* fn) {
 int Player::SaveTo(FILE* fl) {
   fprintf(fl, "%s\n%s\n", name.c_str(), pass.c_str());
 
-  fprintf(fl, ":%d", exp);
-
-  for (auto com : completed) {
-    fprintf(fl, ";%ld", com);
-  }
+  fprintf(fl, ":0"); // Player experience, obsolete, always zero
 
   fprintf(fl, ":%lX", flags);
   room->WriteContentsTo(fl);
@@ -232,12 +228,4 @@ std::vector<Player*> get_all_players() {
     }
   }
   return ret;
-}
-
-int Player::Accomplish(unsigned long acc) {
-  if (completed.count(acc))
-    return 0;
-  completed.insert(acc);
-  ++exp;
-  return 1;
 }

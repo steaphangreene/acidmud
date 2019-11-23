@@ -5577,12 +5577,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       else if (toupper(*(cmd.c_str() + len)) == 'W')
         attr = 5;
 
-      if (body && chr->TotalExp(mind->Owner()) < 20) {
+      if (body && chr->TotalExp() < 20) {
         mind->SendF(
             "You don't have enough experience to raise your %s.\n"
             "You need 20, but you only have %d\n",
             statnames[attr],
-            chr->TotalExp(mind->Owner()));
+            chr->TotalExp());
         return 0;
       }
 
@@ -5623,13 +5623,13 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         if (body) {
           if (cost > chr->NormAttribute(get_linked(skill)))
             cost *= 2;
-          if (chr->TotalExp(mind->Owner()) < (cost * 2)) {
+          if (chr->TotalExp() < (cost * 2)) {
             mind->SendF(
                 "You don't have enough experience to raise your %s.\n"
                 "You need %d, but you only have %d\n",
                 SkillName(skill).c_str(),
                 cost * 2,
-                chr->TotalExp(mind->Owner()));
+                chr->TotalExp());
             return 0;
           }
         } else if (!chr->Skill(crc32c("Skill Points"))) {
