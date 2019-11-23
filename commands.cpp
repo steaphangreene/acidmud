@@ -1552,7 +1552,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   if (cnum == COM_SHOUT || cnum == COM_YELL || cnum == COM_CALL) {
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
       ++len;
-    if (strlen(cmd.c_str() + len) <= 0) {
+    if (mind && strlen(cmd.c_str() + len) <= 0) {
       if (strncmp(mind->SpecialPrompt(), "shout", 3)) {
         mind->SetSpecialPrompt("shout");
         mind->Send(
