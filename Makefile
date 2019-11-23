@@ -30,7 +30,7 @@ clean:
 backup:
 	cd ..;tar chvf ~/c/archive/acidmud.$(TSTR).tar \
 		acidmud/*.[hc] acidmud/*.cpp acidmud/TODO\
-		acidmud/Makefile acidmud/startup.conf
+		acidmud/Makefile acidmud/acid/startup.conf
 	gzip -9 ~/c/archive/acidmud.$(TSTR).tar
 
 upload:

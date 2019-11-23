@@ -3211,7 +3211,7 @@ void init_world() {
   } else {
     is_skill(0); // Force runtime string initialization
 
-    int fd = open("startup.conf", O_RDONLY);
+    int fd = open("acid/startup.conf", O_RDONLY);
     if (fd >= 0) {
       Object* autoninja = new Object(universe);
       autoninja->SetShortDesc("The AutoNinja");
