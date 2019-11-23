@@ -2195,8 +2195,8 @@ int Mind::TBARunLine(std::string line) {
     //	);
     int pos = 0;
     int dam = 0;
-    char buf2[256];
-    if (sscanf(line.c_str() + 8, " %s %n", buf2, &pos) >= 1) {
+    char buf2[256] = {};
+    if (sscanf(line.c_str() + 8, " %254[^\n\r] %n", buf2, &pos) >= 1) {
       if (!strcmp(buf2, "all")) {
         strcpy(buf2, "everyone");
       }
