@@ -1810,6 +1810,9 @@ int Mind::TBARunLine(std::string line) {
     char var[256] = "";
     if (sscanf(line.c_str() + 7, " %s OBJ:%p", var, &con) >= 2 && con != nullptr) {
       con->SetSkill(std::string("TBA:") + var, 0);
+      if (con->IsAnimate()) {
+        con->Accomplish(body->Skill(crc32c("Accomplishment")), "completing a quest");
+      }
       //      fprintf(stderr, CGRN "#%d Debug: RDelete '%s'\n" CNRM,
       //		body->Skill(crc32c("TBAScript")), line.c_str());
     } else {
@@ -1829,6 +1832,9 @@ int Mind::TBARunLine(std::string line) {
       if (svars.count(var) > 0) {
         int val = atoi(svars[var].c_str());
         con->SetSkill(std::string("TBA:") + var, val);
+        if (con->IsAnimate()) {
+          con->Accomplish(body->Skill(crc32c("Accomplishment")), "role playing");
+        }
         //	fprintf(stderr, CGRN "#%d Debug: Remote %s=%d '%s'\n" CNRM,
         //		body->Skill(crc32c("TBAScript")), var, val, line.c_str());
       } else {
@@ -2659,7 +2665,6 @@ int Mind::TBARunLine(std::string line) {
     } else if (dest != room) { // Have it
       dest->StashOrDrop(item);
     }
-
   } else if (!strncmp(line.c_str(), "dg_cast '", 9)) {
     auto splen = line.find_first_of("'", 9);
     if (splen != std::string::npos) {
@@ -2679,7 +2684,6 @@ int Mind::TBARunLine(std::string line) {
     } else {
       fprintf(stderr, CRED "Error: Bad casting command: '%s'\n" CNRM, line.c_str());
     }
-
   } else if (!strncmp(line.c_str(), "case ", 5)) {
     // Ignore these, as we only hit them here when when running over them
   } else if (!strncmp(line.c_str(), "default", 7)) {
