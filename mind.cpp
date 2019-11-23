@@ -418,8 +418,8 @@ int Mind::TBAEval(std::string expr) {
     return (holder == nullptr); //! Object
 
   if (base[0] == '!')
-    return 0; //! Non-Numberic, Non-nullptr, Non-Object
-  return 1; // Non-Numberic, Non-nullptr, Non-Object
+    return 0; //! Non-Numeric, Non-nullptr, Non-Object
+  return 1; // Non-Numeric, Non-nullptr, Non-Object
 }
 
 std::map<std::string, std::string> Mind::cvars;
