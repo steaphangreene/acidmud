@@ -6,6 +6,9 @@
 #include "color.hpp"
 #include "utils.hpp"
 
+static const std::string alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+static const std::string alnum = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
 void replace_all(std::string& str, const std::string& oldt, const std::string& newt, size_t st) {
   size_t loc = str.find(oldt, st);
   while (loc != std::string::npos) {
@@ -57,17 +60,17 @@ int phrase_match_sensitive(const std::string& str, const std::string& phrase) {
   auto desc = str.data();
   auto off = desc - str.data();
   while ((str.length() - off) >= len) {
-    if ((!strncmp(desc, phrase.data(), len)) && ((str.length() - off) == len || desc[len] == ' ')) {
+    if ((!strncmp(desc, phrase.data(), len)) &&
+        ((str.length() - off) == len || str.find_first_not_of(alnum, off + len) == (off + len))) {
       return 1;
     }
-    while ((str.length() - off) >= len && desc[0] != ' ') {
-      ++desc;
-      off = desc - str.data();
-    }
-    while ((str.length() - off) >= len && desc[0] == ' ') {
-      ++desc;
-      off = desc - str.data();
-    }
+    off = str.find_first_not_of(alnum, off);
+    if (off == std::string::npos)
+      return 0;
+    off = str.find_first_of(alnum, off);
+    if (off == std::string::npos)
+      return 0;
+    desc = str.data() + off;
   }
   return 0;
 }
@@ -85,8 +88,6 @@ int phrase_match(const std::string& str, const std::string& phrase) {
   }
 }
 
-static const char* alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-static const char* alnum = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 int words_match(const std::string& str, const std::string& words) {
   size_t start = words.find_first_of(alpha);
   while (start != std::string::npos) {
