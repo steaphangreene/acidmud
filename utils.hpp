@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 
 // String Functions
 void replace_all(std::string& str, const std::string& oldt, const std::string& newt, size_t st = 0);
@@ -79,4 +80,94 @@ constexpr uint32_t crc32c(char const* str) {
 
 constexpr uint32_t crc32c(const std::string& str) {
   return crc32c(str.data(), str.length());
+}
+
+template <typename T>
+typename std::vector<std::pair<uint32_t, T>>::iterator hash_guess(
+    std::vector<std::pair<uint32_t, T>>& data,
+    uint32_t hash) {
+  if (data.empty())
+    return data.end();
+
+  int64_t off = (int64_t(data.size()) * int64_t(hash)) / int64_t(0x100000000);
+  return data.begin() + off;
+}
+
+template <typename T>
+typename std::vector<std::pair<uint32_t, T>>::iterator hash_locate(
+    std::vector<std::pair<uint32_t, T>>& data,
+    uint32_t hash) {
+  if (data.empty())
+    return data.end();
+
+  auto itr = hash_guess(data, hash);
+  if (itr == data.end())
+    --itr;
+  if (itr->first > hash) {
+    while (itr != data.begin() && itr->first > hash)
+      --itr;
+  }
+  if (itr != data.end() && itr->first < hash) {
+    while (itr != data.end() && itr->first < hash)
+      ++itr;
+  }
+  return itr;
+}
+
+template <typename T>
+typename std::vector<std::pair<uint32_t, T>>::iterator hash_find(
+    std::vector<std::pair<uint32_t, T>>& data,
+    uint32_t hash) {
+  if (data.empty())
+    return data.end();
+
+  auto itr = hash_locate(data, hash);
+  if (itr != data.end() && itr->first != hash)
+    itr = data.end();
+  return itr;
+}
+
+template <typename T>
+typename std::vector<std::pair<uint32_t, T>>::const_iterator hash_guess(
+    const std::vector<std::pair<uint32_t, T>>& data,
+    uint32_t hash) {
+  if (data.empty())
+    return data.end();
+
+  int64_t off = (int64_t(data.size()) * int64_t(hash)) / int64_t(0x100000000);
+  return data.cbegin() + off;
+}
+
+template <typename T>
+typename std::vector<std::pair<uint32_t, T>>::const_iterator hash_locate(
+    const std::vector<std::pair<uint32_t, T>>& data,
+    uint32_t hash) {
+  if (data.empty())
+    return data.end();
+
+  auto itr = hash_guess(data, hash);
+  if (itr == data.cend())
+    --itr;
+  if (itr->first > hash) {
+    while (itr != data.cbegin() && itr->first > hash)
+      --itr;
+  }
+  if (itr != data.cend() && itr->first < hash) {
+    while (itr != data.cend() && itr->first < hash)
+      ++itr;
+  }
+  return itr;
+}
+
+template <typename T>
+typename std::vector<std::pair<uint32_t, T>>::const_iterator hash_find(
+    const std::vector<std::pair<uint32_t, T>>& data,
+    uint32_t hash) {
+  if (data.empty())
+    return data.end();
+
+  auto itr = hash_locate(data, hash);
+  if (itr != data.cend() && itr->first != hash)
+    itr = data.cend();
+  return itr;
 }
