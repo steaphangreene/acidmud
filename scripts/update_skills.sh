@@ -1,8 +1,11 @@
 #!/bin/bash
+tmpdir=$(mktemp -d /tmp/skills-XXXXXX)
+trap "rm -fr $tmpdir" EXIT
+
 wget 'https://biaszero.com/~stea/gaming/wiki/index.php/SkillsData' -o /dev/null -O - \
-	| csplit -q -n 1 -f /tmp/skills - %START% /END/
-tail -n +2 /tmp/skills0 | cut -f3- -d'>' | grep '^S;' > /tmp/skills
-rm -f /tmp/skills[01]
+	| csplit -q -n 1 -f ${tmpdir}/skills - %START% /END/
+tail -n +2 ${tmpdir}/skills0 | cut -f3- -d'>' | grep '^S;' > ${tmpdir}/skills
+rm -f ${tmpdir}/skills[01]
 
 echo "#include <map>"
 echo ""
@@ -11,7 +14,7 @@ echo "#include \"utils.hpp\""
 echo ""
 
 echo "std::map<uint32_t, int32_t> defaults = {"
-for sk in $(cat /tmp/skills | cut -f3-4 -d";" | sed "s- -_-g" | sort -uk1.3,2); do
+for sk in $(cat ${tmpdir}/skills | cut -f3-4 -d";" | sed "s- -_-g" | sort -uk1.3,2); do
   skname="$(echo "$sk" | cut -f2 -d";" | sed "s-_- -g")"
 
   if [[ "$(echo "$sk" | cut -f1 -d";")" == "B" ]]; then
@@ -64,7 +67,7 @@ echo ""
 echo "void init_skill_list() {"
 
 started=
-for sk in $(cat /tmp/skills | cut -f3-4 -d";" | sed "s- -_-g" | sort -uk1.3,2); do
+for sk in $(cat ${tmpdir}/skills | cut -f3-4 -d";" | sed "s- -_-g" | sort -uk1.3,2); do
   weapon=
   skname="$(echo "$sk" | cut -f2 -d";" | sed "s-_- -g")"
   if [ -n "$started" ]; then
