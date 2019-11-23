@@ -480,8 +480,10 @@ Object* new_obj();
 Object* new_obj(Object*);
 Object* new_obj(const Object&);
 
+void init_skill_names();
 std::string SkillName(uint32_t);
 void save_skill_names_to(FILE* fl);
 void load_skill_names_from(FILE* fl);
-
+void confirm_skill_hash(uint32_t);
+void insert_skill_hash(uint32_t, const std::string&);
 #endif
