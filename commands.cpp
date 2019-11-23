@@ -5263,15 +5263,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       body->StopAct(ACT_FIGHT);
       body->BusyFor(3000);
       if (targ->Skill(crc32c("Accomplishment"))) {
-        if (body->Accomplish(targ->Skill(crc32c("Accomplishment")))) {
-          if (mind) {
-            mind->SendF(
-                "%sYour character gains an experience point for this "
-                "victory!\n%s",
-                CYEL,
-                CNRM);
-          }
-        }
+        body->Accomplish(targ->Skill(crc32c("Accomplishment")), "this victory");
         targ->SetSkill(crc32c("Accomplishment"), 0);
       }
     }

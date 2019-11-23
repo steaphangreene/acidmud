@@ -233,7 +233,7 @@ class Object {
 
   void EarnExp(int);
   void SpendExp(int);
-  int Accomplish(unsigned long);
+  int Accomplish(unsigned long, const std::string&);
   int TotalExp() const {
     return exp - sexp;
   };

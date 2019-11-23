@@ -1952,10 +1952,7 @@ int Object::Travel(Object* dest, int try_combine) {
   if (parent->Skill(crc32c("Accomplishment"))) {
     for (auto m : minds) {
       if (m->Owner()) {
-        if (Accomplish(parent->Skill(crc32c("Accomplishment")))) {
-          m->SendF("%sYou gain an experience point for finding a secret!\n%s", CYEL, CNRM);
-          break;
-        }
+        Accomplish(parent->Skill(crc32c("Accomplishment")), "finding a secret");
       }
     }
   }
@@ -3555,11 +3552,16 @@ void Object::SpendExp(int e) {
   sexp += e;
 }
 
-int Object::Accomplish(unsigned long acc) {
+int Object::Accomplish(unsigned long acc, const std::string& why) {
   if (completed.count(acc))
     return 0;
   completed.insert(acc);
   ++exp;
+  for (auto m : minds) {
+    if (m->Owner()) {
+      m->SendF(CYEL "You gain an experience point for %s!\n" CNRM, why.c_str());
+    }
+  }
   return 1;
 }
 
