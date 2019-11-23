@@ -826,7 +826,20 @@ void Mind::TBAVarSub(std::string& line) {
     }
     while (line[end] == '.') {
       size_t start = end + 1;
-      end = line.find_first_of("%. \t", start);
+      end = line.find_first_of("%. \t(", start);
+      if (end != std::string::npos && line[end] == '(') {
+        int paren_depth = 0;
+        do {
+          if (line[end] == '(')
+            ++paren_depth;
+          else if (line[end] == ')')
+            --paren_depth;
+          if (paren_depth > 0)
+            end = line.find_first_of("()", end + 1);
+        } while (end != std::string::npos && paren_depth > 0);
+        if (end != std::string::npos)
+          end = line.find_first_of("%", end + 1);
+      }
       if (end == std::string::npos)
         end = line.length();
       std::string field = line.substr(start, end - start);
