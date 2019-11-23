@@ -2503,6 +2503,9 @@ int Object::IsNearBy(const Object* obj) {
 }
 
 void Object::NotifyLeft(Object* obj, Object* newloc) {
+  if (this == obj)
+    return;
+
   std::set<act_t> stops, stops2;
   int following = 0;
   for (auto curact : act) {
@@ -2515,7 +2518,7 @@ void Object::NotifyLeft(Object* obj, Object* newloc) {
       }
     }
     if (curact.first >= ACT_MAX && (!newloc) && curact.second == obj) {
-      for (auto curact2 : act) {
+      for (auto curact2 : obj->act) {
         if (curact2.first >= ACT_MAX) {
           if (curact2.second == this) {
             stops2.insert(curact2.first);
