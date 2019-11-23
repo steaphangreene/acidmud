@@ -851,7 +851,7 @@ void Object::TBALoadMOB(const char* fn) {
       else
         obj->SetSkill(crc32c("Dishonor"), -val);
 
-      obj->SetSkill(crc32c("Accomplishment"), 120000 + onum);
+      obj->SetSkill(crc32c("Accomplishment"), 1000000 + onum);
 
       if (tp == 'E' || tp == 'S') {
         fscanf(mudm, "%d %d %d", &val, &val2, &val3);
