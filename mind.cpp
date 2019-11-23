@@ -1414,7 +1414,9 @@ void Mind::TBAVarSub(std::string& line) {
               vnum = obj->Skill(crc32c("TBARoom"));
             if (vnum > 0) {
               vnum %= 1000000; // Convert from Acid number
-              int qnum = TBAEval(field.c_str() + 5);
+              int off = field.find_first_of(")", 5);
+              std::string query = field.substr(5, off - 5);
+              int qnum = TBAEval(query.c_str());
               val = bstr[(vnum == qnum)];
             }
           }
