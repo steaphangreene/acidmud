@@ -4,11 +4,32 @@ wget 'https://biaszero.com/~stea/gaming/wiki/index.php/SkillsData' -o /dev/null 
 tail -n +2 /tmp/skills0 | cut -f3- -d'>' | grep '^S;' > /tmp/skills
 rm -f /tmp/skills[01]
 
-echo 'static int defaults_init = 0;'
-echo 'static void init_defaults() {'
-echo '  if (defaults_init)'
+echo '#include <map>'
+echo ''
+echo '#include "stats.hpp"'
+echo '#include "utils.hpp"'
+echo ''
+echo 'std::map<uint32_t, int32_t> defaults;'
+echo 'std::map<int32_t, uint32_t> weaponskills;'
+echo 'std::map<uint32_t, int32_t> weapontypes;'
+echo 'std::map<std::string, std::vector<uint32_t>> skcat;'
+echo ''
+echo 'static int last_wtype = 0;'
+echo 'static void add_wts(uint32_t sk) {'
+echo '  if (defaults.count(sk) == 0) {'
+echo '    fprintf('
+echo '        stderr,'
+echo '        "Warning: Tried to link weapon type %d to '"'"'%s'"'"' which isn'"'"'t a skill.\n",'
+echo '        last_wtype + 1,'
+echo '        SkillName(sk).c_str());'
 echo '    return;'
-echo '  defaults_init = 1;'
+echo '  }'
+echo '  ++last_wtype;'
+echo '  weaponskills[last_wtype] = sk;'
+echo '  weapontypes[sk] = last_wtype;'
+echo '}'
+echo ''
+echo 'void init_skill_list() {'
 
 foreach sk (`cat /tmp/skills | cut -f3-4 -d';' | sed 's- -_-g' | sort -uk1.3,2`)
   set weapon=0
@@ -16,27 +37,27 @@ foreach sk (`cat /tmp/skills | cut -f3-4 -d';' | sed 's- -_-g' | sort -uk1.3,2`)
   echo ''
   echo "  // Skill Definition: $skname"
   if("`echo '$sk' | cut -f1 -d';'`" == "B") then
-    echo "  defaults["'"'"${skname}"'"'"] = 0;"
+    echo "  defaults[crc32c("'"'"${skname}"'"'")] = 0;"
   else if("`echo '$sk' | cut -f1 -d';'`" == "Q") then
-    echo "  defaults["'"'"${skname}"'"'"] = 1;"
+    echo "  defaults[crc32c("'"'"${skname}"'"'")] = 1;"
   else if("`echo '$sk' | cut -f1 -d';'`" == "S") then
-    echo "  defaults["'"'"${skname}"'"'"] = 2;"
+    echo "  defaults[crc32c("'"'"${skname}"'"'")] = 2;"
   else if("`echo '$sk' | cut -f1 -d';'`" == "C") then
-    echo "  defaults["'"'"${skname}"'"'"] = 3;"
+    echo "  defaults[crc32c("'"'"${skname}"'"'")] = 3;"
   else if("`echo '$sk' | cut -f1 -d';'`" == "I") then
-    echo "  defaults["'"'"${skname}"'"'"] = 4;"
+    echo "  defaults[crc32c("'"'"${skname}"'"'")] = 4;"
   else if("`echo '$sk' | cut -f1 -d';'`" == "W") then
-    echo "  defaults["'"'"${skname}"'"'"] = 5;"
+    echo "  defaults[crc32c("'"'"${skname}"'"'")] = 5;"
   else if("`echo '$sk' | cut -f1 -d';'`" == "R") then
-    echo "  defaults["'"'"${skname}"'"'"] = 6;"
+    echo "  defaults[crc32c("'"'"${skname}"'"'")] = 6;"
   else if("`echo '$sk' | cut -f1 -d';'`" == "M") then
-    echo "  defaults["'"'"${skname}"'"'"] = 7;"
+    echo "  defaults[crc32c("'"'"${skname}"'"'")] = 7;"
   else if("`echo '$sk' | cut -f1 -d';'`" == "F") then
-    echo "  defaults["'"'"${skname}"'"'"] = 7;"
+    echo "  defaults[crc32c("'"'"${skname}"'"'")] = 7;"
   else if("`echo '$sk' | cut -f1 -d';'`" == "J") then
-    echo "  defaults["'"'"${skname}"'"'"] = 7;"
+    echo "  defaults[crc32c("'"'"${skname}"'"'")] = 7;"
   else if("`echo '$sk' | cut -f1 -d';'`" == "T") then
-    echo "  defaults["'"'"${skname}"'"'"] = 7;"
+    echo "  defaults[crc32c("'"'"${skname}"'"'")] = 7;"
   endif
   set sklink="`echo $skname | sed 's| |_|g'`"
   foreach skcat (`wget \
@@ -44,7 +65,7 @@ foreach sk (`cat /tmp/skills | cut -f3-4 -d';' | sed 's- -_-g' | sort -uk1.3,2`)
 	-q -O - | sed 's/title=Category:\([A-Za-z0-9_/\-]*\)&/@\1@/g' \
 	| tr '\n' '?' | tr @ '\n' | grep -v '\?'`)
     set catname="`echo '$skcat' | sed 's-_- -g'`"
-    echo "  skcat["'"'"${catname}"'"'"].push_back("'"'"${skname}"'"'");"
+    echo "  skcat["'"'"${catname}"'"'"].push_back(crc32c("'"'"${skname}"'"'"));"
     if("`echo '$catname' | \
 	grep -E '(Combat|Pistol|Rifle|Weapon) Skills'`" != "" \
 	) then
@@ -52,7 +73,7 @@ foreach sk (`cat /tmp/skills | cut -f3-4 -d';' | sed 's- -_-g' | sort -uk1.3,2`)
     endif
   end
   if($weapon != 0) then
-    echo "  add_wts("'"'"${skname}"'"'");"
+    echo "  add_wts(crc32c("'"'"${skname}"'"'"));"
     set weapon=1
   endif
 end
