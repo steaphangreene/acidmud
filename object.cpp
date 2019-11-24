@@ -4357,3 +4357,13 @@ Object* new_obj(Object* o) {
 Object* new_obj(const Object& o) {
   return new Object(o);
 }
+
+std::vector<std::pair<uint32_t, int32_t>> Object::GetSkills() const {
+  auto ret = skills;
+
+  std::sort(ret.begin(), ret.end(), [](auto& s1, auto& s2) {
+    return (SkillName(s1.first) < SkillName(s2.first));
+  });
+
+  return ret;
+}

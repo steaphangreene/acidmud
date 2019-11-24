@@ -282,9 +282,7 @@ class Object {
   int SubHasSkill(uint32_t) const;
   int SubMaxSkill(uint32_t) const;
   Object* NextHasSkill(uint32_t, const Object* last = nullptr);
-  const std::vector<std::pair<uint32_t, int32_t>>& GetSkills() const {
-    return skills;
-  }
+  std::vector<std::pair<uint32_t, int32_t>> GetSkills() const;
   void SetAttribute(int, int);
   void SetModifier(int, int);
   void SetSkill(uint32_t, int);
