@@ -2573,6 +2573,7 @@ int Mind::TBARunLine(std::string line) {
           body->Skill(crc32c("TBAScript")),
           line.c_str());
       Disable();
+      delete item;
       return 1;
     }
     if (strcmp("rfinger", where) == 0 || strcmp("1", where) == 0) {
@@ -2642,6 +2643,7 @@ int Mind::TBARunLine(std::string line) {
           body->Skill(crc32c("TBAScript")),
           line.c_str());
       Disable();
+      delete item;
       return 1;
     }
     item->SetParent(dest);
