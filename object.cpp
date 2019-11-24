@@ -1674,6 +1674,192 @@ std::vector<std::string> Object::FormatStats(
     const std::vector<std::pair<uint32_t, int32_t>>& skls) {
   std::vector<std::string> ret;
 
+  if (HasSkill(crc32c("TBAScriptType"))) { // It's a TBA script
+    char buf2[256] = {};
+    auto type_name = CRED "BAD-TYPE" CNRM;
+    switch (Skill(crc32c("TBAScriptType"))) {
+      case (0x1000001): {
+        type_name = CYEL "MOB-GLOBAL" CNRM;
+        break;
+      }
+      case (0x1000002): {
+        type_name = CGRN "MOB-RANDOM" CNRM;
+        break;
+      }
+      case (0x1000004): {
+        type_name = CGRN "MOB-COMMAND" CNRM;
+        break;
+      }
+      case (0x1000008): {
+        type_name = CGRN "MOB-SPEECH" CNRM;
+        break;
+      }
+      case (0x1000010): {
+        type_name = CGRN "MOB-ACT" CNRM;
+        break;
+      }
+      case (0x1000020): {
+        type_name = CYEL "MOB-DEATH" CNRM;
+        break;
+      }
+      case (0x1000040): {
+        type_name = CGRN "MOB-GREET" CNRM;
+        break;
+      }
+      case (0x1000080): {
+        type_name = CYEL "MOB-GREET-ALL" CNRM;
+        break;
+      }
+      case (0x1000100): {
+        type_name = CYEL "MOB-ENTRY" CNRM;
+        break;
+      }
+      case (0x1000200): {
+        type_name = CGRN "MOB-RECEIVE" CNRM;
+        break;
+      }
+      case (0x1000400): {
+        type_name = CYEL "MOB-FIGHT" CNRM;
+        break;
+      }
+      case (0x1000800): {
+        type_name = CYEL "MOB-HITPRCNT" CNRM;
+        break;
+      }
+      case (0x1001000): {
+        type_name = CYEL "MOB-BRIBE" CNRM;
+        break;
+      }
+      case (0x1002000): {
+        type_name = CYEL "MOB-LOAD" CNRM;
+        break;
+      }
+      case (0x1004000): {
+        type_name = CYEL "MOB-MEMORY" CNRM;
+        break;
+      }
+      case (0x1008000): {
+        type_name = CYEL "MOB-CAST" CNRM;
+        break;
+      }
+      case (0x1010000): {
+        type_name = CYEL "MOB-LEAVE" CNRM;
+        break;
+      }
+      case (0x1020000): {
+        type_name = CYEL "MOB-DOOR" CNRM;
+        break;
+      }
+      case (0x1040000): {
+        type_name = CYEL "MOB-TIME" CNRM;
+        break;
+      }
+
+      case (0x2000001): {
+        type_name = CYEL "OBJ-GLOBAL" CNRM;
+        break;
+      }
+      case (0x2000002): {
+        type_name = CGRN "OBJ-RANDOM" CNRM;
+        break;
+      }
+      case (0x2000004): {
+        type_name = CGRN "OBJ-COMMAND" CNRM;
+        break;
+      }
+      case (0x2000008): {
+        type_name = CYEL "OBJ-TIMER" CNRM;
+        break;
+      }
+      case (0x2000010): {
+        type_name = CGRN "OBJ-GET" CNRM;
+        break;
+      }
+      case (0x2000020): {
+        type_name = CGRN "OBJ-DROP" CNRM;
+        break;
+      }
+      case (0x2000040): {
+        type_name = CYEL "OBJ-GIVE" CNRM;
+        break;
+      }
+      case (0x2000080): {
+        type_name = CGRN "OBJ-WEAR" CNRM;
+        break;
+      }
+      case (0x2000100): {
+        type_name = CGRN "OBJ-REMOVE" CNRM;
+        break;
+      }
+      case (0x2000200): {
+        type_name = CYEL "OBJ-LOAD" CNRM;
+        break;
+      }
+      case (0x2000400): {
+        type_name = CYEL "OBJ-CAST" CNRM;
+        break;
+      }
+      case (0x2000800): {
+        type_name = CGRN "OBJ-LEAVE" CNRM;
+        break;
+      }
+      case (0x2001000): {
+        type_name = CYEL "OBJ-CONSUME" CNRM;
+        break;
+      }
+
+      case (0x4000001): {
+        type_name = CYEL "ROOM-GLOBAL" CNRM;
+        break;
+      }
+      case (0x4000002): {
+        type_name = CGRN "ROOM-RANDOM" CNRM;
+        break;
+      }
+      case (0x4000004): {
+        type_name = CGRN "ROOM-COMMAND" CNRM;
+        break;
+      }
+      case (0x4000008): {
+        type_name = CGRN "ROOM-SPEECH" CNRM;
+        break;
+      }
+      case (0x4000010): {
+        type_name = CYEL "ROOM-ZONE" CNRM;
+        break;
+      }
+      case (0x4000020): {
+        type_name = CGRN "ROOM-ENTER" CNRM;
+        break;
+      }
+      case (0x4000040): {
+        type_name = CGRN "ROOM-DROP" CNRM;
+        break;
+      }
+      case (0x4000080): {
+        type_name = CYEL "ROOM-CAST" CNRM;
+        break;
+      }
+      case (0x4000100): {
+        type_name = CGRN "ROOM-LEAVE" CNRM;
+        break;
+      }
+      case (0x4000200): {
+        type_name = CYEL "ROOM-DOOR" CNRM;
+        break;
+      }
+      case (0x4000400): {
+        type_name = CYEL "ROOM-TIME" CNRM;
+        break;
+      }
+
+      default: {
+        type_name = CRED "BAD-TYPE" CNRM;
+      }
+    }
+    sprintf(buf2, "TBAScriptType: %s", type_name);
+    ret.push_back(buf2);
+  }
   if (HasSkill(crc32c("WeaponType"))) { // It's a Weapon
     // Detailed Weapon Stats
     ret.push_back(
