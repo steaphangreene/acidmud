@@ -1968,17 +1968,12 @@ int Object::Travel(Object* dest, int try_combine) {
       if ((trig->Skill(crc32c("TBAScriptType")) & 0x0000040) &&
           (trig->Skill(crc32c("TBAScriptType")) & 0x5000000)) {
         if (trig != this && trig->Parent() != this) {
-          if (trig->Skill(crc32c("TBAScript")) >= 5034503 &&
-              trig->Skill(crc32c("TBAScript")) <= 5034507)
-            // fprintf(
-            //    stderr, CBLU "[#%d] Greeting: '%s'\n" CNRM, trig->Skill(crc32c("TBAScript")),
-            //    ShortDesc());
-            if ((rand() % 100) < 1000 * trig->Skill(crc32c("TBAScriptNArg"))) { // % Chance
-              // if (trig->Skill(crc32c("TBAScript")) >= 5034503 && trig->Skill(crc32c("TBAScript"))
-              // <= 5034507)
-              //  fprintf(stderr, CBLU "Triggering: %s\n" CNRM, trig->Name());
-              new_trigger((rand() % 400) + 300, trig, this, rdir);
-            }
+          if ((rand() % 100) < 1000 * trig->Skill(crc32c("TBAScriptNArg"))) { // % Chance
+            // if (trig->Skill(crc32c("TBAScript")) >= 5034503 && trig->Skill(crc32c("TBAScript"))
+            // <= 5034507)
+            //  fprintf(stderr, CBLU "Triggering: %s\n" CNRM, trig->Name());
+            new_trigger((rand() % 400) + 300, trig, this, rdir);
+          }
         }
       }
     }
