@@ -1233,6 +1233,10 @@ void Object::TBALoadOBJ(const std::string& fn) {
                 obj->ShortDesc().c_str());
           } else if (aliases[actr] == "wyv" || aliases[actr] == "ghenna") {
             // Ignore these, they're just typing short-cuts.
+          } else if (
+              aliases[actr] == "water" || aliases[actr] == "beer" || aliases[actr] == "ale" ||
+              aliases[actr] == "wine" || aliases[actr] == "whisky" || aliases[actr] == "milk") {
+            // Ignore these, they're usually referring to the item that *should* be inside them.
           } else {
             // fprintf(
             //    stderr,
