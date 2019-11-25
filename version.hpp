@@ -9,7 +9,7 @@ struct VersionInformation {
   unsigned int savefile_version_object;
   unsigned int acidmud_version[3];
   unsigned int acidmud_svnstamp;
-  const char* acidmud_datestamp;
+  std::string acidmud_datestamp;
 };
 
 #ifndef VERSION_DEFINED

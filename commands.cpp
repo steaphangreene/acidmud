@@ -1161,7 +1161,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           CurrentVersion.acidmud_version[1],
           CurrentVersion.acidmud_version[2],
           CurrentVersion.acidmud_svnstamp,
-          CurrentVersion.acidmud_datestamp);
+          CurrentVersion.acidmud_datestamp.c_str());
     return 0;
   }
 
