@@ -122,6 +122,16 @@ int matches(const std::string& name, const std::string& seek) {
     ret = 1;
   else if ((stok == crc32c("guard")) && matches(name, "bodyguard"))
     ret = 1;
+  else if ((stok == crc32c("guard")) && matches(name, "lifeguard"))
+    ret = 1;
+  else if ((stok == crc32c("guard")) && matches(name, "doomguard"))
+    ret = 1;
+  else if ((stok == crc32c("guard")) && matches(name, "guardian"))
+    ret = 1;
+  else if ((stok == crc32c("guard")) && matches(name, "guardsman"))
+    ret = 1;
+  else if ((stok == crc32c("guard")) && matches(name, "guardswoman"))
+    ret = 1;
   else if ((stok == crc32c("merc")) && matches(name, "mercenary"))
     ret = 1;
   else if ((stok == crc32c("smith")) && matches(name, "weaponsmith"))
