@@ -595,7 +595,7 @@ void Mind::Unattach() {
     bod->Unattach(this);
 }
 
-void Mind::Send(const char* mes) {
+void Mind::Send(const std::string& mes) {
   if (type == MIND_REMOTE) {
     SendOut(pers, mes);
   } else if (type == MIND_MOB) {
@@ -610,11 +610,11 @@ void Mind::Send(const char* mes) {
         && (!body->IsAct(ACT_REST)) // I'm not resting
         && (!body->IsAct(ACT_FIGHT)) // I'm not already fighting
     ) {
-      if ((!strncmp(mes, "From ", 5)) &&
-          (strcasestr(mes, " you hear someone shout '") != nullptr) &&
-          ((strstr(mes, "HELP")) || (strstr(mes, "ALARM")))) {
+      if ((!strncmp(mes.c_str(), "From ", 5)) &&
+          (strcasestr(mes.c_str(), " you hear someone shout '") != nullptr) &&
+          ((strstr(mes.c_str(), "HELP")) || (strstr(mes.c_str(), "ALARM")))) {
         char buf[256] = "                                               ";
-        sscanf(mes + 4, "%128s", buf);
+        sscanf(mes.c_str() + 4, "%128s", buf);
 
         Object* door = body->PickObject(buf, LOC_NEARBY);
 
@@ -622,7 +622,7 @@ void Mind::Send(const char* mes) {
             door->ActTarg(ACT_SPECIAL_LINKED)->Parent() &&
             TBACanWanderTo(door->ActTarg(ACT_SPECIAL_LINKED)->Parent())) {
           char buf2[256] = "enter                                          ";
-          sscanf(mes + 4, "%128s", buf2 + 6);
+          sscanf(mes.c_str() + 4, "%128s", buf2 + 6);
           body->BusyFor(500, buf2);
         }
         return;
@@ -646,7 +646,7 @@ void Mind::Send(const char* mes) {
   }
 }
 
-void Mind::SendRaw(const char* mes) {
+void Mind::SendRaw(const std::string& mes) {
   SendOut(pers, mes);
 }
 

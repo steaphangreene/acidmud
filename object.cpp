@@ -3034,10 +3034,10 @@ int Object::HitStru(int force, int sev, int succ) {
   return sev;
 }
 
-void Object::Send(int tnum, int rsucc, const char* mes) {
+void Object::Send(int tnum, int rsucc, const std::string& mes) {
   if (no_hear)
     return;
-  char* tosend = strdup(mes);
+  auto tosend = mes;
   tosend[0] = toupper(tosend[0]);
 
   for (auto mind : minds) {
@@ -3046,7 +3046,6 @@ void Object::Send(int tnum, int rsucc, const char* mes) {
     mind->Send(tosend);
     mind->Attach(body);
   }
-  free(tosend);
 }
 
 void Object::SendF(int tnum, int rsucc, const char* mes, ...) {
@@ -3069,8 +3068,8 @@ void Object::SendF(int tnum, int rsucc, const char* mes, ...) {
 void Object::SendIn(
     int tnum,
     int rsucc,
-    const char* mes,
-    const char* youmes,
+    const std::string& mes,
+    const std::string& youmes,
     Object* actor,
     Object* targ) {
   if (no_seek)
@@ -3078,7 +3077,7 @@ void Object::SendIn(
 
   if (this != actor) { // Don't trigger yourself!
     for (auto trig : contents) {
-      if (strncmp(mes, ";s says '", 9)) { // Type 0x1000010 (MOB + MOB-ACT)
+      if (strncmp(mes.c_str(), ";s says '", 9)) { // Type 0x1000010 (MOB + MOB-ACT)
         if ((trig->Skill(crc32c("TBAScriptType")) & 0x1000010) == 0x1000010) {
           if (trig->Desc()[0] == '*') { // All Actions
             new_trigger((rand() % 400) + 300, trig, actor, mes);
@@ -3098,7 +3097,7 @@ void Object::SendIn(
           // 5034507)
           //  fprintf(stderr, CBLU "[#%d] Got message: '%s'\n" CNRM,
           //  trig->Skill(crc32c("TBAScript")), mes);
-          std::string speech = (mes + 9);
+          std::string speech = (mes.c_str() + 9);
           while (!speech.empty() && speech.back() != '\'') {
             speech.pop_back();
           }
@@ -3134,56 +3133,54 @@ void Object::SendIn(
   if (actor)
     astr = (char*)actor->Name(0, this);
 
-  char* str = strdup(mes);
-  char* youstr = strdup(youmes);
+  auto str = mes;
+  auto youstr = youmes;
 
-  for (char* ctr = str; *ctr; ++ctr) {
-    if ((*ctr) == ';')
-      (*ctr) = '%';
-    else if ((*ctr) == '%')
-      (*ctr) = ';';
+  for (auto& ctr : str) {
+    if (ctr == ';')
+      ctr = '%';
+    else if (ctr == '%')
+      ctr = ';';
   }
-  for (char* ctr = youstr; *ctr; ++ctr) {
-    if ((*ctr) == ';')
-      (*ctr) = '%';
-    else if ((*ctr) == '%')
-      (*ctr) = ';';
+  for (auto& ctr : youstr) {
+    if (ctr == ';')
+      ctr = '%';
+    else if (ctr == '%')
+      ctr = ';';
   }
 
-  if (youmes && youstr[0] == '*' && this == actor) {
+  if (youstr[0] == '*' && this == actor) {
     Send(ALL, -1, CYEL);
     if (targ)
-      SendF(ALL, -1, youstr + 1, tstr.c_str());
+      SendF(ALL, -1, youstr.c_str() + 1, tstr.c_str());
     else
-      Send(ALL, -1, youstr + 1);
+      Send(ALL, -1, youstr.c_str() + 1);
     Send(ALL, -1, CNRM);
+  } else if (this == actor) {
+    if (targ)
+      SendF(ALL, -1, youstr.c_str(), tstr.c_str());
+    else
+      Send(ALL, -1, youstr);
   } else if (str[0] == '*' && targ == this) {
     Send(ALL, -1, CRED);
     if (targ || actor)
-      SendF(tnum, rsucc, str + 1, astr.c_str(), tstr.c_str());
+      SendF(tnum, rsucc, str.c_str() + 1, astr.c_str(), tstr.c_str());
     else
-      Send(tnum, rsucc, str + 1);
+      Send(tnum, rsucc, str.c_str() + 1);
     Send(ALL, -1, CNRM);
   } else if (str[0] == '*') {
     Send(ALL, -1, CMAG);
     if (targ || actor)
-      SendF(tnum, rsucc, str + 1, astr.c_str(), tstr.c_str());
+      SendF(tnum, rsucc, str.c_str() + 1, astr.c_str(), tstr.c_str());
     else
-      Send(tnum, rsucc, str + 1);
+      Send(tnum, rsucc, str.c_str() + 1);
     Send(ALL, -1, CNRM);
-  } else if (youmes && this == actor) {
-    if (targ)
-      SendF(ALL, -1, youstr, tstr.c_str());
-    else
-      Send(ALL, -1, youstr);
   } else {
     if (targ || actor)
-      SendF(tnum, rsucc, str, astr.c_str(), tstr.c_str());
+      SendF(tnum, rsucc, str.c_str(), astr.c_str(), tstr.c_str());
     else
       Send(tnum, rsucc, str);
   }
-  free(str);
-  free(youstr);
 
   for (auto ind : contents) {
     if (ind->Skill(crc32c("Open")) || ind->Skill(crc32c("Transparent")))
@@ -3220,17 +3217,17 @@ void Object::SendInF(
 void Object::SendOut(
     int tnum,
     int rsucc,
-    const char* mes,
-    const char* youmes,
+    const std::string& mes,
+    const std::string& youmes,
     Object* actor,
     Object* targ) {
   if (no_seek)
     return;
 
-  if (!strncmp(mes, ";s says '", 9)) { // Type 0x4000008 (ROOM + ROOM-SPEECH)
+  if (!strncmp(mes.c_str(), ";s says '", 9)) { // Type 0x4000008 (ROOM + ROOM-SPEECH)
     for (auto trig : contents) {
       if ((trig->Skill(crc32c("TBAScriptType")) & 0x4000008) == 0x4000008) {
-        std::string speech = (mes + 9);
+        std::string speech = (mes.c_str() + 9);
         while (!speech.empty() && speech.back() != '\'') {
           speech.pop_back();
         }
@@ -3259,49 +3256,47 @@ void Object::SendOut(
   if (actor)
     astr = (char*)actor->Name(0, this);
 
-  char* str = strdup(mes);
-  char* youstr = strdup(youmes);
+  auto str = mes;
+  auto youstr = youmes;
 
-  for (char* ctr = str; *ctr; ++ctr) {
-    if ((*ctr) == ';')
-      (*ctr) = '%';
-    else if ((*ctr) == '%')
-      (*ctr) = ';';
+  for (auto& ctr : str) {
+    if (ctr == ';')
+      ctr = '%';
+    else if (ctr == '%')
+      ctr = ';';
   }
-  for (char* ctr = youstr; *ctr; ++ctr) {
-    if ((*ctr) == ';')
-      (*ctr) = '%';
-    else if ((*ctr) == '%')
-      (*ctr) = ';';
+  for (auto& ctr : youstr) {
+    if (ctr == ';')
+      ctr = '%';
+    else if (ctr == '%')
+      ctr = ';';
   }
 
-  if (youmes && youstr[0] == '*' && this == actor) {
+  if (youstr[0] == '*' && this == actor) {
     Send(ALL, -1, CGRN);
     if (targ)
-      SendF(ALL, -1, youstr + 1, tstr.c_str());
+      SendF(ALL, -1, youstr.c_str() + 1, tstr.c_str());
     else
-      Send(ALL, -1, youstr + 1);
+      Send(ALL, -1, youstr.c_str() + 1);
     Send(ALL, -1, CNRM);
+  } else if (this == actor) {
+    if (targ)
+      SendF(ALL, -1, youstr.c_str(), tstr.c_str());
+    else
+      Send(ALL, -1, youstr);
   } else if (str[0] == '*') {
     Send(ALL, -1, CRED);
     if (targ || actor)
-      SendF(tnum, rsucc, str + 1, astr.c_str(), tstr.c_str());
+      SendF(tnum, rsucc, str.c_str() + 1, astr.c_str(), tstr.c_str());
     else
-      Send(tnum, rsucc, str + 1);
+      Send(tnum, rsucc, str.c_str() + 1);
     Send(ALL, -1, CNRM);
-  } else if (youmes && this == actor) {
-    if (targ)
-      SendF(ALL, -1, youstr, tstr.c_str());
-    else
-      Send(ALL, -1, youstr);
   } else {
     if (targ || actor)
-      SendF(tnum, rsucc, str, astr.c_str(), tstr.c_str());
+      SendF(tnum, rsucc, str.c_str(), astr.c_str(), tstr.c_str());
     else
       Send(tnum, rsucc, str);
   }
-  free(str);
-  free(youstr);
 
   for (auto ind : contents) {
     if (ind->Skill(crc32c("Open")) || ind->Skill(crc32c("Transparent")))
@@ -3341,7 +3336,7 @@ void Object::SendOutF(
   SendOut(tnum, rsucc, buf2, youbuf, actor, targ);
 }
 
-void Object::Loud(int str, const char* mes) {
+void Object::Loud(int str, const std::string& mes) {
   std::set<Object*> visited;
   Loud(visited, str, mes);
 }
@@ -3360,7 +3355,7 @@ void Object::LoudF(int str, const char* mes, ...) {
   Loud(visited, str, buf2);
 }
 
-void Object::Loud(std::set<Object*>& visited, int str, const char* mes) {
+void Object::Loud(std::set<Object*>& visited, int str, const std::string& mes) {
   visited.insert(this);
   auto targs = PickObjects("all", LOC_INTERNAL);
   for (auto dest : targs) {
@@ -3374,8 +3369,8 @@ void Object::Loud(std::set<Object*>& visited, int str, const char* mes) {
         if (dest->ActTarg(ACT_SPECIAL_LINKED) && dest->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
           dest = dest->ActTarg(ACT_SPECIAL_LINKED);
           if (visited.count(dest->Parent()) < 1) {
-            dest->Parent()->SendOutF(ALL, 0, "From ;s you hear %s\n", "", dest, dest, mes);
-            dest->Parent()->Loud(visited, str, mes);
+            dest->Parent()->SendOutF(ALL, 0, "From ;s you hear %s\n", "", dest, dest, mes.c_str());
+            dest->Parent()->Loud(visited, str, mes.c_str());
           }
         }
       }

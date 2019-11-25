@@ -12,7 +12,7 @@ int suspend_net(void);
 int save_net(const char* fn);
 int load_net(const char* fn);
 
-void SendOut(int, const char*);
+void SendOut(int, const std::string&);
 void SetPrompt(int, const char*);
 
 class Mind;

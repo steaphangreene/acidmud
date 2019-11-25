@@ -54,8 +54,8 @@ class Mind {
   int LogFD() {
     return log;
   };
-  void Send(const char*);
-  void SendRaw(const char*);
+  void Send(const std::string&);
+  void SendRaw(const std::string&);
   void SendF(const char*, ...) __attribute__((format(printf, 2, 3)));
   void SendRawF(const char*, ...) __attribute__((format(printf, 2, 3)));
   void UpdatePrompt();

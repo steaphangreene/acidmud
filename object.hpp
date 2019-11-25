@@ -344,12 +344,22 @@ class Object {
   void Deafen(int deaf = 1);
 
   // Unformatted (raw print, but with ;s/;s for actor/targ)
-  void Send(int targ, int rsucc, const char* mes);
-  void
-  SendOut(int tnum, int rsucc, const char* mes, const char* youmes, Object* actor, Object* targ);
-  void
-  SendIn(int tnum, int rsucc, const char* mes, const char* youmes, Object* actor, Object* targ);
-  void Loud(int str, const char* mes);
+  void Send(int targ, int rsucc, const std::string& mes);
+  void SendOut(
+      int tnum,
+      int rsucc,
+      const std::string& mes,
+      const std::string& youmes,
+      Object* actor,
+      Object* targ);
+  void SendIn(
+      int tnum,
+      int rsucc,
+      const std::string& mes,
+      const std::string& youmes,
+      Object* actor,
+      Object* targ);
+  void Loud(int str, const std::string& mes);
 
   // Formatted (printf style, plus with ;s/;s for actor/targ)
   void SendF(int targ, int rsucc, const char* mes, ...) __attribute__((format(printf, 4, 5)));
@@ -412,7 +422,7 @@ class Object {
  private:
   void NotifyLeft(Object* obj, Object* newloc = nullptr);
 
-  void Loud(std::set<Object*>& visited, int str, const char* mes);
+  void Loud(std::set<Object*>& visited, int str, const std::string& mes);
 
   int Filter(int loc);
 

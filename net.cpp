@@ -414,7 +414,7 @@ std::vector<Mind*> get_human_minds() {
   return ret;
 }
 
-void SendOut(int sock, const char* mes) {
+void SendOut(int sock, const std::string& mes) {
   outbufs[sock] += mes;
 }
 
