@@ -402,8 +402,8 @@ constexpr Command static_comlist[COM_MAX] = {
      "Spend all remaining points of current character randomly.",
      "Spend all remaining points of current character randomly.",
      (REQ_ETHEREAL)},
-    {COM_ARCHTYPE,
-     "archtype",
+    {COM_ARCHETYPE,
+     "archetype",
      "Replace (erase!) *all* work on in-progress character with preset.",
      "Replace (erase!) *all* work on in-progress character with preset.",
      (REQ_ETHEREAL)},
@@ -722,7 +722,7 @@ static_assert(static_comlist[COM_RAISE].id == COM_RAISE);
 static_assert(static_comlist[COM_LOWER].id == COM_LOWER);
 static_assert(static_comlist[COM_RESETCHARACTER].id == COM_RESETCHARACTER);
 static_assert(static_comlist[COM_RANDOMIZE].id == COM_RANDOMIZE);
-static_assert(static_comlist[COM_ARCHTYPE].id == COM_ARCHTYPE);
+static_assert(static_comlist[COM_ARCHETYPE].id == COM_ARCHETYPE);
 static_assert(static_comlist[COM_SCORE].id == COM_SCORE);
 static_assert(static_comlist[COM_TIME].id == COM_TIME);
 static_assert(static_comlist[COM_WORLD].id == COM_WORLD);
@@ -5351,7 +5351,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     return 0;
   }
 
-  if (cnum == COM_ARCHTYPE) {
+  if (cnum == COM_ARCHETYPE) {
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
       ++len;
 
@@ -5362,8 +5362,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           "<character>'.\n");
       return 0;
     } else if (strlen(cmd.c_str() + len) <= 0) {
-      mind->SendF("You need to select an archtype to apply to %s.\n", chr->ShortDesc());
-      mind->SendF("Supported archtypes are:\n");
+      mind->SendF("You need to select an archetype to apply to %s.\n", chr->ShortDesc());
+      mind->SendF("Supported archetypes are:\n");
       mind->SendF("  1. Fighter\n");
       return 0;
     }
@@ -5391,7 +5391,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       body->SetSkill(crc32c("Two-Handed Blades"), 3);
       body->SetSkill(crc32c("Short Piercing"), 3);
       body->SetSkill(crc32c("Shields"), 3);
-      body->SetSkill(crc32c("Running"), 2);
+      body->SetSkill(crc32c("Running"), 3);
       body->SetSkill(crc32c("Climbing"), 2);
       body->SetSkill(crc32c("Sprinting"), 2);
       body->SetSkill(crc32c("Swimming"), 2);
@@ -5400,7 +5400,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       body->SetSkill(crc32c("Punching"), 3);
       body->SetSkill(crc32c("Kicking"), 3);
       body->SetSkill(crc32c("Grappling"), 3);
-      body->SetSkill(crc32c("Skill Points"), 4);
+      body->SetSkill(crc32c("Intimidation"), 1);
+      body->SetSkill(crc32c("Skill Points"), 0);
 
       auto weap = new Object(body);
       weap->SetShortDesc("a dull arming sword");
@@ -5449,11 +5450,11 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       body->SetSkill(crc32c("Status Points"), 0);
 
       mind->SendF("You reform '%s' into a %s.\n", body->ShortDesc(), "Fighter");
-      mind->SendF("You now have only a few points left to spend.\n");
+      mind->SendF("You can now adjust things from here, or just enter the game.\n");
 
     } else {
-      mind->SendF("You need to select a *supported* archtype to apply to %s.\n", chr->ShortDesc());
-      mind->SendF("Supported archtypes are:\n");
+      mind->SendF("You need to select a *supported* archetype to apply to %s.\n", chr->ShortDesc());
+      mind->SendF("Supported archetypes are:\n");
       mind->SendF("  1. Fighter\n");
     }
 
