@@ -339,10 +339,10 @@ void Object::TBAFinishMOB(Object* mob) {
 
 static Object *lastmob = nullptr, *lastbag = nullptr;
 static std::map<int, Object*> lastobj;
-void Object::TBALoadZON(const char* fn) {
-  FILE* mudz = fopen(fn, "r");
+void Object::TBALoadZON(const std::string& fn) {
+  FILE* mudz = fopen(fn.c_str(), "r");
   if (mudz) {
-    // fprintf(stderr, "Loading TBA Zone from \"%s\"\n", fn);
+    // fprintf(stderr, "Loading TBA Zone from \"%s\"\n", fn.c_str());
     for (int ctr = 0; ctr < 3; ++ctr) {
       fscanf(mudz, "%*[^\n\r]\n");
     }
@@ -432,7 +432,7 @@ void Object::TBALoadZON(const char* fn) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn,
+                      fn.c_str(),
                       fline(mudz),
                       obj->ShortDesc());
                 }
@@ -443,7 +443,7 @@ void Object::TBALoadZON(const char* fn) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn,
+                      fn.c_str(),
                       fline(mudz),
                       obj->ShortDesc());
                 }
@@ -454,7 +454,7 @@ void Object::TBALoadZON(const char* fn) {
                     fprintf(
                         stderr,
                         CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                        fn,
+                        fn.c_str(),
                         fline(mudz),
                         obj->ShortDesc());
                   } else {
@@ -476,7 +476,7 @@ void Object::TBALoadZON(const char* fn) {
                     fprintf(
                         stderr,
                         CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                        fn,
+                        fn.c_str(),
                         fline(mudz),
                         obj->ShortDesc());
                   } else {
@@ -499,7 +499,7 @@ void Object::TBALoadZON(const char* fn) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn,
+                      fn.c_str(),
                       fline(mudz),
                       obj->ShortDesc());
                 }
@@ -510,7 +510,7 @@ void Object::TBALoadZON(const char* fn) {
                     fprintf(
                         stderr,
                         CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                        fn,
+                        fn.c_str(),
                         fline(mudz),
                         obj->ShortDesc());
                   } else {
@@ -533,7 +533,7 @@ void Object::TBALoadZON(const char* fn) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn,
+                      fn.c_str(),
                       fline(mudz),
                       obj->ShortDesc());
                 }
@@ -548,7 +548,7 @@ void Object::TBALoadZON(const char* fn) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn,
+                      fn.c_str(),
                       fline(mudz),
                       obj->ShortDesc());
                 }
@@ -563,7 +563,7 @@ void Object::TBALoadZON(const char* fn) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn,
+                      fn.c_str(),
                       fline(mudz),
                       obj->ShortDesc());
                 }
@@ -578,7 +578,7 @@ void Object::TBALoadZON(const char* fn) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn,
+                      fn.c_str(),
                       fline(mudz),
                       obj->ShortDesc());
                 }
@@ -589,7 +589,7 @@ void Object::TBALoadZON(const char* fn) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn,
+                      fn.c_str(),
                       fline(mudz),
                       obj->ShortDesc());
                 }
@@ -601,7 +601,7 @@ void Object::TBALoadZON(const char* fn) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn,
+                      fn.c_str(),
                       fline(mudz),
                       obj->ShortDesc());
                 }
@@ -612,7 +612,7 @@ void Object::TBALoadZON(const char* fn) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn,
+                      fn.c_str(),
                       fline(mudz),
                       obj->ShortDesc());
                 }
@@ -623,7 +623,7 @@ void Object::TBALoadZON(const char* fn) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn,
+                      fn.c_str(),
                       fline(mudz),
                       obj->ShortDesc());
                 }
@@ -634,7 +634,7 @@ void Object::TBALoadZON(const char* fn) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn,
+                      fn.c_str(),
                       fline(mudz),
                       obj->ShortDesc());
                 }
@@ -645,7 +645,7 @@ void Object::TBALoadZON(const char* fn) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wield non-weapon: %s\n" CNRM,
-                      fn,
+                      fn.c_str(),
                       fline(mudz),
                       obj->ShortDesc());
                 }
@@ -708,15 +708,15 @@ void Object::TBALoadZON(const char* fn) {
   }
 }
 
-void Object::TBALoadMOB(const char* fn) {
+void Object::TBALoadMOB(const std::string& fn) {
   if (mobroom == nullptr) {
     mobroom = new Object(this->World());
     mobroom->SetSkill(crc32c("Invisible"), 1000);
     mobroom->SetShortDesc("The TBAMUD MOB Room");
   }
-  FILE* mudm = fopen(fn, "r");
+  FILE* mudm = fopen(fn.c_str(), "r");
   if (mudm) {
-    // fprintf(stderr, "Loading TBA Mobiles from \"%s\"\n", fn);
+    // fprintf(stderr, "Loading TBA Mobiles from \"%s\"\n", fn.c_str());
     while (1) {
       int onum;
       if (fscanf(mudm, " #%d\n", &onum) < 1)
@@ -1149,15 +1149,15 @@ static void add_tba_spell(Object* obj, int spell, int power) {
   }
 }
 
-void Object::TBALoadOBJ(const char* fn) {
+void Object::TBALoadOBJ(const std::string& fn) {
   if (objroom == nullptr) {
     objroom = new Object(this->World());
     objroom->SetSkill(crc32c("Invisible"), 1000);
     objroom->SetShortDesc("The TBAMUD Object Room");
   }
-  FILE* mudo = fopen(fn, "r");
+  FILE* mudo = fopen(fn.c_str(), "r");
   if (mudo) {
-    // fprintf(stderr, "Loading TBA Objects from \"%s\"\n", fn);
+    // fprintf(stderr, "Loading TBA Objects from \"%s\"\n", fn.c_str());
     while (1) {
       int onum;
       int valmod = 1000, powmod = 1;
@@ -2225,14 +2225,14 @@ void Object::TBALoadOBJ(const char* fn) {
   }
 }
 
-void Object::TBALoadWLD(const char* fn) {
-  FILE* mud = fopen(fn, "r");
-  int zone = 0, offset = strlen(fn) - 5; // Chop off the .wld
+void Object::TBALoadWLD(const std::string& fn) {
+  FILE* mud = fopen(fn.c_str(), "r");
+  int zone = 0, offset = fn.length() - 5; // Chop off the .wld
   while (isdigit(fn[offset]))
     --offset;
-  zone = atoi(fn + offset + 1);
+  zone = atoi(fn.c_str() + offset + 1);
   if (mud) {
-    // fprintf(stderr, "Loading TBA Realm from \"%s\"\n", fn);
+    // fprintf(stderr, "Loading TBA Realm from \"%s\"\n", fn.c_str());
     while (1) {
       int onum;
       if (fscanf(mud, " #%d\n", &onum) < 1)
@@ -2449,7 +2449,7 @@ void Object::TBALoadWLD(const char* fn) {
     }
     fclose(mud);
   } else {
-    fprintf(stderr, "Error: No TBA Realm \"%s\"\n", fn);
+    fprintf(stderr, "Error: No TBA Realm \"%s\"\n", fn.c_str());
   }
 }
 
@@ -2497,8 +2497,8 @@ static std::set<std::string> parse_tba_shop_rules(std::string rules) {
   return ret;
 }
 
-void Object::TBALoadSHP(const char* fn) {
-  FILE* mud = fopen(fn, "r");
+void Object::TBALoadSHP(const std::string& fn) {
+  FILE* mud = fopen(fn.c_str(), "r");
   if (mud) {
     Object* vortex = nullptr;
     if (fscanf(mud, "CircleMUD v3.0 Shop File~%65535[\n\r]", buf) > 0) {
@@ -2681,16 +2681,16 @@ void Object::TBALoadSHP(const char* fn) {
         }
       }
     } else if (fscanf(mud, "%1[$]", buf) < 1) { // Not a Null Shop File!
-      fprintf(stderr, "Error: '%s' is not a CircleMUD v3.0 Shop File!\n", fn);
+      fprintf(stderr, "Error: '%s' is not a CircleMUD v3.0 Shop File!\n", fn.c_str());
     }
     fclose(mud);
   } else {
-    fprintf(stderr, "Error: '%s' does not exist!\n", fn);
+    fprintf(stderr, "Error: '%s' does not exist!\n", fn.c_str());
   }
 }
 
-void Object::TBALoadTRG(const char* fn) { // Triggers
-  FILE* mud = fopen(fn, "r");
+void Object::TBALoadTRG(const std::string& fn) { // Triggers
+  FILE* mud = fopen(fn.c_str(), "r");
   if (mud) {
     int tnum = -1;
     while (fscanf(mud, " #%d", &tnum) > 0) {
@@ -2759,6 +2759,6 @@ void Object::TBALoadTRG(const char* fn) { // Triggers
     }
     fclose(mud);
   } else {
-    fprintf(stderr, "Error: '%s' does not exist!\n", fn);
+    fprintf(stderr, "Error: '%s' does not exist!\n", fn.c_str());
   }
 }

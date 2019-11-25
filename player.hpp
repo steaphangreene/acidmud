@@ -64,8 +64,8 @@ class Player {
 Player* player_login(std::string name, std::string pass);
 Player* get_player(std::string name);
 int player_exists(std::string name);
-int save_players(const char* fn);
-int load_players(const char* fn);
+int save_players(const std::string& fn);
+int load_players(const std::string& fn);
 void player_rooms_erase(Object*);
 int is_pc(const Object*);
 

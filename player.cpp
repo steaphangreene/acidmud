@@ -137,10 +137,10 @@ int Player::LoadFrom(FILE* fl) {
   return 0;
 }
 
-int load_players(const char* fn) {
+int load_players(const std::string& fn) {
   fprintf(stderr, "Loading Players.\n");
 
-  FILE* fl = fopen(fn, "r");
+  FILE* fl = fopen(fn.c_str(), "r");
   if (!fl)
     return -1;
 
@@ -177,8 +177,8 @@ int Player::SaveTo(FILE* fl) {
   return 0;
 }
 
-int save_players(const char* fn) {
-  FILE* fl = fopen(fn, "w");
+int save_players(const std::string& fn) {
+  FILE* fl = fopen(fn.c_str(), "w");
   if (!fl)
     return -1;
 

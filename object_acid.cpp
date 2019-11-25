@@ -51,8 +51,8 @@ int getnum(Object* obj) {
   return obj2num[obj];
 }
 
-int Object::Save(const char* filename) {
-  FILE* fl = fopen(filename, "w");
+int Object::Save(const std::string& fn) {
+  FILE* fl = fopen(fn.c_str(), "w");
   if (!fl)
     return -1;
 
@@ -146,8 +146,8 @@ int Object::SaveTo(FILE* fl) {
 }
 
 static unsigned int ver;
-int Object::Load(const char* fn) {
-  FILE* fl = fopen(fn, "r");
+int Object::Load(const std::string& fn) {
+  FILE* fl = fopen(fn.c_str(), "r");
   if (!fl)
     return -1;
 

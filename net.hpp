@@ -9,8 +9,8 @@ void update_net(void);
 void stop_net(void);
 void close_socket(int);
 int suspend_net(void);
-int save_net(const char* fn);
-int load_net(const char* fn);
+int save_net(const std::string& fn);
+int load_net(const std::string& fn);
 
 void SendOut(int, const std::string&);
 void SetPrompt(int, const std::string&);

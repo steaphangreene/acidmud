@@ -325,10 +325,10 @@ int suspend_net() {
   return acceptor;
 }
 
-int save_net(const char* fn) {
+int save_net(const std::string& fn) {
   fprintf(stderr, "Saving Network Stat.\n");
 
-  FILE* fl = fopen(fn, "w");
+  FILE* fl = fopen(fn.c_str(), "w");
   if (!fl)
     return -1;
 
@@ -364,12 +364,12 @@ int save_net(const char* fn) {
   return 0;
 }
 
-int load_net(const char* fn) {
+int load_net(const std::string& fn) {
   fprintf(stderr, "Loading Network Stat.\n");
 
   static char buf[65536];
 
-  FILE* fl = fopen(fn, "r");
+  FILE* fl = fopen(fn.c_str(), "r");
   if (!fl)
     return -1;
 
@@ -399,7 +399,7 @@ int load_net(const char* fn) {
   }
 
   fclose(fl);
-  unlink(fn);
+  unlink(fn.c_str());
   return 0;
 }
 

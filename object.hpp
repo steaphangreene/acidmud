@@ -382,19 +382,19 @@ class Object {
   void LoudF(int str, const char* mes, ...) __attribute__((format(printf, 3, 4)));
 
   void TBALoadAll();
-  void TBALoadWLD(const char*);
-  void TBALoadOBJ(const char*);
-  void TBALoadMOB(const char*);
+  void TBALoadWLD(const std::string&);
+  void TBALoadOBJ(const std::string&);
+  void TBALoadMOB(const std::string&);
   void TBAFinishMOB(Object*);
-  void TBALoadZON(const char*);
-  void TBALoadSHP(const char*);
-  void TBALoadTRG(const char*);
+  void TBALoadZON(const std::string&);
+  void TBALoadSHP(const std::string&);
+  void TBALoadTRG(const std::string&);
   static void TBAFinalizeTriggers();
   static void TBACleanup();
 
-  int Load(const char*);
+  int Load(const std::string&);
   int LoadFrom(FILE*);
-  int Save(const char*);
+  int Save(const std::string&);
   int SaveTo(FILE*);
   int WriteContentsTo(FILE*);
 
