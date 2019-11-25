@@ -777,6 +777,8 @@ void Object::TBALoadMOB(const std::string& fn) {
             obj->SetGender('F');
           } else if (aliases[actr] == "man" || aliases[actr] == "boy") {
             obj->SetGender('M');
+          } else if (aliases[actr] == "wyv" || aliases[actr] == "ghenna") {
+            // Ignore these, they're just typing short-cuts.
           } else {
             // fprintf(
             //    stderr,
@@ -1229,6 +1231,8 @@ void Object::TBALoadOBJ(const std::string& fn) {
                 aliases[actr].c_str(),
                 obj->Skill(crc32c("TBAObject")),
                 obj->ShortDesc().c_str());
+          } else if (aliases[actr] == "wyv" || aliases[actr] == "ghenna") {
+            // Ignore these, they're just typing short-cuts.
           } else {
             // fprintf(
             //    stderr,
