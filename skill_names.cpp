@@ -372,6 +372,7 @@ static std::vector<std::pair<uint32_t, std::string>> skill_names = {
     {crc32c("Remove Curse"), "Remove Curse"},
     {crc32c("Remove Curse Spell"), "Remove Curse Spell"},
     {crc32c("Research"), "Research"},
+    {crc32c("Resilience"), "Resilience"},
     {crc32c("Resilience Bonus"), "Resilience Bonus"},
     {crc32c("Resilience Penalty"), "Resilience Penalty"},
     {crc32c("Resilience Spell"), "Resilience Spell"},

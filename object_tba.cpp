@@ -1410,7 +1410,7 @@ void Object::TBALoadOBJ(const char* fn) {
           } else if (matches(name.c_str(), "torch")) {
             obj->SetSkill(crc32c("Resilience"), 200); // Won't last when dropped
           } else if (matches(name.c_str(), "candle")) {
-            //obj->SetSkill(crc32c("Resilience"), 0); // Goes out when dropped
+            // obj->SetSkill(crc32c("Resilience"), 0); // Goes out when dropped
           } else {
             obj->SetSkill(crc32c("Resilience"), 100); // Won't last when dropped
           }

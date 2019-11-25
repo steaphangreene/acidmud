@@ -643,10 +643,18 @@ int Object::Tick() {
   }
 
   // Lit Torches/Lanterns
-  if (HasSkill(crc32c("Brightness")) && HasSkill(crc32c("Light Source"))) {
+  if (HasSkill(crc32c("Lightable")) && HasSkill(crc32c("Light Source"))) {
     SetSkill(crc32c("Lightable"), Skill(crc32c("Lightable")) - 1);
+    bool goesout = false;
     if (Skill(crc32c("Lightable")) < 1) {
+      goesout = true;
+    } else if (!parent->IsAnimate()) {
+      int chances = Skill(crc32c("Resilience"));
+      goesout = ((rand() % 1000) >= chances);
+    }
+    if (goesout) {
       SetSkill(crc32c("Light Source"), 0);
+      parent->SendOut(ALL, -1, ";s goes out.\n", "", this, nullptr);
       return -1; // Deactivate Me!
     }
   }
@@ -1043,7 +1051,7 @@ void Object::SendActions(Mind* m) {
   if (HasSkill(crc32c("Light Source"))) {
     if (Skill(crc32c("Light Source")) < 20)
       m->Send(", glowing");
-    else if (HasSkill(crc32c("Brightness")))
+    else if (HasSkill(crc32c("Lightable")))
       m->Send(", burning");
     else if (Skill(crc32c("Light Source")) < 200)
       m->Send(", lighting the area");
@@ -1620,7 +1628,7 @@ void Object::SendScore(Mind* m, Object* o) {
   }
 
   // Other Misc Stats
-  if (HasSkill(crc32c("Light Source"))) {
+  if (LightLevel() > 0) {
     m->SendF(CYEL "  Light Level: %d (%d)\n" CNRM, Skill(crc32c("Light Source")), LightLevel());
   }
   if (Power("Cursed")) {
@@ -2775,11 +2783,6 @@ void Object::AddAct(act_t a, Object* o) {
 void Object::StopAct(act_t a) {
   Object* obj = act[a];
   act.erase(a);
-  if (obj && obj->HasSkill(crc32c("Brightness")) && obj->HasSkill(crc32c("Light Source"))) {
-    obj->SetSkill(crc32c("Light Source"), 0);
-    // obj->SendOut(0, 0, ";s goes out.\n", "", obj, nullptr);
-    obj->Deactivate();
-  }
   if (a == ACT_HOLD && IsAct(ACT_OFFER)) {
     // obj->SendOut(0, 0, ";s stops offering.\n", "", obj, nullptr);
     StopAct(ACT_OFFER);
@@ -4035,11 +4038,13 @@ int Object::LightLevel(int updown) {
       if (!Wearing(item)) { // Containing it (internal)
         int fac = item->Skill(crc32c("Open")) + item->Skill(crc32c("Transparent")) +
             item->Skill(crc32c("Translucent"));
-        if (fac > 1000)
+        if (fac > 1000) {
           fac = 1000;
+        }
         if (fac > 0) {
           level += (fac * item->LightLevel(-1));
         }
+        level += 1000 * item->Skill(crc32c("Light Source"));
       }
 
       auto subitem = item->contents.begin();
