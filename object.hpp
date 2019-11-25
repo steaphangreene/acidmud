@@ -45,9 +45,12 @@ class MOBType;
 
 enum pos_t { POS_NONE = 0, POS_LIE, POS_SIT, POS_STAND, POS_USE, POS_MAX };
 
-enum act_t { // Changing these requires change to:
-  ACT_NONE = 0, // act_str: in object.cpp
-  ACT_DEAD, // act_save: in object_acid.cpp
+// Changing these requires change to:
+// * act_str: in object.cpp
+// * act_save: in object_acid.cpp
+enum act_t {
+  ACT_NONE = 0,
+  ACT_DEAD,
   ACT_DYING,
   ACT_UNCONSCIOUS,
   ACT_SLEEP,
@@ -93,9 +96,6 @@ enum act_t { // Changing these requires change to:
 
 #define ALL (-0x7FFFFFFF)
 #define SOME (-0x7FFFFFFE)
-
-extern const char* pos_str[POS_MAX];
-extern const char* act_str[ACT_SPECIAL_MAX];
 
 class Object {
  public:
