@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <vector>
 
 #include <fcntl.h>
@@ -734,7 +735,7 @@ void Object::TBALoadMOB(const char* fn) {
       const char* ind = buf;
       while (sscanf(ind, " %ms", &str) > 0) {
         ind += strlen(str) + 1;
-        aliases.push_back(std::string(str));
+        aliases.emplace_back(std::string(str));
         free((void*)(str));
       }
 
@@ -753,7 +754,15 @@ void Object::TBALoadMOB(const char* fn) {
 
       std::string label = "";
       for (unsigned int actr = 0; actr < aliases.size(); ++actr) {
+        std::transform(
+            aliases[actr].begin(), aliases[actr].end(), aliases[actr].begin(), ascii_tolower);
         if (!obj->Matches(aliases[actr].c_str())) {
+          // fprintf(
+          //    stderr,
+          //    CBYL "Warning: Adding [%s] to #%d ('%s')\n" CNRM,
+          //    aliases[actr].c_str(),
+          //    obj->Skill(crc32c("TBAMOB")),
+          //    obj->ShortDesc());
           label += " " + aliases[actr];
         }
       }
@@ -1187,7 +1196,15 @@ void Object::TBALoadOBJ(const char* fn) {
 
       std::string label = "";
       for (unsigned int actr = 0; actr < aliases.size(); ++actr) {
+        std::transform(
+            aliases[actr].begin(), aliases[actr].end(), aliases[actr].begin(), ascii_tolower);
         if (!obj->Matches(aliases[actr].c_str())) {
+          // fprintf(
+          //    stderr,
+          //    CBYL "Warning: Adding [%s] to #%d ('%s')\n" CNRM,
+          //    aliases[actr].c_str(),
+          //    obj->Skill(crc32c("TBAObject")),
+          //    obj->ShortDesc());
           label += " " + aliases[actr];
         }
       }
