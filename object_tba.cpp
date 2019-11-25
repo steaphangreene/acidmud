@@ -15,6 +15,10 @@
 #include "object.hpp"
 #include "utils.hpp"
 
+static int obj_aliases = 0;
+static int mob_aliases = 0;
+static const std::string target_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-'";
+
 static uint32_t tba_bitvec(const std::string& val) {
   uint32_t ret = atoi(val.c_str());
   if (ret == 0) {
@@ -123,7 +127,9 @@ void Object::TBALoadAll() {
     fclose(muds);
   }
   TBACleanup();
-  fprintf(stderr, "Warning: %d untranslated triggers!\n", untrans_trig);
+  fprintf(stderr, CBYL "Warning: %d untranslated triggers!\n" CNRM, untrans_trig);
+  fprintf(stderr, CBYL "Warning: %d tacked-on object aliases!\n" CNRM, obj_aliases);
+  fprintf(stderr, CBYL "Warning: %d tacked-on mob aliases!\n" CNRM, mob_aliases);
 }
 
 static std::vector<Object*> todotrg;
@@ -298,7 +304,9 @@ void Object::TBAFinishMOB(Object* mob) {
       if (mob->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")) == 0) {
         if (!mob->ActTarg(ACT_HOLD)) { // Don't wield non-weapons, hold them
           fprintf(
-              stderr, "Warning: Wielded non-weapon: %s\n", mob->ActTarg(ACT_WIELD)->Name().c_str());
+              stderr,
+              CYEL "Warning: Wielded non-weapon: %s\n" CNRM,
+              mob->ActTarg(ACT_WIELD)->Name().c_str());
           mob->AddAct(ACT_HOLD, mob->ActTarg(ACT_WIELD));
           mob->StopAct(ACT_WIELD);
         } else {
@@ -758,13 +766,23 @@ void Object::TBALoadMOB(const std::string& fn) {
         std::transform(
             aliases[actr].begin(), aliases[actr].end(), aliases[actr].begin(), ascii_tolower);
         if (!obj->Matches(aliases[actr].c_str())) {
-          // fprintf(
-          //    stderr,
-          //    CBYL "Warning: Adding [%s] to #%d ('%s')\n" CNRM,
-          //    aliases[actr].c_str(),
-          //    obj->Skill(crc32c("TBAMOB")),
-          //    obj->ShortDesc().c_str());
-          label += " " + aliases[actr];
+          if (aliases[actr].find_first_not_of(target_chars) != std::string::npos) {
+            fprintf(
+                stderr,
+                CYEL "Warning: Ignoring non-alpha alias [%s] in #%d ('%s')\n" CNRM,
+                aliases[actr].c_str(),
+                obj->Skill(crc32c("TBAMOB")),
+                obj->ShortDesc().c_str());
+          } else {
+            // fprintf(
+            //    stderr,
+            //    CYEL "Warning: Adding [%s] to #%d ('%s')\n" CNRM,
+            //    aliases[actr].c_str(),
+            //    obj->Skill(crc32c("TBAMOB")),
+            //    obj->ShortDesc().c_str());
+            label += " " + aliases[actr];
+            ++mob_aliases;
+          }
         }
       }
       if (!label.empty()) {
@@ -1145,7 +1163,7 @@ static void add_tba_spell(Object* obj, int spell, int power) {
       obj->SetSkill(crc32c("Darkness Spell"), power);
     } break;
     default: {
-      fprintf(stderr, "Warning: Unhandled CicleMUD Spell: %d\n", spell);
+      fprintf(stderr, CYEL "Warning: Unhandled CicleMUD Spell: %d\n" CNRM, spell);
     }
   }
 }
@@ -1200,13 +1218,23 @@ void Object::TBALoadOBJ(const std::string& fn) {
         std::transform(
             aliases[actr].begin(), aliases[actr].end(), aliases[actr].begin(), ascii_tolower);
         if (!obj->Matches(aliases[actr].c_str())) {
-          // fprintf(
-          //    stderr,
-          //    CBYL "Warning: Adding [%s] to #%d ('%s')\n" CNRM,
-          //    aliases[actr].c_str(),
-          //    obj->Skill(crc32c("TBAObject")),
-          //    obj->ShortDesc().c_str());
-          label += " " + aliases[actr];
+          if (aliases[actr].find_first_not_of(target_chars) != std::string::npos) {
+            fprintf(
+                stderr,
+                CYEL "Warning: Ignoring non-alpha alias [%s] in #%d ('%s')\n" CNRM,
+                aliases[actr].c_str(),
+                obj->Skill(crc32c("TBAObject")),
+                obj->ShortDesc().c_str());
+          } else {
+            // fprintf(
+            //    stderr,
+            //    CYEL "Warning: Adding [%s] to #%d ('%s')\n" CNRM,
+            //    aliases[actr].c_str(),
+            //    obj->Skill(crc32c("TBAObject")),
+            //    obj->ShortDesc().c_str());
+            label += " " + aliases[actr];
+            ++obj_aliases;
+          }
         }
       }
       if (!label.empty()) {
@@ -1932,7 +1960,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
         } else {
           fprintf(
               stderr,
-              "Warning: Using Default of '%s' for '%s'!\n",
+              CYEL "Warning: Using Default of '%s' for '%s'!\n" CNRM,
               SkillName(get_weapon_skill(skmatch)).c_str(),
               obj->ShortDesc().c_str());
         }
@@ -2049,7 +2077,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
           else {
             fprintf(
                 stderr,
-                "Warning: Using Default reach of zero for '%s'!\n",
+                CYEL "Warning: Using Default reach of zero for '%s'!\n" CNRM,
                 obj->ShortDesc().c_str());
           }
         }
@@ -2195,18 +2223,16 @@ void Object::TBALoadOBJ(const std::string& fn) {
               fscanf(mudo, "%65535[^~]", buf);
               obj->SetLongDesc(buf);
             } else { // FIXME: Handle These
-              //	      fprintf(stderr, "Warning: Duplicate (%s) extra for
-              //'%s'!\n",
-              //		buf, obj->ShortDesc());
+              // fprintf(stderr, CYEL "Warning: Duplicate (%s) extra for '%s'!\n" CNRM,
+              //         buf, obj->ShortDesc());
               Object* sub = new Object(obj);
               sub->SetShortDesc(buf);
               fscanf(mudo, "%65535[^~]", buf);
               sub->SetDesc(buf);
             }
           } else { // FIXME: Handle These
-            //	    fprintf(stderr, "Warning: Non-matching (%s) extra for
-            //'%s'!\n",
-            //		buf, obj->ShortDesc());
+            // fprintf(stderr, CYEL "Warning: Non-matching (%s) extra for '%s'!\n" CNRM,
+            //         buf, obj->ShortDesc());
             Object* sub = new Object(obj);
             sub->SetShortDesc(buf);
             fscanf(mudo, "%65535[^~]", buf);
@@ -2491,7 +2517,8 @@ static std::set<std::string> parse_tba_shop_rules(std::string rules) {
         ret.insert(first);
         return ret; // End of sub-call
       } else {
-        fprintf(stderr, "Warning: Can't handle shop rule fragment: '%s'\n", rules.c_str());
+        fprintf(
+            stderr, CYEL "Warning: Can't handle shop rule fragment: '%s'\n" CNRM, rules.c_str());
         done = std::string::npos;
       }
     }
@@ -2669,7 +2696,7 @@ void Object::TBALoadSHP(const std::string& fn) {
                 type != "Money" && type != "Pen" && type != "Boat" && type != "Fountain") {
               fprintf(
                   stderr,
-                  "Warning: Can't handle %s's buy target: '%s'\n",
+                  CYEL "Warning: Can't handle %s's buy target: '%s'\n" CNRM,
                   keeper->Name().c_str(),
                   type.c_str());
             } else if (type != "0") { // Apparently 0 used for "Ignore This"
@@ -2681,7 +2708,7 @@ void Object::TBALoadSHP(const std::string& fn) {
           keeper->AddAct(ACT_WEAR_RSHOULDER, vortex);
         } else {
           vortex->Recycle();
-          fprintf(stderr, "Warning: Can't find shopkeeper #%d!\n", kpr);
+          fprintf(stderr, CYEL "Warning: Can't find shopkeeper #%d!\n" CNRM, kpr);
         }
       }
     } else if (fscanf(mud, "%1[$]", buf) < 1) { // Not a Null Shop File!
