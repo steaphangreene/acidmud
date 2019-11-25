@@ -123,14 +123,12 @@ void resume_net(int fd) {
 }
 
 void start_net(int port, const std::string& host) {
-  struct sockaddr_in sa;
+  struct sockaddr_in sa = {};
   if ((acceptor = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
     perror("ERROR in socet()");
     exit(1);
   }
   maxfd = acceptor;
-
-  memset((char*)&sa, 0, sizeof(sa));
 
   sa.sin_family = AF_INET;
   sa.sin_port = htons(port);
@@ -158,8 +156,8 @@ void start_net(int port, const std::string& host) {
   listen(acceptor, 5);
 }
 
-ssize_t sock_write(int fd, const char* mes) {
-  return write(fd, mes, strlen(mes));
+ssize_t sock_write(int fd, const std::string& mes) {
+  return write(fd, mes.data(), mes.length());
 }
 
 void connect_sock(int newsock) {

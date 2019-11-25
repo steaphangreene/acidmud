@@ -30,16 +30,16 @@ void Object::DynamicInit2() { // Cuberpunk City
 }
 
 void Object::DynamicInit1() { // Dwarven mine
-  const char* names[] = {"An Entrance to a Large Mining Tunnel",
-                         "A Large Mining Tunnel",
-                         "A Large Mining Tunnel with a Small Tunnel to One Side",
-                         "A Large Mining Tunnel",
-                         "A Large Open Chamber",
-                         "A Small Mining Tunnel",
-                         "A Bend in a Small Mining Tunnel",
-                         "A Fork in a Small Mining Tunnel",
-                         "A Small Alcove"};
-  const char* descs[] = {
+  const std::string names[] = {"An Entrance to a Large Mining Tunnel",
+                               "A Large Mining Tunnel",
+                               "A Large Mining Tunnel with a Small Tunnel to One Side",
+                               "A Large Mining Tunnel",
+                               "A Large Open Chamber",
+                               "A Small Mining Tunnel",
+                               "A Bend in a Small Mining Tunnel",
+                               "A Fork in a Small Mining Tunnel",
+                               "A Small Alcove"};
+  const std::string descs[] = {
       "This tunnel looks to have been carved centuries ago.  It is so well "
       "crafted\n"
       "that you think it will stand as-is for another millenia.\n",
@@ -393,10 +393,10 @@ void Object::DynamicInit1() { // Dwarven mine
   SetSkill(crc32c("DynamicMojo"), 0);
 
   // Tree structure, start with one door - dir of travel is opposite it.
-  const char* dirb = "south";
-  const char* dir = "north";
-  const char* dir2 = "west";
-  const char* dir3 = "east";
+  std::string dirb = "south";
+  std::string dir = "north";
+  std::string dir2 = "west";
+  std::string dir3 = "east";
 
   if (PickObject("north", LOC_INTERNAL) != nullptr) {
     dirb = "north";

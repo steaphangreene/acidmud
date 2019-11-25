@@ -1034,7 +1034,7 @@ void Object::SendActions(Mind* m) {
       //      thingy.
       //      for(auto dir : connections) {
       //	if(dir.second == cur.second) {
-      //	  dirn = (char*) dir.first.c_str();
+      //	  dirn = dir.first;
       //	  dirp = " ";
       //	  break;
       //	  }
@@ -1493,24 +1493,24 @@ void Object::SendLongDesc(Mind* m, Object* o) {
   m->Send(CNRM);
 }
 
-const char* const atnames[] = {"Bod", "Qui", "Str", "Cha", "Int", "Wil"};
+static const std::string atnames[] = {"Bod", "Qui", "Str", "Cha", "Int", "Wil"};
 void Object::SendScore(Mind* m, Object* o) {
   if (!m)
     return;
   m->SendF("\n%s", CNRM);
   for (int ctr = 0; ctr < 6; ++ctr) {
     if (std::min(NormAttribute(ctr), 99) == std::min(ModAttribute(ctr), 99)) {
-      m->SendF("%s: %2d     ", atnames[ctr], std::min(ModAttribute(ctr), 99));
+      m->SendF("%s: %2d     ", atnames[ctr].c_str(), std::min(ModAttribute(ctr), 99));
     } else if (ModAttribute(ctr) > 9) { // 2-Digits!
       m->SendF(
           "%s: %2d (%d)",
-          atnames[ctr],
+          atnames[ctr].c_str(),
           std::min(NormAttribute(ctr), 99),
           std::min(ModAttribute(ctr), 99));
     } else { // 1 Digit!
       m->SendF(
           "%s: %2d (%d) ",
-          atnames[ctr],
+          atnames[ctr].c_str(),
           std::min(NormAttribute(ctr), 99),
           std::min(ModAttribute(ctr), 99));
     }
@@ -1664,13 +1664,18 @@ static void stick_on(
     std::vector<std::string>& out,
     const std::vector<std::pair<uint32_t, int32_t>>& skls,
     uint32_t stok,
-    const char* label) {
+    const std::string label) {
   char buf2[256];
 
   auto itr = find_if(skls.begin(), skls.end(), [stok](auto skl) { return (skl.first == stok); });
   if (itr != skls.end()) {
     if (itr->second > 0) {
-      sprintf(buf2, "  %18s: " CYEL "%d.%.3d" CNRM, label, itr->second / 1000, itr->second % 1000);
+      sprintf(
+          buf2,
+          "  %18s: " CYEL "%d.%.3d" CNRM,
+          label.c_str(),
+          itr->second / 1000,
+          itr->second % 1000);
       out.push_back(buf2);
     }
   }
@@ -2082,9 +2087,10 @@ int Object::Travel(Object* dest, int try_combine) {
       return -3;
   }
 
-  const char *dir = "", *rdir = "";
+  std::string dir = "";
+  std::string rdir = "";
   {
-    const char* dirs[6] = {"north", "south", "east", "west", "up", "down"};
+    const std::string dirs[6] = {"north", "south", "east", "west", "up", "down"};
     for (int dnum = 0; dnum < 6 && dir[0] == 0; ++dnum) {
       Object* door = parent->PickObject(dirs[dnum], LOC_INTERNAL);
       if (door && door->ActTarg(ACT_SPECIAL_LINKED) &&
@@ -2472,10 +2478,9 @@ static int tag(Object* obj, std::vector<Object*>& ret, int* ordinal, int vmode =
   return 0;
 }
 
-std::vector<Object*> Object::PickObjects(const std::string& nm, int loc, int* ordinal) const {
+std::vector<Object*> Object::PickObjects(std::string name, int loc, int* ordinal) const {
   std::vector<Object*> ret;
 
-  auto name = nm;
   trim_string(name);
 
   int ordcontainer;
@@ -2496,19 +2501,14 @@ std::vector<Object*> Object::PickObjects(const std::string& nm, int loc, int* or
   if (!(*ordinal))
     (*ordinal) = 1;
 
-  const char* keyword = nullptr;
-  const char* keyword2 = nullptr;
-  if ((keyword = strstr(name.c_str(), "'s ")) || (keyword2 = strstr(name.c_str(), "'S "))) {
-    if (keyword && keyword2)
-      keyword = std::min(keyword, keyword2);
-    else if (!keyword)
-      keyword = keyword2;
-    auto keyword3 = name.substr(0, keyword - name.c_str());
-    auto keyword4 = name.substr(3 + keyword - name.c_str());
-    auto masters = PickObjects(keyword3, loc, ordinal);
+  auto poss = std::min(name.find("'s "), name.find("'S "));
+  if (poss != std::string::npos) {
+    auto possessor = name.substr(0, poss);
+    auto possession = name.substr(3 + poss);
+    auto masters = PickObjects(possessor, loc, ordinal);
     if (masters.size() > 0) {
       for (auto master : masters) {
-        auto add = master->PickObjects(keyword4, (loc & LOC_SPECIAL) | LOC_INTERNAL);
+        auto add = master->PickObjects(possession, (loc & LOC_SPECIAL) | LOC_INTERNAL);
         ret.insert(ret.end(), add.begin(), add.end());
       }
     }
@@ -3398,7 +3398,7 @@ void init_world() {
 
       int len = lseek(fd, 0, SEEK_END);
       lseek(fd, 0, SEEK_SET);
-      char* buf2 = new char[len + 1];
+      char buf2[len + 1];
       read(fd, buf2, len);
       buf2[len] = 0;
 
@@ -3408,7 +3408,6 @@ void init_world() {
       delete automind;
       delete anp;
       autoninja->Recycle();
-      delete[] buf2;
     }
   }
   universe->SetSkill(crc32c("Light Source"), 1000); // Ninjas need to see too.

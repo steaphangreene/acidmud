@@ -8,7 +8,7 @@
 #include "utils.hpp"
 #include "version.hpp"
 
-const char* act_save[ACT_SPECIAL_MAX] = {
+const std::string act_save[ACT_SPECIAL_MAX] = {
     "NONE",         "DEAD",        "DYING",           "UNCONSCIOUS",    "SLEEP",
     "REST",         "HEAL",        "POINT",           "FOLLOW",         "FIGHT",
     "OFFER",        "HOLD",        "WIELD",           "WEAR_BACK",      "WEAR_CHEST",
@@ -132,7 +132,7 @@ int Object::SaveTo(FILE* fl) {
 
   fprintf(fl, "%d\n", (int)(act.size()));
   for (auto aind : act) {
-    fprintf(fl, "%s;%d\n", act_save[aind.first], getnum(aind.second));
+    fprintf(fl, "%s;%d\n", act_save[aind.first].c_str(), getnum(aind.second));
   }
 
   fprintf(fl, "\n");

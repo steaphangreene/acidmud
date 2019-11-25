@@ -307,13 +307,13 @@ ArmorType::ArmorType(
   value = val;
 }
 
-static const char* gen_replace[][4] = {{"{He}", "She", "He", "It"},
-                                       {"{Him}", "Her", "Him", "It"},
-                                       {"{His}", "Hers", "His", "Its"},
-                                       {"{he}", "she", "he", "it"},
-                                       {"{him}", "her", "him", "it"},
-                                       {"{his}", "hers", "his", "its"},
-                                       {nullptr, nullptr, nullptr, nullptr}};
+static const std::string gen_replace[][4] = {{"{He}", "She", "He", "It"},
+                                             {"{Him}", "Her", "Him", "It"},
+                                             {"{His}", "Hers", "His", "Its"},
+                                             {"{he}", "she", "he", "it"},
+                                             {"{him}", "her", "him", "it"},
+                                             {"{his}", "hers", "his", "its"},
+                                             {"", "", "", ""}};
 
 std::string gender_proc(const std::string& in, char gender) {
   std::string ret = in;
@@ -324,12 +324,12 @@ std::string gender_proc(const std::string& in, char gender) {
   if (gender == 'M')
     gen = 2;
 
-  for (ctr = 0; gen_replace[ctr][0]; ++ctr) {
+  for (ctr = 0; !gen_replace[ctr][0].empty(); ++ctr) {
     int where = ret.find(gen_replace[ctr][0]);
     while (where >= 0 && where <= int(ret.length())) {
-      fprintf(stderr, "Yep: %d %s (%s)\n", where, ret.c_str(), gen_replace[ctr][0]);
-      ret = ret.substr(0, where) + std::string(gen_replace[ctr][gen]) +
-          ret.substr(where + strlen(gen_replace[ctr][0]));
+      fprintf(stderr, "Yep: %d %s (%s)\n", where, ret.c_str(), gen_replace[ctr][0].c_str());
+      ret = ret.substr(0, where) + gen_replace[ctr][gen] +
+          ret.substr(where + gen_replace[ctr][0].length());
       where = ret.find(gen_replace[ctr][0]);
     }
   }

@@ -12,31 +12,31 @@
 int handle_command_ccreate(
     Object* body,
     Mind* mind,
-    const char* comline,
+    const std::string& comline,
     int len,
     int stealth_t,
     int stealth_s) {
-  if (comline[len] == 0) {
+  if (comline.length() <= len) {
     mind->Send("You need to specify the name of the city!\n");
   } else {
     Object* city = new Object(body->Parent());
-    city->SetShortDesc(comline + len);
+    city->SetShortDesc(comline.substr(len));
 
-    //    Object *ocean = new Object(city);
-    //    ocean->SetShortDesc("Ocean");
-    //    ocean->SetDesc("The Atcific Ocean.");
+    // Object *ocean = new Object(city);
+    // ocean->SetShortDesc("Ocean");
+    // ocean->SetDesc("The Atcific Ocean.");
 
-    //    Object *bay = new Object(city);
-    //    bay->SetShortDesc("Bay");
-    //    bay->SetDesc((string("The ") + (comline+len) + " Bay.").c_str());
+    // Object *bay = new Object(city);
+    // bay->SetShortDesc("Bay");
+    // bay->SetDesc((string("The ") + comline.substr(len) + " Bay.").c_str());
 
-    //    Object *inlet = new Object(city);
-    //    inlet->SetShortDesc("Inlet");
-    //    inlet->SetDesc((string("The ") + (comline+len) + " Inlet.").c_str());
+    // Object *inlet = new Object(city);
+    // inlet->SetShortDesc("Inlet");
+    // inlet->SetDesc((string("The ") + comline.substr(len) + " Inlet.").c_str());
 
-    //    Object *wall = new Object(city);
-    //    wall->SetShortDesc("North Wall");
-    //    wall->SetDesc("The North Wall.");
+    // Object *wall = new Object(city);
+    // wall->SetShortDesc("North Wall");
+    // wall->SetDesc("The North Wall.");
 
     char alist[][8] = {"West",   "Apple",  "Breeze", "Coconut", "Drury",  "Earl",  "Farley",
                        "Gantry", "Henry",  "Indian", "Jawa",    "Kindle", "Lucky", "Moody",
@@ -305,7 +305,7 @@ int handle_command_ccreate(
 
           if (off != 0) {
             Object* places[3] = {nullptr, cur, nullptr};
-            const char* dir[2] = {"south", "north"};
+            std::string dir[2] = {"south", "north"};
             if (off < 0) {
               dir[0] = "west";
               dir[1] = "east";
@@ -348,7 +348,7 @@ int handle_command_ccreate(
         "You create a new city '%s'.\n",
         body,
         nullptr,
-        comline + len);
+        comline.substr(len).c_str());
   }
   return 0;
 }

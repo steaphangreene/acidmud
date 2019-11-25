@@ -24,7 +24,7 @@ extern int64_t current_time; // From main.cpp
 
 std::vector<Mind*> recycle_bin;
 
-static const char* bstr[2] = {"0", "1"};
+static const std::string bstr[2] = {"0", "1"};
 
 static std::string itos(int val) {
   char buf[256];
@@ -558,8 +558,8 @@ void Mind::SetSystem() {
   pers = fileno(stderr);
 }
 
-static const char* sevs_p[] = {"-", "L", "L", "M", "M", "M", "S", "S", "S", "S", "D"};
-static const char* sevs_s[] = {"-", "l", "l", "m", "m", "m", "s", "s", "s", "s", "u"};
+static const std::string sevs_p[] = {"-", "L", "L", "M", "M", "M", "S", "S", "S", "S", "D"};
+static const std::string sevs_s[] = {"-", "l", "l", "m", "m", "m", "s", "s", "s", "s", "u"};
 void Mind::UpdatePrompt() {
   static char buf[65536];
   if (!Owner()) {
@@ -573,8 +573,8 @@ void Mind::UpdatePrompt() {
     sprintf(
         buf,
         "[%s][%s] %s> %c",
-        sevs_p[std::min(10, Body()->Phys())],
-        sevs_s[std::min(10, Body()->Stun())],
+        sevs_p[std::min(10, Body()->Phys())].c_str(),
+        sevs_s[std::min(10, Body()->Stun())].c_str(),
         Body()->ShortDesc().c_str(),
         0);
     SetPrompt(pers, buf);
@@ -2228,8 +2228,8 @@ int Mind::TBARunLine(std::string line) {
   else if (!strncmp(line.c_str(), "door ", 5)) {
     int rnum, tnum, len;
     char dname[16], xtra;
-    const char* args = line.c_str() + 5;
-    if (sscanf(args, "%d %s", &rnum, dname) < 2) {
+    const std::string args = line.substr(5);
+    if (sscanf(args.c_str(), "%d %s", &rnum, dname) < 2) {
       fprintf(
           stderr,
           CRED "#%d Error: short door command '%s'\n" CNRM,
@@ -2240,18 +2240,18 @@ int Mind::TBARunLine(std::string line) {
     }
 
     // Handle abbreviated standard directions.
-    const char* dir = dname;
-    if (!strncmp("north", dir, strlen(dir)))
+    std::string dir = dname;
+    if (!strncmp("north", dir.c_str(), dir.length()))
       dir = "north";
-    else if (!strncmp("south", dir, strlen(dir)))
+    else if (!strncmp("south", dir.c_str(), dir.length()))
       dir = "south";
-    else if (!strncmp("east", dir, strlen(dir)))
+    else if (!strncmp("east", dir.c_str(), dir.length()))
       dir = "east";
-    else if (!strncmp("west", dir, strlen(dir)))
+    else if (!strncmp("west", dir.c_str(), dir.length()))
       dir = "west";
-    else if (!strncmp("up", dir, strlen(dir)))
+    else if (!strncmp("up", dir.c_str(), dir.length()))
       dir = "up";
-    else if (!strncmp("down", dir, strlen(dir)))
+    else if (!strncmp("down", dir.c_str(), dir.length()))
       dir = "down";
 
     auto options = room->World()->Contents();
@@ -2275,19 +2275,19 @@ int Mind::TBARunLine(std::string line) {
 
     Object* door = room->PickObject(dir, LOC_NINJA | LOC_INTERNAL);
 
-    if (sscanf(args, "%*d %*s descriptio%c %n", &xtra, &len) >= 1) {
+    if (sscanf(args.c_str(), "%*d %*s descriptio%c %n", &xtra, &len) >= 1) {
       //      fprintf(stderr, CGRN "#%d Debug: door redesc '%s'\n" CNRM,
       //	body->Skill(crc32c("TBAScript")), line.c_str()
       //	);
       if (door)
         door->SetDesc(line.substr(len + 5));
-    } else if (sscanf(args, "%*d %*s flag%c %n", &xtra, &len) >= 1) {
+    } else if (sscanf(args.c_str(), "%*d %*s flag%c %n", &xtra, &len) >= 1) {
       if (!door) {
         fprintf(
             stderr,
             CRED "#%d Error: No %s door to reflag in '%s'\n" CNRM,
             body->Skill(crc32c("TBAScript")),
-            dir,
+            dir.c_str(),
             line.c_str());
         Disable();
         return 1;
@@ -2311,14 +2311,14 @@ int Mind::TBARunLine(std::string line) {
         door->SetSkill(crc32c("Pickable"), 4);
         //	fprintf(stderr, CGRN "#%d Debug: %s door can open/close in
         //'%s'\n" CNRM,
-        //		body->Skill(crc32c("TBAScript")), dir, line.c_str()
+        //		body->Skill(crc32c("TBAScript")), dir.c_str(), line.c_str()
         //		);
       }
       if (newfl & 2) { // Closed
         door->SetSkill(crc32c("Open"), 0);
         //	fprintf(stderr, CGRN "#%d Debug: %s door is closed in '%s'\n"
         // CNRM,
-        //		body->Skill(crc32c("TBAScript")), dir, line.c_str()
+        //		body->Skill(crc32c("TBAScript")), dir.c_str(), line.c_str()
         //		);
       }
       if (newfl & 4) { // Locked
@@ -2327,17 +2327,17 @@ int Mind::TBARunLine(std::string line) {
         door->SetSkill(crc32c("Pickable"), 4);
         //	fprintf(stderr, CGRN "#%d Debug: %s door is locked in '%s'\n"
         // CNRM,
-        //		body->Skill(crc32c("TBAScript")), dir, line.c_str()
+        //		body->Skill(crc32c("TBAScript")), dir.c_str(), line.c_str()
         //		);
       }
       if (newfl & 8) { // Pick-Proof
         door->SetSkill(crc32c("Pickable"), 1000);
         //	fprintf(stderr, CGRN "#%d Debug: %s door is pick-proof in
         //'%s'\n" CNRM,
-        //		body->Skill(crc32c("TBAScript")), dir, line.c_str()
+        //		body->Skill(crc32c("TBAScript")), dir.c_str(), line.c_str()
         //		);
       }
-    } else if (sscanf(args, "%*d %*s nam%c %n", &xtra, &len) >= 1) {
+    } else if (sscanf(args.c_str(), "%*d %*s nam%c %n", &xtra, &len) >= 1) {
       //      fprintf(stderr, CGRN "#%d Debug: door rename '%s'\n" CNRM,
       //	body->Skill(crc32c("TBAScript")), line.c_str()
       //	);
@@ -2351,7 +2351,7 @@ int Mind::TBARunLine(std::string line) {
         }
         door->SetShortDesc(newname + " (" + line.substr(len + 5) + ")");
       }
-    } else if (sscanf(args, "%*d %*s room %d", &tnum) == 1) {
+    } else if (sscanf(args.c_str(), "%*d %*s room %d", &tnum) == 1) {
       //      fprintf(stderr, CGRN "#%d Debug: door relink '%s'\n" CNRM,
       //	body->Skill(crc32c("TBAScript")), line.c_str()
       //	);
@@ -2385,13 +2385,13 @@ int Mind::TBARunLine(std::string line) {
       odoor->SetSkill(crc32c("Open"), 1000);
       odoor->SetSkill(crc32c("Invisible"), 1000);
       odoor->AddAct(ACT_SPECIAL_MASTER, door);
-    } else if (sscanf(args, "%*d %*s key %d", &tnum) == 1) {
+    } else if (sscanf(args.c_str(), "%*d %*s key %d", &tnum) == 1) {
       if (!door) {
         fprintf(
             stderr,
             CRED "#%d Error: No %s door to re-key in '%s'\n" CNRM,
             body->Skill(crc32c("TBAScript")),
-            dir,
+            dir.c_str(),
             line.c_str());
         Disable();
         return 1;
@@ -2402,9 +2402,9 @@ int Mind::TBARunLine(std::string line) {
         door->SetSkill(crc32c("Pickable"), 4);
       //      fprintf(stderr, CGRN "#%d Debug: %s door re-keyed (%d) in '%s'\n"
       //      CNRM,
-      //	body->Skill(crc32c("TBAScript")), dir, tnum, line.c_str()
+      //	body->Skill(crc32c("TBAScript")), dir.c_str(), tnum, line.c_str()
       //	);
-    } else if (sscanf(args, "%*d %*s purg%c", &xtra) == 1) {
+    } else if (sscanf(args.c_str(), "%*d %*s purg%c", &xtra) == 1) {
       //      fprintf(stderr, CGRN "#%d Debug: door purge '%s'\n" CNRM,
       //	body->Skill(crc32c("TBAScript")), line.c_str()
       //	);
@@ -2771,7 +2771,7 @@ int Mind::TBARunLine(std::string line) {
   return 0;
 }
 
-static const char* dirnames[4] = {"north", "south", "east", "west"};
+static const std::string dirnames[4] = {"north", "south", "east", "west"};
 uint32_t items[8] = {crc32c("Food"),
                      crc32c("Hungry"), // Order is Most to Least Important
                      crc32c("Rest"),
@@ -2810,7 +2810,7 @@ void Mind::Think(int istick) {
           req = -1;
       }
       if (req >= 0) {
-        std::vector<const char*> dirs;
+        std::vector<std::string> dirs;
         for (int i = 0; i < 4; ++i) {
           Object* dir = body->PickObject(dirnames[i], LOC_NEARBY);
           if (dir && dir->Skill(crc32c("Open")) > 0) {
@@ -3030,7 +3030,7 @@ void Mind::Think(int istick) {
         (!body->IsAct(ACT_FIGHT)) && (istick == 1) && (!body->IsAct(ACT_REST)) &&
         (!body->IsAct(ACT_SLEEP)) && body->Stun() < 6 && body->Phys() < 6 &&
         body->Roll(crc32c("Willpower"), 9)) {
-      std::map<Object*, const char*> cons;
+      std::map<Object*, std::string> cons;
       cons[body->PickObject("north", LOC_NEARBY)] = "north";
       cons[body->PickObject("south", LOC_NEARBY)] = "south";
       cons[body->PickObject("east", LOC_NEARBY)] = "east";
@@ -3039,7 +3039,7 @@ void Mind::Think(int istick) {
       cons[body->PickObject("down", LOC_NEARBY)] = "down";
       cons.erase(nullptr);
 
-      std::map<Object*, const char*> cons2 = cons;
+      std::map<Object*, std::string> cons2 = cons;
       for (auto dir : cons2) {
         if ((!dir.first->ActTarg(ACT_SPECIAL_LINKED)) ||
             (!dir.first->ActTarg(ACT_SPECIAL_LINKED)->Parent())) {
@@ -3055,7 +3055,7 @@ void Mind::Think(int istick) {
 
       if (cons.size()) {
         int res = rand() % cons.size();
-        std::map<Object*, const char*>::iterator dir = cons.begin();
+        std::map<Object*, std::string>::iterator dir = cons.begin();
         while (res > 0) {
           ++dir;
           --res;

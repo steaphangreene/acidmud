@@ -187,8 +187,8 @@ class Object {
 
   void NotifyGone(Object* obj, Object* newloc = nullptr, int up = 1);
 
-  Object* PickObject(const std::string&, int loc, int* ordinal = nullptr) const;
-  std::vector<Object*> PickObjects(const std::string&, int loc, int* ordinal = nullptr) const;
+  Object* PickObject(const std::string& name, int loc, int* ordinal = nullptr) const;
+  std::vector<Object*> PickObjects(std::string name, int loc, int* ordinal = nullptr) const;
   int IsNearBy(const Object* obj);
   int SeeWithin(const Object* obj); // Recursive & Visible
   int HasWithin(const Object* obj); // Recursive (All)

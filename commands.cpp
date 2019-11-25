@@ -51,7 +51,7 @@
 
 #define REQ_ANY (SIT_CORPOREAL | SIT_ETHEREAL)
 
-int handle_command_ccreate(Object*, Mind*, const char*, int, int, int);
+int handle_command_ccreate(Object*, Mind*, const std::string&, int, int, int);
 
 static int count_ones(int mask) {
   int ret = 0;
@@ -64,9 +64,9 @@ static int count_ones(int mask) {
 
 struct Command {
   com_t id;
-  const char* command;
-  const char* shortdesc;
-  const char* longdesc;
+  std::string_view command;
+  std::string_view shortdesc;
+  std::string_view longdesc;
   int sit;
 };
 
@@ -771,7 +771,8 @@ static_assert(static_comlist[COM_TCLEAN].id == COM_TCLEAN);
 
 Command comlist[1024] = {};
 
-const char* socials[1024][13] = {};
+static std::string soc_com[1024] = {};
+static std::string socials[1024][13] = {};
 
 static void load_commands() {
   int cnum = 1;
@@ -785,6 +786,7 @@ static void load_commands() {
     char com[64] = "";
     int v1, v2, v3, v4;
     while (fscanf(soc, " ~%s %*s %d %d %d %d", com, &v1, &v2, &v3, &v4) == 5) {
+      soc_com[cnum] = com;
       char buf[256] = "";
       for (int mnum = 0; mnum < 13; ++mnum) {
         fscanf(soc, " %255[^\n\r]", buf); // Skip space/newline, read line.
@@ -792,9 +794,9 @@ static void load_commands() {
         if (strstr(buf, "#"))
           socials[cnum][mnum] = "";
         else
-          socials[cnum][mnum] = strdup(buf);
+          socials[cnum][mnum] = buf;
       }
-      comlist[cnum].command = strdup(com);
+      comlist[cnum].command = soc_com[cnum];
       comlist[cnum].id = COM_SOCIAL;
       comlist[cnum].shortdesc = "Social command.";
       comlist[cnum].longdesc = "Social command.";
@@ -829,7 +831,7 @@ com_t identify_command(const std::string& str, bool corporeal) {
     if (corporeal && (!(comlist[ctr].sit & SIT_CORPOREAL)))
       continue; // Don't match between modes
 
-    if (!strncmp(str.c_str(), comlist[ctr].command, len)) {
+    if (!strncmp(str.c_str(), std::string(comlist[ctr].command).c_str(), len)) {
       return comlist[ctr].id;
     }
     // Command Aliases
@@ -850,12 +852,11 @@ com_t identify_command(const std::string& str, bool corporeal) {
 //                0: Command Understood
 //                1: Command NOT Understood
 //                2: Command Understood - No More Actions This Round
-int handle_single_command(Object* body, const char* inpline, Mind* mind) {
+static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
   if (comlist[COM_MAX].id == COM_NONE) { // Haven't loaded commands yet
     load_commands();
   }
 
-  std::string cmd = inpline;
   trim_string(cmd);
 
   // Lowercase the command portion, and only that portion, for now.
@@ -944,7 +945,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   int cnum = identify_command(cmd, (body != nullptr));
   if (cnum == COM_NONE && nmode) { // Now match ninja commands (for ninjas)
     for (int ctr = 1; comlist[ctr].id != COM_NONE; ++ctr) {
-      if ((comlist[ctr].sit & SIT_NINJAMODE) && !strncmp(cmd.c_str(), comlist[ctr].command, len)) {
+      if ((comlist[ctr].sit & SIT_NINJAMODE) &&
+          !strncmp(cmd.c_str(), std::string(comlist[ctr].command).c_str(), len)) {
         cnum = ctr;
         break;
       }
@@ -981,7 +983,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       auto trigs = obj->PickObjects("all tbamud trigger script", LOC_NINJA | LOC_INTERNAL);
       for (auto trig : trigs) {
         if (trig->Skill(crc32c("TBAScriptType")) & 0x04) { //*-COMMAND trigs
-          if ((cnum == COM_NONE && (!strncmp(inpline, trig->Desc().c_str(), len))) ||
+          if ((cnum == COM_NONE && (!strncmp(cmd.c_str(), trig->Desc().c_str(), len))) ||
               (cnum && cnum == identify_command(trig->Desc(), true))) {
             if (trig->Skill(crc32c("TBAScriptType")) & 0x2000000) { // OBJ
               int narg = trig->Skill(crc32c("TBAScriptNArg"));
@@ -998,7 +1000,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             }
             std::string cmln;
             if (cnum != COM_NONE) {
-              cmln = comlist[cnum].command + std::string(" ") + cmd;
+              cmln = std::string(comlist[cnum].command) + std::string(" ") + cmd;
             } else {
               cmln = trig->Desc() + std::string(" ") + cmd;
             }
@@ -1056,7 +1058,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
   if (body) {
     if (body->StillBusy() && (comlist[cnum].sit & SIT_ACTION)) {
-      body->DoWhenFree(inpline);
+      body->DoWhenFree(cmd);
       return 0;
     }
     if (comlist[cnum].sit & (SIT_ALIVE | SIT_AWAKE | SIT_ALERT)) {
@@ -1540,13 +1542,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       }
       return 0;
     } else {
-      int shouting = 1;
-      if (strlen(cmd.c_str() + len) < 4)
-        shouting = 0;
-      for (const char* chr = cmd.c_str() + len; shouting && *chr != 0; ++chr) {
-        if (islower(*chr))
-          shouting = 0;
-      }
+      bool shouting =
+          (cmd.length() >= 4 + len && !std::any_of(cmd.begin() + len, cmd.end(), ::islower));
       if (!shouting) {
         body->Parent()->SendOutF(
             ALL, 0, ";s says '%s'\n", "You say '%s'\n", body, body, cmd.c_str() + len);
@@ -1575,14 +1572,11 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       if (!strncmp(cmd.c_str() + len, "for ", 4))
         len += 4;
 
-      char* mes = strdup(cmd.c_str() + len);
-      for (char* chr = mes; *chr != 0; ++chr) {
-        *chr = toupper(*chr);
-      }
+      std::string mes = cmd.substr(len);
+      std::transform(mes.begin(), mes.end(), mes.begin(), ::toupper);
       body->Parent()->SendOutF(
-          ALL, 0, ";s shouts '%s'!!!\n", "You shout '%s'!!!\n", body, body, mes);
-      body->Parent()->LoudF(body->Skill(crc32c("Strength")), "someone shout '%s'!!!", mes);
-      free(mes);
+          ALL, 0, ";s shouts '%s'!!!\n", "You shout '%s'!!!\n", body, body, mes.c_str());
+      body->Parent()->LoudF(body->Skill(crc32c("Strength")), "someone shout '%s'!!!", mes.c_str());
     }
     body->SetSkill(crc32c("Hidden"), 0);
     return 0;
@@ -1670,12 +1664,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
   if (cnum == COM_EMOTE) {
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
       ++len;
-    const char* dot = ".";
+    std::string dot = ".";
     if ((cmd.back() == '.') || (cmd.back() == '?') || (cmd.back() == '!')) {
       dot = "";
     }
     body->Parent()->SendOutF(
-        ALL, 0, ";s %s%s\n", "Your character %s%s\n", body, body, cmd.c_str() + len, dot);
+        ALL, 0, ";s %s%s\n", "Your character %s%s\n", body, body, cmd.c_str() + len, dot.c_str());
     body->SetSkill(crc32c("Hidden"), 0);
     return 0;
   }
@@ -5002,7 +4996,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     if (!attacknow) {
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s moves to attack ;s.\n", "You move to attack ;s.\n", body, targ);
-      body->BusyWith(body, inpline); // HACK!  Make this command used first rnd!
+      body->BusyWith(body, cmd); // HACK!  Make this command used first rnd!
       return 2; // No more actions until next round!
     }
 
@@ -5117,8 +5111,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       stage = -2;
     }
 
-    const char* verb = "punch"; // Non-weapon verb
-    const char* verb3 = "punches"; // 3rd Person
+    std::string verb = "punch"; // Non-weapon verb
+    std::string verb3 = "punches"; // 3rd Person
     if (body->Skill(crc32c("NaturalWeapon")) == 14) { // Natural Weapon: stab
       verb = "stab";
       verb3 = "stabs";
@@ -5197,8 +5191,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           stun = 1;
         char mes[128] = "";
         char mes3[128] = "";
-        sprintf(mes, "*You %s ;s%s.\n", verb, locm.c_str());
-        sprintf(mes3, "*;s %s ;s%s.\n", verb3, locm.c_str());
+        sprintf(mes, "*You %s ;s%s.\n", verb.c_str(), locm.c_str());
+        sprintf(mes3, "*;s %s ;s%s.\n", verb3.c_str(), locm.c_str());
         body->Parent()->SendOut(ALL, -1, mes3, mes, body, targ);
       }
 
@@ -5278,7 +5272,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             "You try to %s ;s, but miss.\n",
             body,
             targ,
-            verb);
+            verb.c_str());
       }
     }
 
@@ -5295,7 +5289,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     return 0;
   }
 
-  const char* statnames[] = {
+  static const std::string statnames[] = {
       "Body", "Quickness", "Strength", "Charisma", "Intelligence", "Willpower"};
 
   if (cnum == COM_RESETCHARACTER) {
@@ -5527,12 +5521,12 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         attr = 5;
 
       if (chr->NormAttribute(attr) < 3) {
-        mind->SendF("Your %s is already at the minimum.\n", statnames[attr]);
+        mind->SendF("Your %s is already at the minimum.\n", statnames[attr].c_str());
         return 0;
       } else {
         chr->SetAttribute(attr, chr->NormAttribute(attr) - 1);
         chr->SetSkill(crc32c("Attribute Points"), chr->Skill(crc32c("Attribute Points")) + 1);
-        mind->SendF("You lower your %s.\n", statnames[attr]);
+        mind->SendF("You lower your %s.\n", statnames[attr].c_str());
       }
     } else {
       auto skill = get_skill(cmd.c_str() + len);
@@ -5601,7 +5595,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->SendF(
             "You don't have enough experience to raise your %s.\n"
             "You need 20, but you only have %d\n",
-            statnames[attr],
+            statnames[attr].c_str(),
             chr->TotalExp());
         return 0;
       }
@@ -5617,16 +5611,16 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       }
 
       if ((!body) && chr->NormAttribute(attr) >= 6) {
-        mind->SendF("Your %s is already at the maximum.\n", statnames[attr]);
+        mind->SendF("Your %s is already at the maximum.\n", statnames[attr].c_str());
       } else if (body && chr->NormAttribute(attr) >= body->Skill(maxask[attr])) {
-        mind->SendF("Your %s is already at the maximum.\n", statnames[attr]);
+        mind->SendF("Your %s is already at the maximum.\n", statnames[attr].c_str());
       } else {
         if (!body)
           chr->SetSkill(crc32c("Attribute Points"), chr->Skill(crc32c("Attribute Points")) - 1);
         else
           chr->SpendExp(20);
         chr->SetAttribute(attr, chr->NormAttribute(attr) + 1);
-        mind->SendF("You raise your %s.\n", statnames[attr]);
+        mind->SendF("You raise your %s.\n", statnames[attr].c_str());
       }
     } else {
       auto skill = get_skill(cmd.c_str() + len);
@@ -5682,10 +5676,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     }
 
-    const char* ch = cmd.c_str() + len;
-    while ((*ch) && isalpha(*ch))
-      ++ch;
-    if (*ch) {
+    if (!std::all_of(cmd.begin() + len, cmd.end(), ::isalpha)) {
       mind->Send(
           "Sorry, character names can only contain letters.\n"
           "Pick another name.\n");
@@ -6379,8 +6370,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     } else {
       Object* box = new Object(body->Parent()->Parent());
       Object* next = new Object(box);
-      const char* dirb = "south";
-      const char* dir = "north";
+      std::string dirb = "south";
+      std::string dir = "north";
       if (!strcmp(cmd.c_str() + len, "north")) {
       } else if (!strcmp(cmd.c_str() + len, "south")) {
         dirb = "north";
@@ -6426,7 +6417,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           "You create a new dynamic dungeon '%s'.\n",
           body,
           nullptr,
-          dir);
+          dir.c_str());
     }
     return 0;
   }
@@ -6438,7 +6429,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       return 0;
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
       ++len;
-    return handle_command_ccreate(body, mind, cmd.c_str(), len, stealth_t, stealth_s);
+    return handle_command_ccreate(body, mind, cmd, len, stealth_t, stealth_s);
   }
 
   static Object* anchor = nullptr;
@@ -6907,7 +6898,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         "You jack the %s of ;s.\n",
         body,
         targ,
-        statnames[stat]);
+        statnames[stat].c_str());
 
     return 0;
   }
@@ -6952,7 +6943,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         "You chump the %s of ;s.\n",
         body,
         targ,
-        statnames[stat]);
+        statnames[stat].c_str());
 
     return 0;
   }
@@ -7113,7 +7104,8 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
 
 int handle_command(Object* body, const std::string& cl, Mind* mind) {
   int ret = 0;
-  const char *start = cl.c_str(), *end = cl.c_str();
+  const char* start = cl.c_str();
+  const char* end = cl.c_str();
 
   if (mind && !mind->SpecialPrompt().empty()) {
     std::string cmd = mind->SpecialPrompt() + " " + cl;
@@ -7144,13 +7136,3 @@ int handle_command(Object* body, const std::string& cl, Mind* mind) {
   }
   return ret;
 }
-
-// int handle_command(Object *obj, const char *cl) {
-////  fprintf(stderr, "Doing '%s' for %p\n", cl, obj);
-//
-//  static Mind mind;
-//  mind.Attach(obj);
-//  int ret = handle_command(obj, cl, &mind);
-//  mind.Unattach();
-//  return ret;
-//  }

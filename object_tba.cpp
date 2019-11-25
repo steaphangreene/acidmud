@@ -29,7 +29,7 @@ static uint32_t tba_bitvec(const std::string& val) {
   return ret;
 }
 
-static const char* dirname[6] = {"north", "east", "south", "west", "up", "down"};
+static const std::string dirname[6] = {"north", "east", "south", "west", "up", "down"};
 
 static int fline(FILE* f) {
   long pos = ftell(f);
@@ -193,18 +193,18 @@ void Object::TBACleanup() {
 void Object::TBAFinalizeTriggers() {
   for (auto trg : todotrg) {
     std::string newtext = "Powers List:\n";
-    const char* cur = trg->long_desc.c_str();
-    while ((cur = strstr(cur, "teleport [")) != nullptr) {
+    auto cur = trg->long_desc.find("teleport [");
+    while (cur != std::string::npos) {
       int rnum;
       trg->Parent()->SetSkill(crc32c("Teleport"), 10);
       trg->Parent()->SetSkill(crc32c("Restricted Item"), 1);
-      sscanf(cur, "teleport [%d]\n", &rnum);
+      sscanf(trg->long_desc.c_str() + cur, "teleport [%d]\n", &rnum);
       if (bynumwld.count(rnum) > 0) {
         newtext += std::string("teleport ") + bynumwld[rnum]->Name() + "\n";
       } else {
         fprintf(stderr, "Error: Can't find teleport dest: %d\n", rnum);
       }
-      ++cur;
+      cur = trg->long_desc.find("teleport [", cur + 9);
     }
     if (newtext != "Powers List:\n") {
       trg->Parent()->SetLongDesc(newtext.c_str());
@@ -2498,7 +2498,7 @@ void Object::TBALoadWLD(const std::string& fn) {
   }
 }
 
-const char* base = "'^&*abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ";
+static const std::string base = "'^&*abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ";
 static std::set<std::string> parse_tba_shop_rules(std::string rules) {
   std::set<std::string> ret;
   if (rules[0]) {
@@ -2772,31 +2772,26 @@ void Object::TBALoadTRG(const std::string& fn) { // Triggers
       }
       script->SetLongDesc(buf);
       if (strstr(buf, "* Check the direction the player must go to enter the guild.")) {
-        char dir[16];
-        char* dirp = strstr(buf, "if %direction% == ");
-        if (dirp)
-          sscanf(dirp + strlen("if %direction% == "), "%s", dir);
+        // char dir[16];
+        // char* dirp = strstr(buf, "if %direction% == ");
+        // if (dirp)
+        //  sscanf(dirp + strlen("if %direction% == "), "%s", dir);
 
-        char cls[16];
-        char* clsp = strstr(buf, "if %actor.class% != ");
-        if (clsp)
-          sscanf(clsp + strlen("if %actor.class% != "), "%s", cls);
+        // char cls[16];
+        // char* clsp = strstr(buf, "if %actor.class% != ");
+        // if (clsp)
+        //  sscanf(clsp + strlen("if %actor.class% != "), "%s", cls);
 
-        if (dirp) {
-          if (clsp) {
-            //	    fprintf(stderr,
-            //		"%d appears to be a '%s' %s-guild guard trigger.\n",
-            //		tnum, dir, cls);
-          } else {
-            //	    fprintf(stderr,
-            //		"%d appears to be a '%s' direction guard trigger.\n",
-            //		tnum, dir);
-          }
-        }
+        // if (dirp) {
+        //  if (clsp) {
+        //    fprintf(stderr, "%d appears to be a '%s' %s-guild guard trigger.\n", tnum, dir, cls);
+        //  } else {
+        //    fprintf(stderr, "%d appears to be a '%s' direction guard trigger.\n", tnum, dir);
+        //  }
+        //}
         ++untrans_trig; // This is NOT really handled yet.
       } else if (strstr(buf, "if %direction% == ")) {
-        //	fprintf(stderr, "%d appears to be a direction trigger.\n",
-        // tnum);
+        // fprintf(stderr, "%d appears to be a direction trigger.\n", tnum);
         ++untrans_trig; // This is NOT really handled yet.
       } else if (0) {
       } else {

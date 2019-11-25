@@ -47,10 +47,10 @@ static int64_t get_time() {
 }
 
 int main(int argc, char** argv) {
-  const char* host = "";
+  std::string host = "";
   int port = 4242;
   int acceptor = -1;
-  static char* netstat_file = nullptr;
+  std::string netstat_file = "";
 
   signal(SIGHUP, &do_restart);
   signal(SIGINT, &do_shutdown);
@@ -67,9 +67,9 @@ int main(int argc, char** argv) {
     if (arg == 'p')
       port = atoi(optarg);
     if (arg == 'h')
-      host = strdup(optarg);
+      host = optarg;
     else if (arg == 'S') {
-      netstat_file = strdup(optarg);
+      netstat_file = optarg;
     } else if (arg == 'A') {
       acceptor = atoi(optarg);
     }
@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
   fprintf(stdout, "Initializing world....\n");
   init_world();
 
-  if (netstat_file) {
+  if (!netstat_file.empty()) {
     fprintf(stdout, "Restoring network state....\n");
     load_net(netstat_file);
     unwarn_net(2);

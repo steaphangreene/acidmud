@@ -11,7 +11,8 @@
 static std::map<std::string, Player*> player_list;
 static std::set<Player*> non_init;
 
-static const char* salt_char = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
+static const std::string salt_char =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
 
 Player::Player(std::string nm, std::string ps) {
   flags = 0;
