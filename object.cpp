@@ -2312,75 +2312,72 @@ int Object::ContainedVolume() {
   return ret;
 }
 
-int get_ordinal(const char* text) {
+static int get_ordinal(const std::string& text) {
   int ret = 0, len = 0;
-  while ((!isgraph(*text)) && (*text))
-    ++text;
   while (isgraph(text[len]))
     ++len;
-  if (isdigit(*text)) {
-    const char* suf = text;
+  if (isdigit(text[0])) {
+    const char* suf = text.c_str();
     while (isdigit(*suf))
       ++suf;
     if (!strncmp(suf, "st", 2))
-      ret = atoi(text);
+      ret = atoi(text.c_str());
     else if (!strncmp(suf, "nd", 2))
-      ret = atoi(text);
+      ret = atoi(text.c_str());
     else if (!strncmp(suf, "rd", 2))
-      ret = atoi(text);
+      ret = atoi(text.c_str());
     else if (!strncmp(suf, "th", 2))
-      ret = atoi(text);
+      ret = atoi(text.c_str());
     if (ret && isgraph(suf[2]))
       ret = 0;
     if (suf[0] == '.')
-      ret = atoi(text);
+      ret = atoi(text.c_str());
     if (!isgraph(*suf))
-      ret = -atoi(text);
-  } else if (!strncmp(text, "first ", 6))
+      ret = -atoi(text.c_str());
+  } else if (!strncmp(text.c_str(), "first ", 6))
     ret = 1;
-  else if (!strncmp(text, "second ", 7))
+  else if (!strncmp(text.c_str(), "second ", 7))
     ret = 2;
-  else if (!strncmp(text, "third ", 6))
+  else if (!strncmp(text.c_str(), "third ", 6))
     ret = 3;
-  else if (!strncmp(text, "fourth ", 7))
+  else if (!strncmp(text.c_str(), "fourth ", 7))
     ret = 4;
-  else if (!strncmp(text, "fifth ", 6))
+  else if (!strncmp(text.c_str(), "fifth ", 6))
     ret = 5;
-  else if (!strncmp(text, "sixth ", 6))
+  else if (!strncmp(text.c_str(), "sixth ", 6))
     ret = 6;
-  else if (!strncmp(text, "seventh ", 8))
+  else if (!strncmp(text.c_str(), "seventh ", 8))
     ret = 7;
-  else if (!strncmp(text, "eighth ", 7))
+  else if (!strncmp(text.c_str(), "eighth ", 7))
     ret = 8;
-  else if (!strncmp(text, "ninth ", 6))
+  else if (!strncmp(text.c_str(), "ninth ", 6))
     ret = 9;
-  else if (!strncmp(text, "tenth ", 6))
+  else if (!strncmp(text.c_str(), "tenth ", 6))
     ret = 10;
-  else if (!strncmp(text, "all ", 4))
+  else if (!strncmp(text.c_str(), "all ", 4))
     ret = ALL;
-  else if (!strncmp(text, "all.", 4))
+  else if (!strncmp(text.c_str(), "all.", 4))
     ret = ALL;
-  else if (!strncmp(text, "some ", 5))
+  else if (!strncmp(text.c_str(), "some ", 5))
     ret = SOME;
-  else if (!strncmp(text, "some.", 5))
+  else if (!strncmp(text.c_str(), "some.", 5))
     ret = SOME;
   return ret;
 }
 
-int strip_ordinal(const char** text) {
-  int ret = get_ordinal(*text);
+static int strip_ordinal(std::string& text) {
+  trim_string(text);
+  int ret = get_ordinal(text);
   if (ret) {
-    while ((!isgraph(**text)) && (**text))
-      ++(*text);
-    while ((isgraph(**text)) && (**text) != '.')
-      ++(*text);
-    while (((!isgraph(**text)) || (**text) == '.') && (**text))
-      ++(*text);
+    while (!text.empty() && isgraph(text[0]) && text[0] != '.')
+      text = text.substr(1);
+    while (!text.empty() && (!isgraph(text[0]) || text[0] == '.'))
+      text = text.substr(1);
   }
   return ret;
 }
 
-Object* Object::PickObject(const char* name, int loc, int* ordinal) const {
+Object* Object::PickObject(const std::string& name, int loc, int* ordinal) const {
   auto ret = PickObjects(name, loc, ordinal);
   if (ret.size() != 1) {
     return nullptr;
@@ -2480,61 +2477,56 @@ static int tag(Object* obj, std::vector<Object*>& ret, int* ordinal, int vmode =
   return 0;
 }
 
-std::vector<Object*> Object::PickObjects(const char* name, int loc, int* ordinal) const {
+std::vector<Object*> Object::PickObjects(const std::string& nm, int loc, int* ordinal) const {
   std::vector<Object*> ret;
 
-  while ((!isgraph(*name)) && (*name))
-    ++name;
+  auto name = nm;
+  trim_string(name);
 
   int ordcontainer;
   if (ordinal)
-    strip_ordinal(&name);
+    strip_ordinal(name);
   else {
     ordinal = &ordcontainer;
-    (*ordinal) = strip_ordinal(&name);
+    (*ordinal) = strip_ordinal(name);
   }
-  if (!strcmp(name, "all"))
+  if (!strcmp(name.c_str(), "all"))
     (*ordinal) = ALL;
-  if (!strcmp(name, "everyone"))
+  if (!strcmp(name.c_str(), "everyone"))
     (*ordinal) = ALL;
-  if (!strcmp(name, "everything"))
+  if (!strcmp(name.c_str(), "everything"))
     (*ordinal) = ALL;
-  if (!strcmp(name, "everywhere"))
+  if (!strcmp(name.c_str(), "everywhere"))
     (*ordinal) = ALL;
   if (!(*ordinal))
     (*ordinal) = 1;
 
   const char* keyword = nullptr;
   const char* keyword2 = nullptr;
-  if ((keyword = strstr(name, "'s ")) || (keyword2 = strstr(name, "'S "))) {
+  if ((keyword = strstr(name.c_str(), "'s ")) || (keyword2 = strstr(name.c_str(), "'S "))) {
     if (keyword && keyword2)
       keyword = std::min(keyword, keyword2);
     else if (!keyword)
       keyword = keyword2;
-    char* keyword3 = strdup(name);
-    keyword3[keyword - name] = 0;
-
+    auto keyword3 = name.substr(0, keyword - name.c_str());
+    auto keyword4 = name.substr(3 + keyword - name.c_str());
     auto masters = PickObjects(keyword3, loc, ordinal);
-    if (!masters.size()) {
-      free(keyword3);
-      return ret;
+    if (masters.size() > 0) {
+      for (auto master : masters) {
+        auto add = master->PickObjects(keyword4, (loc & LOC_SPECIAL) | LOC_INTERNAL);
+        ret.insert(ret.end(), add.begin(), add.end());
+      }
     }
-
-    for (auto master : masters) {
-      auto add =
-          master->PickObjects(keyword3 + (keyword - name) + 3, (loc & LOC_SPECIAL) | LOC_INTERNAL);
-      ret.insert(ret.end(), add.begin(), add.end());
-    }
-    free(keyword3);
     return ret;
   }
 
-  int len = strlen(name);
+  int len = name.length();
   while (!isgraph(name[len - 1]))
     --len;
 
   if (loc & LOC_SELF) {
-    if ((!strcmp(name, "self")) || (!strcmp(name, "myself")) || (!strcmp(name, "me"))) {
+    if ((!strcmp(name.c_str(), "self")) || (!strcmp(name.c_str(), "myself")) ||
+        (!strcmp(name.c_str(), "me"))) {
       if ((*ordinal) != 1)
         return ret;
       ret.push_back((Object*)this); // Wrecks Const-Ness
@@ -2543,7 +2535,7 @@ std::vector<Object*> Object::PickObjects(const char* name, int loc, int* ordinal
   }
 
   if (loc & LOC_HERE) {
-    if (!strcmp(name, "here")) {
+    if (!strcmp(name.c_str(), "here")) {
       if ((*ordinal) == 1 && parent)
         ret.push_back(parent);
       return ret;
@@ -2551,9 +2543,8 @@ std::vector<Object*> Object::PickObjects(const char* name, int loc, int* ordinal
   }
 
   if (loc & LOC_INTERNAL) {
-    if (!strncmp(name, "my ", 3)) {
-      name += 3;
-      return PickObjects(name, loc & (LOC_SPECIAL | LOC_INTERNAL | LOC_SELF));
+    if (!strncmp(name.c_str(), "my ", 3)) {
+      return PickObjects(name.substr(3), loc & (LOC_SPECIAL | LOC_INTERNAL | LOC_SELF));
     }
   }
 
