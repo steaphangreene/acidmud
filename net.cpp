@@ -122,7 +122,7 @@ void resume_net(int fd) {
   acceptor = fd;
 }
 
-void start_net(int port, const char* host) {
+void start_net(int port, const std::string& host) {
   struct sockaddr_in sa;
   if ((acceptor = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
     perror("ERROR in socet()");
@@ -134,10 +134,10 @@ void start_net(int port, const char* host) {
 
   sa.sin_family = AF_INET;
   sa.sin_port = htons(port);
-  if (strlen(host) == 0) {
+  if (host.empty()) {
     sa.sin_addr.s_addr = htonl(INADDR_ANY);
   } else {
-    sa.sin_addr.s_addr = ((struct in_addr*)(gethostbyname(host)->h_addr))->s_addr;
+    sa.sin_addr.s_addr = ((struct in_addr*)(gethostbyname(host.c_str())->h_addr))->s_addr;
   }
 
   int sockopt = 1;

@@ -1,9 +1,10 @@
+#include <string>
 #include <vector>
 
 void warn_net(int type);
 void unwarn_net(int type);
 
-void start_net(int port, const char* host = "");
+void start_net(int port, const std::string& host);
 void resume_net(int fd);
 void update_net(void);
 void stop_net(void);
