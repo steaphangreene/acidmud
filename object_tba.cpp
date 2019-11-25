@@ -2277,8 +2277,7 @@ void Object::TBALoadWLD(const char* fn) {
       }
       if (strcasestr(buf, "b") || (atoi(buf) & 2)) { // DEATH
         obj->SetSkill(crc32c("Accomplishment"), 4000000 + onum);
-        //	obj->SetSkill(crc32c("Hazardous"), 2);		//FIXME: Actually
-        // Dangerous?
+        // obj->SetSkill(crc32c("Hazardous"), 2); //FIXME: Actually Dangerous?
       }
       if (strcasestr(buf, "c") || (atoi(buf) & 4)) { // NOMOB
         obj->SetSkill(crc32c("TBAZone"), 999999);

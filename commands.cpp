@@ -4921,8 +4921,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
       if (body->DropOrStash(body->ActTarg(ACT_HOLD))) {
         if (mind)
           mind->SendF(
-              "Oh, no!  You can't drop or stash %s, "
-              "but you need your off-hand!",
+              "Oh, no!  You can't drop or stash %s, but you need your off-hand!",
               body->ActTarg(ACT_HOLD)->Name(0, body));
       }
     }
