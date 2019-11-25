@@ -773,6 +773,10 @@ void Object::TBALoadMOB(const std::string& fn) {
                 aliases[actr].c_str(),
                 obj->Skill(crc32c("TBAMOB")),
                 obj->ShortDesc().c_str());
+          } else if (aliases[actr] == "woman" || aliases[actr] == "girl") {
+            obj->SetGender('F');
+          } else if (aliases[actr] == "man" || aliases[actr] == "boy") {
+            obj->SetGender('M');
           } else {
             // fprintf(
             //    stderr,

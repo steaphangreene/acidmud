@@ -276,6 +276,16 @@ int Object::Matches(std::string targ) {
     return (!IsAnimate());
   }
 
+  // Matches for sexist TBA aliases :)
+  if (ttok == crc32c("man") || ttok == crc32c("boy")) {
+    if (IsAnimate() && Gender() == 'M')
+      return 1;
+  }
+  if (ttok == crc32c("woman") || ttok == crc32c("girl")) {
+    if (IsAnimate() && Gender() == 'F')
+      return 1;
+  }
+
   // Keywords which can also be things
   if ((ttok == crc32c("Corpse")) && IsAct(ACT_DEAD))
     return 1;
