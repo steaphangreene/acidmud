@@ -3461,7 +3461,7 @@ int Object::WriteContentsTo(FILE* fl) {
   return 0;
 }
 
-void Object::BusyFor(long msec, const char* default_next) {
+void Object::BusyFor(long msec, const std::string& default_next) {
   //  fprintf(stderr, "Holding %p, will default do '%s'!\n", this,
   //  default_next);
   busy_until = current_time;
@@ -3470,7 +3470,7 @@ void Object::BusyFor(long msec, const char* default_next) {
   busylist.insert(this);
 }
 
-void Object::BusyWith(Object* other, const char* default_next) {
+void Object::BusyWith(Object* other, const std::string& default_next) {
   //  fprintf(stderr, "Holding %p, will default do '%s'!\n", this,
   //  default_next);
   busy_until = other->busy_until;
@@ -3482,7 +3482,7 @@ int Object::StillBusy() {
   return (current_time <= busy_until);
 }
 
-void Object::DoWhenFree(const char* action) {
+void Object::DoWhenFree(const std::string& action) {
   //  fprintf(stderr, "Adding busyact for %p of '%s'!\n", this, action);
   dowhenfree += ";";
   dowhenfree += action;

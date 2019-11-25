@@ -402,9 +402,9 @@ class Object {
 
   int BusyAct();
   int StillBusy();
-  void BusyFor(long msec, const char* default_next = "");
-  void BusyWith(Object* other, const char* default_next = "");
-  void DoWhenFree(const char*);
+  void BusyFor(long msec, const std::string& default_next = "");
+  void BusyWith(Object* other, const std::string& default_next = "");
+  void DoWhenFree(const std::string&);
 
   std::string Tactics(int phase = -1);
 
