@@ -1832,7 +1832,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
           "You stop %s.\n",
           body,
           nullptr,
-          body->UsingString());
+          body->UsingString().c_str());
     }
     body->StartUsing(crc32c("Perception"));
     body->SetSkill(crc32c("Hidden"), 0);
@@ -4595,7 +4595,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             "You stop %s.\n",
             body,
             nullptr,
-            body->UsingString());
+            body->UsingString().c_str());
         body->SetPos(POS_STAND);
         return 2;
       }
@@ -4684,7 +4684,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             "You stand up and start %s.\n",
             body,
             nullptr,
-            body->UsingString());
+            body->UsingString().c_str());
       } else {
         body->Parent()->SendOutF(
             stealth_t,
@@ -4693,7 +4693,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
             "You start %s.\n",
             body,
             nullptr,
-            body->UsingString());
+            body->UsingString().c_str());
       }
       if (!body->HasSkill(skill)) {
         mind->SendF(

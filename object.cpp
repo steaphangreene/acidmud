@@ -19,7 +19,7 @@
 #include "object.hpp"
 #include "utils.hpp"
 
-const char* pos_str[POS_MAX] = {
+const std::string pos_str[POS_MAX] = {
     "is here",
     "is lying here",
     "is sitting here",
@@ -27,7 +27,7 @@ const char* pos_str[POS_MAX] = {
     "is using a skill",
 };
 
-const char* act_str[ACT_SPECIAL_MAX] = {
+const std::string act_str[ACT_SPECIAL_MAX] = {
     "doing nothing",
     "dead",
     "bleeding and dying",
@@ -1045,7 +1045,7 @@ void Object::SendActions(Mind* m) {
       //	  }
       //	}
       m->Send(", ");
-      m->SendF(act_str[cur.first], targ, dirn, dirp);
+      m->SendF(act_str[cur.first].c_str(), targ, dirn, dirp);
     }
   }
   if (HasSkill(crc32c("Invisible"))) {
@@ -1282,7 +1282,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
         if (ind->parent && ind->parent->Skill(crc32c("Container")))
           sprintf(buf, "%s%c", ind->ShortDesc(), 0);
         else
-          sprintf(buf, "%s %s%c", ind->ShortDesc(), ind->PosString(), 0);
+          sprintf(buf, "%s %s%c", ind->ShortDesc(), ind->PosString().c_str(), 0);
         buf[0] = toupper(buf[0]);
         m->Send(buf);
 
@@ -1412,7 +1412,7 @@ void Object::SendFullSituation(Mind* m, Object* o) {
 
   else {
     pname = parent->Name();
-    sprintf(buf, "%s %s in %s%c", Name(), PosString(), pname.c_str(), 0);
+    sprintf(buf, "%s %s in %s%c", Name(), PosString().c_str(), pname.c_str(), 0);
   }
 
   buf[0] = toupper(buf[0]);
@@ -1609,9 +1609,9 @@ void Object::SendScore(Mind* m, Object* o) {
 
   for (act_t actt = ACT_MAX; actt < ACT_SPECIAL_MAX; actt = act_t(int(actt) + 1)) {
     if (ActTarg(actt)) {
-      m->SendF(CGRN "  %s -> %s\n" CNRM, act_str[actt], ActTarg(actt)->Name());
+      m->SendF(CGRN "  %s -> %s\n" CNRM, act_str[actt].c_str(), ActTarg(actt)->Name());
     } else if (IsAct(actt)) {
-      m->SendF(CGRN "  %s\n" CNRM, act_str[actt]);
+      m->SendF(CGRN "  %s\n" CNRM, act_str[actt].c_str());
     }
   }
 
@@ -3765,38 +3765,40 @@ int two_handed(int wtype) {
   return int(thsks.count(wtype));
 }
 
-const char* Object::PosString() {
-  static char buf2[128];
+std::string Object::PosString() {
+  std::string ret;
   if (pos == POS_USE) {
-    sprintf(buf2, "is %s here", UsingString());
-    return buf2;
+    ret = fmt::format("is {} here", UsingString());
+  } else {
+    ret = pos_str[pos];
   }
-  return pos_str[pos];
+  return ret;
 }
 
-const char* Object::UsingString() {
-  static char buf2[128];
+std::string Object::UsingString() {
+  std::string ret;
   if (pos == POS_USE) {
     if (cur_skill == crc32c("Stealth")) {
-      sprintf(buf2, "sneaking around");
+      ret = "sneaking around";
     } else if (cur_skill == crc32c("Perception")) {
-      sprintf(buf2, "keeping an eye out");
+      ret = "keeping an eye out";
     } else if (cur_skill == crc32c("Healing")) {
-      sprintf(buf2, "caring for others' wounds");
+      ret = "caring for others' wounds";
     } else if (cur_skill == crc32c("First Aid")) {
-      sprintf(buf2, "giving first-aid");
+      ret = "giving first-aid";
     } else if (cur_skill == crc32c("Treatment")) {
-      sprintf(buf2, "treating others' wounds");
+      ret = "treating others' wounds";
     } else if (cur_skill == crc32c("Lumberjack")) {
-      sprintf(buf2, "chopping down trees");
+      ret = "chopping down trees";
     } else if (cur_skill == crc32c("Sprinting")) {
-      sprintf(buf2, "running as fast as possible");
+      ret = "running as fast as possible";
     } else {
-      sprintf(buf2, "using the %s skill", SkillName(Using()).c_str());
+      ret = fmt::format("using the {} skill", SkillName(Using()));
     }
-    return buf2;
+  } else {
+    ret = "doing nothing";
   }
-  return "doing nothing";
+  return ret;
 }
 
 void Object::StartUsing(uint32_t skill) {

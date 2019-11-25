@@ -308,12 +308,12 @@ class Object {
 
   pos_t Pos();
   void SetPos(pos_t p);
-  const char* PosString();
+  std::string PosString();
   void StartUsing(uint32_t skill);
   void StopUsing();
   uint32_t Using();
   int IsUsing(uint32_t);
-  const char* UsingString();
+  std::string UsingString();
 
   int Wearing(const Object* obj) const;
   int WearMask() const;
