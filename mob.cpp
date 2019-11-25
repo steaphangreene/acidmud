@@ -91,10 +91,10 @@ static void give_gold(Object* mob, int qty) {
 }
 
 MOBType::MOBType(
-    const char* nm,
-    const char* ds,
-    const char* lds,
-    const char* gens,
+    const std::string& nm,
+    const std::string& ds,
+    const std::string& lds,
+    const std::string& gens,
     int ib,
     int ibm,
     int iq,
@@ -229,10 +229,10 @@ void Object::AddMOB(const MOBType* type) {
 }
 
 WeaponType::WeaponType(
-    const char* nm,
-    const char* ds,
-    const char* lds,
-    const char* t,
+    const std::string& nm,
+    const std::string& ds,
+    const std::string& lds,
+    const std::string& t,
     int r,
     int f,
     int fm,
@@ -256,9 +256,9 @@ WeaponType::WeaponType(
 }
 
 ArmorType::ArmorType(
-    const char* nm,
-    const char* ds,
-    const char* lds,
+    const std::string& nm,
+    const std::string& ds,
+    const std::string& lds,
     int b,
     int bm,
     int i,

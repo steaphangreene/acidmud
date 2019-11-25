@@ -7,9 +7,9 @@
 class ArmorType {
  public:
   ArmorType(
-      const char* nm,
-      const char* ds,
-      const char* lds,
+      const std::string& nm,
+      const std::string& ds,
+      const std::string& lds,
       int b,
       int bm,
       int i,
@@ -39,10 +39,10 @@ class ArmorType {
 class WeaponType {
  public:
   WeaponType(
-      const char* nm,
-      const char* ds,
-      const char* lds,
-      const char*,
+      const std::string& nm,
+      const std::string& ds,
+      const std::string& lds,
+      const std::string& t,
       int,
       int,
       int,
@@ -61,10 +61,10 @@ class WeaponType {
 class MOBType {
  public:
   MOBType(
-      const char* nm,
-      const char* ds,
-      const char* lds,
-      const char* gens,
+      const std::string& nm,
+      const std::string& ds,
+      const std::string& lds,
+      const std::string& gens,
       int,
       int,
       int,
