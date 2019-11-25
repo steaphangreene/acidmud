@@ -113,20 +113,27 @@ int matches(const std::string& name, const std::string& seek) {
 
   int ret = 0;
 
+  // suffix-word searches
+  if (stok == crc32c("guard") || stok == crc32c("smith") || stok == crc32c("master") ||
+      stok == crc32c("sword") || stok == crc32c("hammer") || stok == crc32c("axe") ||
+      stok == crc32c("bow") || stok == crc32c("staff") || stok == crc32c("keeper")) {
+    auto part = seek;
+    std::transform(part.begin(), part.end(), part.begin(), ascii_tolower);
+    auto word = name;
+    std::transform(word.begin(), word.end(), word.begin(), ascii_tolower);
+
+    auto cont = word.find(part);
+    while (cont != std::string::npos) {
+      if (word.length() == cont + part.length() || word[cont + part.length()] == ' ') {
+        ret = 1;
+        break;
+      }
+      cont = word.find(part, cont + 1);
+    }
+  }
+
   // special SMART[TM] searches
-  if ((stok == crc32c("guard")) && matches(name, "cityguard"))
-    ret = 1;
-  else if ((stok == crc32c("guard")) && matches(name, "guildguard"))
-    ret = 1;
-  else if ((stok == crc32c("guard")) && matches(name, "gateguard"))
-    ret = 1;
-  else if ((stok == crc32c("guard")) && matches(name, "bodyguard"))
-    ret = 1;
-  else if ((stok == crc32c("guard")) && matches(name, "lifeguard"))
-    ret = 1;
-  else if ((stok == crc32c("guard")) && matches(name, "doomguard"))
-    ret = 1;
-  else if ((stok == crc32c("guard")) && matches(name, "guardian"))
+  if ((stok == crc32c("guard")) && matches(name, "guardian"))
     ret = 1;
   else if ((stok == crc32c("guard")) && matches(name, "guardsman"))
     ret = 1;
@@ -134,23 +141,7 @@ int matches(const std::string& name, const std::string& seek) {
     ret = 1;
   else if ((stok == crc32c("merc")) && matches(name, "mercenary"))
     ret = 1;
-  else if ((stok == crc32c("smith")) && matches(name, "weaponsmith"))
-    ret = 1;
-  else if ((stok == crc32c("smith")) && matches(name, "swordsmith"))
-    ret = 1;
-  else if ((stok == crc32c("smith")) && matches(name, "blacksmith"))
-    ret = 1;
   else if ((stok == crc32c("bolt")) && matches(name, "thunderbolt"))
-    ret = 1;
-  else if ((stok == crc32c("sword")) && matches(name, "longsword"))
-    ret = 1;
-  else if ((stok == crc32c("sword")) && matches(name, "broadsword"))
-    ret = 1;
-  else if ((stok == crc32c("sword")) && matches(name, "shortsword"))
-    ret = 1;
-  else if ((stok == crc32c("hammer")) && matches(name, "warhammer"))
-    ret = 1;
-  else if ((stok == crc32c("hammer")) && matches(name, "battlehammer"))
     ret = 1;
   else if ((stok == crc32c("battle hammer")) && matches(name, "battlehammer"))
     ret = 1;
@@ -159,10 +150,6 @@ int matches(const std::string& name, const std::string& seek) {
   else if ((stok == crc32c("war hammer")) && matches(name, "warhammer"))
     ret = 1;
   else if ((stok == crc32c("warhammer")) && matches(name, "war hammer"))
-    ret = 1;
-  else if ((stok == crc32c("axe")) && matches(name, "waraxe"))
-    ret = 1;
-  else if ((stok == crc32c("axe")) && matches(name, "battleaxe"))
     ret = 1;
   else if ((stok == crc32c("battle axe")) && matches(name, "battleaxe"))
     ret = 1;
@@ -199,24 +186,6 @@ int matches(const std::string& name, const std::string& seek) {
   else if ((stok == crc32c("bill-guisarme")) && matches(name, "bill-bisarme"))
     ret = 1;
   else if ((stok == crc32c("bill-guisarme")) && matches(name, "bill-gisarme"))
-    ret = 1;
-  else if ((stok == crc32c("staff")) && matches(name, "quarterstaff"))
-    ret = 1;
-  else if ((stok == crc32c("bow")) && matches(name, "longbow"))
-    ret = 1;
-  else if ((stok == crc32c("bow")) && matches(name, "shortbow"))
-    ret = 1;
-  else if ((stok == crc32c("armor")) && matches(name, "armour"))
-    ret = 1;
-  else if ((stok == crc32c("armour")) && matches(name, "armor"))
-    ret = 1;
-  else if ((stok == crc32c("armorer")) && matches(name, "armourer"))
-    ret = 1;
-  else if ((stok == crc32c("armourer")) && matches(name, "armorer"))
-    ret = 1;
-  else if ((stok == crc32c("scepter")) && matches(name, "sceptre"))
-    ret = 1;
-  else if ((stok == crc32c("sceptre")) && matches(name, "scepter"))
     ret = 1;
   else if ((stok == crc32c("grey")) && matches(name, "gray"))
     ret = 1;
