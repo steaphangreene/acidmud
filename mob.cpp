@@ -179,8 +179,8 @@ void Object::AddMOB(const MOBType* type) {
   if (type->genders.length() > 0) {
     mob->SetGender(type->genders[rand() % type->genders.length()]);
   }
-  mob->SetDesc(gender_proc(type->desc.c_str(), mob->Gender()).c_str());
-  mob->SetLongDesc(gender_proc(type->long_desc.c_str(), mob->Gender()).c_str());
+  mob->SetDesc(gender_proc(type->desc, mob->Gender()));
+  mob->SetLongDesc(gender_proc(type->long_desc, mob->Gender()));
 
   if (type->g > 0 || type->gm > 1)
     give_gold(mob, type->g + rand() % type->gm);
@@ -315,7 +315,7 @@ static const char* gen_replace[][4] = {{"{He}", "She", "He", "It"},
                                        {"{his}", "hers", "his", "its"},
                                        {nullptr, nullptr, nullptr, nullptr}};
 
-std::string gender_proc(const char* in, char gender) {
+std::string gender_proc(const std::string& in, char gender) {
   std::string ret = in;
   int ctr = 0, gen = 3;
 

@@ -575,7 +575,7 @@ void Mind::UpdatePrompt() {
         "[%s][%s] %s> %c",
         sevs_p[std::min(10, Body()->Phys())],
         sevs_s[std::min(10, Body()->Stun())],
-        Body()->ShortDesc(),
+        Body()->ShortDesc().c_str(),
         0);
     SetPrompt(pers, buf);
   } else
@@ -786,7 +786,7 @@ void Mind::TBAVarSub(std::string& line) {
               stderr,
               CGRN "#%d Random: '%s'\n" CNRM,
               body->Skill(crc32c("TBAScript")),
-              obj->Name());
+              obj->Name().c_str());
         }
       } else {
         obj = nullptr;
@@ -2212,13 +2212,13 @@ int Mind::TBARunLine(std::string line) {
         if (dam > 0) {
           opt->HitMent(1000, dam, 0);
           //	  fprintf(stderr, CGRN "#%d Debug: WDamage '%s', %d\n" CNRM,
-          //		body->Skill(crc32c("TBAScript")), opt->Name(), dam
+          //		body->Skill(crc32c("TBAScript")), opt->Name().c_str(), dam
           //		);
         } else if (dam < 0) {
           opt->HealStun(((-dam) + 1) / 2);
           opt->HealPhys(((-dam) + 1) / 2);
           //	  fprintf(stderr, CGRN "#%d Debug: WHeal '%s', %d\n" CNRM,
-          //		body->Skill(crc32c("TBAScript")), opt->Name(), ((-dam)+1)/2
+          //		body->Skill(crc32c("TBAScript")), opt->Name().c_str(), ((-dam)+1)/2
           //		);
         }
       }
@@ -2910,7 +2910,7 @@ void Mind::Think(int istick) {
         std::string command = std::string("hold ") + body->ActTarg(ACT_WEAR_SHIELD)->ShortDesc();
         body->BusyFor(500, command.c_str());
       } else {
-        // fprintf(stderr, "Warning: %s can't use his shield!\n", body->Name());
+        // fprintf(stderr, "Warning: %s can't use his shield!\n", body->Name().c_str());
       }
       return;
     }
@@ -2933,7 +2933,7 @@ void Mind::Think(int istick) {
         ) {
           std::string command = std::string("attack ") + other->ShortDesc();
           body->BusyFor(500, command.c_str());
-          // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(),
+          // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc().c_str(),
           // command.c_str());
           return;
         }
@@ -2970,7 +2970,7 @@ void Mind::Think(int istick) {
         ) {
           std::string command = std::string("attack ") + other->ShortDesc();
           body->BusyFor(500, command.c_str());
-          // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(),
+          // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc().c_str(),
           // command.c_str());
           return;
         }
@@ -3007,7 +3007,7 @@ void Mind::Think(int istick) {
         ) {
           std::string command = std::string("call ALARM; attack ") + other->ShortDesc();
           body->BusyFor(500, command.c_str());
-          // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc(),
+          // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc().c_str(),
           // command.c_str());
           return;
         }

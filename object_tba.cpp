@@ -294,17 +294,18 @@ void Object::TBAFinishMOB(Object* mob) {
 
   if (mob->Skill(crc32c("TBAAttack"))) {
     if (mob->IsAct(ACT_WIELD)) {
-      // fprintf(stderr, "Weapon def: %s\n", mob->ActTarg(ACT_WIELD)->Name());
+      // fprintf(stderr, "Weapon def: %s\n", mob->ActTarg(ACT_WIELD)->Name().c_str());
       if (mob->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")) == 0) {
         if (!mob->ActTarg(ACT_HOLD)) { // Don't wield non-weapons, hold them
-          fprintf(stderr, "Warning: Wielded non-weapon: %s\n", mob->ActTarg(ACT_WIELD)->Name());
+          fprintf(
+              stderr, "Warning: Wielded non-weapon: %s\n", mob->ActTarg(ACT_WIELD)->Name().c_str());
           mob->AddAct(ACT_HOLD, mob->ActTarg(ACT_WIELD));
           mob->StopAct(ACT_WIELD);
         } else {
           fprintf(
               stderr,
               "Error: Wielded non-weapon with a held item: %s\n",
-              mob->ActTarg(ACT_WIELD)->Name());
+              mob->ActTarg(ACT_WIELD)->Name().c_str());
         }
       } else {
         mob->SetSkill(
@@ -381,7 +382,7 @@ void Object::TBALoadZON(const std::string& fn) {
             obj->SetDesc("This thing just pops out MOBs.");
 
             // fprintf(stderr, "Put Mob \"%s\" in Room \"%s\"\n",
-            // obj->ShortDesc(), bynumwld[room]->ShortDesc());
+            // obj->ShortDesc().c_str(), bynumwld[room]->ShortDesc().c_str());
 
             if (lastmob)
               TBAFinishMOB(lastmob);
@@ -402,7 +403,7 @@ void Object::TBALoadZON(const std::string& fn) {
             Object* obj = new Object(*(bynumobj[num]));
             obj->SetParent(bynumwld[room]);
             // fprintf(stderr, "Put Obj \"%s\" in Room \"%s\"\n",
-            // obj->ShortDesc(), bynumwld[room]->ShortDesc());
+            // obj->ShortDesc().c_str(), bynumwld[room]->ShortDesc().c_str());
             if (obj->HasSkill(crc32c("Liquid Source"))) {
               obj->Activate();
             }
@@ -434,7 +435,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc());
+                      obj->ShortDesc().c_str());
                 }
               } break;
               case (2): { // Worn
@@ -445,7 +446,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc());
+                      obj->ShortDesc().c_str());
                 }
               } break;
               case (3): { // TBA MOBs have two necks (1/2)
@@ -456,7 +457,7 @@ void Object::TBALoadZON(const std::string& fn) {
                         CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                         fn.c_str(),
                         fline(mudz),
-                        obj->ShortDesc());
+                        obj->ShortDesc().c_str());
                   } else {
                     if (lastmob->IsAct(ACT_WEAR_FACE))
                       bagit = 1;
@@ -478,7 +479,7 @@ void Object::TBALoadZON(const std::string& fn) {
                         CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                         fn.c_str(),
                         fline(mudz),
-                        obj->ShortDesc());
+                        obj->ShortDesc().c_str());
                   } else {
                     if (lastmob->IsAct(ACT_WEAR_FACE))
                       bagit = 1;
@@ -501,7 +502,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc());
+                      obj->ShortDesc().c_str());
                 }
               } break;
               case (6): { // Worn
@@ -512,7 +513,7 @@ void Object::TBALoadZON(const std::string& fn) {
                         CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                         fn.c_str(),
                         fline(mudz),
-                        obj->ShortDesc());
+                        obj->ShortDesc().c_str());
                   } else {
                     if (lastmob->IsAct(ACT_WEAR_FACE))
                       bagit = 1;
@@ -535,7 +536,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc());
+                      obj->ShortDesc().c_str());
                 }
               } break;
               case (8): { // Worn
@@ -550,7 +551,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc());
+                      obj->ShortDesc().c_str());
                 }
               } break;
               case (9): { // Worn
@@ -565,7 +566,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc());
+                      obj->ShortDesc().c_str());
                 }
               } break;
               case (10): { // Worn
@@ -580,7 +581,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc());
+                      obj->ShortDesc().c_str());
                 }
               } break;
               case (11): { // Worn
@@ -591,7 +592,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc());
+                      obj->ShortDesc().c_str());
                 }
               } break;
               case (12): { // Worn
@@ -603,7 +604,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc());
+                      obj->ShortDesc().c_str());
                 }
               } break;
               case (13): { // Worn
@@ -614,7 +615,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc());
+                      obj->ShortDesc().c_str());
                 }
               } break;
               case (14): { // Worn
@@ -625,7 +626,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc());
+                      obj->ShortDesc().c_str());
                 }
               } break;
               case (15): { // Worn
@@ -636,7 +637,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc());
+                      obj->ShortDesc().c_str());
                 }
               } break;
               case (16): { // Wielded
@@ -647,7 +648,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wield non-weapon: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc());
+                      obj->ShortDesc().c_str());
                 }
               } break;
               case (17): { // Held
@@ -692,8 +693,8 @@ void Object::TBALoadZON(const std::string& fn) {
             obj->SetParent(lastobj[innum]);
             if (obj2)
               obj2->SetParent(lastobj[innum]);
-            // fprintf(stderr, "Put Obj \"%s\" in Obj \"%s\"\n", obj->ShortDesc(),
-            // lastobj[innum]->ShortDesc());
+            // fprintf(stderr, "Put Obj \"%s\" in Obj \"%s\"\n", obj->ShortDesc().c_str(),
+            // lastobj[innum]->ShortDesc().c_str());
             lastobj[num] = obj;
           }
         } break;
@@ -762,14 +763,14 @@ void Object::TBALoadMOB(const std::string& fn) {
           //    CBYL "Warning: Adding [%s] to #%d ('%s')\n" CNRM,
           //    aliases[actr].c_str(),
           //    obj->Skill(crc32c("TBAMOB")),
-          //    obj->ShortDesc());
+          //    obj->ShortDesc().c_str());
           label += " " + aliases[actr];
         }
       }
       if (!label.empty()) {
         label[0] = '(';
         label += ')';
-        obj->SetShortDesc((std::string(obj->ShortDesc()) + " " + label).c_str());
+        obj->SetShortDesc(obj->ShortDesc() + " " + label);
       }
 
       memset(buf, 0, 65536);
@@ -964,7 +965,7 @@ void Object::TBALoadMOB(const std::string& fn) {
           trg->SetParent(obj);
           todotrg.push_back(trg);
           //  fprintf(stderr, "Put Trg \"%s\" on MOB \"%s\"\n",
-          //	trg->Desc(), obj->ShortDesc()
+          //	trg->Desc().c_str(), obj->ShortDesc().c_str()
           //	);
         }
       }
@@ -1204,14 +1205,14 @@ void Object::TBALoadOBJ(const std::string& fn) {
           //    CBYL "Warning: Adding [%s] to #%d ('%s')\n" CNRM,
           //    aliases[actr].c_str(),
           //    obj->Skill(crc32c("TBAObject")),
-          //    obj->ShortDesc());
+          //    obj->ShortDesc().c_str());
           label += " " + aliases[actr];
         }
       }
       if (!label.empty()) {
         label[0] = '(';
         label += ')';
-        obj->SetShortDesc((std::string(obj->ShortDesc()) + " " + label).c_str());
+        obj->SetShortDesc(obj->ShortDesc() + " " + label);
       }
 
       memset(buf, 0, 65536); // Long Desc
@@ -1286,11 +1287,11 @@ void Object::TBALoadOBJ(const std::string& fn) {
       }
 
       int sf = 0;
-      if (!strncmp(obj->ShortDesc(), "a pair of ", 10))
+      if (!strncmp(obj->ShortDesc().c_str(), "a pair of ", 10))
         sf = 9;
-      else if (!strncmp(obj->ShortDesc(), "some ", 5))
+      else if (!strncmp(obj->ShortDesc().c_str(), "some ", 5))
         sf = 4;
-      else if (!strncmp(obj->ShortDesc(), "a set of ", 9))
+      else if (!strncmp(obj->ShortDesc().c_str(), "a set of ", 9))
         sf = 8;
 
       std::string name = obj->ShortDesc();
@@ -1467,13 +1468,13 @@ void Object::TBALoadOBJ(const std::string& fn) {
           obj->SetSkill(crc32c("Lockable"), 1); // Can it be locked?
         }
 
-        if (std::string(obj->ShortDesc()).find("bag") < strlen(obj->ShortDesc())) {
+        if (obj->ShortDesc().find("bag") < obj->ShortDesc().length()) {
           obj->SetSkill(crc32c("Closeable"), 1); // Bags CAN be closed
           obj->SetSkill(crc32c("Wearable on Left Hip"), 1); // Bags CAN be belted
           obj->SetSkill(crc32c("Wearable on Right Hip"), 2);
         }
 
-        if (std::string(obj->ShortDesc()).find("pouch") < strlen(obj->ShortDesc())) {
+        if (obj->ShortDesc().find("pouch") < obj->ShortDesc().length()) {
           obj->SetSkill(crc32c("Closeable"), 1); // Pouches CAN be closed
           obj->SetSkill(crc32c("Wearable on Left Hip"), 1); // Pouches CAN be belted
           obj->SetSkill(crc32c("Wearable on Right Hip"), 2);
@@ -1933,7 +1934,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
               stderr,
               "Warning: Using Default of '%s' for '%s'!\n",
               SkillName(get_weapon_skill(skmatch)).c_str(),
-              obj->ShortDesc());
+              obj->ShortDesc().c_str());
         }
 
         if (matches(obj->ShortDesc(), "two-handed")) {
@@ -2046,7 +2047,10 @@ void Object::TBALoadOBJ(const std::string& fn) {
           else if (skmatch == get_weapon_type("Punching"))
             wreach = 0;
           else {
-            fprintf(stderr, "Warning: Using Default reach of zero for '%s'!\n", obj->ShortDesc());
+            fprintf(
+                stderr,
+                "Warning: Using Default reach of zero for '%s'!\n",
+                obj->ShortDesc().c_str());
           }
         }
 
@@ -2388,7 +2392,7 @@ void Object::TBALoadWLD(const std::string& fn) {
 
             auto cont = ob->Contents();
             for (auto cind : cont) {
-              if (std::string(cind->ShortDesc()) == "a passage exit") {
+              if (cind->ShortDesc() == "a passage exit") {
                 if (cind->ActTarg(ACT_SPECIAL_MASTER)->Parent() == bynumwld[tnum]) {
                   nobj = cind;
                   nobj2 = cind->ActTarg(ACT_SPECIAL_MASTER);
@@ -2397,7 +2401,7 @@ void Object::TBALoadWLD(const std::string& fn) {
                 if (cind->ActTarg(ACT_SPECIAL_LINKED)->Parent() == bynumwld[tnum]) {
                   nobj = cind;
                   nobj2 = cind->ActTarg(ACT_SPECIAL_LINKED);
-                  nm = std::string(nobj->ShortDesc()) + " and " + dirname[dir];
+                  nm = nobj->ShortDesc() + " and " + dirname[dir];
                 }
               }
             }
@@ -2666,7 +2670,7 @@ void Object::TBALoadSHP(const std::string& fn) {
               fprintf(
                   stderr,
                   "Warning: Can't handle %s's buy target: '%s'\n",
-                  keeper->Name(),
+                  keeper->Name().c_str(),
                   type.c_str());
             } else if (type != "0") { // Apparently 0 used for "Ignore This"
               keeper->SetSkill(std::string("Buy ") + type, (int)(num2 * 1000.0 + 0.5));

@@ -116,13 +116,13 @@ class Object {
 
   Object* Next(std::string&);
   Object* Split(int nqty);
-  const char* Name(int definite = 0, Object* rel = nullptr, Object* sub = nullptr) const;
-  const char* Pron() const;
-  const char* Poss() const;
-  const char* Obje() const;
-  const char* ShortDesc() const;
-  const char* Desc() const;
-  const char* LongDesc() const;
+  std::string Name(int definite = 0, Object* rel = nullptr, Object* sub = nullptr) const;
+  std::string Pron() const;
+  std::string Poss() const;
+  std::string Obje() const;
+  std::string ShortDesc() const;
+  std::string Desc() const;
+  std::string LongDesc() const;
   void SetShortDesc(const std::string&);
   void SetDesc(const std::string&);
   void SetLongDesc(const std::string&);

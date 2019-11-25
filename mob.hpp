@@ -97,4 +97,4 @@ class MOBType {
   std::vector<ArmorType*> armor;
 };
 
-std::string gender_proc(const char* in, char gender);
+std::string gender_proc(const std::string& in, char gender);

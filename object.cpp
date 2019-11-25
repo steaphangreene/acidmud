@@ -830,38 +830,44 @@ Object::Object(const Object& o) {
   tickstep = -1;
 }
 
-const char* Object::Pron() const {
+std::string Object::Pron() const {
+  std::string ret;
   if (Gender() == 'M') {
-    return "he";
+    ret = "he";
   } else if (Gender() == 'F') {
-    return "she";
+    ret = "she";
   } else {
-    return "it";
+    ret = "it";
   }
+  return ret;
 }
 
-const char* Object::Poss() const {
+std::string Object::Poss() const {
+  std::string ret;
   if (Gender() == 'M') {
-    return "his";
+    ret = "his";
   } else if (Gender() == 'F') {
-    return "her";
+    ret = "her";
   } else {
-    return "its";
+    ret = "its";
   }
+  return ret;
 }
 
-const char* Object::Obje() const {
+std::string Object::Obje() const {
+  std::string ret;
   if (Gender() == 'M') {
-    return "him";
+    ret = "him";
   } else if (Gender() == 'F') {
-    return "her";
+    ret = "her";
   } else {
-    return "it";
+    ret = "it";
   }
+  return ret;
 }
 
 // Generate truly-formatted name
-const char* Object::Name(int definite, Object* rel, Object* sub) const {
+std::string Object::Name(int definite, Object* rel, Object* sub) const {
   static std::string local;
   int need_an = 0;
   int proper = 0;
@@ -912,7 +918,7 @@ const char* Object::Name(int definite, Object* rel, Object* sub) const {
     } else if (own && own == sub) {
       ret = std::string("its ") + ret;
     } else if (own) {
-      ret = std::string(own->Name()) + "'s " + ret;
+      ret = own->Name() + "'s " + ret;
     } else if (definite && (!proper)) {
       ret = std::string("the ") + ret;
     } else if ((!proper) && need_an) {
@@ -929,23 +935,23 @@ const char* Object::Name(int definite, Object* rel, Object* sub) const {
   }
 
   local = ret;
-  return local.c_str();
+  return local;
 }
 
-const char* Object::ShortDesc() const {
-  return short_desc.c_str();
+std::string Object::ShortDesc() const {
+  return short_desc;
 }
 
-const char* Object::Desc() const {
+std::string Object::Desc() const {
   if (desc.empty())
     return ShortDesc();
-  return desc.c_str();
+  return desc;
 }
 
-const char* Object::LongDesc() const {
+std::string Object::LongDesc() const {
   if (long_desc.empty())
     return Desc();
-  return long_desc.c_str();
+  return long_desc;
 }
 
 static void trim(std::string& s) {
@@ -1026,14 +1032,14 @@ static char buf[65536];
 void Object::SendActions(Mind* m) {
   for (auto cur : act) {
     if (cur.first < ACT_WEAR_BACK) {
-      const char* targ;
-      const char* dirn = "";
-      const char* dirp = "";
+      std::string targ;
+      std::string dirn = "";
+      std::string dirp = "";
 
       if (!cur.second)
         targ = "";
       else
-        targ = (char*)cur.second->Name(0, m->Body(), this);
+        targ = cur.second->Name(0, m->Body(), this);
 
       //      //FIXME: Busted!  This should be the "pointing north to bob"
       //      thingy.
@@ -1045,7 +1051,7 @@ void Object::SendActions(Mind* m) {
       //	  }
       //	}
       m->Send(", ");
-      m->SendF(act_str[cur.first].c_str(), targ, dirn, dirp);
+      m->SendF(act_str[cur.first].c_str(), targ.c_str(), dirn.c_str(), dirp.c_str());
     }
   }
   if (HasSkill(crc32c("Invisible"))) {
@@ -1140,20 +1146,20 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
       continue; // Don't show details of invisible equip
     }
 
-    const char* targ;
+    std::string targ;
     if (!cur.second)
       targ = "";
     else
-      targ = (char*)cur.second->Name(0, m->Body(), this);
+      targ = cur.second->Name(0, m->Body(), this);
 
     char qty[256] = {0};
     if (cur.second->Skill(crc32c("Quantity")) > 1)
       sprintf(qty, "(x%d) ", cur.second->Skill(crc32c("Quantity")));
 
     if (shown.count(cur.second) > 0) {
-      m->SendF("%s%s (%s).\n", qty, targ, shown[cur.second].c_str());
+      m->SendF("%s%s (%s).\n", qty, targ.c_str(), shown[cur.second].c_str());
     } else {
-      m->SendF(CGRN "%s%s.\n" CNRM, qty, targ);
+      m->SendF(CGRN "%s%s.\n" CNRM, qty, targ.c_str());
       if (cur.second->Skill(crc32c("Open")) || cur.second->Skill(crc32c("Transparent"))) {
         sprintf(buf, "%16s  %c", " ", 0);
         base = buf;
@@ -1280,9 +1286,9 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
         ++tlines;
 
         if (ind->parent && ind->parent->Skill(crc32c("Container")))
-          sprintf(buf, "%s%c", ind->ShortDesc(), 0);
+          sprintf(buf, "%s%c", ind->ShortDesc().c_str(), 0);
         else
-          sprintf(buf, "%s %s%c", ind->ShortDesc(), ind->PosString().c_str(), 0);
+          sprintf(buf, "%s %s%c", ind->ShortDesc().c_str(), ind->PosString().c_str(), 0);
         buf[0] = toupper(buf[0]);
         m->Send(buf);
 
@@ -1313,7 +1319,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
 
 void Object::SendShortDesc(Mind* m, Object* o) {
   memset(buf, 0, 65536);
-  sprintf(buf, "%s\n", ShortDesc());
+  sprintf(buf, "%s\n", ShortDesc().c_str());
   m->Send(buf);
 }
 
@@ -1330,89 +1336,89 @@ void Object::SendFullSituation(Mind* m, Object* o) {
   }
 
   if (!parent)
-    sprintf(buf, "%s is here%c", Name(), 0);
+    sprintf(buf, "%s is here%c", Name().c_str(), 0);
 
   else if (parent->ActTarg(ACT_HOLD) == this)
-    sprintf(buf, "%s is here in %s off-hand%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here in %s off-hand%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WIELD) == this)
-    sprintf(buf, "%s is here in %s hand%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here in %s hand%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_BACK) == this)
-    sprintf(buf, "%s is here on %s back%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s back%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_CHEST) == this)
-    sprintf(buf, "%s is here on %s chest%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s chest%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_HEAD) == this)
-    sprintf(buf, "%s is here on %s head%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s head%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_FACE) == this)
-    sprintf(buf, "%s is here on %s face%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s face%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_NECK) == this)
-    sprintf(buf, "%s is here around %s neck%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here around %s neck%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_COLLAR) == this)
-    sprintf(buf, "%s is here on %s neck%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s neck%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_WAIST) == this)
-    sprintf(buf, "%s is here around %s waist%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here around %s waist%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_SHIELD) == this)
-    sprintf(buf, "%s is here on %s shield-arm%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s shield-arm%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_LARM) == this)
-    sprintf(buf, "%s is here on %s left arm%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s left arm%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_RARM) == this)
-    sprintf(buf, "%s is here on %s right arm%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s right arm%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_LFINGER) == this)
-    sprintf(buf, "%s is here on %s left finger%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s left finger%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_RFINGER) == this)
-    sprintf(buf, "%s is here on %s right finger%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s right finger%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_LFOOT) == this)
-    sprintf(buf, "%s is here on %s left foot%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s left foot%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_RFOOT) == this)
-    sprintf(buf, "%s is here on %s right foot%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s right foot%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_LHAND) == this)
-    sprintf(buf, "%s is here on %s left hand%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s left hand%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_RHAND) == this)
-    sprintf(buf, "%s is here on %s right hand%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s right hand%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_LLEG) == this)
-    sprintf(buf, "%s is here on %s left leg%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s left leg%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_RLEG) == this)
-    sprintf(buf, "%s is here on %s right leg%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s right leg%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_LWRIST) == this)
-    sprintf(buf, "%s is here on %s left wrist%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s left wrist%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_RWRIST) == this)
-    sprintf(buf, "%s is here on %s right wrist%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s right wrist%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_LSHOULDER) == this)
-    sprintf(buf, "%s is here on %s left shoulder%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s left shoulder%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_RSHOULDER) == this)
-    sprintf(buf, "%s is here on %s right shoulder%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s right shoulder%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_LHIP) == this)
-    sprintf(buf, "%s is here on %s left hip%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s left hip%c", Name().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(ACT_WEAR_RHIP) == this)
-    sprintf(buf, "%s is here on %s right hip%c", Name(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s right hip%c", Name().c_str(), pname.c_str(), 0);
 
   else {
     pname = parent->Name();
-    sprintf(buf, "%s %s in %s%c", Name(), PosString().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s %s in %s%c", Name().c_str(), PosString().c_str(), pname.c_str(), 0);
   }
 
   buf[0] = toupper(buf[0]);
@@ -1428,13 +1434,13 @@ void Object::SendDesc(Mind* m, Object* o) {
     SendActions(m);
   } else {
     m->Send(CCYN);
-    sprintf(buf, "%s\n%c", ShortDesc(), 0);
+    sprintf(buf, "%s\n%c", ShortDesc().c_str(), 0);
     buf[0] = toupper(buf[0]);
     m->Send(buf);
   }
 
   m->SendF("%s   ", CNRM);
-  sprintf(buf, "%s\n%c", Desc(), 0);
+  sprintf(buf, "%s\n%c", Desc().c_str(), 0);
   buf[0] = toupper(buf[0]);
   m->Send(buf);
   m->Send(CNRM);
@@ -1451,13 +1457,13 @@ void Object::SendDescSurround(Mind* m, Object* o, int vmode) {
     SendActions(m);
   } else {
     m->Send(CCYN);
-    sprintf(buf, "%s\n%c", ShortDesc(), 0);
+    sprintf(buf, "%s\n%c", ShortDesc().c_str(), 0);
     buf[0] = toupper(buf[0]);
     m->Send(buf);
   }
 
   m->SendF("%s   ", CNRM);
-  sprintf(buf, "%s\n%c", Desc(), 0);
+  sprintf(buf, "%s\n%c", Desc().c_str(), 0);
   buf[0] = toupper(buf[0]);
   m->Send(buf);
 
@@ -1486,13 +1492,13 @@ void Object::SendLongDesc(Mind* m, Object* o) {
     SendActions(m);
   } else {
     m->Send(CCYN);
-    sprintf(buf, "%s\n%c", ShortDesc(), 0);
+    sprintf(buf, "%s\n%c", ShortDesc().c_str(), 0);
     buf[0] = toupper(buf[0]);
     m->Send(buf);
   }
 
   m->SendF("%s   ", CNRM);
-  sprintf(buf, "%s\n%c", LongDesc(), 0);
+  sprintf(buf, "%s\n%c", LongDesc().c_str(), 0);
   buf[0] = toupper(buf[0]);
   m->Send(buf);
   m->Send(CNRM);
@@ -1609,7 +1615,7 @@ void Object::SendScore(Mind* m, Object* o) {
 
   for (act_t actt = ACT_MAX; actt < ACT_SPECIAL_MAX; actt = act_t(int(actt) + 1)) {
     if (ActTarg(actt)) {
-      m->SendF(CGRN "  %s -> %s\n" CNRM, act_str[actt].c_str(), ActTarg(actt)->Name());
+      m->SendF(CGRN "  %s -> %s\n" CNRM, act_str[actt].c_str(), ActTarg(actt)->Name().c_str());
     } else if (IsAct(actt)) {
       m->SendF(CGRN "  %s\n" CNRM, act_str[actt].c_str());
     }
@@ -1620,7 +1626,7 @@ void Object::SendScore(Mind* m, Object* o) {
 
   for (auto mind : minds) {
     if (mind->Owner()) {
-      m->SendF(CBLU "->Player Connected: %s\n" CNRM, mind->Owner()->Name());
+      m->SendF(CBLU "->Player Connected: %s\n" CNRM, mind->Owner()->Name().c_str());
     } else if (mind == get_mob_mind()) {
       m->Send(CBLU "->MOB_MIND\n" CNRM);
     } else if (mind == get_tba_mob_mind()) {
@@ -2040,7 +2046,7 @@ void Object::TryCombine() {
       continue;
 
     if ((*this) == (*obj)) {
-      // fprintf(stderr, "Combining '%s'\n", Name());
+      // fprintf(stderr, "Combining '%s'\n", Name().c_str());
       int val;
 
       val = std::max(1, Skill(crc32c("Quantity"))) + std::max(1, obj->Skill(crc32c("Quantity")));
@@ -2111,7 +2117,7 @@ int Object::Travel(Object* dest, int try_combine) {
     for (auto trig : trigs) {
       if (trig->Skill(crc32c("TBAScriptType")) & 0x0010000) {
         if ((rand() % 100) < trig->Skill(crc32c("TBAScriptNArg"))) { // % Chance
-          // fprintf(stderr, CBLU "Triggering: %s\n" CNRM, trig->Name());
+          // fprintf(stderr, CBLU "Triggering: %s\n" CNRM, trig->Name().c_str());
           if (new_trigger(0, trig, this, dir))
             return 1;
         }
@@ -2168,7 +2174,7 @@ int Object::Travel(Object* dest, int try_combine) {
           if ((rand() % 100) < 1000 * trig->Skill(crc32c("TBAScriptNArg"))) { // % Chance
             // if (trig->Skill(crc32c("TBAScript")) >= 5034503 && trig->Skill(crc32c("TBAScript"))
             // <= 5034507)
-            //  fprintf(stderr, CBLU "Triggering: %s\n" CNRM, trig->Name());
+            //  fprintf(stderr, CBLU "Triggering: %s\n" CNRM, trig->Name().c_str());
             new_trigger((rand() % 400) + 300, trig, this, rdir);
           }
         }
@@ -2820,7 +2826,7 @@ void Object::Collapse() {
           "You drop %s!\n",
           this,
           nullptr,
-          ActTarg(ACT_WIELD)->ShortDesc());
+          ActTarg(ACT_WIELD)->ShortDesc().c_str());
       ActTarg(ACT_WIELD)->Travel(parent);
     }
     if (ActTarg(ACT_HOLD) && ActTarg(ACT_HOLD) != ActTarg(ACT_WEAR_SHIELD)) {
@@ -2831,7 +2837,7 @@ void Object::Collapse() {
           "You drop %s!\n",
           this,
           nullptr,
-          ActTarg(ACT_HOLD)->ShortDesc());
+          ActTarg(ACT_HOLD)->ShortDesc().c_str());
       ActTarg(ACT_HOLD)->Travel(parent);
     } else if (ActTarg(ACT_HOLD)) {
       parent->SendOutF(
@@ -2841,7 +2847,7 @@ void Object::Collapse() {
           "You stop holding %s!\n",
           this,
           nullptr,
-          ActTarg(ACT_HOLD)->ShortDesc());
+          ActTarg(ACT_HOLD)->ShortDesc().c_str());
       StopAct(ACT_HOLD);
     }
   }
@@ -3101,14 +3107,14 @@ void Object::SendIn(
             if (phrase_match(speech, trig->Desc())) {
               // if (trig->Skill(crc32c("TBAScript")) >= 5034503 && trig->Skill(crc32c("TBAScript"))
               // <= 5034507)
-              //  fprintf(stderr, CBLU "Triggering(f): %s\n" CNRM, trig->Name());
+              //  fprintf(stderr, CBLU "Triggering(f): %s\n" CNRM, trig->Name().c_str());
               new_trigger((rand() % 400) + 300, trig, actor, speech);
             }
           } else { // Match Words
             if (words_match(speech, trig->Desc())) {
               // if (trig->Skill(crc32c("TBAScript")) >= 5034503 && trig->Skill(crc32c("TBAScript"))
               // <= 5034507)
-              //  fprintf(stderr, CBLU "Triggering(w): %s\n" CNRM, trig->Name());
+              //  fprintf(stderr, CBLU "Triggering(w): %s\n" CNRM, trig->Name().c_str());
               new_trigger((rand() % 400) + 300, trig, actor, speech);
             }
           }
@@ -3119,10 +3125,10 @@ void Object::SendIn(
 
   std::string tstr = "";
   if (targ)
-    tstr = (char*)targ->Name(0, this, actor);
+    tstr = targ->Name(0, this, actor);
   std::string astr = "";
   if (actor)
-    astr = (char*)actor->Name(0, this);
+    astr = actor->Name(0, this);
 
   auto str = mes;
   auto youstr = youmes;
@@ -3242,10 +3248,10 @@ void Object::SendOut(
 
   std::string tstr = "";
   if (targ)
-    tstr = (char*)targ->Name(0, this, actor);
+    tstr = targ->Name(0, this, actor);
   std::string astr = "";
   if (actor)
-    astr = (char*)actor->Name(0, this);
+    astr = actor->Name(0, this);
 
   auto str = mes;
   auto youstr = youmes;
@@ -3525,7 +3531,7 @@ void Object::FreeActions() {
       if (init.second == phase && busylist.count(init.first)) {
         //	if(init.first->IsAct(ACT_FIGHT))
         //	  fprintf(stderr, "Going at %d (%s)\n", phase,
-        // init.first->Name());
+        // init.first->Name().c_str());
         init.first->BusyAct();
       }
     }
@@ -3829,7 +3835,7 @@ int Object::Filter(int loc) {
 }
 
 int Object::LooksLike(Object* other, int vmode) {
-  if (std::string(Name()) != std::string(other->Name()))
+  if (Name() != other->Name())
     return 0;
   if (Pos() != other->Pos())
     return 0;
@@ -4485,14 +4491,15 @@ int Object::Wear(Object* targ, unsigned long masks, int mes) {
     if (locations.size() < 1) {
       if (mask == 1) {
         if (mes)
-          targ->SendF(ALL, -1, "You can't wear %s - it's not wearable!\n", targ->Name(0, this));
+          targ->SendF(
+              ALL, -1, "You can't wear %s - it's not wearable!\n", targ->Name(0, this).c_str());
       } else {
         if (mes)
           targ->SendF(
               ALL,
               -1,
               "You can't wear %s with what you are already wearing!\n",
-              targ->Name(0, this));
+              targ->Name(0, this).c_str());
       }
       break;
     }

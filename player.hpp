@@ -39,8 +39,8 @@ class Player {
   };
   int SaveTo(FILE*);
   int LoadFrom(FILE*);
-  const char* Name() {
-    return name.c_str();
+  std::string Name() {
+    return name;
   }
   void AddChar(Object*);
   const std::map<std::string, std::string> Vars() {

@@ -340,19 +340,19 @@ int save_net(const std::string& fn) {
     if (!(minds[sk]->Owner() || minds[sk]->Body())) {
       fprintf(fl, "%d\n", sk);
     } else if ((!(minds[sk]->Body())) && minds[sk]->LogFD() >= 0) {
-      fprintf(fl, "%d;%d:%s\n", sk, minds[sk]->LogFD(), minds[sk]->Owner()->Name());
+      fprintf(fl, "%d;%d:%s\n", sk, minds[sk]->LogFD(), minds[sk]->Owner()->Name().c_str());
     } else if (!(minds[sk]->Body())) {
-      fprintf(fl, "%d:%s\n", sk, minds[sk]->Owner()->Name());
+      fprintf(fl, "%d:%s\n", sk, minds[sk]->Owner()->Name().c_str());
     } else if (minds[sk]->LogFD() >= 0) {
       fprintf(
           fl,
           "%d;%d:%s:%d\n",
           sk,
           minds[sk]->LogFD(),
-          minds[sk]->Owner()->Name(),
+          minds[sk]->Owner()->Name().c_str(),
           getnum(minds[sk]->Body()));
     } else {
-      fprintf(fl, "%d:%s:%d\n", sk, minds[sk]->Owner()->Name(), getnum(minds[sk]->Body()));
+      fprintf(fl, "%d:%s:%d\n", sk, minds[sk]->Owner()->Name().c_str(), getnum(minds[sk]->Body()));
     }
   }
   sleep(1); // Make sure messages really get flushed!
