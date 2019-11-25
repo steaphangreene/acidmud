@@ -779,6 +779,17 @@ void Object::TBALoadMOB(const std::string& fn) {
             obj->SetGender('M');
           } else if (aliases[actr] == "wyv" || aliases[actr] == "ghenna") {
             // Ignore these, they're just typing short-cuts.
+          } else if (
+              aliases[actr] == "guard" && aliases.size() > (actr + 1) &&
+              aliases[actr + 1] == "royal") {
+            // Auto-fix royal guards who just show as "Jim" etc.
+            obj->SetShortDesc(obj->ShortDesc() + " the Royal Guard");
+          } else if (aliases[actr] == "guildguard") {
+            // Auto-fix guildguards who don't show they are that
+            if (obj->ShortDesc().substr(0, 4) == "the ")
+              obj->SetShortDesc(obj->ShortDesc() + " guildguard");
+            else
+              obj->SetShortDesc(obj->ShortDesc() + " the guildguard");
           } else {
             // fprintf(
             //    stderr,
