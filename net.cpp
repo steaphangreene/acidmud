@@ -418,7 +418,7 @@ void SendOut(int sock, const std::string& mes) {
   outbufs[sock] += mes;
 }
 
-void SetPrompt(int sock, const char* pr) {
-  //  fprintf(stderr, "Set %d's prompt to '%s'\n", sock, pr);
+void SetPrompt(int sock, const std::string& pr) {
+  //  fprintf(stderr, "Set %d's prompt to '%s'\n", sock, pr.c_str());
   prompts[sock] = pr;
 }

@@ -1529,7 +1529,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
       ++len;
     if (strlen(cmd.c_str() + len) <= 0) {
-      if (strncmp(mind->SpecialPrompt(), "say", 3)) {
+      if (strncmp(mind->SpecialPrompt().c_str(), "say", 3)) {
         mind->SetSpecialPrompt("say");
         mind->Send("Type what your character will say - exit by just hitting ENTER:");
       } else {
@@ -1560,7 +1560,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
       ++len;
     if (mind && strlen(cmd.c_str() + len) <= 0) {
-      if (strncmp(mind->SpecialPrompt(), "shout", 3)) {
+      if (strncmp(mind->SpecialPrompt().c_str(), "shout", 3)) {
         mind->SetSpecialPrompt("shout");
         mind->Send(
             "Type what your character will shout - exit by just hitting "
@@ -5942,7 +5942,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
       ++len;
     if (strlen(cmd.c_str() + len) <= 0) {
-      if (strncmp(mind->SpecialPrompt(), "ooc", 3)) {
+      if (strncmp(mind->SpecialPrompt().c_str(), "ooc", 3)) {
         mind->SetSpecialPrompt("ooc");
         mind->Send("Type your out-of-character text - exit by just hitting ENTER:");
       } else {
@@ -5968,7 +5968,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
       ++len;
     if (strlen(cmd.c_str() + len) <= 0) {
-      if (strncmp(mind->SpecialPrompt(), "newbie", 3)) {
+      if (strncmp(mind->SpecialPrompt().c_str(), "newbie", 3)) {
         mind->SetSpecialPrompt("newbie");
         mind->Send("Type your newbie-chat text - exit by just hitting ENTER:");
       } else {
@@ -6178,7 +6178,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->SendF("You add to the description of '%s'\n", targ->Name(0, body));
       }
     } else {
-      if (strncmp(mind->SpecialPrompt(), "nin des", 7)) {
+      if (strncmp(mind->SpecialPrompt().c_str(), "nin des", 7)) {
         mind->SetSpecialPrompt("nin des");
         mind->Send("Type the description - exit by just hitting ENTER:");
       } else {
@@ -6222,7 +6222,7 @@ int handle_single_command(Object* body, const char* inpline, Mind* mind) {
         mind->SendF("You add to the definition of '%s'\n", targ->Name(0, body));
       }
     } else {
-      if (strncmp(mind->SpecialPrompt(), "nin def", 7)) {
+      if (strncmp(mind->SpecialPrompt().c_str(), "nin def", 7)) {
         mind->SetSpecialPrompt("nin def");
         mind->Send("Type the definition - exit by just hitting ENTER:");
       } else {
@@ -7086,8 +7086,8 @@ int handle_command(Object* body, const std::string& cl, Mind* mind) {
   int ret = 0;
   const char *start = cl.c_str(), *end = cl.c_str();
 
-  if (mind && mind->SpecialPrompt()[0] != 0) {
-    std::string cmd = std::string(mind->SpecialPrompt()) + " " + cl.c_str();
+  if (mind && !mind->SpecialPrompt().empty()) {
+    std::string cmd = mind->SpecialPrompt() + " " + cl;
     ret = handle_single_command(body, cmd.c_str(), mind);
     return ret;
   }

@@ -3090,13 +3090,13 @@ int Mind::TBACanWanderTo(Object* dest) {
   return 1;
 }
 
-void Mind::SetSpecialPrompt(const char* newp) {
-  prompt = std::string(newp);
+void Mind::SetSpecialPrompt(const std::string& newp) {
+  prompt = newp;
   UpdatePrompt();
 }
 
-const char* Mind::SpecialPrompt() {
-  return prompt.c_str();
+std::string Mind::SpecialPrompt() {
+  return prompt;
 }
 
 Mind* new_mind(int tp, Object* obj, Object* obj2, Object* obj3, std::string text) {

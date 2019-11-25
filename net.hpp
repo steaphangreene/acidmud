@@ -13,7 +13,7 @@ int save_net(const char* fn);
 int load_net(const char* fn);
 
 void SendOut(int, const std::string&);
-void SetPrompt(int, const char*);
+void SetPrompt(int, const std::string&);
 
 class Mind;
 class Player;

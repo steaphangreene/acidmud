@@ -67,8 +67,8 @@ class Mind {
   void Suspend(int msec);
   void Disable();
 
-  void SetSpecialPrompt(const char* newp = "");
-  const char* SpecialPrompt();
+  void SetSpecialPrompt(const std::string& newp);
+  std::string SpecialPrompt();
 
   int Status() const;
   void ClearStatus();
