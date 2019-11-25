@@ -9,6 +9,9 @@
 #include <string>
 #include <vector>
 
+// Replace with C++20 std::format, when widely available
+#include <fmt/format.h>
+
 #include "color.hpp"
 #include "commands.hpp"
 #include "mind.hpp"
