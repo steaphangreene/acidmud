@@ -765,31 +765,38 @@ void Object::TBALoadMOB(const std::string& fn) {
       obj->SetSkill(crc32c("TBAMOB"), 1000000 + onum);
       bynummob[onum] = obj;
 
-      std::vector<std::string> aliases;
+      std::vector<std::string_view> aliases;
       memset(buf, 0, 65536); // Alias List
       fscanf(mudm, "%65535[^~\n]~\n", buf);
+      std::string buffer(buf, strlen(buf));
+      std::transform(buffer.begin(), buffer.end(), buffer.begin(), ascii_tolower);
+      std::string_view line = buffer;
 
-      const char* str;
-      const char* ind = buf;
-      while (sscanf(ind, " %ms", &str) > 0) {
-        ind += strlen(str) + 1;
-        aliases.emplace_back(std::string(str));
-        free((void*)(str));
-      }
+      ssize_t lbeg = 0;
+      ssize_t lend = 0;
+      do {
+        lbeg = line.find_first_not_of(" \t\r", lend);
+        if (lbeg != std::string::npos) {
+          lend = line.find_first_of(" \t\r", lbeg);
+          if (lend != std::string::npos) {
+            aliases.emplace_back(line.substr(lbeg, lend - lbeg));
+          } else {
+            aliases.emplace_back(line.substr(lbeg));
+          }
+        }
+      } while (lbeg != std::string::npos && lend != std::string::npos);
 
       obj->SetShortDesc(load_tba_field(mudm));
       // fprintf(stderr, "Loaded TBA Mobile with Name = %s\n", buf);
 
       std::string label = "";
       for (unsigned int actr = 0; actr < aliases.size(); ++actr) {
-        std::transform(
-            aliases[actr].begin(), aliases[actr].end(), aliases[actr].begin(), ascii_tolower);
-        if (!obj->Matches(aliases[actr].c_str())) {
+        if (!obj->Matches(std::string(aliases[actr]))) {
           if (aliases[actr].find_first_not_of(target_chars) != std::string::npos) {
             fprintf(
                 stderr,
                 CYEL "Warning: Ignoring non-alpha alias [%s] in #%d ('%s')\n" CNRM,
-                aliases[actr].c_str(),
+                std::string(aliases[actr]).c_str(),
                 obj->Skill(crc32c("TBAMOB")),
                 obj->ShortDesc().c_str());
           } else if (aliases[actr] == "woman" || aliases[actr] == "girl") {
@@ -813,10 +820,11 @@ void Object::TBALoadMOB(const std::string& fn) {
             // fprintf(
             //    stderr,
             //    CYEL "Warning: Adding [%s] to #%d ('%s')\n" CNRM,
-            //    aliases[actr].c_str(),
+            //    std::string(aliases[actr]).c_str(),
             //    obj->Skill(crc32c("TBAMOB")),
             //    obj->ShortDesc().c_str());
-            label += " " + aliases[actr];
+            label += " ";
+            label += aliases[actr];
             ++mob_aliases;
           }
         }
@@ -1211,31 +1219,38 @@ void Object::TBALoadOBJ(const std::string& fn) {
       obj->SetSkill(crc32c("TBAObject"), 2000000 + onum);
       bynumobj[onum] = obj;
 
-      std::vector<std::string> aliases;
+      std::vector<std::string_view> aliases;
       memset(buf, 0, 65536); // Alias List
       fscanf(mudo, "%65535[^~\n]~\n", buf);
+      std::string buffer(buf, strlen(buf));
+      std::transform(buffer.begin(), buffer.end(), buffer.begin(), ascii_tolower);
+      std::string_view line = buffer;
 
-      const char* str;
-      const char* ind = buf;
-      while (sscanf(ind, " %ms", &str) > 0) {
-        ind += strlen(str) + 1;
-        aliases.push_back(std::string(str));
-        free((void*)(str));
-      }
+      ssize_t lbeg = 0;
+      ssize_t lend = 0;
+      do {
+        lbeg = line.find_first_not_of(" \t\r", lend);
+        if (lbeg != std::string::npos) {
+          lend = line.find_first_of(" \t\r", lbeg);
+          if (lend != std::string::npos) {
+            aliases.emplace_back(line.substr(lbeg, lend - lbeg));
+          } else {
+            aliases.emplace_back(line.substr(lbeg));
+          }
+        }
+      } while (lbeg != std::string::npos && lend != std::string::npos);
 
       obj->SetShortDesc(load_tba_field(mudo));
       // fprintf(stderr, "Loaded TBA Object with Name = %s\n", buf);
 
       std::string label = "";
       for (unsigned int actr = 0; actr < aliases.size(); ++actr) {
-        std::transform(
-            aliases[actr].begin(), aliases[actr].end(), aliases[actr].begin(), ascii_tolower);
-        if (!obj->Matches(aliases[actr].c_str())) {
+        if (!obj->Matches(std::string(aliases[actr]))) {
           if (aliases[actr].find_first_not_of(target_chars) != std::string::npos) {
             fprintf(
                 stderr,
                 CYEL "Warning: Ignoring non-alpha alias [%s] in #%d ('%s')\n" CNRM,
-                aliases[actr].c_str(),
+                std::string(aliases[actr]).c_str(),
                 obj->Skill(crc32c("TBAObject")),
                 obj->ShortDesc().c_str());
           } else if (aliases[actr] == "wyv" || aliases[actr] == "ghenna") {
@@ -1248,10 +1263,11 @@ void Object::TBALoadOBJ(const std::string& fn) {
             // fprintf(
             //    stderr,
             //    CYEL "Warning: Adding [%s] to #%d ('%s')\n" CNRM,
-            //    aliases[actr].c_str(),
+            //    std::string(aliases[actr]).c_str(),
             //    obj->Skill(crc32c("TBAObject")),
             //    obj->ShortDesc().c_str());
-            label += " " + aliases[actr];
+            label += " ";
+            label += aliases[actr];
             ++obj_aliases;
           }
         }
