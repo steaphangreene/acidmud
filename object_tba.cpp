@@ -241,6 +241,35 @@ Mind* get_tba_mob_mind() {
   return tba_mob_mind;
 }
 
+// Format: Strings, terminated by only an EoL '~'.
+// ...other '~' characters are valid components.
+std::string load_tba_field(FILE* fd) {
+  std::string ret = "";
+  {
+    char buffer[65536] = {};
+    if (!fscanf(fd, "%65535[^\n]%*c", buffer)) {
+      fscanf(fd, "%*c");
+    } else {
+      ret = buffer;
+    }
+  }
+  while (ret.back() != '~') {
+    char buffer[65536] = {};
+    ret += "\n";
+    if (!fscanf(fd, "%65535[^\n]%*c", buffer)) {
+      fscanf(fd, "%*c");
+    } else {
+      ret += buffer;
+    }
+  }
+
+  ret.pop_back(); // Remove the terminating '~'
+
+  std::transform(ret.begin(), ret.end(), ret.begin(), [](auto c) { return (c == ';') ? ',' : c; });
+
+  return ret;
+}
+
 Object* dup_tba_obj(Object* obj) {
   Object* obj2 = nullptr;
   if (obj->Skill(crc32c("Wearable on Left Hand")) != obj->Skill(crc32c("Wearable on Right Hand"))) {
@@ -748,17 +777,7 @@ void Object::TBALoadMOB(const std::string& fn) {
         free((void*)(str));
       }
 
-      memset(buf, 0, 65536);
-      fscanf(mudm, "%65535[^\r\n]\n", buf);
-      {
-        char* ch;
-        for (ch = buf; (*ch); ++ch)
-          if ((*ch) == ';')
-            (*ch) = ',';
-        if (ch[-1] == '~')
-          ch[-1] = 0; // Kill Trailing '~'
-      }
-      obj->SetShortDesc(buf);
+      obj->SetShortDesc(load_tba_field(mudm));
       // fprintf(stderr, "Loaded TBA Mobile with Name = %s\n", buf);
 
       std::string label = "";
@@ -808,29 +827,16 @@ void Object::TBALoadMOB(const std::string& fn) {
         obj->SetShortDesc(obj->ShortDesc() + " " + label);
       }
 
-      memset(buf, 0, 65536);
-      if (!fscanf(mudm, "%65535[^~]~\n", buf))
-        fscanf(mudm, "%*[^\n\r]\n");
-      else {
-        for (char* ch = buf; (*ch); ++ch)
-          if ((*ch) == ';')
-            (*ch) = ',';
-        obj->SetDesc(buf);
-      }
+      obj->SetDesc(load_tba_field(mudm));
       // fprintf(stderr, "Loaded TBA Mobile with Desc = %s\n", buf);
 
-      memset(buf, 0, 65536);
-      if (!fscanf(mudm, "%65535[^~]~\n", buf))
-        fscanf(mudm, "%*[^\n\r]\n");
-      else {
-        for (char* ch = buf; (*ch); ++ch)
-          if ((*ch) == ';')
-            (*ch) = ',';
-        if (buf[0] != '.')
-          obj->SetLongDesc(buf);
-        else { // Hidden MOBs
+      auto field = load_tba_field(mudm);
+      if (field.length() > 0) {
+        if (field[0] != '.') {
+          obj->SetLongDesc(field);
+        } else { // Hidden MOBs
           obj->SetSkill(crc32c("Hidden"), 10);
-          obj->SetLongDesc(buf + 1);
+          obj->SetLongDesc(field.substr(1));
         }
       }
       // fprintf(stderr, "Loaded TBA Mobile with LongDesc = %s\n", buf);
@@ -1217,17 +1223,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
         free((void*)(str));
       }
 
-      memset(buf, 0, 65536); // Short Desc
-      fscanf(mudo, "%65535[^\r\n]\n", buf);
-      {
-        char* ch;
-        for (ch = buf; (*ch); ++ch)
-          if ((*ch) == ';')
-            (*ch) = ',';
-        if (ch[-1] == '~')
-          ch[-1] = 0; // Kill Trailing '~'
-      }
-      obj->SetShortDesc(buf);
+      obj->SetShortDesc(load_tba_field(mudo));
       // fprintf(stderr, "Loaded TBA Object with Name = %s\n", buf);
 
       std::string label = "";
@@ -1266,18 +1262,13 @@ void Object::TBALoadOBJ(const std::string& fn) {
         obj->SetShortDesc(obj->ShortDesc() + " " + label);
       }
 
-      memset(buf, 0, 65536); // Long Desc
-      if (!fscanf(mudo, "%65535[^~]~\n", buf))
-        fscanf(mudo, "%*[^\n\r]\n");
-      else {
-        for (char* ch = buf; (*ch); ++ch)
-          if ((*ch) == ';')
-            (*ch) = ',';
-        if (buf[0] != '.')
-          obj->SetDesc(buf);
-        else { // Hidden Objects
+      auto field = load_tba_field(mudo);
+      if (field.length() > 0) {
+        if (field[0] != '.') {
+          obj->SetLongDesc(field);
+        } else { // Hidden Objects
           obj->SetSkill(crc32c("Hidden"), 10);
-          obj->SetDesc(buf + 1);
+          obj->SetLongDesc(field.substr(1));
         }
       }
       // fprintf(stderr, "Loaded TBA Object with Desc = %s\n", buf);
@@ -2309,25 +2300,10 @@ void Object::TBALoadWLD(const std::string& fn) {
       obj->SetSize(-1);
       obj->SetValue(-1);
 
-      memset(buf, 0, 65536);
-      fscanf(mud, "%65535[^\r\n]\n", buf);
-      {
-        char* ch;
-        for (ch = buf; (*ch); ++ch)
-          if ((*ch) == ';')
-            (*ch) = ',';
-        if (ch[-1] == '~')
-          ch[-1] = 0; // Kill Trailing '~'
-      }
-      obj->SetShortDesc(buf);
+      obj->SetShortDesc(load_tba_field(mud));
       // fprintf(stderr, "Loaded TBA Room with Name = %s\n", buf);
 
-      memset(buf, 0, 65536);
-      fscanf(mud, "%65535[^~]~\n", buf);
-      for (char* ch = buf; (*ch); ++ch)
-        if ((*ch) == ';')
-          (*ch) = ',';
-      obj->SetDesc(buf);
+      obj->SetDesc(load_tba_field(mud));
       // fprintf(stderr, "Loaded TBA Room with Desc = %s\n", buf);
 
       int val;
