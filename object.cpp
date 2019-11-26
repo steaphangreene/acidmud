@@ -2307,56 +2307,56 @@ int Object::ContainedVolume() {
   return ret;
 }
 
-static int get_ordinal(const std::string& text) {
-  int ret = 0, len = 0;
-  while (isgraph(text[len]))
-    ++len;
+static int get_ordinal(const std::string& t) {
+  int ret = 0;
+
+  std::string_view text = t;
   if (isdigit(text[0])) {
-    const char* suf = text.c_str();
-    while (isdigit(*suf))
-      ++suf;
-    if (!strncmp(suf, "st", 2))
-      ret = atoi(text.c_str());
-    else if (!strncmp(suf, "nd", 2))
-      ret = atoi(text.c_str());
-    else if (!strncmp(suf, "rd", 2))
-      ret = atoi(text.c_str());
-    else if (!strncmp(suf, "th", 2))
-      ret = atoi(text.c_str());
-    if (ret && isgraph(suf[2]))
-      ret = 0;
-    if (suf[0] == '.')
-      ret = atoi(text.c_str());
-    if (!isgraph(*suf))
-      ret = -atoi(text.c_str());
-  } else if (!strncmp(text.c_str(), "first ", 6))
+    text.remove_prefix(std::min(text.find_first_not_of("0123456789"), text.size()));
+    if (text[0] == '.') {
+      ret = atoi(t.c_str());
+    } else if (!isgraph(text[0])) {
+      ret = -atoi(t.c_str());
+    } else if (text.length() >= 3 && isgraph(text[2])) {
+      if (text.substr(0, 2) == "st") {
+        ret = atoi(t.c_str());
+      } else if (text.substr(0, 2) == "nd") {
+        ret = atoi(t.c_str());
+      } else if (text.substr(0, 2) == "rd") {
+        ret = atoi(t.c_str());
+      } else if (text.substr(0, 2) == "th") {
+        ret = atoi(t.c_str());
+      }
+    }
+  } else if (text.substr(0, 6) == "first ") {
     ret = 1;
-  else if (!strncmp(text.c_str(), "second ", 7))
+  } else if (text.substr(0, 7) == "second ") {
     ret = 2;
-  else if (!strncmp(text.c_str(), "third ", 6))
+  } else if (text.substr(0, 6) == "third ") {
     ret = 3;
-  else if (!strncmp(text.c_str(), "fourth ", 7))
+  } else if (text.substr(0, 7) == "fourth ") {
     ret = 4;
-  else if (!strncmp(text.c_str(), "fifth ", 6))
+  } else if (text.substr(0, 6) == "fifth ") {
     ret = 5;
-  else if (!strncmp(text.c_str(), "sixth ", 6))
+  } else if (text.substr(0, 6) == "sixth ") {
     ret = 6;
-  else if (!strncmp(text.c_str(), "seventh ", 8))
+  } else if (text.substr(0, 8) == "seventh ") {
     ret = 7;
-  else if (!strncmp(text.c_str(), "eighth ", 7))
+  } else if (text.substr(0, 7) == "eighth ") {
     ret = 8;
-  else if (!strncmp(text.c_str(), "ninth ", 6))
+  } else if (text.substr(0, 6) == "ninth ") {
     ret = 9;
-  else if (!strncmp(text.c_str(), "tenth ", 6))
+  } else if (text.substr(0, 6) == "tenth ") {
     ret = 10;
-  else if (!strncmp(text.c_str(), "all ", 4))
+  } else if (text.substr(0, 4) == "all ") {
     ret = ALL;
-  else if (!strncmp(text.c_str(), "all.", 4))
+  } else if (text.substr(0, 4) == "all.") {
     ret = ALL;
-  else if (!strncmp(text.c_str(), "some ", 5))
+  } else if (text.substr(0, 5) == "some ") {
     ret = SOME;
-  else if (!strncmp(text.c_str(), "some.", 5))
+  } else if (text.substr(0, 5) == "some.") {
     ret = SOME;
+  }
   return ret;
 }
 
