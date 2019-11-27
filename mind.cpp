@@ -1634,7 +1634,7 @@ int Mind::TBARunLine(std::string line) {
   }
 
   else if ((!strncmp(line.c_str(), "eval ", 5)) || (!strncmp(line.c_str(), "set ", 4))) {
-    char coml = tolower(line[0]); // To tell eval from set later.
+    char coml = ascii_tolower(line[0]); // To tell eval from set later.
     size_t lpos = line.find_first_not_of(" \t", 4);
     if (lpos != std::string::npos) {
       line = line.substr(lpos);
@@ -2505,7 +2505,7 @@ int Mind::TBARunLine(std::string line) {
     Object* dest = ovars["self"];
     Object* item = nullptr;
     params = sscanf(line.c_str() + 5, " %s %d %s %s", buf2, &valnum, targ, where);
-    tbatype = tolower(buf2[0]);
+    tbatype = ascii_tolower(buf2[0]);
     if ((params != 2 && params != 4) || (tbatype != 'o' && tbatype != 'm')) {
       fprintf(
           stderr,

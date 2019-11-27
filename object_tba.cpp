@@ -2627,7 +2627,7 @@ void Object::TBALoadSHP(const std::string& fn) {
 
           for (auto type : types) { // Buy Types
             for (unsigned int ctr = 1; isalpha(type[ctr]); ++ctr) {
-              type[ctr] = tolower(type[ctr]);
+              type[ctr] = ascii_tolower(type[ctr]);
             }
 
             std::string extra = type;

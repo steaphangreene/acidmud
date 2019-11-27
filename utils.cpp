@@ -79,9 +79,9 @@ int phrase_match(const std::string& str, const std::string& phrase) {
   if (phrase.length() == 0)
     return 0;
 
-  if (std::any_of(str.cbegin(), str.cend(), ::isupper)) {
+  if (std::any_of(str.cbegin(), str.cend(), ascii_isupper)) {
     std::string str2 = str;
-    std::transform(str2.begin(), str2.end(), str2.begin(), ::tolower);
+    std::transform(str2.begin(), str2.end(), str2.begin(), ascii_tolower);
     return phrase_match_sensitive(str2, phrase);
   } else {
     return phrase_match_sensitive(str, phrase);

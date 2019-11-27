@@ -861,12 +861,12 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
 
   // Lowercase the command portion, and only that portion, for now.
   auto clen = cmd.find_first_not_of("abcdefghijklmnopqrstuvwxyz");
-  if (clen != std::string::npos && clen < cmd.length() && std::isupper(cmd[clen])) {
+  if (clen != std::string::npos && clen < cmd.length() && ascii_isupper(cmd[clen])) {
     clen = cmd.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
     if (clen == std::string::npos || clen >= cmd.length()) {
-      std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
+      std::transform(cmd.begin(), cmd.end(), cmd.begin(), ascii_tolower);
     } else {
-      std::transform(cmd.begin(), cmd.begin() + clen, cmd.begin(), ::tolower);
+      std::transform(cmd.begin(), cmd.begin() + clen, cmd.begin(), ascii_tolower);
     }
   }
 
@@ -961,7 +961,7 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
   if (cnum != COM_NONE && (comlist[cnum].sit & CMD_FLAVORTEXT) == 0) {
     auto fclen = cmd.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     if (fclen != std::string::npos && fclen < cmd.length()) {
-      std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
+      std::transform(cmd.begin(), cmd.end(), cmd.begin(), ascii_tolower);
     }
   }
 
@@ -1543,7 +1543,7 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
       return 0;
     } else {
       bool shouting =
-          (cmd.length() >= 4 + len && !std::any_of(cmd.begin() + len, cmd.end(), ::islower));
+          (cmd.length() >= 4 + len && !std::any_of(cmd.begin() + len, cmd.end(), ascii_islower));
       if (!shouting) {
         body->Parent()->SendOutF(
             ALL, 0, ";s says '%s'\n", "You say '%s'\n", body, body, cmd.c_str() + len);
@@ -1573,7 +1573,7 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
         len += 4;
 
       std::string mes = cmd.substr(len);
-      std::transform(mes.begin(), mes.end(), mes.begin(), ::toupper);
+      std::transform(mes.begin(), mes.end(), mes.begin(), ascii_toupper);
       body->Parent()->SendOutF(
           ALL, 0, ";s shouts '%s'!!!\n", "You shout '%s'!!!\n", body, body, mes.c_str());
       body->Parent()->LoudF(body->Skill(crc32c("Strength")), "someone shout '%s'!!!", mes.c_str());
@@ -1617,7 +1617,7 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
           replace_all(outmes, "$t", targ->Name(1));
           replace_all(outmes, "$p", targ->Name(1));
         }
-        outmes[0] = toupper(outmes[0]);
+        outmes[0] = ascii_toupper(outmes[0]);
         outmes += "\n";
       }
       if (youmes[0]) {
@@ -1633,7 +1633,7 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
           replace_all(youmes, "$t", targ->Name(1));
           replace_all(youmes, "$p", targ->Name(1));
         }
-        youmes[0] = toupper(youmes[0]);
+        youmes[0] = ascii_toupper(youmes[0]);
         youmes += "\n";
       }
       if (targ) {
@@ -1649,7 +1649,7 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
           replace_all(targmes, "$t", targ->Name(1));
           replace_all(targmes, "$p", targ->Name(1));
         }
-        targmes[0] = toupper(targmes[0]);
+        targmes[0] = ascii_toupper(targmes[0]);
         targmes += "\n";
         targ->Send(0, 0, targmes.c_str());
         targ->Deafen(1);
@@ -1853,7 +1853,7 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
             denied += targ->Name(1);
             denied += ".\n";
           }
-          denied[0] = toupper(denied[0]);
+          denied[0] = ascii_toupper(denied[0]);
         }
       }
       if ((!nmode) && (!denied.empty())) {
@@ -1918,7 +1918,7 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
             denied += " is closed and locked so you can't get to ";
             denied += targ->Name(1);
             denied += ".\n";
-            denied[0] = toupper(denied[0]);
+            denied[0] = ascii_toupper(denied[0]);
           }
         }
       }
@@ -2221,7 +2221,7 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
       if (mind) {
         int diff;
         std::string mes = targ->Name() + "...\n";
-        mes[0] = toupper(mes[0]);
+        mes[0] = ascii_toupper(mes[0]);
         mind->Send(mes.c_str());
 
         if ((!targ->ActTarg(ACT_WIELD)) && (!body->ActTarg(ACT_WIELD))) {
@@ -2759,7 +2759,7 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
             if (mind) {
               std::string mes = targ->Name(0, body);
               mes += " is worthless.\n";
-              mes[0] = toupper(mes[0]);
+              mes[0] = ascii_toupper(mes[0]);
               mind->Send(mes.c_str());
             }
             continue;
@@ -2853,7 +2853,7 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
         std::string mes = targ->Name(0, body);
         mes += " is a container.";
         mes += "  You can't sell containers (yet).\n";
-        mes[0] = toupper(mes[0]);
+        mes[0] = ascii_toupper(mes[0]);
         mind->Send(mes.c_str());
       }
       return 0;
@@ -2864,7 +2864,7 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
         std::string mes = targ->Name(0, body);
         mes += " is not empty.";
         mes += "  You must empty it before you can sell it.\n";
-        mes[0] = toupper(mes[0]);
+        mes[0] = ascii_toupper(mes[0]);
         mind->Send(mes.c_str());
       }
       return 0;
@@ -3184,7 +3184,7 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
             denied += " is closed and locked so you can't get to ";
             denied += targ->Name(1);
             denied += ".\n";
-            denied[0] = toupper(denied[0]);
+            denied[0] = ascii_toupper(denied[0]);
           }
         }
 
@@ -3959,7 +3959,7 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
             denied += targ->Name(1);
             denied += ".\n";
           }
-          denied[0] = toupper(denied[0]);
+          denied[0] = ascii_toupper(denied[0]);
         }
       }
       if ((!nmode) && (!denied.empty())) {
@@ -5510,17 +5510,17 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
         (!strncmp(cmd.c_str() + len, "intelligence", strlen(cmd.c_str() + len))) ||
         (!strncmp(cmd.c_str() + len, "willpower", strlen(cmd.c_str() + len)))) {
       int attr = 0;
-      if (toupper(*(cmd.c_str() + len)) == 'B')
+      if (ascii_toupper(*(cmd.c_str() + len)) == 'B')
         attr = 0;
-      else if (toupper(*(cmd.c_str() + len)) == 'Q')
+      else if (ascii_toupper(*(cmd.c_str() + len)) == 'Q')
         attr = 1;
-      else if (toupper(*(cmd.c_str() + len)) == 'S')
+      else if (ascii_toupper(*(cmd.c_str() + len)) == 'S')
         attr = 2;
-      else if (toupper(*(cmd.c_str() + len)) == 'C')
+      else if (ascii_toupper(*(cmd.c_str() + len)) == 'C')
         attr = 3;
-      else if (toupper(*(cmd.c_str() + len)) == 'I')
+      else if (ascii_toupper(*(cmd.c_str() + len)) == 'I')
         attr = 4;
-      else if (toupper(*(cmd.c_str() + len)) == 'W')
+      else if (ascii_toupper(*(cmd.c_str() + len)) == 'W')
         attr = 5;
 
       if (chr->NormAttribute(attr) < 3) {
@@ -5581,17 +5581,17 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
         return 0;
       }
       int attr = 0;
-      if (toupper(*(cmd.c_str() + len)) == 'B')
+      if (ascii_toupper(*(cmd.c_str() + len)) == 'B')
         attr = 0;
-      else if (toupper(*(cmd.c_str() + len)) == 'Q')
+      else if (ascii_toupper(*(cmd.c_str() + len)) == 'Q')
         attr = 1;
-      else if (toupper(*(cmd.c_str() + len)) == 'S')
+      else if (ascii_toupper(*(cmd.c_str() + len)) == 'S')
         attr = 2;
-      else if (toupper(*(cmd.c_str() + len)) == 'C')
+      else if (ascii_toupper(*(cmd.c_str() + len)) == 'C')
         attr = 3;
-      else if (toupper(*(cmd.c_str() + len)) == 'I')
+      else if (ascii_toupper(*(cmd.c_str() + len)) == 'I')
         attr = 4;
-      else if (toupper(*(cmd.c_str() + len)) == 'W')
+      else if (ascii_toupper(*(cmd.c_str() + len)) == 'W')
         attr = 5;
 
       if (body && chr->TotalExp() < 20) {
@@ -6876,15 +6876,15 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
       return 0;
     }
     int stat = 0;
-    if (toupper(cmd[len]) == 'Q')
+    if (ascii_toupper(cmd[len]) == 'Q')
       stat = 1;
-    if (toupper(cmd[len]) == 'S')
+    if (ascii_toupper(cmd[len]) == 'S')
       stat = 2;
-    if (toupper(cmd[len]) == 'C')
+    if (ascii_toupper(cmd[len]) == 'C')
       stat = 3;
-    if (toupper(cmd[len]) == 'I')
+    if (ascii_toupper(cmd[len]) == 'I')
       stat = 4;
-    if (toupper(cmd[len]) == 'W')
+    if (ascii_toupper(cmd[len]) == 'W')
       stat = 5;
 
     if (targ->NormAttribute(stat) == 0) {
@@ -6917,15 +6917,15 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
       return 0;
     }
     int stat = 0;
-    if (toupper(cmd[len]) == 'Q')
+    if (ascii_toupper(cmd[len]) == 'Q')
       stat = 1;
-    if (toupper(cmd[len]) == 'S')
+    if (ascii_toupper(cmd[len]) == 'S')
       stat = 2;
-    if (toupper(cmd[len]) == 'C')
+    if (ascii_toupper(cmd[len]) == 'C')
       stat = 3;
-    if (toupper(cmd[len]) == 'I')
+    if (ascii_toupper(cmd[len]) == 'I')
       stat = 4;
-    if (toupper(cmd[len]) == 'W')
+    if (ascii_toupper(cmd[len]) == 'W')
       stat = 5;
 
     if (targ->NormAttribute(stat) == 0) {

@@ -1226,7 +1226,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
             send += ind->ActTarg(ACT_SPECIAL_LINKED)->Parent()->ShortDesc();
             send += ".\n";
           }
-          send[0] = toupper(send[0]);
+          send[0] = ascii_toupper(send[0]);
           m->Send(send.c_str());
           m->Send(CNRM);
         }
@@ -1278,7 +1278,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
           sprintf(buf, "%s%c", ind->ShortDesc().c_str(), 0);
         else
           sprintf(buf, "%s %s%c", ind->ShortDesc().c_str(), ind->PosString().c_str(), 0);
-        buf[0] = toupper(buf[0]);
+        buf[0] = ascii_toupper(buf[0]);
         m->Send(buf);
 
         ind->SendActions(m);
@@ -1410,7 +1410,7 @@ void Object::SendFullSituation(Mind* m, Object* o) {
     sprintf(buf, "%s %s in %s%c", Name().c_str(), PosString().c_str(), pname.c_str(), 0);
   }
 
-  buf[0] = toupper(buf[0]);
+  buf[0] = ascii_toupper(buf[0]);
   m->Send(buf);
 }
 
@@ -1424,13 +1424,13 @@ void Object::SendDesc(Mind* m, Object* o) {
   } else {
     m->Send(CCYN);
     sprintf(buf, "%s\n%c", ShortDesc().c_str(), 0);
-    buf[0] = toupper(buf[0]);
+    buf[0] = ascii_toupper(buf[0]);
     m->Send(buf);
   }
 
   m->SendF("%s   ", CNRM);
   sprintf(buf, "%s\n%c", Desc().c_str(), 0);
-  buf[0] = toupper(buf[0]);
+  buf[0] = ascii_toupper(buf[0]);
   m->Send(buf);
   m->Send(CNRM);
 }
@@ -1447,13 +1447,13 @@ void Object::SendDescSurround(Mind* m, Object* o, int vmode) {
   } else {
     m->Send(CCYN);
     sprintf(buf, "%s\n%c", ShortDesc().c_str(), 0);
-    buf[0] = toupper(buf[0]);
+    buf[0] = ascii_toupper(buf[0]);
     m->Send(buf);
   }
 
   m->SendF("%s   ", CNRM);
   sprintf(buf, "%s\n%c", Desc().c_str(), 0);
-  buf[0] = toupper(buf[0]);
+  buf[0] = ascii_toupper(buf[0]);
   m->Send(buf);
 
   m->Send(CNRM);
@@ -1482,13 +1482,13 @@ void Object::SendLongDesc(Mind* m, Object* o) {
   } else {
     m->Send(CCYN);
     sprintf(buf, "%s\n%c", ShortDesc().c_str(), 0);
-    buf[0] = toupper(buf[0]);
+    buf[0] = ascii_toupper(buf[0]);
     m->Send(buf);
   }
 
   m->SendF("%s   ", CNRM);
   sprintf(buf, "%s\n%c", LongDesc().c_str(), 0);
-  buf[0] = toupper(buf[0]);
+  buf[0] = ascii_toupper(buf[0]);
   m->Send(buf);
   m->Send(CNRM);
 }
@@ -3024,7 +3024,7 @@ void Object::Send(int tnum, int rsucc, const std::string& mes) {
   if (no_hear)
     return;
   auto tosend = mes;
-  tosend[0] = toupper(tosend[0]);
+  tosend[0] = ascii_toupper(tosend[0]);
 
   for (auto mind : minds) {
     Object* body = mind->Body();
