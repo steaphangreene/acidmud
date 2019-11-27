@@ -1058,7 +1058,7 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
 
   if (body) {
     if (body->StillBusy() && (comlist[cnum].sit & SIT_ACTION)) {
-      body->DoWhenFree(cmd);
+      body->DoWhenFree(std::string(comlist[cnum].command) + " " + cmd);
       return 0;
     }
     if (comlist[cnum].sit & (SIT_ALIVE | SIT_AWAKE | SIT_ALERT)) {
@@ -4996,7 +4996,10 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
     if (!attacknow) {
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s moves to attack ;s.\n", "You move to attack ;s.\n", body, targ);
-      body->BusyWith(body, cmd); // HACK!  Make this command used first rnd!
+
+      // HACK!  Make this command used first rnd!
+      body->BusyWith(body, std::string(comlist[cnum].command) + " " + cmd);
+
       return 2; // No more actions until next round!
     }
 
@@ -7104,35 +7107,35 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
 
 int handle_command(Object* body, const std::string& cl, Mind* mind) {
   int ret = 0;
-  const char* start = cl.c_str();
-  const char* end = cl.c_str();
 
   if (mind && !mind->SpecialPrompt().empty()) {
     std::string cmd = mind->SpecialPrompt() + " " + cl;
-    ret = handle_single_command(body, cmd.c_str(), mind);
+    ret = handle_single_command(body, cmd, mind);
     return ret;
   }
 
-  while (1) {
-    if ((*end) == '\n' || (*end) == '\r' || (*end) == ';' || (*end) == 0) {
-      if (end > start) {
-        int len = end - start;
-        char buf[len + 1];
-        memcpy(buf, start, len);
-        buf[len] = 0;
+  auto start = cl.find_first_not_of("; \t\r\n");
+  auto end = start;
+  while (start != std::string::npos) {
+    end = cl.find_first_of(";\r\n", start + 1);
 
-        int stat = handle_single_command(body, buf, mind);
-        if (stat < 0)
-          return stat;
-        else if (ret == 0)
-          ret = stat;
-      }
-      start = end;
-      ++start;
+    std::string_view single(cl);
+    if (end != std::string::npos) {
+      single = single.substr(start, end - start);
+    } else {
+      single = single.substr(start);
     }
-    if ((*end) == 0)
-      break;
-    ++end;
+
+    int stat = handle_single_command(body, std::string(single), mind);
+    if (stat < 0)
+      return stat;
+    else if (ret == 0)
+      ret = stat;
+    if (end != std::string::npos) {
+      start = cl.find_first_not_of("; \t\r\n", end + 1);
+    } else {
+      start = std::string::npos;
+    }
   }
   return ret;
 }
