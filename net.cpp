@@ -69,29 +69,34 @@ void notify_player_deleted(Player* pl) {
 }
 
 void handle_input(socket_t in_s) {
-  int amt;
   static char buf[4096];
-  memset(buf, 0, 4096);
-  amt = read(in_s, buf, 4095);
+  auto amt = read(in_s, buf, 4095);
 
-  if (amt == 0) {
+  if (amt <= 0) {
     drop_socket(in_s);
     return;
   }
+
+  std::string_view input(buf, amt);
 
   Mind* mind = nullptr;
   if (minds.count(in_s))
     mind = minds[in_s];
 
-  for (char* ind = buf; (*ind); ++ind) {
-    if ((*ind) == '\b' || (*ind) == '\x7F') {
+  int skip = 0;
+  for (auto ch : input) {
+    if (skip > 0) {
+      --skip;
+      continue;
+    }
+    if (ch == '\b' || ch == '\x7F') {
       if (comlines[in_s].length() > 0) {
         comlines[in_s] = comlines[in_s].substr(0, comlines[in_s].length() - 1);
         mind->SendRaw("\b \b");
       }
-    } else if ((*ind) == '\r') {
+    } else if (ch == '\r') {
       // Ignore these, since they mean nothing unless teamed with \n anyway.
-    } else if ((*ind) == '\n') {
+    } else if (ch == '\n') {
       outbufs[in_s] += ""; // Make sure they still get a prompt!
 
       if ((mind->PName().length() <= 0 || mind->Owner()) && mind->LogFD() >= 0)
@@ -104,13 +109,12 @@ void handle_input(socket_t in_s) {
       comlines[in_s] = "";
       if (result < 0)
         return; // Player Disconnected
-    } else if ((*ind) == char(IAC)) {
+    } else if (ch == char(IAC)) {
       // FIXME: actually HANDLE these messages!
       // FIXME: HANDLE these messages that don't come all at once!
-      ++ind;
-      ++ind;
+      skip = 2;
     } else {
-      comlines[in_s] += (*ind);
+      comlines[in_s] += ch;
     }
   }
 
