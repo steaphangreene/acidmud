@@ -888,7 +888,7 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
     else {
       int ctr;
       for (ctr = 0; ctr < int(cmd.length()); ++ctr) {
-        if (!(isalnum(cmd[ctr]) || cmd[ctr] == ' ')) {
+        if (!(ascii_isalnum(cmd[ctr]) || cmd[ctr] == ' ')) {
           mind->SendF(
               "Name '%s' is invalid.\nNames can only have letters, "
               "numbers, and spaces.\n",
@@ -5679,7 +5679,7 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
       return 0;
     }
 
-    if (!std::all_of(cmd.begin() + len, cmd.end(), ::isalpha)) {
+    if (!std::all_of(cmd.begin() + len, cmd.end(), ascii_isalpha)) {
       mind->Send(
           "Sorry, character names can only contain letters.\n"
           "Pick another name.\n");

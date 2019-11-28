@@ -2626,7 +2626,7 @@ void Object::TBALoadSHP(const std::string& fn) {
           keeper->SetSkill(crc32c("Sell Profit"), (int)(num * 1000.0 + 0.5));
 
           for (auto type : types) { // Buy Types
-            for (unsigned int ctr = 1; isalpha(type[ctr]); ++ctr) {
+            for (unsigned int ctr = 1; ascii_isalpha(type[ctr]); ++ctr) {
               type[ctr] = ascii_tolower(type[ctr]);
             }
 

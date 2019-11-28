@@ -266,8 +266,8 @@ std::string Mind::TBAComp(std::string expr) {
   if (expr[0] == '!')
     skip = 1; // Skip Leading "!"
   size_t op = expr.find_first_of("|&=!<>/-+*", skip);
-  while (op != std::string::npos && expr[op] == '-' && isalpha(expr[op - 1]) &&
-         isalpha(expr[op + 1])) {
+  while (op != std::string::npos && expr[op] == '-' && ascii_isalpha(expr[op - 1]) &&
+         ascii_isalpha(expr[op + 1])) {
     op = expr.find_first_of("|&=!<>/-+*", op + 1); // Skip Hyphens
   }
   if (op == std::string::npos)
