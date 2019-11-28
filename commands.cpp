@@ -832,7 +832,7 @@ com_t identify_command(const std::string& str, bool corporeal) {
       continue; // Don't match between modes
 
     if (!strncmp(str.c_str(), std::string(comlist[ctr].command).c_str(), len)) {
-      return comlist[ctr].id;
+      return com_t(ctr); // Not .id - as all social commands share the same one.
     }
     // Command Aliases
     if (comlist[ctr].id == COM_SAY && (str[0] == '\'' || str[0] == '"')) {
@@ -1582,7 +1582,7 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
     return 0;
   }
 
-  if (cnum == COM_SOCIAL) {
+  if (cnum >= COM_SOCIAL) {
     Object* targ = nullptr;
     while (len < int(cmd.length()) && (!isgraph(cmd[len])))
       ++len;
@@ -7101,7 +7101,8 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
     return 0;
   }
 
-  mind->Send("Sorry, that command's not yet implemented.\n");
+  if (mind)
+    mind->Send("Sorry, that command's not yet implemented.\n");
   return 0;
 }
 

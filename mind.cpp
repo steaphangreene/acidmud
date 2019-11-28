@@ -1602,7 +1602,7 @@ int Mind::TBARunLine(std::string line) {
     return 1;
   }
 
-  com_t com = identify_command(line, true); // ComNum for Pass-Through
+  int com = identify_command(line, true); // ComNum for Pass-Through
 
   //  //Start of script command if/else if/else
   //  if(line.find("%") != line.rfind("%")) {		//More than one '%'
@@ -2748,9 +2748,9 @@ int Mind::TBARunLine(std::string line) {
   // Player commands Acid shares with TBA, not requiring arguments
   else if (
       com == COM_NORTH || com == COM_SOUTH || com == COM_EAST || com == COM_WEST || com == COM_UP ||
-      com == COM_DOWN || com == COM_SOCIAL || com == COM_SLEEP || com == COM_REST ||
-      com == COM_WAKE || com == COM_STAND || com == COM_SIT || com == COM_LIE || com == COM_LOOK ||
-      com == COM_FLEE) {
+      com == COM_DOWN || com == COM_SLEEP || com == COM_REST || com == COM_WAKE ||
+      com == COM_STAND || com == COM_SIT || com == COM_LIE || com == COM_LOOK || com == COM_FLEE ||
+      com >= COM_SOCIAL) {
     handle_command(ovars["self"], line.c_str());
   }
 
