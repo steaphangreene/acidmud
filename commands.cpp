@@ -5065,8 +5065,11 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
     int offense = body->Roll(
         sk1,
         targ->SkillTarget(sk2) - reachmod + body->Modifier("Accuracy") - targ->Modifier("Evasion"),
-        &rolls_offense);
-    int defense = targ->Roll(sk2, body->SkillTarget(sk1) + reachmod, &rolls_defense);
+        (is_pc(body) || is_pc(targ)) ? &rolls_offense : nullptr);
+    int defense = targ->Roll(
+        sk2,
+        body->SkillTarget(sk1) + reachmod,
+        (is_pc(body) || is_pc(targ)) ? &rolls_defense : nullptr);
     int succ = offense - defense;
 
     int loc = rand() % 100;

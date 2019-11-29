@@ -473,7 +473,7 @@ class Object {
   friend void player_rooms_erase(Object*);
 };
 
-int roll(int ndice, int targ);
+int roll(int ndice, int targ, std::string* res = nullptr);
 
 void init_world();
 void save_world(int with_net = 0);

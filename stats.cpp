@@ -124,18 +124,26 @@ std::vector<uint32_t> get_skills(std::string cat) {
   return ret;
 }
 
-int roll(int ndice, int targ) {
-  int ret = 0, ctr;
-  for (ctr = 0; ctr < ndice; ++ctr) {
+int roll(int ndice, int targ, std::string* res) {
+  int succ = 0;
+  for (int die = 0; die < ndice; ++die) {
     int val = 1 + (rand() % 6);
     while ((val % 6) == 0)
       val += (1 + rand() % 6);
+    if (res) {
+      char buffer[16];
+      sprintf(buffer, "%d,", val);
+      (*res) += buffer;
+    }
     if (val > 1 && val >= targ) {
       unsigned int numwrap = (unsigned int)((val - targ) / 12);
-      ret += (1 + int(numwrap));
+      succ += (1 + int(numwrap));
     }
   }
-  return ret;
+  if (res && !res->empty()) {
+    res->pop_back();
+  }
+  return succ;
 }
 
 void Object::SetAttribute(int a, int v) {
@@ -287,7 +295,8 @@ int Object::RollNoWounds(uint32_t stok, int targ, int penalty, std::string* res)
     return 0;
   }
 
-  succ = roll(abs(dice), (targ - mod) + penalty);
+  std::string rolls = "";
+  succ = roll(abs(dice), (targ - mod) + penalty, &rolls);
 
   if (res) {
     char buffer[256];
@@ -296,12 +305,22 @@ int Object::RollNoWounds(uint32_t stok, int targ, int penalty, std::string* res)
     (*res) += "(";
     sprintf(buffer, "%d%c", targ, 0);
     (*res) += buffer;
-    (*res) += ")+";
-    sprintf(buffer, "%d%c", mod, 0);
-    (*res) += buffer;
-    (*res) += "-";
-    sprintf(buffer, "%d%c", penalty, 0);
-    (*res) += buffer;
+    (*res) += ")";
+    if (mod > 0) {
+      (*res) += "+";
+      sprintf(buffer, "%d%c", mod, 0);
+      (*res) += buffer;
+    }
+    if (penalty > 0) {
+      (*res) += "-";
+      sprintf(buffer, "%d%c", penalty, 0);
+      (*res) += buffer;
+    }
+    if (!rolls.empty()) {
+      (*res) += "[";
+      (*res) += rolls;
+      (*res) += "]";
+    }
     (*res) += ":";
     sprintf(buffer, "%d%c", succ, 0);
     (*res) += buffer;
