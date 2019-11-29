@@ -43,6 +43,13 @@ class MOBType;
 #define LOC_NINJA 0x10000000
 #define LOC_SPECIAL 0xFF000000
 
+// Optional Message Channels
+enum channel_t {
+  CHANNEL_OOC,
+  CHANNEL_NEWBIE,
+  CHANNEL_ROLLS,
+};
+
 enum pos_t { POS_NONE = 0, POS_LIE, POS_SIT, POS_STAND, POS_USE, POS_MAX };
 
 // Changing these requires change to:
@@ -277,7 +284,8 @@ class Object {
   int Modifier(int a) const;
   int Modifier(const std::string& m) const;
   int Power(const std::string& m) const;
-  int Skill(uint32_t, int* tnum = nullptr) const;
+  int Skill(uint32_t) const;
+  int SkillTarget(uint32_t) const;
   int HasSkill(uint32_t) const;
   int SubHasSkill(uint32_t) const;
   int SubMaxSkill(uint32_t) const;
@@ -302,7 +310,7 @@ class Object {
   int RollInitiative() const;
   int Roll(uint32_t, const Object*, uint32_t, int bias = 0, std::string* res = nullptr) const;
   int Roll(uint32_t, int, std::string* res = nullptr) const;
-  int RollNoWounds(uint32_t, int, std::string* res = nullptr) const;
+  int RollNoWounds(uint32_t, int, int, std::string* res = nullptr) const;
 
   int WoundPenalty() const;
 
@@ -344,6 +352,7 @@ class Object {
   void Deafen(int deaf = 1);
 
   // Unformatted (raw print, but with ;s/;s for actor/targ)
+  void Send(channel_t channel, const std::string& mes);
   void Send(int targ, int rsucc, const std::string& mes);
   void SendOut(
       int tnum,
@@ -362,6 +371,7 @@ class Object {
   void Loud(int str, const std::string& mes);
 
   // Formatted (printf style, plus with ;s/;s for actor/targ)
+  void SendF(channel_t channel, const char* mes, ...) __attribute__((format(printf, 3, 4)));
   void SendF(int targ, int rsucc, const char* mes, ...) __attribute__((format(printf, 4, 5)));
   void SendOutF(
       int tnum,

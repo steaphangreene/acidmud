@@ -5050,9 +5050,14 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
       }
     }
 
-    int succ = 0;
-    succ = roll(body->Skill(sk1) + body->Modifier("Accuracy"), targ->Skill(sk2) - reachmod);
-    succ -= roll(targ->Skill(sk2) + targ->Modifier("Evasion"), body->Skill(sk1) + reachmod);
+    std::string rolls_offense = "";
+    std::string rolls_defense = "";
+    int offense = body->Roll(
+        sk1,
+        targ->SkillTarget(sk2) - reachmod + body->Modifier("Accuracy") - targ->Modifier("Evasion"),
+        &rolls_offense);
+    int defense = targ->Roll(sk2, body->SkillTarget(sk1) + reachmod, &rolls_defense);
+    int succ = offense - defense;
 
     int loc = rand() % 100;
     act_t loca = ACT_WEAR_CHEST;
@@ -5159,6 +5164,9 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
       verb = "sting";
       verb3 = "stings";
     }
+
+    int defense_armor = 0;
+    std::string rolls_armor = "";
     if (succ > 0) {
       int stun = 0;
       if (sk1 == crc32c("Kicking")) { // Kicking Action
@@ -5219,7 +5227,8 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
 
       if (targ->ActTarg(loca)) {
         // FIXME: Implement the rest of the Armor Effect types
-        succ -= roll(targ->ActTarg(loca)->ModAttribute(0), force);
+        defense_armor = targ->ActTarg(loca)->Roll(crc32c("Body"), force, &rolls_armor);
+        succ -= defense_armor;
       }
 
       if (stun) {
@@ -5287,6 +5296,36 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
         body->Accomplish(targ->Skill(crc32c("Accomplishment")), "this victory");
         targ->SetSkill(crc32c("Accomplishment"), 0);
       }
+    }
+
+    if (rolls_armor.empty()) {
+      body->SendF(
+          CHANNEL_ROLLS,
+          CMAG "[%d] = %s - %s\n" CNRM,
+          succ,
+          rolls_offense.c_str(),
+          rolls_defense.c_str());
+      targ->SendF(
+          CHANNEL_ROLLS,
+          CMAG "[%d] = %s - %s\n" CNRM,
+          succ,
+          rolls_offense.c_str(),
+          rolls_defense.c_str());
+    } else {
+      body->SendF(
+          CHANNEL_ROLLS,
+          CMAG "[%d] = %s - %s - %s\n" CNRM,
+          succ,
+          rolls_offense.c_str(),
+          rolls_defense.c_str(),
+          rolls_armor.c_str());
+      targ->SendF(
+          CHANNEL_ROLLS,
+          CMAG "[%d] = %s - %s - %s\n" CNRM,
+          succ,
+          rolls_offense.c_str(),
+          rolls_defense.c_str(),
+          rolls_armor.c_str());
     }
 
     return 0;
@@ -5904,10 +5943,10 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
     if (!cmd.empty() && (!strncmp(cmd.c_str(), "restore", cmd.length()))) {
       mind->SetSVars(pl->Vars());
       mind->Send("Your settings have been reset to your defaults.\n");
-      cmd = ""; // Show current settings too
+      cmd.clear(); // Show current settings too
     }
 
-    if (!cmd.empty()) {
+    if (cmd.empty()) {
       mind->Send("Your current settings:\n");
 
       if (mind->IsSVar("combatinfo")) {

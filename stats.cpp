@@ -200,31 +200,26 @@ int Object::HasSkill(uint32_t stok) const {
   return (itr != skills.end());
 }
 
-int Object::Skill(uint32_t stok, int* tnum) const {
-  if (stok == crc32c("Body"))
-    return ModAttribute(0);
-  if (stok == crc32c("Quickness"))
-    return ModAttribute(1);
-  if (stok == crc32c("Strength"))
-    return ModAttribute(2);
-  if (stok == crc32c("Charisma"))
-    return ModAttribute(3);
-  if (stok == crc32c("Intelligence"))
-    return ModAttribute(4);
-  if (stok == crc32c("Willpower"))
-    return ModAttribute(5);
-  if (stok == crc32c("Reaction"))
-    return ModAttribute(6);
-
+int Object::SkillTarget(uint32_t stok) const {
   if (!defaults_init)
     init_defaults();
 
   auto itr = hash_find(skills, stok);
-  if (itr != skills.end())
-    return itr->second;
-  if (tnum) {
-    (*tnum) += 4;
+  if (itr != skills.end()) {
+    return itr->second + ModAttribute(defaults[stok]);
+  } else {
     return ModAttribute(defaults[stok]);
+  }
+  return 0;
+}
+
+int Object::Skill(uint32_t stok) const {
+  if (!defaults_init)
+    init_defaults();
+
+  auto itr = hash_find(skills, stok);
+  if (itr != skills.end()) {
+    return itr->second;
   }
   return 0;
 }
@@ -232,8 +227,8 @@ int Object::Skill(uint32_t stok, int* tnum) const {
 int Object::Roll(uint32_t s1, const Object* p2, uint32_t s2, int bias, std::string* res) const {
   int succ = 0;
 
-  int t1 = p2->Skill(s2) - bias;
-  int t2 = Skill(s1) + bias;
+  int t1 = p2->SkillTarget(s2) - bias;
+  int t2 = SkillTarget(s1) + bias;
 
   if (res)
     (*res) += "(";
@@ -248,30 +243,62 @@ int Object::Roll(uint32_t s1, const Object* p2, uint32_t s2, int bias, std::stri
   return succ;
 }
 
-int Object::Roll(uint32_t s1, int targ, std::string* res) const {
+int Object::Roll(uint32_t stok, int targ, std::string* res) const {
   if (phys >= 10 || stun >= 10 || att[0].cur == 0 || att[1].cur == 0 || att[2].cur == 0 ||
       att[3].cur == 0 || att[4].cur == 0 || att[5].cur == 0) {
     if (res)
       (*res) += "N/A";
     return 0;
   }
-  targ += WoundPenalty();
-  return RollNoWounds(s1, targ, res);
+  return RollNoWounds(stok, targ, WoundPenalty(), res);
 }
 
-int Object::RollNoWounds(uint32_t s1, int targ, std::string* res) const {
+int Object::RollNoWounds(uint32_t stok, int targ, int penalty, std::string* res) const {
   int succ = 0;
-  int d1 = Skill(s1, &targ);
-  succ = roll(abs(d1), targ);
+  int dice = 0;
+  int mod = 0;
+
+  if (stok == crc32c("Body")) {
+    dice = ModAttribute(0);
+  } else if (stok == crc32c("Quickness")) {
+    dice = ModAttribute(1);
+  } else if (stok == crc32c("Strength")) {
+    dice = ModAttribute(2);
+  } else if (stok == crc32c("Charisma")) {
+    dice = ModAttribute(3);
+  } else if (stok == crc32c("Intelligence")) {
+    dice = ModAttribute(4);
+  } else if (stok == crc32c("Willpower")) {
+    dice = ModAttribute(5);
+  } else if (stok == crc32c("Reaction")) {
+    dice = ModAttribute(6);
+  } else if (defaults.count(stok) > 0) {
+    dice = Skill(stok);
+    mod = ModAttribute(defaults[stok]);
+  } else {
+    fprintf(
+        stderr,
+        CRED "Error: Asked to roll non-existant skill: '%s'\n" CNRM,
+        SkillName(stok).c_str());
+    return 0;
+  }
+
+  succ = roll(abs(dice), (targ - mod) + penalty);
 
   if (res) {
     char buffer[256];
-    sprintf(buffer, "%d%c", abs(d1), 0);
+    sprintf(buffer, "%d%c", abs(dice), 0);
     (*res) += buffer;
     (*res) += "(";
     sprintf(buffer, "%d%c", targ, 0);
     (*res) += buffer;
-    (*res) += "):";
+    (*res) += ")+";
+    sprintf(buffer, "%d%c", mod, 0);
+    (*res) += buffer;
+    (*res) += "-";
+    sprintf(buffer, "%d%c", penalty, 0);
+    (*res) += buffer;
+    (*res) += ":";
     sprintf(buffer, "%d%c", succ, 0);
     (*res) += buffer;
   }

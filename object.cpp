@@ -389,7 +389,7 @@ int Object::Tick() {
   if (phys > (10 + ModAttribute(2))) {
     // You are already dead.
   } else if (phys >= 10) {
-    int rec = RollNoWounds(crc32c("Body"), phys - 4);
+    int rec = RollNoWounds(crc32c("Strength"), phys - 4, 0);
     if (!rec)
       ++phys;
     UpdateDamage();
@@ -410,7 +410,7 @@ int Object::Tick() {
   }
   if (phys < 10 && stun >= 10) {
     int rec = 0;
-    rec = RollNoWounds(crc32c("Willpower"), 12);
+    rec = RollNoWounds(crc32c("Willpower"), 12, 0);
     stun -= rec;
     stun = std::max(int8_t(0), stun);
     UpdateDamage();
@@ -3049,6 +3049,33 @@ void Object::SendF(int tnum, int rsucc, const char* mes, ...) {
   va_end(stuff);
 
   Send(tnum, rsucc, buf2);
+}
+
+void Object::Send(channel_t channel, const std::string& mes) {
+  auto tosend = mes;
+  tosend[0] = ascii_toupper(tosend[0]);
+
+  for (auto mind : minds) {
+    if (channel == CHANNEL_ROLLS && mind->IsSVar("combatinfo")) {
+      Object* body = mind->Body();
+      mind->Attach(this);
+      mind->Send(tosend);
+      mind->Attach(body);
+    }
+  }
+}
+
+void Object::SendF(channel_t channel, const char* mes, ...) {
+  if (mes[0] == 0)
+    return;
+
+  char buf2[65536];
+  va_list stuff;
+  va_start(stuff, mes);
+  vsprintf(buf2, mes, stuff);
+  va_end(stuff);
+
+  Send(channel, buf2);
 }
 
 void Object::SendIn(
