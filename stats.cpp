@@ -274,7 +274,11 @@ int Object::RollNoWounds(uint32_t stok, int targ, int penalty, std::string* res)
     dice = ModAttribute(6);
   } else if (defaults.count(stok) > 0) {
     dice = Skill(stok);
-    mod = ModAttribute(defaults[stok]);
+    if (dice > 0) {
+      mod = ModAttribute(defaults[stok]);
+    } else {
+      dice = ModAttribute(defaults[stok]);
+    }
   } else {
     fprintf(
         stderr,

@@ -5008,7 +5008,8 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
     targ->SetSkill(crc32c("Hidden"), 0);
 
     int reachmod = 0;
-    auto sk1 = crc32c("Punching"), sk2 = crc32c("Punching");
+    auto sk1 = crc32c("Punching");
+    auto sk2 = crc32c("Punching");
 
     if (cnum == COM_KICK) {
       sk1 = crc32c("Kicking");
@@ -5031,22 +5032,31 @@ static int handle_single_command(Object* body, std::string cmd, Mind* mind) {
           reachmod = 0;
       }
       if (body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD) && body->ActTarg(ACT_HOLD)) {
-        sk2 = crc32c("");
+        sk2 = crc32c("None"); // Occupy opponent's primary weapon, so they can't use it to defend.
       }
       if (targ->ActTarg(ACT_HOLD) == targ->ActTarg(ACT_WEAR_SHIELD) && targ->ActTarg(ACT_HOLD)) {
         sk2 = crc32c("Shields");
-        reachmod = 0;
+        reachmod = 0; // Shield neutralizes reach
       } else if (
-          targ->ActTarg(ACT_WIELD) // Not Holding his 2-Hander
+          targ->ActTarg(ACT_WIELD) // Not Holding their 2-Hander
           && two_handed(targ->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType"))) &&
           targ->ActTarg(ACT_WIELD) != targ->ActTarg(ACT_HOLD)) {
-        sk2 = crc32c(""); // Can't defend himself
+        sk2 = crc32c("None"); // ...so they can't defend with it
       } else if (targ->ActTarg(ACT_WIELD)) {
         if (sk2 == crc32c("Punching"))
           sk2 = get_weapon_skill(targ->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")));
         reachmod -= std::max(0, targ->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponReach")));
         if (reachmod < -9)
           reachmod = 0;
+      }
+    }
+
+    if (!targ->HasSkill(sk2)) { // Not equipped to defend with a weapon skill, dodge instead
+      if (targ->HasSkill(crc32c("Dodge"))) {
+        sk2 = crc32c("Dodge");
+        reachmod = 0; // Skilled dodge neutralizes reach
+      } else {
+        sk2 = crc32c("Acrobatics");
       }
     }
 
