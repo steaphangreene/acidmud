@@ -51,7 +51,7 @@
 
 #define REQ_ANY (SIT_CORPOREAL | SIT_ETHEREAL)
 
-int handle_command_ccreate(Object*, Mind*, const std::string&, int, int, int);
+int handle_command_ccreate(Object*, Mind*, const std::string_view, int, int);
 
 static int count_ones(int mask) {
   int ret = 0;
@@ -809,18 +809,9 @@ static void load_commands() {
 }
 
 com_t identify_command(const std::string_view str, bool corporeal) {
-  int len;
   if (comlist[COM_MAX].id == COM_NONE) { // Haven't loaded commands yet
     load_commands();
   }
-  if (str[0] == '\'' || str[0] == '"') { // Command Alias: "say"
-    len = 1;
-  } else {
-    for (len = 0; isgraph(str[len]); ++len)
-      ;
-  }
-  if (len == 0)
-    return COM_NONE;
   for (int ctr = 1; comlist[ctr].id != COM_NONE; ++ctr) {
     if (comlist[ctr].sit & SIT_NINJAMODE)
       continue; // Don't match ninja commands here
@@ -831,17 +822,17 @@ com_t identify_command(const std::string_view str, bool corporeal) {
     if (corporeal && (!(comlist[ctr].sit & SIT_CORPOREAL)))
       continue; // Don't match between modes
 
-    if (str == comlist[ctr].command.substr(0, len)) {
+    if (str == comlist[ctr].command.substr(0, str.length())) {
       return com_t(ctr); // Not .id - as all social commands share the same one.
     }
     // Command Aliases
     if (comlist[ctr].id == COM_SAY && (str[0] == '\'' || str[0] == '"')) {
       return comlist[ctr].id;
     }
-    if (comlist[ctr].id == COM_DUMP && str == std::string_view("empty").substr(0, len)) {
+    if (comlist[ctr].id == COM_DUMP && str == std::string_view("empty").substr(0, str.length())) {
       return comlist[ctr].id;
     }
-    if (comlist[ctr].id == COM_GET && str == std::string_view("take").substr(0, len)) {
+    if (comlist[ctr].id == COM_GET && str == std::string_view("take").substr(0, str.length())) {
       return comlist[ctr].id;
     }
   }
@@ -919,17 +910,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     return 0;
   }
 
-  int len;
-  if (cmd.front() == '\'' || cmd.front() == '"') { // Command Alias: "say"
-    len = 1;
-  } else {
-    for (len = 0; isgraph(cmd[len]); ++len)
-      ;
-  }
-
-  if (len == 0)
-    return 0;
-
   int ninja = 0, sninja = 0, nmode = 0, vmode = 0;
 
   if (mind && mind->Owner() && mind->Owner()->Is(PLAYER_SUPERNINJA)) {
@@ -952,11 +932,11 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   int cnum = identify_command(cmd, (body != nullptr));
   if (cnum == COM_NONE && nmode) { // Now match ninja commands (for ninjas)
     for (int ctr = 1; comlist[ctr].id != COM_NONE; ++ctr) {
-      if ((comlist[ctr].sit & SIT_NINJAMODE) && cmd == comlist[ctr].command.substr(0, len)) {
+      if ((comlist[ctr].sit & SIT_NINJAMODE) && cmd == comlist[ctr].command.substr(0, cmd.length())) {
         cnum = ctr;
         break;
       }
-      if (comlist[ctr].id == COM_CHARACTERS && cmd == std::string_view("chars").substr(0, len)) {
+      if (comlist[ctr].id == COM_CHARACTERS && cmd == std::string_view("chars").substr(0, cmd.length())) {
         cnum = ctr;
         break;
       }
@@ -997,7 +977,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       auto trigs = obj->PickObjects("all tbamud trigger script", LOC_NINJA | LOC_INTERNAL);
       for (auto trig : trigs) {
         if (trig->Skill(crc32c("TBAScriptType")) & 0x04) { //*-COMMAND trigs
-          if ((cnum == COM_NONE && args == std::string_view(trig->Desc()).substr(0, len)) ||
+          if ((cnum == COM_NONE && cmd == std::string_view(trig->Desc()).substr(0, cmd.length())) ||
               (cnum && cnum == identify_command(trig->Desc(), true))) {
             if (trig->Skill(crc32c("TBAScriptType")) & 0x2000000) { // OBJ
               int narg = trig->Skill(crc32c("TBAScriptNArg"));
@@ -1031,8 +1011,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       mind->Send("Command NOT understood - type 'help' for assistance.\n");
     return 1;
   }
-
-  len = 0;
 
   if ((!sninja) && (comlist[cnum].sit & SIT_SUPERNINJA)) {
     if (mind)
@@ -1219,33 +1197,27 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
   if (cnum == COM_NORTH) {
     cnum = COM_ENTER;
-    len = 6;
-    args = "enter north";
+    args = "north";
   }
   if (cnum == COM_SOUTH) {
     cnum = COM_ENTER;
-    len = 6;
-    args = "enter south";
+    args = "south";
   }
   if (cnum == COM_EAST) {
     cnum = COM_ENTER;
-    len = 6;
-    args = "enter east";
+    args = "east";
   }
   if (cnum == COM_WEST) {
     cnum = COM_ENTER;
-    len = 6;
-    args = "enter west";
+    args = "west";
   }
   if (cnum == COM_UP) {
     cnum = COM_ENTER;
-    len = 6;
-    args = "enter up";
+    args = "up";
   }
   if (cnum == COM_DOWN) {
     cnum = COM_ENTER;
-    len = 6;
-    args = "enter down";
+    args = "down";
   }
 
   if (cnum == COM_FLEE) {
@@ -1274,14 +1246,11 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
     cnum = COM_ENTER;
     args = (*dir)->ShortDesc();
-    len = 0;
   }
 
   if (cnum == COM_ENTER) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (!body) { // Implies that there is a "mind"
-      if (len >= int(args.length())) {
+      if (args.empty()) {
         mind->Send("Enter which character?  Use 'enter <charname>'.\n");
         return 0;
       }
@@ -1485,8 +1454,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_HELP) {
     if ((!mind) || (!mind->Owner()))
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (args == "commands") {
       std::string mes = "";
       for (int ctr = 1; comlist[ctr].id != COM_NONE; ++ctr) {
@@ -1544,8 +1511,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_SAY) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (args.empty()) {
       if (strncmp(mind->SpecialPrompt().c_str(), "say", 3)) {
         mind->SetSpecialPrompt("say");
@@ -1557,7 +1522,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     } else {
       bool shouting =
-          (args.length() >= 4 + len && !std::any_of(args.begin() + len, args.end(), ascii_islower));
+          (args.length() >= 4 && !std::any_of(args.begin(), args.end(), ascii_islower));
       if (!shouting) {
         body->Parent()->SendOutF(
             ALL, 0, ";s says '%s'\n", "You say '%s'\n", body, body, std::string(args).c_str());
@@ -1570,8 +1535,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_SHOUT || cnum == COM_YELL || cnum == COM_CALL) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (mind && args.empty()) {
       if (strncmp(mind->SpecialPrompt().c_str(), "shout", 3)) {
         mind->SetSpecialPrompt("shout");
@@ -1583,8 +1546,14 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         mind->Send("Exiting out of shout mode.");
       }
     } else {
-      if (args.substr(0, 4) == "for ")
-        len += 4;
+      if (args.substr(0, 4) == "for ") {
+        auto prefix = args.find_first_not_of(" \t\n\r", 4);
+        if(prefix == std::string::npos) {
+          args = "";
+        } else {
+          args = args.substr(prefix);
+        }
+      }
 
       std::string mes = std::string(args);
       std::transform(mes.begin(), mes.end(), mes.begin(), ascii_toupper);
@@ -1598,8 +1567,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
   if (cnum >= COM_SOCIAL) {
     Object* targ = nullptr;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (body && body->Parent()) {
       std::string youmes = socials[cnum][0];
       std::string outmes = socials[cnum][1];
@@ -1676,8 +1643,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_EMOTE) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     std::string dot = ".";
     if (args.back() == '.' || args.back() == '?' || args.back() == '!') {
       dot = "";
@@ -1712,8 +1677,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_LOOK) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (!body) {
       mind->Owner()->Room()->SendDesc(mind);
       mind->Owner()->Room()->SendContents(mind, nullptr, vmode);
@@ -1731,10 +1694,20 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     }
 
     int within = 0;
-    if (args.substr(0, 3) == "at ")
-      len += 3;
-    if (args.substr(0, 3) == "in ") {
-      len += 3;
+    if (args.substr(0, 3) == "at ") {
+      auto prefix = args.find_first_not_of(" \t\n\r", 3);
+      if(prefix == std::string::npos) {
+        args = "";
+      } else {
+        args = args.substr(prefix);
+      }
+    } else if (args.substr(0, 3) == "in ") {
+      auto prefix = args.find_first_not_of(" \t\n\r", 3);
+      if(prefix == std::string::npos) {
+        args = "";
+      } else {
+        args = args.substr(prefix);
+      }
       within = 1;
     }
 
@@ -1822,9 +1795,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
 
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-
     std::vector<Object*> targs;
     if (!args.empty()) {
       targs = body->PickObjects(
@@ -1905,9 +1875,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_HIDE) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-
     std::vector<Object*> targs;
     if (args.empty()) {
       targs.push_back(body);
@@ -1972,8 +1939,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
   if (cnum == COM_EXAMINE) {
     Object* targ = nullptr;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (args.empty()) {
       if (mind)
         mind->Send("You want to examine what?\n");
@@ -1993,8 +1958,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
   if (cnum == COM_CONSIDER) {
     Object* targ = nullptr;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (args.empty()) {
       if (mind)
         mind->Send("You want to consider what?\n");
@@ -2479,8 +2442,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
   if (cnum == COM_STATS) {
     Object* targ = nullptr;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if ((!body) && args.empty()) {
       targ = mind->Owner()->Creator();
     } else if (!body) {
@@ -2511,8 +2472,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
   if (cnum == COM_LOCK) {
     Object* targ = nullptr;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (args.empty()) {
       if (mind)
         mind->Send("You want to lock what?\n");
@@ -2557,8 +2516,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
   if (cnum == COM_UNLOCK) {
     Object* targ = nullptr;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (args.empty()) {
       if (mind)
         mind->Send("You want to unlock what?\n");
@@ -2604,8 +2561,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
   if (cnum == COM_OPEN) {
     Object* targ = nullptr;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (args.empty()) {
       if (mind)
         mind->Send("You want to open what?\n");
@@ -2639,8 +2594,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
   if (cnum == COM_CLOSE) {
     Object* targ = nullptr;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (args.empty()) {
       if (mind)
         mind->Send("You want to close what?\n");
@@ -2725,9 +2678,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_BUY) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       if (mind)
         mind->Send("What do you want to buy?\n");
       return 0;
@@ -2848,9 +2799,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_VALUE || cnum == COM_SELL) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       if (mind)
         mind->Send("What do you want to sell?\n");
       return 0;
@@ -3099,9 +3048,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_DRAG) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       if (mind)
         mind->Send("What do you want to drag?\n");
       return 0;
@@ -3143,9 +3090,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_GET) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       if (mind)
         mind->Send("What do you want to get?\n");
       return 0;
@@ -3288,9 +3233,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_LABEL) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-
     if (!body->IsAct(ACT_HOLD)) {
       if (mind)
         mind->Send("You must first 'hold' the object you want label.\n");
@@ -3301,7 +3243,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
 
-    if (len >= int(args.length())) { // Just Checking Label
+    if (args.empty()) { // Just Checking Label
       std::string label = body->ActTarg(ACT_HOLD)->ShortDesc();
       size_t start = label.find_first_of('(');
       if (start == label.npos) {
@@ -3361,14 +3303,14 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_PUT) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-
-    if (args.substr(0, 3) == "in ")
-      len += 3;
-
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
+    if (args.substr(0, 3) == "in ") {
+      auto prefix = args.find_first_not_of(" \t\n\r", 3);
+      if(prefix == std::string::npos) {
+        args = "";
+      } else {
+        args = args.substr(prefix);
+      }
+    }
 
     if (!body->IsAct(ACT_HOLD)) {
       if (mind)
@@ -3380,7 +3322,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
 
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       if (mind)
         mind->SendF(
             "What do you want to put %s in?\n", body->ActTarg(ACT_HOLD)->Name(0, body).c_str());
@@ -3456,14 +3398,11 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
   if (cnum == COM_UNWIELD) {
     cnum = COM_WIELD;
-    args = "wield";
-    len = 5;
+    args = "";
   }
 
   if (cnum == COM_WIELD) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       if (body->IsAct(ACT_WIELD)) {
         Object* wield = body->ActTarg(ACT_WIELD);
         if ((!nmode) && wield && wield->SubHasSkill(crc32c("Cursed"))) {
@@ -3577,9 +3516,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_HOLD || cnum == COM_LIGHT) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       if (mind)
         mind->Send("What do you want to hold?\n");
       return 0;
@@ -3667,9 +3604,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_REMOVE) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       if (mind)
         mind->Send("You want to remove what?\n");
       return 0;
@@ -3750,9 +3685,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_WEAR) {
     std::vector<Object*> targs;
 
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       if (body->ActTarg(ACT_HOLD)) {
         targs.push_back(body->ActTarg(ACT_HOLD));
       } else {
@@ -3812,9 +3745,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_EAT) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       if (mind)
         mind->Send("What do you want to eat?\n");
       return 0;
@@ -3866,9 +3797,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_DROP) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       if (mind)
         mind->Send("What do you want to drop?\n");
       return 0;
@@ -3935,9 +3864,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_DRINK) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       if (mind)
         mind->Send("What do you want to drink from?\n");
       return 0;
@@ -4036,9 +3963,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_DUMP) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       if (mind)
         mind->Send("What do you want to dump?\n");
       return 0;
@@ -4082,14 +4007,14 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_FILL) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-
-    if (args.substr(0, 5) == "from ")
-      len += 5;
-
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
+    if (args.substr(0, 5) == "from ") {
+      auto prefix = args.find_first_not_of(" \t\n\r", 5);
+      if(prefix == std::string::npos) {
+        args = "";
+      } else {
+        args = args.substr(prefix);
+      }
+    }
 
     if (!body->IsAct(ACT_HOLD)) {
       if (mind)
@@ -4101,7 +4026,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
 
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       if (mind)
         mind->SendF(
             "Where do you want to fill %s from?\n", body->ActTarg(ACT_HOLD)->Name(0, body).c_str());
@@ -4440,9 +4365,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_CAST) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       if (mind)
         mind->Send("What spell do you want to cast?\n");
       return 0;
@@ -4602,8 +4525,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_PRAY) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
 
     if (args.empty()) {
       mind->Send("What command do you want to pray for?\n");
@@ -4619,12 +4540,9 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_STOP) { // Alias "stop" to "use"
     cnum = COM_USE;
     args = "";
-    len = 0;
   }
   if (cnum == COM_USE) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (args.length() == 0) {
+    if (args.empty()) {
       if (body->Pos() != POS_USE) {
         mind->Send("You're not using a skill.  Try 'use <skillname>' to start.\n");
       } else {
@@ -4754,8 +4672,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_POINT) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (!args.empty()) {
       Object* targ =
           body->PickObject(std::string(args), vmode | LOC_NEARBY | LOC_SELF | LOC_INTERNAL);
@@ -4790,8 +4706,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_OFFER) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (!args.empty()) {
       Object* targ = body->PickObject(std::string(args), vmode | LOC_NEARBY);
       if (!targ) {
@@ -4842,8 +4756,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_FOLLOW) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (!args.empty()) {
       Object* targ = body->PickObject(std::string(args), vmode | LOC_NEARBY | LOC_SELF);
       if (!targ) {
@@ -4880,8 +4792,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       attacknow = 0;
 
     Object* targ = nullptr;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (!args.empty()) {
       targ = body->PickObject(std::string(args), vmode | LOC_NEARBY | LOC_CONSCIOUS);
       if (!targ)
@@ -5370,9 +5280,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       "Body", "Quickness", "Strength", "Charisma", "Intelligence", "Willpower"};
 
   if (cnum == COM_RESETCHARACTER) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-
     Object* chr = mind->Owner()->Creator();
     if (!chr) {
       mind->Send(
@@ -5401,9 +5308,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_RANDOMIZE) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-
     Object* chr = mind->Owner()->Creator();
     if (!chr) {
       mind->Send(
@@ -5449,9 +5353,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_ARCHETYPE) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-
     Object* chr = mind->Owner()->Creator();
     if (!chr) {
       mind->Send(
@@ -5563,9 +5464,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     if ((!mind) || (!mind->Owner()))
       return 0;
 
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-
     Object* chr = mind->Owner()->Creator();
     if (!chr) {
       mind->Send("You need to be working on a character first (use 'select <character>'.\n");
@@ -5626,8 +5524,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_RAISE) {
     if ((!mind) || (!mind->Owner()))
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     Object* chr = body;
     if (!chr) {
       chr = mind->Owner()->Creator();
@@ -5746,14 +5642,12 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_NEWCHARACTER) {
     if (!mind)
       return 0; // FIXME: Should never happen!
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       mind->Send("What's the character's name?  Use 'newcharacter <charname>'.\n");
       return 0;
     }
 
-    if (!std::all_of(args.begin() + len, args.end(), ascii_isalpha)) {
+    if (!std::all_of(args.begin(), args.end(), ascii_isalpha)) {
       mind->Send(
           "Sorry, character names can only contain letters.\n"
           "Pick another name.\n");
@@ -5808,9 +5702,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_TELEPORT) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       mind->Send("Where do you want to teleport to?.\n");
       return 0;
     }
@@ -5888,9 +5780,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         mind->Send("You don't have the power to resurrect!\n");
       return 0;
     }
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       mind->Send("Who do you want to resurrect?.\n");
       return 0;
     }
@@ -5931,12 +5821,9 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     if (!mind)
       return 0;
 
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-
     std::string skills;
     std::vector<uint32_t> skls;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       skills = "Here are all the skill categories (use 'skill <Category>' to see the skills):\n";
       skls = get_skills();
     } else {
@@ -6035,8 +5922,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_OOC) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (args.empty()) {
       if (strncmp(mind->SpecialPrompt().c_str(), "ooc", 3)) {
         mind->SetSpecialPrompt("ooc");
@@ -6061,8 +5946,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_NEWBIE) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (args.empty()) {
       if (strncmp(mind->SpecialPrompt().c_str(), "newbie", 3)) {
         mind->SetSpecialPrompt("newbie");
@@ -6089,8 +5972,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_NINJAMODE) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
 
     Player* pl = mind->Owner();
     if (args.empty()) {
@@ -6111,8 +5992,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_MAKENINJA) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
 
     Player* pl = get_player(std::string(args));
     if (args.empty()) {
@@ -6146,8 +6025,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_MAKESUPERNINJA) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
 
     Player* pl = get_player(std::string(args));
     if (args.empty()) {
@@ -6197,9 +6074,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
     }
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len < int(args.length())) {
+    if (!args.empty()) {
       char gender = 0;
       int num, weight = 0, size = 0, volume = 0, value = 0;
       num = sscanf(
@@ -6229,9 +6104,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
     }
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len < int(args.length())) {
+    if (!args.empty()) {
       std::string oldn = targ->ShortDesc();
       targ->SetShortDesc(std::string(args));
       mind->SendF(
@@ -6265,9 +6138,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
     }
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len < int(args.length())) {
+    if (!args.empty()) {
       if (targ->Desc() == targ->ShortDesc()) {
         targ->SetDesc(std::string(args));
         mind->SendF("You add a description to '%s'\n", targ->Name(0, body).c_str());
@@ -6309,9 +6180,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
     }
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len < int(args.length())) {
+    if (!args.empty()) {
       if (targ->LongDesc() == targ->Desc()) {
         targ->SetLongDesc(std::string(args));
         mind->SendF("You add a definition to '%s'\n", targ->Name(0, body).c_str());
@@ -6335,8 +6204,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_CONTROL) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     Object* targ = body->PickObject(std::string(args), vmode | LOC_NEARBY);
     if (!targ) {
       mind->Send("You want to control who?\n");
@@ -6359,12 +6226,10 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_COMMAND) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     Object* targ = body->ActTarg(ACT_POINT);
     if (!targ) {
       mind->Send("You need to be pointing at your target.\n");
-    } else if (len >= int(args.length())) {
+    } else if (args.empty()) {
       mind->SendF("Command %s to do what?\n", targ->ShortDesc().c_str());
     } else if (targ->NormAttribute(5) <= 0) {
       mind->Send("You can't command an object that has no will of its own.\n");
@@ -6392,8 +6257,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
   if (cnum == COM_CONNECT) {
     Object *src = body->ActTarg(ACT_POINT), *dest = nullptr;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (!src) {
       mind->Send("You need to be pointing at your source.\n");
       return 0;
@@ -6423,10 +6286,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_CREATE) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     Object* obj = new Object(body->Parent());
-    if (len < int(args.length())) {
+    if (!args.empty()) {
       obj->SetShortDesc(std::string(args));
     }
     body->Parent()->SendOut(
@@ -6442,9 +6303,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_DCREATE) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       mind->Send("You need to specify in what direction!\n");
     } else {
       Object* box = new Object(body->Parent()->Parent());
@@ -6506,9 +6365,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_CCREATE) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    return handle_command_ccreate(body, mind, std::string(args), len, stealth_t, stealth_s);
+    return handle_command_ccreate(body, mind, args, stealth_t, stealth_s);
   }
 
   static Object* anchor = nullptr;
@@ -6516,8 +6373,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_ANCHOR) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     anchor = new Object(body->Parent());
     anchor->SetShortDesc("a shimmering portal");
     anchor->SetDesc(
@@ -6536,11 +6391,9 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_LINK) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     if (anchor == nullptr) {
       mind->Send("You need to make an anchor before you can link to it!\n");
-    } else if (len >= int(args.length())) {
+    } else if (args.empty()) {
       mind->Send("You need to specify what the portal will be named!\n");
     } else {
       Object* link;
@@ -6591,9 +6444,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_DELPLAYER) {
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       if (mind)
         mind->Send("You want to delete which player?\n");
     } else {
@@ -6653,8 +6504,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_RESET) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     Object* targ =
         body->PickObject(std::string(args), vmode | LOC_NEARBY | LOC_INTERNAL | LOC_SELF);
     if (!targ) {
@@ -6687,8 +6536,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_MIRROR) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     Object* targ = body->PickObject(std::string(args), vmode | LOC_NEARBY | LOC_INTERNAL);
     if (!targ) {
       mind->Send("You want to mirror what?\n");
@@ -6751,8 +6598,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_CLONE) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     Object* targ =
         body->PickObject(std::string(args), vmode | LOC_NEARBY | LOC_INTERNAL | LOC_SELF);
     if (!targ) {
@@ -6775,8 +6620,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_PROD) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     auto targs = body->PickObjects(std::string(args), vmode | LOC_NEARBY);
     if (targs.size() == 0) {
       mind->Send("You want to prod what?\n");
@@ -6798,8 +6641,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_JUNK) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     auto targs = body->PickObjects(std::string(args), vmode | LOC_NEARBY);
     if (targs.size() == 0) {
       mind->Send("You want to destroy what?\n");
@@ -6821,8 +6662,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_HEAL) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     Object* targ =
         body->PickObject(std::string(args), vmode | LOC_NEARBY | LOC_INTERNAL | LOC_SELF);
 
@@ -6944,23 +6783,21 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_JACK) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     Object* targ = body->ActTarg(ACT_POINT);
     if (!targ) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
     }
     int stat = 0;
-    if (ascii_toupper(args[len]) == 'Q')
+    if (ascii_toupper(args[0]) == 'Q')
       stat = 1;
-    if (ascii_toupper(args[len]) == 'S')
+    if (ascii_toupper(args[0]) == 'S')
       stat = 2;
-    if (ascii_toupper(args[len]) == 'C')
+    if (ascii_toupper(args[0]) == 'C')
       stat = 3;
-    if (ascii_toupper(args[len]) == 'I')
+    if (ascii_toupper(args[0]) == 'I')
       stat = 4;
-    if (ascii_toupper(args[len]) == 'W')
+    if (ascii_toupper(args[0]) == 'W')
       stat = 5;
 
     if (targ->NormAttribute(stat) == 0) {
@@ -6985,23 +6822,21 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_CHUMP) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     Object* targ = body->ActTarg(ACT_POINT);
     if (!targ) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
     }
     int stat = 0;
-    if (ascii_toupper(args[len]) == 'Q')
+    if (ascii_toupper(args[0]) == 'Q')
       stat = 1;
-    if (ascii_toupper(args[len]) == 'S')
+    if (ascii_toupper(args[0]) == 'S')
       stat = 2;
-    if (ascii_toupper(args[len]) == 'C')
+    if (ascii_toupper(args[0]) == 'C')
       stat = 3;
-    if (ascii_toupper(args[len]) == 'I')
+    if (ascii_toupper(args[0]) == 'I')
       stat = 4;
-    if (ascii_toupper(args[len]) == 'W')
+    if (ascii_toupper(args[0]) == 'W')
       stat = 5;
 
     if (targ->NormAttribute(stat) == 0) {
@@ -7030,8 +6865,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_INCREMENT) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     Object* targ = body->ActTarg(ACT_POINT);
     if (!targ) {
       mind->Send("You need to be pointing at your target.\n");
@@ -7039,12 +6872,14 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     }
 
     int amt = 1;
-    if (isdigit(args[len])) {
+    if (isdigit(args[0])) {
       amt = atoi(std::string(args).c_str());
-      while (isdigit(args[len]))
-        ++len;
-      while (len < int(args.length()) && (!isgraph(args[len])))
-        ++len;
+      auto prefix = args.find_first_not_of("0123456789");
+      if(prefix == std::string::npos) {
+        args = "";
+      } else {
+        args = args.substr(prefix);
+      }
     }
 
     if (!is_skill(crc32c(std::string(args)))) {
@@ -7068,8 +6903,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_DECREMENT) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     Object* targ = body->ActTarg(ACT_POINT);
     if (!targ) {
       mind->Send("You need to be pointing at your target.\n");
@@ -7077,12 +6910,14 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     }
 
     int amt = 1;
-    if (isdigit(args[len])) {
+    if (isdigit(args[0])) {
       amt = atoi(std::string(args).c_str());
-      while (isdigit(args[len]))
-        ++len;
-      while (len < int(args.length()) && (!isgraph(args[len])))
-        ++len;
+      auto prefix = args.find_first_not_of("0123456789");
+      if(prefix == std::string::npos) {
+        args = "";
+      } else {
+        args = args.substr(prefix);
+      }
     }
 
     targ->SetSkill(std::string(args), targ->Skill(crc32c(std::string(args))) - amt);
@@ -7102,8 +6937,6 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_DOUBLE) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
     auto targs = body->PickObjects(std::string(args), vmode | LOC_NEARBY | LOC_INTERNAL);
     if (targs.size() == 0) {
       mind->Send("You want to double what?\n");
@@ -7129,9 +6962,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_TLOAD) {
     if (!mind)
       return 0;
-    while (len < int(args.length()) && (!isgraph(args[len])))
-      ++len;
-    if (len >= int(args.length())) {
+    if (args.empty()) {
       Object* world = new Object(body->Parent());
       world->SetShortDesc("The tbaMUD World");
       world->SetSkill(crc32c("Light Source"), 1000);

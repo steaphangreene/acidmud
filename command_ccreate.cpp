@@ -12,15 +12,14 @@
 int handle_command_ccreate(
     Object* body,
     Mind* mind,
-    const std::string& comline,
-    int len,
+    const std::string_view args,
     int stealth_t,
     int stealth_s) {
-  if (comline.length() <= len) {
+  if (args.empty()) {
     mind->Send("You need to specify the name of the city!\n");
   } else {
     Object* city = new Object(body->Parent());
-    city->SetShortDesc(comline.substr(len));
+    city->SetShortDesc(std::string(args));
 
     // Object *ocean = new Object(city);
     // ocean->SetShortDesc("Ocean");
@@ -28,11 +27,11 @@ int handle_command_ccreate(
 
     // Object *bay = new Object(city);
     // bay->SetShortDesc("Bay");
-    // bay->SetDesc((string("The ") + comline.substr(len) + " Bay.").c_str());
+    // bay->SetDesc((string("The ") + args + " Bay.").c_str());
 
     // Object *inlet = new Object(city);
     // inlet->SetShortDesc("Inlet");
-    // inlet->SetDesc((string("The ") + comline.substr(len) + " Inlet.").c_str());
+    // inlet->SetDesc((string("The ") + args + " Inlet.").c_str());
 
     // Object *wall = new Object(city);
     // wall->SetShortDesc("North Wall");
@@ -348,7 +347,7 @@ int handle_command_ccreate(
         "You create a new city '%s'.\n",
         body,
         nullptr,
-        comline.substr(len).c_str());
+        std::string(args).c_str());
   }
   return 0;
 }
