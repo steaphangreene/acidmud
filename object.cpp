@@ -3477,8 +3477,7 @@ int Object::WriteContentsTo(FILE* fl) {
 }
 
 void Object::BusyFor(long msec, const std::string& default_next) {
-  //  fprintf(stderr, "Holding %p, will default do '%s'!\n", this,
-  //  default_next);
+  // fprintf(stderr, "Holding %p, will default do '%s'!\n", this, default_next);
   busy_until = current_time;
   busy_until += (msec * 1000);
   defact = default_next;
@@ -3486,8 +3485,7 @@ void Object::BusyFor(long msec, const std::string& default_next) {
 }
 
 void Object::BusyWith(Object* other, const std::string& default_next) {
-  //  fprintf(stderr, "Holding %p, will default do '%s'!\n", this,
-  //  default_next);
+  // fprintf(stderr, "Holding %p, will default do '%s'!\n", this, default_next);
   busy_until = other->busy_until;
   defact = default_next;
   busylist.insert(this);
@@ -3498,14 +3496,14 @@ int Object::StillBusy() {
 }
 
 void Object::DoWhenFree(const std::string& action) {
-  //  fprintf(stderr, "Adding busyact for %p of '%s'!\n", this, action);
+  // fprintf(stderr, "Adding busyact for %p of '%s'!\n", this, action);
   dowhenfree += ";";
   dowhenfree += action;
   busylist.insert(this);
 }
 
 int Object::BusyAct() {
-  //  fprintf(stderr, "Taking busyact %p!\n", this);
+  // fprintf(stderr, "Taking busyact %p!\n", this);
   busylist.erase(this);
 
   std::string comm = dowhenfree;
@@ -3513,7 +3511,7 @@ int Object::BusyAct() {
   dowhenfree = "";
   defact = "";
 
-  //  fprintf(stderr, "Act is %s [%s]!\n", comm.c_str(), def.c_str());
+  // fprintf(stderr, "Act is %s [%s]!\n", comm.c_str(), def.c_str());
 
   int ret;
   if (minds.size()) {
