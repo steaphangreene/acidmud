@@ -157,4 +157,4 @@ typedef enum {
 } com_t;
 
 int handle_command(Object*, const std::string&, Mind* mind = nullptr);
-com_t identify_command(const std::string& line, bool corporeal);
+com_t identify_command(const std::string_view line, bool corporeal);

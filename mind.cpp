@@ -1602,7 +1602,20 @@ int Mind::TBARunLine(std::string line) {
     return 1;
   }
 
-  int com = identify_command(line, true); // ComNum for Pass-Through
+  int com = COM_NONE; // ComNum for Pass-Through
+  std::string_view cmd = line;
+
+  auto c1 = cmd.find_first_not_of(" \t\n\r;");
+  if (c1 != std::string::npos) {
+    auto c2 = cmd.find_first_of(" \t\n\r;", c1 + 1);
+    if (c2 == std::string::npos) {
+      cmd = cmd.substr(c1);
+    } else {
+      cmd = cmd.substr(c1, c2 - c1);
+    }
+
+    com = identify_command(cmd, true);
+  }
 
   //  //Start of script command if/else if/else
   //  if(line.find("%") != line.rfind("%")) {		//More than one '%'
@@ -2170,9 +2183,9 @@ int Mind::TBARunLine(std::string line) {
 
   else if (!strncmp(line.c_str(), "force ", 6)) {
     Object* targ = nullptr;
-    char tstr[256] = "", cmd[1024] = "";
-    if (sscanf(line.c_str() + 6, " OBJ:%p %1023[^\n\r]", &targ, cmd) < 2) {
-      if (sscanf(line.c_str() + 6, " %255s %1023[^\n\r]", tstr, cmd) >= 2) {
+    char tstr[256] = "", tcmd[1024] = "";
+    if (sscanf(line.c_str() + 6, " OBJ:%p %1023[^\n\r]", &targ, tcmd) < 2) {
+      if (sscanf(line.c_str() + 6, " %255s %1023[^\n\r]", tstr, tcmd) >= 2) {
         targ = room->PickObject(tstr, LOC_NINJA | LOC_INTERNAL);
       }
     }
@@ -2185,7 +2198,7 @@ int Mind::TBARunLine(std::string line) {
           break;
         }
       }
-      handle_command(targ, cmd, amind);
+      handle_command(targ, tcmd, amind);
     }
   }
 
