@@ -232,27 +232,6 @@ constexpr Command static_comlist[COM_MAX] = {
      "Use healing/first-aid skills to help another, or yourself.",
      (REQ_CORPOREAL | REQ_ACTION)},
 
-    {COM_EAT,
-     "eat",
-     "Eat an item you are carrying.",
-     "Eat an item you are carrying.",
-     (REQ_ALERT | REQ_ACTION)},
-    {COM_DRINK,
-     "drink",
-     "Drink from an item you are carrying.",
-     "Drink from an item you are carrying.",
-     (REQ_ALERT | REQ_ACTION)},
-    {COM_FILL,
-     "fill",
-     "Fill a held liquid container from another.",
-     "Fill a held liquid container from another.",
-     (REQ_ALERT | REQ_ACTION)},
-    {COM_DUMP,
-     "dump",
-     "Dump all liquid out of a container you are carrying.",
-     "Dump all liquid out of a container you are carrying.",
-     (REQ_ALERT | REQ_ACTION)},
-
     {COM_SLEEP, "sleep", "Go to sleep.", "Go to sleep.", (REQ_CONSCIOUS | REQ_ACTION)},
     {COM_WAKE,
      "wake",
@@ -301,6 +280,27 @@ constexpr Command static_comlist[COM_MAX] = {
      "Indicate to others that you are doing something.",
      "Indicate to others that you are doing something.",
      (REQ_AWAKE | CMD_FLAVORTEXT)},
+
+    {COM_EAT,
+     "eat",
+     "Eat an item you are carrying.",
+     "Eat an item you are carrying.",
+     (REQ_ALERT | REQ_ACTION)},
+    {COM_DRINK,
+     "drink",
+     "Drink from an item you are carrying.",
+     "Drink from an item you are carrying.",
+     (REQ_ALERT | REQ_ACTION)},
+    {COM_FILL,
+     "fill",
+     "Fill a held liquid container from another.",
+     "Fill a held liquid container from another.",
+     (REQ_ALERT | REQ_ACTION)},
+    {COM_DUMP,
+     "dump",
+     "Dump all liquid out of a container you are carrying.",
+     "Dump all liquid out of a container you are carrying.",
+     (REQ_ALERT | REQ_ACTION)},
 
     {COM_POINT,
      "point",
@@ -683,10 +683,6 @@ static_assert(static_comlist[COM_REMOVE].id == COM_REMOVE);
 static_assert(static_comlist[COM_LABEL].id == COM_LABEL);
 static_assert(static_comlist[COM_UNLABEL].id == COM_UNLABEL);
 static_assert(static_comlist[COM_HEAL].id == COM_HEAL);
-static_assert(static_comlist[COM_EAT].id == COM_EAT);
-static_assert(static_comlist[COM_DRINK].id == COM_DRINK);
-static_assert(static_comlist[COM_FILL].id == COM_FILL);
-static_assert(static_comlist[COM_DUMP].id == COM_DUMP);
 static_assert(static_comlist[COM_SLEEP].id == COM_SLEEP);
 static_assert(static_comlist[COM_WAKE].id == COM_WAKE);
 static_assert(static_comlist[COM_LIE].id == COM_LIE);
@@ -702,6 +698,10 @@ static_assert(static_comlist[COM_YELL].id == COM_YELL);
 static_assert(static_comlist[COM_CALL].id == COM_CALL);
 static_assert(static_comlist[COM_SAY].id == COM_SAY);
 static_assert(static_comlist[COM_EMOTE].id == COM_EMOTE);
+static_assert(static_comlist[COM_EAT].id == COM_EAT);
+static_assert(static_comlist[COM_DRINK].id == COM_DRINK);
+static_assert(static_comlist[COM_FILL].id == COM_FILL);
+static_assert(static_comlist[COM_DUMP].id == COM_DUMP);
 static_assert(static_comlist[COM_POINT].id == COM_POINT);
 static_assert(static_comlist[COM_FOLLOW].id == COM_FOLLOW);
 static_assert(static_comlist[COM_ATTACK].id == COM_ATTACK);

@@ -49,11 +49,6 @@ typedef enum {
   COM_UNLABEL,
   COM_HEAL,
 
-  COM_EAT,
-  COM_DRINK,
-  COM_FILL,
-  COM_DUMP,
-
   COM_SLEEP,
   COM_WAKE,
   COM_LIE,
@@ -70,6 +65,11 @@ typedef enum {
   COM_CALL,
   COM_SAY,
   COM_EMOTE,
+
+  COM_EAT,
+  COM_DRINK,
+  COM_FILL,
+  COM_DUMP,
 
   COM_POINT,
   COM_FOLLOW,
