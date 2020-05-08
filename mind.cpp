@@ -2785,14 +2785,15 @@ int Mind::TBARunLine(std::string line) {
 }
 
 static const std::string dirnames[4] = {"north", "south", "east", "west"};
-uint32_t items[8] = {crc32c("Food"),
-                     crc32c("Hungry"), // Order is Most to Least Important
-                     crc32c("Rest"),
-                     crc32c("Tired"),
-                     crc32c("Fun"),
-                     crc32c("Bored"),
-                     crc32c("Stuff"),
-                     crc32c("Needy")};
+uint32_t items[8] = {
+    crc32c("Food"),
+    crc32c("Hungry"), // Order is Most to Least Important
+    crc32c("Rest"),
+    crc32c("Tired"),
+    crc32c("Fun"),
+    crc32c("Bored"),
+    crc32c("Stuff"),
+    crc32c("Needy")};
 void Mind::Think(int istick) {
   if (type == MIND_MOB) {
     if (body->Skill(crc32c("Personality")) & 1) { // Group Mind

@@ -30,15 +30,16 @@ void Object::DynamicInit2() { // Cuberpunk City
 }
 
 void Object::DynamicInit1() { // Dwarven mine
-  const std::string names[] = {"An Entrance to a Large Mining Tunnel",
-                               "A Large Mining Tunnel",
-                               "A Large Mining Tunnel with a Small Tunnel to One Side",
-                               "A Large Mining Tunnel",
-                               "A Large Open Chamber",
-                               "A Small Mining Tunnel",
-                               "A Bend in a Small Mining Tunnel",
-                               "A Fork in a Small Mining Tunnel",
-                               "A Small Alcove"};
+  const std::string names[] = {
+      "An Entrance to a Large Mining Tunnel",
+      "A Large Mining Tunnel",
+      "A Large Mining Tunnel with a Small Tunnel to One Side",
+      "A Large Mining Tunnel",
+      "A Large Open Chamber",
+      "A Small Mining Tunnel",
+      "A Bend in a Small Mining Tunnel",
+      "A Fork in a Small Mining Tunnel",
+      "A Small Alcove"};
   const std::string descs[] = {
       "This tunnel looks to have been carved centuries ago.  It is so well "
       "crafted\n"

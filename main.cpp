@@ -56,11 +56,12 @@ int main(int argc, char** argv) {
   signal(SIGINT, &do_shutdown);
   signal(SIGTERM, &do_shutdown);
 
-  static option lopts[] = {{"port", 1, 0, 'p'},
-                           {"host", 1, 0, 'h'},
-                           {"network-stat", 1, 0, 'S'},
-                           {"network-acceptor", 1, 0, 'A'},
-                           {0, 0, 0, 0}};
+  static option lopts[] = {
+      {"port", 1, 0, 'p'},
+      {"host", 1, 0, 'h'},
+      {"network-stat", 1, 0, 'S'},
+      {"network-acceptor", 1, 0, 'A'},
+      {0, 0, 0, 0}};
 
   int arg;
   while ((arg = getopt_long(argc, argv, "p:h:", lopts, nullptr)) >= 0) {

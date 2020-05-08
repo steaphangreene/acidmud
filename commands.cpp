@@ -932,11 +932,13 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   int cnum = identify_command(cmd, (body != nullptr));
   if (cnum == COM_NONE && nmode) { // Now match ninja commands (for ninjas)
     for (int ctr = 1; comlist[ctr].id != COM_NONE; ++ctr) {
-      if ((comlist[ctr].sit & SIT_NINJAMODE) && cmd == comlist[ctr].command.substr(0, cmd.length())) {
+      if ((comlist[ctr].sit & SIT_NINJAMODE) &&
+          cmd == comlist[ctr].command.substr(0, cmd.length())) {
         cnum = ctr;
         break;
       }
-      if (comlist[ctr].id == COM_CHARACTERS && cmd == std::string_view("chars").substr(0, cmd.length())) {
+      if (comlist[ctr].id == COM_CHARACTERS &&
+          cmd == std::string_view("chars").substr(0, cmd.length())) {
         cnum = ctr;
         break;
       }
@@ -1521,8 +1523,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       }
       return 0;
     } else {
-      bool shouting =
-          (args.length() >= 4 && !std::any_of(args.begin(), args.end(), ascii_islower));
+      bool shouting = (args.length() >= 4 && !std::any_of(args.begin(), args.end(), ascii_islower));
       if (!shouting) {
         body->Parent()->SendOutF(
             ALL, 0, ";s says '%s'\n", "You say '%s'\n", body, body, std::string(args).c_str());
@@ -1548,7 +1549,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     } else {
       if (args.substr(0, 4) == "for ") {
         auto prefix = args.find_first_not_of(" \t\n\r", 4);
-        if(prefix == std::string::npos) {
+        if (prefix == std::string::npos) {
           args = "";
         } else {
           args = args.substr(prefix);
@@ -1696,14 +1697,14 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     int within = 0;
     if (args.substr(0, 3) == "at ") {
       auto prefix = args.find_first_not_of(" \t\n\r", 3);
-      if(prefix == std::string::npos) {
+      if (prefix == std::string::npos) {
         args = "";
       } else {
         args = args.substr(prefix);
       }
     } else if (args.substr(0, 3) == "in ") {
       auto prefix = args.find_first_not_of(" \t\n\r", 3);
-      if(prefix == std::string::npos) {
+      if (prefix == std::string::npos) {
         args = "";
       } else {
         args = args.substr(prefix);
@@ -3305,7 +3306,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_PUT) {
     if (args.substr(0, 3) == "in ") {
       auto prefix = args.find_first_not_of(" \t\n\r", 3);
-      if(prefix == std::string::npos) {
+      if (prefix == std::string::npos) {
         args = "";
       } else {
         args = args.substr(prefix);
@@ -4009,7 +4010,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_FILL) {
     if (args.substr(0, 5) == "from ") {
       auto prefix = args.find_first_not_of(" \t\n\r", 5);
-      if(prefix == std::string::npos) {
+      if (prefix == std::string::npos) {
         args = "";
       } else {
         args = args.substr(prefix);
@@ -5573,12 +5574,13 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         return 0;
       }
 
-      uint32_t maxask[6] = {crc32c("MaxBody"),
-                            crc32c("MaxQuickness"),
-                            crc32c("MaxStrength"),
-                            crc32c("MaxCharisma"),
-                            crc32c("MaxIntelligence"),
-                            crc32c("MaxWillpower")};
+      uint32_t maxask[6] = {
+          crc32c("MaxBody"),
+          crc32c("MaxQuickness"),
+          crc32c("MaxStrength"),
+          crc32c("MaxCharisma"),
+          crc32c("MaxIntelligence"),
+          crc32c("MaxWillpower")};
       if ((body) && (!body->Skill(maxask[attr]))) {
         body->SetSkill(maxask[attr], (body->NormAttribute(attr) * 3) / 2);
       }
@@ -6875,7 +6877,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     if (isdigit(args[0])) {
       amt = atoi(std::string(args).c_str());
       auto prefix = args.find_first_not_of("0123456789");
-      if(prefix == std::string::npos) {
+      if (prefix == std::string::npos) {
         args = "";
       } else {
         args = args.substr(prefix);
@@ -6913,7 +6915,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     if (isdigit(args[0])) {
       amt = atoi(std::string(args).c_str());
       auto prefix = args.find_first_not_of("0123456789");
-      if(prefix == std::string::npos) {
+      if (prefix == std::string::npos) {
         args = "";
       } else {
         args = args.substr(prefix);

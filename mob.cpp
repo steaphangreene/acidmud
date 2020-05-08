@@ -307,13 +307,14 @@ ArmorType::ArmorType(
   value = val;
 }
 
-static const std::string gen_replace[][4] = {{"{He}", "She", "He", "It"},
-                                             {"{Him}", "Her", "Him", "It"},
-                                             {"{His}", "Hers", "His", "Its"},
-                                             {"{he}", "she", "he", "it"},
-                                             {"{him}", "her", "him", "it"},
-                                             {"{his}", "hers", "his", "its"},
-                                             {"", "", "", ""}};
+static const std::string gen_replace[][4] = {
+    {"{He}", "She", "He", "It"},
+    {"{Him}", "Her", "Him", "It"},
+    {"{His}", "Hers", "His", "Its"},
+    {"{he}", "she", "he", "it"},
+    {"{him}", "her", "him", "it"},
+    {"{his}", "hers", "his", "its"},
+    {"", "", "", ""}};
 
 std::string gender_proc(const std::string& in, char gender) {
   std::string ret = in;
