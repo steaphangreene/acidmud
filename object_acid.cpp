@@ -116,7 +116,7 @@ int Object::SaveTo(FILE* fl) {
       stru,
       IsActive());
 
-  for (const auto sk : skills)
+  for (const auto& sk : skills)
     fprintf(fl, "|%.8X|%d", sk.first, sk.second);
   if (cur_skill != crc32c("None")) { // Added current skill to end in v0x13
     fprintf(fl, "|%.8X", cur_skill);

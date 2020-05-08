@@ -71,7 +71,7 @@ struct Command {
 };
 
 constexpr Command static_comlist[COM_MAX] = {
-    {COM_NONE, nullptr, nullptr, nullptr, 0},
+    {COM_NONE, "", "", "", 0},
     {COM_HELP,
      "help",
      "Get help for a topic or command.",
