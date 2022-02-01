@@ -1,6 +1,8 @@
 #ifndef STATS_HPP
 #define STATS_HPP
 
+#include <string>
+
 std::string SkillName(uint32_t);
 
 void init_skill_list();
