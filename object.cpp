@@ -1954,7 +1954,7 @@ std::vector<std::string> Object::FormatStats(
 }
 
 void Object::AddLink(Object* ob) {
-  auto ind = find(contents.begin(), contents.end(), ob);
+  auto ind = std::find(contents.begin(), contents.end(), ob);
   if (ind == contents.end()) {
     contents.push_back(ob);
     //    auto place = contents.end();
@@ -1967,10 +1967,10 @@ void Object::AddLink(Object* ob) {
 }
 
 void Object::RemoveLink(Object* ob) {
-  auto ind = find(contents.begin(), contents.end(), ob);
+  auto ind = std::find(contents.begin(), contents.end(), ob);
   while (ind != contents.end()) {
     contents.erase(ind);
-    ind = find(contents.begin(), contents.end(), ob);
+    ind = std::find(contents.begin(), contents.end(), ob);
   }
 }
 
@@ -2200,7 +2200,7 @@ void Object::Recycle(int inbin) {
   }
 
   for (auto indk : killers) {
-    if (find(contents.begin(), contents.end(), indk) != contents.end()) {
+    if (std::find(contents.begin(), contents.end(), indk) != contents.end()) {
       indk->SetParent(nullptr);
       RemoveLink(indk);
       indk->Recycle();
@@ -2581,7 +2581,7 @@ std::vector<Object*> Object::PickObjects(std::string name, int loc, int* ordinal
     auto cont(contents);
 
     for (auto action : act) {
-      auto ind = find(cont.begin(), cont.end(), action.second);
+      auto ind = std::find(cont.begin(), cont.end(), action.second);
       if (ind != cont.end()) { // IE: Is action.second within cont
         cont.erase(ind);
         if (action.second->Filter(loc) && action.second->Matches(name) &&
@@ -3733,7 +3733,7 @@ std::vector<Object*> Object::Contents() {
 }
 
 int Object::Contains(const Object* obj) {
-  return (find(contents.begin(), contents.end(), obj) != contents.end());
+  return (std::find(contents.begin(), contents.end(), obj) != contents.end());
 }
 
 void Object::EarnExp(int e) {
