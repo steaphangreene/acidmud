@@ -253,7 +253,7 @@ std::string load_tba_field(FILE* fd) {
       ret = buffer;
     }
   }
-  while (ret.back() != '~') {
+  while (ret.length() == 0 || ret.back() != '~') {
     char buffer[65536] = {};
     ret += "\n";
     if (!fscanf(fd, "%65535[^\n]%*c", buffer)) {
