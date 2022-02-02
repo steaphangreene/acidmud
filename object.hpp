@@ -29,6 +29,7 @@
 #include <cstdio>
 #include <ctime>
 
+#include "minvec.hpp"
 #include "stats.hpp"
 
 class Object;
@@ -216,13 +217,13 @@ class Object {
   void NotifyGone(Object* obj, Object* newloc = nullptr, int up = 1);
 
   Object* PickObject(const std::string& name, int loc, int* ordinal = nullptr) const;
-  std::vector<Object*> PickObjects(std::string name, int loc, int* ordinal = nullptr) const;
+  MinVec<Object*> PickObjects(std::string name, int loc, int* ordinal = nullptr) const;
   int IsNearBy(const Object* obj);
   int SeeWithin(const Object* obj); // Recursive & Visible
   int HasWithin(const Object* obj); // Recursive (All)
   int Contains(const Object* obj); // Only Immediately (No Recursion)
-  std::vector<Object*> Contents(int vmode);
-  std::vector<Object*> Contents();
+  MinVec<Object*> Contents(int vmode);
+  MinVec<Object*> Contents();
 
   int ContainedWeight();
   int ContainedVolume();
@@ -462,7 +463,7 @@ class Object {
   std::string short_desc;
   std::string desc;
   std::string long_desc;
-  std::vector<Object*> contents;
+  MinVec<Object*> contents;
   Object* parent;
   std::set<Mind*> minds;
   pos_t pos;

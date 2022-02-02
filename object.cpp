@@ -496,7 +496,7 @@ int Object::Tick() {
       corpse->SetVolume(Volume());
 
       std::set<Object*> todrop;
-      std::vector<Object*> todropfrom;
+      MinVec<Object*> todropfrom;
       todropfrom.push_back(this);
 
       for (auto con : todropfrom) {
@@ -2432,7 +2432,7 @@ Object* Object::Split(int nqty) {
   return nobj;
 }
 
-static int tag(Object* obj, std::vector<Object*>& ret, int* ordinal, int vmode = 0) {
+static int tag(Object* obj, MinVec<Object*>& ret, int* ordinal, int vmode = 0) {
   // Only Ninjas in Ninja-Mode should detect these
   if (obj->Skill(crc32c("Invisible")) > 999 && (vmode & LOC_NINJA) == 0)
     return 0;
@@ -2499,8 +2499,8 @@ static int tag(Object* obj, std::vector<Object*>& ret, int* ordinal, int vmode =
   return 0;
 }
 
-std::vector<Object*> Object::PickObjects(std::string name, int loc, int* ordinal) const {
-  std::vector<Object*> ret;
+MinVec<Object*> Object::PickObjects(std::string name, int loc, int* ordinal) const {
+  MinVec<Object*> ret;
 
   trim_string(name);
 
@@ -3728,8 +3728,8 @@ void Object::operator=(const Object& in) {
   //  act = in.act;
 }
 
-std::vector<Object*> Object::Contents(int vmode) {
-  std::vector<Object*> ret;
+MinVec<Object*> Object::Contents(int vmode) {
+  MinVec<Object*> ret;
   if (vmode & LOC_NINJA) {
     ret = contents;
   } else {
@@ -3749,7 +3749,7 @@ std::vector<Object*> Object::Contents(int vmode) {
   return ret;
 }
 
-std::vector<Object*> Object::Contents() {
+MinVec<Object*> Object::Contents() {
   return contents;
 }
 
@@ -4302,7 +4302,7 @@ std::string Object::WearNames(int m) const {
 }
 
 Object* Object::Stash(Object* item, int message, int force, int try_combine) {
-  std::vector<Object*> containers;
+  MinVec<Object*> containers;
   auto my_cont = PickObjects("all", LOC_INTERNAL);
   for (auto ind : my_cont) {
     if (ind->Skill(crc32c("Container")) &&
