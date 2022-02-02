@@ -10,7 +10,7 @@ LIBS:=	-lstdc++ -lcrypt -lfmt
 all:	acidmud
 
 #Production Settings (dynamic)
-CXX=clang++-10
+CXX=clang++-11
 CXXFLAGS=-std=c++20 -O3 -g -Wall -Wshadow -Werror -ferror-limit=2
 
 #Use debugging settings
