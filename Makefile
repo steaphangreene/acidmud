@@ -25,7 +25,7 @@ gcc:
 	+make CXX='g++' CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -g -Wall -Wshadow -Werror -fmax-errors=2'
 
 clean:
-	rm -f gmon.out deps.mk *.o *.da acidmud ChangeLog ChangeLog.bak
+	rm -f gmon.out deps.mk *.o *.da version.cpp acidmud ChangeLog ChangeLog.bak
 
 backup:
 	cd ..;tar chvf ~/c/archive/acidmud.$(TSTR).tar \
