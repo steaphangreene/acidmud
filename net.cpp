@@ -137,7 +137,7 @@ void start_net(int port, const std::string& host) {
   sa.sin_family = AF_INET;
   sa.sin_port = htons(port);
   if (host.empty()) {
-    sa.sin_addr.s_addr = htonl(INADDR_ANY);
+    sa.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
   } else {
     sa.sin_addr.s_addr = ((struct in_addr*)(gethostbyname(host.c_str())->h_addr))->s_addr;
   }
