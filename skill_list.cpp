@@ -24,6 +24,7 @@
 // clang-format off
 
 #include <map>
+#include <vector>
 
 #include "stats.hpp"
 #include "utils.hpp"

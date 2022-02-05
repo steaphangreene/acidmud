@@ -20,7 +20,8 @@
 // *************************************************************************
 
 #include <string>
-#include <vector>
+
+#include "minvec.hpp"
 
 // String Functions
 void replace_all(std::string& str, const std::string& oldt, const std::string& newt, size_t st = 0);
@@ -124,9 +125,7 @@ constexpr uint32_t crc32c(const std::string& str) {
 }
 
 template <typename T>
-typename std::vector<std::pair<uint32_t, T>>::iterator hash_guess(
-    std::vector<std::pair<uint32_t, T>>& data,
-    uint32_t hash) {
+typename T::iterator hash_guess(T& data, uint32_t hash) {
   if (data.empty())
     return data.end();
 
@@ -135,9 +134,7 @@ typename std::vector<std::pair<uint32_t, T>>::iterator hash_guess(
 }
 
 template <typename T>
-typename std::vector<std::pair<uint32_t, T>>::iterator hash_locate(
-    std::vector<std::pair<uint32_t, T>>& data,
-    uint32_t hash) {
+typename T::iterator hash_locate(T& data, uint32_t hash) {
   if (data.empty())
     return data.end();
 
@@ -156,9 +153,7 @@ typename std::vector<std::pair<uint32_t, T>>::iterator hash_locate(
 }
 
 template <typename T>
-typename std::vector<std::pair<uint32_t, T>>::iterator hash_find(
-    std::vector<std::pair<uint32_t, T>>& data,
-    uint32_t hash) {
+typename T::iterator hash_find(T& data, uint32_t hash) {
   if (data.empty())
     return data.end();
 
@@ -169,9 +164,7 @@ typename std::vector<std::pair<uint32_t, T>>::iterator hash_find(
 }
 
 template <typename T>
-typename std::vector<std::pair<uint32_t, T>>::const_iterator hash_guess(
-    const std::vector<std::pair<uint32_t, T>>& data,
-    uint32_t hash) {
+typename T::const_iterator hash_guess(const T& data, uint32_t hash) {
   if (data.empty())
     return data.end();
 
@@ -180,9 +173,7 @@ typename std::vector<std::pair<uint32_t, T>>::const_iterator hash_guess(
 }
 
 template <typename T>
-typename std::vector<std::pair<uint32_t, T>>::const_iterator hash_locate(
-    const std::vector<std::pair<uint32_t, T>>& data,
-    uint32_t hash) {
+typename T::const_iterator hash_locate(const T& data, uint32_t hash) {
   if (data.empty())
     return data.end();
 
@@ -201,9 +192,7 @@ typename std::vector<std::pair<uint32_t, T>>::const_iterator hash_locate(
 }
 
 template <typename T>
-typename std::vector<std::pair<uint32_t, T>>::const_iterator hash_find(
-    const std::vector<std::pair<uint32_t, T>>& data,
-    uint32_t hash) {
+typename T::const_iterator hash_find(const T& data, uint32_t hash) {
   if (data.empty())
     return data.end();
 

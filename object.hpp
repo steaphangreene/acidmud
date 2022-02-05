@@ -123,6 +123,12 @@ enum act_t {
   ACT_SPECIAL_MAX
 };
 
+struct skill_pair {
+  uint32_t first;
+  int32_t second;
+  bool operator==(const skill_pair&) const = default;
+};
+
 #define ALL (-0x7FFFFFFF)
 #define SOME (-0x7FFFFFFE)
 
@@ -178,10 +184,8 @@ class Object {
   void SendLongDesc(Mind* m, Object* o = nullptr);
   void SendLongDesc(Object* m, Object* o = nullptr);
   void SendScore(Mind* m, Object* o = nullptr);
-  std::vector<std::string> FormatStats(
-      const std::vector<std::pair<uint32_t, int32_t>>& skls); // Modifies skls
-  std::vector<std::string> FormatSkills(
-      const std::vector<std::pair<uint32_t, int32_t>>& skls); // Modifies skls
+  std::vector<std::string> FormatStats(const MinVec<skill_pair>& skls); // Modifies skls
+  std::vector<std::string> FormatSkills(const MinVec<skill_pair>& skls); // Modifies skls
 
   void Link(
       Object* other,
@@ -312,7 +316,7 @@ class Object {
   int SubHasSkill(uint32_t) const;
   int SubMaxSkill(uint32_t) const;
   Object* NextHasSkill(uint32_t, const Object* last = nullptr);
-  std::vector<std::pair<uint32_t, int32_t>> GetSkills() const;
+  MinVec<skill_pair> GetSkills() const;
   void SetAttribute(int, int);
   void SetModifier(int, int);
   void SetSkill(uint32_t, int);
@@ -482,7 +486,7 @@ class Object {
     int8_t cur = 0;
     int16_t mod = 0;
   } att[6];
-  std::vector<std::pair<uint32_t, int32_t>> skills;
+  MinVec<skill_pair> skills;
 
   int no_seek; // Recursion protection
   int no_hear; // For Send() protection

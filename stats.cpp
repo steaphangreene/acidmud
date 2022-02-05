@@ -194,7 +194,7 @@ void Object::SetSkill(uint32_t stok, int v) {
   auto itr = hash_locate(skills, stok);
   if (itr == skills.end() || itr->first != stok) {
     if (v > 0) {
-      skills.emplace(itr, std::make_pair(stok, v));
+      skills.emplace(itr, skill_pair{stok, v});
     }
   } else if (v <= 0) {
     skills.erase(itr);
@@ -215,7 +215,7 @@ void Object::SetSkill(const std::string& s, int v) {
   auto itr = hash_locate(skills, stok);
   if (itr == skills.end() || itr->first != stok) {
     if (v > 0) {
-      skills.emplace(itr, std::make_pair(stok, v));
+      skills.emplace(itr, skill_pair{stok, v});
     }
   } else if (v <= 0) {
     skills.erase(itr);

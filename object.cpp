@@ -1665,8 +1665,7 @@ void Object::SendScore(Mind* m, Object* o) {
   }
 }
 
-std::vector<std::string> Object::FormatSkills(
-    const std::vector<std::pair<uint32_t, int32_t>>& skls) {
+std::vector<std::string> Object::FormatSkills(const MinVec<skill_pair>& skls) {
   std::vector<std::string> ret;
 
   auto save = skls;
@@ -1683,7 +1682,7 @@ std::vector<std::string> Object::FormatSkills(
 
 static void stick_on(
     std::vector<std::string>& out,
-    const std::vector<std::pair<uint32_t, int32_t>>& skls,
+    const MinVec<skill_pair>& skls,
     uint32_t stok,
     const std::string label) {
   char buf2[256];
@@ -1703,8 +1702,7 @@ static void stick_on(
   }
 }
 
-std::vector<std::string> Object::FormatStats(
-    const std::vector<std::pair<uint32_t, int32_t>>& skls) {
+std::vector<std::string> Object::FormatStats(const MinVec<skill_pair>& skls) {
   std::vector<std::string> ret;
 
   if (HasSkill(crc32c("TBAScriptType"))) { // It's a TBA script
@@ -4582,7 +4580,7 @@ Object* new_obj(const Object& o) {
   return new Object(o);
 }
 
-std::vector<std::pair<uint32_t, int32_t>> Object::GetSkills() const {
+MinVec<skill_pair> Object::GetSkills() const {
   auto ret = skills;
 
   std::sort(ret.begin(), ret.end(), [](auto& s1, auto& s2) {
