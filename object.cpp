@@ -1603,7 +1603,7 @@ void Object::SendScore(Mind* m, Object* o) {
   }
 
   auto c1 = col1.begin();
-  auto c2 = find_if(skls.begin(), skls.end(), [](auto skl) { return !is_skill(skl.first); });
+  auto c2 = std::find_if(skls.begin(), skls.end(), [](auto skl) { return !is_skill(skl.first); });
   while (c1 != col1.end() || c2 != skls.end()) {
     if (c1 != col1.end()) {
       m->SendF("%41s ", c1->c_str()); // Note: 41 is 32 (2 Color Escape Codes)
@@ -1616,7 +1616,7 @@ void Object::SendScore(Mind* m, Object* o) {
       m->SendF("%28s: %8d", SkillName(c2->first).c_str(), c2->second);
       c2++;
       if (c2 != skls.end()) {
-        c2 = find_if(c2, skls.end(), [](auto skl) { return !is_skill(skl.first); });
+        c2 = std::find_if(c2, skls.end(), [](auto skl) { return !is_skill(skl.first); });
       }
     }
 
@@ -1688,7 +1688,8 @@ static void stick_on(
     const std::string label) {
   char buf2[256];
 
-  auto itr = find_if(skls.begin(), skls.end(), [stok](auto skl) { return (skl.first == stok); });
+  auto itr =
+      std::find_if(skls.begin(), skls.end(), [stok](auto skl) { return (skl.first == stok); });
   if (itr != skls.end()) {
     if (itr->second > 0) {
       sprintf(
