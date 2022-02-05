@@ -871,6 +871,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
   std::string_view cmd = line;
   std::string_view args = line;
+  std::string args_buf;
 
   auto c1 = cmd.find_first_not_of(" \t\n\r;");
   if (c1 == std::string::npos) {
@@ -1268,7 +1269,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       mind->SendF("You try to flee %s.\n", (*dir)->ShortDesc().c_str());
 
     cnum = COM_ENTER;
-    args = (*dir)->ShortDesc();
+    args_buf = (*dir)->ShortDesc();
+    args = args_buf;
   }
 
   if (cnum == COM_ENTER) {
