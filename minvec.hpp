@@ -148,6 +148,7 @@ class MinVec {
 
   void reserve(size_t cap) {
     if (cap > C && cap > cap_) {
+      assert(cap <= 0x80000000U);
       if (cap_ == 0 && size_ == 0) {
         cap_ = cap;
         data_.arr = new T[cap_];
@@ -242,6 +243,7 @@ class MinVec {
     } else if (size_ < cap_) {
       data_.arr[size_] = in;
     } else {
+      assert(cap_ <= 0x40000000U);
       T* temp = data_.arr;
       cap_ *= 2;
       data_.arr = new T[cap_];
@@ -336,6 +338,9 @@ class MinVec {
 
   // This implementation is optimized for storing only 64-bit types
   static_assert(sizeof(T) == 8);
+
+  // Sanity check - this containter is for SMALL vectors
+  static_assert(next_pow_2(C) <= 0x80000000U);
 };
 
 // This implementation is optimized assuming its total size is 16
