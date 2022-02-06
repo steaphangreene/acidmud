@@ -191,10 +191,15 @@ void Object::SetSkill(uint32_t stok, int v) {
 
   confirm_skill_hash(stok);
 
-  auto itr = hash_locate(skills, stok);
-  if (itr == skills.end() || itr->first != stok) {
+  auto itr = skills.begin();
+  for (; itr != skills.end(); ++itr) {
+    if (itr->first == stok) {
+      break;
+    }
+  }
+  if (itr == skills.end()) {
     if (v > 0) {
-      skills.emplace(itr, skill_pair{stok, v});
+      skills.push_back(skill_pair{stok, v});
     }
   } else if (v <= 0) {
     skills.erase(itr);
@@ -212,10 +217,15 @@ void Object::SetSkill(const std::string& s, int v) {
   auto stok = crc32c(s);
   insert_skill_hash(stok, s);
 
-  auto itr = hash_locate(skills, stok);
-  if (itr == skills.end() || itr->first != stok) {
+  auto itr = skills.begin();
+  for (; itr != skills.end(); ++itr) {
+    if (itr->first == stok) {
+      break;
+    }
+  }
+  if (itr == skills.end()) {
     if (v > 0) {
-      skills.emplace(itr, skill_pair{stok, v});
+      skills.push_back(skill_pair{stok, v});
     }
   } else if (v <= 0) {
     skills.erase(itr);
@@ -225,7 +235,12 @@ void Object::SetSkill(const std::string& s, int v) {
 }
 
 int Object::HasSkill(uint32_t stok) const {
-  auto itr = hash_find(skills, stok);
+  auto itr = skills.begin();
+  for (; itr != skills.end(); ++itr) {
+    if (itr->first == stok) {
+      break;
+    }
+  }
   return (itr != skills.end());
 }
 
@@ -233,7 +248,12 @@ int Object::SkillTarget(uint32_t stok) const {
   if (!defaults_init)
     init_defaults();
 
-  auto itr = hash_find(skills, stok);
+  auto itr = skills.begin();
+  for (; itr != skills.end(); ++itr) {
+    if (itr->first == stok) {
+      break;
+    }
+  }
   if (itr != skills.end()) {
     return itr->second + ModAttribute(defaults[stok]);
   } else {
@@ -246,9 +266,10 @@ int Object::Skill(uint32_t stok) const {
   if (!defaults_init)
     init_defaults();
 
-  auto itr = hash_find(skills, stok);
-  if (itr != skills.end()) {
-    return itr->second;
+  for (auto itr = skills.begin(); itr != skills.end(); ++itr) {
+    if (itr->first == stok) {
+      return itr->second;
+    }
   }
   return 0;
 }

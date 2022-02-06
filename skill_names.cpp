@@ -601,15 +601,19 @@ void init_skill_names() {
 }
 
 void confirm_skill_hash(uint32_t stok) {
-  auto itn = hash_locate(skill_names, stok);
-  if (itn == skill_names.end() || itn->first != stok) {
+  auto itn = skill_names.begin();
+  for (; itn != skill_names.end() && itn->first != stok; ++itn) {
+  }
+  if (itn == skill_names.end()) {
     fprintf(stderr, CRED "Error: bogus skill hash (x%X)\n" CNRM, stok);
     skill_names.emplace(itn, std::make_pair(stok, "Unknown"));
   }
 }
 void insert_skill_hash(uint32_t stok, const std::string& s) {
-  auto itn = hash_locate(skill_names, stok);
-  if (itn == skill_names.end() || itn->first != stok) {
+  auto itn = skill_names.begin();
+  for (; itn != skill_names.end() && itn->first != stok; ++itn) {
+  }
+  if (itn == skill_names.end()) {
     skill_names.emplace(itn, std::make_pair(stok, s));
   }
 }
