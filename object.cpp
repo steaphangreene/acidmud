@@ -496,7 +496,7 @@ int Object::Tick() {
       corpse->SetVolume(Volume());
 
       std::set<Object*> todrop;
-      MinVec<Object*> todropfrom;
+      MinVec<1, Object*> todropfrom;
       todropfrom.push_back(this);
 
       for (auto con : todropfrom) {
@@ -1665,7 +1665,7 @@ void Object::SendScore(Mind* m, Object* o) {
   }
 }
 
-std::vector<std::string> Object::FormatSkills(const MinVec<skill_pair>& skls) {
+std::vector<std::string> Object::FormatSkills(const MinVec<3, skill_pair>& skls) {
   std::vector<std::string> ret;
 
   auto save = skls;
@@ -1682,7 +1682,7 @@ std::vector<std::string> Object::FormatSkills(const MinVec<skill_pair>& skls) {
 
 static void stick_on(
     std::vector<std::string>& out,
-    const MinVec<skill_pair>& skls,
+    const MinVec<3, skill_pair>& skls,
     uint32_t stok,
     const std::string label) {
   char buf2[256];
@@ -1702,7 +1702,7 @@ static void stick_on(
   }
 }
 
-std::vector<std::string> Object::FormatStats(const MinVec<skill_pair>& skls) {
+std::vector<std::string> Object::FormatStats(const MinVec<3, skill_pair>& skls) {
   std::vector<std::string> ret;
 
   if (HasSkill(crc32c("TBAScriptType"))) { // It's a TBA script
@@ -2431,7 +2431,7 @@ Object* Object::Split(int nqty) {
   return nobj;
 }
 
-static int tag(Object* obj, MinVec<Object*>& ret, int* ordinal, int vmode = 0) {
+static int tag(Object* obj, MinVec<1, Object*>& ret, int* ordinal, int vmode = 0) {
   // Only Ninjas in Ninja-Mode should detect these
   if (obj->Skill(crc32c("Invisible")) > 999 && (vmode & LOC_NINJA) == 0)
     return 0;
@@ -2498,8 +2498,8 @@ static int tag(Object* obj, MinVec<Object*>& ret, int* ordinal, int vmode = 0) {
   return 0;
 }
 
-MinVec<Object*> Object::PickObjects(std::string name, int loc, int* ordinal) const {
-  MinVec<Object*> ret;
+MinVec<1, Object*> Object::PickObjects(std::string name, int loc, int* ordinal) const {
+  MinVec<1, Object*> ret;
 
   trim_string(name);
 
@@ -3727,8 +3727,8 @@ void Object::operator=(const Object& in) {
   //  act = in.act;
 }
 
-MinVec<Object*> Object::Contents(int vmode) {
-  MinVec<Object*> ret;
+MinVec<1, Object*> Object::Contents(int vmode) {
+  MinVec<1, Object*> ret;
   if (vmode & LOC_NINJA) {
     ret = contents;
   } else {
@@ -3748,7 +3748,7 @@ MinVec<Object*> Object::Contents(int vmode) {
   return ret;
 }
 
-MinVec<Object*> Object::Contents() {
+MinVec<1, Object*> Object::Contents() {
   return contents;
 }
 
@@ -4301,7 +4301,7 @@ std::string Object::WearNames(int m) const {
 }
 
 Object* Object::Stash(Object* item, int message, int force, int try_combine) {
-  MinVec<Object*> containers;
+  MinVec<1, Object*> containers;
   auto my_cont = PickObjects("all", LOC_INTERNAL);
   for (auto ind : my_cont) {
     if (ind->Skill(crc32c("Container")) &&
@@ -4580,7 +4580,7 @@ Object* new_obj(const Object& o) {
   return new Object(o);
 }
 
-MinVec<skill_pair> Object::GetSkills() const {
+MinVec<3, skill_pair> Object::GetSkills() const {
   auto ret = skills;
 
   std::sort(ret.begin(), ret.end(), [](auto& s1, auto& s2) {

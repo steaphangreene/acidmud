@@ -784,7 +784,7 @@ void Mind::TBAVarSub(std::string& line) {
       }
       end = line.find_first_of("% \t", cur + 1); // Done.  Replace All.
     } else if (!strncmp(line.c_str() + cur, "%random.char%", 13)) {
-      MinVec<Object*> others;
+      MinVec<1, Object*> others;
       if (ovars["self"]->HasSkill(crc32c("TBARoom"))) {
         others = ovars["self"]->PickObjects("everyone", LOC_INTERNAL);
       } else if (ovars["self"]->Owner()) {

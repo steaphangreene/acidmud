@@ -6,18 +6,18 @@
 //  objects, such as pointers.
 //
 //  MinVec is essentially just a special case of small-vector-optimized
-//  vector, where only capacity 1 is stored within the class, and for all
+//  vector, where only capacity C is stored within the class, and for all
 //  higher capacities, the data is stored in a dynamic array, like vector.
 //
 //  The length and capacity are limited to a 32-bit unsigned value, which
-//  reduces the total size of each MinVec to 16 bytes, making it always
+//  reduces the total size of each MinVec<1> to 16 bytes, making it always
 //  smaller than vector, except perhaps in some cases with untuned capacity.
 //
 //  The capacity of MinVec is never reduced, except on object destruction,
 //  or when being moved from.
 //
 //  The cap_ member of MinVec is the capacity, or is zero if the capacity
-//  is the default (which is 1).  This is so most of the comparisons can be
+//  is the default (which is C).  This is so most of the comparisons can be
 //  with zero (which is often best optimized), and so this class can be
 //  trivially default initialized by setting all memory to zeros.
 //
@@ -47,7 +47,7 @@
 #ifndef MINVEC_HPP
 #define MINVEC_HPP
 
-template <typename T>
+template <int C, typename T>
 class MinVec {
  public:
   using iterator = T*;
@@ -140,14 +140,14 @@ class MinVec {
   };
   size_t capacity() const {
     if (cap_ == 0) {
-      return 1;
+      return C;
     } else {
       return cap_;
     }
   };
 
   void reserve(size_t cap) {
-    if (cap > 1 && cap > cap_) {
+    if (cap > C && cap > cap_) {
       if (cap_ == 0 && size_ == 0) {
         cap_ = cap;
         data_.arr = new T[cap_];
@@ -207,12 +207,33 @@ class MinVec {
     }
   };
 
+  static constexpr uint32_t smear_bits_right(uint32_t val) {
+    uint32_t ret = (val >> 1);
+    if (ret != 0) {
+      ret |= smear_bits_right(ret);
+    }
+    return ret | val;
+  }
+  static constexpr uint32_t next_pow_2(uint32_t val) {
+    return smear_bits_right(val) + 1;
+  };
+  static_assert(next_pow_2(0U) == 1U);
+  static_assert(next_pow_2(1U) == 2U);
+  static_assert(next_pow_2(2U) == 4U);
+  static_assert(next_pow_2(3U) == 4U);
+  static_assert(next_pow_2(11U) == 16U);
+  static_assert(next_pow_2(16U) == 32U);
+  static_assert(next_pow_2(257U) == 512U);
+  static_assert(next_pow_2(1024U) == 2048U);
+  static_assert(next_pow_2(0x40000000U) == 0x80000000U);
+  static_assert(next_pow_2(0x7FFFFFFFU) == 0x80000000U);
+
   void push_back(T in) {
-    if (cap_ == 0 && size_ == 0) {
+    if (cap_ == 0 && size_ < C) {
       data_.val[size_] = in;
     } else if (cap_ == 0) {
       auto temp = data_;
-      cap_ = 2;
+      cap_ = next_pow_2(C);
       data_.arr = new T[cap_];
       for (int idx = 0; idx < size_; ++idx) {
         data_.arr[idx] = temp.val[idx];
@@ -307,10 +328,10 @@ class MinVec {
 
  private:
   union {
-    T val[1];
+    T val[C];
     T* arr;
   } data_;
-  uint32_t cap_ = 0; // 0 means default capacity (of 1)
+  uint32_t cap_ = 0; // 0 means default capacity (of C)
   uint32_t size_ = 0;
 
   // This implementation is optimized for storing only 64-bit types
@@ -318,6 +339,6 @@ class MinVec {
 };
 
 // This implementation is optimized assuming its total size is 16
-static_assert(sizeof(MinVec<void*>) == 16);
+static_assert(sizeof(MinVec<1, void*>) == 16);
 
 #endif // MINVEC_HPP

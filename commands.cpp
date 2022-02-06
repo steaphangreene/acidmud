@@ -987,7 +987,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if ((!nmode) && cnum != COM_RECALL && body && body->Parent()) {
-    MinVec<Object*> items;
+    MinVec<1, Object*> items;
     Object* room = body->PickObject("here", LOC_HERE);
     auto items2 = body->PickObjects("everything", LOC_INTERNAL | LOC_NEARBY);
     auto items3 = body->PickObjects("everyone", LOC_NEARBY);
@@ -1735,7 +1735,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       within = 1;
     }
 
-    MinVec<Object*> targs;
+    MinVec<1, Object*> targs;
     if (!args.empty()) {
       targs = body->PickObjects(
           std::string(args), vmode | LOC_NEARBY | LOC_ADJACENT | LOC_SELF | LOC_INTERNAL);
@@ -1819,7 +1819,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
 
-    MinVec<Object*> targs;
+    MinVec<1, Object*> targs;
     if (!args.empty()) {
       targs = body->PickObjects(
           std::string(args), vmode | LOC_NEARBY | LOC_ADJACENT | LOC_SELF | LOC_INTERNAL);
@@ -1899,7 +1899,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_HIDE) {
-    MinVec<Object*> targs;
+    MinVec<1, Object*> targs;
     if (args.empty()) {
       targs.push_back(body);
     } else {
@@ -2655,7 +2655,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
 
     auto objs = body->Parent()->Contents(vmode);
-    MinVec<Object*> shpkps;
+    MinVec<1, Object*> shpkps;
     std::string reason = "";
     for (auto shpkp : objs) {
       if (shpkp->Skill(crc32c("Sell Profit"))) {
@@ -2709,7 +2709,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     }
 
     auto objs = body->Parent()->Contents(vmode);
-    MinVec<Object*> shpkps;
+    MinVec<1, Object*> shpkps;
     std::string reason = "";
     for (auto shpkp : objs) {
       if (shpkp->Skill(crc32c("Sell Profit"))) {
@@ -2924,7 +2924,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       wearable = 1;
 
     auto objs = body->Parent()->Contents();
-    MinVec<Object*> shpkps;
+    MinVec<1, Object*> shpkps;
     std::string reason = "Sorry, nobody is buying that sort of thing here.\n";
     uint32_t skill = crc32c("None");
     for (auto shpkp : objs) {
@@ -3707,7 +3707,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_WEAR) {
-    MinVec<Object*> targs;
+    MinVec<1, Object*> targs;
 
     if (args.empty()) {
       if (body->ActTarg(ACT_HOLD)) {

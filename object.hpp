@@ -184,8 +184,8 @@ class Object {
   void SendLongDesc(Mind* m, Object* o = nullptr);
   void SendLongDesc(Object* m, Object* o = nullptr);
   void SendScore(Mind* m, Object* o = nullptr);
-  std::vector<std::string> FormatStats(const MinVec<skill_pair>& skls); // Modifies skls
-  std::vector<std::string> FormatSkills(const MinVec<skill_pair>& skls); // Modifies skls
+  std::vector<std::string> FormatStats(const MinVec<3, skill_pair>& skls); // Modifies skls
+  std::vector<std::string> FormatSkills(const MinVec<3, skill_pair>& skls); // Modifies skls
 
   void Link(
       Object* other,
@@ -221,13 +221,13 @@ class Object {
   void NotifyGone(Object* obj, Object* newloc = nullptr, int up = 1);
 
   Object* PickObject(const std::string& name, int loc, int* ordinal = nullptr) const;
-  MinVec<Object*> PickObjects(std::string name, int loc, int* ordinal = nullptr) const;
+  MinVec<1, Object*> PickObjects(std::string name, int loc, int* ordinal = nullptr) const;
   int IsNearBy(const Object* obj);
   int SeeWithin(const Object* obj); // Recursive & Visible
   int HasWithin(const Object* obj); // Recursive (All)
   int Contains(const Object* obj); // Only Immediately (No Recursion)
-  MinVec<Object*> Contents(int vmode);
-  MinVec<Object*> Contents();
+  MinVec<1, Object*> Contents(int vmode);
+  MinVec<1, Object*> Contents();
 
   int ContainedWeight();
   int ContainedVolume();
@@ -316,7 +316,7 @@ class Object {
   int SubHasSkill(uint32_t) const;
   int SubMaxSkill(uint32_t) const;
   Object* NextHasSkill(uint32_t, const Object* last = nullptr);
-  MinVec<skill_pair> GetSkills() const;
+  MinVec<3, skill_pair> GetSkills() const;
   void SetAttribute(int, int);
   void SetModifier(int, int);
   void SetSkill(uint32_t, int);
@@ -467,7 +467,7 @@ class Object {
   std::string short_desc;
   std::string desc;
   std::string long_desc;
-  MinVec<Object*> contents;
+  MinVec<1, Object*> contents;
   Object* parent;
   std::set<Mind*> minds;
   pos_t pos;
@@ -486,7 +486,7 @@ class Object {
     int8_t cur = 0;
     int16_t mod = 0;
   } att[6];
-  MinVec<skill_pair> skills;
+  MinVec<3, skill_pair> skills;
 
   int no_seek; // Recursion protection
   int no_hear; // For Send() protection
