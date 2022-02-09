@@ -2749,6 +2749,45 @@ int Mind::TBARunLine(std::string line) {
     Disable();
     return 1;
   }
+
+  // Player commands different between Acid and TBA, requiring arguments
+  else if (!strncmp(line.c_str(), "give ", 5)) {
+    size_t start = line.find_first_not_of(" \t\r\n", 5);
+    if (start != std::string::npos) {
+      size_t end = line.find_first_of(" \t\r\n", start);
+      if (end != std::string::npos) {
+        handle_command(ovars["self"], std::string("hold ") + line.substr(start, end - start));
+      } else {
+        handle_command(ovars["self"], std::string("hold ") + line.substr(start));
+      }
+      start = line.find_first_not_of(" \t\r\n", end);
+      if (start != std::string::npos) {
+        end = line.find_first_of(" \t\r\n", start);
+        if (end != std::string::npos) {
+          handle_command(ovars["self"], std::string("offer ") + line.substr(start, end - start));
+        } else {
+          handle_command(ovars["self"], std::string("offer ") + line.substr(start));
+        }
+      } else {
+        fprintf(
+            stderr,
+            CRED "#%d Error: Told just '%s'\n" CNRM,
+            body->Skill(crc32c("TBAScript")),
+            line.c_str());
+        Disable();
+        return 1;
+      }
+    } else {
+      fprintf(
+          stderr,
+          CRED "#%d Error: Told just '%s'\n" CNRM,
+          body->Skill(crc32c("TBAScript")),
+          line.c_str());
+      Disable();
+      return 1;
+    }
+  }
+
   // Player commands Acid shares with TBA, requiring arguments
   else if (
       com == COM_SAY || com == COM_SHOUT || com == COM_EMOTE || com == COM_LOCK ||
