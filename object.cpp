@@ -2307,11 +2307,21 @@ void Object::Recycle(int inbin) {
 }
 
 void Object::Attach(Mind* m) {
-  minds.insert(m);
+  auto itr = minds.begin();
+  for (; itr != minds.end() && (*itr) != m; ++itr) {
+  }
+  if (itr == minds.end()) {
+    minds.push_back(m);
+  }
 }
 
 void Object::Unattach(Mind* m) {
-  minds.erase(m);
+  auto itr = minds.begin();
+  for (; itr != minds.end() && (*itr) != m; ++itr) {
+  }
+  if (itr != minds.end()) {
+    minds.erase(itr);
+  }
   if (m->Body() == this) {
     m->Unattach();
   }

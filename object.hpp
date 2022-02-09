@@ -469,7 +469,7 @@ class Object {
   std::string long_desc;
   MinVec<1, Object*> contents;
   Object* parent;
-  std::set<Mind*> minds;
+  MinVec<1, Mind*> minds;
   pos_t pos;
   uint32_t cur_skill;
 
