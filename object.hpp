@@ -445,8 +445,8 @@ class Object {
   std::string Tactics(int phase = -1);
 
   void operator=(const Object& in);
-  int operator==(const Object& in) const;
-  int operator!=(const Object& in) const;
+
+  bool IsSameAs(const Object& in) const;
 
   int Matches(std::string seek);
   int LooksLike(Object* other, int vmode = 0);

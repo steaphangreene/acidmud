@@ -2061,7 +2061,7 @@ void Object::TryCombine() {
     if (actee)
       continue;
 
-    if ((*this) == (*obj)) {
+    if (IsSameAs(*obj)) {
       // fprintf(stderr, "Combining '%s'\n", Name().c_str());
       int val;
 
@@ -3611,11 +3611,7 @@ std::string Object::Tactics(int phase) {
   return ret;
 }
 
-int Object::operator!=(const Object& in) const {
-  return !((*this) == in);
-}
-
-int Object::operator==(const Object& in) const {
+bool Object::IsSameAs(const Object& in) const {
   if (short_desc != in.short_desc)
     return 0;
   if (desc != in.desc)
@@ -4331,7 +4327,7 @@ Object* Object::Stash(Object* item, int message, int force, int try_combine) {
     if (!dest)
       dest = con; // It CAN go here....
     for (auto ind : con->contents) {
-      if ((*item) == (*ind)) {
+      if (item->IsSameAs(*ind)) {
         dest = con;
         break;
       }

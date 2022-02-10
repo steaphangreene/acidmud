@@ -2685,7 +2685,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         objs = vortex->Contents(vmode);
         auto oobj = objs.front();
         for (auto obj : objs) {
-          if (obj != objs.front() && (*obj) == (*oobj))
+          if (obj != objs.front() && obj->IsSameAs(*oobj))
             continue;
           int price = obj->Value();
           if (obj->Skill(crc32c("Money")) != obj->Value()) { // Not 1-1 Money
