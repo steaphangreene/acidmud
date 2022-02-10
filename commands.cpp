@@ -2411,6 +2411,14 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             mind->Send("   ...is impossible - tell the Ninjas[TM].\n");
           }
         }
+
+        if (targ->Skill(crc32c("Accomplishment"))) {
+          if (body->HasAccomplished(targ->Skill(crc32c("Accomplishment")))) {
+            mind->Send(CYEL "   ...has been defeated by you already.\n" CNRM);
+          } else {
+            mind->Send(CGRN "   ...has never been defeated by you.\n" CNRM);
+          }
+        }
       }
     }
     return 0;
