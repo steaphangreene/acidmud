@@ -101,9 +101,26 @@ class MinVec {
   };
 
   bool operator==(const MinVec& in) const {
-    if (cap_ == 0) {
+    if (size_ != in.size_) {
+      return false;
+    }
+    if (cap_ == 0 && in.cap_ == 0) {
       for (auto idx = 0; idx < size_; ++idx) {
         if (data_.val[idx] != in.data_.val[idx]) {
+          return false;
+        }
+      }
+      return true;
+    } else if (cap_ == 0) {
+      for (auto idx = 0; idx < size_; ++idx) {
+        if (data_.val[idx] != in.data_.arr[idx]) {
+          return false;
+        }
+      }
+      return true;
+    } else if (in.cap_ == 0) {
+      for (auto idx = 0; idx < size_; ++idx) {
+        if (data_.arr[idx] != in.data_.val[idx]) {
           return false;
         }
       }
