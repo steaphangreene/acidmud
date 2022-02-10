@@ -126,7 +126,7 @@ enum act_t {
 struct skill_pair {
   uint32_t first;
   int32_t second;
-  bool operator==(const skill_pair&) const = default;
+  auto operator<=>(const skill_pair&) const = default;
 };
 
 #define ALL (-0x7FFFFFFF)

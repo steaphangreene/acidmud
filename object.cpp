@@ -3687,18 +3687,26 @@ bool Object::IsSameAs(const Object& in) const {
 
   auto sk1 = skills;
   auto sk2 = in.skills;
-  /*
-    sk1.erase("Quantity");
-    sk2.erase("Quantity");
-    sk1.erase("Hungry");
-    sk2.erase("Hungry");
-    sk1.erase("Bored");
-    sk2.erase("Bored");
-    sk1.erase("Needy");
-    sk2.erase("Needy");
-    sk1.erase("Tired");
-    sk2.erase("Tired");
-  */
+  for (auto sk = sk1.begin(); sk != sk1.end();) {
+    if (sk->first == crc32c("Quantity") || sk->first == crc32c("Hungry") ||
+        sk->first == crc32c("Bored") || sk->first == crc32c("Needy") ||
+        sk->first == crc32c("Tired")) {
+      sk1.erase(sk);
+    } else {
+      ++sk;
+    }
+  }
+  for (auto sk = sk2.begin(); sk != sk2.end();) {
+    if (sk->first == crc32c("Quantity") || sk->first == crc32c("Hungry") ||
+        sk->first == crc32c("Bored") || sk->first == crc32c("Needy") ||
+        sk->first == crc32c("Tired")) {
+      sk2.erase(sk);
+    } else {
+      ++sk;
+    }
+  }
+  std::sort(sk1.begin(), sk1.end());
+  std::sort(sk2.begin(), sk2.end());
   if (sk1 != sk2)
     return 0;
 
