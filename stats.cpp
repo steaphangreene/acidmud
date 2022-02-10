@@ -37,23 +37,21 @@ extern std::map<std::string, std::vector<uint32_t>> skcat;
 
 static int defaults_init = 0;
 static void init_defaults() {
-  if (defaults_init)
-    return;
   defaults_init = 1;
-
   init_skill_names();
   init_skill_list();
 }
+void Object::InitSkillsData() {
+  if (!defaults_init) {
+    init_defaults();
+  }
+}
 
 int is_skill(uint32_t stok) {
-  if (!defaults_init)
-    init_defaults();
   return (defaults.count(stok) != 0);
 }
 
 uint32_t get_weapon_skill(int wtype) {
-  if (!defaults_init)
-    init_defaults();
   if (!weaponskills.count(wtype)) {
     fprintf(stderr, "Warning: No Skill Type %d!\n", wtype);
     return crc32c("None");
@@ -62,8 +60,6 @@ uint32_t get_weapon_skill(int wtype) {
 }
 
 int get_weapon_type(std::string wskill) {
-  if (!defaults_init)
-    init_defaults();
   if (!weapontypes.count(crc32c(wskill))) {
     fprintf(stderr, "Warning: No Skill Named '%s'!\n", wskill.c_str());
     return 0;
@@ -121,9 +117,6 @@ int get_linked(std::string sk) {
 
 std::vector<uint32_t> get_skills(std::string cat) {
   std::vector<uint32_t> ret;
-
-  if (!defaults_init)
-    init_defaults();
 
   while (cat.length() > 0 && isspace(cat.back()))
     cat.pop_back();
@@ -245,9 +238,6 @@ int Object::HasSkill(uint32_t stok) const {
 }
 
 int Object::SkillTarget(uint32_t stok) const {
-  if (!defaults_init)
-    init_defaults();
-
   auto itr = skills.begin();
   for (; itr != skills.end(); ++itr) {
     if (itr->first == stok) {
@@ -263,9 +253,6 @@ int Object::SkillTarget(uint32_t stok) const {
 }
 
 int Object::Skill(uint32_t stok) const {
-  if (!defaults_init)
-    init_defaults();
-
   for (auto itr = skills.begin(); itr != skills.end(); ++itr) {
     if (itr->first == stok) {
       return itr->second;

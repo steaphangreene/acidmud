@@ -739,6 +739,8 @@ Object::Object() {
   no_seek = 0;
   no_hear = 0;
   tickstep = -1;
+
+  InitSkillsData();
 }
 
 Object::Object(Object* o) {

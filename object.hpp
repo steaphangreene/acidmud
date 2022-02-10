@@ -486,6 +486,8 @@ class Object {
     int8_t cur = 0;
     int16_t mod = 0;
   } att[6];
+
+  static void InitSkillsData();
   MinVec<3, skill_pair> skills;
 
   int no_seek; // Recursion protection
