@@ -268,7 +268,8 @@ class Object {
 
   void EarnExp(int);
   void SpendExp(int);
-  int Accomplish(unsigned long, const std::string&);
+  bool Accomplish(uint64_t, const std::string&);
+  bool HasAccomplished(uint64_t);
   int TotalExp() const {
     return exp - sexp;
   };
@@ -473,7 +474,7 @@ class Object {
   pos_t pos;
   uint32_t cur_skill;
 
-  std::set<unsigned long> completed;
+  std::set<uint64_t> completed;
   int exp, sexp;
 
   int weight, volume, size;

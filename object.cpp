@@ -3780,9 +3780,13 @@ void Object::SpendExp(int e) {
   sexp += e;
 }
 
-int Object::Accomplish(unsigned long acc, const std::string& why) {
+bool Object::HasAccomplished(uint64_t acc) {
+  return (completed.count(acc) > 0);
+}
+
+bool Object::Accomplish(uint64_t acc, const std::string& why) {
   if (completed.count(acc))
-    return 0;
+    return false;
   completed.insert(acc);
   ++exp;
   for (auto m : minds) {
@@ -3790,7 +3794,7 @@ int Object::Accomplish(unsigned long acc, const std::string& why) {
       m->SendF(CYEL "You gain an experience point for %s!\n" CNRM, why.c_str());
     }
   }
-  return 1;
+  return true;
 }
 
 int two_handed(int wtype) {
