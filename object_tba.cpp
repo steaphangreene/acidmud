@@ -2265,29 +2265,43 @@ void Object::TBALoadOBJ(const std::string& fn) {
             //	);
           }
         } else if (buf[0] == 'E') { // Extra Affects
-          fscanf(mudo, "%65535[^~]", buf);
+          while (fscanf(mudo, " %65535[^~ ]", buf) > 0) {
+            for (auto chr = buf; *chr != 0; ++chr) {
+              if (ascii_isalpha(*chr)) {
+                *chr = ascii_tolower(*chr);
+              }
+            }
+            if (std::string(buf).find_first_not_of(target_chars) != std::string::npos) {
+              fprintf(
+                  stderr,
+                  CYEL "Warning: Ignoring non-alpha extra (%s) for '%s'!\n" CNRM,
+                  buf,
+                  obj->ShortDesc().c_str());
+            } else if (words_match(obj->ShortDesc(), buf)) {
+              // fprintf(stderr, CYEL "Warning: Duplicate (%s) extra for '%s'!\n" CNRM, buf,
+              // obj->ShortDesc().c_str());
+            } else {
+              if (obj->short_desc.back() == ')') {
+                obj->short_desc.back() = ' ';
+              } else {
+                obj->short_desc += " (";
+              }
+              obj->short_desc += buf;
+              obj->short_desc += ')';
+              // fprintf(stderr, CYEL "Warning: Non-matching (%s) extra for '%s'!\n" CNRM, buf,
+              // obj->ShortDesc().c_str());
+            }
+          }
           fscanf(mudo, "%*[^~]");
           fscanf(mudo, "~%*[\n\r]");
-          if (words_match(obj->ShortDesc(), buf)) {
-            // FIXME: Add Aliases for Non-Matching Words
-            if (obj->long_desc == "") {
-              fscanf(mudo, "%65535[^~]", buf);
-              obj->SetLongDesc(buf);
-            } else { // FIXME: Handle These
-              // fprintf(stderr, CYEL "Warning: Duplicate (%s) extra for '%s'!\n" CNRM,
-              //         buf, obj->ShortDesc());
-              Object* sub = new Object(obj);
-              sub->SetShortDesc(buf);
-              fscanf(mudo, "%65535[^~]", buf);
-              sub->SetDesc(buf);
-            }
-          } else { // FIXME: Handle These
-            // fprintf(stderr, CYEL "Warning: Non-matching (%s) extra for '%s'!\n" CNRM,
-            //         buf, obj->ShortDesc());
-            Object* sub = new Object(obj);
-            sub->SetShortDesc(buf);
-            fscanf(mudo, "%65535[^~]", buf);
-            sub->SetDesc(buf);
+          fscanf(mudo, "%65535[^~]", buf);
+          if (obj->long_desc == "") {
+            obj->SetLongDesc(buf);
+          } else {
+            obj->long_desc += "\n\n";
+            obj->long_desc += buf;
+            // fprintf(stderr, CYEL "Warning: Had to merge long descriptions of (%s) extra for
+            // '%s'!\n" CNRM, obj->LongDesc().c_str(), obj->ShortDesc().c_str());
           }
           fscanf(mudo, "%*[^~]");
           fscanf(mudo, "~%*[\n\r]");
