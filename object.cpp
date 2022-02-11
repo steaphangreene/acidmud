@@ -4260,15 +4260,19 @@ std::set<act_t> Object::WearSlots(int m) const {
 
 std::string Object::WearNames(const std::set<act_t>& locs) const {
   std::string ret = "";
-  std::set<act_t>::const_iterator loc = locs.begin();
-  for (; loc != locs.end(); ++loc) {
+  for (auto loc = locs.begin(); loc != locs.end(); ++loc) {
     if (loc != locs.begin()) {
       auto tmp = loc;
       ++tmp;
-      if (tmp == locs.end())
-        ret += " and ";
-      else
-        ret += ", "; // I put no comma before " and "
+      if (tmp == locs.end()) {
+        if (locs.size() == 2) {
+          ret += " and ";
+        } else {
+          ret += ", and ";
+        }
+      } else {
+        ret += ", ";
+      }
     }
     if (*loc == ACT_WEAR_BACK)
       ret += "back";
