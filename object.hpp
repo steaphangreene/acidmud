@@ -165,17 +165,27 @@ class Object {
   Object* Parent() const {
     return parent;
   };
-  std::set<Object*> Touching() const {
+  MinVec<1, Object*> Touching() const {
     return touching_me;
   };
   bool IsTouching(Object* other) const {
-    return (touching_me.count(other) > 0);
+    auto itr = touching_me.begin();
+    for (; itr != touching_me.end() && *itr != other; ++itr) {
+    }
+    return (itr != touching_me.end());
   };
   void NowTouching(Object* other) {
-    touching_me.insert(other);
+    if (!IsTouching(other)) {
+      touching_me.push_back(other);
+    }
   };
   void NotTouching(Object* other) {
-    touching_me.erase(other);
+    auto itr = touching_me.begin();
+    for (; itr != touching_me.end() && *itr != other; ++itr) {
+    }
+    if (itr != touching_me.end()) {
+      touching_me.erase(itr);
+    }
   };
 
   void SendActions(Mind* m);
@@ -504,7 +514,7 @@ class Object {
   int no_hear; // For Send() protection
 
   std::map<act_t, Object*> act;
-  std::set<Object*> touching_me;
+  MinVec<1, Object*> touching_me;
 
   int64_t busy_until;
   std::string dowhenfree, defact;
