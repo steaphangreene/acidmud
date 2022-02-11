@@ -287,7 +287,7 @@ int Object::LoadFrom(FILE* fl) {
   fscanf(fl, "%d", &exp);
   unsigned long accom;
   while (fscanf(fl, ";%ld", &accom)) {
-    completed.insert(accom);
+    completed.push_back(accom);
   }
 
   fscanf(fl, " %d\n", &sexp);

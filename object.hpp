@@ -474,7 +474,7 @@ class Object {
   pos_t pos;
   uint32_t cur_skill;
 
-  std::set<uint64_t> completed;
+  MinVec<1, uint64_t> completed;
   int exp, sexp;
 
   int weight, volume, size;

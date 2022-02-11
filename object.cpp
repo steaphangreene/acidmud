@@ -3781,13 +3781,19 @@ void Object::SpendExp(int e) {
 }
 
 bool Object::HasAccomplished(uint64_t acc) {
-  return (completed.count(acc) > 0);
+  for (auto comp : completed) {
+    if (comp == acc) {
+      return true;
+    }
+  }
+  return false;
 }
 
 bool Object::Accomplish(uint64_t acc, const std::string& why) {
-  if (completed.count(acc))
+  if (HasAccomplished(acc)) {
     return false;
-  completed.insert(acc);
+  }
+  completed.push_back(acc);
   ++exp;
   for (auto m : minds) {
     if (m->Owner()) {
