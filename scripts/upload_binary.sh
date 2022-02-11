@@ -1,4 +1,4 @@
-#!/bin/csh -f
+#!/bin/bash
 
 # *************************************************************************
 #  This file is part of AcidMUD by Steaphan Greene
@@ -21,12 +21,12 @@
 #
 # *************************************************************************
 
-set acidhost="acidmud.dyndns.org"
+acidhost="acidmud"
 
-if("`file acidmud | grep 'ELF 32-bit LSB executable, Intel 80386'`" == "") then
+if [ -z "$(file acidmud | grep 'ELF 64-bit LSB executable, x86-64')" ]; then
   echo ERROR: acidmud is the wrong kind of executable for host.
-  exit
-endif
+  exit 1
+fi
 
 ssh acidmud@${acidhost} rm -f ~acidmud/acidmud
 scp acidmud acidmud@${acidhost}:~acidmud/acidmud

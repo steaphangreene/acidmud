@@ -46,7 +46,7 @@ gcc:
 	+make CXX='g++' CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -g -Wall -Wshadow -Werror -fmax-errors=2'
 
 clean:
-	rm -f gmon.out deps.mk *.o *.da version.cpp acidmud ChangeLog ChangeLog.bak
+	rm -f gmon.out deps.mk *.o *.da version.cpp acidmud changes.txt
 
 backup:
 	cd ..;tar chvf ~/c/archive/acidmud.$(TSTR).tar \
@@ -55,10 +55,11 @@ backup:
 	gzip -9 ~/c/archive/acidmud.$(TSTR).tar
 
 upload:
-#	./scripts/upload_binary.csh
+	./scripts/upload_binary.sh
 	scp TODO acidmud@$(ACIDHOST):~acidmud/public_html/todo.txt
-	./scripts/svn2cl.sh > ChangeLog
-	scp ChangeLog acidmud@$(ACIDHOST):~acidmud/public_html/changes.txt
+	git log --no-decorate > changes.txt
+	scp changes.txt acidmud@$(ACIDHOST):~acidmud/public_html/
+	rm -f changes.txt
 
 acidmud: $(OBJS)
 	rm -f acidmud
