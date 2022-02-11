@@ -192,7 +192,7 @@ int Object::Load(const std::string& fn) {
     std::vector<act_t> killacts;
     for (auto aind : ind->act) {
       if (aind.second) {
-        aind.second->touching_me.insert(ind);
+        aind.second->NowTouching(ind);
       } else if (aind.first <= ACT_REST) { // Targetless Actions
         aind.second = nullptr;
       } else { // Act Targ No Longer Exists ("junkrestart", I hope)!

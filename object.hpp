@@ -168,6 +168,15 @@ class Object {
   std::set<Object*> Touching() const {
     return touching_me;
   };
+  bool IsTouching(Object* other) const {
+    return (touching_me.count(other) > 0);
+  };
+  void NowTouching(Object* other) {
+    touching_me.insert(other);
+  };
+  void NotTouching(Object* other) {
+    touching_me.erase(other);
+  };
 
   void SendActions(Mind* m);
   void SendExtendedActions(Mind* m, int vmode = 0);

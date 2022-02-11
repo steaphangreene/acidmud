@@ -1365,7 +1365,7 @@ void Mind::TBAVarSub(std::string& line) {
             obj = obj->ActTarg(ACT_FOLLOW); // FIXME: More Kinds?
         } else if (!strcmp(field.c_str(), "follower")) {
           if (obj) {
-            std::set<Object*> touch = obj->Touching();
+            auto touch = obj->Touching();
             bool found = false;
             for (auto tent : touch) {
               if (tent->ActTarg(ACT_FOLLOW) == obj) {

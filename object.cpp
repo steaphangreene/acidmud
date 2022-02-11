@@ -2148,7 +2148,7 @@ int Object::Travel(Object* dest, int try_combine) {
   oldp->NotifyGone(this, dest);
   parent->AddLink(this);
 
-  auto touches = touching_me;
+  auto touches = Touching();
   for (auto touch : touches) {
     touch->NotifyLeft(this, dest);
   }
@@ -2278,7 +2278,7 @@ void Object::Recycle(int inbin) {
   if (ActTarg(ACT_SPECIAL_LINKED))
     tonotify.insert(ActTarg(ACT_SPECIAL_LINKED));
 
-  auto touches = touching_me;
+  auto touches = Touching();
   for (auto touch : touches) {
     tonotify.insert(touch);
   }
@@ -2796,7 +2796,7 @@ Object* Object::ActTarg(act_t a) const {
 
 void Object::AddAct(act_t a, Object* o) {
   if (o) {
-    o->touching_me.insert(this);
+    o->NowTouching(this);
   }
   act[a] = o;
 }
@@ -2814,7 +2814,7 @@ void Object::StopAct(act_t a) {
         return; // Still touching it
       }
     }
-    obj->touching_me.erase(this); // No longer touching it
+    obj->NotTouching(this); // No longer touching it
   }
 }
 
