@@ -711,7 +711,6 @@ int Object::Tick() {
 
 Object::Object() {
   busy_until = 0;
-  short_desc = "new object";
   parent = nullptr;
   pos = POS_NONE;
   cur_skill = crc32c("None");
@@ -744,7 +743,6 @@ Object::Object() {
 
 Object::Object(Object* o) {
   busy_until = 0;
-  short_desc = "new object";
   parent = nullptr;
   SetParent(o);
   pos = POS_NONE;
@@ -776,9 +774,18 @@ Object::Object(Object* o) {
 
 Object::Object(const Object& o) {
   busy_until = 0;
-  short_desc = o.short_desc;
-  desc = o.desc;
-  long_desc = o.long_desc;
+
+  dlens[0] = o.dlens[0];
+  dlens[1] = o.dlens[1];
+  dlens[2] = o.dlens[2];
+  if (o.descriptions == default_descriptions) {
+    descriptions = default_descriptions;
+  } else {
+    char* new_descs = new char[dlens[0] + dlens[1] + dlens[2] + 3];
+    std::memcpy(new_descs, o.descriptions, dlens[0] + dlens[1] + dlens[2] + 3);
+    descriptions = new_descs;
+  }
+
   act.clear();
   pos = o.pos;
   cur_skill = o.cur_skill;
@@ -948,27 +955,27 @@ std::string Object::Name(int definite, Object* rel, Object* sub) const {
 }
 
 bool Object::HasDesc() const {
-  return (desc != "");
+  return (dlens[1] != 0);
 }
 
 bool Object::HasLongDesc() const {
-  return (long_desc != "");
+  return (dlens[2] != 0);
 }
 
 std::string Object::ShortDesc() const {
-  return short_desc;
+  return std::string(descriptions, dlens[0]);
 }
 
 std::string Object::Desc() const {
-  if (desc.empty())
+  if (dlens[1] == 0)
     return ShortDesc();
-  return desc;
+  return std::string(descriptions + dlens[0] + 1, dlens[1]);
 }
 
 std::string Object::LongDesc() const {
-  if (long_desc.empty())
+  if (dlens[2] == 0)
     return Desc();
-  return long_desc;
+  return std::string(descriptions + dlens[0] + dlens[1] + 2, dlens[2]);
 }
 
 static void trim(std::string& s) {
@@ -993,9 +1000,17 @@ void Object::SetDescs(std::string sd, std::string d, std::string ld) {
   trim(sd);
   trim(d);
   trim(ld);
-  short_desc = sd;
-  desc = d;
-  long_desc = ld;
+  dlens[0] = sd.length();
+  dlens[1] = d.length();
+  dlens[2] = ld.length();
+  if (descriptions != default_descriptions) {
+    delete[] descriptions;
+  }
+  char* new_descs = new char[dlens[0] + dlens[1] + dlens[2] + 3];
+  std::memcpy(new_descs, sd.c_str(), dlens[0] + 1);
+  std::memcpy(new_descs + dlens[0] + 1, d.c_str(), dlens[1] + 1);
+  std::memcpy(new_descs + dlens[0] + dlens[1] + 2, ld.c_str(), dlens[2] + 1);
+  descriptions = new_descs;
 }
 
 void Object::SetShortDesc(const std::string& d) {
@@ -2212,6 +2227,10 @@ int Object::Travel(Object* dest, int try_combine) {
 
 Object::~Object() {
   Recycle(0);
+
+  if (descriptions != default_descriptions) {
+    delete[] descriptions;
+  }
 }
 
 void Object::Recycle(int inbin) {
@@ -3638,12 +3657,15 @@ std::string Object::Tactics(int phase) {
 }
 
 bool Object::IsSameAs(const Object& in) const {
-  if (short_desc != in.short_desc)
+  if (dlens[0] != in.dlens[0])
     return false;
-  if (desc != in.desc)
+  if (dlens[1] != in.dlens[1])
     return false;
-  if (long_desc != in.long_desc)
+  if (dlens[2] != in.dlens[2])
     return false;
+  if (std::memcmp(descriptions, in.descriptions, dlens[0] + dlens[1] + dlens[2] + 3) != 0) {
+    return false;
+  }
   if (weight != in.weight)
     return false;
   if (volume != in.volume)
@@ -3740,9 +3762,20 @@ bool Object::IsSameAs(const Object& in) const {
 }
 
 void Object::operator=(const Object& in) {
-  short_desc = in.short_desc;
-  desc = in.desc;
-  long_desc = in.long_desc;
+  dlens[0] = in.dlens[0];
+  dlens[1] = in.dlens[1];
+  dlens[2] = in.dlens[2];
+  if (descriptions != default_descriptions) {
+    delete[] descriptions;
+  }
+  if (in.descriptions == default_descriptions) {
+    descriptions = default_descriptions;
+  } else {
+    char* new_descs = new char[dlens[0] + dlens[1] + dlens[2] + 3];
+    std::memcpy(new_descs, in.descriptions, dlens[0] + dlens[1] + dlens[2] + 3);
+    descriptions = new_descs;
+  }
+
   weight = in.weight;
   volume = in.volume;
   size = in.size;

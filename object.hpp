@@ -507,9 +507,13 @@ class alignas(64) Object {
 
   int tickstep;
 
-  std::string short_desc;
-  std::string desc;
-  std::string long_desc;
+  constexpr static const char* const default_descriptions = "new object\0\0\0";
+  const char* descriptions = default_descriptions;
+  uint16_t dlens[3] = {10, 0, 0};
+
+  bool no_seek; // Recursion protection
+  bool no_hear; // For Send() protection
+
   MinVec<1, Object*> contents;
   Object* parent;
   MinVec<1, Mind*> minds;
@@ -532,9 +536,6 @@ class alignas(64) Object {
 
   static void InitSkillsData();
   MinVec<3, skill_pair> skills;
-
-  bool no_seek; // Recursion protection
-  bool no_hear; // For Send() protection
 
   MinVec<1, act_pair> act;
   MinVec<1, Object*> touching_me;
