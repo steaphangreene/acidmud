@@ -104,7 +104,7 @@ int Object::SaveTo(FILE* fl) {
 
   fprintf(fl, "%d %d %d %d %c\n", weight, size, volume, value, gender);
 
-  fprintf(fl, "%d", exp);
+  fprintf(fl, "%zu", completed.size());
   for (auto ind : completed) {
     fprintf(fl, ";%ld", ind);
   }
@@ -284,7 +284,7 @@ int Object::LoadFrom(FILE* fl) {
   fscanf(fl, ";"); // Was present pre v0x15, causes no problems since.
   fscanf(fl, "\n"); // Skil the white-space, if ';' was used or not.
 
-  fscanf(fl, "%d", &exp);
+  fscanf(fl, "%*d"); // Experience (Redundant)
   unsigned long accom;
   while (fscanf(fl, ";%ld", &accom)) {
     completed.push_back(accom);

@@ -308,15 +308,14 @@ class alignas(64) Object {
 
   int LightLevel(int updown = 0);
 
-  void EarnExp(int);
   void SpendExp(int);
   bool Accomplish(uint64_t, const std::string&);
   bool HasAccomplished(uint64_t);
   int TotalExp() const {
-    return exp - sexp;
+    return completed.size() - sexp;
   };
   int Exp() const {
-    return exp;
+    return completed.size();
   };
 
   int Stun() const {
@@ -515,7 +514,7 @@ class alignas(64) Object {
   uint32_t cur_skill;
 
   MinVec<1, uint64_t> completed;
-  int exp, sexp;
+  int sexp;
 
   int weight, volume, size;
   int value;

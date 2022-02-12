@@ -722,7 +722,6 @@ Object::Object() {
   value = 0;
   gender = 'N';
 
-  exp = 0;
   sexp = 0;
 
   stun = 0;
@@ -757,7 +756,6 @@ Object::Object(Object* o) {
   value = 0;
   gender = 'N';
 
-  exp = 0;
   sexp = 0;
 
   stun = 0;
@@ -791,7 +789,6 @@ Object::Object(const Object& o) {
   value = o.value;
   gender = o.gender;
 
-  exp = o.exp;
   sexp = o.sexp;
 
   stun = o.stun;
@@ -3790,10 +3787,6 @@ int Object::Contains(const Object* obj) {
   return (std::find(contents.begin(), contents.end(), obj) != contents.end());
 }
 
-void Object::EarnExp(int e) {
-  exp += e;
-}
-
 void Object::SpendExp(int e) {
   sexp += e;
 }
@@ -3812,7 +3805,6 @@ bool Object::Accomplish(uint64_t acc, const std::string& why) {
     return false;
   }
   completed.push_back(acc);
-  ++exp;
   for (auto m : minds) {
     if (m->Owner()) {
       m->SendF(CYEL "You gain an experience point for %s!\n" CNRM, why.c_str());
