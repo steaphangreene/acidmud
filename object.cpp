@@ -902,17 +902,17 @@ std::string Object::Name(int definite, Object* rel, Object* sub) const {
   else if (sub == this)
     return "itself";
 
-  if (!strncmp(short_desc.c_str(), "a ", 2)) {
-    ret = (short_desc.c_str() + 2);
+  if (!strncmp(ShortDesc().c_str(), "a ", 2)) {
+    ret = (ShortDesc().c_str() + 2);
     need_an = 0;
-  } else if (!strncmp(short_desc.c_str(), "an ", 3)) {
-    ret = (short_desc.c_str() + 3);
+  } else if (!strncmp(ShortDesc().c_str(), "an ", 3)) {
+    ret = (ShortDesc().c_str() + 3);
     need_an = 1;
-  } else if (!strncmp(short_desc.c_str(), "the ", 4)) {
-    ret = (short_desc.c_str() + 4);
+  } else if (!strncmp(ShortDesc().c_str(), "the ", 4)) {
+    ret = (ShortDesc().c_str() + 4);
     definite = 1;
   } else {
-    ret = short_desc.c_str();
+    ret = ShortDesc().c_str();
     proper = 1;
   }
 
@@ -945,6 +945,14 @@ std::string Object::Name(int definite, Object* rel, Object* sub) const {
 
   local = ret;
   return local;
+}
+
+bool Object::HasDesc() const {
+  return (desc != "");
+}
+
+bool Object::HasLongDesc() const {
+  return (long_desc != "");
 }
 
 std::string Object::ShortDesc() const {
@@ -981,22 +989,25 @@ static void trim(std::string& s) {
   }
 }
 
+void Object::SetDescs(std::string sd, std::string d, std::string ld) {
+  trim(sd);
+  trim(d);
+  trim(ld);
+  short_desc = sd;
+  desc = d;
+  long_desc = ld;
+}
+
 void Object::SetShortDesc(const std::string& d) {
-  std::string s = d;
-  trim(s);
-  short_desc = s;
+  SetDescs(d, Desc(), LongDesc());
 }
 
 void Object::SetDesc(const std::string& d) {
-  std::string s = d;
-  trim(s);
-  desc = s;
+  SetDescs(ShortDesc(), d, LongDesc());
 }
 
 void Object::SetLongDesc(const std::string& d) {
-  std::string s = d;
-  trim(s);
-  long_desc = s;
+  SetDescs(ShortDesc(), Desc(), d);
 }
 
 void Object::SetParent(Object* o) {

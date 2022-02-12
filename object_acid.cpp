@@ -98,9 +98,17 @@ int Object::SaveTo(FILE* fl) {
   // fprintf(stderr, "Saving %s\n", Name());
 
   fprintf(fl, "%d\n", getnum(this));
-  fprintf(fl, "%s%c\n", short_desc.c_str(), 0);
-  fprintf(fl, "%s%c\n", desc.c_str(), 0);
-  fprintf(fl, "%s%c\n", long_desc.c_str(), 0);
+  fprintf(fl, "%s%c\n", ShortDesc().c_str(), 0);
+  if (HasDesc()) {
+    fprintf(fl, "%s%c\n", Desc().c_str(), 0);
+  } else {
+    fprintf(fl, "%c\n", 0);
+  }
+  if (HasLongDesc()) {
+    fprintf(fl, "%s%c\n", LongDesc().c_str(), 0);
+  } else {
+    fprintf(fl, "%c\n", 0);
+  }
 
   fprintf(fl, "%d %d %d %d %c\n", weight, size, volume, value, gender);
 
@@ -242,7 +250,7 @@ int Object::LoadFrom(FILE* fl) {
       res = getc(fl);
     }
   }
-  SetShortDesc(buf);
+  std::string sd = buf;
 
   memset(buf, 0, 65536);
   if (ver < 0x0015) {
@@ -257,7 +265,7 @@ int Object::LoadFrom(FILE* fl) {
       res = getc(fl);
     }
   }
-  SetDesc(buf);
+  std::string d = buf;
 
   memset(buf, 0, 65536);
   if (ver < 0x0015) {
@@ -276,7 +284,9 @@ int Object::LoadFrom(FILE* fl) {
       res = getc(fl);
     }
   }
-  SetLongDesc(buf);
+  std::string ld = buf;
+
+  SetDescs(sd, d, ld);
 
   // fprintf(stderr, "%sLoading %d:%s\n", debug_indent.c_str(), num, buf);
 
@@ -424,21 +434,21 @@ int Object::LoadFrom(FILE* fl) {
 
   //  int num_loaded = 0;
   //  if(parent && (!(parent->parent))) {
-  //    fprintf(stderr, "Loading: %s\n", short_desc.c_str());
+  //    fprintf(stderr, "Loading: %s\n", ShortDesc().c_str());
   //    }
   for (auto cind : toload) {
     // fprintf(stderr, "%sCalling loader from %s\n", debug_indent.c_str(),
-    // short_desc.c_str());
+    // ShortDesc().c_str());
     // std::string tmp = debug_indent;
     // debug_indent += "  ";
     cind->LoadFrom(fl);
     // debug_indent = tmp;
     // fprintf(stderr, "%sCalled loader from %s\n", debug_indent.c_str(),
-    // short_desc.c_str());
+    // ShortDesc().c_str());
 
     //    if(parent && (!(parent->parent))) {
     //      fprintf(stderr, "\rLoaded: %d/%d (%s)    ",
-    //	++num_loaded, int(toload.size()), cind->short_desc.c_str()
+    //	++num_loaded, int(toload.size()), cind->ShortDesc().c_str()
     //	);
     //      }
   }
@@ -446,7 +456,7 @@ int Object::LoadFrom(FILE* fl) {
   //    fprintf(stderr, "\nLoaded.\n");
   //    }
 
-  // fprintf(stderr, "%sLoaded %s\n", debug_indent.c_str(), short_desc.c_str());
+  // fprintf(stderr, "%sLoaded %s\n", debug_indent.c_str(), ShortDesc().c_str());
 
   //  if(HasSkill(crc32c("Drink"))) {
   //    SetSkill(crc32c("Drink"), Skill(crc32c("Drink")) * 15);

@@ -181,6 +181,9 @@ class alignas(64) Object {
   std::string ShortDesc() const;
   std::string Desc() const;
   std::string LongDesc() const;
+  bool HasDesc() const;
+  bool HasLongDesc() const;
+  void SetDescs(std::string, std::string, std::string);
   void SetShortDesc(const std::string&);
   void SetDesc(const std::string&);
   void SetLongDesc(const std::string&);

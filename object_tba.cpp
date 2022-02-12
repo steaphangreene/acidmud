@@ -214,18 +214,18 @@ void Object::TBACleanup() {
 void Object::TBAFinalizeTriggers() {
   for (auto trg : todotrg) {
     std::string newtext = "Powers List:\n";
-    auto cur = trg->long_desc.find("teleport [");
+    auto cur = trg->LongDesc().find("teleport [");
     while (cur != std::string::npos) {
       int rnum;
       trg->Parent()->SetSkill(crc32c("Teleport"), 10);
       trg->Parent()->SetSkill(crc32c("Restricted Item"), 1);
-      sscanf(trg->long_desc.c_str() + cur, "teleport [%d]\n", &rnum);
+      sscanf(trg->LongDesc().c_str() + cur, "teleport [%d]\n", &rnum);
       if (bynumwld.count(rnum) > 0) {
         newtext += std::string("teleport ") + bynumwld[rnum]->Name() + "\n";
       } else {
         fprintf(stderr, "Error: Can't find teleport dest: %d\n", rnum);
       }
-      cur = trg->long_desc.find("teleport [", cur + 9);
+      cur = trg->LongDesc().find("teleport [", cur + 9);
     }
     if (newtext != "Powers List:\n") {
       trg->Parent()->SetLongDesc(newtext.c_str());
@@ -2281,13 +2281,15 @@ void Object::TBALoadOBJ(const std::string& fn) {
               // fprintf(stderr, CYEL "Warning: Duplicate (%s) extra for '%s'!\n" CNRM, buf,
               // obj->ShortDesc().c_str());
             } else {
-              if (obj->short_desc.back() == ')') {
-                obj->short_desc.back() = ' ';
+              std::string sd = obj->ShortDesc();
+              if (sd.back() == ')') {
+                sd.back() = ' ';
               } else {
-                obj->short_desc += " (";
+                sd += " (";
               }
-              obj->short_desc += buf;
-              obj->short_desc += ')';
+              sd += buf;
+              sd += ')';
+              obj->SetShortDesc(sd);
               // fprintf(stderr, CYEL "Warning: Non-matching (%s) extra for '%s'!\n" CNRM, buf,
               // obj->ShortDesc().c_str());
             }
@@ -2295,11 +2297,13 @@ void Object::TBALoadOBJ(const std::string& fn) {
           fscanf(mudo, "%*[^~]");
           fscanf(mudo, "~%*[\n\r]");
           fscanf(mudo, "%65535[^~]", buf);
-          if (obj->long_desc == "") {
+          if (!obj->HasLongDesc()) {
             obj->SetLongDesc(buf);
           } else {
-            obj->long_desc += "\n\n";
-            obj->long_desc += buf;
+            std::string ld = obj->LongDesc();
+            ld += "\n\n";
+            ld += buf;
+            obj->SetLongDesc(ld);
             // fprintf(stderr, CYEL "Warning: Had to merge long descriptions of (%s) extra for
             // '%s'!\n" CNRM, obj->LongDesc().c_str(), obj->ShortDesc().c_str());
           }
@@ -2753,7 +2757,7 @@ void Object::TBALoadSHP(const std::string& fn) {
               keeper->SetSkill(std::string("Buy ") + type, (int)(num2 * 1000.0 + 0.5));
             }
           }
-          vortex->long_desc = picky;
+          vortex->SetLongDesc(picky);
           vortex->SetParent(keeper);
           keeper->AddAct(ACT_WEAR_RSHOULDER, vortex);
         } else {
