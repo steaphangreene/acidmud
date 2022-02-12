@@ -165,7 +165,7 @@ void Object::SetAttribute(int a, int v) {
     v = 100;
   else if (v < 0)
     v = 0;
-  att[a].cur = v;
+  attr[a] = v;
 }
 
 static const char* const attr_name[6] = {
@@ -295,8 +295,8 @@ int Object::Roll(uint32_t s1, const Object* p2, uint32_t s2, int bias, std::stri
 }
 
 int Object::Roll(uint32_t stok, int targ, std::string* res) const {
-  if (phys >= 10 || stun >= 10 || att[0].cur == 0 || att[1].cur == 0 || att[2].cur == 0 ||
-      att[3].cur == 0 || att[4].cur == 0 || att[5].cur == 0) {
+  if (phys >= 10 || stun >= 10 || attr[0] == 0 || attr[1] == 0 || attr[2] == 0 || attr[3] == 0 ||
+      attr[4] == 0 || attr[5] == 0) {
     if (res)
       (*res) += "N/A";
     return 0;

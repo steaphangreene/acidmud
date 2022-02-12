@@ -562,7 +562,7 @@ int Object::Tick() {
     }
   }
 
-  if (BaseAttribute(2) > 0 // Needs Food & Water
+  if (NormAttribute(2) > 0 // Needs Food & Water
       && (!HasSkill(crc32c("TBAAction"))) // MOBs don't
   ) {
     int level;
@@ -727,12 +727,12 @@ Object::Object() {
   phys = 0;
   stru = 0;
 
-  att[0] = {0, 0};
-  att[1] = {0, 0};
-  att[2] = {0, 0};
-  att[3] = {0, 0};
-  att[4] = {0, 0};
-  att[5] = {0, 0};
+  attr[0] = 0;
+  attr[1] = 0;
+  attr[2] = 0;
+  attr[3] = 0;
+  attr[4] = 0;
+  attr[5] = 0;
 
   no_seek = false;
   no_hear = false;
@@ -760,12 +760,12 @@ Object::Object(Object* o) {
   phys = 0;
   stru = 0;
 
-  att[0] = {0, 0};
-  att[1] = {0, 0};
-  att[2] = {0, 0};
-  att[3] = {0, 0};
-  att[4] = {0, 0};
-  att[5] = {0, 0};
+  attr[0] = 0;
+  attr[1] = 0;
+  attr[2] = 0;
+  attr[3] = 0;
+  attr[4] = 0;
+  attr[5] = 0;
 
   no_seek = false;
   no_hear = false;
@@ -802,12 +802,12 @@ Object::Object(const Object& o) {
   phys = o.phys;
   stru = o.stru;
 
-  att[0] = o.att[0];
-  att[1] = o.att[1];
-  att[2] = o.att[2];
-  att[3] = o.att[3];
-  att[4] = o.att[4];
-  att[5] = o.att[5];
+  attr[0] = o.attr[0];
+  attr[1] = o.attr[1];
+  attr[2] = o.attr[2];
+  attr[3] = o.attr[3];
+  attr[4] = o.attr[4];
+  attr[5] = o.attr[5];
 
   skills = o.skills;
 
@@ -3702,29 +3702,17 @@ bool Object::IsSameAs(const Object& in) const {
   if (gender != in.gender)
     return false;
 
-  if (att[0].base != in.att[0].base)
+  if (attr[0] != in.attr[0])
     return false;
-  if (att[0].cur != in.att[0].cur)
+  if (attr[1] != in.attr[1])
     return false;
-  if (att[1].base != in.att[1].base)
+  if (attr[2] != in.attr[2])
     return false;
-  if (att[1].cur != in.att[1].cur)
+  if (attr[3] != in.attr[3])
     return false;
-  if (att[2].base != in.att[2].base)
+  if (attr[4] != in.attr[4])
     return false;
-  if (att[2].cur != in.att[2].cur)
-    return false;
-  if (att[3].base != in.att[3].base)
-    return false;
-  if (att[3].cur != in.att[3].cur)
-    return false;
-  if (att[4].base != in.att[4].base)
-    return false;
-  if (att[4].cur != in.att[4].cur)
-    return false;
-  if (att[5].base != in.att[5].base)
-    return false;
-  if (att[5].cur != in.att[5].cur)
+  if (attr[5] != in.attr[5])
     return false;
 
   if (phys != in.phys)
@@ -3795,12 +3783,12 @@ void Object::operator=(const Object& in) {
   value = in.value;
   gender = in.gender;
 
-  att[0] = in.att[0];
-  att[1] = in.att[1];
-  att[2] = in.att[2];
-  att[3] = in.att[3];
-  att[4] = in.att[4];
-  att[5] = in.att[5];
+  attr[0] = in.attr[0];
+  attr[1] = in.attr[1];
+  attr[2] = in.attr[2];
+  attr[3] = in.attr[3];
+  attr[4] = in.attr[4];
+  attr[5] = in.attr[5];
 
   skills = in.skills;
 
@@ -4186,25 +4174,21 @@ int Object::LightLevel(int updown) {
   return level;
 }
 
-int Object::BaseAttribute(int a) const {
-  return att[a].base;
-}
-
 int Object::NormAttribute(int a) const {
   if (a >= 6) { // Reaction = (Q+I)/2
-    return (att[1].cur + att[4].cur) / 2;
+    return (attr[1] + attr[4]) / 2;
   }
-  return att[a].cur;
+  return attr[a];
 }
 
 int Object::ModAttribute(int a) const {
   if (a >= 6) { // Reaction
     return (ModAttribute(1) + ModAttribute(4)) / 2 + Modifier("Reaction");
   }
-  if (att[a].cur == 0) {
+  if (attr[a] == 0) {
     return 0; // Can't Enhance Nothing
   }
-  return att[a].cur + Modifier(a);
+  return attr[a] + Modifier(a);
 }
 
 static const char* const attr_name[6] = {

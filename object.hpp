@@ -348,10 +348,9 @@ class alignas(64) Object {
   void Consume(const Object* item); // Eat/Drink/Potions/Poison/etc....
 
   bool IsAnimate() const {
-    return (att[1].cur != 0);
+    return (attr[1] != 0);
   };
 
-  int BaseAttribute(int) const;
   int NormAttribute(int) const;
   int ModAttribute(int) const;
 
@@ -531,10 +530,7 @@ class alignas(64) Object {
   int8_t gender;
 
   int8_t phys, stun, stru;
-  struct {
-    int8_t base = 0;
-    int8_t cur = 0;
-  } att[6];
+  int8_t attr[6] = {0, 0, 0, 0, 0, 0};
 
   static void InitSkillsData();
   MinVec<3, skill_pair> skills;
