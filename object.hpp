@@ -121,7 +121,7 @@ enum act_t {
   ACT_SPECIAL_HOME,
   ACT_SPECIAL_MAX
 };
-static_assert(ACT_SPECIAL_MAX < 64);
+static_assert(ACT_SPECIAL_MAX < 256);
 class act_pair {
  public:
   act_pair() = default;
@@ -141,7 +141,7 @@ class act_pair {
   };
 
  private:
-  static const uintptr_t act_mask = 0x3FUL;
+  static const uintptr_t act_mask = 0xFFUL;
   uintptr_t item_;
 };
 static_assert(sizeof(act_pair) == 8);
@@ -155,7 +155,7 @@ struct skill_pair {
 #define ALL (-0x7FFFFFFF)
 #define SOME (-0x7FFFFFFE)
 
-class alignas(64) Object {
+class alignas(256) Object {
  public:
   Object();
   Object(Object*);
@@ -542,6 +542,7 @@ class alignas(64) Object {
   std::string dowhenfree, defact;
   friend void player_rooms_erase(Object*);
 };
+static_assert(sizeof(Object) == 256); // Prevent Bloat
 
 int roll(int ndice, int targ, std::string* res = nullptr);
 
