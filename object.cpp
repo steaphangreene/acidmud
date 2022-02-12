@@ -3628,77 +3628,77 @@ std::string Object::Tactics(int phase) {
 
 bool Object::IsSameAs(const Object& in) const {
   if (short_desc != in.short_desc)
-    return 0;
+    return false;
   if (desc != in.desc)
-    return 0;
+    return false;
   if (long_desc != in.long_desc)
-    return 0;
+    return false;
   if (weight != in.weight)
-    return 0;
+    return false;
   if (volume != in.volume)
-    return 0;
+    return false;
   if (size != in.size)
-    return 0;
+    return false;
   if (value != in.value)
-    return 0;
+    return false;
   if (gender != in.gender)
-    return 0;
+    return false;
 
   if (att[0].base != in.att[0].base)
-    return 0;
+    return false;
   if (att[0].cur != in.att[0].cur)
-    return 0;
+    return false;
   if (att[0].mod != in.att[0].mod)
-    return 0;
+    return false;
   if (att[1].base != in.att[1].base)
-    return 0;
+    return false;
   if (att[1].cur != in.att[1].cur)
-    return 0;
+    return false;
   if (att[1].mod != in.att[1].mod)
-    return 0;
+    return false;
   if (att[2].base != in.att[2].base)
-    return 0;
+    return false;
   if (att[2].cur != in.att[2].cur)
-    return 0;
+    return false;
   if (att[2].mod != in.att[2].mod)
-    return 0;
+    return false;
   if (att[3].base != in.att[3].base)
-    return 0;
+    return false;
   if (att[3].cur != in.att[3].cur)
-    return 0;
+    return false;
   if (att[3].mod != in.att[3].mod)
-    return 0;
+    return false;
   if (att[4].base != in.att[4].base)
-    return 0;
+    return false;
   if (att[4].cur != in.att[4].cur)
-    return 0;
+    return false;
   if (att[4].mod != in.att[4].mod)
-    return 0;
+    return false;
   if (att[5].base != in.att[5].base)
-    return 0;
+    return false;
   if (att[5].cur != in.att[5].cur)
-    return 0;
+    return false;
   if (att[5].mod != in.att[5].mod)
-    return 0;
+    return false;
 
   if (phys != in.phys)
-    return 0;
+    return false;
   if (stun != in.stun)
-    return 0;
+    return false;
   if (stru != in.stru)
-    return 0;
+    return false;
 
   if (pos != in.pos)
-    return 0;
+    return false;
 
   if (minds != in.minds)
-    return 0; // Only no-mind or same-group-minds
+    return false; // Only no-mind or same-group-minds
 
   if (act.size() != 0 || in.act.size() != 0)
-    return 0;
+    return false;
 
   if (contents.size() != 0 || in.contents.size() != 0)
-    return 0;
+    return false;
 
   auto sk1 = skills;
   auto sk2 = in.skills;
@@ -3723,9 +3723,9 @@ bool Object::IsSameAs(const Object& in) const {
   std::sort(sk1.begin(), sk1.end());
   std::sort(sk2.begin(), sk2.end());
   if (sk1 != sk2)
-    return 0;
+    return false;
 
-  return 1;
+  return true;
 }
 
 void Object::operator=(const Object& in) {
