@@ -415,7 +415,7 @@ class alignas(64) Object {
   int HealPhys(int succ);
   int HealStru(int succ);
 
-  void Deafen(int deaf = 1);
+  void Deafen(bool deaf = true);
 
   // Unformatted (raw print, but with ;s/;s for actor/targ)
   void Send(channel_t channel, const std::string& mes);
@@ -530,8 +530,8 @@ class alignas(64) Object {
   static void InitSkillsData();
   MinVec<3, skill_pair> skills;
 
-  int no_seek; // Recursion protection
-  int no_hear; // For Send() protection
+  bool no_seek; // Recursion protection
+  bool no_hear; // For Send() protection
 
   MinVec<1, act_pair> act;
   MinVec<1, Object*> touching_me;

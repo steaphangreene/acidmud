@@ -735,8 +735,8 @@ Object::Object() {
   att[4] = {0, 0, 0};
   att[5] = {0, 0, 0};
 
-  no_seek = 0;
-  no_hear = 0;
+  no_seek = false;
+  no_hear = false;
   tickstep = -1;
 
   InitSkillsData();
@@ -769,8 +769,8 @@ Object::Object(Object* o) {
   att[4] = {0, 0, 0};
   att[5] = {0, 0, 0};
 
-  no_seek = 0;
-  no_hear = 0;
+  no_seek = false;
+  no_hear = false;
   tickstep = -1;
 }
 
@@ -834,8 +834,8 @@ Object::Object(const Object& o) {
 
   minds = o.minds; // Transmit Attached Minds
 
-  no_seek = 0;
-  no_hear = 0;
+  no_seek = false;
+  no_hear = false;
   tickstep = -1;
 }
 
@@ -1486,9 +1486,9 @@ void Object::SendDescSurround(Mind* m, Object* o, int vmode) {
   if (parent && (Skill(crc32c("Open")) || Skill(crc32c("Transparent")))) {
     m->Send(CCYN);
     m->Send("Outside you see: ");
-    no_seek = 1;
+    no_seek = true;
     parent->SendDescSurround(m, this, vmode);
-    no_seek = 0;
+    no_seek = false;
   }
 
   m->Send(CNRM);
@@ -2594,12 +2594,12 @@ MinVec<1, Object*> Object::PickObjects(std::string name, int loc, int* ordinal) 
       }
     if (parent->Skill(crc32c("Open")) || parent->Skill(crc32c("Transparent"))) {
       if (parent->parent) {
-        parent->no_seek = 1;
+        parent->no_seek = true;
 
         auto add = parent->PickObjects(name, (loc & LOC_SPECIAL) | LOC_NEARBY, ordinal);
         ret.insert(ret.end(), add.begin(), add.end());
 
-        parent->no_seek = 0;
+        parent->no_seek = false;
         if ((*ordinal) == 0)
           return ret;
       }
@@ -2691,9 +2691,9 @@ int Object::IsNearBy(const Object* obj) {
     }
   }
   if (parent->parent && (parent->Skill(crc32c("Open")) || parent->Skill(crc32c("Transparent")))) {
-    parent->no_seek = 1;
+    parent->no_seek = true;
     int ret = parent->IsNearBy(obj);
-    parent->no_seek = 0;
+    parent->no_seek = false;
     if (ret)
       return ret;
   }
@@ -3366,9 +3366,9 @@ void Object::SendOut(
   }
 
   if (parent && (Skill(crc32c("Open")) || Skill(crc32c("Transparent")))) {
-    no_seek = 1;
+    no_seek = true;
     parent->SendOut(tnum, rsucc, mes, youmes, actor, targ);
-    no_seek = 0;
+    no_seek = false;
   }
 }
 
@@ -4477,7 +4477,7 @@ int Object::Quantity() const {
   return Skill(crc32c("Quantity"));
 }
 
-void Object::Deafen(int deaf) {
+void Object::Deafen(bool deaf) {
   no_hear = deaf;
 }
 

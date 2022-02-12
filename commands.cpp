@@ -1657,11 +1657,11 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         targmes[0] = ascii_toupper(targmes[0]);
         targmes += "\n";
         targ->Send(0, 0, targmes.c_str());
-        targ->Deafen(1);
+        targ->Deafen(true);
       }
       body->Parent()->SendOut(0, 0, outmes.c_str(), youmes.c_str(), body, targ);
       if (targ)
-        targ->Deafen(0);
+        targ->Deafen(false);
     }
     return 0;
   }
