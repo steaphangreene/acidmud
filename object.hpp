@@ -19,7 +19,6 @@
 //
 // *************************************************************************
 
-#include <map>
 #include <set>
 #include <string>
 #include <vector>
@@ -122,6 +121,30 @@ enum act_t {
   ACT_SPECIAL_HOME,
   ACT_SPECIAL_MAX
 };
+static_assert(ACT_SPECIAL_MAX < 64);
+class act_pair {
+ public:
+  act_pair() = default;
+  act_pair(act_t a, Object* o) {
+    assert((reinterpret_cast<uintptr_t>(o) & act_mask) == 0);
+    item_ = ((reinterpret_cast<uintptr_t>(o) & ~act_mask) | (static_cast<uintptr_t>(a) & act_mask));
+  };
+  act_t act() const {
+    return static_cast<act_t>(item_ & act_mask);
+  };
+  Object* obj() const {
+    return reinterpret_cast<Object*>(item_ & ~act_mask);
+  };
+  void set_obj(Object* o) {
+    assert((reinterpret_cast<uintptr_t>(o) & act_mask) == 0);
+    item_ = ((reinterpret_cast<uintptr_t>(o) & ~act_mask) | static_cast<uintptr_t>(act()));
+  };
+
+ private:
+  static const uintptr_t act_mask = 0x3FUL;
+  uintptr_t item_;
+};
+static_assert(sizeof(act_pair) == 8);
 
 struct skill_pair {
   uint32_t first;
@@ -132,7 +155,7 @@ struct skill_pair {
 #define ALL (-0x7FFFFFFF)
 #define SOME (-0x7FFFFFFE)
 
-class Object {
+class alignas(64) Object {
  public:
   Object();
   Object(Object*);
@@ -382,9 +405,7 @@ class Object {
   void StopAll();
   void AddAct(act_t a, Object* o = nullptr);
   void StopAct(act_t a);
-  int IsAct(act_t a) const {
-    return act.count(a);
-  };
+  bool IsAct(act_t a) const;
   Object* ActTarg(act_t a) const;
 
   int HitMent(int force, int sev, int succ);
@@ -513,7 +534,7 @@ class Object {
   int no_seek; // Recursion protection
   int no_hear; // For Send() protection
 
-  std::map<act_t, Object*> act;
+  MinVec<1, act_pair> act;
   MinVec<1, Object*> touching_me;
 
   int64_t busy_until;

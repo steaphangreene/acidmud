@@ -153,7 +153,7 @@ int Object::SaveTo(FILE* fl) {
 
   fprintf(fl, "%d\n", (int)(act.size()));
   for (auto aind : act) {
-    fprintf(fl, "%s;%d\n", act_save[aind.first].c_str(), getnum(aind.second));
+    fprintf(fl, "%s;%d\n", act_save[aind.act()].c_str(), getnum(aind.obj()));
   }
 
   fprintf(fl, "\n");
@@ -191,19 +191,19 @@ int Object::Load(const std::string& fn) {
   for (auto ind : todo) {
     std::vector<act_t> killacts;
     for (auto aind : ind->act) {
-      if (aind.second) {
-        aind.second->NowTouching(ind);
-      } else if (aind.first <= ACT_REST) { // Targetless Actions
-        aind.second = nullptr;
+      if (aind.obj()) {
+        aind.obj()->NowTouching(ind);
+      } else if (aind.act() <= ACT_REST) { // Targetless Actions
+        aind.set_obj(nullptr);
       } else { // Act Targ No Longer Exists ("junkrestart", I hope)!
-        killacts.push_back(aind.first);
+        killacts.push_back(aind.act());
       }
-      if (aind.first == ACT_FIGHT) {
+      if (aind.act() == ACT_FIGHT) {
         ind->BusyFor(500, ind->Tactics().c_str());
       }
     }
     for (auto kill : killacts) { // Kill Actions on Non-Existent
-      act.erase(kill);
+      StopAct(kill);
     }
     if (ind->IsUsing(crc32c("Lumberjack"))) { // FIXME: All long-term skills?
       ind->BusyFor(500, "use Lumberjack");
@@ -409,7 +409,7 @@ int Object::LoadFrom(FILE* fl) {
       fscanf(fl, "%65535[^;];%d ", buf, &num2);
       anum = act_load(std::string(buf));
     }
-    act[(act_t)anum] = getbynum(num2);
+    AddAct((act_t)anum, getbynum(num2));
   }
 
   if (Skill(crc32c("Personality")))
@@ -488,7 +488,7 @@ int Object::LoadFrom(FILE* fl) {
 
   //  if(IsAct(ACT_SPECIAL_PREPARE)) {
   //    fprintf(stderr, "Found one!\n");
-  //    act.erase(ACT_SPECIAL_PREPARE);
+  //    StopAct(ACT_SPECIAL_PREPARE);
   //    }
 
   //  if(short_desc == "a gold piece") {

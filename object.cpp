@@ -1043,27 +1043,27 @@ static char buf[65536];
 
 void Object::SendActions(Mind* m) {
   for (auto cur : act) {
-    if (cur.first < ACT_WEAR_BACK) {
+    if (cur.act() < ACT_WEAR_BACK) {
       std::string targ;
       std::string dirn = "";
       std::string dirp = "";
 
-      if (!cur.second)
+      if (!cur.obj())
         targ = "";
       else
-        targ = cur.second->Name(0, m->Body(), this);
+        targ = cur.obj()->Name(0, m->Body(), this);
 
       //      //FIXME: Busted!  This should be the "pointing north to bob"
       //      thingy.
       //      for(auto dir : connections) {
-      //	if(dir.second == cur.second) {
+      //	if(dir.second == cur.obj()) {
       //	  dirn = dir.first;
       //	  dirp = " ";
       //	  break;
       //	  }
       //	}
       m->Send(", ");
-      m->SendF(act_str[cur.first].c_str(), targ.c_str(), dirn.c_str(), dirp.c_str());
+      m->SendF(act_str[cur.act()].c_str(), targ.c_str(), dirn.c_str(), dirp.c_str());
     }
   }
   if (HasSkill(crc32c("Invisible"))) {
@@ -1094,105 +1094,105 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
   std::map<Object*, std::string> shown;
   for (auto cur : act) {
     if ((vmode & (LOC_TOUCH | LOC_HEAT | LOC_NINJA)) == 0 // Can't See/Feel Invis
-        && cur.second && cur.second->Skill(crc32c("Invisible")) > 0) {
+        && cur.obj() && cur.obj()->Skill(crc32c("Invisible")) > 0) {
       continue; // Don't show invisible equip
     }
-    if (cur.first == ACT_HOLD)
+    if (cur.act() == ACT_HOLD)
       m->SendF("%24s", "Held: ");
-    else if (cur.first == ACT_WIELD)
+    else if (cur.act() == ACT_WIELD)
       m->SendF("%24s", "Wielded: ");
-    else if (cur.first == ACT_WEAR_BACK)
+    else if (cur.act() == ACT_WEAR_BACK)
       m->SendF("%24s", "Worn on back: ");
-    else if (cur.first == ACT_WEAR_CHEST)
+    else if (cur.act() == ACT_WEAR_CHEST)
       m->SendF("%24s", "Worn on chest: ");
-    else if (cur.first == ACT_WEAR_HEAD)
+    else if (cur.act() == ACT_WEAR_HEAD)
       m->SendF("%24s", "Worn on head: ");
-    else if (cur.first == ACT_WEAR_FACE)
+    else if (cur.act() == ACT_WEAR_FACE)
       m->SendF("%24s", "Worn on face: ");
-    else if (cur.first == ACT_WEAR_NECK)
+    else if (cur.act() == ACT_WEAR_NECK)
       m->SendF("%24s", "Worn on neck: ");
-    else if (cur.first == ACT_WEAR_COLLAR)
+    else if (cur.act() == ACT_WEAR_COLLAR)
       m->SendF("%24s", "Worn on collar: ");
-    else if (cur.first == ACT_WEAR_WAIST)
+    else if (cur.act() == ACT_WEAR_WAIST)
       m->SendF("%24s", "Worn on waist: ");
-    else if (cur.first == ACT_WEAR_SHIELD)
+    else if (cur.act() == ACT_WEAR_SHIELD)
       m->SendF("%24s", "Worn as shield: ");
-    else if (cur.first == ACT_WEAR_LARM)
+    else if (cur.act() == ACT_WEAR_LARM)
       m->SendF("%24s", "Worn on left arm: ");
-    else if (cur.first == ACT_WEAR_RARM)
+    else if (cur.act() == ACT_WEAR_RARM)
       m->SendF("%24s", "Worn on right arm: ");
-    else if (cur.first == ACT_WEAR_LFINGER)
+    else if (cur.act() == ACT_WEAR_LFINGER)
       m->SendF("%24s", "Worn on left finger: ");
-    else if (cur.first == ACT_WEAR_RFINGER)
+    else if (cur.act() == ACT_WEAR_RFINGER)
       m->SendF("%24s", "Worn on right finger: ");
-    else if (cur.first == ACT_WEAR_LFOOT)
+    else if (cur.act() == ACT_WEAR_LFOOT)
       m->SendF("%24s", "Worn on left foot: ");
-    else if (cur.first == ACT_WEAR_RFOOT)
+    else if (cur.act() == ACT_WEAR_RFOOT)
       m->SendF("%24s", "Worn on right foot: ");
-    else if (cur.first == ACT_WEAR_LHAND)
+    else if (cur.act() == ACT_WEAR_LHAND)
       m->SendF("%24s", "Worn on left hand: ");
-    else if (cur.first == ACT_WEAR_RHAND)
+    else if (cur.act() == ACT_WEAR_RHAND)
       m->SendF("%24s", "Worn on right hand: ");
-    else if (cur.first == ACT_WEAR_LLEG)
+    else if (cur.act() == ACT_WEAR_LLEG)
       m->SendF("%24s", "Worn on left leg: ");
-    else if (cur.first == ACT_WEAR_RLEG)
+    else if (cur.act() == ACT_WEAR_RLEG)
       m->SendF("%24s", "Worn on right leg: ");
-    else if (cur.first == ACT_WEAR_LWRIST)
+    else if (cur.act() == ACT_WEAR_LWRIST)
       m->SendF("%24s", "Worn on left wrist: ");
-    else if (cur.first == ACT_WEAR_RWRIST)
+    else if (cur.act() == ACT_WEAR_RWRIST)
       m->SendF("%24s", "Worn on right wrist: ");
-    else if (cur.first == ACT_WEAR_LSHOULDER)
+    else if (cur.act() == ACT_WEAR_LSHOULDER)
       m->SendF("%24s", "Worn on left shoulder: ");
-    else if (cur.first == ACT_WEAR_RSHOULDER)
+    else if (cur.act() == ACT_WEAR_RSHOULDER)
       m->SendF("%24s", "Worn on right shoulder: ");
-    else if (cur.first == ACT_WEAR_LHIP)
+    else if (cur.act() == ACT_WEAR_LHIP)
       m->SendF("%24s", "Worn on left hip: ");
-    else if (cur.first == ACT_WEAR_RHIP)
+    else if (cur.act() == ACT_WEAR_RHIP)
       m->SendF("%24s", "Worn on right hip: ");
     else
       continue;
 
     if ((vmode & (LOC_HEAT | LOC_NINJA)) == 0 // Can't see (but can touch)
-        && cur.second && cur.second->Skill(crc32c("Invisible")) > 0) {
+        && cur.obj() && cur.obj()->Skill(crc32c("Invisible")) > 0) {
       m->Send(CGRN "Something invisible.\n" CNRM);
       continue; // Don't show details of invisible equip
     }
 
     std::string targ;
-    if (!cur.second)
+    if (!cur.obj())
       targ = "";
     else
-      targ = cur.second->Name(0, m->Body(), this);
+      targ = cur.obj()->Name(0, m->Body(), this);
 
     char qty[256] = {0};
-    if (cur.second->Skill(crc32c("Quantity")) > 1)
-      sprintf(qty, "(x%d) ", cur.second->Skill(crc32c("Quantity")));
+    if (cur.obj()->Skill(crc32c("Quantity")) > 1)
+      sprintf(qty, "(x%d) ", cur.obj()->Skill(crc32c("Quantity")));
 
-    if (shown.count(cur.second) > 0) {
-      m->SendF("%s%s (%s).\n", qty, targ.c_str(), shown[cur.second].c_str());
+    if (shown.count(cur.obj()) > 0) {
+      m->SendF("%s%s (%s).\n", qty, targ.c_str(), shown[cur.obj()].c_str());
     } else {
       m->SendF(CGRN "%s%s.\n" CNRM, qty, targ.c_str());
-      if (cur.second->Skill(crc32c("Open")) || cur.second->Skill(crc32c("Transparent"))) {
+      if (cur.obj()->Skill(crc32c("Open")) || cur.obj()->Skill(crc32c("Transparent"))) {
         sprintf(buf, "%16s  %c", " ", 0);
         base = buf;
-        cur.second->SendContents(m, nullptr, vmode);
+        cur.obj()->SendContents(m, nullptr, vmode);
         base = "";
         m->Send(CNRM);
-      } else if (cur.second->Skill(crc32c("Container"))) {
-        if ((vmode & 1) && cur.second->Skill(crc32c("Locked"))) {
+      } else if (cur.obj()->Skill(crc32c("Container"))) {
+        if ((vmode & 1) && cur.obj()->Skill(crc32c("Locked"))) {
           std::string mes =
               base + CNRM + "                " + "  It is closed and locked.\n" + CGRN;
           m->Send(mes.c_str());
         } else if (vmode & 1) {
           sprintf(buf, "%16s  %c", " ", 0);
           base = buf;
-          cur.second->SendContents(m, nullptr, vmode);
+          cur.obj()->SendContents(m, nullptr, vmode);
           base = "";
           m->Send(CNRM);
         }
       }
     }
-    shown[cur.second] = "already listed";
+    shown[cur.obj()] = "already listed";
   }
 }
 
@@ -2053,7 +2053,7 @@ void Object::TryCombine() {
     // Never combine with an actee.
     bool actee = false;
     for (auto a : parent->act) {
-      if (a.second == obj) {
+      if (a.obj() == obj) {
         actee = true;
         break;
       }
@@ -2613,18 +2613,18 @@ MinVec<1, Object*> Object::PickObjects(std::string name, int loc, int* ordinal) 
     auto cont(contents);
 
     for (auto action : act) {
-      auto ind = std::find(cont.begin(), cont.end(), action.second);
-      if (ind != cont.end()) { // IE: Is action.second within cont
+      auto ind = std::find(cont.begin(), cont.end(), action.obj());
+      if (ind != cont.end()) { // IE: Is action.obj() within cont
         cont.erase(ind);
-        if (action.second->Filter(loc) && action.second->Matches(name) &&
-            ((loc & LOC_NOTWORN) == 0 || action.first <= ACT_HOLD) &&
-            ((loc & LOC_NOTUNWORN) == 0 || action.first >= ACT_HOLD)) {
-          if (tag(action.second, ret, ordinal, (Parent() == nullptr) | (loc & LOC_SPECIAL))) {
+        if (action.obj()->Filter(loc) && action.obj()->Matches(name) &&
+            ((loc & LOC_NOTWORN) == 0 || action.act() <= ACT_HOLD) &&
+            ((loc & LOC_NOTUNWORN) == 0 || action.act() >= ACT_HOLD)) {
+          if (tag(action.obj(), ret, ordinal, (Parent() == nullptr) | (loc & LOC_SPECIAL))) {
             return ret;
           }
         }
-        if (action.second->HasSkill(crc32c("Container"))) {
-          auto add = action.second->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
+        if (action.obj()->HasSkill(crc32c("Container"))) {
+          auto add = action.obj()->PickObjects(name, (loc & LOC_SPECIAL) | LOC_INTERNAL, ordinal);
           ret.insert(ret.end(), add.begin(), add.end());
 
           if ((*ordinal) == 0)
@@ -2710,23 +2710,23 @@ void Object::NotifyLeft(Object* obj, Object* newloc) {
   std::set<act_t> stops, stops2;
   int following = 0;
   for (auto curact : act) {
-    if (curact.second && curact.first < ACT_MAX &&
-        (curact.second == obj || obj->HasWithin(curact.second))) {
-      if (curact.first != ACT_FOLLOW || (!newloc)) {
-        stops.insert(curact.first);
+    if (curact.obj() && curact.act() < ACT_MAX &&
+        (curact.obj() == obj || obj->HasWithin(curact.obj()))) {
+      if (curact.act() != ACT_FOLLOW || (!newloc)) {
+        stops.insert(curact.act());
       } else if (parent != newloc) { // Do nothing if we didn't leave!
         following = 1; // Run Follow Response AFTER loop!
       }
     }
-    if (curact.first >= ACT_MAX && (!newloc) && curact.second == obj) {
+    if (curact.act() >= ACT_MAX && (!newloc) && curact.obj() == obj) {
       for (auto curact2 : obj->act) {
-        if (curact2.first >= ACT_MAX) {
-          if (curact2.second == this) {
-            stops2.insert(curact2.first);
+        if (curact2.act() >= ACT_MAX) {
+          if (curact2.obj() == this) {
+            stops2.insert(curact2.act());
           }
         }
       }
-      stops.insert(curact.first);
+      stops.insert(curact.act());
     }
   }
 
@@ -2788,40 +2788,58 @@ void Object::NotifyGone(Object* obj, Object* newloc, int up) {
   }
 }
 
+bool Object::IsAct(act_t a) const {
+  auto itr = act.begin();
+  for (; itr != act.end() && itr->act() != a; ++itr) {
+  }
+  return (itr != act.end());
+};
+
 Object* Object::ActTarg(act_t a) const {
-  if (act.count(a))
-    return (act.find(a))->second;
-  return nullptr;
+  auto itr = act.begin();
+  for (; itr != act.end() && itr->act() != a; ++itr) {
+  }
+  if (itr != act.end()) {
+    return itr->obj();
+  } else {
+    return nullptr;
+  }
 };
 
 void Object::AddAct(act_t a, Object* o) {
   if (o) {
     o->NowTouching(this);
   }
-  act[a] = o;
+  StopAct(a);
+  act.push_back(act_pair(a, o));
 }
 
 void Object::StopAct(act_t a) {
-  Object* obj = act[a];
-  act.erase(a);
-  if (a == ACT_HOLD && IsAct(ACT_OFFER)) {
-    // obj->SendOut(0, 0, ";s stops offering.\n", "", obj, nullptr);
-    StopAct(ACT_OFFER);
+  auto itr = act.begin();
+  for (; itr != act.end() && itr->act() != a; ++itr) {
   }
-  if (obj) {
-    for (auto opt : act) {
-      if (opt.second == obj) {
-        return; // Still touching it
-      }
+  if (itr != act.end()) {
+    Object* obj = itr->obj();
+    act.erase(itr);
+    if (a == ACT_HOLD && IsAct(ACT_OFFER)) {
+      // obj->SendOut(0, 0, ";s stops offering.\n", "", obj, nullptr);
+      StopAct(ACT_OFFER);
     }
-    obj->NotTouching(this); // No longer touching it
+    if (obj) {
+      for (auto opt : act) {
+        if (opt.obj() == obj) {
+          return; // Still touching it, so done
+        }
+      }
+      obj->NotTouching(this); // No longer touching it
+    }
   }
 }
 
 void Object::StopAll() {
   auto oldact = act;
   for (auto opt : oldact) {
-    StopAct(opt.first);
+    StopAct(opt.act());
   }
 }
 
