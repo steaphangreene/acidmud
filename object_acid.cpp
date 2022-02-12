@@ -121,25 +121,19 @@ int Object::SaveTo(FILE* fl) {
 
   fprintf(
       fl,
-      "%hhd,%hhd,%hd,%hhd,%hhd,%hd,%hhd,%hhd,%hd,%hhd,%hhd,%hd,%hhd,%hhd,%hd,%hhd,%hhd,%hd,%hhd,%hhd,%hhd;%d",
+      "%hhd,%hhd,0,%hhd,%hhd,0,%hhd,%hhd,0,%hhd,%hhd,0,%hhd,%hhd,0,%hhd,%hhd,0,%hhd,%hhd,%hhd;%d",
       att[0].base,
       att[0].cur,
-      att[0].mod,
       att[1].base,
       att[1].cur,
-      att[1].mod,
       att[2].base,
       att[2].cur,
-      att[2].mod,
       att[3].base,
       att[3].cur,
-      att[3].mod,
       att[4].base,
       att[4].cur,
-      att[4].mod,
       att[5].base,
       att[5].cur,
-      att[5].mod,
       phys,
       stun,
       stru,
@@ -322,30 +316,36 @@ int Object::LoadFrom(FILE* fl) {
     att[4].base = att[4].cur;
     att[5].base = att[5].cur;
   } else {
+    int16_t mods[6];
     fscanf(
         fl,
         "%hhd,%hhd,%hd,%hhd,%hhd,%hd,%hhd,%hhd,%hd,%hhd,%hhd,%hd,%hhd,%hhd,%hd,%hhd,%hhd,%hd,%hhd,%hhd,%hhd",
         &att[0].base,
         &att[0].cur,
-        &att[0].mod,
+        &mods[0],
         &att[1].base,
         &att[1].cur,
-        &att[1].mod,
+        &mods[1],
         &att[2].base,
         &att[2].cur,
-        &att[2].mod,
+        &mods[2],
         &att[3].base,
         &att[3].cur,
-        &att[3].mod,
+        &mods[3],
         &att[4].base,
         &att[4].cur,
-        &att[4].mod,
+        &mods[4],
         &att[5].base,
         &att[5].cur,
-        &att[5].mod,
+        &mods[5],
         &phys,
         &stun,
         &stru);
+    for (int a = 0; a < 6; ++a) {
+      if (mods[a] != 0) {
+        SetModifier(a, mods[a]);
+      }
+    }
   }
 
   int do_tick;

@@ -168,12 +168,26 @@ void Object::SetAttribute(int a, int v) {
   att[a].cur = v;
 }
 
+static const char* const attr_name[6] = {
+    "Body",
+    "Quickness",
+    "Strength",
+    "Charisma",
+    "Intelligence",
+    "Willpower",
+};
 void Object::SetModifier(int a, int v) {
   if (v > 10000)
     v = 10000;
   else if (v < -10000)
     v = -10000;
-  att[a].mod = v;
+  if (v > 0) {
+    SetSkill(std::string(attr_name[a]) + " Bonus", v);
+    SetSkill(std::string(attr_name[a]) + " Penalty", 0);
+  } else {
+    SetSkill(std::string(attr_name[a]) + " Bonus", 0);
+    SetSkill(std::string(attr_name[a]) + " Penalty", -v);
+  }
 }
 
 void Object::SetSkill(uint32_t stok, int v) {

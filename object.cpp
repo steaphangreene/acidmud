@@ -727,12 +727,12 @@ Object::Object() {
   phys = 0;
   stru = 0;
 
-  att[0] = {0, 0, 0};
-  att[1] = {0, 0, 0};
-  att[2] = {0, 0, 0};
-  att[3] = {0, 0, 0};
-  att[4] = {0, 0, 0};
-  att[5] = {0, 0, 0};
+  att[0] = {0, 0};
+  att[1] = {0, 0};
+  att[2] = {0, 0};
+  att[3] = {0, 0};
+  att[4] = {0, 0};
+  att[5] = {0, 0};
 
   no_seek = false;
   no_hear = false;
@@ -760,12 +760,12 @@ Object::Object(Object* o) {
   phys = 0;
   stru = 0;
 
-  att[0] = {0, 0, 0};
-  att[1] = {0, 0, 0};
-  att[2] = {0, 0, 0};
-  att[3] = {0, 0, 0};
-  att[4] = {0, 0, 0};
-  att[5] = {0, 0, 0};
+  att[0] = {0, 0};
+  att[1] = {0, 0};
+  att[2] = {0, 0};
+  att[3] = {0, 0};
+  att[4] = {0, 0};
+  att[5] = {0, 0};
 
   no_seek = false;
   no_hear = false;
@@ -3706,37 +3706,25 @@ bool Object::IsSameAs(const Object& in) const {
     return false;
   if (att[0].cur != in.att[0].cur)
     return false;
-  if (att[0].mod != in.att[0].mod)
-    return false;
   if (att[1].base != in.att[1].base)
     return false;
   if (att[1].cur != in.att[1].cur)
-    return false;
-  if (att[1].mod != in.att[1].mod)
     return false;
   if (att[2].base != in.att[2].base)
     return false;
   if (att[2].cur != in.att[2].cur)
     return false;
-  if (att[2].mod != in.att[2].mod)
-    return false;
   if (att[3].base != in.att[3].base)
     return false;
   if (att[3].cur != in.att[3].cur)
-    return false;
-  if (att[3].mod != in.att[3].mod)
     return false;
   if (att[4].base != in.att[4].base)
     return false;
   if (att[4].cur != in.att[4].cur)
     return false;
-  if (att[4].mod != in.att[4].mod)
-    return false;
   if (att[5].base != in.att[5].base)
     return false;
   if (att[5].cur != in.att[5].cur)
-    return false;
-  if (att[5].mod != in.att[5].mod)
     return false;
 
   if (phys != in.phys)
@@ -4219,17 +4207,16 @@ int Object::ModAttribute(int a) const {
   return att[a].cur + Modifier(a);
 }
 
+static const char* const attr_name[6] = {
+    "Body",
+    "Quickness",
+    "Strength",
+    "Charisma",
+    "Intelligence",
+    "Willpower",
+};
 int Object::Modifier(int a) const {
-  int ret = 0;
-  for (auto item : contents) {
-    if (Wearing(item) || item->Skill(crc32c("Magical Spell"))) {
-      ret += item->att[a].mod;
-    }
-  }
-  ret += att[a].mod;
-  if (ret < 0)
-    return (ret - 999) / 1000;
-  return (ret / 1000);
+  return Modifier(attr_name[a]);
 }
 
 int Object::Modifier(const std::string& m) const {

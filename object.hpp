@@ -534,7 +534,6 @@ class alignas(64) Object {
   struct {
     int8_t base = 0;
     int8_t cur = 0;
-    int16_t mod = 0;
   } att[6];
 
   static void InitSkillsData();
