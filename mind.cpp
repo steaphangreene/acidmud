@@ -596,7 +596,7 @@ void Mind::UpdatePrompt() {
         "[%s][%s] %s> %c",
         sevs_p[std::min(10, Body()->Phys())].c_str(),
         sevs_s[std::min(10, Body()->Stun())].c_str(),
-        Body()->ShortDesc().c_str(),
+        Body()->ShortDescC(),
         0);
     SetPrompt(pers, buf);
   } else
@@ -3007,7 +3007,7 @@ void Mind::Think(int istick) {
         ) {
           std::string command = std::string("attack ") + other->ShortDesc();
           body->BusyFor(500, command.c_str());
-          // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc().c_str(), command.c_str());
+          // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDescC(), command.c_str());
           return;
         }
       }
@@ -3043,7 +3043,7 @@ void Mind::Think(int istick) {
         ) {
           std::string command = std::string("attack ") + other->ShortDesc();
           body->BusyFor(500, command.c_str());
-          // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc().c_str(), command.c_str());
+          // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDescC(), command.c_str());
           return;
         }
       }
@@ -3079,7 +3079,7 @@ void Mind::Think(int istick) {
         ) {
           std::string command = std::string("call ALARM; attack ") + other->ShortDesc();
           body->BusyFor(500, command.c_str());
-          // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDesc().c_str(), command.c_str());
+          // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDescC(), command.c_str());
           return;
         }
       }

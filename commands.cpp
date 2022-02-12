@@ -1266,7 +1266,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       --sel;
     }
     if (mind)
-      mind->SendF("You try to flee %s.\n", (*dir)->ShortDesc().c_str());
+      mind->SendF("You try to flee %s.\n", (*dir)->ShortDescC());
 
     cnum = COM_ENTER;
     args_buf = (*dir)->ShortDesc();
@@ -1340,7 +1340,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       } else {
         body->Parent()->SendDescSurround(mind, body);
       }
-      mind->SendF(CMAG "You have entered: %s\n" CNRM, body->World()->ShortDesc().c_str());
+      mind->SendF(CMAG "You have entered: %s\n" CNRM, body->World()->ShortDescC());
       return 0;
     }
     Object* dest = body->PickObject(std::string(args), vmode | LOC_NEARBY);
@@ -1441,7 +1441,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         }
 
         if (mind && newworld) {
-          mind->SendF(CMAG "You have entered: %s\n" CNRM, body->World()->ShortDesc().c_str());
+          mind->SendF(CMAG "You have entered: %s\n" CNRM, body->World()->ShortDescC());
         }
         if (stealth_t > 0) {
           body->SetSkill(crc32c("Hidden"), body->Roll(crc32c("Stealth"), 2) * 2);
@@ -1686,7 +1686,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
   if (cnum == COM_INVENTORY) {
     if (mind) {
-      mind->SendF("You (%s) are carrying:\n", body->ShortDesc().c_str());
+      mind->SendF("You (%s) are carrying:\n", body->ShortDescC());
       body->SendExtendedActions(mind, LOC_TOUCH | vmode | 1);
     }
     return 0;
@@ -1694,7 +1694,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
   if (cnum == COM_EQUIPMENT) {
     if (mind) {
-      mind->SendF("You (%s) are using:\n", body->ShortDesc().c_str());
+      mind->SendF("You (%s) are using:\n", body->ShortDescC());
       body->SendExtendedActions(mind, LOC_TOUCH | vmode);
     }
     return 0;
@@ -2468,7 +2468,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_WORLD) {
     if (!mind)
       return 0;
-    mind->SendF("This world is called: %s\n", body->World()->ShortDesc().c_str());
+    mind->SendF("This world is called: %s\n", body->World()->ShortDescC());
     return 0;
   }
 
@@ -2701,7 +2701,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             price += 999;
             price /= 1000;
           }
-          mind->SendF("%10d gp: %s\n", price, obj->ShortDesc().c_str());
+          mind->SendF("%10d gp: %s\n", price, obj->ShortDescC());
           oobj = obj;
         }
       }
@@ -2773,7 +2773,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             price += 999;
             price /= 1000;
           }
-          mind->SendF("%d gp: %s\n", price, targ->ShortDesc().c_str());
+          mind->SendF("%d gp: %s\n", price, targ->ShortDescC());
 
           int togo = price, ord = -price;
           auto pay = body->PickObjects("a gold piece", vmode | LOC_INTERNAL, &ord);
@@ -3045,7 +3045,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           if (price <= 0)
             price = 1;
         }
-        mind->SendF("I'll give you %dgp for %s\n", price, targ->ShortDesc().c_str());
+        mind->SendF("I'll give you %dgp for %s\n", price, targ->ShortDescC());
 
         if (cnum == COM_SELL) {
           int togo = price, ord = -price;
@@ -5160,7 +5160,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             "*You throw %s and hit ;s%s.\n",
             body,
             targ,
-            body->ActTarg(ACT_WIELD)->ShortDesc().c_str(),
+            body->ActTarg(ACT_WIELD)->ShortDescC(),
             locm.c_str());
         body->ActTarg(ACT_WIELD)->Travel(body->Parent()); // FIXME: Get Another
         body->StopAct(ACT_WIELD); // FIXME: Bows/Guns!
@@ -5173,7 +5173,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             body,
             targ,
             locm.c_str(),
-            body->ActTarg(ACT_WIELD)->ShortDesc().c_str());
+            body->ActTarg(ACT_WIELD)->ShortDescC());
       } else { // No Weapon or Natural Weapon
         if (!body->HasSkill(crc32c("NaturalWeapon")))
           stun = 1;
@@ -5242,7 +5242,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             "*You throw %s at ;s, but miss.\n",
             body,
             targ,
-            body->ActTarg(ACT_WIELD)->ShortDesc().c_str());
+            body->ActTarg(ACT_WIELD)->ShortDescC());
         body->ActTarg(ACT_WIELD)->Travel(body->Parent()); // FIXME: Get Another
         body->StopAct(ACT_WIELD); // FIXME: Bows/Guns!
       } else if (body->IsAct(ACT_WIELD)) { // Melee Weapon
@@ -5320,8 +5320,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     } else if (!args.empty()) {
       mind->SendF(
-          "Just type 'reset' to undo all your work and start over on %s\n",
-          chr->ShortDesc().c_str());
+          "Just type 'reset' to undo all your work and start over on %s\n", chr->ShortDescC());
       return 0;
     }
 
@@ -5335,7 +5334,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     mind->Owner()->AddChar(body);
     delete chr;
 
-    mind->SendF("You reset all chargen work for '%s'.\n", body->ShortDesc().c_str());
+    mind->SendF("You reset all chargen work for '%s'.\n", body->ShortDescC());
     return 0;
   }
 
@@ -5347,8 +5346,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           "<character>'.\n");
       return 0;
     } else if (!args.empty()) {
-      mind->SendF(
-          "Just type 'randomize' to randomly spend all points for %s\n", chr->ShortDesc().c_str());
+      mind->SendF("Just type 'randomize' to randomly spend all points for %s\n", chr->ShortDescC());
       return 0;
     }
 
@@ -5380,7 +5378,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             crc32c("Skill Points"), chr->Skill(crc32c("Skill Points")) - chr->Skill(*skl));
       }
     }
-    mind->SendF("You randomly spend all remaining points for '%s'.\n", chr->ShortDesc().c_str());
+    mind->SendF("You randomly spend all remaining points for '%s'.\n", chr->ShortDescC());
     return 0;
   }
 
@@ -5392,7 +5390,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           "<character>'.\n");
       return 0;
     } else if (args.empty()) {
-      mind->SendF("You need to select an archetype to apply to %s.\n", chr->ShortDesc().c_str());
+      mind->SendF("You need to select an archetype to apply to %s.\n", chr->ShortDescC());
       mind->SendF("Supported archetypes are:\n");
       mind->SendF("  1. Fighter\n");
       return 0;
@@ -5479,12 +5477,12 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
       body->SetSkill(crc32c("Status Points"), 0);
 
-      mind->SendF("You reform '%s' into a %s.\n", body->ShortDesc().c_str(), "Fighter");
+      mind->SendF("You reform '%s' into a %s.\n", body->ShortDescC(), "Fighter");
       mind->SendF("You can now adjust things from here, or just enter the game.\n");
 
     } else {
       mind->SendF(
-          "You need to select a *supported* archetype to apply to %s.\n", chr->ShortDesc().c_str());
+          "You need to select a *supported* archetype to apply to %s.\n", chr->ShortDescC());
       mind->SendF("Supported archetypes are:\n");
       mind->SendF("  1. Fighter\n");
     }
@@ -5751,7 +5749,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       std::string comline = "teleport ";
       comline += (std::string(args));
       comline += "\n";
-      if (!strcasestr(src->LongDesc().c_str(), comline.c_str())) {
+      if (!strcasestr(src->LongDescC(), comline.c_str())) {
         src = body->NextHasSkill(crc32c("Restricted Item"), src);
         continue;
       }
@@ -6143,7 +6141,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       mind->SendF(
           "You rename '%s' to '%s'\n",
           oldn.c_str(),
-          targ->ShortDesc().c_str()); // FIXME - Real Message
+          targ->ShortDescC()); // FIXME - Real Message
     } else {
       mind->Send("Rename it to what?\n");
     }
@@ -6263,7 +6261,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     if (!targ) {
       mind->Send("You need to be pointing at your target.\n");
     } else if (args.empty()) {
-      mind->SendF("Command %s to do what?\n", targ->ShortDesc().c_str());
+      mind->SendF("Command %s to do what?\n", targ->ShortDescC());
     } else if (targ->NormAttribute(5) <= 0) {
       mind->Send("You can't command an object that has no will of its own.\n");
     } else {

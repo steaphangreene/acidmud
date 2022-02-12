@@ -909,17 +909,17 @@ std::string Object::Name(int definite, Object* rel, Object* sub) const {
   else if (sub == this)
     return "itself";
 
-  if (!strncmp(ShortDesc().c_str(), "a ", 2)) {
-    ret = (ShortDesc().c_str() + 2);
+  if (!strncmp(ShortDescC(), "a ", 2)) {
+    ret = (ShortDescC() + 2);
     need_an = 0;
-  } else if (!strncmp(ShortDesc().c_str(), "an ", 3)) {
-    ret = (ShortDesc().c_str() + 3);
+  } else if (!strncmp(ShortDescC(), "an ", 3)) {
+    ret = (ShortDescC() + 3);
     need_an = 1;
-  } else if (!strncmp(ShortDesc().c_str(), "the ", 4)) {
-    ret = (ShortDesc().c_str() + 4);
+  } else if (!strncmp(ShortDescC(), "the ", 4)) {
+    ret = (ShortDescC() + 4);
     definite = 1;
   } else {
-    ret = ShortDesc().c_str();
+    ret = ShortDescC();
     proper = 1;
   }
 
@@ -976,6 +976,22 @@ std::string Object::LongDesc() const {
   if (dlens[2] == 0)
     return Desc();
   return std::string(descriptions + dlens[0] + dlens[1] + 2, dlens[2]);
+}
+
+const char* Object::ShortDescC() const {
+  return descriptions;
+}
+
+const char* Object::DescC() const {
+  if (dlens[1] == 0)
+    return ShortDescC();
+  return descriptions + dlens[0] + 1;
+}
+
+const char* Object::LongDescC() const {
+  if (dlens[2] == 0)
+    return DescC();
+  return descriptions + dlens[0] + dlens[1] + 2;
 }
 
 static void trim(std::string& s) {
@@ -1321,9 +1337,9 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
         ++tlines;
 
         if (ind->parent && ind->parent->Skill(crc32c("Container")))
-          sprintf(buf, "%s%c", ind->ShortDesc().c_str(), 0);
+          sprintf(buf, "%s%c", ind->ShortDescC(), 0);
         else
-          sprintf(buf, "%s %s%c", ind->ShortDesc().c_str(), ind->PosString().c_str(), 0);
+          sprintf(buf, "%s %s%c", ind->ShortDescC(), ind->PosString().c_str(), 0);
         buf[0] = ascii_toupper(buf[0]);
         m->Send(buf);
 
@@ -1354,7 +1370,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
 
 void Object::SendShortDesc(Mind* m, Object* o) {
   memset(buf, 0, 65536);
-  sprintf(buf, "%s\n", ShortDesc().c_str());
+  sprintf(buf, "%s\n", ShortDescC());
   m->Send(buf);
 }
 
@@ -1469,13 +1485,13 @@ void Object::SendDesc(Mind* m, Object* o) {
     SendActions(m);
   } else {
     m->Send(CCYN);
-    sprintf(buf, "%s\n%c", ShortDesc().c_str(), 0);
+    sprintf(buf, "%s\n%c", ShortDescC(), 0);
     buf[0] = ascii_toupper(buf[0]);
     m->Send(buf);
   }
 
   m->SendF("%s   ", CNRM);
-  sprintf(buf, "%s\n%c", Desc().c_str(), 0);
+  sprintf(buf, "%s\n%c", DescC(), 0);
   buf[0] = ascii_toupper(buf[0]);
   m->Send(buf);
   m->Send(CNRM);
@@ -1492,13 +1508,13 @@ void Object::SendDescSurround(Mind* m, Object* o, int vmode) {
     SendActions(m);
   } else {
     m->Send(CCYN);
-    sprintf(buf, "%s\n%c", ShortDesc().c_str(), 0);
+    sprintf(buf, "%s\n%c", ShortDescC(), 0);
     buf[0] = ascii_toupper(buf[0]);
     m->Send(buf);
   }
 
   m->SendF("%s   ", CNRM);
-  sprintf(buf, "%s\n%c", Desc().c_str(), 0);
+  sprintf(buf, "%s\n%c", DescC(), 0);
   buf[0] = ascii_toupper(buf[0]);
   m->Send(buf);
 
@@ -1527,13 +1543,13 @@ void Object::SendLongDesc(Mind* m, Object* o) {
     SendActions(m);
   } else {
     m->Send(CCYN);
-    sprintf(buf, "%s\n%c", ShortDesc().c_str(), 0);
+    sprintf(buf, "%s\n%c", ShortDescC(), 0);
     buf[0] = ascii_toupper(buf[0]);
     m->Send(buf);
   }
 
   m->SendF("%s   ", CNRM);
-  sprintf(buf, "%s\n%c", LongDesc().c_str(), 0);
+  sprintf(buf, "%s\n%c", LongDescC(), 0);
   buf[0] = ascii_toupper(buf[0]);
   m->Send(buf);
   m->Send(CNRM);
@@ -2892,7 +2908,7 @@ void Object::Collapse() {
           "You drop %s!\n",
           this,
           nullptr,
-          ActTarg(ACT_WIELD)->ShortDesc().c_str());
+          ActTarg(ACT_WIELD)->ShortDescC());
       ActTarg(ACT_WIELD)->Travel(parent);
     }
     if (ActTarg(ACT_HOLD) && ActTarg(ACT_HOLD) != ActTarg(ACT_WEAR_SHIELD)) {
@@ -2903,7 +2919,7 @@ void Object::Collapse() {
           "You drop %s!\n",
           this,
           nullptr,
-          ActTarg(ACT_HOLD)->ShortDesc().c_str());
+          ActTarg(ACT_HOLD)->ShortDescC());
       ActTarg(ACT_HOLD)->Travel(parent);
     } else if (ActTarg(ACT_HOLD)) {
       parent->SendOutF(
@@ -2913,7 +2929,7 @@ void Object::Collapse() {
           "You stop holding %s!\n",
           this,
           nullptr,
-          ActTarg(ACT_HOLD)->ShortDesc().c_str());
+          ActTarg(ACT_HOLD)->ShortDescC());
       StopAct(ACT_HOLD);
     }
   }

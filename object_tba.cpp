@@ -219,7 +219,7 @@ void Object::TBAFinalizeTriggers() {
       int rnum;
       trg->Parent()->SetSkill(crc32c("Teleport"), 10);
       trg->Parent()->SetSkill(crc32c("Restricted Item"), 1);
-      sscanf(trg->LongDesc().c_str() + cur, "teleport [%d]\n", &rnum);
+      sscanf(trg->LongDescC() + cur, "teleport [%d]\n", &rnum);
       if (bynumwld.count(rnum) > 0) {
         newtext += std::string("teleport ") + bynumwld[rnum]->Name() + "\n";
       } else {
@@ -440,7 +440,7 @@ void Object::TBALoadZON(const std::string& fn) {
             obj->SetDesc("This thing just pops out MOBs.");
 
             // fprintf(stderr, "Put Mob \"%s\" in Room \"%s\"\n",
-            // obj->ShortDesc().c_str(), bynumwld[room]->ShortDesc().c_str());
+            // obj->ShortDescC(), bynumwld[room]->ShortDescC());
 
             if (lastmob)
               TBAFinishMOB(lastmob);
@@ -461,7 +461,7 @@ void Object::TBALoadZON(const std::string& fn) {
             Object* obj = new Object(*(bynumobj[num]));
             obj->SetParent(bynumwld[room]);
             // fprintf(stderr, "Put Obj \"%s\" in Room \"%s\"\n",
-            // obj->ShortDesc().c_str(), bynumwld[room]->ShortDesc().c_str());
+            // obj->ShortDescC(), bynumwld[room]->ShortDescC());
             if (obj->HasSkill(crc32c("Liquid Source"))) {
               obj->Activate();
             }
@@ -493,7 +493,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc().c_str());
+                      obj->ShortDescC());
                 }
               } break;
               case (2): { // Worn
@@ -504,7 +504,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc().c_str());
+                      obj->ShortDescC());
                 }
               } break;
               case (3): { // TBA MOBs have two necks (1/2)
@@ -515,7 +515,7 @@ void Object::TBALoadZON(const std::string& fn) {
                         CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                         fn.c_str(),
                         fline(mudz),
-                        obj->ShortDesc().c_str());
+                        obj->ShortDescC());
                   } else {
                     if (lastmob->IsAct(ACT_WEAR_FACE))
                       bagit = 1;
@@ -537,7 +537,7 @@ void Object::TBALoadZON(const std::string& fn) {
                         CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                         fn.c_str(),
                         fline(mudz),
-                        obj->ShortDesc().c_str());
+                        obj->ShortDescC());
                   } else {
                     if (lastmob->IsAct(ACT_WEAR_FACE))
                       bagit = 1;
@@ -560,7 +560,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc().c_str());
+                      obj->ShortDescC());
                 }
               } break;
               case (6): { // Worn
@@ -571,7 +571,7 @@ void Object::TBALoadZON(const std::string& fn) {
                         CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                         fn.c_str(),
                         fline(mudz),
-                        obj->ShortDesc().c_str());
+                        obj->ShortDescC());
                   } else {
                     if (lastmob->IsAct(ACT_WEAR_FACE))
                       bagit = 1;
@@ -594,7 +594,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc().c_str());
+                      obj->ShortDescC());
                 }
               } break;
               case (8): { // Worn
@@ -609,7 +609,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc().c_str());
+                      obj->ShortDescC());
                 }
               } break;
               case (9): { // Worn
@@ -624,7 +624,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc().c_str());
+                      obj->ShortDescC());
                 }
               } break;
               case (10): { // Worn
@@ -639,7 +639,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc().c_str());
+                      obj->ShortDescC());
                 }
               } break;
               case (11): { // Worn
@@ -650,7 +650,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc().c_str());
+                      obj->ShortDescC());
                 }
               } break;
               case (12): { // Worn
@@ -662,7 +662,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc().c_str());
+                      obj->ShortDescC());
                 }
               } break;
               case (13): { // Worn
@@ -673,7 +673,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc().c_str());
+                      obj->ShortDescC());
                 }
               } break;
               case (14): { // Worn
@@ -684,7 +684,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc().c_str());
+                      obj->ShortDescC());
                 }
               } break;
               case (15): { // Worn
@@ -695,7 +695,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc().c_str());
+                      obj->ShortDescC());
                 }
               } break;
               case (16): { // Wielded
@@ -706,7 +706,7 @@ void Object::TBALoadZON(const std::string& fn) {
                       CYEL "%s:%d: Warning: Wield non-weapon: %s\n" CNRM,
                       fn.c_str(),
                       fline(mudz),
-                      obj->ShortDesc().c_str());
+                      obj->ShortDescC());
                 }
               } break;
               case (17): { // Held
@@ -751,8 +751,8 @@ void Object::TBALoadZON(const std::string& fn) {
             obj->SetParent(lastobj[innum]);
             if (obj2)
               obj2->SetParent(lastobj[innum]);
-            // fprintf(stderr, "Put Obj \"%s\" in Obj \"%s\"\n", obj->ShortDesc().c_str(),
-            // lastobj[innum]->ShortDesc().c_str());
+            // fprintf(stderr, "Put Obj \"%s\" in Obj \"%s\"\n", obj->ShortDescC(),
+            // lastobj[innum]->ShortDescC());
             lastobj[num] = obj;
           }
         } break;
@@ -819,7 +819,7 @@ void Object::TBALoadMOB(const std::string& fn) {
                 CYEL "Warning: Ignoring non-alpha alias [%s] in #%d ('%s')\n" CNRM,
                 std::string(aliases[actr]).c_str(),
                 obj->Skill(crc32c("TBAMOB")),
-                obj->ShortDesc().c_str());
+                obj->ShortDescC());
           } else if (aliases[actr] == "woman" || aliases[actr] == "girl") {
             obj->SetGender('F');
           } else if (aliases[actr] == "man" || aliases[actr] == "boy") {
@@ -843,7 +843,7 @@ void Object::TBALoadMOB(const std::string& fn) {
             //    CYEL "Warning: Adding [%s] to #%d ('%s')\n" CNRM,
             //    std::string(aliases[actr]).c_str(),
             //    obj->Skill(crc32c("TBAMOB")),
-            //    obj->ShortDesc().c_str());
+            //    obj->ShortDescC());
             label += " ";
             label += aliases[actr];
             ++mob_aliases;
@@ -1035,7 +1035,7 @@ void Object::TBALoadMOB(const std::string& fn) {
           trg->SetParent(obj);
           todotrg.push_back(trg);
           //  fprintf(stderr, "Put Trg \"%s\" on MOB \"%s\"\n",
-          //	trg->Desc().c_str(), obj->ShortDesc().c_str()
+          //	trg->DescC(), obj->ShortDescC()
           //	);
         }
       }
@@ -1273,7 +1273,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
                 CYEL "Warning: Ignoring non-alpha alias [%s] in #%d ('%s')\n" CNRM,
                 std::string(aliases[actr]).c_str(),
                 obj->Skill(crc32c("TBAObject")),
-                obj->ShortDesc().c_str());
+                obj->ShortDescC());
           } else if (aliases[actr] == "wyv" || aliases[actr] == "ghenna") {
             // Ignore these, they're just typing short-cuts.
           } else if (
@@ -1286,7 +1286,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
             //    CYEL "Warning: Adding [%s] to #%d ('%s')\n" CNRM,
             //    std::string(aliases[actr]).c_str(),
             //    obj->Skill(crc32c("TBAObject")),
-            //    obj->ShortDesc().c_str());
+            //    obj->ShortDescC());
             label += " ";
             label += aliases[actr];
             ++obj_aliases;
@@ -1366,11 +1366,11 @@ void Object::TBALoadOBJ(const std::string& fn) {
       }
 
       int sf = 0;
-      if (!strncmp(obj->ShortDesc().c_str(), "a pair of ", 10))
+      if (!strncmp(obj->ShortDescC(), "a pair of ", 10))
         sf = 9;
-      else if (!strncmp(obj->ShortDesc().c_str(), "some ", 5))
+      else if (!strncmp(obj->ShortDescC(), "some ", 5))
         sf = 4;
-      else if (!strncmp(obj->ShortDesc().c_str(), "a set of ", 9))
+      else if (!strncmp(obj->ShortDescC(), "a set of ", 9))
         sf = 8;
 
       std::string name = obj->ShortDesc();
@@ -2013,7 +2013,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
               stderr,
               CYEL "Warning: Using Default of '%s' for '%s'!\n" CNRM,
               SkillName(get_weapon_skill(skmatch)).c_str(),
-              obj->ShortDesc().c_str());
+              obj->ShortDescC());
         }
 
         if (matches(obj->ShortDesc(), "two-handed")) {
@@ -2129,7 +2129,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
             fprintf(
                 stderr,
                 CYEL "Warning: Using Default reach of zero for '%s'!\n" CNRM,
-                obj->ShortDesc().c_str());
+                obj->ShortDescC());
           }
         }
 
@@ -2276,10 +2276,10 @@ void Object::TBALoadOBJ(const std::string& fn) {
                   stderr,
                   CYEL "Warning: Ignoring non-alpha extra (%s) for '%s'!\n" CNRM,
                   buf,
-                  obj->ShortDesc().c_str());
+                  obj->ShortDescC());
             } else if (words_match(obj->ShortDesc(), buf)) {
               // fprintf(stderr, CYEL "Warning: Duplicate (%s) extra for '%s'!\n" CNRM, buf,
-              // obj->ShortDesc().c_str());
+              // obj->ShortDescC());
             } else {
               std::string sd = obj->ShortDesc();
               if (sd.back() == ')') {
@@ -2291,7 +2291,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
               sd += ')';
               obj->SetShortDesc(sd);
               // fprintf(stderr, CYEL "Warning: Non-matching (%s) extra for '%s'!\n" CNRM, buf,
-              // obj->ShortDesc().c_str());
+              // obj->ShortDescC());
             }
           }
           fscanf(mudo, "%*[^~]");
@@ -2305,7 +2305,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
             ld += buf;
             obj->SetLongDesc(ld);
             // fprintf(stderr, CYEL "Warning: Had to merge long descriptions of (%s) extra for
-            // '%s'!\n" CNRM, obj->LongDesc().c_str(), obj->ShortDesc().c_str());
+            // '%s'!\n" CNRM, obj->LongDescC(), obj->ShortDescC());
           }
           fscanf(mudo, "%*[^~]");
           fscanf(mudo, "~%*[\n\r]");
