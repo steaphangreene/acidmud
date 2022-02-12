@@ -1374,7 +1374,7 @@ void Mind::TBAVarSub(std::string& line) {
                 break;
               }
             }
-            if (found) {
+            if (!found) {
               obj = nullptr;
             }
           } else
