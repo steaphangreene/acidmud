@@ -204,10 +204,10 @@ void Object::SetSkill(uint32_t stok, int v) {
     }
   }
   if (itr == skills.end()) {
-    if (v > 0) {
+    if (v != 0) {
       skills.push_back(skill_pair{stok, v});
     }
-  } else if (v <= 0) {
+  } else if (v == 0) {
     skills.erase(itr);
   } else {
     itr->second = v;
@@ -230,10 +230,10 @@ void Object::SetSkill(const std::string& s, int v) {
     }
   }
   if (itr == skills.end()) {
-    if (v > 0) {
+    if (v != 0) {
       skills.push_back(skill_pair{stok, v});
     }
-  } else if (v <= 0) {
+  } else if (v == 0) {
     skills.erase(itr);
   } else {
     itr->second = v;

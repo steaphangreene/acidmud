@@ -7124,7 +7124,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       mind->SendF("Warning, '%s' is not a real skill name!\n", std::string(args).c_str());
     }
 
-    targ->SetSkill(std::string(args), std::max(targ->Skill(crc32c(std::string(args))), 0) + amt);
+    targ->SetSkill(std::string(args), targ->Skill(crc32c(std::string(args))) + amt);
 
     body->Parent()->SendOutF(
         stealth_t,
