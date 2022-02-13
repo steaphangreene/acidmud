@@ -1018,12 +1018,15 @@ void Object::SetDescs(std::string sd, std::string d, std::string ld) {
   trim(ld);
   if (sd.length() > 80) { // No longer than one traditional line of text
     sd = sd.substr(0, 80);
+    trim(sd);
   }
   if (d.length() > 8000) { // No longer than 100 traditional lines of text
     d = d.substr(0, 8000);
+    trim(d);
   }
   if (ld.length() > 0xFFFFUL) { // Max size the tristrings can store
     ld = ld.substr(0, 0xFFFFUL);
+    trim(ld);
   }
   dlens[0] = sd.length();
   dlens[1] = d.length();
