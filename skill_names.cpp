@@ -589,12 +589,14 @@ void load_skill_names_from(FILE* fl) {
   int32_t size;
   fscanf(fl, "%d\n", &size);
   char buf[256];
-  skill_names.reserve(size);
+  skill_names.reserve(skill_names.size() + size);
   for (int sk = 0; sk < size; ++sk) {
     uint32_t hash;
     fscanf(fl, "%X:%255[^\n]\n", &hash, buf);
     skill_names.emplace_back(std::make_pair(hash, buf));
   }
+  std::sort(skill_names.begin(), skill_names.end());
+  skill_names.erase(std::unique(skill_names.begin(), skill_names.end()), skill_names.end());
 }
 
 void confirm_skill_hash(uint32_t stok) {
