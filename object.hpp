@@ -500,6 +500,8 @@ class alignas(256) Object {
 
   static void FreeActions();
 
+  static void InitSkillsData();
+
  private:
   void NotifyLeft(Object* obj, Object* newloc = nullptr);
 
@@ -532,7 +534,6 @@ class alignas(256) Object {
   int8_t phys, stun, stru;
   int8_t attr[6] = {0, 0, 0, 0, 0, 0};
 
-  static void InitSkillsData();
   MinVec<3, skill_pair> skills;
 
   MinVec<1, act_pair> act;

@@ -737,8 +737,6 @@ Object::Object() {
   no_seek = false;
   no_hear = false;
   tickstep = -1;
-
-  InitSkillsData();
 }
 
 Object::Object(Object* o) {
@@ -3498,6 +3496,8 @@ void Object::Loud(std::set<Object*>& visited, int str, const std::string& mes) {
 }
 
 void init_world() {
+  Object::InitSkillsData();
+
   universe = new Object;
   universe->SetShortDesc("The Universe");
   universe->SetDesc("An Infinite Universe within which to play.");
