@@ -29,17 +29,41 @@ wget 'https://biaszero.com/~stea/gaming/wiki/index.php/SkillsData' -o /dev/null 
 tail -n +2 ${tmpdir}/skills0 | cut -f3- -d'>' | grep '^S;' > ${tmpdir}/skills
 rm -f ${tmpdir}/skills[01]
 
-echo "// @generated code file: Do not edit.  Edit update_skills.sh instead."
-echo ""
-echo "// clang-format off"
-echo ""
-echo "#include <map>"
-echo ""
-echo "#include \"stats.hpp\""
-echo "#include \"utils.hpp\""
-echo ""
+cat <<- 'EOF'
+	// *************************************************************************
+	//  This file is part of AcidMUD by Steaphan Greene
+	//
+	//  Copyright 1999-2022 Steaphan Greene <steaphan@gmail.com>
+	//
+	//  AcidMUD is free software; you can redistribute it and/or modify
+	//  it under the terms of the GNU General Public License as published by
+	//  the Free Software Foundation; either version 3 of the License, or
+	//  (at your option) any later version.
+	//
+	//  AcidMUD is distributed in the hope that it will be useful,
+	//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+	//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	//  GNU General Public License for more details.
+	//
+	//  You should have received a copy of the GNU General Public License
+	//  along with AcidMUD (see the file named "COPYING");
+	//  If not, see <http://www.gnu.org/licenses/>.
+	//
+	// *************************************************************************
 
-echo "std::map<uint32_t, int32_t> defaults = {"
+	// @generated code file: Do not edit.  Edit update_skills.sh instead.
+
+	// clang-format off
+
+	#include <map>
+	#include <vector>
+
+	#include "stats.hpp"
+	#include "utils.hpp"
+
+	std::map<uint32_t, int32_t> defaults = {
+EOF
+
 for sk in $(cat ${tmpdir}/skills | cut -f3-4 -d";" | sed "s- -_-g" | sort -uk1.3,2); do
   skname="$(echo "$sk" | cut -f2 -d";" | sed "s-_- -g")"
 
@@ -97,29 +121,30 @@ for cat in ${tmpdir}/skcat#*; do
     cat "$cat"
     echo "     }},"
 done
-echo "};"
+cat <<- EOF
+	};
 
-echo ""
-echo "std::map<int32_t, uint32_t> weaponskills;"
-echo "std::map<uint32_t, int32_t> weapontypes;"
-echo ""
-echo "static int last_wtype = 0;"
-echo "static void add_wts(uint32_t sk) {"
-echo "  if (defaults.count(sk) == 0) {"
-echo "    fprintf("
-echo "        stderr,"
-echo "        \"Warning: Tried to link weapon type %d to '%s' which isn't a skill.\n\","
-echo "        last_wtype + 1,"
-echo "        SkillName(sk).c_str());"
-echo "    return;"
-echo "  }"
-echo "  ++last_wtype;"
-echo "  weaponskills[last_wtype] = sk;"
-echo "  weapontypes[sk] = last_wtype;"
-echo "}"
+	std::map<int32_t, uint32_t> weaponskills;
+	std::map<uint32_t, int32_t> weapontypes;
 
-echo ""
-echo "void init_skill_list() {"
+	static int last_wtype = 0;
+	static void add_wts(uint32_t sk) {
+	  if (defaults.count(sk) == 0) {
+	    fprintf(
+	        stderr,
+	        "Warning: Tried to link weapon type %d to '%s' which isn't a skill.\n",
+	        last_wtype + 1,
+	        SkillName(sk).c_str());
+	    return;
+	  }
+	  ++last_wtype;
+	  weaponskills[last_wtype] = sk;
+	  weapontypes[sk] = last_wtype;
+	}
+
+	void init_skill_list() {
+EOF
+
 cat "${tmpdir}/weapons"
 echo '}'
 echo "// clang-format on"
