@@ -572,6 +572,8 @@ static std::vector<std::pair<uint32_t, std::string>> skill_names = {
 };
 
 void save_skill_names_to(FILE* fl) {
+  std::sort(skill_names.begin(), skill_names.end());
+  skill_names.erase(std::unique(skill_names.begin(), skill_names.end()), skill_names.end());
   fprintf(fl, "%lu\n", skill_names.size());
   for (auto skn : skill_names) {
     if (skn.second.length() > 255) {
@@ -593,11 +595,6 @@ void load_skill_names_from(FILE* fl) {
     fscanf(fl, "%X:%255[^\n]\n", &hash, buf);
     skill_names.emplace_back(std::make_pair(hash, buf));
   }
-  std::sort(skill_names.begin(), skill_names.end());
-}
-
-void init_skill_names() {
-  std::sort(skill_names.begin(), skill_names.end());
 }
 
 void confirm_skill_hash(uint32_t stok) {
@@ -606,7 +603,7 @@ void confirm_skill_hash(uint32_t stok) {
   }
   if (itn == skill_names.end()) {
     fprintf(stderr, CRED "Error: bogus skill hash (x%X)\n" CNRM, stok);
-    skill_names.emplace(itn, std::make_pair(stok, "Unknown"));
+    skill_names.emplace_back(std::make_pair(stok, "Unknown"));
   }
 }
 void insert_skill_hash(uint32_t stok, const std::string& s) {
@@ -614,7 +611,7 @@ void insert_skill_hash(uint32_t stok, const std::string& s) {
   for (; itn != skill_names.end() && itn->first != stok; ++itn) {
   }
   if (itn == skill_names.end()) {
-    skill_names.emplace(itn, std::make_pair(stok, s));
+    skill_names.emplace_back(std::make_pair(stok, s));
   }
 }
 
