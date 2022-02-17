@@ -3213,15 +3213,16 @@ void Mind::Suspend(int msec) {
   // 5034507)
   //  fprintf(stderr, CBLU "Suspended(%d): '%d'\n" CNRM, msec, body->Skill(crc32c("TBAScript")));
 
-  waiting.erase(
-      std::remove_if(
-          waiting.begin(),
-          waiting.end(),
-          [this](const std::pair<int, Mind*> m) { return (m.second == this); }),
-      waiting.end());
-
   int64_t when = current_time + int64_t(msec) * int64_t(1000);
-  waiting.emplace_back(std::make_pair(when, this));
+
+  auto itr = waiting.begin();
+  for (; itr != waiting.end() && itr->second != this; ++itr) {
+  }
+  if (itr != waiting.end()) {
+    itr->first = when;
+  } else {
+    waiting.emplace_back(std::make_pair(when, this));
+  }
 }
 
 void Mind::Disable() {
@@ -3236,12 +3237,12 @@ void Mind::Disable() {
     close(log);
   log = -1;
 
-  waiting.erase(
-      std::remove_if(
-          waiting.begin(),
-          waiting.end(),
-          [this](const std::pair<int, Mind*> m) { return (m.second == this); }),
-      waiting.end());
+  auto itr = waiting.begin();
+  for (; itr != waiting.end() && itr->second != this; ++itr) {
+  }
+  if (itr != waiting.end()) {
+    waiting.erase(itr);
+  }
 
   svars = cvars; // Reset all variables
   ovars.clear();
