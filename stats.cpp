@@ -28,6 +28,7 @@
 
 #include "color.hpp"
 #include "object.hpp"
+#include "properties.hpp"
 #include "utils.hpp"
 
 extern std::map<uint32_t, int32_t> defaults;

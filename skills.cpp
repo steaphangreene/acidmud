@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "stats.hpp"
+#include "properties.hpp"
 #include "utils.hpp"
 
 std::map<uint32_t, int32_t> defaults = {

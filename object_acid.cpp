@@ -26,6 +26,7 @@
 #include "color.hpp"
 #include "mind.hpp"
 #include "object.hpp"
+#include "properties.hpp"
 #include "utils.hpp"
 #include "version.hpp"
 

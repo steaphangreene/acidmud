@@ -586,4 +586,32 @@ constexpr auto skill_crcs = names2crcs(skill_names);
 static_assert(crc32c(skill_names[0]) == crc32c("Accomplishment"));
 static_assert(skill_crcs[0] == crc32c("Warm"));
 
+consteval bool same_string(const char* s1, const char* s2, int pos) {
+  return (s1[pos] == '\0' && s2[pos] == '\0') ? true
+      : (s1[pos] != s2[pos])                  ? false
+                                              : same_string(s1, s2, pos + 1);
+}
+
+consteval bool is_in_prop_list(const char* pr, int pos) {
+  return (pos >= skill_names.size())           ? false
+      : (same_string(pr, skill_names[pos], 0)) ? true
+                                               : is_in_prop_list(pr, pos + 1);
+}
+
+consteval bool is_in_prop_list(const char* pr) {
+  return is_in_prop_list(pr, 0);
+}
+
+// This fails ugly if you use a string not in the list ...but at least it fails. :)
+// Hopefully later C++ revs will provide better ways to cleanly assert in consteval.
+consteval uint32_t prhash(const char* pr) {
+  uint32_t ret = crc32c(pr);
+  assert(is_in_prop_list(pr));
+  return ret;
+}
+static_assert(prhash("Warm") == 0x0112DB37U);
+static_assert(prhash("Day Time") == 0x0BDB09F5U);
+static_assert(prhash("Object ID") != 0);
+static_assert(prhash("Last Object ID") != 0);
+
 #endif // PROPERTIES_HPP

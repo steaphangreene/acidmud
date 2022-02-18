@@ -41,6 +41,7 @@
 #include "net.hpp"
 #include "object.hpp"
 #include "player.hpp"
+#include "properties.hpp"
 #include "utils.hpp"
 
 extern int64_t current_time; // From main.cpp

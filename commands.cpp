@@ -33,6 +33,7 @@
 #include "mind.hpp"
 #include "net.hpp"
 #include "object.hpp"
+#include "properties.hpp"
 #include "utils.hpp"
 #include "version.hpp"
 

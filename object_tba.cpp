@@ -34,6 +34,7 @@
 #include "commands.hpp"
 #include "mind.hpp"
 #include "object.hpp"
+#include "properties.hpp"
 #include "utils.hpp"
 
 static int obj_aliases = 0;

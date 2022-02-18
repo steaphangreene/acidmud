@@ -32,6 +32,7 @@
 #include "mind.hpp"
 #include "mob.hpp"
 #include "object.hpp"
+#include "properties.hpp"
 #include "utils.hpp"
 
 static std::random_device rd;

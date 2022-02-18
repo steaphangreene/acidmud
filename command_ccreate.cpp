@@ -27,6 +27,7 @@
 #include "commands.hpp"
 #include "mind.hpp"
 #include "object.hpp"
+#include "properties.hpp"
 #include "utils.hpp"
 
 #define NUM_AVS 5 // 28 Max!

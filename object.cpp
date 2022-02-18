@@ -40,6 +40,7 @@
 #include "mind.hpp"
 #include "net.hpp"
 #include "object.hpp"
+#include "properties.hpp"
 #include "utils.hpp"
 
 const std::string pos_str[static_cast<uint8_t>(pos_t::MAX)] = {
