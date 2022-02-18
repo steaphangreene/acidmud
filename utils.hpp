@@ -19,6 +19,9 @@
 //
 // *************************************************************************
 
+#ifndef UTILS_HPP
+#define UTILS_HPP
+
 #include <string>
 
 #include "minvec.hpp"
@@ -123,3 +126,5 @@ constexpr uint32_t crc32c(char const* str) {
 inline uint32_t crc32c(const std::string& str) {
   return crc32c(str.data(), str.length());
 }
+
+#endif // UTILS_HPP
