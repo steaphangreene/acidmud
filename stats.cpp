@@ -240,16 +240,6 @@ void Object::SetSkill(const std::string& s, int v) {
   }
 }
 
-int Object::HasSkill(uint32_t stok) const {
-  auto itr = skills.begin();
-  for (; itr != skills.end(); ++itr) {
-    if (itr->first == stok) {
-      break;
-    }
-  }
-  return (itr != skills.end());
-}
-
 int Object::SkillTarget(uint32_t stok) const {
   auto itr = skills.begin();
   for (; itr != skills.end(); ++itr) {
@@ -261,15 +251,6 @@ int Object::SkillTarget(uint32_t stok) const {
     return itr->second + ModAttribute(defaults[stok]);
   } else {
     return ModAttribute(defaults[stok]);
-  }
-  return 0;
-}
-
-int Object::Skill(uint32_t stok) const {
-  for (auto itr = skills.begin(); itr != skills.end(); ++itr) {
-    if (itr->first == stok) {
-      return itr->second;
-    }
   }
   return 0;
 }

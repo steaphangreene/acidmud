@@ -357,9 +357,24 @@ class alignas(256) Object {
   int Modifier(int a) const;
   int Modifier(const std::string& m) const;
   int Power(const std::string& m) const;
-  int Skill(uint32_t) const;
+  int Skill(uint32_t stok) const {
+    for (auto itr = skills.begin(); itr != skills.end(); ++itr) {
+      if (itr->first == stok) {
+        return itr->second;
+      }
+    }
+    return 0;
+  };
   int SkillTarget(uint32_t) const;
-  int HasSkill(uint32_t) const;
+  int HasSkill(uint32_t stok) const {
+    auto itr = skills.begin();
+    for (; itr != skills.end(); ++itr) {
+      if (itr->first == stok) {
+        break;
+      }
+    }
+    return (itr != skills.end());
+  };
   int SubHasSkill(uint32_t) const;
   int SubMaxSkill(uint32_t) const;
   Object* NextHasSkill(uint32_t, const Object* last = nullptr);
