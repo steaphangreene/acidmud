@@ -120,6 +120,6 @@ constexpr uint32_t crc32c(char const* str) {
   return crc32c(str, 0xFFFFFFFF, 0);
 }
 
-constexpr uint32_t crc32c(const std::string& str) {
+inline uint32_t crc32c(const std::string& str) {
   return crc32c(str.data(), str.length());
 }

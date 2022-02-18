@@ -141,7 +141,7 @@ int Player::LoadFrom(FILE* fl) {
 
   // Player experience - obsolete, ignored
   fscanf(fl, ":%*d");
-  while (fscanf(fl, ";%*ld") > 0) {
+  while (fscanf(fl, ";%*d") > 0) {
     // Do nothing - ignore these
   }
 

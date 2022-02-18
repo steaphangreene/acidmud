@@ -61,7 +61,7 @@ class MinVec {
       data_ = in.data_;
     } else {
       data_.arr = new T[cap_];
-      for (int idx = 0; idx < size_; ++idx) {
+      for (uint32_t idx = 0; idx < size_; ++idx) {
         data_.arr[idx] = in.data_.arr[idx];
       }
     }
@@ -84,7 +84,7 @@ class MinVec {
       data_ = in.data_;
     } else {
       data_.arr = new T[cap_];
-      for (int idx = 0; idx < size_; ++idx) {
+      for (uint32_t idx = 0; idx < size_; ++idx) {
         data_.arr[idx] = in.data_.arr[idx];
       }
     }
@@ -105,28 +105,28 @@ class MinVec {
       return false;
     }
     if (cap_ == 0 && in.cap_ == 0) {
-      for (auto idx = 0; idx < size_; ++idx) {
+      for (uint32_t idx = 0; idx < size_; ++idx) {
         if (data_.val[idx] != in.data_.val[idx]) {
           return false;
         }
       }
       return true;
     } else if (cap_ == 0) {
-      for (auto idx = 0; idx < size_; ++idx) {
+      for (uint32_t idx = 0; idx < size_; ++idx) {
         if (data_.val[idx] != in.data_.arr[idx]) {
           return false;
         }
       }
       return true;
     } else if (in.cap_ == 0) {
-      for (auto idx = 0; idx < size_; ++idx) {
+      for (uint32_t idx = 0; idx < size_; ++idx) {
         if (data_.arr[idx] != in.data_.val[idx]) {
           return false;
         }
       }
       return true;
     } else {
-      for (auto idx = 0; idx < size_; ++idx) {
+      for (uint32_t idx = 0; idx < size_; ++idx) {
         if (data_.arr[idx] != in.data_.arr[idx]) {
           return false;
         }
@@ -173,14 +173,14 @@ class MinVec {
         auto temp = data_;
         cap_ = cap;
         data_.arr = new T[cap_];
-        for (int idx = 0; idx < size_; ++idx) {
+        for (uint32_t idx = 0; idx < size_; ++idx) {
           data_.arr[idx] = temp.val[idx];
         }
       } else {
         T* temp = data_.arr;
         cap_ = cap;
         data_.arr = new T[cap_];
-        for (int idx = 0; idx < size_; ++idx) {
+        for (uint32_t idx = 0; idx < size_; ++idx) {
           data_.arr[idx] = temp[idx];
         }
         delete[] temp;
@@ -253,7 +253,7 @@ class MinVec {
       auto temp = data_;
       cap_ = next_pow_2(C);
       data_.arr = new T[cap_];
-      for (int idx = 0; idx < size_; ++idx) {
+      for (uint32_t idx = 0; idx < size_; ++idx) {
         data_.arr[idx] = temp.val[idx];
       }
       data_.arr[size_] = in;
@@ -264,7 +264,7 @@ class MinVec {
       T* temp = data_.arr;
       cap_ *= 2;
       data_.arr = new T[cap_];
-      for (int idx = 0; idx < size_; ++idx) {
+      for (uint32_t idx = 0; idx < size_; ++idx) {
         data_.arr[idx] = temp[idx];
       }
       delete[] temp;

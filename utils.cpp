@@ -79,7 +79,7 @@ size_t prev_line(const std::string& str, size_t pos) {
 int phrase_match_sensitive(const std::string& str, const std::string& phrase) {
   auto len = phrase.length();
   auto desc = str.data();
-  auto off = desc - str.data();
+  size_t off = 0;
   while ((str.length() - off) >= len) {
     if ((!strncmp(desc, phrase.data(), len)) &&
         ((str.length() - off) == len || str.find_first_not_of(alnum, off + len) == (off + len))) {

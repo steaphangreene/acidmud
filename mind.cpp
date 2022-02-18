@@ -3261,7 +3261,7 @@ void Mind::Resume() {
 
   // Quickly purge the "never" entries off the end, now that it's been sorted
   auto itr = waiting.begin();
-  for (; itr != waiting.end() && itr->first != std::numeric_limits<uint64_t>::max(); ++itr) {
+  for (; itr != waiting.end() && itr->first != std::numeric_limits<int64_t>::max(); ++itr) {
   }
   if (itr != waiting.end()) {
     waiting.erase(itr, waiting.end());

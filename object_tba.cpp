@@ -793,8 +793,8 @@ void Object::TBALoadMOB(const std::string& fn) {
       std::transform(buffer.begin(), buffer.end(), buffer.begin(), ascii_tolower);
       std::string_view line = buffer;
 
-      ssize_t lbeg = 0;
-      ssize_t lend = 0;
+      size_t lbeg = 0;
+      size_t lend = 0;
       do {
         lbeg = line.find_first_not_of(" \t\r", lend);
         if (lbeg != std::string::npos) {
@@ -1247,8 +1247,8 @@ void Object::TBALoadOBJ(const std::string& fn) {
       std::transform(buffer.begin(), buffer.end(), buffer.begin(), ascii_tolower);
       std::string_view line = buffer;
 
-      ssize_t lbeg = 0;
-      ssize_t lend = 0;
+      size_t lbeg = 0;
+      size_t lend = 0;
       do {
         lbeg = line.find_first_not_of(" \t\r", lend);
         if (lbeg != std::string::npos) {
