@@ -1796,9 +1796,10 @@ int Mind::TBARunLine(std::string line) {
     auto options = room->Contents();
 
     room = nullptr;
+    dnum += 4000000;
     for (auto opt : options) {
       int tnum = opt->Skill(crc32c("TBARoom"));
-      if (tnum > 0 && (tnum % 1000000) == dnum) {
+      if (tnum > 0 && tnum == dnum) {
         room = opt;
         break;
       }
@@ -2291,9 +2292,10 @@ int Mind::TBARunLine(std::string line) {
 
     auto options = room->World()->Contents();
     room = nullptr;
+    rnum += 4000000;
     for (auto opt : options) {
       int tbanum = opt->Skill(crc32c("TBARoom"));
-      if (tbanum > 0 && (tbanum % 1000000) == rnum) {
+      if (tbanum > 0 && tbanum == rnum) {
         room = opt;
         break;
       }
@@ -2393,9 +2395,10 @@ int Mind::TBARunLine(std::string line) {
       if (door)
         door->Recycle();
       Object* toroom = nullptr;
+      tnum += 4000000;
       for (auto opt : options) {
         int onum = opt->Skill(crc32c("TBARoom"));
-        if (tnum > 0 && (onum % 1000000) == tnum) {
+        if (onum > 0 && onum == tnum) {
           toroom = opt;
           break;
         }
@@ -2476,9 +2479,10 @@ int Mind::TBARunLine(std::string line) {
     Object* dest = ovars["self"]->World();
     auto options = dest->Contents();
     dest = nullptr;
+    dnum += 4000000;
     for (auto opt : options) {
       int tnum = opt->Skill(crc32c("TBARoom"));
-      if (tnum > 0 && (tnum % 1000000) == dnum) {
+      if (tnum > 0 && tnum == dnum) {
         dest = opt;
         break;
       }
