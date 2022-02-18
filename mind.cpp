@@ -32,6 +32,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <limits>
 
 #include "color.hpp"
 #include "commands.hpp"
@@ -3241,7 +3242,8 @@ void Mind::Disable() {
   for (; itr != waiting.end() && itr->second != this; ++itr) {
   }
   if (itr != waiting.end()) {
-    waiting.erase(itr);
+    // Set it for "never", so it won't run, and will be purged
+    itr->first = std::numeric_limits<int64_t>::max();
   }
 
   svars = cvars; // Reset all variables
@@ -3250,11 +3252,21 @@ void Mind::Disable() {
 }
 
 void Mind::Resume() {
-  auto waiters = waiting;
-  for (auto m : waiters) {
-    if (m.first <= current_time) {
-      m.second->Think(0);
-    }
+  // Sort by time-to-run, so earlier events happen first
+  std::sort(waiting.begin(), waiting.end());
+
+  // Quickly purge the "never" entries off the end, now that it's been sorted
+  auto itr = waiting.begin();
+  for (; itr != waiting.end() && itr->first != std::numeric_limits<uint64_t>::max(); ++itr) {
+  }
+  if (itr != waiting.end()) {
+    waiting.erase(itr, waiting.end());
+  }
+
+  // Now run fire off those at the beginning that should have already happened
+  itr = waiting.begin();
+  for (; itr != waiting.end() && itr->first <= current_time; ++itr) {
+    itr->second->Think(0);
   }
 }
 
