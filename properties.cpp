@@ -578,7 +578,7 @@ constexpr std::array<uint32_t, L> names2crcs(std::array<const char*, L> in) {
 };
 constexpr auto skill_crcs = names2crcs(skill_names);
 static_assert(skill_names[0][0] == 'A');
-static_assert(skill_crcs[0] == crc32c("Day Time"));
+static_assert(skill_crcs[0] == crc32c("Warm"));
 
 // Generate initial skills definitions pair vector automatically from known skills list.
 template <size_t L>
