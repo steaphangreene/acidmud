@@ -31,6 +31,7 @@
 #include <vector>
 
 // Replace with C++20 std::format, when widely available
+#define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
 #include "color.hpp"
