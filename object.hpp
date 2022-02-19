@@ -358,22 +358,21 @@ class alignas(256) Object {
   int Modifier(const std::string& m) const;
   int Power(const std::string& m) const;
   int Skill(uint32_t stok) const {
-    for (auto itr = skills.begin(); itr != skills.end(); ++itr) {
-      if (itr->first == stok) {
-        return itr->second;
+    for (const auto& sk : skills) {
+      if (sk.first == stok) {
+        return sk.second;
       }
     }
     return 0;
   };
   int SkillTarget(uint32_t) const;
-  int HasSkill(uint32_t stok) const {
-    auto itr = skills.begin();
-    for (; itr != skills.end(); ++itr) {
-      if (itr->first == stok) {
-        break;
+  bool HasSkill(uint32_t stok) const {
+    for (const auto& sk : skills) {
+      if (sk.first == stok) {
+        return true;
       }
     }
-    return (itr != skills.end());
+    return false;
   };
   int SubHasSkill(uint32_t) const;
   int SubMaxSkill(uint32_t) const;
