@@ -121,7 +121,7 @@ int Object::SaveTo(FILE* fl) {
 
   fprintf(
       fl,
-      "0,%hhd,0,0,%hhd,0,0,%hhd,0,0,%hhd,0,0,%hhd,0,0,%hhd,0,%hhd,%hhd,%hhd;%d",
+      "%hhd,%hhd,%hhd,%hhd,%hhd,%hhd,%hhd,%hhd,%hhd;%d",
       attr[0],
       attr[1],
       attr[2],
@@ -285,7 +285,7 @@ int Object::LoadFrom(FILE* fl) {
 
   fscanf(fl, "%d %d %d %d %c", &weight, &size, &volume, &value, &gender);
   fscanf(fl, ";"); // Was present pre v0x15, causes no problems since.
-  fscanf(fl, "\n"); // Skil the white-space, if ';' was used or not.
+  fscanf(fl, "\n"); // Skip the white-space, if ';' was used or not.
 
   fscanf(fl, "%*d"); // Experience (Redundant)
   unsigned long accom;
@@ -308,7 +308,7 @@ int Object::LoadFrom(FILE* fl) {
         &phys,
         &stun,
         &stru);
-  } else {
+  } else if (ver < 0x0019) {
     int16_t mods[6];
     fscanf(
         fl,
@@ -333,6 +333,19 @@ int Object::LoadFrom(FILE* fl) {
         SetModifier(a, mods[a]);
       }
     }
+  } else {
+    fscanf(
+        fl,
+        "%hhd,%hhd,%hhd,%hhd,%hhd,%hhd,%hhd,%hhd,%hhd",
+        &attr[0],
+        &attr[1],
+        &attr[2],
+        &attr[3],
+        &attr[4],
+        &attr[5],
+        &phys,
+        &stun,
+        &stru);
   }
 
   int do_tick;
