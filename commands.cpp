@@ -1174,11 +1174,12 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_VERSION) {
     if (mind)
       mind->SendF(
-          "Version of this MUD is %d.%d.%d-%d: %s.\n",
+          "Version of this MUD is %d.%d.%d-%d-%s: %s.\n",
           CurrentVersion.acidmud_version[0],
           CurrentVersion.acidmud_version[1],
           CurrentVersion.acidmud_version[2],
-          CurrentVersion.acidmud_svnstamp,
+          CurrentVersion.acidmud_git_revs,
+          CurrentVersion.acidmud_git_hash.c_str(),
           CurrentVersion.acidmud_datestamp.c_str());
     return 0;
   }

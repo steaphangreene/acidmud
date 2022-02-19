@@ -22,7 +22,8 @@
 ACIDHOST:=acidmud
 
 TSTR:=  $(shell date -u +"%Y%m%d%H%M")
-SSTR:=  $(shell git log --oneline | wc -l)
+RSTR:=  $(shell git log --oneline | wc -l)
+HSTR:=  $(shell git log -1 --format=%h)
 OBJS:=	main.o version.o stats.o net.o commands.o mind.o player.o mob.o \
 	object.o object_acid.o object_dynamic.o command_ccreate.o utils.o \
 	object_tba.o skills.o properties.o
@@ -70,8 +71,9 @@ acidmud: $(OBJS)
 
 version.cpp:	version.cpp.template *.hpp [a-uw-z]*.cpp
 	cat version.cpp.template \
-		| sed s-DATE_STAMP-$(TSTR)-g \
-		| sed s-SVN_STAMP-$(SSTR)-g \
+		| sed 's|DATE_STAMP|$(TSTR)|g' \
+		| sed 's|GIT_REVS|$(RSTR)|g' \
+		| sed 's|GIT_HASH|$(HSTR)|g' \
 		> version.cpp
 
 include deps.mk
