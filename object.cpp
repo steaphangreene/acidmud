@@ -2841,24 +2841,6 @@ void Object::NotifyGone(Object* obj, Object* newloc, int up) {
   }
 }
 
-bool Object::IsAct(act_t a) const {
-  for (const auto& ac : act) {
-    if (ac.act() == a) {
-      return true;
-    }
-  }
-  return false;
-};
-
-Object* Object::ActTarg(act_t a) const {
-  for (const auto& ac : act) {
-    if (ac.act() == a) {
-      return ac.obj();
-    }
-  }
-  return nullptr;
-};
-
 void Object::AddAct(act_t a, Object* o) {
   if (o) {
     o->NowTouching(this);

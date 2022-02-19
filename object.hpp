@@ -423,8 +423,22 @@ class alignas(256) Object {
   void StopAll();
   void AddAct(act_t a, Object* o = nullptr);
   void StopAct(act_t a);
-  bool IsAct(act_t a) const;
-  Object* ActTarg(act_t a) const;
+  bool IsAct(act_t a) const {
+    for (const auto& ac : act) {
+      if (ac.act() == a) {
+        return true;
+      }
+    }
+    return false;
+  };
+  Object* ActTarg(act_t a) const {
+    for (const auto& ac : act) {
+      if (ac.act() == a) {
+        return ac.obj();
+      }
+    }
+    return nullptr;
+  };
 
   int HitMent(int force, int sev, int succ);
   int HitStun(int force, int sev, int succ);
