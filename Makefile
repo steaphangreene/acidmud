@@ -27,21 +27,21 @@ HSTR:=  $(shell git log -1 --format=%h)
 OBJS:=	main.o version.o stats.o net.o commands.o mind.o player.o mob.o \
 	object.o object_acid.o object_dynamic.o command_ccreate.o utils.o \
 	object_tba.o skills.o properties.o
-LIBS:=	-lstdc++ -lcrypt
+LIBS:=	-lcrypt
 
 all:	acidmud
 
 #Production Settings (dynamic)
-CXX=clang++-14
-CXXFLAGS=-std=c++20 -stdlib=libc++ -O3 -g -Wall -Wshadow -Werror -ferror-limit=2
+CXX=clang++-12
+CXXFLAGS=-std=c++20 -O3 -g -Wall -Wshadow -Werror -ferror-limit=2
 
 #Use debugging settings
 debug:
-	+make CXXFLAGS='-std=c++20 -stdlib=libc++ -Og -fno-omit-frame-pointer -g -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined -Wall -Wshadow -Werror -ferror-limit=2'
+	+make CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -g -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined -Wall -Wshadow -Werror -ferror-limit=2'
 
 #Use profiling settings
 profile:
-	+make CXXFLAGS='-std=c++20 -stdlib=libc++ -O3 -fno-omit-frame-pointer -g -Wall -Wshadow -Werror -ferror-limit=2'
+	+make CXXFLAGS='-std=c++20 -O3 -fno-omit-frame-pointer -g -Wall -Wshadow -Werror -ferror-limit=2'
 
 gcc:
 	+make CXX='g++' CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -g -Wall -Wshadow -Werror -fmax-errors=2'
