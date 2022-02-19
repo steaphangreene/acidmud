@@ -2798,10 +2798,10 @@ void Object::NotifyLeft(Object* obj, Object* newloc) {
     }
   }
 
-  for (auto stop : stops) {
+  for (const auto& stop : stops) {
     StopAct(stop);
   }
-  for (auto stop : stops2) {
+  for (const auto& stop : stops2) {
     obj->StopAct(stop);
   }
 
@@ -2828,7 +2828,7 @@ void Object::NotifyGone(Object* obj, Object* newloc, int up) {
 
   std::map<Object*, int> tonotify;
 
-  for (auto ind : contents) {
+  for (const auto& ind : contents) {
     if (up >= 0) {
       tonotify[ind] = -1;
     } else if (ind->Skill(crc32c("Open")) || ind->Skill(crc32c("Transparent"))) {
@@ -2842,21 +2842,21 @@ void Object::NotifyGone(Object* obj, Object* newloc, int up) {
 }
 
 bool Object::IsAct(act_t a) const {
-  auto itr = act.begin();
-  for (; itr != act.end() && itr->act() != a; ++itr) {
+  for (const auto& ac : act) {
+    if (ac.act() == a) {
+      return true;
+    }
   }
-  return (itr != act.end());
+  return false;
 };
 
 Object* Object::ActTarg(act_t a) const {
-  auto itr = act.begin();
-  for (; itr != act.end() && itr->act() != a; ++itr) {
+  for (const auto& ac : act) {
+    if (ac.act() == a) {
+      return ac.obj();
+    }
   }
-  if (itr != act.end()) {
-    return itr->obj();
-  } else {
-    return nullptr;
-  }
+  return nullptr;
 };
 
 void Object::AddAct(act_t a, Object* o) {
