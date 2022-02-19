@@ -1258,7 +1258,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
     master.erase(ActTarg(actt)); // Don't show worn/wielded stuff.
   }
 
-  int tlines = 0, total = 0;
+  int tlines = 0;
   for (auto ind : cont)
     if (master.count(ind)) {
       if ((vmode & LOC_NINJA) == 0 && Parent() != nullptr) { // NinjaMode/CharRoom
@@ -1343,7 +1343,6 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
 
         if (qty > 1)
           m->SendF("(x%d) ", qty);
-        total += qty;
         ++tlines;
 
         if (ind->parent && ind->parent->Skill(crc32c("Container")))

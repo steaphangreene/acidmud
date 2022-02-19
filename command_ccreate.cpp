@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
+#include <random>
 
 #include "commands.hpp"
 #include "mind.hpp"
@@ -224,7 +225,9 @@ int handle_command_ccreate(
       bldg.back()->SetSkill(crc32c("Fun"), 10);
     }
 
-    random_shuffle(bldg.begin(), bldg.end());
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(bldg.begin(), bldg.end(), g);
 
     char sname[32], aname[32], iname[64];
     Object* ave[NUM_AVS] = {nullptr};

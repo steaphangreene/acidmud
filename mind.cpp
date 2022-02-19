@@ -33,6 +33,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <limits>
+#include <random>
 
 #include "color.hpp"
 #include "commands.hpp"
@@ -2896,7 +2897,10 @@ void Mind::Think(int istick) {
             dirs.push_back(dirnames[i]);
           }
         }
-        random_shuffle(dirs.begin(), dirs.end());
+
+        std::random_device rd;
+        std::mt19937 g(rd());
+        std::shuffle(dirs.begin(), dirs.end(), g);
 
         int orig = body->Skill(items[req + 1]);
         int leave = orig / 10000;
