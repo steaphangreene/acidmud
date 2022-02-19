@@ -623,6 +623,14 @@ void load_skill_names_from(FILE* fl) {
   skill_defs.erase(std::unique(skill_defs.begin(), skill_defs.end()), skill_defs.end());
 }
 
+void purge_invalid_skill_names() {
+  for (auto& sk : skill_defs) {
+    sk.first = crc32c(sk.second);
+  }
+  std::sort(skill_defs.begin(), skill_defs.end());
+  skill_defs.erase(std::unique(skill_defs.begin(), skill_defs.end()), skill_defs.end());
+}
+
 void confirm_skill_hash(uint32_t stok) {
   auto itn = skill_defs.begin();
   for (; itn != skill_defs.end() && itn->first != stok; ++itn) {

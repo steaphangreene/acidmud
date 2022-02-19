@@ -184,6 +184,11 @@ int Object::Load(const std::string& fn) {
     return -1;
   }
 
+  // Purge old skill name hashes
+  if (ver < 0x0019) {
+    purge_invalid_skill_names();
+  }
+
   for (auto ind : todo) {
     std::vector<act_t> killacts;
     for (auto aind : ind->act) {
@@ -367,10 +372,20 @@ int Object::LoadFrom(FILE* fl) {
     ret = fscanf(fl, "|%X|%d", &stok, &val);
     while (ret > 1) {
       // fprintf(stderr, "Loaded %s: %d\n", buf, val);
+      if (ver < 0x0019) { // Update to new hash algo
+        auto name = SkillName(stok);
+        stok = crc32c(name);
+        insert_skill_hash(stok, name);
+      }
       SetSkill(stok, val);
       ret = fscanf(fl, "|%X|%d", &stok, &val);
     }
     if (ret > 0) { // Added the currently used skill to the end in v0x13
+      if (ver < 0x0019) { // Update to new hash algo
+        auto name = SkillName(stok);
+        stok = crc32c(name);
+        insert_skill_hash(stok, name);
+      }
       StartUsing(stok);
     }
   }
