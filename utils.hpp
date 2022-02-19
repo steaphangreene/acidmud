@@ -22,6 +22,7 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include <cstring>
 #include <string>
 
 #include "minvec.hpp"
@@ -104,24 +105,33 @@ constexpr uint32_t crc32tab[] = {
     0x79B737BA, 0x8BDCB4B9, 0x988C474D, 0x6AE7C44E, 0xBE2DA0A5, 0x4C4623A6, 0x5F16D052, 0xAD7D5351,
 };
 
-constexpr uint32_t crc32c(char const* str, int32_t len, uint32_t crc, int32_t pos) {
+constexpr uint32_t crc32c_c(char const* str, int32_t len, uint32_t crc, int32_t pos) {
   return (pos == len)
       ? crc
-      : crc32c(str, len, (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(str[pos])) & 0xFFU], pos + 1);
+      : crc32c_c(str, len, (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(str[pos])) & 0xFFU], pos + 1);
 }
 
-constexpr uint32_t crc32c(char const* str, uint32_t crc, int32_t pos) {
+constexpr uint32_t crc32c_c(char const* str, uint32_t crc, int32_t pos) {
   return (str[pos] == 0)
       ? crc
-      : crc32c(str, (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(str[pos])) & 0xFFU], pos + 1);
+      : crc32c_c(str, (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(str[pos])) & 0xFFU], pos + 1);
+}
+
+inline uint32_t crc32c_r(char const* str, int32_t len, uint32_t crc) {
+  for (char const* bptr = str; bptr < str + len; ++bptr) {
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(*bptr)) & 0xFFU];
+  }
+  return crc;
 }
 
 constexpr uint32_t crc32c(char const* str, int32_t len) {
-  return crc32c(str, len, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
+  return (std::is_constant_evaluated()) ? crc32c_c(str, len, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU
+                                        : crc32c_r(str, len, 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
 }
 
 constexpr uint32_t crc32c(char const* str) {
-  return crc32c(str, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
+  return (std::is_constant_evaluated()) ? crc32c_c(str, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU
+                                        : crc32c_r(str, strlen(str), 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
 }
 
 inline uint32_t crc32c(const std::string& str) {
