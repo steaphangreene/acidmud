@@ -117,6 +117,10 @@ constexpr uint32_t crc32c_c(char const* str, uint32_t crc, int32_t pos) {
       : crc32c_c(str, (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(str[pos])) & 0xFFU], pos + 1);
 }
 
+constexpr uint32_t crc32c(char const* str) {
+  return crc32c_c(str, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
+}
+
 inline uint32_t crc32c_r(char const* str, int32_t len, uint32_t crc) {
   for (char const* bptr = str; bptr < str + len; ++bptr) {
     crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(*bptr)) & 0xFFU];
@@ -124,14 +128,8 @@ inline uint32_t crc32c_r(char const* str, int32_t len, uint32_t crc) {
   return crc;
 }
 
-constexpr uint32_t crc32c(char const* str, int32_t len) {
-  return (std::is_constant_evaluated()) ? crc32c_c(str, len, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU
-                                        : crc32c_r(str, len, 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
-}
-
-constexpr uint32_t crc32c(char const* str) {
-  return (std::is_constant_evaluated()) ? crc32c_c(str, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU
-                                        : crc32c_r(str, strlen(str), 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
+inline uint32_t crc32c(char const* str, int32_t len) {
+  return crc32c_r(str, len, 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
 }
 
 inline uint32_t crc32c(const std::string& str) {
