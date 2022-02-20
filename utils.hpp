@@ -117,7 +117,7 @@ constexpr uint32_t crc32c_c(char const* str, uint32_t crc, int32_t pos) {
       : crc32c_c(str, (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(str[pos])) & 0xFFU], pos + 1);
 }
 
-constexpr uint32_t crc32c(char const* str) {
+consteval uint32_t crc32c(char const* str) {
   return crc32c_c(str, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
 }
 

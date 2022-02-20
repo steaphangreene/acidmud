@@ -573,7 +573,9 @@ constexpr std::array<const char*, 541> skill_names = {{
 template <size_t L>
 constexpr std::array<uint32_t, L> names2crcs(std::array<const char*, L> in) {
   std::array<uint32_t, L> ret;
-  std::transform(in.begin(), in.end(), ret.begin(), [](auto&& x) { return crc32c(x); });
+  std::transform(in.begin(), in.end(), ret.begin(), [](auto&& x) {
+    return crc32c_c(x, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
+  });
   std::sort(ret.begin(), ret.end());
   return ret;
 };
@@ -586,8 +588,9 @@ template <size_t L>
 constexpr std::array<std::pair<uint32_t, std::string>, L> names2entry(
     std::array<const char*, L> in) {
   std::array<std::pair<uint32_t, std::string>, L> ret;
-  std::transform(
-      in.begin(), in.end(), ret.begin(), [](auto&& x) { return std::make_pair(crc32c(x), x); });
+  std::transform(in.begin(), in.end(), ret.begin(), [](auto&& x) {
+    return std::make_pair(crc32c_c(x, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU, x);
+  });
   std::sort(ret.begin(), ret.end());
   return ret;
 };
