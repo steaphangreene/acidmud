@@ -286,57 +286,80 @@ inline uint32_t crc32c_r(const char8_t* str, int32_t len, uint32_t crc) {
 
   // First, single-byte process any leading byte not aligned to 2.
   if ((reinterpret_cast<uintptr_t>(bptr) & 1) != 0 && bptr < str + len) {
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[0])) & 0xFFU];
+    char8_t const data[] = {
+        ascii_tolower(bptr[0]),
+    };
+    __asm__("crc32b (%1), %0" : "=r"(crc) : "r"(data), "m"(*data), "0"(crc));
     bptr += 1;
   }
 
   // Second, double-byte process any leading bytes not aligned to 4.
   if ((reinterpret_cast<uintptr_t>(bptr) & 3) != 0 && bptr + 2 <= str + len) {
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[0])) & 0xFFU];
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[1])) & 0xFFU];
+    char8_t const data[] = {
+        ascii_tolower(bptr[0]),
+        ascii_tolower(bptr[1]),
+    };
+    __asm__("crc32w (%1), %0" : "=r"(crc) : "r"(data), "m"(*data), "0"(crc));
     bptr += 2;
   }
 
   // Third, quad-byte process any leading bytes not aligned to 8.
   if ((reinterpret_cast<uintptr_t>(bptr) & 7) != 0 && bptr + 4 <= str + len) {
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[0])) & 0xFFU];
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[1])) & 0xFFU];
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[2])) & 0xFFU];
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[3])) & 0xFFU];
+    char8_t const data[] = {
+        ascii_tolower(bptr[0]),
+        ascii_tolower(bptr[1]),
+        ascii_tolower(bptr[2]),
+        ascii_tolower(bptr[3]),
+    };
+    __asm__("crc32l (%1), %0" : "=r"(crc) : "r"(data), "m"(*data), "0"(crc));
     bptr += 4;
   }
 
   // Process main body of text 8 aligned bytes at a time
   for (; bptr + 7 < str + len; bptr += 8) {
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[0])) & 0xFFU];
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[1])) & 0xFFU];
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[2])) & 0xFFU];
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[3])) & 0xFFU];
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[4])) & 0xFFU];
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[5])) & 0xFFU];
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[6])) & 0xFFU];
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[7])) & 0xFFU];
+    char8_t const data[] = {
+        ascii_tolower(bptr[0]),
+        ascii_tolower(bptr[1]),
+        ascii_tolower(bptr[2]),
+        ascii_tolower(bptr[3]),
+        ascii_tolower(bptr[4]),
+        ascii_tolower(bptr[5]),
+        ascii_tolower(bptr[6]),
+        ascii_tolower(bptr[7]),
+    };
+    uint64_t crcreg = crc;
+    __asm__("crc32q (%1), %0" : "=r"(crcreg) : "r"(data), "m"(*data), "0"(crcreg));
+    crc = crcreg;
   }
 
   // Third To Last, quad-byte process any trailing bytes not aligned to 8.
   if (bptr + 4 <= str + len) {
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[0])) & 0xFFU];
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[1])) & 0xFFU];
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[2])) & 0xFFU];
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[3])) & 0xFFU];
+    char8_t const data[] = {
+        ascii_tolower(bptr[0]),
+        ascii_tolower(bptr[1]),
+        ascii_tolower(bptr[2]),
+        ascii_tolower(bptr[3]),
+    };
+    __asm__("crc32l (%1), %0" : "=r"(crc) : "r"(data), "m"(*data), "0"(crc));
     bptr += 4;
   }
 
   // Second To Last, double-byte process any trailing bytes not aligned to 4.
   if (bptr + 2 <= str + len) {
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[0])) & 0xFFU];
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[1])) & 0xFFU];
+    char8_t const data[] = {
+        ascii_tolower(bptr[0]),
+        ascii_tolower(bptr[1]),
+    };
+    __asm__("crc32w (%1), %0" : "=r"(crc) : "r"(data), "m"(*data), "0"(crc));
     bptr += 2;
   }
 
   // Last, single-byte process any trailing byte not aligned to 2.
   if (bptr < str + len) {
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[0])) & 0xFFU];
+    char8_t const data[] = {
+        ascii_tolower(bptr[0]),
+    };
+    __asm__("crc32b (%1), %0" : "=r"(crc) : "r"(data), "m"(*data), "0"(crc));
     bptr += 1;
   }
 
