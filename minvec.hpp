@@ -47,8 +47,29 @@
 #ifndef MINVEC_HPP
 #define MINVEC_HPP
 
+constexpr uint32_t smear_bits_right(uint32_t val) {
+  uint32_t ret = (val >> 1);
+  if (ret != 0) {
+    ret |= smear_bits_right(ret);
+  }
+  return ret | val;
+}
+constexpr uint32_t next_pow_2(uint32_t val) {
+  return smear_bits_right(val) + 1;
+};
+static_assert(next_pow_2(0U) == 1U);
+static_assert(next_pow_2(1U) == 2U);
+static_assert(next_pow_2(2U) == 4U);
+static_assert(next_pow_2(3U) == 4U);
+static_assert(next_pow_2(11U) == 16U);
+static_assert(next_pow_2(16U) == 32U);
+static_assert(next_pow_2(257U) == 512U);
+static_assert(next_pow_2(1024U) == 2048U);
+static_assert(next_pow_2(0x40000000U) == 0x80000000U);
+static_assert(next_pow_2(0x7FFFFFFFU) == 0x80000000U);
+
 template <int C, typename T>
-class MinVec {
+class alignas(next_pow_2(C * 8)) MinVec {
  public:
   using iterator = T*;
   using const_iterator = T const*;
@@ -224,27 +245,6 @@ class MinVec {
       push_back(temp);
     }
   };
-
-  static constexpr uint32_t smear_bits_right(uint32_t val) {
-    uint32_t ret = (val >> 1);
-    if (ret != 0) {
-      ret |= smear_bits_right(ret);
-    }
-    return ret | val;
-  }
-  static constexpr uint32_t next_pow_2(uint32_t val) {
-    return smear_bits_right(val) + 1;
-  };
-  static_assert(next_pow_2(0U) == 1U);
-  static_assert(next_pow_2(1U) == 2U);
-  static_assert(next_pow_2(2U) == 4U);
-  static_assert(next_pow_2(3U) == 4U);
-  static_assert(next_pow_2(11U) == 16U);
-  static_assert(next_pow_2(16U) == 32U);
-  static_assert(next_pow_2(257U) == 512U);
-  static_assert(next_pow_2(1024U) == 2048U);
-  static_assert(next_pow_2(0x40000000U) == 0x80000000U);
-  static_assert(next_pow_2(0x7FFFFFFFU) == 0x80000000U);
 
   void push_back(T in) {
     if (cap_ == 0 && size_ < C) {
