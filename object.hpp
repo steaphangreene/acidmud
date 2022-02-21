@@ -232,8 +232,8 @@ class alignas(256) Object {
   void SendLongDesc(Mind* m, Object* o = nullptr);
   void SendLongDesc(Object* m, Object* o = nullptr);
   void SendScore(Mind* m, Object* o = nullptr);
-  std::vector<std::string> FormatStats(const MinVec<3, skill_pair>& skls); // Modifies skls
-  std::vector<std::string> FormatSkills(const MinVec<3, skill_pair>& skls); // Modifies skls
+  std::vector<std::string> FormatStats(const MinVec<7, skill_pair>& skls); // Modifies skls
+  std::vector<std::string> FormatSkills(const MinVec<7, skill_pair>& skls); // Modifies skls
 
   void Link(
       Object* other,
@@ -274,8 +274,8 @@ class alignas(256) Object {
   int SeeWithin(const Object* obj); // Recursive & Visible
   int HasWithin(const Object* obj); // Recursive (All)
   int Contains(const Object* obj); // Only Immediately (No Recursion)
-  MinVec<1, Object*> Contents(int vmode);
-  MinVec<1, Object*> Contents();
+  MinVec<3, Object*> Contents(int vmode);
+  MinVec<3, Object*> Contents();
 
   int ContainedWeight();
   int ContainedVolume();
@@ -377,7 +377,7 @@ class alignas(256) Object {
   int SubHasSkill(uint32_t) const;
   int SubMaxSkill(uint32_t) const;
   Object* NextHasSkill(uint32_t, const Object* last = nullptr);
-  MinVec<3, skill_pair> GetSkills() const;
+  MinVec<7, skill_pair> GetSkills() const;
   void SetAttribute(int, int);
   void SetModifier(int, int);
   void SetSkill(uint32_t, int);
@@ -558,7 +558,7 @@ class alignas(256) Object {
   int sexp;
   MinVec<1, uint64_t> completed;
 
-  MinVec<1, Object*> contents;
+  MinVec<3, Object*> contents;
   Object* parent;
   uint32_t cur_skill;
 
@@ -569,9 +569,9 @@ class alignas(256) Object {
   MinVec<1, Mind*> minds;
 
   MinVec<1, Object*> touching_me;
-  MinVec<1, act_pair> act;
+  MinVec<3, act_pair> act;
 
-  MinVec<3, skill_pair> skills;
+  MinVec<7, skill_pair> skills;
 
   friend void player_rooms_erase(Object*);
 };

@@ -1715,7 +1715,7 @@ void Object::SendScore(Mind* m, Object* o) {
   }
 }
 
-std::vector<std::string> Object::FormatSkills(const MinVec<3, skill_pair>& skls) {
+std::vector<std::string> Object::FormatSkills(const MinVec<7, skill_pair>& skls) {
   std::vector<std::string> ret;
 
   auto save = skls;
@@ -1732,7 +1732,7 @@ std::vector<std::string> Object::FormatSkills(const MinVec<3, skill_pair>& skls)
 
 static void stick_on(
     std::vector<std::string>& out,
-    const MinVec<3, skill_pair>& skls,
+    const MinVec<7, skill_pair>& skls,
     uint32_t stok,
     const std::string label) {
   char buf2[256];
@@ -1752,7 +1752,7 @@ static void stick_on(
   }
 }
 
-std::vector<std::string> Object::FormatStats(const MinVec<3, skill_pair>& skls) {
+std::vector<std::string> Object::FormatStats(const MinVec<7, skill_pair>& skls) {
   std::vector<std::string> ret;
 
   if (HasSkill(crc32c("TBAScriptType"))) { // It's a TBA script
@@ -3838,8 +3838,8 @@ void Object::operator=(const Object& in) {
   //  act = in.act;
 }
 
-MinVec<1, Object*> Object::Contents(int vmode) {
-  MinVec<1, Object*> ret;
+MinVec<3, Object*> Object::Contents(int vmode) {
+  MinVec<3, Object*> ret;
   if (vmode & LOC_NINJA) {
     ret = contents;
   } else {
@@ -3859,7 +3859,7 @@ MinVec<1, Object*> Object::Contents(int vmode) {
   return ret;
 }
 
-MinVec<1, Object*> Object::Contents() {
+MinVec<3, Object*> Object::Contents() {
   return contents;
 }
 
@@ -4714,7 +4714,7 @@ Object* new_obj(const Object& o) {
   return new Object(o);
 }
 
-MinVec<3, skill_pair> Object::GetSkills() const {
+MinVec<7, skill_pair> Object::GetSkills() const {
   auto ret = skills;
 
   std::sort(ret.begin(), ret.end(), [](auto& s1, auto& s2) {
