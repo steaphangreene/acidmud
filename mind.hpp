@@ -75,18 +75,17 @@ class Mind {
   int LogFD() {
     return log;
   };
-  void Send(const std::string&);
+  bool Send(const std::string&); // Returns false when mind needs to be deleted
   void SendRaw(const std::string&);
   void SendF(const char*, ...) __attribute__((format(printf, 2, 3)));
   void SendRawF(const char*, ...) __attribute__((format(printf, 2, 3)));
   void UpdatePrompt();
 
-  void Think(int istick = 0);
+  bool Think(int istick = 0); // Returns false when mind needs to be deleted
   std::string Tactics(int phase = -1);
 
   static void Resume();
   void Suspend(int msec);
-  void Disable();
 
   void SetSpecialPrompt(const std::string& newp);
   std::string SpecialPrompt();
@@ -106,7 +105,7 @@ class Mind {
 
   std::string TBAComp(std::string expr);
   int TBAEval(std::string expr);
-  void TBAVarSub(std::string& line);
+  bool TBAVarSub(std::string& line); // Returns false when mind needs to be deleted
 
   int TBARunLine(std::string line);
 

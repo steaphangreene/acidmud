@@ -1,3 +1,5 @@
+Handle deleting on error cases falling back out of Mind::Send().
+
 Implement various types of armor, weapons and damage.
 Do 3-layer armor system.
 Show armor/weapon/hit/miss messages in ninja display.

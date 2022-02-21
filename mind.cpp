@@ -45,8 +45,6 @@
 
 extern int64_t current_time; // From main.cpp
 
-std::vector<Mind*> recycle_bin;
-
 static const std::string bstr[2] = {"0", "1"};
 
 static std::string itos(int val) {
@@ -459,6 +457,7 @@ Mind::Mind() {
   Init();
   pers = 0;
   log = -1;
+  status = 0;
 }
 
 Mind::Mind(int fd) {
@@ -466,6 +465,7 @@ Mind::Mind(int fd) {
   Init();
   log = -1;
   SetRemote(fd);
+  status = 0;
 }
 
 Mind::Mind(int fd, int l) {
@@ -473,16 +473,31 @@ Mind::Mind(int fd, int l) {
   Init();
   log = l;
   SetRemote(fd);
+  status = 0;
 }
 
 Mind::~Mind() {
+  // if(body && body->Skill(crc32c("TBAScript")) >= 5034503 && body->Skill(crc32c("TBAScript")) <=
+  // 5034507)
+  //  fprintf(stderr, CBLU "Disabled(%p): '%d'\n" CNRM, this, body->Skill(crc32c("TBAScript")));
   if (type == MIND_REMOTE)
     close_socket(pers);
   type = MIND_MORON;
-  Disable();
-  recycle_bin.pop_back();
+  Unattach();
   if (log >= 0)
     close(log);
+  log = -1;
+
+  auto itr = waiting.begin();
+  for (; itr != waiting.end() && itr->second != this; ++itr) {
+  }
+  if (itr != waiting.end()) {
+    // Set it for "never", so it won't run, and will be purged
+    itr->first = std::numeric_limits<int64_t>::max();
+  }
+
+  svars = cvars; // Reset all variables
+  ovars.clear();
 }
 
 void Mind::SetRemote(int fd) {
@@ -618,11 +633,11 @@ void Mind::Unattach() {
     bod->Unattach(this);
 }
 
-void Mind::Send(const std::string& mes) {
+bool Mind::Send(const std::string& mes) {
   if (type == MIND_REMOTE) {
     SendOut(pers, mes);
   } else if (type == MIND_MOB) {
-    // Think(); //Reactionary actions (NO!).
+    // return Think(); //Reactionary actions (NO!).
   } else if (type == MIND_TBAMOB) {
     // HELPER TBA Mobs
     if (body && body->Parent() && (body->Skill(crc32c("TBAAction")) & 4096) // Helpers
@@ -648,10 +663,10 @@ void Mind::Send(const std::string& mes) {
           sscanf(mes.c_str() + 4, "%128s", buf2 + 6);
           body->BusyFor(500, buf2);
         }
-        return;
+        return true;
       }
     }
-    Think(); // Reactionary actions (HACK!).
+    return Think(); // Reactionary actions (HACK!).
   } else if (type == MIND_SYSTEM) {
     std::string newmes = "";
     if (body)
@@ -667,6 +682,7 @@ void Mind::Send(const std::string& mes) {
 
     write(pers, newmes.c_str(), newmes.length());
   }
+  return true;
 }
 
 void Mind::SendRaw(const std::string& mes) {
@@ -750,7 +766,7 @@ std::string Mind::Tactics(int phase) {
   return "attack";
 }
 
-void Mind::TBAVarSub(std::string& line) {
+bool Mind::TBAVarSub(std::string& line) {
   size_t cur = line.find('%');
   size_t end;
   while (cur != std::string::npos) {
@@ -1501,8 +1517,7 @@ void Mind::TBAVarSub(std::string& line) {
               body->Skill(crc32c("TBAScript")),
               field.c_str(),
               line.c_str());
-          Disable();
-          return;
+          return false;
         }
       } else {
         if (!strcmp(field.c_str(), "mudcommand")) {
@@ -1531,8 +1546,7 @@ void Mind::TBAVarSub(std::string& line) {
               body->Skill(crc32c("TBAScript")),
               field.c_str(),
               line.c_str());
-          Disable();
-          return;
+          return false;
         }
       }
     }
@@ -1562,6 +1576,7 @@ void Mind::TBAVarSub(std::string& line) {
         body->Skill(crc32c("TBAScript")),
         line.c_str());
   }
+  return true;
 }
 
 #define QUOTAERROR1 CRED "#%d Error: script quota exceeded - killed.\n" CNRM
@@ -1571,12 +1586,14 @@ void Mind::TBAVarSub(std::string& line) {
     --quota;                                     \
     if (quota < 1) {                             \
       fprintf(stderr, QUOTAERROR1, QUOTAERROR2); \
-      Disable();                                 \
-      return;                                    \
+      return -1;                                 \
     }                                            \
   }
 
-// Return 0 to continue running, 1 to be done now (error/suspend/done).
+// Return:
+// 0 to continue running
+// 1 to be done now (suspend)
+// -1 to destroy mind (error/done)
 int Mind::TBARunLine(std::string line) {
   if (0
       //	|| body->Skill(crc32c("TBAScript")) == 5000099
@@ -1602,8 +1619,7 @@ int Mind::TBARunLine(std::string line) {
     //    fprintf(stderr, CRED "#%d Error: No room in '%s'\n" CNRM,
     //	body->Skill(crc32c("TBAScript")), line.c_str()
     //	);
-    Disable();
-    return 1;
+    return -1;
   }
   // Needs to be alive! MOB & MOB-* (Not -DEATH or -GLOBAL)
   if ((body->Skill(crc32c("TBAScriptType")) & 0x103FFDE) > 0x1000000) {
@@ -1619,10 +1635,9 @@ int Mind::TBARunLine(std::string line) {
 
   size_t spos = spos_s.back();
   int vnum = body->Skill(crc32c("TBAScript"));
-  TBAVarSub(line);
-  if (type == MIND_MORON) {
+  if (!TBAVarSub(line)) {
     fprintf(stderr, CRED "#%d Error: VarSub failed in '%s'\n" CNRM, vnum, line.c_str());
-    return 1;
+    return -1;
   }
 
   int com = COM_NONE; // ComNum for Pass-Through
@@ -1645,8 +1660,7 @@ int Mind::TBARunLine(std::string line) {
   //    fprintf(stderr, CRED "#%d Error: Failed to fully expand '%s'\n" CNRM,
   //	body->Skill(crc32c("TBAScript")), line.c_str()
   //	);
-  //    Disable();
-  //    return 1;
+  //    return -1;
   //    }
 
   if (!strncmp(line.c_str(), "unset ", 6)) {
@@ -1663,8 +1677,7 @@ int Mind::TBARunLine(std::string line) {
           CRED "#%d Error: Malformed unset '%s'\n" CNRM,
           body->Skill(crc32c("TBAScript")),
           line.c_str());
-      Disable();
-      return 1;
+      return -1;
     }
     return 0;
   }
@@ -1694,10 +1707,9 @@ int Mind::TBARunLine(std::string line) {
           }
           if (coml == 'e') {
             int valnum = body->Skill(crc32c("TBAScript"));
-            TBAVarSub(val);
-            if (type == MIND_MORON) {
+            if (!TBAVarSub(val)) {
               fprintf(stderr, CRED "#%d Error: Eval failed in '%s'\n" CNRM, valnum, line.c_str());
-              return 1;
+              return -1;
             }
             val = TBAComp(val);
           }
@@ -1757,8 +1769,7 @@ int Mind::TBARunLine(std::string line) {
                 CRED "#%d Error: Malformed extract '%s'\n" CNRM,
                 body->Skill(crc32c("TBAScript")),
                 line.c_str());
-            Disable();
-            return 1;
+            return -1;
           }
         } else { // Only space after varname
           fprintf(
@@ -1766,8 +1777,7 @@ int Mind::TBARunLine(std::string line) {
               CRED "#%d Error: Malformed extract '%s'\n" CNRM,
               body->Skill(crc32c("TBAScript")),
               line.c_str());
-          Disable();
-          return 1;
+          return -1;
         }
       } else { // Nothing after varname
         fprintf(
@@ -1775,8 +1785,7 @@ int Mind::TBARunLine(std::string line) {
             CRED "#%d Error: Malformed extract '%s'\n" CNRM,
             body->Skill(crc32c("TBAScript")),
             line.c_str());
-        Disable();
-        return 1;
+        return -1;
       }
     }
     return 0;
@@ -1790,8 +1799,7 @@ int Mind::TBARunLine(std::string line) {
           CRED "#%d Error: Malformed at '%s'\n" CNRM,
           body->Skill(crc32c("TBAScript")),
           line.c_str());
-      Disable();
-      return 1;
+      return -1;
     }
     room = room->World();
     auto options = room->Contents();
@@ -1811,8 +1819,7 @@ int Mind::TBARunLine(std::string line) {
           CRED "#%d Error: Can't find room in '%s'\n" CNRM,
           body->Skill(crc32c("TBAScript")),
           line.c_str());
-      Disable();
-      return 1;
+      return -1;
     }
     Object* oldp = nullptr;
     if (ovars["self"]->Parent() != room) {
@@ -1946,8 +1953,7 @@ int Mind::TBARunLine(std::string line) {
           CRED "#%d Error: Told '%s'\n" CNRM,
           body->Skill(crc32c("TBAScript")),
           line.c_str());
-      Disable();
-      return 1;
+      return -1;
     }
   }
 
@@ -1967,8 +1973,7 @@ int Mind::TBARunLine(std::string line) {
           CRED "#%d Error: Told '%s'\n" CNRM,
           body->Skill(crc32c("TBAScript")),
           line.c_str());
-      Disable();
-      return 1;
+      return -1;
     }
   }
 
@@ -1981,8 +1986,7 @@ int Mind::TBARunLine(std::string line) {
           CRED "#%d Error: Told '%s'\n" CNRM,
           body->Skill(crc32c("TBAScript")),
           line.c_str());
-      Disable();
-      return 1;
+      return -1;
     } else if (ovars["self"]->Skill(crc32c("Liquid Source")) && v1 == 0) {
       if (v2 < 0)
         v2 = 1 << 30;
@@ -1994,8 +1998,7 @@ int Mind::TBARunLine(std::string line) {
             CYEL "#%d Warning: Empty fountain '%s'\n" CNRM,
             body->Skill(crc32c("TBAScript")),
             line.c_str());
-        Disable();
-        return 1;
+        return -1;
       }
       ovars["self"]->Contents().front()->SetSkill(crc32c("Quantity"), v2 + 1);
     } else {
@@ -2004,8 +2007,7 @@ int Mind::TBARunLine(std::string line) {
           CRED "#%d Error: Unimplemented oset '%s'\n" CNRM,
           body->Skill(crc32c("TBAScript")),
           line.c_str());
-      Disable();
-      return 1;
+      return -1;
     }
   }
 
@@ -2272,8 +2274,7 @@ int Mind::TBARunLine(std::string line) {
           CRED "#%d Error: short door command '%s'\n" CNRM,
           body->Skill(crc32c("TBAScript")),
           line.c_str());
-      Disable();
-      return 1;
+      return -1;
     }
 
     // Handle abbreviated standard directions.
@@ -2307,8 +2308,7 @@ int Mind::TBARunLine(std::string line) {
           CRED "#%d Error: can't find target in '%s'\n" CNRM,
           body->Skill(crc32c("TBAScript")),
           line.c_str());
-      Disable();
-      return 1;
+      return -1;
     }
 
     Object* door = room->PickObject(dir, LOC_NINJA | LOC_INTERNAL);
@@ -2327,8 +2327,7 @@ int Mind::TBARunLine(std::string line) {
             body->Skill(crc32c("TBAScript")),
             dir.c_str(),
             line.c_str());
-        Disable();
-        return 1;
+        return -1;
       }
       uint32_t newfl = tba_bitvec(line.substr(len + 5));
       if ((newfl & 0xF) == 0) {
@@ -2338,8 +2337,7 @@ int Mind::TBARunLine(std::string line) {
             body->Skill(crc32c("TBAScript")),
             newfl,
             line.c_str());
-        Disable();
-        return 1;
+        return -1;
       }
       if (newfl & 1) { // Can Open/Close
         door->SetSkill(crc32c("Open"), 1000);
@@ -2410,8 +2408,7 @@ int Mind::TBARunLine(std::string line) {
             CRED "#%d Error: can't find dest in '%s'\n" CNRM,
             body->Skill(crc32c("TBAScript")),
             line.c_str());
-        Disable();
-        return 1;
+        return -1;
       }
       door = new Object(room);
       door->SetShortDesc(dir);
@@ -2432,8 +2429,7 @@ int Mind::TBARunLine(std::string line) {
             body->Skill(crc32c("TBAScript")),
             dir.c_str(),
             line.c_str());
-        Disable();
-        return 1;
+        return -1;
       }
       door->SetSkill(crc32c("Lockable"), 1);
       door->SetSkill(crc32c("Key"), 2000000 + tnum);
@@ -2455,8 +2451,7 @@ int Mind::TBARunLine(std::string line) {
           CRED "#%d Error: bad door command '%s'\n" CNRM,
           body->Skill(crc32c("TBAScript")),
           line.c_str());
-      Disable();
-      return 1;
+      return -1;
     }
   }
 
@@ -2470,8 +2465,7 @@ int Mind::TBARunLine(std::string line) {
           CRED "#%d Error: Bad teleport line '%s'\n" CNRM,
           body->Skill(crc32c("TBAScript")),
           line.c_str());
-      Disable();
-      return 1;
+      return -1;
     }
     if (!strcmp(buf2, "all")) {
       strcpy(buf2, "everyone");
@@ -2532,8 +2526,7 @@ int Mind::TBARunLine(std::string line) {
       return 1;
     }
     if (!body) { // No longer connected, must have purged self or parent.
-      Disable();
-      return 1;
+      return -1;
     }
   }
 
@@ -2552,8 +2545,7 @@ int Mind::TBARunLine(std::string line) {
           CRED "#%d Error: Nonsensical script load '%s'\n" CNRM,
           body->Skill(crc32c("TBAScript")),
           line.c_str());
-      Disable();
-      return 1;
+      return -1;
     }
     Object* src = room->World();
     if (tbatype == 'o') {
@@ -2598,8 +2590,7 @@ int Mind::TBARunLine(std::string line) {
           CRED "#%d Error: Failed to find item '%s'\n" CNRM,
           body->Skill(crc32c("TBAScript")),
           line.c_str());
-      Disable();
-      return 1;
+      return -1;
     }
     if (params > 2) {
       //      fprintf(stderr, CGRN "#%d Debug: (%s) '%s'\n" CNRM,
@@ -2612,9 +2603,8 @@ int Mind::TBARunLine(std::string line) {
           CRED "#%d Error: Can't find target in '%s'\n" CNRM,
           body->Skill(crc32c("TBAScript")),
           line.c_str());
-      Disable();
       delete item;
-      return 1;
+      return -1;
     }
     if (strcmp("rfinger", where) == 0 || strcmp("1", where) == 0) {
       mask = item->Skill(crc32c("Wearable on Right Finger"));
@@ -2682,9 +2672,8 @@ int Mind::TBARunLine(std::string line) {
           CRED "#%d Error: Unsupported dest '%s'\n" CNRM,
           body->Skill(crc32c("TBAScript")),
           line.c_str());
-      Disable();
       delete item;
-      return 1;
+      return -1;
     }
     item->SetParent(dest);
     if (loc != 0 && loc != ACT_HOLD && loc != ACT_WIELD) { // Wear it
@@ -2742,8 +2731,7 @@ int Mind::TBARunLine(std::string line) {
           CRED "#%d Error: Not in while/switch, but '%s'\n" CNRM,
           body->Skill(crc32c("TBAScript")),
           line.c_str());
-      Disable();
-      return 1;
+      return -1;
     }
     spos_s.pop_back();
   } else if (!strncmp(line.c_str(), "return ", 7)) {
@@ -2752,8 +2740,7 @@ int Mind::TBARunLine(std::string line) {
       status = 1; // Set special state
     }
   } else if (!strncmp(line.c_str(), "halt", 4)) {
-    Disable();
-    return 1;
+    return -1;
   }
 
   // Player commands different between Acid and TBA, requiring arguments
@@ -2780,8 +2767,7 @@ int Mind::TBARunLine(std::string line) {
             CRED "#%d Error: Told just '%s'\n" CNRM,
             body->Skill(crc32c("TBAScript")),
             line.c_str());
-        Disable();
-        return 1;
+        return -1;
       }
     } else {
       fprintf(
@@ -2789,8 +2775,7 @@ int Mind::TBARunLine(std::string line) {
           CRED "#%d Error: Told just '%s'\n" CNRM,
           body->Skill(crc32c("TBAScript")),
           line.c_str());
-      Disable();
-      return 1;
+      return -1;
     }
   }
 
@@ -2819,8 +2804,7 @@ int Mind::TBARunLine(std::string line) {
           CRED "#%d Error: Told just '%s'\n" CNRM,
           body->Skill(crc32c("TBAScript")),
           line.c_str());
-      Disable();
-      return 1;
+      return -1;
     }
   }
 
@@ -2844,8 +2828,7 @@ int Mind::TBARunLine(std::string line) {
         CRED "#%d Error: Gibberish script line '%s'\n" CNRM,
         body->Skill(crc32c("TBAScript")),
         line.c_str());
-    Disable();
-    return 1;
+    return -1;
   }
   return 0;
 }
@@ -2860,7 +2843,7 @@ uint32_t items[8] = {
     crc32c("Bored"),
     crc32c("Stuff"),
     crc32c("Needy")};
-void Mind::Think(int istick) {
+bool Mind::Think(int istick) {
   if (type == MIND_MOB) {
     if (body->Skill(crc32c("Personality")) & 1) { // Group Mind
       //      body->TryCombine();	// I AM a group, after all.
@@ -2954,11 +2937,12 @@ void Mind::Think(int istick) {
 
         PING_QUOTA();
 
-        if (TBARunLine(line))
-          return;
-      }
-      if (type == MIND_MORON) { // Disabled
-        return;
+        int ret = TBARunLine(line);
+        if (ret < 0) {
+          return false;
+        } else if (ret > 0) {
+          return true;
+        }
       }
       if (stype & 2) { // Random Triggers
         int chance = body->Skill(crc32c("TBAScriptNArg")); // Percent Chance
@@ -2969,20 +2953,20 @@ void Mind::Think(int istick) {
           spos_s.clear();
           spos_s.push_back(0); // We never die!
           Suspend(delay); // We'll be back!
-          return;
+          return true;
         }
       }
     }
-    Disable();
+    return false;
   } else if (type == MIND_TBAMOB) {
     if ((!body) || (istick >= 0 && body->StillBusy()))
-      return;
+      return true;
 
     // Temporary
     if (body && body->ActTarg(ACT_WEAR_SHIELD) && (!body->IsAct(ACT_HOLD))) {
       std::string command = std::string("hold ") + body->ActTarg(ACT_WEAR_SHIELD)->ShortDesc();
       body->BusyFor(500, command.c_str());
-      return;
+      return true;
     } else if (
         body && body->ActTarg(ACT_WEAR_SHIELD) && body->ActTarg(ACT_HOLD) &&
         body->ActTarg(ACT_WEAR_SHIELD) != body->ActTarg(ACT_HOLD)) {
@@ -2995,7 +2979,7 @@ void Mind::Think(int istick) {
       } else {
         // fprintf(stderr, "Warning: %s can't use his shield!\n", body->Name().c_str());
       }
-      return;
+      return true;
     }
 
     // AGGRESSIVE and WIMPY TBA Mobs
@@ -3017,7 +3001,7 @@ void Mind::Think(int istick) {
           std::string command = std::string("attack ") + other->ShortDesc();
           body->BusyFor(500, command.c_str());
           // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDescC(), command.c_str());
-          return;
+          return true;
         }
       }
       if (istick == 1 && body->IsUsing(crc32c("Perception"))) {
@@ -3053,7 +3037,7 @@ void Mind::Think(int istick) {
           std::string command = std::string("attack ") + other->ShortDesc();
           body->BusyFor(500, command.c_str());
           // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDescC(), command.c_str());
-          return;
+          return true;
         }
       }
       if (istick == 1 && body->IsUsing(crc32c("Perception"))) {
@@ -3089,7 +3073,7 @@ void Mind::Think(int istick) {
           std::string command = std::string("call ALARM; attack ") + other->ShortDesc();
           body->BusyFor(500, command.c_str());
           // fprintf(stderr, "%s: Tried '%s'\n", body->ShortDescC(), command.c_str());
-          return;
+          return true;
         }
       }
       if (!body->IsUsing(crc32c("Perception"))) { // Don't let guard down!
@@ -3145,10 +3129,11 @@ void Mind::Think(int istick) {
         } else {
           body->BusyFor(500, dir->second);
         }
-        return;
+        return true;
       }
     }
   }
+  return true;
 }
 
 int Mind::TBACanWanderTo(Object* dest) {
@@ -3180,15 +3165,7 @@ std::string Mind::SpecialPrompt() {
 }
 
 Mind* new_mind(int tp, Object* obj, Object* obj2, Object* obj3, std::string text) {
-  Mind* m = nullptr;
-  if (recycle_bin.size() > 0) {
-    m = recycle_bin.back();
-    recycle_bin.pop_back();
-    m->ClearStatus(); // Clear special state!
-    //    fprintf(stderr, "Suspending(%p)\n", m);
-  } else {
-    m = new Mind();
-  }
+  Mind* m = new Mind();
   if (tp == MIND_TBATRIG && obj) {
     m->SetTBATrigger(obj, obj2, obj3, text);
   } else if (obj) {
@@ -3207,9 +3184,11 @@ int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, std::strin
 
   Mind* m = new_mind(MIND_TBATRIG, obj, tripper, targ, text);
   if (msec == 0) {
-    m->Think(1);
-    if (m->Status())
-      return 1; // Catch non-default term state.
+    if (!m->Think(1)) {
+      int status = m->Status();
+      delete m;
+      return status;
+    }
   } else {
     m->Suspend(msec);
   }
@@ -3234,31 +3213,6 @@ void Mind::Suspend(int msec) {
   }
 }
 
-void Mind::Disable() {
-  // if(body && body->Skill(crc32c("TBAScript")) >= 5034503 && body->Skill(crc32c("TBAScript")) <=
-  // 5034507)
-  //  fprintf(stderr, CBLU "Disabled(%p): '%d'\n" CNRM, this, body->Skill(crc32c("TBAScript")));
-  if (type == MIND_REMOTE)
-    close_socket(pers);
-  type = MIND_MORON;
-  Unattach();
-  if (log >= 0)
-    close(log);
-  log = -1;
-
-  auto itr = waiting.begin();
-  for (; itr != waiting.end() && itr->second != this; ++itr) {
-  }
-  if (itr != waiting.end()) {
-    // Set it for "never", so it won't run, and will be purged
-    itr->first = std::numeric_limits<int64_t>::max();
-  }
-
-  svars = cvars; // Reset all variables
-  ovars.clear();
-  recycle_bin.push_back(this); // Ready for re-use/removal by destructor
-}
-
 void Mind::Resume() {
   // Sort by time-to-run, so earlier events happen first
   std::sort(waiting.begin(), waiting.end());
@@ -3271,10 +3225,12 @@ void Mind::Resume() {
     waiting.erase(itr, waiting.end());
   }
 
-  // Now run fire off those at the beginning that should have already happened
+  // Now fire off those at the beginning that should have already happened
   itr = waiting.begin();
   for (; itr != waiting.end() && itr->first <= current_time; ++itr) {
-    itr->second->Think(0);
+    if (!itr->second->Think(0)) {
+      delete itr->second;
+    }
   }
 }
 

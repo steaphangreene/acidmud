@@ -405,7 +405,9 @@ int Object::Tick() {
   auto mnds = minds;
   for (auto m : mnds) {
     m->Attach(this);
-    m->Think(1);
+    if (!m->Think(1)) {
+      delete m;
+    }
   }
 
   if (phys > (10 + ModAttribute(2))) {
