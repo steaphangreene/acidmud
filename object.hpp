@@ -544,12 +544,6 @@ class alignas(256) Object {
   bool no_seek; // Recursion protection
   bool no_hear; // For Send() protection
 
-  MinVec<1, Mind*> minds;
-  MinVec<1, Object*> contents;
-  Object* parent;
-  pos_t pos;
-  uint32_t cur_skill;
-
   MinVec<1, uint64_t> completed;
   int sexp;
 
@@ -562,12 +556,19 @@ class alignas(256) Object {
 
   int8_t tickstep;
 
+  MinVec<1, Object*> contents;
+  Object* parent;
+  pos_t pos;
+  uint32_t cur_skill;
+
   int64_t busy_until;
   char const* dowhenfree = "";
   char const* defact = "";
 
-  MinVec<1, act_pair> act;
+  MinVec<1, Mind*> minds;
+
   MinVec<1, Object*> touching_me;
+  MinVec<1, act_pair> act;
 
   MinVec<3, skill_pair> skills;
 
