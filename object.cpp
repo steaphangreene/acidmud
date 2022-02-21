@@ -49,7 +49,7 @@ const std::string pos_str[static_cast<uint8_t>(pos_t::MAX)] = {
     "is using a skill",
 };
 
-const std::string act_str[ACT_SPECIAL_MAX] = {
+const std::string act_str[static_cast<uint8_t>(act_t::SPECIAL_MAX)] = {
     "doing nothing",
     "dead",
     "bleeding and dying",
@@ -87,11 +87,11 @@ const std::string act_str[ACT_SPECIAL_MAX] = {
     "wearing %1$s",
     "wearing %1$s",
     "wearing_%1$s",
-    "ACT_SPECIAL_MONITOR",
-    "ACT_SPECIAL_MASTER",
-    "ACT_SPECIAL_LINKED",
-    "ACT_SPECIAL_HOME",
-    //"ACT_SPECIAL_MAX"
+    "act_t::SPECIAL_MONITOR",
+    "act_t::SPECIAL_MASTER",
+    "act_t::SPECIAL_LINKED",
+    "act_t::SPECIAL_HOME",
+    //"act_t::SPECIAL_MAX"
 };
 
 static Object* universe = nullptr;
@@ -247,32 +247,32 @@ int Object::Matches(std::string targ) {
     return (IsAnimate());
   }
   if (ttok == crc32c("everything")) {
-    if (IsAct(ACT_SPECIAL_LINKED))
+    if (IsAct(act_t::SPECIAL_LINKED))
       return 0;
     return (!IsAnimate());
   }
   if (ttok == crc32c("something")) {
-    if (IsAct(ACT_SPECIAL_LINKED))
+    if (IsAct(act_t::SPECIAL_LINKED))
       return 0;
     return (!IsAnimate());
   }
   if (ttok == crc32c("anything")) {
-    if (IsAct(ACT_SPECIAL_LINKED))
+    if (IsAct(act_t::SPECIAL_LINKED))
       return 0;
     return (!IsAnimate());
   }
   if (ttok == crc32c("everywhere")) {
-    if (!IsAct(ACT_SPECIAL_LINKED))
+    if (!IsAct(act_t::SPECIAL_LINKED))
       return 0;
     return (!IsAnimate());
   }
   if (ttok == crc32c("somewhere")) {
-    if (!IsAct(ACT_SPECIAL_LINKED))
+    if (!IsAct(act_t::SPECIAL_LINKED))
       return 0;
     return (!IsAnimate());
   }
   if (ttok == crc32c("anywhere")) {
-    if (!IsAct(ACT_SPECIAL_LINKED))
+    if (!IsAct(act_t::SPECIAL_LINKED))
       return 0;
     return (!IsAnimate());
   }
@@ -288,7 +288,7 @@ int Object::Matches(std::string targ) {
   }
 
   // Keywords which can also be things
-  if ((ttok == crc32c("Corpse")) && IsAct(ACT_DEAD))
+  if ((ttok == crc32c("Corpse")) && IsAct(act_t::DEAD))
     return 1;
   if ((ttok == crc32c("Money")) && Skill(crc32c("Money")))
     return 1;
@@ -307,7 +307,7 @@ Object* new_body() {
 
   body->SetShortDesc("an amorphous blob");
 
-  Object* start = universe->ActTarg(ACT_SPECIAL_HOME);
+  Object* start = universe->ActTarg(act_t::SPECIAL_HOME);
   if (!start)
     start = universe;
   body->SetParent(start);
@@ -345,7 +345,7 @@ Object* new_body() {
 
   bag->SetPos(pos_t::LIE);
 
-  body->AddAct(ACT_WEAR_RHIP, bag);
+  body->AddAct(act_t::WEAR_RHIP, bag);
 
   return body;
 }
@@ -419,11 +419,11 @@ int Object::Tick() {
     UpdateDamage();
   } else if (phys > 0) {
     int rec = 0;
-    if (IsAct(ACT_SLEEP))
+    if (IsAct(act_t::SLEEP))
       rec = Roll(crc32c("Body"), 2);
-    else if (IsAct(ACT_REST))
+    else if (IsAct(act_t::REST))
       rec = Roll(crc32c("Body"), 4);
-    else if (!IsAct(ACT_FIGHT))
+    else if (!IsAct(act_t::FIGHT))
       rec = Roll(crc32c("Body"), 6);
     if (phys >= 6 && (!rec))
       ++phys;
@@ -440,11 +440,11 @@ int Object::Tick() {
     UpdateDamage();
   } else if (phys < 6 && stun > 0) {
     int rec = 0;
-    if (IsAct(ACT_SLEEP))
+    if (IsAct(act_t::SLEEP))
       rec = Roll(crc32c("Willpower"), 2);
-    else if (IsAct(ACT_REST))
+    else if (IsAct(act_t::REST))
       rec = Roll(crc32c("Willpower"), 4);
-    else if (!IsAct(ACT_FIGHT))
+    else if (!IsAct(act_t::FIGHT))
       rec = Roll(crc32c("Willpower"), 6);
     stun -= rec;
     stun = std::max(int8_t(0), stun);
@@ -452,11 +452,11 @@ int Object::Tick() {
   }
 
   if (parent && Skill(crc32c("TBAPopper")) > 0 && contents.size() > 0) {
-    if (!ActTarg(ACT_SPECIAL_MONITOR)) {
+    if (!ActTarg(act_t::SPECIAL_MONITOR)) {
       Object* obj = new Object(*(contents.front()));
       obj->SetParent(this);
       obj->Travel(parent);
-      AddAct(ACT_SPECIAL_MONITOR, obj);
+      AddAct(act_t::SPECIAL_MONITOR, obj);
       obj->Attach(get_tba_mob_mind());
       obj->Activate();
       parent->SendOut(ALL, -1, ";s arrives.\n", "", obj, nullptr);
@@ -475,7 +475,7 @@ int Object::Tick() {
     SetSkill(crc32c("Mature Trees"), Skill(crc32c("Mature Trees")) + 1);
   }
 
-  if (IsAct(ACT_DEAD)) { // Rotting corpses
+  if (IsAct(act_t::DEAD)) { // Rotting corpses
     ++stru;
     if (stru == 1) {
       parent->SendOut(ALL, 0, ";s's corpse starts to smell.\n", "", this, nullptr);
@@ -528,11 +528,11 @@ int Object::Tick() {
 
       if (is_pc(this)) { // Hide me in the VOID!
         Object* dest = this;
-        while ((!dest->ActTarg(ACT_SPECIAL_HOME)) && dest->Parent()) {
+        while ((!dest->ActTarg(act_t::SPECIAL_HOME)) && dest->Parent()) {
           dest = dest->Parent();
         }
-        if (dest->ActTarg(ACT_SPECIAL_HOME)) {
-          dest = dest->ActTarg(ACT_SPECIAL_HOME);
+        if (dest->ActTarg(act_t::SPECIAL_HOME)) {
+          dest = dest->ActTarg(act_t::SPECIAL_HOME);
         }
         Travel(dest);
         SetSkill(crc32c("Hidden"), 65535);
@@ -812,24 +812,24 @@ Object::Object(const Object& o) {
   for (auto ind : o.contents) {
     Object* nobj = new Object(*ind);
     nobj->SetParent(this);
-    if (o.ActTarg(ACT_HOLD) == ind)
-      AddAct(ACT_HOLD, nobj);
-    if (o.ActTarg(ACT_WIELD) == ind)
-      AddAct(ACT_WIELD, nobj);
-    for (act_t actt = ACT_WEAR_BACK; actt < ACT_MAX; actt = act_t(int(actt) + 1))
+    if (o.ActTarg(act_t::HOLD) == ind)
+      AddAct(act_t::HOLD, nobj);
+    if (o.ActTarg(act_t::WIELD) == ind)
+      AddAct(act_t::WIELD, nobj);
+    for (act_t actt = act_t::WEAR_BACK; actt < act_t::MAX; actt = act_t(int(actt) + 1))
       if (o.ActTarg(actt) == ind)
         AddAct(actt, nobj);
   }
-  if (o.IsAct(ACT_DEAD))
-    AddAct(ACT_DEAD);
-  if (o.IsAct(ACT_DYING))
-    AddAct(ACT_DYING);
-  if (o.IsAct(ACT_UNCONSCIOUS))
-    AddAct(ACT_UNCONSCIOUS);
-  if (o.IsAct(ACT_SLEEP))
-    AddAct(ACT_SLEEP);
-  if (o.IsAct(ACT_REST))
-    AddAct(ACT_REST);
+  if (o.IsAct(act_t::DEAD))
+    AddAct(act_t::DEAD);
+  if (o.IsAct(act_t::DYING))
+    AddAct(act_t::DYING);
+  if (o.IsAct(act_t::UNCONSCIOUS))
+    AddAct(act_t::UNCONSCIOUS);
+  if (o.IsAct(act_t::SLEEP))
+    AddAct(act_t::SLEEP);
+  if (o.IsAct(act_t::REST))
+    AddAct(act_t::REST);
 
   parent = nullptr;
 
@@ -1091,7 +1091,7 @@ static char buf[65536];
 
 void Object::SendActions(Mind* m) {
   for (auto cur : act) {
-    if (cur.act() < ACT_WEAR_BACK) {
+    if (cur.act() < act_t::WEAR_BACK) {
       std::string targ;
       std::string dirn = "";
       std::string dirp = "";
@@ -1111,7 +1111,11 @@ void Object::SendActions(Mind* m) {
       //	  }
       //	}
       m->Send(", ");
-      m->SendF(act_str[cur.act()].c_str(), targ.c_str(), dirn.c_str(), dirp.c_str());
+      m->SendF(
+          act_str[static_cast<uint8_t>(cur.act())].c_str(),
+          targ.c_str(),
+          dirn.c_str(),
+          dirp.c_str());
     }
   }
   if (HasSkill(crc32c("Invisible"))) {
@@ -1145,57 +1149,57 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
         && cur.obj() && cur.obj()->Skill(crc32c("Invisible")) > 0) {
       continue; // Don't show invisible equip
     }
-    if (cur.act() == ACT_HOLD)
+    if (cur.act() == act_t::HOLD)
       m->SendF("%24s", "Held: ");
-    else if (cur.act() == ACT_WIELD)
+    else if (cur.act() == act_t::WIELD)
       m->SendF("%24s", "Wielded: ");
-    else if (cur.act() == ACT_WEAR_BACK)
+    else if (cur.act() == act_t::WEAR_BACK)
       m->SendF("%24s", "Worn on back: ");
-    else if (cur.act() == ACT_WEAR_CHEST)
+    else if (cur.act() == act_t::WEAR_CHEST)
       m->SendF("%24s", "Worn on chest: ");
-    else if (cur.act() == ACT_WEAR_HEAD)
+    else if (cur.act() == act_t::WEAR_HEAD)
       m->SendF("%24s", "Worn on head: ");
-    else if (cur.act() == ACT_WEAR_FACE)
+    else if (cur.act() == act_t::WEAR_FACE)
       m->SendF("%24s", "Worn on face: ");
-    else if (cur.act() == ACT_WEAR_NECK)
+    else if (cur.act() == act_t::WEAR_NECK)
       m->SendF("%24s", "Worn on neck: ");
-    else if (cur.act() == ACT_WEAR_COLLAR)
+    else if (cur.act() == act_t::WEAR_COLLAR)
       m->SendF("%24s", "Worn on collar: ");
-    else if (cur.act() == ACT_WEAR_WAIST)
+    else if (cur.act() == act_t::WEAR_WAIST)
       m->SendF("%24s", "Worn on waist: ");
-    else if (cur.act() == ACT_WEAR_SHIELD)
+    else if (cur.act() == act_t::WEAR_SHIELD)
       m->SendF("%24s", "Worn as shield: ");
-    else if (cur.act() == ACT_WEAR_LARM)
+    else if (cur.act() == act_t::WEAR_LARM)
       m->SendF("%24s", "Worn on left arm: ");
-    else if (cur.act() == ACT_WEAR_RARM)
+    else if (cur.act() == act_t::WEAR_RARM)
       m->SendF("%24s", "Worn on right arm: ");
-    else if (cur.act() == ACT_WEAR_LFINGER)
+    else if (cur.act() == act_t::WEAR_LFINGER)
       m->SendF("%24s", "Worn on left finger: ");
-    else if (cur.act() == ACT_WEAR_RFINGER)
+    else if (cur.act() == act_t::WEAR_RFINGER)
       m->SendF("%24s", "Worn on right finger: ");
-    else if (cur.act() == ACT_WEAR_LFOOT)
+    else if (cur.act() == act_t::WEAR_LFOOT)
       m->SendF("%24s", "Worn on left foot: ");
-    else if (cur.act() == ACT_WEAR_RFOOT)
+    else if (cur.act() == act_t::WEAR_RFOOT)
       m->SendF("%24s", "Worn on right foot: ");
-    else if (cur.act() == ACT_WEAR_LHAND)
+    else if (cur.act() == act_t::WEAR_LHAND)
       m->SendF("%24s", "Worn on left hand: ");
-    else if (cur.act() == ACT_WEAR_RHAND)
+    else if (cur.act() == act_t::WEAR_RHAND)
       m->SendF("%24s", "Worn on right hand: ");
-    else if (cur.act() == ACT_WEAR_LLEG)
+    else if (cur.act() == act_t::WEAR_LLEG)
       m->SendF("%24s", "Worn on left leg: ");
-    else if (cur.act() == ACT_WEAR_RLEG)
+    else if (cur.act() == act_t::WEAR_RLEG)
       m->SendF("%24s", "Worn on right leg: ");
-    else if (cur.act() == ACT_WEAR_LWRIST)
+    else if (cur.act() == act_t::WEAR_LWRIST)
       m->SendF("%24s", "Worn on left wrist: ");
-    else if (cur.act() == ACT_WEAR_RWRIST)
+    else if (cur.act() == act_t::WEAR_RWRIST)
       m->SendF("%24s", "Worn on right wrist: ");
-    else if (cur.act() == ACT_WEAR_LSHOULDER)
+    else if (cur.act() == act_t::WEAR_LSHOULDER)
       m->SendF("%24s", "Worn on left shoulder: ");
-    else if (cur.act() == ACT_WEAR_RSHOULDER)
+    else if (cur.act() == act_t::WEAR_RSHOULDER)
       m->SendF("%24s", "Worn on right shoulder: ");
-    else if (cur.act() == ACT_WEAR_LHIP)
+    else if (cur.act() == act_t::WEAR_LHIP)
       m->SendF("%24s", "Worn on left hip: ");
-    else if (cur.act() == ACT_WEAR_RHIP)
+    else if (cur.act() == act_t::WEAR_RHIP)
       m->SendF("%24s", "Worn on right hip: ");
     else
       continue;
@@ -1253,7 +1257,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
   std::set<Object*> master;
   master.insert(cont.begin(), cont.end());
 
-  for (act_t actt = ACT_HOLD; actt < ACT_MAX; actt = act_t(int(actt) + 1)) {
+  for (act_t actt = act_t::HOLD; actt < act_t::MAX; actt = act_t(int(actt) + 1)) {
     master.erase(ActTarg(actt)); // Don't show worn/wielded stuff.
   }
 
@@ -1282,8 +1286,8 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
         continue; // Can feel, but can't see
       }
 
-      if (ind->IsAct(ACT_SPECIAL_LINKED)) {
-        if (ind->ActTarg(ACT_SPECIAL_LINKED) && ind->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
+      if (ind->IsAct(act_t::SPECIAL_LINKED)) {
+        if (ind->ActTarg(act_t::SPECIAL_LINKED) && ind->ActTarg(act_t::SPECIAL_LINKED)->Parent()) {
           if (base != "")
             m->SendF("%s%sInside: ", base.c_str(), CNRM);
           m->Send(CCYN);
@@ -1294,7 +1298,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
             if (ind->Skill(crc32c("Closeable")))
               send += ", through an open door,";
             send += " you see ";
-            send += ind->ActTarg(ACT_SPECIAL_LINKED)->Parent()->ShortDesc();
+            send += ind->ActTarg(act_t::SPECIAL_LINKED)->Parent()->ShortDesc();
             send += ".\n";
           }
           send[0] = ascii_toupper(send[0]);
@@ -1397,82 +1401,82 @@ void Object::SendFullSituation(Mind* m, Object* o) {
   if (!parent)
     sprintf(buf, "%s is here%c", Name().c_str(), 0);
 
-  else if (parent->ActTarg(ACT_HOLD) == this)
+  else if (parent->ActTarg(act_t::HOLD) == this)
     sprintf(buf, "%s is here in %s off-hand%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WIELD) == this)
+  else if (parent->ActTarg(act_t::WIELD) == this)
     sprintf(buf, "%s is here in %s hand%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_BACK) == this)
+  else if (parent->ActTarg(act_t::WEAR_BACK) == this)
     sprintf(buf, "%s is here on %s back%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_CHEST) == this)
+  else if (parent->ActTarg(act_t::WEAR_CHEST) == this)
     sprintf(buf, "%s is here on %s chest%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_HEAD) == this)
+  else if (parent->ActTarg(act_t::WEAR_HEAD) == this)
     sprintf(buf, "%s is here on %s head%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_FACE) == this)
+  else if (parent->ActTarg(act_t::WEAR_FACE) == this)
     sprintf(buf, "%s is here on %s face%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_NECK) == this)
+  else if (parent->ActTarg(act_t::WEAR_NECK) == this)
     sprintf(buf, "%s is here around %s neck%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_COLLAR) == this)
+  else if (parent->ActTarg(act_t::WEAR_COLLAR) == this)
     sprintf(buf, "%s is here on %s neck%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_WAIST) == this)
+  else if (parent->ActTarg(act_t::WEAR_WAIST) == this)
     sprintf(buf, "%s is here around %s waist%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_SHIELD) == this)
+  else if (parent->ActTarg(act_t::WEAR_SHIELD) == this)
     sprintf(buf, "%s is here on %s shield-arm%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_LARM) == this)
+  else if (parent->ActTarg(act_t::WEAR_LARM) == this)
     sprintf(buf, "%s is here on %s left arm%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_RARM) == this)
+  else if (parent->ActTarg(act_t::WEAR_RARM) == this)
     sprintf(buf, "%s is here on %s right arm%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_LFINGER) == this)
+  else if (parent->ActTarg(act_t::WEAR_LFINGER) == this)
     sprintf(buf, "%s is here on %s left finger%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_RFINGER) == this)
+  else if (parent->ActTarg(act_t::WEAR_RFINGER) == this)
     sprintf(buf, "%s is here on %s right finger%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_LFOOT) == this)
+  else if (parent->ActTarg(act_t::WEAR_LFOOT) == this)
     sprintf(buf, "%s is here on %s left foot%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_RFOOT) == this)
+  else if (parent->ActTarg(act_t::WEAR_RFOOT) == this)
     sprintf(buf, "%s is here on %s right foot%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_LHAND) == this)
+  else if (parent->ActTarg(act_t::WEAR_LHAND) == this)
     sprintf(buf, "%s is here on %s left hand%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_RHAND) == this)
+  else if (parent->ActTarg(act_t::WEAR_RHAND) == this)
     sprintf(buf, "%s is here on %s right hand%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_LLEG) == this)
+  else if (parent->ActTarg(act_t::WEAR_LLEG) == this)
     sprintf(buf, "%s is here on %s left leg%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_RLEG) == this)
+  else if (parent->ActTarg(act_t::WEAR_RLEG) == this)
     sprintf(buf, "%s is here on %s right leg%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_LWRIST) == this)
+  else if (parent->ActTarg(act_t::WEAR_LWRIST) == this)
     sprintf(buf, "%s is here on %s left wrist%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_RWRIST) == this)
+  else if (parent->ActTarg(act_t::WEAR_RWRIST) == this)
     sprintf(buf, "%s is here on %s right wrist%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_LSHOULDER) == this)
+  else if (parent->ActTarg(act_t::WEAR_LSHOULDER) == this)
     sprintf(buf, "%s is here on %s left shoulder%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_RSHOULDER) == this)
+  else if (parent->ActTarg(act_t::WEAR_RSHOULDER) == this)
     sprintf(buf, "%s is here on %s right shoulder%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_LHIP) == this)
+  else if (parent->ActTarg(act_t::WEAR_LHIP) == this)
     sprintf(buf, "%s is here on %s left hip%c", Name().c_str(), pname.c_str(), 0);
 
-  else if (parent->ActTarg(ACT_WEAR_RHIP) == this)
+  else if (parent->ActTarg(act_t::WEAR_RHIP) == this)
     sprintf(buf, "%s is here on %s right hip%c", Name().c_str(), pname.c_str(), 0);
 
   else {
@@ -1672,11 +1676,14 @@ void Object::SendScore(Mind* m, Object* o) {
     m->Send("\n");
   }
 
-  for (act_t actt = ACT_MAX; actt < ACT_SPECIAL_MAX; actt = act_t(int(actt) + 1)) {
+  for (act_t actt = act_t::MAX; actt < act_t::SPECIAL_MAX; actt = act_t(int(actt) + 1)) {
     if (ActTarg(actt)) {
-      m->SendF(CGRN "  %s -> %s\n" CNRM, act_str[actt].c_str(), ActTarg(actt)->Name().c_str());
+      m->SendF(
+          CGRN "  %s -> %s\n" CNRM,
+          act_str[static_cast<uint8_t>(actt)].c_str(),
+          ActTarg(actt)->Name().c_str());
     } else if (IsAct(actt)) {
-      m->SendF(CGRN "  %s\n" CNRM, act_str[actt].c_str());
+      m->SendF(CGRN "  %s\n" CNRM, act_str[static_cast<uint8_t>(actt)].c_str());
     }
   }
 
@@ -2056,12 +2063,12 @@ void Object::Link(
   door2->SetShortDesc(oname.c_str());
   door1->SetDesc(dsc.c_str());
   door2->SetDesc(odsc.c_str());
-  door1->AddAct(ACT_SPECIAL_LINKED, door2);
-  door1->AddAct(ACT_SPECIAL_MASTER, door2);
+  door1->AddAct(act_t::SPECIAL_LINKED, door2);
+  door1->AddAct(act_t::SPECIAL_MASTER, door2);
   door1->SetSkill(crc32c("Open"), 1000);
   door1->SetSkill(crc32c("Enterable"), 1);
-  door2->AddAct(ACT_SPECIAL_LINKED, door1);
-  door2->AddAct(ACT_SPECIAL_MASTER, door1);
+  door2->AddAct(act_t::SPECIAL_LINKED, door1);
+  door2->AddAct(act_t::SPECIAL_MASTER, door1);
   door2->SetSkill(crc32c("Open"), 1000);
   door2->SetSkill(crc32c("Enterable"), 1);
 }
@@ -2078,13 +2085,13 @@ void Object::LinkClosed(
   door2->SetShortDesc(oname.c_str());
   door1->SetDesc(dsc.c_str());
   door2->SetDesc(odsc.c_str());
-  door1->AddAct(ACT_SPECIAL_LINKED, door2);
-  door1->AddAct(ACT_SPECIAL_MASTER, door2);
+  door1->AddAct(act_t::SPECIAL_LINKED, door2);
+  door1->AddAct(act_t::SPECIAL_MASTER, door2);
   door1->SetSkill(crc32c("Closeable"), 1);
   door1->SetSkill(crc32c("Enterable"), 1);
   door1->SetSkill(crc32c("Transparent"), 1000);
-  door2->AddAct(ACT_SPECIAL_LINKED, door1);
-  door2->AddAct(ACT_SPECIAL_MASTER, door1);
+  door2->AddAct(act_t::SPECIAL_LINKED, door1);
+  door2->AddAct(act_t::SPECIAL_MASTER, door1);
   door2->SetSkill(crc32c("Closeable"), 1);
   door2->SetSkill(crc32c("Enterable"), 1);
   door2->SetSkill(crc32c("Transparent"), 1000);
@@ -2163,9 +2170,9 @@ int Object::Travel(Object* dest, int try_combine) {
     const std::string dirs[6] = {"north", "south", "east", "west", "up", "down"};
     for (int dnum = 0; dnum < 6 && dir[0] == 0; ++dnum) {
       Object* door = parent->PickObject(dirs[dnum], LOC_INTERNAL);
-      if (door && door->ActTarg(ACT_SPECIAL_LINKED) &&
-          door->ActTarg(ACT_SPECIAL_LINKED)->Parent() &&
-          door->ActTarg(ACT_SPECIAL_LINKED)->Parent() == dest) {
+      if (door && door->ActTarg(act_t::SPECIAL_LINKED) &&
+          door->ActTarg(act_t::SPECIAL_LINKED)->Parent() &&
+          door->ActTarg(act_t::SPECIAL_LINKED)->Parent() == dest) {
         dir = dirs[dnum];
         rdir = dirs[dnum ^ 1]; // Opposite Dir
       }
@@ -2204,11 +2211,11 @@ int Object::Travel(Object* dest, int try_combine) {
   if (try_combine)
     TryCombine();
 
-  StopAct(ACT_POINT);
-  StopAct(ACT_FOLLOW);
-  if (IsAct(ACT_HOLD) && ActTarg(ACT_HOLD)->Parent() != this) { // Dragging
-    if (ActTarg(ACT_HOLD)->Parent() != Parent()) { // Didn't come with me!
-      StopAct(ACT_HOLD);
+  StopAct(act_t::POINT);
+  StopAct(act_t::FOLLOW);
+  if (IsAct(act_t::HOLD) && ActTarg(act_t::HOLD)->Parent() != this) { // Dragging
+    if (ActTarg(act_t::HOLD)->Parent() != Parent()) { // Didn't come with me!
+      StopAct(act_t::HOLD);
     }
   }
   SetSkill(crc32c("Hidden"), 0);
@@ -2298,11 +2305,11 @@ void Object::Recycle(int inbin) {
     }
     indm->contents.clear();
     Object* dest = indm;
-    while ((!dest->ActTarg(ACT_SPECIAL_HOME)) && dest->Parent()) {
+    while ((!dest->ActTarg(act_t::SPECIAL_HOME)) && dest->Parent()) {
       dest = dest->Parent();
     }
-    if (dest->ActTarg(ACT_SPECIAL_HOME)) {
-      dest = dest->ActTarg(ACT_SPECIAL_HOME);
+    if (dest->ActTarg(act_t::SPECIAL_HOME)) {
+      dest = dest->ActTarg(act_t::SPECIAL_HOME);
     }
     if (dest == parent)
       dest = universe; // Already there, bail!
@@ -2329,27 +2336,27 @@ void Object::Recycle(int inbin) {
 
   // Actions over long distances must be notified!
   std::set<Object*> tonotify;
-  if (ActTarg(ACT_SPECIAL_MASTER))
-    tonotify.insert(ActTarg(ACT_SPECIAL_MASTER));
-  if (ActTarg(ACT_SPECIAL_MONITOR))
-    tonotify.insert(ActTarg(ACT_SPECIAL_MONITOR));
-  if (ActTarg(ACT_SPECIAL_LINKED))
-    tonotify.insert(ActTarg(ACT_SPECIAL_LINKED));
+  if (ActTarg(act_t::SPECIAL_MASTER))
+    tonotify.insert(ActTarg(act_t::SPECIAL_MASTER));
+  if (ActTarg(act_t::SPECIAL_MONITOR))
+    tonotify.insert(ActTarg(act_t::SPECIAL_MONITOR));
+  if (ActTarg(act_t::SPECIAL_LINKED))
+    tonotify.insert(ActTarg(act_t::SPECIAL_LINKED));
 
   auto touches = Touching();
   for (auto touch : touches) {
     tonotify.insert(touch);
   }
 
-  StopAct(ACT_SPECIAL_MASTER);
-  StopAct(ACT_SPECIAL_MONITOR);
-  StopAct(ACT_SPECIAL_LINKED);
+  StopAct(act_t::SPECIAL_MASTER);
+  StopAct(act_t::SPECIAL_MONITOR);
+  StopAct(act_t::SPECIAL_LINKED);
 
   for (auto noti : tonotify) {
     int del = 0;
-    if (noti->ActTarg(ACT_SPECIAL_MASTER) == this)
+    if (noti->ActTarg(act_t::SPECIAL_MASTER) == this)
       del = 1;
-    else if (noti->ActTarg(ACT_SPECIAL_LINKED) == this)
+    else if (noti->ActTarg(act_t::SPECIAL_LINKED) == this)
       del = 1;
     noti->NotifyLeft(this);
     if (del)
@@ -2675,8 +2682,8 @@ MinVec<1, Object*> Object::PickObjects(std::string name, int loc, int* ordinal) 
       if (ind != cont.end()) { // IE: Is action.obj() within cont
         cont.erase(ind);
         if (action.obj()->Filter(loc) && action.obj()->Matches(name) &&
-            ((loc & LOC_NOTWORN) == 0 || action.act() <= ACT_HOLD) &&
-            ((loc & LOC_NOTUNWORN) == 0 || action.act() >= ACT_HOLD)) {
+            ((loc & LOC_NOTWORN) == 0 || action.act() <= act_t::HOLD) &&
+            ((loc & LOC_NOTUNWORN) == 0 || action.act() >= act_t::HOLD)) {
           if (tag(action.obj(), ret, ordinal, (Parent() == nullptr) | (loc & LOC_SPECIAL))) {
             return ret;
           }
@@ -2768,17 +2775,17 @@ void Object::NotifyLeft(Object* obj, Object* newloc) {
   std::set<act_t> stops, stops2;
   int following = 0;
   for (auto curact : act) {
-    if (curact.obj() && curact.act() < ACT_MAX &&
+    if (curact.obj() && curact.act() < act_t::MAX &&
         (curact.obj() == obj || obj->HasWithin(curact.obj()))) {
-      if (curact.act() != ACT_FOLLOW || (!newloc)) {
+      if (curact.act() != act_t::FOLLOW || (!newloc)) {
         stops.insert(curact.act());
       } else if (parent != newloc) { // Do nothing if we didn't leave!
         following = 1; // Run Follow Response AFTER loop!
       }
     }
-    if (curact.act() >= ACT_MAX && (!newloc) && curact.obj() == obj) {
+    if (curact.act() >= act_t::MAX && (!newloc) && curact.obj() == obj) {
       for (auto curact2 : obj->act) {
-        if (curact2.act() >= ACT_MAX) {
+        if (curact2.act() >= act_t::MAX) {
           if (curact2.obj() == this) {
             stops2.insert(curact2.act());
           }
@@ -2797,7 +2804,7 @@ void Object::NotifyLeft(Object* obj, Object* newloc) {
     parent->SendOut(stealth_t, stealth_s, ";s follows ;s.\n", "You follow ;s.\n", this, obj);
     Travel(newloc);
     parent->SendOut(stealth_t, stealth_s, ";s follows ;s.\n", "", this, obj);
-    AddAct(ACT_FOLLOW, obj); // Needed since Travel Kills Follow Act
+    AddAct(act_t::FOLLOW, obj); // Needed since Travel Kills Follow Act
     if (stealth_t > 0) {
       SetSkill(crc32c("Hidden"), Roll(crc32c("Stealth"), 2) * 2);
     }
@@ -2810,7 +2817,7 @@ void Object::NotifyLeft(Object* obj, Object* newloc) {
     obj->StopAct(stop);
   }
 
-  if (obj->ActTarg(ACT_HOLD) == this) { // Dragging
+  if (obj->ActTarg(act_t::HOLD) == this) { // Dragging
     if (parent != newloc) { // Actually went somewhere
       parent->SendOut(ALL, -1, ";s drags ;s along.\n", "You drag ;s along with you.\n", obj, this);
       Travel(newloc, 0);
@@ -2861,9 +2868,9 @@ void Object::StopAct(act_t a) {
   if (itr != act.end()) {
     Object* obj = itr->obj();
     act.erase(itr);
-    if (a == ACT_HOLD && IsAct(ACT_OFFER)) {
+    if (a == act_t::HOLD && IsAct(act_t::OFFER)) {
       // obj->SendOut(0, 0, ";s stops offering.\n", "", obj, nullptr);
-      StopAct(ACT_OFFER);
+      StopAct(act_t::OFFER);
     }
     if (obj) {
       for (auto opt : act) {
@@ -2884,20 +2891,20 @@ void Object::StopAll() {
 }
 
 void Object::Collapse() {
-  StopAct(ACT_DEAD);
-  StopAct(ACT_DYING);
-  StopAct(ACT_UNCONSCIOUS);
-  StopAct(ACT_SLEEP);
-  StopAct(ACT_REST);
-  StopAct(ACT_FOLLOW);
-  StopAct(ACT_POINT);
-  StopAct(ACT_FIGHT);
+  StopAct(act_t::DEAD);
+  StopAct(act_t::DYING);
+  StopAct(act_t::UNCONSCIOUS);
+  StopAct(act_t::SLEEP);
+  StopAct(act_t::REST);
+  StopAct(act_t::FOLLOW);
+  StopAct(act_t::POINT);
+  StopAct(act_t::FIGHT);
   if (parent) {
     if (pos != pos_t::LIE) {
       parent->SendOut(ALL, -1, ";s collapses!\n", "You collapse!\n", this, nullptr);
       pos = pos_t::LIE;
     }
-    if (ActTarg(ACT_WIELD)) {
+    if (ActTarg(act_t::WIELD)) {
       parent->SendOutF(
           ALL,
           -1,
@@ -2905,10 +2912,10 @@ void Object::Collapse() {
           "You drop %s!\n",
           this,
           nullptr,
-          ActTarg(ACT_WIELD)->ShortDescC());
-      ActTarg(ACT_WIELD)->Travel(parent);
+          ActTarg(act_t::WIELD)->ShortDescC());
+      ActTarg(act_t::WIELD)->Travel(parent);
     }
-    if (ActTarg(ACT_HOLD) && ActTarg(ACT_HOLD) != ActTarg(ACT_WEAR_SHIELD)) {
+    if (ActTarg(act_t::HOLD) && ActTarg(act_t::HOLD) != ActTarg(act_t::WEAR_SHIELD)) {
       parent->SendOutF(
           ALL,
           -1,
@@ -2916,9 +2923,9 @@ void Object::Collapse() {
           "You drop %s!\n",
           this,
           nullptr,
-          ActTarg(ACT_HOLD)->ShortDescC());
-      ActTarg(ACT_HOLD)->Travel(parent);
-    } else if (ActTarg(ACT_HOLD)) {
+          ActTarg(act_t::HOLD)->ShortDescC());
+      ActTarg(act_t::HOLD)->Travel(parent);
+    } else if (ActTarg(act_t::HOLD)) {
       parent->SendOutF(
           ALL,
           -1,
@@ -2926,8 +2933,8 @@ void Object::Collapse() {
           "You stop holding %s!\n",
           this,
           nullptr,
-          ActTarg(ACT_HOLD)->ShortDescC());
-      StopAct(ACT_HOLD);
+          ActTarg(act_t::HOLD)->ShortDescC());
+      StopAct(act_t::HOLD);
     }
   }
 }
@@ -2946,12 +2953,12 @@ void Object::UpdateDamage() {
   if (phys > 10 + ModAttribute(2)) {
     phys = 10 + ModAttribute(2) + 1;
 
-    if (IsAct(ACT_DEAD) == 0) {
+    if (IsAct(act_t::DEAD) == 0) {
       parent->SendOut(
           ALL, -1, ";s expires from its wounds.\n", "You expire, sorry.\n", this, nullptr);
       stun = 10;
       Collapse();
-      AddAct(ACT_DEAD);
+      AddAct(act_t::DEAD);
       std::set<Mind*> removals;
       std::set<Mind*>::iterator mind;
       for (auto mnd : minds) {
@@ -2964,7 +2971,7 @@ void Object::UpdateDamage() {
     }
     SetPos(pos_t::LIE);
   } else if (phys >= 10) {
-    if (IsAct(ACT_DYING) + IsAct(ACT_DEAD) == 0) {
+    if (IsAct(act_t::DYING) + IsAct(act_t::DEAD) == 0) {
       parent->SendOut(
           ALL,
           -1,
@@ -2974,20 +2981,20 @@ void Object::UpdateDamage() {
           nullptr);
       stun = 10;
       Collapse();
-      AddAct(ACT_DYING);
-    } else if (IsAct(ACT_DEAD) == 0) {
+      AddAct(act_t::DYING);
+    } else if (IsAct(act_t::DEAD) == 0) {
       parent->SendOut(
           ALL, -1, ";s isn't quite dead yet!\n", "You aren't quite dead yet!\n", this, nullptr);
-      StopAct(ACT_DEAD);
-      AddAct(ACT_DYING);
+      StopAct(act_t::DEAD);
+      AddAct(act_t::DYING);
     }
     SetPos(pos_t::LIE);
   } else if (stun >= 10) {
-    if (IsAct(ACT_UNCONSCIOUS) + IsAct(ACT_DYING) + IsAct(ACT_DEAD) == 0) {
+    if (IsAct(act_t::UNCONSCIOUS) + IsAct(act_t::DYING) + IsAct(act_t::DEAD) == 0) {
       parent->SendOut(ALL, -1, ";s falls unconscious!\n", "You fall unconscious!\n", this, nullptr);
       Collapse();
-      AddAct(ACT_UNCONSCIOUS);
-    } else if (IsAct(ACT_DEAD) + IsAct(ACT_DYING) != 0) {
+      AddAct(act_t::UNCONSCIOUS);
+    } else if (IsAct(act_t::DEAD) + IsAct(act_t::DYING) != 0) {
       parent->SendOut(
           ALL,
           -1,
@@ -2995,13 +3002,13 @@ void Object::UpdateDamage() {
           "You aren't dead, just unconscious.",
           this,
           nullptr);
-      StopAct(ACT_DEAD);
-      StopAct(ACT_DYING);
-      AddAct(ACT_UNCONSCIOUS);
+      StopAct(act_t::DEAD);
+      StopAct(act_t::DYING);
+      AddAct(act_t::UNCONSCIOUS);
     }
     SetPos(pos_t::LIE);
   } else if (stun > 0) {
-    if (IsAct(ACT_DEAD) + IsAct(ACT_DYING) + IsAct(ACT_UNCONSCIOUS) != 0) {
+    if (IsAct(act_t::DEAD) + IsAct(act_t::DYING) + IsAct(act_t::UNCONSCIOUS) != 0) {
       parent->SendOut(
           ALL,
           -1,
@@ -3009,17 +3016,17 @@ void Object::UpdateDamage() {
           "You wake up, a little groggy.",
           this,
           nullptr);
-      StopAct(ACT_DEAD);
-      StopAct(ACT_DYING);
-      StopAct(ACT_UNCONSCIOUS);
+      StopAct(act_t::DEAD);
+      StopAct(act_t::DYING);
+      StopAct(act_t::UNCONSCIOUS);
     }
   } else {
-    if (IsAct(ACT_DEAD) + IsAct(ACT_DYING) + IsAct(ACT_UNCONSCIOUS) != 0) {
+    if (IsAct(act_t::DEAD) + IsAct(act_t::DYING) + IsAct(act_t::UNCONSCIOUS) != 0) {
       parent->SendOut(
           ALL, -1, ";s wakes up, feeling fine!\n", "You wake up, feeling fine!\n", this, nullptr);
-      StopAct(ACT_DEAD);
-      StopAct(ACT_DYING);
-      StopAct(ACT_UNCONSCIOUS);
+      StopAct(act_t::DEAD);
+      StopAct(act_t::DYING);
+      StopAct(act_t::UNCONSCIOUS);
     }
   }
 }
@@ -3469,8 +3476,9 @@ void Object::Loud(std::set<Object*>& visited, int str, const std::string& mes) {
         --str;
       }
       if (str >= 0) {
-        if (dest->ActTarg(ACT_SPECIAL_LINKED) && dest->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
-          dest = dest->ActTarg(ACT_SPECIAL_LINKED);
+        if (dest->ActTarg(act_t::SPECIAL_LINKED) &&
+            dest->ActTarg(act_t::SPECIAL_LINKED)->Parent()) {
+          dest = dest->ActTarg(act_t::SPECIAL_LINKED);
           if (visited.count(dest->Parent()) < 1) {
             dest->Parent()->SendOutF(ALL, 0, "From ;s you hear %s\n", "", dest, dest, mes.c_str());
             dest->Parent()->Loud(visited, str, mes.c_str());
@@ -3679,7 +3687,7 @@ void Object::FreeActions() {
       // Make sure it's still in busylist
       // (hasn't been deleted by another's BusyAct)!
       if (init.second == phase && busylist.count(init.first)) {
-        //	if(init.first->IsAct(ACT_FIGHT))
+        //	if(init.first->IsAct(act_t::FIGHT))
         //	  fprintf(stderr, "Going at %d (%s)\n", phase,
         // init.first->Name().c_str());
         init.first->BusyAct();
@@ -3687,7 +3695,7 @@ void Object::FreeActions() {
     }
   }
   for (auto init : initlist) {
-    if (init.first->IsAct(ACT_FIGHT)) { // Still in combat!
+    if (init.first->IsAct(act_t::FIGHT)) { // Still in combat!
       if (!init.first->StillBusy()) { // Make Sure!
         std::string ret = init.first->Tactics();
         init.first->BusyFor(3000, ret.c_str());
@@ -3697,7 +3705,7 @@ void Object::FreeActions() {
       for (auto trig : init.first->contents) {
         if ((trig->Skill(crc32c("TBAScriptType")) & 0x1000400) == 0x1000400) {
           if ((rand() % 100) < trig->Skill(crc32c("TBAScriptNArg"))) { // % Chance
-            new_trigger(0, trig, init.first->ActTarg(ACT_FIGHT));
+            new_trigger(0, trig, init.first->ActTarg(act_t::FIGHT));
           }
         }
       }
@@ -3973,11 +3981,11 @@ void Object::SetPos(pos_t p) {
 
 int Object::Filter(int loc) {
   if (loc & (LOC_ALIVE | LOC_CONSCIOUS)) {
-    if (!IsAnimate() || IsAct(ACT_DEAD))
+    if (!IsAnimate() || IsAct(act_t::DEAD))
       return 0;
   }
   if (loc & LOC_CONSCIOUS) {
-    if (IsAct(ACT_DYING) || IsAct(ACT_UNCONSCIOUS))
+    if (IsAct(act_t::DYING) || IsAct(act_t::UNCONSCIOUS))
       return 0;
   }
   return 1;
@@ -4007,7 +4015,7 @@ int Object::LooksLike(Object* other, int vmode) {
     }
   }
 
-  for (act_t actt = ACT_NONE; actt < ACT_WIELD;) { // Off-By-One!
+  for (act_t actt = act_t::NONE; actt < act_t::WIELD;) { // Off-By-One!
     actt = act_t(int(actt) + 1); // Increments First!
     if (IsAct(actt) != other->IsAct(actt))
       return 0;
@@ -4095,11 +4103,11 @@ void Object::Consume(const Object* item) {
           0, 0, "BAMF! ;s teleports away.\n", "BAMF! You teleport home.\n", this, nullptr);
     }
     Object* dest = this;
-    while ((!dest->ActTarg(ACT_SPECIAL_HOME)) && dest->Parent()) {
+    while ((!dest->ActTarg(act_t::SPECIAL_HOME)) && dest->Parent()) {
       dest = dest->Parent();
     }
-    if (dest->ActTarg(ACT_SPECIAL_HOME)) {
-      dest = dest->ActTarg(ACT_SPECIAL_HOME);
+    if (dest->ActTarg(act_t::SPECIAL_HOME)) {
+      dest = dest->ActTarg(act_t::SPECIAL_HOME);
     }
     Travel(dest, 0);
     if (parent) {
@@ -4276,7 +4284,7 @@ int Object::Power(uint32_t ptok) const {
   int ret = 0;
   ret = Skill(ptok);
   for (auto item : contents) {
-    if (ActTarg(ACT_WIELD) == item || Wearing(item) || item->Skill(crc32c("Magical Spell"))) {
+    if (ActTarg(act_t::WIELD) == item || Wearing(item) || item->Skill(crc32c("Magical Spell"))) {
       int val = item->Skill(ptok);
       if (val > ret)
         ret = val;
@@ -4286,7 +4294,7 @@ int Object::Power(uint32_t ptok) const {
 }
 
 int Object::Wearing(const Object* obj) const {
-  for (act_t actt = ACT_HOLD; actt < ACT_MAX; actt = act_t(actt + 1)) {
+  for (act_t actt = act_t::HOLD; actt < act_t::MAX; ++actt) {
     if (ActTarg(actt) == obj)
       return 1;
   }
@@ -4312,53 +4320,53 @@ int Object::WearMask() const {
 std::set<act_t> Object::WearSlots(int m) const {
   std::set<act_t> locs;
   if (Skill(crc32c("Wearable on Back")) & m)
-    locs.insert(ACT_WEAR_BACK);
+    locs.insert(act_t::WEAR_BACK);
   if (Skill(crc32c("Wearable on Chest")) & m)
-    locs.insert(ACT_WEAR_CHEST);
+    locs.insert(act_t::WEAR_CHEST);
   if (Skill(crc32c("Wearable on Head")) & m)
-    locs.insert(ACT_WEAR_HEAD);
+    locs.insert(act_t::WEAR_HEAD);
   if (Skill(crc32c("Wearable on Face")) & m)
-    locs.insert(ACT_WEAR_FACE);
+    locs.insert(act_t::WEAR_FACE);
   if (Skill(crc32c("Wearable on Neck")) & m)
-    locs.insert(ACT_WEAR_NECK);
+    locs.insert(act_t::WEAR_NECK);
   if (Skill(crc32c("Wearable on Collar")) & m)
-    locs.insert(ACT_WEAR_COLLAR);
+    locs.insert(act_t::WEAR_COLLAR);
   if (Skill(crc32c("Wearable on Waist")) & m)
-    locs.insert(ACT_WEAR_WAIST);
+    locs.insert(act_t::WEAR_WAIST);
   if (Skill(crc32c("Wearable on Shield")) & m)
-    locs.insert(ACT_WEAR_SHIELD);
+    locs.insert(act_t::WEAR_SHIELD);
   if (Skill(crc32c("Wearable on Left Arm")) & m)
-    locs.insert(ACT_WEAR_LARM);
+    locs.insert(act_t::WEAR_LARM);
   if (Skill(crc32c("Wearable on Right Arm")) & m)
-    locs.insert(ACT_WEAR_RARM);
+    locs.insert(act_t::WEAR_RARM);
   if (Skill(crc32c("Wearable on Left Finger")) & m)
-    locs.insert(ACT_WEAR_LFINGER);
+    locs.insert(act_t::WEAR_LFINGER);
   if (Skill(crc32c("Wearable on Right Finger")) & m)
-    locs.insert(ACT_WEAR_RFINGER);
+    locs.insert(act_t::WEAR_RFINGER);
   if (Skill(crc32c("Wearable on Left Foot")) & m)
-    locs.insert(ACT_WEAR_LFOOT);
+    locs.insert(act_t::WEAR_LFOOT);
   if (Skill(crc32c("Wearable on Right Foot")) & m)
-    locs.insert(ACT_WEAR_RFOOT);
+    locs.insert(act_t::WEAR_RFOOT);
   if (Skill(crc32c("Wearable on Left Hand")) & m)
-    locs.insert(ACT_WEAR_LHAND);
+    locs.insert(act_t::WEAR_LHAND);
   if (Skill(crc32c("Wearable on Right Hand")) & m)
-    locs.insert(ACT_WEAR_RHAND);
+    locs.insert(act_t::WEAR_RHAND);
   if (Skill(crc32c("Wearable on Left Leg")) & m)
-    locs.insert(ACT_WEAR_LLEG);
+    locs.insert(act_t::WEAR_LLEG);
   if (Skill(crc32c("Wearable on Right Leg")) & m)
-    locs.insert(ACT_WEAR_RLEG);
+    locs.insert(act_t::WEAR_RLEG);
   if (Skill(crc32c("Wearable on Left Wrist")) & m)
-    locs.insert(ACT_WEAR_LWRIST);
+    locs.insert(act_t::WEAR_LWRIST);
   if (Skill(crc32c("Wearable on Right Wrist")) & m)
-    locs.insert(ACT_WEAR_RWRIST);
+    locs.insert(act_t::WEAR_RWRIST);
   if (Skill(crc32c("Wearable on Left Shoulder")) & m)
-    locs.insert(ACT_WEAR_LSHOULDER);
+    locs.insert(act_t::WEAR_LSHOULDER);
   if (Skill(crc32c("Wearable on Right Shoulder")) & m)
-    locs.insert(ACT_WEAR_RSHOULDER);
+    locs.insert(act_t::WEAR_RSHOULDER);
   if (Skill(crc32c("Wearable on Left Hip")) & m)
-    locs.insert(ACT_WEAR_LHIP);
+    locs.insert(act_t::WEAR_LHIP);
   if (Skill(crc32c("Wearable on Right Hip")) & m)
-    locs.insert(ACT_WEAR_RHIP);
+    locs.insert(act_t::WEAR_RHIP);
   return locs;
 }
 
@@ -4378,53 +4386,53 @@ std::string Object::WearNames(const std::set<act_t>& locs) const {
         ret += ", ";
       }
     }
-    if (*loc == ACT_WEAR_BACK)
+    if (*loc == act_t::WEAR_BACK)
       ret += "back";
-    else if (*loc == ACT_WEAR_CHEST)
+    else if (*loc == act_t::WEAR_CHEST)
       ret += "chest";
-    else if (*loc == ACT_WEAR_HEAD)
+    else if (*loc == act_t::WEAR_HEAD)
       ret += "head";
-    else if (*loc == ACT_WEAR_FACE)
+    else if (*loc == act_t::WEAR_FACE)
       ret += "face";
-    else if (*loc == ACT_WEAR_NECK)
+    else if (*loc == act_t::WEAR_NECK)
       ret += "neck";
-    else if (*loc == ACT_WEAR_COLLAR)
+    else if (*loc == act_t::WEAR_COLLAR)
       ret += "collar";
-    else if (*loc == ACT_WEAR_WAIST)
+    else if (*loc == act_t::WEAR_WAIST)
       ret += "waist";
-    else if (*loc == ACT_WEAR_SHIELD)
+    else if (*loc == act_t::WEAR_SHIELD)
       ret += "shield";
-    else if (*loc == ACT_WEAR_LARM)
+    else if (*loc == act_t::WEAR_LARM)
       ret += "left arm";
-    else if (*loc == ACT_WEAR_RARM)
+    else if (*loc == act_t::WEAR_RARM)
       ret += "right arm";
-    else if (*loc == ACT_WEAR_LFINGER)
+    else if (*loc == act_t::WEAR_LFINGER)
       ret += "left finger";
-    else if (*loc == ACT_WEAR_RFINGER)
+    else if (*loc == act_t::WEAR_RFINGER)
       ret += "right finger";
-    else if (*loc == ACT_WEAR_LFOOT)
+    else if (*loc == act_t::WEAR_LFOOT)
       ret += "left foot";
-    else if (*loc == ACT_WEAR_RFOOT)
+    else if (*loc == act_t::WEAR_RFOOT)
       ret += "right foot";
-    else if (*loc == ACT_WEAR_LHAND)
+    else if (*loc == act_t::WEAR_LHAND)
       ret += "left hand";
-    else if (*loc == ACT_WEAR_RHAND)
+    else if (*loc == act_t::WEAR_RHAND)
       ret += "right hand";
-    else if (*loc == ACT_WEAR_LLEG)
+    else if (*loc == act_t::WEAR_LLEG)
       ret += "left leg";
-    else if (*loc == ACT_WEAR_RLEG)
+    else if (*loc == act_t::WEAR_RLEG)
       ret += "right leg";
-    else if (*loc == ACT_WEAR_LWRIST)
+    else if (*loc == act_t::WEAR_LWRIST)
       ret += "left wrist";
-    else if (*loc == ACT_WEAR_RWRIST)
+    else if (*loc == act_t::WEAR_RWRIST)
       ret += "right wrist";
-    else if (*loc == ACT_WEAR_LSHOULDER)
+    else if (*loc == act_t::WEAR_LSHOULDER)
       ret += "left shoulder";
-    else if (*loc == ACT_WEAR_RSHOULDER)
+    else if (*loc == act_t::WEAR_RSHOULDER)
       ret += "right shoulder";
-    else if (*loc == ACT_WEAR_LHIP)
+    else if (*loc == act_t::WEAR_LHIP)
       ret += "left hip";
-    else if (*loc == ACT_WEAR_RHIP)
+    else if (*loc == act_t::WEAR_RHIP)
       ret += "right hip";
   }
   return ret;
@@ -4584,76 +4592,76 @@ int Object::Wear(Object* targ, unsigned long masks, int mes) {
     std::set<act_t> locations;
 
     if (targ->Skill(crc32c("Wearable on Back")) & mask)
-      locations.insert(ACT_WEAR_BACK);
+      locations.insert(act_t::WEAR_BACK);
 
     if (targ->Skill(crc32c("Wearable on Chest")) & mask)
-      locations.insert(ACT_WEAR_CHEST);
+      locations.insert(act_t::WEAR_CHEST);
 
     if (targ->Skill(crc32c("Wearable on Head")) & mask)
-      locations.insert(ACT_WEAR_HEAD);
+      locations.insert(act_t::WEAR_HEAD);
 
     if (targ->Skill(crc32c("Wearable on Face")) & mask)
-      locations.insert(ACT_WEAR_FACE);
+      locations.insert(act_t::WEAR_FACE);
 
     if (targ->Skill(crc32c("Wearable on Neck")) & mask)
-      locations.insert(ACT_WEAR_NECK);
+      locations.insert(act_t::WEAR_NECK);
 
     if (targ->Skill(crc32c("Wearable on Collar")) & mask)
-      locations.insert(ACT_WEAR_COLLAR);
+      locations.insert(act_t::WEAR_COLLAR);
 
     if (targ->Skill(crc32c("Wearable on Waist")) & mask)
-      locations.insert(ACT_WEAR_WAIST);
+      locations.insert(act_t::WEAR_WAIST);
 
     if (targ->Skill(crc32c("Wearable on Shield")) & mask)
-      locations.insert(ACT_WEAR_SHIELD);
+      locations.insert(act_t::WEAR_SHIELD);
 
     if (targ->Skill(crc32c("Wearable on Left Arm")) & mask)
-      locations.insert(ACT_WEAR_LARM);
+      locations.insert(act_t::WEAR_LARM);
 
     if (targ->Skill(crc32c("Wearable on Right Arm")) & mask)
-      locations.insert(ACT_WEAR_RARM);
+      locations.insert(act_t::WEAR_RARM);
 
     if (targ->Skill(crc32c("Wearable on Left Finger")) & mask)
-      locations.insert(ACT_WEAR_LFINGER);
+      locations.insert(act_t::WEAR_LFINGER);
 
     if (targ->Skill(crc32c("Wearable on Right Finger")) & mask)
-      locations.insert(ACT_WEAR_RFINGER);
+      locations.insert(act_t::WEAR_RFINGER);
 
     if (targ->Skill(crc32c("Wearable on Left Foot")) & mask)
-      locations.insert(ACT_WEAR_LFOOT);
+      locations.insert(act_t::WEAR_LFOOT);
 
     if (targ->Skill(crc32c("Wearable on Right Foot")) & mask)
-      locations.insert(ACT_WEAR_RFOOT);
+      locations.insert(act_t::WEAR_RFOOT);
 
     if (targ->Skill(crc32c("Wearable on Left Hand")) & mask)
-      locations.insert(ACT_WEAR_LHAND);
+      locations.insert(act_t::WEAR_LHAND);
 
     if (targ->Skill(crc32c("Wearable on Right Hand")) & mask)
-      locations.insert(ACT_WEAR_RHAND);
+      locations.insert(act_t::WEAR_RHAND);
 
     if (targ->Skill(crc32c("Wearable on Left Leg")) & mask)
-      locations.insert(ACT_WEAR_LLEG);
+      locations.insert(act_t::WEAR_LLEG);
 
     if (targ->Skill(crc32c("Wearable on Right Leg")) & mask)
-      locations.insert(ACT_WEAR_RLEG);
+      locations.insert(act_t::WEAR_RLEG);
 
     if (targ->Skill(crc32c("Wearable on Left Wrist")) & mask)
-      locations.insert(ACT_WEAR_LWRIST);
+      locations.insert(act_t::WEAR_LWRIST);
 
     if (targ->Skill(crc32c("Wearable on Right Wrist")) & mask)
-      locations.insert(ACT_WEAR_RWRIST);
+      locations.insert(act_t::WEAR_RWRIST);
 
     if (targ->Skill(crc32c("Wearable on Left Shoulder")) & mask)
-      locations.insert(ACT_WEAR_LSHOULDER);
+      locations.insert(act_t::WEAR_LSHOULDER);
 
     if (targ->Skill(crc32c("Wearable on Right Shoulder")) & mask)
-      locations.insert(ACT_WEAR_RSHOULDER);
+      locations.insert(act_t::WEAR_RSHOULDER);
 
     if (targ->Skill(crc32c("Wearable on Left Hip")) & mask)
-      locations.insert(ACT_WEAR_LHIP);
+      locations.insert(act_t::WEAR_LHIP);
 
     if (targ->Skill(crc32c("Wearable on Right Hip")) & mask)
-      locations.insert(ACT_WEAR_RHIP);
+      locations.insert(act_t::WEAR_RHIP);
 
     if (locations.size() < 1) {
       if (mask == 1) {

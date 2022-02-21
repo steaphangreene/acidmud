@@ -42,12 +42,12 @@ class ArmorType {
       int w,
       int vol,
       int val,
-      act_t l1 = ACT_NONE,
-      act_t l2 = ACT_NONE,
-      act_t l3 = ACT_NONE,
-      act_t l4 = ACT_NONE,
-      act_t l5 = ACT_NONE,
-      act_t l6 = ACT_NONE);
+      act_t l1 = act_t::NONE,
+      act_t l2 = act_t::NONE,
+      act_t l3 = act_t::NONE,
+      act_t l4 = act_t::NONE,
+      act_t l5 = act_t::NONE,
+      act_t l6 = act_t::NONE);
   std::string name, desc, long_desc;
   std::vector<act_t> loc;
   int bulk, bulkm; // Body-Type (adds mass, reduces shock)

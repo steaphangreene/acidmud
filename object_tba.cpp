@@ -338,7 +338,7 @@ void Object::TBAFinishMOB(Object* mob) {
     bag->SetValue(100);
 
     bag->SetSkill(crc32c("Perishable"), 1);
-    mob->AddAct(ACT_WEAR_LHIP, bag);
+    mob->AddAct(act_t::WEAR_LHIP, bag);
 
     if (!gold)
       init_gold();
@@ -349,25 +349,25 @@ void Object::TBAFinishMOB(Object* mob) {
   }
 
   if (mob->Skill(crc32c("TBAAttack"))) {
-    if (mob->IsAct(ACT_WIELD)) {
-      // fprintf(stderr, "Weapon def: %s\n", mob->ActTarg(ACT_WIELD)->Name().c_str());
-      if (mob->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")) == 0) {
-        if (!mob->ActTarg(ACT_HOLD)) { // Don't wield non-weapons, hold them
+    if (mob->IsAct(act_t::WIELD)) {
+      // fprintf(stderr, "Weapon def: %s\n", mob->ActTarg(act_t::WIELD)->Name().c_str());
+      if (mob->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponType")) == 0) {
+        if (!mob->ActTarg(act_t::HOLD)) { // Don't wield non-weapons, hold them
           fprintf(
               stderr,
               CYEL "Warning: Wielded non-weapon: %s\n" CNRM,
-              mob->ActTarg(ACT_WIELD)->Name().c_str());
-          mob->AddAct(ACT_HOLD, mob->ActTarg(ACT_WIELD));
-          mob->StopAct(ACT_WIELD);
+              mob->ActTarg(act_t::WIELD)->Name().c_str());
+          mob->AddAct(act_t::HOLD, mob->ActTarg(act_t::WIELD));
+          mob->StopAct(act_t::WIELD);
         } else {
           fprintf(
               stderr,
               "Error: Wielded non-weapon with a held item: %s\n",
-              mob->ActTarg(ACT_WIELD)->Name().c_str());
+              mob->ActTarg(act_t::WIELD)->Name().c_str());
         }
       } else {
         mob->SetSkill(
-            get_weapon_skill(mob->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType"))),
+            get_weapon_skill(mob->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponType"))),
             mob->Skill(crc32c("TBAAttack")));
       }
       if (mob->Skill(crc32c("NaturalWeapon")) == 13) { // Default (hit), but is armed!
@@ -379,7 +379,7 @@ void Object::TBAFinishMOB(Object* mob) {
     mob->SetSkill(crc32c("TBAAttack"), 0);
   }
   if (mob->Skill(crc32c("TBADefense"))) {
-    if (mob->IsAct(ACT_WEAR_SHIELD)) {
+    if (mob->IsAct(act_t::WEAR_SHIELD)) {
       mob->SetSkill(crc32c("Shields"), mob->Skill(crc32c("TBADefense")));
     } else if (mob->Skill(crc32c("Punching"))) {
       mob->SetSkill(crc32c("Kicking"), mob->Skill(crc32c("TBADefense")));
@@ -447,7 +447,7 @@ void Object::TBALoadZON(const std::string& fn) {
             lastmob = new Object(*(bynummob[num]));
             bynummobinst[num] = lastmob;
             lastmob->SetParent(obj);
-            lastmob->AddAct(ACT_SPECIAL_MASTER, obj);
+            lastmob->AddAct(act_t::SPECIAL_MASTER, obj);
             obj->SetSkill(crc32c("TBAPopper"), 1);
             obj->SetSkill(crc32c("Invisible"), 1000);
             obj->Activate();
@@ -486,7 +486,7 @@ void Object::TBALoadZON(const std::string& fn) {
             int bagit = 0;
             switch (posit) {
               case (1): { // Worn
-                lastmob->AddAct(ACT_WEAR_RFINGER, obj);
+                lastmob->AddAct(act_t::WEAR_RFINGER, obj);
                 if (obj->Skill(crc32c("Wearable on Right Finger")) == 0) {
                   fprintf(
                       stderr,
@@ -497,7 +497,7 @@ void Object::TBALoadZON(const std::string& fn) {
                 }
               } break;
               case (2): { // Worn
-                lastmob->AddAct(ACT_WEAR_LFINGER, obj);
+                lastmob->AddAct(act_t::WEAR_LFINGER, obj);
                 if (obj->Skill(crc32c("Wearable on Left Finger")) == 0) {
                   fprintf(
                       stderr,
@@ -517,16 +517,16 @@ void Object::TBALoadZON(const std::string& fn) {
                         fline(mudz),
                         obj->ShortDescC());
                   } else {
-                    if (lastmob->IsAct(ACT_WEAR_FACE))
+                    if (lastmob->IsAct(act_t::WEAR_FACE))
                       bagit = 1;
                     else
-                      lastmob->AddAct(ACT_WEAR_FACE, obj);
+                      lastmob->AddAct(act_t::WEAR_FACE, obj);
                   }
                 } else {
-                  if (lastmob->IsAct(ACT_WEAR_NECK))
+                  if (lastmob->IsAct(act_t::WEAR_NECK))
                     bagit = 1;
                   else
-                    lastmob->AddAct(ACT_WEAR_NECK, obj);
+                    lastmob->AddAct(act_t::WEAR_NECK, obj);
                 }
               } break;
               case (4): { // TBA MOBs have two necks (2/2)
@@ -539,21 +539,21 @@ void Object::TBALoadZON(const std::string& fn) {
                         fline(mudz),
                         obj->ShortDescC());
                   } else {
-                    if (lastmob->IsAct(ACT_WEAR_FACE))
+                    if (lastmob->IsAct(act_t::WEAR_FACE))
                       bagit = 1;
                     else
-                      lastmob->AddAct(ACT_WEAR_FACE, obj);
+                      lastmob->AddAct(act_t::WEAR_FACE, obj);
                   }
                 } else {
-                  if (lastmob->IsAct(ACT_WEAR_COLLAR))
+                  if (lastmob->IsAct(act_t::WEAR_COLLAR))
                     bagit = 1;
                   else
-                    lastmob->AddAct(ACT_WEAR_COLLAR, obj);
+                    lastmob->AddAct(act_t::WEAR_COLLAR, obj);
                 }
               } break;
               case (5): { // Worn
-                lastmob->AddAct(ACT_WEAR_CHEST, obj);
-                lastmob->AddAct(ACT_WEAR_BACK, obj);
+                lastmob->AddAct(act_t::WEAR_CHEST, obj);
+                lastmob->AddAct(act_t::WEAR_BACK, obj);
                 if (obj->Skill(crc32c("Wearable on Chest")) == 0) {
                   fprintf(
                       stderr,
@@ -573,21 +573,21 @@ void Object::TBALoadZON(const std::string& fn) {
                         fline(mudz),
                         obj->ShortDescC());
                   } else {
-                    if (lastmob->IsAct(ACT_WEAR_FACE))
+                    if (lastmob->IsAct(act_t::WEAR_FACE))
                       bagit = 1;
                     else
-                      lastmob->AddAct(ACT_WEAR_FACE, obj);
+                      lastmob->AddAct(act_t::WEAR_FACE, obj);
                   }
                 } else {
-                  lastmob->AddAct(ACT_WEAR_HEAD, obj);
+                  lastmob->AddAct(act_t::WEAR_HEAD, obj);
                 }
               } break;
               case (7): { // Worn
-                lastmob->AddAct(ACT_WEAR_LLEG, obj);
+                lastmob->AddAct(act_t::WEAR_LLEG, obj);
                 if (obj2)
-                  lastmob->AddAct(ACT_WEAR_RLEG, obj2);
+                  lastmob->AddAct(act_t::WEAR_RLEG, obj2);
                 else
-                  lastmob->AddAct(ACT_WEAR_RLEG, obj);
+                  lastmob->AddAct(act_t::WEAR_RLEG, obj);
                 if (obj->Skill(crc32c("Wearable on Left Leg")) == 0) {
                   fprintf(
                       stderr,
@@ -598,11 +598,11 @@ void Object::TBALoadZON(const std::string& fn) {
                 }
               } break;
               case (8): { // Worn
-                lastmob->AddAct(ACT_WEAR_LFOOT, obj);
+                lastmob->AddAct(act_t::WEAR_LFOOT, obj);
                 if (obj2)
-                  lastmob->AddAct(ACT_WEAR_RFOOT, obj2);
+                  lastmob->AddAct(act_t::WEAR_RFOOT, obj2);
                 else
-                  lastmob->AddAct(ACT_WEAR_RFOOT, obj);
+                  lastmob->AddAct(act_t::WEAR_RFOOT, obj);
                 if (obj->Skill(crc32c("Wearable on Left Foot")) == 0) {
                   fprintf(
                       stderr,
@@ -613,11 +613,11 @@ void Object::TBALoadZON(const std::string& fn) {
                 }
               } break;
               case (9): { // Worn
-                lastmob->AddAct(ACT_WEAR_LHAND, obj);
+                lastmob->AddAct(act_t::WEAR_LHAND, obj);
                 if (obj2)
-                  lastmob->AddAct(ACT_WEAR_RHAND, obj2);
+                  lastmob->AddAct(act_t::WEAR_RHAND, obj2);
                 else
-                  lastmob->AddAct(ACT_WEAR_RHAND, obj);
+                  lastmob->AddAct(act_t::WEAR_RHAND, obj);
                 if (obj->Skill(crc32c("Wearable on Left Hand")) == 0) {
                   fprintf(
                       stderr,
@@ -628,11 +628,11 @@ void Object::TBALoadZON(const std::string& fn) {
                 }
               } break;
               case (10): { // Worn
-                lastmob->AddAct(ACT_WEAR_LARM, obj);
+                lastmob->AddAct(act_t::WEAR_LARM, obj);
                 if (obj2)
-                  lastmob->AddAct(ACT_WEAR_RARM, obj2);
+                  lastmob->AddAct(act_t::WEAR_RARM, obj2);
                 else
-                  lastmob->AddAct(ACT_WEAR_RARM, obj);
+                  lastmob->AddAct(act_t::WEAR_RARM, obj);
                 if (obj->Skill(crc32c("Wearable on Left Arm")) == 0) {
                   fprintf(
                       stderr,
@@ -643,7 +643,7 @@ void Object::TBALoadZON(const std::string& fn) {
                 }
               } break;
               case (11): { // Worn
-                lastmob->AddAct(ACT_WEAR_SHIELD, obj);
+                lastmob->AddAct(act_t::WEAR_SHIELD, obj);
                 if (obj->Skill(crc32c("Wearable on Shield")) == 0) {
                   fprintf(
                       stderr,
@@ -654,8 +654,8 @@ void Object::TBALoadZON(const std::string& fn) {
                 }
               } break;
               case (12): { // Worn
-                lastmob->AddAct(ACT_WEAR_LSHOULDER, obj);
-                lastmob->AddAct(ACT_WEAR_RSHOULDER, obj);
+                lastmob->AddAct(act_t::WEAR_LSHOULDER, obj);
+                lastmob->AddAct(act_t::WEAR_RSHOULDER, obj);
                 if (obj->Skill(crc32c("Wearable on Left Shoulder")) == 0) {
                   fprintf(
                       stderr,
@@ -666,7 +666,7 @@ void Object::TBALoadZON(const std::string& fn) {
                 }
               } break;
               case (13): { // Worn
-                lastmob->AddAct(ACT_WEAR_WAIST, obj);
+                lastmob->AddAct(act_t::WEAR_WAIST, obj);
                 if (obj->Skill(crc32c("Wearable on Waist")) == 0) {
                   fprintf(
                       stderr,
@@ -677,7 +677,7 @@ void Object::TBALoadZON(const std::string& fn) {
                 }
               } break;
               case (14): { // Worn
-                lastmob->AddAct(ACT_WEAR_RWRIST, obj);
+                lastmob->AddAct(act_t::WEAR_RWRIST, obj);
                 if (obj->Skill(crc32c("Wearable on Right Wrist")) == 0) {
                   fprintf(
                       stderr,
@@ -688,7 +688,7 @@ void Object::TBALoadZON(const std::string& fn) {
                 }
               } break;
               case (15): { // Worn
-                lastmob->AddAct(ACT_WEAR_LWRIST, obj);
+                lastmob->AddAct(act_t::WEAR_LWRIST, obj);
                 if (obj->Skill(crc32c("Wearable on Left Wrist")) == 0) {
                   fprintf(
                       stderr,
@@ -699,7 +699,7 @@ void Object::TBALoadZON(const std::string& fn) {
                 }
               } break;
               case (16): { // Wielded
-                lastmob->AddAct(ACT_WIELD, obj);
+                lastmob->AddAct(act_t::WIELD, obj);
                 if (obj->Skill(crc32c("WeaponType")) == 0) {
                   fprintf(
                       stderr,
@@ -710,7 +710,7 @@ void Object::TBALoadZON(const std::string& fn) {
                 }
               } break;
               case (17): { // Held
-                lastmob->AddAct(ACT_HOLD, obj);
+                lastmob->AddAct(act_t::HOLD, obj);
               } break;
               default: {
                 bagit = 1;
@@ -734,7 +734,7 @@ void Object::TBALoadZON(const std::string& fn) {
                 lastbag->SetValue(200);
 
                 lastbag->SetSkill(crc32c("Perishable"), 1);
-                lastmob->AddAct(ACT_WEAR_RHIP, lastbag);
+                lastmob->AddAct(act_t::WEAR_RHIP, lastbag);
               }
               obj->Travel(lastbag);
               if (obj2)
@@ -957,10 +957,10 @@ void Object::TBALoadMOB(const std::string& fn) {
 
         if (val == 4) { // Mob Starts off Sleeping
           obj->SetPos(pos_t::LIE);
-          obj->AddAct(ACT_SLEEP);
+          obj->AddAct(act_t::SLEEP);
         } else if (val == 5) { // Mob Starts off Resting
           obj->SetPos(pos_t::SIT);
-          obj->AddAct(ACT_REST);
+          obj->AddAct(act_t::REST);
         } else if (val == 6) { // Mob Starts off Sitting
           obj->SetPos(pos_t::SIT);
         }
@@ -2344,9 +2344,9 @@ void Object::TBALoadWLD(const std::string& fn) {
       bynumwld[onum] = obj;
       if (onum == 0) { // Player Start Room (Void) Hard-Coded Here
         Object* world = obj->World();
-        world->AddAct(ACT_SPECIAL_HOME, obj);
-        if (!world->parent->IsAct(ACT_SPECIAL_HOME)) { // If is first world
-          world->parent->AddAct(ACT_SPECIAL_HOME, obj);
+        world->AddAct(act_t::SPECIAL_HOME, obj);
+        if (!world->parent->IsAct(act_t::SPECIAL_HOME)) { // If is first world
+          world->parent->AddAct(act_t::SPECIAL_HOME, obj);
         }
       }
 
@@ -2473,14 +2473,14 @@ void Object::TBALoadWLD(const std::string& fn) {
             auto cont = ob->Contents();
             for (auto cind : cont) {
               if (cind->ShortDesc() == "a passage exit") {
-                if (cind->ActTarg(ACT_SPECIAL_MASTER)->Parent() == bynumwld[tnum]) {
+                if (cind->ActTarg(act_t::SPECIAL_MASTER)->Parent() == bynumwld[tnum]) {
                   nobj = cind;
-                  nobj2 = cind->ActTarg(ACT_SPECIAL_MASTER);
+                  nobj2 = cind->ActTarg(act_t::SPECIAL_MASTER);
                 }
-              } else if (cind->ActTarg(ACT_SPECIAL_LINKED)) {
-                if (cind->ActTarg(ACT_SPECIAL_LINKED)->Parent() == bynumwld[tnum]) {
+              } else if (cind->ActTarg(act_t::SPECIAL_LINKED)) {
+                if (cind->ActTarg(act_t::SPECIAL_LINKED)->Parent() == bynumwld[tnum]) {
                   nobj = cind;
-                  nobj2 = cind->ActTarg(ACT_SPECIAL_LINKED);
+                  nobj2 = cind->ActTarg(act_t::SPECIAL_LINKED);
                   nm = nobj->ShortDesc() + " and " + dirname[dir];
                 }
               }
@@ -2520,8 +2520,8 @@ void Object::TBALoadWLD(const std::string& fn) {
             nobj->SetDesc(des.c_str());
             nobj->SetSkill(crc32c("Open"), 1000);
             nobj->SetSkill(crc32c("Enterable"), 1);
-            nobj->AddAct(ACT_SPECIAL_LINKED, nobj2);
-            nobj2->AddAct(ACT_SPECIAL_MASTER, nobj);
+            nobj->AddAct(act_t::SPECIAL_LINKED, nobj2);
+            nobj2->AddAct(act_t::SPECIAL_MASTER, nobj);
 
             nmnum[dir].erase(ob);
             tonum[dir].erase(ob);
@@ -2759,7 +2759,7 @@ void Object::TBALoadSHP(const std::string& fn) {
           }
           vortex->SetLongDesc(picky);
           vortex->SetParent(keeper);
-          keeper->AddAct(ACT_WEAR_RSHOULDER, vortex);
+          keeper->AddAct(act_t::WEAR_RSHOULDER, vortex);
         } else {
           vortex->Recycle();
           fprintf(stderr, CYEL "Warning: Can't find shopkeeper #%d!\n" CNRM, kpr);

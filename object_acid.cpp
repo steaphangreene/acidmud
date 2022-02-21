@@ -29,7 +29,7 @@
 #include "utils.hpp"
 #include "version.hpp"
 
-const std::string act_save[ACT_SPECIAL_MAX] = {
+const std::string act_save[static_cast<uint8_t>(act_t::SPECIAL_MAX)] = {
     "NONE",         "DEAD",        "DYING",           "UNCONSCIOUS",    "SLEEP",
     "REST",         "HEAL",        "POINT",           "FOLLOW",         "FIGHT",
     "OFFER",        "HOLD",        "WIELD",           "WEAR_BACK",      "WEAR_CHEST",
@@ -45,12 +45,12 @@ const std::string act_save[ACT_SPECIAL_MAX] = {
 static std::map<std::string, act_t> act_load_map;
 static act_t act_load(const std::string& str) {
   if (act_load_map.size() < 1) {
-    for (int a = 0; a < ACT_SPECIAL_MAX; ++a) {
-      act_load_map[std::string(act_save[a])] = act_t(a);
+    for (act_t a = act_t::NONE; a != act_t::SPECIAL_MAX; ++a) {
+      act_load_map[act_save[static_cast<uint8_t>(a)]] = a;
     }
   }
   if (act_load_map.count(str) < 1)
-    return ACT_NONE;
+    return act_t::NONE;
   return act_load_map[str];
 }
 
@@ -150,7 +150,7 @@ int Object::SaveTo(FILE* fl) {
 
   fprintf(fl, "%d\n", (int)(act.size()));
   for (auto aind : act) {
-    fprintf(fl, "%s;%d\n", act_save[aind.act()].c_str(), getnum(aind.obj()));
+    fprintf(fl, "%s;%d\n", act_save[static_cast<uint8_t>(aind.act())].c_str(), getnum(aind.obj()));
   }
 
   fprintf(fl, "\n");
@@ -195,12 +195,12 @@ int Object::Load(const std::string& fn) {
     for (auto aind : ind->act) {
       if (aind.obj()) {
         aind.obj()->NowTouching(ind);
-      } else if (aind.act() <= ACT_REST) { // Targetless Actions
+      } else if (aind.act() <= act_t::REST) { // Targetless Actions
         aind.set_obj(nullptr);
       } else { // Act Targ No Longer Exists ("junkrestart", I hope)!
         killacts.push_back(aind.act());
       }
-      if (aind.act() == ACT_FIGHT) {
+      if (aind.act() == act_t::FIGHT) {
         ind->BusyFor(500, ind->Tactics().c_str());
       }
     }
@@ -423,15 +423,18 @@ int Object::LoadFrom(FILE* fl) {
 
   fscanf(fl, "%d ", &num);
   for (int ctr = 0; ctr < num; ++ctr) {
-    int anum, num2;
+    int num2;
+    act_t a;
     if (ver < 0x0014) { // Action types stored numerically < v0x14
-      fscanf(fl, "%d;%d ", &anum, &num2);
+      uint8_t anum;
+      fscanf(fl, "%hhd;%d ", &anum, &num2);
+      a = static_cast<act_t>(anum);
     } else { // Action types stored as std::strings >= v0x14
       memset(buf, 0, 65536);
       fscanf(fl, "%65535[^;];%d ", buf, &num2);
-      anum = act_load(std::string(buf));
+      a = act_load(std::string(buf));
     }
-    AddAct((act_t)anum, getbynum(num2));
+    AddAct(a, getbynum(num2));
   }
 
   if (Skill(crc32c("Personality")))
@@ -491,7 +494,7 @@ int Object::LoadFrom(FILE* fl) {
   //    Activate();
   //    }
 
-  //  if(IsAct(ACT_SPECIAL_NOTSHOWN)) {
+  //  if(IsAct(act_t::SPECIAL_NOTSHOWN)) {
   //    SetSkill(crc32c("Invisible"), 1000);
   //    }
 
@@ -508,9 +511,9 @@ int Object::LoadFrom(FILE* fl) {
   //    SetSkill(crc32c("Evasion Bonus"), 0);
   //    }
 
-  //  if(IsAct(ACT_SPECIAL_PREPARE)) {
+  //  if(IsAct(act_t::SPECIAL_PREPARE)) {
   //    fprintf(stderr, "Found one!\n");
-  //    StopAct(ACT_SPECIAL_PREPARE);
+  //    StopAct(act_t::SPECIAL_PREPARE);
   //    }
 
   //  if(short_desc == "a gold piece") {

@@ -644,9 +644,9 @@ bool Mind::Send(const std::string& mes) {
         && ((body->Skill(crc32c("TBAAction")) & 2) == 0) // NON-SENTINEL
         && body->Stun() < 6 // I'm not stunned
         && body->Phys() < 6 // I'm not injured
-        && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
-        && (!body->IsAct(ACT_REST)) // I'm not resting
-        && (!body->IsAct(ACT_FIGHT)) // I'm not already fighting
+        && (!body->IsAct(act_t::SLEEP)) // I'm not asleep
+        && (!body->IsAct(act_t::REST)) // I'm not resting
+        && (!body->IsAct(act_t::FIGHT)) // I'm not already fighting
     ) {
       if ((!strncmp(mes.c_str(), "From ", 5)) &&
           (strcasestr(mes.c_str(), " you hear someone shout '") != nullptr) &&
@@ -656,9 +656,9 @@ bool Mind::Send(const std::string& mes) {
 
         Object* door = body->PickObject(buf, LOC_NEARBY);
 
-        if (door && door->ActTarg(ACT_SPECIAL_LINKED) &&
-            door->ActTarg(ACT_SPECIAL_LINKED)->Parent() &&
-            TBACanWanderTo(door->ActTarg(ACT_SPECIAL_LINKED)->Parent())) {
+        if (door && door->ActTarg(act_t::SPECIAL_LINKED) &&
+            door->ActTarg(act_t::SPECIAL_LINKED)->Parent() &&
+            TBACanWanderTo(door->ActTarg(act_t::SPECIAL_LINKED)->Parent())) {
           char buf2[256] = "enter                                          ";
           sscanf(mes.c_str() + 4, "%128s", buf2 + 6);
           body->BusyFor(500, buf2);
@@ -1091,11 +1091,11 @@ bool Mind::TBAVarSub(std::string& line) {
         } else if (!strcmp(field.c_str(), "pos")) {
           val = "";
           if (obj) {
-            if (obj->IsAct(ACT_SLEEP))
+            if (obj->IsAct(act_t::SLEEP))
               val = "sleeping";
-            else if (obj->IsAct(ACT_REST))
+            else if (obj->IsAct(act_t::REST))
               val = "resting";
-            else if (obj->IsAct(ACT_FIGHT))
+            else if (obj->IsAct(act_t::FIGHT))
               val = "fighting";
             else if (obj->Pos() == pos_t::LIE)
               val = "resting";
@@ -1259,7 +1259,7 @@ bool Mind::TBAVarSub(std::string& line) {
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "fighting")) {
           if (obj)
-            obj = obj->ActTarg(ACT_FIGHT);
+            obj = obj->ActTarg(act_t::FIGHT);
         } else if (!strcmp(field.c_str(), "worn_by")) {
           if (obj) {
             Object* owner = obj->Owner();
@@ -1288,55 +1288,55 @@ bool Mind::TBAVarSub(std::string& line) {
             (!strcmp(field.c_str(), "eq(light)")) || (!strcmp(field.c_str(), "eq(hold)")) ||
             (!strcmp(field.c_str(), "eq(0)")) || (!strcmp(field.c_str(), "eq(17)"))) {
           if (obj)
-            obj = obj->ActTarg(ACT_HOLD);
+            obj = obj->ActTarg(act_t::HOLD);
         } else if ((!strcmp(field.c_str(), "eq(wield)")) || (!strcmp(field.c_str(), "eq(16)"))) {
           if (obj)
-            obj = obj->ActTarg(ACT_WIELD);
+            obj = obj->ActTarg(act_t::WIELD);
         } else if ((!strcmp(field.c_str(), "eq(rfinger)")) || (!strcmp(field.c_str(), "eq(1)"))) {
           if (obj)
-            obj = obj->ActTarg(ACT_WEAR_RFINGER);
+            obj = obj->ActTarg(act_t::WEAR_RFINGER);
         } else if ((!strcmp(field.c_str(), "eq(lfinger)")) || (!strcmp(field.c_str(), "eq(2)"))) {
           if (obj)
-            obj = obj->ActTarg(ACT_WEAR_LFINGER);
+            obj = obj->ActTarg(act_t::WEAR_LFINGER);
         } else if ((!strcmp(field.c_str(), "eq(neck1)")) || (!strcmp(field.c_str(), "eq(3)"))) {
           if (obj)
-            obj = obj->ActTarg(ACT_WEAR_NECK);
+            obj = obj->ActTarg(act_t::WEAR_NECK);
         } else if ((!strcmp(field.c_str(), "eq(neck2)")) || (!strcmp(field.c_str(), "eq(4)"))) {
           if (obj)
-            obj = obj->ActTarg(ACT_WEAR_COLLAR);
+            obj = obj->ActTarg(act_t::WEAR_COLLAR);
         } else if ((!strcmp(field.c_str(), "eq(body)")) || (!strcmp(field.c_str(), "eq(5)"))) {
           if (obj)
-            obj = obj->ActTarg(ACT_WEAR_CHEST);
+            obj = obj->ActTarg(act_t::WEAR_CHEST);
         } else if ((!strcmp(field.c_str(), "eq(head)")) || (!strcmp(field.c_str(), "eq(6)"))) {
           if (obj)
-            obj = obj->ActTarg(ACT_WEAR_HEAD);
+            obj = obj->ActTarg(act_t::WEAR_HEAD);
         } else if ((!strcmp(field.c_str(), "eq(legs)")) || (!strcmp(field.c_str(), "eq(7)"))) {
           if (obj)
-            obj = obj->ActTarg(ACT_WEAR_LLEG);
+            obj = obj->ActTarg(act_t::WEAR_LLEG);
         } else if ((!strcmp(field.c_str(), "eq(feet)")) || (!strcmp(field.c_str(), "eq(8)"))) {
           if (obj)
-            obj = obj->ActTarg(ACT_WEAR_LFOOT);
+            obj = obj->ActTarg(act_t::WEAR_LFOOT);
         } else if ((!strcmp(field.c_str(), "eq(hands)")) || (!strcmp(field.c_str(), "eq(9)"))) {
           if (obj)
-            obj = obj->ActTarg(ACT_WEAR_LHAND);
+            obj = obj->ActTarg(act_t::WEAR_LHAND);
         } else if ((!strcmp(field.c_str(), "eq(arms)")) || (!strcmp(field.c_str(), "eq(10)"))) {
           if (obj)
-            obj = obj->ActTarg(ACT_WEAR_LARM);
+            obj = obj->ActTarg(act_t::WEAR_LARM);
         } else if ((!strcmp(field.c_str(), "eq(shield)")) || (!strcmp(field.c_str(), "eq(11)"))) {
           if (obj)
-            obj = obj->ActTarg(ACT_WEAR_SHIELD);
+            obj = obj->ActTarg(act_t::WEAR_SHIELD);
         } else if ((!strcmp(field.c_str(), "eq(about)")) || (!strcmp(field.c_str(), "eq(12)"))) {
           if (obj)
-            obj = obj->ActTarg(ACT_WEAR_LSHOULDER);
+            obj = obj->ActTarg(act_t::WEAR_LSHOULDER);
         } else if ((!strcmp(field.c_str(), "eq(waits)")) || (!strcmp(field.c_str(), "eq(13)"))) {
           if (obj)
-            obj = obj->ActTarg(ACT_WEAR_WAIST);
+            obj = obj->ActTarg(act_t::WEAR_WAIST);
         } else if ((!strcmp(field.c_str(), "eq(rwrist)")) || (!strcmp(field.c_str(), "eq(14)"))) {
           if (obj)
-            obj = obj->ActTarg(ACT_WEAR_RWRIST);
+            obj = obj->ActTarg(act_t::WEAR_RWRIST);
         } else if ((!strcmp(field.c_str(), "eq(lwrist)")) || (!strcmp(field.c_str(), "eq(15)"))) {
           if (obj)
-            obj = obj->ActTarg(ACT_WEAR_LWRIST);
+            obj = obj->ActTarg(act_t::WEAR_LWRIST);
         } else if (!strcmp(field.c_str(), "carried_by")) {
           if (obj)
             obj = obj->Owner();
@@ -1380,13 +1380,13 @@ bool Mind::TBAVarSub(std::string& line) {
           }
         } else if (!strcmp(field.c_str(), "master")) {
           if (obj)
-            obj = obj->ActTarg(ACT_FOLLOW); // FIXME: More Kinds?
+            obj = obj->ActTarg(act_t::FOLLOW); // FIXME: More Kinds?
         } else if (!strcmp(field.c_str(), "follower")) {
           if (obj) {
             auto touch = obj->Touching();
             bool found = false;
             for (auto tent : touch) {
-              if (tent->ActTarg(ACT_FOLLOW) == obj) {
+              if (tent->ActTarg(act_t::FOLLOW) == obj) {
                 obj = tent;
                 found = true;
                 break;
@@ -1467,25 +1467,25 @@ bool Mind::TBAVarSub(std::string& line) {
         } else if (!strcmp(field.c_str(), "pos(sleeping)")) {
           if (obj) {
             obj->SetPos(pos_t::LIE);
-            obj->StopAct(ACT_REST);
-            obj->AddAct(ACT_SLEEP);
+            obj->StopAct(act_t::REST);
+            obj->AddAct(act_t::SLEEP);
           }
           obj = nullptr;
           val = "";
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "pos(resting)")) {
           if (obj) {
-            obj->StopAct(ACT_SLEEP);
+            obj->StopAct(act_t::SLEEP);
             obj->SetPos(pos_t::SIT);
-            obj->AddAct(ACT_REST);
+            obj->AddAct(act_t::REST);
           }
           obj = nullptr;
           val = "";
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "pos(sitting)")) {
           if (obj) {
-            obj->StopAct(ACT_SLEEP);
-            obj->StopAct(ACT_REST);
+            obj->StopAct(act_t::SLEEP);
+            obj->StopAct(act_t::REST);
             obj->SetPos(pos_t::SIT);
           }
           obj = nullptr;
@@ -1493,8 +1493,8 @@ bool Mind::TBAVarSub(std::string& line) {
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "pos(fighting)")) {
           if (obj) {
-            obj->StopAct(ACT_SLEEP);
-            obj->StopAct(ACT_REST);
+            obj->StopAct(act_t::SLEEP);
+            obj->StopAct(act_t::REST);
             obj->SetPos(pos_t::STAND);
           }
           obj = nullptr;
@@ -1502,8 +1502,8 @@ bool Mind::TBAVarSub(std::string& line) {
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "pos(standing)")) {
           if (obj) {
-            obj->StopAct(ACT_SLEEP);
-            obj->StopAct(ACT_REST);
+            obj->StopAct(act_t::SLEEP);
+            obj->StopAct(act_t::REST);
             obj->SetPos(pos_t::STAND);
           }
           obj = nullptr;
@@ -1623,8 +1623,8 @@ int Mind::TBARunLine(std::string line) {
   }
   // Needs to be alive! MOB & MOB-* (Not -DEATH or -GLOBAL)
   if ((body->Skill(crc32c("TBAScriptType")) & 0x103FFDE) > 0x1000000) {
-    if (ovars["self"]->IsAct(ACT_DEAD) || ovars["self"]->IsAct(ACT_DYING) ||
-        ovars["self"]->IsAct(ACT_UNCONSCIOUS)) {
+    if (ovars["self"]->IsAct(act_t::DEAD) || ovars["self"]->IsAct(act_t::DYING) ||
+        ovars["self"]->IsAct(act_t::UNCONSCIOUS)) {
       //      fprintf(stderr, CGRN "#%d Debug: Triggered on downed MOB.\n" CNRM,
       //	body->Skill(crc32c("TBAScript"))
       //	);
@@ -2416,11 +2416,11 @@ int Mind::TBARunLine(std::string line) {
       odoor->SetShortDesc("a passage exit");
       door->SetSkill(crc32c("Enterable"), 1);
       door->SetSkill(crc32c("Open"), 1000);
-      door->AddAct(ACT_SPECIAL_LINKED, odoor);
+      door->AddAct(act_t::SPECIAL_LINKED, odoor);
       odoor->SetSkill(crc32c("Enterable"), 1);
       odoor->SetSkill(crc32c("Open"), 1000);
       odoor->SetSkill(crc32c("Invisible"), 1000);
-      odoor->AddAct(ACT_SPECIAL_MASTER, door);
+      odoor->AddAct(act_t::SPECIAL_MASTER, door);
     } else if (sscanf(args.c_str(), "%*d %*s key %d", &tnum) == 1) {
       if (!door) {
         fprintf(
@@ -2531,7 +2531,8 @@ int Mind::TBARunLine(std::string line) {
   }
 
   else if (!strncmp(line.c_str(), "load ", 5)) {
-    int valnum, params, tbatype, loc = 0, mask = 0;
+    int valnum, params, tbatype, mask = 0;
+    act_t loc = act_t::NONE;
     char buf2[256] = "";
     char targ[256] = "";
     char where[256] = "";
@@ -2608,63 +2609,63 @@ int Mind::TBARunLine(std::string line) {
     }
     if (strcmp("rfinger", where) == 0 || strcmp("1", where) == 0) {
       mask = item->Skill(crc32c("Wearable on Right Finger"));
-      loc = ACT_WEAR_RFINGER;
+      loc = act_t::WEAR_RFINGER;
     } else if (strcmp("lfinger", where) == 0 || strcmp("2", where) == 0) {
       mask = item->Skill(crc32c("Wearable on Left Finger"));
-      loc = ACT_WEAR_LFINGER;
+      loc = act_t::WEAR_LFINGER;
     } else if (strcmp("neck1", where) == 0 || strcmp("3", where) == 0) {
       mask = item->Skill(crc32c("Wearable on Neck"));
       mask |= item->Skill(crc32c("Wearable on Collar"));
-      loc = ACT_WEAR_NECK;
+      loc = act_t::WEAR_NECK;
     } else if (strcmp("neck2", where) == 0 || strcmp("4", where) == 0) {
       mask = item->Skill(crc32c("Wearable on Neck"));
       mask |= item->Skill(crc32c("Wearable on Collar"));
-      loc = ACT_WEAR_COLLAR;
+      loc = act_t::WEAR_COLLAR;
     } else if (strcmp("body", where) == 0 || strcmp("5", where) == 0) {
       mask = item->Skill(crc32c("Wearable on Chest"));
       mask &= item->Skill(crc32c("Wearable on Back")); // Both
-      loc = ACT_WEAR_CHEST;
+      loc = act_t::WEAR_CHEST;
     } else if (strcmp("head", where) == 0 || strcmp("6", where) == 0) {
       mask = item->Skill(crc32c("Wearable on Head"));
-      loc = ACT_WEAR_HEAD;
+      loc = act_t::WEAR_HEAD;
     } else if (strcmp("legs", where) == 0 || strcmp("7", where) == 0) {
       mask = item->Skill(crc32c("Wearable on Left Leg"));
       mask |= item->Skill(crc32c("Wearable on Right Leg"));
-      loc = ACT_WEAR_LLEG;
+      loc = act_t::WEAR_LLEG;
     } else if (strcmp("feet", where) == 0 || strcmp("8", where) == 0) {
       mask = item->Skill(crc32c("Wearable on Left Foot"));
       mask |= item->Skill(crc32c("Wearable on Right Foot"));
-      loc = ACT_WEAR_LFOOT;
+      loc = act_t::WEAR_LFOOT;
     } else if (strcmp("hands", where) == 0 || strcmp("9", where) == 0) {
       mask = item->Skill(crc32c("Wearable on Left Hand"));
       mask |= item->Skill(crc32c("Wearable on Right Hand"));
-      loc = ACT_WEAR_LHAND;
+      loc = act_t::WEAR_LHAND;
     } else if (strcmp("arms", where) == 0 || strcmp("10", where) == 0) {
       mask = item->Skill(crc32c("Wearable on Left Arm"));
       mask |= item->Skill(crc32c("Wearable on Right Arm"));
-      loc = ACT_WEAR_LARM;
+      loc = act_t::WEAR_LARM;
     } else if (strcmp("shield", where) == 0 || strcmp("11", where) == 0) {
       mask = item->Skill(crc32c("Wearable on Shield"));
-      loc = ACT_WEAR_SHIELD;
+      loc = act_t::WEAR_SHIELD;
     } else if (strcmp("about", where) == 0 || strcmp("12", where) == 0) {
       mask = item->Skill(crc32c("Wearable on Left Shoulder"));
       mask &= item->Skill(crc32c("Wearable on Right Shoulder")); // Both
-      loc = ACT_WEAR_LSHOULDER;
+      loc = act_t::WEAR_LSHOULDER;
     } else if (strcmp("waist", where) == 0 || strcmp("13", where) == 0) {
       mask = item->Skill(crc32c("Wearable on Waist"));
-      loc = ACT_WEAR_WAIST;
+      loc = act_t::WEAR_WAIST;
     } else if (strcmp("rwrist", where) == 0 || strcmp("14", where) == 0) {
       mask = item->Skill(crc32c("Wearable on Right Wrist"));
-      loc = ACT_WEAR_RWRIST;
+      loc = act_t::WEAR_RWRIST;
     } else if (strcmp("lwrist", where) == 0 || strcmp("15", where) == 0) {
       mask = item->Skill(crc32c("Wearable on Left Wrist"));
-      loc = ACT_WEAR_LWRIST;
+      loc = act_t::WEAR_LWRIST;
     } else if (strcmp("wield", where) == 0 || strcmp("16", where) == 0) {
-      loc = ACT_WIELD;
+      loc = act_t::WIELD;
     } else if (strcmp("light", where) == 0 || strcmp("0", where) == 0) {
-      loc = ACT_HOLD;
+      loc = act_t::HOLD;
     } else if (strcmp("hold", where) == 0 || strcmp("17", where) == 0) {
-      loc = ACT_HOLD;
+      loc = act_t::HOLD;
     } else if (strcmp("inv", where) == 0 || strcmp("18", where) == 0) {
     } else if (params > 2) {
       fprintf(
@@ -2676,20 +2677,20 @@ int Mind::TBARunLine(std::string line) {
       return -1;
     }
     item->SetParent(dest);
-    if (loc != 0 && loc != ACT_HOLD && loc != ACT_WIELD) { // Wear it
+    if (loc != act_t::NONE && loc != act_t::HOLD && loc != act_t::WIELD) { // Wear it
       if (!dest->Wear(item, mask))
         dest->StashOrDrop(item);
-    } else if (loc == ACT_WIELD) { // Wield it
-      if (dest->ActTarg(ACT_WIELD) == nullptr) {
-        dest->AddAct(ACT_WIELD, item);
+    } else if (loc == act_t::WIELD) { // Wield it
+      if (dest->ActTarg(act_t::WIELD) == nullptr) {
+        dest->AddAct(act_t::WIELD, item);
       } else {
         dest->StashOrDrop(item);
       }
-    } else if (loc == ACT_HOLD) { // Hold it
-      if (dest->ActTarg(ACT_HOLD) == nullptr ||
-          dest->ActTarg(ACT_HOLD) == dest->ActTarg(ACT_WIELD) ||
-          dest->ActTarg(ACT_HOLD) == dest->ActTarg(ACT_WEAR_SHIELD)) {
-        dest->AddAct(ACT_HOLD, item);
+    } else if (loc == act_t::HOLD) { // Hold it
+      if (dest->ActTarg(act_t::HOLD) == nullptr ||
+          dest->ActTarg(act_t::HOLD) == dest->ActTarg(act_t::WIELD) ||
+          dest->ActTarg(act_t::HOLD) == dest->ActTarg(act_t::WEAR_SHIELD)) {
+        dest->AddAct(act_t::HOLD, item);
       } else {
         dest->StashOrDrop(item);
       }
@@ -2707,7 +2708,7 @@ int Mind::TBARunLine(std::string line) {
       if (splen + 1 < line.length()) {
         Object* targ;
         if (sscanf(line.c_str() + splen + 1, " OBJ:%p", &targ) > 0) {
-          ovars["self"]->AddAct(ACT_POINT, targ);
+          ovars["self"]->AddAct(act_t::POINT, targ);
         }
       }
       cline += ";cast " + spell + ";point";
@@ -2963,18 +2964,18 @@ bool Mind::Think(int istick) {
       return true;
 
     // Temporary
-    if (body && body->ActTarg(ACT_WEAR_SHIELD) && (!body->IsAct(ACT_HOLD))) {
-      std::string command = std::string("hold ") + body->ActTarg(ACT_WEAR_SHIELD)->ShortDesc();
+    if (body && body->ActTarg(act_t::WEAR_SHIELD) && (!body->IsAct(act_t::HOLD))) {
+      std::string command = std::string("hold ") + body->ActTarg(act_t::WEAR_SHIELD)->ShortDesc();
       body->BusyFor(500, command.c_str());
       return true;
     } else if (
-        body && body->ActTarg(ACT_WEAR_SHIELD) && body->ActTarg(ACT_HOLD) &&
-        body->ActTarg(ACT_WEAR_SHIELD) != body->ActTarg(ACT_HOLD)) {
-      Object* targ = body->ActTarg(ACT_HOLD);
+        body && body->ActTarg(act_t::WEAR_SHIELD) && body->ActTarg(act_t::HOLD) &&
+        body->ActTarg(act_t::WEAR_SHIELD) != body->ActTarg(act_t::HOLD)) {
+      Object* targ = body->ActTarg(act_t::HOLD);
       if (body->Stash(targ, 0)) {
         if (body->Parent())
           body->Parent()->SendOut(ALL, 0, ";s stashes ;s.\n", "", body, targ);
-        std::string command = std::string("hold ") + body->ActTarg(ACT_WEAR_SHIELD)->ShortDesc();
+        std::string command = std::string("hold ") + body->ActTarg(act_t::WEAR_SHIELD)->ShortDesc();
         body->BusyFor(500, command.c_str());
       } else {
         // fprintf(stderr, "Warning: %s can't use his shield!\n", body->Name().c_str());
@@ -2984,19 +2985,19 @@ bool Mind::Think(int istick) {
 
     // AGGRESSIVE and WIMPY TBA Mobs
     if (body && body->Parent() && (body->Skill(crc32c("TBAAction")) & 160) == 160 &&
-        (!body->IsAct(ACT_FIGHT))) {
+        (!body->IsAct(act_t::FIGHT))) {
       auto others = body->PickObjects("everyone", LOC_NEARBY);
       for (auto other : others) {
         if ((!other->Skill(crc32c("TBAAction"))) // FIXME: Other mobs?
             && body->Stun() < 6 // I'm not stunned
             && body->Phys() < 6 // I'm not injured
-            && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
-            && (!body->IsAct(ACT_REST)) // I'm not resting
-            && other->IsAct(ACT_SLEEP) // It's not awake (wuss!)
+            && (!body->IsAct(act_t::SLEEP)) // I'm not asleep
+            && (!body->IsAct(act_t::REST)) // I'm not resting
+            && other->IsAct(act_t::SLEEP) // It's not awake (wuss!)
             && other->IsAnimate() // It's not a rock
-            && (!other->IsAct(ACT_UNCONSCIOUS)) // It's not already KOed
-            && (!other->IsAct(ACT_DYING)) // It's not already dying
-            && (!other->IsAct(ACT_DEAD)) // It's not already dead
+            && (!other->IsAct(act_t::UNCONSCIOUS)) // It's not already KOed
+            && (!other->IsAct(act_t::DYING)) // It's not already dying
+            && (!other->IsAct(act_t::DEAD)) // It's not already dead
         ) {
           std::string command = std::string("attack ") + other->ShortDesc();
           body->BusyFor(500, command.c_str());
@@ -3012,8 +3013,8 @@ bool Mind::Think(int istick) {
           && (!body->StillBusy()) // Not already responding
           && body->Stun() < 6 // I'm not stunned
           && body->Phys() < 6 // I'm not injured
-          && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
-          && (!body->IsAct(ACT_REST)) // I'm not resting
+          && (!body->IsAct(act_t::SLEEP)) // I'm not asleep
+          && (!body->IsAct(act_t::REST)) // I'm not resting
       ) {
         body->BusyFor(500, "search");
       }
@@ -3021,18 +3022,18 @@ bool Mind::Think(int istick) {
     // AGGRESSIVE and (!WIMPY) TBA Mobs
     else if (
         body && body->Parent() && (body->Skill(crc32c("TBAAction")) & 160) == 32 &&
-        (!body->IsAct(ACT_FIGHT))) {
+        (!body->IsAct(act_t::FIGHT))) {
       auto others = body->PickObjects("everyone", LOC_NEARBY);
       for (auto other : others) {
         if ((!other->Skill(crc32c("TBAAction"))) // FIXME: Other mobs?
             && body->Stun() < 6 // I'm not stunned
             && body->Phys() < 6 // I'm not injured
-            && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
-            && (!body->IsAct(ACT_REST)) // I'm not resting
+            && (!body->IsAct(act_t::SLEEP)) // I'm not asleep
+            && (!body->IsAct(act_t::REST)) // I'm not resting
             && other->IsAnimate() // It's not a rock
-            && (!other->IsAct(ACT_UNCONSCIOUS)) // It's not already KOed
-            && (!other->IsAct(ACT_DYING)) // It's not already dying
-            && (!other->IsAct(ACT_DEAD)) // It's not already dead
+            && (!other->IsAct(act_t::UNCONSCIOUS)) // It's not already KOed
+            && (!other->IsAct(act_t::DYING)) // It's not already dying
+            && (!other->IsAct(act_t::DEAD)) // It's not already dead
         ) {
           std::string command = std::string("attack ") + other->ShortDesc();
           body->BusyFor(500, command.c_str());
@@ -3048,26 +3049,26 @@ bool Mind::Think(int istick) {
           && (!body->StillBusy()) // Not already responding
           && body->Stun() < 6 // I'm not stunned
           && body->Phys() < 6 // I'm not injured
-          && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
-          && (!body->IsAct(ACT_REST)) // I'm not resting
+          && (!body->IsAct(act_t::SLEEP)) // I'm not asleep
+          && (!body->IsAct(act_t::REST)) // I'm not resting
       ) {
         body->BusyFor(500, "search");
       }
     }
     // HELPER TBA Mobs
     if (body && body->Parent() && (body->Skill(crc32c("TBAAction")) & 4096) &&
-        (!body->IsAct(ACT_FIGHT))) {
+        (!body->IsAct(act_t::FIGHT))) {
       auto others = body->PickObjects("everyone", LOC_NEARBY);
       for (auto other : others) {
         if ((!other->Skill(crc32c("TBAAction"))) // FIXME: Other mobs?
             && body->Stun() < 6 // I'm not stunned
             && body->Phys() < 6 // I'm not injured
-            && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
-            && (!body->IsAct(ACT_REST)) // I'm not resting
+            && (!body->IsAct(act_t::SLEEP)) // I'm not asleep
+            && (!body->IsAct(act_t::REST)) // I'm not resting
             && other->IsAnimate() // It's not a rock
-            && (!other->IsAct(ACT_DEAD)) // It's not already dead
-            && other->IsAct(ACT_FIGHT) // It's figting someone
-            && other->ActTarg(ACT_FIGHT)->HasSkill(crc32c("TBAAction"))
+            && (!other->IsAct(act_t::DEAD)) // It's not already dead
+            && other->IsAct(act_t::FIGHT) // It's figting someone
+            && other->ActTarg(act_t::FIGHT)->HasSkill(crc32c("TBAAction"))
             //...against another MOB
         ) {
           std::string command = std::string("call ALARM; attack ") + other->ShortDesc();
@@ -3083,16 +3084,16 @@ bool Mind::Think(int istick) {
           && (!body->StillBusy()) // Not already responding
           && body->Stun() < 6 // I'm not stunned
           && body->Phys() < 6 // I'm not injured
-          && (!body->IsAct(ACT_SLEEP)) // I'm not asleep
-          && (!body->IsAct(ACT_REST)) // I'm not resting
+          && (!body->IsAct(act_t::SLEEP)) // I'm not asleep
+          && (!body->IsAct(act_t::REST)) // I'm not resting
       ) {
         body->BusyFor(500, "search");
       }
     }
     // NON-SENTINEL TBA Mobs
     if (body && body->Parent() && ((body->Skill(crc32c("TBAAction")) & 2) == 0) &&
-        (!body->IsAct(ACT_FIGHT)) && (istick == 1) && (!body->IsAct(ACT_REST)) &&
-        (!body->IsAct(ACT_SLEEP)) && body->Stun() < 6 && body->Phys() < 6 &&
+        (!body->IsAct(act_t::FIGHT)) && (istick == 1) && (!body->IsAct(act_t::REST)) &&
+        (!body->IsAct(act_t::SLEEP)) && body->Stun() < 6 && body->Phys() < 6 &&
         body->Roll(crc32c("Willpower"), 9)) {
       std::map<Object*, std::string> cons;
       cons[body->PickObject("north", LOC_NEARBY)] = "north";
@@ -3105,13 +3106,13 @@ bool Mind::Think(int istick) {
 
       std::map<Object*, std::string> cons2 = cons;
       for (auto dir : cons2) {
-        if ((!dir.first->ActTarg(ACT_SPECIAL_LINKED)) ||
-            (!dir.first->ActTarg(ACT_SPECIAL_LINKED)->Parent())) {
+        if ((!dir.first->ActTarg(act_t::SPECIAL_LINKED)) ||
+            (!dir.first->ActTarg(act_t::SPECIAL_LINKED)->Parent())) {
           cons.erase(dir.first);
           continue;
         }
 
-        Object* dest = dir.first->ActTarg(ACT_SPECIAL_LINKED)->Parent();
+        Object* dest = dir.first->ActTarg(act_t::SPECIAL_LINKED)->Parent();
         if (!TBACanWanderTo(dest)) {
           cons.erase(dir.first);
         }

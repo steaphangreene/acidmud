@@ -151,8 +151,8 @@ void Object::DynamicInit1() { // Dwarven mine
         10000,
         10,
         150,
-        ACT_WEAR_CHEST,
-        ACT_WEAR_BACK);
+        act_t::WEAR_CHEST,
+        act_t::WEAR_BACK);
     dwarf_miner->Armor(arm);
 
     dwarf_engineer = new MOBType(
@@ -204,8 +204,8 @@ void Object::DynamicInit1() { // Dwarven mine
         10000,
         10,
         150,
-        ACT_WEAR_CHEST,
-        ACT_WEAR_BACK);
+        act_t::WEAR_CHEST,
+        act_t::WEAR_BACK);
     dwarf_engineer->Armor(arm);
 
     dwarf_guard = new MOBType(
@@ -257,8 +257,8 @@ void Object::DynamicInit1() { // Dwarven mine
         200000,
         100,
         15000,
-        ACT_WEAR_CHEST,
-        ACT_WEAR_BACK);
+        act_t::WEAR_CHEST,
+        act_t::WEAR_BACK);
     dwarf_guard->Armor(arm);
     arm = new ArmorType(
         "a dwarven great helm",
@@ -275,7 +275,7 @@ void Object::DynamicInit1() { // Dwarven mine
         50000,
         70,
         5000,
-        ACT_WEAR_HEAD);
+        act_t::WEAR_HEAD);
     dwarf_guard->Armor(arm);
     arm = new ArmorType(
         "a dwarven arm plate (right)",
@@ -292,7 +292,7 @@ void Object::DynamicInit1() { // Dwarven mine
         50000,
         60,
         5000,
-        ACT_WEAR_RARM);
+        act_t::WEAR_RARM);
     dwarf_guard->Armor(arm);
     arm = new ArmorType(
         "a dwarven arm plate (left)",
@@ -309,7 +309,7 @@ void Object::DynamicInit1() { // Dwarven mine
         50000,
         60,
         5000,
-        ACT_WEAR_LARM);
+        act_t::WEAR_LARM);
     dwarf_guard->Armor(arm);
     arm = new ArmorType(
         "a dwarven battle skirt",
@@ -326,8 +326,8 @@ void Object::DynamicInit1() { // Dwarven mine
         100000,
         80,
         10000,
-        ACT_WEAR_RLEG,
-        ACT_WEAR_LLEG);
+        act_t::WEAR_RLEG,
+        act_t::WEAR_LLEG);
     dwarf_guard->Armor(arm);
 
     dwarf_explorer = new MOBType(
@@ -379,8 +379,8 @@ void Object::DynamicInit1() { // Dwarven mine
         10000,
         10,
         150,
-        ACT_WEAR_CHEST,
-        ACT_WEAR_BACK);
+        act_t::WEAR_CHEST,
+        act_t::WEAR_BACK);
     dwarf_explorer->Armor(arm);
 
     elf_prisoner = new MOBType(
@@ -456,12 +456,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetShortDesc(dirb);
       door1->SetDesc((std::string("You see a solid passage leading ") + dir + ".\n").c_str());
       door2->SetDesc((std::string("You see a solid passage leading ") + dirb + ".\n").c_str());
-      door1->AddAct(ACT_SPECIAL_LINKED, door2);
-      door1->AddAct(ACT_SPECIAL_MASTER, door2);
+      door1->AddAct(act_t::SPECIAL_LINKED, door2);
+      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(crc32c("Open"), 1000);
       door1->SetSkill(crc32c("Enterable"), 1);
-      door2->AddAct(ACT_SPECIAL_LINKED, door1);
-      door2->AddAct(ACT_SPECIAL_MASTER, door1);
+      door2->AddAct(act_t::SPECIAL_LINKED, door1);
+      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(crc32c("Open"), 1000);
       door2->SetSkill(crc32c("Enterable"), 1);
 
@@ -503,12 +503,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetShortDesc(dirb);
       door1->SetDesc((std::string("You see a solid passage leading ") + dir + ".\n").c_str());
       door2->SetDesc((std::string("You see a solid passage leading ") + dirb + ".\n").c_str());
-      door1->AddAct(ACT_SPECIAL_LINKED, door2);
-      door1->AddAct(ACT_SPECIAL_MASTER, door2);
+      door1->AddAct(act_t::SPECIAL_LINKED, door2);
+      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(crc32c("Open"), 1000);
       door1->SetSkill(crc32c("Enterable"), 1);
-      door2->AddAct(ACT_SPECIAL_LINKED, door1);
-      door2->AddAct(ACT_SPECIAL_MASTER, door1);
+      door2->AddAct(act_t::SPECIAL_LINKED, door1);
+      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(crc32c("Open"), 1000);
       door2->SetSkill(crc32c("Enterable"), 1);
     } break;
@@ -549,12 +549,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetShortDesc(dirb);
       door1->SetDesc((std::string("You see a solid passage leading ") + dir + ".\n").c_str());
       door2->SetDesc((std::string("You see a solid passage leading ") + dirb + ".\n").c_str());
-      door1->AddAct(ACT_SPECIAL_LINKED, door2);
-      door1->AddAct(ACT_SPECIAL_MASTER, door2);
+      door1->AddAct(act_t::SPECIAL_LINKED, door2);
+      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(crc32c("Open"), 1000);
       door1->SetSkill(crc32c("Enterable"), 1);
-      door2->AddAct(ACT_SPECIAL_LINKED, door1);
-      door2->AddAct(ACT_SPECIAL_MASTER, door1);
+      door2->AddAct(act_t::SPECIAL_LINKED, door1);
+      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(crc32c("Open"), 1000);
       door2->SetSkill(crc32c("Enterable"), 1);
 
@@ -573,12 +573,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetShortDesc(dir3);
       door1->SetDesc((std::string("You see a crumbling passage leading ") + dir2 + ".\n").c_str());
       door2->SetDesc((std::string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
-      door1->AddAct(ACT_SPECIAL_LINKED, door2);
-      door1->AddAct(ACT_SPECIAL_MASTER, door2);
+      door1->AddAct(act_t::SPECIAL_LINKED, door2);
+      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(crc32c("Open"), 1000);
       door1->SetSkill(crc32c("Enterable"), 1);
-      door2->AddAct(ACT_SPECIAL_LINKED, door1);
-      door2->AddAct(ACT_SPECIAL_MASTER, door1);
+      door2->AddAct(act_t::SPECIAL_LINKED, door1);
+      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(crc32c("Open"), 1000);
       door2->SetSkill(crc32c("Enterable"), 1);
     } break;
@@ -619,12 +619,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetShortDesc(dirb);
       door1->SetDesc((std::string("You see a solid passage leading ") + dir + ".\n").c_str());
       door2->SetDesc((std::string("You see a solid passage leading ") + dirb + ".\n").c_str());
-      door1->AddAct(ACT_SPECIAL_LINKED, door2);
-      door1->AddAct(ACT_SPECIAL_MASTER, door2);
+      door1->AddAct(act_t::SPECIAL_LINKED, door2);
+      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(crc32c("Open"), 1000);
       door1->SetSkill(crc32c("Enterable"), 1);
-      door2->AddAct(ACT_SPECIAL_LINKED, door1);
-      door2->AddAct(ACT_SPECIAL_MASTER, door1);
+      door2->AddAct(act_t::SPECIAL_LINKED, door1);
+      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(crc32c("Open"), 1000);
       door2->SetSkill(crc32c("Enterable"), 1);
 
@@ -643,12 +643,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetShortDesc(dir3);
       door1->SetDesc((std::string("You see a crumbling passage leading ") + dir2 + ".\n").c_str());
       door2->SetDesc((std::string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
-      door1->AddAct(ACT_SPECIAL_LINKED, door2);
-      door1->AddAct(ACT_SPECIAL_MASTER, door2);
+      door1->AddAct(act_t::SPECIAL_LINKED, door2);
+      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(crc32c("Open"), 1000);
       door1->SetSkill(crc32c("Enterable"), 1);
-      door2->AddAct(ACT_SPECIAL_LINKED, door1);
-      door2->AddAct(ACT_SPECIAL_MASTER, door1);
+      door2->AddAct(act_t::SPECIAL_LINKED, door1);
+      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(crc32c("Open"), 1000);
       door2->SetSkill(crc32c("Enterable"), 1);
       door1->SetSkill(crc32c("Hidden"), 4 + rand() % 13);
@@ -733,12 +733,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetShortDesc(dirb);
       door1->SetDesc((std::string("You see a solid passage leading ") + dir + ".\n").c_str());
       door2->SetDesc((std::string("You see a solid passage leading ") + dirb + ".\n").c_str());
-      door1->AddAct(ACT_SPECIAL_LINKED, door2);
-      door1->AddAct(ACT_SPECIAL_MASTER, door2);
+      door1->AddAct(act_t::SPECIAL_LINKED, door2);
+      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(crc32c("Open"), 1000);
       door1->SetSkill(crc32c("Enterable"), 1);
-      door2->AddAct(ACT_SPECIAL_LINKED, door1);
-      door2->AddAct(ACT_SPECIAL_MASTER, door1);
+      door2->AddAct(act_t::SPECIAL_LINKED, door1);
+      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(crc32c("Open"), 1000);
       door2->SetSkill(crc32c("Enterable"), 1);
     } break;
@@ -780,12 +780,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetShortDesc(dirb);
       door1->SetDesc((std::string("You see a crumbling passage leading ") + dir + ".\n").c_str());
       door2->SetDesc((std::string("You see a crumbling passage leading ") + dirb + ".\n").c_str());
-      door1->AddAct(ACT_SPECIAL_LINKED, door2);
-      door1->AddAct(ACT_SPECIAL_MASTER, door2);
+      door1->AddAct(act_t::SPECIAL_LINKED, door2);
+      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(crc32c("Open"), 1000);
       door1->SetSkill(crc32c("Enterable"), 1);
-      door2->AddAct(ACT_SPECIAL_LINKED, door1);
-      door2->AddAct(ACT_SPECIAL_MASTER, door1);
+      door2->AddAct(act_t::SPECIAL_LINKED, door1);
+      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(crc32c("Open"), 1000);
       door2->SetSkill(crc32c("Enterable"), 1);
     } break;
@@ -826,12 +826,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetShortDesc(dir3);
       door1->SetDesc((std::string("You see a crumbling passage leading ") + dir2 + ".\n").c_str());
       door2->SetDesc((std::string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
-      door1->AddAct(ACT_SPECIAL_LINKED, door2);
-      door1->AddAct(ACT_SPECIAL_MASTER, door2);
+      door1->AddAct(act_t::SPECIAL_LINKED, door2);
+      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(crc32c("Open"), 1000);
       door1->SetSkill(crc32c("Enterable"), 1);
-      door2->AddAct(ACT_SPECIAL_LINKED, door1);
-      door2->AddAct(ACT_SPECIAL_MASTER, door1);
+      door2->AddAct(act_t::SPECIAL_LINKED, door1);
+      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(crc32c("Open"), 1000);
       door2->SetSkill(crc32c("Enterable"), 1);
     } break;
@@ -870,12 +870,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetShortDesc(dir3);
       door1->SetDesc((std::string("You see a crumbling passage leading ") + dir2 + ".\n").c_str());
       door2->SetDesc((std::string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
-      door1->AddAct(ACT_SPECIAL_LINKED, door2);
-      door1->AddAct(ACT_SPECIAL_MASTER, door2);
+      door1->AddAct(act_t::SPECIAL_LINKED, door2);
+      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(crc32c("Open"), 1000);
       door1->SetSkill(crc32c("Enterable"), 1);
-      door2->AddAct(ACT_SPECIAL_LINKED, door1);
-      door2->AddAct(ACT_SPECIAL_MASTER, door1);
+      door2->AddAct(act_t::SPECIAL_LINKED, door1);
+      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(crc32c("Open"), 1000);
       door2->SetSkill(crc32c("Enterable"), 1);
 
@@ -894,12 +894,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetShortDesc(dir3);
       door1->SetDesc((std::string("You see a crumbling passage leading ") + dir2 + ".\n").c_str());
       door2->SetDesc((std::string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
-      door1->AddAct(ACT_SPECIAL_LINKED, door2);
-      door1->AddAct(ACT_SPECIAL_MASTER, door2);
+      door1->AddAct(act_t::SPECIAL_LINKED, door2);
+      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(crc32c("Open"), 1000);
       door1->SetSkill(crc32c("Enterable"), 1);
-      door2->AddAct(ACT_SPECIAL_LINKED, door1);
-      door2->AddAct(ACT_SPECIAL_MASTER, door1);
+      door2->AddAct(act_t::SPECIAL_LINKED, door1);
+      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(crc32c("Open"), 1000);
       door2->SetSkill(crc32c("Enterable"), 1);
     } break;
@@ -953,12 +953,12 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetShortDesc(dirb);
       door1->SetDesc((std::string("You see a crumbling passage leading ") + dir + ".\n").c_str());
       door2->SetDesc((std::string("You see a crumbling passage leading ") + dirb + ".\n").c_str());
-      door1->AddAct(ACT_SPECIAL_LINKED, door2);
-      door1->AddAct(ACT_SPECIAL_MASTER, door2);
+      door1->AddAct(act_t::SPECIAL_LINKED, door2);
+      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(crc32c("Open"), 1000);
       door1->SetSkill(crc32c("Enterable"), 1);
-      door2->AddAct(ACT_SPECIAL_LINKED, door1);
-      door2->AddAct(ACT_SPECIAL_MASTER, door1);
+      door2->AddAct(act_t::SPECIAL_LINKED, door1);
+      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(crc32c("Open"), 1000);
       door2->SetSkill(crc32c("Enterable"), 1);
       door1->SetSkill(crc32c("Hidden"), 4 + rand() % 13);

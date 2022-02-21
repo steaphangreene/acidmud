@@ -36,30 +36,30 @@
 
 static std::map<act_t, std::string> wear_attribs;
 static void init_wear_attribs() {
-  wear_attribs[ACT_WEAR_BACK] = "Wearable on Back";
-  wear_attribs[ACT_WEAR_CHEST] = "Wearable on Chest";
-  wear_attribs[ACT_WEAR_HEAD] = "Wearable on Head";
-  wear_attribs[ACT_WEAR_NECK] = "Wearable on Neck";
-  wear_attribs[ACT_WEAR_COLLAR] = "Wearable on Collar";
-  wear_attribs[ACT_WEAR_WAIST] = "Wearable on Waist";
-  wear_attribs[ACT_WEAR_SHIELD] = "Wearable on Shield";
-  wear_attribs[ACT_WEAR_LARM] = "Wearable on Left Arm";
-  wear_attribs[ACT_WEAR_RARM] = "Wearable on Right Arm";
-  wear_attribs[ACT_WEAR_LFINGER] = "Wearable on Left Finger";
-  wear_attribs[ACT_WEAR_RFINGER] = "Wearable on Right Finger";
-  wear_attribs[ACT_WEAR_LFOOT] = "Wearable on Left Foot";
-  wear_attribs[ACT_WEAR_RFOOT] = "Wearable on Right Foot";
-  wear_attribs[ACT_WEAR_LHAND] = "Wearable on Left Hand";
-  wear_attribs[ACT_WEAR_RHAND] = "Wearable on Right Hand";
-  wear_attribs[ACT_WEAR_LLEG] = "Wearable on Left Leg";
-  wear_attribs[ACT_WEAR_RLEG] = "Wearable on Right Leg";
-  wear_attribs[ACT_WEAR_LWRIST] = "Wearable on Left Wrist";
-  wear_attribs[ACT_WEAR_RWRIST] = "Wearable on Right Wrist";
-  wear_attribs[ACT_WEAR_LSHOULDER] = "Wearable on Left Shoulder";
-  wear_attribs[ACT_WEAR_RSHOULDER] = "Wearable on Right Shoulder";
-  wear_attribs[ACT_WEAR_LHIP] = "Wearable on Left Hip";
-  wear_attribs[ACT_WEAR_RHIP] = "Wearable on Right Hip";
-  wear_attribs[ACT_WEAR_FACE] = "Wearable on Face";
+  wear_attribs[act_t::WEAR_BACK] = "Wearable on Back";
+  wear_attribs[act_t::WEAR_CHEST] = "Wearable on Chest";
+  wear_attribs[act_t::WEAR_HEAD] = "Wearable on Head";
+  wear_attribs[act_t::WEAR_NECK] = "Wearable on Neck";
+  wear_attribs[act_t::WEAR_COLLAR] = "Wearable on Collar";
+  wear_attribs[act_t::WEAR_WAIST] = "Wearable on Waist";
+  wear_attribs[act_t::WEAR_SHIELD] = "Wearable on Shield";
+  wear_attribs[act_t::WEAR_LARM] = "Wearable on Left Arm";
+  wear_attribs[act_t::WEAR_RARM] = "Wearable on Right Arm";
+  wear_attribs[act_t::WEAR_LFINGER] = "Wearable on Left Finger";
+  wear_attribs[act_t::WEAR_RFINGER] = "Wearable on Right Finger";
+  wear_attribs[act_t::WEAR_LFOOT] = "Wearable on Left Foot";
+  wear_attribs[act_t::WEAR_RFOOT] = "Wearable on Right Foot";
+  wear_attribs[act_t::WEAR_LHAND] = "Wearable on Left Hand";
+  wear_attribs[act_t::WEAR_RHAND] = "Wearable on Right Hand";
+  wear_attribs[act_t::WEAR_LLEG] = "Wearable on Left Leg";
+  wear_attribs[act_t::WEAR_RLEG] = "Wearable on Right Leg";
+  wear_attribs[act_t::WEAR_LWRIST] = "Wearable on Left Wrist";
+  wear_attribs[act_t::WEAR_RWRIST] = "Wearable on Right Wrist";
+  wear_attribs[act_t::WEAR_LSHOULDER] = "Wearable on Left Shoulder";
+  wear_attribs[act_t::WEAR_RSHOULDER] = "Wearable on Right Shoulder";
+  wear_attribs[act_t::WEAR_LHIP] = "Wearable on Left Hip";
+  wear_attribs[act_t::WEAR_RHIP] = "Wearable on Right Hip";
+  wear_attribs[act_t::WEAR_FACE] = "Wearable on Face";
 }
 
 static Mind* mob_mind = nullptr;
@@ -102,7 +102,7 @@ static void give_gold(Object* mob, int qty) {
   bag->SetValue(100);
 
   bag->SetPos(pos_t::LIE);
-  mob->AddAct(ACT_WEAR_LHIP, bag);
+  mob->AddAct(act_t::WEAR_LHIP, bag);
 
   if (!gold)
     init_gold();
@@ -219,9 +219,9 @@ void Object::AddMOB(const MOBType* type) {
     obj->SetVolume(type->armed->volume);
     obj->SetValue(type->armed->value);
     obj->SetPos(pos_t::LIE);
-    mob->AddAct(ACT_WIELD, obj);
+    mob->AddAct(act_t::WIELD, obj);
     if (two_handed(type->armed->type))
-      mob->AddAct(ACT_HOLD, obj);
+      mob->AddAct(act_t::HOLD, obj);
   }
 
   for (auto ar : type->armor) {
@@ -310,17 +310,17 @@ ArmorType::ArmorType(
   planar = p;
   planarm = std::max(pm, 1);
 
-  if (l1 != ACT_NONE)
+  if (l1 != act_t::NONE)
     loc.push_back(l1);
-  if (l2 != ACT_NONE)
+  if (l2 != act_t::NONE)
     loc.push_back(l2);
-  if (l3 != ACT_NONE)
+  if (l3 != act_t::NONE)
     loc.push_back(l3);
-  if (l4 != ACT_NONE)
+  if (l4 != act_t::NONE)
     loc.push_back(l4);
-  if (l5 != ACT_NONE)
+  if (l5 != act_t::NONE)
     loc.push_back(l5);
-  if (l6 != ACT_NONE)
+  if (l6 != act_t::NONE)
     loc.push_back(l6);
 
   weight = w;

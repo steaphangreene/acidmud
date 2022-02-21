@@ -1078,14 +1078,14 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
     if (comlist[cnum].sit & (SIT_ALIVE | SIT_AWAKE | SIT_ALERT)) {
-      if (body->IsAct(ACT_DYING) || body->IsAct(ACT_DEAD)) {
+      if (body->IsAct(act_t::DYING) || body->IsAct(act_t::DEAD)) {
         if (mind)
           mind->Send("You must be alive to use that command.\n");
         return 0;
       }
     }
     if (body && (comlist[cnum].sit & SIT_CONSCIOUS)) {
-      if (body->IsAct(ACT_UNCONSCIOUS)) {
+      if (body->IsAct(act_t::UNCONSCIOUS)) {
         if (mind)
           mind->Send("You can't do that, you are out cold.\n");
         return 0;
@@ -1138,27 +1138,27 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       }
     }
     if (comlist[cnum].sit & SIT_ALERT) {
-      if (body->IsAct(ACT_SLEEP)) {
+      if (body->IsAct(act_t::SLEEP)) {
         if (mind)
           mind->Send("You must be awake to use that command.\n");
         handle_single_command(body, "wake", mind);
-        if (body->IsAct(ACT_SLEEP))
+        if (body->IsAct(act_t::SLEEP))
           return 0;
       }
-      if (body->IsAct(ACT_REST)) {
+      if (body->IsAct(act_t::REST)) {
         if (mind)
           mind->Send("You must be alert to use that command.\n");
         handle_single_command(body, "rest", mind);
-        if (body->IsAct(ACT_REST))
+        if (body->IsAct(act_t::REST))
           return 0;
       }
     }
     if (comlist[cnum].sit & SIT_AWAKE) {
-      if (body->IsAct(ACT_SLEEP)) {
+      if (body->IsAct(act_t::SLEEP)) {
         if (mind)
           mind->Send("You must be awake to use that command.\n");
         handle_single_command(body, "wake", mind);
-        if (body->IsAct(ACT_SLEEP))
+        if (body->IsAct(act_t::SLEEP))
           return 0;
       }
     }
@@ -1301,7 +1301,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         mind->Owner()->SetCreator(body);
         return 0;
       }
-      if ((!nmode) && body->IsAct(ACT_DEAD)) { // Ninjas can autoheal
+      if ((!nmode) && body->IsAct(act_t::DEAD)) { // Ninjas can autoheal
         mind->Send(
             "Sorry, that character is dead.\n"
             "Use the 'newcharacter' command to create a new character.\n");
@@ -1332,11 +1332,11 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             body);
       }
 
-      if (body->IsAct(ACT_DYING)) {
+      if (body->IsAct(act_t::DYING)) {
         mind->Send("You can see nothing, you are too busy dying.\n");
-      } else if (body->IsAct(ACT_UNCONSCIOUS)) {
+      } else if (body->IsAct(act_t::UNCONSCIOUS)) {
         mind->Send("You can see nothing, you are out cold.\n");
-      } else if (body->IsAct(ACT_SLEEP)) {
+      } else if (body->IsAct(act_t::SLEEP)) {
         mind->Send("You can see nothing since you are asleep.\n");
       } else {
         body->Parent()->SendDescSurround(mind, body);
@@ -1354,8 +1354,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
 
-    if (dest->ActTarg(ACT_SPECIAL_LINKED) && dest->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
-      rdest = dest->ActTarg(ACT_SPECIAL_LINKED)->Parent();
+    if (dest->ActTarg(act_t::SPECIAL_LINKED) && dest->ActTarg(act_t::SPECIAL_LINKED)->Parent()) {
+      rdest = dest->ActTarg(act_t::SPECIAL_LINKED)->Parent();
     }
 
     if ((!dest->Skill(crc32c("Enterable"))) && (!ninja)) {
@@ -1409,9 +1409,9 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       }
 
       int newworld = (body->World() != rdest->World());
-      if (dest->ActTarg(ACT_SPECIAL_LINKED) && dest->ActTarg(ACT_SPECIAL_LINKED)->Parent()) {
+      if (dest->ActTarg(act_t::SPECIAL_LINKED) && dest->ActTarg(act_t::SPECIAL_LINKED)->Parent()) {
         body->Parent()->SendOut(stealth_t, stealth_s, ";s leaves ;s.\n", "", body, dest);
-        dest = dest->ActTarg(ACT_SPECIAL_LINKED)->Parent();
+        dest = dest->ActTarg(act_t::SPECIAL_LINKED)->Parent();
       } else if (body->Parent()) {
         body->Parent()->SendOut(stealth_t, stealth_s, ";s enters ;s.\n", "", body, dest);
       }
@@ -1850,8 +1850,9 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     for (auto targ : targs) {
       std::string denied = "";
       for (Object* own = targ; own; own = own->Parent()) {
-        if (own->IsAnimate() && own != body && (!own->IsAct(ACT_SLEEP)) &&
-            (!own->IsAct(ACT_DEAD)) && (!own->IsAct(ACT_DYING)) && (!own->IsAct(ACT_UNCONSCIOUS))) {
+        if (own->IsAnimate() && own != body && (!own->IsAct(act_t::SLEEP)) &&
+            (!own->IsAct(act_t::DEAD)) && (!own->IsAct(act_t::DYING)) &&
+            (!own->IsAct(act_t::UNCONSCIOUS))) {
           denied = "You would need ";
           denied += own->Name(1);
           denied += "'s permission to search ";
@@ -1915,8 +1916,9 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     for (auto targ : targs) {
       std::string denied = "";
       for (Object* own = targ; own; own = own->Parent()) {
-        if (own->IsAnimate() && own != body && (!own->IsAct(ACT_SLEEP)) &&
-            (!own->IsAct(ACT_DEAD)) && (!own->IsAct(ACT_DYING)) && (!own->IsAct(ACT_UNCONSCIOUS))) {
+        if (own->IsAnimate() && own != body && (!own->IsAct(act_t::SLEEP)) &&
+            (!own->IsAct(act_t::DEAD)) && (!own->IsAct(act_t::DYING)) &&
+            (!own->IsAct(act_t::UNCONSCIOUS))) {
           denied = "You would need ";
           denied += own->Name(1);
           denied += "'s permission to hide ";
@@ -2003,7 +2005,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       // Weapons
       if (targ->HasSkill(crc32c("WeaponType"))) {
         handled = 1;
-        Object* base = body->ActTarg(ACT_WIELD);
+        Object* base = body->ActTarg(act_t::WIELD);
         if (base == targ) {
           mind->SendF("%s is your current weapon!\n", base->Name(0, body).c_str());
           mind->Send("Consider using something else for comparison.\n");
@@ -2132,7 +2134,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         }
       }
 
-      Object* other = body->ActTarg(ACT_HOLD);
+      Object* other = body->ActTarg(act_t::HOLD);
       if ((volume || wtlimit || szlimit) && other && other != targ) {
         // Containers
         if (szlimit && other->HasSkill(crc32c("Capacity"))) {
@@ -2232,11 +2234,11 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         mes[0] = ascii_toupper(mes[0]);
         mind->Send(mes.c_str());
 
-        if ((!targ->ActTarg(ACT_WIELD)) && (!body->ActTarg(ACT_WIELD))) {
+        if ((!targ->ActTarg(act_t::WIELD)) && (!body->ActTarg(act_t::WIELD))) {
           mind->Send("   ...is unarmed, but so are you.\n");
-        } else if (!targ->ActTarg(ACT_WIELD)) {
+        } else if (!targ->ActTarg(act_t::WIELD)) {
           mind->Send(CGRN "   ...is unarmed.\n" CNRM);
-        } else if (!body->ActTarg(ACT_WIELD)) {
+        } else if (!body->ActTarg(act_t::WIELD)) {
           mind->Send(CYEL "   ...is armed, and you are not!\n" CNRM);
         }
 
@@ -2249,10 +2251,10 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         }
 
         diff = 0;
-        if (body->ActTarg(ACT_WIELD))
-          diff = (body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponReach")) > 9);
-        if (targ->ActTarg(ACT_WIELD) &&
-            targ->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponReach")) > 9) {
+        if (body->ActTarg(act_t::WIELD))
+          diff = (body->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponReach")) > 9);
+        if (targ->ActTarg(act_t::WIELD) &&
+            targ->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponReach")) > 9) {
           if (diff)
             mind->Send("   ...has a ranged weapon, and so do you!\n");
           else
@@ -2261,10 +2263,10 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           mind->Send(CGRN "   ...doesn't have a ranged weapon, and you do!\n" CNRM);
         } else {
           diff = 0;
-          if (body->ActTarg(ACT_WIELD))
-            diff += body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponReach"));
-          if (targ->ActTarg(ACT_WIELD))
-            diff -= targ->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponReach"));
+          if (body->ActTarg(act_t::WIELD))
+            diff += body->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponReach"));
+          if (targ->ActTarg(act_t::WIELD))
+            diff -= targ->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponReach"));
           if (diff < -5)
             mind->Send(CRED "   ...outreaches you by a mile.\n" CNRM);
           else if (diff < -2)
@@ -2285,25 +2287,25 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             mind->Send("   ...has about your reach.\n");
         }
 
-        if ((!targ->ActTarg(ACT_WEAR_SHIELD)) && (!body->ActTarg(ACT_WEAR_SHIELD))) {
+        if ((!targ->ActTarg(act_t::WEAR_SHIELD)) && (!body->ActTarg(act_t::WEAR_SHIELD))) {
           mind->Send("   ...has no shield, but neither do you.\n");
-        } else if (!targ->ActTarg(ACT_WEAR_SHIELD)) {
+        } else if (!targ->ActTarg(act_t::WEAR_SHIELD)) {
           mind->Send(CGRN "   ...has no shield.\n" CNRM);
-        } else if (!body->ActTarg(ACT_WEAR_SHIELD)) {
+        } else if (!body->ActTarg(act_t::WEAR_SHIELD)) {
           mind->Send(CYEL "   ...has a shield, and you do not!\n" CNRM);
         }
 
         diff = 0;
         uint32_t sk = crc32c("Punching");
-        if (body->IsAct(ACT_WIELD)) {
-          sk = get_weapon_skill(body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")));
+        if (body->IsAct(act_t::WIELD)) {
+          sk = get_weapon_skill(body->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponType")));
         }
         if (body->HasSkill(sk)) {
           diff += body->Skill(sk);
         }
         sk = crc32c("Punching");
-        if (targ->IsAct(ACT_WIELD)) {
-          sk = get_weapon_skill(targ->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")));
+        if (targ->IsAct(act_t::WIELD)) {
+          sk = get_weapon_skill(targ->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponType")));
         }
         if (targ->HasSkill(sk)) {
           diff -= targ->Skill(sk);
@@ -2538,8 +2540,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       }
       targ->SetSkill(crc32c("Locked"), 1);
       body->Parent()->SendOut(stealth_t, stealth_s, ";s locks ;s.\n", "You lock ;s.\n", body, targ);
-      if (targ->ActTarg(ACT_SPECIAL_MASTER)) {
-        Object* targ2 = targ->ActTarg(ACT_SPECIAL_MASTER);
+      if (targ->ActTarg(act_t::SPECIAL_MASTER)) {
+        Object* targ2 = targ->ActTarg(act_t::SPECIAL_MASTER);
         targ2->Parent()->SendOut(stealth_t, stealth_s, ";s locks.\n", "", targ2, nullptr);
         targ2->SetSkill(crc32c("Locked"), 1);
       }
@@ -2583,8 +2585,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       targ->SetSkill(crc32c("Locked"), 0);
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s unlocks ;s.\n", "You unlock ;s.\n", body, targ);
-      if (targ->ActTarg(ACT_SPECIAL_MASTER)) {
-        Object* targ2 = targ->ActTarg(ACT_SPECIAL_MASTER);
+      if (targ->ActTarg(act_t::SPECIAL_MASTER)) {
+        Object* targ2 = targ->ActTarg(act_t::SPECIAL_MASTER);
         targ2->Parent()->SendOut(stealth_t, stealth_s, ";s unlocks.\n", "", targ2, nullptr);
         targ2->SetSkill(crc32c("Locked"), 1);
       }
@@ -2615,8 +2617,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     } else {
       targ->SetSkill(crc32c("Open"), 1000);
       body->Parent()->SendOut(stealth_t, stealth_s, ";s opens ;s.\n", "You open ;s.\n", body, targ);
-      if (targ->ActTarg(ACT_SPECIAL_MASTER)) {
-        Object* targ2 = targ->ActTarg(ACT_SPECIAL_MASTER);
+      if (targ->ActTarg(act_t::SPECIAL_MASTER)) {
+        Object* targ2 = targ->ActTarg(act_t::SPECIAL_MASTER);
         targ2->Parent()->SendOut(stealth_t, stealth_s, ";s opens.\n", "", targ2, nullptr);
         targ2->SetSkill(crc32c("Open"), 1000);
         targ2->SetSkill(crc32c("Locked"), 0); // FIXME: Do I want to do this?
@@ -2649,8 +2651,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       targ->SetSkill(crc32c("Open"), 0);
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s closes ;s.\n", "You close ;s.\n", body, targ);
-      if (targ->ActTarg(ACT_SPECIAL_MASTER)) {
-        Object* targ2 = targ->ActTarg(ACT_SPECIAL_MASTER);
+      if (targ->ActTarg(act_t::SPECIAL_MASTER)) {
+        Object* targ2 = targ->ActTarg(act_t::SPECIAL_MASTER);
         targ2->Parent()->SendOut(stealth_t, stealth_s, ";s closes.\n", "", targ2, nullptr);
         targ2->SetSkill(crc32c("Open"), 0);
         targ2->SetSkill(crc32c("Locked"), 0); // FIXME: Do I want to do this?
@@ -2668,13 +2670,13 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     std::string reason = "";
     for (auto shpkp : objs) {
       if (shpkp->Skill(crc32c("Sell Profit"))) {
-        if (shpkp->IsAct(ACT_DEAD)) {
+        if (shpkp->IsAct(act_t::DEAD)) {
           reason = "Sorry, the shopkeeper is dead!\n";
-        } else if (shpkp->IsAct(ACT_DYING)) {
+        } else if (shpkp->IsAct(act_t::DYING)) {
           reason = "Sorry, the shopkeeper is dying!\n";
-        } else if (shpkp->IsAct(ACT_UNCONSCIOUS)) {
+        } else if (shpkp->IsAct(act_t::UNCONSCIOUS)) {
           reason = "Sorry, the shopkeeper is unconscious!\n";
-        } else if (shpkp->IsAct(ACT_SLEEP)) {
+        } else if (shpkp->IsAct(act_t::SLEEP)) {
           reason = "Sorry, the shopkeeper is asleep!\n";
         } else {
           shpkps.push_back(shpkp);
@@ -2688,9 +2690,9 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       }
     } else {
       Object* shpkp = shpkps.front();
-      if (shpkp->ActTarg(ACT_WEAR_RSHOULDER) &&
-          shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill(crc32c("Vortex"))) {
-        Object* vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
+      if (shpkp->ActTarg(act_t::WEAR_RSHOULDER) &&
+          shpkp->ActTarg(act_t::WEAR_RSHOULDER)->Skill(crc32c("Vortex"))) {
+        Object* vortex = shpkp->ActTarg(act_t::WEAR_RSHOULDER);
         objs = vortex->Contents(vmode);
         auto oobj = objs.front();
         for (auto obj : objs) {
@@ -2722,13 +2724,13 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     std::string reason = "";
     for (auto shpkp : objs) {
       if (shpkp->Skill(crc32c("Sell Profit"))) {
-        if (shpkp->IsAct(ACT_DEAD)) {
+        if (shpkp->IsAct(act_t::DEAD)) {
           reason = "Sorry, the shopkeeper is dead!\n";
-        } else if (shpkp->IsAct(ACT_DYING)) {
+        } else if (shpkp->IsAct(act_t::DYING)) {
           reason = "Sorry, the shopkeeper is dying!\n";
-        } else if (shpkp->IsAct(ACT_UNCONSCIOUS)) {
+        } else if (shpkp->IsAct(act_t::UNCONSCIOUS)) {
           reason = "Sorry, the shopkeeper is unconscious!\n";
-        } else if (shpkp->IsAct(ACT_SLEEP)) {
+        } else if (shpkp->IsAct(act_t::SLEEP)) {
           reason = "Sorry, the shopkeeper is asleep!\n";
         } else {
           shpkps.push_back(shpkp);
@@ -2742,9 +2744,9 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       }
     } else {
       Object* shpkp = shpkps.front();
-      if (shpkp->ActTarg(ACT_WEAR_RSHOULDER) &&
-          shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill(crc32c("Vortex"))) {
-        Object* vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
+      if (shpkp->ActTarg(act_t::WEAR_RSHOULDER) &&
+          shpkp->ActTarg(act_t::WEAR_RSHOULDER)->Skill(crc32c("Vortex"))) {
+        Object* vortex = shpkp->ActTarg(act_t::WEAR_RSHOULDER);
 
         auto targs = vortex->PickObjects(std::string(args), vmode | LOC_INTERNAL);
         if (!targs.size()) {
@@ -2797,20 +2799,21 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
               shpkp->Stash(coin, 0, 1);
             }
           } else if (
-              ((!body->IsAct(ACT_HOLD)) || body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WIELD) ||
-               body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)) &&
+              ((!body->IsAct(act_t::HOLD)) ||
+               body->ActTarg(act_t::HOLD) == body->ActTarg(act_t::WIELD) ||
+               body->ActTarg(act_t::HOLD) == body->ActTarg(act_t::WEAR_SHIELD)) &&
               (!targ->Travel(body))) {
-            if (body->IsAct(ACT_HOLD)) {
+            if (body->IsAct(act_t::HOLD)) {
               body->Parent()->SendOut(
                   stealth_t,
                   stealth_s,
                   ";s stops holding ;s.\n",
                   "You stop holding ;s.\n",
                   body,
-                  body->ActTarg(ACT_HOLD));
-              body->StopAct(ACT_HOLD);
+                  body->ActTarg(act_t::HOLD));
+              body->StopAct(act_t::HOLD);
             }
-            body->AddAct(ACT_HOLD, targ);
+            body->AddAct(act_t::HOLD, targ);
             body->Parent()->SendOut(
                 stealth_t,
                 stealth_s,
@@ -2839,9 +2842,10 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     }
 
     Object* targ = body->PickObject(std::string(args), vmode | LOC_NOTWORN | LOC_INTERNAL);
-    if ((!targ) && body->ActTarg(ACT_HOLD) && body->ActTarg(ACT_HOLD)->Parent() != body // Dragging
-        && body->ActTarg(ACT_HOLD)->Matches(std::string(args))) {
-      targ = body->ActTarg(ACT_HOLD);
+    if ((!targ) && body->ActTarg(act_t::HOLD) &&
+        body->ActTarg(act_t::HOLD)->Parent() != body // Dragging
+        && body->ActTarg(act_t::HOLD)->Matches(std::string(args))) {
+      targ = body->ActTarg(act_t::HOLD);
     }
 
     if (!targ) {
@@ -2937,13 +2941,13 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     std::string reason = "Sorry, nobody is buying that sort of thing here.\n";
     uint32_t skill = crc32c("None");
     for (auto shpkp : objs) {
-      if (shpkp->IsAct(ACT_DEAD)) {
+      if (shpkp->IsAct(act_t::DEAD)) {
         reason = "Sorry, the shopkeeper is dead!\n";
-      } else if (shpkp->IsAct(ACT_DYING)) {
+      } else if (shpkp->IsAct(act_t::DYING)) {
         reason = "Sorry, the shopkeeper is dying!\n";
-      } else if (shpkp->IsAct(ACT_UNCONSCIOUS)) {
+      } else if (shpkp->IsAct(act_t::UNCONSCIOUS)) {
         reason = "Sorry, the shopkeeper is unconscious!\n";
-      } else if (shpkp->IsAct(ACT_SLEEP)) {
+      } else if (shpkp->IsAct(act_t::SLEEP)) {
         reason = "Sorry, the shopkeeper is asleep!\n";
       } else if (targ->Skill(crc32c("Money")) == targ->Value()) { // 1-1 Money
         for (auto skl : shpkp->GetSkills()) {
@@ -3035,9 +3039,9 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       }
     } else {
       Object* shpkp = shpkps.front();
-      if (shpkp->ActTarg(ACT_WEAR_RSHOULDER) &&
-          shpkp->ActTarg(ACT_WEAR_RSHOULDER)->Skill(crc32c("Vortex"))) {
-        Object* vortex = shpkp->ActTarg(ACT_WEAR_RSHOULDER);
+      if (shpkp->ActTarg(act_t::WEAR_RSHOULDER) &&
+          shpkp->ActTarg(act_t::WEAR_RSHOULDER)->Skill(crc32c("Vortex"))) {
+        Object* vortex = shpkp->ActTarg(act_t::WEAR_RSHOULDER);
 
         if (skill != crc32c("Money")) { // Not 1-1 Money
           price *= shpkp->Skill(skill);
@@ -3087,7 +3091,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
 
-    if (body->IsAct(ACT_HOLD)) {
+    if (body->IsAct(act_t::HOLD)) {
       if (mind)
         mind->Send("You are already holding something.  Drop it first.\n");
       return 0;
@@ -3115,7 +3119,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       if (mind)
         mind->SendF("You could never lift %s, it is too heavy.\n", targ->Name().c_str());
     } else {
-      body->AddAct(ACT_HOLD, targ);
+      body->AddAct(act_t::HOLD, targ);
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s starts dragging ;s.\n", "You start dragging ;s.\n", body, targ);
     }
@@ -3166,10 +3170,10 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       } else {
         std::string denied = "";
         for (Object* owner = targ->Parent(); owner; owner = owner->Parent()) {
-          if (owner->IsAnimate() && owner != body && (!owner->IsAct(ACT_SLEEP)) &&
-              (!owner->IsAct(ACT_DEAD)) && (!owner->IsAct(ACT_DYING)) &&
-              (!owner->IsAct(ACT_UNCONSCIOUS)) &&
-              (owner->ActTarg(ACT_OFFER) != body || owner->ActTarg(ACT_HOLD) != targ)) {
+          if (owner->IsAnimate() && owner != body && (!owner->IsAct(act_t::SLEEP)) &&
+              (!owner->IsAct(act_t::DEAD)) && (!owner->IsAct(act_t::DYING)) &&
+              (!owner->IsAct(act_t::UNCONSCIOUS)) &&
+              (owner->ActTarg(act_t::OFFER) != body || owner->ActTarg(act_t::HOLD) != targ)) {
             denied = "You would need ";
             denied += owner->Name(1);
             denied += "'s permission to get ";
@@ -3201,26 +3205,27 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             targ->Deactivate();
           }
         } else if (
-            body->IsAct(ACT_HOLD) && body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD) &&
-            body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)) {
+            body->IsAct(act_t::HOLD) &&
+            body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WEAR_SHIELD) &&
+            body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WIELD)) {
           if (mind)
             mind->SendF("You have no place to stash %s.\n", targ->Name().c_str());
         } else if (targ->Skill(crc32c("Quantity")) > 1) {
           if (mind)
             mind->SendF("You have no place to stash %s.\n", targ->Name().c_str());
         } else {
-          if (body->IsAct(ACT_HOLD)) {
+          if (body->IsAct(act_t::HOLD)) {
             body->Parent()->SendOut(
                 stealth_t,
                 stealth_s,
                 ";s stops holding ;s.\n",
                 "You stop holding ;s.\n",
                 body,
-                body->ActTarg(ACT_HOLD));
-            body->StopAct(ACT_HOLD);
+                body->ActTarg(act_t::HOLD));
+            body->StopAct(act_t::HOLD);
           }
           targ->Travel(body);
-          body->AddAct(ACT_HOLD, targ);
+          body->AddAct(act_t::HOLD, targ);
           body->Parent()->SendOut(
               stealth_t,
               stealth_s,
@@ -3238,50 +3243,50 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_UNLABEL) {
-    if (!body->IsAct(ACT_HOLD)) {
+    if (!body->IsAct(act_t::HOLD)) {
       if (mind)
         mind->Send("You must first 'hold' the object you want label.\n");
       return 0;
-    } else if (!body->ActTarg(ACT_HOLD)) {
+    } else if (!body->ActTarg(act_t::HOLD)) {
       if (mind)
         mind->Send("What!?!?!  You are holding nothing?\n");
       return 0;
     }
 
-    std::string name = body->ActTarg(ACT_HOLD)->ShortDesc();
+    std::string name = body->ActTarg(act_t::HOLD)->ShortDesc();
     size_t start = name.find_first_of('(');
     if (start != name.npos) {
       name = name.substr(0, start);
       trim_string(name);
-      body->ActTarg(ACT_HOLD)->SetShortDesc(name.c_str());
+      body->ActTarg(act_t::HOLD)->SetShortDesc(name.c_str());
       if (mind)
-        mind->SendF("%s is now unlabeled.\n", body->ActTarg(ACT_HOLD)->Name(1, body).c_str());
+        mind->SendF("%s is now unlabeled.\n", body->ActTarg(act_t::HOLD)->Name(1, body).c_str());
     } else {
       if (mind)
         mind->SendF(
             "%s does not have a label to remove.\n",
-            body->ActTarg(ACT_HOLD)->Name(1, body).c_str());
+            body->ActTarg(act_t::HOLD)->Name(1, body).c_str());
     }
     return 0;
   }
 
   if (cnum == COM_LABEL) {
-    if (!body->IsAct(ACT_HOLD)) {
+    if (!body->IsAct(act_t::HOLD)) {
       if (mind)
         mind->Send("You must first 'hold' the object you want label.\n");
       return 0;
-    } else if (!body->ActTarg(ACT_HOLD)) {
+    } else if (!body->ActTarg(act_t::HOLD)) {
       if (mind)
         mind->Send("What!?!?!  You are holding nothing?\n");
       return 0;
     }
 
     if (args.empty()) { // Just Checking Label
-      std::string label = body->ActTarg(ACT_HOLD)->ShortDesc();
+      std::string label = body->ActTarg(act_t::HOLD)->ShortDesc();
       size_t start = label.find_first_of('(');
       if (start == label.npos) {
         if (mind)
-          mind->SendF("%s has no label.\n", body->ActTarg(ACT_HOLD)->Name(1, body).c_str());
+          mind->SendF("%s has no label.\n", body->ActTarg(act_t::HOLD)->Name(1, body).c_str());
       } else {
         label = label.substr(start + 1);
         trim_string(label);
@@ -3293,11 +3298,11 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         if (mind)
           mind->SendF(
               "%s is labeled '%s'.\n",
-              body->ActTarg(ACT_HOLD)->Name(1, body).c_str(),
+              body->ActTarg(act_t::HOLD)->Name(1, body).c_str(),
               label.c_str());
       }
     } else { // Adding to Label
-      std::string name = body->ActTarg(ACT_HOLD)->ShortDesc();
+      std::string name = body->ActTarg(act_t::HOLD)->ShortDesc();
       std::string label = name;
       size_t start = label.find_first_of('(');
       if (start == label.npos) {
@@ -3315,7 +3320,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           if (mind)
             mind->SendF(
                 "%s already has that on the label.\n",
-                body->ActTarg(ACT_HOLD)->Name(1, body).c_str());
+                body->ActTarg(act_t::HOLD)->Name(1, body).c_str());
           return 0;
         } else {
           label += " ";
@@ -3323,13 +3328,13 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           trim_string(label);
         }
       }
-      body->ActTarg(ACT_HOLD)->SetShortDesc(name.c_str());
+      body->ActTarg(act_t::HOLD)->SetShortDesc(name.c_str());
       if (mind)
         mind->SendF(
             "%s is now labeled '%s'.\n",
-            body->ActTarg(ACT_HOLD)->Name(1, body).c_str(),
+            body->ActTarg(act_t::HOLD)->Name(1, body).c_str(),
             label.c_str());
-      body->ActTarg(ACT_HOLD)->SetShortDesc((name + " (" + label + ")").c_str());
+      body->ActTarg(act_t::HOLD)->SetShortDesc((name + " (" + label + ")").c_str());
     }
 
     return 0;
@@ -3345,11 +3350,11 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       }
     }
 
-    if (!body->IsAct(ACT_HOLD)) {
+    if (!body->IsAct(act_t::HOLD)) {
       if (mind)
         mind->Send("You must first 'hold' the object you want to 'put'.\n");
       return 0;
-    } else if (!body->ActTarg(ACT_HOLD)) {
+    } else if (!body->ActTarg(act_t::HOLD)) {
       if (mind)
         mind->Send("What!?!?!  You are holding nothing?\n");
       return 0;
@@ -3358,7 +3363,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     if (args.empty()) {
       if (mind)
         mind->SendF(
-            "What do you want to put %s in?\n", body->ActTarg(ACT_HOLD)->Name(0, body).c_str());
+            "What do you want to put %s in?\n", body->ActTarg(act_t::HOLD)->Name(0, body).c_str());
       return 0;
     }
 
@@ -3368,7 +3373,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         mind->SendF(
             "I don't see '%s' to put '%s' in!\n",
             std::string(args).c_str(),
-            body->ActTarg(ACT_HOLD)->Name(0, body).c_str());
+            body->ActTarg(act_t::HOLD)->Name(0, body).c_str());
     } else if (targ->IsAnimate()) {
       if (mind)
         mind->Send("You can only put things in inanimate objects!\n");
@@ -3378,19 +3383,19 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     } else if (targ->Skill(crc32c("Locked"))) {
       if (mind)
         mind->Send("You can't put anything in that, it is locked.\n");
-    } else if (targ == body->ActTarg(ACT_HOLD)) {
+    } else if (targ == body->ActTarg(act_t::HOLD)) {
       if (mind)
         mind->SendF(
-            "You can't put %s into itself.\n", body->ActTarg(ACT_HOLD)->Name(0, body).c_str());
+            "You can't put %s into itself.\n", body->ActTarg(act_t::HOLD)->Name(0, body).c_str());
     } else if (
-        (!nmode) && body->ActTarg(ACT_HOLD)->SubHasSkill(crc32c("Cursed")) &&
+        (!nmode) && body->ActTarg(act_t::HOLD)->SubHasSkill(crc32c("Cursed")) &&
         targ->Owner() != body) {
       if (mind)
         mind->SendF(
-            "You can't seem to part with %s.\n", body->ActTarg(ACT_HOLD)->Name(0, body).c_str());
+            "You can't seem to part with %s.\n", body->ActTarg(act_t::HOLD)->Name(0, body).c_str());
     } else {
       int closed = 0, res = 0;
-      Object* obj = body->ActTarg(ACT_HOLD);
+      Object* obj = body->ActTarg(act_t::HOLD);
       res = obj->Travel(targ);
       if (res == -2) {
         if (mind)
@@ -3436,8 +3441,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
   if (cnum == COM_WIELD) {
     if (args.empty()) {
-      if (body->IsAct(ACT_WIELD)) {
-        Object* wield = body->ActTarg(ACT_WIELD);
+      if (body->IsAct(act_t::WIELD)) {
+        Object* wield = body->ActTarg(act_t::WIELD);
         if ((!nmode) && wield && wield->SubHasSkill(crc32c("Cursed"))) {
           if (mind)
             mind->SendF("You can't seem to stop wielding %s!\n", wield->Name(0, body).c_str());
@@ -3450,16 +3455,17 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
               body,
               wield);
         } else if (
-            body->IsAct(ACT_HOLD) && body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD) &&
-            body->ActTarg(ACT_HOLD) != wield) {
+            body->IsAct(act_t::HOLD) &&
+            body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WEAR_SHIELD) &&
+            body->ActTarg(act_t::HOLD) != wield) {
           if (mind)
             mind->SendF(
                 "You are holding %s and can't stash %s.\n"
                 "Perhaps you want to 'drop' one of these items?",
-                body->ActTarg(ACT_HOLD)->Name(1, body).c_str(),
+                body->ActTarg(act_t::HOLD)->Name(1, body).c_str(),
                 wield->Name(1, body).c_str());
         } else {
-          body->StopAct(ACT_WIELD);
+          body->StopAct(act_t::WIELD);
           body->Parent()->SendOut(
               stealth_t,
               stealth_s,
@@ -3468,7 +3474,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
               body,
               wield);
           if (!body->Stash(wield))
-            body->AddAct(ACT_HOLD, wield);
+            body->AddAct(act_t::HOLD, wield);
         }
       } else {
         if (mind)
@@ -3485,23 +3491,23 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       if (mind)
         mind->Send("You can't wield that - it's not a weapon!\n");
     } else if (
-        body->ActTarg(ACT_WEAR_BACK) == targ || body->ActTarg(ACT_WEAR_CHEST) == targ ||
-        body->ActTarg(ACT_WEAR_HEAD) == targ || body->ActTarg(ACT_WEAR_NECK) == targ ||
-        body->ActTarg(ACT_WEAR_COLLAR) == targ || body->ActTarg(ACT_WEAR_WAIST) == targ ||
-        body->ActTarg(ACT_WEAR_SHIELD) == targ || body->ActTarg(ACT_WEAR_LARM) == targ ||
-        body->ActTarg(ACT_WEAR_RARM) == targ || body->ActTarg(ACT_WEAR_LFINGER) == targ ||
-        body->ActTarg(ACT_WEAR_RFINGER) == targ || body->ActTarg(ACT_WEAR_LFOOT) == targ ||
-        body->ActTarg(ACT_WEAR_RFOOT) == targ || body->ActTarg(ACT_WEAR_LHAND) == targ ||
-        body->ActTarg(ACT_WEAR_RHAND) == targ || body->ActTarg(ACT_WEAR_LLEG) == targ ||
-        body->ActTarg(ACT_WEAR_RLEG) == targ || body->ActTarg(ACT_WEAR_LWRIST) == targ ||
-        body->ActTarg(ACT_WEAR_RWRIST) == targ || body->ActTarg(ACT_WEAR_LSHOULDER) == targ ||
-        body->ActTarg(ACT_WEAR_RSHOULDER) == targ || body->ActTarg(ACT_WEAR_LHIP) == targ ||
-        body->ActTarg(ACT_WEAR_RHIP) == targ || body->ActTarg(ACT_WEAR_FACE) == targ) {
+        body->ActTarg(act_t::WEAR_BACK) == targ || body->ActTarg(act_t::WEAR_CHEST) == targ ||
+        body->ActTarg(act_t::WEAR_HEAD) == targ || body->ActTarg(act_t::WEAR_NECK) == targ ||
+        body->ActTarg(act_t::WEAR_COLLAR) == targ || body->ActTarg(act_t::WEAR_WAIST) == targ ||
+        body->ActTarg(act_t::WEAR_SHIELD) == targ || body->ActTarg(act_t::WEAR_LARM) == targ ||
+        body->ActTarg(act_t::WEAR_RARM) == targ || body->ActTarg(act_t::WEAR_LFINGER) == targ ||
+        body->ActTarg(act_t::WEAR_RFINGER) == targ || body->ActTarg(act_t::WEAR_LFOOT) == targ ||
+        body->ActTarg(act_t::WEAR_RFOOT) == targ || body->ActTarg(act_t::WEAR_LHAND) == targ ||
+        body->ActTarg(act_t::WEAR_RHAND) == targ || body->ActTarg(act_t::WEAR_LLEG) == targ ||
+        body->ActTarg(act_t::WEAR_RLEG) == targ || body->ActTarg(act_t::WEAR_LWRIST) == targ ||
+        body->ActTarg(act_t::WEAR_RWRIST) == targ || body->ActTarg(act_t::WEAR_LSHOULDER) == targ ||
+        body->ActTarg(act_t::WEAR_RSHOULDER) == targ || body->ActTarg(act_t::WEAR_LHIP) == targ ||
+        body->ActTarg(act_t::WEAR_RHIP) == targ || body->ActTarg(act_t::WEAR_FACE) == targ) {
       if (mind)
         mind->Send("You are wearing that, perhaps you want to 'remove' it?\n");
     } else {
-      if (body->IsAct(ACT_WIELD) && body->IsAct(ACT_HOLD)) {
-        if (body->ActTarg(ACT_HOLD) != targ) {
+      if (body->IsAct(act_t::WIELD) && body->IsAct(act_t::HOLD)) {
+        if (body->ActTarg(act_t::HOLD) != targ) {
           if (mind)
             mind->Send(
                 "You are both holding and wielding other things.\n"
@@ -3511,7 +3517,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       }
 
       // Auto-unwield (trying to wield something else)
-      Object* wield = body->ActTarg(ACT_WIELD);
+      Object* wield = body->ActTarg(act_t::WIELD);
       if ((!nmode) && wield && wield->SubHasSkill(crc32c("Cursed"))) {
         if (mind)
           mind->SendF("You can't seem to stop wielding %s!\n", wield->Name(0, body).c_str());
@@ -3519,7 +3525,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       }
       targ->Travel(body, 0); // Kills Holds and Wields on "targ"
       if (wield) {
-        body->StopAct(ACT_WIELD);
+        body->StopAct(act_t::WIELD);
         body->Parent()->SendOut(
             stealth_t,
             stealth_s,
@@ -3528,7 +3534,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             body,
             wield);
         if (!body->Stash(wield)) { // Try to stash first
-          body->AddAct(ACT_HOLD, wield); // If not, just hold it
+          body->AddAct(act_t::HOLD, wield); // If not, just hold it
         }
       }
 
@@ -3541,7 +3547,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         }
       }
 
-      body->AddAct(ACT_WIELD, targ);
+      body->AddAct(act_t::WIELD, targ);
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s wields ;s.\n", "You wield ;s.\n", body, targ);
     }
@@ -3564,18 +3570,18 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     //    else if(targ->Skill(crc32c("WeaponType")) <= 0) {
     //      if(mind) mind->Send("You can't hold that - you are too weak!\n");
     //      }
-    else if (body->ActTarg(ACT_HOLD) == targ) {
+    else if (body->ActTarg(act_t::HOLD) == targ) {
       if (mind)
         mind->SendF("You are already holding %s!\n", targ->Name(1, body).c_str());
     } else if (
-        body->IsAct(ACT_HOLD) && body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD) &&
-        body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)) {
+        body->IsAct(act_t::HOLD) && body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WIELD) &&
+        body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WEAR_SHIELD)) {
       if (mind)
         mind->Send("You are already holding something!\n");
     } else if (
-        body->ActTarg(ACT_WIELD) == targ &&
-        two_handed(body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")))) {
-      body->AddAct(ACT_HOLD, targ);
+        body->ActTarg(act_t::WIELD) == targ &&
+        two_handed(body->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponType")))) {
+      body->AddAct(act_t::HOLD, targ);
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,
@@ -3583,30 +3589,30 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           "You put a second hand on ;s.\n",
           body,
           targ);
-    } else if (body->ActTarg(ACT_WEAR_SHIELD) == targ) {
-      body->AddAct(ACT_HOLD, targ);
+    } else if (body->ActTarg(act_t::WEAR_SHIELD) == targ) {
+      body->AddAct(act_t::HOLD, targ);
       body->Parent()->SendOut(stealth_t, stealth_s, ";s holds ;s.\n", "You hold ;s.\n", body, targ);
     } else if (body->Wearing(targ) && targ->SubHasSkill(crc32c("Cursed"))) {
       if (mind) {
-        if (body->ActTarg(ACT_WIELD) == targ) {
+        if (body->ActTarg(act_t::WIELD) == targ) {
           mind->SendF("You can't seem to stop wielding %s!\n", targ->Name(0, body).c_str());
         } else {
           mind->SendF("You can't seem to remove %s.\n", targ->Name(0, body).c_str());
         }
       }
     } else {
-      if (body->IsAct(ACT_HOLD)) { // Means it's a shield/2-h weapon due to above.
+      if (body->IsAct(act_t::HOLD)) { // Means it's a shield/2-h weapon due to above.
         body->Parent()->SendOut(
             stealth_t,
             stealth_s,
             ";s stops holding ;s.\n",
             "You stop holding ;s.\n",
             body,
-            body->ActTarg(ACT_HOLD));
-        body->StopAct(ACT_HOLD);
+            body->ActTarg(act_t::HOLD));
+        body->StopAct(act_t::HOLD);
       }
       targ->Travel(body, 0); // Kills Holds, Wears and Wields on "targ"
-      body->AddAct(ACT_HOLD, targ);
+      body->AddAct(act_t::HOLD, targ);
       if (cnum == COM_LIGHT) {
         if (targ->HasSkill(crc32c("Lightable"))) {
           body->Parent()->SendOut(
@@ -3666,7 +3672,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           mind->SendF("%s won't come off!\n", targ->Name(0, body).c_str());
         return 0;
       }
-      for (act_t act = ACT_WEAR_BACK; act < ACT_MAX; act = act_t(int(act) + 1)) {
+      for (act_t act = act_t::WEAR_BACK; act < act_t::MAX; act = act_t(int(act) + 1)) {
         if (body->ActTarg(act) == targ) {
           removed = 1;
           break;
@@ -3684,25 +3690,26 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             body,
             targ);
       } else if (
-          body->IsAct(ACT_HOLD) && body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD) &&
-          body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD)) {
+          body->IsAct(act_t::HOLD) &&
+          body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WEAR_SHIELD) &&
+          body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WIELD)) {
         if (mind)
           mind->SendF(
               "You are already holding something else and can't stash %s.\n",
               targ->Name(0, body).c_str());
       } else {
-        if (body->IsAct(ACT_HOLD)) {
+        if (body->IsAct(act_t::HOLD)) {
           body->Parent()->SendOut(
               stealth_t,
               stealth_s,
               ";s stops holding ;s.\n",
               "You stop holding ;s.\n",
               body,
-              body->ActTarg(ACT_HOLD));
-          body->StopAct(ACT_HOLD);
+              body->ActTarg(act_t::HOLD));
+          body->StopAct(act_t::HOLD);
         }
         targ->Travel(body, 0);
-        body->AddAct(ACT_HOLD, targ);
+        body->AddAct(act_t::HOLD, targ);
         body->Parent()->SendOut(
             stealth_t,
             stealth_s,
@@ -3719,8 +3726,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     MinVec<1, Object*> targs;
 
     if (args.empty()) {
-      if (body->ActTarg(ACT_HOLD)) {
-        targs.push_back(body->ActTarg(ACT_HOLD));
+      if (body->ActTarg(act_t::HOLD)) {
+        targs.push_back(body->ActTarg(act_t::HOLD));
       } else {
         if (mind) {
           mind->Send("What do you want to wear?  ");
@@ -3743,18 +3750,19 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     for (auto targ : targs) {
       // fprintf(stderr, "You try to wear %s!\n", targ->Name(0, body).c_str());
       // if(mind) mind->Send("You try to wear %s!\n", targ->Name(0, body).c_str());
-      if (body->ActTarg(ACT_WEAR_BACK) == targ || body->ActTarg(ACT_WEAR_CHEST) == targ ||
-          body->ActTarg(ACT_WEAR_HEAD) == targ || body->ActTarg(ACT_WEAR_NECK) == targ ||
-          body->ActTarg(ACT_WEAR_COLLAR) == targ || body->ActTarg(ACT_WEAR_WAIST) == targ ||
-          body->ActTarg(ACT_WEAR_SHIELD) == targ || body->ActTarg(ACT_WEAR_LARM) == targ ||
-          body->ActTarg(ACT_WEAR_RARM) == targ || body->ActTarg(ACT_WEAR_LFINGER) == targ ||
-          body->ActTarg(ACT_WEAR_RFINGER) == targ || body->ActTarg(ACT_WEAR_LFOOT) == targ ||
-          body->ActTarg(ACT_WEAR_RFOOT) == targ || body->ActTarg(ACT_WEAR_LHAND) == targ ||
-          body->ActTarg(ACT_WEAR_RHAND) == targ || body->ActTarg(ACT_WEAR_LLEG) == targ ||
-          body->ActTarg(ACT_WEAR_RLEG) == targ || body->ActTarg(ACT_WEAR_LWRIST) == targ ||
-          body->ActTarg(ACT_WEAR_RWRIST) == targ || body->ActTarg(ACT_WEAR_LSHOULDER) == targ ||
-          body->ActTarg(ACT_WEAR_RSHOULDER) == targ || body->ActTarg(ACT_WEAR_LHIP) == targ ||
-          body->ActTarg(ACT_WEAR_RHIP) == targ || body->ActTarg(ACT_WEAR_FACE) == targ) {
+      if (body->ActTarg(act_t::WEAR_BACK) == targ || body->ActTarg(act_t::WEAR_CHEST) == targ ||
+          body->ActTarg(act_t::WEAR_HEAD) == targ || body->ActTarg(act_t::WEAR_NECK) == targ ||
+          body->ActTarg(act_t::WEAR_COLLAR) == targ || body->ActTarg(act_t::WEAR_WAIST) == targ ||
+          body->ActTarg(act_t::WEAR_SHIELD) == targ || body->ActTarg(act_t::WEAR_LARM) == targ ||
+          body->ActTarg(act_t::WEAR_RARM) == targ || body->ActTarg(act_t::WEAR_LFINGER) == targ ||
+          body->ActTarg(act_t::WEAR_RFINGER) == targ || body->ActTarg(act_t::WEAR_LFOOT) == targ ||
+          body->ActTarg(act_t::WEAR_RFOOT) == targ || body->ActTarg(act_t::WEAR_LHAND) == targ ||
+          body->ActTarg(act_t::WEAR_RHAND) == targ || body->ActTarg(act_t::WEAR_LLEG) == targ ||
+          body->ActTarg(act_t::WEAR_RLEG) == targ || body->ActTarg(act_t::WEAR_LWRIST) == targ ||
+          body->ActTarg(act_t::WEAR_RWRIST) == targ ||
+          body->ActTarg(act_t::WEAR_LSHOULDER) == targ ||
+          body->ActTarg(act_t::WEAR_RSHOULDER) == targ || body->ActTarg(act_t::WEAR_LHIP) == targ ||
+          body->ActTarg(act_t::WEAR_RHIP) == targ || body->ActTarg(act_t::WEAR_FACE) == targ) {
         if (mind && targs.size() == 1)
           mind->SendF("You are already wearing %s!\n", targ->Name(0, body).c_str());
       } else {
@@ -3789,9 +3797,9 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
     auto targs = body->PickObjects(std::string(args), vmode | LOC_NOTWORN | LOC_INTERNAL);
-    if (body->ActTarg(ACT_HOLD) && body->ActTarg(ACT_HOLD)->Parent() != body // Dragging
-        && body->ActTarg(ACT_HOLD)->Matches(std::string(args))) {
-      targs.push_back(body->ActTarg(ACT_HOLD));
+    if (body->ActTarg(act_t::HOLD) && body->ActTarg(act_t::HOLD)->Parent() != body // Dragging
+        && body->ActTarg(act_t::HOLD)->Matches(std::string(args))) {
+      targs.push_back(body->ActTarg(act_t::HOLD));
     }
     if (!targs.size()) {
       if (mind)
@@ -3816,7 +3824,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_STASH) {
-    Object* targ = body->ActTarg(ACT_HOLD);
+    Object* targ = body->ActTarg(act_t::HOLD);
     if (targ && targ->Parent() == body) {
       if (!body->Stash(targ)) {
         if (mind)
@@ -3836,9 +3844,9 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
     auto targs = body->PickObjects(std::string(args), vmode | LOC_NOTWORN | LOC_INTERNAL);
-    if (body->ActTarg(ACT_HOLD) && body->ActTarg(ACT_HOLD)->Parent() != body // Dragging
-        && body->ActTarg(ACT_HOLD)->Matches(std::string(args))) {
-      targs.push_back(body->ActTarg(ACT_HOLD));
+    if (body->ActTarg(act_t::HOLD) && body->ActTarg(act_t::HOLD)->Parent() != body // Dragging
+        && body->ActTarg(act_t::HOLD)->Matches(std::string(args))) {
+      targs.push_back(body->ActTarg(act_t::HOLD));
     }
     if (!targs.size()) {
       if (mind)
@@ -3908,9 +3916,10 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
     Object* targ = body->PickObject(std::string(args), vmode | LOC_NOTWORN | LOC_INTERNAL);
-    if ((!targ) && body->ActTarg(ACT_HOLD) && body->ActTarg(ACT_HOLD)->Parent() != body // Dragging
-        && body->ActTarg(ACT_HOLD)->Matches(std::string(args))) {
-      targ = body->ActTarg(ACT_HOLD);
+    if ((!targ) && body->ActTarg(act_t::HOLD) &&
+        body->ActTarg(act_t::HOLD)->Parent() != body // Dragging
+        && body->ActTarg(act_t::HOLD)->Matches(std::string(args))) {
+      targ = body->ActTarg(act_t::HOLD);
     }
     if (!targ) {
       targ = body->PickObject(std::string(args), vmode | LOC_NEARBY);
@@ -3921,8 +3930,9 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     } else {
       std::string denied = "";
       for (Object* own = targ; own; own = own->Parent()) {
-        if (own->IsAnimate() && own != body && (!own->IsAct(ACT_SLEEP)) &&
-            (!own->IsAct(ACT_DEAD)) && (!own->IsAct(ACT_DYING)) && (!own->IsAct(ACT_UNCONSCIOUS))) {
+        if (own->IsAnimate() && own != body && (!own->IsAct(act_t::SLEEP)) &&
+            (!own->IsAct(act_t::DEAD)) && (!own->IsAct(act_t::DYING)) &&
+            (!own->IsAct(act_t::UNCONSCIOUS))) {
           denied = "You would need ";
           denied += own->Name(1);
           denied += "'s permission to drink from ";
@@ -4002,9 +4012,9 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
     auto targs = body->PickObjects(std::string(args), vmode | LOC_NOTWORN | LOC_INTERNAL);
-    if (body->ActTarg(ACT_HOLD) && body->ActTarg(ACT_HOLD)->Parent() != body // Dragging
-        && body->ActTarg(ACT_HOLD)->Matches(std::string(args))) {
-      targs.push_back(body->ActTarg(ACT_HOLD));
+    if (body->ActTarg(act_t::HOLD) && body->ActTarg(act_t::HOLD)->Parent() != body // Dragging
+        && body->ActTarg(act_t::HOLD)->Matches(std::string(args))) {
+      targs.push_back(body->ActTarg(act_t::HOLD));
     }
     if (!targs.size()) {
       if (mind)
@@ -4049,11 +4059,11 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       }
     }
 
-    if (!body->IsAct(ACT_HOLD)) {
+    if (!body->IsAct(act_t::HOLD)) {
       if (mind)
         mind->Send("You must first 'hold' the object you want to 'fill'.\n");
       return 0;
-    } else if (!body->ActTarg(ACT_HOLD)) {
+    } else if (!body->ActTarg(act_t::HOLD)) {
       if (mind)
         mind->Send("What!?!?!  You are holding nothing?\n");
       return 0;
@@ -4062,12 +4072,13 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     if (args.empty()) {
       if (mind)
         mind->SendF(
-            "Where do you want to fill %s from?\n", body->ActTarg(ACT_HOLD)->Name(0, body).c_str());
+            "Where do you want to fill %s from?\n",
+            body->ActTarg(act_t::HOLD)->Name(0, body).c_str());
       return 0;
     }
 
     Object* src = body->PickObject(std::string(args), vmode | LOC_NEARBY | LOC_INTERNAL);
-    Object* dst = body->ActTarg(ACT_HOLD);
+    Object* dst = body->ActTarg(act_t::HOLD);
     if (!src) {
       if (mind)
         mind->SendF(
@@ -4198,7 +4209,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_SLEEP) {
-    if (body->IsAct(ACT_SLEEP)) {
+    if (body->IsAct(act_t::SLEEP)) {
       if (mind)
         mind->Send("You are already sleeping!\n");
       return 0;
@@ -4208,30 +4219,30 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       body->SetPos(pos_t::LIE);
       lied = 1;
     }
-    if (body->ActTarg(ACT_WIELD)) {
-      Object* item = body->ActTarg(ACT_WIELD);
+    if (body->ActTarg(act_t::WIELD)) {
+      Object* item = body->ActTarg(act_t::WIELD);
       body->StashOrDrop(item);
     }
-    if (body->ActTarg(ACT_HOLD) // Shield held & worn
-        && body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD)) {
+    if (body->ActTarg(act_t::HOLD) // Shield held & worn
+        && body->ActTarg(act_t::HOLD) == body->ActTarg(act_t::WEAR_SHIELD)) {
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,
           ";s stops holding ;s.\n",
           "You stop holding ;s.\n",
           body,
-          body->ActTarg(ACT_HOLD));
-      body->StopAct(ACT_HOLD);
+          body->ActTarg(act_t::HOLD));
+      body->StopAct(act_t::HOLD);
     } else if (
-        body->ActTarg(ACT_HOLD) // Dragging an item
-        && body->ActTarg(ACT_HOLD)->Parent() != body) {
-      body->Drop(body->ActTarg(ACT_HOLD));
-    } else if (body->ActTarg(ACT_HOLD)) { // Regular held item
-      Object* item = body->ActTarg(ACT_HOLD);
+        body->ActTarg(act_t::HOLD) // Dragging an item
+        && body->ActTarg(act_t::HOLD)->Parent() != body) {
+      body->Drop(body->ActTarg(act_t::HOLD));
+    } else if (body->ActTarg(act_t::HOLD)) { // Regular held item
+      Object* item = body->ActTarg(act_t::HOLD);
       body->StashOrDrop(item);
     }
     body->Collapse();
-    body->AddAct(ACT_SLEEP);
+    body->AddAct(act_t::SLEEP);
     if (lied) {
       body->Parent()->SendOut(
           stealth_t,
@@ -4248,11 +4259,11 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_WAKE) {
-    if (!body->IsAct(ACT_SLEEP)) {
+    if (!body->IsAct(act_t::SLEEP)) {
       if (mind)
         mind->Send("But you aren't asleep!\n");
     } else {
-      body->StopAct(ACT_SLEEP);
+      body->StopAct(act_t::SLEEP);
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s wakes up.\n", "You wake up.\n", body, nullptr);
     }
@@ -4260,14 +4271,14 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_REST) {
-    if (body->IsAct(ACT_REST)) {
-      body->StopAct(ACT_REST);
+    if (body->IsAct(act_t::REST)) {
+      body->StopAct(act_t::REST);
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s stops resting.\n", "You stop resting.\n", body, nullptr);
       return 0;
-    } else if (body->IsAct(ACT_SLEEP)) {
-      body->StopAct(ACT_REST);
-      body->AddAct(ACT_REST);
+    } else if (body->IsAct(act_t::SLEEP)) {
+      body->StopAct(act_t::REST);
+      body->AddAct(act_t::REST);
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,
@@ -4276,11 +4287,11 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           body,
           nullptr);
     } else if (body->Pos() == pos_t::LIE || body->Pos() == pos_t::SIT) {
-      body->AddAct(ACT_REST);
+      body->AddAct(act_t::REST);
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s starts resting.\n", "You start resting.\n", body, nullptr);
     } else {
-      body->AddAct(ACT_REST);
+      body->AddAct(act_t::REST);
       if (body->Pos() != pos_t::LIE)
         body->SetPos(pos_t::SIT);
       body->Parent()->SendOut(
@@ -4291,16 +4302,16 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           body,
           nullptr);
     }
-    if (body->IsAct(ACT_FOLLOW)) {
-      if (body->ActTarg(ACT_FOLLOW) && mind)
+    if (body->IsAct(act_t::FOLLOW)) {
+      if (body->ActTarg(act_t::FOLLOW) && mind)
         body->Parent()->SendOut(
             stealth_t,
             stealth_s,
             ";s stop following ;s.\n",
             "You stop following ;s.\n",
             body,
-            body->ActTarg(ACT_FOLLOW));
-      body->StopAct(ACT_FOLLOW);
+            body->ActTarg(act_t::FOLLOW));
+      body->StopAct(act_t::FOLLOW);
     }
     return 0;
   }
@@ -4309,9 +4320,9 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     if (body->Pos() == pos_t::STAND || body->Pos() == pos_t::USE) {
       if (mind)
         mind->Send("But you are already standing!\n");
-    } else if (body->IsAct(ACT_SLEEP)) {
+    } else if (body->IsAct(act_t::SLEEP)) {
       body->SetPos(pos_t::STAND);
-      body->StopAct(ACT_SLEEP);
+      body->StopAct(act_t::SLEEP);
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,
@@ -4319,8 +4330,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           "You wake up and stand.\n",
           body,
           nullptr);
-    } else if (body->IsAct(ACT_REST)) {
-      body->StopAct(ACT_REST);
+    } else if (body->IsAct(act_t::REST)) {
+      body->StopAct(act_t::REST);
       body->SetPos(pos_t::STAND);
       body->Parent()->SendOut(
           stealth_t,
@@ -4341,8 +4352,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     if (body->Pos() == pos_t::SIT) {
       if (mind)
         mind->Send("But you are already sitting!\n");
-    } else if (body->IsAct(ACT_SLEEP)) {
-      body->StopAct(ACT_SLEEP);
+    } else if (body->IsAct(act_t::SLEEP)) {
+      body->StopAct(act_t::SLEEP);
       body->SetPos(pos_t::SIT);
       body->Parent()->SendOut(
           stealth_t,
@@ -4360,16 +4371,16 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s sits down.\n", "You sit down.\n", body, nullptr);
     }
-    if (body->IsAct(ACT_FOLLOW)) {
-      if (body->ActTarg(ACT_FOLLOW) && mind)
+    if (body->IsAct(act_t::FOLLOW)) {
+      if (body->ActTarg(act_t::FOLLOW) && mind)
         body->Parent()->SendOut(
             stealth_t,
             stealth_s,
             ";s stop following ;s.\n",
             "You stop following ;s.\n",
             body,
-            body->ActTarg(ACT_FOLLOW));
-      body->StopAct(ACT_FOLLOW);
+            body->ActTarg(act_t::FOLLOW));
+      body->StopAct(act_t::FOLLOW);
     }
     return 0;
   }
@@ -4383,16 +4394,16 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s lies down.\n", "You lie down.\n", body, nullptr);
     }
-    if (body->IsAct(ACT_FOLLOW)) {
-      if (body->ActTarg(ACT_FOLLOW) && mind)
+    if (body->IsAct(act_t::FOLLOW)) {
+      if (body->ActTarg(act_t::FOLLOW) && mind)
         body->Parent()->SendOut(
             stealth_t,
             stealth_s,
             ";s stop following ;s.\n",
             "You stop following ;s.\n",
             body,
-            body->ActTarg(ACT_FOLLOW));
-      body->StopAct(ACT_FOLLOW);
+            body->ActTarg(act_t::FOLLOW));
+      body->StopAct(act_t::FOLLOW);
     }
     return 0;
   }
@@ -4461,19 +4472,19 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
 
-    if ((!defself) && (!body->ActTarg(ACT_POINT))) {
+    if ((!defself) && (!body->ActTarg(act_t::POINT))) {
       if (mind)
         mind->Send("That spell requires you to first point at your target.\n");
       return 0;
     }
 
     if (freehand) {
-      if (body->ActTarg(ACT_HOLD)) {
-        body->StashOrDrop(body->ActTarg(ACT_HOLD));
+      if (body->ActTarg(act_t::HOLD)) {
+        body->StashOrDrop(body->ActTarg(act_t::HOLD));
       }
     }
 
-    Object* targ = body->ActTarg(ACT_POINT);
+    Object* targ = body->ActTarg(act_t::POINT);
     if (!targ)
       targ = body; // Defaults to SELF if not, caught above!)
     if (src && src != body) {
@@ -4520,7 +4531,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       obj->SetSkill(crc32c("Temporary"), force);
       obj->Activate();
       obj->SetPos(pos_t::LIE);
-      body->AddAct(ACT_HOLD, obj);
+      body->AddAct(act_t::HOLD, obj);
       body->Parent()->SendOutF(
           0,
           0,
@@ -4712,7 +4723,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         if (mind)
           mind->Send("You don't see that here.\n");
       } else {
-        body->AddAct(ACT_POINT, targ);
+        body->AddAct(act_t::POINT, targ);
         body->Parent()->SendOut(
             stealth_t,
             stealth_s,
@@ -4721,9 +4732,9 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             body,
             targ);
       }
-    } else if (body->IsAct(ACT_POINT)) {
-      Object* targ = body->ActTarg(ACT_POINT);
-      body->StopAct(ACT_POINT);
+    } else if (body->IsAct(act_t::POINT)) {
+      Object* targ = body->ActTarg(act_t::POINT);
+      body->StopAct(act_t::POINT);
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,
@@ -4744,14 +4755,14 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       if (!targ) {
         if (mind)
           mind->Send("You don't see that person here.\n");
-      } else if (!body->ActTarg(ACT_HOLD)) {
+      } else if (!body->ActTarg(act_t::HOLD)) {
         if (mind)
           mind->Send("You aren't holding anything to offer.\n");
       } else if (!targ->IsAnimate()) {
         if (mind)
           mind->Send("You can't offer anything to that.\n");
       } else {
-        body->AddAct(ACT_OFFER, targ);
+        body->AddAct(act_t::OFFER, targ);
         body->Parent()->SendOut(
             stealth_t,
             stealth_s,
@@ -4764,16 +4775,16 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         for (auto trig : trigs) {
           if ((trig->Skill(crc32c("TBAScriptType")) & 0x1000200) ==
               0x1000200) { // MOB-RECEIVE trigs
-            if (!new_trigger(0, trig, body, body->ActTarg(ACT_HOLD))) {
-              body->ActTarg(ACT_OFFER)->Travel(targ, 0);
+            if (!new_trigger(0, trig, body, body->ActTarg(act_t::HOLD))) {
+              body->ActTarg(act_t::OFFER)->Travel(targ, 0);
               return 0; // Handled, unless script says not.
             }
           }
         }
       }
-    } else if (body->IsAct(ACT_OFFER)) {
-      Object* targ = body->ActTarg(ACT_OFFER);
-      body->StopAct(ACT_OFFER);
+    } else if (body->IsAct(act_t::OFFER)) {
+      Object* targ = body->ActTarg(act_t::OFFER);
+      body->StopAct(act_t::OFFER);
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,
@@ -4795,7 +4806,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         if (mind)
           mind->Send("You don't see that here.\n");
       } else {
-        body->AddAct(ACT_FOLLOW, targ);
+        body->AddAct(act_t::FOLLOW, targ);
         body->Parent()->SendOut(
             stealth_t,
             stealth_s,
@@ -4804,9 +4815,9 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             body,
             targ);
       }
-    } else if (body->IsAct(ACT_FOLLOW)) {
-      Object* targ = body->ActTarg(ACT_FOLLOW);
-      body->StopAct(ACT_FOLLOW);
+    } else if (body->IsAct(act_t::FOLLOW)) {
+      Object* targ = body->ActTarg(act_t::FOLLOW);
+      body->StopAct(act_t::FOLLOW);
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s stops following ;s.\n", "You stop following ;s.\n", body, targ);
     } else {
@@ -4821,7 +4832,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     // args.c_str());
 
     int attacknow = 1;
-    if (!body->IsAct(ACT_FIGHT))
+    if (!body->IsAct(act_t::FIGHT))
       attacknow = 0;
 
     Object* targ = nullptr;
@@ -4837,12 +4848,12 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         return 0;
       }
     } else {
-      if (body->IsAct(ACT_FIGHT)) {
-        targ = body->ActTarg(ACT_FIGHT);
+      if (body->IsAct(act_t::FIGHT)) {
+        targ = body->ActTarg(act_t::FIGHT);
         if (!body->IsNearBy(targ)) {
           if (mind)
             mind->Send("Your target is gone!\n");
-          body->StopAct(ACT_FIGHT);
+          body->StopAct(act_t::FIGHT);
           return 0;
         }
       } else {
@@ -4853,11 +4864,11 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     }
 
     if (cnum == COM_ATTACK &&
-        (!targ->IsAnimate() || targ->IsAct(ACT_DEAD) || targ->IsAct(ACT_DYING) ||
-         targ->IsAct(ACT_UNCONSCIOUS))) {
+        (!targ->IsAnimate() || targ->IsAct(act_t::DEAD) || targ->IsAct(act_t::DYING) ||
+         targ->IsAct(act_t::UNCONSCIOUS))) {
       if (mind)
         mind->Send("No need, target is down!\n");
-      body->StopAct(ACT_FIGHT);
+      body->StopAct(act_t::FIGHT);
       return 0;
     }
 
@@ -4880,13 +4891,13 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
     body->BusyFor(3000); // Overridden below if is alive/animate
 
-    if (!(!targ->IsAnimate() || targ->IsAct(ACT_DEAD) || targ->IsAct(ACT_DYING) ||
-          targ->IsAct(ACT_UNCONSCIOUS))) {
-      body->AddAct(ACT_FIGHT, targ);
+    if (!(!targ->IsAnimate() || targ->IsAct(act_t::DEAD) || targ->IsAct(act_t::DYING) ||
+          targ->IsAct(act_t::UNCONSCIOUS))) {
+      body->AddAct(act_t::FIGHT, targ);
       body->BusyFor(3000, body->Tactics().c_str());
-      if (!targ->IsAct(ACT_FIGHT)) {
+      if (!targ->IsAct(act_t::FIGHT)) {
         targ->BusyFor(3000, body->Tactics().c_str());
-        targ->AddAct(ACT_FIGHT, body);
+        targ->AddAct(act_t::FIGHT, body);
       } else if (targ->StillBusy()) {
         body->BusyWith(targ, body->Tactics().c_str());
       }
@@ -4895,67 +4906,67 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     }
 
     // Free your off-hand if needed (if it's not a shield or weapon)
-    if (body->ActTarg(ACT_HOLD) // FIXME: Don't drop offhand weapons?!?
-        && body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD) &&
-        body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD) &&
-        (body->ActTarg(ACT_WEAR_SHIELD) // Need Off-Hand for shield
-         || (body->ActTarg(ACT_WIELD) //...or for two-hander
-             && two_handed(body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")))))) {
-      if (body->DropOrStash(body->ActTarg(ACT_HOLD))) {
+    if (body->ActTarg(act_t::HOLD) // FIXME: Don't drop offhand weapons?!?
+        && body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WEAR_SHIELD) &&
+        body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WIELD) &&
+        (body->ActTarg(act_t::WEAR_SHIELD) // Need Off-Hand for shield
+         || (body->ActTarg(act_t::WIELD) //...or for two-hander
+             && two_handed(body->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponType")))))) {
+      if (body->DropOrStash(body->ActTarg(act_t::HOLD))) {
         if (mind)
           mind->SendF(
               "Oh, no!  You can't drop or stash %s, but you need your off-hand!",
-              body->ActTarg(ACT_HOLD)->Name(0, body).c_str());
+              body->ActTarg(act_t::HOLD)->Name(0, body).c_str());
       }
     }
 
     // Hold your 2-hander, even if you have to let go of your shield
-    if (body->ActTarg(ACT_WIELD) // Half-Wielding a 2-Hander
-        && body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WIELD) &&
-        two_handed(body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")))) {
-      if (body->ActTarg(ACT_HOLD) // Some non-shield stuck in other hand!
-          && body->ActTarg(ACT_HOLD) != body->ActTarg(ACT_WEAR_SHIELD)) {
+    if (body->ActTarg(act_t::WIELD) // Half-Wielding a 2-Hander
+        && body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WIELD) &&
+        two_handed(body->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponType")))) {
+      if (body->ActTarg(act_t::HOLD) // Some non-shield stuck in other hand!
+          && body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WEAR_SHIELD)) {
         if (mind)
           mind->SendF(
               "Oh, no!  You can't use %s - it's two-handed!\n",
-              body->ActTarg(ACT_WIELD)->Name(0, body).c_str());
-        if (body->DropOrStash(body->ActTarg(ACT_WIELD))) {
+              body->ActTarg(act_t::WIELD)->Name(0, body).c_str());
+        if (body->DropOrStash(body->ActTarg(act_t::WIELD))) {
           if (mind)
             mind->SendF(
                 "Oh, no!  You can't drop or stash %s!\n",
-                body->ActTarg(ACT_WIELD)->Name(0, body).c_str());
+                body->ActTarg(act_t::WIELD)->Name(0, body).c_str());
         }
       } else {
-        if (body->ActTarg(ACT_HOLD)) { // Unhold your shield
+        if (body->ActTarg(act_t::HOLD)) { // Unhold your shield
           body->Parent()->SendOut(
               stealth_t,
               stealth_s,
               ";s stops holding ;s.\n",
               "You stop holding ;s.\n",
               body,
-              body->ActTarg(ACT_HOLD));
-          body->StopAct(ACT_HOLD);
+              body->ActTarg(act_t::HOLD));
+          body->StopAct(act_t::HOLD);
         }
-        Object* weap = body->ActTarg(ACT_WIELD); // Hold your 2-hander
-        body->AddAct(ACT_HOLD, weap);
+        Object* weap = body->ActTarg(act_t::WIELD); // Hold your 2-hander
+        body->AddAct(act_t::HOLD, weap);
         body->Parent()->SendOut(
             stealth_t, stealth_s, ";s holds ;s.\n", "You hold ;s.\n", body, weap);
       }
     }
 
     // If you're hand's now free, and you have a shield, use it.
-    if (body->ActTarg(ACT_WEAR_SHIELD) && (!body->IsAct(ACT_HOLD))) {
-      Object* shield = body->ActTarg(ACT_WEAR_SHIELD);
+    if (body->ActTarg(act_t::WEAR_SHIELD) && (!body->IsAct(act_t::HOLD))) {
+      Object* shield = body->ActTarg(act_t::WEAR_SHIELD);
 
-      body->AddAct(ACT_HOLD, shield);
+      body->AddAct(act_t::HOLD, shield);
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s holds ;s.\n", "You hold ;s.\n", body, shield);
     } else if (
-        mind && body->ActTarg(ACT_WEAR_SHIELD) &&
-        body->ActTarg(ACT_WEAR_SHIELD) != body->ActTarg(ACT_HOLD)) {
+        mind && body->ActTarg(act_t::WEAR_SHIELD) &&
+        body->ActTarg(act_t::WEAR_SHIELD) != body->ActTarg(act_t::HOLD)) {
       mind->SendF(
           "Oh, no!  You can't use %s - your off-hand is not free!\n",
-          body->ActTarg(ACT_WEAR_SHIELD)->Name(0, body).c_str());
+          body->ActTarg(act_t::WEAR_SHIELD)->Name(0, body).c_str());
     }
 
     if (!attacknow) {
@@ -4982,35 +4993,37 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     }
 
     else if (
-        body->ActTarg(ACT_WIELD) // Not Holding your 2-Hander
-        && two_handed(body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType"))) &&
-        body->ActTarg(ACT_WIELD) != body->ActTarg(ACT_HOLD)) {
+        body->ActTarg(act_t::WIELD) // Not Holding your 2-Hander
+        && two_handed(body->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponType"))) &&
+        body->ActTarg(act_t::WIELD) != body->ActTarg(act_t::HOLD)) {
       sk1 = crc32c("Kicking");
       sk2 = crc32c("Kicking");
     }
 
     else {
-      if (body->IsAct(ACT_WIELD)) {
-        sk1 = get_weapon_skill(body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")));
-        reachmod += std::max(0, body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponReach")));
+      if (body->IsAct(act_t::WIELD)) {
+        sk1 = get_weapon_skill(body->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponType")));
+        reachmod += std::max(0, body->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponReach")));
         if (reachmod > 9)
           reachmod = 0;
       }
-      if (body->ActTarg(ACT_HOLD) == body->ActTarg(ACT_WEAR_SHIELD) && body->ActTarg(ACT_HOLD)) {
+      if (body->ActTarg(act_t::HOLD) == body->ActTarg(act_t::WEAR_SHIELD) &&
+          body->ActTarg(act_t::HOLD)) {
         sk2 = crc32c("None"); // Occupy opponent's primary weapon, so they can't use it to defend.
       }
-      if (targ->ActTarg(ACT_HOLD) == targ->ActTarg(ACT_WEAR_SHIELD) && targ->ActTarg(ACT_HOLD)) {
+      if (targ->ActTarg(act_t::HOLD) == targ->ActTarg(act_t::WEAR_SHIELD) &&
+          targ->ActTarg(act_t::HOLD)) {
         sk2 = crc32c("Shields");
         reachmod = 0; // Shield neutralizes reach
       } else if (
-          targ->ActTarg(ACT_WIELD) // Not Holding their 2-Hander
-          && two_handed(targ->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType"))) &&
-          targ->ActTarg(ACT_WIELD) != targ->ActTarg(ACT_HOLD)) {
+          targ->ActTarg(act_t::WIELD) // Not Holding their 2-Hander
+          && two_handed(targ->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponType"))) &&
+          targ->ActTarg(act_t::WIELD) != targ->ActTarg(act_t::HOLD)) {
         sk2 = crc32c("None"); // ...so they can't defend with it
-      } else if (targ->ActTarg(ACT_WIELD)) {
+      } else if (targ->ActTarg(act_t::WIELD)) {
         if (sk2 == crc32c("Punching"))
-          sk2 = get_weapon_skill(targ->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")));
-        reachmod -= std::max(0, targ->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponReach")));
+          sk2 = get_weapon_skill(targ->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponType")));
+        reachmod -= std::max(0, targ->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponReach")));
         if (reachmod < -9)
           reachmod = 0;
       }
@@ -5038,61 +5051,61 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     int succ = offense - defense;
 
     int loc = rand() % 100;
-    act_t loca = ACT_WEAR_CHEST;
+    act_t loca = act_t::WEAR_CHEST;
     std::string locm = "";
     int stage = 0;
     if (loc < 50) {
-      loca = ACT_WEAR_CHEST;
+      loca = act_t::WEAR_CHEST;
       locm = " in the chest";
     } else if (loc < 56) {
-      loca = ACT_WEAR_BACK;
+      loca = act_t::WEAR_BACK;
       locm = " in the back";
     } else if (loc < 59) {
-      loca = ACT_WEAR_HEAD;
+      loca = act_t::WEAR_HEAD;
       locm = " in the head";
       stage = 1;
     } else if (loc < 60) {
-      loca = ACT_WEAR_FACE;
+      loca = act_t::WEAR_FACE;
       locm = " in the face";
       stage = 2;
     } else if (loc < 61) {
-      loca = ACT_WEAR_NECK;
+      loca = act_t::WEAR_NECK;
       locm = " in the neck";
       stage = 2;
     } else if (loc < 62) {
-      loca = ACT_WEAR_COLLAR;
+      loca = act_t::WEAR_COLLAR;
       locm = " in the throat";
       stage = 2;
     } else if (loc < 72) {
-      loca = ACT_WEAR_LARM;
+      loca = act_t::WEAR_LARM;
       locm = " in the left arm";
       stage = -1;
     } else if (loc < 82) {
-      loca = ACT_WEAR_RARM;
+      loca = act_t::WEAR_RARM;
       locm = " in the right arm";
       stage = -1;
     } else if (loc < 86) {
-      loca = ACT_WEAR_LLEG;
+      loca = act_t::WEAR_LLEG;
       locm = " in the left leg";
       stage = -1;
     } else if (loc < 90) {
-      loca = ACT_WEAR_RLEG;
+      loca = act_t::WEAR_RLEG;
       locm = " in the right leg";
       stage = -1;
     } else if (loc < 93) {
-      loca = ACT_WEAR_LHAND;
+      loca = act_t::WEAR_LHAND;
       locm = " in the left hand";
       stage = -2;
     } else if (loc < 96) {
-      loca = ACT_WEAR_RHAND;
+      loca = act_t::WEAR_RHAND;
       locm = " in the right hand";
       stage = -2;
     } else if (loc < 98) {
-      loca = ACT_WEAR_LFOOT;
+      loca = act_t::WEAR_LFOOT;
       locm = " in the left foot";
       stage = -2;
     } else {
-      loca = ACT_WEAR_RFOOT;
+      loca = act_t::WEAR_RFOOT;
       locm = " in the right foot";
       stage = -2;
     }
@@ -5152,8 +5165,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         body->Parent()->SendOutF(
             ALL, -1, "*;s kicks ;s%s.\n", "*You kick ;s%s.\n", body, targ, locm.c_str());
       } else if (
-          body->IsAct(ACT_WIELD) // Ranged Weapon
-          && body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponReach")) > 9) {
+          body->IsAct(act_t::WIELD) // Ranged Weapon
+          && body->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponReach")) > 9) {
         body->Parent()->SendOutF(
             ALL,
             -1,
@@ -5161,11 +5174,11 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             "*You throw %s and hit ;s%s.\n",
             body,
             targ,
-            body->ActTarg(ACT_WIELD)->ShortDescC(),
+            body->ActTarg(act_t::WIELD)->ShortDescC(),
             locm.c_str());
-        body->ActTarg(ACT_WIELD)->Travel(body->Parent()); // FIXME: Get Another
-        body->StopAct(ACT_WIELD); // FIXME: Bows/Guns!
-      } else if (body->IsAct(ACT_WIELD)) { // Melee Weapon
+        body->ActTarg(act_t::WIELD)->Travel(body->Parent()); // FIXME: Get Another
+        body->StopAct(act_t::WIELD); // FIXME: Bows/Guns!
+      } else if (body->IsAct(act_t::WIELD)) { // Melee Weapon
         body->Parent()->SendOutF(
             ALL,
             -1,
@@ -5174,7 +5187,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             body,
             targ,
             locm.c_str(),
-            body->ActTarg(ACT_WIELD)->ShortDescC());
+            body->ActTarg(act_t::WIELD)->ShortDescC());
       } else { // No Weapon or Natural Weapon
         if (!body->HasSkill(crc32c("NaturalWeapon")))
           stun = 1;
@@ -5192,12 +5205,12 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         force -= 2;
         stage += 2;
       }
-      if (body->IsAct(ACT_WIELD)) {
-        force += body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponForce"));
-        if (two_handed(body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponType")))) {
+      if (body->IsAct(act_t::WIELD)) {
+        force += body->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponForce"));
+        if (two_handed(body->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponType")))) {
           force += body->ModAttribute(2);
         }
-        stage += body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponSeverity"));
+        stage += body->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponSeverity"));
       } else {
         force -= 1;
         stage += 1;
@@ -5234,8 +5247,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             body,
             targ);
       } else if (
-          body->IsAct(ACT_WIELD) // Ranged Weapon
-          && body->ActTarg(ACT_WIELD)->Skill(crc32c("WeaponReach")) > 9) {
+          body->IsAct(act_t::WIELD) // Ranged Weapon
+          && body->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponReach")) > 9) {
         body->Parent()->SendOutF(
             ALL,
             -1,
@@ -5243,10 +5256,10 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             "*You throw %s at ;s, but miss.\n",
             body,
             targ,
-            body->ActTarg(ACT_WIELD)->ShortDescC());
-        body->ActTarg(ACT_WIELD)->Travel(body->Parent()); // FIXME: Get Another
-        body->StopAct(ACT_WIELD); // FIXME: Bows/Guns!
-      } else if (body->IsAct(ACT_WIELD)) { // Melee Weapon
+            body->ActTarg(act_t::WIELD)->ShortDescC());
+        body->ActTarg(act_t::WIELD)->Travel(body->Parent()); // FIXME: Get Another
+        body->StopAct(act_t::WIELD); // FIXME: Bows/Guns!
+      } else if (body->IsAct(act_t::WIELD)) { // Melee Weapon
         body->Parent()->SendOut(
             ALL,
             -1,
@@ -5266,9 +5279,9 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       }
     }
 
-    if (!targ->IsAnimate() || targ->IsAct(ACT_DEAD) || targ->IsAct(ACT_DYING) ||
-        targ->IsAct(ACT_UNCONSCIOUS)) {
-      body->StopAct(ACT_FIGHT);
+    if (!targ->IsAnimate() || targ->IsAct(act_t::DEAD) || targ->IsAct(act_t::DYING) ||
+        targ->IsAct(act_t::UNCONSCIOUS)) {
+      body->StopAct(act_t::FIGHT);
       body->BusyFor(3000);
       if (targ->Skill(crc32c("Accomplishment"))) {
         body->Accomplish(targ->Skill(crc32c("Accomplishment")), "this victory");
@@ -5440,7 +5453,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       weap->SetSkill(crc32c("WeaponSeverity"), 1);
       weap->SetSkill(crc32c("WeaponReach"), 1);
       weap->SetPos(pos_t::LIE);
-      body->AddAct(ACT_WIELD, weap);
+      body->AddAct(act_t::WIELD, weap);
 
       auto shi = new Object(body);
       shi->SetShortDesc("a cracked leather shield");
@@ -5448,7 +5461,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       shi->SetSkill(crc32c("Wearable on Shield"), 1);
       shi->SetAttribute(0, 1);
       shi->SetPos(pos_t::LIE);
-      body->AddAct(ACT_WEAR_SHIELD, shi);
+      body->AddAct(act_t::WEAR_SHIELD, shi);
 
       auto arm = new Object(body);
       arm->SetShortDesc("a full suit of old padded armor");
@@ -5461,12 +5474,12 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       arm->SetSkill(crc32c("Wearable on Right Leg"), 1);
       arm->SetAttribute(0, 1);
       arm->SetPos(pos_t::LIE);
-      body->AddAct(ACT_WEAR_BACK, arm);
-      body->AddAct(ACT_WEAR_CHEST, arm);
-      body->AddAct(ACT_WEAR_LARM, arm);
-      body->AddAct(ACT_WEAR_RARM, arm);
-      body->AddAct(ACT_WEAR_LLEG, arm);
-      body->AddAct(ACT_WEAR_RLEG, arm);
+      body->AddAct(act_t::WEAR_BACK, arm);
+      body->AddAct(act_t::WEAR_CHEST, arm);
+      body->AddAct(act_t::WEAR_LARM, arm);
+      body->AddAct(act_t::WEAR_RARM, arm);
+      body->AddAct(act_t::WEAR_LLEG, arm);
+      body->AddAct(act_t::WEAR_RLEG, arm);
 
       auto helm = new Object(body);
       helm->SetShortDesc("a soft leather cap");
@@ -5474,7 +5487,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       helm->SetSkill(crc32c("Wearable on Head"), 1);
       helm->SetAttribute(0, 1);
       helm->SetPos(pos_t::LIE);
-      body->AddAct(ACT_WEAR_HEAD, helm);
+      body->AddAct(act_t::WEAR_HEAD, helm);
 
       body->SetSkill(crc32c("Status Points"), 0);
 
@@ -5706,11 +5719,11 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         mind->Send("You must be uninjured to use that command!\n");
     } else {
       Object* dest = body;
-      while ((!dest->ActTarg(ACT_SPECIAL_HOME)) && dest->Parent()) {
+      while ((!dest->ActTarg(act_t::SPECIAL_HOME)) && dest->Parent()) {
         dest = dest->Parent();
       }
-      if (dest->ActTarg(ACT_SPECIAL_HOME)) {
-        dest = dest->ActTarg(ACT_SPECIAL_HOME);
+      if (dest->ActTarg(act_t::SPECIAL_HOME)) {
+        dest = dest->ActTarg(act_t::SPECIAL_HOME);
       }
       body->Parent()->SendOut(
           0,
@@ -6092,8 +6105,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     if (!mind)
       return 0;
     Object* world = body->World();
-    world->AddAct(ACT_SPECIAL_HOME, body->Parent());
-    world->Parent()->AddAct(ACT_SPECIAL_HOME, body->Parent());
+    world->AddAct(act_t::SPECIAL_HOME, body->Parent());
+    world->Parent()->AddAct(act_t::SPECIAL_HOME, body->Parent());
     mind->Send("You make this the default starting room for players.\n");
     return 0;
   }
@@ -6101,7 +6114,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_SETSTATS) {
     if (!mind)
       return 0;
-    Object* targ = body->ActTarg(ACT_POINT);
+    Object* targ = body->ActTarg(act_t::POINT);
     if (!targ) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
@@ -6131,7 +6144,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_NAME) {
     if (!mind)
       return 0;
-    Object* targ = body->ActTarg(ACT_POINT);
+    Object* targ = body->ActTarg(act_t::POINT);
     if (!targ) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
@@ -6152,7 +6165,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_UNDESCRIBE) {
     if (!mind)
       return 0;
-    Object* targ = body->ActTarg(ACT_POINT);
+    Object* targ = body->ActTarg(act_t::POINT);
     if (!targ) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
@@ -6165,7 +6178,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_DESCRIBE) {
     if (!mind)
       return 0;
-    Object* targ = body->ActTarg(ACT_POINT);
+    Object* targ = body->ActTarg(act_t::POINT);
     if (!targ) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
@@ -6194,7 +6207,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_UNDEFINE) {
     if (!mind)
       return 0;
-    Object* targ = body->ActTarg(ACT_POINT);
+    Object* targ = body->ActTarg(act_t::POINT);
     if (!targ) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
@@ -6207,7 +6220,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_DEFINE) {
     if (!mind)
       return 0;
-    Object* targ = body->ActTarg(ACT_POINT);
+    Object* targ = body->ActTarg(act_t::POINT);
     if (!targ) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
@@ -6258,7 +6271,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_COMMAND) {
     if (!mind)
       return 0;
-    Object* targ = body->ActTarg(ACT_POINT);
+    Object* targ = body->ActTarg(act_t::POINT);
     if (!targ) {
       mind->Send("You need to be pointing at your target.\n");
     } else if (args.empty()) {
@@ -6288,7 +6301,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_CONNECT) {
-    Object *src = body->ActTarg(ACT_POINT), *dest = nullptr;
+    Object *src = body->ActTarg(act_t::POINT), *dest = nullptr;
     if (!src) {
       mind->Send("You need to be pointing at your source.\n");
       return 0;
@@ -6305,8 +6318,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       exit->SetSkill(crc32c("Invisible"), 1000);
       src->SetSkill(crc32c("Open"), 1000);
       src->SetSkill(crc32c("Enterable"), 1);
-      src->AddAct(ACT_SPECIAL_LINKED, exit);
-      exit->AddAct(ACT_SPECIAL_MASTER, src);
+      src->AddAct(act_t::SPECIAL_LINKED, exit);
+      exit->AddAct(act_t::SPECIAL_MASTER, src);
       if (mind) {
         mind->SendF(
             "You link %s to %s.\n", src->Name(0, body).c_str(), dest->Name(0, body).c_str());
@@ -6441,12 +6454,12 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
       link = new Object(body->Parent());
       link->SetShortDesc(std::string(args));
-      link->AddAct(ACT_SPECIAL_LINKED, anchor);
-      link->AddAct(ACT_SPECIAL_MASTER, anchor);
+      link->AddAct(act_t::SPECIAL_LINKED, anchor);
+      link->AddAct(act_t::SPECIAL_MASTER, anchor);
       link->SetSkill(crc32c("Open"), 1000);
       link->SetSkill(crc32c("Enterable"), 1);
-      anchor->AddAct(ACT_SPECIAL_LINKED, link);
-      anchor->AddAct(ACT_SPECIAL_MASTER, link);
+      anchor->AddAct(act_t::SPECIAL_LINKED, link);
+      anchor->AddAct(act_t::SPECIAL_MASTER, link);
       anchor->SetSkill(crc32c("Open"), 1000);
       anchor->SetSkill(crc32c("Enterable"), 1);
       std::string other = std::string(args);
@@ -6546,11 +6559,11 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         item->Recycle();
 
       Object* dest = targ;
-      while ((!dest->ActTarg(ACT_SPECIAL_HOME)) && dest->Parent()) {
+      while ((!dest->ActTarg(act_t::SPECIAL_HOME)) && dest->Parent()) {
         dest = dest->Parent();
       }
-      if (dest->ActTarg(ACT_SPECIAL_HOME)) {
-        dest = dest->ActTarg(ACT_SPECIAL_HOME);
+      if (dest->ActTarg(act_t::SPECIAL_HOME)) {
+        dest = dest->ActTarg(act_t::SPECIAL_HOME);
       }
       targ->Travel(dest, 0);
 
@@ -6698,40 +6711,40 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         body->PickObject(std::string(args), vmode | LOC_NEARBY | LOC_INTERNAL | LOC_SELF);
 
     int finished = 0;
-    if (body->IsAct(ACT_HEAL) // Finish Previous Healing
+    if (body->IsAct(act_t::HEAL) // Finish Previous Healing
         || body->IsUsing(crc32c("Healing")) || body->IsUsing(crc32c("First Aid")) ||
         body->IsUsing(crc32c("Treatment"))) {
       finished = 1;
-      if (body->IsAct(ACT_HEAL)) {
+      if (body->IsAct(act_t::HEAL)) {
         if (body->IsUsing(crc32c("Healing"))) {
           mind->Send("You complete your healing efforts.\n");
-          int phys = body->ActTarg(ACT_HEAL)->Phys();
+          int phys = body->ActTarg(act_t::HEAL)->Phys();
           phys -= body->Roll(crc32c("Healing"), phys + 2);
           if (phys < 0)
             phys = 0;
-          body->ActTarg(ACT_HEAL)->SetPhys(phys);
-          int pois = body->ActTarg(ACT_HEAL)->Skill(crc32c("Poisoned"));
+          body->ActTarg(act_t::HEAL)->SetPhys(phys);
+          int pois = body->ActTarg(act_t::HEAL)->Skill(crc32c("Poisoned"));
           pois -= body->Roll(crc32c("Healing"), pois + 2);
           if (pois < 0)
             pois = 0;
-          body->ActTarg(ACT_HEAL)->SetSkill(crc32c("Poisoned"), pois);
+          body->ActTarg(act_t::HEAL)->SetSkill(crc32c("Poisoned"), pois);
         } else if (body->IsUsing(crc32c("First Aid"))) {
           mind->Send("You complete your first-aid efforts.\n");
-          int phys = body->ActTarg(ACT_HEAL)->Phys();
+          int phys = body->ActTarg(act_t::HEAL)->Phys();
           phys -= body->Roll(crc32c("First Aid"), phys);
           if (phys < 0)
             phys = 0;
-          body->ActTarg(ACT_HEAL)->SetPhys(phys);
+          body->ActTarg(act_t::HEAL)->SetPhys(phys);
         } else if (body->IsUsing(crc32c("Treatment"))) {
           mind->Send("You complete your treatment efforts.\n");
-          int pois = body->ActTarg(ACT_HEAL)->Skill(crc32c("Poisoned"));
+          int pois = body->ActTarg(act_t::HEAL)->Skill(crc32c("Poisoned"));
           pois -= body->Roll(crc32c("Treatment"), pois);
           if (pois < 0)
             pois = 0;
-          body->ActTarg(ACT_HEAL)->SetSkill(crc32c("Poisoned"), pois);
+          body->ActTarg(act_t::HEAL)->SetSkill(crc32c("Poisoned"), pois);
         }
         body->StopUsing();
-        body->StopAct(ACT_HEAL);
+        body->StopAct(act_t::HEAL);
       }
     }
     if (!targ) {
@@ -6802,7 +6815,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         }
       }
       if (skill != crc32c("None")) {
-        body->AddAct(ACT_HEAL, targ);
+        body->AddAct(act_t::HEAL, targ);
         body->StartUsing(skill);
       }
       if (duration > 0) {
@@ -6815,7 +6828,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_JACK) {
     if (!mind)
       return 0;
-    Object* targ = body->ActTarg(ACT_POINT);
+    Object* targ = body->ActTarg(act_t::POINT);
     if (!targ) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
@@ -6854,7 +6867,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_CHUMP) {
     if (!mind)
       return 0;
-    Object* targ = body->ActTarg(ACT_POINT);
+    Object* targ = body->ActTarg(act_t::POINT);
     if (!targ) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
@@ -6897,7 +6910,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_INCREMENT) {
     if (!mind)
       return 0;
-    Object* targ = body->ActTarg(ACT_POINT);
+    Object* targ = body->ActTarg(act_t::POINT);
     if (!targ) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
@@ -6935,7 +6948,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_DECREMENT) {
     if (!mind)
       return 0;
-    Object* targ = body->ActTarg(ACT_POINT);
+    Object* targ = body->ActTarg(act_t::POINT);
     if (!targ) {
       mind->Send("You need to be pointing at your target.\n");
       return 0;
