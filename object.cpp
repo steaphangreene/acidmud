@@ -713,7 +713,6 @@ int Object::Tick() {
 }
 
 Object::Object() {
-  busy_until = 0;
   parent = nullptr;
   pos = pos_t::NONE;
   cur_skill = crc32c("None");
@@ -743,7 +742,6 @@ Object::Object() {
 }
 
 Object::Object(Object* o) {
-  busy_until = 0;
   parent = nullptr;
   SetParent(o);
   pos = pos_t::NONE;
@@ -774,8 +772,6 @@ Object::Object(Object* o) {
 }
 
 Object::Object(const Object& o) {
-  busy_until = 0;
-
   dlens[0] = o.dlens[0];
   dlens[1] = o.dlens[1];
   dlens[2] = o.dlens[2];
@@ -3574,8 +3570,10 @@ int Object::WriteContentsTo(FILE* fl) {
 
 void Object::BusyFor(long msec, const std::string& default_next) {
   // fprintf(stderr, "Holding %p, will default do '%s'!\n", this, default_next);
-  busy_until = current_time;
-  busy_until += (msec * 1000);
+  busy_until = (current_time + (msec * 1000)) & 0xFFFFFFFFU; // Save Only Lower 32-Bits
+  if (busy_until == 0) {
+    busy_until = 1; // Avoid Special Case
+  }
   if (default_next.length() == 0) {
     defact = "";
   } else {
@@ -3605,8 +3603,16 @@ void Object::BusyWith(Object* other, const std::string& default_next) {
   busylist.insert(this);
 }
 
-int Object::StillBusy() {
-  return (current_time <= busy_until);
+bool Object::StillBusy() {
+  if (busy_until == 0) {
+    return false;
+  }
+  int64_t ct = current_time & 0xFFFFFFFFL;
+  int64_t bu = busy_until;
+  if (bu + 0x40000000L < ct) {
+    bu += 0x100000000L; // Handle wrapped busy_util
+  }
+  return (ct <= bu);
 }
 
 void Object::DoWhenFree(const std::string& action) {
@@ -3627,7 +3633,7 @@ void Object::DoWhenFree(const std::string& action) {
   busylist.insert(this);
 }
 
-int Object::BusyAct() {
+bool Object::BusyAct() {
   // fprintf(stderr, "Taking busyact %p!\n", this);
   busylist.erase(this);
 

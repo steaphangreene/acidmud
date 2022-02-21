@@ -509,8 +509,8 @@ class alignas(256) Object {
 
   int Tick();
 
-  int BusyAct();
-  int StillBusy();
+  bool BusyAct();
+  bool StillBusy();
   void BusyFor(long msec, const std::string& default_next = "");
   void BusyWith(Object* other, const std::string& default_next = "");
   void DoWhenFree(const std::string&);
@@ -562,7 +562,7 @@ class alignas(256) Object {
   Object* parent;
   uint32_t cur_skill;
 
-  int64_t busy_until;
+  uint32_t busy_until = 0; // Encoded
   char const* dowhenfree = "";
   char const* defact = "";
 
