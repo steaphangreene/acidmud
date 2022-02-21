@@ -4177,16 +4177,35 @@ int Object::ModAttribute(int a) const {
   return attr[a] + Modifier(a);
 }
 
-static const char* const attr_name[6] = {
-    "Body",
-    "Quickness",
-    "Strength",
-    "Charisma",
-    "Intelligence",
-    "Willpower",
+static const uint32_t attr_bonus[6] = {
+    crc32c("Body Bonus"),
+    crc32c("Quickness Bonus"),
+    crc32c("Strength Bonus"),
+    crc32c("Charisma Bonus"),
+    crc32c("Intelligence Bonus"),
+    crc32c("Willpower Bonus"),
+};
+static const uint32_t attr_penalty[6] = {
+    crc32c("Body Penalty"),
+    crc32c("Quickness Penalty"),
+    crc32c("Strength Penalty"),
+    crc32c("Charisma Penalty"),
+    crc32c("Intelligence Penalty"),
+    crc32c("Willpower Penalty"),
 };
 int Object::Modifier(int a) const {
-  return Modifier(attr_name[a]);
+  int ret = 0;
+  for (auto item : contents) {
+    if (Wearing(item) || item->Skill(crc32c("Magical Spell"))) {
+      ret += item->Skill(attr_bonus[a]);
+      ret -= item->Skill(attr_penalty[a]);
+    }
+  }
+  ret += Skill(attr_bonus[a]);
+  ret -= Skill(attr_penalty[a]);
+  if (ret < 0)
+    return (ret - 999) / 1000;
+  return (ret / 1000);
 }
 
 int Object::Modifier(const std::string& m) const {
