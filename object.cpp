@@ -2576,6 +2576,7 @@ MinVec<1, Object*> Object::PickObjects(std::string name, int loc, int* ordinal) 
   MinVec<1, Object*> ret;
 
   trim_string(name);
+  uint32_t ntok = crc32c(name);
 
   int ordcontainer;
   if (ordinal)
@@ -2584,13 +2585,13 @@ MinVec<1, Object*> Object::PickObjects(std::string name, int loc, int* ordinal) 
     ordinal = &ordcontainer;
     (*ordinal) = strip_ordinal(name);
   }
-  if (!strcmp(name.c_str(), "all"))
+  if (ntok == crc32c("all"))
     (*ordinal) = ALL;
-  if (!strcmp(name.c_str(), "everyone"))
+  if (ntok == crc32c("everyone"))
     (*ordinal) = ALL;
-  if (!strcmp(name.c_str(), "everything"))
+  if (ntok == crc32c("everything"))
     (*ordinal) = ALL;
-  if (!strcmp(name.c_str(), "everywhere"))
+  if (ntok == crc32c("everywhere"))
     (*ordinal) = ALL;
   if (!(*ordinal))
     (*ordinal) = 1;
@@ -2614,8 +2615,7 @@ MinVec<1, Object*> Object::PickObjects(std::string name, int loc, int* ordinal) 
     --len;
 
   if (loc & LOC_SELF) {
-    if ((!strcmp(name.c_str(), "self")) || (!strcmp(name.c_str(), "myself")) ||
-        (!strcmp(name.c_str(), "me"))) {
+    if ((ntok == crc32c("self")) || (ntok == crc32c("myself")) || (ntok == crc32c("me"))) {
       if ((*ordinal) != 1)
         return ret;
       ret.push_back((Object*)this); // Wrecks Const-Ness
@@ -2624,7 +2624,7 @@ MinVec<1, Object*> Object::PickObjects(std::string name, int loc, int* ordinal) 
   }
 
   if (loc & LOC_HERE) {
-    if (!strcmp(name.c_str(), "here")) {
+    if (ntok == crc32c("here")) {
       if ((*ordinal) == 1 && parent)
         ret.push_back(parent);
       return ret;
