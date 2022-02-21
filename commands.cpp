@@ -2457,7 +2457,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           curtime /= world->Skill(crc32c("Day Length"));
           mind->SendF("The time is now %d:%.2d in this world.\n", curtime / 60, curtime % 60);
         } else {
-          mind->SendF("This world as no concept of time....\n");
+          mind->SendF("This world has no concept of time....\n");
         }
       } else {
         mind->SendF("This character is not in any world.\n");
@@ -6379,8 +6379,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       box->SetShortDesc("a dynamic dungeon");
       next->SetShortDesc("An Entrance to a Large Mining Tunnel");
       next->SetDesc(
-          "This tunnel looks to have been carved centuries ago.  It is so well "
-          "crafted\n"
+          "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
           "that you think it will stand as-is for another millenium.\n");
       next->SetSkill(crc32c("DynamicInit"), 1);
       next->SetSkill(crc32c("DynamicPhase"), 0); // Entrance

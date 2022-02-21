@@ -47,7 +47,7 @@ void Object::DynamicInit4() {}
 
 void Object::DynamicInit3() {}
 
-void Object::DynamicInit2() { // Cuberpunk City
+void Object::DynamicInit2() { // Cyberpunk City
 }
 
 void Object::DynamicInit1() { // Dwarven mine
@@ -62,32 +62,23 @@ void Object::DynamicInit1() { // Dwarven mine
       "A Fork in a Small Mining Tunnel",
       "A Small Alcove"};
   const std::string descs[] = {
-      "This tunnel looks to have been carved centuries ago.  It is so well "
-      "crafted\n"
+      "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
       "that you think it will stand as-is for another millenia.\n",
-      "This tunnel looks to have been carved centuries ago.  It is so well "
-      "crafted\n"
+      "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
       "that you think it will stand as-is for another millenia.\n",
-      "This tunnel looks to have been carved centuries ago.  It is so well "
-      "crafted\n"
+      "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
       "that you think it will stand as-is for another millenia.  Another less\n"
       "well-supported tunnel leads off in another direction.\n",
-      "This tunnel looks to have been carved centuries ago.  It is so well "
-      "crafted\n"
+      "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
       "that you think it will stand as-is for another millenia.\n",
-      "This is a large natural-looking opening.  Perhaps this is where some of "
-      "the\n"
-      "miners removed a large vein of ore, or maybe this cavern was just here "
-      "due\n"
-      "to natural forces before they even got here.  It seems the dwarves have "
-      "used\n"
-      "this tunnel for more than just mining work - a large cage here looks "
-      "well\n"
+      "This is a large natural-looking opening.  Perhaps this is where some of the\n"
+      "miners removed a large vein of ore, or maybe this cavern was just here due\n"
+      "to natural forces before they even got here.  It seems the dwarves have used\n"
+      "this tunnel for more than just mining work - a large cage here looks well\n"
       "used.\n",
       "This tunnel looks to have been carved quickly.  It looks like it might\n"
       "collapse at any moment.\n",
-      "This bend in the tunnel looks to have been carved quickly.  It looks "
-      "like it\n"
+      "This bend in the tunnel looks to have been carved quickly.  It looks like it\n"
       "might collapse at any moment.\n",
       "This tunnel fork looks to have been carved quickly.  It looks like it\n"
       "might collapse at any moment.\n",
