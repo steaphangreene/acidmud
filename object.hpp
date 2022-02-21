@@ -544,9 +544,6 @@ class alignas(256) Object {
   bool no_seek; // Recursion protection
   bool no_hear; // For Send() protection
 
-  MinVec<1, uint64_t> completed;
-  int sexp;
-
   int weight, volume, size;
   int value;
   int8_t gender;
@@ -557,6 +554,9 @@ class alignas(256) Object {
   int8_t tickstep;
 
   pos_t pos;
+
+  int sexp;
+  MinVec<1, uint64_t> completed;
 
   MinVec<1, Object*> contents;
   Object* parent;
