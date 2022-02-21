@@ -356,7 +356,7 @@ class alignas(256) Object {
 
   int Modifier(int a) const;
   int Modifier(const std::string& m) const;
-  int Power(const std::string& m) const;
+  int Power(uint32_t ptok) const;
   int Skill(uint32_t stok) const {
     for (const auto& sk : skills) {
       if (sk.first == stok) {

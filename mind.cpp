@@ -1426,7 +1426,7 @@ void Mind::TBAVarSub(std::string& line) {
           //    spell.c_str());
           val = "";
           if (obj) {
-            val = itos(obj->Power(spell));
+            val = itos(obj->Power(crc32c(spell)));
           }
           obj = nullptr;
           is_obj = 0;

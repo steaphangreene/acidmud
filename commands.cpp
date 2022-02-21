@@ -944,10 +944,10 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     nmode = LOC_NINJA;
     vmode |= LOC_NINJA;
   }
-  if (body && body->Power("Dark Vision")) {
+  if (body && body->Power(crc32c("Dark Vision"))) {
     vmode |= LOC_DARK;
   }
-  if (body && body->Power("Heat Vision")) {
+  if (body && body->Power(crc32c("Heat Vision"))) {
     vmode |= LOC_HEAT;
   }
 

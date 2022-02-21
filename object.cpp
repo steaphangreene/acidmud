@@ -1701,16 +1701,17 @@ void Object::SendScore(Mind* m, Object* o) {
   if (LightLevel() > 0) {
     m->SendF(CYEL "  Light Level: %d (%d)\n" CNRM, Skill(crc32c("Light Source")), LightLevel());
   }
-  if (Power("Cursed")) {
-    m->SendF(CRED "  Cursed: %d\n" CNRM, Power("Cursed"));
+  if (Power(crc32c("Cursed"))) {
+    m->SendF(CRED "  Cursed: %d\n" CNRM, Power(crc32c("Cursed")));
   }
 
   // Experience Summary
   if (IsAnimate()) {
     m->Send(CYEL);
     m->SendF("\nEarned Exp: %4d  Unspent Exp: %4d\n", Exp(), TotalExp());
-    if (Power("Heat Vision") || Power("Dark Vision")) {
-      m->SendF("Heat/Dark Vision: %d/%d\n", Power("Heat Vision"), Power("Dark Vision"));
+    if (Power(crc32c("Heat Vision")) || Power(crc32c("Dark Vision"))) {
+      m->SendF(
+          "Heat/Dark Vision: %d/%d\n", Power(crc32c("Heat Vision")), Power(crc32c("Dark Vision")));
     }
     m->Send(CNRM);
   }
@@ -4203,12 +4204,12 @@ int Object::Modifier(const std::string& m) const {
   return (ret / 1000);
 }
 
-int Object::Power(const std::string& m) const {
+int Object::Power(uint32_t ptok) const {
   int ret = 0;
-  ret = Skill(crc32c(m));
+  ret = Skill(ptok);
   for (auto item : contents) {
     if (ActTarg(ACT_WIELD) == item || Wearing(item) || item->Skill(crc32c("Magical Spell"))) {
-      int val = item->Skill(crc32c(m));
+      int val = item->Skill(ptok);
       if (val > ret)
         ret = val;
     }
