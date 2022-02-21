@@ -2260,6 +2260,12 @@ Object::~Object() {
   if (descriptions != default_descriptions) {
     delete[] descriptions;
   }
+  if (dowhenfree[0] != '\0') {
+    delete[] dowhenfree;
+  }
+  if (defact[0] != '\0') {
+    delete[] defact;
+  }
 }
 
 void Object::Recycle(int inbin) {
@@ -3570,14 +3576,32 @@ void Object::BusyFor(long msec, const std::string& default_next) {
   // fprintf(stderr, "Holding %p, will default do '%s'!\n", this, default_next);
   busy_until = current_time;
   busy_until += (msec * 1000);
-  defact = default_next;
+  if (default_next.length() == 0) {
+    defact = "";
+  } else {
+    if (defact[0] != '\0') {
+      delete[] defact;
+    }
+    auto new_d = new char[default_next.length() + 1];
+    std::memcpy(new_d, default_next.c_str(), default_next.length() + 1);
+    defact = new_d;
+  }
   busylist.insert(this);
 }
 
 void Object::BusyWith(Object* other, const std::string& default_next) {
   // fprintf(stderr, "Holding %p, will default do '%s'!\n", this, default_next);
   busy_until = other->busy_until;
-  defact = default_next;
+  if (default_next.length() == 0) {
+    defact = "";
+  } else {
+    if (defact[0] != '\0') {
+      delete[] defact;
+    }
+    auto new_d = new char[default_next.length() + 1];
+    std::memcpy(new_d, default_next.c_str(), default_next.length() + 1);
+    defact = new_d;
+  }
   busylist.insert(this);
 }
 
@@ -3587,8 +3611,19 @@ int Object::StillBusy() {
 
 void Object::DoWhenFree(const std::string& action) {
   // fprintf(stderr, "Adding busyact for %p of '%s'!\n", this, action);
-  dowhenfree += ";";
-  dowhenfree += action;
+  std::string dwf = dowhenfree;
+  dwf += ";";
+  dwf += action;
+  if (dwf.length() == 0) {
+    dowhenfree = "";
+  } else {
+    if (dowhenfree[0] != '\0') {
+      delete[] dowhenfree;
+    }
+    auto new_d = new char[dwf.length() + 1];
+    std::memcpy(new_d, dwf.c_str(), dwf.length() + 1);
+    dowhenfree = new_d;
+  }
   busylist.insert(this);
 }
 
@@ -3598,8 +3633,14 @@ int Object::BusyAct() {
 
   std::string comm = dowhenfree;
   std::string def = defact;
-  dowhenfree = "";
-  defact = "";
+  if (dowhenfree[0] != '\0') {
+    delete[] dowhenfree;
+    dowhenfree = "";
+  }
+  if (defact[0] != '\0') {
+    delete[] defact;
+    defact = "";
+  }
 
   // fprintf(stderr, "Act is %s [%s]!\n", comm.c_str(), def.c_str());
 

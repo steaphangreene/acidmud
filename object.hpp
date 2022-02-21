@@ -563,7 +563,8 @@ class alignas(256) Object {
   int8_t tickstep;
 
   int64_t busy_until;
-  std::string dowhenfree, defact;
+  char const* dowhenfree = "";
+  char const* defact = "";
 
   MinVec<1, act_pair> act;
   MinVec<1, Object*> touching_me;
