@@ -1097,11 +1097,11 @@ bool Mind::TBAVarSub(std::string& line) {
               val = "resting";
             else if (obj->IsAct(ACT_FIGHT))
               val = "fighting";
-            else if (obj->Pos() == POS_LIE)
+            else if (obj->Pos() == pos_t::LIE)
               val = "resting";
-            else if (obj->Pos() == POS_SIT)
+            else if (obj->Pos() == pos_t::SIT)
               val = "sitting";
-            else if (obj->Pos() == POS_STAND)
+            else if (obj->Pos() == pos_t::STAND)
               val = "standing";
           }
           obj = nullptr;
@@ -1466,7 +1466,7 @@ bool Mind::TBAVarSub(std::string& line) {
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "pos(sleeping)")) {
           if (obj) {
-            obj->SetPos(POS_LIE);
+            obj->SetPos(pos_t::LIE);
             obj->StopAct(ACT_REST);
             obj->AddAct(ACT_SLEEP);
           }
@@ -1476,7 +1476,7 @@ bool Mind::TBAVarSub(std::string& line) {
         } else if (!strcmp(field.c_str(), "pos(resting)")) {
           if (obj) {
             obj->StopAct(ACT_SLEEP);
-            obj->SetPos(POS_SIT);
+            obj->SetPos(pos_t::SIT);
             obj->AddAct(ACT_REST);
           }
           obj = nullptr;
@@ -1486,7 +1486,7 @@ bool Mind::TBAVarSub(std::string& line) {
           if (obj) {
             obj->StopAct(ACT_SLEEP);
             obj->StopAct(ACT_REST);
-            obj->SetPos(POS_SIT);
+            obj->SetPos(pos_t::SIT);
           }
           obj = nullptr;
           val = "";
@@ -1495,7 +1495,7 @@ bool Mind::TBAVarSub(std::string& line) {
           if (obj) {
             obj->StopAct(ACT_SLEEP);
             obj->StopAct(ACT_REST);
-            obj->SetPos(POS_STAND);
+            obj->SetPos(pos_t::STAND);
           }
           obj = nullptr;
           val = "";
@@ -1504,7 +1504,7 @@ bool Mind::TBAVarSub(std::string& line) {
           if (obj) {
             obj->StopAct(ACT_SLEEP);
             obj->StopAct(ACT_REST);
-            obj->SetPos(POS_STAND);
+            obj->SetPos(pos_t::STAND);
           }
           obj = nullptr;
           val = "";

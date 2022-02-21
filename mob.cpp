@@ -80,7 +80,7 @@ static void init_gold() {
   gold->SetVolume(0);
   gold->SetValue(1);
   gold->SetSize(0);
-  gold->SetPos(POS_LIE);
+  gold->SetPos(pos_t::LIE);
 }
 
 static void give_gold(Object* mob, int qty) {
@@ -101,7 +101,7 @@ static void give_gold(Object* mob, int qty) {
   bag->SetVolume(1);
   bag->SetValue(100);
 
-  bag->SetPos(POS_LIE);
+  bag->SetPos(pos_t::LIE);
   mob->AddAct(ACT_WEAR_LHIP, bag);
 
   if (!gold)
@@ -173,7 +173,7 @@ void Object::AddMOB(const MOBType* type) {
 
   mob->Attach(get_mob_mind());
   mob->Activate();
-  mob->SetPos(POS_STAND);
+  mob->SetPos(pos_t::STAND);
   mob->SetAttribute(0, type->b + rand() % type->bm);
   mob->SetAttribute(1, type->q + rand() % type->qm);
   mob->SetAttribute(2, type->s + rand() % type->sm);
@@ -218,7 +218,7 @@ void Object::AddMOB(const MOBType* type) {
     obj->SetWeight(type->armed->weight);
     obj->SetVolume(type->armed->volume);
     obj->SetValue(type->armed->value);
-    obj->SetPos(POS_LIE);
+    obj->SetPos(pos_t::LIE);
     mob->AddAct(ACT_WIELD, obj);
     if (two_handed(type->armed->type))
       mob->AddAct(ACT_HOLD, obj);
@@ -240,7 +240,7 @@ void Object::AddMOB(const MOBType* type) {
     obj->SetWeight(ar->weight);
     obj->SetVolume(ar->volume);
     obj->SetValue(ar->value);
-    obj->SetPos(POS_LIE);
+    obj->SetPos(pos_t::LIE);
 
     for (auto loc : ar->loc) {
       obj->SetSkill(wear_attribs[loc], 1);

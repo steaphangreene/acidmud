@@ -250,7 +250,7 @@ static void init_gold() {
   gold->SetVolume(0);
   gold->SetValue(1);
   gold->SetSize(0);
-  gold->SetPos(POS_LIE);
+  gold->SetPos(pos_t::LIE);
   gold->SetSkill(crc32c("Money"), 1);
 }
 
@@ -870,7 +870,7 @@ void Object::TBALoadMOB(const std::string& fn) {
       }
       // fprintf(stderr, "Loaded TBA Mobile with LongDesc = %s\n", buf);
 
-      obj->SetPos(POS_STAND);
+      obj->SetPos(pos_t::STAND);
       obj->SetAttribute(0, 3);
       obj->SetAttribute(1, 3);
       obj->SetAttribute(2, 3);
@@ -956,13 +956,13 @@ void Object::TBALoadMOB(const std::string& fn) {
         fscanf(mudm, "%d %d %d\n", &val, &val2, &val3);
 
         if (val == 4) { // Mob Starts off Sleeping
-          obj->SetPos(POS_LIE);
+          obj->SetPos(pos_t::LIE);
           obj->AddAct(ACT_SLEEP);
         } else if (val == 5) { // Mob Starts off Resting
-          obj->SetPos(POS_SIT);
+          obj->SetPos(pos_t::SIT);
           obj->AddAct(ACT_REST);
         } else if (val == 6) { // Mob Starts off Sitting
-          obj->SetPos(POS_SIT);
+          obj->SetPos(pos_t::SIT);
         }
 
         static char genderlist[] = {'N', 'M', 'F'};
@@ -1362,7 +1362,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
       memset(buf, 0, 65536);
       fscanf(mudo, "%*s %*s %*s %65535[^ \n\t]%*[^\n\r]\n", buf);
       if (strcasestr(buf, "a") || (atoi(buf) & 1)) { // TAKE
-        obj->SetPos(POS_LIE);
+        obj->SetPos(pos_t::LIE);
       }
 
       int sf = 0;

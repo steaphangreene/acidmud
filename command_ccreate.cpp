@@ -297,7 +297,7 @@ int handle_command_ccreate(
             people->SetSkill(crc32c("Bored"), 100000);
             people->SetSkill(crc32c("Tired"), 10000);
             people->SetSkill(crc32c("Needy"), 1000);
-            people->SetPos(POS_STAND);
+            people->SetPos(pos_t::STAND);
             people->Attach(get_mob_mind());
             for (int a = 0; a < 6; ++a)
               people->SetAttribute(a, 3);

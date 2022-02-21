@@ -145,7 +145,8 @@ int Object::SaveTo(FILE* fl) {
     fprintf(fl, "%d\n", getnum(cind));
   }
 
-  fprintf(fl, "%d\n", pos);
+  uint8_t num8 = static_cast<uint8_t>(pos);
+  fprintf(fl, "%hhu\n", num8);
 
   fprintf(fl, "%d\n", (int)(act.size()));
   for (auto aind : act) {
@@ -416,8 +417,9 @@ int Object::LoadFrom(FILE* fl) {
     AddLink(obj);
   }
 
-  fscanf(fl, "%d\n", &num);
-  pos = (pos_t)num;
+  uint8_t num8;
+  fscanf(fl, "%hhu\n", &num8);
+  pos = static_cast<pos_t>(num8);
 
   fscanf(fl, "%d ", &num);
   for (int ctr = 0; ctr < num; ++ctr) {

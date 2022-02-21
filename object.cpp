@@ -41,7 +41,7 @@
 #include "object.hpp"
 #include "utils.hpp"
 
-const std::string pos_str[POS_MAX] = {
+const std::string pos_str[static_cast<uint8_t>(pos_t::MAX)] = {
     "is here",
     "is lying here",
     "is sitting here",
@@ -323,7 +323,7 @@ Object* new_body() {
   body->SetSkill(crc32c("Skill Points"), 64);
   body->SetSkill(crc32c("Status Points"), 6);
 
-  body->SetPos(POS_STAND);
+  body->SetPos(pos_t::STAND);
 
   body->Activate();
 
@@ -343,7 +343,7 @@ Object* new_body() {
   bag->SetVolume(2);
   bag->SetValue(10);
 
-  bag->SetPos(POS_LIE);
+  bag->SetPos(pos_t::LIE);
 
   body->AddAct(ACT_WEAR_RHIP, bag);
 
@@ -488,7 +488,7 @@ int Object::Tick() {
 
       corpse->SetShortDesc("an unidentifiable corpse");
       corpse->SetDesc("A pile of rotting remains.");
-      corpse->SetPos(POS_LIE);
+      corpse->SetPos(pos_t::LIE);
 
       corpse->SetSkill(crc32c("Perishable"), 1);
       corpse->SetSkill(crc32c("Rot"), 1);
@@ -504,9 +504,9 @@ int Object::Tick() {
 
       for (auto con : todropfrom) {
         for (auto item : con->contents) {
-          if (item->contents.size() > 0 && item->Pos() == POS_NONE) {
+          if (item->contents.size() > 0 && item->Pos() == pos_t::NONE) {
             todropfrom.push_back(item);
-          } else if (item->Pos() != POS_NONE) { // Fixed items can't be dropped!
+          } else if (item->Pos() != pos_t::NONE) { // Fixed items can't be dropped!
             todrop.insert(item);
           }
         }
@@ -715,7 +715,7 @@ int Object::Tick() {
 Object::Object() {
   busy_until = 0;
   parent = nullptr;
-  pos = POS_NONE;
+  pos = pos_t::NONE;
   cur_skill = crc32c("None");
 
   weight = 0;
@@ -746,7 +746,7 @@ Object::Object(Object* o) {
   busy_until = 0;
   parent = nullptr;
   SetParent(o);
-  pos = POS_NONE;
+  pos = pos_t::NONE;
   cur_skill = crc32c("None");
 
   weight = 0;
@@ -1272,7 +1272,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
           if ((vmode & (LOC_TOUCH | LOC_HEAT)) == 0)
             continue;
           // Can't see it, and it's mobile, so can't feel it
-          if ((vmode & LOC_TOUCH) == 0 && ind->Pos() > POS_SIT)
+          if ((vmode & LOC_TOUCH) == 0 && ind->Pos() > pos_t::SIT)
             continue;
         }
         if (ind->Skill(crc32c("Hidden")) > 0)
@@ -1491,7 +1491,7 @@ void Object::SendFullSituation(Mind* m, Object* o) {
 void Object::SendDesc(Mind* m, Object* o) {
   memset(buf, 0, 65536);
 
-  if (pos != POS_NONE) {
+  if (pos != pos_t::NONE) {
     m->Send(CCYN);
     SendFullSituation(m, o);
     SendActions(m);
@@ -1514,7 +1514,7 @@ void Object::SendDescSurround(Mind* m, Object* o, int vmode) {
     return;
   memset(buf, 0, 65536);
 
-  if (pos != POS_NONE) {
+  if (pos != pos_t::NONE) {
     m->Send(CCYN);
     SendFullSituation(m, o);
     SendActions(m);
@@ -1549,7 +1549,7 @@ void Object::SendDescSurround(Mind* m, Object* o, int vmode) {
 }
 
 void Object::SendLongDesc(Mind* m, Object* o) {
-  if (pos != POS_NONE) {
+  if (pos != pos_t::NONE) {
     m->Send(CCYN);
     SendFullSituation(m, o);
     SendActions(m);
@@ -2897,9 +2897,9 @@ void Object::Collapse() {
   StopAct(ACT_POINT);
   StopAct(ACT_FIGHT);
   if (parent) {
-    if (pos != POS_LIE) {
+    if (pos != pos_t::LIE) {
       parent->SendOut(ALL, -1, ";s collapses!\n", "You collapse!\n", this, nullptr);
-      pos = POS_LIE;
+      pos = pos_t::LIE;
     }
     if (ActTarg(ACT_WIELD)) {
       parent->SendOutF(
@@ -2966,7 +2966,7 @@ void Object::UpdateDamage() {
         Unattach(mnd);
       }
     }
-    SetPos(POS_LIE);
+    SetPos(pos_t::LIE);
   } else if (phys >= 10) {
     if (IsAct(ACT_DYING) + IsAct(ACT_DEAD) == 0) {
       parent->SendOut(
@@ -2985,7 +2985,7 @@ void Object::UpdateDamage() {
       StopAct(ACT_DEAD);
       AddAct(ACT_DYING);
     }
-    SetPos(POS_LIE);
+    SetPos(pos_t::LIE);
   } else if (stun >= 10) {
     if (IsAct(ACT_UNCONSCIOUS) + IsAct(ACT_DYING) + IsAct(ACT_DEAD) == 0) {
       parent->SendOut(ALL, -1, ";s falls unconscious!\n", "You fall unconscious!\n", this, nullptr);
@@ -3003,7 +3003,7 @@ void Object::UpdateDamage() {
       StopAct(ACT_DYING);
       AddAct(ACT_UNCONSCIOUS);
     }
-    SetPos(POS_LIE);
+    SetPos(pos_t::LIE);
   } else if (stun > 0) {
     if (IsAct(ACT_DEAD) + IsAct(ACT_DYING) + IsAct(ACT_UNCONSCIOUS) != 0) {
       parent->SendOut(
@@ -3292,7 +3292,7 @@ void Object::SendIn(
   for (auto ind : contents) {
     if (ind->Skill(crc32c("Open")) || ind->Skill(crc32c("Transparent")))
       ind->SendIn(tnum, rsucc, mes, youmes, actor, targ);
-    else if (ind->Pos() != POS_NONE) // FIXME - Understand Transparency
+    else if (ind->Pos() != pos_t::NONE) // FIXME - Understand Transparency
       ind->SendIn(tnum, rsucc, mes, youmes, actor, targ);
   }
 }
@@ -3408,7 +3408,7 @@ void Object::SendOut(
   for (auto ind : contents) {
     if (ind->Skill(crc32c("Open")) || ind->Skill(crc32c("Transparent")))
       ind->SendIn(tnum, rsucc, mes, youmes, actor, targ);
-    else if (ind->Pos() != POS_NONE) // FIXME - Understand Transparency
+    else if (ind->Pos() != pos_t::NONE) // FIXME - Understand Transparency
       ind->SendIn(tnum, rsucc, mes, youmes, actor, targ);
   }
 
@@ -3507,7 +3507,7 @@ void init_world() {
       Object* autoninja = new Object(universe);
       autoninja->SetShortDesc("The AutoNinja");
       autoninja->SetDesc("The AutoNinja - you should NEVER see this!");
-      autoninja->SetPos(POS_STAND);
+      autoninja->SetPos(pos_t::STAND);
 
       Player* anp = new Player("AutoNinja", "AutoNinja");
       anp->Set(PLAYER_SUPERNINJA);
@@ -3843,9 +3843,9 @@ MinVec<1, Object*> Object::Contents(int vmode) {
       if ((vmode & (LOC_HEAT | LOC_TOUCH)) == 0 && item->Skill(crc32c("Invisible"))) {
         continue;
       }
-      if ((vmode & LOC_FIXED) && item->Pos() != POS_NONE)
+      if ((vmode & LOC_FIXED) && item->Pos() != pos_t::NONE)
         continue;
-      if ((vmode & LOC_NOTFIXED) && item->Pos() == POS_NONE)
+      if ((vmode & LOC_NOTFIXED) && item->Pos() == pos_t::NONE)
         continue;
       ret.push_back(item);
     }
@@ -3902,17 +3902,17 @@ int two_handed(int wtype) {
 
 std::string Object::PosString() {
   std::string ret;
-  if (pos == POS_USE) {
+  if (pos == pos_t::USE) {
     ret = fmt::format("is {} here", UsingString());
   } else {
-    ret = pos_str[pos];
+    ret = pos_str[static_cast<uint8_t>(pos)];
   }
   return ret;
 }
 
 std::string Object::UsingString() {
   std::string ret;
-  if (pos == POS_USE) {
+  if (pos == pos_t::USE) {
     if (cur_skill == crc32c("Stealth")) {
       ret = "sneaking around";
     } else if (cur_skill == crc32c("Perception")) {
@@ -3938,12 +3938,12 @@ std::string Object::UsingString() {
 
 void Object::StartUsing(uint32_t skill) {
   cur_skill = skill;
-  pos = POS_USE;
+  pos = pos_t::USE;
 }
 
 void Object::StopUsing() {
-  if (pos == POS_USE)
-    pos = POS_STAND;
+  if (pos == pos_t::USE)
+    pos = pos_t::STAND;
   cur_skill = crc32c("None");
 }
 
@@ -3960,7 +3960,7 @@ pos_t Object::Pos() {
 }
 
 void Object::SetPos(pos_t p) {
-  if (pos == POS_USE && p != POS_USE)
+  if (pos == pos_t::USE && p != pos_t::USE)
     StopUsing();
   pos = p;
 }

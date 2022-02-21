@@ -71,7 +71,7 @@ enum channel_t {
   CHANNEL_ROLLS,
 };
 
-enum pos_t { POS_NONE = 0, POS_LIE, POS_SIT, POS_STAND, POS_USE, POS_MAX };
+enum class pos_t : uint8_t { NONE = 0, LIE, SIT, STAND, USE, MAX };
 
 // Changing these requires change to:
 // * act_str: in object.cpp
@@ -556,9 +556,10 @@ class alignas(256) Object {
 
   int8_t tickstep;
 
+  pos_t pos;
+
   MinVec<1, Object*> contents;
   Object* parent;
-  pos_t pos;
   uint32_t cur_skill;
 
   int64_t busy_until;

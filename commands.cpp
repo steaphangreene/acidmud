@@ -1092,48 +1092,48 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       }
     }
     if ((comlist[cnum].sit & (SIT_STAND | SIT_USE)) == (SIT_STAND | SIT_USE)) {
-      if (body->Pos() != POS_STAND && body->Pos() != POS_USE) {
+      if (body->Pos() != pos_t::STAND && body->Pos() != pos_t::USE) {
         if (mind)
           mind->Send("You must stand up to use that command.\n");
         handle_single_command(body, "stand", mind);
-        if (body->Pos() != POS_STAND && body->Pos() != POS_USE)
+        if (body->Pos() != pos_t::STAND && body->Pos() != pos_t::USE)
           return 0;
       }
     } else if ((comlist[cnum].sit & (SIT_STAND | SIT_SIT)) == (SIT_STAND | SIT_SIT)) {
-      if (body->Pos() == POS_USE) {
+      if (body->Pos() == pos_t::USE) {
         if (mind)
           mind->Send("You must stop using this skill to do that.\n");
         handle_single_command(body, "stop", mind);
-        if (body->Pos() != POS_STAND)
+        if (body->Pos() != pos_t::STAND)
           return 0;
-      } else if (body->Pos() != POS_SIT && body->Pos() != POS_STAND) {
+      } else if (body->Pos() != pos_t::SIT && body->Pos() != pos_t::STAND) {
         if (mind)
           mind->Send("You must at least sit up to use that command.\n");
         handle_single_command(body, "sit", mind);
-        if (body->Pos() != POS_SIT && body->Pos() != POS_STAND)
+        if (body->Pos() != pos_t::SIT && body->Pos() != pos_t::STAND)
           return 0;
       }
     } else if (comlist[cnum].sit & SIT_STAND) {
-      if (body->Pos() == POS_USE) {
+      if (body->Pos() == pos_t::USE) {
         if (mind)
           mind->Send("You must stop using this skill to do that.\n");
         handle_single_command(body, "stop", mind);
-        if (body->Pos() != POS_STAND)
+        if (body->Pos() != pos_t::STAND)
           return 0;
-      } else if (body->Pos() != POS_STAND) {
+      } else if (body->Pos() != pos_t::STAND) {
         if (mind)
           mind->Send("You must stand up to use that command.\n");
         handle_single_command(body, "stand", mind);
-        if (body->Pos() != POS_STAND)
+        if (body->Pos() != pos_t::STAND)
           return 0;
       }
     }
     if (comlist[cnum].sit & SIT_SIT) {
-      if (body->Pos() != POS_SIT) {
+      if (body->Pos() != pos_t::SIT) {
         if (mind)
           mind->Send("You must sit to use that command.\n");
         handle_single_command(body, "sit", mind);
-        if (body->Pos() != POS_SIT)
+        if (body->Pos() != pos_t::SIT)
           return 0;
       }
     }
@@ -1835,7 +1835,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
     stealth_t = 0;
     stealth_s = 0;
-    if (body->Pos() == POS_USE && (!body->IsUsing(crc32c("Perception")))) {
+    if (body->Pos() == pos_t::USE && (!body->IsUsing(crc32c("Perception")))) {
       body->Parent()->SendOutF(
           stealth_t,
           stealth_s,
@@ -3100,7 +3100,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
 
-    if (targ->Pos() == POS_NONE) {
+    if (targ->Pos() == pos_t::NONE) {
       if (mind)
         mind->SendF("You can't drag %s, it is fixed in place!\n", targ->Name().c_str());
     } else if (targ->IsAnimate()) {
@@ -3150,7 +3150,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         }
       }
 
-      if ((!nmode) && targ->Pos() == POS_NONE) {
+      if ((!nmode) && targ->Pos() == pos_t::NONE) {
         if (mind)
           mind->SendF("You can't get %s, it is fixed in place!\n", targ->Name().c_str());
       } else if ((!nmode) && targ->IsAnimate()) {
@@ -4204,8 +4204,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
     int lied = 0;
-    if (body->Pos() != POS_LIE) {
-      body->SetPos(POS_LIE);
+    if (body->Pos() != pos_t::LIE) {
+      body->SetPos(pos_t::LIE);
       lied = 1;
     }
     if (body->ActTarg(ACT_WIELD)) {
@@ -4275,14 +4275,14 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           "You wake up and start resting.\n",
           body,
           nullptr);
-    } else if (body->Pos() == POS_LIE || body->Pos() == POS_SIT) {
+    } else if (body->Pos() == pos_t::LIE || body->Pos() == pos_t::SIT) {
       body->AddAct(ACT_REST);
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s starts resting.\n", "You start resting.\n", body, nullptr);
     } else {
       body->AddAct(ACT_REST);
-      if (body->Pos() != POS_LIE)
-        body->SetPos(POS_SIT);
+      if (body->Pos() != pos_t::LIE)
+        body->SetPos(pos_t::SIT);
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,
@@ -4306,11 +4306,11 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_STAND) {
-    if (body->Pos() == POS_STAND || body->Pos() == POS_USE) {
+    if (body->Pos() == pos_t::STAND || body->Pos() == pos_t::USE) {
       if (mind)
         mind->Send("But you are already standing!\n");
     } else if (body->IsAct(ACT_SLEEP)) {
-      body->SetPos(POS_STAND);
+      body->SetPos(pos_t::STAND);
       body->StopAct(ACT_SLEEP);
       body->Parent()->SendOut(
           stealth_t,
@@ -4321,7 +4321,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           nullptr);
     } else if (body->IsAct(ACT_REST)) {
       body->StopAct(ACT_REST);
-      body->SetPos(POS_STAND);
+      body->SetPos(pos_t::STAND);
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,
@@ -4330,7 +4330,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           body,
           nullptr);
     } else {
-      body->SetPos(POS_STAND);
+      body->SetPos(pos_t::STAND);
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s stands up.\n", "You stand up.\n", body, nullptr);
     }
@@ -4338,12 +4338,12 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_SIT) {
-    if (body->Pos() == POS_SIT) {
+    if (body->Pos() == pos_t::SIT) {
       if (mind)
         mind->Send("But you are already sitting!\n");
     } else if (body->IsAct(ACT_SLEEP)) {
       body->StopAct(ACT_SLEEP);
-      body->SetPos(POS_SIT);
+      body->SetPos(pos_t::SIT);
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,
@@ -4351,12 +4351,12 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           "You awaken and sit up.\n",
           body,
           nullptr);
-    } else if (body->Pos() == POS_LIE) {
-      body->SetPos(POS_SIT);
+    } else if (body->Pos() == pos_t::LIE) {
+      body->SetPos(pos_t::SIT);
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s sits up.\n", "You sit up.\n", body, nullptr);
     } else {
-      body->SetPos(POS_SIT);
+      body->SetPos(pos_t::SIT);
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s sits down.\n", "You sit down.\n", body, nullptr);
     }
@@ -4375,11 +4375,11 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_LIE) {
-    if (body->Pos() == POS_LIE) {
+    if (body->Pos() == pos_t::LIE) {
       if (mind)
         mind->Send("But you are already lying down!\n");
     } else {
-      body->SetPos(POS_LIE);
+      body->SetPos(pos_t::LIE);
       body->Parent()->SendOut(
           stealth_t, stealth_s, ";s lies down.\n", "You lie down.\n", body, nullptr);
     }
@@ -4519,7 +4519,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       obj->SetSkill(crc32c("Light Source"), 10);
       obj->SetSkill(crc32c("Temporary"), force);
       obj->Activate();
-      obj->SetPos(POS_LIE);
+      obj->SetPos(pos_t::LIE);
       body->AddAct(ACT_HOLD, obj);
       body->Parent()->SendOutF(
           0,
@@ -4576,7 +4576,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
   if (cnum == COM_USE) {
     if (args.empty()) {
-      if (body->Pos() != POS_USE) {
+      if (body->Pos() != pos_t::USE) {
         mind->Send("You're not using a skill.  Try 'use <skillname>' to start.\n");
       } else {
         body->Parent()->SendOutF(
@@ -4587,7 +4587,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             body,
             nullptr,
             body->UsingString().c_str());
-        body->SetPos(POS_STAND);
+        body->SetPos(pos_t::STAND);
         return 2;
       }
       return 0;
@@ -4637,7 +4637,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           log->SetShortDesc("a log");
           log->SetDesc("a fallen tree.");
           log->SetLongDesc("This is a tree that has recently been cut down.");
-          log->SetPos(POS_LIE);
+          log->SetPos(pos_t::LIE);
           log->SetValue(10);
           log->SetVolume(1000);
           log->SetWeight(220000);
@@ -4667,7 +4667,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         stealth_s = body->Roll(crc32c("Stealth"), 2);
       }
 
-      if (body->Pos() != POS_STAND && body->Pos() != POS_USE) { // FIXME: Unused
+      if (body->Pos() != pos_t::STAND && body->Pos() != pos_t::USE) { // FIXME: Unused
         body->Parent()->SendOutF(
             stealth_t,
             stealth_s,
@@ -5439,7 +5439,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       weap->SetSkill(crc32c("WeaponForce"), -2);
       weap->SetSkill(crc32c("WeaponSeverity"), 1);
       weap->SetSkill(crc32c("WeaponReach"), 1);
-      weap->SetPos(POS_LIE);
+      weap->SetPos(pos_t::LIE);
       body->AddAct(ACT_WIELD, weap);
 
       auto shi = new Object(body);
@@ -5447,7 +5447,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       shi->SetDesc("This shield has seen better days... but, it was pretty bad back then too.");
       shi->SetSkill(crc32c("Wearable on Shield"), 1);
       shi->SetAttribute(0, 1);
-      shi->SetPos(POS_LIE);
+      shi->SetPos(pos_t::LIE);
       body->AddAct(ACT_WEAR_SHIELD, shi);
 
       auto arm = new Object(body);
@@ -5460,7 +5460,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       arm->SetSkill(crc32c("Wearable on Left Leg"), 1);
       arm->SetSkill(crc32c("Wearable on Right Leg"), 1);
       arm->SetAttribute(0, 1);
-      arm->SetPos(POS_LIE);
+      arm->SetPos(pos_t::LIE);
       body->AddAct(ACT_WEAR_BACK, arm);
       body->AddAct(ACT_WEAR_CHEST, arm);
       body->AddAct(ACT_WEAR_LARM, arm);
@@ -5473,7 +5473,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       helm->SetDesc("This is... armor... probably.");
       helm->SetSkill(crc32c("Wearable on Head"), 1);
       helm->SetAttribute(0, 1);
-      helm->SetPos(POS_LIE);
+      helm->SetPos(pos_t::LIE);
       body->AddAct(ACT_WEAR_HEAD, helm);
 
       body->SetSkill(crc32c("Status Points"), 0);
