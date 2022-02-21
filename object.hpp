@@ -537,8 +537,6 @@ class alignas(256) Object {
 
   int Filter(int loc);
 
-  int tickstep;
-
   constexpr static const char* const default_descriptions = "new object\0\0\0";
   const char* descriptions = default_descriptions;
   uint16_t dlens[3] = {10, 0, 0};
@@ -546,9 +544,9 @@ class alignas(256) Object {
   bool no_seek; // Recursion protection
   bool no_hear; // For Send() protection
 
+  MinVec<1, Mind*> minds;
   MinVec<1, Object*> contents;
   Object* parent;
-  MinVec<1, Mind*> minds;
   pos_t pos;
   uint32_t cur_skill;
 
@@ -562,13 +560,16 @@ class alignas(256) Object {
   int8_t phys, stun, stru;
   int8_t attr[6] = {0, 0, 0, 0, 0, 0};
 
-  MinVec<3, skill_pair> skills;
+  int8_t tickstep;
+
+  int64_t busy_until;
+  std::string dowhenfree, defact;
 
   MinVec<1, act_pair> act;
   MinVec<1, Object*> touching_me;
 
-  int64_t busy_until;
-  std::string dowhenfree, defact;
+  MinVec<3, skill_pair> skills;
+
   friend void player_rooms_erase(Object*);
 };
 static_assert(sizeof(Object) == 256); // Prevent Bloat
