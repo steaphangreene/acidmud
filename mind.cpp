@@ -1051,19 +1051,19 @@ bool Mind::TBAVarSub(std::string& line) {
         } else if (!strcmp(field.c_str(), "con")) {
           val = "";
           if (obj)
-            val = itos((obj->NormAttribute(0) - 2) * 3);
+            val = itos(obj->NormAttribute(0) * 3);
           obj = nullptr;
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "dex")) {
           val = "";
           if (obj)
-            val = itos((obj->NormAttribute(1) - 2) * 3);
+            val = itos(obj->NormAttribute(1) * 3);
           obj = nullptr;
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "str")) {
           val = "";
           if (obj)
-            val = itos((obj->NormAttribute(2) - 2) * 3);
+            val = itos(obj->NormAttribute(2) * 3);
           obj = nullptr;
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "stradd")) { // D&D is Dumb
@@ -1073,19 +1073,19 @@ bool Mind::TBAVarSub(std::string& line) {
         } else if (!strcmp(field.c_str(), "cha")) {
           val = "";
           if (obj)
-            val = itos((obj->NormAttribute(3) - 2) * 3);
+            val = itos(obj->NormAttribute(3) * 3);
           obj = nullptr;
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "int")) {
           val = "";
           if (obj)
-            val = itos((obj->NormAttribute(4) - 2) * 3);
+            val = itos(obj->NormAttribute(4) * 3);
           obj = nullptr;
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "wis")) {
           val = "";
           if (obj)
-            val = itos((obj->NormAttribute(5) - 2) * 3);
+            val = itos(obj->NormAttribute(5) * 3);
           obj = nullptr;
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "pos")) {
