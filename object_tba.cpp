@@ -231,7 +231,7 @@ void Object::TBAFinalizeTriggers() {
       trg->Parent()->SetLongDesc(newtext.c_str());
       trg->Recycle();
       // fprintf(stderr, "%s", newtext.c_str());
-    } else if (trg->Skill(crc32c("TBAScriptType")) & 0x6000000) { // Room or Obj
+    } else if (trg->Skill(crc32c("TBAScriptType")) & 0x1000000) { // Room or Obj
       trg->Activate();
       new_trigger(13000 + (rand() % 13000), trg, nullptr, nullptr, "");
     }
@@ -1237,7 +1237,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
       // fprintf(stderr, "Loaded object #%d\n", onum);
 
       Object* obj = new Object(objroom);
-      obj->SetSkill(crc32c("TBAObject"), 2000000 + onum);
+      obj->SetSkill(crc32c("TBAObject"), 1000000 + onum);
       bynumobj[onum] = obj;
 
       std::vector<std::string_view> aliases;
@@ -1529,7 +1529,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
         (*obj) = (*gold);
         obj->SetSkill(crc32c("Quantity"), val[0]);
       } else if (tp == 18) { // KEY
-        obj->SetSkill(crc32c("Key"), 2000000 + onum); // Key's "code"
+        obj->SetSkill(crc32c("Key"), 1000000 + onum); // Key's "code"
       } else if (tp == 15) { // CONTAINER
         obj->SetSkill(crc32c("Container"), val[0] * 454);
         obj->SetSkill(crc32c("Capacity"), val[0]);
@@ -1543,7 +1543,8 @@ void Object::TBALoadOBJ(const std::string& fn) {
         if (val[1] & 1)
           obj->SetSkill(crc32c("Closeable"), 1); // Can it be closed?
         if (val[2] > 0) {
-          obj->SetSkill(crc32c("Lock"), 2000000 + val[2]); // Unlocking key's code
+          obj->SetSkill(crc32c("Lock"), 1000000 + val[2]); // Unlocking key's code
+          obj->SetSkill(crc32c("Accomplishment"), 1300000 + val[2]);
           obj->SetSkill(crc32c("Lockable"), 1); // Can it be locked?
         }
 
@@ -2340,7 +2341,7 @@ void Object::TBALoadWLD(const std::string& fn) {
 
       Object* obj = new Object(this);
       olist.push_back(obj);
-      obj->SetSkill(crc32c("TBARoom"), 4000000 + onum);
+      obj->SetSkill(crc32c("TBARoom"), 1000000 + onum);
       bynumwld[onum] = obj;
       if (onum == 0) { // Player Start Room (Void) Hard-Coded Here
         Object* world = obj->World();
@@ -2392,7 +2393,7 @@ void Object::TBALoadWLD(const std::string& fn) {
       if (strcasestr(buf, "c") || (atoi(buf) & 4)) { // NOMOB
         obj->SetSkill(crc32c("TBAZone"), 999999);
       } else {
-        obj->SetSkill(crc32c("TBAZone"), 3000000 + zone);
+        obj->SetSkill(crc32c("TBAZone"), 1000000 + zone);
       }
       if (strcasestr(buf, "e") || (atoi(buf) & 16)) { // PEACEFUL
         obj->SetSkill(crc32c("Peaceful"), 1000);
@@ -2511,7 +2512,8 @@ void Object::TBALoadWLD(const std::string& fn) {
               if (tynum[dir][ob] == 2)
                 nobj->SetSkill(crc32c("Pickable"), 1000);
               if (knum[dir][ob] > 0) {
-                nobj->SetSkill(crc32c("Lock"), 2000000 + knum[dir][ob]);
+                nobj->SetSkill(crc32c("Lock"), 1000000 + knum[dir][ob]);
+                nobj->SetSkill(crc32c("Accomplishment"), 1300000 + tnum);
               }
             } else {
               des = std::string("A passage ") + dirname[dir] + " is here.";
@@ -2783,7 +2785,7 @@ void Object::TBALoadTRG(const std::string& fn) { // Triggers
       script = new Object();
       bynumtrg[tnum] = script;
       script->SetSkill(crc32c("Invisible"), 1000);
-      script->SetSkill(crc32c("TBAScript"), 5000000 + tnum);
+      script->SetSkill(crc32c("TBAScript"), 1000000 + tnum);
       script->SetSkill(crc32c("Accomplishment"), 1200000 + tnum);
       script->SetShortDesc("A tbaMUD trigger script");
       // fprintf(stderr, "Loading #%d\n", tnum);

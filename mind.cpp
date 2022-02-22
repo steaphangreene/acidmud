@@ -1421,7 +1421,7 @@ bool Mind::TBAVarSub(std::string& line) {
           sscanf(field.c_str() + 9, "%d", &vnum);
           val = "";
           if (obj && vnum != -1 && field[num] == ')') {
-            vnum += 2000000;
+            vnum += 1000000;
             auto pos = obj->PickObjects("all", LOC_INTERNAL);
             for (auto item : pos) {
               if (vnum == item->Skill(crc32c("TBAObject"))) {
@@ -1805,7 +1805,7 @@ int Mind::TBARunLine(std::string line) {
     auto options = room->Contents();
 
     room = nullptr;
-    dnum += 4000000;
+    dnum += 1000000;
     for (auto opt : options) {
       int tnum = opt->Skill(crc32c("TBARoom"));
       if (tnum > 0 && tnum == dnum) {
@@ -2294,7 +2294,7 @@ int Mind::TBARunLine(std::string line) {
 
     auto options = room->World()->Contents();
     room = nullptr;
-    rnum += 4000000;
+    rnum += 1000000;
     for (auto opt : options) {
       int tbanum = opt->Skill(crc32c("TBARoom"));
       if (tbanum > 0 && tbanum == rnum) {
@@ -2394,7 +2394,7 @@ int Mind::TBARunLine(std::string line) {
       if (door)
         door->Recycle();
       Object* toroom = nullptr;
-      tnum += 4000000;
+      tnum += 1000000;
       for (auto opt : options) {
         int onum = opt->Skill(crc32c("TBARoom"));
         if (onum > 0 && onum == tnum) {
@@ -2432,7 +2432,7 @@ int Mind::TBARunLine(std::string line) {
         return -1;
       }
       door->SetSkill(crc32c("Lockable"), 1);
-      door->SetSkill(crc32c("Key"), 2000000 + tnum);
+      door->SetSkill(crc32c("Key"), 1000000 + tnum);
       if (door->Skill(crc32c("Pickable")) < 1)
         door->SetSkill(crc32c("Pickable"), 4);
       //      fprintf(stderr, CGRN "#%d Debug: %s door re-keyed (%d) in '%s'\n"
@@ -2474,7 +2474,7 @@ int Mind::TBARunLine(std::string line) {
     Object* dest = ovars["self"]->World();
     auto options = dest->Contents();
     dest = nullptr;
-    dnum += 4000000;
+    dnum += 1000000;
     for (auto opt : options) {
       int tnum = opt->Skill(crc32c("TBARoom"));
       if (tnum > 0 && tnum == dnum) {
@@ -2561,7 +2561,7 @@ int Mind::TBARunLine(std::string line) {
       }
       auto options = src->Contents();
       for (auto opt : options) {
-        if (opt->Skill(crc32c("TBAObject")) == valnum + 2000000) {
+        if (opt->Skill(crc32c("TBAObject")) == valnum + 1000000) {
           item = new Object(*opt);
           break;
         }

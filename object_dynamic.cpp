@@ -114,7 +114,7 @@ void Object::DynamicInit1() { // Dwarven mine
         500,
         2001);
     dwarf_miner->Skill(crc32c("Two-Handed Cleaves"), 100, 4);
-    dwarf_miner->Skill(crc32c("Accomplishment"), 1300000);
+    dwarf_miner->Skill(crc32c("Accomplishment"), 1500000);
     weap = new WeaponType(
         "a dwarven mining pickaxe",
         "A super-strong, super-sharp, super-heavy pickaxe.",
@@ -168,7 +168,7 @@ void Object::DynamicInit1() { // Dwarven mine
         2000,
         8001);
     dwarf_engineer->Skill(crc32c("Long Cleaves"), 100, 2);
-    dwarf_engineer->Skill(crc32c("Accomplishment"), 1300001);
+    dwarf_engineer->Skill(crc32c("Accomplishment"), 1500001);
     weap = new WeaponType(
         "a dwarven combat axe",
         "A super-strong, super-sharp combat axe.",
@@ -222,7 +222,7 @@ void Object::DynamicInit1() { // Dwarven mine
         100,
         401);
     dwarf_guard->Skill(crc32c("Two-Handed Cleaves"), 100, 4);
-    dwarf_guard->Skill(crc32c("Accomplishment"), 1300002);
+    dwarf_guard->Skill(crc32c("Accomplishment"), 1500002);
     weap = new WeaponType(
         "a dwarven war axe",
         "A super-strong, super-sharp, super-heavy, high-quality war axe.",
@@ -328,7 +328,7 @@ void Object::DynamicInit1() { // Dwarven mine
         "a key",
         "A heavy steel key.  It looks dwarven, and very old.",
         "",
-        {skill_pair{crc32c("Key"), 1310003}},
+        {skill_pair{crc32c("Key"), 1510003}},
         100,
         10,
         20);
@@ -354,7 +354,7 @@ void Object::DynamicInit1() { // Dwarven mine
         1000,
         4001);
     dwarf_explorer->Skill(crc32c("Long Cleaves"), 100, 4);
-    dwarf_explorer->Skill(crc32c("Accomplishment"), 1300003);
+    dwarf_explorer->Skill(crc32c("Accomplishment"), 1500003);
     weap = new WeaponType(
         "a dwarven climbing pick",
         "A super-sharp, lightweight pick.",
@@ -414,7 +414,7 @@ void Object::DynamicInit1() { // Dwarven mine
     elf_prisoner->Skill(crc32c("Carromeleg - Tier IV"), 2);
     elf_prisoner->Skill(crc32c("Carromeleg - Tier V"), 2);
     elf_prisoner->Skill(crc32c("Carromeleg - Tier VI"), 2);
-    elf_prisoner->Skill(crc32c("Accomplishment"), 1300004);
+    elf_prisoner->Skill(crc32c("Accomplishment"), 1500004);
   }
 
   int mojo = Skill(crc32c("DynamicMojo"));
@@ -449,7 +449,7 @@ void Object::DynamicInit1() { // Dwarven mine
       if (mojo == 0)
         mojo = 100000;
 
-      SetSkill(crc32c("Accomplishment"), 1310000);
+      SetSkill(crc32c("Accomplishment"), 1510000);
 
       Object* next = new Object(parent);
       next->SetShortDesc(names[1]);
@@ -644,7 +644,7 @@ void Object::DynamicInit1() { // Dwarven mine
       next->SetSkill(crc32c("DynamicInit"), 1);
       next->SetSkill(crc32c("DynamicPhase"), 5); // Minor Shaft
       next->SetSkill(crc32c("DynamicMojo"), (mojo - 1000) / 4);
-      next->SetSkill(crc32c("Accomplishment"), 1310002);
+      next->SetSkill(crc32c("Accomplishment"), 1510002);
 
       door1 = new Object(this);
       door2 = new Object(next);
@@ -712,9 +712,9 @@ void Object::DynamicInit1() { // Dwarven mine
       cage->SetSkill(crc32c("Transparent"), 900);
       cage->SetSkill(crc32c("Container"), 100000);
       cage->SetSkill(crc32c("Locked"), 1);
-      cage->SetSkill(crc32c("Lock"), 1310003);
+      cage->SetSkill(crc32c("Lock"), 1510003);
       cage->SetSkill(crc32c("Closeable"), 1);
-      cage->SetSkill(crc32c("Accomplishment"), 1310003);
+      cage->SetSkill(crc32c("Accomplishment"), 1510003);
 
       if ((rand() % 100) < 20) {
         mojo -= 500;
@@ -957,7 +957,7 @@ void Object::DynamicInit1() { // Dwarven mine
       next->SetSkill(crc32c("DynamicInit"), 1);
       next->SetSkill(crc32c("DynamicPhase"), ntype);
       next->SetSkill(crc32c("DynamicMojo"), mojo - 500);
-      next->SetSkill(crc32c("Accomplishment"), 1310001);
+      next->SetSkill(crc32c("Accomplishment"), 1510001);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
