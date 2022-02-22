@@ -29,4 +29,4 @@ if [ -z "$(file acidmud | grep 'ELF 64-bit LSB executable, x86-64')" ]; then
 fi
 
 ssh acidmud@${acidhost} rm -f ~acidmud/acidmud
-scp acidmud acidmud@${acidhost}:~acidmud/acidmud
+rsync -av acidmud terrestria acidmud@${acidhost}:
