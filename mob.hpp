@@ -85,12 +85,12 @@ class ItemType {
       const std::string& nm,
       const std::string& ds,
       const std::string& lds,
-      skill_pair sk,
+      const std::vector<skill_pair>& sk,
       int w,
       int vol,
       int val);
   std::string name, desc, long_desc;
-  skill_pair skill;
+  std::vector<skill_pair> skills;
   int weight, volume, value;
 };
 

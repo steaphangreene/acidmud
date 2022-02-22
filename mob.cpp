@@ -274,7 +274,9 @@ void Object::AddMOB(const MOBType* type) {
 
     for (auto it : type->items) {
       Object* obj = new Object(sack);
-      obj->SetSkill(it->skill.first, it->skill.second);
+      for (auto sk : it->skills) {
+        obj->SetSkill(sk.first, sk.second);
+      }
       obj->SetShortDesc(it->name.c_str());
       obj->SetDesc(it->desc.c_str());
       obj->SetLongDesc(it->long_desc.c_str());
@@ -369,14 +371,14 @@ ItemType::ItemType(
     const std::string& nm,
     const std::string& ds,
     const std::string& lds,
-    skill_pair sk,
+    const std::vector<skill_pair>& sk,
     int w,
     int vol,
     int val) {
   name = nm;
   desc = ds;
   long_desc = lds;
-  skill = sk;
+  skills = sk;
   weight = w;
   volume = vol;
   value = val;

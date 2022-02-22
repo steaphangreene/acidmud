@@ -328,7 +328,7 @@ void Object::DynamicInit1() { // Dwarven mine
         "a key",
         "A heavy steel key.  It looks dwarven, and very old.",
         "",
-        skill_pair{crc32c("Key"), 1310003},
+        {skill_pair{crc32c("Key"), 1310003}},
         100,
         10,
         20);
