@@ -19,7 +19,6 @@
 //
 // *************************************************************************
 
-#include <algorithm>
 #include <cstdlib>
 #include <cstring>
 #include <random>
@@ -29,8 +28,12 @@
 #include "object.hpp"
 #include "utils.hpp"
 
-#define NUM_AVS 5 // 28 Max!
-#define NUM_STS 5 // No Max
+uint64_t obj_num = 2000000; // Dodges All Legacy IDs
+static Object* new_object(Object* parent) {
+  ++obj_num;
+  return new Object(parent);
+}
+
 int handle_command_wcreate(
     Object* body,
     Mind* mind,
@@ -54,6 +57,13 @@ int handle_command_wcreate(
   int upper_level = 1;
 
   std::map<char, std::vector<std::string>> rooms;
+  std::map<char, std::string> doors;
+  std::map<char, std::string> doorterms;
+  std::map<char, bool> remote;
+  std::map<char, bool> closed;
+  std::map<char, bool> clear;
+  std::map<char, bool> locks;
+  std::map<char, bool> locked;
   std::map<char, bool> indoors;
   std::map<char, uint8_t> levels;
   bool in_main_def = false;
@@ -87,6 +97,38 @@ int handle_command_wcreate(
       uint8_t lev;
       sscanf(line_buf + 8, "%hhu", &lev);
       levels[sym] = lev;
+    } else if (!strncmp(line_buf, "door:", 5)) {
+      char sym = 'd';
+      sscanf(line_buf + 5, "%c", &sym);
+      char namebuf[256];
+      sscanf(line_buf + 7, "%255[^\n]", namebuf);
+      doors[sym] = namebuf;
+    } else if (!strncmp(line_buf, "doorterm:", 9)) {
+      char sym = 'd';
+      sscanf(line_buf + 9, "%c", &sym);
+      char namebuf[256];
+      sscanf(line_buf + 11, "%255[^\n]", namebuf);
+      doorterms[sym] = namebuf;
+    } else if (!strncmp(line_buf, "lock:", 5)) {
+      char sym = 'd';
+      sscanf(line_buf + 5, "%c", &sym);
+      locks[sym] = true;
+    } else if (!strncmp(line_buf, "locked:", 7)) {
+      char sym = 'd';
+      sscanf(line_buf + 7, "%c", &sym);
+      locked[sym] = true;
+    } else if (!strncmp(line_buf, "closed:", 7)) {
+      char sym = 'd';
+      sscanf(line_buf + 7, "%c", &sym);
+      closed[sym] = true;
+    } else if (!strncmp(line_buf, "clear:", 6)) {
+      char sym = 'd';
+      sscanf(line_buf + 6, "%c", &sym);
+      clear[sym] = true;
+    } else if (!strncmp(line_buf, "remote:", 7)) {
+      char sym = 'd';
+      sscanf(line_buf + 7, "%c", &sym);
+      remote[sym] = true;
     } else if (!strncmp(line_buf, "entrance:", 9)) {
       // TODO: Connect Entrances!
     } else if (!strncmp(line_buf, "ascii_map:", 10)) {
@@ -142,7 +184,7 @@ int handle_command_wcreate(
   std::mt19937 g(rd());
 
   // Create New World
-  Object* world = new Object(body->Parent());
+  Object* world = new_object(body->Parent());
   world->SetShortDesc(name);
   world->SetSkill(crc32c("Light Source"), 1000);
   world->SetSkill(crc32c("Day Length"), 240);
@@ -180,7 +222,7 @@ int handle_command_wcreate(
           num_floors = 1;
         }
         for (int f = 0; f < num_floors; ++f) {
-          objs[coord{x, y}].push_back(new Object(world));
+          objs[coord{x, y}].push_back(new_object(world));
           if (indoors[room]) {
             objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 200);
             objs[coord{x, y}].back()->SetSkill(crc32c("Light Source"), 100);
@@ -215,7 +257,7 @@ int handle_command_wcreate(
           num_floors = 1;
         }
         for (int f = 0; f < num_floors; ++f) {
-          objs[coord{x, y}].push_back(new Object(world));
+          objs[coord{x, y}].push_back(new_object(world));
           if (indoors[room]) {
             objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 200);
             objs[coord{x, y}].back()->SetSkill(crc32c("Light Source"), 100);
@@ -239,7 +281,7 @@ int handle_command_wcreate(
           objs[coord{x, y}].back()->SetShortDesc("a room");
         }
       } else if (room == '@') { // Default Entrance
-        objs[coord{x, y}].push_back(new Object(world));
+        objs[coord{x, y}].push_back(new_object(world));
         objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 1000);
         objs[coord{x, y}].back()->SetShortDesc("a zone entrance");
         // TODO: Connect Entrances!
@@ -266,23 +308,21 @@ int handle_command_wcreate(
     const int32_t off_x[] = {1, -1, 1, -1, 0, 1, -1, 0};
     const int32_t off_y[] = {1, 1, -1, -1, 1, 0, 0, -1};
     const uint8_t dmask[] = {3, 5, 10, 12, 1, 2, 4, 8};
-    const std::string start = "A passage ";
     for (uint8_t dir = 0; dir < 8; ++dir) {
       uint32_t dx = x + off_x[dir];
       uint32_t dy = y + off_y[dir];
       bool is_upper = false;
       bool is_lower = false;
-      if (ascii_islower(ascii_map[dy][dx])) {
+      char door_char = ascii_map[dy][dx];
+      if (ascii_islower(door_char)) {
         is_lower = true;
-      } else if (ascii_isupper(ascii_map[dy][dx])) {
+      } else if (ascii_isupper(door_char)) {
         is_upper = true;
-      } else if (
-          ascii_map[dy][dx] == '-' || ascii_map[dy][dx] == '/' || ascii_map[dy][dx] == '|' ||
-          ascii_map[dy][dx] == '\\') {
+      } else if (door_char == '-' || door_char == '/' || door_char == '|' || door_char == '\\') {
         // Connections with no level forcing
       } else {
-        if (ascii_map[dy][dx] != ' ') {
-          mind->SendF("Unrecognized passage symbol '%c'!\n", ascii_map[dy][dx]);
+        if (door_char != ' ') {
+          mind->SendF("Unrecognized passage symbol '%c'!\n", door_char);
         }
         continue;
       }
@@ -338,19 +378,61 @@ int handle_command_wcreate(
         // mind->Send("Direction already (at least partly) defined from here.\n");
         continue;
       }
-      if(connected[objs[coord{dx, dy}][l2]] & dmask[dir ^ 3]) {
+      if (connected[objs[coord{dx, dy}][l2]] & dmask[dir ^ 3]) {
         // mind->Send("Direction already (at least partly) defined from there.\n");
         continue;
       }
 
+      std::string start = "A passage ";
+      if (doors.count(door_char) > 0) {
+        start = std::string("A ") + doors[door_char] + " to the ";
+      }
+      std::string term = "door";
+      if (doorterms.count(door_char) > 0) {
+        term = doorterms[door_char];
+      }
+
       connected[obj.second[l1]] |= dmask[dir];
       connected[objs[coord{dx, dy}][l2]] |= dmask[dir ^ 3];
-      obj.second[l1]->Link(
-          objs[coord{dx, dy}][l2],
-          dirnames[dir],
-          start + dirnames[dir] + " is here.\n",
-          dirnames[dir ^ 3],
-          start + dirnames[dir ^ 3] + " is here.\n");
+
+      // Create the linking doors
+      Object* door1 = new_object(obj.second[l1]);
+      Object* door2 = new_object(objs[coord{dx, dy}][l2]);
+      if (doors.count(door_char) > 0) {
+        door1->SetShortDesc(dirnames[dir] + " (" + term + ")");
+        door2->SetShortDesc(dirnames[dir ^ 3] + " (" + term + ")");
+      } else {
+        door1->SetShortDesc(dirnames[dir]);
+        door2->SetShortDesc(dirnames[dir ^ 3]);
+      }
+      door1->SetDesc(start + dirnames[dir] + " is here.\n");
+      door2->SetDesc(start + dirnames[dir ^ 3] + " is here.\n");
+      door1->AddAct(act_t::SPECIAL_LINKED, door2);
+      door2->AddAct(act_t::SPECIAL_LINKED, door1);
+      door1->AddAct(act_t::SPECIAL_MASTER, door2);
+      door2->AddAct(act_t::SPECIAL_MASTER, door1);
+      door1->SetSkill(crc32c("Enterable"), 1);
+      door2->SetSkill(crc32c("Enterable"), 1);
+      if (doors.count(door_char) > 0) {
+        door1->SetSkill(crc32c("Closeable"), 1);
+        door2->SetSkill(crc32c("Closeable"), 1);
+      }
+      if (closed.count(door_char) == 0) {
+        door1->SetSkill(crc32c("Open"), 1000);
+        door2->SetSkill(crc32c("Open"), 1000);
+      }
+      if (clear.count(door_char) > 0) {
+        door1->SetSkill(crc32c("Transparent"), 1000);
+        door2->SetSkill(crc32c("Transparent"), 1000);
+      }
+      if (locks.count(door_char) > 0) {
+        door1->SetSkill(crc32c("Lock"), obj_num);
+        door2->SetSkill(crc32c("Lock"), obj_num);
+      }
+      if (locked.count(door_char) > 0) {
+        door1->SetSkill(crc32c("Locked"), 1);
+        door2->SetSkill(crc32c("Locked"), 1);
+      }
     }
   }
 
