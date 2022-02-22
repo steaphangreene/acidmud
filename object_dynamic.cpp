@@ -92,6 +92,7 @@ void Object::DynamicInit1() { // Dwarven mine
   if (!dwarf_miner) {
     WeaponType* weap;
     ArmorType* arm;
+    ItemType* item;
 
     dwarf_miner = new MOBType(
         "a dwarf miner",
@@ -323,6 +324,15 @@ void Object::DynamicInit1() { // Dwarven mine
         act_t::WEAR_RLEG,
         act_t::WEAR_LLEG);
     dwarf_guard->Armor(arm);
+    item = new ItemType(
+        "a key",
+        "A heavy steel key.  It looks dwarven, and very old.",
+        "",
+        skill_pair{crc32c("Key"), 1310003},
+        100,
+        10,
+        20);
+    dwarf_guard->Carry(item);
 
     dwarf_explorer = new MOBType(
         "a dwarf explorer",
