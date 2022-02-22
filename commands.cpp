@@ -2588,7 +2588,11 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       if (targ->ActTarg(act_t::SPECIAL_MASTER)) {
         Object* targ2 = targ->ActTarg(act_t::SPECIAL_MASTER);
         targ2->Parent()->SendOut(stealth_t, stealth_s, ";s unlocks.\n", "", targ2, nullptr);
-        targ2->SetSkill(crc32c("Locked"), 1);
+        targ2->SetSkill(crc32c("Locked"), 0);
+      }
+      if (targ->Skill(crc32c("Accomplishment"))) {
+        body->Accomplish(targ->Skill(crc32c("Accomplishment")), "unlocking this");
+        targ->SetSkill(crc32c("Accomplishment"), 0);
       }
     }
     return 0;
