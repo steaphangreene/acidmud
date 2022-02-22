@@ -168,6 +168,10 @@ void MOBType::Armor(ArmorType* arm) {
   armor.push_back(arm);
 }
 
+void MOBType::Carry(ItemType* item) {
+  items.push_back(item);
+}
+
 void Object::AddMOB(const MOBType* type) {
   Object* mob = new Object(this);
 
@@ -220,8 +224,9 @@ void Object::AddMOB(const MOBType* type) {
     obj->SetValue(type->armed->value);
     obj->SetPos(pos_t::LIE);
     mob->AddAct(act_t::WIELD, obj);
-    if (two_handed(type->armed->type))
+    if (two_handed(type->armed->type)) {
       mob->AddAct(act_t::HOLD, obj);
+    }
   }
 
   for (auto ar : type->armor) {
@@ -245,6 +250,38 @@ void Object::AddMOB(const MOBType* type) {
     for (auto loc : ar->loc) {
       obj->SetSkill(wear_attribs[loc], 1);
       mob->AddAct(loc, obj);
+    }
+  }
+
+  if (type->items.size() > 0) {
+    Object* sack = new Object(mob);
+    sack->SetShortDesc("a small sack");
+    sack->SetDesc("A small, durable, practical belt sack.");
+
+    sack->SetSkill(crc32c("Wearable on Left Hip"), 1);
+    sack->SetSkill(crc32c("Wearable on Right Hip"), 2);
+    sack->SetSkill(crc32c("Container"), 5 * 454);
+    sack->SetSkill(crc32c("Capacity"), 5);
+    sack->SetSkill(crc32c("Closeable"), 1);
+
+    sack->SetWeight(1 * 454);
+    sack->SetSize(2);
+    sack->SetVolume(1);
+    sack->SetValue(100);
+
+    sack->SetPos(pos_t::LIE);
+    mob->AddAct(act_t::WEAR_RHIP, sack);
+
+    for (auto it : type->items) {
+      Object* obj = new Object(sack);
+      obj->SetSkill(it->skill.first, it->skill.second);
+      obj->SetShortDesc(it->name.c_str());
+      obj->SetDesc(it->desc.c_str());
+      obj->SetLongDesc(it->long_desc.c_str());
+      obj->SetWeight(it->weight);
+      obj->SetVolume(it->volume);
+      obj->SetValue(it->value);
+      obj->SetPos(pos_t::LIE);
     }
   }
 }
@@ -323,6 +360,23 @@ ArmorType::ArmorType(
   if (l6 != act_t::NONE)
     loc.push_back(l6);
 
+  weight = w;
+  volume = vol;
+  value = val;
+}
+
+ItemType::ItemType(
+    const std::string& nm,
+    const std::string& ds,
+    const std::string& lds,
+    skill_pair sk,
+    int w,
+    int vol,
+    int val) {
+  name = nm;
+  desc = ds;
+  long_desc = lds;
+  skill = sk;
   weight = w;
   volume = vol;
   value = val;

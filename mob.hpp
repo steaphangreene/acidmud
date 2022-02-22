@@ -79,6 +79,21 @@ class WeaponType {
   int weight, volume, value;
 };
 
+class ItemType {
+ public:
+  ItemType(
+      const std::string& nm,
+      const std::string& ds,
+      const std::string& lds,
+      skill_pair sk,
+      int w,
+      int vol,
+      int val);
+  std::string name, desc, long_desc;
+  skill_pair skill;
+  int weight, volume, value;
+};
+
 class MOBType {
  public:
   MOBType(
@@ -104,6 +119,7 @@ class MOBType {
   void Skill(uint32_t, int);
   void Arm(WeaponType*);
   void Armor(ArmorType*);
+  void Carry(ItemType*);
 
   std::string name, desc, long_desc, genders;
   int b, bm;
@@ -116,6 +132,7 @@ class MOBType {
   std::map<uint32_t, std::pair<int, int>> skills;
   WeaponType* armed;
   std::vector<ArmorType*> armor;
+  std::vector<ItemType*> items;
 };
 
 std::string gender_proc(const std::string& in, char gender);
