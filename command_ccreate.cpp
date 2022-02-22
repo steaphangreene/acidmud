@@ -42,6 +42,9 @@ int handle_command_ccreate(
   } else {
     Object* city = new Object(body->Parent());
     city->SetShortDesc(std::string(args));
+    city->SetSkill(crc32c("Light Source"), 1000);
+    city->SetSkill(crc32c("Day Length"), 240);
+    city->SetSkill(crc32c("Day Time"), 120);
 
     // Object *ocean = new Object(city);
     // ocean->SetShortDesc("Ocean");
