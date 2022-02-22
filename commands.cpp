@@ -2471,7 +2471,17 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   if (cnum == COM_WORLD) {
     if (!mind)
       return 0;
-    mind->SendF("This world is called: %s\n", body->World()->ShortDescC());
+    if (body) {
+      mind->SendF("This world is called: %s\n", body->World()->ShortDescC());
+    } else {
+      Object* chr = mind->Owner()->Creator();
+      if (chr) {
+        mind->SendF("This character is in the world called: %s\n", chr->World()->ShortDescC());
+      } else {
+        mind->Send("You are not currently in any world.\n");
+        return 0;
+      }
+    }
     return 0;
   }
 
@@ -5514,7 +5524,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
     Object* chr = mind->Owner()->Creator();
     if (!chr) {
-      mind->Send("You need to be working on a character first (use 'select <character>'.\n");
+      mind->Send("You need to be working on a character first (use 'select <character>').\n");
       return 0;
     }
 
@@ -5576,7 +5586,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     if (!chr) {
       chr = mind->Owner()->Creator();
       if (!chr) {
-        mind->Send("You need to be working on a character first (use 'select <character>'.\n");
+        mind->Send("You need to be working on a character first (use 'select <character>').\n");
         return 0;
       } else if (chr->Exp() > 0) {
         mind->Send("This is not a new character, you can't modify the chargen steps anymore.\n");
