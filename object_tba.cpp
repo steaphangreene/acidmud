@@ -2373,7 +2373,7 @@ void Object::TBALoadWLD(const std::string& fn) {
 
       std::string name = obj->ShortDesc();
       if (name.find("Secret") >= 0 && name.find("Secret") < name.length()) {
-        obj->SetSkill(crc32c("Accomplishment"), 4000000 + onum);
+        obj->SetSkill(crc32c("Accomplishment"), 1100000 + onum);
       }
 
       obj->SetSkill(crc32c("Translucent"), 1000); // Full sky, by default
@@ -2386,7 +2386,7 @@ void Object::TBALoadWLD(const std::string& fn) {
         obj->SetSkill(crc32c("Light Source"), 0); // No torches
       }
       if (strcasestr(buf, "b") || (atoi(buf) & 2)) { // DEATH
-        obj->SetSkill(crc32c("Accomplishment"), 4000000 + onum);
+        obj->SetSkill(crc32c("Accomplishment"), 1100000 + onum);
         // obj->SetSkill(crc32c("Hazardous"), 2); //FIXME: Actually Dangerous?
       }
       if (strcasestr(buf, "c") || (atoi(buf) & 4)) { // NOMOB
@@ -2784,7 +2784,7 @@ void Object::TBALoadTRG(const std::string& fn) { // Triggers
       bynumtrg[tnum] = script;
       script->SetSkill(crc32c("Invisible"), 1000);
       script->SetSkill(crc32c("TBAScript"), 5000000 + tnum);
-      script->SetSkill(crc32c("Accomplishment"), 5000000 + tnum);
+      script->SetSkill(crc32c("Accomplishment"), 1200000 + tnum);
       script->SetShortDesc("A tbaMUD trigger script");
       // fprintf(stderr, "Loading #%d\n", tnum);
       fscanf(mud, " %65535[^~]", buf); // Trigger Name - Discarded!
