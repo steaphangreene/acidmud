@@ -70,6 +70,10 @@ constexpr bool ascii_isalnum(int8_t chr) {
   return ((chr >= 'a' && chr <= 'z') || (chr >= 'A' && chr <= 'Z') || (chr >= '0' && chr <= '9'));
 }
 
+constexpr bool ascii_isdigit(int8_t chr) {
+  return (chr >= '0' && chr <= '9');
+}
+
 constexpr uint32_t crc32tab[] = {
     0x00000000, 0xF26B8303, 0xE13B70F7, 0x1350F3F4, 0xC79A971F, 0x35F1141C, 0x26A1E7E8, 0xD4CA64EB,
     0x8AD958CF, 0x78B2DBCC, 0x6BE22838, 0x9989AB3B, 0x4D43CFD0, 0xBF284CD3, 0xAC78BF27, 0x5E133C24,
