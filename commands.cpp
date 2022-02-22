@@ -73,6 +73,7 @@
 #define REQ_ANY (SIT_CORPOREAL | SIT_ETHEREAL)
 
 int handle_command_ccreate(Object*, Mind*, const std::string_view, int, int);
+int handle_command_wcreate(Object*, Mind*, const std::string_view, int, int);
 
 static int count_ones(int mask) {
   int ret = 0;
@@ -503,6 +504,11 @@ constexpr Command static_comlist[COM_MAX] = {
      "Ninja command.",
      "Ninja command - ninjas only!",
      (REQ_ALERT | REQ_NINJAMODE)},
+    {COM_WCREATE,
+     "wcreate",
+     "Ninja command.",
+     "Ninja command - ninjas only!",
+     (REQ_ALERT | REQ_NINJAMODE)},
     {COM_ANCHOR,
      "anchor",
      "Ninja command.",
@@ -758,6 +764,7 @@ static_assert(static_comlist[COM_MAKESUPERNINJA].id == COM_MAKESUPERNINJA);
 static_assert(static_comlist[COM_CREATE].id == COM_CREATE);
 static_assert(static_comlist[COM_DCREATE].id == COM_DCREATE);
 static_assert(static_comlist[COM_CCREATE].id == COM_CCREATE);
+static_assert(static_comlist[COM_WCREATE].id == COM_WCREATE);
 static_assert(static_comlist[COM_ANCHOR].id == COM_ANCHOR);
 static_assert(static_comlist[COM_LINK].id == COM_LINK);
 static_assert(static_comlist[COM_CONNECT].id == COM_CONNECT);
@@ -6424,6 +6431,12 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     if (!mind)
       return 0;
     return handle_command_ccreate(body, mind, args, stealth_t, stealth_s);
+  }
+
+  if (cnum == COM_WCREATE) {
+    if (!mind)
+      return 0;
+    return handle_command_wcreate(body, mind, args, stealth_t, stealth_s);
   }
 
   static Object* anchor = nullptr;
