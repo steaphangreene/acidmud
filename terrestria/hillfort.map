@@ -1,0 +1,57 @@
+name:HillFort
+entrance:eastern_road.map
+entrance:western_road.map
+upper_level:2
+lower_level:0
+building:4:tower
+building:3:gate house
+building:2:shop
+building:2:shop
+building:2:shop
+building:2:shop
+building:2:inn
+building:2:tavern
+place:+:stone street
+place:#:wide stone street
+place:=:massive stone bridge
+place:::atop the stone wall
+level:::2
+ascii_map:
+
+    4I:-:-:-:-:-:-:-:-:-:I4                                                               4I:-:-:-:-:-:-:-:-:-:I4
+    Ig                   gI                                                               Ig                   gI
+    : +-+-+-+-+-+-+-+-+-+ :                                                               : +-+-+-+-+-+-+-+-+-+ :
+    | |     |     |     | |                                                               I |     |     |     | I
+    : +o2 2o+o2 2o+o2 2o+ :                                                               : +o2 2o+o2 2o+o2 2o+ :
+    | |     |     |     | |                                                               | |     |     |     | |
+    : +o2 2o+o2 2o+o2 2o+ :                                                               : +o2 2o+o2 2o+o2 2o+ :
+    | |     |     |     | |                                                               | |     |     |     | |
+    : +-+-+-+-+ +-+-+-+-+ :                                                               : +-+-+-+-+ +-+-+-+-+ :
+    | |     |     |     | |                                                               | |     |     |     | |
+    : +o2 2o+o2 2o+o2 2o+ :                                                               : +o2 2o+o2 2o+o2 2o+ :
+    | |     |     |     | |                                                               | |     |     |     | |
+    : +o2s2o+o2s2o+o2s2o+ :                                                               : +o2s2o+o2s2o+o2s2o+ :
+    | l     |     |     l |                                                               | l     |     |     l |
+    : +o2 2o+o2 2o+o2 2o+ :                                                               : +o2 2o+o2 2o+o2 2o+ :
+    I |     |     |     | I                                                               I |     |     |     | I
+    4g+o2 2o+o2 2o+o2 2o+g4                                                               4g+o2 2o+o2 2o+o2 2o+g4
+    I |     |     |     | I                                                               I |     |     |     | I
+@-#g3g#--#--#--#--#--#--#g3g=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=g3g#--#--#--#--#--#--#g3g#-@
+    I |     |     |     | I                                                               I |     |     |     | I
+    4g+o2 2o+o2 2o+o2 2o+g4                                                               4g+o2 2o+o2 2o+o2 2o+g4
+    I |     |     |     | I                                                               I |     |     |     | I
+    : +o2 2o+o2 2o+o2 2o+ :                                                               : +o2 2o+o2 2o+o2 2o+ :
+    | l     |     |     l |                                                               | l     |     |     l |
+    : +o2s2o+o2s2o+o2s2o+ :                                                               : +o2s2o+o2s2o+o2s2o+ :
+    | |     |     |     | |                                                               | |     |     |     | |
+    : +o2 2o+o2 2o+o2 2o+ :                                                               : +o2 2o+o2 2o+o2 2o+ :
+    | |     |     |     | |                                                               | |     |     |     | |
+    : +-+-+-+-+ +-+-+-+-+ :                                                               : +-+-+-+-+ +-+-+-+-+ :
+    | |     |     |     | |                                                               | |     |     |     | |
+    : +o2 2o+o2 2o+o2 2o+ :                                                               : +o2 2o+o2 2o+o2 2o+ :
+    | |     |     |     | |                                                               | |     |     |     | |
+    : +o2 2o+o2 2o+o2 2o+ :                                                               : +o2 2o+o2 2o+o2 2o+ :
+    | |     |     |     | |                                                               | |     |     |     | |
+    : +-+-+-+-+-+-+-+-+-+ :                                                               : +-+-+-+-+-+-+-+-+-+ :
+    Ig                   gI                                                               Ig                   gI
+    4I:-:-:-:-:-:-:-:-:-:I4                                                               4I:-:-:-:-:-:-:-:-:-:I4
