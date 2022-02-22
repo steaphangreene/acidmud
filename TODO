@@ -1,5 +1,7 @@
 Handle deleting on error cases falling back out of Mind::Send().
 
+Move TBA Trigger vars to more efficient storage (token vecs?).
+
 Implement various types of armor, weapons and damage.
 Do 3-layer armor system.
 Show armor/weapon/hit/miss messages in ninja display.
