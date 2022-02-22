@@ -1,4 +1,4 @@
-name:HillFort
+name:Hillfort
 entrance:eastern_road.map
 entrance:western_road.map
 upper_level:2
@@ -16,6 +16,22 @@ place:#:wide stone street
 place:=:massive stone bridge
 place:::atop the stone wall
 level:::2
+door:o:heavy wooden door
+lock:o
+door:g:solid iron door
+lock:g
+locked:g
+closed:g
+door:l:heavy iron gate
+doorterm:l:gate
+lock:l
+locked:l
+closed:l
+clear:l
+door:p:massive steel portcullis
+doorterm:p:portcullis
+remote:p
+clear:p
 ascii_map:
 
     4I:-:-:-:-:-:-:-:-:-:I4                                                               4I:-:-:-:-:-:-:-:-:-:I4
@@ -36,7 +52,7 @@ ascii_map:
     I |     |     |     | I                                                               I |     |     |     | I
     4g+o2 2o+o2 2o+o2 2o+g4                                                               4g+o2 2o+o2 2o+o2 2o+g4
     I |     |     |     | I                                                               I |     |     |     | I
-@-#g3g#--#--#--#--#--#--#g3g=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=g3g#--#--#--#--#--#--#g3g#-@
+@-#p3p#--#--#--#--#--#--#p3p=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=p3p#--#--#--#--#--#--#p3p#-@
     I |     |     |     | I                                                               I |     |     |     | I
     4g+o2 2o+o2 2o+o2 2o+g4                                                               4g+o2 2o+o2 2o+o2 2o+g4
     I |     |     |     | I                                                               I |     |     |     | I
