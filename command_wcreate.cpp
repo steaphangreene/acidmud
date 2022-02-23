@@ -21,6 +21,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
 #include <random>
 
 #include "commands.hpp"
@@ -34,22 +35,17 @@ static Object* new_object(Object* parent) {
   return new Object(parent);
 }
 
-int handle_command_wcreate(
-    Object* body,
-    Mind* mind,
-    const std::string_view args,
-    int stealth_t,
-    int stealth_s) {
-  if (args.empty()) {
+static int load_map(Object* world, Mind* mind, const std::string_view fn) {
+  if (fn.empty()) {
     mind->Send("You need to specify the filename of the datafile!\n");
-    return 0;
+    return 1;
   }
 
-  std::string filename(args);
+  std::string filename(fn);
   FILE* def_file = fopen(filename.c_str(), "r");
   if (def_file == nullptr) {
     mind->SendF("Can't find definition file '%s'!\n", filename.c_str());
-    return 0;
+    return 1;
   }
 
   std::string name = "Unknown Land";
@@ -183,12 +179,12 @@ int handle_command_wcreate(
   std::random_device rd;
   std::mt19937 g(rd());
 
-  // Create New World
-  Object* world = new_object(body->Parent());
-  world->SetShortDesc(name);
-  world->SetSkill(crc32c("Light Source"), 1000);
-  world->SetSkill(crc32c("Day Length"), 240);
-  world->SetSkill(crc32c("Day Time"), 120);
+  // Create New Zone
+  Object* zone = new_object(world);
+  zone->SetShortDesc(name);
+  zone->SetSkill(crc32c("Light Source"), 1000);
+  zone->SetSkill(crc32c("Day Length"), 240);
+  zone->SetSkill(crc32c("Day Time"), 120);
 
   // Convert ASCII Map Into AcidMUD Rooms
   struct coord {
@@ -222,7 +218,7 @@ int handle_command_wcreate(
           num_floors = 1;
         }
         for (int f = 0; f < num_floors; ++f) {
-          objs[coord{x, y}].push_back(new_object(world));
+          objs[coord{x, y}].push_back(new_object(zone));
           if (indoors[room]) {
             objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 200);
             objs[coord{x, y}].back()->SetSkill(crc32c("Light Source"), 100);
@@ -257,7 +253,7 @@ int handle_command_wcreate(
           num_floors = 1;
         }
         for (int f = 0; f < num_floors; ++f) {
-          objs[coord{x, y}].push_back(new_object(world));
+          objs[coord{x, y}].push_back(new_object(zone));
           if (indoors[room]) {
             objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 200);
             objs[coord{x, y}].back()->SetSkill(crc32c("Light Source"), 100);
@@ -281,7 +277,7 @@ int handle_command_wcreate(
           objs[coord{x, y}].back()->SetShortDesc("a room");
         }
       } else if (room == '@') { // Default Entrance
-        objs[coord{x, y}].push_back(new_object(world));
+        objs[coord{x, y}].push_back(new_object(zone));
         objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 1000);
         objs[coord{x, y}].back()->SetShortDesc("a zone entrance");
         // TODO: Connect Entrances!
@@ -438,5 +434,42 @@ int handle_command_wcreate(
 
   mind->SendF("Loaded %s From: '%s'!\n", name.c_str(), filename.c_str());
   fclose(def_file);
+  return 0;
+}
+
+int handle_command_wcreate(
+    Object* body,
+    Mind* mind,
+    const std::string_view args,
+    int stealth_t,
+    int stealth_s) {
+  if (args.empty()) {
+    mind->Send("You need to specify the directory of the datafiles!\n");
+    return 1;
+  }
+  std::vector<std::string> filenames;
+  try {
+    for (const auto& fl : std::filesystem::directory_iterator(args)) {
+      filenames.emplace_back(fl.path());
+    }
+  } catch (...) {
+    mind->Send("You need to specify the correct directory of the datafiles!\n");
+    return 1;
+  }
+
+  // Create New World
+  std::string world_name(args);
+  Object* world = new_object(body->Parent());
+  world->SetShortDesc(world_name);
+  world->SetSkill(crc32c("Light Source"), 1000);
+  world->SetSkill(crc32c("Day Length"), 240);
+  world->SetSkill(crc32c("Day Time"), 120);
+
+  for (const auto& fn : filenames) {
+    int ret = load_map(world, mind, fn);
+    if (ret != 0) {
+      return ret;
+    }
+  }
   return 0;
 }
