@@ -3583,6 +3583,9 @@ void Object::BusyFor(long msec, const std::string& default_next) {
     busy_until = 1; // Avoid Special Case
   }
   if (default_next.length() == 0) {
+    if (defact[0] != '\0') {
+      delete[] defact;
+    }
     defact = "";
   } else {
     if (defact[0] != '\0') {
@@ -3599,6 +3602,9 @@ void Object::BusyWith(Object* other, const std::string& default_next) {
   // fprintf(stderr, "Holding %p, will default do '%s'!\n", this, default_next);
   busy_until = other->busy_until;
   if (default_next.length() == 0) {
+    if (defact[0] != '\0') {
+      delete[] defact;
+    }
     defact = "";
   } else {
     if (defact[0] != '\0') {
@@ -3629,6 +3635,9 @@ void Object::DoWhenFree(const std::string& action) {
   dwf += ";";
   dwf += action;
   if (dwf.length() == 0) {
+    if (dowhenfree[0] != '\0') {
+      delete[] dowhenfree;
+    }
     dowhenfree = "";
   } else {
     if (dowhenfree[0] != '\0') {
