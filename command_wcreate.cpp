@@ -34,6 +34,7 @@ static Object* new_object(Object* parent) {
   ++obj_num;
   return new Object(parent);
 }
+std::multimap<std::string, std::pair<std::string, Object*>> zone_links;
 
 static int load_map(Object* world, Mind* mind, const std::string_view fn) {
   if (fn.empty()) {
@@ -62,6 +63,7 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
   std::map<char, bool> locked;
   std::map<char, bool> indoors;
   std::map<char, uint8_t> levels;
+  std::vector<std::string> entrances;
   bool in_main_def = false;
   char line_buf[65536] = "";
   while (!in_main_def) {
@@ -126,7 +128,7 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
       sscanf(line_buf + 7, "%c", &sym);
       remote[sym] = true;
     } else if (!strncmp(line_buf, "entrance:", 9)) {
-      // TODO: Connect Entrances!
+      entrances.push_back(line_buf + 9);
     } else if (!strncmp(line_buf, "ascii_map:", 10)) {
       in_main_def = true;
     } else if (line_buf[0] == '#') {
@@ -277,10 +279,33 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
           objs[coord{x, y}].back()->SetShortDesc("a room");
         }
       } else if (room == '@') { // Default Entrance
-        objs[coord{x, y}].push_back(new_object(zone));
-        objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 1000);
-        objs[coord{x, y}].back()->SetShortDesc("a zone entrance");
-        // TODO: Connect Entrances!
+        bool linked = false;
+        if (!entrances.empty()) {
+          auto ozone = entrances.front();
+          if (zone_links.count(name) > 0) {
+            for (auto link = zone_links.find(name); link != zone_links.end() && link->first == name;
+                 ++link) {
+              if (link->second.first == ozone) {
+                objs[coord{x, y}].push_back(link->second.second);
+                linked = true;
+                break;
+              }
+            }
+          }
+        }
+        if (!linked) {
+          Object* entrance = new_object(zone);
+          objs[coord{x, y}].push_back(entrance);
+          objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 1000);
+          objs[coord{x, y}].back()->SetShortDesc("a zone entrance");
+          if (!entrances.empty()) {
+            auto ozone = entrances.front();
+            zone_links.insert(std::make_pair(ozone, std::make_pair(name, entrance)));
+          }
+        }
+        if (!entrances.empty()) {
+          entrances.erase(entrances.begin());
+        }
       }
     }
   }
@@ -465,6 +490,7 @@ int handle_command_wcreate(
   world->SetSkill(crc32c("Day Length"), 240);
   world->SetSkill(crc32c("Day Time"), 120);
 
+  zone_links.clear();
   for (const auto& fn : filenames) {
     int ret = load_map(world, mind, fn);
     if (ret != 0) {
