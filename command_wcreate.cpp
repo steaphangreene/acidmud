@@ -72,6 +72,10 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
       char namebuf[256];
       sscanf(line_buf + 5, "%255[^\n]", namebuf);
       name = namebuf;
+    } else if (!strncmp(line_buf, "world:", 6)) {
+      char namebuf[256];
+      sscanf(line_buf + 6, "%255[^\n]", namebuf);
+      world->SetShortDesc(namebuf);
     } else if (!strncmp(line_buf, "lower_level:", 12)) {
       sscanf(line_buf + 12, "%d[^\n]", &lower_level);
     } else if (!strncmp(line_buf, "upper_level:", 12)) {
@@ -497,5 +501,15 @@ int handle_command_wcreate(
       return ret;
     }
   }
+
+  body->Parent()->SendOutF(
+      stealth_t,
+      stealth_s,
+      ";s creates a new world '%s' with Ninja Powers[TM].\n",
+      "You create a new world '%s'.\n",
+      body,
+      nullptr,
+      world->ShortDescC());
+
   return 0;
 }
