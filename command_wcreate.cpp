@@ -150,7 +150,7 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
   fscanf(def_file, "%*[\n]");
   line_buf[0] = ' '; // Padding
   size_t max_line_len = 0;
-  while (fscanf(def_file, "%65535[^\n]", line_buf + 1) > 0) {
+  while (fscanf(def_file, "%65534[^\n]", line_buf + 1) > 0) {
     ascii_map.emplace_back(line_buf);
     max_line_len = std::max(max_line_len, ascii_map.back().length() + 1);
     fscanf(def_file, "%*[\n]");

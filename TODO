@@ -1,3 +1,5 @@
+Remove all scanf and printf stuff when new <format> becomes real.
+
 Handle deleting on error cases falling back out of Mind::Send().
 
 Move TBA Trigger vars to more efficient storage (token vecs?).
