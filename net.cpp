@@ -349,7 +349,7 @@ int suspend_net() {
 }
 
 int save_net(const std::string& fn) {
-  fprintf(stderr, "Saving Network Stat.\n");
+  fprintf(stderr, "Saving Network State.\n");
 
   FILE* fl = fopen(fn.c_str(), "w");
   if (!fl)
@@ -382,13 +382,13 @@ int save_net(const std::string& fn) {
 
   fclose(fl);
 
-  fprintf(stderr, "Saved Network Stat.\n");
+  fprintf(stderr, "Saved Network State.\n");
 
   return 0;
 }
 
 int load_net(const std::string& fn) {
-  fprintf(stderr, "Loading Network Stat.\n");
+  fprintf(stderr, "Loading Network State.\n");
 
   static char buf[65536];
 
