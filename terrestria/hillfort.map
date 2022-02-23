@@ -1,6 +1,6 @@
 name:Hillfort
-entrance:eastern_road.map
-entrance:western_road.map
+entrance:Eastern Road
+entrance:Western Road
 upper_level:2
 lower_level:0
 building:4:tower

@@ -1,0 +1,22 @@
+name:Eastern Road
+entrance:Northern Road
+entrance:Forest Trail
+entrance:Hillfort
+entrance:Southern Road
+place:+:a well-worn road through the woods
+place:=:a well-worn road across the plain
+ascii_map:
+
+@-+-+-+
+       \
+        +-+-+-+-+
+                 \
+                  +-+-+-+-+
+                          |
+                        @-+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-@
+                          |
+                  +-+-+-+-+
+                 /
+        +-+-+-+-+
+       /
+@-+-+-+
