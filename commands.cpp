@@ -2483,10 +2483,21 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     } else {
       Object* chr = mind->Owner()->Creator();
       if (chr) {
-        mind->SendF("This character is in the world called: %s\n", chr->World()->ShortDescC());
+        mind->SendF(
+            "%s is in the world called: " CBLU "%s" CNRM "\n",
+            chr->ShortDescC(),
+            chr->World()->ShortDescC());
       } else {
         mind->Send("You are not currently in any world.\n");
-        return 0;
+      }
+
+      mind->Send("\nThe worlds that exist in this instance of AcidMUD are:\n");
+      for (const auto& world : Object::Universe()->Contents()) {
+        if (world->IsAct(act_t::SPECIAL_HOME)) {
+          mind->SendF("  * " CBLU "%s" CNRM "\n", world->ShortDescC());
+        } else {
+          mind->SendF("  * %s (inactive)\n", world->ShortDescC());
+        }
       }
     }
     return 0;
