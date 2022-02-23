@@ -64,6 +64,8 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
   std::map<char, bool> indoors;
   std::map<char, uint8_t> levels;
   std::vector<std::string> entrances;
+  char start_symbol = '\0';
+
   bool in_main_def = false;
   char line_buf[65536] = "";
   while (!in_main_def) {
@@ -133,6 +135,8 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
       remote[sym] = true;
     } else if (!strncmp(line_buf, "entrance:", 9)) {
       entrances.push_back(line_buf + 9);
+    } else if (!strncmp(line_buf, "start:", 6)) {
+      sscanf(line_buf + 6, "%c", &start_symbol);
     } else if (!strncmp(line_buf, "ascii_map:", 10)) {
       in_main_def = true;
     } else if (line_buf[0] == '#') {
@@ -231,6 +235,9 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
           } else {
             objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 1000);
           }
+          if (start_symbol == room) {
+            world->AddAct(act_t::SPECIAL_HOME, objs[coord{x, y}].back());
+          }
         }
         std::string roomname = rooms[room][0];
         if (rooms[room].size() > 1) {
@@ -265,6 +272,9 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
             objs[coord{x, y}].back()->SetSkill(crc32c("Light Source"), 100);
           } else {
             objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 1000);
+          }
+          if (start_symbol == room) {
+            world->AddAct(act_t::SPECIAL_HOME, objs[coord{x, y}].back());
           }
         }
         if (objs[coord{x, y}].size() > 1) {

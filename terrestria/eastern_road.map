@@ -6,6 +6,9 @@ entrance:Hillfort
 entrance:Southern Road
 place:+:a well-worn road through the woods
 place:=:a well-worn road across the plain
+place:.:a narrow path through the woods
+place:#:an intersection at the edge of the woods
+start:#
 ascii_map:
 
 @-+-+-+
@@ -14,7 +17,7 @@ ascii_map:
                  \
                   +-+-+-+-+
                           |
-                        @-+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-@
+        @-.-.-.-.-.-.-.-.-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-@
                           |
                   +-+-+-+-+
                  /
