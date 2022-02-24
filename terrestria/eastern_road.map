@@ -1,9 +1,9 @@
 name:Eastern Road
 world:Terrestria
-entrance:Northern Road
-entrance:Forest Trail
-entrance:Hillfort
-entrance:Southern Road
+en_link:Northern Road
+en_link:Forest Trail
+en_link:Hillfort
+en_link:Southern Road
 place:+:a well-worn road through the woods
 place:=:a well-worn road across the plain
 place:.:a narrow path through the woods

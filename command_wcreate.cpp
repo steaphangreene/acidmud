@@ -63,7 +63,9 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
   std::map<char, bool> locked;
   std::map<char, bool> indoors;
   std::map<char, uint8_t> levels;
-  std::vector<std::string> entrances;
+  std::vector<std::string> en_links;
+  std::vector<std::string> en_rooms;
+  std::vector<bool> en_indoors;
   char start_symbol = '\0';
 
   bool in_main_def = false;
@@ -133,8 +135,14 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
       char sym = 'd';
       sscanf(line_buf + 7, "%c", &sym);
       remote[sym] = true;
-    } else if (!strncmp(line_buf, "entrance:", 9)) {
-      entrances.push_back(line_buf + 9);
+    } else if (!strncmp(line_buf, "en_link:", 8)) {
+      en_links.push_back(line_buf + 8);
+    } else if (!strncmp(line_buf, "en_place:", 9)) {
+      en_rooms.push_back(line_buf + 9);
+      en_indoors.push_back(false);
+    } else if (!strncmp(line_buf, "en_building:", 12)) {
+      en_rooms.push_back(line_buf + 12);
+      en_indoors.push_back(true);
     } else if (!strncmp(line_buf, "start:", 6)) {
       sscanf(line_buf + 6, "%c", &start_symbol);
     } else if (!strncmp(line_buf, "ascii_map:", 10)) {
@@ -173,7 +181,7 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
       if (room == ' ') {
       } else if (rooms.count(room) > 0) { // Defined Room
       } else if (ascii_isdigit(room)) { // Default Room
-      } else if (room == '@') { // Default Entrance
+      } else if (room == '@') { // Zone Entrance
       } else if (
           ascii_isalpha(room) || room == '|' || room == '/' || room == '-' ||
           room == '\\') { // Default Connections
@@ -292,10 +300,10 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
         } else {
           objs[coord{x, y}].back()->SetShortDesc("a room");
         }
-      } else if (room == '@') { // Default Entrance
+      } else if (room == '@') { // Zone Entrance
         bool linked = false;
-        if (!entrances.empty()) {
-          auto ozone = entrances.front();
+        if (!en_links.empty()) {
+          auto ozone = en_links.front();
           if (zone_links.count(name) > 0) {
             for (auto link = zone_links.find(name); link != zone_links.end() && link->first == name;
                  ++link) {
@@ -307,18 +315,39 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
             }
           }
         }
-        if (!linked) {
-          Object* entrance = new_object(zone);
+
+        Object* entrance;
+        if (!linked) { // No object yet, so make one.
+          entrance = new_object(zone);
+          entrance->SetShortDesc("a generic zone entrance");
           objs[coord{x, y}].push_back(entrance);
-          objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 1000);
-          objs[coord{x, y}].back()->SetShortDesc("a zone entrance");
-          if (!entrances.empty()) {
-            auto ozone = entrances.front();
+          if (!en_links.empty()) {
+            auto ozone = en_links.front();
             zone_links.insert(std::make_pair(ozone, std::make_pair(name, entrance)));
           }
+        } else { // Object already exists, well-defined or not - use it.
+          entrance = objs[coord{x, y}].back();
         }
-        if (!entrances.empty()) {
-          entrances.erase(entrances.begin());
+
+        if (entrance->ShortDesc() == "a generic zone entrance") { // Not well-defined yet
+          if (!en_indoors.empty() && en_indoors.front()) {
+            objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 200);
+            objs[coord{x, y}].back()->SetSkill(crc32c("Light Source"), 100);
+          } else {
+            objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 1000);
+          }
+          if (!en_rooms.empty()) {
+            objs[coord{x, y}].back()->SetShortDesc(en_rooms.front());
+          }
+        }
+        if (!en_links.empty()) {
+          en_links.erase(en_links.begin());
+        }
+        if (!en_rooms.empty()) {
+          en_rooms.erase(en_rooms.begin());
+        }
+        if (!en_indoors.empty()) {
+          en_indoors.erase(en_indoors.begin());
         }
       }
     }

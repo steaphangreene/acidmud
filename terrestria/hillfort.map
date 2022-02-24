@@ -1,7 +1,7 @@
 name:Hillfort
 world:Terrestria
-entrance:Eastern Road
-entrance:Western Road
+en_link:Eastern Road
+en_link:Western Road
 upper_level:2
 lower_level:0
 building:4:tower
@@ -14,6 +14,8 @@ building:2:inn
 building:2:tavern
 place:+:stone street
 place:#:wide stone street
+en_place:@:wide stone street
+en_place:@:wide stone street
 place:=:massive stone bridge
 place:::atop the stone wall
 level:::2
