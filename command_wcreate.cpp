@@ -45,20 +45,10 @@ static MOBType mob_dwarf(
     "{He} looks pissed.",
     "",
     "MF",
-    9,
-    4,
-    6,
-    4,
-    9,
-    4,
-    1,
-    3,
-    5,
-    4,
-    9,
-    4,
+    {9, 4, 6, 4, 9, 4},
+    {10, 7, 11, 8, 18, 8},
     100,
-    401);
+    500);
 
 static int load_map(Object* world, Mind* mind, const std::string_view fn) {
   if (fn.empty()) {
@@ -304,7 +294,7 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
             mob_dwarf.SetName(mobnames[room][n]);
             int num = mobnums[room][n](gen);
             for (int m = 0; m < num; ++m) {
-              objs[coord{x, y}].back()->AddMOB(&mob_dwarf);
+              objs[coord{x, y}].back()->AddMOB(gen, &mob_dwarf);
             }
           }
         }

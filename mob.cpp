@@ -116,38 +116,18 @@ MOBType::MOBType(
     const std::string& ds,
     const std::string& lds,
     const std::string& gens,
-    int ib,
-    int ibm,
-    int iq,
-    int iqm,
-    int is,
-    int ism,
-    int ic,
-    int icm,
-    int ii,
-    int iim,
-    int iw,
-    int iwm,
-    int ig,
-    int igm) {
+    MOBAttrs min,
+    MOBAttrs max,
+    int gmin,
+    int gmax) {
   name = nm;
   desc = ds;
   long_desc = lds;
   genders = gens;
-  b = ib;
-  bm = std::max(ibm, 1);
-  q = iq;
-  qm = std::max(iqm, 1);
-  s = is;
-  sm = std::max(ism, 1);
-  c = ic;
-  cm = std::max(icm, 1);
-  i = ii;
-  im = std::max(iim, 1);
-  w = iw;
-  wm = std::max(iwm, 1);
-  g = ig;
-  gm = std::max(igm, 1);
+  mins = min;
+  maxes = max;
+  min_gold = gmin;
+  max_gold = gmax;
 
   armed = nullptr;
 }
@@ -176,18 +156,16 @@ void MOBType::SetName(const std::string& nm) {
   name = nm;
 }
 
-void Object::AddMOB(const MOBType* type) {
+void Object::AddMOB(std::mt19937& gen, const MOBType* type) {
   Object* mob = new Object(this);
 
   mob->Attach(get_mob_mind());
   mob->Activate();
   mob->SetPos(pos_t::STAND);
-  mob->SetAttribute(0, type->b + rand() % type->bm);
-  mob->SetAttribute(1, type->q + rand() % type->qm);
-  mob->SetAttribute(2, type->s + rand() % type->sm);
-  mob->SetAttribute(3, type->c + rand() % type->cm);
-  mob->SetAttribute(4, type->i + rand() % type->im);
-  mob->SetAttribute(5, type->w + rand() % type->wm);
+  for (int a : {0, 1, 2, 3, 4, 5}) {
+    mob->SetAttribute(
+        a, std::uniform_int_distribution<int>(type->mins.v[a], type->maxes.v[a])(gen));
+  }
 
   for (auto sk : type->skills) {
     if (sk.second.first < 0) {
@@ -211,8 +189,10 @@ void Object::AddMOB(const MOBType* type) {
   mob->SetDesc(gender_proc(type->desc, mob->Gender()));
   mob->SetLongDesc(gender_proc(type->long_desc, mob->Gender()));
 
-  if (type->g > 0 || type->gm > 1)
-    give_gold(mob, type->g + rand() % type->gm);
+  if (type->min_gold > 0 || type->max_gold > 0) {
+    std::uniform_int_distribution<int> gnum(type->min_gold, type->max_gold);
+    give_gold(mob, gnum(gen));
+  }
 
   if (type->armed) {
     Object* obj = new Object(mob);

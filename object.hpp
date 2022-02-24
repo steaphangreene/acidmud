@@ -19,6 +19,7 @@
 //
 // *************************************************************************
 
+#include <random>
 #include <set>
 #include <string>
 #include <vector>
@@ -527,7 +528,7 @@ class alignas(256) Object {
   int Matches(std::string seek);
   int LooksLike(Object* other, int vmode = 0);
 
-  void AddMOB(const MOBType*);
+  void AddMOB(std::mt19937&, const MOBType*);
 
   static void FreeActions();
 

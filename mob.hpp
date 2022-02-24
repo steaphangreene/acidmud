@@ -94,6 +94,10 @@ class ItemType {
   int weight, volume, value;
 };
 
+struct MOBAttrs {
+  int v[6];
+};
+
 class MOBType {
  public:
   MOBType(
@@ -101,20 +105,10 @@ class MOBType {
       const std::string& ds,
       const std::string& lds,
       const std::string& gens,
-      int,
-      int,
-      int,
-      int,
-      int,
-      int,
-      int,
-      int,
-      int,
-      int,
-      int,
-      int,
-      int,
-      int);
+      MOBAttrs min,
+      MOBAttrs max,
+      int gmin = 0,
+      int gmax = 0);
   void Skill(uint32_t, int, int);
   void Skill(uint32_t, int);
   void Arm(WeaponType*);
@@ -123,13 +117,8 @@ class MOBType {
   void SetName(const std::string&);
 
   std::string name, desc, long_desc, genders;
-  int b, bm;
-  int q, qm;
-  int s, sm;
-  int c, cm;
-  int i, im;
-  int w, wm;
-  int g, gm;
+  MOBAttrs mins, maxes;
+  int min_gold, max_gold;
   std::map<uint32_t, std::pair<int, int>> skills;
   WeaponType* armed;
   std::vector<ArmorType*> armor;
