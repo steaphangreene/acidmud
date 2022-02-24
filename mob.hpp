@@ -120,6 +120,7 @@ class MOBType {
   void Arm(WeaponType*);
   void Armor(ArmorType*);
   void Carry(ItemType*);
+  void SetName(const std::string&);
 
   std::string name, desc, long_desc, genders;
   int b, bm;

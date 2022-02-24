@@ -5,20 +5,28 @@ en_link:Western Road
 upper_level:2
 lower_level:0
 building:4:tower
+populate:4:6-10:dwarven soldier
 building:3:gate house
+populate:3:8-12:dwarven soldier
 building:2:shop
 building:2:shop
 building:2:shop
 building:2:shop
 building:2:inn
 building:2:tavern
+populate:2:1-3:dwarven citizen
 place:+:stone street
+populate:+:0-1:dwarven guard
+populate:+:0-2:dwarven citizen
 place:#:wide stone street
 en_place:@:wide stone street
 en_place:@:wide stone street
+populate:#:1-2:dwarven guard
+populate:#:2-4:dwarven citizen
 place:=:massive stone bridge
 place:::atop the stone wall
 level:::2
+populate:::0-1:dwarven soldier
 door:o:heavy wooden door
 lock:o
 door:g:solid iron door

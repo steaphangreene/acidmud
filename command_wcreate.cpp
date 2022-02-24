@@ -26,8 +26,12 @@
 
 #include "commands.hpp"
 #include "mind.hpp"
+#include "mob.hpp"
 #include "object.hpp"
 #include "utils.hpp"
+
+static std::random_device rd;
+static std::mt19937 gen(rd());
 
 uint64_t obj_num = 2000000; // Dodges All Legacy IDs
 static Object* new_object(Object* parent) {
@@ -35,6 +39,26 @@ static Object* new_object(Object* parent) {
   return new Object(parent);
 }
 std::multimap<std::string, std::pair<std::string, Object*>> zone_links;
+
+static MOBType mob_dwarf(
+    "a dwarf",
+    "{He} looks pissed.",
+    "",
+    "MF",
+    9,
+    4,
+    6,
+    4,
+    9,
+    4,
+    1,
+    3,
+    5,
+    4,
+    9,
+    4,
+    100,
+    401);
 
 static int load_map(Object* world, Mind* mind, const std::string_view fn) {
   if (fn.empty()) {
@@ -63,6 +87,8 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
   std::map<char, bool> locked;
   std::map<char, bool> indoors;
   std::map<char, uint8_t> levels;
+  std::map<char, std::vector<std::string>> mobnames;
+  std::map<char, std::vector<std::uniform_int_distribution<int>>> mobnums;
   std::vector<std::string> en_links;
   std::vector<std::string> en_rooms;
   std::vector<bool> en_indoors;
@@ -103,6 +129,14 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
       uint8_t lev;
       sscanf(line_buf + 8, "%hhu", &lev);
       levels[sym] = lev;
+    } else if (!strncmp(line_buf, "populate:", 9)) {
+      char sym = '0';
+      sscanf(line_buf + 9, "%c", &sym);
+      int lnum, hnum;
+      char namebuf[256];
+      sscanf(line_buf + 11, "%d-%d:%255[^\n]", &lnum, &hnum, namebuf);
+      mobnames[sym].emplace_back(namebuf);
+      mobnums[sym].emplace_back(std::uniform_int_distribution<int>(lnum, hnum));
     } else if (!strncmp(line_buf, "door:", 5)) {
       char sym = 'd';
       sscanf(line_buf + 5, "%c", &sym);
@@ -194,9 +228,6 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
     }
   }
 
-  std::random_device rd;
-  std::mt19937 g(rd());
-
   // Create New Zone
   Object* zone = new_object(world);
   zone->SetShortDesc(name);
@@ -250,7 +281,7 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
         std::string roomname = rooms[room][0];
         if (rooms[room].size() > 1) {
           std::vector<std::string> out = {""};
-          std::sample(rooms[room].begin(), rooms[room].end(), out.begin(), 1, g);
+          std::sample(rooms[room].begin(), rooms[room].end(), out.begin(), 1, gen);
           roomname = out.front();
         }
         if (objs[coord{x, y}].size() > 1) {
@@ -267,6 +298,15 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
           }
         } else {
           objs[coord{x, y}].back()->SetShortDesc(roomname);
+        }
+        if (mobnames.count(room) > 0) {
+          for (size_t n = 0; n < mobnames[room].size(); ++n) {
+            mob_dwarf.SetName(mobnames[room][n]);
+            int num = mobnums[room][n](gen);
+            for (int m = 0; m < num; ++m) {
+              objs[coord{x, y}].back()->AddMOB(&mob_dwarf);
+            }
+          }
         }
       } else if (ascii_isdigit(room)) { // Default Room
         int num_floors = room - '0';

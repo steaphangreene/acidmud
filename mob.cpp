@@ -172,6 +172,10 @@ void MOBType::Carry(ItemType* item) {
   items.push_back(item);
 }
 
+void MOBType::SetName(const std::string& nm) {
+  name = nm;
+}
+
 void Object::AddMOB(const MOBType* type) {
   Object* mob = new Object(this);
 
