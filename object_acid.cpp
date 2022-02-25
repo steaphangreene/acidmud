@@ -99,6 +99,7 @@ int Object::SaveTo(FILE* fl) {
 
   fprintf(fl, "%d\n", getnum(this));
   fprintf(fl, "%s%c\n", ShortDescC(), 0);
+  fprintf(fl, "%s%c\n", NameC(), 0);
   if (HasDesc()) {
     fprintf(fl, "%s%c\n", DescC(), 0);
   } else {
@@ -254,6 +255,17 @@ int Object::LoadFrom(FILE* fl) {
   std::string sd = buf;
 
   memset(buf, 0, 65536);
+  if (ver >= 0x001B) {
+    num = 0;
+    res = getc(fl);
+    while (res > 0) {
+      buf[num++] = res;
+      res = getc(fl);
+    }
+  }
+  std::string n = buf;
+
+  memset(buf, 0, 65536);
   if (ver < 0x0015) {
     res = fscanf(fl, "%[^;];\n", buf);
     if (res < 1)
@@ -287,24 +299,26 @@ int Object::LoadFrom(FILE* fl) {
   }
   std::string ld = buf;
 
-  SetDescs(sd, "", d, ld);
+  SetDescs(sd, n, d, ld);
 
   // fprintf(stderr, "%sLoading %d:%s\n", debug_indent.c_str(), num, buf);
 
   fscanf(fl, "%d %d %d %d %c", &weight, &size, &volume, &value, &gender);
-  fscanf(fl, ";"); // Was present pre v0x15, causes no problems since.
-  fscanf(fl, "\n"); // Skip the white-space, if ';' was used or not.
 
   if (ver < 0x001A) {
     fscanf(fl, "%*d"); // Experience (Redundant)
+    fscanf(fl, ";"); // Was present pre v0x15, causes no problems until v0x1A.
+    fscanf(fl, "\n"); // Skip the white-space, if ';' was used or not.
   } else {
+    fscanf(fl, "\n"); // Skip the white-space before the line of "known".
     unsigned long know;
     while (fscanf(fl, ";%ld", &know)) {
-      completed.push_back(know);
+      known.push_back(know);
     }
     fscanf(fl, ":\n"); // Skip the ending colon and white-space after the line of "known".
   }
 
+  fscanf(fl, "\n"); // Skip the white-space before the line of "completed".
   unsigned long accom;
   while (fscanf(fl, ";%ld", &accom)) {
     completed.push_back(accom);
