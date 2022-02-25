@@ -193,15 +193,17 @@ int Object::Load(const std::string& fn) {
   for (auto ind : todo) {
     std::vector<act_t> killacts;
     for (auto aind : ind->act) {
-      if (aind.obj()) {
-        aind.obj()->NowTouching(ind);
-      } else if (aind.act() <= act_t::REST) { // Targetless Actions
-        aind.set_obj(nullptr);
-      } else { // Act Targ No Longer Exists ("junkrestart", I hope)!
-        killacts.push_back(aind.act());
-      }
-      if (aind.act() == act_t::FIGHT) {
-        ind->BusyFor(500, ind->Tactics().c_str());
+      if (aind.act() != act_t::SPECIAL_ACTEE) {
+        if (aind.obj()) {
+          aind.obj()->NowTouching(ind);
+        } else if (aind.act() <= act_t::REST) { // Targetless Actions
+          aind.set_obj(nullptr);
+        } else { // Act Targ No Longer Exists ("junkrestart", I hope)!
+          killacts.push_back(aind.act());
+        }
+        if (aind.act() == act_t::FIGHT) {
+          ind->BusyFor(500, ind->Tactics().c_str());
+        }
       }
     }
     for (auto kill : killacts) { // Kill Actions on Non-Existent
@@ -434,7 +436,9 @@ int Object::LoadFrom(FILE* fl) {
       fscanf(fl, "%65535[^;];%d ", buf, &num2);
       a = act_load(std::string(buf));
     }
-    AddAct(a, getbynum(num2));
+    if (a != act_t::SPECIAL_ACTEE) {
+      AddAct(a, getbynum(num2));
+    }
   }
 
   if (Skill(crc32c("Personality")))

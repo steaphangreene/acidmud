@@ -200,25 +200,31 @@ class alignas(256) Object {
     return parent;
   };
   MinVec<1, Object*> Touching() const {
-    return touching_me;
+    MinVec<1, Object*> ret;
+    for (auto o : act) {
+      if (o.act() == act_t::SPECIAL_ACTEE) {
+        ret.push_back(o.obj());
+      }
+    }
+    return ret;
   };
   bool IsTouching(Object* other) const {
-    auto itr = touching_me.begin();
-    for (; itr != touching_me.end() && *itr != other; ++itr) {
+    auto itr = act.begin();
+    for (; itr != act.end() && (itr->act() != act_t::SPECIAL_ACTEE || itr->obj() != other); ++itr) {
     }
-    return (itr != touching_me.end());
+    return (itr != act.end());
   };
   void NowTouching(Object* other) {
     if (!IsTouching(other)) {
-      touching_me.push_back(other);
+      act.push_back(act_pair(act_t::SPECIAL_ACTEE, other));
     }
   };
   void NotTouching(Object* other) {
-    auto itr = touching_me.begin();
-    for (; itr != touching_me.end() && *itr != other; ++itr) {
+    auto itr = act.begin();
+    for (; itr != act.end() && (itr->act() != act_t::SPECIAL_ACTEE || itr->obj() != other); ++itr) {
     }
-    if (itr != touching_me.end()) {
-      touching_me.erase(itr);
+    if (itr != act.end()) {
+      act.erase(itr);
     }
   };
 
@@ -573,7 +579,6 @@ class alignas(256) Object {
 
   MinVec<1, Mind*> minds;
 
-  MinVec<1, Object*> touching_me;
   MinVec<3, act_pair> act;
 
   MinVec<7, skill_pair> skills;

@@ -2855,11 +2855,11 @@ void Object::NotifyGone(Object* obj, Object* newloc, int up) {
 }
 
 void Object::AddAct(act_t a, Object* o) {
+  StopAct(a);
+  act.push_back(act_pair(a, o));
   if (o) {
     o->NowTouching(this);
   }
-  StopAct(a);
-  act.push_back(act_pair(a, o));
 }
 
 void Object::StopAct(act_t a) {
@@ -2887,7 +2887,9 @@ void Object::StopAct(act_t a) {
 void Object::StopAll() {
   auto oldact = act;
   for (auto opt : oldact) {
-    StopAct(opt.act());
+    if (opt.act() != act_t::SPECIAL_ACTEE) {
+      StopAct(opt.act());
+    }
   }
 }
 
