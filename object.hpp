@@ -335,6 +335,9 @@ class alignas(256) Object {
     return completed.size();
   };
 
+  bool Learn(uint64_t, const std::string&);
+  bool Knows(uint64_t);
+
   int Stun() const {
     return stun;
   };
@@ -578,6 +581,8 @@ class alignas(256) Object {
   char const* defact = "";
 
   MinVec<1, Mind*> minds;
+
+  MinVec<1, uint64_t> known;
 
   MinVec<3, act_pair> act;
 

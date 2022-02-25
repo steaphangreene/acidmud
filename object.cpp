@@ -3913,6 +3913,28 @@ bool Object::Accomplish(uint64_t acc, const std::string& why) {
   return true;
 }
 
+bool Object::Knows(uint64_t k) {
+  for (auto know : known) {
+    if (know == k) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool Object::Learn(uint64_t k, const std::string& what) {
+  if (Knows(k)) {
+    return false;
+  }
+  known.push_back(k);
+  for (auto m : minds) {
+    if (m->Owner()) {
+      m->SendF(CYEL "You now know %s!\n" CNRM, what.c_str());
+    }
+  }
+  return true;
+}
+
 int two_handed(int wtype) {
   static std::set<int> thsks;
   if (thsks.size() == 0) {

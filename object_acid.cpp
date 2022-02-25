@@ -112,10 +112,15 @@ int Object::SaveTo(FILE* fl) {
 
   fprintf(fl, "%d %d %d %d %c\n", weight, size, volume, value, gender);
 
-  fprintf(fl, "%zu", completed.size());
+  for (auto ind : known) {
+    fprintf(fl, ";%ld", ind);
+  }
+  fprintf(fl, ":\n");
+
   for (auto ind : completed) {
     fprintf(fl, ";%ld", ind);
   }
+  fprintf(fl, ":\n");
 
   fprintf(fl, " %d\n", sexp);
 
@@ -290,10 +295,22 @@ int Object::LoadFrom(FILE* fl) {
   fscanf(fl, ";"); // Was present pre v0x15, causes no problems since.
   fscanf(fl, "\n"); // Skip the white-space, if ';' was used or not.
 
-  fscanf(fl, "%*d"); // Experience (Redundant)
+  if (ver < 0x001A) {
+    fscanf(fl, "%*d"); // Experience (Redundant)
+  } else {
+    unsigned long know;
+    while (fscanf(fl, ";%ld", &know)) {
+      completed.push_back(know);
+    }
+    fscanf(fl, ":\n"); // Skip the ending colon and white-space after the line of "known".
+  }
+
   unsigned long accom;
   while (fscanf(fl, ";%ld", &accom)) {
     completed.push_back(accom);
+  }
+  if (ver >= 0x001A) {
+    fscanf(fl, ":\n"); // Skip the ending colon and white-space after the line of "completed".
   }
 
   fscanf(fl, " %d\n", &sexp);
