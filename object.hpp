@@ -120,6 +120,7 @@ enum class act_t : uint8_t {
   SPECIAL_MASTER,
   SPECIAL_LINKED,
   SPECIAL_HOME,
+  SPECIAL_ACTEE,
   SPECIAL_MAX
 };
 inline void operator++(act_t& a) {

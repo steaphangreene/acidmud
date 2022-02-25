@@ -91,6 +91,7 @@ const std::string act_str[static_cast<uint8_t>(act_t::SPECIAL_MAX)] = {
     "act_t::SPECIAL_MASTER",
     "act_t::SPECIAL_LINKED",
     "act_t::SPECIAL_HOME",
+    "act_t::SPECIAL_ACTEE",
     //"act_t::SPECIAL_MAX"
 };
 
