@@ -880,8 +880,8 @@ std::string Object::Obje() const {
   return ret;
 }
 
-// Generate truly-formatted name
-std::string Object::Name(int definite, Object* rel, Object* sub) const {
+// Generate truly-formatted name/noun/pronoun/possessive....
+std::string Object::Noun(int definite, Object* rel, Object* sub) const {
   static std::string local;
   int need_an = 0;
   int proper = 0;
@@ -932,7 +932,7 @@ std::string Object::Name(int definite, Object* rel, Object* sub) const {
     } else if (own && own == sub) {
       ret = std::string("its ") + ret;
     } else if (own) {
-      ret = own->Name() + "'s " + ret;
+      ret = own->Noun() + "'s " + ret;
     } else if (definite && (!proper)) {
       ret = std::string("the ") + ret;
     } else if ((!proper) && need_an) {
@@ -1100,7 +1100,7 @@ void Object::SendActions(Mind* m) {
       if (!cur.obj())
         targ = "";
       else
-        targ = cur.obj()->Name(0, m->Body(), this);
+        targ = cur.obj()->Noun(0, m->Body(), this);
 
       //      //FIXME: Busted!  This should be the "pointing north to bob"
       //      thingy.
@@ -1215,7 +1215,7 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
     if (!cur.obj())
       targ = "";
     else
-      targ = cur.obj()->Name(0, m->Body(), this);
+      targ = cur.obj()->Noun(0, m->Body(), this);
 
     char qty[256] = {0};
     if (cur.obj()->Skill(crc32c("Quantity")) > 1)
@@ -1400,89 +1400,89 @@ void Object::SendFullSituation(Mind* m, Object* o) {
   }
 
   if (!parent)
-    sprintf(buf, "%s is here%c", Name().c_str(), 0);
+    sprintf(buf, "%s is here%c", Noun().c_str(), 0);
 
   else if (parent->ActTarg(act_t::HOLD) == this)
-    sprintf(buf, "%s is here in %s off-hand%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here in %s off-hand%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WIELD) == this)
-    sprintf(buf, "%s is here in %s hand%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here in %s hand%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_BACK) == this)
-    sprintf(buf, "%s is here on %s back%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s back%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_CHEST) == this)
-    sprintf(buf, "%s is here on %s chest%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s chest%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_HEAD) == this)
-    sprintf(buf, "%s is here on %s head%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s head%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_FACE) == this)
-    sprintf(buf, "%s is here on %s face%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s face%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_NECK) == this)
-    sprintf(buf, "%s is here around %s neck%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here around %s neck%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_COLLAR) == this)
-    sprintf(buf, "%s is here on %s neck%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s neck%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_WAIST) == this)
-    sprintf(buf, "%s is here around %s waist%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here around %s waist%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_SHIELD) == this)
-    sprintf(buf, "%s is here on %s shield-arm%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s shield-arm%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_LARM) == this)
-    sprintf(buf, "%s is here on %s left arm%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s left arm%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_RARM) == this)
-    sprintf(buf, "%s is here on %s right arm%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s right arm%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_LFINGER) == this)
-    sprintf(buf, "%s is here on %s left finger%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s left finger%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_RFINGER) == this)
-    sprintf(buf, "%s is here on %s right finger%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s right finger%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_LFOOT) == this)
-    sprintf(buf, "%s is here on %s left foot%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s left foot%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_RFOOT) == this)
-    sprintf(buf, "%s is here on %s right foot%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s right foot%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_LHAND) == this)
-    sprintf(buf, "%s is here on %s left hand%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s left hand%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_RHAND) == this)
-    sprintf(buf, "%s is here on %s right hand%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s right hand%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_LLEG) == this)
-    sprintf(buf, "%s is here on %s left leg%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s left leg%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_RLEG) == this)
-    sprintf(buf, "%s is here on %s right leg%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s right leg%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_LWRIST) == this)
-    sprintf(buf, "%s is here on %s left wrist%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s left wrist%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_RWRIST) == this)
-    sprintf(buf, "%s is here on %s right wrist%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s right wrist%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_LSHOULDER) == this)
-    sprintf(buf, "%s is here on %s left shoulder%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s left shoulder%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_RSHOULDER) == this)
-    sprintf(buf, "%s is here on %s right shoulder%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s right shoulder%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_LHIP) == this)
-    sprintf(buf, "%s is here on %s left hip%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s left hip%c", Noun().c_str(), pname.c_str(), 0);
 
   else if (parent->ActTarg(act_t::WEAR_RHIP) == this)
-    sprintf(buf, "%s is here on %s right hip%c", Name().c_str(), pname.c_str(), 0);
+    sprintf(buf, "%s is here on %s right hip%c", Noun().c_str(), pname.c_str(), 0);
 
   else {
-    pname = parent->Name();
-    sprintf(buf, "%s %s in %s%c", Name().c_str(), PosString().c_str(), pname.c_str(), 0);
+    pname = parent->Noun();
+    sprintf(buf, "%s %s in %s%c", Noun().c_str(), PosString().c_str(), pname.c_str(), 0);
   }
 
   buf[0] = ascii_toupper(buf[0]);
@@ -1682,7 +1682,7 @@ void Object::SendScore(Mind* m, Object* o) {
       m->SendF(
           CGRN "  %s -> %s\n" CNRM,
           act_str[static_cast<uint8_t>(actt)].c_str(),
-          ActTarg(actt)->Name().c_str());
+          ActTarg(actt)->Noun().c_str());
     } else if (IsAct(actt)) {
       m->SendF(CGRN "  %s\n" CNRM, act_str[static_cast<uint8_t>(actt)].c_str());
     }
@@ -2118,7 +2118,7 @@ void Object::TryCombine() {
       continue;
 
     if (IsSameAs(*obj)) {
-      // fprintf(stderr, "Combining '%s'\n", Name().c_str());
+      // fprintf(stderr, "Combining '%s'\n", Noun().c_str());
       int val;
 
       val = std::max(1, Skill(crc32c("Quantity"))) + std::max(1, obj->Skill(crc32c("Quantity")));
@@ -2190,7 +2190,7 @@ int Object::Travel(Object* dest, int try_combine) {
     for (auto trig : trigs) {
       if (trig->Skill(crc32c("TBAScriptType")) & 0x0010000) {
         if ((rand() % 100) < trig->Skill(crc32c("TBAScriptNArg"))) { // % Chance
-          // fprintf(stderr, CBLU "Triggering: %s\n" CNRM, trig->Name().c_str());
+          // fprintf(stderr, CBLU "Triggering: %s\n" CNRM, trig->Noun().c_str());
           if (new_trigger(0, trig, this, dir))
             return 1;
         }
@@ -2247,7 +2247,7 @@ int Object::Travel(Object* dest, int try_combine) {
           if ((rand() % 100) < 1000 * trig->Skill(crc32c("TBAScriptNArg"))) { // % Chance
             // if (trig->Skill(crc32c("TBAScript")) >= 5034503 && trig->Skill(crc32c("TBAScript"))
             // <= 5034507)
-            //  fprintf(stderr, CBLU "Triggering: %s\n" CNRM, trig->Name().c_str());
+            //  fprintf(stderr, CBLU "Triggering: %s\n" CNRM, trig->Noun().c_str());
             new_trigger((rand() % 400) + 300, trig, this, rdir);
           }
         }
@@ -2275,7 +2275,7 @@ Object::~Object() {
 void Object::Recycle(int inbin) {
   Deactivate();
 
-  // fprintf(stderr, "Deleting: %s\n", Name(0));
+  // fprintf(stderr, "Deleting: %s\n", Noun(0));
 
   std::set<Object*> movers;
   std::set<Object*> killers;
@@ -2371,7 +2371,7 @@ void Object::Recycle(int inbin) {
     parent->AddLink(this);
   }
 
-  // fprintf(stderr, "Done deleting: %s\n", Name(0));
+  // fprintf(stderr, "Done deleting: %s\n", Noun(0));
 }
 
 void Object::Attach(Mind* m) {
@@ -3223,14 +3223,14 @@ void Object::SendIn(
             if (phrase_match(speech, trig->Desc())) {
               // if (trig->Skill(crc32c("TBAScript")) >= 5034503 && trig->Skill(crc32c("TBAScript"))
               // <= 5034507)
-              //  fprintf(stderr, CBLU "Triggering(f): %s\n" CNRM, trig->Name().c_str());
+              //  fprintf(stderr, CBLU "Triggering(f): %s\n" CNRM, trig->Noun().c_str());
               new_trigger((rand() % 400) + 300, trig, actor, speech);
             }
           } else { // Match Words
             if (words_match(speech, trig->Desc())) {
               // if (trig->Skill(crc32c("TBAScript")) >= 5034503 && trig->Skill(crc32c("TBAScript"))
               // <= 5034507)
-              //  fprintf(stderr, CBLU "Triggering(w): %s\n" CNRM, trig->Name().c_str());
+              //  fprintf(stderr, CBLU "Triggering(w): %s\n" CNRM, trig->Noun().c_str());
               new_trigger((rand() % 400) + 300, trig, actor, speech);
             }
           }
@@ -3241,10 +3241,10 @@ void Object::SendIn(
 
   std::string tstr = "";
   if (targ)
-    tstr = targ->Name(0, this, actor);
+    tstr = targ->Noun(0, this, actor);
   std::string astr = "";
   if (actor)
-    astr = actor->Name(0, this);
+    astr = actor->Noun(0, this);
 
   auto str = mes;
   auto youstr = youmes;
@@ -3364,10 +3364,10 @@ void Object::SendOut(
 
   std::string tstr = "";
   if (targ)
-    tstr = targ->Name(0, this, actor);
+    tstr = targ->Noun(0, this, actor);
   std::string astr = "";
   if (actor)
-    astr = actor->Name(0, this);
+    astr = actor->Noun(0, this);
 
   auto str = mes;
   auto youstr = youmes;
@@ -3701,7 +3701,7 @@ void Object::FreeActions() {
       if (init.second == phase && busylist.count(init.first)) {
         //	if(init.first->IsAct(act_t::FIGHT))
         //	  fprintf(stderr, "Going at %d (%s)\n", phase,
-        // init.first->Name().c_str());
+        // init.first->Noun().c_str());
         init.first->BusyAct();
       }
     }
@@ -4026,7 +4026,7 @@ int Object::Filter(int loc) {
 }
 
 int Object::LooksLike(Object* other, int vmode) {
-  if (Name() != other->Name())
+  if (Noun() != other->Noun())
     return 0;
   if (Pos() != other->Pos())
     return 0;
@@ -4056,10 +4056,10 @@ int Object::LooksLike(Object* other, int vmode) {
     if (ActTarg(actt) != other->ActTarg(actt)) {
       std::string s1 = "";
       if (ActTarg(actt))
-        s1 = ActTarg(actt)->Name(0, this);
+        s1 = ActTarg(actt)->Noun(0, this);
       std::string s2 = "";
       if (ActTarg(actt))
-        s2 = other->ActTarg(actt)->Name(0, other);
+        s2 = other->ActTarg(actt)->Noun(0, other);
       if (s1 != s2)
         return 0;
     }
@@ -4701,14 +4701,14 @@ int Object::Wear(Object* targ, unsigned long masks, int mes) {
       if (mask == 1) {
         if (mes)
           targ->SendF(
-              ALL, -1, "You can't wear %s - it's not wearable!\n", targ->Name(0, this).c_str());
+              ALL, -1, "You can't wear %s - it's not wearable!\n", targ->Noun(0, this).c_str());
       } else {
         if (mes)
           targ->SendF(
               ALL,
               -1,
               "You can't wear %s with what you are already wearing!\n",
-              targ->Name(0, this).c_str());
+              targ->Noun(0, this).c_str());
       }
       break;
     }

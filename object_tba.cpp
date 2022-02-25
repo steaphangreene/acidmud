@@ -221,7 +221,7 @@ void Object::TBAFinalizeTriggers() {
       trg->Parent()->SetSkill(crc32c("Restricted Item"), 1);
       sscanf(trg->LongDescC() + cur, "teleport [%d]\n", &rnum);
       if (bynumwld.count(rnum) > 0) {
-        newtext += std::string("teleport ") + bynumwld[rnum]->Name() + "\n";
+        newtext += std::string("teleport ") + bynumwld[rnum]->Noun() + "\n";
       } else {
         fprintf(stderr, "Error: Can't find teleport dest: %d\n", rnum);
       }
@@ -350,20 +350,20 @@ void Object::TBAFinishMOB(Object* mob) {
 
   if (mob->Skill(crc32c("TBAAttack"))) {
     if (mob->IsAct(act_t::WIELD)) {
-      // fprintf(stderr, "Weapon def: %s\n", mob->ActTarg(act_t::WIELD)->Name().c_str());
+      // fprintf(stderr, "Weapon def: %s\n", mob->ActTarg(act_t::WIELD)->Noun().c_str());
       if (mob->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponType")) == 0) {
         if (!mob->ActTarg(act_t::HOLD)) { // Don't wield non-weapons, hold them
           fprintf(
               stderr,
               CYEL "Warning: Wielded non-weapon: %s\n" CNRM,
-              mob->ActTarg(act_t::WIELD)->Name().c_str());
+              mob->ActTarg(act_t::WIELD)->Noun().c_str());
           mob->AddAct(act_t::HOLD, mob->ActTarg(act_t::WIELD));
           mob->StopAct(act_t::WIELD);
         } else {
           fprintf(
               stderr,
               "Error: Wielded non-weapon with a held item: %s\n",
-              mob->ActTarg(act_t::WIELD)->Name().c_str());
+              mob->ActTarg(act_t::WIELD)->Noun().c_str());
         }
       } else {
         mob->SetSkill(
@@ -2753,7 +2753,7 @@ void Object::TBALoadSHP(const std::string& fn) {
               fprintf(
                   stderr,
                   CYEL "Warning: Can't handle %s's buy target: '%s'\n" CNRM,
-                  keeper->Name().c_str(),
+                  keeper->Noun().c_str(),
                   type.c_str());
             } else if (type != "0") { // Apparently 0 used for "Ignore This"
               keeper->SetSkill(std::string("Buy ") + type, (int)(num2 * 1000.0 + 0.5));

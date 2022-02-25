@@ -825,7 +825,7 @@ bool Mind::TBAVarSub(std::string& line) {
               stderr,
               CGRN "#%d Random: '%s'\n" CNRM,
               body->Skill(crc32c("TBAScript")),
-              obj->Name().c_str());
+              obj->Noun().c_str());
         }
       } else {
         obj = nullptr;
@@ -980,7 +980,7 @@ bool Mind::TBAVarSub(std::string& line) {
         } else if (!strcmp(field.c_str(), "name")) {
           val = "";
           if (obj)
-            val = obj->Name();
+            val = obj->Noun();
           obj = nullptr;
           is_obj = 0;
         } else if (!strcmp(field.c_str(), "shortdesc")) {
@@ -2251,13 +2251,13 @@ int Mind::TBARunLine(std::string line) {
         if (dam > 0) {
           opt->HitMent(1000, dam, 0);
           //	  fprintf(stderr, CGRN "#%d Debug: WDamage '%s', %d\n" CNRM,
-          //		body->Skill(crc32c("TBAScript")), opt->Name().c_str(), dam
+          //		body->Skill(crc32c("TBAScript")), opt->Noun().c_str(), dam
           //		);
         } else if (dam < 0) {
           opt->HealStun(((-dam) + 1) / 2);
           opt->HealPhys(((-dam) + 1) / 2);
           //	  fprintf(stderr, CGRN "#%d Debug: WHeal '%s', %d\n" CNRM,
-          //		body->Skill(crc32c("TBAScript")), opt->Name().c_str(), ((-dam)+1)/2
+          //		body->Skill(crc32c("TBAScript")), opt->Noun().c_str(), ((-dam)+1)/2
           //		);
         }
       }
@@ -2978,7 +2978,7 @@ bool Mind::Think(int istick) {
         std::string command = std::string("hold ") + body->ActTarg(act_t::WEAR_SHIELD)->ShortDesc();
         body->BusyFor(500, command.c_str());
       } else {
-        // fprintf(stderr, "Warning: %s can't use his shield!\n", body->Name().c_str());
+        // fprintf(stderr, "Warning: %s can't use his shield!\n", body->Noun().c_str());
       }
       return true;
     }
