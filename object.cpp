@@ -3938,7 +3938,18 @@ bool Object::Accomplish(uint64_t acc, const std::string& why) {
   return true;
 }
 
-bool Object::Knows(uint64_t k) {
+bool Object::Knows(const Object* o) const {
+  if (o == this)
+    return true;
+  if (o->HasName()) {
+    if (o->HasSkill(crc32c("Object ID"))) {
+      return Knows(o->Skill(crc32c("Object ID")));
+    }
+  }
+  return false;
+}
+
+bool Object::Knows(uint64_t k) const {
   for (auto know : known) {
     if (know == k) {
       return true;

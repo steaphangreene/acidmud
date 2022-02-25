@@ -340,7 +340,8 @@ class alignas(256) Object {
   };
 
   bool Learn(uint64_t, const std::string&);
-  bool Knows(uint64_t);
+  bool Knows(uint64_t) const;
+  bool Knows(const Object*) const;
 
   int Stun() const {
     return stun;
