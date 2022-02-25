@@ -880,10 +880,10 @@ std::string Object::Obje() const {
 }
 
 // Generate truly-formatted name/noun/pronoun/possessive....
-std::string Object::Noun(int definite, Object* rel, Object* sub) const {
+std::string Object::Noun(bool definite, Object* rel, Object* sub) const {
   static std::string local;
-  int need_an = 0;
-  int proper = 0;
+  bool need_an = false;
+  bool proper = false;
   std::string ret;
 
   if (rel == this && sub == this)
@@ -908,16 +908,16 @@ std::string Object::Noun(int definite, Object* rel, Object* sub) const {
 
   if (!strncmp(ShortDescC(), "a ", 2)) {
     ret = (ShortDescC() + 2);
-    need_an = 0;
+    need_an = false;
   } else if (!strncmp(ShortDescC(), "an ", 3)) {
     ret = (ShortDescC() + 3);
-    need_an = 1;
+    need_an = true;
   } else if (!strncmp(ShortDescC(), "the ", 4)) {
     ret = (ShortDescC() + 4);
-    definite = 1;
+    definite = true;
   } else {
     ret = ShortDescC();
-    proper = 1;
+    proper = true;
   }
 
   if (!IsAnimate()) {
@@ -945,6 +945,10 @@ std::string Object::Noun(int definite, Object* rel, Object* sub) const {
     ret = std::string("an ") + ret;
   } else if (!proper) {
     ret = std::string("a ") + ret;
+  }
+
+  if (HasName() && (rel == nullptr || rel->Knows(this))) {
+    ret = Name() + ", " + ret + ",";
   }
 
   local = ret;
@@ -1373,9 +1377,9 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
         ++tlines;
 
         if (ind->parent && ind->parent->Skill(crc32c("Container")))
-          sprintf(buf, "%s%c", ind->ShortDescC(), 0);
+          sprintf(buf, "%s%c", ind->Noun().c_str(), 0);
         else
-          sprintf(buf, "%s %s%c", ind->ShortDescC(), ind->PosString().c_str(), 0);
+          sprintf(buf, "%s %s%c", ind->Noun(false, o).c_str(), ind->PosString().c_str(), 0);
         buf[0] = ascii_toupper(buf[0]);
         m->Send(buf);
 
@@ -1505,7 +1509,13 @@ void Object::SendFullSituation(Mind* m, Object* o) {
 
   else {
     pname = parent->Noun();
-    sprintf(buf, "%s %s in %s%c", Noun().c_str(), PosString().c_str(), pname.c_str(), 0);
+    sprintf(
+        buf,
+        "%s %s in %s%c",
+        Noun(false, m->Body()).c_str(),
+        PosString().c_str(),
+        pname.c_str(),
+        0);
   }
 
   buf[0] = ascii_toupper(buf[0]);
@@ -2671,7 +2681,7 @@ MinVec<1, Object*> Object::PickObjects(std::string name, int loc, int* ordinal) 
       if (!ind->no_seek) {
         if (ind == this)
           continue; // Must use "self" to pick self!
-        if (ind->Filter(loc) && ind->Matches(name, Knows(ind))) {
+        if (ind->Filter(loc) && ind->Matches(name, (loc & LOC_NINJA) || Knows(ind))) {
           if (tag(ind, ret, ordinal, (parent->Parent() == nullptr) | (loc & LOC_SPECIAL))) {
             return ret;
           }
@@ -2705,7 +2715,8 @@ MinVec<1, Object*> Object::PickObjects(std::string name, int loc, int* ordinal) 
       auto ind = std::find(cont.begin(), cont.end(), action.obj());
       if (ind != cont.end()) { // IE: Is action.obj() within cont
         cont.erase(ind);
-        if (action.obj()->Filter(loc) && action.obj()->Matches(name, Knows(action.obj())) &&
+        if (action.obj()->Filter(loc) &&
+            action.obj()->Matches(name, (loc & LOC_NINJA) || Knows(action.obj())) &&
             ((loc & LOC_NOTWORN) == 0 || action.act() <= act_t::HOLD) &&
             ((loc & LOC_NOTUNWORN) == 0 || action.act() >= act_t::HOLD)) {
           if (tag(action.obj(), ret, ordinal, (Parent() == nullptr) | (loc & LOC_SPECIAL))) {
@@ -2725,7 +2736,7 @@ MinVec<1, Object*> Object::PickObjects(std::string name, int loc, int* ordinal) 
     for (auto ind : cont) {
       if (ind == this)
         continue; // Must use "self" to pick self!
-      if (ind->Filter(loc) && ind->Matches(name, Knows(ind))) {
+      if (ind->Filter(loc) && ind->Matches(name, (loc & LOC_NINJA) || Knows(ind))) {
         if (tag(ind, ret, ordinal, (Parent() == nullptr) | (loc & LOC_SPECIAL))) {
           return ret;
         }

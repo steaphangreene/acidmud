@@ -1232,8 +1232,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           "Use the 'newcharacter' command to create a new character.\n");
       return 0;
     } else {
-      mind->SendF(
-          "'%s' is now selected as your currect character to work on.\n", sel->Noun().c_str());
+      mind->SendF("'%s' is now selected as your currect character to work on.\n", sel->NameC());
       mind->Owner()->SetCreator(sel);
       return 0;
     }
@@ -1306,7 +1305,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         return 0;
       }
 
-      body = mind->Owner()->Room()->PickObject(std::string(args), vmode | LOC_INTERNAL);
+      body = mind->Owner()->Room()->PickObject(std::string(args), vmode | LOC_INTERNAL | LOC_NINJA);
       if (!body) {
         mind->Send(
             "Sorry, that character doesn't exist.\n"
@@ -1315,8 +1314,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       }
       if (body->Skill(crc32c("Attribute Points")) > 0 || body->Skill(crc32c("Skill Points")) > 0) {
         mind->Send("You need to finish that character before you can use it.\n");
-        mind->SendF(
-            "'%s' is now selected as your currect character to work on.\n", body->Noun().c_str());
+        mind->SendF("'%s' is now selected as your currect character to work on.\n", body->NameC());
         mind->Owner()->SetCreator(body);
         return 0;
       }

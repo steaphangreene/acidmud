@@ -179,7 +179,7 @@ class alignas(256) Object {
 
   Object* Next(std::string&);
   Object* Split(int nqty);
-  std::string Noun(int definite = 0, Object* rel = nullptr, Object* sub = nullptr) const;
+  std::string Noun(bool definite = false, Object* rel = nullptr, Object* sub = nullptr) const;
   std::string Pron() const;
   std::string Poss() const;
   std::string Obje() const;
