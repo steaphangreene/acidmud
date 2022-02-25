@@ -3327,6 +3327,11 @@ void Object::SendIn(
     else if (ind->Pos() != pos_t::NONE) // FIXME - Understand Transparency
       ind->SendIn(tnum, rsucc, mes, youmes, actor, targ);
   }
+
+  if (targ && targ != this && minds.size() > 0 && targ->HasSkill(crc32c("Object ID")) &&
+      mes.starts_with(";s introduces ;s as")) {
+    Learn(targ->Skill(crc32c("Object ID")), targ->Name());
+  }
 }
 
 void Object::SendInF(
@@ -3448,6 +3453,11 @@ void Object::SendOut(
     no_seek = true;
     parent->SendOut(tnum, rsucc, mes, youmes, actor, targ);
     no_seek = false;
+  }
+
+  if (targ && targ != this && minds.size() > 0 && targ->HasSkill(crc32c("Object ID")) &&
+      mes.starts_with(";s introduces ;s as")) {
+    Learn(targ->Skill(crc32c("Object ID")), targ->Name());
   }
 }
 

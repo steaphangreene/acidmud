@@ -302,6 +302,11 @@ constexpr Command static_comlist[COM_MAX] = {
      "Indicate to others that you are doing something.",
      "Indicate to others that you are doing something.",
      (REQ_AWAKE | CMD_FLAVORTEXT)},
+    {COM_INTRODUCE,
+     "introduce",
+     "Indroduce yourself, or someone or something else, to others.",
+     "Indroduce yourself, or someone or something else, to others.",
+     (REQ_AWAKE | CMD_FLAVORTEXT)},
 
     {COM_EAT,
      "eat",
@@ -735,6 +740,7 @@ static_assert(static_comlist[COM_YELL].id == COM_YELL);
 static_assert(static_comlist[COM_CALL].id == COM_CALL);
 static_assert(static_comlist[COM_SAY].id == COM_SAY);
 static_assert(static_comlist[COM_EMOTE].id == COM_EMOTE);
+static_assert(static_comlist[COM_INTRODUCE].id == COM_INTRODUCE);
 static_assert(static_comlist[COM_EAT].id == COM_EAT);
 static_assert(static_comlist[COM_DRINK].id == COM_DRINK);
 static_assert(static_comlist[COM_FILL].id == COM_FILL);
@@ -1698,6 +1704,35 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         body,
         std::string(args).c_str(),
         dot.c_str());
+    body->SetSkill(crc32c("Hidden"), 0);
+    return 0;
+  }
+
+  if (cnum == COM_INTRODUCE) {
+    Object* targ = body;
+    if (!args.empty()) {
+      targ = body->PickObject(std::string(args), vmode | LOC_NEARBY | LOC_SELF | LOC_INTERNAL);
+      if (!targ) {
+        if (mind) {
+          mind->Send("You don't see them here.\n");
+        }
+        return 0;
+      }
+      if ((!targ->HasName()) || (!body->Knows(targ))) {
+        if (mind) {
+          mind->Send("You don't know what name to introduce them as.\n");
+        }
+        return 0;
+      }
+    }
+    body->Parent()->SendOutF(
+        ALL,
+        0,
+        ";s introduces ;s as \"%s\"\n",
+        "You introduce ;s as \"%s\".\n",
+        body,
+        targ,
+        targ->NameC());
     body->SetSkill(crc32c("Hidden"), 0);
     return 0;
   }

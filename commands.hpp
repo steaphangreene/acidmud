@@ -86,6 +86,7 @@ typedef enum {
   COM_CALL,
   COM_SAY,
   COM_EMOTE,
+  COM_INTRODUCE,
 
   COM_EAT,
   COM_DRINK,
