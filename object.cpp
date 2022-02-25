@@ -225,7 +225,7 @@ int matches(const std::string& name, const std::string& seek) {
   return ret;
 }
 
-int Object::Matches(std::string targ) {
+int Object::Matches(std::string targ, bool knows) {
   trim_string(targ);
 
   // Pointer Matches
@@ -294,7 +294,7 @@ int Object::Matches(std::string targ) {
   if ((ttok == crc32c("Money")) && Skill(crc32c("Money")))
     return 1;
 
-  return matches(Name(), targ) || matches(ShortDesc(), targ);
+  return (knows && matches(Name(), targ)) || matches(ShortDesc(), targ);
 }
 
 Object* new_body() {
@@ -2645,7 +2645,7 @@ MinVec<1, Object*> Object::PickObjects(std::string name, int loc, int* ordinal) 
     if ((ntok == crc32c("self")) || (ntok == crc32c("myself")) || (ntok == crc32c("me"))) {
       if ((*ordinal) != 1)
         return ret;
-      ret.push_back((Object*)this); // Wrecks Const-Ness
+      ret.push_back(const_cast<Object*>(this)); // Wrecks Const-Ness
       return ret;
     }
   }
@@ -2671,7 +2671,7 @@ MinVec<1, Object*> Object::PickObjects(std::string name, int loc, int* ordinal) 
       if (!ind->no_seek) {
         if (ind == this)
           continue; // Must use "self" to pick self!
-        if (ind->Filter(loc) && ind->Matches(name)) {
+        if (ind->Filter(loc) && ind->Matches(name, Knows(ind))) {
           if (tag(ind, ret, ordinal, (parent->Parent() == nullptr) | (loc & LOC_SPECIAL))) {
             return ret;
           }
@@ -2705,7 +2705,7 @@ MinVec<1, Object*> Object::PickObjects(std::string name, int loc, int* ordinal) 
       auto ind = std::find(cont.begin(), cont.end(), action.obj());
       if (ind != cont.end()) { // IE: Is action.obj() within cont
         cont.erase(ind);
-        if (action.obj()->Filter(loc) && action.obj()->Matches(name) &&
+        if (action.obj()->Filter(loc) && action.obj()->Matches(name, Knows(action.obj())) &&
             ((loc & LOC_NOTWORN) == 0 || action.act() <= act_t::HOLD) &&
             ((loc & LOC_NOTUNWORN) == 0 || action.act() >= act_t::HOLD)) {
           if (tag(action.obj(), ret, ordinal, (Parent() == nullptr) | (loc & LOC_SPECIAL))) {
@@ -2725,7 +2725,7 @@ MinVec<1, Object*> Object::PickObjects(std::string name, int loc, int* ordinal) 
     for (auto ind : cont) {
       if (ind == this)
         continue; // Must use "self" to pick self!
-      if (ind->Filter(loc) && ind->Matches(name)) {
+      if (ind->Filter(loc) && ind->Matches(name, Knows(ind))) {
         if (tag(ind, ret, ordinal, (Parent() == nullptr) | (loc & LOC_SPECIAL))) {
           return ret;
         }
@@ -3939,8 +3939,9 @@ bool Object::Accomplish(uint64_t acc, const std::string& why) {
 }
 
 bool Object::Knows(const Object* o) const {
-  if (o == this)
+  if (o == this) {
     return true;
+  }
   if (o->HasName()) {
     if (o->HasSkill(crc32c("Object ID"))) {
       return Knows(o->Skill(crc32c("Object ID")));
