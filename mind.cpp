@@ -613,7 +613,7 @@ void Mind::UpdatePrompt() {
         "[%s][%s] %s> %c",
         sevs_p[std::min(10, Body()->Phys())].c_str(),
         sevs_s[std::min(10, Body()->Stun())].c_str(),
-        Body()->ShortDescC(),
+        Body()->NameC(),
         0);
     SetPrompt(pers, buf);
   } else

@@ -1289,7 +1289,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       }
       if (!mind->Owner()) { // The Autoninja (Initial Startup)
         Object* god = new_body();
-        god->SetShortDesc(std::string(args));
+        god->SetDescs("a metaphysical being", std::string(args), "", "");
         mind->Attach(god);
         return 0;
       }
@@ -5376,7 +5376,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     }
 
     body = new_body();
-    body->SetShortDesc(chr->ShortDesc());
+    body->SetDescs("a human adventurer", chr->Name(), "", "");
     mind->Owner()->AddChar(body);
     delete chr;
 
@@ -5449,7 +5449,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
     if (args == std::string_view("fighter").substr(0, args.length())) {
       body = new_body();
-      body->SetShortDesc(chr->ShortDesc());
+      body->SetDescs("a human fighter", chr->Name(), "", "");
       mind->Owner()->AddChar(body);
       delete chr;
 
@@ -5739,7 +5739,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
     body = new_body();
-    body->SetShortDesc(std::string(args));
+    body->SetDescs("a human adventurer", std::string(args), "", "");
     mind->Owner()->AddChar(body);
     mind->SendF("You created %s.\n", std::string(args).c_str());
     return 0;
