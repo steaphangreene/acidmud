@@ -294,7 +294,7 @@ int Object::Matches(std::string targ) {
   if ((ttok == crc32c("Money")) && Skill(crc32c("Money")))
     return 1;
 
-  return matches(ShortDesc(), targ);
+  return matches(Name(), targ) || matches(ShortDesc(), targ);
 }
 
 Object* new_body() {
