@@ -773,14 +773,13 @@ Object::Object(Object* o) {
 }
 
 Object::Object(const Object& o) {
-  dlens[0] = o.dlens[0];
-  dlens[1] = o.dlens[1];
-  dlens[2] = o.dlens[2];
+  dlens = o.dlens;
   if (o.descriptions == default_descriptions) {
     descriptions = default_descriptions;
   } else {
-    char* new_descs = new char[dlens[0] + dlens[1] + dlens[2] + 3];
-    std::memcpy(new_descs, o.descriptions, dlens[0] + dlens[1] + dlens[2] + 3);
+    const size_t len = dlens.sd + dlens.n + dlens.d + dlens.ld + 4;
+    char* new_descs = new char[len];
+    std::memcpy(new_descs, o.descriptions, len);
     descriptions = new_descs;
   }
 
@@ -952,44 +951,56 @@ std::string Object::Noun(int definite, Object* rel, Object* sub) const {
   return local;
 }
 
+bool Object::HasName() const {
+  return (dlens.n != 0);
+}
+
 bool Object::HasDesc() const {
-  return (dlens[1] != 0);
+  return (dlens.d != 0);
 }
 
 bool Object::HasLongDesc() const {
-  return (dlens[2] != 0);
+  return (dlens.ld != 0);
 }
 
 std::string Object::ShortDesc() const {
-  return std::string(descriptions, dlens[0]);
+  return std::string(descriptions, dlens.sd);
+}
+
+std::string Object::Name() const {
+  return std::string(descriptions + dlens.sd + 1, dlens.n);
 }
 
 std::string Object::Desc() const {
-  if (dlens[1] == 0)
+  if (dlens.d == 0)
     return ShortDesc();
-  return std::string(descriptions + dlens[0] + 1, dlens[1]);
+  return std::string(descriptions + dlens.sd + dlens.n + 2, dlens.d);
 }
 
 std::string Object::LongDesc() const {
-  if (dlens[2] == 0)
+  if (dlens.ld == 0)
     return Desc();
-  return std::string(descriptions + dlens[0] + dlens[1] + 2, dlens[2]);
+  return std::string(descriptions + dlens.sd + dlens.n + dlens.d + 3, dlens.ld);
 }
 
 const char* Object::ShortDescC() const {
   return descriptions;
 }
 
+const char* Object::NameC() const {
+  return descriptions + dlens.sd + 1;
+}
+
 const char* Object::DescC() const {
-  if (dlens[1] == 0)
+  if (dlens.d == 0)
     return ShortDescC();
-  return descriptions + dlens[0] + 1;
+  return descriptions + dlens.sd + dlens.n + 2;
 }
 
 const char* Object::LongDescC() const {
-  if (dlens[2] == 0)
+  if (dlens.ld == 0)
     return DescC();
-  return descriptions + dlens[0] + dlens[1] + 2;
+  return descriptions + dlens.sd + dlens.n + dlens.d + 3;
 }
 
 static void trim(std::string& s) {
@@ -1010,45 +1021,57 @@ static void trim(std::string& s) {
   }
 }
 
-void Object::SetDescs(std::string sd, std::string d, std::string ld) {
+void Object::SetDescs(std::string sd, std::string n, std::string d, std::string ld) {
   trim(sd);
+  trim(n);
   trim(d);
   trim(ld);
   if (sd.length() > 80) { // No longer than one traditional line of text
     sd = sd.substr(0, 80);
     trim(sd);
   }
+  if (n.length() > 80) { // No longer than one traditional line of text
+    n = n.substr(0, 80);
+    trim(n);
+  }
   if (d.length() > 8000) { // No longer than 100 traditional lines of text
     d = d.substr(0, 8000);
     trim(d);
   }
-  if (ld.length() > 0xFFFFUL) { // Max size the tristrings can store
+  if (ld.length() > 0xFFFFUL) { // Max size this field can store
     ld = ld.substr(0, 0xFFFFUL);
     trim(ld);
   }
-  dlens[0] = sd.length();
-  dlens[1] = d.length();
-  dlens[2] = ld.length();
+  dlens.sd = sd.length();
+  dlens.n = n.length();
+  dlens.d = d.length();
+  dlens.ld = ld.length();
   if (descriptions != default_descriptions) {
     delete[] descriptions;
   }
-  char* new_descs = new char[dlens[0] + dlens[1] + dlens[2] + 3];
-  std::memcpy(new_descs, sd.c_str(), dlens[0] + 1);
-  std::memcpy(new_descs + dlens[0] + 1, d.c_str(), dlens[1] + 1);
-  std::memcpy(new_descs + dlens[0] + dlens[1] + 2, ld.c_str(), dlens[2] + 1);
+  const size_t len = dlens.sd + dlens.n + dlens.d + dlens.ld + 4;
+  char* new_descs = new char[len];
+  std::memcpy(new_descs, sd.c_str(), dlens.sd + 1);
+  std::memcpy(new_descs + dlens.sd + 1, n.c_str(), dlens.n + 1);
+  std::memcpy(new_descs + dlens.sd + dlens.n + 2, d.c_str(), dlens.d + 1);
+  std::memcpy(new_descs + dlens.sd + dlens.n + dlens.d + 3, ld.c_str(), dlens.ld + 1);
   descriptions = new_descs;
 }
 
 void Object::SetShortDesc(const std::string& d) {
-  SetDescs(d, Desc(), LongDesc());
+  SetDescs(d, Name(), Desc(), LongDesc());
+}
+
+void Object::SetName(const std::string& n) {
+  SetDescs(ShortDesc(), n, Desc(), LongDesc());
 }
 
 void Object::SetDesc(const std::string& d) {
-  SetDescs(ShortDesc(), d, LongDesc());
+  SetDescs(ShortDesc(), Name(), d, LongDesc());
 }
 
 void Object::SetLongDesc(const std::string& d) {
-  SetDescs(ShortDesc(), Desc(), d);
+  SetDescs(ShortDesc(), Name(), Desc(), d);
 }
 
 void Object::SetParent(Object* o) {
@@ -3737,13 +3760,16 @@ std::string Object::Tactics(int phase) {
 }
 
 bool Object::IsSameAs(const Object& in) const {
-  if (dlens[0] != in.dlens[0])
+  if (dlens.sd != in.dlens.sd)
     return false;
-  if (dlens[1] != in.dlens[1])
+  if (dlens.n != in.dlens.n)
     return false;
-  if (dlens[2] != in.dlens[2])
+  if (dlens.d != in.dlens.d)
     return false;
-  if (std::memcmp(descriptions, in.descriptions, dlens[0] + dlens[1] + dlens[2] + 3) != 0) {
+  if (dlens.ld != in.dlens.ld)
+    return false;
+  if (std::memcmp(descriptions, in.descriptions, dlens.sd + dlens.n + dlens.d + dlens.ld + 4) !=
+      0) {
     return false;
   }
   if (weight != in.weight)
@@ -3818,17 +3844,16 @@ bool Object::IsSameAs(const Object& in) const {
 }
 
 void Object::operator=(const Object& in) {
-  dlens[0] = in.dlens[0];
-  dlens[1] = in.dlens[1];
-  dlens[2] = in.dlens[2];
+  dlens = in.dlens;
   if (descriptions != default_descriptions) {
     delete[] descriptions;
   }
   if (in.descriptions == default_descriptions) {
     descriptions = default_descriptions;
   } else {
-    char* new_descs = new char[dlens[0] + dlens[1] + dlens[2] + 3];
-    std::memcpy(new_descs, in.descriptions, dlens[0] + dlens[1] + dlens[2] + 3);
+    const size_t len = dlens.sd + dlens.n + dlens.d + dlens.ld + 4;
+    char* new_descs = new char[len];
+    std::memcpy(new_descs, in.descriptions, len);
     descriptions = new_descs;
   }
 

@@ -287,7 +287,7 @@ int Object::LoadFrom(FILE* fl) {
   }
   std::string ld = buf;
 
-  SetDescs(sd, d, ld);
+  SetDescs(sd, "", d, ld);
 
   // fprintf(stderr, "%sLoading %d:%s\n", debug_indent.c_str(), num, buf);
 

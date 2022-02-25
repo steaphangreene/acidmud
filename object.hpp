@@ -184,15 +184,19 @@ class alignas(256) Object {
   std::string Poss() const;
   std::string Obje() const;
   std::string ShortDesc() const;
+  std::string Name() const;
   std::string Desc() const;
   std::string LongDesc() const;
   const char* ShortDescC() const;
+  const char* NameC() const;
   const char* DescC() const;
   const char* LongDescC() const;
+  bool HasName() const;
   bool HasDesc() const;
   bool HasLongDesc() const;
-  void SetDescs(std::string, std::string, std::string);
+  void SetDescs(std::string, std::string, std::string, std::string);
   void SetShortDesc(const std::string&);
+  void SetName(const std::string&);
   void SetDesc(const std::string&);
   void SetLongDesc(const std::string&);
   void SetParent(Object*);
@@ -551,9 +555,12 @@ class alignas(256) Object {
 
   int Filter(int loc);
 
-  constexpr static const char* const default_descriptions = "new object\0\0\0";
+  constexpr static const char* const default_descriptions = "a new object\0\0\0\0";
   const char* descriptions = default_descriptions;
-  uint16_t dlens[3] = {10, 0, 0};
+  struct {
+    uint8_t sd, n;
+    uint16_t d, ld;
+  } dlens = {10, 0, 0, 0};
 
   bool no_seek; // Recursion protection
   bool no_hear; // For Send() protection
