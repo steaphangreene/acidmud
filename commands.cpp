@@ -607,8 +607,18 @@ constexpr Command static_comlist[COM_MAX] = {
      "Ninja command.",
      "Ninja command - ninjas only!",
      (REQ_ALERT | REQ_NINJAMODE)},
+    {COM_BRIEF,
+     "brief",
+     "Ninja command.",
+     "Ninja command - ninjas only!",
+     (REQ_ALERT | REQ_NINJAMODE | CMD_FLAVORTEXT)},
     {COM_NAME,
      "name",
+     "Ninja command.",
+     "Ninja command - ninjas only!",
+     (REQ_ALERT | REQ_NINJAMODE | CMD_FLAVORTEXT)},
+    {COM_UNNAME,
+     "unname",
      "Ninja command.",
      "Ninja command - ninjas only!",
      (REQ_ALERT | REQ_NINJAMODE | CMD_FLAVORTEXT)},
@@ -784,7 +794,9 @@ static_assert(static_comlist[COM_INCREMENT].id == COM_INCREMENT);
 static_assert(static_comlist[COM_DECREMENT].id == COM_DECREMENT);
 static_assert(static_comlist[COM_DOUBLE].id == COM_DOUBLE);
 static_assert(static_comlist[COM_SETSTATS].id == COM_SETSTATS);
+static_assert(static_comlist[COM_BRIEF].id == COM_BRIEF);
 static_assert(static_comlist[COM_NAME].id == COM_NAME);
+static_assert(static_comlist[COM_UNNAME].id == COM_UNNAME);
 static_assert(static_comlist[COM_UNDESCRIBE].id == COM_UNDESCRIBE);
 static_assert(static_comlist[COM_DESCRIBE].id == COM_DESCRIBE);
 static_assert(static_comlist[COM_UNDEFINE].id == COM_UNDEFINE);
@@ -6173,7 +6185,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     return 0;
   }
 
-  if (cnum == COM_NAME) {
+  if (cnum == COM_BRIEF) {
     if (!mind)
       return 0;
     Object* targ = body->ActTarg(act_t::POINT);
@@ -6185,12 +6197,44 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       std::string oldn = targ->ShortDesc();
       targ->SetShortDesc(std::string(args));
       mind->SendF(
-          "You rename '%s' to '%s'\n",
+          "You re-brief '%s' to '%s'\n",
           oldn.c_str(),
           targ->ShortDescC()); // FIXME - Real Message
     } else {
+      mind->Send("Re-brief it to what?\n");
+    }
+    return 0;
+  }
+
+  if (cnum == COM_NAME) {
+    if (!mind)
+      return 0;
+    Object* targ = body->ActTarg(act_t::POINT);
+    if (!targ) {
+      mind->Send("You need to be pointing at your target.\n");
+      return 0;
+    }
+    if (!args.empty()) {
+      std::string oldn = targ->Name();
+      targ->SetName(std::string(args));
+      mind->SendF("You rename '%s' to '%s'\n", oldn.c_str(),
+                  targ->NameC()); // FIXME - Real Message
+    } else {
       mind->Send("Rename it to what?\n");
     }
+    return 0;
+  }
+
+  if (cnum == COM_UNNAME) {
+    if (!mind)
+      return 0;
+    Object* targ = body->ActTarg(act_t::POINT);
+    if (!targ) {
+      mind->Send("You need to be pointing at your target.\n");
+      return 0;
+    }
+    targ->SetName("");
+    mind->SendF("You remove the name from '%s'\n", targ->Noun(0, body).c_str());
     return 0;
   }
 
