@@ -976,14 +976,10 @@ std::string Object::Name() const {
 }
 
 std::string Object::Desc() const {
-  if (dlens.d == 0)
-    return ShortDesc();
   return std::string(descriptions + dlens.sd + dlens.n + 2, dlens.d);
 }
 
 std::string Object::LongDesc() const {
-  if (dlens.ld == 0)
-    return Desc();
   return std::string(descriptions + dlens.sd + dlens.n + dlens.d + 3, dlens.ld);
 }
 
@@ -996,14 +992,10 @@ const char* Object::NameC() const {
 }
 
 const char* Object::DescC() const {
-  if (dlens.d == 0)
-    return ShortDescC();
   return descriptions + dlens.sd + dlens.n + 2;
 }
 
 const char* Object::LongDescC() const {
-  if (dlens.ld == 0)
-    return DescC();
   return descriptions + dlens.sd + dlens.n + dlens.d + 3;
 }
 
