@@ -2327,11 +2327,17 @@ void Object::TBALoadOBJ(const std::string& fn) {
 
 void Object::TBALoadWLD(const std::string& fn) {
   FILE* mud = fopen(fn.c_str(), "r");
-  int zone = 0, offset = fn.length() - 5; // Chop off the .wld
+  int znum = 0, offset = fn.length() - 5; // Chop off the .wld
   while (isdigit(fn[offset]))
     --offset;
-  zone = atoi(fn.c_str() + offset + 1);
+  znum = atoi(fn.c_str() + offset + 1);
   if (mud) {
+    Object* zone = new Object(this);
+    zone->SetShortDesc(std::string("TBA Zone #") + fn.substr(offset + 1));
+    zone->SetSkill(crc32c("Light Source"), 1000);
+    zone->SetSkill(crc32c("Day Length"), 240);
+    zone->SetSkill(crc32c("Day Time"), 120);
+
     // fprintf(stderr, "Loading TBA Realm from \"%s\"\n", fn.c_str());
     while (1) {
       int onum;
@@ -2339,7 +2345,7 @@ void Object::TBALoadWLD(const std::string& fn) {
         break;
       // fprintf(stderr, "Loading room #%d\n", onum);
 
-      Object* obj = new Object(this);
+      Object* obj = new Object(zone);
       olist.push_back(obj);
       obj->SetSkill(crc32c("TBARoom"), 1000000 + onum);
       bynumwld[onum] = obj;
@@ -2393,7 +2399,7 @@ void Object::TBALoadWLD(const std::string& fn) {
       if (strcasestr(buf, "c") || (atoi(buf) & 4)) { // NOMOB
         obj->SetSkill(crc32c("TBAZone"), 999999);
       } else {
-        obj->SetSkill(crc32c("TBAZone"), 1000000 + zone);
+        obj->SetSkill(crc32c("TBAZone"), 1000000 + znum);
       }
       if (strcasestr(buf, "e") || (atoi(buf) & 16)) { // PEACEFUL
         obj->SetSkill(crc32c("Peaceful"), 1000);
