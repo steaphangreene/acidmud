@@ -1801,7 +1801,7 @@ int Mind::TBARunLine(std::string line) {
           line.c_str());
       return -1;
     }
-    room = room->World();
+    room = room->Zone();
     auto options = room->Contents();
 
     room = nullptr;
@@ -2292,7 +2292,7 @@ int Mind::TBARunLine(std::string line) {
     else if (!strncmp("down", dir.c_str(), dir.length()))
       dir = "down";
 
-    auto options = room->World()->Contents();
+    auto options = room->Zone()->Contents();
     room = nullptr;
     rnum += 1000000;
     for (auto opt : options) {
@@ -2559,7 +2559,7 @@ int Mind::TBARunLine(std::string line) {
     }
     Object* src = room->World();
     if (tbatype == 'o') {
-      src = src->World()->PickObject("tbamud object room", LOC_NINJA | LOC_INTERNAL);
+      src = src->PickObject("tbamud object room", LOC_NINJA | LOC_INTERNAL);
       if (src == nullptr) {
         fprintf(
             stderr,
@@ -2577,7 +2577,7 @@ int Mind::TBARunLine(std::string line) {
       }
     } else if (tbatype == 'm') {
       dest = room;
-      src = src->World()->PickObject("tbamud mob room", LOC_NINJA | LOC_INTERNAL);
+      src = src->PickObject("tbamud mob room", LOC_NINJA | LOC_INTERNAL);
       if (src == nullptr) {
         fprintf(
             stderr,
