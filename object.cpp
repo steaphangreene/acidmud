@@ -1370,10 +1370,13 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
           m->SendF("(x%d) ", qty);
         ++tlines;
 
-        if (ind->parent && ind->parent->Skill(crc32c("Container")))
+        if (ind->parent && ind->parent->Skill(crc32c("Container"))) {
           sprintf(buf, "%s%c", ind->Noun().c_str(), 0);
-        else
+        } else if (vmode & LOC_NINJA) {
+          sprintf(buf, "%s %s%c", ind->Noun(false).c_str(), ind->PosString().c_str(), 0);
+        } else {
           sprintf(buf, "%s %s%c", ind->Noun(false, o).c_str(), ind->PosString().c_str(), 0);
+        }
         buf[0] = ascii_toupper(buf[0]);
         m->Send(buf);
 
