@@ -5847,6 +5847,15 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     }
 
     if (!mind->Owner()->World()) {
+      if (Object::Universe()->IsAct(act_t::SPECIAL_HOME)) {
+        mind->Owner()->SetWorld(Object::Universe()->ActTarg(act_t::SPECIAL_HOME));
+        mind->Send(
+            "Automatically selecting the default world first.\n"
+            "Try the 'world' command to select a different one.\n");
+      }
+    }
+
+    if (!mind->Owner()->World()) {
       mind->Send(
           "Sorry, you need to select a world first.\n"
           "Try the 'world' command.\n");
