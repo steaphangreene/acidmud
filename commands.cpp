@@ -5423,7 +5423,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
 
-    if (chr->Exp() > 0) {
+    if (body->HasSkill(crc32c("Object ID"))) {
       mind->Send("This is not a new character, you can't modify the chargen steps anymore.\n");
       return 0;
     }
@@ -5449,7 +5449,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
 
-    if (chr->Exp() > 0) {
+    if (body->HasSkill(crc32c("Object ID"))) {
       mind->Send("This is not a new character, you can't modify the chargen steps anymore.\n");
       return 0;
     }
@@ -5495,7 +5495,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
 
-    if (chr->Exp() > 0) {
+    if (chr->HasSkill(crc32c("Object ID"))) {
       mind->Send("This is not a new character, you can't modify the chargen steps anymore.\n");
       return 0;
     }
@@ -5599,7 +5599,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
 
-    if (chr->Exp() > 0) {
+    if (chr->HasSkill(crc32c("Object ID"))) {
       mind->Send("This is not a new character, you can't modify the chargen steps anymore.\n");
       return 0;
     }
@@ -5659,7 +5659,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       if (!chr) {
         mind->Send("You need to be working on a character first (use 'select <character>').\n");
         return 0;
-      } else if (chr->Exp() > 0) {
+      } else if (chr->HasSkill(crc32c("Object ID"))) {
         mind->Send("This is not a new character, you can't modify the chargen steps anymore.\n");
         return 0;
       }
