@@ -30,6 +30,41 @@
 #include "object.hpp"
 #include "utils.hpp"
 
+// From: https://gist.github.com/Brennall/b9c3a0202eb11c5cfd54868c5752012a
+static const std::vector<std::string> dwarf_first_names[2] = {
+    {
+        "Anbera",   "Artin",    "Audhild", "Balifra",  "Barbena", "Bardryn",  "Bolhild",
+        "Dagnal",   "Dafifi",   "Delre",   "Diesa",    "Hdeth",   "Eridred",  "Falkrunn",
+        "Fallthra", "Finelien", "Gillydd", "Gunnloda", "Gurdis",  "Helgret",  "Helja",
+        "Hlin",     "llde",     "Jarana",  "Kathra",   "Kilia",   "Kristryd", "Liftrasa",
+        "Marastyr", "Mardred",  "Morana",  "Nalaed",   "Nora",    "Nurkara",  "Orifi",
+        "Ovina",    "Riswynn",  "Sannl",   "Therlin",  "Thodris", "Torbera",  "Tordrid",
+        "Torgga",   "Urshar",   "Valida",  "Vistra",   "Vonana",  "Werydd",   "Whurd red",
+        "Yurgunn",
+    },
+    {
+        "Adrik",   "Alberich", "Baern",    "Barendd", "Beloril", "Brottor", "Dain",     "Dalgal",
+        "Darrak",  "Delg",     "Duergath", "Dworic",  "Eberk",   "Einkil",  "Elaim",    "Erias",
+        "Fallond", "Fargrim",  "Gardain",  "Gilthur", "Gimgen",  "Gimurt",  "Harbek",   "Kildrak",
+        "Kilvar",  "Morgran",  "Morkral",  "Nalral",  "Nordak",  "Nuraval", "Oloric",   "Olunt",
+        "Osrik",   "Oskar",    "Rangrim",  "Reirak",  "Rurik",   "Taklinn", "Thoradin", "Thorin",
+        "Thradal", "Tordek",   "Traubon",  "Travok",  "Ulfgar",  "Uraim",   "Veit",     "Vonbin",
+        "Vondal",  "Whurbin",
+    }};
+
+// From: https://gist.github.com/Brennall/b9c3a0202eb11c5cfd54868c5752012a
+static const std::vector<std::string> dwarf_last_names = {
+    "Aranore",     "Balderk",     "Battlehammer", "Bigtoe",      "Bloodkith",    "Bofdarm",
+    "Brawnanvil",  "Brazzik",     "Broodfist",    "Burrowfound", "Caebrek",      "Daerdahk",
+    "Dankil",      "Daraln",      "Deepdelver",   "Durthane",    "Eversharp",    "FaHack",
+    "Fire-forge",  "Foamtankard", "Frostbeard",   "Glanhig",     "Goblinbane",   "Goldfinder",
+    "Gorunn",      "Graybeard",   "Hammerstone",  "Helcral",     "Holderhek",    "Ironfist",
+    "Loderr",      "Lutgehr",     "Morigak",      "Orcfoe",      "Rakankrak",    "Ruby-Eye",
+    "Rumnaheim",   "Silveraxe",   "Silverstone",  "Steelfist",   "Stoutale",     "Strakeln",
+    "Strongheart", "Thrahak",     "Torevir",      "Torunn",      "Trollbleeder", "Trueanvil",
+    "Trueblood",   "Ungart",
+};
+
 static std::random_device rd;
 static std::mt19937 gen(rd());
 
@@ -297,6 +332,16 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
             int num = mobnums[room][n](gen);
             for (int m = 0; m < num; ++m) {
               objs[coord{x, y}].back()->AddMOB(gen, &mob_dwarf);
+              Object *dwarf = objs[coord{x, y}].back()->Contents().back();
+              int gender = (dwarf->Gender() == 'F') ? 0 : 1;
+
+              std::vector<std::string> first = {""};
+              std::sample(dwarf_first_names[gender].begin(), dwarf_first_names[gender].end(), first.begin(), 1, gen);
+
+              std::vector<std::string> last = {""};
+              std::sample(dwarf_last_names.begin(), dwarf_last_names.end(), last.begin(), 1, gen);
+
+              dwarf->SetName(first.front() + " " + last.front());
             }
           }
         }
