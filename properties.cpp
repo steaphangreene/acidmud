@@ -27,7 +27,7 @@
 #include "color.hpp"
 #include "utils.hpp"
 
-constexpr std::array<const char*, 541> skill_names = {{
+constexpr std::array<const char*, 543> skill_names = {{
     "Accomplishment",
     "Accuracy Bonus",
     "Accuracy Penalty",
@@ -232,6 +232,7 @@ constexpr std::array<const char*, 541> skill_names = {{
     "Laser Pistols",
     "Laser Rifles",
     "Lasso",
+    "Last Object ID",
     "Launch Weapons",
     "Leadership",
     "Leatherworking",
@@ -324,6 +325,7 @@ constexpr std::array<const char*, 541> skill_names = {{
     "Neural Interface",
     "Noise Source",
     "None",
+    "Object ID",
     "Obvious",
     "Offhand Air Pistols",
     "Offhand Blades",
