@@ -326,25 +326,6 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
         } else {
           objs[coord{x, y}].back()->SetShortDesc(roomname);
         }
-        if (mobnames.count(room) > 0) {
-          for (size_t n = 0; n < mobnames[room].size(); ++n) {
-            mob_dwarf.SetName(mobnames[room][n]);
-            int num = mobnums[room][n](gen);
-            for (int m = 0; m < num; ++m) {
-              objs[coord{x, y}].back()->AddMOB(gen, &mob_dwarf);
-              Object *dwarf = objs[coord{x, y}].back()->Contents().back();
-              int gender = (dwarf->Gender() == 'F') ? 0 : 1;
-
-              std::vector<std::string> first = {""};
-              std::sample(dwarf_first_names[gender].begin(), dwarf_first_names[gender].end(), first.begin(), 1, gen);
-
-              std::vector<std::string> last = {""};
-              std::sample(dwarf_last_names.begin(), dwarf_last_names.end(), last.begin(), 1, gen);
-
-              dwarf->SetName(first.front() + " " + last.front());
-            }
-          }
-        }
       } else if (ascii_isdigit(room)) { // Default Room
         int num_floors = room - '0';
         if (num_floors < 1) {
@@ -573,6 +554,37 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
       if (locked.count(door_char) > 0) {
         door1->SetSkill(crc32c("Locked"), 1);
         door2->SetSkill(crc32c("Locked"), 1);
+      }
+    }
+  }
+
+  // Now, populate this new zone.
+  for (auto obj : objs) {
+    auto x = obj.first.x;
+    auto y = obj.first.y;
+    auto room = ascii_map[y][x];
+    if (mobnames.count(room) > 0) {
+      for (size_t n = 0; n < mobnames[room].size(); ++n) {
+        mob_dwarf.SetName(mobnames[room][n]);
+        int num = mobnums[room][n](gen);
+        for (int m = 0; m < num; ++m) {
+          objs[coord{x, y}].back()->AddMOB(gen, &mob_dwarf);
+          Object* dwarf = objs[coord{x, y}].back()->Contents().back();
+          int gender = (dwarf->Gender() == 'F') ? 0 : 1;
+
+          std::vector<std::string> first = {""};
+          std::sample(
+              dwarf_first_names[gender].begin(),
+              dwarf_first_names[gender].end(),
+              first.begin(),
+              1,
+              gen);
+
+          std::vector<std::string> last = {""};
+          std::sample(dwarf_last_names.begin(), dwarf_last_names.end(), last.begin(), 1, gen);
+
+          dwarf->SetName(first.front() + " " + last.front());
+        }
       }
     }
   }
