@@ -1231,7 +1231,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_SELECT) {
-    Object* sel = mind->Owner()->Room()->PickObject(std::string(args), vmode | LOC_INTERNAL);
+    Object* sel =
+        mind->Owner()->Room()->PickObject(std::string(args), vmode | LOC_INTERNAL | LOC_NINJA);
     if (!sel) {
       mind->Send(
           "Sorry, that character doesn't exist.\n"
