@@ -314,6 +314,9 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
         if (objs[coord{x, y}].size() > 1) {
           for (uint32_t f = 0; f < objs[coord{x, y}].size(); ++f) {
             objs[coord{x, y}][f]->SetShortDesc(floornames[f] + roomname);
+            objs[coord{x, y}][f]->SetDesc(
+                std::string("This is a building in ") + zone->ShortDesc() + ", on " +
+                world->ShortDesc() + ".  " + zone->ShortDesc() + " is nice.");
             if (f > 0) {
               objs[coord{x, y}][f]->Link(
                   objs[coord{x, y}][f - 1],
@@ -325,6 +328,9 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
           }
         } else {
           objs[coord{x, y}].back()->SetShortDesc(roomname);
+          objs[coord{x, y}].back()->SetDesc(
+              std::string("This is ") + zone->ShortDesc() + ", on " + world->ShortDesc() + ".  " +
+              zone->ShortDesc() + " is nice.");
         }
       } else if (ascii_isdigit(room)) { // Default Room
         int num_floors = room - '0';
@@ -396,6 +402,9 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
           }
           if (!en_rooms.empty()) {
             objs[coord{x, y}].back()->SetShortDesc(en_rooms.front());
+            objs[coord{x, y}].back()->SetDesc(
+                std::string("This is ") + zone->ShortDesc() + ", on " + world->ShortDesc() + ".  " +
+                zone->ShortDesc() + " is nice.");
           }
         }
         if (!en_links.empty()) {
