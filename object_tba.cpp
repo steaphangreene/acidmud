@@ -2333,7 +2333,7 @@ void Object::TBALoadWLD(const std::string& fn) {
   znum = atoi(fn.c_str() + offset + 1);
   if (mud) {
     Object* zone = new Object(this);
-    zone->SetShortDesc(std::string("TBA Zone #") + fn.substr(offset + 1));
+    zone->SetShortDesc(std::string("TBA Zone-") + fn.substr(0, fn.length() - 4).substr(offset + 1));
     zone->SetSkill(crc32c("Light Source"), 1000);
     zone->SetSkill(crc32c("Day Length"), 240);
     zone->SetSkill(crc32c("Day Time"), 120);
