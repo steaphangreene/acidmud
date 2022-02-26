@@ -1353,7 +1353,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
         int qty = 1; // Even animate objects can have higher quantities.
         auto oth = std::find(cont.begin(), cont.end(), ind);
         for (qty = 0; oth != cont.end(); ++oth) {
-          if (ind->LooksLike(*oth, vmode)) {
+          if (ind->LooksLike(*oth, vmode, o)) {
             master.erase(*oth);
             qty += std::max(1, (*oth)->Skill(crc32c("Quantity")));
           }
@@ -4075,8 +4075,8 @@ int Object::Filter(int loc) {
   return 1;
 }
 
-int Object::LooksLike(Object* other, int vmode) {
-  if (Noun() != other->Noun())
+int Object::LooksLike(Object* other, int vmode, Object* viewer) {
+  if (Noun(false, viewer) != other->Noun(false, viewer))
     return 0;
   if (Pos() != other->Pos())
     return 0;

@@ -541,7 +541,7 @@ class alignas(256) Object {
   bool IsSameAs(const Object& in) const;
 
   int Matches(std::string seek, bool knows = false);
-  int LooksLike(Object* other, int vmode = 0);
+  int LooksLike(Object* other, int vmode = 0, Object* viewer = nullptr);
 
   void AddMOB(std::mt19937&, const MOBType*);
 
