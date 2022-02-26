@@ -159,6 +159,12 @@ void MOBType::SetName(const std::string& nm) {
 void Object::AddMOB(std::mt19937& gen, const MOBType* type) {
   Object* mob = new Object(this);
 
+  if (mob->World()) {
+    auto obj_id = mob->World()->Skill(crc32c("Last Object ID")) + 1;
+    mob->World()->SetSkill(crc32c("Last Object ID"), obj_id);
+    mob->SetSkill(crc32c("Object ID"), obj_id);
+  }
+
   mob->Attach(get_mob_mind());
   mob->Activate();
   mob->SetPos(pos_t::STAND);
