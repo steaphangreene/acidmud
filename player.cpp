@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <cstring>
 
+#include "color.hpp"
 #include "net.hpp"
 #include "player.hpp"
 #include "version.hpp"
@@ -74,14 +75,23 @@ void Player::SetName(std::string nm) {
   std::string desc = nm + "'s character room";
   room->SetShortDesc(desc.c_str());
   desc = "Available commands:\n";
-  desc += "     enter <character_name>: Enter a finished character.\n";
-  desc += "     select <character_name>: Select an unfinished character.\n";
-  desc += "     newcharacter <character_name>: Create a new character.\n";
-  desc += "     raise <stat>: Raise a stat of the currently selected character.\n";
+  desc += "     " CMAG "look" CNRM ": Show all your existing characters.\n";
+  desc += "     " CMAG "world" CNRM ": Show list of currently available worlds.\n";
+  desc += "     " CMAG "world" CNRM " " CGRN "<world>" CNRM
+          ": Select a world to make a new character in.\n";
   desc +=
-      "     randomize: Randomly spend all remaining points of current "
-      "character.\n";
-  desc += "     help <topic>: Get more info (try 'help commands').\n";
+      "     " CMAG "enter" CNRM " " CGRN "<character_name>" CNRM ": Enter a finished character.\n";
+  desc += "     " CMAG "select" CNRM " " CGRN "<character_name>" CNRM
+          ": Select an unfinished character.\n";
+  desc += "     " CMAG "newcharacter" CNRM " " CGRN "<character_name>" CNRM
+          ": Create a new character.\n";
+  desc += "     " CMAG "raise" CNRM " " CGRN "<stat>" CNRM
+          ": Raise a stat of the currently selected character.\n";
+  desc += "     " CMAG "randomize" CNRM
+          ": Randomly spend all remaining points of current "
+          "character.\n";
+  desc +=
+      "     " CMAG "help" CNRM " " CGRN "<topic>" CNRM ": Get more info (try 'help commands').\n";
   desc += "   Here are all of your current characters:";
   room->SetDesc(desc.c_str());
 }
