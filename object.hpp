@@ -176,6 +176,7 @@ class alignas(256) Object {
   static Object* Universe();
   static Object* TrashBin();
   Object* World();
+  Object* Zone();
 
   Object* Next(std::string&);
   Object* Split(int nqty);

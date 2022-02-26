@@ -118,6 +118,17 @@ Object* Object::World() {
   return world;
 }
 
+Object* Object::Zone() {
+  Object* zone = this;
+  if (zone->Parent()) {
+    if (zone->Parent()->Parent()) {
+      while (zone->Parent()->Parent()->Parent())
+        zone = zone->Parent();
+    }
+  }
+  return zone;
+}
+
 int matches(const std::string& name, const std::string& seek) {
   if (seek.empty())
     return 0;
