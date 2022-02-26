@@ -2538,7 +2538,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       if (chr) {
         mind->SendF(
             "%s is in the world called: " CBLU "%s" CNRM "\n",
-            chr->ShortDescC(),
+            chr->NameC(),
             chr->World()->ShortDescC());
       } else {
         mind->Send("You are not currently in any world.\n");
@@ -2548,7 +2548,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       for (const auto& world : Object::Universe()->Contents()) {
         if (world->IsAct(act_t::SPECIAL_HOME)) {
           mind->SendF("  * " CBLU "%s" CNRM "\n", world->ShortDescC());
-        } else {
+        } else if (nmode) {
           mind->SendF("  * %s (inactive)\n", world->ShortDescC());
         }
       }
@@ -5780,7 +5780,14 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     if (!std::all_of(args.begin(), args.end(), ascii_isalpha)) {
       mind->Send(
           "Sorry, character names can only contain letters.\n"
-          "Pick another name.\n");
+          "Please pick another name.\n");
+      return 0;
+    }
+
+    if (args.length() > 32) { // Max reasonable lenght?  Arbitrary.
+      mind->Send(
+          "Sorry, character names can only be up to 32 letters long.\n"
+          "Please pick another name.\n");
       return 0;
     }
 
@@ -5788,7 +5795,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     if (body) {
       mind->Send(
           "Sorry, you already have a character with that name.\n"
-          "Pick another name.\n");
+          "Please pick another name.\n");
       return 0;
     }
     body = new_body();
