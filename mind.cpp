@@ -2472,22 +2472,31 @@ int Mind::TBARunLine(std::string line) {
       nocheck = 1;
     }
     Object* dest = ovars["self"]->World();
-    auto options = dest->Contents();
+    auto zones = dest->Contents();
     dest = nullptr;
     dnum += 1000000;
-    for (auto opt : options) {
-      int tnum = opt->Skill(crc32c("TBARoom"));
-      if (tnum > 0 && tnum == dnum) {
-        dest = opt;
-        break;
+    bool done = false;
+    for (auto zon : zones) {
+      auto options = zon->Contents();
+      for (auto opt : options) {
+        int tnum = opt->Skill(crc32c("TBARoom"));
+        if (tnum > 0 && tnum == dnum) {
+          dest = opt;
+          auto targs = room->Contents();
+          for (auto targ : targs) {
+            if (targ->Matches(buf2)) {
+              targ->Parent()->RemoveLink(targ);
+              targ->SetParent(dest);
+              nocheck = 1;
+              break;
+            }
+          }
+          done = true;
+          break;
+        }
       }
-    }
-    options = room->Contents();
-    for (auto opt : options) {
-      if (opt->Matches(buf2)) {
-        opt->Parent()->RemoveLink(opt);
-        opt->SetParent(dest);
-        nocheck = 1;
+      if (done) {
+        break;
       }
     }
     if (!nocheck) { // Check for a MOB by that UNIQUE name ANYWHERE.
