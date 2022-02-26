@@ -297,7 +297,7 @@ int Object::Matches(std::string targ, bool knows) {
   return (knows && matches(Name(), targ)) || matches(ShortDesc(), targ);
 }
 
-Object* new_body() {
+Object* new_body(Object* world) {
   Object* body = new Object();
   body->SetAttribute(0, 3);
   body->SetAttribute(1, 3);
@@ -308,9 +308,9 @@ Object* new_body() {
 
   body->SetShortDesc("an amorphous blob");
 
-  Object* start = universe->ActTarg(act_t::SPECIAL_HOME);
+  Object* start = world->ActTarg(act_t::SPECIAL_HOME);
   if (!start)
-    start = universe;
+    start = world;
   body->SetParent(start);
 
   body->SetWeight(body->NormAttribute(0) * 20000);

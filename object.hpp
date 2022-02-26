@@ -604,7 +604,7 @@ int roll(int ndice, int targ, std::string* res = nullptr);
 
 void init_world();
 void save_world(int with_net = 0);
-Object* new_body();
+Object* new_body(Object* world);
 Object* getbynum(int);
 int getnum(Object*);
 int matches(const std::string& name, const std::string& seek);
