@@ -33,10 +33,12 @@
 static std::random_device rd;
 static std::mt19937 gen(rd());
 
-uint64_t obj_num = 2000000; // Dodges All Legacy IDs
 static Object* new_object(Object* parent) {
-  ++obj_num;
-  return new Object(parent);
+  Object* body = new Object(parent);
+  auto obj_id = body->World()->Skill(crc32c("Last Object ID")) + 1;
+  body->World()->SetSkill(crc32c("Last Object ID"), obj_id);
+  body->SetSkill(crc32c("Object ID"), obj_id);
+  return body;
 }
 std::multimap<std::string, std::pair<std::string, Object*>> zone_links;
 
@@ -520,8 +522,8 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
         door2->SetSkill(crc32c("Transparent"), 1000);
       }
       if (locks.count(door_char) > 0) {
-        door1->SetSkill(crc32c("Lock"), obj_num);
-        door2->SetSkill(crc32c("Lock"), obj_num);
+        door1->SetSkill(crc32c("Lock"), door1->Skill(crc32c("Object ID")));
+        door2->SetSkill(crc32c("Lock"), door1->Skill(crc32c("Object ID")));
       }
       if (locked.count(door_char) > 0) {
         door1->SetSkill(crc32c("Locked"), 1);
@@ -557,7 +559,7 @@ int handle_command_wcreate(
 
   // Create New World
   std::string world_name(args);
-  Object* world = new_object(body->Parent());
+  Object* world = new Object(body->Parent());
   world->SetShortDesc(world_name);
   world->SetSkill(crc32c("Light Source"), 1000);
   world->SetSkill(crc32c("Day Length"), 240);
