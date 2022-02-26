@@ -1337,6 +1337,14 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
       mind->Attach(body);
 
+      if (!body->HasSkill(crc32c("Object ID"))) {
+        if (body->World()) {
+          auto obj_id = body->World()->Skill(crc32c("Last Object ID")) + 1;
+          body->World()->SetSkill(crc32c("Last Object ID"), obj_id);
+          body->SetSkill(crc32c("Object ID"), obj_id);
+        }
+      }
+
       if (nmode) {
         // This is ninja-healing and bypasses all healing mechanisms.
         body->SetSkill(crc32c("Poisoned"), 0);
