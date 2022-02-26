@@ -46,8 +46,18 @@ class Player {
   Object* Creator() {
     return creator;
   };
+  Object* World() {
+    return world;
+  };
   void SetCreator(Object* o) {
     creator = o;
+    if (creator) {
+      world = creator->World();
+    }
+  };
+  void SetWorld(Object* o) {
+    world = o;
+    creator = nullptr;
   };
   int Is(unsigned long f) {
     return (flags & f);
@@ -74,7 +84,7 @@ class Player {
  private:
   std::map<std::string, Object*> body;
   std::string name, pass;
-  Object *room, *creator;
+  Object *room, *creator, *world;
   unsigned long flags;
   std::map<std::string, std::string> vars;
 

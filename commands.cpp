@@ -1305,7 +1305,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
         return 0;
       }
       if (!mind->Owner()) { // The Autoninja (Initial Startup)
-        Object* god = new_body();
+        Object* god = new_body(Object::Universe());
         god->SetDescs("a metaphysical being", std::string(args), "", "");
         mind->Attach(god);
         return 0;
@@ -2533,6 +2533,32 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     if (body) {
       mind->SendF("This world is called: %s\n", body->World()->ShortDescC());
+
+    } else if (args.length() > 0) {
+      bool selected = false;
+      for (const auto& world : Object::Universe()->Contents()) {
+        if (world->IsAct(act_t::SPECIAL_HOME)) {
+          if (world->Matches(std::string(args))) {
+            mind->Owner()->SetWorld(world);
+            mind->SendF(
+                "Selected " CBLU "%s" CNRM " as your current world.\n", world->ShortDescC());
+            selected = true;
+            break;
+          }
+        }
+      }
+      if (!selected) {
+        mind->Send("\nCan't find any active world by that name.\n");
+        mind->Send("\nThe worlds that exist in this instance of AcidMUD are:\n");
+        for (const auto& world : Object::Universe()->Contents()) {
+          if (world->IsAct(act_t::SPECIAL_HOME)) {
+            mind->SendF("  * " CBLU "%s" CNRM "\n", world->ShortDescC());
+          } else if (nmode) {
+            mind->SendF("  * %s (inactive)\n", world->ShortDescC());
+          }
+        }
+      }
+
     } else {
       Object* chr = mind->Owner()->Creator();
       if (chr) {
@@ -2540,6 +2566,10 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
             "%s is in the world called: " CBLU "%s" CNRM "\n",
             chr->NameC(),
             chr->World()->ShortDescC());
+      } else if (mind->Owner()->World()) {
+        mind->SendF(
+            "You have selected the world called: " CBLU "%s" CNRM "\n",
+            mind->Owner()->World()->ShortDescC());
       } else {
         mind->Send("You are not currently in any world.\n");
       }
@@ -5428,7 +5458,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       return 0;
     }
 
-    body = new_body();
+    body = new_body(chr->World());
     body->SetDescs("a human adventurer", chr->Name(), "", "");
     mind->Owner()->AddChar(body);
     delete chr;
@@ -5501,7 +5531,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
     }
 
     if (args == std::string_view("fighter").substr(0, args.length())) {
-      body = new_body();
+      body = new_body(chr->World());
       body->SetDescs("a human fighter", chr->Name(), "", "");
       mind->Owner()->AddChar(body);
       delete chr;
@@ -5798,7 +5828,15 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           "Please pick another name.\n");
       return 0;
     }
-    body = new_body();
+
+    if (!mind->Owner()->World()) {
+      mind->Send(
+          "Sorry, you need to select a world first.\n"
+          "Try the 'world' command.\n");
+      return 0;
+    }
+
+    body = new_body(mind->Owner()->World());
     body->SetDescs("a human adventurer", std::string(args), "", "");
     mind->Owner()->AddChar(body);
     mind->SendF("You created %s.\n", std::string(args).c_str());

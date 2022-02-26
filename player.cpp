@@ -40,6 +40,7 @@ Player::Player(std::string nm, std::string ps) {
 
   room = new Object();
   creator = nullptr;
+  world = nullptr;
 
   SetName(nm);
   if (ps[0] == '$' && ps[1] == '1' && ps[2] == '$') {
@@ -61,6 +62,7 @@ Player::~Player() {
   player_list.erase(name);
   non_init.erase(this);
   creator = nullptr;
+  world = nullptr;
   if (room)
     delete room;
 }
@@ -89,6 +91,7 @@ void Player::Link(Object* obj) {}
 void Player::AddChar(Object* ch) {
   room->AddLink(ch);
   creator = ch;
+  world = ch->World();
 }
 
 int player_exists(std::string name) {
