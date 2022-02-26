@@ -1339,6 +1339,7 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
 
       if (!body->HasSkill(crc32c("Object ID"))) {
         if (body->World()) {
+          body->SetSkill(crc32c("Invisible"), 0);
           auto obj_id = body->World()->Skill(crc32c("Last Object ID")) + 1;
           body->World()->SetSkill(crc32c("Last Object ID"), obj_id);
           body->SetSkill(crc32c("Object ID"), obj_id);

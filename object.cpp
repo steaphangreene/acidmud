@@ -323,6 +323,7 @@ Object* new_body(Object* world) {
   body->SetSkill(crc32c("Attribute Points"), 12);
   body->SetSkill(crc32c("Skill Points"), 64);
   body->SetSkill(crc32c("Status Points"), 6);
+  body->SetSkill(crc32c("Invisible"), 1000);
 
   body->SetPos(pos_t::STAND);
 
@@ -1299,7 +1300,8 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::string b) {
           continue;
       }
 
-      if (ind->HasSkill(crc32c("Invisible")) && (vmode & (LOC_HEAT | LOC_NINJA)) == 0) {
+      if (ind->HasSkill(crc32c("Invisible")) && (vmode & (LOC_HEAT | LOC_NINJA)) == 0 &&
+          Parent() != nullptr) {
         if (base != "")
           m->SendF("%s%sInside: ", base.c_str(), CNRM);
         m->Send(CGRN "Something invisible is here.\n" CNRM);
