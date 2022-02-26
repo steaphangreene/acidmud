@@ -450,6 +450,11 @@ constexpr Command static_comlist[COM_MAX] = {
      "Get the name of the current world.",
      "Get the name of the current world.",
      (REQ_ETHEREAL | REQ_CORPOREAL)},
+    {COM_ZONE,
+     "zone",
+     "Get the name of the current zone.",
+     "Get the name of the current zone.",
+     (REQ_CORPOREAL)},
     {COM_VERSION,
      "version",
      "Query the version information of running AcidMUD.",
@@ -769,6 +774,7 @@ static_assert(static_comlist[COM_ARCHETYPE].id == COM_ARCHETYPE);
 static_assert(static_comlist[COM_SCORE].id == COM_SCORE);
 static_assert(static_comlist[COM_TIME].id == COM_TIME);
 static_assert(static_comlist[COM_WORLD].id == COM_WORLD);
+static_assert(static_comlist[COM_ZONE].id == COM_ZONE);
 static_assert(static_comlist[COM_VERSION].id == COM_VERSION);
 static_assert(static_comlist[COM_SKILLLIST].id == COM_SKILLLIST);
 static_assert(static_comlist[COM_RECALL].id == COM_RECALL);
@@ -2584,6 +2590,15 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           mind->SendF("  * %s (inactive)\n", world->ShortDescC());
         }
       }
+    }
+    return 0;
+  }
+
+  if (cnum == COM_ZONE) {
+    if (!mind)
+      return 0;
+    if (body) {
+      mind->SendF("This zone is called: %s\n", body->Zone()->ShortDescC());
     }
     return 0;
   }

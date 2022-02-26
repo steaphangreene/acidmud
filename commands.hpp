@@ -122,6 +122,7 @@ typedef enum {
   COM_SCORE,
   COM_TIME,
   COM_WORLD,
+  COM_ZONE,
   COM_VERSION,
 
   COM_SKILLLIST,
