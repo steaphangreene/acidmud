@@ -567,7 +567,7 @@ int Object::Tick() {
   }
 
   if (NormAttribute(2) > 0 // Needs Food & Water
-      && (!HasSkill(crc32c("TBAAction"))) // MOBs don't
+      && (HasSkill(crc32c("Object ID"))) // Active PC/NPC
   ) {
     int level;
 
