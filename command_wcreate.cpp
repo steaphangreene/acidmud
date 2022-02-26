@@ -101,8 +101,8 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
   }
 
   std::string name = "Unknown Land";
-  int lower_level = 0;
-  int upper_level = 1;
+  uint8_t lower_level = 0;
+  uint8_t upper_level = 1;
 
   std::map<char, std::vector<std::string>> rooms;
   std::map<char, std::string> doors;
@@ -134,9 +134,9 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
       sscanf(line_buf + 6, "%255[^\n]", namebuf);
       world->SetShortDesc(namebuf);
     } else if (!strncmp(line_buf, "lower_level:", 12)) {
-      sscanf(line_buf + 12, "%d[^\n]", &lower_level);
+      sscanf(line_buf + 12, "%hhu[^\n]", &lower_level);
     } else if (!strncmp(line_buf, "upper_level:", 12)) {
-      sscanf(line_buf + 12, "%d[^\n]", &upper_level);
+      sscanf(line_buf + 12, "%hhu[^\n]", &upper_level);
     } else if (!strncmp(line_buf, "building:", 9)) {
       char sym = '0';
       sscanf(line_buf + 9, "%c", &sym);
