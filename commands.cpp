@@ -7116,7 +7116,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       if (prefix == std::string::npos) {
         args = "";
       } else {
-        args = args.substr(prefix);
+        auto start = args.find_first_not_of(" \t\n\r;", prefix);
+        args = args.substr(start);
       }
     }
 
@@ -7154,7 +7155,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
       if (prefix == std::string::npos) {
         args = "";
       } else {
-        args = args.substr(prefix);
+        auto start = args.find_first_not_of(" \t\n\r;", prefix);
+        args = args.substr(start);
       }
     }
 
