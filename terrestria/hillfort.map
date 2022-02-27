@@ -63,7 +63,7 @@ ascii_map:
     : +o2 2o+o2 2o+o2 2o+ :                                                               : +o2 2o+o2 2o+o2 2o+ :
     | |     |     |     | |                                                               | |     |     |     | |
     : +o2s2o+o2s2o+o2s2o+ :                                                               : +o2s2o+o2s2o+o2s2o+ :
-    | l     |     |     l |                                                               | l     |     |     l |
+    | l     l     l     l |                                                               | l     l     l     l |
     : +o2 2o+o2 2o+o2 2o+ :                                                               : +o2 2o+o2 2o+o2 2o+ :
     I |     |     |     | I                                                               I |     |     |     | I
     4g+o2 2o+o2 2o+o2 2o+g4                                                               4g+o2 2o+o2 2o+o2 2o+g4
@@ -73,7 +73,7 @@ ascii_map:
     4g+o2 2o+o2 2o+o2 2o+g4                                                               4g+o2 2o+o2 2o+o2 2o+g4
     I |     |     |     | I                                                               I |     |     |     | I
     : +o2 2o+o2 2o+o2 2o+ :                                                               : +o2 2o+o2 2o+o2 2o+ :
-    | l     |     |     l |                                                               | l     |     |     l |
+    | l     l     l     l |                                                               | l     l     l     l |
     : +o2s2o+o2s2o+o2s2o+ :                                                               : +o2s2o+o2s2o+o2s2o+ :
     | |     |     |     | |                                                               | |     |     |     | |
     : +o2 2o+o2 2o+o2 2o+ :                                                               : +o2 2o+o2 2o+o2 2o+ :
