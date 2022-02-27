@@ -31,15 +31,15 @@
 #include "version.hpp"
 
 const std::string act_save[static_cast<uint8_t>(act_t::SPECIAL_MAX)] = {
-    "NONE",         "DEAD",          "DYING",           "UNCONSCIOUS",    "SLEEP",
-    "REST",         "HEAL",          "POINT",           "FOLLOW",         "FIGHT",
-    "OFFER",        "HOLD",          "WIELD",           "WEAR_BACK",      "WEAR_CHEST",
-    "WEAR_HEAD",    "WEAR_NECK",     "WEAR_COLLAR",     "WEAR_WAIST",     "WEAR_SHIELD",
-    "WEAR_LARM",    "WEAR_RARM",     "WEAR_LFINGER",    "WEAR_RFINGER",   "WEAR_LFOOT",
-    "WEAR_RFOOT",   "WEAR_LHAND",    "WEAR_RHAND",      "WEAR_LLEG",      "WEAR_RLEG",
-    "WEAR_LWRIST",  "WEAR_RWRIST",   "WEAR_LSHOULDER",  "WEAR_RSHOULDER", "WEAR_LHIP",
-    "WEAR_RHIP",    "WEAR_FACE",     "SPECIAL_MONITOR", "SPECIAL_MASTER", "SPECIAL_LINKED",
-    "SPECIAL_HOME", "SPECIAL_ACTEE",
+    "NONE",         "DEAD",         "DYING",           "UNCONSCIOUS",    "SLEEP",
+    "REST",         "HEAL",         "POINT",           "FOLLOW",         "FIGHT",
+    "OFFER",        "HOLD",         "WIELD",           "WEAR_BACK",      "WEAR_CHEST",
+    "WEAR_HEAD",    "WEAR_NECK",    "WEAR_COLLAR",     "WEAR_WAIST",     "WEAR_SHIELD",
+    "WEAR_LARM",    "WEAR_RARM",    "WEAR_LFINGER",    "WEAR_RFINGER",   "WEAR_LFOOT",
+    "WEAR_RFOOT",   "WEAR_LHAND",   "WEAR_RHAND",      "WEAR_LLEG",      "WEAR_RLEG",
+    "WEAR_LWRIST",  "WEAR_RWRIST",  "WEAR_LSHOULDER",  "WEAR_RSHOULDER", "WEAR_LHIP",
+    "WEAR_RHIP",    "WEAR_FACE",    "SPECIAL_MONITOR", "SPECIAL_MASTER", "SPECIAL_LINKED",
+    "SPECIAL_HOME", "SPECIAL_WORK", "SPECIAL_ACTEE",
     //	"SPECIAL_MAX"
 };
 
