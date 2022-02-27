@@ -1426,7 +1426,8 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
           body->Parent()->NotifyGone(body);
       }
       if (dest->Parent() != body->Parent() && dest->Parent() == body->Parent()->Parent()) {
-        if (body->Parent()->Skill(prhash("Vehicle")) == 4 && body->Skill(prhash("Boat")) == 0) {
+        if (body->Parent()->Skill(prhash("Vehicle")) == 4 &&
+            body->Skill(prhash("Boat, Row")) == 0) {
           if (mind)
             mind->SendF("You don't know how to operate %s!\n", body->Parent()->Noun(1).c_str());
           return 0;

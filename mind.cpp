@@ -917,7 +917,7 @@ bool Mind::TBAVarSub(std::string& line) const {
         } else if (!strcmp(field.c_str(), "type")) {
           val = "OTHER";
           if (obj) {
-            if (obj->HasSkill(prhash("Conatiner")))
+            if (obj->HasSkill(prhash("Container")))
               val = "CONTAINER";
             else if (obj->HasSkill(prhash("Liquid Source")))
               val = "FOUNTAIN";
