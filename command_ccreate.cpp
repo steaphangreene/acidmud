@@ -43,9 +43,9 @@ int handle_command_ccreate(
   } else {
     Object* city = new Object(body->Parent());
     city->SetShortDesc(std::string(args));
-    city->SetSkill(crc32c("Light Source"), 1000);
-    city->SetSkill(crc32c("Day Length"), 240);
-    city->SetSkill(crc32c("Day Time"), 120);
+    city->SetSkill(prhash("Light Source"), 1000);
+    city->SetSkill(prhash("Day Length"), 240);
+    city->SetSkill(prhash("Day Time"), 120);
 
     // Object *ocean = new Object(city);
     // ocean->SetShortDesc("Ocean");
@@ -73,160 +73,160 @@ int handle_command_ccreate(
 
     bldg.push_back(new Object(city));
     bldg.back()->SetShortDesc("Municipal Building");
-    bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-    bldg.back()->SetSkill(crc32c("DynamicPhase"), 10); // Courthouse
-    bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
+    bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+    bldg.back()->SetSkill(prhash("DynamicPhase"), 10); // Courthouse
+    bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
     for (int n = 0; n < 5; ++n) {
       bldg.push_back(new Object(city));
       bldg.back()->SetShortDesc("Fire Station");
-      bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-      bldg.back()->SetSkill(crc32c("DynamicPhase"), 20); // Fire House
-      bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
-      bldg.back()->SetSkill(crc32c("Healing"), 1);
+      bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+      bldg.back()->SetSkill(prhash("DynamicPhase"), 20); // Fire House
+      bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
+      bldg.back()->SetSkill(prhash("Healing"), 1);
     }
     for (int n = 0; n < 8; ++n) {
       bldg.push_back(new Object(city));
       bldg.back()->SetShortDesc("Police Station");
-      bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-      bldg.back()->SetSkill(crc32c("DynamicPhase"), 30); // Police Station
-      bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
-      bldg.back()->SetSkill(crc32c("Healing"), 1);
+      bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+      bldg.back()->SetSkill(prhash("DynamicPhase"), 30); // Police Station
+      bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
+      bldg.back()->SetSkill(prhash("Healing"), 1);
     }
     for (int n = 0; n < 4; ++n) {
       bldg.push_back(new Object(city));
       bldg.back()->SetShortDesc("Hospital");
-      bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-      bldg.back()->SetSkill(crc32c("DynamicPhase"), 40); // City Hospital
-      bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
-      bldg.back()->SetSkill(crc32c("Healing"), 10);
+      bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+      bldg.back()->SetSkill(prhash("DynamicPhase"), 40); // City Hospital
+      bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
+      bldg.back()->SetSkill(prhash("Healing"), 10);
     }
     for (int n = 0; n < 25; ++n) {
       bldg.push_back(new Object(city));
       bldg.back()->SetShortDesc("Coffin Motel");
-      bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-      bldg.back()->SetSkill(crc32c("DynamicPhase"), 50); // Coffin Motel
-      bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
-      bldg.back()->SetSkill(crc32c("Rest"), 10);
+      bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+      bldg.back()->SetSkill(prhash("DynamicPhase"), 50); // Coffin Motel
+      bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
+      bldg.back()->SetSkill(prhash("Rest"), 10);
     }
     for (int n = 0; n < 12; ++n) {
       bldg.push_back(new Object(city));
       bldg.back()->SetShortDesc("Seedy Motel");
-      bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-      bldg.back()->SetSkill(crc32c("DynamicPhase"), 60); // Seedy Motel
-      bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
-      bldg.back()->SetSkill(crc32c("Rest"), 5);
+      bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+      bldg.back()->SetSkill(prhash("DynamicPhase"), 60); // Seedy Motel
+      bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
+      bldg.back()->SetSkill(prhash("Rest"), 5);
     }
     for (int n = 0; n < 8; ++n) {
       bldg.push_back(new Object(city));
       bldg.back()->SetShortDesc("Nice Motel");
-      bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-      bldg.back()->SetSkill(crc32c("DynamicPhase"), 70); // Nice Motel
-      bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
-      bldg.back()->SetSkill(crc32c("Rest"), 2);
+      bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+      bldg.back()->SetSkill(prhash("DynamicPhase"), 70); // Nice Motel
+      bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
+      bldg.back()->SetSkill(prhash("Rest"), 2);
     }
     for (int n = 0; n < 5; ++n) {
       bldg.push_back(new Object(city));
       bldg.back()->SetShortDesc("Nice Hotel");
-      bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-      bldg.back()->SetSkill(crc32c("DynamicPhase"), 80); // Nice Hotel
-      bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
-      bldg.back()->SetSkill(crc32c("Rest"), 1);
+      bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+      bldg.back()->SetSkill(prhash("DynamicPhase"), 80); // Nice Hotel
+      bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
+      bldg.back()->SetSkill(prhash("Rest"), 1);
     }
     for (int n = 0; n < 4; ++n) {
       bldg.push_back(new Object(city));
       bldg.back()->SetShortDesc("Luxury Hotel");
-      bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-      bldg.back()->SetSkill(crc32c("DynamicPhase"), 90); // Luxury Hotel
-      bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
-      bldg.back()->SetSkill(crc32c("Rest"), 1);
+      bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+      bldg.back()->SetSkill(prhash("DynamicPhase"), 90); // Luxury Hotel
+      bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
+      bldg.back()->SetSkill(prhash("Rest"), 1);
     }
     bldg.push_back(new Object(city));
     bldg.back()->SetShortDesc("Renraku Archology");
-    bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-    bldg.back()->SetSkill(crc32c("DynamicPhase"), 100); // Archology
-    bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
-    bldg.back()->SetSkill(crc32c("Food"), 1);
+    bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+    bldg.back()->SetSkill(prhash("DynamicPhase"), 100); // Archology
+    bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
+    bldg.back()->SetSkill(prhash("Food"), 1);
 
     bldg.push_back(new Object(city));
     bldg.back()->SetShortDesc("Disney Archology");
-    bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-    bldg.back()->SetSkill(crc32c("DynamicPhase"), 100); // Archology
-    bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
-    bldg.back()->SetSkill(crc32c("Food"), 1);
+    bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+    bldg.back()->SetSkill(prhash("DynamicPhase"), 100); // Archology
+    bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
+    bldg.back()->SetSkill(prhash("Food"), 1);
 
     bldg.push_back(new Object(city));
     bldg.back()->SetShortDesc("IBM Archology");
-    bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-    bldg.back()->SetSkill(crc32c("DynamicPhase"), 100); // Archology
-    bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
-    bldg.back()->SetSkill(crc32c("Food"), 1);
+    bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+    bldg.back()->SetSkill(prhash("DynamicPhase"), 100); // Archology
+    bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
+    bldg.back()->SetSkill(prhash("Food"), 1);
 
     bldg.push_back(new Object(city));
     bldg.back()->SetShortDesc("CLA Archology");
-    bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-    bldg.back()->SetSkill(crc32c("DynamicPhase"), 100); // Archology
-    bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
-    bldg.back()->SetSkill(crc32c("Food"), 1);
+    bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+    bldg.back()->SetSkill(prhash("DynamicPhase"), 100); // Archology
+    bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
+    bldg.back()->SetSkill(prhash("Food"), 1);
 
     bldg.push_back(new Object(city));
     bldg.back()->SetShortDesc("Fidget Technology Center");
-    bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-    bldg.back()->SetSkill(crc32c("DynamicPhase"), 110); // Research Facility
-    bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
+    bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+    bldg.back()->SetSkill(prhash("DynamicPhase"), 110); // Research Facility
+    bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
 
     bldg.push_back(new Object(city));
     bldg.back()->SetShortDesc("Lone Star Station");
-    bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-    bldg.back()->SetSkill(crc32c("DynamicPhase"), 120); // Security Facility
-    bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
+    bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+    bldg.back()->SetSkill(prhash("DynamicPhase"), 120); // Security Facility
+    bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
 
     bldg.push_back(new Object(city));
     bldg.back()->SetShortDesc("Doc-Wagon Hospital");
-    bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-    bldg.back()->SetSkill(crc32c("DynamicPhase"), 130); // Corp Hospital
-    bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
-    bldg.back()->SetSkill(crc32c("Healing"), 100);
+    bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+    bldg.back()->SetSkill(prhash("DynamicPhase"), 130); // Corp Hospital
+    bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
+    bldg.back()->SetSkill(prhash("Healing"), 100);
     for (int n = 0; n < 10; ++n) {
       bldg.push_back(new Object(city));
       bldg.back()->SetShortDesc("McHugh's Burgers");
-      bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-      bldg.back()->SetSkill(crc32c("DynamicPhase"), 200); // McHugh's
-      bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
-      bldg.back()->SetSkill(crc32c("Food"), 10);
+      bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+      bldg.back()->SetSkill(prhash("DynamicPhase"), 200); // McHugh's
+      bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
+      bldg.back()->SetSkill(prhash("Food"), 10);
     }
     for (int n = 0; n < 4; ++n) {
       bldg.push_back(new Object(city));
       bldg.back()->SetShortDesc("Super-Shopper Mall");
-      bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-      bldg.back()->SetSkill(crc32c("DynamicPhase"), 300); // Shopping Mall
-      bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
-      bldg.back()->SetSkill(crc32c("Food"), 2);
-      bldg.back()->SetSkill(crc32c("Stuff"), 5);
-      bldg.back()->SetSkill(crc32c("Fun"), 1);
+      bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+      bldg.back()->SetSkill(prhash("DynamicPhase"), 300); // Shopping Mall
+      bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
+      bldg.back()->SetSkill(prhash("Food"), 2);
+      bldg.back()->SetSkill(prhash("Stuff"), 5);
+      bldg.back()->SetSkill(prhash("Fun"), 1);
     }
     for (int n = 0; n < 2; ++n) {
       bldg.push_back(new Object(city));
       bldg.back()->SetShortDesc("Sam's Locker");
-      bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-      bldg.back()->SetSkill(crc32c("DynamicPhase"), 310); // Sam's Locker
-      bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
-      bldg.back()->SetSkill(crc32c("Stuff"), 10);
+      bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+      bldg.back()->SetSkill(prhash("DynamicPhase"), 310); // Sam's Locker
+      bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
+      bldg.back()->SetSkill(prhash("Stuff"), 10);
     }
     for (int n = 0; n < 4; ++n) {
       bldg.push_back(new Object(city));
       bldg.back()->SetShortDesc("Disney Entertainment Center");
-      bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-      bldg.back()->SetSkill(crc32c("DynamicPhase"), 400); // Cinema
-      bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
-      bldg.back()->SetSkill(crc32c("Fun"), 10);
+      bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+      bldg.back()->SetSkill(prhash("DynamicPhase"), 400); // Cinema
+      bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
+      bldg.back()->SetSkill(prhash("Fun"), 10);
     }
     for (int n = 0; n < 2; ++n) {
       bldg.push_back(new Object(city));
       bldg.back()->SetShortDesc("Disney Park");
-      bldg.back()->SetSkill(crc32c("DynamicInit"), 2); // City
-      bldg.back()->SetSkill(crc32c("DynamicPhase"), 410); // Amusement Park
-      bldg.back()->SetSkill(crc32c("DynamicMojo"), 1000);
-      bldg.back()->SetSkill(crc32c("Fun"), 10);
+      bldg.back()->SetSkill(prhash("DynamicInit"), 2); // City
+      bldg.back()->SetSkill(prhash("DynamicPhase"), 410); // Amusement Park
+      bldg.back()->SetSkill(prhash("DynamicMojo"), 1000);
+      bldg.back()->SetSkill(prhash("Fun"), 10);
     }
 
     std::random_device rd;
@@ -286,21 +286,21 @@ int handle_command_ccreate(
             people->SetShortDesc("a person");
             if (i <= 0) {
               people->SetDesc("a sketchy-looking punk.");
-              people->SetSkill(crc32c("Quantity"), 10);
-              people->SetSkill(crc32c("Personality"), 3);
+              people->SetSkill(prhash("Quantity"), 10);
+              people->SetSkill(prhash("Personality"), 3);
             } else if (i == 1) {
               people->SetDesc("an upstanding citizen.");
-              people->SetSkill(crc32c("Quantity"), 100);
-              people->SetSkill(crc32c("Personality"), 5);
+              people->SetSkill(prhash("Quantity"), 100);
+              people->SetSkill(prhash("Personality"), 5);
             } else if (i >= 2) {
               people->SetDesc("a wealthy citizen.");
-              people->SetSkill(crc32c("Quantity"), 10);
-              people->SetSkill(crc32c("Personality"), 9);
+              people->SetSkill(prhash("Quantity"), 10);
+              people->SetSkill(prhash("Personality"), 9);
             }
-            people->SetSkill(crc32c("Hungry"), 10000);
-            people->SetSkill(crc32c("Bored"), 100000);
-            people->SetSkill(crc32c("Tired"), 10000);
-            people->SetSkill(crc32c("Needy"), 1000);
+            people->SetSkill(prhash("Hungry"), 10000);
+            people->SetSkill(prhash("Bored"), 100000);
+            people->SetSkill(prhash("Tired"), 10000);
+            people->SetSkill(prhash("Needy"), 1000);
             people->SetPos(pos_t::STAND);
             people->Attach(get_mob_mind());
             for (int a = 0; a < 6; ++a)
@@ -354,9 +354,9 @@ int handle_command_ccreate(
               } else {
                 places[i * 2] = new Object(city);
                 places[i * 2]->SetShortDesc("a vacant lot");
-                places[i * 2]->SetSkill(crc32c("DynamicInit"), 2); // City
-                places[i * 2]->SetSkill(crc32c("DynamicPhase"), 0); // Lot
-                places[i * 2]->SetSkill(crc32c("DynamicMojo"), 1000);
+                places[i * 2]->SetSkill(prhash("DynamicInit"), 2); // City
+                places[i * 2]->SetSkill(prhash("DynamicPhase"), 0); // Lot
+                places[i * 2]->SetSkill(prhash("DynamicMojo"), 1000);
                 places[i + 1]->LinkClosed(places[i], dir[0], addr, dir[1], addr);
               }
               --vacants;

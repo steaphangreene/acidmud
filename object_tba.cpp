@@ -218,8 +218,8 @@ void Object::TBAFinalizeTriggers() {
     auto cur = trg->LongDesc().find("teleport [");
     while (cur != std::string::npos) {
       int rnum;
-      trg->Parent()->SetSkill(crc32c("Teleport"), 10);
-      trg->Parent()->SetSkill(crc32c("Restricted Item"), 1);
+      trg->Parent()->SetSkill(prhash("Teleport"), 10);
+      trg->Parent()->SetSkill(prhash("Restricted Item"), 1);
       sscanf(trg->LongDescC() + cur, "teleport [%d]\n", &rnum);
       if (bynumwld.count(rnum) > 0) {
         newtext += std::string("teleport ") + bynumwld[rnum]->Noun() + "\n";
@@ -232,7 +232,7 @@ void Object::TBAFinalizeTriggers() {
       trg->Parent()->SetLongDesc(newtext.c_str());
       trg->Recycle();
       // fprintf(stderr, "%s", newtext.c_str());
-    } else if (trg->Skill(crc32c("TBAScriptType")) & 0x1000000) { // Room or Obj
+    } else if (trg->Skill(prhash("TBAScriptType")) & 0x1000000) { // Room or Obj
       trg->Activate();
       new_trigger(13000 + (rand() % 13000), trg, nullptr, nullptr, "");
     }
@@ -252,7 +252,7 @@ static void init_gold() {
   gold->SetValue(1);
   gold->SetSize(0);
   gold->SetPos(pos_t::LIE);
-  gold->SetSkill(crc32c("Money"), 1);
+  gold->SetSkill(prhash("Money"), 1);
 }
 
 Mind* get_tba_mob_mind() {
@@ -294,27 +294,27 @@ std::string load_tba_field(FILE* fd) {
 
 Object* dup_tba_obj(Object* obj) {
   Object* obj2 = nullptr;
-  if (obj->Skill(crc32c("Wearable on Left Hand")) != obj->Skill(crc32c("Wearable on Right Hand"))) {
+  if (obj->Skill(prhash("Wearable on Left Hand")) != obj->Skill(prhash("Wearable on Right Hand"))) {
     obj2 = new Object(*obj);
-    obj2->SetSkill(crc32c("Wearable on Left Hand"), 0);
-    obj2->SetSkill(crc32c("Wearable on Right Hand"), 1);
+    obj2->SetSkill(prhash("Wearable on Left Hand"), 0);
+    obj2->SetSkill(prhash("Wearable on Right Hand"), 1);
     obj->SetShortDesc((std::string(obj->ShortDesc()) + " (left)").c_str());
     obj2->SetShortDesc((std::string(obj2->ShortDesc()) + " (right)").c_str());
     //    fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
   } else if (
-      obj->Skill(crc32c("Wearable on Left Foot")) != obj->Skill(crc32c("Wearable on Right Foot"))) {
+      obj->Skill(prhash("Wearable on Left Foot")) != obj->Skill(prhash("Wearable on Right Foot"))) {
     obj2 = new Object(*obj);
-    obj2->SetSkill(crc32c("Wearable on Left Foot"), 0);
-    obj2->SetSkill(crc32c("Wearable on Right Foot"), 1);
+    obj2->SetSkill(prhash("Wearable on Left Foot"), 0);
+    obj2->SetSkill(prhash("Wearable on Right Foot"), 1);
     obj->SetShortDesc((std::string(obj->ShortDesc()) + " (left)").c_str());
     obj2->SetShortDesc((std::string(obj2->ShortDesc()) + " (right)").c_str());
     //    fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
   } else if (
-      obj->Skill(crc32c("Wearable on Left Leg")) != obj->Skill(crc32c("Wearable on Right Leg"))) {
+      obj->Skill(prhash("Wearable on Left Leg")) != obj->Skill(prhash("Wearable on Right Leg"))) {
     obj2 = new Object(*obj);
     //    fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
   } else if (
-      obj->Skill(crc32c("Wearable on Left Arm")) != obj->Skill(crc32c("Wearable on Right Arm"))) {
+      obj->Skill(prhash("Wearable on Left Arm")) != obj->Skill(prhash("Wearable on Right Arm"))) {
     obj2 = new Object(*obj);
     //    fprintf(stderr, "Duped: '%s'\n", obj2->ShortDesc());
   }
@@ -322,37 +322,37 @@ Object* dup_tba_obj(Object* obj) {
 }
 
 void Object::TBAFinishMOB(Object* mob) {
-  if (mob->Skill(crc32c("TBAGold"))) {
+  if (mob->Skill(prhash("TBAGold"))) {
     Object* bag = new Object(mob);
     bag->SetShortDesc("a TBAMUD purse");
     bag->SetDesc("A mysterious purse that didn't seem to need to exist before.");
 
-    bag->SetSkill(crc32c("Wearable on Left Hip"), 1);
-    bag->SetSkill(crc32c("Wearable on Right Hip"), 2);
-    bag->SetSkill(crc32c("Container"), 5 * 454);
-    bag->SetSkill(crc32c("Capacity"), 5);
-    bag->SetSkill(crc32c("Closeable"), 1);
+    bag->SetSkill(prhash("Wearable on Left Hip"), 1);
+    bag->SetSkill(prhash("Wearable on Right Hip"), 2);
+    bag->SetSkill(prhash("Container"), 5 * 454);
+    bag->SetSkill(prhash("Capacity"), 5);
+    bag->SetSkill(prhash("Closeable"), 1);
 
     bag->SetWeight(1 * 454);
     bag->SetSize(2);
     bag->SetVolume(1);
     bag->SetValue(100);
 
-    bag->SetSkill(crc32c("Perishable"), 1);
+    bag->SetSkill(prhash("Perishable"), 1);
     mob->AddAct(act_t::WEAR_LHIP, bag);
 
     if (!gold)
       init_gold();
     Object* g = new Object(*gold);
     g->SetParent(bag);
-    g->SetSkill(crc32c("Quantity"), mob->Skill(crc32c("TBAGold")));
-    mob->SetSkill(crc32c("TBAGold"), 0);
+    g->SetSkill(prhash("Quantity"), mob->Skill(prhash("TBAGold")));
+    mob->SetSkill(prhash("TBAGold"), 0);
   }
 
-  if (mob->Skill(crc32c("TBAAttack"))) {
+  if (mob->Skill(prhash("TBAAttack"))) {
     if (mob->IsAct(act_t::WIELD)) {
       // fprintf(stderr, "Weapon def: %s\n", mob->ActTarg(act_t::WIELD)->Noun().c_str());
-      if (mob->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponType")) == 0) {
+      if (mob->ActTarg(act_t::WIELD)->Skill(prhash("WeaponType")) == 0) {
         if (!mob->ActTarg(act_t::HOLD)) { // Don't wield non-weapons, hold them
           fprintf(
               stderr,
@@ -368,32 +368,32 @@ void Object::TBAFinishMOB(Object* mob) {
         }
       } else {
         mob->SetSkill(
-            get_weapon_skill(mob->ActTarg(act_t::WIELD)->Skill(crc32c("WeaponType"))),
-            mob->Skill(crc32c("TBAAttack")));
+            get_weapon_skill(mob->ActTarg(act_t::WIELD)->Skill(prhash("WeaponType"))),
+            mob->Skill(prhash("TBAAttack")));
       }
-      if (mob->Skill(crc32c("NaturalWeapon")) == 13) { // Default (hit), but is armed!
-        mob->SetSkill(crc32c("NaturalWeapon"), 0); // So remove it
+      if (mob->Skill(prhash("NaturalWeapon")) == 13) { // Default (hit), but is armed!
+        mob->SetSkill(prhash("NaturalWeapon"), 0); // So remove it
       }
     } else {
-      mob->SetSkill(crc32c("Punching"), mob->Skill(crc32c("TBAAttack")));
+      mob->SetSkill(prhash("Punching"), mob->Skill(prhash("TBAAttack")));
     }
-    mob->SetSkill(crc32c("TBAAttack"), 0);
+    mob->SetSkill(prhash("TBAAttack"), 0);
   }
-  if (mob->Skill(crc32c("TBADefense"))) {
+  if (mob->Skill(prhash("TBADefense"))) {
     if (mob->IsAct(act_t::WEAR_SHIELD)) {
-      mob->SetSkill(crc32c("Shields"), mob->Skill(crc32c("TBADefense")));
-    } else if (mob->Skill(crc32c("Punching"))) {
-      mob->SetSkill(crc32c("Kicking"), mob->Skill(crc32c("TBADefense")));
+      mob->SetSkill(prhash("Shields"), mob->Skill(prhash("TBADefense")));
+    } else if (mob->Skill(prhash("Punching"))) {
+      mob->SetSkill(prhash("Kicking"), mob->Skill(prhash("TBADefense")));
     } else {
-      mob->SetSkill(crc32c("Kicking"), mob->Skill(crc32c("TBADefense")) / 2);
+      mob->SetSkill(prhash("Kicking"), mob->Skill(prhash("TBADefense")) / 2);
       mob->SetSkill(
-          crc32c("Punching"), mob->Skill(crc32c("TBADefense")) - mob->Skill(crc32c("Kicking")));
+          prhash("Punching"), mob->Skill(prhash("TBADefense")) - mob->Skill(prhash("Kicking")));
     }
-    mob->SetSkill(crc32c("TBADefense"), 0);
+    mob->SetSkill(prhash("TBADefense"), 0);
   }
 
   if (Matches("snake") || Matches("spider") || Matches("poisonous")) {
-    SetSkill(crc32c("Poisonous"), NormAttribute(2));
+    SetSkill(prhash("Poisonous"), NormAttribute(2));
   }
 }
 
@@ -422,14 +422,14 @@ void Object::TBALoadZON(const std::string& fn) {
           if (bynumwld.count(room) > 0)
             door = bynumwld[room]->PickObject(dirname[dnum], LOC_INTERNAL);
           if (door && state == 0) {
-            door->SetSkill(crc32c("Open"), 1000);
-            door->SetSkill(crc32c("Locked"), 0);
+            door->SetSkill(prhash("Open"), 1000);
+            door->SetSkill(prhash("Locked"), 0);
           } else if (door && state == 1) {
-            door->SetSkill(crc32c("Open"), 0);
-            door->SetSkill(crc32c("Locked"), 0);
+            door->SetSkill(prhash("Open"), 0);
+            door->SetSkill(prhash("Locked"), 0);
           } else if (door && state == 2) {
-            door->SetSkill(crc32c("Open"), 0);
-            door->SetSkill(crc32c("Locked"), 1);
+            door->SetSkill(prhash("Open"), 0);
+            door->SetSkill(prhash("Locked"), 1);
           }
         } break;
         case ('M'): {
@@ -449,8 +449,8 @@ void Object::TBALoadZON(const std::string& fn) {
             bynummobinst[num] = lastmob;
             lastmob->SetParent(obj);
             lastmob->AddAct(act_t::SPECIAL_MASTER, obj);
-            obj->SetSkill(crc32c("TBAPopper"), 1);
-            obj->SetSkill(crc32c("Invisible"), 1000);
+            obj->SetSkill(prhash("TBAPopper"), 1);
+            obj->SetSkill(prhash("Invisible"), 1000);
             obj->Activate();
             lastbag = nullptr;
           }
@@ -463,7 +463,7 @@ void Object::TBALoadZON(const std::string& fn) {
             obj->SetParent(bynumwld[room]);
             // fprintf(stderr, "Put Obj \"%s\" in Room \"%s\"\n",
             // obj->ShortDescC(), bynumwld[room]->ShortDescC());
-            if (obj->HasSkill(crc32c("Liquid Source"))) {
+            if (obj->HasSkill(prhash("Liquid Source"))) {
               obj->Activate();
             }
             lastobj[num] = obj;
@@ -488,7 +488,7 @@ void Object::TBALoadZON(const std::string& fn) {
             switch (posit) {
               case (1): { // Worn
                 lastmob->AddAct(act_t::WEAR_RFINGER, obj);
-                if (obj->Skill(crc32c("Wearable on Right Finger")) == 0) {
+                if (obj->Skill(prhash("Wearable on Right Finger")) == 0) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
@@ -499,7 +499,7 @@ void Object::TBALoadZON(const std::string& fn) {
               } break;
               case (2): { // Worn
                 lastmob->AddAct(act_t::WEAR_LFINGER, obj);
-                if (obj->Skill(crc32c("Wearable on Left Finger")) == 0) {
+                if (obj->Skill(prhash("Wearable on Left Finger")) == 0) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
@@ -509,8 +509,8 @@ void Object::TBALoadZON(const std::string& fn) {
                 }
               } break;
               case (3): { // TBA MOBs have two necks (1/2)
-                if (obj->Skill(crc32c("Wearable on Neck")) == 0) {
-                  if (obj->Skill(crc32c("Wearable on Face")) == 0) {
+                if (obj->Skill(prhash("Wearable on Neck")) == 0) {
+                  if (obj->Skill(prhash("Wearable on Face")) == 0) {
                     fprintf(
                         stderr,
                         CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
@@ -531,8 +531,8 @@ void Object::TBALoadZON(const std::string& fn) {
                 }
               } break;
               case (4): { // TBA MOBs have two necks (2/2)
-                if (obj->Skill(crc32c("Wearable on Collar")) == 0) {
-                  if (obj->Skill(crc32c("Wearable on Face")) == 0) {
+                if (obj->Skill(prhash("Wearable on Collar")) == 0) {
+                  if (obj->Skill(prhash("Wearable on Face")) == 0) {
                     fprintf(
                         stderr,
                         CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
@@ -555,7 +555,7 @@ void Object::TBALoadZON(const std::string& fn) {
               case (5): { // Worn
                 lastmob->AddAct(act_t::WEAR_CHEST, obj);
                 lastmob->AddAct(act_t::WEAR_BACK, obj);
-                if (obj->Skill(crc32c("Wearable on Chest")) == 0) {
+                if (obj->Skill(prhash("Wearable on Chest")) == 0) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
@@ -565,8 +565,8 @@ void Object::TBALoadZON(const std::string& fn) {
                 }
               } break;
               case (6): { // Worn
-                if (obj->Skill(crc32c("Wearable on Head")) == 0) {
-                  if (obj->Skill(crc32c("Wearable on Face")) == 0) {
+                if (obj->Skill(prhash("Wearable on Head")) == 0) {
+                  if (obj->Skill(prhash("Wearable on Face")) == 0) {
                     fprintf(
                         stderr,
                         CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
@@ -589,7 +589,7 @@ void Object::TBALoadZON(const std::string& fn) {
                   lastmob->AddAct(act_t::WEAR_RLEG, obj2);
                 else
                   lastmob->AddAct(act_t::WEAR_RLEG, obj);
-                if (obj->Skill(crc32c("Wearable on Left Leg")) == 0) {
+                if (obj->Skill(prhash("Wearable on Left Leg")) == 0) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
@@ -604,7 +604,7 @@ void Object::TBALoadZON(const std::string& fn) {
                   lastmob->AddAct(act_t::WEAR_RFOOT, obj2);
                 else
                   lastmob->AddAct(act_t::WEAR_RFOOT, obj);
-                if (obj->Skill(crc32c("Wearable on Left Foot")) == 0) {
+                if (obj->Skill(prhash("Wearable on Left Foot")) == 0) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
@@ -619,7 +619,7 @@ void Object::TBALoadZON(const std::string& fn) {
                   lastmob->AddAct(act_t::WEAR_RHAND, obj2);
                 else
                   lastmob->AddAct(act_t::WEAR_RHAND, obj);
-                if (obj->Skill(crc32c("Wearable on Left Hand")) == 0) {
+                if (obj->Skill(prhash("Wearable on Left Hand")) == 0) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
@@ -634,7 +634,7 @@ void Object::TBALoadZON(const std::string& fn) {
                   lastmob->AddAct(act_t::WEAR_RARM, obj2);
                 else
                   lastmob->AddAct(act_t::WEAR_RARM, obj);
-                if (obj->Skill(crc32c("Wearable on Left Arm")) == 0) {
+                if (obj->Skill(prhash("Wearable on Left Arm")) == 0) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
@@ -645,7 +645,7 @@ void Object::TBALoadZON(const std::string& fn) {
               } break;
               case (11): { // Worn
                 lastmob->AddAct(act_t::WEAR_SHIELD, obj);
-                if (obj->Skill(crc32c("Wearable on Shield")) == 0) {
+                if (obj->Skill(prhash("Wearable on Shield")) == 0) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
@@ -657,7 +657,7 @@ void Object::TBALoadZON(const std::string& fn) {
               case (12): { // Worn
                 lastmob->AddAct(act_t::WEAR_LSHOULDER, obj);
                 lastmob->AddAct(act_t::WEAR_RSHOULDER, obj);
-                if (obj->Skill(crc32c("Wearable on Left Shoulder")) == 0) {
+                if (obj->Skill(prhash("Wearable on Left Shoulder")) == 0) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
@@ -668,7 +668,7 @@ void Object::TBALoadZON(const std::string& fn) {
               } break;
               case (13): { // Worn
                 lastmob->AddAct(act_t::WEAR_WAIST, obj);
-                if (obj->Skill(crc32c("Wearable on Waist")) == 0) {
+                if (obj->Skill(prhash("Wearable on Waist")) == 0) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
@@ -679,7 +679,7 @@ void Object::TBALoadZON(const std::string& fn) {
               } break;
               case (14): { // Worn
                 lastmob->AddAct(act_t::WEAR_RWRIST, obj);
-                if (obj->Skill(crc32c("Wearable on Right Wrist")) == 0) {
+                if (obj->Skill(prhash("Wearable on Right Wrist")) == 0) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
@@ -690,7 +690,7 @@ void Object::TBALoadZON(const std::string& fn) {
               } break;
               case (15): { // Worn
                 lastmob->AddAct(act_t::WEAR_LWRIST, obj);
-                if (obj->Skill(crc32c("Wearable on Left Wrist")) == 0) {
+                if (obj->Skill(prhash("Wearable on Left Wrist")) == 0) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wear item wrong: %s\n" CNRM,
@@ -701,7 +701,7 @@ void Object::TBALoadZON(const std::string& fn) {
               } break;
               case (16): { // Wielded
                 lastmob->AddAct(act_t::WIELD, obj);
-                if (obj->Skill(crc32c("WeaponType")) == 0) {
+                if (obj->Skill(prhash("WeaponType")) == 0) {
                   fprintf(
                       stderr,
                       CYEL "%s:%d: Warning: Wield non-weapon: %s\n" CNRM,
@@ -723,18 +723,18 @@ void Object::TBALoadZON(const std::string& fn) {
                 lastbag->SetShortDesc("a TBAMUD bag");
                 lastbag->SetDesc("A mysterious bag that didn't seem to need to exist before.");
 
-                lastbag->SetSkill(crc32c("Wearable on Right Hip"), 1);
-                lastbag->SetSkill(crc32c("Wearable on Left Hip"), 2);
-                lastbag->SetSkill(crc32c("Container"), 1000 * 454);
-                lastbag->SetSkill(crc32c("Capacity"), 1000);
-                lastbag->SetSkill(crc32c("Closeable"), 1);
+                lastbag->SetSkill(prhash("Wearable on Right Hip"), 1);
+                lastbag->SetSkill(prhash("Wearable on Left Hip"), 2);
+                lastbag->SetSkill(prhash("Container"), 1000 * 454);
+                lastbag->SetSkill(prhash("Capacity"), 1000);
+                lastbag->SetSkill(prhash("Closeable"), 1);
 
                 lastbag->SetWeight(5 * 454);
                 lastbag->SetSize(1000);
                 lastbag->SetVolume(5);
                 lastbag->SetValue(200);
 
-                lastbag->SetSkill(crc32c("Perishable"), 1);
+                lastbag->SetSkill(prhash("Perishable"), 1);
                 lastmob->AddAct(act_t::WEAR_RHIP, lastbag);
               }
               obj->Travel(lastbag);
@@ -771,7 +771,7 @@ void Object::TBALoadZON(const std::string& fn) {
 void Object::TBALoadMOB(const std::string& fn) {
   if (mobroom == nullptr) {
     mobroom = new Object(this->World());
-    mobroom->SetSkill(crc32c("Invisible"), 1000);
+    mobroom->SetSkill(prhash("Invisible"), 1000);
     mobroom->SetShortDesc("The TBAMUD MOB Room");
   }
   FILE* mudm = fopen(fn.c_str(), "r");
@@ -784,7 +784,7 @@ void Object::TBALoadMOB(const std::string& fn) {
       // fprintf(stderr, "Loaded MOB #%d\n", onum);
 
       Object* obj = new Object(mobroom);
-      obj->SetSkill(crc32c("TBAMOB"), 1000000 + onum);
+      obj->SetSkill(prhash("TBAMOB"), 1000000 + onum);
       bynummob[onum] = obj;
 
       std::vector<std::string_view> aliases;
@@ -819,7 +819,7 @@ void Object::TBALoadMOB(const std::string& fn) {
                 stderr,
                 CYEL "Warning: Ignoring non-alpha alias [%s] in #%d ('%s')\n" CNRM,
                 std::string(aliases[actr]).c_str(),
-                obj->Skill(crc32c("TBAMOB")),
+                obj->Skill(prhash("TBAMOB")),
                 obj->ShortDescC());
           } else if (aliases[actr] == "woman" || aliases[actr] == "girl") {
             obj->SetGender('F');
@@ -843,7 +843,7 @@ void Object::TBALoadMOB(const std::string& fn) {
             //    stderr,
             //    CYEL "Warning: Adding [%s] to #%d ('%s')\n" CNRM,
             //    std::string(aliases[actr]).c_str(),
-            //    obj->Skill(crc32c("TBAMOB")),
+            //    obj->Skill(prhash("TBAMOB")),
             //    obj->ShortDescC());
             label += " ";
             label += aliases[actr];
@@ -865,7 +865,7 @@ void Object::TBALoadMOB(const std::string& fn) {
         if (field[0] != '.') {
           obj->SetLongDesc(field);
         } else { // Hidden MOBs
-          obj->SetSkill(crc32c("Hidden"), 10);
+          obj->SetSkill(prhash("Hidden"), 10);
           obj->SetLongDesc(field.substr(1));
         }
       }
@@ -885,37 +885,37 @@ void Object::TBALoadMOB(const std::string& fn) {
       memset(buf, 0, 65536);
       fscanf(mudm, "%65535[^ \t\n]", buf); // Rest of line read below...
 
-      obj->SetSkill(crc32c("TBAAction"), 8); // IS_NPC - I'll use it to see if(MOB)
+      obj->SetSkill(prhash("TBAAction"), 8); // IS_NPC - I'll use it to see if(MOB)
       if (strcasestr(buf, "b") || (atoi(buf) & 2)) { // SENTINEL
-        obj->SetSkill(crc32c("TBAAction"), obj->Skill(crc32c("TBAAction")) | 2);
+        obj->SetSkill(prhash("TBAAction"), obj->Skill(prhash("TBAAction")) | 2);
       }
       if (strcasestr(buf, "c") || (atoi(buf) & 4)) { // SCAVENGER
-        obj->SetSkill(crc32c("TBAAction"), obj->Skill(crc32c("TBAAction")) | 4);
+        obj->SetSkill(prhash("TBAAction"), obj->Skill(prhash("TBAAction")) | 4);
       }
       if (strcasestr(buf, "e") || (atoi(buf) & 16)) { // AWARE
         aware = 1;
       }
       if (strcasestr(buf, "f") || (atoi(buf) & 32)) { // AGGRESSIVE
-        obj->SetSkill(crc32c("TBAAction"), obj->Skill(crc32c("TBAAction")) | 32);
+        obj->SetSkill(prhash("TBAAction"), obj->Skill(prhash("TBAAction")) | 32);
       }
       if (strcasestr(buf, "g") || (atoi(buf) & 64)) { // STAY_ZONE
-        obj->SetSkill(crc32c("TBAAction"), obj->Skill(crc32c("TBAAction")) | 64);
+        obj->SetSkill(prhash("TBAAction"), obj->Skill(prhash("TBAAction")) | 64);
       }
       if (strcasestr(buf, "h") || (atoi(buf) & 128)) { // WIMPY
-        obj->SetSkill(crc32c("TBAAction"), obj->Skill(crc32c("TBAAction")) | 128);
+        obj->SetSkill(prhash("TBAAction"), obj->Skill(prhash("TBAAction")) | 128);
       }
       if (strcasestr(buf, "l") || (atoi(buf) & 2048)) { // MEMORY
-        obj->SetSkill(crc32c("TBAAction"), obj->Skill(crc32c("TBAAction")) | 2048);
+        obj->SetSkill(prhash("TBAAction"), obj->Skill(prhash("TBAAction")) | 2048);
       }
       if (strcasestr(buf, "m") || (atoi(buf) & 4096)) { // HELPER
-        obj->SetSkill(crc32c("TBAAction"), obj->Skill(crc32c("TBAAction")) | 4096);
+        obj->SetSkill(prhash("TBAAction"), obj->Skill(prhash("TBAAction")) | 4096);
       }
       // FIXME: Add others here.
 
       memset(buf, 0, 65536);
       fscanf(mudm, " %*s %*s %*s %65535[^ \t\n]", buf); // Rest of line read below...
       if (strcasestr(buf, "g") || (atoi(buf) & 64)) { // WATERWALK
-        obj->SetSkill(crc32c("TBAAffection"), obj->Skill(crc32c("TBAAffection")) | 64);
+        obj->SetSkill(prhash("TBAAffection"), obj->Skill(prhash("TBAAffection")) | 64);
       }
       if (strcasestr(buf, "s") || (atoi(buf) & 262144)) { // SNEAK
         sneak = 1;
@@ -928,18 +928,18 @@ void Object::TBALoadMOB(const std::string& fn) {
       memset(buf, 0, 65536);
       fscanf(mudm, " %*s %*s %*s %d %c\n", &val, &tp);
       if (val > 0)
-        obj->SetSkill(crc32c("Honor"), val);
+        obj->SetSkill(prhash("Honor"), val);
       else
-        obj->SetSkill(crc32c("Dishonor"), -val);
+        obj->SetSkill(prhash("Dishonor"), -val);
 
-      obj->SetSkill(crc32c("Accomplishment"), 1000000 + onum);
+      obj->SetSkill(prhash("Accomplishment"), 1000000 + onum);
 
       if (tp == 'E' || tp == 'S') {
         fscanf(mudm, "%d %d %d", &val, &val2, &val3);
         for (int ctr = 0; ctr < val; ++ctr)
           obj->SetAttribute(ctr % 6, obj->NormAttribute(ctr % 6) + 1); // val1 = Level
-        obj->SetSkill(crc32c("TBAAttack"), ((20 - val2) / 3) + 3); // val2 = THAC0
-        obj->SetSkill(crc32c("TBADefense"), ((10 - val3) / 3) + 3); // val2 = AC
+        obj->SetSkill(prhash("TBAAttack"), ((20 - val2) / 3) + 3); // val2 = THAC0
+        obj->SetSkill(prhash("TBADefense"), ((10 - val3) / 3) + 3); // val2 = AC
 
         fscanf(mudm, " %dd%d+%d", &val, &val2, &val3); // Hit Points
         val = (val * (val2 + 1) + 1) / 2 + val3;
@@ -950,7 +950,7 @@ void Object::TBALoadMOB(const std::string& fn) {
         obj->SetAttribute(2, (val / 3) + 3); // Becomes Strength
 
         fscanf(mudm, "%d", &val); // Gold
-        obj->SetSkill(crc32c("TBAGold"), val);
+        obj->SetSkill(prhash("TBAGold"), val);
 
         fscanf(mudm, "%*[^\n\r]\n"); // XP //FIXME: Worth Karma?
 
@@ -970,7 +970,7 @@ void Object::TBALoadMOB(const std::string& fn) {
         obj->gender = genderlist[val3];
       }
 
-      obj->SetSkill(crc32c("NaturalWeapon"), 13); //"Hits" (is default in TBA)
+      obj->SetSkill(prhash("NaturalWeapon"), 13); //"Hits" (is default in TBA)
       memset(buf, 0, 65536);
       while (tp == 'E') { // Basically an if with an infinite loop ;)
         if (fscanf(mudm, "Con: %d\n", &val))
@@ -997,7 +997,7 @@ void Object::TBALoadMOB(const std::string& fn) {
         else if (fscanf(mudm, "BareHandAttack: %d\n", &val)) {
           if (val == 13)
             val = 0; // Punches (is the Default in Acid)
-          obj->SetSkill(crc32c("NaturalWeapon"), val);
+          obj->SetSkill(prhash("NaturalWeapon"), val);
         }
 
         else
@@ -1011,22 +1011,22 @@ void Object::TBALoadMOB(const std::string& fn) {
       obj->SetValue(-1);
 
       if (aware) { // Perception = Int
-        obj->SetSkill(crc32c("Perception"), obj->NormAttribute(4));
+        obj->SetSkill(prhash("Perception"), obj->NormAttribute(4));
       }
 
       if (sneak && hidden) { // Stealth = 3Q/2
-        obj->SetSkill(crc32c("Stealth"), (3 * obj->NormAttribute(1) + 1) / 2);
+        obj->SetSkill(prhash("Stealth"), (3 * obj->NormAttribute(1) + 1) / 2);
       } else if (hidden) { // Stealth = Q
-        obj->SetSkill(crc32c("Stealth"), obj->NormAttribute(1));
+        obj->SetSkill(prhash("Stealth"), obj->NormAttribute(1));
       } else if (sneak) { // Stealth = Q/2
-        obj->SetSkill(crc32c("Stealth"), (obj->NormAttribute(1) + 1) / 2);
+        obj->SetSkill(prhash("Stealth"), (obj->NormAttribute(1) + 1) / 2);
       }
 
       if (hidden) {
-        obj->SetSkill(crc32c("Hidden"), obj->Skill(crc32c("Stealth")) * 2);
+        obj->SetSkill(prhash("Hidden"), obj->Skill(prhash("Stealth")) * 2);
       }
       if (sneak) {
-        obj->StartUsing(crc32c("Stealth"));
+        obj->StartUsing(prhash("Stealth"));
       }
 
       int tnum;
@@ -1052,168 +1052,168 @@ static void add_tba_spell(Object* obj, int spell, int power) {
     case (-1): { // No Effect
     } break;
     case (1): { // ARMOR
-      obj->SetSkill(crc32c("Resilience Spell"), power);
+      obj->SetSkill(prhash("Resilience Spell"), power);
     } break;
     case (2): { // TELEPORT
-      obj->SetSkill(crc32c("Teleport Spell"), power);
+      obj->SetSkill(prhash("Teleport Spell"), power);
     } break;
     case (3): { // BLESS
-      obj->SetSkill(crc32c("Luck Spell"), power);
+      obj->SetSkill(prhash("Luck Spell"), power);
     } break;
     case (4): { // BLINDNESS
-      obj->SetSkill(crc32c("Blind Spell"), power);
+      obj->SetSkill(prhash("Blind Spell"), power);
     } break;
     case (5): { // BURNING HANDS
-      obj->SetSkill(crc32c("Fire Dart Spell"), power);
+      obj->SetSkill(prhash("Fire Dart Spell"), power);
     } break;
     case (6): { // CALL LIGHTNING
-      obj->SetSkill(crc32c("Lightning Bolt Spell"), power);
+      obj->SetSkill(prhash("Lightning Bolt Spell"), power);
     } break;
     case (7): { // CHARM
-      obj->SetSkill(crc32c("Influence Spell"), power);
+      obj->SetSkill(prhash("Influence Spell"), power);
     } break;
     case (8): { // CHILL TOUCH
-      obj->SetSkill(crc32c("Injure Spell"), power);
+      obj->SetSkill(prhash("Injure Spell"), power);
     } break;
     case (9): { // CLONE
-      obj->SetSkill(crc32c("Copy Book Spell"), power);
+      obj->SetSkill(prhash("Copy Book Spell"), power);
     } break;
     case (10): { // COLOR SPRAY
-      obj->SetSkill(crc32c("Distract Spell"), power);
+      obj->SetSkill(prhash("Distract Spell"), power);
     } break;
     case (11): { // CONTROL WEATHER
-      obj->SetSkill(crc32c("Clear Weather Spell"), power);
+      obj->SetSkill(prhash("Clear Weather Spell"), power);
     } break;
     case (12): { // CREATE FOOD
-      obj->SetSkill(crc32c("Create Food Spell"), power);
+      obj->SetSkill(prhash("Create Food Spell"), power);
     } break;
     case (13): { // CREATE WATER
-      obj->SetSkill(crc32c("Create Water Spell"), power);
+      obj->SetSkill(prhash("Create Water Spell"), power);
     } break;
     case (14): { // CURE BLIND
-      obj->SetSkill(crc32c("Cure Blindness Spell"), power);
+      obj->SetSkill(prhash("Cure Blindness Spell"), power);
     } break;
     case (15): { // CURE_CRITIC
-      obj->SetSkill(crc32c("Heal Spell"), power);
+      obj->SetSkill(prhash("Heal Spell"), power);
     } break;
     case (16): { // CURE_LIGHT
-      obj->SetSkill(crc32c("Energize Spell"), power);
+      obj->SetSkill(prhash("Energize Spell"), power);
     } break;
     case (17): { // CURSE
-      obj->SetSkill(crc32c("Misfortune Spell"), power);
+      obj->SetSkill(prhash("Misfortune Spell"), power);
     } break;
     case (18): { // DETECT ALIGN
-      obj->SetSkill(crc32c("Identify Character Spell"), power);
+      obj->SetSkill(prhash("Identify Character Spell"), power);
     } break;
     case (19): { // DETECT INVIS
-      obj->SetSkill(crc32c("Heat Vision Spell"), power);
+      obj->SetSkill(prhash("Heat Vision Spell"), power);
     } break;
     case (20): { // DETECT MAGIC
-      obj->SetSkill(crc32c("Detect Cursed Items Spell"), power);
+      obj->SetSkill(prhash("Detect Cursed Items Spell"), power);
     } break;
     case (21): { // DETECT POISON
-      obj->SetSkill(crc32c("Detect Poison Spell"), power);
+      obj->SetSkill(prhash("Detect Poison Spell"), power);
     } break;
     case (22): { // DETECT EVIL
-      obj->SetSkill(crc32c("Identify Person Spell"), power);
+      obj->SetSkill(prhash("Identify Person Spell"), power);
     } break;
     case (23): { // EARTHQUAKE
-      obj->SetSkill(crc32c("Earthquake Spell"), power);
+      obj->SetSkill(prhash("Earthquake Spell"), power);
     } break;
     case (24): { // ENCHANT WEAPON
-      obj->SetSkill(crc32c("Force Sword Spell"), power);
+      obj->SetSkill(prhash("Force Sword Spell"), power);
     } break;
     case (25): { // ENERGY DRAIN
-      obj->SetSkill(crc32c("Weaken Subject Spell"), power);
+      obj->SetSkill(prhash("Weaken Subject Spell"), power);
     } break;
     case (26): { // FIREBALL
-      obj->SetSkill(crc32c("Fireball Spell"), power);
+      obj->SetSkill(prhash("Fireball Spell"), power);
     } break;
     case (27): { // HARM
-      obj->SetSkill(crc32c("Harm Spell"), power);
+      obj->SetSkill(prhash("Harm Spell"), power);
     } break;
     case (28): { // HEAL
-      obj->SetSkill(crc32c("Heal Spell"), power);
-      obj->SetSkill(crc32c("Energize Spell"), power);
+      obj->SetSkill(prhash("Heal Spell"), power);
+      obj->SetSkill(prhash("Energize Spell"), power);
     } break;
     case (29): { // INVISIBLE
-      obj->SetSkill(crc32c("Invisibility Spell"), power);
+      obj->SetSkill(prhash("Invisibility Spell"), power);
     } break;
     case (30): { // LIGHTNING BOLT
-      obj->SetSkill(crc32c("Fire Burst Spell"), power);
+      obj->SetSkill(prhash("Fire Burst Spell"), power);
     } break;
     case (31): { // LOCATE OBJECT
-      obj->SetSkill(crc32c("Locate Object Spell"), power);
+      obj->SetSkill(prhash("Locate Object Spell"), power);
     } break;
     case (32): { // MAGIC MISSILE
-      obj->SetSkill(crc32c("Force Arrow Spell"), power);
+      obj->SetSkill(prhash("Force Arrow Spell"), power);
     } break;
     case (33): { // POISON
-      obj->SetSkill(crc32c("Poisonous"), power);
+      obj->SetSkill(prhash("Poisonous"), power);
     } break;
     case (34): { // PROT FROM EVIL
-      obj->SetSkill(crc32c("Personal Shield Spell"), power);
+      obj->SetSkill(prhash("Personal Shield Spell"), power);
     } break;
     case (35): { // REMOVE CURSE
-      obj->SetSkill(crc32c("Remove Curse Spell"), power);
+      obj->SetSkill(prhash("Remove Curse Spell"), power);
     } break;
     case (36): { // SANCTUARY
-      obj->SetSkill(crc32c("Treatment Spell"), power);
+      obj->SetSkill(prhash("Treatment Spell"), power);
     } break;
     case (37): { // SHOCKING GRASP
-      obj->SetSkill(crc32c("Spark Spell"), power);
+      obj->SetSkill(prhash("Spark Spell"), power);
     } break;
     case (38): { // SLEEP
-      obj->SetSkill(crc32c("Sleep Other Spell"), power);
+      obj->SetSkill(prhash("Sleep Other Spell"), power);
     } break;
     case (39): { // STRENGTH
-      obj->SetSkill(crc32c("Strength Spell"), power);
+      obj->SetSkill(prhash("Strength Spell"), power);
     } break;
     case (40): { // SUMMON
-      obj->SetSkill(crc32c("Summon Creature Spell"), power);
+      obj->SetSkill(prhash("Summon Creature Spell"), power);
     } break;
     case (41): { // VENTRILOQUATE
-      obj->SetSkill(crc32c("Translate Spell"), power);
+      obj->SetSkill(prhash("Translate Spell"), power);
     } break;
     case (42): { // WORD OF RECALL
-      obj->SetSkill(crc32c("Recall Spell"), power);
+      obj->SetSkill(prhash("Recall Spell"), power);
     } break;
     case (43): { // REMOVE_POISON
-      obj->SetSkill(crc32c("Cure Poison Spell"), power);
+      obj->SetSkill(prhash("Cure Poison Spell"), power);
     } break;
     case (44): { // SENSE LIFE
-      obj->SetSkill(crc32c("Light Spell"), power);
+      obj->SetSkill(prhash("Light Spell"), power);
     } break;
     case (45): { // ANIMATE DEAD
-      obj->SetSkill(crc32c("Create Zombie Spell"), power);
+      obj->SetSkill(prhash("Create Zombie Spell"), power);
     } break;
     case (46): { // DISPEL GOOD??
-      obj->SetSkill(crc32c("Protection Spell"), power);
+      obj->SetSkill(prhash("Protection Spell"), power);
     } break;
     case (47): { // GROUP ARMOR
-      obj->SetSkill(crc32c("Group Resilience Spell"), power);
+      obj->SetSkill(prhash("Group Resilience Spell"), power);
     } break;
     case (48): { // GROUP HEAL
-      obj->SetSkill(crc32c("Heal Group Spell"), power);
+      obj->SetSkill(prhash("Heal Group Spell"), power);
     } break;
     case (49): { // GROUP RECALL
-      obj->SetSkill(crc32c("Recall Group Spell"), power);
+      obj->SetSkill(prhash("Recall Group Spell"), power);
     } break;
     case (50): { // INFRAVISION
-      obj->SetSkill(crc32c("Dark Vision Spell"), power);
+      obj->SetSkill(prhash("Dark Vision Spell"), power);
     } break;
     case (51): { // WATERWALK
-      obj->SetSkill(crc32c("Float Spell"), power);
+      obj->SetSkill(prhash("Float Spell"), power);
     } break;
     case (52):
     case (201): { // IDENTIFY
-      obj->SetSkill(crc32c("Identify Spell"), power);
+      obj->SetSkill(prhash("Identify Spell"), power);
     } break;
     case (53): { // FLY
-      obj->SetSkill(crc32c("Fly Spell"), power);
+      obj->SetSkill(prhash("Fly Spell"), power);
     } break;
     case (54): { // DARKNESS
-      obj->SetSkill(crc32c("Darkness Spell"), power);
+      obj->SetSkill(prhash("Darkness Spell"), power);
     } break;
     default: {
       fprintf(stderr, CYEL "Warning: Unhandled CicleMUD Spell: %d\n" CNRM, spell);
@@ -1224,7 +1224,7 @@ static void add_tba_spell(Object* obj, int spell, int power) {
 void Object::TBALoadOBJ(const std::string& fn) {
   if (objroom == nullptr) {
     objroom = new Object(this->World());
-    objroom->SetSkill(crc32c("Invisible"), 1000);
+    objroom->SetSkill(prhash("Invisible"), 1000);
     objroom->SetShortDesc("The TBAMUD Object Room");
   }
   FILE* mudo = fopen(fn.c_str(), "r");
@@ -1238,7 +1238,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
       // fprintf(stderr, "Loaded object #%d\n", onum);
 
       Object* obj = new Object(objroom);
-      obj->SetSkill(crc32c("TBAObject"), 1000000 + onum);
+      obj->SetSkill(prhash("TBAObject"), 1000000 + onum);
       bynumobj[onum] = obj;
 
       std::vector<std::string_view> aliases;
@@ -1273,7 +1273,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
                 stderr,
                 CYEL "Warning: Ignoring non-alpha alias [%s] in #%d ('%s')\n" CNRM,
                 std::string(aliases[actr]).c_str(),
-                obj->Skill(crc32c("TBAObject")),
+                obj->Skill(prhash("TBAObject")),
                 obj->ShortDescC());
           } else if (aliases[actr] == "wyv" || aliases[actr] == "ghenna") {
             // Ignore these, they're just typing short-cuts.
@@ -1286,7 +1286,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
             //    stderr,
             //    CYEL "Warning: Adding [%s] to #%d ('%s')\n" CNRM,
             //    std::string(aliases[actr]).c_str(),
-            //    obj->Skill(crc32c("TBAObject")),
+            //    obj->Skill(prhash("TBAObject")),
             //    obj->ShortDescC());
             label += " ";
             label += aliases[actr];
@@ -1305,7 +1305,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
         if (field[0] != '.') {
           obj->SetLongDesc(field);
         } else { // Hidden Objects
-          obj->SetSkill(crc32c("Hidden"), 10);
+          obj->SetSkill(prhash("Hidden"), 10);
           obj->SetLongDesc(field.substr(1));
         }
       }
@@ -1317,29 +1317,29 @@ void Object::TBALoadOBJ(const std::string& fn) {
       memset(buf, 0, 65536);
       fscanf(mudo, "%d %65535[^ \n\t]", &tp, buf); // Effects Bitvector
       if (strcasestr(buf, "a") || (atoi(buf) & 1)) { // GLOW
-        obj->SetSkill(crc32c("Light Source"), 10);
+        obj->SetSkill(prhash("Light Source"), 10);
       }
       if (strcasestr(buf, "b") || (atoi(buf) & 2)) { // HUM
-        obj->SetSkill(crc32c("Noise Source"), 10);
+        obj->SetSkill(prhash("Noise Source"), 10);
       }
       //      if(strcasestr(buf, "c") || (atoi(buf) & 4)) { //NORENT
       //	}
       //      if(strcasestr(buf, "d") || (atoi(buf) & 8)) { //NODONATE
       //	}
       if (strcasestr(buf, "e") || (atoi(buf) & 16)) { // NOINVIS
-        obj->SetSkill(crc32c("Obvious"), 1000);
+        obj->SetSkill(prhash("Obvious"), 1000);
       }
       if (strcasestr(buf, "f") || (atoi(buf) & 32)) { // INVISIBLE
-        obj->SetSkill(crc32c("Invisible"), 10);
+        obj->SetSkill(prhash("Invisible"), 10);
       }
       if (strcasestr(buf, "g") || (atoi(buf) & 64)) { // MAGIC
-        obj->SetSkill(crc32c("Magical"), 10);
+        obj->SetSkill(prhash("Magical"), 10);
       }
       if (strcasestr(buf, "h") || (atoi(buf) & 128)) { // NODROP
-        obj->SetSkill(crc32c("Cursed"), 10);
+        obj->SetSkill(prhash("Cursed"), 10);
       }
       if (strcasestr(buf, "i") || (atoi(buf) & 256)) { // BLESS
-        obj->SetSkill(crc32c("Blessed"), 10);
+        obj->SetSkill(prhash("Blessed"), 10);
       }
       //      if(strcasestr(buf, "j") || (atoi(buf) & 512)) { //ANTI_GOOD
       //	}
@@ -1356,7 +1356,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
       //      if(strcasestr(buf, "p") || (atoi(buf) & 32768)) { //ANTI_WARRIOR
       //	}
       if (strcasestr(buf, "q") || (atoi(buf) & 65536)) { // NOSELL
-        obj->SetSkill(crc32c("Priceless"), 1);
+        obj->SetSkill(prhash("Priceless"), 1);
       }
 
       // Wear Bitvector
@@ -1376,28 +1376,28 @@ void Object::TBALoadOBJ(const std::string& fn) {
 
       std::string name = obj->ShortDesc();
       if (strcasestr(buf, "b") || (atoi(buf) & 2)) {
-        obj->SetSkill(crc32c("Wearable on Left Finger"), 1); // Two Alternatives
-        obj->SetSkill(crc32c("Wearable on Right Finger"), 2);
+        obj->SetSkill(prhash("Wearable on Left Finger"), 1); // Two Alternatives
+        obj->SetSkill(prhash("Wearable on Right Finger"), 2);
       }
       if (strcasestr(buf, "c") || (atoi(buf) & 4)) {
         if (matches(name.c_str(), "mask") || matches(name.c_str(), "sunglasses") ||
             matches(name.c_str(), "eyeglasses") || matches(name.c_str(), "spectacles") ||
             matches(name.c_str(), "glasses") || matches(name.c_str(), "goggles") ||
             matches(name.c_str(), "visor") || matches(name.c_str(), "eyelets")) {
-          obj->SetSkill(crc32c("Wearable on Face"), 1);
+          obj->SetSkill(prhash("Wearable on Face"), 1);
         } else {
-          obj->SetSkill(crc32c("Wearable on Neck"), 1);
-          obj->SetSkill(crc32c("Wearable on Collar"), 2);
+          obj->SetSkill(prhash("Wearable on Neck"), 1);
+          obj->SetSkill(prhash("Wearable on Collar"), 2);
         }
       }
       if (strcasestr(buf, "d") || (atoi(buf) & 8)) {
-        obj->SetSkill(crc32c("Wearable on Chest"), 1);
-        obj->SetSkill(crc32c("Wearable on Back"), 1);
+        obj->SetSkill(prhash("Wearable on Chest"), 1);
+        obj->SetSkill(prhash("Wearable on Back"), 1);
         if (matches(name.c_str(), "suit of")) {
-          obj->SetSkill(crc32c("Wearable on Right Leg"), 1);
-          obj->SetSkill(crc32c("Wearable on Left Leg"), 1);
-          obj->SetSkill(crc32c("Wearable on Right Arm"), 1);
-          obj->SetSkill(crc32c("Wearable on Left Arm"), 1);
+          obj->SetSkill(prhash("Wearable on Right Leg"), 1);
+          obj->SetSkill(prhash("Wearable on Left Leg"), 1);
+          obj->SetSkill(prhash("Wearable on Right Arm"), 1);
+          obj->SetSkill(prhash("Wearable on Left Arm"), 1);
           valmod *= 5;
         }
       }
@@ -1406,30 +1406,30 @@ void Object::TBALoadOBJ(const std::string& fn) {
             matches(name.c_str(), "eyeglasses") || matches(name.c_str(), "spectacles") ||
             matches(name.c_str(), "glasses") || matches(name.c_str(), "goggles") ||
             matches(name.c_str(), "visor") || matches(name.c_str(), "eyelets")) {
-          obj->SetSkill(crc32c("Wearable on Face"), 1);
+          obj->SetSkill(prhash("Wearable on Face"), 1);
         } else {
-          obj->SetSkill(crc32c("Wearable on Head"), 1);
+          obj->SetSkill(prhash("Wearable on Head"), 1);
         }
       }
       if (strcasestr(buf, "f") || (atoi(buf) & 32)) {
-        obj->SetSkill(crc32c("Wearable on Left Leg"), 1);
+        obj->SetSkill(prhash("Wearable on Left Leg"), 1);
         if (sf) {
           if (!strcmp(name.c_str() + (name.length() - 9), " leggings"))
             name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else if (!strcmp(name.c_str() + (name.length() - 7), " plates"))
             name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else
-            obj->SetSkill(crc32c("Wearable on Right Leg"), 1);
+            obj->SetSkill(prhash("Wearable on Right Leg"), 1);
         } else
-          obj->SetSkill(crc32c("Wearable on Right Leg"), 1);
-        if (!obj->Skill(crc32c("Wearable on Right Leg"))) { // Reversable
-          obj->SetSkill(crc32c("Wearable on Right Leg"), 2);
+          obj->SetSkill(prhash("Wearable on Right Leg"), 1);
+        if (!obj->Skill(prhash("Wearable on Right Leg"))) { // Reversable
+          obj->SetSkill(prhash("Wearable on Right Leg"), 2);
           valmod /= 2;
           powmod = 2;
         }
       }
       if (strcasestr(buf, "g") || (atoi(buf) & 64)) {
-        obj->SetSkill(crc32c("Wearable on Left Foot"), 1);
+        obj->SetSkill(prhash("Wearable on Left Foot"), 1);
         if (sf) {
           if (!strcmp(name.c_str() + (name.length() - 8), " sandals"))
             name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
@@ -1438,32 +1438,32 @@ void Object::TBALoadOBJ(const std::string& fn) {
           else if (!strcmp(name.c_str() + (name.length() - 6), " shoes"))
             name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else
-            obj->SetSkill(crc32c("Wearable on Right Foot"), 1);
+            obj->SetSkill(prhash("Wearable on Right Foot"), 1);
         } else
-          obj->SetSkill(crc32c("Wearable on Right Foot"), 1);
-        if (!obj->Skill(crc32c("Wearable on Right Foot"))) {
+          obj->SetSkill(prhash("Wearable on Right Foot"), 1);
+        if (!obj->Skill(prhash("Wearable on Right Foot"))) {
           valmod /= 2;
           powmod = 2;
         }
       }
       if (strcasestr(buf, "h") || (atoi(buf) & 128)) {
-        obj->SetSkill(crc32c("Wearable on Left Hand"), 1);
+        obj->SetSkill(prhash("Wearable on Left Hand"), 1);
         if (sf) {
           if (!strcmp(name.c_str() + (name.length() - 10), " gauntlets"))
             name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else if (!strcmp(name.c_str() + (name.length() - 7), " gloves"))
             name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else
-            obj->SetSkill(crc32c("Wearable on Right Hand"), 1);
+            obj->SetSkill(prhash("Wearable on Right Hand"), 1);
         } else
-          obj->SetSkill(crc32c("Wearable on Right Hand"), 1);
-        if (!obj->Skill(crc32c("Wearable on Right Hand"))) {
+          obj->SetSkill(prhash("Wearable on Right Hand"), 1);
+        if (!obj->Skill(prhash("Wearable on Right Hand"))) {
           valmod /= 2;
           powmod = 2;
         }
       }
       if (strcasestr(buf, "i") || (atoi(buf) & 256)) {
-        obj->SetSkill(crc32c("Wearable on Left Arm"), 1);
+        obj->SetSkill(prhash("Wearable on Left Arm"), 1);
         if (sf) {
           if (!strcmp(name.c_str() + (name.length() - 8), " sleeves"))
             name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
@@ -1472,28 +1472,28 @@ void Object::TBALoadOBJ(const std::string& fn) {
           else if (!strcmp(name.c_str() + (name.length() - 7), " plates"))
             name = std::string("a") + name.substr(sf, name.length() - (sf + 1));
           else
-            obj->SetSkill(crc32c("Wearable on Right Arm"), 1);
+            obj->SetSkill(prhash("Wearable on Right Arm"), 1);
         } else
-          obj->SetSkill(crc32c("Wearable on Right Arm"), 1);
-        if (!obj->Skill(crc32c("Wearable on Right Arm"))) { // Reversable
-          obj->SetSkill(crc32c("Wearable on Right Arm"), 2);
+          obj->SetSkill(prhash("Wearable on Right Arm"), 1);
+        if (!obj->Skill(prhash("Wearable on Right Arm"))) { // Reversable
+          obj->SetSkill(prhash("Wearable on Right Arm"), 2);
           valmod /= 2;
           powmod = 2;
         }
       }
       if (strcasestr(buf, "j") || (atoi(buf) & 512)) {
-        obj->SetSkill(crc32c("Wearable on Shield"), 1); // FIXME: Wear Shield?
+        obj->SetSkill(prhash("Wearable on Shield"), 1); // FIXME: Wear Shield?
       }
       if (strcasestr(buf, "k") || (atoi(buf) & 1024)) {
-        obj->SetSkill(crc32c("Wearable on Left Shoulder"), 1);
-        obj->SetSkill(crc32c("Wearable on Right Shoulder"), 1);
+        obj->SetSkill(prhash("Wearable on Left Shoulder"), 1);
+        obj->SetSkill(prhash("Wearable on Right Shoulder"), 1);
       }
       if (strcasestr(buf, "l") || (atoi(buf) & 2048)) {
-        obj->SetSkill(crc32c("Wearable on Waist"), 1);
+        obj->SetSkill(prhash("Wearable on Waist"), 1);
       }
       if (strcasestr(buf, "m") || (atoi(buf) & 4096)) {
-        obj->SetSkill(crc32c("Wearable on Left Wrist"), 1);
-        obj->SetSkill(crc32c("Wearable on Right Wrist"), 2);
+        obj->SetSkill(prhash("Wearable on Left Wrist"), 1);
+        obj->SetSkill(prhash("Wearable on Right Wrist"), 2);
       }
       obj->SetShortDesc(name.c_str());
 
@@ -1501,19 +1501,19 @@ void Object::TBALoadOBJ(const std::string& fn) {
 
       if (tp == 1) { // LIGHTS
         if (val[2] > 1) {
-          obj->SetSkill(crc32c("Lightable"), val[2] * 60); // Total Lit Minutes
-          obj->SetSkill(crc32c("Brightness"), 100); // All TBAMUD Lights
+          obj->SetSkill(prhash("Lightable"), val[2] * 60); // Total Lit Minutes
+          obj->SetSkill(prhash("Brightness"), 100); // All TBAMUD Lights
           if (matches(name.c_str(), "lantern")) {
-            obj->SetSkill(crc32c("Resilience"), 800); // May last when dropped
+            obj->SetSkill(prhash("Resilience"), 800); // May last when dropped
           } else if (matches(name.c_str(), "torch")) {
-            obj->SetSkill(crc32c("Resilience"), 200); // Won't last when dropped
+            obj->SetSkill(prhash("Resilience"), 200); // Won't last when dropped
           } else if (matches(name.c_str(), "candle")) {
-            // obj->SetSkill(crc32c("Resilience"), 0); // Goes out when dropped
+            // obj->SetSkill(prhash("Resilience"), 0); // Goes out when dropped
           } else {
-            obj->SetSkill(crc32c("Resilience"), 100); // Won't last when dropped
+            obj->SetSkill(prhash("Resilience"), 100); // Won't last when dropped
           }
         } else {
-          obj->SetSkill(crc32c("Light Source"), 100); // All TBAMUD Lights
+          obj->SetSkill(prhash("Light Source"), 100); // All TBAMUD Lights
         }
       } else if (tp == 9) { // ARMOR
         if (val[0] < 0) { // Cursed Armor
@@ -1528,68 +1528,68 @@ void Object::TBALoadOBJ(const std::string& fn) {
         if (!gold)
           init_gold();
         (*obj) = (*gold);
-        obj->SetSkill(crc32c("Quantity"), val[0]);
+        obj->SetSkill(prhash("Quantity"), val[0]);
       } else if (tp == 18) { // KEY
-        obj->SetSkill(crc32c("Key"), 1000000 + onum); // Key's "code"
+        obj->SetSkill(prhash("Key"), 1000000 + onum); // Key's "code"
       } else if (tp == 15) { // CONTAINER
-        obj->SetSkill(crc32c("Container"), val[0] * 454);
-        obj->SetSkill(crc32c("Capacity"), val[0]);
+        obj->SetSkill(prhash("Container"), val[0] * 454);
+        obj->SetSkill(prhash("Capacity"), val[0]);
 
         if (!(val[1] & 4))
-          obj->SetSkill(crc32c("Open"), 1000); // Start open?
+          obj->SetSkill(prhash("Open"), 1000); // Start open?
         if (val[1] & 8) {
-          obj->SetSkill(crc32c("Locked"), 1); // Start locked?
-          obj->SetSkill(crc32c("Lockable"), 1); // Can it be locked?
+          obj->SetSkill(prhash("Locked"), 1); // Start locked?
+          obj->SetSkill(prhash("Lockable"), 1); // Can it be locked?
         }
         if (val[1] & 1)
-          obj->SetSkill(crc32c("Closeable"), 1); // Can it be closed?
+          obj->SetSkill(prhash("Closeable"), 1); // Can it be closed?
         if (val[2] > 0) {
-          obj->SetSkill(crc32c("Lock"), 1000000 + val[2]); // Unlocking key's code
-          obj->SetSkill(crc32c("Accomplishment"), 1300000 + val[2]);
-          obj->SetSkill(crc32c("Lockable"), 1); // Can it be locked?
+          obj->SetSkill(prhash("Lock"), 1000000 + val[2]); // Unlocking key's code
+          obj->SetSkill(prhash("Accomplishment"), 1300000 + val[2]);
+          obj->SetSkill(prhash("Lockable"), 1); // Can it be locked?
         }
 
         if (obj->ShortDesc().find("bag") < obj->ShortDesc().length()) {
-          obj->SetSkill(crc32c("Closeable"), 1); // Bags CAN be closed
-          obj->SetSkill(crc32c("Wearable on Left Hip"), 1); // Bags CAN be belted
-          obj->SetSkill(crc32c("Wearable on Right Hip"), 2);
+          obj->SetSkill(prhash("Closeable"), 1); // Bags CAN be closed
+          obj->SetSkill(prhash("Wearable on Left Hip"), 1); // Bags CAN be belted
+          obj->SetSkill(prhash("Wearable on Right Hip"), 2);
         }
 
         if (obj->ShortDesc().find("pouch") < obj->ShortDesc().length()) {
-          obj->SetSkill(crc32c("Closeable"), 1); // Pouches CAN be closed
-          obj->SetSkill(crc32c("Wearable on Left Hip"), 1); // Pouches CAN be belted
-          obj->SetSkill(crc32c("Wearable on Right Hip"), 2);
+          obj->SetSkill(prhash("Closeable"), 1); // Pouches CAN be closed
+          obj->SetSkill(prhash("Wearable on Left Hip"), 1); // Pouches CAN be belted
+          obj->SetSkill(prhash("Wearable on Right Hip"), 2);
         }
 
       } else if (tp == 2) { // SCROLL
-        obj->SetSkill(crc32c("Magical"), val[0]);
-        obj->SetSkill(crc32c("Magical Scroll"), val[0]);
-        obj->SetSkill(crc32c("Magical Charges"), 1);
+        obj->SetSkill(prhash("Magical"), val[0]);
+        obj->SetSkill(prhash("Magical Scroll"), val[0]);
+        obj->SetSkill(prhash("Magical Charges"), 1);
         for (int idx = 1; idx < 4; ++idx) {
           add_tba_spell(obj, val[idx], val[0]);
         }
       } else if (tp == 3) { // WAND
-        obj->SetSkill(crc32c("Magical"), val[0]);
-        obj->SetSkill(crc32c("Magical Wand"), val[1]);
-        obj->SetSkill(crc32c("Magical Charges"), val[2]);
+        obj->SetSkill(prhash("Magical"), val[0]);
+        obj->SetSkill(prhash("Magical Wand"), val[1]);
+        obj->SetSkill(prhash("Magical Charges"), val[2]);
         add_tba_spell(obj, val[3], val[0]);
       } else if (tp == 4) { // STAFF
-        obj->SetSkill(crc32c("Magical"), val[0]);
-        obj->SetSkill(crc32c("Magical Staff"), val[1]);
-        obj->SetSkill(crc32c("Magical Charges"), val[2]);
+        obj->SetSkill(prhash("Magical"), val[0]);
+        obj->SetSkill(prhash("Magical Staff"), val[1]);
+        obj->SetSkill(prhash("Magical Charges"), val[2]);
         add_tba_spell(obj, val[3], val[0]);
       } else if (tp == 10) { // POTION
-        obj->SetSkill(crc32c("Liquid Container"), 1);
-        obj->SetSkill(crc32c("Closeable"), 1);
-        obj->SetSkill(crc32c("Perishable"), 1);
+        obj->SetSkill(prhash("Liquid Container"), 1);
+        obj->SetSkill(prhash("Closeable"), 1);
+        obj->SetSkill(prhash("Perishable"), 1);
 
         Object* liq = new Object(obj);
-        liq->SetSkill(crc32c("Liquid"), 1);
-        liq->SetSkill(crc32c("Ingestible"), 1);
+        liq->SetSkill(prhash("Liquid"), 1);
+        liq->SetSkill(prhash("Ingestible"), 1);
         liq->SetWeight(10);
         liq->SetVolume(1);
-        liq->SetSkill(crc32c("Quantity"), 1);
-        liq->SetSkill(crc32c("Magical"), val[0]);
+        liq->SetSkill(prhash("Quantity"), 1);
+        liq->SetSkill(prhash("Magical"), val[0]);
         liq->SetShortDesc("some liquid");
         for (int idx = 1; idx < 4; ++idx) {
           add_tba_spell(liq, val[idx], val[0]);
@@ -1598,139 +1598,139 @@ void Object::TBALoadOBJ(const std::string& fn) {
         if (val[0] < 0)
           val[0] = 1 << 30; // Unlimited
         if (tp == 23) { // FOUNTAIN only
-          obj->SetSkill(crc32c("Open"), 1000);
-          obj->SetSkill(crc32c("Liquid Source"), 1);
-          obj->SetSkill(crc32c("Liquid Container"), val[0] + 1);
+          obj->SetSkill(prhash("Open"), 1000);
+          obj->SetSkill(prhash("Liquid Source"), 1);
+          obj->SetSkill(prhash("Liquid Container"), val[0] + 1);
         } else { // DRINKCON only
-          obj->SetSkill(crc32c("Closeable"), 1);
-          obj->SetSkill(crc32c("Liquid Container"), val[0]);
+          obj->SetSkill(prhash("Closeable"), 1);
+          obj->SetSkill(prhash("Liquid Container"), val[0]);
         }
         if (val[1] > 0 || tp == 23) {
           Object* liq = new Object(obj);
-          liq->SetSkill(crc32c("Liquid"), 1);
-          liq->SetSkill(crc32c("Ingestible"), 1);
+          liq->SetSkill(prhash("Liquid"), 1);
+          liq->SetSkill(prhash("Ingestible"), 1);
           liq->SetWeight(20);
           liq->SetVolume(2);
           switch (val[2]) { // "* 90" = TBAMUD's hours/4 * Acid's Hours * 6
             case (0): { // WATER
               liq->SetShortDesc("water");
-              liq->SetSkill(crc32c("Drink"), 10 * 90);
-              liq->SetSkill(crc32c("Food"), 1 * 90);
-              // liq->SetSkill(crc32c("Alcohol"), 0 * 90);
+              liq->SetSkill(prhash("Drink"), 10 * 90);
+              liq->SetSkill(prhash("Food"), 1 * 90);
+              // liq->SetSkill(prhash("Alcohol"), 0 * 90);
             } break;
             case (1): { // BEER
               liq->SetShortDesc("beer");
-              liq->SetSkill(crc32c("Drink"), 5 * 90);
-              liq->SetSkill(crc32c("Food"), 2 * 90);
-              liq->SetSkill(crc32c("Alcohol"), 3 * 90);
-              liq->SetSkill(crc32c("Perishable"), 32);
+              liq->SetSkill(prhash("Drink"), 5 * 90);
+              liq->SetSkill(prhash("Food"), 2 * 90);
+              liq->SetSkill(prhash("Alcohol"), 3 * 90);
+              liq->SetSkill(prhash("Perishable"), 32);
             } break;
             case (2): { // WINE
               liq->SetShortDesc("wine");
-              liq->SetSkill(crc32c("Drink"), 5 * 90);
-              liq->SetSkill(crc32c("Food"), 2 * 90);
-              liq->SetSkill(crc32c("Alcohol"), 5 * 90);
+              liq->SetSkill(prhash("Drink"), 5 * 90);
+              liq->SetSkill(prhash("Food"), 2 * 90);
+              liq->SetSkill(prhash("Alcohol"), 5 * 90);
             } break;
             case (3): { // ALE
               liq->SetShortDesc("ale");
-              liq->SetSkill(crc32c("Drink"), 5 * 90);
-              liq->SetSkill(crc32c("Food"), 2 * 90);
-              liq->SetSkill(crc32c("Alcohol"), 2 * 90);
-              liq->SetSkill(crc32c("Perishable"), 16);
+              liq->SetSkill(prhash("Drink"), 5 * 90);
+              liq->SetSkill(prhash("Food"), 2 * 90);
+              liq->SetSkill(prhash("Alcohol"), 2 * 90);
+              liq->SetSkill(prhash("Perishable"), 16);
             } break;
             case (4): { // DARKALE
               liq->SetShortDesc("dark ale");
-              liq->SetSkill(crc32c("Drink"), 5 * 90);
-              liq->SetSkill(crc32c("Food"), 2 * 90);
-              liq->SetSkill(crc32c("Alcohol"), 1 * 90);
-              liq->SetSkill(crc32c("Perishable"), 8);
+              liq->SetSkill(prhash("Drink"), 5 * 90);
+              liq->SetSkill(prhash("Food"), 2 * 90);
+              liq->SetSkill(prhash("Alcohol"), 1 * 90);
+              liq->SetSkill(prhash("Perishable"), 8);
             } break;
             case (5): { // WHISKY
               liq->SetShortDesc("whisky");
-              liq->SetSkill(crc32c("Drink"), 4 * 90);
-              liq->SetSkill(crc32c("Food"), 1 * 90);
-              liq->SetSkill(crc32c("Alcohol"), 6 * 90);
+              liq->SetSkill(prhash("Drink"), 4 * 90);
+              liq->SetSkill(prhash("Food"), 1 * 90);
+              liq->SetSkill(prhash("Alcohol"), 6 * 90);
             } break;
             case (6): { // LEMONADE
               liq->SetShortDesc("lemonaid");
-              liq->SetSkill(crc32c("Drink"), 8 * 90);
-              liq->SetSkill(crc32c("Food"), 1 * 90);
-              // liq->SetSkill(crc32c("Alcohol"), 0 * 90);
-              liq->SetSkill(crc32c("Perishable"), 4);
+              liq->SetSkill(prhash("Drink"), 8 * 90);
+              liq->SetSkill(prhash("Food"), 1 * 90);
+              // liq->SetSkill(prhash("Alcohol"), 0 * 90);
+              liq->SetSkill(prhash("Perishable"), 4);
             } break;
             case (7): { // FIREBRT
               liq->SetShortDesc("firebreather");
-              // liq->SetSkill(crc32c("Drink"), 0 * 90);
-              // liq->SetSkill(crc32c("Food"), 0 * 90);
-              liq->SetSkill(crc32c("Alcohol"), 10 * 90);
+              // liq->SetSkill(prhash("Drink"), 0 * 90);
+              // liq->SetSkill(prhash("Food"), 0 * 90);
+              liq->SetSkill(prhash("Alcohol"), 10 * 90);
             } break;
             case (8): { // LOCALSPC
               liq->SetShortDesc("local brew");
-              liq->SetSkill(crc32c("Drink"), 3 * 90);
-              liq->SetSkill(crc32c("Food"), 3 * 90);
-              liq->SetSkill(crc32c("Alcohol"), 3 * 90);
+              liq->SetSkill(prhash("Drink"), 3 * 90);
+              liq->SetSkill(prhash("Food"), 3 * 90);
+              liq->SetSkill(prhash("Alcohol"), 3 * 90);
             } break;
             case (9): { // SLIME
               liq->SetShortDesc("slime");
-              liq->SetSkill(crc32c("Dehydrate Effect"), 8 * 90);
-              liq->SetSkill(crc32c("Food"), 4 * 90);
-              // liq->SetSkill(crc32c("Alcohol"), 0 * 90);
+              liq->SetSkill(prhash("Dehydrate Effect"), 8 * 90);
+              liq->SetSkill(prhash("Food"), 4 * 90);
+              // liq->SetSkill(prhash("Alcohol"), 0 * 90);
             } break;
             case (10): { // MILK
               liq->SetShortDesc("milk");
-              liq->SetSkill(crc32c("Drink"), 6 * 90);
-              liq->SetSkill(crc32c("Food"), 3 * 90);
-              // liq->SetSkill(crc32c("Alcohol"), 0 * 90);
-              liq->SetSkill(crc32c("Perishable"), val[0]);
+              liq->SetSkill(prhash("Drink"), 6 * 90);
+              liq->SetSkill(prhash("Food"), 3 * 90);
+              // liq->SetSkill(prhash("Alcohol"), 0 * 90);
+              liq->SetSkill(prhash("Perishable"), val[0]);
             } break;
             case (11): { // TEA
               liq->SetShortDesc("tea");
-              liq->SetSkill(crc32c("Drink"), 6 * 90);
-              liq->SetSkill(crc32c("Food"), 1 * 90);
-              // liq->SetSkill(crc32c("Alcohol"), 0 * 90);
+              liq->SetSkill(prhash("Drink"), 6 * 90);
+              liq->SetSkill(prhash("Food"), 1 * 90);
+              // liq->SetSkill(prhash("Alcohol"), 0 * 90);
             } break;
             case (12): { // COFFE
               liq->SetShortDesc("coffee");
-              liq->SetSkill(crc32c("Drink"), 6 * 90);
-              liq->SetSkill(crc32c("Food"), 1 * 90);
-              // liq->SetSkill(crc32c("Alcohol"), 0 * 90);
+              liq->SetSkill(prhash("Drink"), 6 * 90);
+              liq->SetSkill(prhash("Food"), 1 * 90);
+              // liq->SetSkill(prhash("Alcohol"), 0 * 90);
             } break;
             case (13): { // BLOOD
               liq->SetShortDesc("blood");
-              liq->SetSkill(crc32c("Dehydrate Effect"), 1 * 90);
-              liq->SetSkill(crc32c("Food"), 2 * 90);
-              // liq->SetSkill(crc32c("Alcohol"), 0 * 90);
-              liq->SetSkill(crc32c("Perishable"), 2);
+              liq->SetSkill(prhash("Dehydrate Effect"), 1 * 90);
+              liq->SetSkill(prhash("Food"), 2 * 90);
+              // liq->SetSkill(prhash("Alcohol"), 0 * 90);
+              liq->SetSkill(prhash("Perishable"), 2);
             } break;
             case (14): { // SALTWATER
               liq->SetShortDesc("salt water");
-              liq->SetSkill(crc32c("Dehydrate Effect"), 2 * 90);
-              liq->SetSkill(crc32c("Food"), 1 * 90);
-              // liq->SetSkill(crc32c("Alcohol"), 0 * 90);
+              liq->SetSkill(prhash("Dehydrate Effect"), 2 * 90);
+              liq->SetSkill(prhash("Food"), 1 * 90);
+              // liq->SetSkill(prhash("Alcohol"), 0 * 90);
             } break;
             case (15): { // CLEARWATER
               liq->SetShortDesc("clear water");
-              liq->SetSkill(crc32c("Drink"), 13 * 90);
-              // liq->SetSkill(crc32c("Food"), 0 * 90);
-              // liq->SetSkill(crc32c("Alcohol"), 0 * 90);
+              liq->SetSkill(prhash("Drink"), 13 * 90);
+              // liq->SetSkill(prhash("Food"), 0 * 90);
+              // liq->SetSkill(prhash("Alcohol"), 0 * 90);
             } break;
           }
           if (val[3] != 0) {
-            liq->SetSkill(crc32c("Poisionous"), val[3]);
+            liq->SetSkill(prhash("Poisionous"), val[3]);
           }
-          liq->SetSkill(crc32c("Quantity"), val[1]);
+          liq->SetSkill(prhash("Quantity"), val[1]);
         }
       } else if (tp == 19) { // FOOD
-        obj->SetSkill(crc32c("Ingestible"), 1);
-        obj->SetSkill(crc32c("Perishable"), val[0]);
-        obj->SetSkill(crc32c("Food"), val[0] * 360); // 60 Mins & 6 Acid Hours/Hour
+        obj->SetSkill(prhash("Ingestible"), 1);
+        obj->SetSkill(prhash("Perishable"), val[0]);
+        obj->SetSkill(prhash("Food"), val[0] * 360); // 60 Mins & 6 Acid Hours/Hour
         if (val[3] != 0) {
-          obj->SetSkill(crc32c("Poisionous"), val[3]);
+          obj->SetSkill(prhash("Poisionous"), val[3]);
         }
       } else if (tp == 22) { // BOAT
-        obj->SetSkill(crc32c("Enterable"), 1);
-        obj->SetSkill(crc32c("Open"), 1000);
-        obj->SetSkill(crc32c("Vehicle"), 4); // Unpowered (1=0), Calm Water (4=1).
+        obj->SetSkill(prhash("Enterable"), 1);
+        obj->SetSkill(prhash("Open"), 1000);
+        obj->SetSkill(prhash("Vehicle"), 4); // Unpowered (1=0), Calm Water (4=1).
       } else if (tp == 5) { // WEAPON
         int wreach = 0; // default
 
@@ -2135,17 +2135,17 @@ void Object::TBALoadOBJ(const std::string& fn) {
           }
         }
 
-        obj->SetSkill(crc32c("WeaponType"), skmatch);
-        //	obj->SetSkill(crc32c("WeaponDamage"), val[1]*val[2]);
+        obj->SetSkill(prhash("WeaponType"), skmatch);
+        //	obj->SetSkill(prhash("WeaponDamage"), val[1]*val[2]);
         int sev = 0;
         int tot = (val[1] * (val[2] + 1) + 1) / 2; // Avg. TBA Dam. Rounded Up
         while (tot > sev) {
           ++sev;
           tot -= sev;
         }
-        obj->SetSkill(crc32c("WeaponForce"), tot);
-        obj->SetSkill(crc32c("WeaponSeverity"), sev);
-        obj->SetSkill(crc32c("WeaponReach"), wreach);
+        obj->SetSkill(prhash("WeaponForce"), tot);
+        obj->SetSkill(prhash("WeaponSeverity"), sev);
+        obj->SetSkill(prhash("WeaponReach"), wreach);
       }
 
       int wt, vl;
@@ -2157,7 +2157,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
         obj->SetSize(1);
         obj->SetValue((vl * valmod) / 1000);
         if (obj->Matches("cashcard")) { // Is Script Now
-          obj->SetSkill(crc32c("Money"), (vl * valmod) / 1000);
+          obj->SetSkill(prhash("Money"), (vl * valmod) / 1000);
         }
       }
 
@@ -2191,9 +2191,9 @@ void Object::TBALoadOBJ(const std::string& fn) {
             //	      } break;
             case (9): { // AGE
               if (aval > 0)
-                obj->SetSkill(crc32c("Youth Penalty"), aval / powmod);
+                obj->SetSkill(prhash("Youth Penalty"), aval / powmod);
               else if (aval < 0)
-                obj->SetSkill(crc32c("Youth Bonus"), -aval / powmod);
+                obj->SetSkill(prhash("Youth Bonus"), -aval / powmod);
             } break;
             //	    case(10): {	// CHAR_WEIGHT (Unused by main TBAMUD data)
             //	      } break;
@@ -2201,21 +2201,21 @@ void Object::TBALoadOBJ(const std::string& fn) {
             //	      } break;
             case (12): { // MANA
               if (aval > 0)
-                obj->SetSkill(crc32c("Magic Force Bonus"), aval * 100 / powmod);
+                obj->SetSkill(prhash("Magic Force Bonus"), aval * 100 / powmod);
               else if (aval < 0)
-                obj->SetSkill(crc32c("Magic Force Penalty"), -aval * 100 / powmod);
+                obj->SetSkill(prhash("Magic Force Penalty"), -aval * 100 / powmod);
             } break;
             case (13): { // HIT
               if (aval > 0)
-                obj->SetSkill(crc32c("Resilience Bonus"), aval * 100 / powmod);
+                obj->SetSkill(prhash("Resilience Bonus"), aval * 100 / powmod);
               else if (aval < 0)
-                obj->SetSkill(crc32c("Resilience Penalty"), -aval * 100 / powmod);
+                obj->SetSkill(prhash("Resilience Penalty"), -aval * 100 / powmod);
             } break;
             case (14): { // MOVE
               if (aval > 0)
-                obj->SetSkill(crc32c("Encumbrance Bonus"), aval * 20 / powmod);
+                obj->SetSkill(prhash("Encumbrance Bonus"), aval * 20 / powmod);
               else if (aval < 0)
-                obj->SetSkill(crc32c("Encumbrance Penalty"), -aval * 20 / powmod);
+                obj->SetSkill(prhash("Encumbrance Penalty"), -aval * 20 / powmod);
             } break;
             //	    case(15): {	// GOLD (Even TBAMUD Doesn't Use This!)
             //	      } break;
@@ -2223,21 +2223,21 @@ void Object::TBALoadOBJ(const std::string& fn) {
             //	      } break;
             case (17): { // AC
               if (aval > 0)
-                obj->SetSkill(crc32c("Evasion Penalty"), aval * 400 / powmod);
+                obj->SetSkill(prhash("Evasion Penalty"), aval * 400 / powmod);
               else if (aval < 0)
-                obj->SetSkill(crc32c("Evasion Bonus"), -aval * 400 / powmod);
+                obj->SetSkill(prhash("Evasion Bonus"), -aval * 400 / powmod);
             } break;
             case (18): { // HITROLL
               if (aval > 0)
-                obj->SetSkill(crc32c("Accuracy Bonus"), aval * 400 / powmod);
+                obj->SetSkill(prhash("Accuracy Bonus"), aval * 400 / powmod);
               else if (aval < 0)
-                obj->SetSkill(crc32c("Accuracy Penalty"), -aval * 400 / powmod);
+                obj->SetSkill(prhash("Accuracy Penalty"), -aval * 400 / powmod);
             } break;
             case (19): { // DAMROLL
               if (aval > 0)
-                obj->SetSkill(crc32c("Damage Bonus"), aval * 400 / powmod);
+                obj->SetSkill(prhash("Damage Bonus"), aval * 400 / powmod);
               else if (aval < 0)
-                obj->SetSkill(crc32c("Damage Penalty"), -aval * 400 / powmod);
+                obj->SetSkill(prhash("Damage Penalty"), -aval * 400 / powmod);
             } break;
             case (20): { // SAVING_PARA
               magresist += (aval * 400 / powmod);
@@ -2316,9 +2316,9 @@ void Object::TBALoadOBJ(const std::string& fn) {
         }
       }
       if (magresist > 0)
-        obj->SetSkill(crc32c("Magic Resistance"), magresist);
+        obj->SetSkill(prhash("Magic Resistance"), magresist);
       else if (magresist < 0)
-        obj->SetSkill(crc32c("Magic Vulnerability"), -magresist);
+        obj->SetSkill(prhash("Magic Vulnerability"), -magresist);
 
       fscanf(mudo, "%*[^#$]");
     }
@@ -2335,9 +2335,9 @@ void Object::TBALoadWLD(const std::string& fn) {
   if (mud) {
     Object* zone = new Object(this);
     zone->SetShortDesc(std::string("TBA Zone-") + fn.substr(0, fn.length() - 4).substr(offset + 1));
-    zone->SetSkill(crc32c("Light Source"), 1000);
-    zone->SetSkill(crc32c("Day Length"), 240);
-    zone->SetSkill(crc32c("Day Time"), 120);
+    zone->SetSkill(prhash("Light Source"), 1000);
+    zone->SetSkill(prhash("Day Length"), 240);
+    zone->SetSkill(prhash("Day Time"), 120);
 
     // fprintf(stderr, "Loading TBA Realm from \"%s\"\n", fn.c_str());
     while (1) {
@@ -2348,7 +2348,7 @@ void Object::TBALoadWLD(const std::string& fn) {
 
       Object* obj = new Object(zone);
       olist.push_back(obj);
-      obj->SetSkill(crc32c("TBARoom"), 1000000 + onum);
+      obj->SetSkill(prhash("TBARoom"), 1000000 + onum);
       bynumwld[onum] = obj;
       if (onum == 0) { // Player Start Room (Void) Hard-Coded Here
         Object* world = obj->World();
@@ -2373,46 +2373,46 @@ void Object::TBALoadWLD(const std::string& fn) {
       fscanf(mud, "%*d %65535[^ \t\n] %*d %*d %*d %d\n", buf, &val);
       // FIXME: TBA's extra 3 flags variables (ignored now)?
       if (val == 6)
-        obj->SetSkill(crc32c("WaterDepth"), 1); // WATER_SWIM
+        obj->SetSkill(prhash("WaterDepth"), 1); // WATER_SWIM
       else if (val == 7)
-        obj->SetSkill(crc32c("WaterDepth"), 2); // WATER_NOSWIM
+        obj->SetSkill(prhash("WaterDepth"), 2); // WATER_NOSWIM
       else if (val == 8)
-        obj->SetSkill(crc32c("WaterDepth"), 3); // UNDERWATER
+        obj->SetSkill(prhash("WaterDepth"), 3); // UNDERWATER
 
       std::string name = obj->ShortDesc();
       if (name.find("Secret") >= 0 && name.find("Secret") < name.length()) {
-        obj->SetSkill(crc32c("Accomplishment"), 1100000 + onum);
+        obj->SetSkill(prhash("Accomplishment"), 1100000 + onum);
       }
 
-      obj->SetSkill(crc32c("Translucent"), 1000); // Full sky, by default
+      obj->SetSkill(prhash("Translucent"), 1000); // Full sky, by default
       if (strcasestr(buf, "d") || (atoi(buf) & 8)) { // INDOORS
-        obj->SetSkill(crc32c("Translucent"), 200); // Windows (unless DARK)
-        obj->SetSkill(crc32c("Light Source"), 100); // Torches (unless DARK)
+        obj->SetSkill(prhash("Translucent"), 200); // Windows (unless DARK)
+        obj->SetSkill(prhash("Light Source"), 100); // Torches (unless DARK)
       }
       if (strcasestr(buf, "a") || (atoi(buf) & 1)) { // DARK
-        obj->SetSkill(crc32c("Translucent"), 0); // No sky, no windows
-        obj->SetSkill(crc32c("Light Source"), 0); // No torches
+        obj->SetSkill(prhash("Translucent"), 0); // No sky, no windows
+        obj->SetSkill(prhash("Light Source"), 0); // No torches
       }
       if (strcasestr(buf, "b") || (atoi(buf) & 2)) { // DEATH
-        obj->SetSkill(crc32c("Accomplishment"), 1100000 + onum);
-        // obj->SetSkill(crc32c("Hazardous"), 2); //FIXME: Actually Dangerous?
+        obj->SetSkill(prhash("Accomplishment"), 1100000 + onum);
+        // obj->SetSkill(prhash("Hazardous"), 2); //FIXME: Actually Dangerous?
       }
       if (strcasestr(buf, "c") || (atoi(buf) & 4)) { // NOMOB
-        obj->SetSkill(crc32c("TBAZone"), 999999);
+        obj->SetSkill(prhash("TBAZone"), 999999);
       } else {
-        obj->SetSkill(crc32c("TBAZone"), 1000000 + znum);
+        obj->SetSkill(prhash("TBAZone"), 1000000 + znum);
       }
       if (strcasestr(buf, "e") || (atoi(buf) & 16)) { // PEACEFUL
-        obj->SetSkill(crc32c("Peaceful"), 1000);
+        obj->SetSkill(prhash("Peaceful"), 1000);
       }
       if (strcasestr(buf, "f") || (atoi(buf) & 32)) { // SOUNDPROOF
-        obj->SetSkill(crc32c("Soundproof"), 1000);
+        obj->SetSkill(prhash("Soundproof"), 1000);
       }
       //      if(strcasestr(buf, "g") || (atoi(buf) & 64)) { //NOTRACK
       //	//FIXME: Implement
       //	}
       if (strcasestr(buf, "h") || (atoi(buf) & 128)) { // NOMAGIC
-        obj->SetSkill(crc32c("Magic Dead"), 1000);
+        obj->SetSkill(prhash("Magic Dead"), 1000);
       }
       //      if(strcasestr(buf, "i") || (atoi(buf) & 256)) { //TUNNEL
       //	//FIXME: Implement
@@ -2500,9 +2500,9 @@ void Object::TBALoadWLD(const std::string& fn) {
               nobj2->SetParent(bynumwld[tnum]);
               nobj2->SetShortDesc("a passage exit");
               nobj2->SetDesc("A passage exit.");
-              nobj2->SetSkill(crc32c("Invisible"), 1000);
+              nobj2->SetSkill(prhash("Invisible"), 1000);
             } else {
-              nobj->SetSkill(crc32c("Invisible"), 0);
+              nobj->SetSkill(prhash("Invisible"), 0);
             }
 
             if (nmnum[dir][ob] != "") {
@@ -2512,23 +2512,23 @@ void Object::TBALoadWLD(const std::string& fn) {
             }
             if (tynum[dir][ob] != 0) { // FIXME: Respond to "door"?
               des = std::string("A door to the ") + dirname[dir] + " is here.";
-              nobj->SetSkill(crc32c("Closeable"), 1);
-              nobj->SetSkill(crc32c("Lockable"), 1);
+              nobj->SetSkill(prhash("Closeable"), 1);
+              nobj->SetSkill(prhash("Lockable"), 1);
               if (tynum[dir][ob] == 1)
-                nobj->SetSkill(crc32c("Pickable"), 4);
+                nobj->SetSkill(prhash("Pickable"), 4);
               if (tynum[dir][ob] == 2)
-                nobj->SetSkill(crc32c("Pickable"), 1000);
+                nobj->SetSkill(prhash("Pickable"), 1000);
               if (knum[dir][ob] > 0) {
-                nobj->SetSkill(crc32c("Lock"), 1000000 + knum[dir][ob]);
-                nobj->SetSkill(crc32c("Accomplishment"), 1300000 + tnum);
+                nobj->SetSkill(prhash("Lock"), 1000000 + knum[dir][ob]);
+                nobj->SetSkill(prhash("Accomplishment"), 1300000 + tnum);
               }
             } else {
               des = std::string("A passage ") + dirname[dir] + " is here.";
             }
             nobj->SetShortDesc(nm.c_str());
             nobj->SetDesc(des.c_str());
-            nobj->SetSkill(crc32c("Open"), 1000);
-            nobj->SetSkill(crc32c("Enterable"), 1);
+            nobj->SetSkill(prhash("Open"), 1000);
+            nobj->SetSkill(prhash("Enterable"), 1);
             nobj->AddAct(act_t::SPECIAL_LINKED, nobj2);
             nobj2->AddAct(act_t::SPECIAL_MASTER, nobj);
 
@@ -2605,11 +2605,11 @@ void Object::TBALoadSHP(const std::string& fn) {
         vortex = new Object;
         vortex->SetShortDesc("a shopkeeper vortex");
         vortex->SetDesc("An advanced wormhole that shopkeeper's use.");
-        vortex->SetSkill(crc32c("Vortex"), 1); // Mark it as a shopkeeper Vortex.
-        vortex->SetSkill(crc32c("Invisible"), 1000);
-        vortex->SetSkill(crc32c("Perishable"), 1);
-        vortex->SetSkill(crc32c("Wearable on Right Shoulder"), 1);
-        vortex->SetSkill(crc32c("Wearable on Left Shoulder"), 2);
+        vortex->SetSkill(prhash("Vortex"), 1); // Mark it as a shopkeeper Vortex.
+        vortex->SetSkill(prhash("Invisible"), 1000);
+        vortex->SetSkill(prhash("Perishable"), 1);
+        vortex->SetSkill(prhash("Wearable on Right Shoulder"), 1);
+        vortex->SetSkill(prhash("Wearable on Left Shoulder"), 2);
 
         fscanf(mud, "%d\n", &val); // Item sold
         while (val >= 0) {
@@ -2619,10 +2619,10 @@ void Object::TBALoadSHP(const std::string& fn) {
             Object* item = new Object(*(bynumobj[val]));
             Object* item2 = dup_tba_obj(item);
             item->SetParent(vortex);
-            item->SetSkill(crc32c("Quantity"), 1000);
+            item->SetSkill(prhash("Quantity"), 1000);
             if (item2) {
               item2->SetParent(vortex);
-              item2->SetSkill(crc32c("Quantity"), 1000);
+              item2->SetSkill(prhash("Quantity"), 1000);
             }
           }
           fscanf(mud, "%d\n", &val); // Item sold
@@ -2671,7 +2671,7 @@ void Object::TBALoadSHP(const std::string& fn) {
 
         if (keeper) {
           std::string picky = "";
-          keeper->SetSkill(crc32c("Sell Profit"), (int)(num * 1000.0 + 0.5));
+          keeper->SetSkill(prhash("Sell Profit"), (int)(num * 1000.0 + 0.5));
 
           for (auto type : types) { // Buy Types
             for (unsigned int ctr = 1; ascii_isalpha(type[ctr]); ++ctr) {
@@ -2744,7 +2744,7 @@ void Object::TBALoadSHP(const std::string& fn) {
               std::set<std::string> extras = parse_tba_shop_rules(extra);
               for (auto ex : extras) {
                 // fprintf(stderr, "Adding: 'Accept %s'\n", ex.c_str());
-                // keeper->SetSkill(crc32c("Accept ") + ex, 1);
+                // keeper->SetSkill(prhash("Accept ") + ex, 1);
                 picky += (type + ": " + ex + "\n");
               }
             } else {
@@ -2791,9 +2791,9 @@ void Object::TBALoadTRG(const std::string& fn) { // Triggers
       Object* script = nullptr;
       script = new Object();
       bynumtrg[tnum] = script;
-      script->SetSkill(crc32c("Invisible"), 1000);
-      script->SetSkill(crc32c("TBAScript"), 1000000 + tnum);
-      script->SetSkill(crc32c("Accomplishment"), 1200000 + tnum);
+      script->SetSkill(prhash("Invisible"), 1000);
+      script->SetSkill(prhash("TBAScript"), 1000000 + tnum);
+      script->SetSkill(prhash("Accomplishment"), 1200000 + tnum);
       script->SetShortDesc("A tbaMUD trigger script");
       // fprintf(stderr, "Loading #%d\n", tnum);
       fscanf(mud, " %65535[^~]", buf); // Trigger Name - Discarded!
@@ -2804,8 +2804,8 @@ void Object::TBALoadTRG(const std::string& fn) { // Triggers
       fscanf(mud, " %d %65535s %d", &atype, buf, &narg);
       ttype = tba_bitvec(buf); // Trigger Types
       atype = 1 << (atype + 24); // Attach Type
-      script->SetSkill(crc32c("TBAScriptType"), atype | ttype); // Combined
-      script->SetSkill(crc32c("TBAScriptNArg"), narg); // Numeric Arg
+      script->SetSkill(prhash("TBAScriptType"), atype | ttype); // Combined
+      script->SetSkill(prhash("TBAScriptNArg"), narg); // Numeric Arg
 
       fscanf(mud, " %65535[^~]", buf); // Text argument!
       script->SetDesc(buf);

@@ -142,7 +142,7 @@ int Object::SaveTo(FILE* fl) {
 
   for (const auto& sk : skills)
     fprintf(fl, "|%.8X|%d", sk.first, sk.second);
-  if (cur_skill != crc32c("None")) { // Added current skill to end in v0x13
+  if (cur_skill != prhash("None")) { // Added current skill to end in v0x13
     fprintf(fl, "|%.8X", cur_skill);
   }
   fprintf(fl, ";\n");
@@ -216,7 +216,7 @@ int Object::Load(const std::string& fn) {
     for (auto kill : killacts) { // Kill Actions on Non-Existent
       StopAct(kill);
     }
-    if (ind->IsUsing(crc32c("Lumberjack"))) { // FIXME: All long-term skills?
+    if (ind->IsUsing(prhash("Lumberjack"))) { // FIXME: All long-term skills?
       ind->BusyFor(500, "use Lumberjack");
     }
   }
@@ -473,12 +473,12 @@ int Object::LoadFrom(FILE* fl) {
     }
   }
 
-  if (Skill(crc32c("Personality")))
+  if (Skill(prhash("Personality")))
     get_mob_mind()->Attach(this);
-  else if (Skill(crc32c("TBAAction")))
+  else if (Skill(prhash("TBAAction")))
     get_tba_mob_mind()->Attach(this);
 
-  if (Skill(crc32c("TBAScriptType")) & 2) { // Random/Permanent Triggers
+  if (Skill(prhash("TBAScriptType")) & 2) { // Random/Permanent Triggers
     Mind* trig = new_mind(MIND_TBATRIG, this);
     trig->Suspend((rand() % 13000) + 3000); // 3-16 Seconds
   }
@@ -509,42 +509,42 @@ int Object::LoadFrom(FILE* fl) {
 
   // fprintf(stderr, "%sLoaded %s\n", debug_indent.c_str(), ShortDescC());
 
-  //  if(HasSkill(crc32c("Drink"))) {
-  //    SetSkill(crc32c("Drink"), Skill(crc32c("Drink")) * 15);
-  //    SetSkill(crc32c("Food"), Skill(crc32c("Food")) * 15);
+  //  if(HasSkill(prhash("Drink"))) {
+  //    SetSkill(prhash("Drink"), Skill(prhash("Drink")) * 15);
+  //    SetSkill(prhash("Food"), Skill(prhash("Food")) * 15);
   //    }
-  //  else if(HasSkill(crc32c("Food"))) {
-  //    SetSkill(crc32c("Food"), Skill(crc32c("Food")) * 60);
-  //    }
-
-  //  if(HasSkill(crc32c("Heal Effect"))) {
-  //    SetSkill(crc32c("Heal Spell"), Skill(crc32c("Heal Effect")));
-  //    SetSkill(crc32c("Heal Effect"), 0);
+  //  else if(HasSkill(prhash("Food"))) {
+  //    SetSkill(prhash("Food"), Skill(prhash("Food")) * 60);
   //    }
 
-  //  if(HasSkill(crc32c("Open"))) {
-  //    SetSkill(crc32c("Open"), 1000);
+  //  if(HasSkill(prhash("Heal Effect"))) {
+  //    SetSkill(prhash("Heal Spell"), Skill(prhash("Heal Effect")));
+  //    SetSkill(prhash("Heal Effect"), 0);
   //    }
 
-  //  if(HasSkill(crc32c("Day Time"))) {
+  //  if(HasSkill(prhash("Open"))) {
+  //    SetSkill(prhash("Open"), 1000);
+  //    }
+
+  //  if(HasSkill(prhash("Day Time"))) {
   //    Activate();
   //    }
 
   //  if(IsAct(act_t::SPECIAL_NOTSHOWN)) {
-  //    SetSkill(crc32c("Invisible"), 1000);
+  //    SetSkill(prhash("Invisible"), 1000);
   //    }
 
   //  if(short_desc == "A passage exit.") {
   //    short_desc = "a passage exit";
   //    }
 
-  //  if(HasSkill(crc32c("Evasion Penalty"))) {
-  //    SetSkill(crc32c("Evasion Bonus"), Skill(crc32c("Evasion Penalty")));
-  //    SetSkill(crc32c("Evasion Penalty"), 0);
+  //  if(HasSkill(prhash("Evasion Penalty"))) {
+  //    SetSkill(prhash("Evasion Bonus"), Skill(prhash("Evasion Penalty")));
+  //    SetSkill(prhash("Evasion Penalty"), 0);
   //    }
-  //  else if(HasSkill(crc32c("Evasion Bonus"))) {
-  //    SetSkill(crc32c("Evasion Penalty"), Skill(crc32c("Evasion Bonus")));
-  //    SetSkill(crc32c("Evasion Bonus"), 0);
+  //  else if(HasSkill(prhash("Evasion Bonus"))) {
+  //    SetSkill(prhash("Evasion Penalty"), Skill(prhash("Evasion Bonus")));
+  //    SetSkill(prhash("Evasion Bonus"), 0);
   //    }
 
   //  if(IsAct(act_t::SPECIAL_PREPARE)) {
@@ -553,7 +553,7 @@ int Object::LoadFrom(FILE* fl) {
   //    }
 
   //  if(short_desc == "a gold piece") {
-  //    SetSkill(crc32c("Money"), 1);
+  //    SetSkill(prhash("Money"), 1);
   //    }
 
   return 0;

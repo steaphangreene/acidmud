@@ -28,6 +28,7 @@
 #include "mind.hpp"
 #include "mob.hpp"
 #include "object.hpp"
+#include "properties.hpp"
 #include "utils.hpp"
 
 // From: https://gist.github.com/Brennall/b9c3a0202eb11c5cfd54868c5752012a
@@ -70,9 +71,9 @@ static std::mt19937 gen(rd());
 
 static Object* new_object(Object* parent) {
   Object* body = new Object(parent);
-  auto obj_id = body->World()->Skill(crc32c("Last Object ID")) + 1;
-  body->World()->SetSkill(crc32c("Last Object ID"), obj_id);
-  body->SetSkill(crc32c("Object ID"), obj_id);
+  auto obj_id = body->World()->Skill(prhash("Last Object ID")) + 1;
+  body->World()->SetSkill(prhash("Last Object ID"), obj_id);
+  body->SetSkill(prhash("Object ID"), obj_id);
   return body;
 }
 std::multimap<std::string, std::pair<std::string, Object*>> zone_links;
@@ -258,9 +259,9 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
   // Create New Zone
   Object* zone = new_object(world);
   zone->SetShortDesc(name);
-  zone->SetSkill(crc32c("Light Source"), 1000);
-  zone->SetSkill(crc32c("Day Length"), 240);
-  zone->SetSkill(crc32c("Day Time"), 120);
+  zone->SetSkill(prhash("Light Source"), 1000);
+  zone->SetSkill(prhash("Day Length"), 240);
+  zone->SetSkill(prhash("Day Time"), 120);
 
   // Convert ASCII Map Into AcidMUD Rooms
   struct coord {
@@ -296,10 +297,10 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
         for (int f = 0; f < num_floors; ++f) {
           objs[coord{x, y}].push_back(new_object(zone));
           if (indoors[room]) {
-            objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 200);
-            objs[coord{x, y}].back()->SetSkill(crc32c("Light Source"), 100);
+            objs[coord{x, y}].back()->SetSkill(prhash("Translucent"), 200);
+            objs[coord{x, y}].back()->SetSkill(prhash("Light Source"), 100);
           } else {
-            objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 1000);
+            objs[coord{x, y}].back()->SetSkill(prhash("Translucent"), 1000);
           }
           if (start_symbol == room) {
             world->AddAct(act_t::SPECIAL_HOME, objs[coord{x, y}].back());
@@ -340,10 +341,10 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
         for (int f = 0; f < num_floors; ++f) {
           objs[coord{x, y}].push_back(new_object(zone));
           if (indoors[room]) {
-            objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 200);
-            objs[coord{x, y}].back()->SetSkill(crc32c("Light Source"), 100);
+            objs[coord{x, y}].back()->SetSkill(prhash("Translucent"), 200);
+            objs[coord{x, y}].back()->SetSkill(prhash("Light Source"), 100);
           } else {
-            objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 1000);
+            objs[coord{x, y}].back()->SetSkill(prhash("Translucent"), 1000);
           }
           if (start_symbol == room) {
             world->AddAct(act_t::SPECIAL_HOME, objs[coord{x, y}].back());
@@ -395,10 +396,10 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
 
         if (entrance->ShortDesc() == "a generic zone entrance") { // Not well-defined yet
           if (!en_indoors.empty() && en_indoors.front()) {
-            objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 200);
-            objs[coord{x, y}].back()->SetSkill(crc32c("Light Source"), 100);
+            objs[coord{x, y}].back()->SetSkill(prhash("Translucent"), 200);
+            objs[coord{x, y}].back()->SetSkill(prhash("Light Source"), 100);
           } else {
-            objs[coord{x, y}].back()->SetSkill(crc32c("Translucent"), 1000);
+            objs[coord{x, y}].back()->SetSkill(prhash("Translucent"), 1000);
           }
           if (!en_rooms.empty()) {
             objs[coord{x, y}].back()->SetShortDesc(en_rooms.front());
@@ -542,27 +543,27 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door2->AddAct(act_t::SPECIAL_MASTER, door1);
-      door1->SetSkill(crc32c("Enterable"), 1);
-      door2->SetSkill(crc32c("Enterable"), 1);
+      door1->SetSkill(prhash("Enterable"), 1);
+      door2->SetSkill(prhash("Enterable"), 1);
       if (doors.count(door_char) > 0) {
-        door1->SetSkill(crc32c("Closeable"), 1);
-        door2->SetSkill(crc32c("Closeable"), 1);
+        door1->SetSkill(prhash("Closeable"), 1);
+        door2->SetSkill(prhash("Closeable"), 1);
       }
       if (closed.count(door_char) == 0) {
-        door1->SetSkill(crc32c("Open"), 1000);
-        door2->SetSkill(crc32c("Open"), 1000);
+        door1->SetSkill(prhash("Open"), 1000);
+        door2->SetSkill(prhash("Open"), 1000);
       }
       if (clear.count(door_char) > 0) {
-        door1->SetSkill(crc32c("Transparent"), 1000);
-        door2->SetSkill(crc32c("Transparent"), 1000);
+        door1->SetSkill(prhash("Transparent"), 1000);
+        door2->SetSkill(prhash("Transparent"), 1000);
       }
       if (locks.count(door_char) > 0) {
-        door1->SetSkill(crc32c("Lock"), door1->Skill(crc32c("Object ID")));
-        door2->SetSkill(crc32c("Lock"), door1->Skill(crc32c("Object ID")));
+        door1->SetSkill(prhash("Lock"), door1->Skill(prhash("Object ID")));
+        door2->SetSkill(prhash("Lock"), door1->Skill(prhash("Object ID")));
       }
       if (locked.count(door_char) > 0) {
-        door1->SetSkill(crc32c("Locked"), 1);
-        door2->SetSkill(crc32c("Locked"), 1);
+        door1->SetSkill(prhash("Locked"), 1);
+        door2->SetSkill(prhash("Locked"), 1);
       }
     }
   }
@@ -627,9 +628,9 @@ int handle_command_wcreate(
   std::string world_name(args);
   Object* world = new Object(body->Parent());
   world->SetShortDesc(world_name);
-  world->SetSkill(crc32c("Light Source"), 1000);
-  world->SetSkill(crc32c("Day Length"), 240);
-  world->SetSkill(crc32c("Day Time"), 120);
+  world->SetSkill(prhash("Light Source"), 1000);
+  world->SetSkill(prhash("Day Length"), 240);
+  world->SetSkill(prhash("Day Time"), 120);
 
   zone_links.clear();
   for (const auto& fn : filenames) {

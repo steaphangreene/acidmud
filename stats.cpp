@@ -54,7 +54,7 @@ int is_skill(uint32_t stok) {
 uint32_t get_weapon_skill(int wtype) {
   if (!weaponskills.count(wtype)) {
     fprintf(stderr, "Warning: No Skill Type %d!\n", wtype);
-    return crc32c("None");
+    return prhash("None");
   }
   return weaponskills[wtype];
 }
@@ -75,7 +75,7 @@ uint32_t get_skill(std::string sk) {
   if (defaults.count(stok))
     return stok;
   if (sk.length() < 2)
-    return crc32c("None");
+    return prhash("None");
 
   for (auto itr : defaults) {
     std::string lc = SkillName(itr.first);
@@ -84,7 +84,7 @@ uint32_t get_skill(std::string sk) {
       return itr.first;
     }
   }
-  return crc32c("None");
+  return prhash("None");
 }
 
 std::string get_skill_cat(std::string cat) {
@@ -265,7 +265,7 @@ int Object::Roll(uint32_t s1, const Object* p2, uint32_t s2, int bias, std::stri
   if (res)
     (*res) += "(";
   succ = Roll(s1, t1, res);
-  if (s2 != crc32c("None")) {
+  if (s2 != prhash("None")) {
     if (res)
       (*res) += " - ";
     succ -= p2->Roll(s2, t2, res);
@@ -290,19 +290,19 @@ int Object::RollNoWounds(uint32_t stok, int targ, int penalty, std::string* res)
   int dice = 0;
   int mod = 0;
 
-  if (stok == crc32c("Body")) {
+  if (stok == prhash("Body")) {
     dice = ModAttribute(0);
-  } else if (stok == crc32c("Quickness")) {
+  } else if (stok == prhash("Quickness")) {
     dice = ModAttribute(1);
-  } else if (stok == crc32c("Strength")) {
+  } else if (stok == prhash("Strength")) {
     dice = ModAttribute(2);
-  } else if (stok == crc32c("Charisma")) {
+  } else if (stok == prhash("Charisma")) {
     dice = ModAttribute(3);
-  } else if (stok == crc32c("Intelligence")) {
+  } else if (stok == prhash("Intelligence")) {
     dice = ModAttribute(4);
-  } else if (stok == crc32c("Willpower")) {
+  } else if (stok == prhash("Willpower")) {
     dice = ModAttribute(5);
-  } else if (stok == crc32c("Reaction")) {
+  } else if (stok == prhash("Reaction")) {
     dice = ModAttribute(6);
   } else if (defaults.count(stok) > 0) {
     dice = Skill(stok);
@@ -376,5 +376,5 @@ int Object::WoundPenalty() const {
 }
 
 int Object::RollInitiative() const {
-  return Roll(crc32c("Reaction"), 6 - ModAttribute(5));
+  return Roll(prhash("Reaction"), 6 - ModAttribute(5));
 }

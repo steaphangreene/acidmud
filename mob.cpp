@@ -91,11 +91,11 @@ static void give_gold(Object* mob, int qty) {
   bag->SetShortDesc("a small purse");
   bag->SetDesc("A small, durable, practical moneypurse.");
 
-  bag->SetSkill(crc32c("Wearable on Left Hip"), 1);
-  bag->SetSkill(crc32c("Wearable on Right Hip"), 2);
-  bag->SetSkill(crc32c("Container"), 5 * 454);
-  bag->SetSkill(crc32c("Capacity"), 5);
-  bag->SetSkill(crc32c("Closeable"), 1);
+  bag->SetSkill(prhash("Wearable on Left Hip"), 1);
+  bag->SetSkill(prhash("Wearable on Right Hip"), 2);
+  bag->SetSkill(prhash("Container"), 5 * 454);
+  bag->SetSkill(prhash("Capacity"), 5);
+  bag->SetSkill(prhash("Closeable"), 1);
 
   bag->SetWeight(1 * 454);
   bag->SetSize(2);
@@ -109,7 +109,7 @@ static void give_gold(Object* mob, int qty) {
     init_gold();
   Object* g = new Object(*gold);
   g->SetParent(bag);
-  g->SetSkill(crc32c("Quantity"), qty);
+  g->SetSkill(prhash("Quantity"), qty);
 }
 
 MOBType::MOBType(
@@ -161,9 +161,9 @@ void Object::AddMOB(std::mt19937& gen, const MOBType* type) {
   Object* mob = new Object(this);
 
   if (mob->World()) {
-    auto obj_id = mob->World()->Skill(crc32c("Last Object ID")) + 1;
-    mob->World()->SetSkill(crc32c("Last Object ID"), obj_id);
-    mob->SetSkill(crc32c("Object ID"), obj_id);
+    auto obj_id = mob->World()->Skill(prhash("Last Object ID")) + 1;
+    mob->World()->SetSkill(prhash("Last Object ID"), obj_id);
+    mob->SetSkill(prhash("Object ID"), obj_id);
   }
 
   mob->Attach(get_mob_mind());
@@ -203,10 +203,10 @@ void Object::AddMOB(std::mt19937& gen, const MOBType* type) {
 
   if (type->armed) {
     Object* obj = new Object(mob);
-    obj->SetSkill(crc32c("WeaponType"), type->armed->type);
-    obj->SetSkill(crc32c("WeaponReach"), type->armed->reach);
-    obj->SetSkill(crc32c("WeaponForce"), type->armed->force + rand() % type->armed->forcem);
-    obj->SetSkill(crc32c("WeaponSeverity"), type->armed->sev + rand() % type->armed->sevm);
+    obj->SetSkill(prhash("WeaponType"), type->armed->type);
+    obj->SetSkill(prhash("WeaponReach"), type->armed->reach);
+    obj->SetSkill(prhash("WeaponForce"), type->armed->force + rand() % type->armed->forcem);
+    obj->SetSkill(prhash("WeaponSeverity"), type->armed->sev + rand() % type->armed->sevm);
     obj->SetShortDesc(type->armed->name.c_str());
     obj->SetDesc(type->armed->desc.c_str());
     obj->SetLongDesc(type->armed->long_desc.c_str());
@@ -226,10 +226,10 @@ void Object::AddMOB(std::mt19937& gen, const MOBType* type) {
     }
     Object* obj = new Object(mob);
     obj->SetAttribute(0, ar->bulk + rand() % ar->bulkm);
-    obj->SetSkill(crc32c("ArmorB"), ar->bulk + rand() % ar->bulkm);
-    obj->SetSkill(crc32c("ArmorI"), ar->impact + rand() % ar->impactm);
-    obj->SetSkill(crc32c("ArmorT"), ar->thread + rand() % ar->threadm);
-    obj->SetSkill(crc32c("ArmorP"), ar->planar + rand() % ar->planarm);
+    obj->SetSkill(prhash("ArmorB"), ar->bulk + rand() % ar->bulkm);
+    obj->SetSkill(prhash("ArmorI"), ar->impact + rand() % ar->impactm);
+    obj->SetSkill(prhash("ArmorT"), ar->thread + rand() % ar->threadm);
+    obj->SetSkill(prhash("ArmorP"), ar->planar + rand() % ar->planarm);
     obj->SetShortDesc(ar->name.c_str());
     obj->SetDesc(ar->desc.c_str());
     obj->SetLongDesc(ar->long_desc.c_str());
@@ -249,11 +249,11 @@ void Object::AddMOB(std::mt19937& gen, const MOBType* type) {
     sack->SetShortDesc("a small sack");
     sack->SetDesc("A small, durable, practical belt sack.");
 
-    sack->SetSkill(crc32c("Wearable on Left Hip"), 1);
-    sack->SetSkill(crc32c("Wearable on Right Hip"), 2);
-    sack->SetSkill(crc32c("Container"), 5 * 454);
-    sack->SetSkill(crc32c("Capacity"), 5);
-    sack->SetSkill(crc32c("Closeable"), 1);
+    sack->SetSkill(prhash("Wearable on Left Hip"), 1);
+    sack->SetSkill(prhash("Wearable on Right Hip"), 2);
+    sack->SetSkill(prhash("Container"), 5 * 454);
+    sack->SetSkill(prhash("Capacity"), 5);
+    sack->SetSkill(prhash("Closeable"), 1);
 
     sack->SetWeight(1 * 454);
     sack->SetSize(2);
