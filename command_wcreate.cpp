@@ -116,7 +116,7 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
   std::map<char, bool> indoors;
   std::map<char, uint8_t> levels;
   std::map<char, std::vector<std::string>> mobnames;
-  std::map<char, std::vector<std::uniform_int_distribution<int>>> mobnums;
+  std::map<char, std::vector<int>> mobnums;
   std::vector<std::string> en_links;
   std::vector<std::string> en_rooms;
   std::vector<bool> en_indoors;
@@ -164,7 +164,7 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
       char namebuf[256];
       sscanf(line_buf + 11, "%d-%d:%255[^\n]", &lnum, &hnum, namebuf);
       mobnames[sym].emplace_back(namebuf);
-      mobnums[sym].emplace_back(std::uniform_int_distribution<int>(lnum, hnum));
+      mobnums[sym].push_back(std::uniform_int_distribution<int>(lnum, hnum)(gen));
     } else if (!strncmp(line_buf, "door:", 5)) {
       char sym = 'd';
       sscanf(line_buf + 5, "%c", &sym);
@@ -576,7 +576,7 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
     if (mobnames.count(room) > 0) {
       for (size_t n = 0; n < mobnames[room].size(); ++n) {
         mob_dwarf.SetName(mobnames[room][n]);
-        int num = mobnums[room][n](gen);
+        int num = mobnums[room][n];
         for (int m = 0; m < num; ++m) {
           objs[coord{x, y}].back()->AddMOB(gen, &mob_dwarf);
           Object* dwarf = objs[coord{x, y}].back()->Contents().back();

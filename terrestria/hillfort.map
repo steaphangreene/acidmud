@@ -5,7 +5,7 @@ en_link:Western Road
 upper_level:2
 lower_level:0
 building:5:fortress
-populate:5:1:dwarven leader
+populate:5:1-1:dwarven leader
 populate:5:2-4:dwarven elite guard
 populate:5:4-12:dwarven soldier
 populate:5:8-20:dwarven citizen
