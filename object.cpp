@@ -3724,14 +3724,19 @@ bool Object::BusyAct() {
 
   int ret;
   if (minds.size()) {
-    ret = handle_command(this, comm.c_str(), (*(minds.begin())));
+    ret = handle_command(this, comm.c_str(), (minds.front()));
     if (ret != 2 && (!StillBusy()))
-      ret = handle_command(this, def.c_str(), (*(minds.begin())));
+      ret = handle_command(this, def.c_str(), (minds.front()));
   } else {
     ret = handle_command(this, comm.c_str());
     if (ret != 2 && (!StillBusy()))
       ret = handle_command(this, def.c_str());
   }
+
+  if (!StillBusy()) {
+    busy_until = 0; // Use special, permanent value, so it doesn't wrap.
+  }
+
   return (ret == 2); // Return 1 if no more actions this round!
 }
 
