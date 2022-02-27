@@ -57,22 +57,22 @@ class Mind {
   void SetSystem();
   void Attach(Object* bod);
   void Unattach();
-  Object* Body() {
+  Object* Body() const {
     return body;
   };
-  Player* Owner() {
+  Player* Owner() const {
     return player;
   };
-  std::string PName() {
+  std::string PName() const {
     return pname;
   };
   void SetPName(std::string);
   void SetPPass(std::string);
   void SetPlayer(std::string);
-  int Type() {
+  int Type() const {
     return type;
   };
-  int LogFD() {
+  int LogFD() const {
     return log;
   };
   bool Send(const std::string&); // Returns false when mind needs to be deleted
@@ -82,13 +82,13 @@ class Mind {
   void UpdatePrompt();
 
   bool Think(int istick = 0); // Returns false when mind needs to be deleted
-  std::string Tactics(int phase = -1);
+  std::string Tactics(int phase = -1) const;
 
   static void Resume();
   void Suspend(int msec);
 
   void SetSpecialPrompt(const std::string& newp);
-  std::string SpecialPrompt();
+  std::string SpecialPrompt() const;
 
   int Status() const;
   void ClearStatus();
@@ -101,11 +101,11 @@ class Mind {
   const std::map<std::string, std::string> SVars() const;
 
  private:
-  int TBACanWanderTo(Object* dest);
+  int TBACanWanderTo(Object* dest) const;
 
-  std::string TBAComp(std::string expr);
-  int TBAEval(std::string expr);
-  bool TBAVarSub(std::string& line); // Returns false when mind needs to be deleted
+  std::string TBAComp(std::string expr) const;
+  int TBAEval(std::string expr) const;
+  bool TBAVarSub(std::string& line) const; // Returns false when mind needs to be deleted
 
   int TBARunLine(std::string line);
 

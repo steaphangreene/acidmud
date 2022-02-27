@@ -255,7 +255,7 @@ static std::string tba_spellconvert(const std::string& tba) {
   return acid;
 }
 
-std::string Mind::TBAComp(std::string expr) {
+std::string Mind::TBAComp(std::string expr) const {
   size_t end = expr.find_first_of("\n\r");
   if (end != std::string::npos)
     expr = expr.substr(0, end);
@@ -407,7 +407,7 @@ std::string Mind::TBAComp(std::string expr) {
   return "0";
 }
 
-int Mind::TBAEval(std::string expr) {
+int Mind::TBAEval(std::string expr) const {
   std::string base = TBAComp(expr);
   trim_string(base);
   if (0
@@ -754,7 +754,7 @@ void Mind::SetPlayer(std::string pn) {
   }
 }
 
-std::string Mind::Tactics(int phase) {
+std::string Mind::Tactics(int phase) const {
   if (type == MIND_TBAMOB) {
     // NON-HELPER and NON-AGGRESSIVE TBA Mobs (Innocent MOBs)
     if (body && (body->Skill(crc32c("TBAAction")) & 4128) == 0) {
@@ -766,7 +766,7 @@ std::string Mind::Tactics(int phase) {
   return "attack";
 }
 
-bool Mind::TBAVarSub(std::string& line) {
+bool Mind::TBAVarSub(std::string& line) const {
   size_t cur = line.find('%');
   size_t end;
   while (cur != std::string::npos) {
@@ -788,10 +788,10 @@ bool Mind::TBAVarSub(std::string& line) {
     std::string val = "";
     int is_obj = 0;
     if (ovars.count(vname) > 0) {
-      obj = ovars[vname];
+      obj = ovars.at(vname);
       is_obj = 1;
     } else if (svars.count(vname) > 0) {
-      val = svars[vname];
+      val = svars.at(vname);
     } else if (!strncmp(line.c_str() + cur, "%time.hour%", 11)) {
       Object* world = body->World();
       if (world->Skill(crc32c("Day Time")) && world->Skill(crc32c("Day Length"))) {
@@ -803,12 +803,12 @@ bool Mind::TBAVarSub(std::string& line) {
       end = line.find_first_of("% \t", cur + 1); // Done.  Replace All.
     } else if (!strncmp(line.c_str() + cur, "%random.char%", 13)) {
       MinVec<1, Object*> others;
-      if (ovars["self"]->HasSkill(crc32c("TBARoom"))) {
-        others = ovars["self"]->PickObjects("everyone", LOC_INTERNAL);
-      } else if (ovars["self"]->Owner()) {
-        others = ovars["self"]->Owner()->PickObjects("everyone", LOC_NEARBY);
+      if (ovars.at("self")->HasSkill(crc32c("TBARoom"))) {
+        others = ovars.at("self")->PickObjects("everyone", LOC_INTERNAL);
+      } else if (ovars.at("self")->Owner()) {
+        others = ovars.at("self")->Owner()->PickObjects("everyone", LOC_NEARBY);
       } else {
-        others = ovars["self"]->PickObjects("everyone", LOC_NEARBY);
+        others = ovars.at("self")->PickObjects("everyone", LOC_NEARBY);
       }
       if (others.size() > 0) {
         int num = rand() % others.size();
@@ -833,7 +833,7 @@ bool Mind::TBAVarSub(std::string& line) {
       is_obj = 1;
       end = line.find_first_of("% \t", cur + 1); // Done.  Replace All.
     } else if (!strncmp(line.c_str() + cur, "%random.dir%", 12)) {
-      Object* room = ovars["self"];
+      Object* room = ovars.at("self");
       while (room && room->Skill(crc32c("TBARoom")) == 0)
         room = room->Parent();
       if (room) {
@@ -1608,7 +1608,7 @@ int Mind::TBARunLine(std::string line) {
         body->Skill(crc32c("TBAScript")),
         line.c_str());
   }
-  Object* room = ovars["self"];
+  Object* room = ovars.at("self");
   while (room && room->Skill(crc32c("TBARoom")) == 0) {
     if (room->Skill(crc32c("Invisible")) > 999)
       room = nullptr; // Not really there
@@ -1623,8 +1623,8 @@ int Mind::TBARunLine(std::string line) {
   }
   // Needs to be alive! MOB & MOB-* (Not -DEATH or -GLOBAL)
   if ((body->Skill(crc32c("TBAScriptType")) & 0x103FFDE) > 0x1000000) {
-    if (ovars["self"]->IsAct(act_t::DEAD) || ovars["self"]->IsAct(act_t::DYING) ||
-        ovars["self"]->IsAct(act_t::UNCONSCIOUS)) {
+    if (ovars.at("self")->IsAct(act_t::DEAD) || ovars.at("self")->IsAct(act_t::DYING) ||
+        ovars.at("self")->IsAct(act_t::UNCONSCIOUS)) {
       //      fprintf(stderr, CGRN "#%d Debug: Triggered on downed MOB.\n" CNRM,
       //	body->Skill(crc32c("TBAScript"))
       //	);
@@ -1822,15 +1822,15 @@ int Mind::TBARunLine(std::string line) {
       return -1;
     }
     Object* oldp = nullptr;
-    if (ovars["self"]->Parent() != room) {
-      oldp = ovars["self"]->Parent();
-      oldp->RemoveLink(ovars["self"]);
-      ovars["self"]->SetParent(room);
+    if (ovars.at("self")->Parent() != room) {
+      oldp = ovars.at("self")->Parent();
+      oldp->RemoveLink(ovars.at("self"));
+      ovars.at("self")->SetParent(room);
     }
     int ret = TBARunLine(line.substr(pos));
     if (oldp) {
-      ovars["self"]->Parent()->RemoveLink(ovars["self"]);
-      ovars["self"]->SetParent(oldp);
+      ovars.at("self")->Parent()->RemoveLink(ovars.at("self"));
+      ovars.at("self")->SetParent(oldp);
     }
     return ret;
   }
@@ -3146,7 +3146,7 @@ bool Mind::Think(int istick) {
   return true;
 }
 
-int Mind::TBACanWanderTo(Object* dest) {
+int Mind::TBACanWanderTo(Object* dest) const {
   if (dest->Skill(crc32c("TBAZone")) == 999999) { // NO_MOBS TBA Zone
     return 0; // Don't Enter NO_MOBS Zone!
   } else if (body->Skill(crc32c("TBAAction")) & 64) { // STAY_ZONE TBA MOBs
@@ -3170,7 +3170,7 @@ void Mind::SetSpecialPrompt(const std::string& newp) {
   UpdatePrompt();
 }
 
-std::string Mind::SpecialPrompt() {
+std::string Mind::SpecialPrompt() const {
   return prompt;
 }
 
