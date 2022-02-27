@@ -115,8 +115,12 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
   std::map<char, bool> locked;
   std::map<char, bool> indoors;
   std::map<char, uint8_t> levels;
-  std::map<char, std::vector<std::string>> mobnames;
-  std::map<char, std::vector<int>> mobnums;
+  std::map<char, std::vector<std::string>> empnames;
+  std::map<char, std::vector<int>> empnums;
+  std::map<char, std::vector<int>> empfloors;
+  std::map<char, std::vector<std::string>> resnames;
+  std::map<char, std::vector<int>> resnums;
+  std::map<char, std::vector<int>> resfloors;
   std::vector<std::string> en_links;
   std::vector<std::string> en_rooms;
   std::vector<bool> en_indoors;
@@ -125,6 +129,7 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
   bool in_main_def = false;
   char line_buf[65536] = "";
   while (!in_main_def) {
+    bool parse_error = false;
     fscanf(def_file, " %65535[^\n]", line_buf);
     if (!strncmp(line_buf, "name:", 5)) {
       char namebuf[256];
@@ -142,40 +147,88 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
       char sym = '0';
       sscanf(line_buf + 9, "%c", &sym);
       char namebuf[256];
-      sscanf(line_buf + 11, "%255[^\n]", namebuf);
+      sscanf(line_buf + 10, ":%255[^\n]", namebuf);
       rooms[sym].emplace_back(namebuf);
       indoors[sym] = true;
     } else if (!strncmp(line_buf, "place:", 6)) {
       char sym = '0';
       sscanf(line_buf + 6, "%c", &sym);
       char namebuf[256];
-      sscanf(line_buf + 8, "%255[^\n]", namebuf);
+      sscanf(line_buf + 7, ":%255[^\n]", namebuf);
       rooms[sym].emplace_back(namebuf);
     } else if (!strncmp(line_buf, "level:", 6)) {
       char sym = '0';
       sscanf(line_buf + 6, "%c", &sym);
       uint8_t lev;
-      sscanf(line_buf + 8, "%hhu", &lev);
+      sscanf(line_buf + 7, ":%hhu", &lev);
       levels[sym] = lev;
-    } else if (!strncmp(line_buf, "populate:", 9)) {
+    } else if (!strncmp(line_buf, "employ:", 7)) {
       char sym = '0';
-      sscanf(line_buf + 9, "%c", &sym);
+      sscanf(line_buf + 7, "%c", &sym);
+      int floor = 0;
       int lnum, hnum;
       char namebuf[256];
-      sscanf(line_buf + 11, "%d-%d:%255[^\n]", &lnum, &hnum, namebuf);
-      mobnames[sym].emplace_back(namebuf);
-      mobnums[sym].push_back(std::uniform_int_distribution<int>(lnum, hnum)(gen));
+      int off = 8;
+      if (sscanf(line_buf + off, ".%d", &floor) == 1) {
+        off = 10;
+      }
+      if (sscanf(line_buf + off, ":%d", &lnum) < 1) {
+        parse_error = true;
+      }
+      if (sscanf(line_buf + off, ":%*d-%d", &hnum) < 1) {
+        hnum = lnum;
+        if (sscanf(line_buf + off, ":%*d:%255[^\n]", namebuf) < 1) {
+          parse_error = true;
+        }
+      } else {
+        if (sscanf(line_buf + off, ":%*d-%*d:%255[^\n]", namebuf) < 1) {
+          parse_error = true;
+        }
+      }
+      if (!parse_error) {
+        empnames[sym].emplace_back(namebuf);
+        empnums[sym].push_back(std::uniform_int_distribution<int>(lnum, hnum)(gen));
+        empfloors[sym].push_back(floor);
+      }
+    } else if (!strncmp(line_buf, "house:", 6)) {
+      char sym = '0';
+      sscanf(line_buf + 6, "%c", &sym);
+      int floor = 0;
+      int lnum, hnum;
+      char namebuf[256];
+      int off = 7;
+      if (sscanf(line_buf + off, ".%d", &floor) == 1) {
+        off = 9;
+      }
+      if (sscanf(line_buf + off, ":%d", &lnum) < 1) {
+        parse_error = true;
+      }
+      if (sscanf(line_buf + off, ":%*d-%d", &hnum) < 1) {
+        hnum = lnum;
+        if (sscanf(line_buf + off, ":%*d:%255[^\n]", namebuf) < 1) {
+          parse_error = true;
+        }
+      } else {
+        if (sscanf(line_buf + off, ":%*d-%*d:%255[^\n]", namebuf) < 1) {
+          parse_error = true;
+        }
+      }
+      if (!parse_error) {
+        resnames[sym].emplace_back(namebuf);
+        resnums[sym].push_back(std::uniform_int_distribution<int>(lnum, hnum)(gen));
+        resfloors[sym].push_back(floor);
+      }
     } else if (!strncmp(line_buf, "door:", 5)) {
       char sym = 'd';
       sscanf(line_buf + 5, "%c", &sym);
       char namebuf[256];
-      sscanf(line_buf + 7, "%255[^\n]", namebuf);
+      sscanf(line_buf + 6, ":%255[^\n]", namebuf);
       doors[sym] = namebuf;
     } else if (!strncmp(line_buf, "doorterm:", 9)) {
       char sym = 'd';
       sscanf(line_buf + 9, "%c", &sym);
       char namebuf[256];
-      sscanf(line_buf + 11, "%255[^\n]", namebuf);
+      sscanf(line_buf + 10, ":%255[^\n]", namebuf);
       doorterms[sym] = namebuf;
     } else if (!strncmp(line_buf, "lock:", 5)) {
       char sym = 'd';
@@ -212,6 +265,10 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
     } else if (line_buf[0] == '#') {
       // This is a comment, so just ignore this line.
     } else {
+      parse_error = true;
+    }
+
+    if (parse_error) {
       mind->SendF("Bad definition file '%s'!\n", filename.c_str());
       mind->SendF("Read: '%s'!\n", line_buf);
       fclose(def_file);
@@ -573,14 +630,15 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
     auto x = obj.first.x;
     auto y = obj.first.y;
     auto room = ascii_map[y][x];
-    if (mobnames.count(room) > 0) {
-      for (size_t n = 0; n < mobnames[room].size(); ++n) {
-        mob_dwarf.SetName(mobnames[room][n]);
-        int num = mobnums[room][n];
+    if (empnames.count(room) > 0) {
+      for (size_t n = 0; n < empnames[room].size(); ++n) {
+        mob_dwarf.SetName(empnames[room][n]);
+        int num = empnums[room][n];
+        int floor = empfloors[room][n];
         for (int m = 0; m < num; ++m) {
-          objs[coord{x, y}].back()->AddMOB(gen, &mob_dwarf);
-          Object* dwarf = objs[coord{x, y}].back()->Contents().back();
-          int gender = (dwarf->Gender() == 'F') ? 0 : 1;
+          objs[coord{x, y}][floor]->AddMOB(gen, &mob_dwarf);
+          Object* mob = objs[coord{x, y}][floor]->Contents().back();
+          int gender = (mob->Gender() == 'F') ? 0 : 1;
 
           std::vector<std::string> first = {""};
           std::sample(
@@ -593,7 +651,9 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
           std::vector<std::string> last = {""};
           std::sample(dwarf_last_names.begin(), dwarf_last_names.end(), last.begin(), 1, gen);
 
-          dwarf->SetName(first.front() + " " + last.front());
+          mob->SetName(first.front() + " " + last.front());
+
+          mob->AddAct(act_t::SPECIAL_WORK, objs[coord{x, y}][floor]);
         }
       }
     }
