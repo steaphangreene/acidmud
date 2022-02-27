@@ -180,7 +180,8 @@ class alignas(256) Object {
 
   Object* Next(std::string&);
   Object* Split(int nqty);
-  std::string Noun(bool definite = false, Object* rel = nullptr, Object* sub = nullptr) const;
+  std::string Noun(bool definite = false, const Object* rel = nullptr, const Object* sub = nullptr)
+      const;
   std::string Pron() const;
   std::string Poss() const;
   std::string Obje() const;
@@ -286,12 +287,12 @@ class alignas(256) Object {
 
   Object* PickObject(const std::string& name, int loc, int* ordinal = nullptr) const;
   MinVec<1, Object*> PickObjects(std::string name, int loc, int* ordinal = nullptr) const;
-  int IsNearBy(const Object* obj);
-  int SeeWithin(const Object* obj); // Recursive & Visible
-  int HasWithin(const Object* obj); // Recursive (All)
-  int Contains(const Object* obj); // Only Immediately (No Recursion)
-  MinVec<3, Object*> Contents(int vmode);
-  MinVec<3, Object*> Contents();
+  int IsNearBy(const Object* obj) const;
+  int SeeWithin(const Object* obj) const; // Recursive & Visible
+  int HasWithin(const Object* obj) const; // Recursive (All)
+  int Contains(const Object* obj) const; // Only Immediately (No Recursion)
+  MinVec<3, Object*> Contents(int vmode) const;
+  MinVec<3, Object*> Contents() const;
 
   int ContainedWeight();
   int ContainedVolume();
@@ -332,7 +333,7 @@ class alignas(256) Object {
 
   void SpendExp(int);
   bool Accomplish(uint64_t, const std::string&);
-  bool HasAccomplished(uint64_t);
+  bool HasAccomplished(uint64_t) const;
   int TotalExp() const {
     return completed.size() - sexp;
   };
@@ -421,14 +422,14 @@ class alignas(256) Object {
 
   int WoundPenalty() const;
 
-  pos_t Pos();
+  pos_t Pos() const;
   void SetPos(pos_t p);
-  std::string PosString();
+  std::string PosString() const;
   void StartUsing(uint32_t skill);
   void StopUsing();
-  uint32_t Using();
-  int IsUsing(uint32_t);
-  std::string UsingString();
+  uint32_t Using() const;
+  int IsUsing(uint32_t) const;
+  std::string UsingString() const;
 
   int Wearing(const Object* obj) const;
   int WearMask() const;
@@ -530,7 +531,7 @@ class alignas(256) Object {
   int Tick();
 
   bool BusyAct();
-  bool StillBusy();
+  bool StillBusy() const;
   void BusyFor(long msec, const std::string& default_next = "");
   void BusyWith(Object* other, const std::string& default_next = "");
   void DoWhenFree(const std::string&);
@@ -541,8 +542,8 @@ class alignas(256) Object {
 
   bool IsSameAs(const Object& in) const;
 
-  int Matches(std::string seek, bool knows = false);
-  int LooksLike(Object* other, int vmode = 0, Object* viewer = nullptr);
+  int Matches(std::string seek, bool knows = false) const;
+  int LooksLike(Object* other, int vmode = 0, Object* viewer = nullptr) const;
 
   void AddMOB(std::mt19937&, const MOBType*);
 
@@ -555,7 +556,7 @@ class alignas(256) Object {
 
   void Loud(std::set<Object*>& visited, int str, const std::string& mes);
 
-  int Filter(int loc);
+  bool Filter(int loc) const;
 
   constexpr static const char* const default_descriptions = "a new object\0\0\0\0";
   const char* descriptions = default_descriptions;

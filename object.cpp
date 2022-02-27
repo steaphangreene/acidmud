@@ -1,3 +1,4 @@
+;
 // *************************************************************************
 //  This file is part of AcidMUD by Steaphan Greene
 //
@@ -236,7 +237,7 @@ int matches(const std::string& name, const std::string& seek) {
   return ret;
 }
 
-int Object::Matches(std::string targ, bool knows) {
+int Object::Matches(std::string targ, bool knows) const {
   trim_string(targ);
 
   // Pointer Matches
@@ -892,7 +893,7 @@ std::string Object::Obje() const {
 }
 
 // Generate truly-formatted name/noun/pronoun/possessive....
-std::string Object::Noun(bool definite, Object* rel, Object* sub) const {
+std::string Object::Noun(bool definite, const Object* rel, const Object* sub) const {
   static std::string local;
   bool need_an = false;
   bool proper = false;
@@ -2761,7 +2762,7 @@ MinVec<1, Object*> Object::PickObjects(std::string name, int loc, int* ordinal) 
   return ret;
 }
 
-int Object::HasWithin(const Object* obj) {
+int Object::HasWithin(const Object* obj) const {
   if (no_seek)
     return 0;
   for (auto ind : contents) {
@@ -2773,7 +2774,7 @@ int Object::HasWithin(const Object* obj) {
   return 0;
 }
 
-int Object::SeeWithin(const Object* obj) {
+int Object::SeeWithin(const Object* obj) const {
   if (no_seek)
     return 0;
   for (auto ind : contents) {
@@ -2787,7 +2788,7 @@ int Object::SeeWithin(const Object* obj) {
   return 0;
 }
 
-int Object::IsNearBy(const Object* obj) {
+int Object::IsNearBy(const Object* obj) const {
   if (no_seek || (!parent))
     return 0;
   for (auto ind : parent->contents) {
@@ -3672,7 +3673,7 @@ void Object::BusyWith(Object* other, const std::string& default_next) {
   busylist.insert(this);
 }
 
-bool Object::StillBusy() {
+bool Object::StillBusy() const {
   if (busy_until == 0) {
     return false;
   }
@@ -3917,7 +3918,7 @@ void Object::operator=(const Object& in) {
   //  act = in.act;
 }
 
-MinVec<3, Object*> Object::Contents(int vmode) {
+MinVec<3, Object*> Object::Contents(int vmode) const {
   MinVec<3, Object*> ret;
   if (vmode & LOC_NINJA) {
     ret = contents;
@@ -3938,11 +3939,11 @@ MinVec<3, Object*> Object::Contents(int vmode) {
   return ret;
 }
 
-MinVec<3, Object*> Object::Contents() {
+MinVec<3, Object*> Object::Contents() const {
   return contents;
 }
 
-int Object::Contains(const Object* obj) {
+int Object::Contains(const Object* obj) const {
   return (std::find(contents.begin(), contents.end(), obj) != contents.end());
 }
 
@@ -3950,7 +3951,7 @@ void Object::SpendExp(int e) {
   sexp += e;
 }
 
-bool Object::HasAccomplished(uint64_t acc) {
+bool Object::HasAccomplished(uint64_t acc) const {
   for (auto comp : completed) {
     if (comp == acc) {
       return true;
@@ -4019,7 +4020,7 @@ int two_handed(int wtype) {
   return int(thsks.count(wtype));
 }
 
-std::string Object::PosString() {
+std::string Object::PosString() const {
   std::string ret;
   if (pos == pos_t::USE) {
     ret = fmt::format("is {} here", UsingString());
@@ -4029,7 +4030,7 @@ std::string Object::PosString() {
   return ret;
 }
 
-std::string Object::UsingString() {
+std::string Object::UsingString() const {
   std::string ret;
   if (pos == pos_t::USE) {
     if (cur_skill == crc32c("Stealth")) {
@@ -4066,15 +4067,15 @@ void Object::StopUsing() {
   cur_skill = crc32c("None");
 }
 
-uint32_t Object::Using() {
+uint32_t Object::Using() const {
   return cur_skill;
 }
 
-int Object::IsUsing(uint32_t skill) {
+int Object::IsUsing(uint32_t skill) const {
   return (skill == cur_skill);
 }
 
-pos_t Object::Pos() {
+pos_t Object::Pos() const {
   return pos;
 }
 
@@ -4084,19 +4085,19 @@ void Object::SetPos(pos_t p) {
   pos = p;
 }
 
-int Object::Filter(int loc) {
+bool Object::Filter(int loc) const {
   if (loc & (LOC_ALIVE | LOC_CONSCIOUS)) {
     if (!IsAnimate() || IsAct(act_t::DEAD))
-      return 0;
+      return false;
   }
   if (loc & LOC_CONSCIOUS) {
     if (IsAct(act_t::DYING) || IsAct(act_t::UNCONSCIOUS))
-      return 0;
+      return false;
   }
-  return 1;
+  return true;
 }
 
-int Object::LooksLike(Object* other, int vmode, Object* viewer) {
+int Object::LooksLike(Object* other, int vmode, Object* viewer) const {
   if (Noun(false, viewer) != other->Noun(false, viewer))
     return 0;
   if (Pos() != other->Pos())
