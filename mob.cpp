@@ -396,7 +396,6 @@ std::string gender_proc(const std::string& in, char gender) {
   for (ctr = 0; !gen_replace[ctr][0].empty(); ++ctr) {
     int where = ret.find(gen_replace[ctr][0]);
     while (where >= 0 && where <= int(ret.length())) {
-      fprintf(stderr, "Yep: %d %s (%s)\n", where, ret.c_str(), gen_replace[ctr][0].c_str());
       ret = ret.substr(0, where) + gen_replace[ctr][gen] +
           ret.substr(where + gen_replace[ctr][0].length());
       where = ret.find(gen_replace[ctr][0]);
