@@ -80,8 +80,8 @@ int Object::Save(const std::string& fn) {
 
   fprintf(fl, "%.8X\n", CurrentVersion.savefile_version_object);
 
-  // Save 'skill_names' hashes and strings.
-  save_skill_names_to(fl);
+  // Save 'prop_names' hashes and strings.
+  save_prop_names_to(fl);
 
   obj2num.clear();
   obj2num[nullptr] = 0;
@@ -178,9 +178,9 @@ int Object::Load(const std::string& fn) {
 
   fscanf(fl, "%X\n", &ver);
 
-  // Load 'skill_names' hashes and strings.
+  // Load 'prop_names' hashes and strings.
   if (ver >= 0x0018) {
-    load_skill_names_from(fl);
+    load_prop_names_from(fl);
   }
 
   todo.clear();
@@ -194,7 +194,7 @@ int Object::Load(const std::string& fn) {
 
   // Purge old skill name hashes
   if (ver < 0x0019) {
-    purge_invalid_skill_names();
+    purge_invalid_prop_names();
   }
 
   for (auto ind : todo) {

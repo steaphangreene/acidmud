@@ -35,12 +35,12 @@ constexpr std::array<std::pair<uint32_t, std::string>, L> names2entry(
   std::sort(ret.begin(), ret.end());
   return ret;
 };
-static const auto skill_defs_array = names2entry(skill_names);
+static const auto skill_defs_array = names2entry(prop_names);
 static std::vector<std::pair<uint32_t, std::string>> skill_defs(
     skill_defs_array.begin(),
     skill_defs_array.end());
 
-void save_skill_names_to(FILE* fl) {
+void save_prop_names_to(FILE* fl) {
   std::sort(skill_defs.begin(), skill_defs.end());
   skill_defs.erase(std::unique(skill_defs.begin(), skill_defs.end()), skill_defs.end());
   fprintf(fl, "%lu\n", skill_defs.size());
@@ -54,7 +54,7 @@ void save_skill_names_to(FILE* fl) {
   }
 }
 
-void load_skill_names_from(FILE* fl) {
+void load_prop_names_from(FILE* fl) {
   int32_t size;
   fscanf(fl, "%d\n", &size);
   char buf[256];
@@ -68,7 +68,7 @@ void load_skill_names_from(FILE* fl) {
   skill_defs.erase(std::unique(skill_defs.begin(), skill_defs.end()), skill_defs.end());
 }
 
-void purge_invalid_skill_names() {
+void purge_invalid_prop_names() {
   for (auto& sk : skill_defs) {
     sk.first = crc32c(sk.second);
   }

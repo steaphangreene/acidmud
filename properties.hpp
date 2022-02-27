@@ -28,7 +28,7 @@
 
 #include "utils.hpp"
 
-constexpr std::array<const char*, 543> skill_names = {{
+constexpr std::array<const char*, 543> prop_names = {{
     "Accomplishment",
     "Accuracy Bonus",
     "Accuracy Penalty",
@@ -582,8 +582,8 @@ constexpr std::array<uint32_t, L> names2crcs(std::array<const char*, L> in) {
   std::sort(ret.begin(), ret.end());
   return ret;
 };
-constexpr auto skill_crcs = names2crcs(skill_names);
-static_assert(crc32c(skill_names[0]) == crc32c("Accomplishment"));
+constexpr auto skill_crcs = names2crcs(prop_names);
+static_assert(crc32c(prop_names[0]) == crc32c("Accomplishment"));
 static_assert(skill_crcs[0] == crc32c("Warm"));
 
 consteval bool same_string(const char* s1, const char* s2, int pos) {
@@ -593,9 +593,9 @@ consteval bool same_string(const char* s1, const char* s2, int pos) {
 }
 
 consteval bool is_in_prop_list(const char* pr, int pos) {
-  return (pos >= skill_names.size())           ? false
-      : (same_string(pr, skill_names[pos], 0)) ? true
-                                               : is_in_prop_list(pr, pos + 1);
+  return (pos >= prop_names.size())           ? false
+      : (same_string(pr, prop_names[pos], 0)) ? true
+                                              : is_in_prop_list(pr, pos + 1);
 }
 
 consteval bool is_in_prop_list(const char* pr) {
