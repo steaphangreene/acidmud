@@ -716,7 +716,9 @@ int handle_command_wcreate(
 
   zone_links.clear();
   for (const auto& fn : filenames) {
-    if (!load_map(world, mind, fn)) {
+    if (fn.find("/.") != std::string::npos) {
+      // Ignore hidden files
+    } else if (!load_map(world, mind, fn)) {
       delete world;
       return 0;
     }
