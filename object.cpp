@@ -3949,6 +3949,38 @@ MinVec<3, Object*> Object::Contents() const {
   return contents;
 }
 
+MinVec<7, Object*> Object::Connections(int vmode) const {
+  MinVec<7, Object*> ret; // Includes nulls for unconnected dirs
+  for (std::string dir : {"north", "south", "east", "west", "up", "down"}) {
+    Object* conn = nullptr;
+    Object* door = PickObject(dir, vmode | LOC_INTERNAL);
+    if (door) {
+      Object* odoor = door->ActTarg(act_t::SPECIAL_LINKED);
+      if (odoor) {
+        conn = odoor->Parent();
+      }
+    }
+    ret.push_back(conn);
+  }
+  return ret;
+}
+
+MinVec<7, Object*> Object::Connections() const {
+  MinVec<7, Object*> ret; // Includes nulls for unconnected dirs
+  for (std::string dir : {"north", "south", "east", "west", "up", "down"}) {
+    Object* conn = nullptr;
+    Object* door = PickObject(dir, LOC_INTERNAL);
+    if (door) {
+      Object* odoor = door->ActTarg(act_t::SPECIAL_LINKED);
+      if (odoor) {
+        conn = odoor->Parent();
+      }
+    }
+    ret.push_back(conn);
+  }
+  return ret;
+}
+
 int Object::Contains(const Object* obj) const {
   return (std::find(contents.begin(), contents.end(), obj) != contents.end());
 }
