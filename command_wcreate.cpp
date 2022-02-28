@@ -636,6 +636,7 @@ int handle_command_wcreate(
   for (const auto& fn : filenames) {
     int ret = load_map(world, mind, fn);
     if (ret != 0) {
+      delete world;
       return ret;
     }
   }
