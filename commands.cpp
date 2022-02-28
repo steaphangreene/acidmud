@@ -6742,8 +6742,13 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_RESET) {
-    if (!mind)
+    if (!mind) {
       return 0;
+    }
+    if (args.empty()) {
+      mind->Send("You want to reset what?\n");
+      return 0;
+    }
     Object* targ =
         body->PickObject(std::string(args), vmode | LOC_NEARBY | LOC_INTERNAL | LOC_SELF);
     if (!targ) {
@@ -6774,8 +6779,13 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_MIRROR) {
-    if (!mind)
+    if (!mind) {
       return 0;
+    }
+    if (args.empty()) {
+      mind->Send("You want to mirror what?\n");
+      return 0;
+    }
     Object* targ = body->PickObject(std::string(args), vmode | LOC_NEARBY | LOC_INTERNAL);
     if (!targ) {
       mind->Send("You want to mirror what?\n");
@@ -6836,8 +6846,13 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_CLONE) {
-    if (!mind)
+    if (!mind) {
       return 0;
+    }
+    if (args.empty()) {
+      mind->Send("You want to clone what?\n");
+      return 0;
+    }
     Object* targ =
         body->PickObject(std::string(args), vmode | LOC_NEARBY | LOC_INTERNAL | LOC_SELF);
     if (!targ) {
@@ -6858,8 +6873,13 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_PROD) {
-    if (!mind)
+    if (!mind) {
       return 0;
+    }
+    if (args.empty()) {
+      mind->Send("You want to prod what?\n");
+      return 0;
+    }
     auto targs = body->PickObjects(std::string(args), vmode | LOC_NEARBY);
     if (targs.size() == 0) {
       mind->Send("You want to prod what?\n");
@@ -6879,8 +6899,13 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_JUNK) {
-    if (!mind)
+    if (!mind) {
       return 0;
+    }
+    if (args.empty()) {
+      mind->Send("You want to destroy what?\n");
+      return 0;
+    }
     auto targs = body->PickObjects(std::string(args), vmode | LOC_NEARBY);
     if (targs.size() == 0) {
       mind->Send("You want to destroy what?\n");
@@ -6900,8 +6925,13 @@ static int handle_single_command(Object* body, std::string line, Mind* mind) {
   }
 
   if (cnum == COM_HEAL) {
-    if (!mind)
+    if (!mind) {
       return 0;
+    }
+    if (args.empty()) {
+      mind->Send("You want to heal what?\n");
+      return 0;
+    }
     Object* targ =
         body->PickObject(std::string(args), vmode | LOC_NEARBY | LOC_INTERNAL | LOC_SELF);
 
