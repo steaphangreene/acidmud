@@ -314,15 +314,19 @@ class alignas(256) Object {
     return gender;
   };
 
-  void SetCoords(int x, int y) {
+  void SetCoords(int x, int y, int z = 0) {
     weight = x;
     volume = y;
+    size = z;
   };
   int X() const {
     return weight;
   };
   int Y() const {
     return volume;
+  };
+  int Z() const {
+    return size;
   };
 
   void SetWeight(int w) {
@@ -582,7 +586,7 @@ class alignas(256) Object {
 
   int weight; // Also X Coordinate for Zone Locations
   int volume; // Also Y Coordinate for Zone Locations
-  int size;
+  int size; // Also Z Coordinate for Zone Locations
   int value;
   int8_t gender;
 
