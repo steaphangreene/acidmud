@@ -19,11 +19,13 @@
 //
 // *************************************************************************
 
+#include <algorithm>
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
 #include <random>
 
+#include "color.hpp"
 #include "commands.hpp"
 #include "mind.hpp"
 #include "mob.hpp"
@@ -635,6 +637,7 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
   }
 
   // Now, populate this new zone.
+  int homeless = 0;
   for (auto obj : objs) {
     auto x = obj.first.x;
     auto y = obj.first.y;
@@ -665,20 +668,46 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
           mob->AddAct(act_t::SPECIAL_WORK, objs[coord{x, y}][floor]);
 
           // Now find them a home.
-          for (size_t f = 0; f < resnames[room].size(); ++f) {
-            if (resnames[room][f] == empnames[room][n] && resnums[room][f] > 0) {
-              int resfl = resfloors[room][f];
-              if (resnums[room][f] >
-                  occupants[std::make_pair(objs[coord{x, y}][resfl], empnames[room][n])]) {
-                mob->AddAct(act_t::SPECIAL_HOME, objs[coord{x, y}][resfl]);
-                ++occupants[std::make_pair(objs[coord{x, y}][resfl], empnames[room][n])];
-                break;
+          bool housed = false;
+          for (uint32_t d = 0; !housed && d < 1000; ++d) { // Commute Distance, Limited by Map Size
+            for (int s = 0; !housed && s < std::max(1U, d * 4); ++s) { // Num Samples To Check
+              uint32_t loc_x = x - d + ((s <= (d * 2)) ? s : (d * 4) - s);
+              uint32_t t = (d == 0) ? 0 : (s + d) % (d * 4);
+              uint32_t loc_y = y - d + ((t <= (d * 2)) ? t : (d * 4) - t);
+              if (loc_x < ascii_map[0].size() && loc_y < ascii_map.size()) { // >= 0 is implied
+                auto loc = coord{loc_x, loc_y};
+                char type = ascii_map[loc_y][loc_x];
+                if (resnames.count(type) > 0) {
+                  for (size_t f = 0; !housed && f < resnames.at(type).size(); ++f) {
+                    if (resnames.at(type)[f] == empnames[room][n] && resnums.at(type)[f] > 0) {
+                      int resfl = resfloors.at(type)[f];
+                      if (resnums.at(type)[f] >
+                          occupants[std::make_pair(objs[loc][resfl], empnames[room][n])]) {
+                        mob->AddAct(act_t::SPECIAL_HOME, objs[loc][resfl]);
+                        ++occupants[std::make_pair(objs[loc][resfl], empnames[room][n])];
+                        housed = true;
+                      }
+                    }
+                  }
+                }
               }
             }
+          }
+          if (!housed) {
+            fprintf(
+                stderr,
+                CYEL "Warning: Homeless MOB in %s: %s\n" CNRM,
+                zone->ShortDescC(),
+                empnames[room][n].c_str());
+            ++homeless;
           }
         }
       }
     }
+  }
+
+  if (homeless > 0) {
+    mind->SendF(CYEL "Warning: %d Homeless MOBs\n" CNRM, homeless);
   }
 
   mind->SendF("Loaded %s From: '%s'!\n", name.c_str(), filename.c_str());
