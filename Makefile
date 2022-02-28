@@ -37,14 +37,14 @@ CXXFLAGS=-std=c++20 -O3 -g -Wall -Wshadow -Werror -ferror-limit=2 -fconstexpr-de
 
 #Use debugging settings
 debug:
-	+make CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -g -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined -Wall -Wshadow -Werror -ferror-limit=2 -fconstexpr-depth=1024'
+	+make CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -g -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined -Wall -Wshadow -Werror -ferror-limit=2 -fconstexpr-depth=1024'
 
 #Use profiling settings
 profile:
-	+make CXXFLAGS='-std=c++20 -O3 -fno-omit-frame-pointer -g -Wall -Wshadow -Werror -ferror-limit=2 -fconstexpr-depth=1024 -flto'
+	+make CXXFLAGS='-std=c++20 -O3 -fno-omit-frame-pointer -fno-optimize-sibling-calls -g -Wall -Wshadow -Werror -ferror-limit=2 -fconstexpr-depth=1024 -flto'
 
 gcc:
-	+make CXX='g++' CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -g -Wall -Wshadow -Werror -fmax-errors=2 -fconstexpr-depth=1024'
+	+make CXX='g++' CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -g -Wall -Wshadow -Werror -fmax-errors=2 -fconstexpr-depth=1024'
 
 clean:
 	rm -f gmon.out deps.mk *.o *.da version.cpp acidmud changes.txt
