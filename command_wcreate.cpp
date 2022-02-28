@@ -398,6 +398,18 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
               std::string("This is ") + zone->ShortDesc() + ", on " + world->ShortDesc() + ".  " +
               zone->ShortDesc() + " is nice.");
         }
+
+        // Load data for housing capacities for these new objects
+        if (resnames.count(room) > 0) {
+          auto loc = coord{x, y};
+          for (size_t f = 0; f < resnames.at(room).size(); ++f) {
+            int resfl = resfloors.at(room)[f];
+            if (beds.count(std::make_pair(objs[loc][resfl], resnames[room][f])) == 0) {
+              beds[std::make_pair(objs[loc][resfl], resnames[room][f])] = resnums.at(room)[f](gen);
+            }
+          }
+        }
+
       } else if (ascii_isdigit(room)) { // Default Room
         int num_floors = room - '0';
         if (num_floors < 1) {
@@ -431,6 +443,18 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
         } else {
           objs[coord{x, y}].back()->SetShortDesc("a room");
         }
+
+        // Load data for housing capacities for these new objects
+        if (resnames.count(room) > 0) {
+          auto loc = coord{x, y};
+          for (size_t f = 0; f < resnames.at(room).size(); ++f) {
+            int resfl = resfloors.at(room)[f];
+            if (beds.count(std::make_pair(objs[loc][resfl], resnames[room][f])) == 0) {
+              beds[std::make_pair(objs[loc][resfl], resnames[room][f])] = resnums.at(room)[f](gen);
+            }
+          }
+        }
+
       } else if (room == '@') { // Zone Entrance
         bool linked = false;
         if (!en_links.empty()) {
@@ -681,10 +705,6 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
                   for (size_t f = 0; !housed && f < resnames.at(type).size(); ++f) {
                     if (resnames.at(type)[f] == empnames[room][n]) {
                       int resfl = resfloors.at(type)[f];
-                      if (beds.count(std::make_pair(objs[loc][resfl], empnames[room][n])) == 0) {
-                        beds[std::make_pair(objs[loc][resfl], empnames[room][n])] =
-                            resnums.at(type)[f](gen);
-                      }
                       if (beds.at(std::make_pair(objs[loc][resfl], empnames[room][n])) > 0) {
                         mob->AddAct(act_t::SPECIAL_HOME, objs[loc][resfl]);
                         --beds.at(std::make_pair(objs[loc][resfl], empnames[room][n]));
