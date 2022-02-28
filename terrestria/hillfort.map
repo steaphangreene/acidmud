@@ -15,8 +15,8 @@ employ:5.0:4-8:a dwarven guard
 employ:5.0:8-20:a dwarven citizen
 building:4:tower
 employ:4.3:2:a dwarven soldier
-house:4.1:8:a dwarven soldier
-house:4.0:8:a dwarven soldier
+house:4.1:16:a dwarven soldier
+house:4.0:12:a dwarven guard
 building:3:gate house
 employ:3.2:2:a dwarven soldier
 employ:3.1:2:a dwarven soldier
