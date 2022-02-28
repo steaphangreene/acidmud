@@ -32,7 +32,7 @@ LIBS:=	-lcrypt
 all:	acidmud
 
 #Production Settings (dynamic)
-CXX=clang++-12
+CXX=clang++-13
 CXXFLAGS=-std=c++20 -O3 -g -Wall -Wshadow -Werror -ferror-limit=2 -fconstexpr-depth=1024 -flto
 
 #Use debugging settings
