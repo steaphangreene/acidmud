@@ -654,6 +654,16 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
           mob->SetName(first.front() + " " + last.front());
 
           mob->AddAct(act_t::SPECIAL_WORK, objs[coord{x, y}][floor]);
+
+          // Now find them a home.
+          for (size_t f = 0; f < resnames[room].size(); ++f) {
+            if (resnames[room][f] == empnames[room][n] && resnums[room][f] > 0) {
+              int resfl = resfloors[room][f];
+              mob->AddAct(act_t::SPECIAL_HOME, objs[coord{x, y}][resfl]);
+              //--resnums[room][entry];
+              // resnames[room][entry] = std::string("TAKEN");
+            }
+          }
         }
       }
     }
