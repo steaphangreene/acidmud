@@ -121,6 +121,7 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
   std::map<char, std::vector<std::string>> resnames;
   std::map<char, std::vector<int>> resnums;
   std::map<char, std::vector<int>> resfloors;
+  std::map<std::pair<Object*, std::string>, int> occupants;
   std::vector<std::string> en_links;
   std::vector<std::string> en_rooms;
   std::vector<bool> en_indoors;
@@ -667,9 +668,12 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
           for (size_t f = 0; f < resnames[room].size(); ++f) {
             if (resnames[room][f] == empnames[room][n] && resnums[room][f] > 0) {
               int resfl = resfloors[room][f];
-              mob->AddAct(act_t::SPECIAL_HOME, objs[coord{x, y}][resfl]);
-              //--resnums[room][entry];
-              // resnames[room][entry] = std::string("TAKEN");
+              if (resnums[room][f] >
+                  occupants[std::make_pair(objs[coord{x, y}][resfl], empnames[room][n])]) {
+                mob->AddAct(act_t::SPECIAL_HOME, objs[coord{x, y}][resfl]);
+                ++occupants[std::make_pair(objs[coord{x, y}][resfl], empnames[room][n])];
+                break;
+              }
             }
           }
         }
