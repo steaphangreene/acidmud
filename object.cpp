@@ -592,29 +592,29 @@ int Object::Tick() {
       level = ModAttribute(2);
     else
       level += ModAttribute(2); // Base Strength Scales Food Req
-    if (level > 29999)
-      level = 29999;
+    if (level > 2999999)
+      level = 2999999;
     SetSkill(prhash("Hungry"), level);
 
-    if (level == 500)
+    if (level == 50000)
       Send(ALL, -1, "You could use a snack.\n");
-    else if (level == 1000)
+    else if (level == 100000)
       Send(ALL, -1, "You officially have the munchies.\n");
-    else if (level == 1500)
+    else if (level == 150000)
       Send(ALL, -1, "You really could go for a snack.\n");
-    else if (level == 2000)
+    else if (level == 200000)
       Send(ALL, -1, "You are getting hungry.\n");
-    else if (level == 2500)
+    else if (level == 250000)
       Send(ALL, -1, "You are getting very hungry.\n");
-    else if (level == 3000)
+    else if (level == 300000)
       Send(ALL, -1, "You are really quite hungry.\n");
-    else if (level == 3500)
+    else if (level == 350000)
       Send(ALL, -1, "You are really dying for food.\n");
-    else if (level == 4000)
+    else if (level == 400000)
       Send(ALL, -1, "You need to get some food soon!\n");
-    else if (level == 4500)
+    else if (level == 450000)
       Send(ALL, -1, "You are starting to starve!\n");
-    else if (level >= 5000) {
+    else if (level >= 500000) {
       if (level % 10 == 0) {
         Send(ALL, -1, "You are starving!\n");
       }
@@ -627,29 +627,29 @@ int Object::Tick() {
       level = ModAttribute(0);
     else
       level += ModAttribute(0); // Body Scales Water Req
-    if (level > 29999)
-      level = 29999;
+    if (level > 299999)
+      level = 299999;
     SetSkill(prhash("Thirsty"), level);
 
-    if (level == 500)
+    if (level == 5000)
       Send(ALL, -1, "You could use a drink.\n");
-    else if (level == 1000)
+    else if (level == 10000)
       Send(ALL, -1, "Your mouth is getting dry.\n");
-    else if (level == 1500)
+    else if (level == 15000)
       Send(ALL, -1, "You really could go for a drink.\n");
-    else if (level == 2000)
+    else if (level == 20000)
       Send(ALL, -1, "You are getting thirsty.\n");
-    else if (level == 2500)
+    else if (level == 25000)
       Send(ALL, -1, "You are getting very thirsty.\n");
-    else if (level == 3000)
+    else if (level == 30000)
       Send(ALL, -1, "You are really quite thirsty.\n");
-    else if (level == 3500)
+    else if (level == 35000)
       Send(ALL, -1, "You are really dying for water.\n");
-    else if (level == 4000)
+    else if (level == 40000)
       Send(ALL, -1, "You need to get some water soon!\n");
-    else if (level == 4500)
+    else if (level == 45000)
       Send(ALL, -1, "You are starting to dehydrate!\n");
-    else if (level >= 5000) {
+    else if (level >= 50000) {
       if (level % 10 == 0) {
         Send(ALL, -1, "You are dehydrated!\n");
       }
@@ -2996,11 +2996,11 @@ void Object::UpdateDamage() {
     phys += stun - 10;
     stun = 10;
   }
-  if (stun < Skill(prhash("Hungry")) / 5000) { // Hungry Stuns
-    stun = Skill(prhash("Hungry")) / 5000;
+  if (stun < Skill(prhash("Hungry")) / 500000) { // Hungry Stuns
+    stun = Skill(prhash("Hungry")) / 500000;
   }
-  if (phys < Skill(prhash("Thirsty")) / 5000) { // Thirsty Wounds
-    phys = Skill(prhash("Thirsty")) / 5000;
+  if (phys < Skill(prhash("Thirsty")) / 50000) { // Thirsty Wounds
+    phys = Skill(prhash("Thirsty")) / 50000;
   }
   if (phys > 10 + ModAttribute(2)) {
     phys = 10 + ModAttribute(2) + 1;
@@ -4185,11 +4185,11 @@ void Object::Consume(const Object* item) {
   SetSkill(prhash("Thirsty"), Skill(prhash("Thirsty")) - item->Skill(prhash("Drink")));
   SetSkill(prhash("Thirsty"), Skill(prhash("Thirsty")) + item->Skill(prhash("Dehydrate Effect")));
   // Heal back dehydrate/hunger wounds
-  if ((hung / 5000) > (Skill(prhash("Hungry")) / 5000)) {
-    HealStun((hung / 5000) - (Skill(prhash("Hungry")) / 5000));
+  if ((hung / 500000) > (Skill(prhash("Hungry")) / 500000)) {
+    HealStun((hung / 500000) - (Skill(prhash("Hungry")) / 500000));
   }
-  if ((thir / 5000) > (Skill(prhash("Thirsty")) / 5000)) {
-    HealPhys((thir / 5000) - (Skill(prhash("Thirsty")) / 5000));
+  if ((thir / 50000) > (Skill(prhash("Thirsty")) / 50000)) {
+    HealPhys((thir / 50000) - (Skill(prhash("Thirsty")) / 50000));
   }
 
   // Special effect: Poisonous

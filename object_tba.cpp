@@ -1611,108 +1611,109 @@ void Object::TBALoadOBJ(const std::string& fn) {
           liq->SetSkill(prhash("Ingestible"), 1);
           liq->SetWeight(20);
           liq->SetVolume(2);
-          switch (val[2]) { // "* 90" = TBAMUD's hours/4 * Acid's Hours * 6
+          switch (val[2]) {
+            // "* 900" = TBAMUD's hours/4 * Acid's Hours * 6 (x10 Drink, x100 Food)
             case (0): { // WATER
               liq->SetShortDesc("water");
-              liq->SetSkill(prhash("Drink"), 10 * 90);
-              liq->SetSkill(prhash("Food"), 1 * 90);
-              // liq->SetSkill(prhash("Alcohol"), 0 * 90);
+              liq->SetSkill(prhash("Drink"), 10 * 900);
+              liq->SetSkill(prhash("Food"), 1 * 9000);
+              // liq->SetSkill(prhash("Alcohol"), 0 * 900);
             } break;
             case (1): { // BEER
               liq->SetShortDesc("beer");
-              liq->SetSkill(prhash("Drink"), 5 * 90);
-              liq->SetSkill(prhash("Food"), 2 * 90);
-              liq->SetSkill(prhash("Alcohol"), 3 * 90);
+              liq->SetSkill(prhash("Drink"), 5 * 900);
+              liq->SetSkill(prhash("Food"), 2 * 9000);
+              liq->SetSkill(prhash("Alcohol"), 3 * 900);
               liq->SetSkill(prhash("Perishable"), 32);
             } break;
             case (2): { // WINE
               liq->SetShortDesc("wine");
-              liq->SetSkill(prhash("Drink"), 5 * 90);
-              liq->SetSkill(prhash("Food"), 2 * 90);
-              liq->SetSkill(prhash("Alcohol"), 5 * 90);
+              liq->SetSkill(prhash("Drink"), 5 * 900);
+              liq->SetSkill(prhash("Food"), 2 * 9000);
+              liq->SetSkill(prhash("Alcohol"), 5 * 900);
             } break;
             case (3): { // ALE
               liq->SetShortDesc("ale");
-              liq->SetSkill(prhash("Drink"), 5 * 90);
-              liq->SetSkill(prhash("Food"), 2 * 90);
-              liq->SetSkill(prhash("Alcohol"), 2 * 90);
+              liq->SetSkill(prhash("Drink"), 5 * 900);
+              liq->SetSkill(prhash("Food"), 2 * 9000);
+              liq->SetSkill(prhash("Alcohol"), 2 * 900);
               liq->SetSkill(prhash("Perishable"), 16);
             } break;
             case (4): { // DARKALE
               liq->SetShortDesc("dark ale");
-              liq->SetSkill(prhash("Drink"), 5 * 90);
-              liq->SetSkill(prhash("Food"), 2 * 90);
-              liq->SetSkill(prhash("Alcohol"), 1 * 90);
+              liq->SetSkill(prhash("Drink"), 5 * 900);
+              liq->SetSkill(prhash("Food"), 2 * 9000);
+              liq->SetSkill(prhash("Alcohol"), 1 * 900);
               liq->SetSkill(prhash("Perishable"), 8);
             } break;
             case (5): { // WHISKY
               liq->SetShortDesc("whisky");
-              liq->SetSkill(prhash("Drink"), 4 * 90);
-              liq->SetSkill(prhash("Food"), 1 * 90);
-              liq->SetSkill(prhash("Alcohol"), 6 * 90);
+              liq->SetSkill(prhash("Drink"), 4 * 900);
+              liq->SetSkill(prhash("Food"), 1 * 9000);
+              liq->SetSkill(prhash("Alcohol"), 6 * 900);
             } break;
             case (6): { // LEMONADE
               liq->SetShortDesc("lemonaid");
-              liq->SetSkill(prhash("Drink"), 8 * 90);
-              liq->SetSkill(prhash("Food"), 1 * 90);
-              // liq->SetSkill(prhash("Alcohol"), 0 * 90);
+              liq->SetSkill(prhash("Drink"), 8 * 900);
+              liq->SetSkill(prhash("Food"), 1 * 9000);
+              // liq->SetSkill(prhash("Alcohol"), 0 * 900);
               liq->SetSkill(prhash("Perishable"), 4);
             } break;
             case (7): { // FIREBRT
               liq->SetShortDesc("firebreather");
-              // liq->SetSkill(prhash("Drink"), 0 * 90);
-              // liq->SetSkill(prhash("Food"), 0 * 90);
-              liq->SetSkill(prhash("Alcohol"), 10 * 90);
+              // liq->SetSkill(prhash("Drink"), 0 * 900);
+              // liq->SetSkill(prhash("Food"), 0 * 9000);
+              liq->SetSkill(prhash("Alcohol"), 10 * 900);
             } break;
             case (8): { // LOCALSPC
               liq->SetShortDesc("local brew");
-              liq->SetSkill(prhash("Drink"), 3 * 90);
-              liq->SetSkill(prhash("Food"), 3 * 90);
-              liq->SetSkill(prhash("Alcohol"), 3 * 90);
+              liq->SetSkill(prhash("Drink"), 3 * 900);
+              liq->SetSkill(prhash("Food"), 3 * 9000);
+              liq->SetSkill(prhash("Alcohol"), 3 * 900);
             } break;
             case (9): { // SLIME
               liq->SetShortDesc("slime");
-              liq->SetSkill(prhash("Dehydrate Effect"), 8 * 90);
-              liq->SetSkill(prhash("Food"), 4 * 90);
-              // liq->SetSkill(prhash("Alcohol"), 0 * 90);
+              liq->SetSkill(prhash("Dehydrate Effect"), 8 * 900);
+              liq->SetSkill(prhash("Food"), 4 * 9000);
+              // liq->SetSkill(prhash("Alcohol"), 0 * 900);
             } break;
             case (10): { // MILK
               liq->SetShortDesc("milk");
-              liq->SetSkill(prhash("Drink"), 6 * 90);
-              liq->SetSkill(prhash("Food"), 3 * 90);
-              // liq->SetSkill(prhash("Alcohol"), 0 * 90);
+              liq->SetSkill(prhash("Drink"), 6 * 900);
+              liq->SetSkill(prhash("Food"), 3 * 9000);
+              // liq->SetSkill(prhash("Alcohol"), 0 * 900);
               liq->SetSkill(prhash("Perishable"), val[0]);
             } break;
             case (11): { // TEA
               liq->SetShortDesc("tea");
-              liq->SetSkill(prhash("Drink"), 6 * 90);
-              liq->SetSkill(prhash("Food"), 1 * 90);
-              // liq->SetSkill(prhash("Alcohol"), 0 * 90);
+              liq->SetSkill(prhash("Drink"), 6 * 900);
+              liq->SetSkill(prhash("Food"), 1 * 9000);
+              // liq->SetSkill(prhash("Alcohol"), 0 * 900);
             } break;
             case (12): { // COFFE
               liq->SetShortDesc("coffee");
-              liq->SetSkill(prhash("Drink"), 6 * 90);
-              liq->SetSkill(prhash("Food"), 1 * 90);
-              // liq->SetSkill(prhash("Alcohol"), 0 * 90);
+              liq->SetSkill(prhash("Drink"), 6 * 900);
+              liq->SetSkill(prhash("Food"), 1 * 9000);
+              // liq->SetSkill(prhash("Alcohol"), 0 * 900);
             } break;
             case (13): { // BLOOD
               liq->SetShortDesc("blood");
-              liq->SetSkill(prhash("Dehydrate Effect"), 1 * 90);
-              liq->SetSkill(prhash("Food"), 2 * 90);
-              // liq->SetSkill(prhash("Alcohol"), 0 * 90);
+              liq->SetSkill(prhash("Dehydrate Effect"), 1 * 900);
+              liq->SetSkill(prhash("Food"), 2 * 9000);
+              // liq->SetSkill(prhash("Alcohol"), 0 * 900);
               liq->SetSkill(prhash("Perishable"), 2);
             } break;
             case (14): { // SALTWATER
               liq->SetShortDesc("salt water");
-              liq->SetSkill(prhash("Dehydrate Effect"), 2 * 90);
-              liq->SetSkill(prhash("Food"), 1 * 90);
-              // liq->SetSkill(prhash("Alcohol"), 0 * 90);
+              liq->SetSkill(prhash("Dehydrate Effect"), 2 * 900);
+              liq->SetSkill(prhash("Food"), 1 * 9000);
+              // liq->SetSkill(prhash("Alcohol"), 0 * 900);
             } break;
             case (15): { // CLEARWATER
               liq->SetShortDesc("clear water");
-              liq->SetSkill(prhash("Drink"), 13 * 90);
-              // liq->SetSkill(prhash("Food"), 0 * 90);
-              // liq->SetSkill(prhash("Alcohol"), 0 * 90);
+              liq->SetSkill(prhash("Drink"), 13 * 900);
+              // liq->SetSkill(prhash("Food"), 0 * 9000);
+              // liq->SetSkill(prhash("Alcohol"), 0 * 900);
             } break;
           }
           if (val[3] != 0) {
@@ -1723,7 +1724,7 @@ void Object::TBALoadOBJ(const std::string& fn) {
       } else if (tp == 19) { // FOOD
         obj->SetSkill(prhash("Ingestible"), 1);
         obj->SetSkill(prhash("Perishable"), val[0]);
-        obj->SetSkill(prhash("Food"), val[0] * 360); // 60 Mins & 6 Acid Hours/Hour
+        obj->SetSkill(prhash("Food"), val[0] * 36000); // 60 Mins & 6 Acid Hours/Hour (x100)
         if (val[3] != 0) {
           obj->SetSkill(prhash("Poisionous"), val[3]);
         }
