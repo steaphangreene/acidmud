@@ -5,39 +5,39 @@ en_link:Western Road
 upper_level:2
 lower_level:0
 building:5:fortress
-house:5.4:1:dwarven leader
-house:5.3:8:dwarven elite guard
-employ:5.3:1-2:dwarven elite guard
-employ:5.2:1-1:dwarven leader
-employ:5.2:1-2:dwarven elite guard
-employ:5.1:1-2:dwarven elite guard
-employ:5.0:4-8:dwarven guard
-employ:5.0:8-20:dwarven citizen
+house:5.4:1:a dwarven leader
+house:5.3:8:a dwarven elite guard
+employ:5.3:1-2:a dwarven elite guard
+employ:5.2:1-1:a dwarven leader
+employ:5.2:1-2:a dwarven elite guard
+employ:5.1:1-2:a dwarven elite guard
+employ:5.0:4-8:a dwarven guard
+employ:5.0:8-20:a dwarven citizen
 building:4:tower
-employ:4.3:2:dwarven soldier
-house:4.1:8:dwarven soldier
-house:4.0:8:dwarven soldier
+employ:4.3:2:a dwarven soldier
+house:4.1:8:a dwarven soldier
+house:4.0:8:a dwarven soldier
 building:3:gate house
-employ:3.2:2:dwarven soldier
-employ:3.1:2:dwarven soldier
+employ:3.2:2:a dwarven soldier
+employ:3.1:2:a dwarven soldier
 building:2:shop
 building:2:shop
 building:2:shop
 building:2:shop
 building:2:inn
 building:2:tavern
-house:2.1:2-4:dwarven citizen
-employ:2.0:1-2:dwarven citizen
+house:2.1:2-4:a dwarven citizen
+employ:2.0:1-2:a dwarven citizen
 place:+:stone street
-employ:+:0-1:dwarven guard
+employ:+:0-1:a dwarven guard
 place:#:wide stone street
 en_place:@:wide stone street
 en_place:@:wide stone street
-employ:#:1-2:dwarven guard
+employ:#:1-2:a dwarven guard
 place:=:massive stone bridge
 place:::atop the stone wall
 level:::2
-employ:::0-1:dwarven soldier
+employ:::0-1:a dwarven soldier
 door:o:heavy wooden door
 lock:o
 door:g:solid iron door
