@@ -88,17 +88,17 @@ static MOBType mob_dwarf(
     100,
     500);
 
-static int load_map(Object* world, Mind* mind, const std::string_view fn) {
+static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
   if (fn.empty()) {
     mind->Send("You need to specify the filename of the datafile!\n");
-    return 1;
+    return false;
   }
 
   std::string filename(fn);
   FILE* def_file = fopen(filename.c_str(), "r");
   if (def_file == nullptr) {
     mind->SendF("Can't find definition file '%s'!\n", filename.c_str());
-    return 1;
+    return false;
   }
 
   std::string name = "Unknown Land";
@@ -272,7 +272,7 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
       mind->SendF("Bad definition file '%s'!\n", filename.c_str());
       mind->SendF("Read: '%s'!\n", line_buf);
       fclose(def_file);
-      return 0;
+      return false;
     }
   }
 
@@ -308,7 +308,7 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
         mind->SendF("Bad definition file '%s'!\n", filename.c_str());
         mind->SendF("Read Unknown Character '%c' at ascii_map (%u,%u)!\n", room, x, y);
         fclose(def_file);
-        return 0;
+        return false;
       }
     }
   }
@@ -675,7 +675,7 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
 
   mind->SendF("Loaded %s From: '%s'!\n", name.c_str(), filename.c_str());
   fclose(def_file);
-  return 0;
+  return true;
 }
 
 int handle_command_wcreate(
@@ -708,10 +708,9 @@ int handle_command_wcreate(
 
   zone_links.clear();
   for (const auto& fn : filenames) {
-    int ret = load_map(world, mind, fn);
-    if (ret != 0) {
+    if (!load_map(world, mind, fn)) {
       delete world;
-      return ret;
+      return 0;
     }
   }
 
