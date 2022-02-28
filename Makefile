@@ -33,7 +33,7 @@ all:	acidmud
 
 #Production Settings (dynamic)
 CXX=clang++-12
-CXXFLAGS=-std=c++20 -O3 -g -Wall -Wshadow -Werror -ferror-limit=2 -fconstexpr-depth=1024
+CXXFLAGS=-std=c++20 -O3 -g -Wall -Wshadow -Werror -ferror-limit=2 -fconstexpr-depth=1024 -flto
 
 #Use debugging settings
 debug:
@@ -41,7 +41,7 @@ debug:
 
 #Use profiling settings
 profile:
-	+make CXXFLAGS='-std=c++20 -O3 -fno-omit-frame-pointer -g -Wall -Wshadow -Werror -ferror-limit=2 -fconstexpr-depth=1024'
+	+make CXXFLAGS='-std=c++20 -O3 -fno-omit-frame-pointer -g -Wall -Wshadow -Werror -ferror-limit=2 -fconstexpr-depth=1024 -flto'
 
 gcc:
 	+make CXX='g++' CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -g -Wall -Wshadow -Werror -fmax-errors=2 -fconstexpr-depth=1024'
