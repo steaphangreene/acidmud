@@ -28,23 +28,25 @@ OBJS:=	main.o version.o stats.o net.o commands.o mind.o player.o mob.o object.o 
         object_acid.o object_dynamic.o command_ccreate.o command_wcreate.o utils.o \
 	object_tba.o skills.o properties.o
 LIBS:=	-lcrypt
+ARCH:=	-mavx2 -mfma -mbmi2
+COMP:=	-Wall -Wshadow -Werror -ferror-limit=2 -fconstexpr-depth=1024
 
 all:	acidmud
 
 #Production Settings (dynamic)
 CXX=clang++-13
-CXXFLAGS=-std=c++20 -O3 -g -Wall -Wshadow -Werror -ferror-limit=2 -fconstexpr-depth=1024 -flto
+CXXFLAGS=-std=c++20 -O3 $(COMP) $(ARCH) -flto
 
 #Use debugging settings
 debug:
-	+make CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -g -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined -Wall -Wshadow -Werror -ferror-limit=2 -fconstexpr-depth=1024'
+	+make CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -g -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) -flto'
 
 #Use profiling settings
 profile:
-	+make CXXFLAGS='-std=c++20 -O3 -fno-omit-frame-pointer -fno-optimize-sibling-calls -g -Wall -Wshadow -Werror -ferror-limit=2 -fconstexpr-depth=1024 -flto'
+	+make CXXFLAGS='-std=c++20 -O3 -fno-omit-frame-pointer -fno-optimize-sibling-calls -g $(COMP) $(ARCH) -flto'
 
 gcc:
-	+make CXX='g++' CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -g -Wall -Wshadow -Werror -fmax-errors=2 -fconstexpr-depth=1024'
+	+make CXX='g++' CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -g $(COMP) $(ARCH)'
 
 clean:
 	rm -f gmon.out deps.mk *.o *.da version.cpp acidmud changes.txt
