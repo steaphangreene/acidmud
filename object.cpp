@@ -1678,15 +1678,19 @@ void Object::SendScore(Mind* m, Object* o) {
           stru <= 8 ? ' ' : 'X',
           stru <= 9 ? ' ' : 'X');
     } else if (ctr == 5) {
-      m->SendF(
-          "  Sex: %c, %d.%.3dkg, %d.%.3dm, %dv, %dY\n",
-          gender,
-          weight / 1000,
-          weight % 1000,
-          size / 1000,
-          size % 1000,
-          volume,
-          value);
+      if (Pos() == pos_t::NONE) {
+        m->SendF("  Zone Coords: (%d,%d)  Other: %dm, %dY\n", X(), Y(), size, value);
+      } else {
+        m->SendF(
+            "  Sex: %c, %d.%.3dkg, %d.%.3dm, %dv, %dY\n",
+            gender,
+            weight / 1000,
+            weight % 1000,
+            size / 1000,
+            size % 1000,
+            volume,
+            value);
+      }
     }
     m->Send("\n");
   }
