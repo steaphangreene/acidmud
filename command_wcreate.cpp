@@ -353,6 +353,7 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
         }
         for (int f = 0; f < num_floors; ++f) {
           objs[coord{x, y}].push_back(new_object(zone));
+          objs[coord{x, y}].back()->SetCoords(x, y);
           if (indoors[room]) {
             objs[coord{x, y}].back()->SetSkill(prhash("Translucent"), 200);
             objs[coord{x, y}].back()->SetSkill(prhash("Light Source"), 100);
@@ -397,6 +398,7 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
         }
         for (int f = 0; f < num_floors; ++f) {
           objs[coord{x, y}].push_back(new_object(zone));
+          objs[coord{x, y}].back()->SetCoords(x, y);
           if (indoors[room]) {
             objs[coord{x, y}].back()->SetSkill(prhash("Translucent"), 200);
             objs[coord{x, y}].back()->SetSkill(prhash("Light Source"), 100);
@@ -443,6 +445,7 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
           entrance = new_object(zone);
           entrance->SetShortDesc("a generic zone entrance");
           objs[coord{x, y}].push_back(entrance);
+          objs[coord{x, y}].back()->SetCoords(x, y);
           if (!en_links.empty()) {
             auto ozone = en_links.front();
             zone_links.insert(std::make_pair(ozone, std::make_pair(name, entrance)));
@@ -464,6 +467,7 @@ static int load_map(Object* world, Mind* mind, const std::string_view fn) {
                 std::string("This is ") + zone->ShortDesc() + ", on " + world->ShortDesc() + ".  " +
                 zone->ShortDesc() + " is nice.");
           }
+          objs[coord{x, y}].back()->SetCoords(x, y);
         }
         if (!en_links.empty()) {
           en_links.erase(en_links.begin());
