@@ -118,12 +118,12 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
   std::map<char, bool> indoors;
   std::map<char, uint8_t> levels;
   std::map<char, std::vector<std::string>> empnames;
-  std::map<char, std::vector<int>> empnums;
+  std::map<char, std::vector<std::uniform_int_distribution<int>>> empnums;
   std::map<char, std::vector<int>> empfloors;
   std::map<char, std::vector<std::string>> resnames;
-  std::map<char, std::vector<int>> resnums;
+  std::map<char, std::vector<std::uniform_int_distribution<int>>> resnums;
   std::map<char, std::vector<int>> resfloors;
-  std::map<std::pair<Object*, std::string>, int> occupants;
+  std::map<std::pair<Object*, std::string>, int> beds;
   std::vector<std::string> en_links;
   std::vector<std::string> en_rooms;
   std::vector<bool> en_indoors;
@@ -190,7 +190,7 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
       }
       if (!parse_error) {
         empnames[sym].emplace_back(namebuf);
-        empnums[sym].push_back(std::uniform_int_distribution<int>(lnum, hnum)(gen));
+        empnums[sym].push_back(std::uniform_int_distribution<int>(lnum, hnum));
         empfloors[sym].push_back(floor);
       }
     } else if (!strncmp(line_buf, "house:", 6)) {
@@ -218,7 +218,7 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
       }
       if (!parse_error) {
         resnames[sym].emplace_back(namebuf);
-        resnums[sym].push_back(std::uniform_int_distribution<int>(lnum, hnum)(gen));
+        resnums[sym].push_back(std::uniform_int_distribution<int>(lnum, hnum));
         resfloors[sym].push_back(floor);
       }
     } else if (!strncmp(line_buf, "door:", 5)) {
@@ -645,7 +645,7 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
     if (empnames.count(room) > 0) {
       for (size_t n = 0; n < empnames[room].size(); ++n) {
         mob_dwarf.SetName(empnames[room][n]);
-        int num = empnums[room][n];
+        int num = empnums[room][n](gen);
         int floor = empfloors[room][n];
         for (int m = 0; m < num; ++m) {
           objs[coord{x, y}][floor]->AddMOB(gen, &mob_dwarf);
@@ -679,12 +679,15 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
                 char type = ascii_map[loc_y][loc_x];
                 if (resnames.count(type) > 0) {
                   for (size_t f = 0; !housed && f < resnames.at(type).size(); ++f) {
-                    if (resnames.at(type)[f] == empnames[room][n] && resnums.at(type)[f] > 0) {
+                    if (resnames.at(type)[f] == empnames[room][n]) {
                       int resfl = resfloors.at(type)[f];
-                      if (resnums.at(type)[f] >
-                          occupants[std::make_pair(objs[loc][resfl], empnames[room][n])]) {
+                      if (beds.count(std::make_pair(objs[loc][resfl], empnames[room][n])) == 0) {
+                        beds[std::make_pair(objs[loc][resfl], empnames[room][n])] =
+                            resnums.at(type)[f](gen);
+                      }
+                      if (beds.at(std::make_pair(objs[loc][resfl], empnames[room][n])) > 0) {
                         mob->AddAct(act_t::SPECIAL_HOME, objs[loc][resfl]);
-                        ++occupants[std::make_pair(objs[loc][resfl], empnames[room][n])];
+                        --beds.at(std::make_pair(objs[loc][resfl], empnames[room][n]));
                         housed = true;
                       }
                     }
