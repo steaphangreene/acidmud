@@ -1679,7 +1679,7 @@ void Object::SendScore(Mind* m, Object* o) {
           stru <= 9 ? ' ' : 'X');
     } else if (ctr == 5) {
       if (Pos() == pos_t::NONE) {
-        m->SendF("  Zone Coords: (%d,%d)  Other: %dm, %dY\n", X(), Y(), size, value);
+        m->SendF("  Zone Coords: (%d,%d,%d)  Value: %dY\n", X(), Y(), Z(), value);
       } else {
         m->SendF(
             "  Sex: %c, %d.%.3dkg, %d.%.3dm, %dv, %dY\n",
