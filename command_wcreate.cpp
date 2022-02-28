@@ -353,7 +353,11 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
         }
         for (int f = 0; f < num_floors; ++f) {
           objs[coord{x, y}].push_back(new_object(zone));
-          objs[coord{x, y}].back()->SetCoords(x, y);
+          if (levels.count(room) > 0) {
+            objs[coord{x, y}].back()->SetCoords(x, y, levels.at(room) + f);
+          } else {
+            objs[coord{x, y}].back()->SetCoords(x, y, f);
+          }
           if (indoors[room]) {
             objs[coord{x, y}].back()->SetSkill(prhash("Translucent"), 200);
             objs[coord{x, y}].back()->SetSkill(prhash("Light Source"), 100);
