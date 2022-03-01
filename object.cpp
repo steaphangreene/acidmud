@@ -3200,16 +3200,6 @@ void Object::Send(int tnum, int rsucc, const std::u8string& mes) {
   }
 }
 
-void Object::SendF(int tnum, int rsucc, const char8_t* mes, ...) {
-  char8_t buf2[65536];
-  va_list stuff;
-  va_start(stuff, mes);
-  vsprintf(buf2, mes, stuff);
-  va_end(stuff);
-
-  Send(tnum, rsucc, buf2);
-}
-
 void Object::Send(channel_t channel, const std::u8string& mes) {
   auto tosend = mes;
   tosend[0] = ascii_toupper(tosend[0]);
@@ -3222,16 +3212,6 @@ void Object::Send(channel_t channel, const std::u8string& mes) {
       mind->Attach(body);
     }
   }
-}
-
-void Object::SendF(channel_t channel, const char8_t* mes, ...) {
-  char8_t buf2[65536];
-  va_list stuff;
-  va_start(stuff, mes);
-  vsprintf(buf2, mes, stuff);
-  va_end(stuff);
-
-  Send(channel, buf2);
 }
 
 void Object::SendIn(
@@ -3520,20 +3500,6 @@ void Object::SendOutF(
 void Object::Loud(int str, const std::u8string& mes) {
   std::set<Object*> visited;
   Loud(visited, str, mes);
-}
-
-void Object::LoudF(int str, const char8_t* mes, ...) {
-  if (mes[0] == 0)
-    return;
-
-  char8_t buf2[65536];
-  va_list stuff;
-  va_start(stuff, mes);
-  vsprintf(buf2, mes, stuff);
-  va_end(stuff);
-
-  std::set<Object*> visited;
-  Loud(visited, str, buf2);
 }
 
 void Object::Loud(std::set<Object*>& visited, int str, const std::u8string& mes) {

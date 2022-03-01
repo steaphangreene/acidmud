@@ -509,8 +509,20 @@ class alignas(256) Object {
   void Loud(int str, const std::u8string& mes);
 
   // Formatted (printf style, plus with ;s/;s for actor/targ)
-  void SendF(channel_t channel, const char8_t* mes, ...);
-  void SendF(int targ, int rsucc, const char8_t* mes, ...);
+  template <typename... Args>
+  void SendF(channel_t channel, const char8_t* mes, Args... args) {
+    char8_t buf[65536];
+    sprintf(buf, mes, args...);
+
+    Send(channel, buf);
+  };
+  template <typename... Args>
+  void SendF(int tnum, int rsucc, const char8_t* mes, Args... args) {
+    char8_t buf[65536];
+    sprintf(buf, mes, args...);
+
+    Send(tnum, rsucc, buf);
+  };
   void SendOutF(
       int tnum,
       int rsucc,
@@ -527,7 +539,13 @@ class alignas(256) Object {
       Object* actor,
       Object* targ,
       ...);
-  void LoudF(int str, const char8_t* mes, ...);
+  template <typename... Args>
+  void LoudF(int str, const char8_t* mes, Args... args) {
+    char8_t buf[65536];
+    sprintf(buf, mes, args...);
+
+    Loud(str, buf);
+  };
 
   void TBALoadAll();
   void TBALoadWLD(const std::u8string&);
