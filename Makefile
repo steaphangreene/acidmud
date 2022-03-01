@@ -28,7 +28,7 @@ OBJS:=	main.o version.o stats.o net.o commands.o mind.o player.o mob.o object.o 
         object_acid.o object_dynamic.o command_ccreate.o command_wcreate.o utils.o \
 	object_tba.o skills.o properties.o
 LIBS:=	-lcrypt
-COPT:=	-mbranches-within-32B-boundaries -ferror-limit=2
+COPT:=	-mbranches-within-32B-boundaries -ferror-limit=2 -stdlib=libc++
 GOPT:=
 ARCH:=	-mavx2 -mfma -mbmi2 -falign-functions=32
 COMP:=	-Wall -Wshadow -Werror -fconstexpr-depth=1024 -Wno-format-security
