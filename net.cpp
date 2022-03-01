@@ -288,14 +288,14 @@ void update_net() {
 
       write(out.first, outs.c_str(), outs.length());
 
-      std::u8string::iterator loc = find(outs.begin(), outs.end(), (char)(255));
+      std::u8string::iterator loc = find(outs.begin(), outs.end(), static_cast<char8_t>(255));
       while (loc >= outs.begin() && loc < outs.end()) {
         loc = outs.erase(loc);
         if (loc < outs.end())
           loc = outs.erase(loc);
         if (loc < outs.end())
           loc = outs.erase(loc);
-        loc = find(outs.begin(), outs.end(), (char)(255));
+        loc = find(outs.begin(), outs.end(), static_cast<char8_t>(255));
       }
       if (minds[out.first]->LogFD() >= 0)
         write(minds[out.first]->LogFD(), outs.c_str(), outs.length());

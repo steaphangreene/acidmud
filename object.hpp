@@ -312,7 +312,7 @@ class alignas(256) Object {
   int Value() const {
     return value;
   };
-  char8_t Gender() const {
+  int8_t Gender() const {
     return gender;
   };
 
@@ -343,7 +343,7 @@ class alignas(256) Object {
   void SetValue(int v) {
     value = v;
   };
-  void SetGender(char g) {
+  void SetGender(int8_t g) {
     gender = g;
   };
 
