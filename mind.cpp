@@ -686,10 +686,6 @@ bool Mind::Send(const std::u8string& mes) {
   return true;
 }
 
-void Mind::SendRaw(const std::u8string& mes) {
-  SendOut(pers, mes);
-}
-
 void Mind::SetPName(std::u8string pn) {
   pname = pn;
   if (player_exists(pname))
@@ -720,7 +716,7 @@ void Mind::SetPPass(std::u8string ppass) {
     return;
   }
 
-  SendRawF(u8"%c%c%c", IAC, WONT, TELOPT_ECHO);
+  SendF(u8"%c%c%c", IAC, WONT, TELOPT_ECHO);
   svars = player->Vars();
   player->Room()->SendDesc(this);
   player->Room()->SendContents(this);

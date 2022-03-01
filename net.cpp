@@ -111,7 +111,7 @@ void handle_input(socket_t in_s) {
     if (ch == '\b' || ch == '\x7F') {
       if (comlines[in_s].length() > 0) {
         comlines[in_s] = comlines[in_s].substr(0, comlines[in_s].length() - 1);
-        mind->SendRaw(u8"\b \b");
+        mind->Send(u8"\b \b");
       }
     } else if (ch == '\r') {
       // Ignore these, since they mean nothing unless teamed with \n anyway.
@@ -138,7 +138,7 @@ void handle_input(socket_t in_s) {
   }
 
   //  FIXME: Manual echoing?
-  //  if(comlines[in_s].length() > 0) mind->SendRaw(comlines[in_s].c_str());
+  //  if(comlines[in_s].length() > 0) mind->Send(comlines[in_s].c_str());
 }
 
 void resume_net(int fd) {
