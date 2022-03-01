@@ -3346,30 +3346,6 @@ void Object::SendIn(
   }
 }
 
-void Object::SendInF(
-    int tnum,
-    int rsucc,
-    const char8_t* mes,
-    const char8_t* youmes,
-    Object* actor,
-    Object* targ,
-    ...) {
-  if (no_seek)
-    return;
-
-  char8_t buf2[65536];
-  char8_t youbuf[65536];
-  va_list stuff;
-  va_start(stuff, targ);
-  vsprintf(buf2, mes, stuff);
-  va_end(stuff);
-  va_start(stuff, targ);
-  vsprintf(youbuf, youmes, stuff);
-  va_end(stuff);
-
-  SendIn(tnum, rsucc, buf2, youbuf, actor, targ);
-}
-
 void Object::SendOut(
     int tnum,
     int rsucc,
@@ -3471,30 +3447,6 @@ void Object::SendOut(
       mes.starts_with(u8";s introduces ;s as")) {
     Learn(targ->Skill(prhash(u8"Object ID")), targ->Name());
   }
-}
-
-void Object::SendOutF(
-    int tnum,
-    int rsucc,
-    const char8_t* mes,
-    const char8_t* youmes,
-    Object* actor,
-    Object* targ,
-    ...) {
-  if (no_seek)
-    return;
-
-  char8_t buf2[65536];
-  char8_t youbuf[65536];
-  va_list stuff;
-  va_start(stuff, targ);
-  vsprintf(buf2, mes, stuff);
-  va_end(stuff);
-  va_start(stuff, targ);
-  vsprintf(youbuf, youmes, stuff);
-  va_end(stuff);
-
-  SendOut(tnum, rsucc, buf2, youbuf, actor, targ);
 }
 
 void Object::Loud(int str, const std::u8string& mes) {
