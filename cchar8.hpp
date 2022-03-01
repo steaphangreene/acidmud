@@ -48,7 +48,7 @@ int rename(auto&& of, auto&& nf) {
   return rename(reinterpret_cast<const char*>(of), reinterpret_cast<const char*>(nf));
 };
 
-int stat(auto&& fn, auto&& st) {
+auto stat8(auto&& fn, auto&& st) {
   return stat(reinterpret_cast<const char*>(fn), st);
 };
 

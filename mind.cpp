@@ -510,7 +510,7 @@ void Mind::SetRemote(int fd) {
   static unsigned long lognum = 0;
   struct stat st;
   sprintf(buf, u8"logs/%.8lX.log%c", lognum, 0);
-  while (!stat(buf, &st)) {
+  while (!stat8(buf, &st)) {
     ++lognum;
     sprintf(buf, u8"logs/%.8lX.log%c", lognum, 0);
   }
