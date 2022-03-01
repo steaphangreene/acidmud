@@ -3184,6 +3184,11 @@ int Object::HitStru(int force, int sev, int succ) {
 void Object::Send(int tnum, int rsucc, const std::u8string& mes) {
   if (no_hear)
     return;
+
+  if (tnum != ALL && rsucc >= 0 && Roll(prhash(u8"Perception"), tnum) <= rsucc) {
+    return;
+  }
+
   auto tosend = mes;
   tosend[0] = ascii_toupper(tosend[0]);
 
@@ -3196,13 +3201,6 @@ void Object::Send(int tnum, int rsucc, const std::u8string& mes) {
 }
 
 void Object::SendF(int tnum, int rsucc, const char8_t* mes, ...) {
-  if (mes[0] == 0)
-    return;
-
-  if (tnum != ALL && rsucc >= 0 && Roll(prhash(u8"Perception"), tnum) <= rsucc) {
-    return;
-  }
-
   char8_t buf2[65536];
   va_list stuff;
   va_start(stuff, mes);
@@ -3227,9 +3225,6 @@ void Object::Send(channel_t channel, const std::u8string& mes) {
 }
 
 void Object::SendF(channel_t channel, const char8_t* mes, ...) {
-  if (mes[0] == 0)
-    return;
-
   char8_t buf2[65536];
   va_list stuff;
   va_start(stuff, mes);
