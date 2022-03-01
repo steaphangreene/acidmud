@@ -84,11 +84,6 @@ auto sscanf(auto&& st, auto&& fm, Args... args) {
   return std::sscanf(reinterpret_cast<const char*>(st), reinterpret_cast<const char*>(fm), args...);
 };
 
-template <typename... Args>
-auto vsprintf(auto&& st, auto&& fm, Args... args) {
-  return std::vsprintf(reinterpret_cast<char*>(st), reinterpret_cast<const char*>(fm), args...);
-};
-
 auto strstr(auto&& s1, auto&& s2) {
   return std::strstr(reinterpret_cast<const char*>(s1), reinterpret_cast<const char*>(s2));
 };
