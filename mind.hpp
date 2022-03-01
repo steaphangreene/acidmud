@@ -52,7 +52,7 @@ class Mind {
       Object* tr,
       Object* tripper = nullptr,
       Object* targ = nullptr,
-      std::string text = "");
+      std::u8string text = u8"");
   void SetNPC();
   void SetSystem();
   void Attach(Object* bod);
@@ -63,65 +63,65 @@ class Mind {
   Player* Owner() const {
     return player;
   };
-  std::string PName() const {
+  std::u8string PName() const {
     return pname;
   };
-  void SetPName(std::string);
-  void SetPPass(std::string);
-  void SetPlayer(std::string);
+  void SetPName(std::u8string);
+  void SetPPass(std::u8string);
+  void SetPlayer(std::u8string);
   int Type() const {
     return type;
   };
   int LogFD() const {
     return log;
   };
-  bool Send(const std::string&); // Returns false when mind needs to be deleted
-  void SendRaw(const std::string&);
-  void SendF(const char*, ...) __attribute__((format(printf, 2, 3)));
-  void SendRawF(const char*, ...) __attribute__((format(printf, 2, 3)));
+  bool Send(const std::u8string&); // Returns false when mind needs to be deleted
+  void SendRaw(const std::u8string&);
+  void SendF(const char8_t*, ...);
+  void SendRawF(const char8_t*, ...);
   void UpdatePrompt();
 
   bool Think(int istick = 0); // Returns false when mind needs to be deleted
-  std::string Tactics(int phase = -1) const;
+  std::u8string Tactics(int phase = -1) const;
 
   static void Resume();
   void Suspend(int msec);
 
-  void SetSpecialPrompt(const std::string& newp);
-  std::string SpecialPrompt() const;
+  void SetSpecialPrompt(const std::u8string& newp);
+  std::u8string SpecialPrompt() const;
 
   int Status() const;
   void ClearStatus();
 
-  void SetSVar(const std::string& var, const std::string& val);
-  void ClearSVar(const std::string& var);
-  const std::string& SVar(const std::string& var) const;
-  int IsSVar(const std::string& var) const;
-  void SetSVars(const std::map<std::string, std::string>& sv);
-  const std::map<std::string, std::string> SVars() const;
+  void SetSVar(const std::u8string& var, const std::u8string& val);
+  void ClearSVar(const std::u8string& var);
+  const std::u8string& SVar(const std::u8string& var) const;
+  int IsSVar(const std::u8string& var) const;
+  void SetSVars(const std::map<std::u8string, std::u8string>& sv);
+  const std::map<std::u8string, std::u8string> SVars() const;
 
  private:
   int TBACanWanderTo(Object* dest) const;
 
-  std::string TBAComp(std::string expr) const;
-  int TBAEval(std::string expr) const;
-  bool TBAVarSub(std::string& line) const; // Returns false when mind needs to be deleted
+  std::u8string TBAComp(std::u8string expr) const;
+  int TBAEval(std::u8string expr) const;
+  bool TBAVarSub(std::u8string& line) const; // Returns false when mind needs to be deleted
 
-  int TBARunLine(std::string line);
+  int TBARunLine(std::u8string line);
 
   int type;
   int pers;
   Object* body;
   Player* player;
-  std::string pname;
-  std::string prompt;
+  std::u8string pname;
+  std::u8string prompt;
   int log;
 
-  static std::map<std::string, std::string> cvars;
-  std::map<std::string, std::string> svars;
-  std::map<std::string, Object*> ovars;
+  static std::map<std::u8string, std::u8string> cvars;
+  std::map<std::u8string, std::u8string> svars;
+  std::map<std::u8string, Object*> ovars;
   int status;
-  std::string script;
+  std::u8string script;
   std::vector<size_t> spos_s;
 
   static std::vector<std::pair<int64_t, Mind*>> waiting;
@@ -132,8 +132,8 @@ Mind* new_mind(
     Object* obj = nullptr,
     Object* obj2 = nullptr,
     Object* obj3 = nullptr,
-    std::string text = "");
-int new_trigger(int msec, Object* obj, Object* tripper = nullptr, std::string text = "");
-int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, std::string text = "");
+    std::u8string text = u8"");
+int new_trigger(int msec, Object* obj, Object* tripper = nullptr, std::u8string text = u8"");
+int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, std::u8string text = u8"");
 
 #endif // MIND_HPP

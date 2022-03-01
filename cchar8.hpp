@@ -101,6 +101,10 @@ auto strcmp(auto&& s1, auto&& s2) {
   return std::strcmp(reinterpret_cast<const char*>(s1), reinterpret_cast<const char*>(s2));
 };
 
+auto strncmp(auto&& s1, auto&& s2, auto&& sz) {
+  return std::strncmp(reinterpret_cast<const char*>(s1), reinterpret_cast<const char*>(s2), sz);
+};
+
 auto strcat(auto&& ds, auto&& sr) {
   return std::strcat(reinterpret_cast<char*>(ds), reinterpret_cast<const char*>(sr));
 };

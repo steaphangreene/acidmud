@@ -21,12 +21,10 @@
 
 #include <unistd.h>
 #include <cctype>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <random>
 #include <string>
 
+#include "cchar8.hpp"
 #include "color.hpp"
 #include "commands.hpp"
 #include "mind.hpp"
@@ -56,38 +54,38 @@ void Object::DynamicInit2() { // Cyberpunk City
 }
 
 void Object::DynamicInit1() { // Dwarven mine
-  const std::string names[] = {
-      "An Entrance to a Large Mining Tunnel",
-      "A Large Mining Tunnel",
-      "A Large Mining Tunnel with a Small Tunnel to One Side",
-      "A Large Mining Tunnel",
-      "A Large Open Chamber",
-      "A Small Mining Tunnel",
-      "A Bend in a Small Mining Tunnel",
-      "A Fork in a Small Mining Tunnel",
-      "A Small Alcove"};
-  const std::string descs[] = {
-      "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
-      "that you think it will stand as-is for another millenia.\n",
-      "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
-      "that you think it will stand as-is for another millenia.\n",
-      "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
-      "that you think it will stand as-is for another millenia.  Another less\n"
-      "well-supported tunnel leads off in another direction.\n",
-      "This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
-      "that you think it will stand as-is for another millenia.\n",
-      "This is a large natural-looking opening.  Perhaps this is where some of the\n"
-      "miners removed a large vein of ore, or maybe this cavern was just here due\n"
-      "to natural forces before they even got here.  It seems the dwarves have used\n"
-      "this tunnel for more than just mining work - a large cage here looks well\n"
-      "used.\n",
-      "This tunnel looks to have been carved quickly.  It looks like it might\n"
-      "collapse at any moment.\n",
-      "This bend in the tunnel looks to have been carved quickly.  It looks like it\n"
-      "might collapse at any moment.\n",
-      "This tunnel fork looks to have been carved quickly.  It looks like it\n"
-      "might collapse at any moment.\n",
-      "The tunnel comes to an end in a rough opening here.\n"};
+  const std::u8string names[] = {
+      u8"An Entrance to a Large Mining Tunnel",
+      u8"A Large Mining Tunnel",
+      u8"A Large Mining Tunnel with a Small Tunnel to One Side",
+      u8"A Large Mining Tunnel",
+      u8"A Large Open Chamber",
+      u8"A Small Mining Tunnel",
+      u8"A Bend in a Small Mining Tunnel",
+      u8"A Fork in a Small Mining Tunnel",
+      u8"A Small Alcove"};
+  const std::u8string descs[] = {
+      u8"This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
+      u8"that you think it will stand as-is for another millenia.\n",
+      u8"This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
+      u8"that you think it will stand as-is for another millenia.\n",
+      u8"This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
+      u8"that you think it will stand as-is for another millenia.  Another less\n"
+      u8"well-supported tunnel leads off in another direction.\n",
+      u8"This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
+      u8"that you think it will stand as-is for another millenia.\n",
+      u8"This is a large natural-looking opening.  Perhaps this is where some of the\n"
+      u8"miners removed a large vein of ore, or maybe this cavern was just here due\n"
+      u8"to natural forces before they even got here.  It seems the dwarves have used\n"
+      u8"this tunnel for more than just mining work - a large cage here looks well\n"
+      u8"used.\n",
+      u8"This tunnel looks to have been carved quickly.  It looks like it might\n"
+      u8"collapse at any moment.\n",
+      u8"This bend in the tunnel looks to have been carved quickly.  It looks like it\n"
+      u8"might collapse at any moment.\n",
+      u8"This tunnel fork looks to have been carved quickly.  It looks like it\n"
+      u8"might collapse at any moment.\n",
+      u8"The tunnel comes to an end in a rough opening here.\n"};
 
   static MOBType* dwarf_miner;
   static MOBType* dwarf_engineer;
@@ -100,21 +98,21 @@ void Object::DynamicInit1() { // Dwarven mine
     ItemType* item;
 
     dwarf_miner = new MOBType(
-        "a dwarf miner",
-        "{He} looks pissed.",
-        "",
-        "M",
+        u8"a dwarf miner",
+        u8"{He} looks pissed.",
+        u8"",
+        u8"M",
         {7, 7, 4, 5, 6, 7},
         {9, 9, 8, 8, 14, 14},
         500,
         2500);
-    dwarf_miner->Skill(prhash("Two-Handed Cleaves"), 100, 4);
-    dwarf_miner->Skill(prhash("Accomplishment"), 1500000);
+    dwarf_miner->Skill(prhash(u8"Two-Handed Cleaves"), 100, 4);
+    dwarf_miner->Skill(prhash(u8"Accomplishment"), 1500000);
     weap = new WeaponType(
-        "a dwarven mining pickaxe",
-        "A super-strong, super-sharp, super-heavy pickaxe.",
-        "",
-        "Two-Handed Cleaves",
+        u8"a dwarven mining pickaxe",
+        u8"A super-strong, super-sharp, super-heavy pickaxe.",
+        u8"",
+        u8"Two-Handed Cleaves",
         2,
         2,
         7,
@@ -125,9 +123,9 @@ void Object::DynamicInit1() { // Dwarven mine
         2000);
     dwarf_miner->Arm(weap);
     arm = new ArmorType(
-        "a dwarven leather jerkin",
-        "A heavy dwarven leather jerkin.  It'll probably stop an arrow.",
-        "",
+        u8"a dwarven leather jerkin",
+        u8"A heavy dwarven leather jerkin.  It'll probably stop an arrow.",
+        u8"",
         3,
         2,
         2,
@@ -144,21 +142,21 @@ void Object::DynamicInit1() { // Dwarven mine
     dwarf_miner->Armor(arm);
 
     dwarf_engineer = new MOBType(
-        "a dwarf engineer",
-        "She looks pissed.",
-        "",
-        "F",
+        u8"a dwarf engineer",
+        u8"She looks pissed.",
+        u8"",
+        u8"F",
         {5, 7, 4, 5, 5, 7},
         {8, 9, 9, 8, 13, 14},
         2000,
         10000);
-    dwarf_engineer->Skill(prhash("Long Cleaves"), 100, 2);
-    dwarf_engineer->Skill(prhash("Accomplishment"), 1500001);
+    dwarf_engineer->Skill(prhash(u8"Long Cleaves"), 100, 2);
+    dwarf_engineer->Skill(prhash(u8"Accomplishment"), 1500001);
     weap = new WeaponType(
-        "a dwarven combat axe",
-        "A super-strong, super-sharp combat axe.",
-        "",
-        "Long Cleaves",
+        u8"a dwarven combat axe",
+        u8"A super-strong, super-sharp combat axe.",
+        u8"",
+        u8"Long Cleaves",
         1,
         2,
         7,
@@ -169,9 +167,9 @@ void Object::DynamicInit1() { // Dwarven mine
         1000);
     dwarf_engineer->Arm(weap);
     arm = new ArmorType(
-        "a dwarven leather jerkin",
-        "A heavy dwarven leather jerkin.  It'll probably stop an arrow.",
-        "",
+        u8"a dwarven leather jerkin",
+        u8"A heavy dwarven leather jerkin.  It'll probably stop an arrow.",
+        u8"",
         3,
         2,
         2,
@@ -188,21 +186,21 @@ void Object::DynamicInit1() { // Dwarven mine
     dwarf_engineer->Armor(arm);
 
     dwarf_guard = new MOBType(
-        "a dwarf guard",
-        "{He} looks pissed.",
-        "",
-        "MF",
+        u8"a dwarf guard",
+        u8"{He} looks pissed.",
+        u8"",
+        u8"MF",
         {9, 4, 6, 4, 9, 4},
         {10, 7, 11, 8, 18, 8},
         100,
         500);
-    dwarf_guard->Skill(prhash("Two-Handed Cleaves"), 100, 4);
-    dwarf_guard->Skill(prhash("Accomplishment"), 1500002);
+    dwarf_guard->Skill(prhash(u8"Two-Handed Cleaves"), 100, 4);
+    dwarf_guard->Skill(prhash(u8"Accomplishment"), 1500002);
     weap = new WeaponType(
-        "a dwarven war axe",
-        "A super-strong, super-sharp, super-heavy, high-quality war axe.",
-        "",
-        "Two-Handed Cleaves",
+        u8"a dwarven war axe",
+        u8"A super-strong, super-sharp, super-heavy, high-quality war axe.",
+        u8"",
+        u8"Two-Handed Cleaves",
         2,
         4,
         6,
@@ -213,9 +211,9 @@ void Object::DynamicInit1() { // Dwarven mine
         5000);
     dwarf_guard->Arm(weap);
     arm = new ArmorType(
-        "a dwarven heavy breastplate",
-        "A heavy dwarven breastplate.  It'll probably stop a warhammer.",
-        "",
+        u8"a dwarven heavy breastplate",
+        u8"A heavy dwarven breastplate.  It'll probably stop a warhammer.",
+        u8"",
         8,
         4,
         6,
@@ -231,9 +229,9 @@ void Object::DynamicInit1() { // Dwarven mine
         act_t::WEAR_BACK);
     dwarf_guard->Armor(arm);
     arm = new ArmorType(
-        "a dwarven great helm",
-        "A heavy dwarven great helm.  It'll probably stop a warhammer.",
-        "",
+        u8"a dwarven great helm",
+        u8"A heavy dwarven great helm.  It'll probably stop a warhammer.",
+        u8"",
         8,
         4,
         6,
@@ -248,9 +246,9 @@ void Object::DynamicInit1() { // Dwarven mine
         act_t::WEAR_HEAD);
     dwarf_guard->Armor(arm);
     arm = new ArmorType(
-        "a dwarven arm plate (right)",
-        "A heavy dwarven arm plate.  It'll probably stop a warhammer.",
-        "",
+        u8"a dwarven arm plate (right)",
+        u8"A heavy dwarven arm plate.  It'll probably stop a warhammer.",
+        u8"",
         8,
         4,
         6,
@@ -265,9 +263,9 @@ void Object::DynamicInit1() { // Dwarven mine
         act_t::WEAR_RARM);
     dwarf_guard->Armor(arm);
     arm = new ArmorType(
-        "a dwarven arm plate (left)",
-        "A heavy dwarven arm plate.  It'll probably stop a warhammer.",
-        "",
+        u8"a dwarven arm plate (left)",
+        u8"A heavy dwarven arm plate.  It'll probably stop a warhammer.",
+        u8"",
         8,
         4,
         6,
@@ -282,9 +280,9 @@ void Object::DynamicInit1() { // Dwarven mine
         act_t::WEAR_LARM);
     dwarf_guard->Armor(arm);
     arm = new ArmorType(
-        "a dwarven battle skirt",
-        "A heavy dwarven battle skirt.  It'll probably stop a warhammer.",
-        "",
+        u8"a dwarven battle skirt",
+        u8"A heavy dwarven battle skirt.  It'll probably stop a warhammer.",
+        u8"",
         8,
         4,
         6,
@@ -300,31 +298,31 @@ void Object::DynamicInit1() { // Dwarven mine
         act_t::WEAR_LLEG);
     dwarf_guard->Armor(arm);
     item = new ItemType(
-        "a key",
-        "A heavy steel key.  It looks dwarven, and very old.",
-        "",
-        {skill_pair{prhash("Key"), 1510003}},
+        u8"a key",
+        u8"A heavy steel key.  It looks dwarven, and very old.",
+        u8"",
+        {skill_pair{prhash(u8"Key"), 1510003}},
         100,
         10,
         20);
     dwarf_guard->Carry(item);
 
     dwarf_explorer = new MOBType(
-        "a dwarf explorer",
-        "{He} looks pissed.",
-        "",
-        "MF",
+        u8"a dwarf explorer",
+        u8"{He} looks pissed.",
+        u8"",
+        u8"MF",
         {5, 4, 5, 4, 6, 4},
         {8, 6, 11, 8, 17, 9},
         1000,
         5000);
-    dwarf_explorer->Skill(prhash("Long Cleaves"), 100, 4);
-    dwarf_explorer->Skill(prhash("Accomplishment"), 1500003);
+    dwarf_explorer->Skill(prhash(u8"Long Cleaves"), 100, 4);
+    dwarf_explorer->Skill(prhash(u8"Accomplishment"), 1500003);
     weap = new WeaponType(
-        "a dwarven climbing pick",
-        "A super-sharp, lightweight pick.",
-        "",
-        "Long Cleaves",
+        u8"a dwarven climbing pick",
+        u8"A super-sharp, lightweight pick.",
+        u8"",
+        u8"Long Cleaves",
         1,
         1,
         3,
@@ -335,9 +333,9 @@ void Object::DynamicInit1() { // Dwarven mine
         500);
     dwarf_explorer->Arm(weap);
     arm = new ArmorType(
-        "a dwarven leather jerkin",
-        "A heavy dwarven leather jerkin.  It'll probably stop an arrow.",
-        "",
+        u8"a dwarven leather jerkin",
+        u8"A heavy dwarven leather jerkin.  It'll probably stop an arrow.",
+        u8"",
         3,
         2,
         2,
@@ -354,77 +352,78 @@ void Object::DynamicInit1() { // Dwarven mine
     dwarf_explorer->Armor(arm);
 
     elf_prisoner = new MOBType(
-        "an elf slave",
-        "This elf looks like {he}'s been a "
-        "prisoner longer than you've been alive.",
-        "",
-        "MF",
+        u8"an elf slave",
+        u8"This elf looks like {he}'s been a "
+        u8"prisoner longer than you've been alive.",
+        u8"",
+        u8"MF",
         {4, 2, 8, 4, 5, 2},
         {12, 4, 15, 8, 9, 6});
-    elf_prisoner->Skill(prhash("Carromeleg - Tier I"), 2);
-    elf_prisoner->Skill(prhash("Carromeleg - Tier II"), 2);
-    elf_prisoner->Skill(prhash("Carromeleg - Tier III"), 2);
-    elf_prisoner->Skill(prhash("Carromeleg - Tier IV"), 2);
-    elf_prisoner->Skill(prhash("Carromeleg - Tier V"), 2);
-    elf_prisoner->Skill(prhash("Carromeleg - Tier VI"), 2);
-    elf_prisoner->Skill(prhash("Accomplishment"), 1500004);
+    elf_prisoner->Skill(prhash(u8"Carromeleg - Tier I"), 2);
+    elf_prisoner->Skill(prhash(u8"Carromeleg - Tier II"), 2);
+    elf_prisoner->Skill(prhash(u8"Carromeleg - Tier III"), 2);
+    elf_prisoner->Skill(prhash(u8"Carromeleg - Tier IV"), 2);
+    elf_prisoner->Skill(prhash(u8"Carromeleg - Tier V"), 2);
+    elf_prisoner->Skill(prhash(u8"Carromeleg - Tier VI"), 2);
+    elf_prisoner->Skill(prhash(u8"Accomplishment"), 1500004);
   }
 
-  int mojo = Skill(prhash("DynamicMojo"));
-  SetSkill(prhash("DynamicMojo"), 0);
+  int mojo = Skill(prhash(u8"DynamicMojo"));
+  SetSkill(prhash(u8"DynamicMojo"), 0);
 
   // Tree structure, start with one door - dir of travel is opposite it.
-  std::string dirb = "south";
-  std::string dir = "north";
-  std::string dir2 = "west";
-  std::string dir3 = "east";
+  std::u8string dirb = u8"south";
+  std::u8string dir = u8"north";
+  std::u8string dir2 = u8"west";
+  std::u8string dir3 = u8"east";
 
-  if (PickObject("north", LOC_INTERNAL) != nullptr) {
-    dirb = "north";
-    dir = "south";
-    dir2 = "east";
-    dir3 = "west";
-  } else if (PickObject("east", LOC_INTERNAL) != nullptr) {
-    dirb = "east";
-    dir = "west";
-    dir2 = "south";
-    dir3 = "north";
-  } else if (PickObject("west", LOC_INTERNAL) != nullptr) {
-    dirb = "west";
-    dir = "east";
-    dir2 = "north";
-    dir3 = "south";
+  if (PickObject(u8"north", LOC_INTERNAL) != nullptr) {
+    dirb = u8"north";
+    dir = u8"south";
+    dir2 = u8"east";
+    dir3 = u8"west";
+  } else if (PickObject(u8"east", LOC_INTERNAL) != nullptr) {
+    dirb = u8"east";
+    dir = u8"west";
+    dir2 = u8"south";
+    dir3 = u8"north";
+  } else if (PickObject(u8"west", LOC_INTERNAL) != nullptr) {
+    dirb = u8"west";
+    dir = u8"east";
+    dir2 = u8"north";
+    dir3 = u8"south";
   }
   // Up and Down shafts are handled specially.
 
-  switch (Skill(prhash("DynamicPhase"))) {
+  switch (Skill(prhash(u8"DynamicPhase"))) {
     case (0): { // Entrance
       if (mojo == 0)
         mojo = 100000;
 
-      SetSkill(prhash("Accomplishment"), 1510000);
+      SetSkill(prhash(u8"Accomplishment"), 1510000);
 
       Object* next = new Object(parent);
       next->SetShortDesc(names[1]);
       next->SetDesc(descs[1]);
-      next->SetSkill(prhash("DynamicInit"), 1);
-      next->SetSkill(prhash("DynamicPhase"), 1); // Major Shaft
-      next->SetSkill(prhash("DynamicMojo"), mojo - 1000);
+      next->SetSkill(prhash(u8"DynamicInit"), 1);
+      next->SetSkill(prhash(u8"DynamicPhase"), 1); // Major Shaft
+      next->SetSkill(prhash(u8"DynamicMojo"), mojo - 1000);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
       door1->SetShortDesc(dir);
       door2->SetShortDesc(dirb);
-      door1->SetDesc((std::string("You see a solid passage leading ") + dir + ".\n").c_str());
-      door2->SetDesc((std::string("You see a solid passage leading ") + dirb + ".\n").c_str());
+      door1->SetDesc((std::u8string(u8"You see a solid passage leading ") + dir + u8".\n").c_str());
+      door2->SetDesc(
+          (std::u8string(u8"You see a solid passage leading ") + dirb + u8".\n").c_str());
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
-      door1->SetSkill(prhash("Open"), 1000);
-      door1->SetSkill(prhash("Enterable"), 1);
+      door1->SetSkill(prhash(u8"Open"), 1000);
+      door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
       door2->AddAct(act_t::SPECIAL_MASTER, door1);
-      door2->SetSkill(prhash("Open"), 1000);
-      door2->SetSkill(prhash("Enterable"), 1);
+      door2->SetSkill(prhash(u8"Open"), 1000);
+      door2->SetSkill(prhash(u8"Enterable"), 1);
 
     } break;
     case (1): { // Major Shaft
@@ -454,24 +453,25 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
-      next->SetSkill(prhash("DynamicInit"), 1);
-      next->SetSkill(prhash("DynamicPhase"), ntype);
-      next->SetSkill(prhash("DynamicMojo"), mojo - 1000);
+      next->SetSkill(prhash(u8"DynamicInit"), 1);
+      next->SetSkill(prhash(u8"DynamicPhase"), ntype);
+      next->SetSkill(prhash(u8"DynamicMojo"), mojo - 1000);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
       door1->SetShortDesc(dir);
       door2->SetShortDesc(dirb);
-      door1->SetDesc((std::string("You see a solid passage leading ") + dir + ".\n").c_str());
-      door2->SetDesc((std::string("You see a solid passage leading ") + dirb + ".\n").c_str());
+      door1->SetDesc((std::u8string(u8"You see a solid passage leading ") + dir + u8".\n").c_str());
+      door2->SetDesc(
+          (std::u8string(u8"You see a solid passage leading ") + dirb + u8".\n").c_str());
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
-      door1->SetSkill(prhash("Open"), 1000);
-      door1->SetSkill(prhash("Enterable"), 1);
+      door1->SetSkill(prhash(u8"Open"), 1000);
+      door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
       door2->AddAct(act_t::SPECIAL_MASTER, door1);
-      door2->SetSkill(prhash("Open"), 1000);
-      door2->SetSkill(prhash("Enterable"), 1);
+      door2->SetSkill(prhash(u8"Open"), 1000);
+      door2->SetSkill(prhash(u8"Enterable"), 1);
     } break;
     case (2): { // Major Shaft w/ Minor Offshoot
       if ((rand() % 100) < 30) {
@@ -500,48 +500,51 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
-      next->SetSkill(prhash("DynamicInit"), 1);
-      next->SetSkill(prhash("DynamicPhase"), ntype);
-      next->SetSkill(prhash("DynamicMojo"), (mojo - 1000) * 9 / 10);
+      next->SetSkill(prhash(u8"DynamicInit"), 1);
+      next->SetSkill(prhash(u8"DynamicPhase"), ntype);
+      next->SetSkill(prhash(u8"DynamicMojo"), (mojo - 1000) * 9 / 10);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
       door1->SetShortDesc(dir);
       door2->SetShortDesc(dirb);
-      door1->SetDesc((std::string("You see a solid passage leading ") + dir + ".\n").c_str());
-      door2->SetDesc((std::string("You see a solid passage leading ") + dirb + ".\n").c_str());
+      door1->SetDesc((std::u8string(u8"You see a solid passage leading ") + dir + u8".\n").c_str());
+      door2->SetDesc(
+          (std::u8string(u8"You see a solid passage leading ") + dirb + u8".\n").c_str());
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
-      door1->SetSkill(prhash("Open"), 1000);
-      door1->SetSkill(prhash("Enterable"), 1);
+      door1->SetSkill(prhash(u8"Open"), 1000);
+      door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
       door2->AddAct(act_t::SPECIAL_MASTER, door1);
-      door2->SetSkill(prhash("Open"), 1000);
-      door2->SetSkill(prhash("Enterable"), 1);
+      door2->SetSkill(prhash(u8"Open"), 1000);
+      door2->SetSkill(prhash(u8"Enterable"), 1);
 
       if (rand() % 2)
         std::swap(dir2, dir3); // Half left, half right
       next = new Object(parent);
       next->SetShortDesc(names[5]);
       next->SetDesc(descs[5]);
-      next->SetSkill(prhash("DynamicInit"), 1);
-      next->SetSkill(prhash("DynamicPhase"), 5); // Minor Shaft
-      next->SetSkill(prhash("DynamicMojo"), (mojo - 1000) / 10);
+      next->SetSkill(prhash(u8"DynamicInit"), 1);
+      next->SetSkill(prhash(u8"DynamicPhase"), 5); // Minor Shaft
+      next->SetSkill(prhash(u8"DynamicMojo"), (mojo - 1000) / 10);
 
       door1 = new Object(this);
       door2 = new Object(next);
       door1->SetShortDesc(dir2);
       door2->SetShortDesc(dir3);
-      door1->SetDesc((std::string("You see a crumbling passage leading ") + dir2 + ".\n").c_str());
-      door2->SetDesc((std::string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
+      door1->SetDesc(
+          (std::u8string(u8"You see a crumbling passage leading ") + dir2 + u8".\n").c_str());
+      door2->SetDesc(
+          (std::u8string(u8"You see a crumbling passage leading ") + dir3 + u8".\n").c_str());
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
-      door1->SetSkill(prhash("Open"), 1000);
-      door1->SetSkill(prhash("Enterable"), 1);
+      door1->SetSkill(prhash(u8"Open"), 1000);
+      door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
       door2->AddAct(act_t::SPECIAL_MASTER, door1);
-      door2->SetSkill(prhash("Open"), 1000);
-      door2->SetSkill(prhash("Enterable"), 1);
+      door2->SetSkill(prhash(u8"Open"), 1000);
+      door2->SetSkill(prhash(u8"Enterable"), 1);
     } break;
     case (3): { // Major Shaft w/ Secret Minor Offshoot
       if ((rand() % 100) < 30) {
@@ -570,50 +573,53 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
-      next->SetSkill(prhash("DynamicInit"), 1);
-      next->SetSkill(prhash("DynamicPhase"), ntype);
-      next->SetSkill(prhash("DynamicMojo"), (mojo - 1000) * 3 / 4);
+      next->SetSkill(prhash(u8"DynamicInit"), 1);
+      next->SetSkill(prhash(u8"DynamicPhase"), ntype);
+      next->SetSkill(prhash(u8"DynamicMojo"), (mojo - 1000) * 3 / 4);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
       door1->SetShortDesc(dir);
       door2->SetShortDesc(dirb);
-      door1->SetDesc((std::string("You see a solid passage leading ") + dir + ".\n").c_str());
-      door2->SetDesc((std::string("You see a solid passage leading ") + dirb + ".\n").c_str());
+      door1->SetDesc((std::u8string(u8"You see a solid passage leading ") + dir + u8".\n").c_str());
+      door2->SetDesc(
+          (std::u8string(u8"You see a solid passage leading ") + dirb + u8".\n").c_str());
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
-      door1->SetSkill(prhash("Open"), 1000);
-      door1->SetSkill(prhash("Enterable"), 1);
+      door1->SetSkill(prhash(u8"Open"), 1000);
+      door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
       door2->AddAct(act_t::SPECIAL_MASTER, door1);
-      door2->SetSkill(prhash("Open"), 1000);
-      door2->SetSkill(prhash("Enterable"), 1);
+      door2->SetSkill(prhash(u8"Open"), 1000);
+      door2->SetSkill(prhash(u8"Enterable"), 1);
 
       if (rand() % 2)
         std::swap(dir2, dir3); // Half left, half right
       next = new Object(parent);
       next->SetShortDesc(names[5]);
       next->SetDesc(descs[5]);
-      next->SetSkill(prhash("DynamicInit"), 1);
-      next->SetSkill(prhash("DynamicPhase"), 5); // Minor Shaft
-      next->SetSkill(prhash("DynamicMojo"), (mojo - 1000) / 4);
-      next->SetSkill(prhash("Accomplishment"), 1510002);
+      next->SetSkill(prhash(u8"DynamicInit"), 1);
+      next->SetSkill(prhash(u8"DynamicPhase"), 5); // Minor Shaft
+      next->SetSkill(prhash(u8"DynamicMojo"), (mojo - 1000) / 4);
+      next->SetSkill(prhash(u8"Accomplishment"), 1510002);
 
       door1 = new Object(this);
       door2 = new Object(next);
       door1->SetShortDesc(dir2);
       door2->SetShortDesc(dir3);
-      door1->SetDesc((std::string("You see a crumbling passage leading ") + dir2 + ".\n").c_str());
-      door2->SetDesc((std::string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
+      door1->SetDesc(
+          (std::u8string(u8"You see a crumbling passage leading ") + dir2 + u8".\n").c_str());
+      door2->SetDesc(
+          (std::u8string(u8"You see a crumbling passage leading ") + dir3 + u8".\n").c_str());
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
-      door1->SetSkill(prhash("Open"), 1000);
-      door1->SetSkill(prhash("Enterable"), 1);
+      door1->SetSkill(prhash(u8"Open"), 1000);
+      door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
       door2->AddAct(act_t::SPECIAL_MASTER, door1);
-      door2->SetSkill(prhash("Open"), 1000);
-      door2->SetSkill(prhash("Enterable"), 1);
-      door1->SetSkill(prhash("Hidden"), 4 + rand() % 13);
+      door2->SetSkill(prhash(u8"Open"), 1000);
+      door2->SetSkill(prhash(u8"Enterable"), 1);
+      door1->SetSkill(prhash(u8"Hidden"), 4 + rand() % 13);
     } break;
     case (4): { // Major Chamber
       if ((rand() % 100) < 30) {
@@ -658,16 +664,16 @@ void Object::DynamicInit1() { // Dwarven mine
       }
 
       Object* cage = new Object(this);
-      cage->SetShortDesc("an old strong cage");
+      cage->SetShortDesc(u8"an old strong cage");
       cage->SetDesc(
-          "This is a very old, large, rugged cage - probably built by "
-          "dwarves.\n");
-      cage->SetSkill(prhash("Transparent"), 900);
-      cage->SetSkill(prhash("Container"), 100000);
-      cage->SetSkill(prhash("Locked"), 1);
-      cage->SetSkill(prhash("Lock"), 1510003);
-      cage->SetSkill(prhash("Closeable"), 1);
-      cage->SetSkill(prhash("Accomplishment"), 1510003);
+          u8"This is a very old, large, rugged cage - probably built by "
+          u8"dwarves.\n");
+      cage->SetSkill(prhash(u8"Transparent"), 900);
+      cage->SetSkill(prhash(u8"Container"), 100000);
+      cage->SetSkill(prhash(u8"Locked"), 1);
+      cage->SetSkill(prhash(u8"Lock"), 1510003);
+      cage->SetSkill(prhash(u8"Closeable"), 1);
+      cage->SetSkill(prhash(u8"Accomplishment"), 1510003);
 
       if ((rand() % 100) < 20) {
         mojo -= 500;
@@ -687,24 +693,25 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
-      next->SetSkill(prhash("DynamicInit"), 1);
-      next->SetSkill(prhash("DynamicPhase"), ntype);
-      next->SetSkill(prhash("DynamicMojo"), mojo - 1000);
+      next->SetSkill(prhash(u8"DynamicInit"), 1);
+      next->SetSkill(prhash(u8"DynamicPhase"), ntype);
+      next->SetSkill(prhash(u8"DynamicMojo"), mojo - 1000);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
       door1->SetShortDesc(dir);
       door2->SetShortDesc(dirb);
-      door1->SetDesc((std::string("You see a solid passage leading ") + dir + ".\n").c_str());
-      door2->SetDesc((std::string("You see a solid passage leading ") + dirb + ".\n").c_str());
+      door1->SetDesc((std::u8string(u8"You see a solid passage leading ") + dir + u8".\n").c_str());
+      door2->SetDesc(
+          (std::u8string(u8"You see a solid passage leading ") + dirb + u8".\n").c_str());
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
-      door1->SetSkill(prhash("Open"), 1000);
-      door1->SetSkill(prhash("Enterable"), 1);
+      door1->SetSkill(prhash(u8"Open"), 1000);
+      door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
       door2->AddAct(act_t::SPECIAL_MASTER, door1);
-      door2->SetSkill(prhash("Open"), 1000);
-      door2->SetSkill(prhash("Enterable"), 1);
+      door2->SetSkill(prhash(u8"Open"), 1000);
+      door2->SetSkill(prhash(u8"Enterable"), 1);
     } break;
     case (5): { // Minor Shaft
       if ((rand() % 100) < 30) {
@@ -734,24 +741,26 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
-      next->SetSkill(prhash("DynamicInit"), 1);
-      next->SetSkill(prhash("DynamicPhase"), ntype);
-      next->SetSkill(prhash("DynamicMojo"), mojo - 100);
+      next->SetSkill(prhash(u8"DynamicInit"), 1);
+      next->SetSkill(prhash(u8"DynamicPhase"), ntype);
+      next->SetSkill(prhash(u8"DynamicMojo"), mojo - 100);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
       door1->SetShortDesc(dir);
       door2->SetShortDesc(dirb);
-      door1->SetDesc((std::string("You see a crumbling passage leading ") + dir + ".\n").c_str());
-      door2->SetDesc((std::string("You see a crumbling passage leading ") + dirb + ".\n").c_str());
+      door1->SetDesc(
+          (std::u8string(u8"You see a crumbling passage leading ") + dir + u8".\n").c_str());
+      door2->SetDesc(
+          (std::u8string(u8"You see a crumbling passage leading ") + dirb + u8".\n").c_str());
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
-      door1->SetSkill(prhash("Open"), 1000);
-      door1->SetSkill(prhash("Enterable"), 1);
+      door1->SetSkill(prhash(u8"Open"), 1000);
+      door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
       door2->AddAct(act_t::SPECIAL_MASTER, door1);
-      door2->SetSkill(prhash("Open"), 1000);
-      door2->SetSkill(prhash("Enterable"), 1);
+      door2->SetSkill(prhash(u8"Open"), 1000);
+      door2->SetSkill(prhash(u8"Enterable"), 1);
     } break;
     case (6): { // Minor Shaft (Bend)
       if ((rand() % 100) < 30) {
@@ -780,24 +789,26 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
-      next->SetSkill(prhash("DynamicInit"), 1);
-      next->SetSkill(prhash("DynamicPhase"), ntype);
-      next->SetSkill(prhash("DynamicMojo"), mojo - 100);
+      next->SetSkill(prhash(u8"DynamicInit"), 1);
+      next->SetSkill(prhash(u8"DynamicPhase"), ntype);
+      next->SetSkill(prhash(u8"DynamicMojo"), mojo - 100);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
       door1->SetShortDesc(dir2);
       door2->SetShortDesc(dir3);
-      door1->SetDesc((std::string("You see a crumbling passage leading ") + dir2 + ".\n").c_str());
-      door2->SetDesc((std::string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
+      door1->SetDesc(
+          (std::u8string(u8"You see a crumbling passage leading ") + dir2 + u8".\n").c_str());
+      door2->SetDesc(
+          (std::u8string(u8"You see a crumbling passage leading ") + dir3 + u8".\n").c_str());
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
-      door1->SetSkill(prhash("Open"), 1000);
-      door1->SetSkill(prhash("Enterable"), 1);
+      door1->SetSkill(prhash(u8"Open"), 1000);
+      door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
       door2->AddAct(act_t::SPECIAL_MASTER, door1);
-      door2->SetSkill(prhash("Open"), 1000);
-      door2->SetSkill(prhash("Enterable"), 1);
+      door2->SetSkill(prhash(u8"Open"), 1000);
+      door2->SetSkill(prhash(u8"Enterable"), 1);
     } break;
     case (7): { // Minor Shaft Fork
       if ((rand() % 100) < 30) {
@@ -824,48 +835,52 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
-      next->SetSkill(prhash("DynamicInit"), 1);
-      next->SetSkill(prhash("DynamicPhase"), ntype);
-      next->SetSkill(prhash("DynamicMojo"), (mojo - 100) / 2);
+      next->SetSkill(prhash(u8"DynamicInit"), 1);
+      next->SetSkill(prhash(u8"DynamicPhase"), ntype);
+      next->SetSkill(prhash(u8"DynamicMojo"), (mojo - 100) / 2);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
       door1->SetShortDesc(dir2);
       door2->SetShortDesc(dir3);
-      door1->SetDesc((std::string("You see a crumbling passage leading ") + dir2 + ".\n").c_str());
-      door2->SetDesc((std::string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
+      door1->SetDesc(
+          (std::u8string(u8"You see a crumbling passage leading ") + dir2 + u8".\n").c_str());
+      door2->SetDesc(
+          (std::u8string(u8"You see a crumbling passage leading ") + dir3 + u8".\n").c_str());
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
-      door1->SetSkill(prhash("Open"), 1000);
-      door1->SetSkill(prhash("Enterable"), 1);
+      door1->SetSkill(prhash(u8"Open"), 1000);
+      door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
       door2->AddAct(act_t::SPECIAL_MASTER, door1);
-      door2->SetSkill(prhash("Open"), 1000);
-      door2->SetSkill(prhash("Enterable"), 1);
+      door2->SetSkill(prhash(u8"Open"), 1000);
+      door2->SetSkill(prhash(u8"Enterable"), 1);
 
       ntype = ntypes[rand() % (sizeof(ntypes) / sizeof(int))];
       std::swap(dir2, dir3); // Same code, opposite dir.
       next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
-      next->SetSkill(prhash("DynamicInit"), 1);
-      next->SetSkill(prhash("DynamicPhase"), ntype);
-      next->SetSkill(prhash("DynamicMojo"), (mojo - 100) / 2);
+      next->SetSkill(prhash(u8"DynamicInit"), 1);
+      next->SetSkill(prhash(u8"DynamicPhase"), ntype);
+      next->SetSkill(prhash(u8"DynamicMojo"), (mojo - 100) / 2);
 
       door1 = new Object(this);
       door2 = new Object(next);
       door1->SetShortDesc(dir2);
       door2->SetShortDesc(dir3);
-      door1->SetDesc((std::string("You see a crumbling passage leading ") + dir2 + ".\n").c_str());
-      door2->SetDesc((std::string("You see a crumbling passage leading ") + dir3 + ".\n").c_str());
+      door1->SetDesc(
+          (std::u8string(u8"You see a crumbling passage leading ") + dir2 + u8".\n").c_str());
+      door2->SetDesc(
+          (std::u8string(u8"You see a crumbling passage leading ") + dir3 + u8".\n").c_str());
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
-      door1->SetSkill(prhash("Open"), 1000);
-      door1->SetSkill(prhash("Enterable"), 1);
+      door1->SetSkill(prhash(u8"Open"), 1000);
+      door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
       door2->AddAct(act_t::SPECIAL_MASTER, door1);
-      door2->SetSkill(prhash("Open"), 1000);
-      door2->SetSkill(prhash("Enterable"), 1);
+      door2->SetSkill(prhash(u8"Open"), 1000);
+      door2->SetSkill(prhash(u8"Enterable"), 1);
     } break;
     case (8): { // Minor Shaft Alcove
       if ((rand() % 100) < 30) {
@@ -907,40 +922,42 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
-      next->SetSkill(prhash("DynamicInit"), 1);
-      next->SetSkill(prhash("DynamicPhase"), ntype);
-      next->SetSkill(prhash("DynamicMojo"), mojo - 500);
-      next->SetSkill(prhash("Accomplishment"), 1510001);
+      next->SetSkill(prhash(u8"DynamicInit"), 1);
+      next->SetSkill(prhash(u8"DynamicPhase"), ntype);
+      next->SetSkill(prhash(u8"DynamicMojo"), mojo - 500);
+      next->SetSkill(prhash(u8"Accomplishment"), 1510001);
 
       Object* door1 = new Object(this);
       Object* door2 = new Object(next);
       door1->SetShortDesc(dir);
       door2->SetShortDesc(dirb);
-      door1->SetDesc((std::string("You see a crumbling passage leading ") + dir + ".\n").c_str());
-      door2->SetDesc((std::string("You see a crumbling passage leading ") + dirb + ".\n").c_str());
+      door1->SetDesc(
+          (std::u8string(u8"You see a crumbling passage leading ") + dir + u8".\n").c_str());
+      door2->SetDesc(
+          (std::u8string(u8"You see a crumbling passage leading ") + dirb + u8".\n").c_str());
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
-      door1->SetSkill(prhash("Open"), 1000);
-      door1->SetSkill(prhash("Enterable"), 1);
+      door1->SetSkill(prhash(u8"Open"), 1000);
+      door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
       door2->AddAct(act_t::SPECIAL_MASTER, door1);
-      door2->SetSkill(prhash("Open"), 1000);
-      door2->SetSkill(prhash("Enterable"), 1);
-      door1->SetSkill(prhash("Hidden"), 4 + rand() % 13);
+      door2->SetSkill(prhash(u8"Open"), 1000);
+      door2->SetSkill(prhash(u8"Enterable"), 1);
+      door1->SetSkill(prhash(u8"Hidden"), 4 + rand() % 13);
     } break;
     default: {
       fprintf(
           stderr,
-          "Unknown dynamic-phase-type (%d-%d) init requested!\n",
-          Skill(prhash("DynamicInit")),
-          Skill(prhash("DynamicPhase")));
+          u8"Unknown dynamic-phase-type (%d-%d) init requested!\n",
+          Skill(prhash(u8"DynamicInit")),
+          Skill(prhash(u8"DynamicPhase")));
     } break;
   }
-  SetSkill(prhash("DynamicPhase"), 0);
+  SetSkill(prhash(u8"DynamicPhase"), 0);
 }
 
 void Object::DynamicInit() {
-  switch (Skill(prhash("DynamicInit"))) {
+  switch (Skill(prhash(u8"DynamicInit"))) {
     case (2): { // Cyberpunk City
       DynamicInit2();
     } break;
@@ -948,8 +965,9 @@ void Object::DynamicInit() {
       DynamicInit1();
     } break;
     default: {
-      fprintf(stderr, "Unknown dynamic-type (%d) init requested!\n", Skill(prhash("DynamicInit")));
+      fprintf(
+          stderr, u8"Unknown dynamic-type (%d) init requested!\n", Skill(prhash(u8"DynamicInit")));
     } break;
   }
-  SetSkill(prhash("DynamicInit"), 0);
+  SetSkill(prhash(u8"DynamicInit"), 0);
 }

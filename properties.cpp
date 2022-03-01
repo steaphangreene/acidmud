@@ -26,9 +26,9 @@
 
 // Generate initial skills definitions pair vector automatically from known skills list.
 template <size_t L>
-constexpr std::array<std::pair<uint32_t, std::string>, L> names2entry(
-    std::array<const char*, L> in) {
-  std::array<std::pair<uint32_t, std::string>, L> ret;
+constexpr std::array<std::pair<uint32_t, std::u8string>, L> names2entry(
+    std::array<const char8_t*, L> in) {
+  std::array<std::pair<uint32_t, std::u8string>, L> ret;
   std::transform(in.begin(), in.end(), ret.begin(), [](auto&& x) {
     return std::make_pair(crc32c_c(x, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU, x);
   });
@@ -36,32 +36,32 @@ constexpr std::array<std::pair<uint32_t, std::string>, L> names2entry(
   return ret;
 };
 static const auto skill_defs_array = names2entry(prop_names);
-static std::vector<std::pair<uint32_t, std::string>> skill_defs(
+static std::vector<std::pair<uint32_t, std::u8string>> skill_defs(
     skill_defs_array.begin(),
     skill_defs_array.end());
 
 void save_prop_names_to(FILE* fl) {
   std::sort(skill_defs.begin(), skill_defs.end());
   skill_defs.erase(std::unique(skill_defs.begin(), skill_defs.end()), skill_defs.end());
-  fprintf(fl, "%lu\n", skill_defs.size());
+  fprintf(fl, u8"%lu\n", skill_defs.size());
   for (auto skn : skill_defs) {
     if (skn.second.length() > 255) {
-      fprintf(stderr, CRED "Error: Skill name too long: '%s'\n", skn.second.c_str());
-      fprintf(fl, "%.8X:Undefined\n", skn.first);
+      fprintf(stderr, CRED u8"Error: Skill name too long: '%s'\n", skn.second.c_str());
+      fprintf(fl, u8"%.8X:Undefined\n", skn.first);
     } else {
-      fprintf(fl, "%.8X:%s\n", skn.first, skn.second.c_str());
+      fprintf(fl, u8"%.8X:%s\n", skn.first, skn.second.c_str());
     }
   }
 }
 
 void load_prop_names_from(FILE* fl) {
   int32_t size;
-  fscanf(fl, "%d\n", &size);
-  char buf[256];
+  fscanf(fl, u8"%d\n", &size);
+  char8_t buf[256];
   skill_defs.reserve(skill_defs.size() + size);
   for (int sk = 0; sk < size; ++sk) {
     uint32_t hash;
-    fscanf(fl, "%X:%255[^\n]\n", &hash, buf);
+    fscanf(fl, u8"%X:%255[^\n]\n", &hash, buf);
     skill_defs.emplace_back(std::make_pair(hash, buf));
   }
   std::sort(skill_defs.begin(), skill_defs.end());
@@ -81,11 +81,11 @@ void confirm_skill_hash(uint32_t stok) {
   for (; itn != skill_defs.end() && itn->first != stok; ++itn) {
   }
   if (itn == skill_defs.end()) {
-    fprintf(stderr, CRED "Error: bogus skill hash (x%X)\n" CNRM, stok);
-    skill_defs.emplace_back(std::make_pair(stok, "Unknown"));
+    fprintf(stderr, CRED u8"Error: bogus skill hash (x%X)\n" CNRM, stok);
+    skill_defs.emplace_back(std::make_pair(stok, u8"Unknown"));
   }
 }
-void insert_skill_hash(uint32_t stok, const std::string& s) {
+void insert_skill_hash(uint32_t stok, const std::u8string& s) {
   auto itn = skill_defs.begin();
   for (; itn != skill_defs.end() && itn->first != stok; ++itn) {
   }
@@ -94,8 +94,8 @@ void insert_skill_hash(uint32_t stok, const std::string& s) {
   }
 }
 
-std::string SkillName(uint32_t sktok) {
-  std::string name = "Undefined";
+std::u8string SkillName(uint32_t sktok) {
+  std::u8string name = u8"Undefined";
   for (auto n : skill_defs) {
     if (n.first == sktok) {
       name = n.second;

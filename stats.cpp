@@ -20,12 +20,11 @@
 // *************************************************************************
 
 #include <algorithm>
-#include <cstdlib>
-#include <cstring>
 #include <map>
 #include <string>
 #include <vector>
 
+#include "cchar8.hpp"
 #include "color.hpp"
 #include "object.hpp"
 #include "properties.hpp"
@@ -34,7 +33,7 @@
 extern std::map<uint32_t, int32_t> defaults;
 extern std::map<int32_t, uint32_t> weaponskills;
 extern std::map<uint32_t, int32_t> weapontypes;
-extern std::map<std::string, std::vector<uint32_t>> skcat;
+extern std::map<std::u8string, std::vector<uint32_t>> skcat;
 
 static bool defaults_init = false;
 static void init_defaults() {
@@ -53,21 +52,21 @@ int is_skill(uint32_t stok) {
 
 uint32_t get_weapon_skill(int wtype) {
   if (!weaponskills.count(wtype)) {
-    fprintf(stderr, "Warning: No Skill Type %d!\n", wtype);
-    return prhash("None");
+    fprintf(stderr, u8"Warning: No Skill Type %d!\n", wtype);
+    return prhash(u8"None");
   }
   return weaponskills[wtype];
 }
 
-int get_weapon_type(std::string wskill) {
+int get_weapon_type(std::u8string wskill) {
   if (!weapontypes.count(crc32c(wskill))) {
-    fprintf(stderr, "Warning: No Skill Named '%s'!\n", wskill.c_str());
+    fprintf(stderr, u8"Warning: No Skill Named '%s'!\n", wskill.c_str());
     return 0;
   }
   return weapontypes[crc32c(wskill)];
 }
 
-uint32_t get_skill(std::string sk) {
+uint32_t get_skill(std::u8string sk) {
   while (sk.length() > 0 && isspace(sk.back()))
     sk.pop_back();
 
@@ -75,23 +74,23 @@ uint32_t get_skill(std::string sk) {
   if (defaults.count(stok))
     return stok;
   if (sk.length() < 2)
-    return prhash("None");
+    return prhash(u8"None");
 
   for (auto itr : defaults) {
-    std::string lc = SkillName(itr.first);
+    std::u8string lc = SkillName(itr.first);
     std::transform(lc.begin(), lc.end(), lc.begin(), ascii_tolower);
     if (!strncmp(sk.c_str(), lc.c_str(), sk.length())) {
       return itr.first;
     }
   }
-  return prhash("None");
+  return prhash(u8"None");
 }
 
-std::string get_skill_cat(std::string cat) {
+std::u8string get_skill_cat(std::u8string cat) {
   trim_string(cat);
 
   if (cat.length() < 2)
-    return "";
+    return u8"";
 
   for (auto itr : skcat) {
     auto skn = itr.first;
@@ -100,7 +99,7 @@ std::string get_skill_cat(std::string cat) {
       return itr.first;
     }
   }
-  return "";
+  return u8"";
 }
 
 int get_linked(uint32_t stok) {
@@ -109,23 +108,23 @@ int get_linked(uint32_t stok) {
   return 4; // Default to Int for knowledges
 }
 
-int get_linked(std::string sk) {
+int get_linked(std::u8string sk) {
   while (sk.length() > 0 && isspace(sk.back()))
     sk.pop_back();
   return get_linked(crc32c(sk));
 }
 
-std::vector<uint32_t> get_skills(std::string cat) {
+std::vector<uint32_t> get_skills(std::u8string cat) {
   std::vector<uint32_t> ret;
 
   while (cat.length() > 0 && isspace(cat.back()))
     cat.pop_back();
 
-  if (cat == "Categories") {
+  if (cat == u8"Categories") {
     for (auto ind : skcat) {
       ret.push_back(crc32c(ind.first));
     }
-  } else if (cat == "all") {
+  } else if (cat == u8"all") {
     for (auto ind : defaults) {
       ret.push_back(ind.first);
     }
@@ -138,15 +137,15 @@ std::vector<uint32_t> get_skills(std::string cat) {
   return ret;
 }
 
-int roll(int ndice, int targ, std::string* res) {
+int roll(int ndice, int targ, std::u8string* res) {
   int succ = 0;
   for (int die = 0; die < ndice; ++die) {
     int val = 1 + (rand() % 6);
     while ((val % 6) == 0)
       val += (1 + rand() % 6);
     if (res) {
-      char buffer[16];
-      sprintf(buffer, "%d,", val);
+      char8_t buffer[16];
+      sprintf(buffer, u8"%d,", val);
       (*res) += buffer;
     }
     if (val > 1 && val >= targ) {
@@ -168,13 +167,13 @@ void Object::SetAttribute(int a, int v) {
   attr[a] = v;
 }
 
-static const char* const attr_name[6] = {
-    "Body",
-    "Quickness",
-    "Strength",
-    "Charisma",
-    "Intelligence",
-    "Willpower",
+static const char8_t* const attr_name[6] = {
+    u8"Body",
+    u8"Quickness",
+    u8"Strength",
+    u8"Charisma",
+    u8"Intelligence",
+    u8"Willpower",
 };
 void Object::SetModifier(int a, int v) {
   if (v > 10000)
@@ -182,11 +181,11 @@ void Object::SetModifier(int a, int v) {
   else if (v < -10000)
     v = -10000;
   if (v > 0) {
-    SetSkill(std::string(attr_name[a]) + " Bonus", v);
-    SetSkill(std::string(attr_name[a]) + " Penalty", 0);
+    SetSkill(std::u8string(attr_name[a]) + u8" Bonus", v);
+    SetSkill(std::u8string(attr_name[a]) + u8" Penalty", 0);
   } else {
-    SetSkill(std::string(attr_name[a]) + " Bonus", 0);
-    SetSkill(std::string(attr_name[a]) + " Penalty", -v);
+    SetSkill(std::u8string(attr_name[a]) + u8" Bonus", 0);
+    SetSkill(std::u8string(attr_name[a]) + u8" Penalty", -v);
   }
 }
 
@@ -215,7 +214,7 @@ void Object::SetSkill(uint32_t stok, int v) {
   }
 }
 
-void Object::SetSkill(const std::string& s, int v) {
+void Object::SetSkill(const std::u8string& s, int v) {
   if (v > 1000000000)
     v = 1000000000;
   else if (v < -1000000000)
@@ -256,53 +255,53 @@ int Object::SkillTarget(uint32_t stok) const {
   return 0;
 }
 
-int Object::Roll(uint32_t s1, const Object* p2, uint32_t s2, int bias, std::string* res) const {
+int Object::Roll(uint32_t s1, const Object* p2, uint32_t s2, int bias, std::u8string* res) const {
   int succ = 0;
 
   int t1 = p2->SkillTarget(s2) - bias;
   int t2 = SkillTarget(s1) + bias;
 
   if (res)
-    (*res) += "(";
+    (*res) += u8"(";
   succ = Roll(s1, t1, res);
-  if (s2 != prhash("None")) {
+  if (s2 != prhash(u8"None")) {
     if (res)
-      (*res) += " - ";
+      (*res) += u8" - ";
     succ -= p2->Roll(s2, t2, res);
   }
   if (res)
-    (*res) += ")";
+    (*res) += u8")";
   return succ;
 }
 
-int Object::Roll(uint32_t stok, int targ, std::string* res) const {
+int Object::Roll(uint32_t stok, int targ, std::u8string* res) const {
   if (phys >= 10 || stun >= 10 || attr[0] == 0 || attr[1] == 0 || attr[2] == 0 || attr[3] == 0 ||
       attr[4] == 0 || attr[5] == 0) {
     if (res)
-      (*res) += "N/A";
+      (*res) += u8"N/A";
     return 0;
   }
   return RollNoWounds(stok, targ, WoundPenalty(), res);
 }
 
-int Object::RollNoWounds(uint32_t stok, int targ, int penalty, std::string* res) const {
+int Object::RollNoWounds(uint32_t stok, int targ, int penalty, std::u8string* res) const {
   int succ = 0;
   int dice = 0;
   int mod = 0;
 
-  if (stok == prhash("Body")) {
+  if (stok == prhash(u8"Body")) {
     dice = ModAttribute(0);
-  } else if (stok == prhash("Quickness")) {
+  } else if (stok == prhash(u8"Quickness")) {
     dice = ModAttribute(1);
-  } else if (stok == prhash("Strength")) {
+  } else if (stok == prhash(u8"Strength")) {
     dice = ModAttribute(2);
-  } else if (stok == prhash("Charisma")) {
+  } else if (stok == prhash(u8"Charisma")) {
     dice = ModAttribute(3);
-  } else if (stok == prhash("Intelligence")) {
+  } else if (stok == prhash(u8"Intelligence")) {
     dice = ModAttribute(4);
-  } else if (stok == prhash("Willpower")) {
+  } else if (stok == prhash(u8"Willpower")) {
     dice = ModAttribute(5);
-  } else if (stok == prhash("Reaction")) {
+  } else if (stok == prhash(u8"Reaction")) {
     dice = ModAttribute(6);
   } else if (defaults.count(stok) > 0) {
     dice = Skill(stok);
@@ -314,39 +313,39 @@ int Object::RollNoWounds(uint32_t stok, int targ, int penalty, std::string* res)
   } else {
     fprintf(
         stderr,
-        CRED "Error: Asked to roll non-existant skill: '%s'\n" CNRM,
+        CRED u8"Error: Asked to roll non-existant skill: '%s'\n" CNRM,
         SkillName(stok).c_str());
     return 0;
   }
 
-  std::string rolls = "";
+  std::u8string rolls = u8"";
   succ = roll(abs(dice), (targ - mod) + penalty, &rolls);
 
   if (res) {
-    char buffer[256];
-    sprintf(buffer, "%d%c", abs(dice), 0);
+    char8_t buffer[256];
+    sprintf(buffer, u8"%d%c", abs(dice), 0);
     (*res) += buffer;
-    (*res) += "(";
-    sprintf(buffer, "%d%c", targ, 0);
+    (*res) += u8"(";
+    sprintf(buffer, u8"%d%c", targ, 0);
     (*res) += buffer;
-    (*res) += ")";
+    (*res) += u8")";
     if (mod > 0) {
-      (*res) += "+";
-      sprintf(buffer, "%d%c", mod, 0);
+      (*res) += u8"+";
+      sprintf(buffer, u8"%d%c", mod, 0);
       (*res) += buffer;
     }
     if (penalty > 0) {
-      (*res) += "-";
-      sprintf(buffer, "%d%c", penalty, 0);
+      (*res) += u8"-";
+      sprintf(buffer, u8"%d%c", penalty, 0);
       (*res) += buffer;
     }
     if (!rolls.empty()) {
-      (*res) += "[";
+      (*res) += u8"[";
       (*res) += rolls;
-      (*res) += "]";
+      (*res) += u8"]";
     }
-    (*res) += ":";
-    sprintf(buffer, "%d%c", succ, 0);
+    (*res) += u8":";
+    sprintf(buffer, u8"%d%c", succ, 0);
     (*res) += buffer;
   }
 
@@ -376,5 +375,5 @@ int Object::WoundPenalty() const {
 }
 
 int Object::RollInitiative() const {
-  return Roll(prhash("Reaction"), 6 - ModAttribute(5));
+  return Roll(prhash(u8"Reaction"), 6 - ModAttribute(5));
 }

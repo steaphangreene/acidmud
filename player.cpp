@@ -22,21 +22,20 @@
 #include <set>
 
 #include <crypt.h>
-#include <cstdlib>
-#include <cstring>
 
+#include "cchar8.hpp"
 #include "color.hpp"
 #include "net.hpp"
 #include "player.hpp"
 #include "version.hpp"
 
-static std::map<std::string, Player*> player_list;
+static std::map<std::u8string, Player*> player_list;
 static std::set<Player*> non_init;
 
-static const std::string salt_char =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
+static const std::u8string salt_char =
+    u8"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
 
-Player::Player(std::string nm, std::string ps) {
+Player::Player(std::u8string nm, std::u8string ps) {
   flags = 0;
 
   room = new Object();
@@ -47,7 +46,7 @@ Player::Player(std::string nm, std::string ps) {
   if (ps[0] == '$' && ps[1] == '1' && ps[2] == '$') {
     pass = ps;
   } else {
-    std::string salt = "$1$", app = " ";
+    std::u8string salt = u8"$1$", app = u8" ";
     for (int ctr = 0; ctr < 8; ++ctr) {
       app[0] = salt_char[rand() & 63];
       salt += app;
@@ -68,31 +67,31 @@ Player::~Player() {
     delete room;
 }
 
-void Player::SetName(std::string nm) {
+void Player::SetName(std::u8string nm) {
   player_list.erase(name);
   name = nm;
   player_list[name] = this;
-  std::string desc = nm + "'s character room";
+  std::u8string desc = nm + u8"'s character room";
   room->SetShortDesc(desc.c_str());
-  desc = "Available commands:\n";
-  desc += "     " CMAG "look" CNRM ": Show all your existing characters.\n";
-  desc += "     " CMAG "world" CNRM ": Show list of currently available worlds.\n";
-  desc += "     " CMAG "world" CNRM " " CGRN "<world>" CNRM
-          ": Select a world to make a new character in.\n";
+  desc = u8"Available commands:\n";
+  desc += u8"     " CMAG u8"look" CNRM u8": Show all your existing characters.\n";
+  desc += u8"     " CMAG u8"world" CNRM u8": Show list of currently available worlds.\n";
   desc +=
-      "     " CMAG "enter" CNRM " " CGRN "<character_name>" CNRM ": Enter a finished character.\n";
-  desc += "     " CMAG "select" CNRM " " CGRN "<character_name>" CNRM
-          ": Select an unfinished character.\n";
-  desc += "     " CMAG "newcharacter" CNRM " " CGRN "<character_name>" CNRM
-          ": Create a new character.\n";
-  desc += "     " CMAG "raise" CNRM " " CGRN "<stat>" CNRM
-          ": Raise a stat of the currently selected character.\n";
-  desc += "     " CMAG "randomize" CNRM
-          ": Randomly spend all remaining points of current "
-          "character.\n";
+      u8"     " CMAG u8"world" CNRM u8" " CGRN u8"<world>" CNRM u8": Select a world to make a new character in.\n";
   desc +=
-      "     " CMAG "help" CNRM " " CGRN "<topic>" CNRM ": Get more info (try 'help commands').\n";
-  desc += "   Here are all of your current characters:";
+      u8"     " CMAG u8"enter" CNRM u8" " CGRN u8"<character_name>" CNRM u8": Enter a finished character.\n";
+  desc +=
+      u8"     " CMAG u8"select" CNRM u8" " CGRN u8"<character_name>" CNRM u8": Select an unfinished character.\n";
+  desc +=
+      u8"     " CMAG u8"newcharacter" CNRM u8" " CGRN u8"<character_name>" CNRM u8": Create a new character.\n";
+  desc +=
+      u8"     " CMAG u8"raise" CNRM u8" " CGRN u8"<stat>" CNRM u8": Raise a stat of the currently selected character.\n";
+  desc += u8"     " CMAG u8"randomize" CNRM
+          u8": Randomly spend all remaining points of current "
+          u8"character.\n";
+  desc +=
+      u8"     " CMAG u8"help" CNRM u8" " CGRN u8"<topic>" CNRM u8": Get more info (try 'help commands').\n";
+  desc += u8"   Here are all of your current characters:";
   room->SetDesc(desc.c_str());
 }
 
@@ -104,11 +103,11 @@ void Player::AddChar(Object* ch) {
   world = ch->World();
 }
 
-int player_exists(std::string name) {
+int player_exists(std::u8string name) {
   return player_list.count(name);
 }
 
-Player* get_player(std::string name) {
+Player* get_player(std::u8string name) {
   if (!player_list.count(name))
     return nullptr;
 
@@ -118,14 +117,14 @@ Player* get_player(std::string name) {
   return pl;
 }
 
-Player* player_login(std::string name, std::string pass) {
+Player* player_login(std::u8string name, std::u8string pass) {
   if (!player_list.count(name))
     return nullptr;
 
   Player* pl = player_list[name];
-  std::string enpass = crypt(pass.c_str(), pl->pass.c_str());
+  std::u8string enpass = crypt(pass.c_str(), pl->pass.c_str());
 
-  //  fprintf(stderr, "Trying %s:%s\n", name.c_str(), enpass.c_str());
+  //  fprintf(stderr, u8"Trying %s:%s\n", name.c_str(), enpass.c_str());
 
   if (enpass != pl->pass) {
     if (non_init.count(pl)) {
@@ -143,53 +142,53 @@ Player* player_login(std::string name, std::string pass) {
   return pl;
 }
 
-static char buf[65536];
+static char8_t buf[65536];
 int Player::LoadFrom(FILE* fl) {
   memset(buf, 0, 65536);
-  fscanf(fl, "%s\n", buf);
+  fscanf(fl, u8"%s\n", buf);
   SetName(buf);
   memset(buf, 0, 65536);
-  fscanf(fl, "%s\n", buf);
+  fscanf(fl, u8"%s\n", buf);
   pass = buf;
 
   // Player experience - obsolete, ignored
-  fscanf(fl, ":%*d");
-  while (fscanf(fl, ";%*d") > 0) {
+  fscanf(fl, u8":%*d");
+  while (fscanf(fl, u8";%*d") > 0) {
     // Do nothing - ignore these
   }
 
-  fscanf(fl, ":%lX\n", &flags);
+  fscanf(fl, u8":%lX\n", &flags);
 
   int num;
-  while (fscanf(fl, ":%d\n", &num) > 0) {
+  while (fscanf(fl, u8":%d\n", &num) > 0) {
     AddChar(getbynum(num));
   }
 
   // Won't be present previous to v0x02, but that's ok, will work fine anyway
-  while (fscanf(fl, "\n;%32767[^:]:%32767[^; \t\n\r]", buf, buf + 32768) >= 2) {
+  while (fscanf(fl, u8"\n;%32767[^:]:%32767[^; \t\n\r]", buf, buf + 32768) >= 2) {
     vars[buf] = (buf + 32768);
   }
   return 0;
 }
 
-int load_players(const std::string& fn) {
-  fprintf(stderr, "Loading Players.\n");
+int load_players(const std::u8string& fn) {
+  fprintf(stderr, u8"Loading Players.\n");
 
-  FILE* fl = fopen(fn.c_str(), "r");
+  FILE* fl = fopen(fn.c_str(), u8"r");
   if (!fl)
     return -1;
 
   int num;
   unsigned int ver;
-  fscanf(fl, "%X\n%d\n", &ver, &num);
+  fscanf(fl, u8"%X\n%d\n", &ver, &num);
 
-  fprintf(stderr, "Loading Players: %d,%d\n", ver, num);
+  fprintf(stderr, u8"Loading Players: %d,%d\n", ver, num);
 
   for (int ctr = 0; ctr < num; ++ctr) {
-    Player* pl = new Player(";;TEMP;;", ";;TEMP;;");
+    Player* pl = new Player(u8";;TEMP;;", u8";;TEMP;;");
     non_init.erase(pl);
     pl->LoadFrom(fl);
-    // fprintf(stderr, "Loaded Player: %s\n", pl->Name());
+    // fprintf(stderr, u8"Loaded Player: %s\n", pl->Name());
   }
 
   fclose(fl);
@@ -197,29 +196,29 @@ int load_players(const std::string& fn) {
 }
 
 int Player::SaveTo(FILE* fl) {
-  fprintf(fl, "%s\n%s\n", name.c_str(), pass.c_str());
+  fprintf(fl, u8"%s\n%s\n", name.c_str(), pass.c_str());
 
-  fprintf(fl, ":0"); // Player experience, obsolete, always zero
+  fprintf(fl, u8":0"); // Player experience, obsolete, always zero
 
-  fprintf(fl, ":%lX", flags);
+  fprintf(fl, u8":%lX", flags);
   room->WriteContentsTo(fl);
-  fprintf(fl, "\n");
+  fprintf(fl, u8"\n");
 
   for (auto var : vars) {
-    fprintf(fl, ";%s:%s", var.first.c_str(), var.second.c_str());
+    fprintf(fl, u8";%s:%s", var.first.c_str(), var.second.c_str());
   }
-  fprintf(fl, "\n");
+  fprintf(fl, u8"\n");
   return 0;
 }
 
-int save_players(const std::string& fn) {
-  FILE* fl = fopen(fn.c_str(), "w");
+int save_players(const std::u8string& fn) {
+  FILE* fl = fopen(fn.c_str(), u8"w");
   if (!fl)
     return -1;
 
-  fprintf(fl, "%.8X\n", CurrentVersion.savefile_version_player);
+  fprintf(fl, u8"%.8X\n", CurrentVersion.savefile_version_player);
 
-  fprintf(fl, "%d\n", (int)(player_list.size() - non_init.size()));
+  fprintf(fl, u8"%d\n", (int)(player_list.size() - non_init.size()));
 
   for (auto pl : player_list) {
     if (non_init.count(pl.second) == 0) {
@@ -250,7 +249,7 @@ int is_pc(const Object* obj) {
 }
 
 std::vector<Player*> get_current_players() {
-  fprintf(stderr, "Warning: %s called, but not implemented yet!\n", __PRETTY_FUNCTION__);
+  fprintf(stderr, u8"Warning: %s called, but not implemented yet!\n", __PRETTY_FUNCTION__);
   std::vector<Player*> ret;
   return ret;
 }

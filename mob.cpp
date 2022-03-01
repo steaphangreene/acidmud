@@ -22,11 +22,9 @@
 #include <unistd.h>
 #include <cctype>
 #include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <string>
 
+#include "cchar8.hpp"
 #include "color.hpp"
 #include "commands.hpp"
 #include "mind.hpp"
@@ -35,32 +33,32 @@
 #include "properties.hpp"
 #include "utils.hpp"
 
-static std::map<act_t, std::string> wear_attribs;
+static std::map<act_t, std::u8string> wear_attribs;
 static void init_wear_attribs() {
-  wear_attribs[act_t::WEAR_BACK] = "Wearable on Back";
-  wear_attribs[act_t::WEAR_CHEST] = "Wearable on Chest";
-  wear_attribs[act_t::WEAR_HEAD] = "Wearable on Head";
-  wear_attribs[act_t::WEAR_NECK] = "Wearable on Neck";
-  wear_attribs[act_t::WEAR_COLLAR] = "Wearable on Collar";
-  wear_attribs[act_t::WEAR_WAIST] = "Wearable on Waist";
-  wear_attribs[act_t::WEAR_SHIELD] = "Wearable on Shield";
-  wear_attribs[act_t::WEAR_LARM] = "Wearable on Left Arm";
-  wear_attribs[act_t::WEAR_RARM] = "Wearable on Right Arm";
-  wear_attribs[act_t::WEAR_LFINGER] = "Wearable on Left Finger";
-  wear_attribs[act_t::WEAR_RFINGER] = "Wearable on Right Finger";
-  wear_attribs[act_t::WEAR_LFOOT] = "Wearable on Left Foot";
-  wear_attribs[act_t::WEAR_RFOOT] = "Wearable on Right Foot";
-  wear_attribs[act_t::WEAR_LHAND] = "Wearable on Left Hand";
-  wear_attribs[act_t::WEAR_RHAND] = "Wearable on Right Hand";
-  wear_attribs[act_t::WEAR_LLEG] = "Wearable on Left Leg";
-  wear_attribs[act_t::WEAR_RLEG] = "Wearable on Right Leg";
-  wear_attribs[act_t::WEAR_LWRIST] = "Wearable on Left Wrist";
-  wear_attribs[act_t::WEAR_RWRIST] = "Wearable on Right Wrist";
-  wear_attribs[act_t::WEAR_LSHOULDER] = "Wearable on Left Shoulder";
-  wear_attribs[act_t::WEAR_RSHOULDER] = "Wearable on Right Shoulder";
-  wear_attribs[act_t::WEAR_LHIP] = "Wearable on Left Hip";
-  wear_attribs[act_t::WEAR_RHIP] = "Wearable on Right Hip";
-  wear_attribs[act_t::WEAR_FACE] = "Wearable on Face";
+  wear_attribs[act_t::WEAR_BACK] = u8"Wearable on Back";
+  wear_attribs[act_t::WEAR_CHEST] = u8"Wearable on Chest";
+  wear_attribs[act_t::WEAR_HEAD] = u8"Wearable on Head";
+  wear_attribs[act_t::WEAR_NECK] = u8"Wearable on Neck";
+  wear_attribs[act_t::WEAR_COLLAR] = u8"Wearable on Collar";
+  wear_attribs[act_t::WEAR_WAIST] = u8"Wearable on Waist";
+  wear_attribs[act_t::WEAR_SHIELD] = u8"Wearable on Shield";
+  wear_attribs[act_t::WEAR_LARM] = u8"Wearable on Left Arm";
+  wear_attribs[act_t::WEAR_RARM] = u8"Wearable on Right Arm";
+  wear_attribs[act_t::WEAR_LFINGER] = u8"Wearable on Left Finger";
+  wear_attribs[act_t::WEAR_RFINGER] = u8"Wearable on Right Finger";
+  wear_attribs[act_t::WEAR_LFOOT] = u8"Wearable on Left Foot";
+  wear_attribs[act_t::WEAR_RFOOT] = u8"Wearable on Right Foot";
+  wear_attribs[act_t::WEAR_LHAND] = u8"Wearable on Left Hand";
+  wear_attribs[act_t::WEAR_RHAND] = u8"Wearable on Right Hand";
+  wear_attribs[act_t::WEAR_LLEG] = u8"Wearable on Left Leg";
+  wear_attribs[act_t::WEAR_RLEG] = u8"Wearable on Right Leg";
+  wear_attribs[act_t::WEAR_LWRIST] = u8"Wearable on Left Wrist";
+  wear_attribs[act_t::WEAR_RWRIST] = u8"Wearable on Right Wrist";
+  wear_attribs[act_t::WEAR_LSHOULDER] = u8"Wearable on Left Shoulder";
+  wear_attribs[act_t::WEAR_RSHOULDER] = u8"Wearable on Right Shoulder";
+  wear_attribs[act_t::WEAR_LHIP] = u8"Wearable on Left Hip";
+  wear_attribs[act_t::WEAR_RHIP] = u8"Wearable on Right Hip";
+  wear_attribs[act_t::WEAR_FACE] = u8"Wearable on Face";
 }
 
 static Mind* mob_mind = nullptr;
@@ -75,8 +73,8 @@ Mind* get_mob_mind() {
 static Object* gold = nullptr;
 static void init_gold() {
   gold = new Object();
-  gold->SetShortDesc("a gold piece");
-  gold->SetDesc("A standard one-ounce gold piece.");
+  gold->SetShortDesc(u8"a gold piece");
+  gold->SetDesc(u8"A standard one-ounce gold piece.");
   gold->SetWeight(454 / 16);
   gold->SetVolume(0);
   gold->SetValue(1);
@@ -88,14 +86,14 @@ static void give_gold(Object* mob, int qty) {
   Object* bag = new Object;
 
   bag->SetParent(mob);
-  bag->SetShortDesc("a small purse");
-  bag->SetDesc("A small, durable, practical moneypurse.");
+  bag->SetShortDesc(u8"a small purse");
+  bag->SetDesc(u8"A small, durable, practical moneypurse.");
 
-  bag->SetSkill(prhash("Wearable on Left Hip"), 1);
-  bag->SetSkill(prhash("Wearable on Right Hip"), 2);
-  bag->SetSkill(prhash("Container"), 5 * 454);
-  bag->SetSkill(prhash("Capacity"), 5);
-  bag->SetSkill(prhash("Closeable"), 1);
+  bag->SetSkill(prhash(u8"Wearable on Left Hip"), 1);
+  bag->SetSkill(prhash(u8"Wearable on Right Hip"), 2);
+  bag->SetSkill(prhash(u8"Container"), 5 * 454);
+  bag->SetSkill(prhash(u8"Capacity"), 5);
+  bag->SetSkill(prhash(u8"Closeable"), 1);
 
   bag->SetWeight(1 * 454);
   bag->SetSize(2);
@@ -109,14 +107,14 @@ static void give_gold(Object* mob, int qty) {
     init_gold();
   Object* g = new Object(*gold);
   g->SetParent(bag);
-  g->SetSkill(prhash("Quantity"), qty);
+  g->SetSkill(prhash(u8"Quantity"), qty);
 }
 
 MOBType::MOBType(
-    const std::string& nm,
-    const std::string& ds,
-    const std::string& lds,
-    const std::string& gens,
+    const std::u8string& nm,
+    const std::u8string& ds,
+    const std::u8string& lds,
+    const std::u8string& gens,
     MOBAttrs min,
     MOBAttrs max,
     int gmin,
@@ -153,7 +151,7 @@ void MOBType::Carry(ItemType* item) {
   items.push_back(item);
 }
 
-void MOBType::SetName(const std::string& nm) {
+void MOBType::SetName(const std::u8string& nm) {
   name = nm;
 }
 
@@ -161,9 +159,9 @@ void Object::AddMOB(std::mt19937& gen, const MOBType* type) {
   Object* mob = new Object(this);
 
   if (mob->World()) {
-    auto obj_id = mob->World()->Skill(prhash("Last Object ID")) + 1;
-    mob->World()->SetSkill(prhash("Last Object ID"), obj_id);
-    mob->SetSkill(prhash("Object ID"), obj_id);
+    auto obj_id = mob->World()->Skill(prhash(u8"Last Object ID")) + 1;
+    mob->World()->SetSkill(prhash(u8"Last Object ID"), obj_id);
+    mob->SetSkill(prhash(u8"Object ID"), obj_id);
   }
 
   mob->Attach(get_mob_mind());
@@ -183,7 +181,7 @@ void Object::AddMOB(std::mt19937& gen, const MOBType* type) {
           mob->NormAttribute(get_linked(sk.first)) * sk.second.first / 100 -
               rand() % sk.second.second);
     }
-    // fprintf(stderr, "DBG: %d %d %d\n", get_linked(sk.first),
+    // fprintf(stderr, u8"DBG: %d %d %d\n", get_linked(sk.first),
     // sk.second.first, sk.second.second);
   }
 
@@ -203,10 +201,10 @@ void Object::AddMOB(std::mt19937& gen, const MOBType* type) {
 
   if (type->armed) {
     Object* obj = new Object(mob);
-    obj->SetSkill(prhash("WeaponType"), type->armed->type);
-    obj->SetSkill(prhash("WeaponReach"), type->armed->reach);
-    obj->SetSkill(prhash("WeaponForce"), type->armed->force + rand() % type->armed->forcem);
-    obj->SetSkill(prhash("WeaponSeverity"), type->armed->sev + rand() % type->armed->sevm);
+    obj->SetSkill(prhash(u8"WeaponType"), type->armed->type);
+    obj->SetSkill(prhash(u8"WeaponReach"), type->armed->reach);
+    obj->SetSkill(prhash(u8"WeaponForce"), type->armed->force + rand() % type->armed->forcem);
+    obj->SetSkill(prhash(u8"WeaponSeverity"), type->armed->sev + rand() % type->armed->sevm);
     obj->SetShortDesc(type->armed->name.c_str());
     obj->SetDesc(type->armed->desc.c_str());
     obj->SetLongDesc(type->armed->long_desc.c_str());
@@ -226,10 +224,10 @@ void Object::AddMOB(std::mt19937& gen, const MOBType* type) {
     }
     Object* obj = new Object(mob);
     obj->SetAttribute(0, ar->bulk + rand() % ar->bulkm);
-    obj->SetSkill(prhash("ArmorB"), ar->bulk + rand() % ar->bulkm);
-    obj->SetSkill(prhash("ArmorI"), ar->impact + rand() % ar->impactm);
-    obj->SetSkill(prhash("ArmorT"), ar->thread + rand() % ar->threadm);
-    obj->SetSkill(prhash("ArmorP"), ar->planar + rand() % ar->planarm);
+    obj->SetSkill(prhash(u8"ArmorB"), ar->bulk + rand() % ar->bulkm);
+    obj->SetSkill(prhash(u8"ArmorI"), ar->impact + rand() % ar->impactm);
+    obj->SetSkill(prhash(u8"ArmorT"), ar->thread + rand() % ar->threadm);
+    obj->SetSkill(prhash(u8"ArmorP"), ar->planar + rand() % ar->planarm);
     obj->SetShortDesc(ar->name.c_str());
     obj->SetDesc(ar->desc.c_str());
     obj->SetLongDesc(ar->long_desc.c_str());
@@ -246,14 +244,14 @@ void Object::AddMOB(std::mt19937& gen, const MOBType* type) {
 
   if (type->items.size() > 0) {
     Object* sack = new Object(mob);
-    sack->SetShortDesc("a small sack");
-    sack->SetDesc("A small, durable, practical belt sack.");
+    sack->SetShortDesc(u8"a small sack");
+    sack->SetDesc(u8"A small, durable, practical belt sack.");
 
-    sack->SetSkill(prhash("Wearable on Left Hip"), 1);
-    sack->SetSkill(prhash("Wearable on Right Hip"), 2);
-    sack->SetSkill(prhash("Container"), 5 * 454);
-    sack->SetSkill(prhash("Capacity"), 5);
-    sack->SetSkill(prhash("Closeable"), 1);
+    sack->SetSkill(prhash(u8"Wearable on Left Hip"), 1);
+    sack->SetSkill(prhash(u8"Wearable on Right Hip"), 2);
+    sack->SetSkill(prhash(u8"Container"), 5 * 454);
+    sack->SetSkill(prhash(u8"Capacity"), 5);
+    sack->SetSkill(prhash(u8"Closeable"), 1);
 
     sack->SetWeight(1 * 454);
     sack->SetSize(2);
@@ -280,10 +278,10 @@ void Object::AddMOB(std::mt19937& gen, const MOBType* type) {
 }
 
 WeaponType::WeaponType(
-    const std::string& nm,
-    const std::string& ds,
-    const std::string& lds,
-    const std::string& t,
+    const std::u8string& nm,
+    const std::u8string& ds,
+    const std::u8string& lds,
+    const std::u8string& t,
     int r,
     int f,
     int fm,
@@ -307,9 +305,9 @@ WeaponType::WeaponType(
 }
 
 ArmorType::ArmorType(
-    const std::string& nm,
-    const std::string& ds,
-    const std::string& lds,
+    const std::u8string& nm,
+    const std::u8string& ds,
+    const std::u8string& lds,
     int b,
     int bm,
     int i,
@@ -359,9 +357,9 @@ ArmorType::ArmorType(
 }
 
 ItemType::ItemType(
-    const std::string& nm,
-    const std::string& ds,
-    const std::string& lds,
+    const std::u8string& nm,
+    const std::u8string& ds,
+    const std::u8string& lds,
     const std::vector<skill_pair>& sk,
     int w,
     int vol,
@@ -375,17 +373,17 @@ ItemType::ItemType(
   value = val;
 }
 
-static const std::string gen_replace[][4] = {
-    {"{He}", "She", "He", "It"},
-    {"{Him}", "Her", "Him", "It"},
-    {"{His}", "Hers", "His", "Its"},
-    {"{he}", "she", "he", "it"},
-    {"{him}", "her", "him", "it"},
-    {"{his}", "hers", "his", "its"},
-    {"", "", "", ""}};
+static const std::u8string gen_replace[][4] = {
+    {u8"{He}", u8"She", u8"He", u8"It"},
+    {u8"{Him}", u8"Her", u8"Him", u8"It"},
+    {u8"{His}", u8"Hers", u8"His", u8"Its"},
+    {u8"{he}", u8"she", u8"he", u8"it"},
+    {u8"{him}", u8"her", u8"him", u8"it"},
+    {u8"{his}", u8"hers", u8"his", u8"its"},
+    {u8"", u8"", u8"", u8""}};
 
-std::string gender_proc(const std::string& in, char gender) {
-  std::string ret = in;
+std::u8string gender_proc(const std::u8string& in, char8_t gender) {
+  std::u8string ret = in;
   int ctr = 0, gen = 3;
 
   if (gender == 'F')

@@ -29,6 +29,6 @@ VersionInformation CurrentVersion = {
     0x0000001BUL, // Object/World Save Version
     {0, 0, 1}, // AcidMUD Version (X.X.X-REVS-HASH)
     GIT_REVS, // Dynamically Filled by Makefile
-    "GIT_HASH", // Dynamically Filled by Makefile
-    "DATE_STAMP" // Dynamically Filled by Makefile
+    u8"GIT_HASH", // Dynamically Filled by Makefile
+    u8"DATE_STAMP" // Dynamically Filled by Makefile
 };

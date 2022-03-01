@@ -36,9 +36,9 @@ class Player;
 
 class Player {
  public:
-  Player(std::string nm, std::string ps);
+  Player(std::u8string nm, std::u8string ps);
   ~Player();
-  void SetName(std::string);
+  void SetName(std::u8string);
   void Link(Object*);
   Object* Room() {
     return room;
@@ -70,33 +70,33 @@ class Player {
   };
   int SaveTo(FILE*);
   int LoadFrom(FILE*);
-  std::string Name() {
+  std::u8string Name() {
     return name;
   }
   void AddChar(Object*);
-  const std::map<std::string, std::string> Vars() {
+  const std::map<std::u8string, std::u8string> Vars() {
     return vars;
   };
-  void SetVars(const std::map<std::string, std::string> v) {
+  void SetVars(const std::map<std::u8string, std::u8string> v) {
     vars = v;
   };
 
  private:
-  std::map<std::string, Object*> body;
-  std::string name, pass;
+  std::map<std::u8string, Object*> body;
+  std::u8string name, pass;
   Object *room, *creator, *world;
   unsigned long flags;
-  std::map<std::string, std::string> vars;
+  std::map<std::u8string, std::u8string> vars;
 
-  friend Player* player_login(std::string name, std::string pass);
-  friend Player* get_player(std::string name);
+  friend Player* player_login(std::u8string name, std::u8string pass);
+  friend Player* get_player(std::u8string name);
 };
 
-Player* player_login(std::string name, std::string pass);
-Player* get_player(std::string name);
-int player_exists(std::string name);
-int save_players(const std::string& fn);
-int load_players(const std::string& fn);
+Player* player_login(std::u8string name, std::u8string pass);
+Player* get_player(std::u8string name);
+int player_exists(std::u8string name);
+int save_players(const std::u8string& fn);
+int load_players(const std::u8string& fn);
 void player_rooms_erase(Object*);
 int is_pc(const Object*);
 

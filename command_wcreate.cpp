@@ -20,11 +20,10 @@
 // *************************************************************************
 
 #include <algorithm>
-#include <cstdlib>
-#include <cstring>
 #include <filesystem>
 #include <random>
 
+#include "cchar8.hpp"
 #include "color.hpp"
 #include "commands.hpp"
 #include "mind.hpp"
@@ -34,38 +33,41 @@
 #include "utils.hpp"
 
 // From: https://gist.github.com/Brennall/b9c3a0202eb11c5cfd54868c5752012a
-static const std::vector<std::string> dwarf_first_names[2] = {
+static const std::vector<std::u8string> dwarf_first_names[2] = {
     {
-        "Anbera",   "Artin",    "Audhild", "Balifra",  "Barbena", "Bardryn",  "Bolhild",
-        "Dagnal",   "Dafifi",   "Delre",   "Diesa",    "Hdeth",   "Eridred",  "Falkrunn",
-        "Fallthra", "Finelien", "Gillydd", "Gunnloda", "Gurdis",  "Helgret",  "Helja",
-        "Hlin",     "llde",     "Jarana",  "Kathra",   "Kilia",   "Kristryd", "Liftrasa",
-        "Marastyr", "Mardred",  "Morana",  "Nalaed",   "Nora",    "Nurkara",  "Orifi",
-        "Ovina",    "Riswynn",  "Sannl",   "Therlin",  "Thodris", "Torbera",  "Tordrid",
-        "Torgga",   "Urshar",   "Valida",  "Vistra",   "Vonana",  "Werydd",   "Whurd red",
-        "Yurgunn",
+        u8"Anbera",    u8"Artin",    u8"Audhild",  u8"Balifra",  u8"Barbena",  u8"Bardryn",
+        u8"Bolhild",   u8"Dagnal",   u8"Dafifi",   u8"Delre",    u8"Diesa",    u8"Hdeth",
+        u8"Eridred",   u8"Falkrunn", u8"Fallthra", u8"Finelien", u8"Gillydd",  u8"Gunnloda",
+        u8"Gurdis",    u8"Helgret",  u8"Helja",    u8"Hlin",     u8"llde",     u8"Jarana",
+        u8"Kathra",    u8"Kilia",    u8"Kristryd", u8"Liftrasa", u8"Marastyr", u8"Mardred",
+        u8"Morana",    u8"Nalaed",   u8"Nora",     u8"Nurkara",  u8"Orifi",    u8"Ovina",
+        u8"Riswynn",   u8"Sannl",    u8"Therlin",  u8"Thodris",  u8"Torbera",  u8"Tordrid",
+        u8"Torgga",    u8"Urshar",   u8"Valida",   u8"Vistra",   u8"Vonana",   u8"Werydd",
+        u8"Whurd red", u8"Yurgunn",
     },
     {
-        "Adrik",   "Alberich", "Baern",    "Barendd", "Beloril", "Brottor", "Dain",     "Dalgal",
-        "Darrak",  "Delg",     "Duergath", "Dworic",  "Eberk",   "Einkil",  "Elaim",    "Erias",
-        "Fallond", "Fargrim",  "Gardain",  "Gilthur", "Gimgen",  "Gimurt",  "Harbek",   "Kildrak",
-        "Kilvar",  "Morgran",  "Morkral",  "Nalral",  "Nordak",  "Nuraval", "Oloric",   "Olunt",
-        "Osrik",   "Oskar",    "Rangrim",  "Reirak",  "Rurik",   "Taklinn", "Thoradin", "Thorin",
-        "Thradal", "Tordek",   "Traubon",  "Travok",  "Ulfgar",  "Uraim",   "Veit",     "Vonbin",
-        "Vondal",  "Whurbin",
+        u8"Adrik",   u8"Alberich", u8"Baern",   u8"Barendd",  u8"Beloril", u8"Brottor", u8"Dain",
+        u8"Dalgal",  u8"Darrak",   u8"Delg",    u8"Duergath", u8"Dworic",  u8"Eberk",   u8"Einkil",
+        u8"Elaim",   u8"Erias",    u8"Fallond", u8"Fargrim",  u8"Gardain", u8"Gilthur", u8"Gimgen",
+        u8"Gimurt",  u8"Harbek",   u8"Kildrak", u8"Kilvar",   u8"Morgran", u8"Morkral", u8"Nalral",
+        u8"Nordak",  u8"Nuraval",  u8"Oloric",  u8"Olunt",    u8"Osrik",   u8"Oskar",   u8"Rangrim",
+        u8"Reirak",  u8"Rurik",    u8"Taklinn", u8"Thoradin", u8"Thorin",  u8"Thradal", u8"Tordek",
+        u8"Traubon", u8"Travok",   u8"Ulfgar",  u8"Uraim",    u8"Veit",    u8"Vonbin",  u8"Vondal",
+        u8"Whurbin",
     }};
 
 // From: https://gist.github.com/Brennall/b9c3a0202eb11c5cfd54868c5752012a
-static const std::vector<std::string> dwarf_last_names = {
-    "Aranore",     "Balderk",     "Battlehammer", "Bigtoe",      "Bloodkith",    "Bofdarm",
-    "Brawnanvil",  "Brazzik",     "Broodfist",    "Burrowfound", "Caebrek",      "Daerdahk",
-    "Dankil",      "Daraln",      "Deepdelver",   "Durthane",    "Eversharp",    "FaHack",
-    "Fire-forge",  "Foamtankard", "Frostbeard",   "Glanhig",     "Goblinbane",   "Goldfinder",
-    "Gorunn",      "Graybeard",   "Hammerstone",  "Helcral",     "Holderhek",    "Ironfist",
-    "Loderr",      "Lutgehr",     "Morigak",      "Orcfoe",      "Rakankrak",    "Ruby-Eye",
-    "Rumnaheim",   "Silveraxe",   "Silverstone",  "Steelfist",   "Stoutale",     "Strakeln",
-    "Strongheart", "Thrahak",     "Torevir",      "Torunn",      "Trollbleeder", "Trueanvil",
-    "Trueblood",   "Ungart",
+static const std::vector<std::u8string> dwarf_last_names = {
+    u8"Aranore",    u8"Balderk",      u8"Battlehammer", u8"Bigtoe",      u8"Bloodkith",
+    u8"Bofdarm",    u8"Brawnanvil",   u8"Brazzik",      u8"Broodfist",   u8"Burrowfound",
+    u8"Caebrek",    u8"Daerdahk",     u8"Dankil",       u8"Daraln",      u8"Deepdelver",
+    u8"Durthane",   u8"Eversharp",    u8"FaHack",       u8"Fire-forge",  u8"Foamtankard",
+    u8"Frostbeard", u8"Glanhig",      u8"Goblinbane",   u8"Goldfinder",  u8"Gorunn",
+    u8"Graybeard",  u8"Hammerstone",  u8"Helcral",      u8"Holderhek",   u8"Ironfist",
+    u8"Loderr",     u8"Lutgehr",      u8"Morigak",      u8"Orcfoe",      u8"Rakankrak",
+    u8"Ruby-Eye",   u8"Rumnaheim",    u8"Silveraxe",    u8"Silverstone", u8"Steelfist",
+    u8"Stoutale",   u8"Strakeln",     u8"Strongheart",  u8"Thrahak",     u8"Torevir",
+    u8"Torunn",     u8"Trollbleeder", u8"Trueanvil",    u8"Trueblood",   u8"Ungart",
 };
 
 static std::random_device rd;
@@ -73,43 +75,43 @@ static std::mt19937 gen(rd());
 
 static Object* new_object(Object* parent) {
   Object* body = new Object(parent);
-  auto obj_id = body->World()->Skill(prhash("Last Object ID")) + 1;
-  body->World()->SetSkill(prhash("Last Object ID"), obj_id);
-  body->SetSkill(prhash("Object ID"), obj_id);
+  auto obj_id = body->World()->Skill(prhash(u8"Last Object ID")) + 1;
+  body->World()->SetSkill(prhash(u8"Last Object ID"), obj_id);
+  body->SetSkill(prhash(u8"Object ID"), obj_id);
   return body;
 }
-std::multimap<std::string, std::pair<std::string, Object*>> zone_links;
+std::multimap<std::u8string, std::pair<std::u8string, Object*>> zone_links;
 
 static MOBType mob_dwarf(
-    "a dwarf",
-    "{He} looks pissed.",
-    "",
-    "MF",
+    u8"a dwarf",
+    u8"{He} looks pissed.",
+    u8"",
+    u8"MF",
     {9, 4, 6, 4, 9, 4},
     {10, 7, 11, 8, 18, 8},
     100,
     500);
 
-static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
+static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
   if (fn.empty()) {
-    mind->Send("You need to specify the filename of the datafile!\n");
+    mind->Send(u8"You need to specify the filename of the datafile!\n");
     return false;
   }
 
-  std::string filename(fn);
-  FILE* def_file = fopen(filename.c_str(), "r");
+  std::u8string filename(fn);
+  FILE* def_file = fopen(filename.c_str(), u8"r");
   if (def_file == nullptr) {
-    mind->SendF("Can't find definition file '%s'!\n", filename.c_str());
+    mind->SendF(u8"Can't find definition file '%s'!\n", filename.c_str());
     return false;
   }
 
-  std::string name = "Unknown Land";
+  std::u8string name = u8"Unknown Land";
   uint8_t lower_level = 0;
   uint8_t upper_level = 1;
 
-  std::map<char, std::vector<std::string>> rooms;
-  std::map<char, std::string> doors;
-  std::map<char, std::string> doorterms;
+  std::map<char, std::vector<std::u8string>> rooms;
+  std::map<char, std::u8string> doors;
+  std::map<char, std::u8string> doorterms;
   std::map<char, bool> remote;
   std::map<char, bool> closed;
   std::map<char, bool> clear;
@@ -117,74 +119,74 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
   std::map<char, bool> locked;
   std::map<char, bool> indoors;
   std::map<char, uint8_t> levels;
-  std::map<char, std::vector<std::string>> empnames;
+  std::map<char, std::vector<std::u8string>> empnames;
   std::map<char, std::vector<std::uniform_int_distribution<int>>> empnums;
   std::map<char, std::vector<int>> empfloors;
-  std::map<char, std::vector<std::string>> resnames;
+  std::map<char, std::vector<std::u8string>> resnames;
   std::map<char, std::vector<std::uniform_int_distribution<int>>> resnums;
   std::map<char, std::vector<int>> resfloors;
-  std::map<std::pair<Object*, std::string>, int> beds;
-  std::vector<std::string> en_links;
-  std::vector<std::string> en_rooms;
+  std::map<std::pair<Object*, std::u8string>, int> beds;
+  std::vector<std::u8string> en_links;
+  std::vector<std::u8string> en_rooms;
   std::vector<bool> en_indoors;
-  char start_symbol = '\0';
+  char8_t start_symbol = '\0';
 
   bool in_main_def = false;
-  char line_buf[65536] = "";
+  char8_t line_buf[65536] = u8"";
   while (!in_main_def) {
     bool parse_error = false;
-    fscanf(def_file, " %65535[^\n]", line_buf);
-    if (!strncmp(line_buf, "name:", 5)) {
-      char namebuf[256];
-      sscanf(line_buf + 5, "%255[^\n]", namebuf);
+    fscanf(def_file, u8" %65535[^\n]", line_buf);
+    if (!strncmp(line_buf, u8"name:", 5)) {
+      char8_t namebuf[256];
+      sscanf(line_buf + 5, u8"%255[^\n]", namebuf);
       name = namebuf;
-    } else if (!strncmp(line_buf, "world:", 6)) {
-      char namebuf[256];
-      sscanf(line_buf + 6, "%255[^\n]", namebuf);
+    } else if (!strncmp(line_buf, u8"world:", 6)) {
+      char8_t namebuf[256];
+      sscanf(line_buf + 6, u8"%255[^\n]", namebuf);
       world->SetShortDesc(namebuf);
-    } else if (!strncmp(line_buf, "lower_level:", 12)) {
-      sscanf(line_buf + 12, "%hhu[^\n]", &lower_level);
-    } else if (!strncmp(line_buf, "upper_level:", 12)) {
-      sscanf(line_buf + 12, "%hhu[^\n]", &upper_level);
-    } else if (!strncmp(line_buf, "building:", 9)) {
-      char sym = '0';
-      sscanf(line_buf + 9, "%c", &sym);
-      char namebuf[256];
-      sscanf(line_buf + 10, ":%255[^\n]", namebuf);
+    } else if (!strncmp(line_buf, u8"lower_level:", 12)) {
+      sscanf(line_buf + 12, u8"%hhu[^\n]", &lower_level);
+    } else if (!strncmp(line_buf, u8"upper_level:", 12)) {
+      sscanf(line_buf + 12, u8"%hhu[^\n]", &upper_level);
+    } else if (!strncmp(line_buf, u8"building:", 9)) {
+      char8_t sym = '0';
+      sscanf(line_buf + 9, u8"%c", &sym);
+      char8_t namebuf[256];
+      sscanf(line_buf + 10, u8":%255[^\n]", namebuf);
       rooms[sym].emplace_back(namebuf);
       indoors[sym] = true;
-    } else if (!strncmp(line_buf, "place:", 6)) {
-      char sym = '0';
-      sscanf(line_buf + 6, "%c", &sym);
-      char namebuf[256];
-      sscanf(line_buf + 7, ":%255[^\n]", namebuf);
+    } else if (!strncmp(line_buf, u8"place:", 6)) {
+      char8_t sym = '0';
+      sscanf(line_buf + 6, u8"%c", &sym);
+      char8_t namebuf[256];
+      sscanf(line_buf + 7, u8":%255[^\n]", namebuf);
       rooms[sym].emplace_back(namebuf);
-    } else if (!strncmp(line_buf, "level:", 6)) {
-      char sym = '0';
-      sscanf(line_buf + 6, "%c", &sym);
+    } else if (!strncmp(line_buf, u8"level:", 6)) {
+      char8_t sym = '0';
+      sscanf(line_buf + 6, u8"%c", &sym);
       uint8_t lev;
-      sscanf(line_buf + 7, ":%hhu", &lev);
+      sscanf(line_buf + 7, u8":%hhu", &lev);
       levels[sym] = lev;
-    } else if (!strncmp(line_buf, "employ:", 7)) {
-      char sym = '0';
-      sscanf(line_buf + 7, "%c", &sym);
+    } else if (!strncmp(line_buf, u8"employ:", 7)) {
+      char8_t sym = '0';
+      sscanf(line_buf + 7, u8"%c", &sym);
       int floor = 0;
       int lnum, hnum;
-      char namebuf[256];
+      char8_t namebuf[256];
       int off = 8;
-      if (sscanf(line_buf + off, ".%d", &floor) == 1) {
+      if (sscanf(line_buf + off, u8".%d", &floor) == 1) {
         off = 10;
       }
-      if (sscanf(line_buf + off, ":%d", &lnum) < 1) {
+      if (sscanf(line_buf + off, u8":%d", &lnum) < 1) {
         parse_error = true;
       }
-      if (sscanf(line_buf + off, ":%*d-%d", &hnum) < 1) {
+      if (sscanf(line_buf + off, u8":%*d-%d", &hnum) < 1) {
         hnum = lnum;
-        if (sscanf(line_buf + off, ":%*d:%255[^\n]", namebuf) < 1) {
+        if (sscanf(line_buf + off, u8":%*d:%255[^\n]", namebuf) < 1) {
           parse_error = true;
         }
       } else {
-        if (sscanf(line_buf + off, ":%*d-%*d:%255[^\n]", namebuf) < 1) {
+        if (sscanf(line_buf + off, u8":%*d-%*d:%255[^\n]", namebuf) < 1) {
           parse_error = true;
         }
       }
@@ -193,26 +195,26 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
         empnums[sym].push_back(std::uniform_int_distribution<int>(lnum, hnum));
         empfloors[sym].push_back(floor);
       }
-    } else if (!strncmp(line_buf, "house:", 6)) {
-      char sym = '0';
-      sscanf(line_buf + 6, "%c", &sym);
+    } else if (!strncmp(line_buf, u8"house:", 6)) {
+      char8_t sym = '0';
+      sscanf(line_buf + 6, u8"%c", &sym);
       int floor = 0;
       int lnum, hnum;
-      char namebuf[256];
+      char8_t namebuf[256];
       int off = 7;
-      if (sscanf(line_buf + off, ".%d", &floor) == 1) {
+      if (sscanf(line_buf + off, u8".%d", &floor) == 1) {
         off = 9;
       }
-      if (sscanf(line_buf + off, ":%d", &lnum) < 1) {
+      if (sscanf(line_buf + off, u8":%d", &lnum) < 1) {
         parse_error = true;
       }
-      if (sscanf(line_buf + off, ":%*d-%d", &hnum) < 1) {
+      if (sscanf(line_buf + off, u8":%*d-%d", &hnum) < 1) {
         hnum = lnum;
-        if (sscanf(line_buf + off, ":%*d:%255[^\n]", namebuf) < 1) {
+        if (sscanf(line_buf + off, u8":%*d:%255[^\n]", namebuf) < 1) {
           parse_error = true;
         }
       } else {
-        if (sscanf(line_buf + off, ":%*d-%*d:%255[^\n]", namebuf) < 1) {
+        if (sscanf(line_buf + off, u8":%*d-%*d:%255[^\n]", namebuf) < 1) {
           parse_error = true;
         }
       }
@@ -221,49 +223,49 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
         resnums[sym].push_back(std::uniform_int_distribution<int>(lnum, hnum));
         resfloors[sym].push_back(floor);
       }
-    } else if (!strncmp(line_buf, "door:", 5)) {
-      char sym = 'd';
-      sscanf(line_buf + 5, "%c", &sym);
-      char namebuf[256];
-      sscanf(line_buf + 6, ":%255[^\n]", namebuf);
+    } else if (!strncmp(line_buf, u8"door:", 5)) {
+      char8_t sym = 'd';
+      sscanf(line_buf + 5, u8"%c", &sym);
+      char8_t namebuf[256];
+      sscanf(line_buf + 6, u8":%255[^\n]", namebuf);
       doors[sym] = namebuf;
-    } else if (!strncmp(line_buf, "doorterm:", 9)) {
-      char sym = 'd';
-      sscanf(line_buf + 9, "%c", &sym);
-      char namebuf[256];
-      sscanf(line_buf + 10, ":%255[^\n]", namebuf);
+    } else if (!strncmp(line_buf, u8"doorterm:", 9)) {
+      char8_t sym = 'd';
+      sscanf(line_buf + 9, u8"%c", &sym);
+      char8_t namebuf[256];
+      sscanf(line_buf + 10, u8":%255[^\n]", namebuf);
       doorterms[sym] = namebuf;
-    } else if (!strncmp(line_buf, "lock:", 5)) {
-      char sym = 'd';
-      sscanf(line_buf + 5, "%c", &sym);
+    } else if (!strncmp(line_buf, u8"lock:", 5)) {
+      char8_t sym = 'd';
+      sscanf(line_buf + 5, u8"%c", &sym);
       locks[sym] = true;
-    } else if (!strncmp(line_buf, "locked:", 7)) {
-      char sym = 'd';
-      sscanf(line_buf + 7, "%c", &sym);
+    } else if (!strncmp(line_buf, u8"locked:", 7)) {
+      char8_t sym = 'd';
+      sscanf(line_buf + 7, u8"%c", &sym);
       locked[sym] = true;
-    } else if (!strncmp(line_buf, "closed:", 7)) {
-      char sym = 'd';
-      sscanf(line_buf + 7, "%c", &sym);
+    } else if (!strncmp(line_buf, u8"closed:", 7)) {
+      char8_t sym = 'd';
+      sscanf(line_buf + 7, u8"%c", &sym);
       closed[sym] = true;
-    } else if (!strncmp(line_buf, "clear:", 6)) {
-      char sym = 'd';
-      sscanf(line_buf + 6, "%c", &sym);
+    } else if (!strncmp(line_buf, u8"clear:", 6)) {
+      char8_t sym = 'd';
+      sscanf(line_buf + 6, u8"%c", &sym);
       clear[sym] = true;
-    } else if (!strncmp(line_buf, "remote:", 7)) {
-      char sym = 'd';
-      sscanf(line_buf + 7, "%c", &sym);
+    } else if (!strncmp(line_buf, u8"remote:", 7)) {
+      char8_t sym = 'd';
+      sscanf(line_buf + 7, u8"%c", &sym);
       remote[sym] = true;
-    } else if (!strncmp(line_buf, "en_link:", 8)) {
+    } else if (!strncmp(line_buf, u8"en_link:", 8)) {
       en_links.push_back(line_buf + 8);
-    } else if (!strncmp(line_buf, "en_place:", 9)) {
+    } else if (!strncmp(line_buf, u8"en_place:", 9)) {
       en_rooms.push_back(line_buf + 9);
       en_indoors.push_back(false);
-    } else if (!strncmp(line_buf, "en_building:", 12)) {
+    } else if (!strncmp(line_buf, u8"en_building:", 12)) {
       en_rooms.push_back(line_buf + 12);
       en_indoors.push_back(true);
-    } else if (!strncmp(line_buf, "start:", 6)) {
-      sscanf(line_buf + 6, "%c", &start_symbol);
-    } else if (!strncmp(line_buf, "ascii_map:", 10)) {
+    } else if (!strncmp(line_buf, u8"start:", 6)) {
+      sscanf(line_buf + 6, u8"%c", &start_symbol);
+    } else if (!strncmp(line_buf, u8"ascii_map:", 10)) {
       in_main_def = true;
     } else if (line_buf[0] == '#') {
       // This is a comment, so just ignore this line.
@@ -272,27 +274,27 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
     }
 
     if (parse_error) {
-      mind->SendF("Bad definition file '%s'!\n", filename.c_str());
-      mind->SendF("Read: '%s'!\n", line_buf);
+      mind->SendF(u8"Bad definition file '%s'!\n", filename.c_str());
+      mind->SendF(u8"Read: '%s'!\n", line_buf);
       fclose(def_file);
       return false;
     }
   }
 
   // Load ASCII Map Into A vector<string>, Padding All Sides with Spaces
-  std::vector<std::string> ascii_map = {""};
-  fscanf(def_file, "%*[\n]");
+  std::vector<std::u8string> ascii_map = {u8""};
+  fscanf(def_file, u8"%*[\n]");
   line_buf[0] = ' '; // Padding
   size_t max_line_len = 0;
-  while (fscanf(def_file, "%65534[^\n]", line_buf + 1) > 0) {
+  while (fscanf(def_file, u8"%65534[^\n]", line_buf + 1) > 0) {
     ascii_map.emplace_back(line_buf);
     max_line_len = std::max(max_line_len, ascii_map.back().length() + 1);
-    fscanf(def_file, "%*[\n]");
+    fscanf(def_file, u8"%*[\n]");
   }
-  ascii_map.emplace_back("");
+  ascii_map.emplace_back(u8"");
   for (auto& line : ascii_map) {
     for (size_t pad = line.length(); pad < max_line_len; ++pad) {
-      line += " ";
+      line += u8" ";
     }
   }
 
@@ -308,8 +310,8 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
           ascii_isalpha(room) || room == '|' || room == '/' || room == '-' ||
           room == '\\') { // Default Connections
       } else {
-        mind->SendF("Bad definition file '%s'!\n", filename.c_str());
-        mind->SendF("Read Unknown Character '%c' at ascii_map (%u,%u)!\n", room, x, y);
+        mind->SendF(u8"Bad definition file '%s'!\n", filename.c_str());
+        mind->SendF(u8"Read Unknown Character '%c' at ascii_map (%u,%u)!\n", room, x, y);
         fclose(def_file);
         return false;
       }
@@ -319,9 +321,9 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
   // Create New Zone
   Object* zone = new_object(world);
   zone->SetShortDesc(name);
-  zone->SetSkill(prhash("Light Source"), 1000);
-  zone->SetSkill(prhash("Day Length"), 240);
-  zone->SetSkill(prhash("Day Time"), 120);
+  zone->SetSkill(prhash(u8"Light Source"), 1000);
+  zone->SetSkill(prhash(u8"Day Length"), 240);
+  zone->SetSkill(prhash(u8"Day Time"), 120);
 
   // Convert ASCII Map Into AcidMUD Rooms
   struct coord {
@@ -329,17 +331,17 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
     uint32_t y;
     auto operator<=>(const coord&) const = default;
   };
-  static const std::string floornames[] = {
-      "first floor of the ",
-      "second floor of the ",
-      "third floor of the ",
-      "fourth floor of the ",
-      "fifth floor of the ",
-      "sixth floor of the ",
-      "seventh floor of the ",
-      "eighth floor of the ",
-      "ninth floor of the ",
-      "tenth floor of the ",
+  static const std::u8string floornames[] = {
+      u8"first floor of the ",
+      u8"second floor of the ",
+      u8"third floor of the ",
+      u8"fourth floor of the ",
+      u8"fifth floor of the ",
+      u8"sixth floor of the ",
+      u8"seventh floor of the ",
+      u8"eighth floor of the ",
+      u8"ninth floor of the ",
+      u8"tenth floor of the ",
   };
   std::map<coord, std::vector<Object*>> objs;
   for (uint32_t y = 0; y < ascii_map.size(); ++y) {
@@ -362,18 +364,18 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
             objs[coord{x, y}].back()->SetCoords(x, y, f);
           }
           if (indoors[room]) {
-            objs[coord{x, y}].back()->SetSkill(prhash("Translucent"), 200);
-            objs[coord{x, y}].back()->SetSkill(prhash("Light Source"), 100);
+            objs[coord{x, y}].back()->SetSkill(prhash(u8"Translucent"), 200);
+            objs[coord{x, y}].back()->SetSkill(prhash(u8"Light Source"), 100);
           } else {
-            objs[coord{x, y}].back()->SetSkill(prhash("Translucent"), 1000);
+            objs[coord{x, y}].back()->SetSkill(prhash(u8"Translucent"), 1000);
           }
           if (start_symbol == room) {
             world->AddAct(act_t::SPECIAL_HOME, objs[coord{x, y}].back());
           }
         }
-        std::string roomname = rooms[room][0];
+        std::u8string roomname = rooms[room][0];
         if (rooms[room].size() > 1) {
-          std::vector<std::string> out = {""};
+          std::vector<std::u8string> out = {u8""};
           std::sample(rooms[room].begin(), rooms[room].end(), out.begin(), 1, gen);
           roomname = out.front();
         }
@@ -381,22 +383,22 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
           for (uint32_t f = 0; f < objs[coord{x, y}].size(); ++f) {
             objs[coord{x, y}][f]->SetShortDesc(floornames[f] + roomname);
             objs[coord{x, y}][f]->SetDesc(
-                std::string("This is a building in ") + zone->ShortDesc() + ", on " +
-                world->ShortDesc() + ".  " + zone->ShortDesc() + " is nice.");
+                std::u8string(u8"This is a building in ") + zone->ShortDesc() + u8", on " +
+                world->ShortDesc() + u8".  " + zone->ShortDesc() + u8" is nice.");
             if (f > 0) {
               objs[coord{x, y}][f]->Link(
                   objs[coord{x, y}][f - 1],
-                  "down",
-                  "The floor below.\n",
-                  "up",
-                  "The floor above.\n");
+                  u8"down",
+                  u8"The floor below.\n",
+                  u8"up",
+                  u8"The floor above.\n");
             }
           }
         } else {
           objs[coord{x, y}].back()->SetShortDesc(roomname);
           objs[coord{x, y}].back()->SetDesc(
-              std::string("This is ") + zone->ShortDesc() + ", on " + world->ShortDesc() + ".  " +
-              zone->ShortDesc() + " is nice.");
+              std::u8string(u8"This is ") + zone->ShortDesc() + u8", on " + world->ShortDesc() +
+              u8".  " + zone->ShortDesc() + u8" is nice.");
         }
 
         // Load data for housing capacities for these new objects
@@ -419,10 +421,10 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
           objs[coord{x, y}].push_back(new_object(zone));
           objs[coord{x, y}].back()->SetCoords(x, y);
           if (indoors[room]) {
-            objs[coord{x, y}].back()->SetSkill(prhash("Translucent"), 200);
-            objs[coord{x, y}].back()->SetSkill(prhash("Light Source"), 100);
+            objs[coord{x, y}].back()->SetSkill(prhash(u8"Translucent"), 200);
+            objs[coord{x, y}].back()->SetSkill(prhash(u8"Light Source"), 100);
           } else {
-            objs[coord{x, y}].back()->SetSkill(prhash("Translucent"), 1000);
+            objs[coord{x, y}].back()->SetSkill(prhash(u8"Translucent"), 1000);
           }
           if (start_symbol == room) {
             world->AddAct(act_t::SPECIAL_HOME, objs[coord{x, y}].back());
@@ -430,18 +432,18 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
         }
         if (objs[coord{x, y}].size() > 1) {
           for (uint32_t f = 0; f < objs[coord{x, y}].size(); ++f) {
-            objs[coord{x, y}][f]->SetShortDesc(floornames[f] + "building");
+            objs[coord{x, y}][f]->SetShortDesc(floornames[f] + u8"building");
             if (f > 0) {
               objs[coord{x, y}][f]->Link(
                   objs[coord{x, y}][f - 1],
-                  "down",
-                  "The floor below.\n",
-                  "up",
-                  "The floor above.\n");
+                  u8"down",
+                  u8"The floor below.\n",
+                  u8"up",
+                  u8"The floor above.\n");
             }
           }
         } else {
-          objs[coord{x, y}].back()->SetShortDesc("a room");
+          objs[coord{x, y}].back()->SetShortDesc(u8"a room");
         }
 
         // Load data for housing capacities for these new objects
@@ -474,7 +476,7 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
         Object* entrance;
         if (!linked) { // No object yet, so make one.
           entrance = new_object(zone);
-          entrance->SetShortDesc("a generic zone entrance");
+          entrance->SetShortDesc(u8"a generic zone entrance");
           objs[coord{x, y}].push_back(entrance);
           objs[coord{x, y}].back()->SetCoords(x, y);
           if (!en_links.empty()) {
@@ -485,18 +487,18 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
           entrance = objs[coord{x, y}].back();
         }
 
-        if (entrance->ShortDesc() == "a generic zone entrance") { // Not well-defined yet
+        if (entrance->ShortDesc() == u8"a generic zone entrance") { // Not well-defined yet
           if (!en_indoors.empty() && en_indoors.front()) {
-            objs[coord{x, y}].back()->SetSkill(prhash("Translucent"), 200);
-            objs[coord{x, y}].back()->SetSkill(prhash("Light Source"), 100);
+            objs[coord{x, y}].back()->SetSkill(prhash(u8"Translucent"), 200);
+            objs[coord{x, y}].back()->SetSkill(prhash(u8"Light Source"), 100);
           } else {
-            objs[coord{x, y}].back()->SetSkill(prhash("Translucent"), 1000);
+            objs[coord{x, y}].back()->SetSkill(prhash(u8"Translucent"), 1000);
           }
           if (!en_rooms.empty()) {
             objs[coord{x, y}].back()->SetShortDesc(en_rooms.front());
             objs[coord{x, y}].back()->SetDesc(
-                std::string("This is ") + zone->ShortDesc() + ", on " + world->ShortDesc() + ".  " +
-                zone->ShortDesc() + " is nice.");
+                std::u8string(u8"This is ") + zone->ShortDesc() + u8", on " + world->ShortDesc() +
+                u8".  " + zone->ShortDesc() + u8" is nice.");
           }
           objs[coord{x, y}].back()->SetCoords(x, y);
         }
@@ -519,15 +521,15 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
     auto x = obj.first.x;
     auto y = obj.first.y;
 
-    const std::string dirnames[] = {
-        "south and east",
-        "south and west",
-        "north and east",
-        "north and west",
-        "south",
-        "east",
-        "west",
-        "north",
+    const std::u8string dirnames[] = {
+        u8"south and east",
+        u8"south and west",
+        u8"north and east",
+        u8"north and west",
+        u8"south",
+        u8"east",
+        u8"west",
+        u8"north",
     };
     const int32_t off_x[] = {1, -1, 1, -1, 0, 1, -1, 0};
     const int32_t off_y[] = {1, 1, -1, -1, 1, 0, 0, -1};
@@ -537,7 +539,7 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
       uint32_t dy = y + off_y[dir];
       bool is_upper = false;
       bool is_lower = false;
-      char door_char = ascii_map[dy][dx];
+      char8_t door_char = ascii_map[dy][dx];
       if (ascii_islower(door_char)) {
         is_lower = true;
       } else if (ascii_isupper(door_char)) {
@@ -546,7 +548,7 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
         // Connections with no level forcing
       } else {
         if (door_char != ' ') {
-          mind->SendF("Unrecognized passage symbol '%c'!\n", door_char);
+          mind->SendF(u8"Unrecognized passage symbol '%c'!\n", door_char);
         }
         continue;
       }
@@ -558,7 +560,7 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
                ascii_map[dy][dx] == '/' || ascii_map[dy][dx] == '|' || ascii_map[dy][dx] == '\\');
 
       if (objs.count(coord{dx, dy}) <= 0) {
-        mind->SendF("Path to nowhere (%u,%u)->(%u,%u)!\n", x, y, dx, dy);
+        mind->SendF(u8"Path to nowhere (%u,%u)->(%u,%u)!\n", x, y, dx, dy);
         continue;
       }
 
@@ -571,14 +573,14 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
         if (levels[schr] <= lower_level && obj.second.size() + levels[schr] > lower_level) {
           l1 = lower_level - levels[schr];
         } else {
-          // mind->SendF("Lower link incompatible with origin point '%c'->'%c'!\n", schr, dchr);
+          // mind->SendF(u8"Lower link incompatible with origin point '%c'->'%c'!\n", schr, dchr);
           continue;
         }
 
         if (levels[dchr] <= lower_level && dst.size() + levels[dchr] > lower_level) {
           l2 = lower_level - levels[dchr];
         } else {
-          // mind->SendF("Lower link incompatible with dest point '%c'->'%c'!\n", schr, dchr);
+          // mind->SendF(u8"Lower link incompatible with dest point '%c'->'%c'!\n", schr, dchr);
           continue;
         }
 
@@ -586,32 +588,32 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
         if (levels[schr] <= upper_level && obj.second.size() + levels[schr] > upper_level) {
           l1 = upper_level - levels[schr];
         } else {
-          // mind->SendF("Upper link incompatible with origin point '%c'->'%c'!\n", schr, dchr);
+          // mind->SendF(u8"Upper link incompatible with origin point '%c'->'%c'!\n", schr, dchr);
           continue;
         }
 
         if (levels[dchr] <= upper_level && dst.size() + levels[dchr] > upper_level) {
           l2 = upper_level - levels[dchr];
         } else {
-          // mind->SendF("Upper link incompatible with dest point '%c'->'%c'!\n", schr, dchr);
+          // mind->SendF(u8"Upper link incompatible with dest point '%c'->'%c'!\n", schr, dchr);
           continue;
         }
       }
 
       if (connected[obj.second[l1]] & dmask[dir]) {
-        // mind->Send("Direction already (at least partly) defined from here.\n");
+        // mind->Send(u8"Direction already (at least partly) defined from here.\n");
         continue;
       }
       if (connected[objs[coord{dx, dy}][l2]] & dmask[dir ^ 3]) {
-        // mind->Send("Direction already (at least partly) defined from there.\n");
+        // mind->Send(u8"Direction already (at least partly) defined from there.\n");
         continue;
       }
 
-      std::string start = "A passage ";
+      std::u8string start = u8"A passage ";
       if (doors.count(door_char) > 0) {
-        start = std::string("A ") + doors[door_char] + " to the ";
+        start = std::u8string(u8"A ") + doors[door_char] + u8" to the ";
       }
-      std::string term = "door";
+      std::u8string term = u8"door";
       if (doorterms.count(door_char) > 0) {
         term = doorterms[door_char];
       }
@@ -623,39 +625,39 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
       Object* door1 = new_object(obj.second[l1]);
       Object* door2 = new_object(objs[coord{dx, dy}][l2]);
       if (doors.count(door_char) > 0) {
-        door1->SetShortDesc(dirnames[dir] + " (" + term + ")");
-        door2->SetShortDesc(dirnames[dir ^ 3] + " (" + term + ")");
+        door1->SetShortDesc(dirnames[dir] + u8" (" + term + u8")");
+        door2->SetShortDesc(dirnames[dir ^ 3] + u8" (" + term + u8")");
       } else {
         door1->SetShortDesc(dirnames[dir]);
         door2->SetShortDesc(dirnames[dir ^ 3]);
       }
-      door1->SetDesc(start + dirnames[dir] + " is here.\n");
-      door2->SetDesc(start + dirnames[dir ^ 3] + " is here.\n");
+      door1->SetDesc(start + dirnames[dir] + u8" is here.\n");
+      door2->SetDesc(start + dirnames[dir ^ 3] + u8" is here.\n");
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door2->AddAct(act_t::SPECIAL_MASTER, door1);
-      door1->SetSkill(prhash("Enterable"), 1);
-      door2->SetSkill(prhash("Enterable"), 1);
+      door1->SetSkill(prhash(u8"Enterable"), 1);
+      door2->SetSkill(prhash(u8"Enterable"), 1);
       if (doors.count(door_char) > 0) {
-        door1->SetSkill(prhash("Closeable"), 1);
-        door2->SetSkill(prhash("Closeable"), 1);
+        door1->SetSkill(prhash(u8"Closeable"), 1);
+        door2->SetSkill(prhash(u8"Closeable"), 1);
       }
       if (closed.count(door_char) == 0) {
-        door1->SetSkill(prhash("Open"), 1000);
-        door2->SetSkill(prhash("Open"), 1000);
+        door1->SetSkill(prhash(u8"Open"), 1000);
+        door2->SetSkill(prhash(u8"Open"), 1000);
       }
       if (clear.count(door_char) > 0) {
-        door1->SetSkill(prhash("Transparent"), 1000);
-        door2->SetSkill(prhash("Transparent"), 1000);
+        door1->SetSkill(prhash(u8"Transparent"), 1000);
+        door2->SetSkill(prhash(u8"Transparent"), 1000);
       }
       if (locks.count(door_char) > 0) {
-        door1->SetSkill(prhash("Lock"), door1->Skill(prhash("Object ID")));
-        door2->SetSkill(prhash("Lock"), door1->Skill(prhash("Object ID")));
+        door1->SetSkill(prhash(u8"Lock"), door1->Skill(prhash(u8"Object ID")));
+        door2->SetSkill(prhash(u8"Lock"), door1->Skill(prhash(u8"Object ID")));
       }
       if (locked.count(door_char) > 0) {
-        door1->SetSkill(prhash("Locked"), 1);
-        door2->SetSkill(prhash("Locked"), 1);
+        door1->SetSkill(prhash(u8"Locked"), 1);
+        door2->SetSkill(prhash(u8"Locked"), 1);
       }
     }
   }
@@ -676,7 +678,7 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
           Object* mob = objs[coord{x, y}][floor]->Contents().back();
           int gender = (mob->Gender() == 'F') ? 0 : 1;
 
-          std::vector<std::string> first = {""};
+          std::vector<std::u8string> first = {u8""};
           std::sample(
               dwarf_first_names[gender].begin(),
               dwarf_first_names[gender].end(),
@@ -684,10 +686,10 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
               1,
               gen);
 
-          std::vector<std::string> last = {""};
+          std::vector<std::u8string> last = {u8""};
           std::sample(dwarf_last_names.begin(), dwarf_last_names.end(), last.begin(), 1, gen);
 
-          mob->SetName(first.front() + " " + last.front());
+          mob->SetName(first.front() + u8" " + last.front());
 
           mob->AddAct(act_t::SPECIAL_WORK, objs[coord{x, y}][floor]);
 
@@ -701,7 +703,7 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
               uint32_t loc_y = y - d + ((t <= (d * 2)) ? t : (d * 4) - t);
               if (loc_x < ascii_map[0].size() && loc_y < ascii_map.size()) { // >= 0 is implied
                 auto loc = coord{loc_x, loc_y};
-                char type = ascii_map[loc_y][loc_x];
+                char8_t type = ascii_map[loc_y][loc_x];
                 if (resnames.count(type) > 0) {
                   for (size_t f = 0; !housed && f < resnames.at(type).size(); ++f) {
                     if (resnames.at(type)[f] == empnames[room][n]) {
@@ -720,7 +722,7 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
           if (!housed) {
             fprintf(
                 stderr,
-                CYEL "Warning: Homeless MOB in %s: %s\n" CNRM,
+                CYEL u8"Warning: Homeless MOB in %s: %s\n" CNRM,
                 zone->ShortDescC(),
                 empnames[room][n].c_str());
             ++homeless;
@@ -731,10 +733,10 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
   }
 
   if (homeless > 0) {
-    mind->SendF(CYEL "Warning: %d Homeless MOBs\n" CNRM, homeless);
+    mind->SendF(CYEL u8"Warning: %d Homeless MOBs\n" CNRM, homeless);
   }
 
-  mind->SendF("Loaded %s From: '%s'!\n", name.c_str(), filename.c_str());
+  mind->SendF(u8"Loaded %s From: '%s'!\n", name.c_str(), filename.c_str());
   fclose(def_file);
   return true;
 }
@@ -742,34 +744,34 @@ static bool load_map(Object* world, Mind* mind, const std::string_view fn) {
 int handle_command_wcreate(
     Object* body,
     Mind* mind,
-    const std::string_view args,
+    const std::u8string_view args,
     int stealth_t,
     int stealth_s) {
   if (args.empty()) {
-    mind->Send("You need to specify the directory of the datafiles!\n");
+    mind->Send(u8"You need to specify the directory of the datafiles!\n");
     return 1;
   }
-  std::vector<std::string> filenames;
+  std::vector<std::u8string> filenames;
   try {
     for (const auto& fl : std::filesystem::directory_iterator(args)) {
-      filenames.emplace_back(fl.path());
+      filenames.emplace_back(fl.path().u8string());
     }
   } catch (...) {
-    mind->Send("You need to specify the correct directory of the datafiles!\n");
+    mind->Send(u8"You need to specify the correct directory of the datafiles!\n");
     return 1;
   }
 
   // Create New World
-  std::string world_name(args);
+  std::u8string world_name(args);
   Object* world = new Object(body->Parent());
   world->SetShortDesc(world_name);
-  world->SetSkill(prhash("Light Source"), 1000);
-  world->SetSkill(prhash("Day Length"), 240);
-  world->SetSkill(prhash("Day Time"), 120);
+  world->SetSkill(prhash(u8"Light Source"), 1000);
+  world->SetSkill(prhash(u8"Day Length"), 240);
+  world->SetSkill(prhash(u8"Day Time"), 120);
 
   zone_links.clear();
   for (const auto& fn : filenames) {
-    if (fn.find("/.") != std::string::npos) {
+    if (fn.find(u8"/.") != std::u8string::npos) {
       // Ignore hidden files
     } else if (!load_map(world, mind, fn)) {
       delete world;
@@ -780,8 +782,8 @@ int handle_command_wcreate(
   body->Parent()->SendOutF(
       stealth_t,
       stealth_s,
-      ";s creates a new world '%s' with Ninja Powers[TM].\n",
-      "You create a new world '%s'.\n",
+      u8";s creates a new world '%s' with Ninja Powers[TM].\n",
+      u8"You create a new world '%s'.\n",
       body,
       nullptr,
       world->ShortDescC());

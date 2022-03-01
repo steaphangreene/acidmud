@@ -28,9 +28,9 @@
 class ArmorType {
  public:
   ArmorType(
-      const std::string& nm,
-      const std::string& ds,
-      const std::string& lds,
+      const std::u8string& nm,
+      const std::u8string& ds,
+      const std::u8string& lds,
       int b,
       int bm,
       int i,
@@ -48,7 +48,7 @@ class ArmorType {
       act_t l4 = act_t::NONE,
       act_t l5 = act_t::NONE,
       act_t l6 = act_t::NONE);
-  std::string name, desc, long_desc;
+  std::u8string name, desc, long_desc;
   std::vector<act_t> loc;
   int bulk, bulkm; // Body-Type (adds mass, reduces shock)
   int impact, impactm; // Cushion (absorbs shock, softens impact)
@@ -60,10 +60,10 @@ class ArmorType {
 class WeaponType {
  public:
   WeaponType(
-      const std::string& nm,
-      const std::string& ds,
-      const std::string& lds,
-      const std::string& t,
+      const std::u8string& nm,
+      const std::u8string& ds,
+      const std::u8string& lds,
+      const std::u8string& t,
       int,
       int,
       int,
@@ -72,7 +72,7 @@ class WeaponType {
       int w,
       int vol,
       int val);
-  std::string name, desc, long_desc;
+  std::u8string name, desc, long_desc;
   int type, reach;
   int force, forcem;
   int sev, sevm;
@@ -82,14 +82,14 @@ class WeaponType {
 class ItemType {
  public:
   ItemType(
-      const std::string& nm,
-      const std::string& ds,
-      const std::string& lds,
+      const std::u8string& nm,
+      const std::u8string& ds,
+      const std::u8string& lds,
       const std::vector<skill_pair>& sk,
       int w,
       int vol,
       int val);
-  std::string name, desc, long_desc;
+  std::u8string name, desc, long_desc;
   std::vector<skill_pair> skills;
   int weight, volume, value;
 };
@@ -101,10 +101,10 @@ struct MOBAttrs {
 class MOBType {
  public:
   MOBType(
-      const std::string& nm,
-      const std::string& ds,
-      const std::string& lds,
-      const std::string& gens,
+      const std::u8string& nm,
+      const std::u8string& ds,
+      const std::u8string& lds,
+      const std::u8string& gens,
       MOBAttrs min,
       MOBAttrs max,
       int gmin = 0,
@@ -114,9 +114,9 @@ class MOBType {
   void Arm(WeaponType*);
   void Armor(ArmorType*);
   void Carry(ItemType*);
-  void SetName(const std::string&);
+  void SetName(const std::u8string&);
 
-  std::string name, desc, long_desc, genders;
+  std::u8string name, desc, long_desc, genders;
   MOBAttrs mins, maxes;
   int min_gold, max_gold;
   std::map<uint32_t, std::pair<int, int>> skills;
@@ -125,4 +125,4 @@ class MOBType {
   std::vector<ItemType*> items;
 };
 
-std::string gender_proc(const std::string& in, char gender);
+std::u8string gender_proc(const std::u8string& in, char8_t gender);

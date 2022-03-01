@@ -33,12 +33,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <cerrno>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
 
 typedef int socket_t;
 
+#include "cchar8.hpp"
 #include "commands.hpp"
 #include "mind.hpp"
 #include "net.hpp"
@@ -48,9 +46,9 @@ typedef int socket_t;
 
 static std::set<socket_t> fds;
 static std::map<socket_t, Mind*> minds;
-static std::map<socket_t, std::string> comlines;
-static std::map<socket_t, std::string> outbufs;
-static std::map<socket_t, std::string> prompts;
+static std::map<socket_t, std::u8string> comlines;
+static std::map<socket_t, std::u8string> outbufs;
+static std::map<socket_t, std::u8string> prompts;
 static struct timeval null_time = {0, 0};
 static socket_t acceptor, maxfd;
 
@@ -58,7 +56,7 @@ void nonblock(socket_t s) {
   int flags = fcntl(s, F_GETFL, 0);
   flags |= O_NONBLOCK;
   if (fcntl(s, F_SETFL, flags) < 0) {
-    perror("ERROR setting nonblock");
+    perror(u8"ERROR setting nonblock");
     exit(1);
   }
 }
@@ -90,7 +88,7 @@ void notify_player_deleted(Player* pl) {
 }
 
 void handle_input(socket_t in_s) {
-  static char buf[4096];
+  static char8_t buf[4096];
   auto amt = read(in_s, buf, 4095);
 
   if (amt <= 0) {
@@ -98,7 +96,7 @@ void handle_input(socket_t in_s) {
     return;
   }
 
-  std::string_view input(buf, amt);
+  std::u8string_view input(buf, amt);
 
   Mind* mind = nullptr;
   if (minds.count(in_s))
@@ -113,24 +111,24 @@ void handle_input(socket_t in_s) {
     if (ch == '\b' || ch == '\x7F') {
       if (comlines[in_s].length() > 0) {
         comlines[in_s] = comlines[in_s].substr(0, comlines[in_s].length() - 1);
-        mind->SendRaw("\b \b");
+        mind->SendRaw(u8"\b \b");
       }
     } else if (ch == '\r') {
       // Ignore these, since they mean nothing unless teamed with \n anyway.
     } else if (ch == '\n') {
-      outbufs[in_s] += ""; // Make sure they still get a prompt!
+      outbufs[in_s] += u8""; // Make sure they still get a prompt!
 
       if ((mind->PName().length() <= 0 || mind->Owner()) && mind->LogFD() >= 0)
         write(mind->LogFD(), comlines[in_s].c_str(), comlines[in_s].length());
       else if (mind->LogFD() >= 0)
-        write(mind->LogFD(), "XXXXXXXXXXXXXXXX", 17);
-      write(mind->LogFD(), "\n", 1);
+        write(mind->LogFD(), u8"XXXXXXXXXXXXXXXX", 17);
+      write(mind->LogFD(), u8"\n", 1);
 
       int result = handle_command(mind->Body(), comlines[in_s].c_str(), mind);
-      comlines[in_s] = "";
+      comlines[in_s] = u8"";
       if (result < 0)
         return; // Player Disconnected
-    } else if (ch == char(IAC)) {
+    } else if (ch == static_cast<char8_t>(IAC)) {
       // FIXME: actually HANDLE these messages!
       // FIXME: HANDLE these messages that don't come all at once!
       skip = 2;
@@ -147,10 +145,10 @@ void resume_net(int fd) {
   acceptor = fd;
 }
 
-void start_net(int port, const std::string& host) {
+void start_net(int port, const std::u8string& host) {
   struct sockaddr_in sa = {};
   if ((acceptor = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
-    perror("ERROR in socet()");
+    perror(u8"ERROR in socet()");
     exit(1);
   }
   maxfd = acceptor;
@@ -165,13 +163,13 @@ void start_net(int port, const std::string& host) {
 
   int sockopt = 1;
   if (setsockopt(acceptor, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
-    perror("ERROR in setsockopt()");
+    perror(u8"ERROR in setsockopt()");
     close(acceptor);
     exit(1);
   }
 
   if (bind(acceptor, (struct sockaddr*)&sa, sizeof(sa)) < 0) {
-    perror("ERROR in bind()");
+    perror(u8"ERROR in bind()");
     close(acceptor);
     exit(1);
   }
@@ -181,7 +179,7 @@ void start_net(int port, const std::string& host) {
   listen(acceptor, 5);
 }
 
-ssize_t sock_write(int fd, const std::string& mes) {
+ssize_t sock_write(int fd, const std::u8string& mes) {
   return write(fd, mes.data(), mes.length());
 }
 
@@ -214,7 +212,7 @@ void update_net() {
     ret = select(acceptor + 1, &input_set, nullptr, nullptr, &null_time);
     if (ret < 0) {
       if (errno != EINTR) {
-        perror("ERROR in select()");
+        perror(u8"ERROR in select()");
       }
     } else if (ret < 1) { // Timout, no errro (just nobody connecting)
       return;
@@ -235,7 +233,7 @@ void update_net() {
   null_time.tv_sec = 0;
   null_time.tv_usec = 0;
   if (select(maxfd + 1, &input_set, &output_set, &exc_set, &null_time) < 0) {
-    perror("ERROR in main select()");
+    perror(u8"ERROR in main select()");
   }
 
   if (FD_ISSET(acceptor, &input_set)) {
@@ -244,19 +242,19 @@ void update_net() {
     socklen_t peerlen;
     peerlen = sizeof(peer);
     if ((newsock = accept(acceptor, (struct sockaddr*)&peer, &peerlen)) < 0) {
-      perror("ERROR in accept");
+      perror(u8"ERROR in accept");
       exit(1);
     }
-    fprintf(stderr, "Accepted connection.\n");
+    fprintf(stderr, u8"Accepted connection.\n");
     connect_sock(newsock);
-    minds[newsock]->Send("Welcome to AcidMUD!\n");
+    minds[newsock]->Send(u8"Welcome to AcidMUD!\n");
   }
 
   std::set<socket_t> killfds;
   for (auto sock : fds) {
     if (FD_ISSET(sock, &exc_set)) {
       killfds.insert(sock);
-      fprintf(stderr, "Killed %d\n", sock);
+      fprintf(stderr, u8"Killed %d\n", sock);
     }
   }
   for (auto sock : killfds) {
@@ -273,24 +271,24 @@ void update_net() {
 
   for (auto out : outbufs) {
     if (minds.count(out.first)) {
-      std::string outs = out.second;
-      outs = std::string("\n") + outs;
-      outs += "\n";
+      std::u8string outs = out.second;
+      outs = std::u8string(u8"\n") + outs;
+      outs += u8"\n";
 
       int pos = outs.find('\n');
       while (pos >= 0 && pos < int(outs.length())) {
-        outs.insert(pos, "\r");
+        outs.insert(pos, u8"\r");
         pos += 2;
         if (pos < int(outs.length()))
           pos = outs.find('\n', pos);
       }
 
       minds[out.first]->UpdatePrompt();
-      outs += prompts[out.first] + "\377\371";
+      outs += prompts[out.first] + u8"\377\371";
 
       write(out.first, outs.c_str(), outs.length());
 
-      std::string::iterator loc = find(outs.begin(), outs.end(), (char)(255));
+      std::u8string::iterator loc = find(outs.begin(), outs.end(), (char)(255));
       while (loc >= outs.begin() && loc < outs.end()) {
         loc = outs.erase(loc);
         if (loc < outs.end())
@@ -309,29 +307,29 @@ void update_net() {
 void unwarn_net(int tp) {
   for (auto sock : fds) {
     if (tp == 0) {
-      minds[sock]->Send("...the world has been auto-saved!\n");
+      minds[sock]->Send(u8"...the world has been auto-saved!\n");
     } else if (tp < 0) {
-      minds[sock]->Send("...the world has been saved!\n");
+      minds[sock]->Send(u8"...the world has been saved!\n");
     } else if (tp == 2) {
-      minds[sock]->Send("...the world has been restarted!\n");
+      minds[sock]->Send(u8"...the world has been restarted!\n");
     } else {
-      minds[sock]->Send("...umm, this message shouldn't happen!\n");
+      minds[sock]->Send(u8"...umm, this message shouldn't happen!\n");
     }
   }
 }
 
 void warn_net(int tp) {
   for (auto sock : fds) {
-    sock_write(sock, "\nThe ground shakes with the power of the Ninjas...\n");
+    sock_write(sock, u8"\nThe ground shakes with the power of the Ninjas...\n");
     if (tp == 0) {
-      sock_write(sock, "\n    AcidMUD is auto-saving the world, hang on!\n");
+      sock_write(sock, u8"\n    AcidMUD is auto-saving the world, hang on!\n");
     } else if (tp < 0) {
-      sock_write(sock, "\n    AcidMUD is saving the world, hang on!\n");
+      sock_write(sock, u8"\n    AcidMUD is saving the world, hang on!\n");
     } else if (tp == 2) {
-      sock_write(sock, "\n    AcidMUD is restarting, hang on!\n");
+      sock_write(sock, u8"\n    AcidMUD is restarting, hang on!\n");
     } else {
-      sock_write(sock, "\n    AcidMUD is shutting down (saving everything first)!\n");
-      sock_write(sock, "    It'll be back soon I hope.  See you then!\n\n\n");
+      sock_write(sock, u8"\n    AcidMUD is shutting down (saving everything first)!\n");
+      sock_write(sock, u8"    It'll be back soon I hope.  See you then!\n\n\n");
     }
   }
 }
@@ -348,76 +346,77 @@ int suspend_net() {
   return acceptor;
 }
 
-int save_net(const std::string& fn) {
-  fprintf(stderr, "Saving Network State.\n");
+int save_net(const std::u8string& fn) {
+  fprintf(stderr, u8"Saving Network State.\n");
 
-  FILE* fl = fopen(fn.c_str(), "w");
+  FILE* fl = fopen(fn.c_str(), u8"w");
   if (!fl)
     return -1;
 
-  fprintf(fl, "%.8X\n", CurrentVersion.savefile_version_net);
+  fprintf(fl, u8"%.8X\n", CurrentVersion.savefile_version_net);
 
-  fprintf(fl, "%d\n", (int)(fds.size()));
+  fprintf(fl, u8"%d\n", (int)(fds.size()));
 
   for (auto sk : fds) {
     if (!(minds[sk]->Owner() || minds[sk]->Body())) {
-      fprintf(fl, "%d\n", sk);
+      fprintf(fl, u8"%d\n", sk);
     } else if ((!(minds[sk]->Body())) && minds[sk]->LogFD() >= 0) {
-      fprintf(fl, "%d;%d:%s\n", sk, minds[sk]->LogFD(), minds[sk]->Owner()->Name().c_str());
+      fprintf(fl, u8"%d;%d:%s\n", sk, minds[sk]->LogFD(), minds[sk]->Owner()->Name().c_str());
     } else if (!(minds[sk]->Body())) {
-      fprintf(fl, "%d:%s\n", sk, minds[sk]->Owner()->Name().c_str());
+      fprintf(fl, u8"%d:%s\n", sk, minds[sk]->Owner()->Name().c_str());
     } else if (minds[sk]->LogFD() >= 0) {
       fprintf(
           fl,
-          "%d;%d:%s:%d\n",
+          u8"%d;%d:%s:%d\n",
           sk,
           minds[sk]->LogFD(),
           minds[sk]->Owner()->Name().c_str(),
           getnum(minds[sk]->Body()));
     } else {
-      fprintf(fl, "%d:%s:%d\n", sk, minds[sk]->Owner()->Name().c_str(), getnum(minds[sk]->Body()));
+      fprintf(
+          fl, u8"%d:%s:%d\n", sk, minds[sk]->Owner()->Name().c_str(), getnum(minds[sk]->Body()));
     }
   }
   sleep(1); // Make sure messages really get flushed!
 
   fclose(fl);
 
-  fprintf(stderr, "Saved Network State.\n");
+  fprintf(stderr, u8"Saved Network State.\n");
 
   return 0;
 }
 
-int load_net(const std::string& fn) {
-  fprintf(stderr, "Loading Network State.\n");
+int load_net(const std::u8string& fn) {
+  fprintf(stderr, u8"Loading Network State.\n");
 
-  static char buf[65536];
+  static char8_t buf[65536];
 
-  FILE* fl = fopen(fn.c_str(), "r");
+  FILE* fl = fopen(fn.c_str(), u8"r");
   if (!fl)
     return -1;
 
   int num;
   unsigned int ver;
-  fscanf(fl, "%X\n%d\n", &ver, &num);
+  fscanf(fl, u8"%X\n%d\n", &ver, &num);
 
-  fprintf(stderr, "Loading Net Stat: %.8X,%d\n", ver, num);
+  fprintf(stderr, u8"Loading Net Stat: %.8X,%d\n", ver, num);
 
   for (int ctr = 0; ctr < num; ++ctr) {
     int newsock, bod, log = -1;
-    fscanf(fl, "%d;%d", &newsock, &log);
+    fscanf(fl, u8"%d;%d", &newsock, &log);
     reconnect_sock(newsock, log);
 
     memset(buf, 0, 65536);
-    if (fscanf(fl, ":%[^:\n]", buf) > 0) {
+    if (fscanf(fl, u8":%[^:\n]", buf) > 0) {
       minds[newsock]->SetPlayer(buf);
-      if (fscanf(fl, ":%d", &bod) > 0) {
-        fprintf(stderr, "Reattaching %d to %s in %d\n", newsock, buf, bod);
+      if (fscanf(fl, u8":%d", &bod) > 0) {
+        fprintf(stderr, u8"Reattaching %d to %s in %d\n", newsock, buf, bod);
         minds[newsock]->Attach(getbynum(bod));
       } else {
-        fprintf(stderr, "Reattaching %d to %s\n", newsock, buf);
+        fprintf(stderr, u8"Reattaching %d to %s\n", newsock, buf);
       }
     } else {
-      fprintf(stderr, "Reattaching %d (resume login)\n", newsock);
+      fprintf(stderr, u8"Reattaching %d (resume login)\n", newsock);
     }
   }
 
@@ -437,11 +436,11 @@ std::vector<Mind*> get_human_minds() {
   return ret;
 }
 
-void SendOut(int sock, const std::string& mes) {
+void SendOut(int sock, const std::u8string& mes) {
   outbufs[sock] += mes;
 }
 
-void SetPrompt(int sock, const std::string& pr) {
-  //  fprintf(stderr, "Set %d's prompt to '%s'\n", sock, pr.c_str());
+void SetPrompt(int sock, const std::u8string& pr) {
+  //  fprintf(stderr, u8"Set %d's prompt to '%s'\n", sock, pr.c_str());
   prompts[sock] = pr;
 }

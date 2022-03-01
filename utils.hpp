@@ -22,29 +22,33 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
-#include <cstring>
 #include <string>
 
+#include "cchar8.hpp"
 #include "minvec.hpp"
 
 // String Functions
-void replace_all(std::string& str, const std::string& oldt, const std::string& newt, size_t st = 0);
+void replace_all(
+    std::u8string& str,
+    const std::u8string& oldt,
+    const std::u8string& newt,
+    size_t st = 0);
 
-void replace_all(std::string& str, const std::string& oldt, int newn, size_t st = 0);
+void replace_all(std::u8string& str, const std::u8string& oldt, int newn, size_t st = 0);
 
 size_t skip_line( // IDX of next line start, skipping leading whitespace
-    const std::string& str,
+    const std::u8string& str,
     size_t pos);
 
 size_t prev_line( // IDX of prev line start, skipping leading whitespace
-    const std::string& str,
+    const std::u8string& str,
     size_t pos);
 
-void trim_string(std::string& str); // Remove extra whitespace from string
+void trim_string(std::u8string& str); // Remove extra whitespace from string
 
-int phrase_match(const std::string& str, const std::string& phrase /* lowercase! */);
-int phrase_match_sensitive(const std::string& str, const std::string& phrase /* non-empty! */);
-int words_match(const std::string& str, const std::string& words);
+int phrase_match(const std::u8string& str, const std::u8string& phrase /* lowercase! */);
+int phrase_match_sensitive(const std::u8string& str, const std::u8string& phrase /* non-empty! */);
+int words_match(const std::u8string& str, const std::u8string& words);
 
 constexpr int8_t ascii_tolower(int8_t chr) {
   return (chr >= 'A' && chr <= 'Z') ? (chr - 'A') + 'a' : chr;
@@ -109,42 +113,42 @@ constexpr uint32_t crc32tab[] = {
     0x79B737BA, 0x8BDCB4B9, 0x988C474D, 0x6AE7C44E, 0xBE2DA0A5, 0x4C4623A6, 0x5F16D052, 0xAD7D5351,
 };
 
-constexpr uint32_t crc32c_c(char const* str, int32_t len, uint32_t crc, int32_t pos) {
+constexpr uint32_t crc32c_c(const char8_t* str, int32_t len, uint32_t crc, int32_t pos) {
   return (pos == len)
       ? crc
       : crc32c_c(str, len, (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(str[pos])) & 0xFFU], pos + 1);
 }
 
-constexpr uint32_t crc32c_c(char const* str, uint32_t crc, int32_t pos) {
+constexpr uint32_t crc32c_c(const char8_t* str, uint32_t crc, int32_t pos) {
   return (str[pos] == 0)
       ? crc
       : crc32c_c(str, (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(str[pos])) & 0xFFU], pos + 1);
 }
 
-consteval uint32_t crc32c(char const* str) {
+consteval uint32_t crc32c(const char8_t* str) {
   return crc32c_c(str, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
 }
 
-inline uint32_t crc32c_r(char const* str, int32_t len, uint32_t crc) {
-  for (char const* bptr = str; bptr < str + len; ++bptr) {
+inline uint32_t crc32c_r(const char8_t* str, int32_t len, uint32_t crc) {
+  for (const char8_t* bptr = str; bptr < str + len; ++bptr) {
     crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(*bptr)) & 0xFFU];
   }
   return crc;
 }
 
-inline uint32_t crc32c(char const* str, int32_t len) {
+inline uint32_t crc32c(const char8_t* str, int32_t len) {
   return crc32c_r(str, len, 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
 }
 
-inline uint32_t crc32c(const std::string& str) {
+inline uint32_t crc32c(const std::u8string& str) {
   return crc32c(str.data(), str.length());
 }
 
 // Assert A Few Independently Confirmed CRC32C Hashes
-static_assert(crc32c("") == 0x00000000U);
-static_assert(crc32c("Warm") == 0x0112DB37U);
-static_assert(crc32c("Day Time") == 0x0BDB09F5U);
-static_assert(crc32c("abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/") == 0x497FC7AD);
-static_assert(crc32c("ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/") == 0x497FC7AD);
+static_assert(crc32c(u8"") == 0x00000000U);
+static_assert(crc32c(u8"Warm") == 0x0112DB37U);
+static_assert(crc32c(u8"Day Time") == 0x0BDB09F5U);
+static_assert(crc32c(u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/") == 0x497FC7AD);
+static_assert(crc32c(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/") == 0x497FC7AD);
 
 #endif // UTILS_HPP

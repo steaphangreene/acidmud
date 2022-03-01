@@ -26,9 +26,9 @@
 
 #include <fcntl.h>
 #include <sys/time.h>
-#include <cstdio>
 #include <ctime>
 
+#include "cchar8.hpp"
 #include "minvec.hpp"
 #include "stats.hpp"
 
@@ -179,29 +179,29 @@ class alignas(256) Object {
   Object* World();
   Object* Zone();
 
-  Object* Next(std::string&);
+  Object* Next(std::u8string&);
   Object* Split(int nqty);
-  std::string Noun(bool definite = false, const Object* rel = nullptr, const Object* sub = nullptr)
-      const;
-  std::string Pron() const;
-  std::string Poss() const;
-  std::string Obje() const;
-  std::string ShortDesc() const;
-  std::string Name() const;
-  std::string Desc() const;
-  std::string LongDesc() const;
-  const char* ShortDescC() const;
-  const char* NameC() const;
-  const char* DescC() const;
-  const char* LongDescC() const;
+  std::u8string
+  Noun(bool definite = false, const Object* rel = nullptr, const Object* sub = nullptr) const;
+  std::u8string Pron() const;
+  std::u8string Poss() const;
+  std::u8string Obje() const;
+  std::u8string ShortDesc() const;
+  std::u8string Name() const;
+  std::u8string Desc() const;
+  std::u8string LongDesc() const;
+  const char8_t* ShortDescC() const;
+  const char8_t* NameC() const;
+  const char8_t* DescC() const;
+  const char8_t* LongDescC() const;
   bool HasName() const;
   bool HasDesc() const;
   bool HasLongDesc() const;
-  void SetDescs(std::string, std::string, std::string, std::string);
-  void SetShortDesc(const std::string&);
-  void SetName(const std::string&);
-  void SetDesc(const std::string&);
-  void SetLongDesc(const std::string&);
+  void SetDescs(std::u8string, std::u8string, std::u8string, std::u8string);
+  void SetShortDesc(const std::u8string&);
+  void SetName(const std::u8string&);
+  void SetDesc(const std::u8string&);
+  void SetLongDesc(const std::u8string&);
   void SetParent(Object*);
   Object* Parent() const {
     return parent;
@@ -237,8 +237,8 @@ class alignas(256) Object {
 
   void SendActions(Mind* m);
   void SendExtendedActions(Mind* m, int vmode = 0);
-  void SendContents(Mind* m, Object* o = nullptr, int vmode = 0, std::string b = "");
-  void SendContents(Object* m, Object* o = nullptr, int vmode = 0, std::string b = "");
+  void SendContents(Mind* m, Object* o = nullptr, int vmode = 0, std::u8string b = u8"");
+  void SendContents(Object* m, Object* o = nullptr, int vmode = 0, std::u8string b = u8"");
 
   void SendFullSituation(Mind* m, Object* o = nullptr);
   void SendShortDesc(Mind* m, Object* o = nullptr);
@@ -250,21 +250,21 @@ class alignas(256) Object {
   void SendLongDesc(Mind* m, Object* o = nullptr);
   void SendLongDesc(Object* m, Object* o = nullptr);
   void SendScore(Mind* m, Object* o = nullptr);
-  std::vector<std::string> FormatStats(const MinVec<7, skill_pair>& skls); // Modifies skls
-  std::vector<std::string> FormatSkills(const MinVec<7, skill_pair>& skls); // Modifies skls
+  std::vector<std::u8string> FormatStats(const MinVec<7, skill_pair>& skls); // Modifies skls
+  std::vector<std::u8string> FormatSkills(const MinVec<7, skill_pair>& skls); // Modifies skls
 
   void Link(
       Object* other,
-      const std::string& name,
-      const std::string& desc,
-      const std::string& oname,
-      const std::string& odesc);
+      const std::u8string& name,
+      const std::u8string& desc,
+      const std::u8string& oname,
+      const std::u8string& odesc);
   void LinkClosed(
       Object* other,
-      const std::string& name,
-      const std::string& desc,
-      const std::string& oname,
-      const std::string& odesc);
+      const std::u8string& name,
+      const std::u8string& desc,
+      const std::u8string& oname,
+      const std::u8string& odesc);
   int Travel(Object*, int try_combine = 1);
   void AddLink(Object*);
   void RemoveLink(Object*);
@@ -286,8 +286,8 @@ class alignas(256) Object {
 
   void NotifyGone(Object* obj, Object* newloc = nullptr, int up = 1);
 
-  Object* PickObject(const std::string& name, int loc, int* ordinal = nullptr) const;
-  MinVec<1, Object*> PickObjects(std::string name, int loc, int* ordinal = nullptr) const;
+  Object* PickObject(const std::u8string& name, int loc, int* ordinal = nullptr) const;
+  MinVec<1, Object*> PickObjects(std::u8string name, int loc, int* ordinal = nullptr) const;
   int IsNearBy(const Object* obj) const;
   int SeeWithin(const Object* obj) const; // Recursive & Visible
   int HasWithin(const Object* obj) const; // Recursive (All)
@@ -312,7 +312,7 @@ class alignas(256) Object {
   int Value() const {
     return value;
   };
-  char Gender() const {
+  char8_t Gender() const {
     return gender;
   };
 
@@ -350,7 +350,7 @@ class alignas(256) Object {
   int LightLevel(int updown = 0);
 
   void SpendExp(int);
-  bool Accomplish(uint64_t, const std::string&);
+  bool Accomplish(uint64_t, const std::u8string&);
   bool HasAccomplished(uint64_t) const;
   int TotalExp() const {
     return completed.size() - sexp;
@@ -359,7 +359,7 @@ class alignas(256) Object {
     return completed.size();
   };
 
-  bool Learn(uint64_t, const std::string&);
+  bool Learn(uint64_t, const std::u8string&);
   bool Knows(uint64_t) const;
   bool Knows(const Object*) const;
 
@@ -394,7 +394,7 @@ class alignas(256) Object {
   int ModAttribute(int) const;
 
   int Modifier(int a) const;
-  int Modifier(const std::string& m) const;
+  int Modifier(const std::u8string& m) const;
   int Power(uint32_t ptok) const;
   int Skill(uint32_t stok) const {
     for (const auto& sk : skills) {
@@ -420,7 +420,7 @@ class alignas(256) Object {
   void SetAttribute(int, int);
   void SetModifier(int, int);
   void SetSkill(uint32_t, int);
-  void SetSkill(const std::string&, int);
+  void SetSkill(const std::u8string&, int);
 
   void DynamicInit();
   void DynamicInit1();
@@ -434,26 +434,26 @@ class alignas(256) Object {
   void DynamicInit9();
 
   int RollInitiative() const;
-  int Roll(uint32_t, const Object*, uint32_t, int bias = 0, std::string* res = nullptr) const;
-  int Roll(uint32_t, int, std::string* res = nullptr) const;
-  int RollNoWounds(uint32_t, int, int, std::string* res = nullptr) const;
+  int Roll(uint32_t, const Object*, uint32_t, int bias = 0, std::u8string* res = nullptr) const;
+  int Roll(uint32_t, int, std::u8string* res = nullptr) const;
+  int RollNoWounds(uint32_t, int, int, std::u8string* res = nullptr) const;
 
   int WoundPenalty() const;
 
   pos_t Pos() const;
   void SetPos(pos_t p);
-  std::string PosString() const;
+  std::u8string PosString() const;
   void StartUsing(uint32_t skill);
   void StopUsing();
   uint32_t Using() const;
   int IsUsing(uint32_t) const;
-  std::string UsingString() const;
+  std::u8string UsingString() const;
 
   int Wearing(const Object* obj) const;
   int WearMask() const;
   std::set<act_t> WearSlots(int m = -1) const;
-  std::string WearNames(const std::set<act_t>& locs) const;
-  std::string WearNames(int m = -1) const;
+  std::u8string WearNames(const std::set<act_t>& locs) const;
+  std::u8string WearNames(int m = -1) const;
 
   int Quantity() const;
 
@@ -490,59 +490,59 @@ class alignas(256) Object {
   void Deafen(bool deaf = true);
 
   // Unformatted (raw print, but with ;s/;s for actor/targ)
-  void Send(channel_t channel, const std::string& mes);
-  void Send(int targ, int rsucc, const std::string& mes);
+  void Send(channel_t channel, const std::u8string& mes);
+  void Send(int targ, int rsucc, const std::u8string& mes);
   void SendOut(
       int tnum,
       int rsucc,
-      const std::string& mes,
-      const std::string& youmes,
+      const std::u8string& mes,
+      const std::u8string& youmes,
       Object* actor,
       Object* targ);
   void SendIn(
       int tnum,
       int rsucc,
-      const std::string& mes,
-      const std::string& youmes,
+      const std::u8string& mes,
+      const std::u8string& youmes,
       Object* actor,
       Object* targ);
-  void Loud(int str, const std::string& mes);
+  void Loud(int str, const std::u8string& mes);
 
   // Formatted (printf style, plus with ;s/;s for actor/targ)
-  void SendF(channel_t channel, const char* mes, ...) __attribute__((format(printf, 3, 4)));
-  void SendF(int targ, int rsucc, const char* mes, ...) __attribute__((format(printf, 4, 5)));
+  void SendF(channel_t channel, const char8_t* mes, ...);
+  void SendF(int targ, int rsucc, const char8_t* mes, ...);
   void SendOutF(
       int tnum,
       int rsucc,
-      const char* mes,
-      const char* youmes,
+      const char8_t* mes,
+      const char8_t* youmes,
       Object* actor,
       Object* targ,
-      ...) __attribute__((format(printf, 4, 8)));
+      ...);
   void SendInF(
       int tnum,
       int rsucc,
-      const char* mes,
-      const char* youmes,
+      const char8_t* mes,
+      const char8_t* youmes,
       Object* actor,
       Object* targ,
-      ...) __attribute__((format(printf, 4, 8)));
-  void LoudF(int str, const char* mes, ...) __attribute__((format(printf, 3, 4)));
+      ...);
+  void LoudF(int str, const char8_t* mes, ...);
 
   void TBALoadAll();
-  void TBALoadWLD(const std::string&);
-  void TBALoadOBJ(const std::string&);
-  void TBALoadMOB(const std::string&);
+  void TBALoadWLD(const std::u8string&);
+  void TBALoadOBJ(const std::u8string&);
+  void TBALoadMOB(const std::u8string&);
   void TBAFinishMOB(Object*);
-  void TBALoadZON(const std::string&);
-  void TBALoadSHP(const std::string&);
-  void TBALoadTRG(const std::string&);
+  void TBALoadZON(const std::u8string&);
+  void TBALoadSHP(const std::u8string&);
+  void TBALoadTRG(const std::u8string&);
   static void TBAFinalizeTriggers();
   static void TBACleanup();
 
-  int Load(const std::string&);
+  int Load(const std::u8string&);
   int LoadFrom(FILE*);
-  int Save(const std::string&);
+  int Save(const std::u8string&);
   int SaveTo(FILE*);
   int WriteContentsTo(FILE*);
 
@@ -550,17 +550,17 @@ class alignas(256) Object {
 
   bool BusyAct();
   bool StillBusy() const;
-  void BusyFor(long msec, const std::string& default_next = "");
-  void BusyWith(Object* other, const std::string& default_next = "");
-  void DoWhenFree(const std::string&);
+  void BusyFor(long msec, const std::u8string& default_next = u8"");
+  void BusyWith(Object* other, const std::u8string& default_next = u8"");
+  void DoWhenFree(const std::u8string&);
 
-  std::string Tactics(int phase = -1);
+  std::u8string Tactics(int phase = -1);
 
   void operator=(const Object& in);
 
   bool IsSameAs(const Object& in) const;
 
-  int Matches(std::string seek, bool knows = false) const;
+  int Matches(std::u8string seek, bool knows = false) const;
   int LooksLike(Object* other, int vmode = 0, Object* viewer = nullptr) const;
 
   void AddMOB(std::mt19937&, const MOBType*);
@@ -572,12 +572,12 @@ class alignas(256) Object {
  private:
   void NotifyLeft(Object* obj, Object* newloc = nullptr);
 
-  void Loud(std::set<Object*>& visited, int str, const std::string& mes);
+  void Loud(std::set<Object*>& visited, int str, const std::u8string& mes);
 
   bool Filter(int loc) const;
 
-  constexpr static const char* const default_descriptions = "a new object\0\0\0\0";
-  const char* descriptions = default_descriptions;
+  constexpr static const char8_t* const default_descriptions = u8"a new object\0\0\0\0";
+  const char8_t* descriptions = default_descriptions;
   struct {
     uint8_t sd, n;
     uint16_t d, ld;
@@ -607,8 +607,8 @@ class alignas(256) Object {
   uint32_t cur_skill;
 
   uint32_t busy_until = 0; // Encoded
-  char const* dowhenfree = "";
-  char const* defact = "";
+  const char8_t* dowhenfree = u8"";
+  const char8_t* defact = u8"";
 
   MinVec<1, Mind*> minds;
 
@@ -622,25 +622,25 @@ class alignas(256) Object {
 };
 static_assert(sizeof(Object) == 256); // Prevent Bloat
 
-int roll(int ndice, int targ, std::string* res = nullptr);
+int roll(int ndice, int targ, std::u8string* res = nullptr);
 
 void init_world();
 void save_world(int with_net = 0);
 Object* new_body(Object* world);
 Object* getbynum(int);
 int getnum(Object*);
-int matches(const std::string& name, const std::string& seek);
+int matches(const std::u8string& name, const std::u8string& seek);
 Mind* get_mob_mind();
 Mind* get_tba_mob_mind();
 
-uint32_t get_skill(std::string sk);
-std::string get_skill_cat(std::string cat);
-int get_linked(std::string sk);
+uint32_t get_skill(std::u8string sk);
+std::u8string get_skill_cat(std::u8string cat);
+int get_linked(std::u8string sk);
 int get_linked(uint32_t sk);
-std::vector<uint32_t> get_skills(std::string cat = "Categories");
+std::vector<uint32_t> get_skills(std::u8string cat = u8"Categories");
 int is_skill(uint32_t stok);
 uint32_t get_weapon_skill(int wtype);
-int get_weapon_type(std::string wskill);
+int get_weapon_type(std::u8string wskill);
 int two_handed(int wtype);
 
 void tick_world();

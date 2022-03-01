@@ -30,9 +30,6 @@
 #include <unistd.h>
 #include <cerrno>
 #include <csignal>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <ctime>
 
 #if defined(__has_feature)
@@ -41,6 +38,7 @@
 #endif
 #endif
 
+#include "cchar8.hpp"
 #include "color.hpp"
 #include "net.hpp"
 #include "object.hpp"
@@ -68,10 +66,10 @@ static int64_t get_time() {
 }
 
 int main(int argc, char** argv) {
-  std::string host = "";
+  std::u8string host = u8"";
   int port = 4242;
   int acceptor = -1;
-  std::string netstat_file = "";
+  std::u8string netstat_file = u8"";
 
   signal(SIGHUP, &do_restart);
   signal(SIGINT, &do_shutdown);
@@ -89,9 +87,9 @@ int main(int argc, char** argv) {
     if (arg == 'p')
       port = atoi(optarg);
     if (arg == 'h')
-      host = optarg;
+      host = reinterpret_cast<const char8_t*>(optarg);
     else if (arg == 'S') {
-      netstat_file = optarg;
+      netstat_file = reinterpret_cast<const char8_t*>(optarg);
     } else if (arg == 'A') {
       acceptor = atoi(optarg);
     }
@@ -99,24 +97,24 @@ int main(int argc, char** argv) {
 
   srand(time(nullptr));
 
-  fprintf(stdout, "Starting networking....\n");
+  fprintf(stdout, u8"Starting networking....\n");
   if (acceptor >= 0)
     resume_net(acceptor);
   else
     start_net(port, host);
 
-  fprintf(stdout, "Initializing world....\n");
+  fprintf(stdout, u8"Initializing world....\n");
   init_world();
 
   if (!netstat_file.empty()) {
-    fprintf(stdout, "Restoring network state....\n");
+    fprintf(stdout, u8"Restoring network state....\n");
     load_net(netstat_file);
     unwarn_net(2);
   }
 
   current_time = get_time();
   auto lastsave_time = current_time;
-  fprintf(stdout, "Ready to play!\n");
+  fprintf(stdout, u8"Ready to play!\n");
   while (shutdn <= 0) {
     tick_world();
     update_net();
@@ -130,7 +128,7 @@ int main(int argc, char** argv) {
     } else {
       fprintf(
           stderr,
-          CYEL "Warning: Slow tick: %ldus > %dus\n" CNRM,
+          CYEL u8"Warning: Slow tick: %ldus > %dus\n" CNRM,
           current_time - last_time,
           TICK_USECS);
     }
@@ -147,7 +145,7 @@ int main(int argc, char** argv) {
       current_time = get_time();
       fprintf(
           stderr,
-          CCYN "World save took %ld,%.3ld,%.3ldus.\n" CNRM,
+          CCYN u8"World save took %ld,%.3ld,%.3ldus.\n" CNRM,
           (current_time - before_save) / 1000000,
           ((current_time - before_save) / 1000) % 1000,
           (current_time - before_save) % 1000);
@@ -158,25 +156,25 @@ int main(int argc, char** argv) {
     warn_net(2);
     save_world(1);
 
-    fprintf(stdout, "Stopping networking....\n");
+    fprintf(stdout, u8"Stopping networking....\n");
     acceptor = suspend_net();
-    char buf[256];
-    sprintf(buf, "--network-acceptor=%d%c", acceptor, 0);
+    char8_t buf[256];
+    sprintf(buf, u8"--network-acceptor=%d%c", acceptor, 0);
 
     int ctr = 0;
     char** new_argv;
     new_argv = new char*[argc + 3];
     for (int octr = 0; octr < argc; ++octr) {
-      if (strncmp(argv[octr], "--network-acceptor=", 19) &&
-          strncmp(argv[octr], "--network-stat=", 15))
+      if (strncmp(argv[octr], u8"--network-acceptor=", 19) &&
+          strncmp(argv[octr], u8"--network-stat=", 15))
         new_argv[ctr++] = strdup(argv[octr]);
     }
     new_argv[ctr] = strdup("--network-stat=acid/current.nst");
-    new_argv[ctr + 1] = strdup(buf);
+    new_argv[ctr + 1] = strdup(reinterpret_cast<const char*>(buf));
     new_argv[ctr + 2] = nullptr;
 
     execvp(strdup(argv[0]), new_argv);
-    perror("execvp() failed for restart");
+    perror(u8"execvp() failed for restart");
   }
 
   warn_net(1);
