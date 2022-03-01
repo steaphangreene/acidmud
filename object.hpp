@@ -540,23 +540,6 @@ class alignas(256) Object {
     SendOut(tnum, rsucc, buf, youbuf, actor, targ);
   };
   template <typename... Args>
-  void SendInF(
-      int tnum,
-      int rsucc,
-      const char8_t* mes,
-      const char8_t* youmes,
-      Object* actor,
-      Object* targ,
-      Args... args) {
-    char8_t buf[65536];
-    char8_t youbuf[65536];
-    sprintf(buf, mes, args...);
-    sprintf(youbuf, youmes, args...);
-
-    SendIn(tnum, rsucc, buf, youbuf, actor, targ);
-  };
-
-  template <typename... Args>
   void LoudF(int str, const char8_t* mes, Args... args) {
     char8_t buf[65536];
     sprintf(buf, mes, args...);
