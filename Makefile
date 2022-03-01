@@ -36,7 +36,7 @@ COMP:=	-Wall -Wshadow -Werror -fconstexpr-depth=1024 -Wno-format-security
 all:	acidmud
 
 #Production Settings (dynamic)
-CXX=clang++-13
+CXX=clang++-14
 CXXFLAGS=-std=c++20 -O3 $(COMP) $(ARCH) $(COPT) -flto
 
 #Use debugging settings

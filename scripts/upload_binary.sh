@@ -23,7 +23,7 @@
 
 acidhost="acidmud"
 
-if [ -z "$(file acidmud | grep 'ELF 64-bit LSB executable, x86-64')" ]; then
+if [ -z "$(file acidmud | grep -E 'ELF 64-bit LSB (pie )?executable, x86-64')" ]; then
   echo ERROR: acidmud is the wrong kind of executable for host.
   exit 1
 fi
