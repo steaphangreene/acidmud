@@ -697,7 +697,7 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
           bool housed = false;
           uint32_t rng = ascii_map[0].size() + ascii_map.size();
           for (uint32_t d = 0; !housed && d < rng; ++d) { // Commute Distance, Limited by Map Size
-            for (int s = 0; !housed && s < std::max(1U, d * 4); ++s) { // Num Samples To Check
+            for (uint32_t s = 0; !housed && s < std::max(1U, d * 4); ++s) { // Num Samples To Check
               uint32_t loc_x = x - d + ((s <= (d * 2)) ? s : (d * 4) - s);
               uint32_t t = (d == 0) ? 0 : (s + d) % (d * 4);
               uint32_t loc_y = y - d + ((t <= (d * 2)) ? t : (d * 4) - t);

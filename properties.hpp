@@ -586,13 +586,13 @@ constexpr auto skill_crcs = names2crcs(prop_names);
 static_assert(crc32c(prop_names[0]) == crc32c(u8"Accomplishment"));
 static_assert(skill_crcs[0] == crc32c(u8"Warm"));
 
-consteval bool same_string(const char8_t* s1, const char8_t* s2, int pos) {
+consteval bool same_string(const char8_t* s1, const char8_t* s2, size_t pos) {
   return (s1[pos] == '\0' && s2[pos] == '\0') ? true
       : (s1[pos] != s2[pos])                  ? false
                                               : same_string(s1, s2, pos + 1);
 }
 
-consteval bool is_in_prop_list(const char8_t* pr, int pos) {
+consteval bool is_in_prop_list(const char8_t* pr, size_t pos) {
   return (pos >= prop_names.size())           ? false
       : (same_string(pr, prop_names[pos], 0)) ? true
                                               : is_in_prop_list(pr, pos + 1);
