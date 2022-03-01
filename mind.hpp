@@ -75,10 +75,26 @@ class Mind {
   int LogFD() const {
     return log;
   };
+
   bool Send(const std::u8string&); // Returns false when mind needs to be deleted
   void SendRaw(const std::u8string&);
-  void SendF(const char8_t*, ...);
-  void SendRawF(const char8_t*, ...);
+
+  template <typename... Args>
+  void SendF(const char8_t* mes, Args... args) {
+    char8_t buf[65536];
+    memset(buf, 0, 65536);
+    sprintf(buf, mes, args...);
+    Send(buf);
+  };
+
+  template <typename... Args>
+  void SendRawF(const char8_t* mes, Args... args) {
+    char8_t buf[65536];
+    memset(buf, 0, 65536);
+    sprintf(buf, mes, args...);
+    SendRaw(buf);
+  };
+
   void UpdatePrompt();
 
   bool Think(int istick = 0); // Returns false when mind needs to be deleted

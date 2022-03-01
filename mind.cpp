@@ -690,27 +690,6 @@ void Mind::SendRaw(const std::u8string& mes) {
   SendOut(pers, mes);
 }
 
-static char8_t buf[65536];
-void Mind::SendF(const char8_t* mes, ...) {
-  memset(buf, 0, 65536);
-  va_list stuff;
-  va_start(stuff, mes);
-  vsprintf(buf, mes, stuff);
-  va_end(stuff);
-
-  Send(buf);
-}
-
-void Mind::SendRawF(const char8_t* mes, ...) {
-  memset(buf, 0, 65536);
-  va_list stuff;
-  va_start(stuff, mes);
-  vsprintf(buf, mes, stuff);
-  va_end(stuff);
-
-  SendRaw(buf);
-}
-
 void Mind::SetPName(std::u8string pn) {
   pname = pn;
   if (player_exists(pname))
