@@ -101,7 +101,7 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
   std::u8string filename(fn);
   FILE* def_file = fopen(filename.c_str(), u8"r");
   if (def_file == nullptr) {
-    mind->SendF(u8"Can't find definition file '%s'!\n", filename.c_str());
+    mind->Send(u8"Can't find definition file '{}'!\n", filename);
     return false;
   }
 
@@ -274,8 +274,8 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
     }
 
     if (parse_error) {
-      mind->SendF(u8"Bad definition file '%s'!\n", filename.c_str());
-      mind->SendF(u8"Read: '%s'!\n", line_buf);
+      mind->Send(u8"Bad definition file '{}'!\n", filename);
+      mind->Send(u8"Read: '{}'!\n", line_buf);
       fclose(def_file);
       return false;
     }
@@ -310,8 +310,8 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
           ascii_isalpha(room) || room == '|' || room == '/' || room == '-' ||
           room == '\\') { // Default Connections
       } else {
-        mind->SendF(u8"Bad definition file '%s'!\n", filename.c_str());
-        mind->SendF(u8"Read Unknown Character '%c' at ascii_map (%u,%u)!\n", room, x, y);
+        mind->Send(u8"Bad definition file '{}'!\n", filename);
+        mind->Send(u8"Read Unknown Character '{}' at ascii_map ({},{})!\n", room, x, y);
         fclose(def_file);
         return false;
       }
@@ -548,7 +548,7 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
         // Connections with no level forcing
       } else {
         if (door_char != ' ') {
-          mind->SendF(u8"Unrecognized passage symbol '%c'!\n", door_char);
+          mind->Send(u8"Unrecognized passage symbol '{}'!\n", door_char);
         }
         continue;
       }
@@ -560,7 +560,7 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
                ascii_map[dy][dx] == '/' || ascii_map[dy][dx] == '|' || ascii_map[dy][dx] == '\\');
 
       if (objs.count(coord{dx, dy}) <= 0) {
-        mind->SendF(u8"Path to nowhere (%u,%u)->(%u,%u)!\n", x, y, dx, dy);
+        mind->Send(u8"Path to nowhere ({},{})->({},{})!\n", x, y, dx, dy);
         continue;
       }
 
@@ -573,14 +573,14 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
         if (levels[schr] <= lower_level && obj.second.size() + levels[schr] > lower_level) {
           l1 = lower_level - levels[schr];
         } else {
-          // mind->SendF(u8"Lower link incompatible with origin point '%c'->'%c'!\n", schr, dchr);
+          // mind->Send(u8"Lower link incompatible with origin point '{}'->'{}'!\n", schr, dchr);
           continue;
         }
 
         if (levels[dchr] <= lower_level && dst.size() + levels[dchr] > lower_level) {
           l2 = lower_level - levels[dchr];
         } else {
-          // mind->SendF(u8"Lower link incompatible with dest point '%c'->'%c'!\n", schr, dchr);
+          // mind->Send(u8"Lower link incompatible with dest point '{}'->'{}'!\n", schr, dchr);
           continue;
         }
 
@@ -588,14 +588,14 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
         if (levels[schr] <= upper_level && obj.second.size() + levels[schr] > upper_level) {
           l1 = upper_level - levels[schr];
         } else {
-          // mind->SendF(u8"Upper link incompatible with origin point '%c'->'%c'!\n", schr, dchr);
+          // mind->Send(u8"Upper link incompatible with origin point '{}'->'{}'!\n", schr, dchr);
           continue;
         }
 
         if (levels[dchr] <= upper_level && dst.size() + levels[dchr] > upper_level) {
           l2 = upper_level - levels[dchr];
         } else {
-          // mind->SendF(u8"Upper link incompatible with dest point '%c'->'%c'!\n", schr, dchr);
+          // mind->Send(u8"Upper link incompatible with dest point '{}'->'{}'!\n", schr, dchr);
           continue;
         }
       }
@@ -733,10 +733,10 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
   }
 
   if (homeless > 0) {
-    mind->SendF(CYEL u8"Warning: %d Homeless MOBs\n" CNRM, homeless);
+    mind->Send(CYEL u8"Warning: {} Homeless MOBs\n" CNRM, homeless);
   }
 
-  mind->SendF(u8"Loaded %s From: '%s'!\n", name.c_str(), filename.c_str());
+  mind->Send(u8"Loaded {} From: '{}'!\n", name, filename);
   fclose(def_file);
   return true;
 }
