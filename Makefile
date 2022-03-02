@@ -41,14 +41,14 @@ CXXFLAGS=-std=c++20 -O3 $(COMP) $(ARCH) $(COPT) -flto
 
 #Use debugging settings
 debug:
-	+make CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -g -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(COPT)'
+	+make CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -ggdb -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(COPT)'
 
 #Use profiling settings
 profile:
-	+make CXXFLAGS='-std=c++20 -O3 -fno-omit-frame-pointer -fno-optimize-sibling-calls -g $(COMP) $(ARCH) $(COPT) -flto'
+	+make CXXFLAGS='-std=c++20 -O3 -fno-omit-frame-pointer -fno-optimize-sibling-calls -ggdb $(COMP) $(ARCH) $(COPT) -flto'
 
 gcc:
-	+make CXX='g++' CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -g $(COMP) $(ARCH) $(GOPT)'
+	+make CXX='g++' CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -ggdb $(COMP) $(ARCH) $(GOPT)'
 
 clean:
 	rm -f gmon.out deps.mk *.o *.da version.cpp acidmud changes.txt
