@@ -512,6 +512,17 @@ class alignas(256) Object {
       Object* actor,
       Object* targ,
       bool expanding = true);
+  template <typename... Args>
+  void SendOut(
+      int tnum,
+      int rsucc,
+      const std::u8string& mes,
+      const std::u8string& youmes,
+      Object* actor,
+      Object* targ,
+      Args... args) {
+    SendOut(tnum, rsucc, fmt::format(mes, args...), fmt::format(youmes, args...), actor, targ);
+  };
   void Loud(int str, const std::u8string& mes);
 
   // Formatted (printf style, plus with ;s/;s for actor/targ)
