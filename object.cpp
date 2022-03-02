@@ -1249,9 +1249,9 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
       sprintf(qty, u8"(x%d) ", cur.obj()->Skill(prhash(u8"Quantity")));
 
     if (shown.count(cur.obj()) > 0) {
-      m->SendF(u8"%s%s (%s).\n", qty, targ.c_str(), shown[cur.obj()].c_str());
+      m->Send(u8"{}{} ({}).\n", qty, targ, shown[cur.obj()]);
     } else {
-      m->SendF(CGRN u8"%s%s.\n" CNRM, qty, targ.c_str());
+      m->Send(CGRN u8"{}{}.\n" CNRM, qty, targ);
       if (cur.obj()->Skill(prhash(u8"Open")) || cur.obj()->Skill(prhash(u8"Transparent"))) {
         sprintf(buf, u8"%16s  %c", u8" ", 0);
         base = buf;
@@ -1289,7 +1289,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::u8string b) {
     master.erase(ActTarg(actt)); // Don't show worn/wielded stuff.
   }
 
-  int tlines = 0;
+  size_t tlines = 0;
   for (auto ind : cont)
     if (master.count(ind)) {
       if ((vmode & LOC_NINJA) == 0 && Parent() != nullptr) { // NinjaMode/CharRoom
@@ -1310,7 +1310,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::u8string b) {
       if (ind->HasSkill(prhash(u8"Invisible")) && (vmode & (LOC_HEAT | LOC_NINJA)) == 0 &&
           Parent() != nullptr) {
         if (base != u8"")
-          m->SendF(u8"%s%sInside: ", base.c_str(), CNRM);
+          m->Send(u8"{}{}Inside: ", base, CNRM);
         m->Send(CGRN u8"Something invisible is here.\n" CNRM);
         continue; // Can feel, but can't see
       }
@@ -1318,7 +1318,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::u8string b) {
       if (ind->IsAct(act_t::SPECIAL_LINKED)) {
         if (ind->ActTarg(act_t::SPECIAL_LINKED) && ind->ActTarg(act_t::SPECIAL_LINKED)->Parent()) {
           if (base != u8"")
-            m->SendF(u8"%s%sInside: ", base.c_str(), CNRM);
+            m->Send(u8"{}{}Inside: ", base, CNRM);
           m->Send(CCYN);
           std::u8string send = ind->ShortDesc();
           if (!(ind->Skill(prhash(u8"Open")) || ind->Skill(prhash(u8"Transparent")))) {
@@ -1342,18 +1342,17 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::u8string b) {
       if (ind != o) {
         /* Comment out this block to disable 20-item limit in view */
         if (tlines >= 20) {
-          int ignore = 0;
+          size_t ignore = 0;
           if (o && o->Parent() == this)
             ignore = 1;
           m->Send(base.c_str());
-          m->SendF(
-              CGRN u8"...and %d more things are here too.\n" CNRM,
-              ((int)(cont.size())) - tlines - ignore);
+          m->Send(
+              CGRN u8"...and {} more things are here too.\n" CNRM, cont.size() - tlines - ignore);
           break;
         }
 
         if (base != u8"")
-          m->SendF(u8"%sInside: ", base.c_str());
+          m->Send(u8"{}Inside: ", base);
 
         /*	Uncomment this and comment the block below to disable
            auto-pluralizing.
@@ -1374,7 +1373,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::u8string b) {
           m->Send(CGRN);
 
         if (qty > 1)
-          m->SendF(u8"(x%d) ", qty);
+          m->Send(u8"(x{}) ", qty);
         ++tlines;
 
         if (ind->parent && ind->parent->Skill(prhash(u8"Container"))) {
@@ -1540,7 +1539,7 @@ void Object::SendDesc(Mind* m, Object* o) {
     m->Send(buf);
   }
 
-  m->SendF(u8"%s   ", CNRM);
+  m->Send(u8"{}   ", CNRM);
   sprintf(buf, u8"%s\n%c", DescC(), 0);
   buf[0] = ascii_toupper(buf[0]);
   m->Send(buf);
@@ -1563,7 +1562,7 @@ void Object::SendDescSurround(Mind* m, Object* o, int vmode) {
     m->Send(buf);
   }
 
-  m->SendF(u8"%s   ", CNRM);
+  m->Send(u8"{}   ", CNRM);
   sprintf(buf, u8"%s\n%c", DescC(), 0);
   buf[0] = ascii_toupper(buf[0]);
   m->Send(buf);
@@ -1598,7 +1597,7 @@ void Object::SendLongDesc(Mind* m, Object* o) {
     m->Send(buf);
   }
 
-  m->SendF(u8"%s   ", CNRM);
+  m->Send(u8"{}   ", CNRM);
   sprintf(buf, u8"%s\n%c", LongDescC(), 0);
   buf[0] = ascii_toupper(buf[0]);
   m->Send(buf);
@@ -1609,7 +1608,7 @@ static const std::u8string atnames[] = {u8"Bod", u8"Qui", u8"Str", u8"Cha", u8"I
 void Object::SendScore(Mind* m, Object* o) {
   if (!m)
     return;
-  m->SendF(u8"\n%s", CNRM);
+  m->Send(u8"\n{}", CNRM);
   for (int ctr = 0; ctr < 6; ++ctr) {
     if (std::min(NormAttribute(ctr), 99) == std::min(ModAttribute(ctr), 99)) {
       m->SendF(u8"%s: %2d     ", atnames[ctr].c_str(), std::min(ModAttribute(ctr), 99));
@@ -1629,8 +1628,8 @@ void Object::SendScore(Mind* m, Object* o) {
     if (ctr == 0) {
       m->Send(u8"         L     M        S           D");
     } else if (ctr == 1) {
-      m->SendF(
-          u8"  Stun: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
+      m->Send(
+          u8"  Stun: [{}][{}][{}][{}][{}][{}][{}][{}][{}][{}]",
           stun <= 0 ? ' ' : 'X',
           stun <= 1 ? ' ' : 'X',
           stun <= 2 ? ' ' : 'X',
@@ -1642,8 +1641,8 @@ void Object::SendScore(Mind* m, Object* o) {
           stun <= 8 ? ' ' : 'X',
           stun <= 9 ? ' ' : 'X');
     } else if (ctr == 2) {
-      m->SendF(
-          u8"  Phys: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
+      m->Send(
+          u8"  Phys: [{}][{}][{}][{}][{}][{}][{}][{}][{}][{}]",
           phys <= 0 ? ' ' : 'X',
           phys <= 1 ? ' ' : 'X',
           phys <= 2 ? ' ' : 'X',
@@ -1655,11 +1654,11 @@ void Object::SendScore(Mind* m, Object* o) {
           phys <= 8 ? ' ' : 'X',
           phys <= 9 ? ' ' : 'X');
       if (phys > 10) {
-        m->SendF(u8" Overflow: %d", phys - 10);
+        m->Send(u8" Overflow: {}", phys - 10);
       }
     } else if (ctr == 3) {
-      m->SendF(
-          u8"  Stru: [%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
+      m->Send(
+          u8"  Stru: [{}][{}][{}][{}][{}][{}][{}][{}][{}][{}]",
           stru <= 0 ? ' ' : 'X',
           stru <= 1 ? ' ' : 'X',
           stru <= 2 ? ' ' : 'X',
@@ -1672,7 +1671,7 @@ void Object::SendScore(Mind* m, Object* o) {
           stru <= 9 ? ' ' : 'X');
     } else if (ctr == 5) {
       if (Pos() == pos_t::NONE) {
-        m->SendF(u8"  Zone Coords: (%d,%d,%d)  Value: %dY\n", X(), Y(), Z(), value);
+        m->Send(u8"  Zone Coords: ({},{},{})  Value: {}Y\n", X(), Y(), Z(), value);
       } else {
         m->SendF(
             u8"  Sex: %c, %d.%.3dkg, %d.%.3dm, %dv, %dY\n",
@@ -1720,12 +1719,10 @@ void Object::SendScore(Mind* m, Object* o) {
 
   for (act_t actt = act_t::MAX; actt < act_t::SPECIAL_MAX; actt = act_t(int(actt) + 1)) {
     if (ActTarg(actt)) {
-      m->SendF(
-          CGRN u8"  %s -> %s\n" CNRM,
-          act_str[static_cast<uint8_t>(actt)].c_str(),
-          ActTarg(actt)->Noun().c_str());
+      m->Send(
+          CGRN u8"  {} -> {}\n" CNRM, act_str[static_cast<uint8_t>(actt)], ActTarg(actt)->Noun());
     } else if (IsAct(actt)) {
-      m->SendF(CGRN u8"  %s\n" CNRM, act_str[static_cast<uint8_t>(actt)].c_str());
+      m->Send(CGRN u8"  {}\n" CNRM, act_str[static_cast<uint8_t>(actt)]);
     }
   }
 
@@ -1734,7 +1731,7 @@ void Object::SendScore(Mind* m, Object* o) {
 
   for (auto mind : minds) {
     if (mind->Owner()) {
-      m->SendF(CBLU u8"->Player Connected: %s\n" CNRM, mind->Owner()->Name().c_str());
+      m->Send(CBLU u8"->Player Connected: {}\n" CNRM, mind->Owner()->Name());
     } else if (mind == get_mob_mind()) {
       m->Send(CBLU u8"->MOB_MIND\n" CNRM);
     } else if (mind == get_tba_mob_mind()) {
@@ -1746,10 +1743,10 @@ void Object::SendScore(Mind* m, Object* o) {
 
   // Other Misc Stats
   if (LightLevel() > 0) {
-    m->SendF(CYEL u8"  Light Level: %d (%d)\n" CNRM, Skill(prhash(u8"Light Source")), LightLevel());
+    m->Send(CYEL u8"  Light Level: {} ({})\n" CNRM, Skill(prhash(u8"Light Source")), LightLevel());
   }
   if (Power(prhash(u8"Cursed"))) {
-    m->SendF(CRED u8"  Cursed: %d\n" CNRM, Power(prhash(u8"Cursed")));
+    m->Send(CRED u8"  Cursed: {}\n" CNRM, Power(prhash(u8"Cursed")));
   }
 
   // Experience Summary
@@ -1757,8 +1754,8 @@ void Object::SendScore(Mind* m, Object* o) {
     m->Send(CYEL);
     m->SendF(u8"\nEarned Exp: %4d  Unspent Exp: %4d\n", Exp(), TotalExp());
     if (Power(prhash(u8"Heat Vision")) || Power(prhash(u8"Dark Vision"))) {
-      m->SendF(
-          u8"Heat/Dark Vision: %d/%d\n",
+      m->Send(
+          u8"Heat/Dark Vision: {}/{}\n",
           Power(prhash(u8"Heat Vision")),
           Power(prhash(u8"Dark Vision")));
     }
@@ -3929,7 +3926,7 @@ bool Object::Accomplish(uint64_t acc, const std::u8string& why) {
   completed.push_back(acc);
   for (auto m : minds) {
     if (m->Owner()) {
-      m->SendF(CYEL u8"You gain an experience point for %s!\n" CNRM, why.c_str());
+      m->Send(CYEL u8"You gain an experience point for {}!\n" CNRM, why);
     }
   }
   return true;
@@ -3963,7 +3960,7 @@ bool Object::Learn(uint64_t k, const std::u8string& what) {
   known.push_back(k);
   for (auto m : minds) {
     if (m->Owner()) {
-      m->SendF(CYEL u8"You now know %s!\n" CNRM, what.c_str());
+      m->Send(CYEL u8"You now know {}!\n" CNRM, what);
     }
   }
   return true;
@@ -4737,15 +4734,14 @@ int Object::Wear(Object* targ, unsigned long masks, int mes) {
     if (locations.size() < 1) {
       if (mask == 1) {
         if (mes)
-          targ->SendF(
-              ALL, -1, u8"You can't wear %s - it's not wearable!\n", targ->Noun(0, this).c_str());
+          targ->Send(ALL, -1, u8"You can't wear {} - it's not wearable!\n", targ->Noun(0, this));
       } else {
         if (mes)
-          targ->SendF(
+          targ->Send(
               ALL,
               -1,
-              u8"You can't wear %s with what you are already wearing!\n",
-              targ->Noun(0, this).c_str());
+              u8"You can't wear {} with what you are already wearing!\n",
+              targ->Noun(0, this));
       }
       break;
     }
