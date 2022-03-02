@@ -50,31 +50,31 @@ int phrase_match(const std::u8string& str, const std::u8string& phrase /* lowerc
 int phrase_match_sensitive(const std::u8string& str, const std::u8string& phrase /* non-empty! */);
 int words_match(const std::u8string& str, const std::u8string& words);
 
-constexpr int8_t ascii_tolower(int8_t chr) {
+constexpr char8_t ascii_tolower(char8_t chr) {
   return (chr >= 'A' && chr <= 'Z') ? (chr - 'A') + 'a' : chr;
 }
 
-constexpr int8_t ascii_toupper(int8_t chr) {
+constexpr char8_t ascii_toupper(char8_t chr) {
   return (chr >= 'a' && chr <= 'z') ? (chr - 'a') + 'A' : chr;
 }
 
-constexpr bool ascii_isupper(int8_t chr) {
+constexpr bool ascii_isupper(char8_t chr) {
   return (chr >= 'A' && chr <= 'Z');
 }
 
-constexpr bool ascii_islower(int8_t chr) {
+constexpr bool ascii_islower(char8_t chr) {
   return (chr >= 'a' && chr <= 'z');
 }
 
-constexpr bool ascii_isalpha(int8_t chr) {
+constexpr bool ascii_isalpha(char8_t chr) {
   return ((chr >= 'a' && chr <= 'z') || (chr >= 'A' && chr <= 'Z'));
 }
 
-constexpr bool ascii_isalnum(int8_t chr) {
+constexpr bool ascii_isalnum(char8_t chr) {
   return ((chr >= 'a' && chr <= 'z') || (chr >= 'A' && chr <= 'Z') || (chr >= '0' && chr <= '9'));
 }
 
-constexpr bool ascii_isdigit(int8_t chr) {
+constexpr bool ascii_isdigit(char8_t chr) {
   return (chr >= '0' && chr <= '9');
 }
 
