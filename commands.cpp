@@ -2548,7 +2548,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           int curtime = world->Skill(prhash(u8"Day Time"));
           curtime *= 24 * 60;
           curtime /= world->Skill(prhash(u8"Day Length"));
-          mind->SendF(u8"The time is now %d:%.2d in this world.\n", curtime / 60, curtime % 60);
+          mind->Send(u8"The time is now {}:{:02} in this world.\n", curtime / 60, curtime % 60);
         } else {
           mind->Send(u8"This world has no concept of time....\n");
         }
@@ -2863,7 +2863,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
             price += 999;
             price /= 1000;
           }
-          mind->SendF(u8"%10d gp: %s\n", price, obj->ShortDescC());
+          mind->Send(u8"{:>10} gp: {}\n", price, obj->ShortDesc());
           oobj = obj;
         }
       }
@@ -3267,13 +3267,12 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       if (mind)
         mind->Send(u8"You can't drag {}, it is fixed in place!\n", targ->Noun());
     } else if (targ->IsAnimate()) {
-      std::u8string denied = u8"You would need ";
-      denied += targ->Noun(1);
-      denied += u8"'s permission to drag ";
-      denied += targ->Noun(0, nullptr, targ);
-      denied += u8".\n";
-      if (mind)
-        mind->SendF(denied.c_str(), targ->Noun().c_str());
+      if (mind) {
+        mind->Send(
+            u8"You would need {}'s permission to drag {}.\n",
+            targ->Noun(1),
+            targ->Noun(0, nullptr, targ));
+      }
     } else if (targ->Weight() > body->ModAttribute(2) * 50000) {
       if (mind)
         mind->Send(u8"You could never lift {}, it is too heavy.\n", targ->Noun());
@@ -5449,33 +5448,23 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     }
 
     if (rolls_armor.empty()) {
-      body->SendF(
-          CHANNEL_ROLLS,
-          CMAG u8"[%d] = %s - %s\n" CNRM,
-          succ,
-          rolls_offense.c_str(),
-          rolls_defense.c_str());
-      targ->SendF(
-          CHANNEL_ROLLS,
-          CMAG u8"[%d] = %s - %s\n" CNRM,
-          succ,
-          rolls_offense.c_str(),
-          rolls_defense.c_str());
+      body->Send(CHANNEL_ROLLS, CMAG u8"[{}] = {} - {}\n" CNRM, succ, rolls_offense, rolls_defense);
+      targ->Send(CHANNEL_ROLLS, CMAG u8"[{}] = {} - {}\n" CNRM, succ, rolls_offense, rolls_defense);
     } else {
-      body->SendF(
+      body->Send(
           CHANNEL_ROLLS,
-          CMAG u8"[%d] = %s - %s - %s\n" CNRM,
+          CMAG u8"[{}] = {} - {} - {}\n" CNRM,
           succ,
-          rolls_offense.c_str(),
-          rolls_defense.c_str(),
-          rolls_armor.c_str());
-      targ->SendF(
+          rolls_offense,
+          rolls_defense,
+          rolls_armor);
+      targ->Send(
           CHANNEL_ROLLS,
-          CMAG u8"[%d] = %s - %s - %s\n" CNRM,
+          CMAG u8"[{}] = {} - {} - {}\n" CNRM,
           succ,
-          rolls_offense.c_str(),
-          rolls_defense.c_str(),
-          rolls_armor.c_str());
+          rolls_offense,
+          rolls_defense,
+          rolls_armor);
     }
 
     return 0;
