@@ -3257,29 +3257,67 @@ void Object::SendOut(
   auto youstr = youmes;
 
   bool just_swapped = false;
+  int num_braces[] = {0, 0};
   for (auto& ctr : str) {
     if (just_swapped) {
       ctr = '}';
       just_swapped = false;
+      ++num_braces[1];
     } else if (ctr == ';') {
       ctr = '{';
       just_swapped = true;
+      ++num_braces[0];
     } else if (ctr == '{' || ctr == '}') {
       ctr = ';';
       just_swapped = false;
     }
   }
+  if (num_braces[0] != num_braces[1]) {
+    fprintf(stderr, CRED u8"ERROR: Mismatched braces in SendOut() str: '%s'!\n" CNRM, str.c_str());
+  } else if (num_braces[0] > 2) {
+    fprintf(
+        stderr,
+        CRED u8"ERROR: Too many opening braces in SendOut() str: '%s'!\n" CNRM,
+        str.c_str());
+  } else if (num_braces[1] > 2) {
+    fprintf(
+        stderr,
+        CRED u8"ERROR: Too many closing braces in SendOut() str: '%s'!\n" CNRM,
+        str.c_str());
+  }
+
+  just_swapped = false;
+  num_braces[0] = 0;
+  num_braces[1] = 0;
   for (auto& ctr : youstr) {
     if (just_swapped) {
       ctr = '}';
       just_swapped = false;
+      ++num_braces[1];
     } else if (ctr == ';') {
       ctr = '{';
       just_swapped = true;
+      ++num_braces[0];
     } else if (ctr == '{' || ctr == '}') {
       ctr = ';';
       just_swapped = false;
     }
+  }
+  if (num_braces[0] != num_braces[1]) {
+    fprintf(
+        stderr,
+        CRED u8"ERROR: Mismatched braces in SendOut() youstr: '%s'!\n" CNRM,
+        youstr.c_str());
+  } else if (num_braces[0] > 2) {
+    fprintf(
+        stderr,
+        CRED u8"ERROR: Too many opening braces in SendOut() youstr: '%s'!\n" CNRM,
+        youstr.c_str());
+  } else if (num_braces[1] > 2) {
+    fprintf(
+        stderr,
+        CRED u8"ERROR: Too many closing braces in SendOut() youstr: '%s'!\n" CNRM,
+        youstr.c_str());
   }
 
   if (youstr[0] == '*' && this == actor) {
