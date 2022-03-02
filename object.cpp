@@ -2952,32 +2952,32 @@ void Object::Collapse() {
       pos = pos_t::LIE;
     }
     if (ActTarg(act_t::WIELD)) {
-      parent->SendOutF(
+      parent->SendOut(
           ALL,
           -1,
-          u8";s drops %s!\n",
-          u8"You drop %s!\n",
+          u8";s drops {}!\n",
+          u8"You drop {}!\n",
           this,
           nullptr,
           ActTarg(act_t::WIELD)->ShortDescC());
       ActTarg(act_t::WIELD)->Travel(parent);
     }
     if (ActTarg(act_t::HOLD) && ActTarg(act_t::HOLD) != ActTarg(act_t::WEAR_SHIELD)) {
-      parent->SendOutF(
+      parent->SendOut(
           ALL,
           -1,
-          u8";s drops %s!\n",
-          u8"You drop %s!\n",
+          u8";s drops {}!\n",
+          u8"You drop {}!\n",
           this,
           nullptr,
           ActTarg(act_t::HOLD)->ShortDescC());
       ActTarg(act_t::HOLD)->Travel(parent);
     } else if (ActTarg(act_t::HOLD)) {
-      parent->SendOutF(
+      parent->SendOut(
           ALL,
           -1,
-          u8";s stops holding %s.\n",
-          u8"You stop holding %s!\n",
+          u8";s stops holding {}.\n",
+          u8"You stop holding {}!\n",
           this,
           nullptr,
           ActTarg(act_t::HOLD)->ShortDescC());
