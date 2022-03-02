@@ -86,13 +86,6 @@ class Mind {
     auto buf = fmt::format(mes, args...);
     return Send(buf);
   };
-  template <typename... Args>
-  bool SendF(const std::u8string& mes, Args... args) {
-    char8_t buf[65536];
-    memset(buf, 0, 65536);
-    sprintf(buf, mes, args...);
-    return Send(buf);
-  };
 
   void UpdatePrompt();
 
