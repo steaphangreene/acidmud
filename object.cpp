@@ -3256,48 +3256,61 @@ void Object::SendOut(
   auto str = mes;
   auto youstr = youmes;
 
+  bool just_swapped = false;
   for (auto& ctr : str) {
-    if (ctr == ';')
-      ctr = '%';
-    else if (ctr == '%')
+    if (just_swapped) {
+      ctr = '}';
+      just_swapped = false;
+    } else if (ctr == ';') {
+      ctr = '{';
+      just_swapped = true;
+    } else if (ctr == '{' || ctr == '}') {
       ctr = ';';
+      just_swapped = false;
+    }
   }
   for (auto& ctr : youstr) {
-    if (ctr == ';')
-      ctr = '%';
-    else if (ctr == '%')
+    if (just_swapped) {
+      ctr = '}';
+      just_swapped = false;
+    } else if (ctr == ';') {
+      ctr = '{';
+      just_swapped = true;
+    } else if (ctr == '{' || ctr == '}') {
       ctr = ';';
+      just_swapped = false;
+    }
   }
 
   if (youstr[0] == '*' && this == actor) {
     Send(ALL, -1, CGRN);
     if (targ)
-      SendF(ALL, -1, youstr.c_str() + 1, tstr.c_str());
+      Send(ALL, -1, youstr.substr(1), tstr);
     else
-      Send(ALL, -1, youstr.c_str() + 1);
+      Send(ALL, -1, youstr.substr(1));
     Send(ALL, -1, CNRM);
   } else if (this == actor) {
     if (targ)
-      SendF(ALL, -1, youstr.c_str(), tstr.c_str());
+      Send(ALL, -1, youstr, tstr);
     else
       Send(ALL, -1, youstr);
   } else if (str[0] == '*' && targ == this) {
     Send(ALL, -1, CRED);
     if (targ || actor)
-      SendF(tnum, rsucc, str.c_str() + 1, astr.c_str(), tstr.c_str());
+      Send(tnum, rsucc, str.substr(1), astr, tstr);
     else
-      Send(tnum, rsucc, str.c_str() + 1);
+      Send(tnum, rsucc, str.substr(1));
     Send(ALL, -1, CNRM);
   } else if (str[0] == '*') {
     Send(ALL, -1, CMAG);
     if (targ || actor)
-      SendF(tnum, rsucc, str.c_str() + 1, astr.c_str(), tstr.c_str());
+      Send(tnum, rsucc, str.substr(1), astr, tstr);
     else
-      Send(tnum, rsucc, str.c_str() + 1);
+      Send(tnum, rsucc, str.substr(1));
     Send(ALL, -1, CNRM);
   } else {
     if (targ || actor)
-      SendF(tnum, rsucc, str.c_str(), astr.c_str(), tstr.c_str());
+      Send(tnum, rsucc, str, astr, tstr);
     else
       Send(tnum, rsucc, str);
   }
