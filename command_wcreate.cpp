@@ -779,14 +779,14 @@ int handle_command_wcreate(
     }
   }
 
-  body->Parent()->SendOutF(
+  body->Parent()->SendOut(
       stealth_t,
       stealth_s,
-      u8";s creates a new world '%s' with Ninja Powers[TM].\n",
-      u8"You create a new world '%s'.\n",
+      u8";s creates a new world '{}' with Ninja Powers[TM].\n",
+      u8"You create a new world '{}'.\n",
       body,
       nullptr,
-      world->ShortDescC());
+      world->ShortDesc());
 
   return 0;
 }
