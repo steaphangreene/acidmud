@@ -174,7 +174,7 @@ int main(int argc, char** argv) {
     new_argv[ctr + 2] = nullptr;
 
     execvp(strdup(argv[0]), new_argv);
-    perror8(u8"execvp() failed for restart");
+    perror("execvp() failed for restart");
   }
 
   warn_net(1);

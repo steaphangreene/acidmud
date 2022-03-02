@@ -31,10 +31,6 @@
 #include <netdb.h>
 #include <unistd.h>
 
-void perror8(auto&& ms) {
-  perror(reinterpret_cast<const char*>(ms));
-};
-
 const char8_t* crypt8(auto&& ps, auto&& sl) {
   return reinterpret_cast<const char8_t*>(
       crypt(reinterpret_cast<const char*>(ps), reinterpret_cast<const char*>(sl)));

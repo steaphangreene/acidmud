@@ -56,7 +56,7 @@ void nonblock(socket_t s) {
   int flags = fcntl(s, F_GETFL, 0);
   flags |= O_NONBLOCK;
   if (fcntl(s, F_SETFL, flags) < 0) {
-    perror8(u8"ERROR setting nonblock");
+    perror("ERROR setting nonblock");
     exit(1);
   }
 }
@@ -148,7 +148,7 @@ void resume_net(int fd) {
 void start_net(int port, const std::u8string& host) {
   struct sockaddr_in sa = {};
   if ((acceptor = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
-    perror8(u8"ERROR in socet()");
+    perror("ERROR in socet()");
     exit(1);
   }
   maxfd = acceptor;
@@ -163,13 +163,13 @@ void start_net(int port, const std::u8string& host) {
 
   int sockopt = 1;
   if (setsockopt(acceptor, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
-    perror8(u8"ERROR in setsockopt()");
+    perror("ERROR in setsockopt()");
     close(acceptor);
     exit(1);
   }
 
   if (bind(acceptor, (struct sockaddr*)&sa, sizeof(sa)) < 0) {
-    perror8(u8"ERROR in bind()");
+    perror("ERROR in bind()");
     close(acceptor);
     exit(1);
   }
@@ -212,7 +212,7 @@ void update_net() {
     ret = select(acceptor + 1, &input_set, nullptr, nullptr, &null_time);
     if (ret < 0) {
       if (errno != EINTR) {
-        perror8(u8"ERROR in select()");
+        perror("ERROR in select()");
       }
     } else if (ret < 1) { // Timout, no errro (just nobody connecting)
       return;
@@ -233,7 +233,7 @@ void update_net() {
   null_time.tv_sec = 0;
   null_time.tv_usec = 0;
   if (select(maxfd + 1, &input_set, &output_set, &exc_set, &null_time) < 0) {
-    perror8(u8"ERROR in main select()");
+    perror("ERROR in main select()");
   }
 
   if (FD_ISSET(acceptor, &input_set)) {
@@ -242,7 +242,7 @@ void update_net() {
     socklen_t peerlen;
     peerlen = sizeof(peer);
     if ((newsock = accept(acceptor, (struct sockaddr*)&peer, &peerlen)) < 0) {
-      perror8(u8"ERROR in accept");
+      perror("ERROR in accept");
       exit(1);
     }
     fprintf(stderr, u8"Accepted connection.\n");

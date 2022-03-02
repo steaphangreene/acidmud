@@ -3437,15 +3437,15 @@ void save_world(int with_net) {
         rename8(pfn.c_str(), dfn.c_str());
       } else {
         fprintf(stderr, u8"Unable to save network status!\n");
-        perror8(u8"save_world");
+        perror("save_world");
       }
     } else {
       fprintf(stderr, u8"Unable to save players!\n");
-      perror8(u8"save_world");
+      perror("save_world");
     }
   } else {
     fprintf(stderr, u8"Unable to save world!\n");
-    perror8(u8"save_world");
+    perror("save_world");
   }
 }
 
