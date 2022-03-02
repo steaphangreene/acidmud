@@ -1643,10 +1643,10 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
       std::u8string mes = std::u8string(args);
       std::transform(mes.begin(), mes.end(), mes.begin(), ascii_toupper);
-      body->Parent()->SendOutF(
-          ALL, 0, u8";s shouts '%s'!!!\n", u8"You shout '%s'!!!\n", body, body, mes.c_str());
-      body->Parent()->LoudF(
-          body->Skill(prhash(u8"Strength")), u8"someone shout '%s'!!!", mes.c_str());
+      body->Parent()->SendOut(
+          ALL, 0, u8";s shouts '{}'!!!\n", u8"You shout '{}'!!!\n", body, body, mes);
+      body->Parent()->Loud(
+          body->Skill(prhash(u8"Strength")), u8"someone shout '{}'!!!", mes);
     }
     body->SetSkill(prhash(u8"Hidden"), 0);
     return 0;

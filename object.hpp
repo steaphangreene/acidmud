@@ -550,11 +550,8 @@ class alignas(256) Object {
     SendOut(tnum, rsucc, buf, youbuf, actor, targ);
   };
   template <typename... Args>
-  void LoudF(int str, const char8_t* mes, Args... args) {
-    char8_t buf[65536];
-    sprintf(buf, mes, args...);
-
-    Loud(str, buf);
+  void Loud(int str, const char8_t* mes, Args... args) {
+    Loud(str, fmt::format(mes, args...));
   };
 
   void TBALoadAll();
