@@ -36,10 +36,6 @@ const char8_t* crypt8(auto&& ps, auto&& sl) {
       crypt(reinterpret_cast<const char*>(ps), reinterpret_cast<const char*>(sl)));
 };
 
-struct hostent* gethostbyname8(auto&& fn) {
-  return gethostbyname(reinterpret_cast<const char*>(fn));
-};
-
 int unlink8(auto&& fn) {
   return unlink(reinterpret_cast<const char*>(fn));
 };

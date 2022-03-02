@@ -66,7 +66,7 @@ static int64_t get_time() {
 }
 
 int main(int argc, char** argv) {
-  std::u8string host = u8"";
+  std::string host = "";
   int port = 4242;
   int acceptor = -1;
   std::u8string netstat_file = u8"";
@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
     if (arg == 'p')
       port = atoi(optarg);
     if (arg == 'h')
-      host = reinterpret_cast<const char8_t*>(optarg);
+      host = optarg;
     else if (arg == 'S') {
       netstat_file = reinterpret_cast<const char8_t*>(optarg);
     } else if (arg == 'A') {

@@ -145,7 +145,7 @@ void resume_net(int fd) {
   acceptor = fd;
 }
 
-void start_net(int port, const std::u8string& host) {
+void start_net(int port, const std::string& host) {
   struct sockaddr_in sa = {};
   if ((acceptor = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
     perror("ERROR in socet()");
@@ -158,7 +158,7 @@ void start_net(int port, const std::u8string& host) {
   if (host.empty()) {
     sa.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
   } else {
-    sa.sin_addr.s_addr = ((struct in_addr*)(gethostbyname8(host.c_str())->h_addr))->s_addr;
+    sa.sin_addr.s_addr = ((struct in_addr*)(gethostbyname(host.c_str())->h_addr))->s_addr;
   }
 
   int sockopt = 1;
