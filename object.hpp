@@ -522,13 +522,6 @@ class alignas(256) Object {
 
   // Formatted (printf style, plus with ;s/;s for actor/targ)
   template <typename... Args>
-  void SendF(channel_t channel, const char8_t* mes, Args... args) {
-    char8_t buf[65536];
-    sprintf(buf, mes, args...);
-
-    Send(channel, buf);
-  };
-  template <typename... Args>
   void SendF(int tnum, int rsucc, const char8_t* mes, Args... args) {
     char8_t buf[65536];
     sprintf(buf, mes, args...);
