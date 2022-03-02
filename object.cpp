@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstdarg>
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -3427,12 +3428,12 @@ void save_world(int with_net) {
       std::u8string nfn = fn + u8".nst";
       if ((!with_net) || (!save_net(nfn.c_str()))) {
         std::u8string dfn = fn + u8".wld";
-        unlink8(dfn.c_str());
-        rename8(wfn.c_str(), dfn.c_str());
+        std::filesystem::remove(dfn);
+        std::filesystem::rename(wfn, dfn);
 
         dfn = fn + u8".plr";
-        unlink8(dfn.c_str());
-        rename8(pfn.c_str(), dfn.c_str());
+        std::filesystem::remove(dfn);
+        std::filesystem::rename(pfn, dfn);
       } else {
         fprintf(stderr, u8"Unable to save network status!\n");
         perror("save_world");

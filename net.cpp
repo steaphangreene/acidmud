@@ -20,6 +20,7 @@
 // *************************************************************************
 
 #include <algorithm>
+#include <filesystem>
 #include <map>
 #include <set>
 #include <string>
@@ -421,7 +422,7 @@ int load_net(const std::u8string& fn) {
   }
 
   fclose(fl);
-  unlink8(fn.c_str());
+  std::filesystem::remove(fn);
   return 0;
 }
 
