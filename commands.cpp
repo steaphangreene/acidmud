@@ -1221,8 +1221,8 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           CurrentVersion.acidmud_version[1],
           CurrentVersion.acidmud_version[2],
           CurrentVersion.acidmud_git_revs,
-          CurrentVersion.acidmud_git_hash.c_str(),
-          CurrentVersion.acidmud_datestamp.c_str());
+          CurrentVersion.acidmud_git_hash,
+          CurrentVersion.acidmud_datestamp);
     return 0;
   }
 
@@ -1557,7 +1557,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         mes += comlist[ctr].shortdesc;
         mes += '\n';
       }
-      mind->Send(mes.c_str());
+      mind->Send(mes);
       return 0;
     } else if (args == u8"socials") {
       std::u8string mes = u8"";
@@ -1581,7 +1581,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         mes += comlist[ctr].shortdesc;
         mes += '\n';
       }
-      mind->Send(mes.c_str());
+      mind->Send(mes);
       return 0;
     }
     mind->Send(
@@ -1604,14 +1604,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     } else {
       bool shouting = (args.length() >= 4 && !std::any_of(args.begin(), args.end(), ascii_islower));
       if (!shouting) {
-        body->Parent()->SendOutF(
-            ALL,
-            0,
-            u8";s says '%s'\n",
-            u8"You say '%s'\n",
-            body,
-            body,
-            std::u8string(args).c_str());
+        body->Parent()->SendOut(ALL, 0, u8";s says '{}'\n", u8"You say '{}'\n", body, body, args);
         body->SetSkill(prhash(u8"Hidden"), 0);
         return 0;
       } else {
@@ -1718,10 +1711,10 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         }
         targmes[0] = ascii_toupper(targmes[0]);
         targmes += u8"\n";
-        targ->Send(0, 0, targmes.c_str());
+        targ->Send(0, 0, targmes);
         targ->Deafen(true);
       }
-      body->Parent()->SendOut(0, 0, outmes.c_str(), youmes.c_str(), body, targ);
+      body->Parent()->SendOut(0, 0, outmes, youmes, body, targ);
       if (targ)
         targ->Deafen(false);
     }
@@ -1733,15 +1726,8 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     if (args.back() == '.' || args.back() == '?' || args.back() == '!') {
       dot = u8"";
     }
-    body->Parent()->SendOutF(
-        ALL,
-        0,
-        u8";s %s%s\n",
-        u8"Your character %s%s\n",
-        body,
-        body,
-        std::u8string(args).c_str(),
-        dot.c_str());
+    body->Parent()->SendOut(
+        ALL, 0, u8";s {}{}\n", u8"Your character {}{}\n", body, body, args, dot);
     body->SetSkill(prhash(u8"Hidden"), 0);
     return 0;
   }
@@ -1763,14 +1749,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         return 0;
       }
     }
-    body->Parent()->SendOutF(
+    body->Parent()->SendOut(
         ALL,
         0,
-        u8";s introduces ;s as \"%s\"\n",
-        u8"You introduce ;s as \"%s\".\n",
+        u8";s introduces ;s as \"{}\"\n",
+        u8"You introduce ;s as \"{}\".\n",
         body,
         targ,
-        targ->NameC());
+        targ->Name());
     body->SetSkill(prhash(u8"Hidden"), 0);
     return 0;
   }
@@ -1927,14 +1913,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     stealth_t = 0;
     stealth_s = 0;
     if (body->Pos() == pos_t::USE && (!body->IsUsing(prhash(u8"Perception")))) {
-      body->Parent()->SendOutF(
+      body->Parent()->SendOut(
           stealth_t,
           stealth_s,
-          u8";s stops %s.\n",
-          u8"You stop %s.\n",
+          u8";s stops {}.\n",
+          u8"You stop {}.\n",
           body,
           nullptr,
-          body->UsingString().c_str());
+          body->UsingString());
     }
     body->StartUsing(prhash(u8"Perception"));
     body->SetSkill(prhash(u8"Hidden"), 0);
@@ -1965,7 +1951,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       }
       if ((!nmode) && (!denied.empty())) {
         if (mind)
-          mind->Send(denied.c_str());
+          mind->Send(denied);
         continue;
       }
 
@@ -2029,7 +2015,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       }
       if ((!nmode) && (denied.empty())) {
         if (mind)
-          mind->Send(denied.c_str());
+          mind->Send(denied);
         continue;
       }
       if ((!nmode) && targ->Skill(prhash(u8"Obvious"))) {
@@ -2323,7 +2309,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         int diff;
         std::u8string mes = targ->Noun() + u8"...\n";
         mes[0] = ascii_toupper(mes[0]);
-        mind->Send(mes.c_str());
+        mind->Send(mes);
 
         if ((!targ->ActTarg(act_t::WIELD)) && (!body->ActTarg(act_t::WIELD))) {
           mind->Send(u8"   ...is unarmed, but so are you.\n");
@@ -2843,7 +2829,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     }
     if (shpkps.size() == 0) {
       if (mind) {
-        mind->Send(reason.c_str());
+        mind->Send(reason);
         mind->Send(u8"You can only do that around a shopkeeper.\n");
       }
     } else {
@@ -2897,7 +2883,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     }
     if (shpkps.size() == 0) {
       if (mind) {
-        mind->Send(reason.c_str());
+        mind->Send(reason);
         mind->Send(u8"You can only do that around a shopkeeper.\n");
       }
     } else {
@@ -2924,7 +2910,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
               std::u8string mes = targ->Noun(0, body);
               mes += u8" is worthless.\n";
               mes[0] = ascii_toupper(mes[0]);
-              mind->Send(mes.c_str());
+              mind->Send(mes);
             }
             continue;
           }
@@ -3018,7 +3004,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         mes += u8" is a container.";
         mes += u8"  You can't sell containers (yet).\n";
         mes[0] = ascii_toupper(mes[0]);
-        mind->Send(mes.c_str());
+        mind->Send(mes);
       }
       return 0;
     }
@@ -3029,7 +3015,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         mes += u8" is not empty.";
         mes += u8"  You must empty it before you can sell it.\n";
         mes[0] = ascii_toupper(mes[0]);
-        mind->Send(mes.c_str());
+        mind->Send(mes);
       }
       return 0;
     }
@@ -3193,7 +3179,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     }
     if (shpkps.size() == 0) {
       if (mind) {
-        mind->Send(reason.c_str());
+        mind->Send(reason);
       }
     } else {
       Object* shpkp = shpkps.front();
@@ -3353,7 +3339,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
         if ((!nmode) && denied != u8"") {
           if (mind)
-            mind->Send(denied.c_str());
+            mind->Send(denied);
         } else if (body->Stash(targ, 0)) {
           body->Parent()->SendOut(
               stealth_t,
@@ -3419,14 +3405,13 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     if (start != name.npos) {
       name = name.substr(0, start);
       trim_string(name);
-      body->ActTarg(act_t::HOLD)->SetShortDesc(name.c_str());
+      body->ActTarg(act_t::HOLD)->SetShortDesc(name);
       if (mind)
         mind->Send(u8"{} is now unlabeled.\n", body->ActTarg(act_t::HOLD)->Noun(1, body));
     } else {
       if (mind)
         mind->Send(
-            u8"{} does not have a label to remove.\n",
-            body->ActTarg(act_t::HOLD)->Noun(1, body).c_str());
+            u8"{} does not have a label to remove.\n", body->ActTarg(act_t::HOLD)->Noun(1, body));
     }
     return 0;
   }
@@ -3485,10 +3470,10 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           trim_string(label);
         }
       }
-      body->ActTarg(act_t::HOLD)->SetShortDesc(name.c_str());
+      body->ActTarg(act_t::HOLD)->SetShortDesc(name);
       if (mind)
         mind->Send(u8"{} is now labeled '{}'.\n", body->ActTarg(act_t::HOLD)->Noun(1, body), label);
-      body->ActTarg(act_t::HOLD)->SetShortDesc((name + u8" (" + label + u8")").c_str());
+      body->ActTarg(act_t::HOLD)->SetShortDesc((name + u8" (" + label + u8")"));
     }
 
     return 0;
@@ -3570,14 +3555,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
               body,
               targ);
         std::u8string safety = obj->Noun(0, body);
-        body->Parent()->SendOutF(
+        body->Parent()->SendOut(
             stealth_t,
             stealth_s,
-            u8";s puts %s into ;s.\n",
-            u8"You put %s into ;s.\n",
+            u8";s puts {} into ;s.\n",
+            u8"You put {} into ;s.\n",
             body,
             targ,
-            safety.c_str());
+            safety);
         if (closed)
           body->Parent()->SendOut(
               stealth_t, stealth_s, u8";s close ;s.\n", u8"You close ;s.\n", body, targ);
@@ -4107,7 +4092,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       }
       if ((!nmode) && (!denied.empty())) {
         if (mind)
-          mind->Send(denied.c_str());
+          mind->Send(denied);
         return 0;
       }
       if (!(targ->HasSkill(prhash(u8"Liquid Container")))) {
@@ -4306,14 +4291,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
             stealth_t, stealth_s, u8";s opens ;s.\n", u8"You open ;s.\n", body, dst);
 
       std::u8string safety = dst->Noun(0, body);
-      body->Parent()->SendOutF(
+      body->Parent()->SendOut(
           stealth_t,
           stealth_s,
-          u8";s dumps out and fills %s from ;s.\n",
-          u8"You dump out and fill %s from ;s.\n",
+          u8";s dumps out and fills {} from ;s.\n",
+          u8"You dump out and fill {} from ;s.\n",
           body,
           src,
-          safety.c_str());
+          safety);
 
       // FIXME: Really open/close stuff!
       if (myclosed)
@@ -4636,16 +4621,15 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     if (src && src != body) {
       std::u8string youmes = u8"You use ;s to cast " + SkillName(spname) + u8".\n";
       body->Parent()->SendOut(
-          stealth_t, stealth_s, u8";s uses ;s to cast a spell.\n", youmes.c_str(), body, src);
+          stealth_t, stealth_s, u8";s uses ;s to cast a spell.\n", youmes, body, src);
     }
     if (defself >= 0) { // Targeted
       std::u8string youmes = u8"You cast " + SkillName(spname) + u8" on ;s.\n";
       body->Parent()->SendOut(
-          stealth_t, stealth_s, u8";s casts a spell on ;s.\n", youmes.c_str(), body, targ);
+          stealth_t, stealth_s, u8";s casts a spell on ;s.\n", youmes, body, targ);
     } else { // Not Targeted
       std::u8string youmes = u8"You cast " + SkillName(spname) + u8".\n";
-      body->Parent()->SendOut(
-          stealth_t, stealth_s, u8";s casts a spell.\n", youmes.c_str(), body, nullptr);
+      body->Parent()->SendOut(stealth_t, stealth_s, u8";s casts a spell.\n", youmes, body, nullptr);
     }
 
     int force = 1000; // FIXME: Magic Force!
@@ -4678,14 +4662,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       obj->Activate();
       obj->SetPos(pos_t::LIE);
       body->AddAct(act_t::HOLD, obj);
-      body->Parent()->SendOutF(
+      body->Parent()->SendOut(
           0,
           0,
-          u8"%s appears in ;s's hand.\n",
-          u8"%s appears in your hand.\n",
+          u8"{} appears in ;s's hand.\n",
+          u8"{} appears in your hand.\n",
           body,
           nullptr,
-          obj->Noun().c_str());
+          obj->Noun());
     } else if (spname == prhash(u8"Identify")) { // Other kinds of spells
       if (mind) {
         mind->Send(CCYN);
@@ -4737,14 +4721,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       if (body->Pos() != pos_t::USE) {
         mind->Send(u8"You're not using a skill.  Try 'use <skillname>' to start.\n");
       } else {
-        body->Parent()->SendOutF(
+        body->Parent()->SendOut(
             stealth_t,
             stealth_s,
-            u8";s stops %s.\n",
-            u8"You stop %s.\n",
+            u8";s stops {}.\n",
+            u8"You stop {}.\n",
             body,
             nullptr,
-            body->UsingString().c_str());
+            body->UsingString());
         body->SetPos(pos_t::STAND);
         return 2;
       }
@@ -4826,23 +4810,23 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       }
 
       if (body->Pos() != pos_t::STAND && body->Pos() != pos_t::USE) { // FIXME: Unused
-        body->Parent()->SendOutF(
+        body->Parent()->SendOut(
             stealth_t,
             stealth_s,
-            u8";s stands and starts %s.\n",
-            u8"You stand up and start %s.\n",
+            u8";s stands and starts {}.\n",
+            u8"You stand up and start {}.\n",
             body,
             nullptr,
-            body->UsingString().c_str());
+            body->UsingString());
       } else {
-        body->Parent()->SendOutF(
+        body->Parent()->SendOut(
             stealth_t,
             stealth_s,
-            u8";s starts %s.\n",
-            u8"You start %s.\n",
+            u8";s starts {}.\n",
+            u8"You start {}.\n",
             body,
             nullptr,
-            body->UsingString().c_str());
+            body->UsingString());
       }
       if (!body->HasSkill(skill)) {
         mind->Send(
@@ -5318,32 +5302,32 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       int stun = 0;
       if (sk1 == prhash(u8"Kicking")) { // Kicking Action
         stun = 1;
-        body->Parent()->SendOutF(
-            ALL, -1, u8"*;s kicks ;s%s.\n", u8"*You kick ;s%s.\n", body, targ, locm.c_str());
+        body->Parent()->SendOut(
+            ALL, -1, u8"*;s kicks ;s{}.\n", u8"*You kick ;s{}.\n", body, targ, locm);
       } else if (
           body->IsAct(act_t::WIELD) // Ranged Weapon
           && body->ActTarg(act_t::WIELD)->Skill(prhash(u8"WeaponReach")) > 9) {
-        body->Parent()->SendOutF(
+        body->Parent()->SendOut(
             ALL,
             -1,
-            u8"*;s throws %s and hits ;s%s.\n",
-            u8"*You throw %s and hit ;s%s.\n",
+            u8"*;s throws {} and hits ;s{}.\n",
+            u8"*You throw {} and hit ;s{}.\n",
             body,
             targ,
-            body->ActTarg(act_t::WIELD)->ShortDescC(),
-            locm.c_str());
+            body->ActTarg(act_t::WIELD)->ShortDesc(),
+            locm);
         body->ActTarg(act_t::WIELD)->Travel(body->Parent()); // FIXME: Get Another
         body->StopAct(act_t::WIELD); // FIXME: Bows/Guns!
       } else if (body->IsAct(act_t::WIELD)) { // Melee Weapon
-        body->Parent()->SendOutF(
+        body->Parent()->SendOut(
             ALL,
             -1,
-            u8"*;s hits ;s%s with %s.\n",
-            u8"*You hit ;s%s with %s.\n",
+            u8"*;s hits ;s{} with {}.\n",
+            u8"*You hit ;s{} with {}.\n",
             body,
             targ,
-            locm.c_str(),
-            body->ActTarg(act_t::WIELD)->ShortDescC());
+            locm,
+            body->ActTarg(act_t::WIELD)->ShortDesc());
       } else { // No Weapon or Natural Weapon
         if (!body->HasSkill(prhash(u8"NaturalWeapon")))
           stun = 1;
@@ -5406,14 +5390,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       } else if (
           body->IsAct(act_t::WIELD) // Ranged Weapon
           && body->ActTarg(act_t::WIELD)->Skill(prhash(u8"WeaponReach")) > 9) {
-        body->Parent()->SendOutF(
+        body->Parent()->SendOut(
             ALL,
             -1,
-            u8"*;s throws %s at ;s, but misses.\n",
-            u8"*You throw %s at ;s, but miss.\n",
+            u8"*;s throws {} at ;s, but misses.\n",
+            u8"*You throw {} at ;s, but miss.\n",
             body,
             targ,
-            body->ActTarg(act_t::WIELD)->ShortDescC());
+            body->ActTarg(act_t::WIELD)->ShortDesc());
         body->ActTarg(act_t::WIELD)->Travel(body->Parent()); // FIXME: Get Another
         body->StopAct(act_t::WIELD); // FIXME: Bows/Guns!
       } else if (body->IsAct(act_t::WIELD)) { // Melee Weapon
@@ -5425,14 +5409,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
             body,
             targ);
       } else { // Unarmed
-        body->Parent()->SendOutF(
+        body->Parent()->SendOut(
             ALL,
             -1,
-            u8";s tries to %s ;s, but misses.\n",
-            u8"You try to %s ;s, but miss.\n",
+            u8";s tries to {} ;s, but misses.\n",
+            u8"You try to {} ;s, but miss.\n",
             body,
             targ,
-            verb.c_str());
+            verb);
       }
     }
 
@@ -6066,7 +6050,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       skills += skn;
       skills += u8"\n";
     }
-    mind->Send(skills.c_str());
+    mind->Send(skills);
 
     return 0;
   }
@@ -6131,7 +6115,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       else
         users += u8" in character room.\n";
     }
-    mind->Send(users.c_str());
+    mind->Send(users);
 
     return 0;
   }
@@ -6155,7 +6139,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           std::u8string(u8"OOC: <") + name + u8"> " + (std::u8string(args)) + u8"\n";
       std::vector<Mind*> mns = get_human_minds();
       for (auto mn : mns) {
-        mn->Send(mes.c_str());
+        mn->Send(mes);
       }
     }
     return 0;
@@ -6180,7 +6164,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           std::u8string(u8"NEWBIE: <") + name + u8"> " + (std::u8string(args)) + u8"\n";
       std::vector<Mind*> mns = get_human_minds();
       for (auto mn : mns) {
-        mn->Send(mes.c_str());
+        mn->Send(mes);
       }
     }
     return 0;
@@ -6487,14 +6471,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     } else if (targ->NormAttribute(5) <= 0) {
       mind->Send(u8"You can't command an object that has no will of its own.\n");
     } else {
-      body->Parent()->SendOutF(
+      body->Parent()->SendOut(
           stealth_t,
           stealth_s,
-          u8";s commands ;s to '%s' with Ninja Powers[TM].\n",
-          u8"You command ;s to '%s'.\n",
+          u8";s commands ;s to '{}' with Ninja Powers[TM].\n",
+          u8"You command ;s to '{}'.\n",
           body,
           targ,
-          std::u8string(args).c_str());
+          args);
 
       if (handle_command(targ, std::u8string(args)) > 0)
         body->Parent()->SendOut(
@@ -6599,14 +6583,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           dirb,
           std::u8string(u8"You see a solid passage leading ") + dirb + u8".\n");
 
-      body->Parent()->SendOutF(
+      body->Parent()->SendOut(
           stealth_t,
           stealth_s,
-          u8";s creates a new dynamic dungeon '%s' with Ninja Powers[TM].\n",
-          u8"You create a new dynamic dungeon '%s'.\n",
+          u8";s creates a new dynamic dungeon '{}' with Ninja Powers[TM].\n",
+          u8"You create a new dynamic dungeon '{}'.\n",
           body,
           nullptr,
-          dir.c_str());
+          dir);
     }
     return 0;
   }
@@ -6655,14 +6639,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     } else {
       Object* link;
 
-      body->Parent()->SendOutF(
+      body->Parent()->SendOut(
           stealth_t,
           stealth_s,
-          u8";s creates a shimmering portal '%s' with Ninja Powers[TM].\n",
-          u8"You create a shimmering portal '%s'.\n",
+          u8";s creates a shimmering portal '{}' with Ninja Powers[TM].\n",
+          u8"You create a shimmering portal '{}'.\n",
           body,
           nullptr,
-          std::u8string(args).c_str());
+          args);
 
       link = new Object(body->Parent());
       link->SetShortDesc(std::u8string(args));
@@ -6728,7 +6712,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       users += pl->Name();
       users += u8"\n";
     }
-    mind->Send(users.c_str());
+    mind->Send(users);
 
     return 0;
   }
@@ -6753,7 +6737,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         chars += u8")\n";
       }
     }
-    mind->Send(chars.c_str());
+    mind->Send(chars);
 
     return 0;
   }
@@ -6857,7 +6841,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           name = name.substr(0, start) + u8"(left)" + name.substr(start + 7);
         }
       }
-      nobj->SetShortDesc(name.c_str());
+      nobj->SetShortDesc(name);
 
       body->Parent()->SendOut(
           stealth_t,
@@ -7102,14 +7086,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
     targ->SetAttribute(stat, targ->NormAttribute(stat) + 1);
 
-    body->Parent()->SendOutF(
+    body->Parent()->SendOut(
         stealth_t,
         stealth_s,
-        u8";s jacks the %s of ;s with Ninja Powers[TM].\n",
-        u8"You jack the %s of ;s.\n",
+        u8";s jacks the {} of ;s with Ninja Powers[TM].\n",
+        u8"You jack the {} of ;s.\n",
         body,
         targ,
-        statnames[stat].c_str());
+        statnames[stat]);
 
     return 0;
   }
@@ -7145,14 +7129,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
     targ->SetAttribute(stat, targ->NormAttribute(stat) - 1);
 
-    body->Parent()->SendOutF(
+    body->Parent()->SendOut(
         stealth_t,
         stealth_s,
-        u8";s chumps the %s of ;s with Ninja Powers[TM].\n",
-        u8"You chump the %s of ;s.\n",
+        u8";s chumps the {} of ;s with Ninja Powers[TM].\n",
+        u8"You chump the {} of ;s.\n",
         body,
         targ,
-        statnames[stat].c_str());
+        statnames[stat]);
 
     return 0;
   }
@@ -7184,14 +7168,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
     targ->SetSkill(std::u8string(args), targ->Skill(crc32c(std::u8string(args))) + amt);
 
-    body->Parent()->SendOutF(
+    body->Parent()->SendOut(
         stealth_t,
         stealth_s,
-        u8";s increments the %s of ;s with Ninja Powers[TM].\n",
-        u8"You increment the %s of ;s.\n",
+        u8";s increments the {} of ;s with Ninja Powers[TM].\n",
+        u8"You increment the {} of ;s.\n",
         body,
         targ,
-        std::u8string(args).c_str());
+        args);
 
     return 0;
   }
@@ -7219,14 +7203,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
     targ->SetSkill(std::u8string(args), targ->Skill(crc32c(std::u8string(args))) - amt);
 
-    body->Parent()->SendOutF(
+    body->Parent()->SendOut(
         stealth_t,
         stealth_s,
-        u8";s decrements the %s of ;s with Ninja Powers[TM].\n",
-        u8"You decrement the %s of ;s.\n",
+        u8";s decrements the {} of ;s with Ninja Powers[TM].\n",
+        u8"You decrement the {} of ;s.\n",
         body,
         targ,
-        std::u8string(args).c_str());
+        args);
 
     return 0;
   }
