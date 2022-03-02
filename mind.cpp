@@ -511,7 +511,8 @@ void Mind::SetRemote(int fd) {
     ++lognum;
     sprintf(buf, u8"logs/%.8lX.log%c", lognum, 0);
   }
-  log = open8(buf, O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, S_IRUSR | S_IWUSR);
+  log =
+      open(reinterpret_cast<char*>(buf), O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, S_IRUSR | S_IWUSR);
 }
 
 void Mind::SetMob() {

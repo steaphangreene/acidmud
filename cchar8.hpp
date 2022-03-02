@@ -36,14 +36,6 @@ const char8_t* crypt8(auto&& ps, auto&& sl) {
       crypt(reinterpret_cast<const char*>(ps), reinterpret_cast<const char*>(sl)));
 };
 
-int open8(auto&& fn, auto&& fl) {
-  return open(reinterpret_cast<const char*>(fn), fl);
-};
-
-int open8(auto&& fn, auto&& fl, auto&& md) {
-  return open(reinterpret_cast<const char*>(fn), fl, md);
-};
-
 auto fopen(auto&& fn, auto&& md) {
   return std::fopen(reinterpret_cast<const char*>(fn), reinterpret_cast<const char*>(md));
 };
