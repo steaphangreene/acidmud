@@ -689,14 +689,18 @@ bool Mind::Send(const std::u8string& mes) {
 void Mind::SetPName(std::u8string pn) {
   pname = pn;
   if (player_exists(pname))
-    SendF(u8"%c%c%cReturning player - welcome back!\n", IAC, WILL, TELOPT_ECHO);
+    Send(
+        u8"{}{}{}Returning player - welcome back!\n",
+        static_cast<char8_t>(IAC),
+        static_cast<char8_t>(WILL),
+        static_cast<char8_t>(TELOPT_ECHO));
   else
-    SendF(
-        u8"%c%c%cNew player (%s) - enter SAME new password twice.\n",
-        IAC,
-        WILL,
-        TELOPT_ECHO,
-        pname.c_str());
+    Send(
+        u8"{}{}{}New player ({}) - enter SAME new password twice.\n",
+        static_cast<char8_t>(IAC),
+        static_cast<char8_t>(WILL),
+        static_cast<char8_t>(TELOPT_ECHO),
+        pname);
 }
 
 void Mind::SetPPass(std::u8string ppass) {
@@ -704,19 +708,35 @@ void Mind::SetPPass(std::u8string ppass) {
     player = player_login(pname, ppass);
     if (player == nullptr) {
       if (player_exists(pname))
-        SendF(u8"%c%c%cName and/or password is incorrect.\n", IAC, WONT, TELOPT_ECHO);
+        Send(
+            u8"{}{}{}Name and/or password is incorrect.\n",
+            static_cast<char8_t>(IAC),
+            static_cast<char8_t>(WONT),
+            static_cast<char8_t>(TELOPT_ECHO));
       else
-        SendF(u8"%c%c%cPasswords do not match - try again.\n", IAC, WONT, TELOPT_ECHO);
+        Send(
+            u8"{}{}{}Passwords do not match - try again.\n",
+            static_cast<char8_t>(IAC),
+            static_cast<char8_t>(WONT),
+            static_cast<char8_t>(TELOPT_ECHO));
       pname = u8"";
       return;
     }
   } else if (!player) {
     new Player(pname, ppass);
-    SendF(u8"%c%c%cEnter password again for verification.\n", IAC, WILL, TELOPT_ECHO);
+    Send(
+        u8"{}{}{}Enter password again for verification.\n",
+        static_cast<char8_t>(IAC),
+        static_cast<char8_t>(WILL),
+        static_cast<char8_t>(TELOPT_ECHO));
     return;
   }
 
-  SendF(u8"%c%c%c", IAC, WONT, TELOPT_ECHO);
+  Send(
+      u8"{}{}{}",
+      static_cast<char8_t>(IAC),
+      static_cast<char8_t>(WONT),
+      static_cast<char8_t>(TELOPT_ECHO));
   svars = player->Vars();
   player->Room()->SendDesc(this);
   player->Room()->SendContents(this);
