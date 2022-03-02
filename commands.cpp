@@ -1645,8 +1645,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       std::transform(mes.begin(), mes.end(), mes.begin(), ascii_toupper);
       body->Parent()->SendOut(
           ALL, 0, u8";s shouts '{}'!!!\n", u8"You shout '{}'!!!\n", body, body, mes);
-      body->Parent()->Loud(
-          body->Skill(prhash(u8"Strength")), u8"someone shout '{}'!!!", mes);
+      body->Parent()->Loud(body->ModAttribute(2), u8"someone shout '{}'!!!", mes);
     }
     body->SetSkill(prhash(u8"Hidden"), 0);
     return 0;

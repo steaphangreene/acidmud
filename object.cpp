@@ -3372,26 +3372,13 @@ void Object::Loud(int str, const std::u8string& mes) {
 
 void Object::Loud(std::set<Object*>& visited, int str, const std::u8string& mes) {
   visited.insert(this);
-  auto targs = PickObjects(u8"all", LOC_INTERNAL);
+  auto targs = Connections(true);
   for (auto dest : targs) {
-    if (dest->HasSkill(prhash(u8"Enterable"))) {
-      int ostr = str;
-      --str;
-      if (dest->Skill(prhash(u8"Open")) < 1) {
-        --str;
+    if (dest && dest->Parent() && str > 0) {
+      if (!visited.contains(dest->Parent())) {
+        dest->Parent()->SendOut(ALL, 0, u8"From ;s you hear '{}'\n", u8"", dest, dest, mes);
+        dest->Parent()->Loud(visited, str - 1, mes);
       }
-      if (str >= 0) {
-        if (dest->ActTarg(act_t::SPECIAL_LINKED) &&
-            dest->ActTarg(act_t::SPECIAL_LINKED)->Parent()) {
-          dest = dest->ActTarg(act_t::SPECIAL_LINKED);
-          if (visited.count(dest->Parent()) < 1) {
-            dest->Parent()->SendOutF(
-                ALL, 0, u8"From ;s you hear %s\n", u8"", dest, dest, mes.c_str());
-            dest->Parent()->Loud(visited, str, mes.c_str());
-          }
-        }
-      }
-      str = ostr;
     }
   }
 }
@@ -3809,18 +3796,19 @@ MinVec<7, Object*> Object::Connections(int vmode) const {
   return ret;
 }
 
-MinVec<7, Object*> Object::Connections() const {
+MinVec<7, Object*> Object::Connections(bool exits) const {
   MinVec<7, Object*> ret; // Includes nulls for unconnected dirs
   for (std::u8string dir : {u8"north", u8"south", u8"east", u8"west", u8"up", u8"down"}) {
+    Object* door = PickObject(dir, LOC_NINJA | LOC_INTERNAL);
+    Object* odoor = nullptr;
     Object* conn = nullptr;
-    Object* door = PickObject(dir, LOC_INTERNAL);
     if (door) {
-      Object* odoor = door->ActTarg(act_t::SPECIAL_LINKED);
+      odoor = door->ActTarg(act_t::SPECIAL_LINKED);
       if (odoor) {
         conn = odoor->Parent();
       }
     }
-    ret.push_back(conn);
+    ret.push_back((conn && exits) ? odoor : conn);
   }
   return ret;
 }
