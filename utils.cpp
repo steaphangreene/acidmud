@@ -80,7 +80,7 @@ size_t prev_line(const std::u8string& str, size_t pos) {
   return pos;
 }
 
-int phrase_match_sensitive(const std::u8string& str, const std::u8string& phrase) {
+int phrase_match_sensitive(const std::u8string_view& str, const std::u8string_view& phrase) {
   auto len = phrase.length();
   auto desc = str.data();
   size_t off = 0;
@@ -100,12 +100,12 @@ int phrase_match_sensitive(const std::u8string& str, const std::u8string& phrase
   return 0;
 }
 
-int phrase_match(const std::u8string& str, const std::u8string& phrase) {
+int phrase_match(const std::u8string_view& str, const std::u8string_view& phrase) {
   if (phrase.length() == 0)
     return 0;
 
   if (std::any_of(str.cbegin(), str.cend(), ascii_isupper)) {
-    std::u8string str2 = str;
+    std::u8string str2(str);
     std::transform(str2.begin(), str2.end(), str2.begin(), ascii_tolower);
     return phrase_match_sensitive(str2, phrase);
   } else {
@@ -113,7 +113,7 @@ int phrase_match(const std::u8string& str, const std::u8string& phrase) {
   }
 }
 
-int words_match(const std::u8string& str, const std::u8string& words) {
+int words_match(const std::u8string_view& str, const std::u8string_view& words) {
   size_t start = words.find_first_of(alpha);
   while (start != std::u8string::npos) {
     size_t end = words.find_first_not_of(alnum, start);

@@ -382,9 +382,10 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
         if (objs[coord{x, y}].size() > 1) {
           for (uint32_t f = 0; f < objs[coord{x, y}].size(); ++f) {
             objs[coord{x, y}][f]->SetShortDesc(floornames[f] + roomname);
-            objs[coord{x, y}][f]->SetDesc(
-                std::u8string(u8"This is a building in ") + zone->ShortDesc() + u8", on " +
-                world->ShortDesc() + u8".  " + zone->ShortDesc() + u8" is nice.");
+            objs[coord{x, y}][f]->SetDesc(fmt::format(
+                u8"This is a building in {0}, on {1}.  {0} is nice.",
+                zone->ShortDesc(),
+                world->ShortDesc()));
             if (f > 0) {
               objs[coord{x, y}][f]->Link(
                   objs[coord{x, y}][f - 1],
@@ -396,9 +397,8 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
           }
         } else {
           objs[coord{x, y}].back()->SetShortDesc(roomname);
-          objs[coord{x, y}].back()->SetDesc(
-              std::u8string(u8"This is ") + zone->ShortDesc() + u8", on " + world->ShortDesc() +
-              u8".  " + zone->ShortDesc() + u8" is nice.");
+          objs[coord{x, y}].back()->SetDesc(fmt::format(
+              u8"This is {0}, on {1}.  {0} is nice.", zone->ShortDesc(), world->ShortDesc()));
         }
 
         // Load data for housing capacities for these new objects
@@ -496,9 +496,8 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
           }
           if (!en_rooms.empty()) {
             objs[coord{x, y}].back()->SetShortDesc(en_rooms.front());
-            objs[coord{x, y}].back()->SetDesc(
-                std::u8string(u8"This is ") + zone->ShortDesc() + u8", on " + world->ShortDesc() +
-                u8".  " + zone->ShortDesc() + u8" is nice.");
+            objs[coord{x, y}].back()->SetDesc(fmt::format(
+                u8"This is {0}, on {1}.  {0} is nice.", zone->ShortDesc(), world->ShortDesc()));
           }
           objs[coord{x, y}].back()->SetCoords(x, y);
         }

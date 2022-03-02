@@ -836,13 +836,13 @@ void Object::TBALoadMOB(const std::u8string& fn) {
               aliases[actr] == u8"guard" && aliases.size() > (actr + 1) &&
               aliases[actr + 1] == u8"royal") {
             // Auto-fix royal guards who just show as u8"Jim" etc.
-            obj->SetShortDesc(obj->ShortDesc() + u8" the Royal Guard");
+            obj->SetShortDesc(obj->ShortDescS() + u8" the Royal Guard");
           } else if (aliases[actr] == u8"guildguard") {
             // Auto-fix guildguards who don't show they are that
             if (obj->ShortDesc().substr(0, 4) == u8"the ")
-              obj->SetShortDesc(obj->ShortDesc() + u8" guildguard");
+              obj->SetShortDesc(obj->ShortDescS() + u8" guildguard");
             else
-              obj->SetShortDesc(obj->ShortDesc() + u8" the guildguard");
+              obj->SetShortDesc(obj->ShortDescS() + u8" the guildguard");
           } else {
             // fprintf(
             //    stderr,
@@ -859,7 +859,7 @@ void Object::TBALoadMOB(const std::u8string& fn) {
       if (!label.empty()) {
         label[0] = '(';
         label += ')';
-        obj->SetShortDesc(obj->ShortDesc() + u8" " + label);
+        obj->SetShortDesc(obj->ShortDescS() + u8" " + label);
       }
 
       obj->SetDesc(load_tba_field(mudm));
@@ -1303,7 +1303,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       if (!label.empty()) {
         label[0] = '(';
         label += ')';
-        obj->SetShortDesc(obj->ShortDesc() + u8" " + label);
+        obj->SetShortDesc(obj->ShortDescS() + u8" " + label);
       }
 
       auto field = load_tba_field(mudo);
@@ -1380,7 +1380,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       else if (!strncmp(obj->ShortDescC(), u8"a set of ", 9))
         sf = 8;
 
-      std::u8string name = obj->ShortDesc();
+      std::u8string name = obj->ShortDescS();
       if (strcasestr8(buf, u8"b") || (atoi(buf) & 2)) {
         obj->SetSkill(prhash(u8"Wearable on Left Finger"), 1); // Two Alternatives
         obj->SetSkill(prhash(u8"Wearable on Right Finger"), 2);
@@ -2290,7 +2290,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
               // fprintf(stderr, CYEL u8"Warning: Duplicate (%s) extra for '%s'!\n" CNRM, buf,
               // obj->ShortDescC());
             } else {
-              std::u8string sd = obj->ShortDesc();
+              std::u8string sd = obj->ShortDescS();
               if (sd.back() == ')') {
                 sd.back() = ' ';
               } else {
@@ -2309,7 +2309,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
           if (!obj->HasLongDesc()) {
             obj->SetLongDesc(buf);
           } else {
-            std::u8string ld = obj->LongDesc();
+            std::u8string ld = obj->LongDescS();
             ld += u8"\n\n";
             ld += buf;
             obj->SetLongDesc(ld);
@@ -2387,7 +2387,7 @@ void Object::TBALoadWLD(const std::u8string& fn) {
       else if (val == 8)
         obj->SetSkill(prhash(u8"WaterDepth"), 3); // UNDERWATER
 
-      std::u8string name = obj->ShortDesc();
+      std::u8string name = obj->ShortDescS();
       if (name.find(u8"Secret") >= 0 && name.find(u8"Secret") < name.length()) {
         obj->SetSkill(prhash(u8"Accomplishment"), 1100000 + onum);
       }
@@ -2497,7 +2497,7 @@ void Object::TBALoadWLD(const std::u8string& fn) {
                 if (cind->ActTarg(act_t::SPECIAL_LINKED)->Parent() == bynumwld[tnum]) {
                   nobj = cind;
                   nobj2 = cind->ActTarg(act_t::SPECIAL_LINKED);
-                  nm = nobj->ShortDesc() + u8" and " + dirname[dir];
+                  nm = nobj->ShortDescS() + u8" and " + dirname[dir];
                 }
               }
             }

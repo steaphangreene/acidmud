@@ -46,9 +46,11 @@ size_t prev_line( // IDX of prev line start, skipping leading whitespace
 
 void trim_string(std::u8string& str); // Remove extra whitespace from string
 
-int phrase_match(const std::u8string& str, const std::u8string& phrase /* lowercase! */);
-int phrase_match_sensitive(const std::u8string& str, const std::u8string& phrase /* non-empty! */);
-int words_match(const std::u8string& str, const std::u8string& words);
+int phrase_match(const std::u8string_view& str, const std::u8string_view& phrase /* lowercase! */);
+int phrase_match_sensitive(
+    const std::u8string_view& str,
+    const std::u8string_view& phrase /* non-empty! */);
+int words_match(const std::u8string_view& str, const std::u8string_view& words);
 
 constexpr char8_t ascii_tolower(char8_t chr) {
   return (chr >= 'A' && chr <= 'Z') ? (chr - 'A') + 'a' : chr;
@@ -141,6 +143,10 @@ inline uint32_t crc32c(const char8_t* str, int32_t len) {
 }
 
 inline uint32_t crc32c(const std::u8string& str) {
+  return crc32c(str.data(), str.length());
+}
+
+inline uint32_t crc32c(const std::u8string_view& str) {
   return crc32c(str.data(), str.length());
 }
 

@@ -190,22 +190,72 @@ class alignas(256) Object {
   std::u8string Pron() const;
   std::u8string Poss() const;
   std::u8string Obje() const;
-  std::u8string ShortDesc() const;
-  std::u8string Name() const;
-  std::u8string Desc() const;
-  std::u8string LongDesc() const;
-  const char8_t* ShortDescC() const;
-  const char8_t* NameC() const;
-  const char8_t* DescC() const;
-  const char8_t* LongDescC() const;
-  bool HasName() const;
-  bool HasDesc() const;
-  bool HasLongDesc() const;
+
+  bool HasName() const {
+    return (dlens.n != 0);
+  };
+
+  bool HasDesc() const {
+    return (dlens.d != 0);
+  };
+
+  bool HasLongDesc() const {
+    return (dlens.ld != 0);
+  };
+
+  std::u8string_view ShortDesc() const {
+    return std::u8string_view(descriptions, dlens.sd);
+  };
+
+  std::u8string_view Name() const {
+    return std::u8string_view(descriptions + dlens.sd + 1, dlens.n);
+  };
+
+  std::u8string_view Desc() const {
+    return std::u8string_view(descriptions + dlens.sd + dlens.n + 2, dlens.d);
+  };
+
+  std::u8string_view LongDesc() const {
+    return std::u8string_view(descriptions + dlens.sd + dlens.n + dlens.d + 3, dlens.ld);
+  };
+
+  const char8_t* ShortDescC() const {
+    return descriptions;
+  };
+
+  const char8_t* NameC() const {
+    return descriptions + dlens.sd + 1;
+  };
+
+  const char8_t* DescC() const {
+    return descriptions + dlens.sd + dlens.n + 2;
+  };
+
+  const char8_t* LongDescC() const {
+    return descriptions + dlens.sd + dlens.n + dlens.d + 3;
+  };
+
+  std::u8string ShortDescS() const {
+    return std::u8string(ShortDesc());
+  };
+
+  std::u8string NameS() const {
+    return std::u8string(Name());
+  };
+
+  std::u8string DescS() const {
+    return std::u8string(Desc());
+  };
+
+  std::u8string LongDescS() const {
+    return std::u8string(LongDesc());
+  };
+
   void SetDescs(std::u8string, std::u8string, std::u8string, std::u8string);
-  void SetShortDesc(const std::u8string&);
-  void SetName(const std::u8string&);
-  void SetDesc(const std::u8string&);
-  void SetLongDesc(const std::u8string&);
+  void SetShortDesc(const std::u8string_view&);
+  void SetName(const std::u8string_view&);
+  void SetDesc(const std::u8string_view&);
+  void SetLongDesc(const std::u8string_view&);
   void SetParent(Object*);
   Object* Parent() const {
     return parent;
@@ -638,7 +688,7 @@ void save_world(int with_net = 0);
 Object* new_body(Object* world);
 Object* getbynum(int);
 int getnum(Object*);
-int matches(const std::u8string& name, const std::u8string& seek);
+int matches(const std::u8string_view& name, const std::u8string_view& seek);
 Mind* get_mob_mind();
 Mind* get_tba_mob_mind();
 

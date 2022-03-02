@@ -2387,7 +2387,7 @@ int Mind::TBARunLine(std::u8string line) {
       //	body->Skill(prhash(u8"TBAScript")), line.c_str()
       //	);
       if (door) {
-        std::u8string newname = door->ShortDesc();
+        std::u8string newname = door->ShortDescS();
         size_t end = newname.find(u8"(");
         if (end != std::u8string::npos) {
           end = newname.find_last_not_of(u8" \t", end - 1);
@@ -2985,7 +2985,7 @@ bool Mind::Think(int istick) {
     // Temporary
     if (body && body->ActTarg(act_t::WEAR_SHIELD) && (!body->IsAct(act_t::HOLD))) {
       std::u8string command =
-          std::u8string(u8"hold ") + body->ActTarg(act_t::WEAR_SHIELD)->ShortDesc();
+          std::u8string(u8"hold ") + body->ActTarg(act_t::WEAR_SHIELD)->ShortDescS();
       body->BusyFor(500, command.c_str());
       return true;
     } else if (
@@ -2996,7 +2996,7 @@ bool Mind::Think(int istick) {
         if (body->Parent())
           body->Parent()->SendOut(ALL, 0, u8";s stashes ;s.\n", u8"", body, targ);
         std::u8string command =
-            std::u8string(u8"hold ") + body->ActTarg(act_t::WEAR_SHIELD)->ShortDesc();
+            std::u8string(u8"hold ") + body->ActTarg(act_t::WEAR_SHIELD)->ShortDescS();
         body->BusyFor(500, command.c_str());
       } else {
         // fprintf(stderr, u8"Warning: %s can't use his shield!\n", body->Noun().c_str());
@@ -3020,7 +3020,7 @@ bool Mind::Think(int istick) {
             && (!other->IsAct(act_t::DYING)) // It's not already dying
             && (!other->IsAct(act_t::DEAD)) // It's not already dead
         ) {
-          std::u8string command = std::u8string(u8"attack ") + other->ShortDesc();
+          std::u8string command = std::u8string(u8"attack ") + other->ShortDescS();
           body->BusyFor(500, command.c_str());
           // fprintf(stderr, u8"%s: Tried '%s'\n", body->ShortDescC(), command.c_str());
           return true;
@@ -3056,7 +3056,7 @@ bool Mind::Think(int istick) {
             && (!other->IsAct(act_t::DYING)) // It's not already dying
             && (!other->IsAct(act_t::DEAD)) // It's not already dead
         ) {
-          std::u8string command = std::u8string(u8"attack ") + other->ShortDesc();
+          std::u8string command = std::u8string(u8"attack ") + other->ShortDescS();
           body->BusyFor(500, command.c_str());
           // fprintf(stderr, u8"%s: Tried '%s'\n", body->ShortDescC(), command.c_str());
           return true;
@@ -3092,7 +3092,7 @@ bool Mind::Think(int istick) {
             && other->ActTarg(act_t::FIGHT)->HasSkill(prhash(u8"TBAAction"))
             //...against another MOB
         ) {
-          std::u8string command = std::u8string(u8"call ALARM; attack ") + other->ShortDesc();
+          std::u8string command = std::u8string(u8"call ALARM; attack ") + other->ShortDescS();
           body->BusyFor(500, command.c_str());
           // fprintf(stderr, u8"%s: Tried '%s'\n", body->ShortDescC(), command.c_str());
           return true;

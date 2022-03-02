@@ -125,7 +125,7 @@ Object* Object::Zone() {
   return zone;
 }
 
-int matches(const std::u8string& name, const std::u8string& seek) {
+int matches(const std::u8string_view& name, const std::u8string_view& seek) {
   if (seek.empty())
     return 0;
 
@@ -147,9 +147,9 @@ int matches(const std::u8string& name, const std::u8string& seek) {
   if (stok == crc32c(u8"guard") || stok == crc32c(u8"smith") || stok == crc32c(u8"master") ||
       stok == crc32c(u8"sword") || stok == crc32c(u8"hammer") || stok == crc32c(u8"axe") ||
       stok == crc32c(u8"bow") || stok == crc32c(u8"staff") || stok == crc32c(u8"keeper")) {
-    auto part = seek;
+    std::u8string part(seek);
     std::transform(part.begin(), part.end(), part.begin(), ascii_tolower);
-    auto word = name;
+    std::u8string word(name);
     std::transform(word.begin(), word.end(), word.begin(), ascii_tolower);
 
     auto cont = word.find(part);
@@ -956,55 +956,11 @@ std::u8string Object::Noun(bool definite, const Object* rel, const Object* sub) 
   }
 
   if (HasName() && (rel == nullptr || rel->Knows(this))) {
-    ret = Name() + u8", " + ret + u8",";
+    ret = NameS() + u8", " + ret + u8",";
   }
 
   local = ret;
   return local;
-}
-
-bool Object::HasName() const {
-  return (dlens.n != 0);
-}
-
-bool Object::HasDesc() const {
-  return (dlens.d != 0);
-}
-
-bool Object::HasLongDesc() const {
-  return (dlens.ld != 0);
-}
-
-std::u8string Object::ShortDesc() const {
-  return std::u8string(descriptions, dlens.sd);
-}
-
-std::u8string Object::Name() const {
-  return std::u8string(descriptions + dlens.sd + 1, dlens.n);
-}
-
-std::u8string Object::Desc() const {
-  return std::u8string(descriptions + dlens.sd + dlens.n + 2, dlens.d);
-}
-
-std::u8string Object::LongDesc() const {
-  return std::u8string(descriptions + dlens.sd + dlens.n + dlens.d + 3, dlens.ld);
-}
-
-const char8_t* Object::ShortDescC() const {
-  return descriptions;
-}
-
-const char8_t* Object::NameC() const {
-  return descriptions + dlens.sd + 1;
-}
-
-const char8_t* Object::DescC() const {
-  return descriptions + dlens.sd + dlens.n + 2;
-}
-
-const char8_t* Object::LongDescC() const {
-  return descriptions + dlens.sd + dlens.n + dlens.d + 3;
 }
 
 static void trim(std::u8string& s) {
@@ -1032,19 +988,19 @@ void Object::SetDescs(std::u8string sd, std::u8string n, std::u8string d, std::u
   trim(ld);
   if (sd.length() > 80) { // No longer than one traditional line of text
     sd = sd.substr(0, 80);
-    trim(sd);
+    trim_string(sd);
   }
   if (n.length() > 80) { // No longer than one traditional line of text
     n = n.substr(0, 80);
-    trim(n);
+    trim_string(n);
   }
   if (d.length() > 8000) { // No longer than 100 traditional lines of text
     d = d.substr(0, 8000);
-    trim(d);
+    trim_string(d);
   }
   if (ld.length() > 0xFFFFUL) { // Max size this field can store
     ld = ld.substr(0, 0xFFFFUL);
-    trim(ld);
+    trim_string(ld);
   }
   dlens.sd = sd.length();
   dlens.n = n.length();
@@ -1062,20 +1018,20 @@ void Object::SetDescs(std::u8string sd, std::u8string n, std::u8string d, std::u
   descriptions = new_descs;
 }
 
-void Object::SetShortDesc(const std::u8string& d) {
-  SetDescs(d, Name(), Desc(), LongDesc());
+void Object::SetShortDesc(const std::u8string_view& d) {
+  SetDescs(std::u8string(d), NameS(), DescS(), LongDescS());
 }
 
-void Object::SetName(const std::u8string& n) {
-  SetDescs(ShortDesc(), n, Desc(), LongDesc());
+void Object::SetName(const std::u8string_view& n) {
+  SetDescs(ShortDescS(), std::u8string(n), DescS(), LongDescS());
 }
 
-void Object::SetDesc(const std::u8string& d) {
-  SetDescs(ShortDesc(), Name(), d, LongDesc());
+void Object::SetDesc(const std::u8string_view& d) {
+  SetDescs(ShortDescS(), NameS(), std::u8string(d), LongDescS());
 }
 
-void Object::SetLongDesc(const std::u8string& d) {
-  SetDescs(ShortDesc(), Name(), Desc(), d);
+void Object::SetLongDesc(const std::u8string_view& d) {
+  SetDescs(ShortDescS(), NameS(), DescS(), std::u8string(d));
 }
 
 void Object::SetParent(Object* o) {
@@ -1316,7 +1272,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::u8string b) {
           if (base != u8"")
             m->Send(u8"{}{}Inside: ", base, CNRM);
           m->Send(CCYN);
-          std::u8string send = ind->ShortDesc();
+          std::u8string send = ind->ShortDescS();
           if (!(ind->Skill(prhash(u8"Open")) || ind->Skill(prhash(u8"Transparent")))) {
             send += u8", the door is closed.\n";
           } else {
@@ -3361,7 +3317,7 @@ void Object::SendOut(
 
   if (targ && targ != this && minds.size() > 0 && targ->HasSkill(prhash(u8"Object ID")) &&
       mes.starts_with(u8";s introduces ;s as")) {
-    Learn(targ->Skill(prhash(u8"Object ID")), targ->Name());
+    Learn(targ->Skill(prhash(u8"Object ID")), targ->NameS());
   }
 }
 

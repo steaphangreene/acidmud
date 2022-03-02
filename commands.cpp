@@ -1062,7 +1062,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
               cmln =
                   std::u8string(comlist[cnum].command) + std::u8string(u8" ") + std::u8string(args);
             } else {
-              cmln = trig->Desc() + std::u8string(u8" ") + std::u8string(args);
+              cmln = trig->DescS() + std::u8string(u8" ") + std::u8string(args);
             }
             if (!new_trigger(0, trig, body, cmln)) {
               return 0; // Handled, unless script says not.
@@ -3400,7 +3400,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       return 0;
     }
 
-    std::u8string name = body->ActTarg(act_t::HOLD)->ShortDesc();
+    std::u8string name = body->ActTarg(act_t::HOLD)->ShortDescS();
     size_t start = name.find_first_of('(');
     if (start != name.npos) {
       name = name.substr(0, start);
@@ -3428,7 +3428,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     }
 
     if (args.empty()) { // Just Checking Label
-      std::u8string label = body->ActTarg(act_t::HOLD)->ShortDesc();
+      std::u8string label = body->ActTarg(act_t::HOLD)->ShortDescS();
       size_t start = label.find_first_of('(');
       if (start == label.npos) {
         if (mind)
@@ -3445,7 +3445,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           mind->Send(u8"{} is labeled '{}'.\n", body->ActTarg(act_t::HOLD)->Noun(1, body), label);
       }
     } else { // Adding to Label
-      std::u8string name = body->ActTarg(act_t::HOLD)->ShortDesc();
+      std::u8string name = body->ActTarg(act_t::HOLD)->ShortDescS();
       std::u8string label = name;
       size_t start = label.find_first_of('(');
       if (start == label.npos) {
@@ -5475,7 +5475,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     }
 
     body = new_body(chr->World());
-    body->SetDescs(u8"a human adventurer", chr->Name(), u8"", u8"");
+    body->SetDescs(u8"a human adventurer", chr->NameS(), u8"", u8"");
     mind->Owner()->AddChar(body);
     delete chr;
 
@@ -5548,7 +5548,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
     if (args == std::u8string_view(u8"fighter").substr(0, args.length())) {
       body = new_body(chr->World());
-      body->SetDescs(u8"a human fighter", chr->Name(), u8"", u8"");
+      body->SetDescs(u8"a human fighter", chr->NameS(), u8"", u8"");
       mind->Owner()->AddChar(body);
       delete chr;
 
@@ -6111,7 +6111,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     for (auto mn : mns) {
       users += mn->Owner()->Name();
       if (mn->Body())
-        users = users + u8" as " + mn->Body()->ShortDesc() + u8".\n";
+        users = users + u8" as " + mn->Body()->ShortDescS() + u8".\n";
       else
         users += u8" in character room.\n";
     }
@@ -6312,7 +6312,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       return 0;
     }
     if (!args.empty()) {
-      std::u8string oldn = targ->ShortDesc();
+      std::u8string oldn = targ->ShortDescS();
       targ->SetShortDesc(std::u8string(args));
       mind->Send(u8"You re-brief '{}' to '{}'\n", oldn,
                  targ->ShortDesc()); // FIXME - Real Message
@@ -6331,7 +6331,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       return 0;
     }
     if (!args.empty()) {
-      std::u8string oldn = targ->Name();
+      std::u8string oldn = targ->NameS();
       targ->SetName(std::u8string(args));
       mind->Send(u8"You rename '{}' to '{}'\n", oldn,
                  targ->Name()); // FIXME - Real Message
@@ -6380,7 +6380,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         targ->SetDesc(std::u8string(args));
         mind->Send(u8"You add a description to '{}'\n", targ->Noun(0, body));
       } else {
-        targ->SetDesc(targ->Desc() + std::u8string(u8"\n") + (std::u8string(args)));
+        targ->SetDesc(targ->DescS() + std::u8string(u8"\n") + (std::u8string(args)));
         mind->Send(u8"You add to the description of '{}'\n", targ->Noun(0, body));
       }
     } else {
@@ -6422,7 +6422,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         targ->SetLongDesc(std::u8string(args));
         mind->Send(u8"You add a definition to '{}'\n", targ->Noun(0, body));
       } else {
-        targ->SetLongDesc(targ->LongDesc() + std::u8string(u8"\n") + (std::u8string(args)));
+        targ->SetLongDesc(targ->LongDescS() + std::u8string(u8"\n") + (std::u8string(args)));
         mind->Send(u8"You add to the definition of '{}'\n", targ->Noun(0, body));
       }
     } else {
@@ -6831,7 +6831,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           prhash(u8"Wearable on Right Hip"), targ->Skill(prhash(u8"Wearable on Left Hip")));
 
       int start;
-      std::u8string name = nobj->ShortDesc();
+      std::u8string name = nobj->ShortDescS();
       start = name.find(std::u8string(u8"(left)"));
       if (start < int(name.length()) && start >= 0) {
         name = name.substr(0, start) + u8"(right)" + name.substr(start + 6);
