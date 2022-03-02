@@ -24,6 +24,10 @@
 #include <string>
 #include <vector>
 
+// Replace with C++20 std::format, when widely available
+#define FMT_HEADER_ONLY
+#include <fmt/format.h>
+
 #include <fcntl.h>
 #include <sys/time.h>
 #include <ctime>
@@ -491,7 +495,15 @@ class alignas(256) Object {
 
   // Unformatted (raw print, but with ;s/;s for actor/targ)
   void Send(channel_t channel, const std::u8string& mes);
+  template <typename... Args>
+  void Send(channel_t channel, const std::u8string& mes, Args... args) {
+    Send(channel, fmt::format(mes, args...));
+  };
   void Send(int targ, int rsucc, const std::u8string& mes);
+  template <typename... Args>
+  void Send(int targ, int rsucc, const std::u8string& mes, Args... args) {
+    Send(targ, rsucc, fmt::format(mes, args...));
+  };
   void SendOut(
       int tnum,
       int rsucc,
