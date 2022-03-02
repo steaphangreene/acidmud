@@ -51,7 +51,7 @@ Player::Player(std::u8string nm, std::u8string ps) {
       app[0] = salt_char[rand() & 63];
       salt += app;
     }
-    pass = crypt(ps.c_str(), salt.c_str());
+    pass = crypt8(ps.c_str(), salt.c_str());
   }
   player_list[name] = this;
   non_init.insert(this);
@@ -122,7 +122,7 @@ Player* player_login(std::u8string name, std::u8string pass) {
     return nullptr;
 
   Player* pl = player_list[name];
-  std::u8string enpass = crypt(pass.c_str(), pl->pass.c_str());
+  std::u8string enpass = crypt8(pass.c_str(), pl->pass.c_str());
 
   //  fprintf(stderr, u8"Trying %s:%s\n", name.c_str(), enpass.c_str());
 

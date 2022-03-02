@@ -27,24 +27,28 @@
 #include <cstring>
 #include <string>
 
-void perror(auto&& ms) {
+#include <crypt.h>
+#include <netdb.h>
+#include <unistd.h>
+
+void perror8(auto&& ms) {
   perror(reinterpret_cast<const char*>(ms));
 };
 
-const char8_t* crypt(auto&& ps, auto&& sl) {
+const char8_t* crypt8(auto&& ps, auto&& sl) {
   return reinterpret_cast<const char8_t*>(
       crypt(reinterpret_cast<const char*>(ps), reinterpret_cast<const char*>(sl)));
 };
 
-struct hostent* gethostbyname(auto&& fn) {
+struct hostent* gethostbyname8(auto&& fn) {
   return gethostbyname(reinterpret_cast<const char*>(fn));
 };
 
-int unlink(auto&& fn) {
+int unlink8(auto&& fn) {
   return unlink(reinterpret_cast<const char*>(fn));
 };
 
-int rename(auto&& of, auto&& nf) {
+int rename8(auto&& of, auto&& nf) {
   return rename(reinterpret_cast<const char*>(of), reinterpret_cast<const char*>(nf));
 };
 
@@ -52,11 +56,11 @@ auto stat8(auto&& fn, auto&& st) {
   return stat(reinterpret_cast<const char*>(fn), st);
 };
 
-int open(auto&& fn, auto&& fl) {
+int open8(auto&& fn, auto&& fl) {
   return open(reinterpret_cast<const char*>(fn), fl);
 };
 
-int open(auto&& fn, auto&& fl, auto&& md) {
+int open8(auto&& fn, auto&& fl, auto&& md) {
   return open(reinterpret_cast<const char*>(fn), fl, md);
 };
 
@@ -88,7 +92,7 @@ auto strstr(auto&& s1, auto&& s2) {
   return std::strstr(reinterpret_cast<const char*>(s1), reinterpret_cast<const char*>(s2));
 };
 
-auto strcasestr(auto&& s1, auto&& s2) {
+auto strcasestr8(auto&& s1, auto&& s2) {
   return strcasestr(reinterpret_cast<const char*>(s1), reinterpret_cast<const char*>(s2));
 };
 

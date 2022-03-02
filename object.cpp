@@ -3489,7 +3489,7 @@ void init_world() {
   } else {
     is_skill(0); // Force runtime string initialization
 
-    int fd = open(u8"acid/startup.conf", O_RDONLY);
+    int fd = open8(u8"acid/startup.conf", O_RDONLY);
     if (fd >= 0) {
       Object* autoninja = new Object(universe);
       autoninja->SetShortDesc(u8"The AutoNinja");
@@ -3532,23 +3532,23 @@ void save_world(int with_net) {
       std::u8string nfn = fn + u8".nst";
       if ((!with_net) || (!save_net(nfn.c_str()))) {
         std::u8string dfn = fn + u8".wld";
-        unlink(dfn.c_str());
-        rename(wfn.c_str(), dfn.c_str());
+        unlink8(dfn.c_str());
+        rename8(wfn.c_str(), dfn.c_str());
 
         dfn = fn + u8".plr";
-        unlink(dfn.c_str());
-        rename(pfn.c_str(), dfn.c_str());
+        unlink8(dfn.c_str());
+        rename8(pfn.c_str(), dfn.c_str());
       } else {
         fprintf(stderr, u8"Unable to save network status!\n");
-        perror(u8"save_world");
+        perror8(u8"save_world");
       }
     } else {
       fprintf(stderr, u8"Unable to save players!\n");
-      perror(u8"save_world");
+      perror8(u8"save_world");
     }
   } else {
     fprintf(stderr, u8"Unable to save world!\n");
-    perror(u8"save_world");
+    perror8(u8"save_world");
   }
 }
 

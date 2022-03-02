@@ -891,41 +891,41 @@ void Object::TBALoadMOB(const std::u8string& fn) {
       fscanf(mudm, u8"%65535[^ \t\n]", buf); // Rest of line read below...
 
       obj->SetSkill(prhash(u8"TBAAction"), 8); // IS_NPC - I'll use it to see if(MOB)
-      if (strcasestr(buf, u8"b") || (atoi(buf) & 2)) { // SENTINEL
+      if (strcasestr8(buf, u8"b") || (atoi(buf) & 2)) { // SENTINEL
         obj->SetSkill(prhash(u8"TBAAction"), obj->Skill(prhash(u8"TBAAction")) | 2);
       }
-      if (strcasestr(buf, u8"c") || (atoi(buf) & 4)) { // SCAVENGER
+      if (strcasestr8(buf, u8"c") || (atoi(buf) & 4)) { // SCAVENGER
         obj->SetSkill(prhash(u8"TBAAction"), obj->Skill(prhash(u8"TBAAction")) | 4);
       }
-      if (strcasestr(buf, u8"e") || (atoi(buf) & 16)) { // AWARE
+      if (strcasestr8(buf, u8"e") || (atoi(buf) & 16)) { // AWARE
         aware = 1;
       }
-      if (strcasestr(buf, u8"f") || (atoi(buf) & 32)) { // AGGRESSIVE
+      if (strcasestr8(buf, u8"f") || (atoi(buf) & 32)) { // AGGRESSIVE
         obj->SetSkill(prhash(u8"TBAAction"), obj->Skill(prhash(u8"TBAAction")) | 32);
       }
-      if (strcasestr(buf, u8"g") || (atoi(buf) & 64)) { // STAY_ZONE
+      if (strcasestr8(buf, u8"g") || (atoi(buf) & 64)) { // STAY_ZONE
         obj->SetSkill(prhash(u8"TBAAction"), obj->Skill(prhash(u8"TBAAction")) | 64);
       }
-      if (strcasestr(buf, u8"h") || (atoi(buf) & 128)) { // WIMPY
+      if (strcasestr8(buf, u8"h") || (atoi(buf) & 128)) { // WIMPY
         obj->SetSkill(prhash(u8"TBAAction"), obj->Skill(prhash(u8"TBAAction")) | 128);
       }
-      if (strcasestr(buf, u8"l") || (atoi(buf) & 2048)) { // MEMORY
+      if (strcasestr8(buf, u8"l") || (atoi(buf) & 2048)) { // MEMORY
         obj->SetSkill(prhash(u8"TBAAction"), obj->Skill(prhash(u8"TBAAction")) | 2048);
       }
-      if (strcasestr(buf, u8"m") || (atoi(buf) & 4096)) { // HELPER
+      if (strcasestr8(buf, u8"m") || (atoi(buf) & 4096)) { // HELPER
         obj->SetSkill(prhash(u8"TBAAction"), obj->Skill(prhash(u8"TBAAction")) | 4096);
       }
       // FIXME: Add others here.
 
       memset(buf, 0, 65536);
       fscanf(mudm, u8" %*s %*s %*s %65535[^ \t\n]", buf); // Rest of line read below...
-      if (strcasestr(buf, u8"g") || (atoi(buf) & 64)) { // WATERWALK
+      if (strcasestr8(buf, u8"g") || (atoi(buf) & 64)) { // WATERWALK
         obj->SetSkill(prhash(u8"TBAAffection"), obj->Skill(prhash(u8"TBAAffection")) | 64);
       }
-      if (strcasestr(buf, u8"s") || (atoi(buf) & 262144)) { // SNEAK
+      if (strcasestr8(buf, u8"s") || (atoi(buf) & 262144)) { // SNEAK
         sneak = 1;
       }
-      if (strcasestr(buf, u8"t") || (atoi(buf) & 524288)) { // HIDE
+      if (strcasestr8(buf, u8"t") || (atoi(buf) & 524288)) { // HIDE
         hidden = 1;
       }
       // FIXME: Implement special powers of MOBs here.
@@ -1322,53 +1322,53 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       int tp = 0, val[4];
       memset(buf, 0, 65536);
       fscanf(mudo, u8"%d %65535[^ \n\t]", &tp, buf); // Effects Bitvector
-      if (strcasestr(buf, u8"a") || (atoi(buf) & 1)) { // GLOW
+      if (strcasestr8(buf, u8"a") || (atoi(buf) & 1)) { // GLOW
         obj->SetSkill(prhash(u8"Light Source"), 10);
       }
-      if (strcasestr(buf, u8"b") || (atoi(buf) & 2)) { // HUM
+      if (strcasestr8(buf, u8"b") || (atoi(buf) & 2)) { // HUM
         obj->SetSkill(prhash(u8"Noise Source"), 10);
       }
-      //      if(strcasestr(buf, u8"c") || (atoi(buf) & 4)) { //NORENT
+      //      if(strcasestr8(buf, u8"c") || (atoi(buf) & 4)) { //NORENT
       //	}
-      //      if(strcasestr(buf, u8"d") || (atoi(buf) & 8)) { //NODONATE
+      //      if(strcasestr8(buf, u8"d") || (atoi(buf) & 8)) { //NODONATE
       //	}
-      if (strcasestr(buf, u8"e") || (atoi(buf) & 16)) { // NOINVIS
+      if (strcasestr8(buf, u8"e") || (atoi(buf) & 16)) { // NOINVIS
         obj->SetSkill(prhash(u8"Obvious"), 1000);
       }
-      if (strcasestr(buf, u8"f") || (atoi(buf) & 32)) { // INVISIBLE
+      if (strcasestr8(buf, u8"f") || (atoi(buf) & 32)) { // INVISIBLE
         obj->SetSkill(prhash(u8"Invisible"), 10);
       }
-      if (strcasestr(buf, u8"g") || (atoi(buf) & 64)) { // MAGIC
+      if (strcasestr8(buf, u8"g") || (atoi(buf) & 64)) { // MAGIC
         obj->SetSkill(prhash(u8"Magical"), 10);
       }
-      if (strcasestr(buf, u8"h") || (atoi(buf) & 128)) { // NODROP
+      if (strcasestr8(buf, u8"h") || (atoi(buf) & 128)) { // NODROP
         obj->SetSkill(prhash(u8"Cursed"), 10);
       }
-      if (strcasestr(buf, u8"i") || (atoi(buf) & 256)) { // BLESS
+      if (strcasestr8(buf, u8"i") || (atoi(buf) & 256)) { // BLESS
         obj->SetSkill(prhash(u8"Blessed"), 10);
       }
-      //      if(strcasestr(buf, u8"j") || (atoi(buf) & 512)) { //ANTI_GOOD
+      //      if(strcasestr8(buf, u8"j") || (atoi(buf) & 512)) { //ANTI_GOOD
       //	}
-      //      if(strcasestr(buf, u8"k") || (atoi(buf) & 1024)) { //ANTI_EVIL
+      //      if(strcasestr8(buf, u8"k") || (atoi(buf) & 1024)) { //ANTI_EVIL
       //	}
-      //      if(strcasestr(buf, u8"l") || (atoi(buf) & 2048)) { //ANTI_NEUTRAL
+      //      if(strcasestr8(buf, u8"l") || (atoi(buf) & 2048)) { //ANTI_NEUTRAL
       //	}
-      //      if(strcasestr(buf, u8"m") || (atoi(buf) & 4096)) { //ANTI_MAGIC_USER
+      //      if(strcasestr8(buf, u8"m") || (atoi(buf) & 4096)) { //ANTI_MAGIC_USER
       //	}
-      //      if(strcasestr(buf, u8"n") || (atoi(buf) & 8192)) { //ANTI_CLERIC
+      //      if(strcasestr8(buf, u8"n") || (atoi(buf) & 8192)) { //ANTI_CLERIC
       //	}
-      //      if(strcasestr(buf, u8"o") || (atoi(buf) & 16384)) { //ANTI_THIEF
+      //      if(strcasestr8(buf, u8"o") || (atoi(buf) & 16384)) { //ANTI_THIEF
       //	}
-      //      if(strcasestr(buf, u8"p") || (atoi(buf) & 32768)) { //ANTI_WARRIOR
+      //      if(strcasestr8(buf, u8"p") || (atoi(buf) & 32768)) { //ANTI_WARRIOR
       //	}
-      if (strcasestr(buf, u8"q") || (atoi(buf) & 65536)) { // NOSELL
+      if (strcasestr8(buf, u8"q") || (atoi(buf) & 65536)) { // NOSELL
         obj->SetSkill(prhash(u8"Priceless"), 1);
       }
 
       // Wear Bitvector
       memset(buf, 0, 65536);
       fscanf(mudo, u8"%*s %*s %*s %65535[^ \n\t]%*[^\n\r]\n", buf);
-      if (strcasestr(buf, u8"a") || (atoi(buf) & 1)) { // TAKE
+      if (strcasestr8(buf, u8"a") || (atoi(buf) & 1)) { // TAKE
         obj->SetPos(pos_t::LIE);
       }
 
@@ -1381,11 +1381,11 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
         sf = 8;
 
       std::u8string name = obj->ShortDesc();
-      if (strcasestr(buf, u8"b") || (atoi(buf) & 2)) {
+      if (strcasestr8(buf, u8"b") || (atoi(buf) & 2)) {
         obj->SetSkill(prhash(u8"Wearable on Left Finger"), 1); // Two Alternatives
         obj->SetSkill(prhash(u8"Wearable on Right Finger"), 2);
       }
-      if (strcasestr(buf, u8"c") || (atoi(buf) & 4)) {
+      if (strcasestr8(buf, u8"c") || (atoi(buf) & 4)) {
         if (matches(name.c_str(), u8"mask") || matches(name.c_str(), u8"sunglasses") ||
             matches(name.c_str(), u8"eyeglasses") || matches(name.c_str(), u8"spectacles") ||
             matches(name.c_str(), u8"glasses") || matches(name.c_str(), u8"goggles") ||
@@ -1396,7 +1396,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
           obj->SetSkill(prhash(u8"Wearable on Collar"), 2);
         }
       }
-      if (strcasestr(buf, u8"d") || (atoi(buf) & 8)) {
+      if (strcasestr8(buf, u8"d") || (atoi(buf) & 8)) {
         obj->SetSkill(prhash(u8"Wearable on Chest"), 1);
         obj->SetSkill(prhash(u8"Wearable on Back"), 1);
         if (matches(name.c_str(), u8"suit of")) {
@@ -1407,7 +1407,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
           valmod *= 5;
         }
       }
-      if (strcasestr(buf, u8"e") || (atoi(buf) & 16)) {
+      if (strcasestr8(buf, u8"e") || (atoi(buf) & 16)) {
         if (matches(name.c_str(), u8"mask") || matches(name.c_str(), u8"sunglasses") ||
             matches(name.c_str(), u8"eyeglasses") || matches(name.c_str(), u8"spectacles") ||
             matches(name.c_str(), u8"glasses") || matches(name.c_str(), u8"goggles") ||
@@ -1417,7 +1417,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
           obj->SetSkill(prhash(u8"Wearable on Head"), 1);
         }
       }
-      if (strcasestr(buf, u8"f") || (atoi(buf) & 32)) {
+      if (strcasestr8(buf, u8"f") || (atoi(buf) & 32)) {
         obj->SetSkill(prhash(u8"Wearable on Left Leg"), 1);
         if (sf) {
           if (!strcmp(name.c_str() + (name.length() - 9), u8" leggings"))
@@ -1434,7 +1434,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
           powmod = 2;
         }
       }
-      if (strcasestr(buf, u8"g") || (atoi(buf) & 64)) {
+      if (strcasestr8(buf, u8"g") || (atoi(buf) & 64)) {
         obj->SetSkill(prhash(u8"Wearable on Left Foot"), 1);
         if (sf) {
           if (!strcmp(name.c_str() + (name.length() - 8), u8" sandals"))
@@ -1452,7 +1452,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
           powmod = 2;
         }
       }
-      if (strcasestr(buf, u8"h") || (atoi(buf) & 128)) {
+      if (strcasestr8(buf, u8"h") || (atoi(buf) & 128)) {
         obj->SetSkill(prhash(u8"Wearable on Left Hand"), 1);
         if (sf) {
           if (!strcmp(name.c_str() + (name.length() - 10), u8" gauntlets"))
@@ -1468,7 +1468,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
           powmod = 2;
         }
       }
-      if (strcasestr(buf, u8"i") || (atoi(buf) & 256)) {
+      if (strcasestr8(buf, u8"i") || (atoi(buf) & 256)) {
         obj->SetSkill(prhash(u8"Wearable on Left Arm"), 1);
         if (sf) {
           if (!strcmp(name.c_str() + (name.length() - 8), u8" sleeves"))
@@ -1487,17 +1487,17 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
           powmod = 2;
         }
       }
-      if (strcasestr(buf, u8"j") || (atoi(buf) & 512)) {
+      if (strcasestr8(buf, u8"j") || (atoi(buf) & 512)) {
         obj->SetSkill(prhash(u8"Wearable on Shield"), 1); // FIXME: Wear Shield?
       }
-      if (strcasestr(buf, u8"k") || (atoi(buf) & 1024)) {
+      if (strcasestr8(buf, u8"k") || (atoi(buf) & 1024)) {
         obj->SetSkill(prhash(u8"Wearable on Left Shoulder"), 1);
         obj->SetSkill(prhash(u8"Wearable on Right Shoulder"), 1);
       }
-      if (strcasestr(buf, u8"l") || (atoi(buf) & 2048)) {
+      if (strcasestr8(buf, u8"l") || (atoi(buf) & 2048)) {
         obj->SetSkill(prhash(u8"Wearable on Waist"), 1);
       }
-      if (strcasestr(buf, u8"m") || (atoi(buf) & 4096)) {
+      if (strcasestr8(buf, u8"m") || (atoi(buf) & 4096)) {
         obj->SetSkill(prhash(u8"Wearable on Left Wrist"), 1);
         obj->SetSkill(prhash(u8"Wearable on Right Wrist"), 2);
       }
@@ -2393,42 +2393,42 @@ void Object::TBALoadWLD(const std::u8string& fn) {
       }
 
       obj->SetSkill(prhash(u8"Translucent"), 1000); // Full sky, by default
-      if (strcasestr(buf, u8"d") || (atoi(buf) & 8)) { // INDOORS
+      if (strcasestr8(buf, u8"d") || (atoi(buf) & 8)) { // INDOORS
         obj->SetSkill(prhash(u8"Translucent"), 200); // Windows (unless DARK)
         obj->SetSkill(prhash(u8"Light Source"), 100); // Torches (unless DARK)
       }
-      if (strcasestr(buf, u8"a") || (atoi(buf) & 1)) { // DARK
+      if (strcasestr8(buf, u8"a") || (atoi(buf) & 1)) { // DARK
         obj->SetSkill(prhash(u8"Translucent"), 0); // No sky, no windows
         obj->SetSkill(prhash(u8"Light Source"), 0); // No torches
       }
-      if (strcasestr(buf, u8"b") || (atoi(buf) & 2)) { // DEATH
+      if (strcasestr8(buf, u8"b") || (atoi(buf) & 2)) { // DEATH
         obj->SetSkill(prhash(u8"Accomplishment"), 1100000 + onum);
         // obj->SetSkill(prhash(u8"Hazardous"), 2); //FIXME: Actually Dangerous?
       }
-      if (strcasestr(buf, u8"c") || (atoi(buf) & 4)) { // NOMOB
+      if (strcasestr8(buf, u8"c") || (atoi(buf) & 4)) { // NOMOB
         obj->SetSkill(prhash(u8"TBAZone"), 999999);
       } else {
         obj->SetSkill(prhash(u8"TBAZone"), 1000000 + znum);
       }
-      if (strcasestr(buf, u8"e") || (atoi(buf) & 16)) { // PEACEFUL
+      if (strcasestr8(buf, u8"e") || (atoi(buf) & 16)) { // PEACEFUL
         obj->SetSkill(prhash(u8"Peaceful"), 1000);
       }
-      if (strcasestr(buf, u8"f") || (atoi(buf) & 32)) { // SOUNDPROOF
+      if (strcasestr8(buf, u8"f") || (atoi(buf) & 32)) { // SOUNDPROOF
         obj->SetSkill(prhash(u8"Soundproof"), 1000);
       }
-      //      if(strcasestr(buf, u8"g") || (atoi(buf) & 64)) { //NOTRACK
+      //      if(strcasestr8(buf, u8"g") || (atoi(buf) & 64)) { //NOTRACK
       //	//FIXME: Implement
       //	}
-      if (strcasestr(buf, u8"h") || (atoi(buf) & 128)) { // NOMAGIC
+      if (strcasestr8(buf, u8"h") || (atoi(buf) & 128)) { // NOMAGIC
         obj->SetSkill(prhash(u8"Magic Dead"), 1000);
       }
-      //      if(strcasestr(buf, u8"i") || (atoi(buf) & 256)) { //TUNNEL
+      //      if(strcasestr8(buf, u8"i") || (atoi(buf) & 256)) { //TUNNEL
       //	//FIXME: Implement
       //	}
-      //      if(strcasestr(buf, u8"j") || (atoi(buf) & 512)) { //PRIVATE
+      //      if(strcasestr8(buf, u8"j") || (atoi(buf) & 512)) { //PRIVATE
       //	//FIXME: Implement
       //	}
-      //      if(strcasestr(buf, u8"k") || (atoi(buf) & 1024)) { //GODROOM
+      //      if(strcasestr8(buf, u8"k") || (atoi(buf) & 1024)) { //GODROOM
       //	//FIXME: Implement
       //	}
 

@@ -261,8 +261,8 @@ std::u8string Mind::TBAComp(std::u8string expr) const {
   trim_string(expr);
   if (0
       //	|| body->Skill(prhash(u8"TBAScript")) == 5000099
-      //	|| strcasestr(expr.c_str(), u8"tea")
-      //	|| strcasestr(expr.c_str(), u8"wake")
+      //	|| strcasestr8(expr.c_str(), u8"tea")
+      //	|| strcasestr8(expr.c_str(), u8"wake")
   ) {
     fprintf(stderr, u8"Expr: '%s'\n", expr.c_str());
   }
@@ -360,7 +360,7 @@ std::u8string Mind::TBAComp(std::u8string expr) const {
 
     int res = 0;
     std::u8string comp = u8"0";
-    if (oper == 1 && strcasestr(arg1.c_str(), arg2.c_str()))
+    if (oper == 1 && strcasestr8(arg1.c_str(), arg2.c_str()))
       comp = u8"1";
     else if (oper == 2 && (!strcmp(arg1.c_str(), arg2.c_str())))
       comp = u8"1";
@@ -411,8 +411,8 @@ int Mind::TBAEval(std::u8string expr) const {
   trim_string(base);
   if (0
       //	|| body->Skill(prhash(u8"TBAScript")) == 5000099
-      //	|| strcasestr(expr.c_str(), u8"tea")
-      //	|| strcasestr(expr.c_str(), u8"wake")
+      //	|| strcasestr8(expr.c_str(), u8"tea")
+      //	|| strcasestr8(expr.c_str(), u8"wake")
   ) {
     fprintf(stderr, u8"Base: '%s'\n", base.c_str());
   }
@@ -514,7 +514,7 @@ void Mind::SetRemote(int fd) {
     ++lognum;
     sprintf(buf, u8"logs/%.8lX.log%c", lognum, 0);
   }
-  log = open(buf, O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, S_IRUSR | S_IWUSR);
+  log = open8(buf, O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, S_IRUSR | S_IWUSR);
 }
 
 void Mind::SetMob() {
@@ -650,7 +650,7 @@ bool Mind::Send(const std::u8string& mes) {
         && (!body->IsAct(act_t::FIGHT)) // I'm not already fighting
     ) {
       if ((!strncmp(mes.c_str(), u8"From ", 5)) &&
-          (strcasestr(mes.c_str(), u8" you hear someone shout '") != nullptr) &&
+          (strcasestr8(mes.c_str(), u8" you hear someone shout '") != nullptr) &&
           ((strstr(mes.c_str(), u8"HELP")) || (strstr(mes.c_str(), u8"ALARM")))) {
         char8_t buf[256] = u8"                                               ";
         sscanf(mes.c_str() + 4, u8"%128s", buf);
