@@ -82,12 +82,12 @@ class Mind {
 
   bool Send(const std::u8string&); // Returns false when mind needs to be deleted
   template <typename... Args>
-  bool Send(const char8_t* mes, Args... args) {
+  bool Send(const std::u8string& mes, Args... args) {
     auto buf = fmt::format(mes, args...);
     return Send(buf);
   };
   template <typename... Args>
-  bool SendF(const char8_t* mes, Args... args) {
+  bool SendF(const std::u8string& mes, Args... args) {
     char8_t buf[65536];
     memset(buf, 0, 65536);
     sprintf(buf, mes, args...);
