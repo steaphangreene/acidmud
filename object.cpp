@@ -1178,57 +1178,57 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
       continue; // Don't show invisible equip
     }
     if (cur.act() == act_t::HOLD)
-      m->SendF(u8"%24s", u8"Held: ");
+      m->Send(u8"{:>24}", u8"Held: ");
     else if (cur.act() == act_t::WIELD)
-      m->SendF(u8"%24s", u8"Wielded: ");
+      m->Send(u8"{:>24}", u8"Wielded: ");
     else if (cur.act() == act_t::WEAR_BACK)
-      m->SendF(u8"%24s", u8"Worn on back: ");
+      m->Send(u8"{:>24}", u8"Worn on back: ");
     else if (cur.act() == act_t::WEAR_CHEST)
-      m->SendF(u8"%24s", u8"Worn on chest: ");
+      m->Send(u8"{:>24}", u8"Worn on chest: ");
     else if (cur.act() == act_t::WEAR_HEAD)
-      m->SendF(u8"%24s", u8"Worn on head: ");
+      m->Send(u8"{:>24}", u8"Worn on head: ");
     else if (cur.act() == act_t::WEAR_FACE)
-      m->SendF(u8"%24s", u8"Worn on face: ");
+      m->Send(u8"{:>24}", u8"Worn on face: ");
     else if (cur.act() == act_t::WEAR_NECK)
-      m->SendF(u8"%24s", u8"Worn on neck: ");
+      m->Send(u8"{:>24}", u8"Worn on neck: ");
     else if (cur.act() == act_t::WEAR_COLLAR)
-      m->SendF(u8"%24s", u8"Worn on collar: ");
+      m->Send(u8"{:>24}", u8"Worn on collar: ");
     else if (cur.act() == act_t::WEAR_WAIST)
-      m->SendF(u8"%24s", u8"Worn on waist: ");
+      m->Send(u8"{:>24}", u8"Worn on waist: ");
     else if (cur.act() == act_t::WEAR_SHIELD)
-      m->SendF(u8"%24s", u8"Worn as shield: ");
+      m->Send(u8"{:>24}", u8"Worn as shield: ");
     else if (cur.act() == act_t::WEAR_LARM)
-      m->SendF(u8"%24s", u8"Worn on left arm: ");
+      m->Send(u8"{:>24}", u8"Worn on left arm: ");
     else if (cur.act() == act_t::WEAR_RARM)
-      m->SendF(u8"%24s", u8"Worn on right arm: ");
+      m->Send(u8"{:>24}", u8"Worn on right arm: ");
     else if (cur.act() == act_t::WEAR_LFINGER)
-      m->SendF(u8"%24s", u8"Worn on left finger: ");
+      m->Send(u8"{:>24}", u8"Worn on left finger: ");
     else if (cur.act() == act_t::WEAR_RFINGER)
-      m->SendF(u8"%24s", u8"Worn on right finger: ");
+      m->Send(u8"{:>24}", u8"Worn on right finger: ");
     else if (cur.act() == act_t::WEAR_LFOOT)
-      m->SendF(u8"%24s", u8"Worn on left foot: ");
+      m->Send(u8"{:>24}", u8"Worn on left foot: ");
     else if (cur.act() == act_t::WEAR_RFOOT)
-      m->SendF(u8"%24s", u8"Worn on right foot: ");
+      m->Send(u8"{:>24}", u8"Worn on right foot: ");
     else if (cur.act() == act_t::WEAR_LHAND)
-      m->SendF(u8"%24s", u8"Worn on left hand: ");
+      m->Send(u8"{:>24}", u8"Worn on left hand: ");
     else if (cur.act() == act_t::WEAR_RHAND)
-      m->SendF(u8"%24s", u8"Worn on right hand: ");
+      m->Send(u8"{:>24}", u8"Worn on right hand: ");
     else if (cur.act() == act_t::WEAR_LLEG)
-      m->SendF(u8"%24s", u8"Worn on left leg: ");
+      m->Send(u8"{:>24}", u8"Worn on left leg: ");
     else if (cur.act() == act_t::WEAR_RLEG)
-      m->SendF(u8"%24s", u8"Worn on right leg: ");
+      m->Send(u8"{:>24}", u8"Worn on right leg: ");
     else if (cur.act() == act_t::WEAR_LWRIST)
-      m->SendF(u8"%24s", u8"Worn on left wrist: ");
+      m->Send(u8"{:>24}", u8"Worn on left wrist: ");
     else if (cur.act() == act_t::WEAR_RWRIST)
-      m->SendF(u8"%24s", u8"Worn on right wrist: ");
+      m->Send(u8"{:>24}", u8"Worn on right wrist: ");
     else if (cur.act() == act_t::WEAR_LSHOULDER)
-      m->SendF(u8"%24s", u8"Worn on left shoulder: ");
+      m->Send(u8"{:>24}", u8"Worn on left shoulder: ");
     else if (cur.act() == act_t::WEAR_RSHOULDER)
-      m->SendF(u8"%24s", u8"Worn on right shoulder: ");
+      m->Send(u8"{:>24}", u8"Worn on right shoulder: ");
     else if (cur.act() == act_t::WEAR_LHIP)
-      m->SendF(u8"%24s", u8"Worn on left hip: ");
+      m->Send(u8"{:>24}", u8"Worn on left hip: ");
     else if (cur.act() == act_t::WEAR_RHIP)
-      m->SendF(u8"%24s", u8"Worn on right hip: ");
+      m->Send(u8"{:>24}", u8"Worn on right hip: ");
     else
       continue;
 
@@ -1611,17 +1611,17 @@ void Object::SendScore(Mind* m, Object* o) {
   m->Send(u8"\n{}", CNRM);
   for (int ctr = 0; ctr < 6; ++ctr) {
     if (std::min(NormAttribute(ctr), 99) == std::min(ModAttribute(ctr), 99)) {
-      m->SendF(u8"%s: %2d     ", atnames[ctr].c_str(), std::min(ModAttribute(ctr), 99));
+      m->Send(u8"{}: {:>2}     ", atnames[ctr], std::min(ModAttribute(ctr), 99));
     } else if (ModAttribute(ctr) > 9) { // 2-Digits!
-      m->SendF(
-          u8"%s: %2d (%d)",
-          atnames[ctr].c_str(),
+      m->Send(
+          u8"{}: {:>2} ({})",
+          atnames[ctr],
           std::min(NormAttribute(ctr), 99),
           std::min(ModAttribute(ctr), 99));
     } else { // 1 Digit!
-      m->SendF(
-          u8"%s: %2d (%d) ",
-          atnames[ctr].c_str(),
+      m->Send(
+          u8"{}: {:>2} ({}) ",
+          atnames[ctr],
           std::min(NormAttribute(ctr), 99),
           std::min(ModAttribute(ctr), 99));
     }
@@ -1673,9 +1673,9 @@ void Object::SendScore(Mind* m, Object* o) {
       if (Pos() == pos_t::NONE) {
         m->Send(u8"  Zone Coords: ({},{},{})  Value: {}Y\n", X(), Y(), Z(), value);
       } else {
-        m->SendF(
-            u8"  Sex: %c, %d.%.3dkg, %d.%.3dm, %dv, %dY\n",
-            gender,
+        m->Send(
+            u8"  Sex: {}, {}.{:03}kg, {}.{:03}m, {}v, {}Y\n",
+            static_cast<char8_t>(gender),
             weight / 1000,
             weight % 1000,
             size / 1000,
@@ -1700,14 +1700,14 @@ void Object::SendScore(Mind* m, Object* o) {
   auto c2 = std::find_if(skls.begin(), skls.end(), [](auto skl) { return !is_skill(skl.first); });
   while (c1 != col1.end() || c2 != skls.end()) {
     if (c1 != col1.end()) {
-      m->SendF(u8"%41s ", c1->c_str()); // Note: 41 is 32 (2 Color Escape Codes)
+      m->Send(u8"{:>41} ", *c1); // Note: 41 is 32 (2 Color Escape Codes)
       ++c1;
     } else {
-      m->SendF(u8"%32s ", u8"");
+      m->Send(u8"{:>32} ", u8"");
     }
 
     if (c2 != skls.end()) {
-      m->SendF(u8"%28s: %8d", SkillName(c2->first).c_str(), c2->second);
+      m->Send(u8"{:>28}: {:>8}", SkillName(c2->first), c2->second);
       c2++;
       if (c2 != skls.end()) {
         c2 = std::find_if(c2, skls.end(), [](auto skl) { return !is_skill(skl.first); });
@@ -1752,7 +1752,7 @@ void Object::SendScore(Mind* m, Object* o) {
   // Experience Summary
   if (IsAnimate()) {
     m->Send(CYEL);
-    m->SendF(u8"\nEarned Exp: %4d  Unspent Exp: %4d\n", Exp(), TotalExp());
+    m->Send(u8"\nEarned Exp: {:>4}  Unspent Exp: {:>4}\n", Exp(), TotalExp());
     if (Power(prhash(u8"Heat Vision")) || Power(prhash(u8"Dark Vision"))) {
       m->Send(
           u8"Heat/Dark Vision: {}/{}\n",
