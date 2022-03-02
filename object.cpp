@@ -3274,16 +3274,13 @@ void Object::SendOut(
   }
   if (num_braces[0] != num_braces[1]) {
     fprintf(stderr, CRED u8"ERROR: Mismatched braces in SendOut() str: '%s'!\n" CNRM, str.c_str());
+    return; // Abort sending, this may throw an exception!
   } else if (num_braces[0] > 2) {
     fprintf(
         stderr,
         CRED u8"ERROR: Too many opening braces in SendOut() str: '%s'!\n" CNRM,
         str.c_str());
-  } else if (num_braces[1] > 2) {
-    fprintf(
-        stderr,
-        CRED u8"ERROR: Too many closing braces in SendOut() str: '%s'!\n" CNRM,
-        str.c_str());
+    return; // Abort sending, this may throw an exception!
   }
 
   just_swapped = false;
@@ -3294,6 +3291,7 @@ void Object::SendOut(
       ctr = '}';
       just_swapped = false;
       ++num_braces[1];
+
     } else if (ctr == ';') {
       ctr = '{';
       just_swapped = true;
@@ -3308,49 +3306,31 @@ void Object::SendOut(
         stderr,
         CRED u8"ERROR: Mismatched braces in SendOut() youstr: '%s'!\n" CNRM,
         youstr.c_str());
-  } else if (num_braces[0] > 2) {
+    return; // Abort sending, this may throw an exception!
+  } else if (num_braces[0] > 1) {
     fprintf(
         stderr,
         CRED u8"ERROR: Too many opening braces in SendOut() youstr: '%s'!\n" CNRM,
         youstr.c_str());
-  } else if (num_braces[1] > 2) {
-    fprintf(
-        stderr,
-        CRED u8"ERROR: Too many closing braces in SendOut() youstr: '%s'!\n" CNRM,
-        youstr.c_str());
+    return; // Abort sending, this may throw an exception!
   }
 
   if (youstr[0] == '*' && this == actor) {
     Send(ALL, -1, CGRN);
-    if (targ)
-      Send(ALL, -1, youstr.substr(1), tstr);
-    else
-      Send(ALL, -1, youstr.substr(1));
+    Send(ALL, -1, youstr.substr(1), tstr);
     Send(ALL, -1, CNRM);
   } else if (this == actor) {
-    if (targ)
-      Send(ALL, -1, youstr, tstr);
-    else
-      Send(ALL, -1, youstr);
+    Send(ALL, -1, youstr, tstr);
   } else if (str[0] == '*' && targ == this) {
     Send(ALL, -1, CRED);
-    if (targ || actor)
-      Send(tnum, rsucc, str.substr(1), astr, tstr);
-    else
-      Send(tnum, rsucc, str.substr(1));
+    Send(tnum, rsucc, str.substr(1), astr, tstr);
     Send(ALL, -1, CNRM);
   } else if (str[0] == '*') {
     Send(ALL, -1, CMAG);
-    if (targ || actor)
-      Send(tnum, rsucc, str.substr(1), astr, tstr);
-    else
-      Send(tnum, rsucc, str.substr(1));
+    Send(tnum, rsucc, str.substr(1), astr, tstr);
     Send(ALL, -1, CNRM);
   } else {
-    if (targ || actor)
-      Send(tnum, rsucc, str, astr, tstr);
-    else
-      Send(tnum, rsucc, str);
+    Send(tnum, rsucc, str, astr, tstr);
   }
 
   for (auto ind : contents) {
