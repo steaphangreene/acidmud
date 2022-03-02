@@ -954,10 +954,10 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       int ctr;
       for (ctr = 0; ctr < int(cmd.length()); ++ctr) {
         if (!(ascii_isalnum(cmd[ctr]) || cmd[ctr] == ' ')) {
-          mind->SendF(
-              u8"Name '%s' is invalid.\nNames can only have letters, "
+          mind->Send(
+              u8"Name '{}' is invalid.\nNames can only have letters, "
               u8"numbers, and spaces.\n",
-              std::u8string(cmd).c_str());
+              cmd);
           fprintf(
               stderr,
               u8"Name '%s' is invalid.\nNames can only have letters, "
@@ -1215,8 +1215,8 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
   if (cnum == COM_VERSION) {
     if (mind)
-      mind->SendF(
-          u8"Version of this MUD is %d.%d.%d-%d-%s: %s.\n",
+      mind->Send(
+          u8"Version of this MUD is {}.{}.{}-{}-{}: {}.\n",
           CurrentVersion.acidmud_version[0],
           CurrentVersion.acidmud_version[1],
           CurrentVersion.acidmud_version[2],
@@ -1256,7 +1256,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           u8"Use the 'newcharacter' command to create a new character.\n");
       return 0;
     } else {
-      mind->SendF(u8"'%s' is now selected as your currect character to work on.\n", sel->NameC());
+      mind->Send(u8"'{}' is now selected as your currect character to work on.\n", sel->NameC());
       mind->Owner()->SetCreator(sel);
       return 0;
     }
@@ -1311,7 +1311,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       --sel;
     }
     if (mind)
-      mind->SendF(u8"You try to flee %s.\n", (*dir)->ShortDescC());
+      mind->Send(u8"You try to flee {}.\n", (*dir)->ShortDesc());
 
     cnum = COM_ENTER;
     args_buf = (*dir)->ShortDesc();
@@ -1342,8 +1342,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       if (body->Skill(prhash(u8"Attribute Points")) > 0 ||
           body->Skill(prhash(u8"Skill Points")) > 0) {
         mind->Send(u8"You need to finish that character before you can use it.\n");
-        mind->SendF(
-            u8"'%s' is now selected as your currect character to work on.\n", body->NameC());
+        mind->Send(u8"'{}' is now selected as your currect character to work on.\n", body->Name());
         mind->Owner()->SetCreator(body);
         return 0;
       }
@@ -1396,7 +1395,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       } else {
         body->Parent()->SendDescSurround(mind, body);
       }
-      mind->SendF(CMAG u8"You have entered: %s\n" CNRM, body->World()->ShortDescC());
+      mind->Send(CMAG u8"You have entered: {}\n" CNRM, body->World()->ShortDesc());
       return 0;
     }
     Object* dest = body->PickObject(std::u8string(args), vmode | LOC_NEARBY);
@@ -1421,19 +1420,19 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         mind->Send(u8"You need to be in ninja mode to enter that object!\n");
     } else if (dest->Skill(prhash(u8"Open")) < 1 && (!nmode)) {
       if (mind)
-        mind->SendF(u8"Sorry, %s is closed!\n", dest->Noun().c_str());
+        mind->Send(u8"Sorry, {} is closed!\n", dest->Noun());
     } else if (
         dest->Parent() != body->Parent() && dest->Parent() == body->Parent()->Parent() &&
         body->Parent()->Skill(prhash(u8"Vehicle")) == 0) {
       if (mind)
-        mind->SendF(u8"You can't get %s to go there!\n", body->Parent()->Noun(1).c_str());
+        mind->Send(u8"You can't get {} to go there!\n", body->Parent()->Noun(1));
     } else if (
         dest->Parent() != body->Parent() && dest->Parent() == body->Parent()->Parent() &&
         (!(body->Parent()->Skill(prhash(u8"Vehicle")) & 0xFFF0)) // No Land Travel!
         && body->Parent()->Parent()->Skill(prhash(u8"WaterDepth")) == 0 &&
         rdest->Skill(prhash(u8"WaterDepth")) == 0) {
       if (mind)
-        mind->SendF(u8"You can't get %s to go there!\n", body->Parent()->Noun(1).c_str());
+        mind->Send(u8"You can't get {} to go there!\n", body->Parent()->Noun(1));
     } else {
       if (nmode) {
         // Ninja-movement can't be followed!
@@ -1444,7 +1443,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         if (body->Parent()->Skill(prhash(u8"Vehicle")) == 4 &&
             body->Skill(prhash(u8"Boat, Row")) == 0) {
           if (mind)
-            mind->SendF(u8"You don't know how to operate %s!\n", body->Parent()->Noun(1).c_str());
+            mind->Send(u8"You don't know how to operate {}!\n", body->Parent()->Noun(1));
           return 0;
         }
         veh = body->Parent();
@@ -1494,11 +1493,11 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         } else if (mind && mind->Type() == MIND_REMOTE) {
           body->Parent()->SendDescSurround(body, body, vmode);
         } else if (mind && mind->Type() == MIND_SYSTEM) {
-          mind->SendF(u8"You enter %s\n", std::u8string(args).c_str());
+          mind->Send(u8"You enter {}\n", std::u8string(args));
         }
 
         if (mind && newworld) {
-          mind->SendF(CMAG u8"You have entered: %s\n" CNRM, body->World()->ShortDescC());
+          mind->Send(CMAG u8"You have entered: {}\n" CNRM, body->World()->ShortDesc());
         }
         if (stealth_t > 0) {
           body->SetSkill(prhash(u8"Hidden"), body->Roll(prhash(u8"Stealth"), 2) * 2);
@@ -1779,7 +1778,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
   if (cnum == COM_INVENTORY) {
     if (mind) {
-      mind->SendF(u8"You (%s) are carrying:\n", body->ShortDescC());
+      mind->Send(u8"You ({}) are carrying:\n", body->ShortDesc());
       body->SendExtendedActions(mind, LOC_TOUCH | vmode | 1);
     }
     return 0;
@@ -1787,7 +1786,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
   if (cnum == COM_EQUIPMENT) {
     if (mind) {
-      mind->SendF(u8"You (%s) are using:\n", body->ShortDescC());
+      mind->Send(u8"You ({}) are using:\n", body->ShortDesc());
       body->SendExtendedActions(mind, LOC_TOUCH | vmode);
     }
     return 0;
@@ -1846,10 +1845,10 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       if (within && (!targ->Skill(prhash(u8"Container"))) &&
           (!targ->Skill(prhash(u8"Liquid Container")))) {
         if (mind)
-          mind->SendF(u8"You can't look inside %s, it is not a container.\n", targ->Noun().c_str());
+          mind->Send(u8"You can't look inside {}, it is not a container.\n", targ->Noun());
       } else if (within && (targ->Skill(prhash(u8"Locked")))) {
         if (mind)
-          mind->SendF(u8"You can't look inside %s, it is locked.\n", targ->Noun().c_str());
+          mind->Send(u8"You can't look inside {}, it is locked.\n", targ->Noun());
       } else {
         int must_open = within;
         if (within && targ->Skill(prhash(u8"Open")))
@@ -2036,16 +2035,16 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       }
       if ((!nmode) && targ->Skill(prhash(u8"Obvious"))) {
         if (mind)
-          mind->SendF(u8"You could never hide %s, it's too obvious.", targ->Noun(0, body).c_str());
+          mind->Send(u8"You could never hide {}, it's too obvious.", targ->Noun(0, body));
         continue;
       }
       if ((!nmode) && targ->Skill(prhash(u8"Open"))) {
         if (targ->Skill(prhash(u8"Closeable"))) {
           if (mind)
-            mind->SendF(u8"You can't hide %s while it's open.", targ->Noun(0, body).c_str());
+            mind->Send(u8"You can't hide {} while it's open.", targ->Noun(0, body));
         } else {
           if (mind)
-            mind->SendF(u8"You can't hide %s.  It's wide open.", targ->Noun(0, body).c_str());
+            mind->Send(u8"You can't hide {}.  It's wide open.", targ->Noun(0, body));
         }
         continue;
       }
@@ -2106,21 +2105,19 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         handled = 1;
         Object* base = body->ActTarg(act_t::WIELD);
         if (base == targ) {
-          mind->SendF(u8"%s is your current weapon!\n", base->Noun(0, body).c_str());
+          mind->Send(u8"{} is your current weapon!\n", base->Noun(0, body));
           mind->Send(u8"Consider using something else for comparison.\n");
           return 0;
         }
         uint32_t sk = (get_weapon_skill(targ->Skill(prhash(u8"WeaponType"))));
         if (!body->HasSkill(sk)) {
-          mind->SendF(
-              CYEL u8"You don't know much about weapons like %s.\n" CNRM,
-              targ->Noun(1, body).c_str());
-          mind->SendF(
-              CYEL u8"You would need to learn the %s skill to know more.\n" CNRM,
-              SkillName(sk).c_str());
+          mind->Send(
+              CYEL u8"You don't know much about weapons like {}.\n" CNRM, targ->Noun(1, body));
+          mind->Send(
+              CYEL u8"You would need to learn the {} skill to know more.\n" CNRM, SkillName(sk));
         } else {
           int diff;
-          mind->SendF(u8"Use of this weapon would use your %s skill.\n", SkillName(sk).c_str());
+          mind->Send(u8"Use of this weapon would use your {} skill.\n", SkillName(sk));
 
           diff = body->Skill(sk);
           if (base)
@@ -2178,7 +2175,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       int wtlimit = 0;
       int szlimit = 0;
       if (targ->HasSkill(prhash(u8"Container"))) {
-        mind->SendF(u8"%s is a container\n", targ->Noun(1, body).c_str());
+        mind->Send(u8"{} is a container\n", targ->Noun(1, body));
 
         wtlimit = targ->Skill(prhash(u8"Container"));
         szlimit = targ->Skill(prhash(u8"Capacity"));
@@ -2214,7 +2211,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       // Liquid Containers
       int volume = 0;
       if (targ->HasSkill(prhash(u8"Liquid Container"))) {
-        mind->SendF(u8"%s is a liquid container\n", targ->Noun(1, body).c_str());
+        mind->Send(u8"{} is a liquid container\n", targ->Noun(1, body));
         volume = targ->Skill(prhash(u8"Liquid Container"));
         if (targ->Contents(vmode).size() == 0) {
           mind->Send(u8"   ...it appears to be empty.\n");
@@ -2247,26 +2244,22 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         }
         if (wtlimit && other->HasSkill(prhash(u8"Container"))) {
           if (wtlimit < other->Skill(prhash(u8"Container"))) {
-            mind->SendF(
-                CYEL u8"and can't carry as much as %s.\n" CNRM, other->Noun(0, body).c_str());
+            mind->Send(CYEL u8"and can't carry as much as {}.\n" CNRM, other->Noun(0, body));
           } else if (wtlimit > other->Skill(prhash(u8"Container"))) {
-            mind->SendF(CGRN u8"and can carry more than %s.\n" CNRM, other->Noun(0, body).c_str());
+            mind->Send(CGRN u8"and can carry more than {}.\n" CNRM, other->Noun(0, body));
           } else {
-            mind->SendF(u8"and can carry the same as %s.\n", other->Noun(0, body).c_str());
+            mind->Send(u8"and can carry the same as {}.\n", other->Noun(0, body));
           }
         }
 
         // Liquid Containers
         if (volume && other->HasSkill(prhash(u8"Liquid Container"))) {
           if (volume < other->Skill(prhash(u8"Liquid Container"))) {
-            mind->SendF(
-                CYEL u8"   ...it can't hold as much as %s.\n" CNRM, other->Noun(0, body).c_str());
+            mind->Send(CYEL u8"   ...it can't hold as much as {}.\n" CNRM, other->Noun(0, body));
           } else if (volume > other->Skill(prhash(u8"Liquid Container"))) {
-            mind->SendF(
-                CGRN u8"   ...it can hold more than %s.\n" CNRM, other->Noun(0, body).c_str());
+            mind->Send(CGRN u8"   ...it can hold more than {}.\n" CNRM, other->Noun(0, body));
           } else {
-            mind->SendF(
-                u8"   ...it can hold about the same amount as %s.\n", other->Noun(0, body).c_str());
+            mind->Send(u8"   ...it can hold about the same amount as {}.\n", other->Noun(0, body));
           }
         }
       } else if ((volume || wtlimit || szlimit) && other) {
@@ -2279,14 +2272,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       int all = targ->WearMask();
       int num = count_ones(all);
       if (num > 1) {
-        mind->SendF(u8"%s can be worn in %d different ways:\n", targ->Noun(0, body).c_str(), num);
+        mind->Send(u8"{} can be worn in {} different ways:\n", targ->Noun(0, body), num);
       } else if (num == 1) {
-        mind->SendF(u8"%s can only be worn one way:\n", targ->Noun(0, body).c_str());
+        mind->Send(u8"{} can only be worn one way:\n", targ->Noun(0, body));
       }
       for (int mask = 1; mask <= all; mask <<= 1) {
         std::set<act_t> locs = targ->WearSlots(mask);
         if (locs.size() > 0) {
-          mind->SendF(u8"It can be worn on %s.\n", targ->WearNames(locs).c_str());
+          mind->Send(u8"It can be worn on {}.\n", targ->WearNames(locs));
           handled = 1;
 
           std::set<Object*> repls;
@@ -2297,7 +2290,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
           for (const auto repl : repls) {
             if (repl != targ) {
-              mind->SendF(u8"   ...it would replace %s.\n", repl->Noun(0, body).c_str());
+              mind->Send(u8"   ...it would replace {}.\n", repl->Noun(0, body));
 
               int diff = targ->NormAttribute(0);
               diff -= repl->NormAttribute(0);
@@ -2317,8 +2310,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
       // Other
       if (!handled) {
-        mind->SendF(
-            u8"You really don't know what you would do with %s.\n", targ->Noun(1, body).c_str());
+        mind->Send(u8"You really don't know what you would do with {}.\n", targ->Noun(1, body));
       }
     } else { // Animate Opponent (Consider Attacking)
       body->Parent()->SendOut(
@@ -2558,13 +2550,13 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           curtime /= world->Skill(prhash(u8"Day Length"));
           mind->SendF(u8"The time is now %d:%.2d in this world.\n", curtime / 60, curtime % 60);
         } else {
-          mind->SendF(u8"This world has no concept of time....\n");
+          mind->Send(u8"This world has no concept of time....\n");
         }
       } else {
-        mind->SendF(u8"This character is not in any world.\n");
+        mind->Send(u8"This character is not in any world.\n");
       }
     } else {
-      mind->SendF(u8"You need to enter a character before doing this.\n");
+      mind->Send(u8"You need to enter a character before doing this.\n");
     }
     return 0;
   }
@@ -2573,7 +2565,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     if (!mind)
       return 0;
     if (body) {
-      mind->SendF(u8"This world is called: %s\n", body->World()->ShortDescC());
+      mind->Send(u8"This world is called: {}\n", body->World()->ShortDesc());
 
     } else if (args.length() > 0) {
       bool selected = false;
@@ -2581,8 +2573,8 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         if (world->IsAct(act_t::SPECIAL_HOME)) {
           if (world->Matches(std::u8string(args))) {
             mind->Owner()->SetWorld(world);
-            mind->SendF(
-                u8"Selected " CBLU u8"%s" CNRM u8" as your current world.\n", world->ShortDescC());
+            mind->Send(
+                u8"Selected " CBLU u8"{}" CNRM u8" as your current world.\n", world->ShortDesc());
             selected = true;
             break;
           }
@@ -2593,9 +2585,9 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         mind->Send(u8"\nThe worlds that exist in this instance of AcidMUD are:\n");
         for (const auto& world : Object::Universe()->Contents()) {
           if (world->IsAct(act_t::SPECIAL_HOME)) {
-            mind->SendF(u8"  * " CBLU u8"%s" CNRM u8"\n", world->ShortDescC());
+            mind->Send(u8"  * " CBLU u8"{}" CNRM u8"\n", world->ShortDesc());
           } else if (nmode) {
-            mind->SendF(u8"  * %s (inactive)\n", world->ShortDescC());
+            mind->Send(u8"  * {} (inactive)\n", world->ShortDesc());
           }
         }
       }
@@ -2603,14 +2595,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     } else {
       Object* chr = mind->Owner()->Creator();
       if (chr) {
-        mind->SendF(
-            u8"%s is in the world called: " CBLU u8"%s" CNRM u8"\n",
-            chr->NameC(),
-            chr->World()->ShortDescC());
+        mind->Send(
+            u8"{} is in the world called: " CBLU u8"{}" CNRM u8"\n",
+            chr->Name(),
+            chr->World()->ShortDesc());
       } else if (mind->Owner()->World()) {
-        mind->SendF(
-            u8"You have selected the world called: " CBLU u8"%s" CNRM u8"\n",
-            mind->Owner()->World()->ShortDescC());
+        mind->Send(
+            u8"You have selected the world called: " CBLU u8"{}" CNRM u8"\n",
+            mind->Owner()->World()->ShortDesc());
       } else {
         mind->Send(u8"You are not currently in any world.\n");
       }
@@ -2618,9 +2610,9 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       mind->Send(u8"\nThe worlds that exist in this instance of AcidMUD are:\n");
       for (const auto& world : Object::Universe()->Contents()) {
         if (world->IsAct(act_t::SPECIAL_HOME)) {
-          mind->SendF(u8"  * " CBLU u8"%s" CNRM u8"\n", world->ShortDescC());
+          mind->Send(u8"  * " CBLU u8"{}" CNRM u8"\n", world->ShortDesc());
         } else if (nmode) {
-          mind->SendF(u8"  * %s (inactive)\n", world->ShortDescC());
+          mind->Send(u8"  * {} (inactive)\n", world->ShortDesc());
         }
       }
     }
@@ -2631,7 +2623,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     if (!mind)
       return 0;
     if (body) {
-      mind->SendF(u8"This zone is called: %s\n", body->Zone()->ShortDescC());
+      mind->Send(u8"This zone is called: {}\n", body->Zone()->ShortDesc());
     }
     return 0;
   }
@@ -2926,7 +2918,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           int price = targ->Value() * targ->Quantity();
           if (price < 0) {
             if (mind)
-              mind->SendF(u8"You can't sell %s.\n", targ->Noun(0, body).c_str());
+              mind->Send(u8"You can't sell {}.\n", targ->Noun(0, body));
             continue;
           } else if (price == 0) {
             if (mind) {
@@ -2943,7 +2935,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
             price += 999;
             price /= 1000;
           }
-          mind->SendF(u8"%d gp: %s\n", price, targ->ShortDescC());
+          mind->Send(u8"{} gp: {}\n", price, targ->ShortDesc());
 
           int togo = price, ord = -price;
           auto pay = body->PickObjects(u8"a gold piece", vmode | LOC_INTERNAL, &ord);
@@ -2953,7 +2945,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
           if (togo > 0) {
             if (mind)
-              mind->SendF(u8"You can't afford the %d gold (short %d).\n", price, togo);
+              mind->Send(u8"You can't afford the {} gold (short {}).\n", price, togo);
           } else if (body->Stash(targ, 0, 0, 0)) {
             body->Parent()->SendOut(
                 stealth_t,
@@ -2993,7 +2985,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
             }
           } else {
             if (mind)
-              mind->SendF(u8"You can't stash or hold %s.\n", targ->Noun(1).c_str());
+              mind->Send(u8"You can't stash or hold {}.\n", targ->Noun(1));
           }
         }
       }
@@ -3046,12 +3038,12 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     int price = targ->Value() * targ->Quantity();
     if (price < 0 || targ->HasSkill(prhash(u8"Priceless")) || targ->HasSkill(prhash(u8"Cursed"))) {
       if (mind)
-        mind->SendF(u8"You can't sell %s.\n", targ->Noun(0, body).c_str());
+        mind->Send(u8"You can't sell {}.\n", targ->Noun(0, body));
       return 0;
     }
     if (price == 0) {
       if (mind)
-        mind->SendF(u8"%s is worthless.\n", targ->Noun(0, body).c_str());
+        mind->Send(u8"{} is worthless.\n", targ->Noun(0, body));
       return 0;
     }
 
@@ -3217,7 +3209,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           if (price <= 0)
             price = 1;
         }
-        mind->SendF(u8"I'll give you %dgp for %s\n", price, targ->ShortDescC());
+        mind->Send(u8"I'll give you {}gp for {}\n", price, targ->ShortDesc());
 
         if (cnum == COM_SELL) {
           int togo = price, ord = -price;
@@ -3238,12 +3230,12 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
             } else { // Keeper gets it back
               shpkp->Stash(payment->Contents().front(), 0, 1);
               if (mind)
-                mind->SendF(u8"You couldn't stash %d gold!\n", price);
+                mind->Send(u8"You couldn't stash {} gold!\n", price);
             }
             delete payment;
           } else {
             if (mind)
-              mind->SendF(u8"I can't afford the %d gold.\n", price);
+              mind->Send(u8"I can't afford the {} gold.\n", price);
           }
         }
       }
@@ -3273,7 +3265,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
     if (targ->Pos() == pos_t::NONE) {
       if (mind)
-        mind->SendF(u8"You can't drag %s, it is fixed in place!\n", targ->Noun().c_str());
+        mind->Send(u8"You can't drag {}, it is fixed in place!\n", targ->Noun());
     } else if (targ->IsAnimate()) {
       std::u8string denied = u8"You would need ";
       denied += targ->Noun(1);
@@ -3284,7 +3276,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         mind->SendF(denied.c_str(), targ->Noun().c_str());
     } else if (targ->Weight() > body->ModAttribute(2) * 50000) {
       if (mind)
-        mind->SendF(u8"You could never lift %s, it is too heavy.\n", targ->Noun().c_str());
+        mind->Send(u8"You could never lift {}, it is too heavy.\n", targ->Noun());
     } else {
       body->AddAct(act_t::HOLD, targ);
       body->Parent()->SendOut(
@@ -3328,18 +3320,16 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
       if ((!nmode) && targ->Pos() == pos_t::NONE) {
         if (mind)
-          mind->SendF(u8"You can't get %s, it is fixed in place!\n", targ->Noun().c_str());
+          mind->Send(u8"You can't get {}, it is fixed in place!\n", targ->Noun());
       } else if ((!nmode) && targ->IsAnimate()) {
         if (mind)
-          mind->SendF(u8"You can't get %s, it is not inanimate.\n", targ->Noun().c_str());
+          mind->Send(u8"You can't get {}, it is not inanimate.\n", targ->Noun());
       } else if ((!nmode) && targ->Weight() > body->ModAttribute(2) * 50000) {
         if (mind)
-          mind->SendF(u8"You could never lift %s, it is too heavy.\n", targ->Noun().c_str());
+          mind->Send(u8"You could never lift {}, it is too heavy.\n", targ->Noun());
       } else if ((!nmode) && targ->Weight() > body->ModAttribute(2) * 10000) {
         if (mind)
-          mind->SendF(
-              u8"You can't carry %s, it is too heavy.  Try 'drag' instead.\n",
-              targ->Noun().c_str());
+          mind->Send(u8"You can't carry {}, it is too heavy.  Try 'drag' instead.\n", targ->Noun());
       } else {
         std::u8string denied = u8"";
         for (Object* owner = targ->Parent(); owner; owner = owner->Parent()) {
@@ -3382,10 +3372,10 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
             body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WEAR_SHIELD) &&
             body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WIELD)) {
           if (mind)
-            mind->SendF(u8"You have no place to stash %s.\n", targ->Noun().c_str());
+            mind->Send(u8"You have no place to stash {}.\n", targ->Noun());
         } else if (targ->Skill(prhash(u8"Quantity")) > 1) {
           if (mind)
-            mind->SendF(u8"You have no place to stash %s.\n", targ->Noun().c_str());
+            mind->Send(u8"You have no place to stash {}.\n", targ->Noun());
         } else {
           if (body->IsAct(act_t::HOLD)) {
             body->Parent()->SendOut(
@@ -3433,11 +3423,11 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       trim_string(name);
       body->ActTarg(act_t::HOLD)->SetShortDesc(name.c_str());
       if (mind)
-        mind->SendF(u8"%s is now unlabeled.\n", body->ActTarg(act_t::HOLD)->Noun(1, body).c_str());
+        mind->Send(u8"{} is now unlabeled.\n", body->ActTarg(act_t::HOLD)->Noun(1, body));
     } else {
       if (mind)
-        mind->SendF(
-            u8"%s does not have a label to remove.\n",
+        mind->Send(
+            u8"{} does not have a label to remove.\n",
             body->ActTarg(act_t::HOLD)->Noun(1, body).c_str());
     }
     return 0;
@@ -3459,7 +3449,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       size_t start = label.find_first_of('(');
       if (start == label.npos) {
         if (mind)
-          mind->SendF(u8"%s has no label.\n", body->ActTarg(act_t::HOLD)->Noun(1, body).c_str());
+          mind->Send(u8"{} has no label.\n", body->ActTarg(act_t::HOLD)->Noun(1, body));
       } else {
         label = label.substr(start + 1);
         trim_string(label);
@@ -3469,10 +3459,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           trim_string(label);
         }
         if (mind)
-          mind->SendF(
-              u8"%s is labeled '%s'.\n",
-              body->ActTarg(act_t::HOLD)->Noun(1, body).c_str(),
-              label.c_str());
+          mind->Send(u8"{} is labeled '{}'.\n", body->ActTarg(act_t::HOLD)->Noun(1, body), label);
       }
     } else { // Adding to Label
       std::u8string name = body->ActTarg(act_t::HOLD)->ShortDesc();
@@ -3491,9 +3478,8 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         trim_string(label);
         if (matches(label.c_str(), std::u8string(args))) {
           if (mind)
-            mind->SendF(
-                u8"%s already has that on the label.\n",
-                body->ActTarg(act_t::HOLD)->Noun(1, body).c_str());
+            mind->Send(
+                u8"{} already has that on the label.\n", body->ActTarg(act_t::HOLD)->Noun(1, body));
           return 0;
         } else {
           label += u8" ";
@@ -3503,10 +3489,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       }
       body->ActTarg(act_t::HOLD)->SetShortDesc(name.c_str());
       if (mind)
-        mind->SendF(
-            u8"%s is now labeled '%s'.\n",
-            body->ActTarg(act_t::HOLD)->Noun(1, body).c_str(),
-            label.c_str());
+        mind->Send(u8"{} is now labeled '{}'.\n", body->ActTarg(act_t::HOLD)->Noun(1, body), label);
       body->ActTarg(act_t::HOLD)->SetShortDesc((name + u8" (" + label + u8")").c_str());
     }
 
@@ -3535,19 +3518,17 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
     if (args.empty()) {
       if (mind)
-        mind->SendF(
-            u8"What do you want to put %s in?\n",
-            body->ActTarg(act_t::HOLD)->Noun(0, body).c_str());
+        mind->Send(u8"What do you want to put {} in?\n", body->ActTarg(act_t::HOLD)->Noun(0, body));
       return 0;
     }
 
     Object* targ = body->PickObject(std::u8string(args), vmode | LOC_NEARBY | LOC_INTERNAL);
     if (!targ) {
       if (mind)
-        mind->SendF(
-            u8"I don't see '%s' to put '%s' in!\n",
-            std::u8string(args).c_str(),
-            body->ActTarg(act_t::HOLD)->Noun(0, body).c_str());
+        mind->Send(
+            u8"I don't see '{}' to put '{}' in!\n",
+            std::u8string(args),
+            body->ActTarg(act_t::HOLD)->Noun(0, body));
     } else if (targ->IsAnimate()) {
       if (mind)
         mind->Send(u8"You can only put things in inanimate objects!\n");
@@ -3559,15 +3540,13 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         mind->Send(u8"You can't put anything in that, it is locked.\n");
     } else if (targ == body->ActTarg(act_t::HOLD)) {
       if (mind)
-        mind->SendF(
-            u8"You can't put %s into itself.\n", body->ActTarg(act_t::HOLD)->Noun(0, body).c_str());
+        mind->Send(u8"You can't put {} into itself.\n", body->ActTarg(act_t::HOLD)->Noun(0, body));
     } else if (
         (!nmode) && body->ActTarg(act_t::HOLD)->SubHasSkill(prhash(u8"Cursed")) &&
         targ->Owner() != body) {
       if (mind)
-        mind->SendF(
-            u8"You can't seem to part with %s.\n",
-            body->ActTarg(act_t::HOLD)->Noun(0, body).c_str());
+        mind->Send(
+            u8"You can't seem to part with {}.\n", body->ActTarg(act_t::HOLD)->Noun(0, body));
     } else {
       int closed = 0, res = 0;
       Object* obj = body->ActTarg(act_t::HOLD);
@@ -3620,7 +3599,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         Object* wield = body->ActTarg(act_t::WIELD);
         if ((!nmode) && wield && wield->SubHasSkill(prhash(u8"Cursed"))) {
           if (mind)
-            mind->SendF(u8"You can't seem to stop wielding %s!\n", wield->Noun(0, body).c_str());
+            mind->Send(u8"You can't seem to stop wielding {}!\n", wield->Noun(0, body));
         } else if (wield && body->Stash(wield, 0)) {
           body->Parent()->SendOut(
               stealth_t,
@@ -3634,11 +3613,11 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
             body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WEAR_SHIELD) &&
             body->ActTarg(act_t::HOLD) != wield) {
           if (mind)
-            mind->SendF(
-                u8"You are holding %s and can't stash %s.\n"
+            mind->Send(
+                u8"You are holding {} and can't stash {}.\n"
                 u8"Perhaps you want to 'drop' one of these items?",
-                body->ActTarg(act_t::HOLD)->Noun(1, body).c_str(),
-                wield->Noun(1, body).c_str());
+                body->ActTarg(act_t::HOLD)->Noun(1, body),
+                wield->Noun(1, body));
         } else {
           body->StopAct(act_t::WIELD);
           body->Parent()->SendOut(
@@ -3695,7 +3674,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       Object* wield = body->ActTarg(act_t::WIELD);
       if ((!nmode) && wield && wield->SubHasSkill(prhash(u8"Cursed"))) {
         if (mind)
-          mind->SendF(u8"You can't seem to stop wielding %s!\n", wield->Noun(0, body).c_str());
+          mind->Send(u8"You can't seem to stop wielding {}!\n", wield->Noun(0, body));
         return 0;
       }
       targ->Travel(body, 0); // Kills Holds and Wields on u8"targ"
@@ -3747,7 +3726,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     //      }
     else if (body->ActTarg(act_t::HOLD) == targ) {
       if (mind)
-        mind->SendF(u8"You are already holding %s!\n", targ->Noun(1, body).c_str());
+        mind->Send(u8"You are already holding {}!\n", targ->Noun(1, body));
     } else if (
         body->IsAct(act_t::HOLD) && body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WIELD) &&
         body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WEAR_SHIELD)) {
@@ -3771,9 +3750,9 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     } else if (body->Wearing(targ) && targ->SubHasSkill(prhash(u8"Cursed"))) {
       if (mind) {
         if (body->ActTarg(act_t::WIELD) == targ) {
-          mind->SendF(u8"You can't seem to stop wielding %s!\n", targ->Noun(0, body).c_str());
+          mind->Send(u8"You can't seem to stop wielding {}!\n", targ->Noun(0, body));
         } else {
-          mind->SendF(u8"You can't seem to remove %s.\n", targ->Noun(0, body).c_str());
+          mind->Send(u8"You can't seem to remove {}.\n", targ->Noun(0, body));
         }
       }
     } else {
@@ -3845,7 +3824,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       int removed = 0;
       if ((!nmode) && targ->HasSkill(prhash(u8"Cursed"))) {
         if (mind)
-          mind->SendF(u8"%s won't come off!\n", targ->Noun(0, body).c_str());
+          mind->Send(u8"{} won't come off!\n", targ->Noun(0, body));
         return 0;
       }
       for (act_t act = act_t::WEAR_BACK; act < act_t::MAX; act = act_t(int(act) + 1)) {
@@ -3856,7 +3835,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       }
       if (!removed) {
         if (mind)
-          mind->SendF(u8"You are not wearing %s!\n", targ->Noun(0, body).c_str());
+          mind->Send(u8"You are not wearing {}!\n", targ->Noun(0, body));
       } else if (body->Stash(targ, 0, 0, 0)) {
         body->Parent()->SendOut(
             stealth_t,
@@ -3870,9 +3849,9 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WEAR_SHIELD) &&
           body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WIELD)) {
         if (mind)
-          mind->SendF(
-              u8"You are already holding something else and can't stash %s.\n",
-              targ->Noun(0, body).c_str());
+          mind->Send(
+              u8"You are already holding something else and can't stash {}.\n",
+              targ->Noun(0, body));
       } else {
         if (body->IsAct(act_t::HOLD)) {
           body->Parent()->SendOut(
@@ -3940,7 +3919,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           body->ActTarg(act_t::WEAR_RSHOULDER) == targ || body->ActTarg(act_t::WEAR_LHIP) == targ ||
           body->ActTarg(act_t::WEAR_RHIP) == targ || body->ActTarg(act_t::WEAR_FACE) == targ) {
         if (mind && targs.size() == 1)
-          mind->SendF(u8"You are already wearing %s!\n", targ->Noun(0, body).c_str());
+          mind->Send(u8"You are already wearing {}!\n", targ->Noun(0, body));
       } else {
         auto trigs = targ->PickObjects(u8"all tbamud trigger script", LOC_NINJA | LOC_INTERNAL);
         for (auto trig : trigs) {
@@ -3984,7 +3963,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       for (auto targ : targs) {
         if (!(targ->HasSkill(prhash(u8"Ingestible")))) {
           if (mind)
-            mind->SendF(u8"You don't want to eat %s.\n", targ->Noun(0, body).c_str());
+            mind->Send(u8"You don't want to eat {}.\n", targ->Noun(0, body));
         } else {
           body->Parent()->SendOut(
               stealth_t, stealth_s, u8";s eats ;s.\n", u8"You eat ;s.\n", body, targ);
@@ -4004,7 +3983,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     if (targ && targ->Parent() == body) {
       if (!body->Stash(targ)) {
         if (mind)
-          mind->SendF(u8"You have no place to stash %s.\n", targ->Noun(0, body).c_str());
+          mind->Send(u8"You have no place to stash {}.\n", targ->Noun(0, body));
       }
     } else {
       if (mind)
@@ -4061,19 +4040,19 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         int ret = body->Drop(targ, 1, vmode);
         if (ret == -1) { // Totally Failed
           if (mind)
-            mind->SendF(u8"You can't drop %s here.\n", targ->Noun(0, body).c_str());
+            mind->Send(u8"You can't drop {} here.\n", targ->Noun(0, body));
         } else if (ret == -2) { // Exceeds Capacity
           if (mind)
-            mind->SendF(u8"You can't drop %s, there isn't room.\n", targ->Noun(0, body).c_str());
+            mind->Send(u8"You can't drop {}, there isn't room.\n", targ->Noun(0, body));
         } else if (ret == -3) { // Exceeds Weight Limit
           if (mind)
-            mind->SendF(u8"You can't drop %s, it's too heavy.\n", targ->Noun(0, body).c_str());
+            mind->Send(u8"You can't drop {}, it's too heavy.\n", targ->Noun(0, body));
         } else if (ret == -4) { // Cursed
           if (mind)
-            mind->SendF(u8"You don't seem to be able to drop %s!\n", targ->Noun(0, body).c_str());
+            mind->Send(u8"You don't seem to be able to drop {}!\n", targ->Noun(0, body));
         } else if (ret != 0) { //?
           if (mind)
-            mind->SendF(u8"You can't seem to drop %s!\n", targ->Noun(0, body).c_str());
+            mind->Send(u8"You can't seem to drop {}!\n", targ->Noun(0, body));
         }
       }
     }
@@ -4135,26 +4114,24 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       }
       if (!(targ->HasSkill(prhash(u8"Liquid Container")))) {
         if (mind)
-          mind->SendF(
-              u8"%s is not a liquid container.  You can't drink from it.\n",
-              targ->Noun(0, body).c_str());
+          mind->Send(
+              u8"{} is not a liquid container.  You can't drink from it.\n", targ->Noun(0, body));
         return 0;
       }
       if (targ->Contents(vmode).size() < 1) {
         if (mind)
-          mind->SendF(u8"%s is empty.  There is nothing to drink\n", targ->Noun(0, body).c_str());
+          mind->Send(u8"{} is empty.  There is nothing to drink\n", targ->Noun(0, body));
         return 0;
       }
       Object* obj = targ->Contents(vmode).front();
       if (targ->HasSkill(prhash(u8"Liquid Source")) && obj->Skill(prhash(u8"Quantity")) < 2) {
         if (mind)
-          mind->SendF(
-              u8"%s is almost empty.  There is nothing to drink\n", targ->Noun(0, body).c_str());
+          mind->Send(u8"{} is almost empty.  There is nothing to drink\n", targ->Noun(0, body));
         return 0;
       }
       if ((!(obj->HasSkill(prhash(u8"Ingestible"))))) {
         if (mind)
-          mind->SendF(u8"You don't want to drink what's in %s.\n", targ->Noun(0, body).c_str());
+          mind->Send(u8"You don't want to drink what's in {}.\n", targ->Noun(0, body));
         return 0;
       }
 
@@ -4199,14 +4176,13 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       for (auto targ : targs) {
         if (!(targ->HasSkill(prhash(u8"Liquid Container")))) {
           if (mind)
-            mind->SendF(
-                u8"%s is not a liquid container.  It can't be dumped.\n",
-                targ->Noun(0, body).c_str());
+            mind->Send(
+                u8"{} is not a liquid container.  It can't be dumped.\n", targ->Noun(0, body));
           continue;
         }
         if (targ->Contents(LOC_TOUCH).size() < 1) {
           if (mind)
-            mind->SendF(u8"%s is empty.  There is nothing to dump\n", targ->Noun(0, body).c_str());
+            mind->Send(u8"{} is empty.  There is nothing to dump\n", targ->Noun(0, body));
           continue;
         }
         body->Parent()->SendOut(
@@ -4247,9 +4223,8 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
     if (args.empty()) {
       if (mind)
-        mind->SendF(
-            u8"Where do you want to fill %s from?\n",
-            body->ActTarg(act_t::HOLD)->Noun(0, body).c_str());
+        mind->Send(
+            u8"Where do you want to fill {} from?\n", body->ActTarg(act_t::HOLD)->Noun(0, body));
       return 0;
     }
 
@@ -4257,14 +4232,11 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     Object* dst = body->ActTarg(act_t::HOLD);
     if (!src) {
       if (mind)
-        mind->SendF(
-            u8"I don't see '%s' to fill %s from!\n",
-            std::u8string(args).c_str(),
-            dst->Noun(0, body).c_str());
+        mind->Send(
+            u8"I don't see '{}' to fill {} from!\n", std::u8string(args), dst->Noun(0, body));
     } else if (!dst->HasSkill(prhash(u8"Liquid Container"))) {
       if (mind)
-        mind->SendF(
-            u8"You can not fill %s, it is not a liquid container.\n", dst->Noun(0, body).c_str());
+        mind->Send(u8"You can not fill {}, it is not a liquid container.\n", dst->Noun(0, body));
     } else if (src->IsAnimate()) {
       if (mind)
         mind->Send(u8"You can only fill things from inanimate objects!\n");
@@ -4275,13 +4247,13 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
             u8"container.\n");
     } else if (dst->Skill(prhash(u8"Locked"))) {
       if (mind)
-        mind->SendF(u8"You can't fill %s, it is locked.\n", dst->Noun(0, body).c_str());
+        mind->Send(u8"You can't fill {}, it is locked.\n", dst->Noun(0, body));
     } else if (src->Skill(prhash(u8"Locked"))) {
       if (mind)
         mind->Send(u8"You can't fill anything from that, it is locked.\n");
     } else if (src == dst) {
       if (mind)
-        mind->SendF(u8"You can't fill %s from itself.\n", dst->Noun(0, body).c_str());
+        mind->Send(u8"You can't fill {} from itself.\n", dst->Noun(0, body));
     } else if (src->Contents(vmode).size() < 1) {
       if (mind)
         mind->Send(u8"You can't fill anything from that, it is empty.\n");
@@ -4642,9 +4614,9 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       src = body->NextHasSkill(crc32c(SkillName(spname) + u8" Spell"));
     if ((!nmode) && (!src)) {
       if (mind)
-        mind->SendF(
-            u8"You don't know the %s Spell and have no items enchanted with it.\n",
-            SkillName(spname).c_str());
+        mind->Send(
+            u8"You don't know the {} Spell and have no items enchanted with it.\n",
+            SkillName(spname));
       return 0;
     }
 
@@ -4790,11 +4762,11 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
     if (skill == prhash(u8"Lumberjack")) {
       if (!body->HasSkill(skill)) {
-        mind->SendF(u8"%sYou don't know how to do that.%s\n", CYEL, CNRM);
+        mind->Send(CYEL u8"You don't know how to do that.\n" CNRM);
         return 0;
       }
       if (!body->Parent()) { // You're nowhere?!?
-        mind->SendF(u8"%sThere are no trees here.%s\n", CYEL, CNRM);
+        mind->Send(CYEL u8"There are no trees here.\n" CNRM);
         return 0;
       }
       if (strcasestr(body->Parent()->Noun().c_str(), u8"forest") &&
@@ -4804,10 +4776,10 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         body->Parent()->Activate();
       }
       if (!body->Parent()->HasSkill(prhash(u8"Mature Trees"))) {
-        mind->SendF(u8"%sThere are no trees here.%s\n", CYEL, CNRM);
+        mind->Send(CYEL u8"There are no trees here.\n" CNRM);
         return 0;
       } else if (body->Parent()->Skill(prhash(u8"Mature Trees")) < 10) {
-        mind->SendF(u8"%sThere are too few trees to harvest here.%s\n", CYEL, CNRM);
+        mind->Send(CYEL u8"There are too few trees to harvest here.\n" CNRM);
         return 0;
       } else {
         longterm = 3000; // FIXME: Temporary - should take longer!
@@ -4875,14 +4847,12 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
             body->UsingString().c_str());
       }
       if (!body->HasSkill(skill)) {
-        mind->SendF(
-            u8"%s...you don't have the '%s' skill, so you're bad at this.%s\n",
-            CYEL,
-            SkillName(skill).c_str(),
-            CNRM);
+        mind->Send(
+            CYEL u8"...you don't have the '{}' skill, so you're bad at this.\n" CNRM,
+            SkillName(skill));
       }
     } else if (longterm == 0) {
-      mind->SendF(u8"You are already using %s\n", SkillName(skill).c_str());
+      mind->Send(u8"You are already using {}\n", SkillName(skill));
     }
 
     if (longterm > 0) { // Long-running skills for results
@@ -5056,10 +5026,10 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
     if (is_pc(body) && is_pc(targ)) {
       if (mind) {
-        mind->SendF(
-            u8"You can't attack %s, %s is a PC (no PvP)!\n",
-            targ->Noun(0, body).c_str(),
-            targ->Noun(0, body).c_str());
+        mind->Send(
+            u8"You can't attack {}, {} is a PC (no PvP)!\n",
+            targ->Noun(0, body),
+            targ->Noun(0, body));
       }
       return 0;
     }
@@ -5096,9 +5066,9 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
              && two_handed(body->ActTarg(act_t::WIELD)->Skill(prhash(u8"WeaponType")))))) {
       if (body->DropOrStash(body->ActTarg(act_t::HOLD))) {
         if (mind)
-          mind->SendF(
-              u8"Oh, no!  You can't drop or stash %s, but you need your off-hand!",
-              body->ActTarg(act_t::HOLD)->Noun(0, body).c_str());
+          mind->Send(
+              u8"Oh, no!  You can't drop or stash {}, but you need your off-hand!",
+              body->ActTarg(act_t::HOLD)->Noun(0, body));
       }
     }
 
@@ -5109,14 +5079,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       if (body->ActTarg(act_t::HOLD) // Some non-shield stuck in other hand!
           && body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WEAR_SHIELD)) {
         if (mind)
-          mind->SendF(
-              u8"Oh, no!  You can't use %s - it's two-handed!\n",
-              body->ActTarg(act_t::WIELD)->Noun(0, body).c_str());
+          mind->Send(
+              u8"Oh, no!  You can't use {} - it's two-handed!\n",
+              body->ActTarg(act_t::WIELD)->Noun(0, body));
         if (body->DropOrStash(body->ActTarg(act_t::WIELD))) {
           if (mind)
-            mind->SendF(
-                u8"Oh, no!  You can't drop or stash %s!\n",
-                body->ActTarg(act_t::WIELD)->Noun(0, body).c_str());
+            mind->Send(
+                u8"Oh, no!  You can't drop or stash {}!\n",
+                body->ActTarg(act_t::WIELD)->Noun(0, body));
         }
       } else {
         if (body->ActTarg(act_t::HOLD)) { // Unhold your shield
@@ -5146,9 +5116,9 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     } else if (
         mind && body->ActTarg(act_t::WEAR_SHIELD) &&
         body->ActTarg(act_t::WEAR_SHIELD) != body->ActTarg(act_t::HOLD)) {
-      mind->SendF(
-          u8"Oh, no!  You can't use %s - your off-hand is not free!\n",
-          body->ActTarg(act_t::WEAR_SHIELD)->Noun(0, body).c_str());
+      mind->Send(
+          u8"Oh, no!  You can't use {} - your off-hand is not free!\n",
+          body->ActTarg(act_t::WEAR_SHIELD)->Noun(0, body));
     }
 
     if (!attacknow) {
@@ -5522,8 +5492,8 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           u8"<character>'.\n");
       return 0;
     } else if (!args.empty()) {
-      mind->SendF(
-          u8"Just type 'reset' to undo all your work and start over on %s\n", chr->ShortDescC());
+      mind->Send(
+          u8"Just type 'reset' to undo all your work and start over on {}\n", chr->ShortDesc());
       return 0;
     }
 
@@ -5537,7 +5507,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     mind->Owner()->AddChar(body);
     delete chr;
 
-    mind->SendF(u8"You reset all chargen work for '%s'.\n", body->ShortDescC());
+    mind->Send(u8"You reset all chargen work for '{}'.\n", body->ShortDesc());
     return 0;
   }
 
@@ -5549,8 +5519,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           u8"<character>'.\n");
       return 0;
     } else if (!args.empty()) {
-      mind->SendF(
-          u8"Just type 'randomize' to randomly spend all points for %s\n", chr->ShortDescC());
+      mind->Send(u8"Just type 'randomize' to randomly spend all points for {}\n", chr->ShortDesc());
       return 0;
     }
 
@@ -5582,7 +5551,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
             prhash(u8"Skill Points"), chr->Skill(prhash(u8"Skill Points")) - chr->Skill(*skl));
       }
     }
-    mind->SendF(u8"You randomly spend all remaining points for '%s'.\n", chr->ShortDescC());
+    mind->Send(u8"You randomly spend all remaining points for '{}'.\n", chr->ShortDesc());
     return 0;
   }
 
@@ -5594,9 +5563,9 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           u8"<character>'.\n");
       return 0;
     } else if (args.empty()) {
-      mind->SendF(u8"You need to select an archetype to apply to %s.\n", chr->ShortDescC());
-      mind->SendF(u8"Supported archetypes are:\n");
-      mind->SendF(u8"  1. Fighter\n");
+      mind->Send(u8"You need to select an archetype to apply to {}.\n", chr->ShortDesc());
+      mind->Send(u8"Supported archetypes are:\n");
+      mind->Send(u8"  1. Fighter\n");
       return 0;
     }
 
@@ -5681,14 +5650,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
       body->SetSkill(prhash(u8"Status Points"), 0);
 
-      mind->SendF(u8"You reform '%s' into a %s.\n", body->ShortDescC(), u8"Fighter");
-      mind->SendF(u8"You can now adjust things from here, or just enter the game.\n");
+      mind->Send(u8"You reform '{}' into a {}.\n", body->ShortDesc(), u8"Fighter");
+      mind->Send(u8"You can now adjust things from here, or just enter the game.\n");
 
     } else {
-      mind->SendF(
-          u8"You need to select a *supported* archetype to apply to %s.\n", chr->ShortDescC());
-      mind->SendF(u8"Supported archetypes are:\n");
-      mind->SendF(u8"  1. Fighter\n");
+      mind->Send(
+          u8"You need to select a *supported* archetype to apply to {}.\n", chr->ShortDesc());
+      mind->Send(u8"Supported archetypes are:\n");
+      mind->Send(u8"  1. Fighter\n");
     }
 
     return 0;
@@ -5730,24 +5699,24 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         attr = 5;
 
       if (chr->NormAttribute(attr) < 3) {
-        mind->SendF(u8"Your %s is already at the minimum.\n", statnames[attr].c_str());
+        mind->Send(u8"Your {} is already at the minimum.\n", statnames[attr]);
         return 0;
       } else {
         chr->SetAttribute(attr, chr->NormAttribute(attr) - 1);
         chr->SetSkill(prhash(u8"Attribute Points"), chr->Skill(prhash(u8"Attribute Points")) + 1);
-        mind->SendF(u8"You lower your %s.\n", statnames[attr].c_str());
+        mind->Send(u8"You lower your {}.\n", statnames[attr]);
       }
     } else {
       auto skill = get_skill(std::u8string(args));
       if (skill != prhash(u8"None")) {
         if (chr->Skill(skill) < 1) {
-          mind->SendF(u8"You don't have %s.\n", SkillName(skill).c_str());
+          mind->Send(u8"You don't have {}.\n", SkillName(skill));
           return 0;
         }
         chr->SetSkill(skill, chr->Skill(skill) - 1);
         chr->SetSkill(
             prhash(u8"Skill Points"), chr->Skill(prhash(u8"Skill Points")) + chr->Skill(skill) + 1);
-        mind->SendF(u8"You lower your %s skill.\n", SkillName(skill).c_str());
+        mind->Send(u8"You lower your {} skill.\n", SkillName(skill));
       } else {
         mind->Send(u8"I'm not sure what you are trying to lower.\n");
       }
@@ -5799,10 +5768,10 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         attr = 5;
 
       if (body && chr->TotalExp() < 20) {
-        mind->SendF(
-            u8"You don't have enough experience to raise your %s.\n"
-            u8"You need 20, but you only have %d\n",
-            statnames[attr].c_str(),
+        mind->Send(
+            u8"You don't have enough experience to raise your {}.\n"
+            u8"You need 20, but you only have {}\n",
+            statnames[attr],
             chr->TotalExp());
         return 0;
       }
@@ -5819,26 +5788,26 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       }
 
       if ((!body) && chr->NormAttribute(attr) >= 6) {
-        mind->SendF(u8"Your %s is already at the maximum.\n", statnames[attr].c_str());
+        mind->Send(u8"Your {} is already at the maximum.\n", statnames[attr]);
       } else if (body && chr->NormAttribute(attr) >= body->Skill(maxask[attr])) {
-        mind->SendF(u8"Your %s is already at the maximum.\n", statnames[attr].c_str());
+        mind->Send(u8"Your {} is already at the maximum.\n", statnames[attr]);
       } else {
         if (!body)
           chr->SetSkill(prhash(u8"Attribute Points"), chr->Skill(prhash(u8"Attribute Points")) - 1);
         else
           chr->SpendExp(20);
         chr->SetAttribute(attr, chr->NormAttribute(attr) + 1);
-        mind->SendF(u8"You raise your %s.\n", statnames[attr].c_str());
+        mind->Send(u8"You raise your {}.\n", statnames[attr]);
       }
     } else {
       auto skill = get_skill(std::u8string(args));
       if (skill != prhash(u8"None")) {
         if (body && (chr->Skill(skill) >= (chr->NormAttribute(get_linked(skill)) * 3 + 1) / 2)) {
-          mind->SendF(u8"Your %s is already at the maximum.\n", SkillName(skill).c_str());
+          mind->Send(u8"Your {} is already at the maximum.\n", SkillName(skill));
           return 0;
         } else if (
             (!body) && (chr->Skill(skill) >= (chr->NormAttribute(get_linked(skill)) + 1) / 2)) {
-          mind->SendF(u8"Your %s is already at the maximum.\n", SkillName(skill).c_str());
+          mind->Send(u8"Your {} is already at the maximum.\n", SkillName(skill));
           return 0;
         }
         int cost = (chr->Skill(skill) + 1);
@@ -5846,10 +5815,10 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           if (cost > chr->NormAttribute(get_linked(skill)))
             cost *= 2;
           if (chr->TotalExp() < (cost * 2)) {
-            mind->SendF(
-                u8"You don't have enough experience to raise your %s.\n"
-                u8"You need %d, but you only have %d\n",
-                SkillName(skill).c_str(),
+            mind->Send(
+                u8"You don't have enough experience to raise your {}.\n"
+                u8"You need {}, but you only have {}\n",
+                SkillName(skill),
                 cost * 2,
                 chr->TotalExp());
             return 0;
@@ -5866,7 +5835,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         else
           chr->SetSkill(prhash(u8"Skill Points"), chr->Skill(prhash(u8"Skill Points")) - cost);
         chr->SetSkill(skill, chr->Skill(skill) + 1);
-        mind->SendF(u8"You raise your %s skill.\n", SkillName(skill).c_str());
+        mind->Send(u8"You raise your {} skill.\n", SkillName(skill));
       } else {
         mind->Send(u8"I'm not sure what you are trying to raise.\n");
       }
@@ -5923,7 +5892,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     body = new_body(mind->Owner()->World());
     body->SetDescs(u8"a human adventurer", std::u8string(args), u8"", u8"");
     mind->Owner()->AddChar(body);
-    mind->SendF(u8"You created %s.\n", std::u8string(args).c_str());
+    mind->Send(u8"You created {}.\n", std::u8string(args));
     return 0;
   }
 
@@ -6051,7 +6020,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         if (ch->Matches(std::u8string(args))) {
           if (ch->IsActive()) {
             if (mind)
-              mind->SendF(u8"%s is not long dead (yet).\n", ch->Noun().c_str());
+              mind->Send(u8"{} is not long dead (yet).\n", ch->Noun());
           } else {
             body->SetSkill(prhash(u8"Resurrect"), 0); // Use it up
             ch->SetSkill(prhash(u8"Poisoned"), 0);
@@ -6065,14 +6034,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
             ch->Parent()->SendOut(
                 stealth_t, stealth_s, u8";s has been resurrected!.\n", u8"", ch, nullptr);
             if (mind)
-              mind->SendF(u8"%s has been resurrected!\n", ch->Noun().c_str());
+              mind->Send(u8"{} has been resurrected!\n", ch->Noun());
           }
           return 0;
         }
       }
     }
     if (mind)
-      mind->SendF(u8"%s isn't a character on this MUD\n", std::u8string(args).c_str());
+      mind->Send(u8"{} isn't a character on this MUD\n", std::u8string(args));
     return 0;
   }
 
@@ -6089,7 +6058,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       std::u8string cat = get_skill_cat(std::u8string(args));
       if (args != u8"all") {
         if (cat == u8"") {
-          mind->SendF(u8"There is no skill category called '%s'.\n", std::u8string(args).c_str());
+          mind->Send(u8"There is no skill category called '{}'.\n", std::u8string(args));
           return 0;
         }
         skills = u8"Total " + cat + u8" in play on this MUD:\n";
@@ -6261,7 +6230,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       return 0;
     }
     if (!pl) {
-      mind->SendF(u8"There is no PLAYER named '%s'\n", std::u8string(args).c_str());
+      mind->Send(u8"There is no PLAYER named '{}'\n", std::u8string(args));
       return 0;
     }
     if (pl == mind->Owner()) {
@@ -6270,16 +6239,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     }
 
     if (pl->Is(PLAYER_SUPERNINJA)) {
-      mind->SendF(
-          u8"'%s' is already a Super Ninja[TM] - this is irrevocable.\n",
-          std::u8string(args).c_str());
+      mind->Send(u8"'{}' is already a Super Ninja[TM] - this is irrevocable.\n", args);
     } else if (pl->Is(PLAYER_NINJA)) {
       pl->UnSet(PLAYER_NINJA);
       pl->UnSet(PLAYER_NINJAMODE);
-      mind->SendF(u8"Now '%s' is no longer a True Ninja[TM].\n", std::u8string(args).c_str());
+      mind->Send(u8"Now '{}' is no longer a True Ninja[TM].\n", std::u8string(args));
     } else {
       pl->Set(PLAYER_NINJA);
-      mind->SendF(u8"You made '%s' into a True Ninja[TM].\n", std::u8string(args).c_str());
+      mind->Send(u8"You made '{}' into a True Ninja[TM].\n", std::u8string(args));
     }
 
     return 0;
@@ -6295,7 +6262,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       return 0;
     }
     if (!pl) {
-      mind->SendF(u8"There is no PLAYER named '%s'\n", std::u8string(args).c_str());
+      mind->Send(u8"There is no PLAYER named '{}'\n", std::u8string(args));
       return 0;
     }
     if (pl == mind->Owner()) {
@@ -6304,17 +6271,15 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     }
 
     if (pl->Is(PLAYER_SUPERNINJA)) {
-      mind->SendF(
-          u8"'%s' is already a Super Ninja[TM] - this is irrevocable.\n",
-          std::u8string(args).c_str());
+      mind->Send(u8"'{}' is already a Super Ninja[TM] - this is irrevocable.\n", args);
     } else if (!pl->Is(PLAYER_NINJA)) {
-      mind->SendF(
-          u8"'%s' isn't even a True Ninja[TM] yet!\n"
+      mind->Send(
+          u8"'{}' isn't even a True Ninja[TM] yet!\n"
           u8"Be careful - Super Ninja[TM] status is irrevocable.\n",
-          std::u8string(args).c_str());
+          args);
     } else {
       pl->Set(PLAYER_SUPERNINJA);
-      mind->SendF(u8"You made '%s' into a Super Ninja[TM].\n", std::u8string(args).c_str());
+      mind->Send(u8"You made '{}' into a Super Ninja[TM].\n", std::u8string(args));
     }
 
     return 0;
@@ -6377,10 +6342,8 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     if (!args.empty()) {
       std::u8string oldn = targ->ShortDesc();
       targ->SetShortDesc(std::u8string(args));
-      mind->SendF(
-          u8"You re-brief '%s' to '%s'\n",
-          oldn.c_str(),
-          targ->ShortDescC()); // FIXME - Real Message
+      mind->Send(u8"You re-brief '{}' to '{}'\n", oldn,
+                 targ->ShortDesc()); // FIXME - Real Message
     } else {
       mind->Send(u8"Re-brief it to what?\n");
     }
@@ -6398,10 +6361,8 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     if (!args.empty()) {
       std::u8string oldn = targ->Name();
       targ->SetName(std::u8string(args));
-      mind->SendF(
-          u8"You rename '%s' to '%s'\n",
-          oldn.c_str(),
-          targ->NameC()); // FIXME - Real Message
+      mind->Send(u8"You rename '{}' to '{}'\n", oldn,
+                 targ->Name()); // FIXME - Real Message
     } else {
       mind->Send(u8"Rename it to what?\n");
     }
@@ -6417,7 +6378,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       return 0;
     }
     targ->SetName(u8"");
-    mind->SendF(u8"You remove the name from '%s'\n", targ->Noun(0, body).c_str());
+    mind->Send(u8"You remove the name from '{}'\n", targ->Noun(0, body));
     return 0;
   }
 
@@ -6430,7 +6391,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       return 0;
     }
     targ->SetDesc(u8"");
-    mind->SendF(u8"You remove the description from '%s'\n", targ->Noun(0, body).c_str());
+    mind->Send(u8"You remove the description from '{}'\n", targ->Noun(0, body));
     return 0;
   }
 
@@ -6445,10 +6406,10 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     if (!args.empty()) {
       if (targ->Desc() == targ->ShortDesc()) {
         targ->SetDesc(std::u8string(args));
-        mind->SendF(u8"You add a description to '%s'\n", targ->Noun(0, body).c_str());
+        mind->Send(u8"You add a description to '{}'\n", targ->Noun(0, body));
       } else {
         targ->SetDesc(targ->Desc() + std::u8string(u8"\n") + (std::u8string(args)));
-        mind->SendF(u8"You add to the description of '%s'\n", targ->Noun(0, body).c_str());
+        mind->Send(u8"You add to the description of '{}'\n", targ->Noun(0, body));
       }
     } else {
       if (strncmp(mind->SpecialPrompt().c_str(), u8"nin des", 7)) {
@@ -6472,7 +6433,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       return 0;
     }
     targ->SetLongDesc(u8"");
-    mind->SendF(u8"You remove the definition from '%s'\n", targ->Noun(0, body).c_str());
+    mind->Send(u8"You remove the definition from '{}'\n", targ->Noun(0, body));
     return 0;
   }
 
@@ -6487,10 +6448,10 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     if (!args.empty()) {
       if (targ->LongDesc() == targ->Desc()) {
         targ->SetLongDesc(std::u8string(args));
-        mind->SendF(u8"You add a definition to '%s'\n", targ->Noun(0, body).c_str());
+        mind->Send(u8"You add a definition to '{}'\n", targ->Noun(0, body));
       } else {
         targ->SetLongDesc(targ->LongDesc() + std::u8string(u8"\n") + (std::u8string(args)));
-        mind->SendF(u8"You add to the definition of '%s'\n", targ->Noun(0, body).c_str());
+        mind->Send(u8"You add to the definition of '{}'\n", targ->Noun(0, body));
       }
     } else {
       if (strncmp(mind->SpecialPrompt().c_str(), u8"nin def", 7)) {
@@ -6534,7 +6495,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     if (!targ) {
       mind->Send(u8"You need to be pointing at your target.\n");
     } else if (args.empty()) {
-      mind->SendF(u8"Command %s to do what?\n", targ->ShortDescC());
+      mind->Send(u8"Command {} to do what?\n", targ->ShortDesc());
     } else if (targ->NormAttribute(5) <= 0) {
       mind->Send(u8"You can't command an object that has no will of its own.\n");
     } else {
@@ -6580,8 +6541,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       src->AddAct(act_t::SPECIAL_LINKED, exit);
       exit->AddAct(act_t::SPECIAL_MASTER, src);
       if (mind) {
-        mind->SendF(
-            u8"You link %s to %s.\n", src->Noun(0, body).c_str(), dest->Noun(0, body).c_str());
+        mind->Send(u8"You link {} to {}.\n", src->Noun(0, body), dest->Noun(0, body));
       }
     }
     return 0;
@@ -6631,7 +6591,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         dirb = u8"up";
         dir = u8"down";
       } else {
-        mind->SendF(u8"Direction '%s' not meaningful!\n", std::u8string(args).c_str());
+        mind->Send(u8"Direction '{}' not meaningful!\n", std::u8string(args));
         return 0;
       }
 
@@ -6763,7 +6723,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           mind->Send(u8"That player doesn't seem to exist.\n");
       } else {
         if (mind)
-          mind->SendF(u8"You delete the player '%s'.\n", pl->Name().c_str());
+          mind->Send(u8"You delete the player '{}'.\n", pl->Name());
         delete pl;
       }
     }
@@ -7053,7 +7013,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       if (!finished)
         mind->Send(u8"You want to heal what?\n");
     } else if (targ->NormAttribute(2) < 1) {
-      mind->SendF(u8"You can't heal %s, it is not alive.\n", targ->Noun(0, body).c_str());
+      mind->Send(u8"You can't heal {}, it is not alive.\n", targ->Noun(0, body));
     } else if (nmode) {
       // This is ninja-healing and bypasses all healing mechanisms.
       targ->SetSkill(prhash(u8"Poisoned"), 0);
@@ -7075,7 +7035,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         (!body->HasSkill(prhash(u8"Healing"))) && (!body->HasSkill(prhash(u8"First Aid"))) &&
         (!body->HasSkill(prhash(u8"Treatment")))) {
       if (mind) {
-        mind->SendF(u8"You don't know how to help %s.\n", targ->Noun(0, body).c_str());
+        mind->Send(u8"You don't know how to help {}.\n", targ->Noun(0, body));
       }
     } else {
       int duration = 0;
@@ -7084,34 +7044,34 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           stealth_t, stealth_s, u8";s tries to heal ;s.\n", u8"You try to heal ;s.\n", body, targ);
       if (body->HasSkill(prhash(u8"First Aid"))) {
         if (targ->Phys() < 1) {
-          mind->SendF(u8"%s is not injured.\n", targ->Noun().c_str());
+          mind->Send(u8"{} is not injured.\n", targ->Noun());
         } else {
-          mind->SendF(u8"%s is injured.\n", targ->Noun().c_str());
+          mind->Send(u8"{} is injured.\n", targ->Noun());
           skill = prhash(u8"First Aid");
           duration = 3000;
         }
       } else if (body->HasSkill(prhash(u8"Healing"))) {
         if (targ->Phys() < 1) {
-          mind->SendF(u8"%s is not injured.\n", targ->Noun().c_str());
+          mind->Send(u8"{} is not injured.\n", targ->Noun());
         } else {
-          mind->SendF(u8"%s is injured.\n", targ->Noun().c_str());
+          mind->Send(u8"{} is injured.\n", targ->Noun());
           skill = prhash(u8"Healing");
           duration = 3000;
         }
       }
       if (body->HasSkill(prhash(u8"Treatment"))) {
         if (targ->Skill(prhash(u8"Poisoned")) < 1) {
-          mind->SendF(u8"%s does not need other help.\n", targ->Noun().c_str());
+          mind->Send(u8"{} does not need other help.\n", targ->Noun());
         } else {
-          mind->SendF(u8"%s is poisoned.\n", targ->Noun().c_str());
+          mind->Send(u8"{} is poisoned.\n", targ->Noun());
           skill = prhash(u8"Treatment");
           duration = 3000;
         }
       } else if (body->HasSkill(prhash(u8"Healing"))) {
         if (targ->Skill(prhash(u8"Poisoned")) < 1) {
-          mind->SendF(u8"%s does not need other help.\n", targ->Noun().c_str());
+          mind->Send(u8"{} does not need other help.\n", targ->Noun());
         } else {
-          mind->SendF(u8"%s is poisoned.\n", targ->Noun().c_str());
+          mind->Send(u8"{} is poisoned.\n", targ->Noun());
           skill = prhash(u8"Healing");
           duration = 3000;
         }
@@ -7231,7 +7191,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     }
 
     if (!is_skill(crc32c(std::u8string(args)))) {
-      mind->SendF(u8"Warning, '%s' is not a real skill name!\n", std::u8string(args).c_str());
+      mind->Send(u8"Warning, '{}' is not a real skill name!\n", std::u8string(args));
     }
 
     targ->SetSkill(std::u8string(args), targ->Skill(crc32c(std::u8string(args))) + amt);
