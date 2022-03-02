@@ -70,7 +70,6 @@ Crafting (weapons, armor, tools, clothes, etc...).
 
 Handle liquids mixing?
 
-Unify SendOut() and SendIn().
 Get rid of obsolete "_MASTER" action?
 
 Implement object categories (people, weapons, creatures, axes, etc...).

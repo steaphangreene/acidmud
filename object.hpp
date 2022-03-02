@@ -510,14 +510,8 @@ class alignas(256) Object {
       const std::u8string& mes,
       const std::u8string& youmes,
       Object* actor,
-      Object* targ);
-  void SendIn(
-      int tnum,
-      int rsucc,
-      const std::u8string& mes,
-      const std::u8string& youmes,
-      Object* actor,
-      Object* targ);
+      Object* targ,
+      bool expanding = true);
   void Loud(int str, const std::u8string& mes);
 
   // Formatted (printf style, plus with ;s/;s for actor/targ)

@@ -2178,7 +2178,7 @@ int Mind::TBARunLine(std::u8string line) {
       std::u8string mes = line.substr(start);
       trim_string(mes);
       mes += u8"\n";
-      room->SendIn(ALL, 0, mes.c_str(), u8"", nullptr, nullptr);
+      room->SendOut(ALL, 0, mes.c_str(), u8"", nullptr, nullptr, false);
       room->Loud(8, mes.c_str()); // 8 will go 4-8 rooms.
     }
   }

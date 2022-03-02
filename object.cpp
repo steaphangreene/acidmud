@@ -3203,19 +3203,21 @@ void Object::Send(channel_t channel, const std::u8string& mes) {
   }
 }
 
-void Object::SendIn(
+void Object::SendOut(
     int tnum,
     int rsucc,
     const std::u8string& mes,
     const std::u8string& youmes,
     Object* actor,
-    Object* targ) {
+    Object* targ,
+    bool expanding) {
   if (no_seek)
     return;
 
   if (this != actor) { // Don't trigger yourself!
     for (auto trig : contents) {
-      if (strncmp(mes.c_str(), u8";s says '", 9)) { // Type 0x1000010 (MOB + MOB-ACT)
+      if (strncmp(mes.c_str(), u8";s says '", 9)) {
+        // Type 0x1000010 (MOB + MOB-ACT)
         if ((trig->Skill(prhash(u8"TBAScriptType")) & 0x1000010) == 0x1000010) {
           if (trig->Desc()[0] == '*') { // All Actions
             new_trigger((rand() % 400) + 300, trig, actor, mes);
@@ -3229,7 +3231,8 @@ void Object::SendIn(
             }
           }
         }
-      } else { // Type 0x1000008 (MOB + MOB-SPEECH)
+      } else {
+        // Type 0x1000008 (MOB + MOB-SPEECH)
         if ((trig->Skill(prhash(u8"TBAScriptType")) & 0x1000008) == 0x1000008) {
           // if (trig->Skill(prhash(u8"TBAScript")) >= 5034503 && trig->Skill(prhash(u8"TBAScript"))
           // <= 5034507)
@@ -3261,109 +3264,26 @@ void Object::SendIn(
               new_trigger((rand() % 400) + 300, trig, actor, speech);
             }
           }
-        }
-      }
-    }
-  }
 
-  std::u8string tstr = u8"";
-  if (targ)
-    tstr = targ->Noun(0, this, actor);
-  std::u8string astr = u8"";
-  if (actor)
-    astr = actor->Noun(0, this);
-
-  auto str = mes;
-  auto youstr = youmes;
-
-  for (auto& ctr : str) {
-    if (ctr == ';')
-      ctr = '%';
-    else if (ctr == '%')
-      ctr = ';';
-  }
-  for (auto& ctr : youstr) {
-    if (ctr == ';')
-      ctr = '%';
-    else if (ctr == '%')
-      ctr = ';';
-  }
-
-  if (youstr[0] == '*' && this == actor) {
-    Send(ALL, -1, CYEL);
-    if (targ)
-      SendF(ALL, -1, youstr.c_str() + 1, tstr.c_str());
-    else
-      Send(ALL, -1, youstr.c_str() + 1);
-    Send(ALL, -1, CNRM);
-  } else if (this == actor) {
-    if (targ)
-      SendF(ALL, -1, youstr.c_str(), tstr.c_str());
-    else
-      Send(ALL, -1, youstr);
-  } else if (str[0] == '*' && targ == this) {
-    Send(ALL, -1, CRED);
-    if (targ || actor)
-      SendF(tnum, rsucc, str.c_str() + 1, astr.c_str(), tstr.c_str());
-    else
-      Send(tnum, rsucc, str.c_str() + 1);
-    Send(ALL, -1, CNRM);
-  } else if (str[0] == '*') {
-    Send(ALL, -1, CMAG);
-    if (targ || actor)
-      SendF(tnum, rsucc, str.c_str() + 1, astr.c_str(), tstr.c_str());
-    else
-      Send(tnum, rsucc, str.c_str() + 1);
-    Send(ALL, -1, CNRM);
-  } else {
-    if (targ || actor)
-      SendF(tnum, rsucc, str.c_str(), astr.c_str(), tstr.c_str());
-    else
-      Send(tnum, rsucc, str);
-  }
-
-  for (auto ind : contents) {
-    if (ind->Skill(prhash(u8"Open")) || ind->Skill(prhash(u8"Transparent")))
-      ind->SendIn(tnum, rsucc, mes, youmes, actor, targ);
-    else if (ind->Pos() != pos_t::NONE) // FIXME - Understand Transparency
-      ind->SendIn(tnum, rsucc, mes, youmes, actor, targ);
-  }
-
-  if (targ && targ != this && minds.size() > 0 && targ->HasSkill(prhash(u8"Object ID")) &&
-      mes.starts_with(u8";s introduces ;s as")) {
-    Learn(targ->Skill(prhash(u8"Object ID")), targ->Name());
-  }
-}
-
-void Object::SendOut(
-    int tnum,
-    int rsucc,
-    const std::u8string& mes,
-    const std::u8string& youmes,
-    Object* actor,
-    Object* targ) {
-  if (no_seek)
-    return;
-
-  if (!strncmp(mes.c_str(), u8";s says '", 9)) { // Type 0x4000008 (ROOM + ROOM-SPEECH)
-    for (auto trig : contents) {
-      if ((trig->Skill(prhash(u8"TBAScriptType")) & 0x4000008) == 0x4000008) {
-        std::u8string speech = (mes.c_str() + 9);
-        while (!speech.empty() && speech.back() != '\'') {
-          speech.pop_back();
-        }
-        if (!speech.empty())
-          speech.pop_back();
-
-        if (trig->Desc()[0] == '*') { // All Speech
-          new_trigger((rand() % 400) + 300, trig, actor, speech);
-        } else if (trig->Skill(prhash(u8"TBAScriptNArg")) == 0) { // Match Full Phrase
-          if (phrase_match(speech, trig->Desc())) {
-            new_trigger((rand() % 400) + 300, trig, actor, speech);
+          // Type 0x4000008 (ROOM + ROOM-SPEECH)
+        } else if ((trig->Skill(prhash(u8"TBAScriptType")) & 0x4000008) == 0x4000008) {
+          std::u8string speech = (mes.c_str() + 9);
+          while (!speech.empty() && speech.back() != '\'') {
+            speech.pop_back();
           }
-        } else { // Match Words
-          if (words_match(speech, trig->Desc())) {
+          if (!speech.empty())
+            speech.pop_back();
+
+          if (trig->Desc()[0] == '*') { // All Speech
             new_trigger((rand() % 400) + 300, trig, actor, speech);
+          } else if (trig->Skill(prhash(u8"TBAScriptNArg")) == 0) { // Match Full Phrase
+            if (phrase_match(speech, trig->Desc())) {
+              new_trigger((rand() % 400) + 300, trig, actor, speech);
+            }
+          } else { // Match Words
+            if (words_match(speech, trig->Desc())) {
+              new_trigger((rand() % 400) + 300, trig, actor, speech);
+            }
           }
         }
       }
@@ -3405,8 +3325,15 @@ void Object::SendOut(
       SendF(ALL, -1, youstr.c_str(), tstr.c_str());
     else
       Send(ALL, -1, youstr);
-  } else if (str[0] == '*') {
+  } else if (str[0] == '*' && targ == this) {
     Send(ALL, -1, CRED);
+    if (targ || actor)
+      SendF(tnum, rsucc, str.c_str() + 1, astr.c_str(), tstr.c_str());
+    else
+      Send(tnum, rsucc, str.c_str() + 1);
+    Send(ALL, -1, CNRM);
+  } else if (str[0] == '*') {
+    Send(ALL, -1, CMAG);
     if (targ || actor)
       SendF(tnum, rsucc, str.c_str() + 1, astr.c_str(), tstr.c_str());
     else
@@ -3421,14 +3348,14 @@ void Object::SendOut(
 
   for (auto ind : contents) {
     if (ind->Skill(prhash(u8"Open")) || ind->Skill(prhash(u8"Transparent")))
-      ind->SendIn(tnum, rsucc, mes, youmes, actor, targ);
+      ind->SendOut(tnum, rsucc, mes, youmes, actor, targ, false);
     else if (ind->Pos() != pos_t::NONE) // FIXME - Understand Transparency
-      ind->SendIn(tnum, rsucc, mes, youmes, actor, targ);
+      ind->SendOut(tnum, rsucc, mes, youmes, actor, targ, false);
   }
 
-  if (parent && (Skill(prhash(u8"Open")) || Skill(prhash(u8"Transparent")))) {
+  if (expanding && parent && (Skill(prhash(u8"Open")) || Skill(prhash(u8"Transparent")))) {
     no_seek = true;
-    parent->SendOut(tnum, rsucc, mes, youmes, actor, targ);
+    parent->SendOut(tnum, rsucc, mes, youmes, actor, targ, true);
     no_seek = false;
   }
 
