@@ -19,11 +19,10 @@
 //
 // *************************************************************************
 
-#include <fcntl.h>
-#include <unistd.h>
 #include <algorithm>
 #include <cctype>
 #include <cstdarg>
+#include <cstdio>
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -3385,8 +3384,8 @@ void init_world() {
   if (!universe->Load(u8"acid/current.wld")) {
     load_players(u8"acid/current.plr");
   } else {
-    int fd = open8(u8"acid/startup.conf", O_RDONLY);
-    if (fd >= 0) {
+    FILE* conf = fopen(u8"acid/startup.conf", u8"r");
+    if (conf) {
       Object* autoninja = new Object(universe);
       autoninja->SetShortDesc(u8"The AutoNinja");
       autoninja->SetDesc(u8"The AutoNinja - you should NEVER see this!");
@@ -3402,14 +3401,15 @@ void init_world() {
       automind->SetSystem();
       automind->Attach(autoninja);
 
-      int len = lseek(fd, 0, SEEK_END);
-      lseek(fd, 0, SEEK_SET);
+      fseek(conf, 0, SEEK_END);
+      size_t len = ftell(conf);
+      fseek(conf, 0, SEEK_SET);
       char8_t buf2[len + 1];
-      read(fd, buf2, len);
+      fread(buf2, 1, len, conf);
       buf2[len] = 0;
 
       handle_command(autoninja, buf2, automind);
-      close(fd);
+      fclose(conf);
 
       delete automind;
       delete anp;
