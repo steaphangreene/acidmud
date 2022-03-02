@@ -3384,8 +3384,6 @@ void init_world() {
   if (!universe->Load(u8"acid/current.wld")) {
     load_players(u8"acid/current.plr");
   } else {
-    is_skill(0); // Force runtime string initialization
-
     int fd = open8(u8"acid/startup.conf", O_RDONLY);
     if (fd >= 0) {
       Object* autoninja = new Object(universe);
