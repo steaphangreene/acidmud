@@ -264,7 +264,8 @@ void update_net() {
     drop_socket(sock);
   }
 
-  for (auto sock : fds) {
+  auto cur_fds = fds;
+  for (auto sock : cur_fds) {
     if (FD_ISSET(sock, &input_set)) {
       handle_input(sock);
     }
