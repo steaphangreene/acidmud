@@ -82,13 +82,13 @@ const std::u8string act_str[static_cast<uint8_t>(act_t::SPECIAL_MAX)] = {
     u8"wearing %1$s",
     u8"wearing %1$s",
     u8"wearing_%1$s",
-    u8"act_t::SPECIAL_MONITOR",
-    u8"act_t::SPECIAL_MASTER",
-    u8"act_t::SPECIAL_LINKED",
-    u8"act_t::SPECIAL_HOME",
-    u8"act_t::SPECIAL_WORK",
-    u8"act_t::SPECIAL_ACTEE",
-    //"act_t::SPECIAL_MAX"
+    u8"SPECIAL_MONITOR",
+    u8"SPECIAL_MASTER",
+    u8"SPECIAL_LINKED",
+    u8"SPECIAL_HOME",
+    u8"SPECIAL_WORK",
+    u8"SPECIAL_ACTEE",
+    //"SPECIAL_MAX"
 };
 
 static Object* universe = nullptr;
