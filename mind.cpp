@@ -19,18 +19,16 @@
 //
 // *************************************************************************
 
-#include <string>
-
 #include <arpa/telnet.h>
 
 #include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
+
 #include <algorithm>
 #include <cstdarg>
+#include <filesystem>
 #include <limits>
 #include <random>
+#include <string>
 
 #include "cchar8.hpp"
 #include "color.hpp"
@@ -508,9 +506,8 @@ void Mind::SetRemote(int fd) {
     return;
 
   static unsigned long lognum = 0;
-  struct stat st;
   sprintf(buf, u8"logs/%.8lX.log%c", lognum, 0);
-  while (!stat8(buf, &st)) {
+  while (std::filesystem::exists(buf)) {
     ++lognum;
     sprintf(buf, u8"logs/%.8lX.log%c", lognum, 0);
   }
