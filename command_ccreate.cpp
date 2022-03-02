@@ -368,14 +368,14 @@ int handle_command_ccreate(
         }
       }
     }
-    body->Parent()->SendOutF(
+    body->Parent()->SendOut(
         stealth_t,
         stealth_s,
-        u8";s creates a new city '%s' with Ninja Powers[TM].\n",
-        u8"You create a new city '%s'.\n",
+        u8";s creates a new city '{}' with Ninja Powers[TM].\n",
+        u8"You create a new city '{}'.\n",
         body,
         nullptr,
-        std::u8string(args).c_str());
+        args);
   }
   return 0;
 }
