@@ -963,29 +963,11 @@ std::u8string Object::Noun(bool definite, const Object* rel, const Object* sub) 
   return local;
 }
 
-static void trim(std::u8string& s) {
-  trim_string(s);
-
-  // Also remove N00bScript tags
-  size_t n00b = s.find('@');
-  while (n00b != std::u8string::npos) {
-    // fprintf(stderr, u8"Step: %s\n", s.c_str());
-    if (s[n00b + 1] == '@') { //@@ -> @
-      s = s.substr(0, n00b) + u8"@" + s.substr(n00b + 2);
-      n00b = s.find('@', n00b + 1);
-    } else { // FIXME: Actually use ANSI colors?
-      s = s.substr(0, n00b) + s.substr(n00b + 2);
-      n00b = s.find('@', n00b);
-    }
-    // if(n00b == std::u8string::npos) fprintf(stderr, u8"Done: %s\n\n", s.c_str());
-  }
-}
-
 void Object::SetDescs(std::u8string sd, std::u8string n, std::u8string d, std::u8string ld) {
-  trim(sd);
-  trim(n);
-  trim(d);
-  trim(ld);
+  trim_string(sd);
+  trim_string(n);
+  trim_string(d);
+  trim_string(ld);
   if (sd.length() > 80) { // No longer than one traditional line of text
     sd = sd.substr(0, 80);
     trim_string(sd);

@@ -263,6 +263,25 @@ Mind* get_tba_mob_mind() {
   return tba_mob_mind;
 }
 
+// Cleans out N00bScript tags, leading/training whitespace, etc.
+static void clean_string(std::u8string& s) {
+  trim_string(s);
+
+  // Also remove N00bScript tags
+  size_t n00b = s.find('@');
+  while (n00b != std::u8string::npos) {
+    // fprintf(stderr, u8"Step: %s\n", s.c_str());
+    if (s[n00b + 1] == '@') { //@@ -> @
+      s = s.substr(0, n00b) + u8"@" + s.substr(n00b + 2);
+      n00b = s.find('@', n00b + 1);
+    } else { // FIXME: Actually use ANSI colors?
+      s = s.substr(0, n00b) + s.substr(n00b + 2);
+      n00b = s.find('@', n00b);
+    }
+    // if(n00b == std::u8string::npos) fprintf(stderr, u8"Done: %s\n\n", s.c_str());
+  }
+}
+
 // Format: Strings, terminated by only an EoL '~'.
 // ...other '~' characters are valid components.
 std::u8string load_tba_field(FILE* fd) {
@@ -289,6 +308,7 @@ std::u8string load_tba_field(FILE* fd) {
 
   std::transform(ret.begin(), ret.end(), ret.begin(), [](auto c) { return (c == ';') ? ',' : c; });
 
+  clean_string(ret);
   return ret;
 }
 
