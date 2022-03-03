@@ -413,9 +413,8 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* door2 = new Object(next);
       door1->SetShortDesc(dir);
       door2->SetShortDesc(dirb);
-      door1->SetDesc((std::u8string(u8"You see a solid passage leading ") + dir + u8".\n").c_str());
-      door2->SetDesc(
-          (std::u8string(u8"You see a solid passage leading ") + dirb + u8".\n").c_str());
+      door1->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dir));
+      door2->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dirb));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
@@ -461,9 +460,8 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* door2 = new Object(next);
       door1->SetShortDesc(dir);
       door2->SetShortDesc(dirb);
-      door1->SetDesc((std::u8string(u8"You see a solid passage leading ") + dir + u8".\n").c_str());
-      door2->SetDesc(
-          (std::u8string(u8"You see a solid passage leading ") + dirb + u8".\n").c_str());
+      door1->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dir));
+      door2->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dirb));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
@@ -508,9 +506,8 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* door2 = new Object(next);
       door1->SetShortDesc(dir);
       door2->SetShortDesc(dirb);
-      door1->SetDesc((std::u8string(u8"You see a solid passage leading ") + dir + u8".\n").c_str());
-      door2->SetDesc(
-          (std::u8string(u8"You see a solid passage leading ") + dirb + u8".\n").c_str());
+      door1->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dir));
+      door2->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dirb));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
@@ -533,10 +530,8 @@ void Object::DynamicInit1() { // Dwarven mine
       door2 = new Object(next);
       door1->SetShortDesc(dir2);
       door2->SetShortDesc(dir3);
-      door1->SetDesc(
-          (std::u8string(u8"You see a crumbling passage leading ") + dir2 + u8".\n").c_str());
-      door2->SetDesc(
-          (std::u8string(u8"You see a crumbling passage leading ") + dir3 + u8".\n").c_str());
+      door1->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir2));
+      door2->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir3));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
@@ -581,9 +576,8 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* door2 = new Object(next);
       door1->SetShortDesc(dir);
       door2->SetShortDesc(dirb);
-      door1->SetDesc((std::u8string(u8"You see a solid passage leading ") + dir + u8".\n").c_str());
-      door2->SetDesc(
-          (std::u8string(u8"You see a solid passage leading ") + dirb + u8".\n").c_str());
+      door1->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dir));
+      door2->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dirb));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
@@ -607,10 +601,8 @@ void Object::DynamicInit1() { // Dwarven mine
       door2 = new Object(next);
       door1->SetShortDesc(dir2);
       door2->SetShortDesc(dir3);
-      door1->SetDesc(
-          (std::u8string(u8"You see a crumbling passage leading ") + dir2 + u8".\n").c_str());
-      door2->SetDesc(
-          (std::u8string(u8"You see a crumbling passage leading ") + dir3 + u8".\n").c_str());
+      door1->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir2));
+      door2->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir3));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
@@ -701,9 +693,8 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* door2 = new Object(next);
       door1->SetShortDesc(dir);
       door2->SetShortDesc(dirb);
-      door1->SetDesc((std::u8string(u8"You see a solid passage leading ") + dir + u8".\n").c_str());
-      door2->SetDesc(
-          (std::u8string(u8"You see a solid passage leading ") + dirb + u8".\n").c_str());
+      door1->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dir));
+      door2->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dirb));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
@@ -749,10 +740,8 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* door2 = new Object(next);
       door1->SetShortDesc(dir);
       door2->SetShortDesc(dirb);
-      door1->SetDesc(
-          (std::u8string(u8"You see a crumbling passage leading ") + dir + u8".\n").c_str());
-      door2->SetDesc(
-          (std::u8string(u8"You see a crumbling passage leading ") + dirb + u8".\n").c_str());
+      door1->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir));
+      door2->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dirb));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
@@ -797,10 +786,8 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* door2 = new Object(next);
       door1->SetShortDesc(dir2);
       door2->SetShortDesc(dir3);
-      door1->SetDesc(
-          (std::u8string(u8"You see a crumbling passage leading ") + dir2 + u8".\n").c_str());
-      door2->SetDesc(
-          (std::u8string(u8"You see a crumbling passage leading ") + dir3 + u8".\n").c_str());
+      door1->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir2));
+      door2->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir3));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
@@ -843,10 +830,8 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* door2 = new Object(next);
       door1->SetShortDesc(dir2);
       door2->SetShortDesc(dir3);
-      door1->SetDesc(
-          (std::u8string(u8"You see a crumbling passage leading ") + dir2 + u8".\n").c_str());
-      door2->SetDesc(
-          (std::u8string(u8"You see a crumbling passage leading ") + dir3 + u8".\n").c_str());
+      door1->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir2));
+      door2->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir3));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
@@ -869,10 +854,8 @@ void Object::DynamicInit1() { // Dwarven mine
       door2 = new Object(next);
       door1->SetShortDesc(dir2);
       door2->SetShortDesc(dir3);
-      door1->SetDesc(
-          (std::u8string(u8"You see a crumbling passage leading ") + dir2 + u8".\n").c_str());
-      door2->SetDesc(
-          (std::u8string(u8"You see a crumbling passage leading ") + dir3 + u8".\n").c_str());
+      door1->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir2));
+      door2->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir3));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
@@ -931,10 +914,8 @@ void Object::DynamicInit1() { // Dwarven mine
       Object* door2 = new Object(next);
       door1->SetShortDesc(dir);
       door2->SetShortDesc(dirb);
-      door1->SetDesc(
-          (std::u8string(u8"You see a crumbling passage leading ") + dir + u8".\n").c_str());
-      door2->SetDesc(
-          (std::u8string(u8"You see a crumbling passage leading ") + dirb + u8".\n").c_str());
+      door1->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir));
+      door2->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dirb));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
