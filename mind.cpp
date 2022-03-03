@@ -1418,7 +1418,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           if (obj) {
             size_t num = field.find_first_of(u8") .%", 10);
             std::u8string var = field.substr(10, num - 10); // FIXME: Variables!
-            val = bstr[obj->HasSkill(crc32c(std::u8string(u8"TBA:") + var))];
+            val = bstr[obj->HasSkill(crc32c(fmt::format(u8"TBA:{}", var)))];
           }
           obj = nullptr;
           is_obj = 0;
@@ -1677,7 +1677,7 @@ int Mind::TBARunLine(std::u8string line) {
       trim_string(var);
       svars.erase(var);
       ovars.erase(var);
-      ovars[u8"context"]->SetSkill(std::u8string(u8"TBA:") + var, 0);
+      ovars[u8"context"]->SetSkill(fmt::format(u8"TBA:{}", var), 0);
     } else {
       fprintf(
           stderr,
@@ -1860,7 +1860,7 @@ int Mind::TBARunLine(std::u8string line) {
     Object* con = nullptr;
     char8_t var[256] = u8"";
     if (sscanf(line.c_str() + 7, u8" %s OBJ:%p", var, &con) >= 2 && con != nullptr) {
-      con->SetSkill(std::u8string(u8"TBA:") + var, 0);
+      con->SetSkill(fmt::format(u8"TBA:{}", var), 0);
       if (con->IsAnimate()) {
         con->Accomplish(body->Skill(prhash(u8"Accomplishment")), u8"completing a quest");
       }
@@ -1882,7 +1882,7 @@ int Mind::TBARunLine(std::u8string line) {
     if (sscanf(line.c_str() + 7, u8" %s OBJ:%p", var, &con) >= 2 && con != nullptr) {
       if (svars.count(var) > 0) {
         int val = atoi(svars[var].c_str());
-        con->SetSkill(std::u8string(u8"TBA:") + var, val);
+        con->SetSkill(fmt::format(u8"TBA:{}", var), val);
         if (con->IsAnimate()) {
           con->Accomplish(body->Skill(prhash(u8"Accomplishment")), u8"role playing");
         }
@@ -1913,7 +1913,7 @@ int Mind::TBARunLine(std::u8string line) {
     if (sscanf(line.c_str() + 7, u8" %s", var) >= 1 && con != nullptr) {
       if (svars.count(var) > 0) {
         int val = atoi(svars[var].c_str());
-        con->SetSkill(std::u8string(u8"TBA:") + var, val);
+        con->SetSkill(fmt::format(u8"TBA:{}", var), val);
         //	fprintf(stderr, CGRN u8"#%d Debug: Global %s=%d '%s'\n" CNRM,
         //		body->Skill(prhash(u8"TBAScript")), var, val, line.c_str());
       } else {
