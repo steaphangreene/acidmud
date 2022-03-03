@@ -915,44 +915,44 @@ std::u8string Object::Noun(bool definite, const Object* rel, const Object* sub) 
     return u8"itself";
 
   if (!strncmp(ShortDescC(), u8"a ", 2)) {
-    ret = (ShortDescC() + 2);
+    ret = ShortDesc().substr(2);
     need_an = false;
   } else if (!strncmp(ShortDescC(), u8"an ", 3)) {
-    ret = (ShortDescC() + 3);
+    ret = ShortDesc().substr(3);
     need_an = true;
   } else if (!strncmp(ShortDescC(), u8"the ", 4)) {
-    ret = (ShortDescC() + 4);
+    ret = ShortDesc().substr(4);
     definite = true;
   } else {
-    ret = ShortDescC();
+    ret = ShortDesc();
     proper = true;
   }
 
   if (!IsAnimate()) {
     Object* own = Owner();
     if (own && own == rel) {
-      ret = std::u8string(u8"your ") + ret;
+      ret = fmt::format(u8"your {}", ret);
     } else if (own && own == sub && own->Gender() == 'F') {
-      ret = std::u8string(u8"her ") + ret;
+      ret = fmt::format(u8"her {}", ret);
     } else if (own && own == sub && own->Gender() == 'M') {
-      ret = std::u8string(u8"his ") + ret;
+      ret = fmt::format(u8"his {}", ret);
     } else if (own && own == sub) {
-      ret = std::u8string(u8"its ") + ret;
+      ret = fmt::format(u8"its {}", ret);
     } else if (own) {
       ret = own->Noun() + u8"'s " + ret;
     } else if (definite && (!proper)) {
-      ret = std::u8string(u8"the ") + ret;
+      ret = fmt::format(u8"the {}", ret);
     } else if ((!proper) && need_an) {
-      ret = std::u8string(u8"an ") + ret;
+      ret = fmt::format(u8"an {}", ret);
     } else if (!proper) {
-      ret = std::u8string(u8"a ") + ret;
+      ret = fmt::format(u8"a {}", ret);
     }
   } else if (definite && (!proper)) {
-    ret = std::u8string(u8"the ") + ret;
+    ret = fmt::format(u8"the {}", ret);
   } else if ((!proper) && need_an) {
-    ret = std::u8string(u8"an ") + ret;
+    ret = fmt::format(u8"an {}", ret);
   } else if (!proper) {
-    ret = std::u8string(u8"a ") + ret;
+    ret = fmt::format(u8"a {}", ret);
   }
 
   if (HasName() && (rel == nullptr || rel->Knows(this))) {
