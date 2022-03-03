@@ -236,7 +236,7 @@ int Object::Matches(std::u8string targ, bool knows) const {
   trim_string(targ);
 
   // Pointer Matches
-  if (!strncmp(targ.c_str(), u8"OBJ:", 4)) {
+  if (!strncmp(targ.c_str(), u8"OBJ:", 4) || !strncmp(targ.c_str(), u8"obj:", 4)) {
     Object* tofind = nullptr;
     sscanf(targ.c_str() + 4, u8"%p", &tofind);
     return (this == tofind);

@@ -3018,7 +3018,7 @@ bool Mind::Think(int istick) {
             && (!other->IsAct(act_t::DYING)) // It's not already dying
             && (!other->IsAct(act_t::DEAD)) // It's not already dead
         ) {
-          std::u8string command = std::u8string(u8"attack ") + other->ShortDescS();
+          std::u8string command = fmt::format(u8"attack OBJ:{}", static_cast<void*>(other));
           body->BusyFor(500, command.c_str());
           // fprintf(stderr, u8"%s: Tried '%s'\n", body->ShortDescC(), command.c_str());
           return true;
@@ -3054,7 +3054,7 @@ bool Mind::Think(int istick) {
             && (!other->IsAct(act_t::DYING)) // It's not already dying
             && (!other->IsAct(act_t::DEAD)) // It's not already dead
         ) {
-          std::u8string command = std::u8string(u8"attack ") + other->ShortDescS();
+          std::u8string command = fmt::format(u8"attack OBJ:{}", static_cast<void*>(other));
           body->BusyFor(500, command.c_str());
           // fprintf(stderr, u8"%s: Tried '%s'\n", body->ShortDescC(), command.c_str());
           return true;
@@ -3090,7 +3090,8 @@ bool Mind::Think(int istick) {
             && other->ActTarg(act_t::FIGHT)->HasSkill(prhash(u8"TBAAction"))
             //...against another MOB
         ) {
-          std::u8string command = std::u8string(u8"call ALARM; attack ") + other->ShortDescS();
+          std::u8string command =
+              fmt::format(u8"call ALARM; attack OBJ:{}", static_cast<void*>(other));
           body->BusyFor(500, command.c_str());
           // fprintf(stderr, u8"%s: Tried '%s'\n", body->ShortDescC(), command.c_str());
           return true;
