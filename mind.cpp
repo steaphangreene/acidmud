@@ -3199,21 +3199,24 @@ int new_trigger(int msec, Object* obj, Object* tripper, std::u8string text) {
   return new_trigger(msec, obj, tripper, nullptr, text);
 }
 
+static bool in_new_trigger = false;
 int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, std::u8string text) {
   if ((!obj) || (!(obj->Parent())))
     return 0;
 
+  int status = 0;
   Mind* m = new_mind(MIND_TBATRIG, obj, tripper, targ, text);
-  if (msec == 0) {
+  if (msec == 0 && !in_new_trigger) { // Triggers can not immediately trigger triggers
+    in_new_trigger = true;
     if (!m->Think(1)) {
-      int status = m->Status();
+      status = m->Status();
       delete m;
-      return status;
     }
+    in_new_trigger = false;
   } else {
     m->Suspend(msec);
   }
-  return 0;
+  return status;
 }
 
 std::vector<std::pair<int64_t, Mind*>> Mind::waiting;
