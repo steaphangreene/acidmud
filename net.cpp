@@ -273,9 +273,7 @@ void update_net() {
 
   for (auto out : outbufs) {
     if (minds.count(out.first)) {
-      std::u8string outs = out.second;
-      outs = std::u8string(u8"\n") + outs;
-      outs += u8"\n";
+      std::u8string outs = fmt::format(u8"\n{}\n", out.second);
 
       int pos = outs.find('\n');
       while (pos >= 0 && pos < int(outs.length())) {
