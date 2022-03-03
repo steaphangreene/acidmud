@@ -167,13 +167,21 @@ void Object::SetAttribute(int a, int v) {
   attr[a] = v;
 }
 
-static const char8_t* const attr_name[6] = {
-    u8"Body",
-    u8"Quickness",
-    u8"Strength",
-    u8"Charisma",
-    u8"Intelligence",
-    u8"Willpower",
+static const uint32_t attr_bonus[6] = {
+    prhash(u8"Body Bonus"),
+    prhash(u8"Quickness Bonus"),
+    prhash(u8"Strength Bonus"),
+    prhash(u8"Charisma Bonus"),
+    prhash(u8"Intelligence Bonus"),
+    prhash(u8"Willpower Bonus"),
+};
+static const uint32_t attr_penalty[6] = {
+    prhash(u8"Body Penalty"),
+    prhash(u8"Quickness Penalty"),
+    prhash(u8"Strength Penalty"),
+    prhash(u8"Charisma Penalty"),
+    prhash(u8"Intelligence Penalty"),
+    prhash(u8"Willpower Penalty"),
 };
 void Object::SetModifier(int a, int v) {
   if (v > 10000)
@@ -181,11 +189,11 @@ void Object::SetModifier(int a, int v) {
   else if (v < -10000)
     v = -10000;
   if (v > 0) {
-    SetSkill(std::u8string(attr_name[a]) + u8" Bonus", v);
-    SetSkill(std::u8string(attr_name[a]) + u8" Penalty", 0);
+    SetSkill(attr_bonus[a], v);
+    SetSkill(attr_penalty[a], 0);
   } else {
-    SetSkill(std::u8string(attr_name[a]) + u8" Bonus", 0);
-    SetSkill(std::u8string(attr_name[a]) + u8" Penalty", -v);
+    SetSkill(attr_bonus[a], 0);
+    SetSkill(attr_penalty[a], -v);
   }
 }
 
