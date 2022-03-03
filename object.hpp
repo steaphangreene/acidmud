@@ -251,7 +251,7 @@ class alignas(256) Object {
     return std::u8string(LongDesc());
   };
 
-  void SetDescs(std::u8string, std::u8string, std::u8string, std::u8string);
+  void SetDescs(std::u8string_view, std::u8string_view, std::u8string_view, std::u8string_view);
   void SetShortDesc(const std::u8string_view&);
   void SetName(const std::u8string_view&);
   void SetDesc(const std::u8string_view&);

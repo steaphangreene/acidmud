@@ -963,7 +963,11 @@ std::u8string Object::Noun(bool definite, const Object* rel, const Object* sub) 
   return local;
 }
 
-void Object::SetDescs(std::u8string sd, std::u8string n, std::u8string d, std::u8string ld) {
+void Object::SetDescs(
+    std::u8string_view sd,
+    std::u8string_view n,
+    std::u8string_view d,
+    std::u8string_view ld) {
   trim_string(sd);
   trim_string(n);
   trim_string(d);
@@ -988,32 +992,38 @@ void Object::SetDescs(std::u8string sd, std::u8string n, std::u8string d, std::u
   dlens.n = n.length();
   dlens.d = d.length();
   dlens.ld = ld.length();
+  const size_t len = dlens.sd + dlens.n + dlens.d + dlens.ld + 4;
+
+  char8_t* new_descs = new char8_t[len];
+  std::memcpy(new_descs, sd.data(), dlens.sd);
+  new_descs[dlens.sd] = 0;
+  std::memcpy(new_descs + dlens.sd + 1, n.data(), dlens.n);
+  new_descs[dlens.sd + dlens.n + 1] = 0;
+  std::memcpy(new_descs + dlens.sd + dlens.n + 2, d.data(), dlens.d);
+  new_descs[dlens.sd + dlens.n + dlens.d + 2] = 0;
+  std::memcpy(new_descs + dlens.sd + dlens.n + dlens.d + 3, ld.data(), dlens.ld);
+  new_descs[dlens.sd + dlens.n + dlens.d + dlens.ld + 3] = 0;
+
   if (descriptions != default_descriptions) {
     delete[] descriptions;
   }
-  const size_t len = dlens.sd + dlens.n + dlens.d + dlens.ld + 4;
-  char8_t* new_descs = new char8_t[len];
-  std::memcpy(new_descs, sd.c_str(), dlens.sd + 1);
-  std::memcpy(new_descs + dlens.sd + 1, n.c_str(), dlens.n + 1);
-  std::memcpy(new_descs + dlens.sd + dlens.n + 2, d.c_str(), dlens.d + 1);
-  std::memcpy(new_descs + dlens.sd + dlens.n + dlens.d + 3, ld.c_str(), dlens.ld + 1);
   descriptions = new_descs;
 }
 
-void Object::SetShortDesc(const std::u8string_view& d) {
-  SetDescs(std::u8string(d), NameS(), DescS(), LongDescS());
+void Object::SetShortDesc(const std::u8string_view& sd) {
+  SetDescs(sd, Name(), Desc(), LongDesc());
 }
 
 void Object::SetName(const std::u8string_view& n) {
-  SetDescs(ShortDescS(), std::u8string(n), DescS(), LongDescS());
+  SetDescs(ShortDesc(), n, Desc(), LongDesc());
 }
 
 void Object::SetDesc(const std::u8string_view& d) {
-  SetDescs(ShortDescS(), NameS(), std::u8string(d), LongDescS());
+  SetDescs(ShortDesc(), Name(), d, LongDesc());
 }
 
-void Object::SetLongDesc(const std::u8string_view& d) {
-  SetDescs(ShortDescS(), NameS(), DescS(), std::u8string(d));
+void Object::SetLongDesc(const std::u8string_view& ld) {
+  SetDescs(ShortDesc(), Name(), Desc(), ld);
 }
 
 void Object::SetParent(Object* o) {

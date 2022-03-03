@@ -58,6 +58,16 @@ void trim_string(std::u8string& str) { // Remove extra whitespace from std::u8st
   }
 }
 
+void trim_string(std::u8string_view& str) { // Remove extra whitespace from std::u8string
+  size_t b = str.find_first_not_of(u8" \n\r\t\f\v");
+  size_t e = str.find_last_not_of(u8" \n\r\t\f\v");
+  if (b == std::u8string::npos || e == std::u8string::npos || b > e) { // No (valid) string
+    str = str.substr(0, 0);
+  } else if (b != 0 || e + 1 != str.length()) { // String needs trimming
+    str = str.substr(b, (e - b) + 1);
+  }
+}
+
 size_t skip_line(const std::u8string& str, size_t pos) {
   pos = str.find_first_of(u8"\n\r", pos + 1);
   while (pos != std::u8string::npos && pos < str.length() && isspace(str[pos]))
