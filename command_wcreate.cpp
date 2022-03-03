@@ -610,7 +610,7 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
 
       std::u8string start = u8"A passage ";
       if (doors.count(door_char) > 0) {
-        start = std::u8string(u8"A ") + doors[door_char] + u8" to the ";
+        start = fmt::format(u8"A {} to the ", doors[door_char]);
       }
       std::u8string term = u8"door";
       if (doorterms.count(door_char) > 0) {

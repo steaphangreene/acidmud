@@ -41,7 +41,7 @@ int handle_command_ccreate(
     mind->Send(u8"You need to specify the name of the city!\n");
   } else {
     Object* city = new Object(body->Parent());
-    city->SetShortDesc(std::u8string(args));
+    city->SetShortDesc(args);
     city->SetSkill(prhash(u8"Light Source"), 1000);
     city->SetSkill(prhash(u8"Day Length"), 240);
     city->SetSkill(prhash(u8"Day Time"), 120);
