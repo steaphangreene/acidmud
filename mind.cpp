@@ -3251,6 +3251,7 @@ void Mind::Resume() {
   itr = waiting.begin();
   for (; itr != waiting.end() && itr->first <= current_time; ++itr) {
     if (!itr->second->Think(0)) {
+      itr->first = std::numeric_limits<int64_t>::max();
       delete itr->second;
     }
   }
