@@ -2508,7 +2508,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
     if (!nocheck) { // Check for a MOB by that UNIQUE name ANYWHERE.
       room = room->Parent();
-      Object* targ = room->PickObject((std::u8string(u8"all's ") + buf2).c_str(), LOC_INTERNAL);
+      Object* targ = room->PickObject(fmt::format(u8"all's {}", buf2), LOC_INTERNAL);
       if (targ) {
         targ->Parent()->RemoveLink(targ);
         targ->SetParent(dest);
@@ -2775,9 +2775,9 @@ int Mind::TBARunLine(std::u8string line) {
         end = line.find_first_of(u8" \t\r\n", start);
         if (end != std::u8string::npos) {
           handle_command(
-              ovars[u8"self"], std::u8string(u8"offer ") + line.substr(start, end - start));
+              ovars[u8"self"], fmt::format(u8"offer {}", line.substr(start, end - start)));
         } else {
-          handle_command(ovars[u8"self"], std::u8string(u8"offer ") + line.substr(start));
+          handle_command(ovars[u8"self"], fmt::format(u8"offer {}", line.substr(start)));
         }
       } else {
         fprintf(
