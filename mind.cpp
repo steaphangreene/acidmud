@@ -2766,9 +2766,9 @@ int Mind::TBARunLine(std::u8string line) {
     if (start != std::u8string::npos) {
       size_t end = line.find_first_of(u8" \t\r\n", start);
       if (end != std::u8string::npos) {
-        handle_command(ovars[u8"self"], std::u8string(u8"hold ") + line.substr(start, end - start));
+        handle_command(ovars[u8"self"], fmt::format(u8"hold {}", line.substr(start, end - start)));
       } else {
-        handle_command(ovars[u8"self"], std::u8string(u8"hold ") + line.substr(start));
+        handle_command(ovars[u8"self"], fmt::format(u8"hold {}", line.substr(start)));
       }
       start = line.find_first_not_of(u8" \t\r\n", end);
       if (start != std::u8string::npos) {
@@ -2983,7 +2983,7 @@ bool Mind::Think(int istick) {
     // Temporary
     if (body && body->ActTarg(act_t::WEAR_SHIELD) && (!body->IsAct(act_t::HOLD))) {
       std::u8string command =
-          std::u8string(u8"hold ") + body->ActTarg(act_t::WEAR_SHIELD)->ShortDescS();
+          fmt::format(u8"hold OBJ:{}", static_cast<void*>(body->ActTarg(act_t::WEAR_SHIELD)));
       body->BusyFor(500, command.c_str());
       return true;
     } else if (
@@ -2994,7 +2994,7 @@ bool Mind::Think(int istick) {
         if (body->Parent())
           body->Parent()->SendOut(ALL, 0, u8";s stashes ;s.\n", u8"", body, targ);
         std::u8string command =
-            std::u8string(u8"hold ") + body->ActTarg(act_t::WEAR_SHIELD)->ShortDescS();
+            fmt::format(u8"hold OBJ:{}", static_cast<void*>(body->ActTarg(act_t::WEAR_SHIELD)));
         body->BusyFor(500, command.c_str());
       } else {
         // fprintf(stderr, u8"Warning: %s can't use his shield!\n", body->Noun().c_str());
