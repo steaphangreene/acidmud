@@ -9,6 +9,12 @@
  *  @license GPL3 <https://www.gnu.org/licenses/gpl-3.0-standalone.html>
  */
 
+// Modified slightly by Steaphan Greene, still under GLP3, in 2022.
+// This is being used by/in AcidMUD, but is not covered by its copyright.
+// All credit and rights still owned by the original author (Mike Tzou)
+
+// clang-format off
+
 #ifndef CHOCOBO1_MD5_H
 #define CHOCOBO1_MD5_H
 
@@ -194,7 +200,7 @@ namespace MD5_NS
 		// https://tools.ietf.org/html/rfc1321
 
 		public:
-			using Byte = uint8_t;
+			using Byte = char8_t;
 			using ResultArrayType = std::array<Byte, 16>;
 
 #if (USE_STD_SPAN_CHOCOBO1_HASH == 1)
@@ -211,7 +217,7 @@ namespace MD5_NS
 			constexpr void reset();
 			CONSTEXPR_CPP17_CHOCOBO1_HASH MD5& finalize();  // after this, only `operator T()`, `reset()`, `toArray()`, `toString()`, `toVector()` are available
 
-			std::string toString() const;
+			std::u8string toString() const;
 			std::vector<Byte> toVector() const;
 			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
 			template <typename T>
@@ -245,7 +251,7 @@ namespace MD5_NS
 		// this class workaround loading data from unaligned memory boundaries
 		// also eliminate endianness issues
 		public:
-			explicit constexpr Loader(const uint8_t *ptr)
+			explicit constexpr Loader(const char8_t *ptr)
 				: m_ptr(ptr)
 			{
 			}
@@ -254,7 +260,7 @@ namespace MD5_NS
 			{
 				static_assert(std::is_same<T, uint32_t>::value, "");
 				// handle specific endianness here
-				const uint8_t *ptr = m_ptr + (sizeof(T) * idx);
+				const char8_t *ptr = m_ptr + (sizeof(T) * idx);
 				return  ( (static_cast<T>(*(ptr + 0)) <<  0)
 						| (static_cast<T>(*(ptr + 1)) <<  8)
 						| (static_cast<T>(*(ptr + 2)) << 16)
@@ -262,7 +268,7 @@ namespace MD5_NS
 			}
 
 		private:
-			const uint8_t *m_ptr;
+			const char8_t *m_ptr;
 	};
 
 	template<int i>
@@ -317,20 +323,20 @@ namespace MD5_NS
 		return (*this);
 	}
 
-	std::string MD5::toString() const
+	std::u8string MD5::toString() const
 	{
 		const auto digest = toArray();
-		std::string ret;
+		std::u8string ret;
 		ret.resize(2 * digest.size());
 
 		auto retPtr = &ret.front();
 		for (const auto c : digest)
 		{
 			const Byte upper = ror<Byte>(c, 4);
-			*(retPtr++) = static_cast<char>((upper < 10) ? (upper + '0') : (upper - 10 + 'a'));
+			*(retPtr++) = static_cast<char8_t>((upper < 10) ? (upper + '0') : (upper - 10 + 'a'));
 
 			const Byte lower = c & 0xf;
-			*(retPtr++) = static_cast<char>((lower < 10) ? (lower + '0') : (lower - 10 + 'a'));
+			*(retPtr++) = static_cast<char8_t>((lower < 10) ? (lower + '0') : (lower - 10 + 'a'));
 		}
 
 		return ret;
