@@ -79,80 +79,50 @@ void Object::TBALoadAll() {
   char8_t buf[65536];
   FILE* mudt = fopen(u8"tba/trg/index", u8"r");
   if (mudt) {
-    sprintf(buf, u8"tba/trg/%c", 0);
-    memset(buf + strlen(buf), 0, 256);
-    fscanf(mudt, u8"%255[^\n\r]\n", buf + strlen(buf));
-    while (strlen(buf) > 10) {
+    sprintf(buf, u8"tba/trg/");
+    while (fscanf(mudt, u8"%255[^$\n\r]\n", buf + 8) > 0) {
       TBALoadTRG(buf);
-      sprintf(buf, u8"tba/trg/%c", 0);
-      memset(buf + strlen(buf), 0, 256);
-      fscanf(mudt, u8"%255[^\n\r]\n", buf + strlen(buf));
     }
     fclose(mudt);
   }
   FILE* mudw = fopen(u8"tba/wld/index", u8"r");
   if (mudw) {
-    sprintf(buf, u8"tba/wld/%c", 0);
-    memset(buf + strlen(buf), 0, 256);
-    fscanf(mudw, u8"%255[^\n\r]\n", buf + strlen(buf));
-    while (strlen(buf) > 10) {
+    sprintf(buf, u8"tba/wld/");
+    while (fscanf(mudw, u8"%255[^$\n\r]\n", buf + 8) > 0) {
       TBALoadWLD(buf);
-      sprintf(buf, u8"tba/wld/%c", 0);
-      memset(buf + strlen(buf), 0, 256);
-      fscanf(mudw, u8"%255[^\n\r]\n", buf + strlen(buf));
     }
     fclose(mudw);
   }
   FILE* mudo = fopen(u8"tba/obj/index", u8"r");
   if (mudo) {
-    sprintf(buf, u8"tba/obj/%c", 0);
-    memset(buf + strlen(buf), 0, 256);
-    fscanf(mudo, u8"%255[^\n\r]\n", buf + strlen(buf));
-    while (strlen(buf) > 10) {
+    sprintf(buf, u8"tba/obj/");
+    while (fscanf(mudo, u8"%255[^$\n\r]\n", buf + 8) > 0) {
       TBALoadOBJ(buf);
-      sprintf(buf, u8"tba/obj/%c", 0);
-      memset(buf + strlen(buf), 0, 256);
-      fscanf(mudo, u8"%255[^\n\r]\n", buf + strlen(buf));
     }
     fclose(mudo);
   }
   FILE* mudm = fopen(u8"tba/mob/index", u8"r");
   if (mudm) {
-    sprintf(buf, u8"tba/mob/%c", 0);
-    memset(buf + strlen(buf), 0, 256);
-    fscanf(mudm, u8"%255[^\n\r]\n", buf + strlen(buf));
-    while (strlen(buf) > 10) {
+    sprintf(buf, u8"tba/mob/");
+    while (fscanf(mudm, u8"%255[^$\n\r]\n", buf + 8) > 0) {
       TBALoadMOB(buf);
-      sprintf(buf, u8"tba/mob/%c", 0);
-      memset(buf + strlen(buf), 0, 256);
-      fscanf(mudm, u8"%255[^\n\r]\n", buf + strlen(buf));
     }
     fclose(mudm);
   }
   FILE* mudz = fopen(u8"tba/zon/index", u8"r");
   if (mudz) {
-    sprintf(buf, u8"tba/zon/%c", 0);
-    memset(buf + strlen(buf), 0, 256);
-    fscanf(mudz, u8"%255[^\n\r]\n", buf + strlen(buf));
-    while (strlen(buf) > 10) {
+    sprintf(buf, u8"tba/zon/");
+    while (fscanf(mudz, u8"%255[^$\n\r]\n", buf + 8) > 0) {
       TBALoadZON(buf);
-      sprintf(buf, u8"tba/zon/%c", 0);
-      memset(buf + strlen(buf), 0, 256);
-      fscanf(mudz, u8"%255[^\n\r]\n", buf + strlen(buf));
     }
     fclose(mudz);
   }
   TBAFinalizeTriggers();
   FILE* muds = fopen(u8"tba/shp/index", u8"r");
   if (muds) {
-    sprintf(buf, u8"tba/shp/%c", 0);
-    memset(buf + strlen(buf), 0, 256);
-    fscanf(muds, u8"%255[^\n\r]\n", buf + strlen(buf));
-    while (strlen(buf) > 10) {
+    sprintf(buf, u8"tba/shp/");
+    while (fscanf(muds, u8"%255[^$\n\r]\n", buf + 8) > 0) {
       TBALoadSHP(buf);
-      sprintf(buf, u8"tba/shp/%c", 0);
-      memset(buf + strlen(buf), 0, 256);
-      fscanf(muds, u8"%255[^\n\r]\n", buf + strlen(buf));
     }
     fclose(muds);
   }
