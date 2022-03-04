@@ -3355,7 +3355,8 @@ void Object::Loud(std::set<Object*>& visited, int str, const std::u8string& mes)
   for (auto dest : targs) {
     if (dest && dest->Parent() && str > 0) {
       if (!visited.contains(dest->Parent())) {
-        dest->Parent()->SendOut(ALL, 0, u8"From ;s you hear '{}'\n", u8"", dest, dest, mes);
+        dest->Parent()->SendOut(
+            ALL, 0, u8"From ;s you hear someone shout '{}'\n", u8"", dest, dest, mes);
         dest->Parent()->Loud(visited, str - 1, mes);
       }
     }

@@ -257,13 +257,6 @@ std::u8string Mind::TBAComp(std::u8string expr) const {
   if (end != std::u8string::npos)
     expr = expr.substr(0, end);
   trim_string(expr);
-  if (0
-      //	|| body->Skill(prhash(u8"TBAScript")) == 5000099
-      //	|| strcasestr8(expr.c_str(), u8"tea")
-      //	|| strcasestr8(expr.c_str(), u8"wake")
-  ) {
-    fprintf(stderr, u8"Expr: '%s'\n", expr.c_str());
-  }
 
   if (expr[0] == '(') {
     size_t cls = expr.find(')');
@@ -358,7 +351,7 @@ std::u8string Mind::TBAComp(std::u8string expr) const {
 
     int res = 0;
     std::u8string comp = u8"0";
-    if (oper == 1 && strcasestr8(arg1.c_str(), arg2.c_str()))
+    if (oper == 1 && arg2.find(arg1) != std::u8string::npos)
       comp = u8"1";
     else if (oper == 2 && (!strcmp(arg1.c_str(), arg2.c_str())))
       comp = u8"1";
@@ -407,13 +400,7 @@ std::u8string Mind::TBAComp(std::u8string expr) const {
 int Mind::TBAEval(std::u8string expr) const {
   std::u8string base = TBAComp(expr);
   trim_string(base);
-  if (0
-      //	|| body->Skill(prhash(u8"TBAScript")) == 5000099
-      //	|| strcasestr8(expr.c_str(), u8"tea")
-      //	|| strcasestr8(expr.c_str(), u8"wake")
-  ) {
-    fprintf(stderr, u8"Base: '%s'\n", base.c_str());
-  }
+
   if (base.length() == 0)
     return 0; // Null
   if (base.length() == 1 && base[0] == '!')
@@ -648,7 +635,7 @@ bool Mind::Send(const std::u8string& mes) {
         && (!body->IsAct(act_t::FIGHT)) // I'm not already fighting
     ) {
       if ((!strncmp(mes.c_str(), u8"From ", 5)) &&
-          (strcasestr8(mes.c_str(), u8" you hear someone shout '") != nullptr) &&
+          (mes.find(u8" you hear someone shout '") != std::u8string::npos) &&
           ((strstr(mes.c_str(), u8"HELP")) || (strstr(mes.c_str(), u8"ALARM")))) {
         char8_t buf[256] = u8"                                               ";
         sscanf(mes.c_str() + 4, u8"%128s", buf);
