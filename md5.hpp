@@ -447,21 +447,21 @@ namespace MD5_NS
 		{
 			const Loader<uint32_t> x(static_cast<const Byte *>(data.data() + (i * BLOCK_SIZE)));
 
-			const auto f = [](const uint32_t x, const uint32_t y, const uint32_t z) -> uint32_t
+			const auto f = [](const uint32_t xx, const uint32_t yy, const uint32_t zz) -> uint32_t
 			{
-				return ((x & (y ^ z)) ^ z);  // alternative
+				return ((xx & (yy ^ zz)) ^ zz);  // alternative
 			};
-			const auto g = [](const uint32_t x, const uint32_t y, const uint32_t z) -> uint32_t
+			const auto g = [](const uint32_t xx, const uint32_t yy, const uint32_t zz) -> uint32_t
 			{
-				return (y ^ ((x ^ y) & z));  // alternative
+				return (yy ^ ((xx ^ yy) & zz));  // alternative
 			};
-			const auto h = [](const uint32_t x, const uint32_t y, const uint32_t z) -> uint32_t
+			const auto h = [](const uint32_t xx, const uint32_t yy, const uint32_t zz) -> uint32_t
 			{
-				return (x ^ y ^ z);
+				return (xx ^ yy ^ zz);
 			};
-			const auto ii = [](const uint32_t x, const uint32_t y, const uint32_t z) -> uint32_t
+			const auto ii = [](const uint32_t xx, const uint32_t yy, const uint32_t zz) -> uint32_t
 			{
-				return (y ^ (x | (~z)));
+				return (yy ^ (xx | (~zz)));
 			};
 
 			uint32_t a = m_state[0];
@@ -469,9 +469,9 @@ namespace MD5_NS
 			uint32_t c = m_state[2];
 			uint32_t d = m_state[3];
 
-			const auto round = [x](uint32_t &a, uint32_t &b, uint32_t &c, uint32_t &d, const auto &func, const unsigned int k, const unsigned int s, const uint32_t t) -> void
+			const auto round = [x](uint32_t &aa, uint32_t &bb, uint32_t &cc, uint32_t &dd, const auto &func, const unsigned int k, const unsigned int s, const uint32_t t) -> void
 			{
-				a = b + rotl((a + func(b, c, d) + x[k] + t), s);
+				aa = bb + rotl((aa + func(bb, cc, dd) + x[k] + t), s);
 			};
 
 			round(a, b, c, d, f, 0, 7, 0xd76aa478);
@@ -552,18 +552,6 @@ namespace MD5_NS
 }
 
 	using MD5 = Hash::MD5_NS::MD5;
-}
-
-namespace std
-{
-	template <>
-	struct hash<Chocobo1::MD5>
-	{
-		CONSTEXPR_CPP17_CHOCOBO1_HASH size_t operator()(const Chocobo1::MD5 &hash) const noexcept
-		{
-			return hash;
-		}
-	};
 }
 
 #endif  // CHOCOBO1_MD5_H
