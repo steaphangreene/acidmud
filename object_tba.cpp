@@ -43,13 +43,13 @@ static const std::u8string target_chars =
 static uint32_t tba_bitvec(const std::u8string_view& val) {
   uint32_t ret = 0;
   for (auto ch : val) {
-    if(ascii_isalpha(ch)) {
+    if (ascii_isalpha(ch)) {
       ret |= (1 << ((static_cast<uint32_t>(ch) & 0x1FU) - 1));
     }
   }
   if (ret == 0) {
     for (auto ch : val) { // std::stoul() still doesnt support u8string.  :/
-      if(ascii_isdigit(ch)) {
+      if (ascii_isdigit(ch)) {
         ret *= 10;
         ret += (static_cast<uint32_t>(ch) & 0x0FU);
       }

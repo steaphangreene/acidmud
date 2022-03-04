@@ -1966,20 +1966,33 @@ std::vector<std::u8string> Object::FormatStats(const MinVec<7, skill_pair>& skls
     // Must include color escapes for formatting
 
     // Old-Style (Shadowrun) Weapon Stats
-    static char8_t sevs[] = {'-', 'L', 'M', 'S', 'D'};
+    static const char8_t* sevs[] = {
+        u8"-",
+        u8"L",
+        u8"M",
+        u8"S",
+        u8"D",
+        u8"D2",
+        u8"D4",
+        u8"D6",
+        u8"D8",
+        u8"D10",
+        u8"D12",
+        u8"D14",
+        u8"D16",
+        u8"D18",
+        u8"D20",
+        u8"D20+",
+    };
     ret.push_back(
         u8" Old Weapon: " CYEL + SkillName(get_weapon_skill(Skill(prhash(u8"WeaponType")))) + CNRM);
 
     char8_t buf2[256];
     sprintf(
         buf2,
-        u8"  Damage: " CYEL u8"(Str+%d)%c",
+        u8"  Damage: " CYEL u8"(Str+%d)%s" CNRM,
         Skill(prhash(u8"WeaponForce")),
-        sevs[std::min(4, Skill(prhash(u8"WeaponSeverity")))]);
-    if (Skill(prhash(u8"WeaponSeverity")) > 4) {
-      sprintf(buf2 + strlen(buf2), u8"%d", (Skill(prhash(u8"WeaponSeverity")) - 4) * 2);
-    }
-    strcat(buf2, CNRM);
+        sevs[std::max(0, std::min(15, Skill(prhash(u8"WeaponSeverity"))))]);
     ret.push_back(buf2);
 
     if (Skill(prhash(u8"WeaponReach")) > 4) {
