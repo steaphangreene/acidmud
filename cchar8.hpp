@@ -27,14 +27,8 @@
 #include <cstring>
 #include <string>
 
-#include <crypt.h>
 #include <netdb.h>
 #include <unistd.h>
-
-const char8_t* crypt8(auto&& ps, auto&& sl) {
-  return reinterpret_cast<const char8_t*>(
-      crypt(reinterpret_cast<const char*>(ps), reinterpret_cast<const char*>(sl)));
-};
 
 auto fopen(auto&& fn, auto&& md) {
   return std::fopen(reinterpret_cast<const char*>(fn), reinterpret_cast<const char*>(md));

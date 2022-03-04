@@ -19,9 +19,11 @@
 //
 // *************************************************************************
 
+#include <array>
 #include <set>
+#include <vector>
 
-#include <crypt.h>
+#include "md5.hpp"
 
 #include "cchar8.hpp"
 #include "color.hpp"
@@ -34,6 +36,102 @@ static std::set<Player*> non_init;
 
 static const std::u8string salt_char =
     u8"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
+
+static std::u8string md5_crypt(std::u8string pass, std::u8string salt) {
+  Chocobo1::MD5 md5;
+
+  if (!salt.starts_with(u8"$1$") || salt.length() < 11 ||
+      (salt.length() > 11 && salt[11] != u8'$')) {
+    fprintf(stderr, CRED u8"Invalid magic in salt submitted to md5_crypt!\n" CNRM);
+    return u8"";
+  }
+  salt = salt.substr(0, 11);
+
+  // Initial Hash
+  md5.addData(pass);
+  md5.addData(salt.substr(3));
+  md5.addData(pass);
+  md5.finalize();
+  auto alternate = md5.toArray();
+
+  { // Shake
+    md5.reset();
+    md5.addData(pass);
+    md5.addData(salt);
+    std::vector<char8_t> sub(alternate.begin(), alternate.begin() + pass.length());
+    md5.addData(sub);
+    for (auto bit = pass.length(); bit != 0; bit >>= 1) {
+      if (bit & 1) {
+        md5.addData(u8"\0", 1);
+      } else {
+        md5.addData(pass.substr(0, 1));
+      }
+    }
+  }
+  md5.finalize();
+  auto intermediate = md5.toArray();
+
+  // Rattle
+  for (int i = 0; i < 1000; ++i) {
+    md5.reset();
+    if (i % 2 == 0) {
+      md5.addData(intermediate);
+    }
+    if (i % 2 != 0) {
+      md5.addData(pass);
+    }
+    if (i % 3 != 0) {
+      md5.addData(salt.substr(3));
+    }
+    if (i % 7 != 0) {
+      md5.addData(pass);
+    }
+    if (i % 2 == 0) {
+      md5.addData(pass);
+    }
+    if (i % 2 != 0) {
+      md5.addData(intermediate);
+    }
+    md5.finalize();
+    intermediate = md5.toArray();
+  }
+
+  // Roll
+  std::array<char8_t, 18> final = {{
+      0,
+      0,
+      intermediate[11],
+      intermediate[4],
+      intermediate[10],
+      intermediate[5],
+      intermediate[3],
+      intermediate[9],
+      intermediate[15],
+      intermediate[2],
+      intermediate[8],
+      intermediate[14],
+      intermediate[1],
+      intermediate[7],
+      intermediate[13],
+      intermediate[0],
+      intermediate[6],
+      intermediate[12],
+  }};
+
+  // Final Encoding
+  std::u8string hash = salt + u8"$";
+  static const char8_t* cb64 = u8"./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  for (int off = 15; off >= 0; off -= 3) {
+    hash.push_back(cb64[final[off + 2] & 0x3F]);
+    hash.push_back(cb64[(final[off + 1] << 2 | final[off + 2] >> 6) & 0x3F]);
+    if (off != 0) {
+      hash.push_back(cb64[(final[off] << 4 | final[off + 1] >> 4) & 0x3F]);
+      hash.push_back(cb64[final[off] >> 2]);
+    }
+  }
+
+  return hash;
+}
 
 Player::Player(std::u8string nm, std::u8string ps) {
   flags = 0;
@@ -51,7 +149,7 @@ Player::Player(std::u8string nm, std::u8string ps) {
       app[0] = salt_char[rand() & 63];
       salt += app;
     }
-    pass = crypt8(ps.c_str(), salt.c_str());
+    pass = md5_crypt(ps, salt);
   }
   player_list[name] = this;
   non_init.insert(this);
@@ -122,9 +220,9 @@ Player* player_login(std::u8string name, std::u8string pass) {
     return nullptr;
 
   Player* pl = player_list[name];
-  std::u8string enpass = crypt8(pass.c_str(), pl->pass.c_str());
+  std::u8string enpass = md5_crypt(pass, pl->pass);
 
-  //  fprintf(stderr, u8"Trying %s:%s\n", name.c_str(), enpass.c_str());
+  // fprintf(stderr, u8"Trying %s:\n%s\n%s\n", name.c_str(), enpass.c_str(), pl->pass.c_str());
 
   if (enpass != pl->pass) {
     if (non_init.count(pl)) {
