@@ -41,7 +41,7 @@ CXXFLAGS=-std=c++20 -O3 $(COMP) $(ARCH) $(COPT) -flto
 
 #Use debugging settings
 debug:
-	+make CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -ggdb -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(COPT)'
+	+make CXXFLAGS='-std=c++20 -O0 -fno-omit-frame-pointer -fno-optimize-sibling-calls -ggdb -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(COPT)'
 
 #Use profiling settings
 profile:
