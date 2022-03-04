@@ -25,10 +25,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <string>
-
-#include <netdb.h>
-#include <unistd.h>
 
 auto fopen(auto&& fn, auto&& md) {
   return std::fopen(reinterpret_cast<const char*>(fn), reinterpret_cast<const char*>(md));
@@ -56,10 +52,6 @@ auto sscanf(auto&& st, auto&& fm, Args... args) {
 
 auto strstr(auto&& s1, auto&& s2) {
   return std::strstr(reinterpret_cast<const char*>(s1), reinterpret_cast<const char*>(s2));
-};
-
-auto strcasestr8(auto&& s1, auto&& s2) {
-  return strcasestr(reinterpret_cast<const char*>(s1), reinterpret_cast<const char*>(s2));
 };
 
 auto strcmp(auto&& s1, auto&& s2) {

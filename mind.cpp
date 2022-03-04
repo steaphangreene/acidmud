@@ -22,6 +22,7 @@
 #include <arpa/telnet.h>
 
 #include <fcntl.h>
+#include <unistd.h>
 
 #include <algorithm>
 #include <cstdarg>
