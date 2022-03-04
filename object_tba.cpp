@@ -75,8 +75,8 @@ static int fline(FILE* f) {
 }
 
 static int untrans_trig = 0;
-static char8_t buf[65536];
 void Object::TBALoadAll() {
+  char8_t buf[65536];
   FILE* mudt = fopen(u8"tba/trg/index", u8"r");
   if (mudt) {
     sprintf(buf, u8"tba/trg/%c", 0);
@@ -811,6 +811,7 @@ void Object::TBALoadMOB(const std::u8string& fn) {
   if (mudm) {
     // fprintf(stderr, u8"Loading TBA Mobiles from \"%s\"\n", fn.c_str());
     while (1) {
+      char8_t buf[65536];
       int onum;
       if (fscanf(mudm, u8" #%d\n", &onum) < 1)
         break;
@@ -1257,6 +1258,7 @@ static void add_tba_spell(Object* obj, int spell, int power) {
 }
 
 void Object::TBALoadOBJ(const std::u8string& fn) {
+  char8_t buf[65536];
   if (objroom == nullptr) {
     objroom = new Object(this->World());
     objroom->SetSkill(prhash(u8"Invisible"), 1000);
@@ -2366,6 +2368,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
 }
 
 void Object::TBALoadWLD(const std::u8string& fn) {
+  char8_t buf[65536];
   FILE* mud = fopen(fn.c_str(), u8"r");
   int znum = 0, offset = fn.length() - 5; // Chop off the .wld
   while (isdigit(fn[offset]))
@@ -2633,6 +2636,7 @@ static std::set<std::u8string> parse_tba_shop_rules(std::u8string rules) {
 }
 
 void Object::TBALoadSHP(const std::u8string& fn) {
+  char8_t buf[65536];
   FILE* mud = fopen(fn.c_str(), u8"r");
   if (mud) {
     Object* vortex = nullptr;
@@ -2826,6 +2830,7 @@ void Object::TBALoadSHP(const std::u8string& fn) {
 }
 
 void Object::TBALoadTRG(const std::u8string& fn) { // Triggers
+  char8_t buf[65536];
   FILE* mud = fopen(fn.c_str(), u8"r");
   if (mud) {
     int tnum = -1;
