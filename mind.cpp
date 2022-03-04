@@ -351,31 +351,31 @@ std::u8string Mind::TBAComp(std::u8string expr) const {
 
     int res = 0;
     std::u8string comp = u8"0";
-    if (oper == 1 && arg2.find(arg1) != std::u8string::npos)
+    if (oper == 1 && (arg2.find(arg1) != std::u8string::npos)) {
       comp = u8"1";
-    else if (oper == 2 && (!strcmp(arg1.c_str(), arg2.c_str())))
+    } else if (oper == 2 && (arg1 == arg2)) {
       comp = u8"1";
-    else if (oper == 3 && strcmp(arg1.c_str(), arg2.c_str()))
+    } else if (oper == 3 && (arg1 != arg2)) {
       comp = u8"1";
-    else if (oper == 4 && (TBAEval(arg1) <= TBAEval(arg2)))
+    } else if (oper == 4 && (TBAEval(arg1) <= TBAEval(arg2))) {
       comp = u8"1";
-    else if (oper == 5 && (TBAEval(arg1) >= TBAEval(arg2)))
+    } else if (oper == 5 && (TBAEval(arg1) >= TBAEval(arg2))) {
       comp = u8"1";
-    else if (oper == -1 && (TBAEval(arg1) < TBAEval(arg2)))
+    } else if (oper == -1 && (TBAEval(arg1) < TBAEval(arg2))) {
       comp = u8"1";
-    else if (oper == -2 && (TBAEval(arg1) > TBAEval(arg2)))
+    } else if (oper == -2 && (TBAEval(arg1) > TBAEval(arg2))) {
       comp = u8"1";
-    else if (oper == 6 && (TBAEval(arg1) && TBAEval(arg2)))
+    } else if (oper == 6 && (TBAEval(arg1) && TBAEval(arg2))) {
       comp = u8"1";
-    else if (oper == 7 && (TBAEval(arg1) || TBAEval(arg2)))
+    } else if (oper == 7 && (TBAEval(arg1) || TBAEval(arg2))) {
       comp = u8"1";
-    else if (oper == -3)
+    } else if (oper == -3) {
       res = TBAEval(arg1) + TBAEval(arg2);
-    else if (oper == -4)
+    } else if (oper == -4) {
       res = TBAEval(arg1) - TBAEval(arg2);
-    else if (oper == -5)
+    } else if (oper == -5) {
       res = TBAEval(arg1) * TBAEval(arg2);
-    else if (oper == -6) { // Protect from div by zero
+    } else if (oper == -6) { // Protect from div by zero
       int val2 = TBAEval(arg2);
       res = TBAEval(arg1);
       if (val2 != 0)
