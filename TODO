@@ -1,3 +1,4 @@
+Replace as many .c_str() calls as posible with format calls.
 Replace as many S() description calls as posible with format calls.
 Replace as many u8string creations as possible with u8string_view usages.
 Replace all posix file stuff with std::filesystem stuff.
