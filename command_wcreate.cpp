@@ -778,6 +778,8 @@ int handle_command_wcreate(
     }
   }
 
+  world->Activate();
+
   body->Parent()->SendOut(
       stealth_t,
       stealth_s,
