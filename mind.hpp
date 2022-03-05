@@ -117,18 +117,20 @@ class Mind {
 
   int TBARunLine(std::u8string line);
 
-  int type;
-  int pers;
-  Object* body;
-  Player* player;
   std::u8string pname;
   std::u8string prompt;
-  int log;
+  Player* player;
+  Object* body;
 
   static std::map<std::u8string, std::u8string> cvars;
   std::map<std::u8string, std::u8string> svars;
   std::map<std::u8string, Object*> ovars;
+
+  int type;
+  int pers;
+  int log;
   int status;
+
   std::u8string script;
   std::vector<size_t> spos_s;
 
