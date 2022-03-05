@@ -947,7 +947,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
   if (cmd.empty() || cmd.front() == '#')
     return 0;
 
-  if (mind && mind->Type() == MIND_REMOTE && (!mind->Owner())) {
+  if (mind && mind->Type() == mind_t::REMOTE && (!mind->Owner())) {
     if (mind->PName() != u8"")
       mind->SetPPass(std::u8string(cmd));
     else {
@@ -1490,9 +1490,9 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         body->Parent()->SendOut(stealth_t, stealth_s, u8";s arrives.\n", u8"", body, nullptr);
         if (mind && (vmode & (LOC_NINJA | LOC_DARK)) == 0 && body->Parent()->LightLevel() < 100) {
           mind->Send(u8"It's too dark, you can't see anything.\n");
-        } else if (mind && mind->Type() == MIND_REMOTE) {
+        } else if (mind && mind->Type() == mind_t::REMOTE) {
           body->Parent()->SendDescSurround(body, body, vmode);
-        } else if (mind && mind->Type() == MIND_SYSTEM) {
+        } else if (mind && mind->Type() == mind_t::SYSTEM) {
           mind->Send(u8"You enter {}\n", std::u8string(args));
         }
 
@@ -5903,7 +5903,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           u8"",
           body,
           nullptr);
-      if (mind && mind->Type() == MIND_REMOTE)
+      if (mind && mind->Type() == mind_t::REMOTE)
         body->Parent()->SendDescSurround(body, body);
     }
     return 0;
@@ -5976,7 +5976,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           u8"",
           body,
           nullptr);
-      if (mind && mind->Type() == MIND_REMOTE)
+      if (mind && mind->Type() == mind_t::REMOTE)
         body->Parent()->SendDescSurround(body, body);
     }
     return 0;

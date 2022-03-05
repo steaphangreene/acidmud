@@ -430,44 +430,13 @@ int Mind::TBAEval(std::u8string expr) const {
 
 std::map<std::u8string, std::u8string> Mind::cvars;
 
-void Mind::Init() {
-  body = nullptr;
-  player = nullptr;
-  ovars.clear();
-  svars.clear();
-}
-
-Mind::Mind() {
-  type = MIND_MORON;
-  Init();
-  pers = 0;
-  log = -1;
-  status = 0;
-}
-
-Mind::Mind(int fd) {
-  type = MIND_MORON;
-  Init();
-  log = -1;
-  SetRemote(fd);
-  status = 0;
-}
-
-Mind::Mind(int fd, int l) {
-  type = MIND_MORON;
-  Init();
-  log = l;
-  SetRemote(fd);
-  status = 0;
-}
-
 Mind::~Mind() {
   // if(body && body->Skill(prhash(u8"TBAScript")) >= 5034503 && body->Skill(prhash(u8"TBAScript"))
   // <= 5034507)
   //  fprintf(stderr, CBLU u8"Disabled(%p): '%d'\n" CNRM, this, body->Skill(prhash(u8"TBAScript")));
-  if (type == MIND_REMOTE)
+  if (type == mind_t::REMOTE)
     close_socket(pers);
-  type = MIND_MORON;
+  type = mind_t::NONE;
   Unattach();
   if (log >= 0)
     close(log);
@@ -486,7 +455,7 @@ Mind::~Mind() {
 }
 
 void Mind::SetRemote(int fd) {
-  type = MIND_REMOTE;
+  type = mind_t::REMOTE;
   pers = fd;
   char8_t buf[256];
 
@@ -504,7 +473,7 @@ void Mind::SetRemote(int fd) {
 }
 
 void Mind::SetMob() {
-  type = MIND_MOB;
+  type = mind_t::MOB;
   pers = fileno(stderr);
 }
 
@@ -512,7 +481,7 @@ void Mind::SetTBATrigger(Object* tr, Object* tripper, Object* targ, std::u8strin
   if ((!tr) || (!(tr->Parent())))
     return;
 
-  type = MIND_TBATRIG;
+  type = mind_t::TBATRIG;
   if (cvars.size() < 1) {
     cvars[u8"damage"] = u8"wdamage";
     cvars[u8"echo"] = u8"mecho";
@@ -567,17 +536,17 @@ void Mind::SetTBATrigger(Object* tr, Object* tripper, Object* targ, std::u8strin
 }
 
 void Mind::SetTBAMob() {
-  type = MIND_TBAMOB;
+  type = mind_t::TBAMOB;
   pers = fileno(stderr);
 }
 
 void Mind::SetNPC() {
-  type = MIND_NPC; // FIXME: Implement these!
+  type = mind_t::NPC; // FIXME: Implement these!
   pers = fileno(stderr);
 }
 
 void Mind::SetSystem() {
-  type = MIND_SYSTEM;
+  type = mind_t::SYSTEM;
   pers = fileno(stderr);
 }
 
@@ -621,11 +590,11 @@ void Mind::Unattach() {
 }
 
 bool Mind::Send(const std::u8string& mes) {
-  if (type == MIND_REMOTE) {
+  if (type == mind_t::REMOTE) {
     SendOut(pers, mes);
-  } else if (type == MIND_MOB) {
+  } else if (type == mind_t::MOB) {
     // return Think(); //Reactionary actions (NO!).
-  } else if (type == MIND_TBAMOB) {
+  } else if (type == mind_t::TBAMOB) {
     // HELPER TBA Mobs
     if (body && body->Parent() && (body->Skill(prhash(u8"TBAAction")) & 4096) // Helpers
         && ((body->Skill(prhash(u8"TBAAction")) & 2) == 0) // NON-SENTINEL
@@ -654,7 +623,7 @@ bool Mind::Send(const std::u8string& mes) {
       }
     }
     return Think(); // Reactionary actions (HACK!).
-  } else if (type == MIND_SYSTEM) {
+  } else if (type == mind_t::SYSTEM) {
     std::u8string newmes = u8"";
     if (body)
       newmes += body->ShortDesc();
@@ -737,7 +706,7 @@ void Mind::SetPlayer(std::u8string pn) {
 }
 
 std::u8string Mind::Tactics(int phase) const {
-  if (type == MIND_TBAMOB) {
+  if (type == mind_t::TBAMOB) {
     // NON-HELPER and NON-AGGRESSIVE TBA Mobs (Innocent MOBs)
     if (body && (body->Skill(prhash(u8"TBAAction")) & 4128) == 0) {
       if (phase == -1) {
@@ -2850,7 +2819,7 @@ uint32_t items[8] = {
     prhash(u8"Stuff"),
     prhash(u8"Needy")};
 bool Mind::Think(int istick) {
-  if (type == MIND_MOB) {
+  if (type == mind_t::MOB) {
     if (body->Skill(prhash(u8"Personality")) & 1) { // Group Mind
       //      body->TryCombine();	// I AM a group, after all.
       int qty = body->Skill(prhash(u8"Quantity")), req = -1;
@@ -2918,7 +2887,7 @@ bool Mind::Think(int istick) {
       //	//body->BusyFor(500, u8"say Hi.");
       //	}
     }
-  } else if (type == MIND_TBATRIG) {
+  } else if (type == mind_t::TBATRIG) {
     if (body && body->Parent() && spos_s.size() > 0 && spos_s.back() < script.length()) {
       //      fprintf(stderr, CGRN u8"#%d Debug: Running Trigger.\n" CNRM,
       //	body->Skill(prhash(u8"TBAScript"))
@@ -2966,7 +2935,7 @@ bool Mind::Think(int istick) {
       }
     }
     return false;
-  } else if (type == MIND_TBAMOB) {
+  } else if (type == mind_t::TBAMOB) {
     if ((!body) || (istick >= 0 && body->StillBusy()))
       return true;
 
@@ -3175,9 +3144,9 @@ std::u8string Mind::SpecialPrompt() const {
   return prompt;
 }
 
-Mind* new_mind(int tp, Object* obj, Object* obj2, Object* obj3, std::u8string text) {
-  Mind* m = new Mind();
-  if (tp == MIND_TBATRIG && obj) {
+Mind* new_mind(mind_t tp, Object* obj, Object* obj2, Object* obj3, std::u8string text) {
+  Mind* m = new Mind(tp);
+  if (tp == mind_t::TBATRIG && obj) {
     m->SetTBATrigger(obj, obj2, obj3, text);
   } else if (obj) {
     m->Attach(obj);
@@ -3195,7 +3164,7 @@ int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, std::u8str
     return 0;
 
   int status = 0;
-  Mind* m = new_mind(MIND_TBATRIG, obj, tripper, targ, text);
+  Mind* m = new_mind(mind_t::TBATRIG, obj, tripper, targ, text);
   if (msec == 0 && !in_new_trigger) { // Triggers can not immediately trigger triggers
     in_new_trigger = true;
     if (!m->Think(1)) {

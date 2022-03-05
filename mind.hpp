@@ -28,27 +28,33 @@
 #include <map>
 #include <vector>
 
-#define MIND_MORON 0
-#define MIND_REMOTE 1
-#define MIND_NPC 2
-#define MIND_TBAMOB 3
-#define MIND_TBATRIG 4
-#define MIND_MOB 5
-#define MIND_SYSTEM 6
-
 class Mind;
 class Object;
 
 #ifndef MIND_HPP
 #define MIND_HPP
 
+enum class mind_t : uint8_t {
+  NONE = 0,
+  REMOTE = 1,
+  NPC = 2,
+  TBAMOB = 3,
+  TBATRIG = 4,
+  MOB = 5,
+  SYSTEM = 6,
+};
+
 class Mind {
  public:
-  Mind();
-  Mind(int fd);
-  Mind(int fd, int l);
+  Mind() = default; // New mind of unknown type
+  Mind(mind_t t) : type(t){}; // New mind of known type (MOBs)
+  Mind(int fd) { // Player, active net connected
+    SetRemote(fd);
+  };
+  Mind(int fd, int l) : log(l) { // Player, active net connected, with active log
+    SetRemote(fd);
+  };
   ~Mind();
-  void Init();
   void SetRemote(int fd);
   void SetMob();
   void SetTBAMob();
@@ -73,7 +79,7 @@ class Mind {
   void SetPName(std::u8string);
   void SetPPass(std::u8string);
   void SetPlayer(std::u8string);
-  int Type() const {
+  mind_t Type() const {
     return type;
   };
   int LogFD() const {
@@ -119,17 +125,17 @@ class Mind {
 
   std::u8string pname;
   std::u8string prompt;
-  Player* player;
-  Object* body;
+  Player* player = nullptr;
+  Object* body = nullptr;
 
   static std::map<std::u8string, std::u8string> cvars;
   std::map<std::u8string, std::u8string> svars;
   std::map<std::u8string, Object*> ovars;
 
-  int type;
-  int pers;
-  int log;
-  int status;
+  mind_t type = mind_t::NONE;
+  int status = 0; // AI Failures
+  int pers = 0; // File Descriptor
+  int log = -1; // File Descriptor
 
   std::u8string script;
   std::vector<size_t> spos_s;
@@ -138,7 +144,7 @@ class Mind {
 };
 
 Mind* new_mind(
-    int tp,
+    mind_t tp,
     Object* obj = nullptr,
     Object* obj2 = nullptr,
     Object* obj3 = nullptr,

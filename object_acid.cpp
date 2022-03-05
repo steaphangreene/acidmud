@@ -479,7 +479,7 @@ int Object::LoadFrom(FILE* fl) {
     get_tba_mob_mind()->Attach(this);
 
   if (Skill(prhash(u8"TBAScriptType")) & 2) { // Random/Permanent Triggers
-    Mind* trig = new_mind(MIND_TBATRIG, this);
+    Mind* trig = new_mind(mind_t::TBATRIG, this);
     trig->Suspend((rand() % 13000) + 3000); // 3-16 Seconds
   }
 

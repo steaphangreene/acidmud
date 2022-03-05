@@ -1682,7 +1682,7 @@ void Object::SendScore(Mind* m, Object* o) {
       m->Send(CBLU u8"->MOB_MIND\n" CNRM);
     } else if (mind == get_tba_mob_mind()) {
       m->Send(CBLU u8"->TBA_MOB_MIND\n" CNRM);
-    } else if (mind->Type() == MIND_TBATRIG) {
+    } else if (mind->Type() == mind_t::TBATRIG) {
       m->Send(CBLU u8"->TBA_TRIGGER\n" CNRM);
     }
   }
@@ -2953,7 +2953,7 @@ void Object::UpdateDamage() {
       std::set<Mind*> removals;
       std::set<Mind*>::iterator mind;
       for (auto mnd : minds) {
-        if (mnd->Type() == MIND_REMOTE)
+        if (mnd->Type() == mind_t::REMOTE)
           removals.insert(mnd);
       }
       for (auto mnd : removals) {
