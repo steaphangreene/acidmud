@@ -1757,190 +1757,167 @@ std::vector<std::u8string> Object::FormatStats(const MinVec<7, skill_pair>& skls
   std::vector<std::u8string> ret;
 
   if (HasSkill(prhash(u8"TBAScriptType"))) { // It's a TBA script
-    char8_t buf2[256] = {};
-    auto type_name = CRED u8"BAD-TYPE" CNRM;
-    switch (Skill(prhash(u8"TBAScriptType"))) {
-      case (0x1000001): {
-        type_name = CYEL u8"MOB-GLOBAL" CNRM;
-        break;
-      }
-      case (0x1000002): {
-        type_name = CGRN u8"MOB-RANDOM" CNRM;
-        break;
-      }
-      case (0x1000004): {
-        type_name = CGRN u8"MOB-COMMAND" CNRM;
-        break;
-      }
-      case (0x1000008): {
-        type_name = CGRN u8"MOB-SPEECH" CNRM;
-        break;
-      }
-      case (0x1000010): {
-        type_name = CGRN u8"MOB-ACT" CNRM;
-        break;
-      }
-      case (0x1000020): {
-        type_name = CYEL u8"MOB-DEATH" CNRM;
-        break;
-      }
-      case (0x1000040): {
-        type_name = CGRN u8"MOB-GREET" CNRM;
-        break;
-      }
-      case (0x1000080): {
-        type_name = CYEL u8"MOB-GREET-ALL" CNRM;
-        break;
-      }
-      case (0x1000100): {
-        type_name = CYEL u8"MOB-ENTRY" CNRM;
-        break;
-      }
-      case (0x1000200): {
-        type_name = CGRN u8"MOB-RECEIVE" CNRM;
-        break;
-      }
-      case (0x1000400): {
-        type_name = CYEL u8"MOB-FIGHT" CNRM;
-        break;
-      }
-      case (0x1000800): {
-        type_name = CYEL u8"MOB-HITPRCNT" CNRM;
-        break;
-      }
-      case (0x1001000): {
-        type_name = CYEL u8"MOB-BRIBE" CNRM;
-        break;
-      }
-      case (0x1002000): {
-        type_name = CYEL u8"MOB-LOAD" CNRM;
-        break;
-      }
-      case (0x1004000): {
-        type_name = CYEL u8"MOB-MEMORY" CNRM;
-        break;
-      }
-      case (0x1008000): {
-        type_name = CYEL u8"MOB-CAST" CNRM;
-        break;
-      }
-      case (0x1010000): {
-        type_name = CYEL u8"MOB-LEAVE" CNRM;
-        break;
-      }
-      case (0x1020000): {
-        type_name = CYEL u8"MOB-DOOR" CNRM;
-        break;
-      }
-      case (0x1040000): {
-        type_name = CYEL u8"MOB-TIME" CNRM;
-        break;
-      }
+    std::vector<const char8_t*> type_names;
+    auto type_flags = Skill(prhash(u8"TBAScriptType"));
 
-      case (0x2000001): {
-        type_name = CYEL u8"OBJ-GLOBAL" CNRM;
-        break;
-      }
-      case (0x2000002): {
-        type_name = CGRN u8"OBJ-RANDOM" CNRM;
-        break;
-      }
-      case (0x2000004): {
-        type_name = CGRN u8"OBJ-COMMAND" CNRM;
-        break;
-      }
-      case (0x2000008): {
-        type_name = CYEL u8"OBJ-TIMER" CNRM;
-        break;
-      }
-      case (0x2000010): {
-        type_name = CGRN u8"OBJ-GET" CNRM;
-        break;
-      }
-      case (0x2000020): {
-        type_name = CGRN u8"OBJ-DROP" CNRM;
-        break;
-      }
-      case (0x2000040): {
-        type_name = CYEL u8"OBJ-GIVE" CNRM;
-        break;
-      }
-      case (0x2000080): {
-        type_name = CGRN u8"OBJ-WEAR" CNRM;
-        break;
-      }
-      case (0x2000100): {
-        type_name = CGRN u8"OBJ-REMOVE" CNRM;
-        break;
-      }
-      case (0x2000200): {
-        type_name = CYEL u8"OBJ-LOAD" CNRM;
-        break;
-      }
-      case (0x2000400): {
-        type_name = CYEL u8"OBJ-CAST" CNRM;
-        break;
-      }
-      case (0x2000800): {
-        type_name = CGRN u8"OBJ-LEAVE" CNRM;
-        break;
-      }
-      case (0x2001000): {
-        type_name = CYEL u8"OBJ-CONSUME" CNRM;
-        break;
-      }
-
-      case (0x4000001): {
-        type_name = CYEL u8"ROOM-GLOBAL" CNRM;
-        break;
-      }
-      case (0x4000002): {
-        type_name = CGRN u8"ROOM-RANDOM" CNRM;
-        break;
-      }
-      case (0x4000004): {
-        type_name = CGRN u8"ROOM-COMMAND" CNRM;
-        break;
-      }
-      case (0x4000008): {
-        type_name = CGRN u8"ROOM-SPEECH" CNRM;
-        break;
-      }
-      case (0x4000010): {
-        type_name = CYEL u8"ROOM-ZONE" CNRM;
-        break;
-      }
-      case (0x4000020): {
-        type_name = CGRN u8"ROOM-ENTER" CNRM;
-        break;
-      }
-      case (0x4000040): {
-        type_name = CGRN u8"ROOM-DROP" CNRM;
-        break;
-      }
-      case (0x4000080): {
-        type_name = CYEL u8"ROOM-CAST" CNRM;
-        break;
-      }
-      case (0x4000100): {
-        type_name = CGRN u8"ROOM-LEAVE" CNRM;
-        break;
-      }
-      case (0x4000200): {
-        type_name = CYEL u8"ROOM-DOOR" CNRM;
-        break;
-      }
-      case (0x4000400): {
-        type_name = CYEL u8"ROOM-TIME" CNRM;
-        break;
-      }
-
-      default: {
-        type_name = CRED u8"BAD-TYPE" CNRM;
+    if ((type_flags & 0x1000001) == 0x1000001) {
+      type_names.push_back(CYEL u8"MOB-GLOBAL" CNRM);
+    }
+    if ((type_flags & 0x1000002) == 0x1000002) {
+      type_names.push_back(CGRN u8"MOB-RANDOM" CNRM);
+    }
+    if ((type_flags & 0x1000004) == 0x1000004) {
+      type_names.push_back(CGRN u8"MOB-COMMAND" CNRM);
+    }
+    if ((type_flags & 0x1000008) == 0x1000008) {
+      type_names.push_back(CGRN u8"MOB-SPEECH" CNRM);
+    }
+    if ((type_flags & 0x1000010) == 0x1000010) {
+      type_names.push_back(CGRN u8"MOB-ACT" CNRM);
+    }
+    if ((type_flags & 0x1000020) == 0x1000020) {
+      type_names.push_back(CYEL u8"MOB-DEATH" CNRM);
+    }
+    if ((type_flags & 0x1000040) == 0x1000040) {
+      type_names.push_back(CGRN u8"MOB-GREET" CNRM);
+    }
+    if ((type_flags & 0x1000080) == 0x1000080) {
+      type_names.push_back(CYEL u8"MOB-GREET-ALL" CNRM);
+    }
+    if ((type_flags & 0x1000100) == 0x1000100) {
+      type_names.push_back(CYEL u8"MOB-ENTRY" CNRM);
+    }
+    if ((type_flags & 0x1000200) == 0x1000200) {
+      type_names.push_back(CGRN u8"MOB-RECEIVE" CNRM);
+    }
+    if ((type_flags & 0x1000400) == 0x1000400) {
+      type_names.push_back(CYEL u8"MOB-FIGHT" CNRM);
+    }
+    if ((type_flags & 0x1000800) == 0x1000800) {
+      type_names.push_back(CYEL u8"MOB-HITPRCNT" CNRM);
+    }
+    if ((type_flags & 0x1001000) == 0x1001000) {
+      type_names.push_back(CYEL u8"MOB-BRIBE" CNRM);
+    }
+    if ((type_flags & 0x1002000) == 0x1002000) {
+      type_names.push_back(CYEL u8"MOB-LOAD" CNRM);
+    }
+    if ((type_flags & 0x1004000) == 0x1004000) {
+      type_names.push_back(CYEL u8"MOB-MEMORY" CNRM);
+    }
+    if ((type_flags & 0x1008000) == 0x1008000) {
+      type_names.push_back(CYEL u8"MOB-CAST" CNRM);
+    }
+    if ((type_flags & 0x1010000) == 0x1010000) {
+      type_names.push_back(CYEL u8"MOB-LEAVE" CNRM);
+    }
+    if ((type_flags & 0x1020000) == 0x1020000) {
+      type_names.push_back(CYEL u8"MOB-DOOR" CNRM);
+    }
+    if ((type_flags & 0x1040000) == 0x1040000) {
+      type_names.push_back(CYEL u8"MOB-TIME" CNRM);
+    }
+    if ((type_flags & 0x1000000) == 0x1000000) {
+      if ((type_flags & 0x0F80000) != 0x0000000) {
+        type_names.push_back(CRED u8"BAD-MOB-TYPE" CNRM);
       }
     }
-    sprintf(buf2, u8"TBAScriptType: %s", type_name);
-    ret.push_back(buf2);
+
+    if ((type_flags & 0x2000001) == 0x2000001) {
+      type_names.push_back(CYEL u8"OBJ-GLOBAL" CNRM);
+    }
+    if ((type_flags & 0x2000002) == 0x2000002) {
+      type_names.push_back(CGRN u8"OBJ-RANDOM" CNRM);
+    }
+    if ((type_flags & 0x2000004) == 0x2000004) {
+      type_names.push_back(CGRN u8"OBJ-COMMAND" CNRM);
+    }
+    if ((type_flags & 0x2000008) == 0x2000008) {
+      type_names.push_back(CYEL u8"OBJ-TIMER" CNRM);
+    }
+    if ((type_flags & 0x2000010) == 0x2000010) {
+      type_names.push_back(CGRN u8"OBJ-GET" CNRM);
+    }
+    if ((type_flags & 0x2000020) == 0x2000020) {
+      type_names.push_back(CGRN u8"OBJ-DROP" CNRM);
+    }
+    if ((type_flags & 0x2000040) == 0x2000040) {
+      type_names.push_back(CYEL u8"OBJ-GIVE" CNRM);
+    }
+    if ((type_flags & 0x2000080) == 0x2000080) {
+      type_names.push_back(CGRN u8"OBJ-WEAR" CNRM);
+    }
+    if ((type_flags & 0x2000100) == 0x2000100) {
+      type_names.push_back(CGRN u8"OBJ-REMOVE" CNRM);
+    }
+    if ((type_flags & 0x2000200) == 0x2000200) {
+      type_names.push_back(CYEL u8"OBJ-LOAD" CNRM);
+    }
+    if ((type_flags & 0x2000400) == 0x2000400) {
+      type_names.push_back(CYEL u8"OBJ-CAST" CNRM);
+    }
+    if ((type_flags & 0x2000800) == 0x2000800) {
+      type_names.push_back(CGRN u8"OBJ-LEAVE" CNRM);
+    }
+    if ((type_flags & 0x2001000) == 0x2001000) {
+      type_names.push_back(CYEL u8"OBJ-CONSUME" CNRM);
+    }
+    if ((type_flags & 0x2000000) == 0x2000000) {
+      if ((type_flags & 0x0FFE000) != 0x0000000) {
+        type_names.push_back(CRED u8"BAD-OBJ-TYPE" CNRM);
+      }
+    }
+
+    if ((type_flags & 0x4000001) == 0x4000001) {
+      type_names.push_back(CYEL u8"ROOM-GLOBAL" CNRM);
+    }
+    if ((type_flags & 0x4000002) == 0x4000002) {
+      type_names.push_back(CGRN u8"ROOM-RANDOM" CNRM);
+    }
+    if ((type_flags & 0x4000004) == 0x4000004) {
+      type_names.push_back(CGRN u8"ROOM-COMMAND" CNRM);
+    }
+    if ((type_flags & 0x4000008) == 0x4000008) {
+      type_names.push_back(CGRN u8"ROOM-SPEECH" CNRM);
+    }
+    if ((type_flags & 0x4000010) == 0x4000010) {
+      type_names.push_back(CYEL u8"ROOM-ZONE" CNRM);
+    }
+    if ((type_flags & 0x4000020) == 0x4000020) {
+      type_names.push_back(CGRN u8"ROOM-ENTER" CNRM);
+    }
+    if ((type_flags & 0x4000040) == 0x4000040) {
+      type_names.push_back(CGRN u8"ROOM-DROP" CNRM);
+    }
+    if ((type_flags & 0x4000080) == 0x4000080) {
+      type_names.push_back(CYEL u8"ROOM-CAST" CNRM);
+    }
+    if ((type_flags & 0x4000100) == 0x4000100) {
+      type_names.push_back(CGRN u8"ROOM-LEAVE" CNRM);
+    }
+    if ((type_flags & 0x4000200) == 0x4000200) {
+      type_names.push_back(CYEL u8"ROOM-DOOR" CNRM);
+    }
+    if ((type_flags & 0x4000400) == 0x4000400) {
+      type_names.push_back(CYEL u8"ROOM-TIME" CNRM);
+    }
+    if ((type_flags & 0x4000000) == 0x4000000) {
+      if ((type_flags & 0x0FFF800) != 0x0000000) {
+        type_names.push_back(CRED u8"BAD-ROOM-TYPE" CNRM);
+      }
+    }
+
+    if ((type_flags & 0x8000000) != 0x0000000) {
+      type_names.push_back(CRED u8"BAD-CATEGORY" CNRM);
+    }
+
+    if (type_names.size() < 1) {
+      type_names.push_back(CRED u8"BAD-TYPE" CNRM);
+    }
+
+    for (auto type : type_names) {
+      ret.push_back(fmt::format(u8"TBAScriptType: {}", type));
+    }
   }
   if (HasSkill(prhash(u8"WeaponType"))) { // It's a Weapon
     // Detailed Weapon Stats
