@@ -2822,13 +2822,49 @@ bool Mind::Think(int istick) {
   if (type == mind_t::NPC) {
     auto day = body->World()->Skill(prhash(u8"Day Length"));
     auto time = body->World()->Skill(prhash(u8"Day Time"));
-    if (time < day / 4 || time > 3 * day / 4) { // Night
-      if (body->Pos() != pos_t::LIE) {
-        handle_command(body, u8"sleep");
-      }
-    } else { // Day
+
+    // Work Day (6AM-6PM)
+    if (time > day / 4 && time < 3 * day / 4) {
       if (body->Pos() == pos_t::LIE) {
         handle_command(body, u8"wake;stand");
+      }
+      if (body->Parent() != body->ActTarg(act_t::SPECIAL_WORK)) {
+        // TODO: GO TO WORK!
+        if (body->Pos() != pos_t::SIT) {
+          handle_command(body, u8"say I am lost, where do I work?");
+          handle_command(body, u8"sit");
+        }
+      } else if (!body->IsAct(act_t::WORK)) {
+        body->AddAct(act_t::WORK);
+        body->Parent()->SendOut(ALL, 0, u8";s starts on the daily work.\n", u8"", body, nullptr);
+      }
+
+      // Night (10PM-4AM)
+    } else if (time > 11 * day / 12 || time < day / 6) {
+      if (body->Parent() != body->ActTarg(act_t::SPECIAL_HOME)) {
+        // TODO: GO HOME!
+        if (body->Pos() != pos_t::SIT) {
+          handle_command(body, u8"say I am lost, where do I live?");
+          handle_command(body, u8"sit");
+        }
+      } else if (body->Pos() != pos_t::LIE) {
+        handle_command(body, u8"lie;sleep");
+      }
+
+      // Evening (6PM-10PM)
+    } else if (time > day / 2) {
+      if (body->IsAct(act_t::WORK)) {
+        body->StopAct(act_t::WORK);
+        body->Parent()->SendOut(
+            ALL, 0, u8";s finishes up with the daily work.\n", u8"", body, nullptr);
+        handle_command(body, u8"say I am hungry");
+      }
+
+      // Morning (4AM-6AM)
+    } else {
+      if (body->Pos() != pos_t::STAND) {
+        handle_command(body, u8"wake;stand");
+        handle_command(body, u8"say I am thirsty");
       }
     }
 
