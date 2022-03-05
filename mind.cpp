@@ -541,7 +541,7 @@ void Mind::SetTBAMob() {
 }
 
 void Mind::SetNPC() {
-  type = mind_t::NPC; // FIXME: Implement these!
+  type = mind_t::NPC;
   pers = fileno(stderr);
 }
 
@@ -2819,7 +2819,20 @@ uint32_t items[8] = {
     prhash(u8"Stuff"),
     prhash(u8"Needy")};
 bool Mind::Think(int istick) {
-  if (type == mind_t::MOB) {
+  if (type == mind_t::NPC) {
+    auto day = body->World()->Skill(prhash(u8"Day Length"));
+    auto time = body->World()->Skill(prhash(u8"Day Time"));
+    if (time < day / 4 || time > 3 * day / 4) { // Night
+      if (body->Pos() != pos_t::LIE) {
+        handle_command(body, u8"sleep");
+      }
+    } else { // Day
+      if (body->Pos() == pos_t::LIE) {
+        handle_command(body, u8"wake;stand");
+      }
+    }
+
+  } else if (type == mind_t::MOB) {
     if (body->Skill(prhash(u8"Personality")) & 1) { // Group Mind
       //      body->TryCombine();	// I AM a group, after all.
       int qty = body->Skill(prhash(u8"Quantity")), req = -1;
@@ -2887,6 +2900,7 @@ bool Mind::Think(int istick) {
       //	//body->BusyFor(500, u8"say Hi.");
       //	}
     }
+
   } else if (type == mind_t::TBATRIG) {
     if (body && body->Parent() && spos_s.size() > 0) {
       //      fprintf(stderr, CGRN u8"#%d Debug: Running Trigger.\n" CNRM,
