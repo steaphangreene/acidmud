@@ -48,9 +48,6 @@ void trim_string(std::u8string& str); // Remove extra whitespace from string
 void trim_string(std::u8string_view& str); // Remove extra whitespace from string
 
 int phrase_match(const std::u8string_view& str, const std::u8string_view& phrase /* lowercase! */);
-int phrase_match_sensitive(
-    const std::u8string_view& str,
-    const std::u8string_view& phrase /* non-empty! */);
 int words_match(const std::u8string_view& str, const std::u8string_view& words);
 
 constexpr char8_t ascii_tolower(char8_t chr) {

@@ -90,24 +90,26 @@ size_t prev_line(const std::u8string& str, size_t pos) {
   return pos;
 }
 
-int phrase_match_sensitive(const std::u8string_view& str, const std::u8string_view& phrase) {
-  auto len = phrase.length();
-  auto desc = str.data();
-  size_t off = 0;
-  while ((str.length() - off) >= len) {
-    if ((!strncmp(desc, phrase.data(), len)) &&
-        ((str.length() - off) == len || str.find_first_not_of(alnum, off + len) == (off + len))) {
-      return 1;
+static bool phrase_match_sensitive(
+    const std::u8string_view& str,
+    const std::u8string_view& phrase) {
+  auto desc = str;
+  while (desc.length() >= phrase.length()) {
+    if (desc.starts_with(phrase) &&
+        (desc.length() == phrase.length() || !ascii_isalnum(desc.at(phrase.length())))) {
+      return true;
     }
-    off = str.find_first_not_of(alnum, off);
-    if (off == std::u8string::npos)
-      return 0;
-    off = str.find_first_of(alnum, off);
-    if (off == std::u8string::npos)
-      return 0;
-    desc = str.data() + off;
+    auto off = std::find_if_not(desc.begin(), desc.end(), ascii_isalnum);
+    if (off == desc.end()) {
+      return false;
+    }
+    off = std::find_if(off, desc.end(), ascii_isalnum);
+    if (off == desc.end()) {
+      return false;
+    }
+    desc = desc.substr(off - desc.begin());
   }
-  return 0;
+  return false;
 }
 
 int phrase_match(const std::u8string_view& str, const std::u8string_view& phrase) {
