@@ -218,8 +218,6 @@ void Object::TBAFinalizeTriggers() {
   todotrg.clear();
 }
 
-static Mind* tba_mob_mind = nullptr;
-
 static Object* gold = nullptr;
 static void init_gold() {
   gold = new Object();
@@ -231,14 +229,6 @@ static void init_gold() {
   gold->SetSize(0);
   gold->SetPos(pos_t::LIE);
   gold->SetSkill(prhash(u8"Money"), 1);
-}
-
-Mind* get_tba_mob_mind() {
-  if (!tba_mob_mind) {
-    tba_mob_mind = new Mind();
-    tba_mob_mind->SetTBAMob();
-  }
-  return tba_mob_mind;
 }
 
 // Cleans out N00bScript tags, leading/training whitespace, etc.

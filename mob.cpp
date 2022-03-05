@@ -61,15 +61,6 @@ static void init_wear_attribs() {
   wear_attribs[act_t::WEAR_FACE] = u8"Wearable on Face";
 }
 
-static Mind* mob_mind = nullptr;
-Mind* get_mob_mind() {
-  if (!mob_mind) {
-    mob_mind = new Mind();
-    mob_mind->SetMob();
-  }
-  return mob_mind;
-}
-
 static Object* gold = nullptr;
 static void init_gold() {
   gold = new Object();
@@ -164,7 +155,7 @@ void Object::AddMOB(std::mt19937& gen, const MOBType* type) {
     mob->SetSkill(prhash(u8"Object ID"), obj_id);
   }
 
-  mob->Attach(get_mob_mind());
+  mob->Attach(new Mind(mind_t::MOB));
   mob->Activate();
   mob->SetPos(pos_t::STAND);
   for (int a : {0, 1, 2, 3, 4, 5}) {

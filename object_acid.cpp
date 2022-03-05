@@ -473,10 +473,11 @@ int Object::LoadFrom(FILE* fl) {
     }
   }
 
-  if (Skill(prhash(u8"Personality")))
-    get_mob_mind()->Attach(this);
-  else if (Skill(prhash(u8"TBAAction")))
-    get_tba_mob_mind()->Attach(this);
+  if (Skill(prhash(u8"Personality"))) {
+    Attach(new Mind(mind_t::MOB));
+  } else if (Skill(prhash(u8"TBAAction"))) {
+    Attach(new Mind(mind_t::TBAMOB));
+  }
 
   if (Skill(prhash(u8"TBAScriptType")) & 2) { // Random/Permanent Triggers
     Mind* trig = new_mind(mind_t::TBATRIG, this);

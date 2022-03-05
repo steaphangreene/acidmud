@@ -683,8 +683,6 @@ Object* new_body(Object* world);
 Object* getbynum(int);
 int getnum(Object*);
 int matches(const std::u8string_view& name, const std::u8string_view& seek);
-Mind* get_mob_mind();
-Mind* get_tba_mob_mind();
 
 uint32_t get_skill(std::u8string sk);
 std::u8string get_skill_cat(std::u8string cat);

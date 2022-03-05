@@ -466,7 +466,7 @@ int Object::Tick() {
       obj->SetParent(this);
       obj->Travel(parent);
       AddAct(act_t::SPECIAL_MONITOR, obj);
-      obj->Attach(get_tba_mob_mind());
+      obj->Attach(new Mind(mind_t::TBAMOB));
       obj->Activate();
       parent->SendOut(ALL, -1, u8";s arrives.\n", u8"", obj, nullptr);
       for (auto trg : obj->Contents()) { // Enable any untriggered triggers
@@ -1678,9 +1678,9 @@ void Object::SendScore(Mind* m, Object* o) {
   for (auto mind : minds) {
     if (mind->Owner()) {
       m->Send(CBLU u8"->Player Connected: {}\n" CNRM, mind->Owner()->Name());
-    } else if (mind == get_mob_mind()) {
+    } else if (mind->Type() == mind_t::MOB) {
       m->Send(CBLU u8"->MOB_MIND\n" CNRM);
-    } else if (mind == get_tba_mob_mind()) {
+    } else if (mind->Type() == mind_t::TBAMOB) {
       m->Send(CBLU u8"->TBA_MOB_MIND\n" CNRM);
     } else if (mind->Type() == mind_t::TBATRIG) {
       m->Send(CBLU u8"->TBA_TRIGGER\n" CNRM);
