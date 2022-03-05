@@ -88,6 +88,7 @@ enum class act_t : uint8_t {
   UNCONSCIOUS,
   SLEEP,
   REST,
+  WORK,
   HEAL,
   POINT,
   FOLLOW,

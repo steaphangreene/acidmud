@@ -30,15 +30,15 @@
 #include "version.hpp"
 
 const std::u8string act_save[static_cast<uint8_t>(act_t::SPECIAL_MAX)] = {
-    u8"NONE",         u8"DEAD",         u8"DYING",           u8"UNCONSCIOUS",    u8"SLEEP",
-    u8"REST",         u8"HEAL",         u8"POINT",           u8"FOLLOW",         u8"FIGHT",
-    u8"OFFER",        u8"HOLD",         u8"WIELD",           u8"WEAR_BACK",      u8"WEAR_CHEST",
-    u8"WEAR_HEAD",    u8"WEAR_NECK",    u8"WEAR_COLLAR",     u8"WEAR_WAIST",     u8"WEAR_SHIELD",
-    u8"WEAR_LARM",    u8"WEAR_RARM",    u8"WEAR_LFINGER",    u8"WEAR_RFINGER",   u8"WEAR_LFOOT",
-    u8"WEAR_RFOOT",   u8"WEAR_LHAND",   u8"WEAR_RHAND",      u8"WEAR_LLEG",      u8"WEAR_RLEG",
-    u8"WEAR_LWRIST",  u8"WEAR_RWRIST",  u8"WEAR_LSHOULDER",  u8"WEAR_RSHOULDER", u8"WEAR_LHIP",
-    u8"WEAR_RHIP",    u8"WEAR_FACE",    u8"SPECIAL_MONITOR", u8"SPECIAL_MASTER", u8"SPECIAL_LINKED",
-    u8"SPECIAL_HOME", u8"SPECIAL_WORK", u8"SPECIAL_ACTEE",
+    u8"NONE",           u8"DEAD",         u8"DYING",        u8"UNCONSCIOUS",     u8"SLEEP",
+    u8"REST",           u8"WORK",         u8"HEAL",         u8"POINT",           u8"FOLLOW",
+    u8"FIGHT",          u8"OFFER",        u8"HOLD",         u8"WIELD",           u8"WEAR_BACK",
+    u8"WEAR_CHEST",     u8"WEAR_HEAD",    u8"WEAR_NECK",    u8"WEAR_COLLAR",     u8"WEAR_WAIST",
+    u8"WEAR_SHIELD",    u8"WEAR_LARM",    u8"WEAR_RARM",    u8"WEAR_LFINGER",    u8"WEAR_RFINGER",
+    u8"WEAR_LFOOT",     u8"WEAR_RFOOT",   u8"WEAR_LHAND",   u8"WEAR_RHAND",      u8"WEAR_LLEG",
+    u8"WEAR_RLEG",      u8"WEAR_LWRIST",  u8"WEAR_RWRIST",  u8"WEAR_LSHOULDER",  u8"WEAR_RSHOULDER",
+    u8"WEAR_LHIP",      u8"WEAR_RHIP",    u8"WEAR_FACE",    u8"SPECIAL_MONITOR", u8"SPECIAL_MASTER",
+    u8"SPECIAL_LINKED", u8"SPECIAL_HOME", u8"SPECIAL_WORK", u8"SPECIAL_ACTEE",
     //	"SPECIAL_MAX"
 };
 
