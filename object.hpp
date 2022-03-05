@@ -185,8 +185,11 @@ class alignas(256) Object {
 
   Object* Next(std::u8string&);
   Object* Split(int nqty);
-  std::u8string
-  Noun(bool definite = false, const Object* rel = nullptr, const Object* sub = nullptr) const;
+  std::u8string Noun(
+      bool definite = false,
+      bool verbose = true,
+      const Object* rel = nullptr,
+      const Object* sub = nullptr) const;
   std::u8string Pron() const;
   std::u8string Poss() const;
   std::u8string Obje() const;

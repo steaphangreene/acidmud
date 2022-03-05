@@ -888,8 +888,8 @@ std::u8string Object::Obje() const {
 }
 
 // Generate truly-formatted name/noun/pronoun/possessive....
-std::u8string Object::Noun(bool definite, const Object* rel, const Object* sub) const {
-  static std::u8string local;
+std::u8string Object::Noun(bool definite, bool verbose, const Object* rel, const Object* sub)
+    const {
   bool need_an = false;
   bool proper = false;
   std::u8string ret;
@@ -956,11 +956,14 @@ std::u8string Object::Noun(bool definite, const Object* rel, const Object* sub) 
   }
 
   if (HasName() && (rel == nullptr || rel->Knows(this))) {
-    ret = NameS() + u8", " + ret + u8",";
+    if (verbose) {
+      ret = fmt::format(u8"{}, {},", Name(), ret);
+    } else {
+      ret = Name();
+    }
   }
 
-  local = ret;
-  return local;
+  return ret;
 }
 
 void Object::SetDescs(
@@ -1075,7 +1078,7 @@ void Object::SendActions(Mind* m) {
       if (!cur.obj())
         targ = u8"";
       else
-        targ = cur.obj()->Noun(0, m->Body(), this);
+        targ = cur.obj()->Noun(0, 0, m->Body(), this);
 
       //      //FIXME: Busted!  This should be the u8"pointing north to bob"
       //      thingy.
@@ -1186,7 +1189,7 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
     if (!cur.obj())
       targ = u8"";
     else
-      targ = cur.obj()->Noun(0, m->Body(), this);
+      targ = cur.obj()->Noun(0, 0, m->Body(), this);
 
     std::u8string qty = u8"";
     if (cur.obj()->Skill(prhash(u8"Quantity")) > 1)
@@ -1325,7 +1328,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::u8string b) {
         } else if (vmode & LOC_NINJA) {
           sprintf(buf, u8"%s %s%c", ind->Noun(false).c_str(), ind->PosString().c_str(), 0);
         } else {
-          sprintf(buf, u8"%s %s%c", ind->Noun(false, o).c_str(), ind->PosString().c_str(), 0);
+          sprintf(buf, u8"%s %s%c", ind->Noun(false, true, o).c_str(), ind->PosString().c_str(), 0);
         }
         buf[0] = ascii_toupper(buf[0]);
         m->Send(buf);
@@ -1458,7 +1461,7 @@ void Object::SendFullSituation(Mind* m, Object* o) {
     sprintf(
         buf,
         u8"%s %s in %s%c",
-        Noun(false, m->Body()).c_str(),
+        Noun(false, true, m->Body()).c_str(),
         PosString().c_str(),
         pname.c_str(),
         0);
@@ -3251,11 +3254,13 @@ void Object::SendOut(
   }
 
   std::u8string tstr = u8"";
-  if (targ)
-    tstr = targ->Noun(0, this, actor);
+  if (targ) {
+    tstr = targ->Noun(0, 0, this, actor);
+  }
   std::u8string astr = u8"";
-  if (actor)
-    astr = actor->Noun(0, this);
+  if (actor) {
+    astr = actor->Noun(0, 1, this);
+  }
 
   auto str = mes;
   auto youstr = youmes;
@@ -3959,7 +3964,7 @@ bool Object::Filter(int loc) const {
 }
 
 int Object::LooksLike(Object* other, int vmode, Object* viewer) const {
-  if (Noun(false, viewer) != other->Noun(false, viewer))
+  if (Noun(false, true, viewer) != other->Noun(false, true, viewer))
     return 0;
   if (Pos() != other->Pos())
     return 0;
@@ -3989,10 +3994,10 @@ int Object::LooksLike(Object* other, int vmode, Object* viewer) const {
     if (ActTarg(actt) != other->ActTarg(actt)) {
       std::u8string s1 = u8"";
       if (ActTarg(actt))
-        s1 = ActTarg(actt)->Noun(0, this);
+        s1 = ActTarg(actt)->Noun(0, 0, this);
       std::u8string s2 = u8"";
       if (ActTarg(actt))
-        s2 = other->ActTarg(actt)->Noun(0, other);
+        s2 = other->ActTarg(actt)->Noun(0, 0, other);
       if (s1 != s2)
         return 0;
     }
@@ -4636,14 +4641,14 @@ int Object::Wear(Object* targ, unsigned long masks, int mes) {
     if (locations.size() < 1) {
       if (mask == 1) {
         if (mes)
-          targ->Send(ALL, -1, u8"You can't wear {} - it's not wearable!\n", targ->Noun(0, this));
+          targ->Send(ALL, -1, u8"You can't wear {} - it's not wearable!\n", targ->Noun(0, 0, this));
       } else {
         if (mes)
           targ->Send(
               ALL,
               -1,
               u8"You can't wear {} with what you are already wearing!\n",
-              targ->Noun(0, this));
+              targ->Noun(0, 0, this));
       }
       break;
     }
