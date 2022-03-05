@@ -410,7 +410,7 @@ class alignas(256) Object {
   bool Accomplish(uint64_t, const std::u8string&);
   bool HasAccomplished(uint64_t) const;
   int TotalExp() const {
-    return completed.size() - sexp;
+    return (completed.size() - sexp) + (known.size() / 100);
   };
   int Exp() const {
     return completed.size();

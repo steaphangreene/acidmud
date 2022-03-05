@@ -1698,7 +1698,11 @@ void Object::SendScore(Mind* m, Object* o) {
   // Experience Summary
   if (IsAnimate()) {
     m->Send(CYEL);
-    m->Send(u8"\nEarned Exp: {:>4}  Unspent Exp: {:>4}\n", Exp(), TotalExp());
+    m->Send(
+        u8"\nEarned Exp: {:>4}  Unspent Exp: {:>4}  Knowledge: {:>4}\n",
+        Exp(),
+        TotalExp(),
+        known.size());
     if (Power(prhash(u8"Heat Vision")) || Power(prhash(u8"Dark Vision"))) {
       m->Send(
           u8"Heat/Dark Vision: {}/{}\n",
