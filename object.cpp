@@ -1809,7 +1809,7 @@ std::vector<std::u8string> Object::FormatStats(const MinVec<7, skill_pair>& skls
       type_names.push_back(CYEL u8"MOB-CAST" CNRM);
     }
     if ((type_flags & 0x1010000) == 0x1010000) {
-      type_names.push_back(CYEL u8"MOB-LEAVE" CNRM);
+      type_names.push_back(CGRN u8"MOB-LEAVE" CNRM);
     }
     if ((type_flags & 0x1020000) == 0x1020000) {
       type_names.push_back(CYEL u8"MOB-DOOR" CNRM);
