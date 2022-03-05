@@ -26,10 +26,6 @@
 #include "color.hpp"
 #include "utils.hpp"
 
-static const std::u8string alpha = u8"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-static const std::u8string alnum =
-    u8"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
 void replace_all(
     std::u8string& str,
     const std::u8string& oldt,
@@ -112,9 +108,9 @@ static bool phrase_match_sensitive(
   return false;
 }
 
-int phrase_match(const std::u8string_view& str, const std::u8string_view& phrase) {
+bool phrase_match(const std::u8string_view& str, const std::u8string_view& phrase) {
   if (phrase.length() == 0)
-    return 0;
+    return false;
 
   if (std::any_of(str.cbegin(), str.cend(), ascii_isupper)) {
     std::u8string str2(str);
@@ -125,15 +121,14 @@ int phrase_match(const std::u8string_view& str, const std::u8string_view& phrase
   }
 }
 
-int words_match(const std::u8string_view& str, const std::u8string_view& words) {
-  size_t start = words.find_first_of(alpha);
-  while (start != std::u8string::npos) {
-    size_t end = words.find_first_not_of(alnum, start);
-    if (end == std::u8string::npos)
-      end = words.length();
-    if (phrase_match(str, words.substr(start, end - start)))
-      return 1;
-    start = words.find_first_of(alpha, end);
+bool words_match(const std::u8string_view& str, const std::u8string_view& words) {
+  auto start = std::find_if(words.begin(), words.end(), ascii_isalpha);
+  while (start != words.end()) {
+    auto end = std::find_if_not(start, words.end(), ascii_isalnum);
+    if (phrase_match(str, words.substr(start - words.begin(), end - start))) {
+      return true;
+    }
+    start = std::find_if(end, words.end(), ascii_isalpha);
   }
-  return 0;
+  return false;
 }
