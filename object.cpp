@@ -1188,9 +1188,9 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
     else
       targ = cur.obj()->Noun(0, m->Body(), this);
 
-    char8_t qty[256] = {0};
+    std::u8string qty = u8"";
     if (cur.obj()->Skill(prhash(u8"Quantity")) > 1)
-      sprintf(qty, u8"(x%d) ", cur.obj()->Skill(prhash(u8"Quantity")));
+      qty = fmt::format(u8"(x{}) ", cur.obj()->Skill(prhash(u8"Quantity")));
 
     if (shown.count(cur.obj()) > 0) {
       m->Send(u8"{}{} ({}).\n", qty, targ, shown[cur.obj()]);
@@ -1369,8 +1369,7 @@ void Object::SendFullSituation(Mind* m, Object* o) {
     pname = u8"her";
 
   if (Skill(prhash(u8"Quantity")) > 1) {
-    sprintf(buf, u8"(x%d) ", Skill(prhash(u8"Quantity")));
-    m->Send(buf);
+    m->Send(u8"(x{}) ", Skill(prhash(u8"Quantity")));
   }
 
   if (!parent)
