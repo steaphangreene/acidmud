@@ -101,13 +101,13 @@ static void give_gold(Object* mob, int qty) {
   g->SetSkill(prhash(u8"Quantity"), qty);
 }
 
-MOBType::MOBType(
+NPCType::NPCType(
     const std::u8string& nm,
     const std::u8string& ds,
     const std::u8string& lds,
     const std::u8string& gens,
-    MOBAttrs min,
-    MOBAttrs max,
+    NPCAttrs min,
+    NPCAttrs max,
     int gmin,
     int gmax) {
   name = nm;
@@ -122,31 +122,31 @@ MOBType::MOBType(
   armed = nullptr;
 }
 
-void MOBType::Skill(uint32_t stok, int percent, int mod) {
+void NPCType::Skill(uint32_t stok, int percent, int mod) {
   skills[stok] = std::make_pair(percent, mod);
 }
 
-void MOBType::Skill(uint32_t stok, int val) {
+void NPCType::Skill(uint32_t stok, int val) {
   skills[stok] = std::make_pair(-1, val);
 }
 
-void MOBType::Arm(WeaponType* weap) {
+void NPCType::Arm(WeaponType* weap) {
   armed = weap;
 }
 
-void MOBType::Armor(ArmorType* arm) {
+void NPCType::Armor(ArmorType* arm) {
   armor.push_back(arm);
 }
 
-void MOBType::Carry(ItemType* item) {
+void NPCType::Carry(ItemType* item) {
   items.push_back(item);
 }
 
-void MOBType::SetName(const std::u8string& nm) {
+void NPCType::SetName(const std::u8string& nm) {
   name = nm;
 }
 
-void Object::AddMOB(std::mt19937& gen, const MOBType* type) {
+void Object::AddNPC(std::mt19937& gen, const NPCType* type) {
   Object* mob = new Object(this);
 
   if (mob->World()) {
@@ -155,7 +155,7 @@ void Object::AddMOB(std::mt19937& gen, const MOBType* type) {
     mob->SetSkill(prhash(u8"Object ID"), obj_id);
   }
 
-  mob->Attach(new Mind(mind_t::MOB));
+  mob->Attach(new Mind(mind_t::NPC));
   mob->Activate();
   mob->SetPos(pos_t::STAND);
   for (int a : {0, 1, 2, 3, 4, 5}) {

@@ -94,19 +94,19 @@ class ItemType {
   int weight, volume, value;
 };
 
-struct MOBAttrs {
+struct NPCAttrs {
   int v[6];
 };
 
-class MOBType {
+class NPCType {
  public:
-  MOBType(
+  NPCType(
       const std::u8string& nm,
       const std::u8string& ds,
       const std::u8string& lds,
       const std::u8string& gens,
-      MOBAttrs min,
-      MOBAttrs max,
+      NPCAttrs min,
+      NPCAttrs max,
       int gmin = 0,
       int gmax = 0);
   void Skill(uint32_t, int, int);
@@ -117,7 +117,7 @@ class MOBType {
   void SetName(const std::u8string&);
 
   std::u8string name, desc, long_desc, genders;
-  MOBAttrs mins, maxes;
+  NPCAttrs mins, maxes;
   int min_gold, max_gold;
   std::map<uint32_t, std::pair<int, int>> skills;
   WeaponType* armed;

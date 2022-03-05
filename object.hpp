@@ -39,7 +39,7 @@
 class Object;
 class Player;
 class Mind;
-class MOBType;
+class NPCType;
 
 #ifndef OBJECT_HPP
 #define OBJECT_HPP
@@ -616,7 +616,7 @@ class alignas(256) Object {
   int Matches(std::u8string seek, bool knows = false) const;
   int LooksLike(Object* other, int vmode = 0, Object* viewer = nullptr) const;
 
-  void AddMOB(std::mt19937&, const MOBType*);
+  void AddNPC(std::mt19937&, const NPCType*);
 
   static void FreeActions();
 

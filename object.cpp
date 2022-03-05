@@ -1678,6 +1678,8 @@ void Object::SendScore(Mind* m, Object* o) {
   for (auto mind : minds) {
     if (mind->Owner()) {
       m->Send(CBLU u8"->Player Connected: {}\n" CNRM, mind->Owner()->Name());
+    } else if (mind->Type() == mind_t::NPC) {
+      m->Send(CBLU u8"->NPC_MIND\n" CNRM);
     } else if (mind->Type() == mind_t::MOB) {
       m->Send(CBLU u8"->MOB_MIND\n" CNRM);
     } else if (mind->Type() == mind_t::TBAMOB) {

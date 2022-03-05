@@ -82,7 +82,7 @@ static Object* new_object(Object* parent) {
 }
 std::multimap<std::u8string, std::pair<std::u8string, Object*>> zone_links;
 
-static MOBType mob_dwarf(
+static NPCType mob_dwarf(
     u8"a dwarf",
     u8"{He} looks pissed.",
     u8"",
@@ -673,7 +673,7 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
         int num = empnums[room][n](gen);
         int floor = empfloors[room][n];
         for (int m = 0; m < num; ++m) {
-          objs[coord{x, y}][floor]->AddMOB(gen, &mob_dwarf);
+          objs[coord{x, y}][floor]->AddNPC(gen, &mob_dwarf);
           Object* mob = objs[coord{x, y}][floor]->Contents().back();
           int gender = (mob->Gender() == 'F') ? 0 : 1;
 
@@ -721,7 +721,7 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
           if (!housed) {
             fprintf(
                 stderr,
-                CYEL u8"Warning: Homeless MOB in %s: %s\n" CNRM,
+                CYEL u8"Warning: Homeless NPC in %s: %s\n" CNRM,
                 zone->ShortDescC(),
                 empnames[room][n].c_str());
             ++homeless;
@@ -732,7 +732,7 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
   }
 
   if (homeless > 0) {
-    mind->Send(CYEL u8"Warning: {} Homeless MOBs\n" CNRM, homeless);
+    mind->Send(CYEL u8"Warning: {} Homeless NPCs\n" CNRM, homeless);
   }
 
   mind->Send(u8"Loaded {} From: '{}'!\n", name, filename);
