@@ -2888,7 +2888,7 @@ bool Mind::Think(int istick) {
       //	}
     }
   } else if (type == mind_t::TBATRIG) {
-    if (body && body->Parent() && spos_s.size() > 0 && spos_s.back() < script.length()) {
+    if (body && body->Parent() && spos_s.size() > 0) {
       //      fprintf(stderr, CGRN u8"#%d Debug: Running Trigger.\n" CNRM,
       //	body->Skill(prhash(u8"TBAScript"))
       //	);
@@ -2897,7 +2897,8 @@ bool Mind::Think(int istick) {
 
       int quota = 1024;
       int stype = body->Skill(prhash(u8"TBAScriptType"));
-      while (spos_s.size() > 0 && spos_s.back() != std::u8string::npos) {
+      while (spos_s.size() > 0 && spos_s.back() < script.length() &&
+             spos_s.back() != std::u8string::npos) {
         std::u8string line;
         size_t endl = script.find_first_of(u8"\n\r", spos_s.back());
         if (endl == std::u8string::npos)
