@@ -45,7 +45,7 @@ debug:
 
 #Use profiling settings
 profile:
-	+make CXXFLAGS='-std=c++20 -O3 -fno-omit-frame-pointer -fno-optimize-sibling-calls -ggdb $(COMP) $(ARCH) $(COPT) -flto'
+	+make CXXFLAGS='-std=c++20 -O3 -fno-omit-frame-pointer -fno-optimize-sibling-calls -ggdb $(COMP) $(ARCH) $(COPT)'
 
 gcc:
 	+make CXX='g++' CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -ggdb -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(GOPT)'
