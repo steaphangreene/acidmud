@@ -5630,7 +5630,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
       body->SetSkill(prhash(u8"Status Points"), 0);
 
-      mind->Send(u8"You reform '{}' into a {}.\n", body->ShortDesc(), u8"Fighter");
+      mind->Send(u8"You reform '{}' into a {}.\n", body->Name(), u8"Fighter");
       mind->Send(u8"You can now adjust things from here, or just enter the game.\n");
 
     } else {
