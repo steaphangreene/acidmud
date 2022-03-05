@@ -1308,6 +1308,8 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
         obj->SetShortDesc(obj->ShortDescS() + u8" " + label);
       }
 
+      obj->SetDesc(load_tba_field(mudo));
+
       auto field = load_tba_field(mudo);
       if (field.length() > 0) {
         if (field[0] != '.') {
@@ -1319,11 +1321,15 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       }
       // fprintf(stderr, u8"Loaded TBA Object with Desc = %s\n", buf);
 
-      fscanf(mudo, u8"%*[^\n\r]\n");
-
       int tp = 0, val[4];
       memset(buf, 0, 65536);
-      fscanf(mudo, u8"%d %65535[^ \n\t]", &tp, buf); // Effects Bitvector
+      if (fscanf(mudo, u8"%d %65535[^ \n\t]", &tp, buf) < 2) { // Effects Bitvector
+        fprintf(stderr, CRED u8"Bad file parse, no effects bitvec!\n" CNRM);
+        fprintf(stderr, CRED u8"LOC: %lu : %s\n" CNRM, ftell(mudo), fn.c_str());
+        fprintf(stderr, CRED u8"SOBJ: %s\n" CNRM, obj->ShortDescC());
+        fprintf(stderr, CRED u8"OBJ: %s\n" CNRM, obj->DescC());
+        fprintf(stderr, CRED u8"LOBJ: %s\n" CNRM, obj->LongDescC());
+      }
       uint32_t flags = tba_bitvec(buf);
       if (flags & 1) { // GLOW
         obj->SetSkill(prhash(u8"Light Source"), 10);
@@ -1370,7 +1376,13 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
 
       // Wear Bitvector
       memset(buf, 0, 65536);
-      fscanf(mudo, u8"%*s %*s %*s %65535[^ \n\t]%*[^\n\r]\n", buf);
+      if (fscanf(mudo, u8"%*s %*s %*s %65535[^ \n\t]%*[^\n\r]\n", buf) < 1) {
+        fprintf(stderr, CRED u8"Bad file parse, no main bitvec!\n" CNRM);
+        fprintf(stderr, CRED u8"LOC: %lu : %s\n" CNRM, ftell(mudo), fn.c_str());
+        fprintf(stderr, CRED u8"SOBJ: %s\n" CNRM, obj->ShortDescC());
+        fprintf(stderr, CRED u8"OBJ: %s\n" CNRM, obj->DescC());
+        fprintf(stderr, CRED u8"LOBJ: %s\n" CNRM, obj->LongDescC());
+      }
       flags = tba_bitvec(buf);
       if (flags & 1) { // TAKE
         obj->SetPos(pos_t::LIE);
@@ -1507,7 +1519,13 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       }
       obj->SetShortDesc(name.c_str());
 
-      fscanf(mudo, u8"%d %d %d %d\n", val + 0, val + 1, val + 2, val + 3);
+      if (fscanf(mudo, u8"%d %d %d %d\n", val + 0, val + 1, val + 2, val + 3) < 4) {
+        fprintf(stderr, CRED u8"Bad file parse, no 4 vals!\n" CNRM);
+        fprintf(stderr, CRED u8"LOC: %lu : %s\n" CNRM, ftell(mudo), fn.c_str());
+        fprintf(stderr, CRED u8"SOBJ: %s\n" CNRM, obj->ShortDescC());
+        fprintf(stderr, CRED u8"OBJ: %s\n" CNRM, obj->DescC());
+        fprintf(stderr, CRED u8"LOBJ: %s\n" CNRM, obj->LongDescC());
+      }
 
       if (tp == 1) { // LIGHTS
         if (val[2] > 1) {
@@ -2159,8 +2177,14 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
         obj->SetSkill(prhash(u8"WeaponReach"), wreach);
       }
 
-      int wt, vl;
-      fscanf(mudo, u8"%d %d %*[^\n\r]\n", &wt, &vl);
+      int wt = 0, vl = 0;
+      if (fscanf(mudo, u8"%d %d %*[^\n\r]\n", &wt, &vl) < 2) {
+        fprintf(stderr, CRED u8"Bad file parse, no weight/volume!\n" CNRM);
+        fprintf(stderr, CRED u8"LOC: %lu : %s\n" CNRM, ftell(mudo), fn.c_str());
+        fprintf(stderr, CRED u8"SOBJ: %s\n" CNRM, obj->ShortDescC());
+        fprintf(stderr, CRED u8"OBJ: %s\n" CNRM, obj->DescC());
+        fprintf(stderr, CRED u8"LOBJ: %s\n" CNRM, obj->LongDescC());
+      }
 
       if (tp != 20) { // MONEY DOESN'T WORK THIS WAY
         obj->SetWeight((wt >= 1000000) ? 1000000 : wt * 454);
