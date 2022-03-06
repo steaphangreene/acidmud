@@ -122,6 +122,7 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
   std::map<char8_t, std::vector<std::u8string>> empnames;
   std::map<char8_t, std::vector<std::uniform_int_distribution<int>>> empnums;
   std::map<char8_t, std::vector<int>> empfloors;
+  std::map<char8_t, std::vector<bool>> empnight;
   std::map<char8_t, std::vector<std::u8string>> resnames;
   std::map<char8_t, std::vector<std::uniform_int_distribution<int>>> resnums;
   std::map<char8_t, std::vector<int>> resfloors;
@@ -194,6 +195,36 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
         empnames[sym].emplace_back(namebuf);
         empnums[sym].push_back(std::uniform_int_distribution<int>(lnum, hnum));
         empfloors[sym].push_back(floor);
+        empnight[sym].push_back(false);
+      }
+    } else if (!strncmp(line_buf, u8"night:", 6)) {
+      char8_t sym = '0';
+      sscanf(line_buf + 6, u8"%c", &sym);
+      int floor = 0;
+      int lnum, hnum;
+      char8_t namebuf[256];
+      int off = 7;
+      if (sscanf(line_buf + off, u8".%d", &floor) == 1) {
+        off = 9;
+      }
+      if (sscanf(line_buf + off, u8":%d", &lnum) < 1) {
+        parse_error = true;
+      }
+      if (sscanf(line_buf + off, u8":%*d-%d", &hnum) < 1) {
+        hnum = lnum;
+        if (sscanf(line_buf + off, u8":%*d:%255[^\n]", namebuf) < 1) {
+          parse_error = true;
+        }
+      } else {
+        if (sscanf(line_buf + off, u8":%*d-%*d:%255[^\n]", namebuf) < 1) {
+          parse_error = true;
+        }
+      }
+      if (!parse_error) {
+        empnames[sym].emplace_back(namebuf);
+        empnums[sym].push_back(std::uniform_int_distribution<int>(lnum, hnum));
+        empfloors[sym].push_back(floor);
+        empnight[sym].push_back(true);
       }
     } else if (!strncmp(line_buf, u8"house:", 6)) {
       char8_t sym = '0';
@@ -672,6 +703,7 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
         npc_dwarf.SetName(empnames[room][n]);
         int num = empnums[room][n](gen);
         int floor = empfloors[room][n];
+        bool night = empnight[room][n];
         for (int m = 0; m < num; ++m) {
           objs[coord{x, y}][floor]->AddNPC(gen, &npc_dwarf);
           Object* npc = objs[coord{x, y}][floor]->Contents().back();
@@ -692,7 +724,11 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
 
           npc->AddAct(act_t::SPECIAL_WORK, objs[coord{x, y}][floor]);
           int timeliness = std::uniform_int_distribution<int>(-5, 20)(gen);
-          npc->SetSkill(prhash(u8"Day Worker"), timeliness);
+          if (night) {
+            npc->SetSkill(prhash(u8"Night Worker"), timeliness);
+          } else {
+            npc->SetSkill(prhash(u8"Day Worker"), timeliness);
+          }
 
           // Now find them a home.
           bool housed = false;
