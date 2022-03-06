@@ -73,10 +73,10 @@ static void init_gold() {
   gold->SetPos(pos_t::LIE);
 }
 
-static void give_gold(Object* mob, int qty) {
+static void give_gold(Object* npc, int qty) {
   Object* bag = new Object;
 
-  bag->SetParent(mob);
+  bag->SetParent(npc);
   bag->SetShortDesc(u8"a small purse");
   bag->SetDesc(u8"A small, durable, practical moneypurse.");
 
@@ -92,7 +92,7 @@ static void give_gold(Object* mob, int qty) {
   bag->SetValue(100);
 
   bag->SetPos(pos_t::LIE);
-  mob->AddAct(act_t::WEAR_LHIP, bag);
+  npc->AddAct(act_t::WEAR_LHIP, bag);
 
   if (!gold)
     init_gold();
@@ -147,51 +147,51 @@ void NPCType::SetName(const std::u8string& nm) {
 }
 
 void Object::AddNPC(std::mt19937& gen, const NPCType* type) {
-  Object* mob = new Object(this);
+  Object* npc = new Object(this);
 
-  if (mob->World()) {
-    auto obj_id = mob->World()->Skill(prhash(u8"Last Object ID")) + 1;
-    mob->World()->SetSkill(prhash(u8"Last Object ID"), obj_id);
-    mob->SetSkill(prhash(u8"Object ID"), obj_id);
+  if (npc->World()) {
+    auto obj_id = npc->World()->Skill(prhash(u8"Last Object ID")) + 1;
+    npc->World()->SetSkill(prhash(u8"Last Object ID"), obj_id);
+    npc->SetSkill(prhash(u8"Object ID"), obj_id);
   }
 
-  mob->Attach(new Mind(mind_t::NPC));
-  mob->Activate();
-  mob->SetPos(pos_t::STAND);
+  npc->Attach(new Mind(mind_t::NPC));
+  npc->Activate();
+  npc->SetPos(pos_t::STAND);
   for (int a : {0, 1, 2, 3, 4, 5}) {
-    mob->SetAttribute(
+    npc->SetAttribute(
         a, std::uniform_int_distribution<int>(type->mins.v[a], type->maxes.v[a])(gen));
   }
 
   for (auto sk : type->skills) {
     if (sk.second.first < 0) {
-      mob->SetSkill(sk.first, sk.second.second);
+      npc->SetSkill(sk.first, sk.second.second);
     } else {
-      mob->SetSkill(
+      npc->SetSkill(
           sk.first,
-          mob->NormAttribute(get_linked(sk.first)) * sk.second.first / 100 -
+          npc->NormAttribute(get_linked(sk.first)) * sk.second.first / 100 -
               rand() % sk.second.second);
     }
     // fprintf(stderr, u8"DBG: %d %d %d\n", get_linked(sk.first),
     // sk.second.first, sk.second.second);
   }
 
-  mob->SetShortDesc(type->name.c_str());
-  mob->SetDesc(type->desc.c_str());
-  mob->SetLongDesc(type->long_desc.c_str());
+  npc->SetShortDesc(type->name.c_str());
+  npc->SetDesc(type->desc.c_str());
+  npc->SetLongDesc(type->long_desc.c_str());
   if (type->genders.length() > 0) {
-    mob->SetGender(type->genders[rand() % type->genders.length()]);
+    npc->SetGender(type->genders[rand() % type->genders.length()]);
   }
-  mob->SetDesc(gender_proc(type->desc, mob->Gender()));
-  mob->SetLongDesc(gender_proc(type->long_desc, mob->Gender()));
+  npc->SetDesc(gender_proc(type->desc, npc->Gender()));
+  npc->SetLongDesc(gender_proc(type->long_desc, npc->Gender()));
 
   if (type->min_gold > 0 || type->max_gold > 0) {
     std::uniform_int_distribution<int> gnum(type->min_gold, type->max_gold);
-    give_gold(mob, gnum(gen));
+    give_gold(npc, gnum(gen));
   }
 
   if (type->armed) {
-    Object* obj = new Object(mob);
+    Object* obj = new Object(npc);
     obj->SetSkill(prhash(u8"WeaponType"), type->armed->type);
     obj->SetSkill(prhash(u8"WeaponReach"), type->armed->reach);
     obj->SetSkill(prhash(u8"WeaponForce"), type->armed->force + rand() % type->armed->forcem);
@@ -203,9 +203,9 @@ void Object::AddNPC(std::mt19937& gen, const NPCType* type) {
     obj->SetVolume(type->armed->volume);
     obj->SetValue(type->armed->value);
     obj->SetPos(pos_t::LIE);
-    mob->AddAct(act_t::WIELD, obj);
+    npc->AddAct(act_t::WIELD, obj);
     if (two_handed(type->armed->type)) {
-      mob->AddAct(act_t::HOLD, obj);
+      npc->AddAct(act_t::HOLD, obj);
     }
   }
 
@@ -213,7 +213,7 @@ void Object::AddNPC(std::mt19937& gen, const NPCType* type) {
     if (wear_attribs.size() <= 0) {
       init_wear_attribs();
     }
-    Object* obj = new Object(mob);
+    Object* obj = new Object(npc);
     obj->SetAttribute(0, ar->bulk + rand() % ar->bulkm);
     obj->SetSkill(prhash(u8"ArmorB"), ar->bulk + rand() % ar->bulkm);
     obj->SetSkill(prhash(u8"ArmorI"), ar->impact + rand() % ar->impactm);
@@ -229,12 +229,12 @@ void Object::AddNPC(std::mt19937& gen, const NPCType* type) {
 
     for (auto loc : ar->loc) {
       obj->SetSkill(wear_attribs[loc], 1);
-      mob->AddAct(loc, obj);
+      npc->AddAct(loc, obj);
     }
   }
 
   if (type->items.size() > 0) {
-    Object* sack = new Object(mob);
+    Object* sack = new Object(npc);
     sack->SetShortDesc(u8"a small sack");
     sack->SetDesc(u8"A small, durable, practical belt sack.");
 
@@ -250,7 +250,7 @@ void Object::AddNPC(std::mt19937& gen, const NPCType* type) {
     sack->SetValue(100);
 
     sack->SetPos(pos_t::LIE);
-    mob->AddAct(act_t::WEAR_RHIP, sack);
+    npc->AddAct(act_t::WEAR_RHIP, sack);
 
     for (auto it : type->items) {
       Object* obj = new Object(sack);
