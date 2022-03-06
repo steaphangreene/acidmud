@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <fstream>
 #include <random>
 
 #include "cchar8.hpp"
@@ -117,18 +118,38 @@ static bool process(std::u8string_view& line, const std::u8string_view& dir) {
   }
 }
 
-static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
-  if (fn.empty()) {
+static std::u8string_view next_line(const std::u8string_view& file, auto& cursor) {
+  if (cursor == std::u8string::npos) {
+    return u8"";
+  }
+  auto next_cursor = file.find_first_of('\n', cursor);
+
+  std::u8string_view ret = file.substr(cursor, next_cursor - cursor);
+
+  if (next_cursor != std::u8string::npos) {
+    cursor = file.find_first_not_of('\n', next_cursor);
+  } else {
+    cursor = next_cursor;
+  }
+  return ret;
+}
+
+static bool load_map(Object* world, Mind* mind, const std::filesystem::directory_entry& ent) {
+  auto filename = ent.path().u8string();
+
+  if (filename.empty()) {
     mind->Send(u8"You need to specify the filename of the datafile!\n");
     return false;
   }
 
-  std::u8string filename(fn);
-  FILE* def_file = fopen(filename.c_str(), u8"r");
-  if (def_file == nullptr) {
+  std::u8string file(ent.file_size(), 0);
+  std::ifstream def_file(ent.path(), std::ios::in | std::ios::binary);
+  if (!def_file.is_open()) {
     mind->Send(u8"Can't find definition file '{}'!\n", filename);
     return false;
   }
+  def_file.read(reinterpret_cast<char*>(file.data()), ent.file_size());
+  def_file.close();
 
   std::u8string name = u8"Unknown Land";
   uint8_t lower_level = 0;
@@ -162,12 +183,11 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
   std::vector<bool> en_indoors;
   char8_t start_symbol = '\0';
 
+  size_t cursor = 0;
   bool in_main_def = false;
-  char8_t line_buf[65536] = u8"";
   while (!in_main_def) {
     bool parse_error = false;
-    fscanf(def_file, u8" %65535[^\n]", line_buf);
-    std::u8string_view line(line_buf);
+    std::u8string_view line = next_line(file, cursor);
     if (process(line, u8"name:")) {
       name = line;
     } else if (process(line, u8"world:")) {
@@ -317,7 +337,7 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
       start_symbol = nextchar(line);
     } else if (process(line, u8"ascii_map:")) {
       in_main_def = true;
-    } else if (line_buf[0] == '#') {
+    } else if (line.front() == '#') {
       // This is a comment, so just ignore this line.
     } else {
       parse_error = true;
@@ -325,27 +345,24 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
 
     if (parse_error) {
       mind->Send(u8"Bad definition file '{}'!\n", filename);
-      mind->Send(u8"Read: '{}'!\n", line_buf);
-      fclose(def_file);
+      mind->Send(u8"Read: '{}'!\n", line);
       return false;
     }
   }
 
   // Load ASCII Map Into A vector<string>, Padding All Sides with Spaces
   std::vector<std::u8string> ascii_map = {u8""};
-  fscanf(def_file, u8"%*[\n]");
-  line_buf[0] = ' '; // Padding
   size_t max_line_len = 0;
-  while (fscanf(def_file, u8"%65534[^\n]", line_buf + 1) > 0) {
-    ascii_map.emplace_back(line_buf);
-    max_line_len = std::max(max_line_len, ascii_map.back().length() + 1);
-    fscanf(def_file, u8"%*[\n]");
+  {
+    std::u8string_view line;
+    while ((line = next_line(file, cursor)) != u8"") {
+      ascii_map.emplace_back(line);
+      max_line_len = std::max(max_line_len, ascii_map.back().length());
+    }
   }
   ascii_map.emplace_back(u8"");
   for (auto& line : ascii_map) {
-    for (size_t pad = line.length(); pad < max_line_len; ++pad) {
-      line += u8" ";
-    }
+    line = fmt::format(u8" {:<{}}", line, max_line_len + 1);
   }
 
   // Preview ASCII Map To Confirm It Will Not Fail
@@ -362,7 +379,6 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
       } else {
         mind->Send(u8"Bad definition file '{}'!\n", filename);
         mind->Send(u8"Read Unknown Character '{}' at ascii_map ({},{})!\n", room, x, y);
-        fclose(def_file);
         return false;
       }
     }
@@ -914,7 +930,6 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
   }
 
   mind->Send(u8"Loaded {} From: '{}'!\n", name, filename);
-  fclose(def_file);
   return true;
 }
 
@@ -928,10 +943,12 @@ int handle_command_wcreate(
     mind->Send(u8"You need to specify the directory of the datafiles!\n");
     return 1;
   }
-  std::vector<std::u8string> filenames;
+  std::vector<std::filesystem::directory_entry> files;
   try {
     for (const auto& fl : std::filesystem::directory_iterator(args)) {
-      filenames.emplace_back(fl.path().u8string());
+      if (fl.path().u8string().find(u8"/.") == std::u8string::npos) { // Ignore hidden files
+        files.emplace_back(fl);
+      }
     }
   } catch (...) {
     mind->Send(u8"You need to specify the correct directory of the datafiles!\n");
@@ -947,10 +964,8 @@ int handle_command_wcreate(
   world->SetSkill(prhash(u8"Day Time"), 120);
 
   zone_links.clear();
-  for (const auto& fn : filenames) {
-    if (fn.find(u8"/.") != std::u8string::npos) {
-      // Ignore hidden files
-    } else if (!load_map(world, mind, fn)) {
+  for (const auto& fl : files) {
+    if (!load_map(world, mind, fl)) {
       delete world;
       return 0;
     }
