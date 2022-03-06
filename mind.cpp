@@ -2853,6 +2853,40 @@ bool Mind::Think(int istick) {
               svars[u8"path"] = svars[u8"path"].substr(1);
             } else {
               // TODO: Open/Unlock Doors, Reroute, Etc.
+              std::u8string_view dir = u8"north";
+              std::u8string_view odir = u8"south";
+              if (svars[u8"path"][0] == 's') {
+                dir = u8"south";
+                odir = u8"north";
+              } else if (svars[u8"path"][0] == 'e') {
+                dir = u8"east";
+                odir = u8"west";
+              } else if (svars[u8"path"][0] == 'w') {
+                dir = u8"west";
+                odir = u8"east";
+              } else if (svars[u8"path"][0] == 'u') {
+                dir = u8"up";
+                odir = u8"down";
+              } else if (svars[u8"path"][0] == 'd') {
+                dir = u8"down";
+                odir = u8"up";
+              }
+
+              handle_command(body, fmt::format(u8"open {0};{0};close {1}", dir, odir));
+              if (old != body->Parent()) { // Actually went somewhere
+                svars[u8"path"] = svars[u8"path"].substr(1);
+              } else {
+                handle_command(
+                    body, fmt::format(u8"unlock {0};open {0};{0};close {1};lock {1}", dir, odir));
+                if (old != body->Parent()) { // Actually went somewhere
+                  svars[u8"path"] = svars[u8"path"].substr(1);
+                } else {
+                  // Object* door = PickObject(dir, LOC_NEARBY);
+                  // if (door) {
+                  //  TODO: Actually figure out what's wrong.
+                  //}
+                }
+              }
             }
           }
         } else if (!body->IsAct(act_t::WORK)) {
@@ -2876,6 +2910,40 @@ bool Mind::Think(int istick) {
               svars[u8"path"] = svars[u8"path"].substr(1);
             } else {
               // TODO: Open/Unlock Doors, Reroute, Etc.
+              std::u8string_view dir = u8"north";
+              std::u8string_view odir = u8"south";
+              if (svars[u8"path"][0] == 's') {
+                dir = u8"south";
+                odir = u8"north";
+              } else if (svars[u8"path"][0] == 'e') {
+                dir = u8"east";
+                odir = u8"west";
+              } else if (svars[u8"path"][0] == 'w') {
+                dir = u8"west";
+                odir = u8"east";
+              } else if (svars[u8"path"][0] == 'u') {
+                dir = u8"up";
+                odir = u8"down";
+              } else if (svars[u8"path"][0] == 'd') {
+                dir = u8"down";
+                odir = u8"up";
+              }
+
+              handle_command(body, fmt::format(u8"open {0};{0};close {1}", dir, odir));
+              if (old != body->Parent()) { // Actually went somewhere
+                svars[u8"path"] = svars[u8"path"].substr(1);
+              } else {
+                handle_command(
+                    body, fmt::format(u8"unlock {0};open {0};{0};close {1};lock {1}", dir, odir));
+                if (old != body->Parent()) { // Actually went somewhere
+                  svars[u8"path"] = svars[u8"path"].substr(1);
+                } else {
+                  // Object* door = PickObject(dir, LOC_NEARBY);
+                  // if (door) {
+                  //  TODO: Actually figure out what's wrong.
+                  //}
+                }
+              }
             }
           }
         } else if (body->Pos() != pos_t::LIE) {
