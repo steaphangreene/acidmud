@@ -2872,13 +2872,14 @@ bool Mind::Think(int istick) {
                 odir = u8"up";
               }
 
-              handle_command(body, fmt::format(u8"open {0};{0};close {1}", dir, odir));
+              handle_command(body, fmt::format(u8"open {0};{0}", dir));
               if (old != body->Parent()) { // Actually went somewhere
+                handle_command(body, fmt::format(u8"close {0}", odir));
                 svars[u8"path"] = svars[u8"path"].substr(1);
               } else {
-                handle_command(
-                    body, fmt::format(u8"unlock {0};open {0};{0};close {1};lock {1}", dir, odir));
+                handle_command(body, fmt::format(u8"unlock {0};open {0};{0}", dir));
                 if (old != body->Parent()) { // Actually went somewhere
+                  handle_command(body, fmt::format(u8"close {0};lock {0}", odir));
                   svars[u8"path"] = svars[u8"path"].substr(1);
                 } else {
                   // Object* door = PickObject(dir, LOC_NEARBY);
@@ -2929,13 +2930,14 @@ bool Mind::Think(int istick) {
                 odir = u8"up";
               }
 
-              handle_command(body, fmt::format(u8"open {0};{0};close {1}", dir, odir));
+              handle_command(body, fmt::format(u8"open {0};{0}", dir));
               if (old != body->Parent()) { // Actually went somewhere
+                handle_command(body, fmt::format(u8"close {0}", odir));
                 svars[u8"path"] = svars[u8"path"].substr(1);
               } else {
-                handle_command(
-                    body, fmt::format(u8"unlock {0};open {0};{0};close {1};lock {1}", dir, odir));
+                handle_command(body, fmt::format(u8"unlock {0};open {0};{0}", dir));
                 if (old != body->Parent()) { // Actually went somewhere
+                  handle_command(body, fmt::format(u8"close {0};lock {0}", odir));
                   svars[u8"path"] = svars[u8"path"].substr(1);
                 } else {
                   // Object* door = PickObject(dir, LOC_NEARBY);
