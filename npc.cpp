@@ -74,9 +74,8 @@ static void init_gold() {
 }
 
 static void give_gold(Object* npc, int qty) {
-  Object* bag = new Object;
+  Object* bag = new Object(npc);
 
-  bag->SetParent(npc);
   bag->SetShortDesc(u8"a small purse");
   bag->SetDesc(u8"A small, durable, practical moneypurse.");
 
@@ -99,6 +98,27 @@ static void give_gold(Object* npc, int qty) {
   Object* g = new Object(*gold);
   g->SetParent(bag);
   g->SetSkill(prhash(u8"Quantity"), qty);
+}
+
+static void add_pouch(Object* npc) {
+  Object* bag = new Object(npc);
+
+  bag->SetShortDesc(u8"a small pouch");
+  bag->SetDesc(u8"A small, durable, practical beltpouch.");
+
+  bag->SetSkill(prhash(u8"Wearable on Left Hip"), 1);
+  bag->SetSkill(prhash(u8"Wearable on Right Hip"), 2);
+  bag->SetSkill(prhash(u8"Container"), 5 * 454);
+  bag->SetSkill(prhash(u8"Capacity"), 5);
+  bag->SetSkill(prhash(u8"Closeable"), 1);
+
+  bag->SetWeight(1 * 454);
+  bag->SetSize(2);
+  bag->SetVolume(1);
+  bag->SetValue(100);
+
+  bag->SetPos(pos_t::LIE);
+  npc->AddAct(act_t::WEAR_RHIP, bag);
 }
 
 NPCType::NPCType(
@@ -188,6 +208,10 @@ void Object::AddNPC(std::mt19937& gen, const NPCType* type) {
   if (type->min_gold > 0 || type->max_gold > 0) {
     std::uniform_int_distribution<int> gnum(type->min_gold, type->max_gold);
     give_gold(npc, gnum(gen));
+  }
+
+  if (true) { // TODO: Figure out who should get these, and who should not
+    add_pouch(npc);
   }
 
   if (type->armed) {
