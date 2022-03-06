@@ -19,8 +19,12 @@ employ:4.3:2:a dwarven soldier
 house:4.1:16:a dwarven soldier
 house:4.0:12:a dwarven guard
 building:3:gate house
-employ:3.2:2:a dwarven soldier
-employ:3.1:2:a dwarven soldier
+employ:3.2:1:a dwarven soldier
+night:3.2:1:a dwarven soldier
+employ:3.1:1:a dwarven soldier
+night:3.1:1:a dwarven soldier
+employ:3.0:2:a dwarven soldier
+night:3.0:2:a dwarven soldier
 building:2:shop
 building:2:shop
 building:2:shop
