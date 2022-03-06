@@ -2831,8 +2831,9 @@ bool Mind::Think(int istick) {
       if (body->Parent() != body->ActTarg(act_t::SPECIAL_WORK)) {
         // TODO: GO TO WORK!
         if (body->Pos() != pos_t::SIT) {
-          handle_command(body, u8"say I am lost, where do I work?");
-          handle_command(body, u8"sit");
+          handle_command(body, u8"say Time to head to work!");
+          auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_WORK));
+          handle_command(body, fmt::format(u8"{}", path[0]));
         }
       } else if (!body->IsAct(act_t::WORK)) {
         body->AddAct(act_t::WORK);
@@ -2844,8 +2845,9 @@ bool Mind::Think(int istick) {
       if (body->Parent() != body->ActTarg(act_t::SPECIAL_HOME)) {
         // TODO: GO HOME!
         if (body->Pos() != pos_t::SIT) {
-          handle_command(body, u8"say I am lost, where do I live?");
-          handle_command(body, u8"sit");
+          handle_command(body, u8"say Time to head home!");
+          auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_HOME));
+          handle_command(body, fmt::format(u8"{}", path[0]));
         }
       } else if (body->Pos() != pos_t::LIE) {
         handle_command(body, u8"lie;sleep");
