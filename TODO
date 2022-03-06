@@ -4,7 +4,7 @@ Replace as many u8string creations as possible with u8string_view usages.
 Replace all posix file stuff with std::filesystem stuff.
 Replace all printf stuff with <format> stuff.
 Replace all scanf stuff with ...fuck... this is why we can't have nice things.
-Romove all need for the cchar8.hpp file.
+Remove all need for the cchar8.hpp file.
 
 Handle deleting on error cases falling back out of Mind::Send().
 

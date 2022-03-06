@@ -24,7 +24,6 @@
 
 #include <string>
 
-#include "cchar8.hpp"
 #include "minvec.hpp"
 
 // String Functions

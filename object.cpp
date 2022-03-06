@@ -20,9 +20,6 @@
 // *************************************************************************
 
 #include <algorithm>
-#include <cctype>
-#include <cstdarg>
-#include <cstdio>
 #include <filesystem>
 #include <queue>
 #include <string>

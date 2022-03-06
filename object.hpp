@@ -32,7 +32,6 @@
 #include <sys/time.h>
 #include <ctime>
 
-#include "cchar8.hpp"
 #include "minvec.hpp"
 #include "stats.hpp"
 
