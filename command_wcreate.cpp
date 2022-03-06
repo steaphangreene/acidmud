@@ -155,6 +155,8 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
   std::map<char8_t, std::vector<std::uniform_int_distribution<int>>> resnums;
   std::map<char8_t, std::vector<int>> resfloors;
   std::map<std::pair<Object*, std::u8string>, int> beds;
+  std::map<Object*, std::vector<std::pair<char8_t, int32_t>>> loc_keys;
+  std::map<std::u8string, std::vector<std::pair<char8_t, int32_t>>> asp_keys;
   std::vector<std::u8string> en_links;
   std::vector<std::u8string> en_rooms;
   std::vector<bool> en_indoors;
@@ -708,6 +710,26 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
             lockid[door_char] = lid;
           }
         }
+        if (locktags.count(door_char) > 0 &&
+            locktags.at(door_char).find(u8"resident") != std::u8string_view::npos) {
+          for (auto loc : {door1->Parent(), door2->Parent()}) {
+            if (loc->Skill(prhash(u8"Translucent")) < 1000) { // Only for those *inside* the place.
+              loc_keys[loc].push_back(std::make_pair(door_char, lid));
+            }
+          }
+        }
+        if (locktags.count(door_char) > 0 && // FIXME: Make generic, for any keyword
+            locktags.at(door_char).find(u8"guard") != std::u8string_view::npos) {
+          asp_keys[u8"guard"].push_back(std::make_pair(door_char, lid));
+        }
+        if (locktags.count(door_char) > 0 && // FIXME: Make generic, for any keyword
+            locktags.at(door_char).find(u8"soldier") != std::u8string_view::npos) {
+          asp_keys[u8"soldier"].push_back(std::make_pair(door_char, lid));
+        }
+        if (locktags.count(door_char) > 0 && // FIXME: Make generic, for any keyword
+            locktags.at(door_char).find(u8"dwarven") != std::u8string_view::npos) {
+          asp_keys[u8"dwarven"].push_back(std::make_pair(door_char, lid));
+        }
         door1->SetSkill(prhash(u8"Lock"), lid);
         door2->SetSkill(prhash(u8"Lock"), lid);
       }
@@ -749,6 +771,34 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
           npc->SetName(first.front() + u8" " + last.front());
 
           npc->AddAct(act_t::SPECIAL_WORK, objs[coord{x, y}][floor]);
+
+          // Grant them all keys needed for their workplace
+          if (loc_keys.count(objs[coord{x, y}][floor]) > 0) {
+            for (auto keydef : loc_keys[objs[coord{x, y}][floor]]) {
+              Object* key = new Object(npc);
+              key->SetDescs(keynames[keydef.first], u8"", u8"", u8"");
+              key->SetSkill(prhash(u8"Key"), keydef.second);
+            }
+          }
+          if (floor != 0 && loc_keys.count(objs[coord{x, y}][0]) > 0) {
+            for (auto keydef : loc_keys[objs[coord{x, y}][0]]) {
+              Object* key = new Object(npc);
+              key->SetDescs(keynames[keydef.first], u8"", u8"", u8"");
+              key->SetSkill(prhash(u8"Key"), keydef.second);
+            }
+          }
+
+          // Grant them all keys they deserve for their title(s)
+          for (const auto& asp : asp_keys) {
+            if (npc->Matches(asp.first)) {
+              for (const auto& keydef : asp.second) {
+                Object* key = new Object(npc);
+                key->SetDescs(keynames[keydef.first], u8"", u8"", u8"");
+                key->SetSkill(prhash(u8"Key"), keydef.second);
+              }
+            }
+          }
+
           int timeliness = std::uniform_int_distribution<int>(-5, 20)(gen);
           if (night) {
             npc->SetSkill(prhash(u8"Night Worker"), timeliness);
@@ -775,6 +825,22 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
                         npc->AddAct(act_t::SPECIAL_HOME, objs[loc][resfl]);
                         --beds.at(std::make_pair(objs[loc][resfl], empnames[room][n]));
                         housed = true;
+
+                        // Grant them all keys needed for their new home
+                        if (loc_keys.count(objs[loc][resfl]) > 0) {
+                          for (auto keydef : loc_keys[objs[loc][resfl]]) {
+                            Object* key = new Object(npc);
+                            key->SetDescs(keynames[keydef.first], u8"", u8"", u8"");
+                            key->SetSkill(prhash(u8"Key"), keydef.second);
+                          }
+                        }
+                        if (resfl != 0 && loc_keys.count(objs[loc][0]) > 0) {
+                          for (auto keydef : loc_keys[objs[loc][0]]) {
+                            Object* key = new Object(npc);
+                            key->SetDescs(keynames[keydef.first], u8"", u8"", u8"");
+                            key->SetSkill(prhash(u8"Key"), keydef.second);
+                          }
+                        }
                       }
                     }
                   }
