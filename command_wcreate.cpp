@@ -691,6 +691,8 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
           npc->SetName(first.front() + u8" " + last.front());
 
           npc->AddAct(act_t::SPECIAL_WORK, objs[coord{x, y}][floor]);
+          int timeliness = std::uniform_int_distribution<int>(-5, 20)(gen);
+          npc->SetSkill(prhash(u8"Day Worker"), timeliness);
 
           // Now find them a home.
           bool housed = false;
