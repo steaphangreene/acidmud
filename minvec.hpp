@@ -246,6 +246,10 @@ class alignas(next_pow_2(C * 8)) MinVec {
     }
   };
 
+  void pop_back() {
+    --size_;
+  };
+
   void push_back(T in) {
     if (cap_ == 0 && size_ < C) {
       data_.val[size_] = in;
