@@ -31,8 +31,8 @@ employ:2.0:1-2:a dwarven citizen
 place:+:stone street
 employ:+:0-1:a dwarven guard
 place:#:wide stone street
-en_place:@:wide stone street
-en_place:@:wide stone street
+en_place:wide stone street
+en_place:wide stone street
 employ:#:1-2:a dwarven guard
 place:=:massive stone bridge
 place:::atop the stone wall
