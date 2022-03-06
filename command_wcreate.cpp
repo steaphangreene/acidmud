@@ -92,6 +92,31 @@ static NPCType npc_dwarf(
     100,
     500);
 
+static char8_t nextchar(std::u8string_view& line) {
+  char8_t ret = line.front();
+  line = line.substr(1);
+  return ret;
+}
+
+static int nextnum(std::u8string_view& line) {
+  int ret = 0;
+  while (ascii_isdigit(line.front())) {
+    ret *= 10;
+    ret += (line.front() - '0');
+    line = line.substr(1);
+  }
+  return ret;
+}
+
+static bool process(std::u8string_view& line, const std::u8string_view& dir) {
+  if (line.starts_with(dir)) {
+    line = line.substr(dir.length());
+    return true;
+  } else {
+    return false;
+  }
+}
+
 static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
   if (fn.empty()) {
     mind->Send(u8"You need to specify the filename of the datafile!\n");
@@ -139,177 +164,155 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
   while (!in_main_def) {
     bool parse_error = false;
     fscanf(def_file, u8" %65535[^\n]", line_buf);
-    if (!strncmp(line_buf, u8"name:", 5)) {
-      char8_t namebuf[256];
-      sscanf(line_buf + 5, u8"%255[^\n]", namebuf);
-      name = namebuf;
-    } else if (!strncmp(line_buf, u8"world:", 6)) {
-      char8_t namebuf[256];
-      sscanf(line_buf + 6, u8"%255[^\n]", namebuf);
-      world->SetShortDesc(namebuf);
-    } else if (!strncmp(line_buf, u8"lower_level:", 12)) {
-      sscanf(line_buf + 12, u8"%hhu[^\n]", &lower_level);
-    } else if (!strncmp(line_buf, u8"upper_level:", 12)) {
-      sscanf(line_buf + 12, u8"%hhu[^\n]", &upper_level);
-    } else if (!strncmp(line_buf, u8"building:", 9)) {
-      char8_t sym = '0';
-      sscanf(line_buf + 9, u8"%c", &sym);
-      char8_t namebuf[256];
-      sscanf(line_buf + 10, u8":%255[^\n]", namebuf);
-      rooms[sym].emplace_back(namebuf);
-      indoors[sym] = true;
-    } else if (!strncmp(line_buf, u8"place:", 6)) {
-      char8_t sym = '0';
-      sscanf(line_buf + 6, u8"%c", &sym);
-      char8_t namebuf[256];
-      sscanf(line_buf + 7, u8":%255[^\n]", namebuf);
-      rooms[sym].emplace_back(namebuf);
-    } else if (!strncmp(line_buf, u8"level:", 6)) {
-      char8_t sym = '0';
-      sscanf(line_buf + 6, u8"%c", &sym);
-      uint8_t lev;
-      sscanf(line_buf + 7, u8":%hhu", &lev);
-      levels[sym] = lev;
-    } else if (!strncmp(line_buf, u8"employ:", 7)) {
-      char8_t sym = '0';
-      sscanf(line_buf + 7, u8"%c", &sym);
+    std::u8string_view line(line_buf);
+    if (process(line, u8"name:")) {
+      name = line;
+    } else if (process(line, u8"world:")) {
+      world->SetShortDesc(line);
+    } else if (process(line, u8"lower_level:")) {
+      lower_level = nextnum(line);
+    } else if (process(line, u8"upper_level:")) {
+      upper_level = nextnum(line);
+    } else if (process(line, u8"building:")) {
+      char8_t sym = nextchar(line);
+      if (process(line, u8":")) {
+        rooms[sym].emplace_back(line);
+        indoors[sym] = true;
+      }
+    } else if (process(line, u8"place:")) {
+      char8_t sym = nextchar(line);
+      if (process(line, u8":")) {
+        rooms[sym].emplace_back(line);
+      }
+    } else if (process(line, u8"level:")) {
+      char8_t sym = nextchar(line);
+      if (process(line, u8":")) {
+        levels[sym] = nextnum(line);
+      }
+    } else if (process(line, u8"employ:")) {
+      char8_t sym = nextchar(line);
       int floor = 0;
       int lnum, hnum;
-      char8_t namebuf[256];
-      int off = 8;
-      if (sscanf(line_buf + off, u8".%d", &floor) == 1) {
-        off = 10;
+      if (process(line, u8".")) {
+        floor = nextnum(line);
       }
-      if (sscanf(line_buf + off, u8":%d", &lnum) < 1) {
+      if (process(line, u8":")) {
+        lnum = nextnum(line);
+      } else {
         parse_error = true;
       }
-      if (sscanf(line_buf + off, u8":%*d-%d", &hnum) < 1) {
-        hnum = lnum;
-        if (sscanf(line_buf + off, u8":%*d:%255[^\n]", namebuf) < 1) {
-          parse_error = true;
-        }
+      if (process(line, u8"-")) {
+        hnum = nextnum(line);
       } else {
-        if (sscanf(line_buf + off, u8":%*d-%*d:%255[^\n]", namebuf) < 1) {
-          parse_error = true;
-        }
+        hnum = lnum;
+      }
+      if (process(line, u8":")) {
+        empnames[sym].emplace_back(line);
+      } else {
+        parse_error = true;
       }
       if (!parse_error) {
-        empnames[sym].emplace_back(namebuf);
         empnums[sym].push_back(std::uniform_int_distribution<int>(lnum, hnum));
         empfloors[sym].push_back(floor);
         empnight[sym].push_back(false);
       }
-    } else if (!strncmp(line_buf, u8"night:", 6)) {
-      char8_t sym = '0';
-      sscanf(line_buf + 6, u8"%c", &sym);
+    } else if (process(line, u8"night:")) {
+      char8_t sym = nextchar(line);
       int floor = 0;
       int lnum, hnum;
-      char8_t namebuf[256];
-      int off = 7;
-      if (sscanf(line_buf + off, u8".%d", &floor) == 1) {
-        off = 9;
+      if (process(line, u8".")) {
+        floor = nextnum(line);
       }
-      if (sscanf(line_buf + off, u8":%d", &lnum) < 1) {
+      if (process(line, u8":")) {
+        lnum = nextnum(line);
+      } else {
         parse_error = true;
       }
-      if (sscanf(line_buf + off, u8":%*d-%d", &hnum) < 1) {
-        hnum = lnum;
-        if (sscanf(line_buf + off, u8":%*d:%255[^\n]", namebuf) < 1) {
-          parse_error = true;
-        }
+      if (process(line, u8"-")) {
+        hnum = nextnum(line);
       } else {
-        if (sscanf(line_buf + off, u8":%*d-%*d:%255[^\n]", namebuf) < 1) {
-          parse_error = true;
-        }
+        hnum = lnum;
+      }
+      if (process(line, u8":")) {
+        empnames[sym].emplace_back(line);
+      } else {
+        parse_error = true;
       }
       if (!parse_error) {
-        empnames[sym].emplace_back(namebuf);
         empnums[sym].push_back(std::uniform_int_distribution<int>(lnum, hnum));
         empfloors[sym].push_back(floor);
         empnight[sym].push_back(true);
       }
-    } else if (!strncmp(line_buf, u8"house:", 6)) {
-      char8_t sym = '0';
-      sscanf(line_buf + 6, u8"%c", &sym);
+    } else if (process(line, u8"house:")) {
+      char8_t sym = nextchar(line);
       int floor = 0;
       int lnum, hnum;
-      char8_t namebuf[256];
-      int off = 7;
-      if (sscanf(line_buf + off, u8".%d", &floor) == 1) {
-        off = 9;
+      if (process(line, u8".")) {
+        floor = nextnum(line);
       }
-      if (sscanf(line_buf + off, u8":%d", &lnum) < 1) {
+      if (process(line, u8":")) {
+        lnum = nextnum(line);
+      } else {
         parse_error = true;
       }
-      if (sscanf(line_buf + off, u8":%*d-%d", &hnum) < 1) {
-        hnum = lnum;
-        if (sscanf(line_buf + off, u8":%*d:%255[^\n]", namebuf) < 1) {
-          parse_error = true;
-        }
+      if (process(line, u8"-")) {
+        hnum = nextnum(line);
       } else {
-        if (sscanf(line_buf + off, u8":%*d-%*d:%255[^\n]", namebuf) < 1) {
-          parse_error = true;
-        }
+        hnum = lnum;
+      }
+      if (process(line, u8":")) {
+        resnames[sym].emplace_back(line);
+      } else {
+        parse_error = true;
       }
       if (!parse_error) {
-        resnames[sym].emplace_back(namebuf);
         resnums[sym].push_back(std::uniform_int_distribution<int>(lnum, hnum));
         resfloors[sym].push_back(floor);
       }
-    } else if (!strncmp(line_buf, u8"door:", 5)) {
-      char8_t sym = 'd';
-      sscanf(line_buf + 5, u8"%c", &sym);
-      char8_t namebuf[256];
-      sscanf(line_buf + 6, u8":%255[^\n]", namebuf);
-      doors[sym] = namebuf;
-    } else if (!strncmp(line_buf, u8"doorterm:", 9)) {
-      char8_t sym = 'd';
-      sscanf(line_buf + 9, u8"%c", &sym);
-      char8_t namebuf[256];
-      sscanf(line_buf + 10, u8":%255[^\n]", namebuf);
-      doorterms[sym] = namebuf;
-    } else if (!strncmp(line_buf, u8"lock:", 5)) {
-      char8_t sym = 'd';
-      sscanf(line_buf + 5, u8"%c", &sym);
+    } else if (process(line, u8"door:")) {
+      char8_t sym = nextchar(line);
+      if (process(line, u8":")) {
+        doors[sym] = line;
+      }
+    } else if (process(line, u8"doorterm:")) {
+      char8_t sym = nextchar(line);
+      if (process(line, u8":")) {
+        doorterms[sym] = line;
+      }
+    } else if (process(line, u8"lock:")) {
+      char8_t sym = nextchar(line);
       locks[sym] = true;
-      char8_t namebuf[256];
-      if (sscanf(line_buf + 5, u8"%*c:%255[^\n]", namebuf) > 0) {
-        locktags[sym] = namebuf;
+      if (process(line, u8":")) {
+        locktags[sym] = line;
       }
-    } else if (!strncmp(line_buf, u8"key:", 4)) {
-      char8_t sym = 'd';
-      sscanf(line_buf + 4, u8"%c", &sym);
-      char8_t namebuf[256];
-      if (sscanf(line_buf + 4, u8"%*c:%255[^\n]", namebuf) > 0) {
-        keynames[sym] = namebuf;
+    } else if (process(line, u8"key:")) {
+      char8_t sym = nextchar(line);
+      if (process(line, u8":")) {
+        keynames[sym] = line;
       }
-    } else if (!strncmp(line_buf, u8"locked:", 7)) {
-      char8_t sym = 'd';
-      sscanf(line_buf + 7, u8"%c", &sym);
+    } else if (process(line, u8"locked:")) {
+      char8_t sym = nextchar(line);
       locked[sym] = true;
-    } else if (!strncmp(line_buf, u8"closed:", 7)) {
-      char8_t sym = 'd';
-      sscanf(line_buf + 7, u8"%c", &sym);
+    } else if (process(line, u8"closed:")) {
+      char8_t sym = nextchar(line);
       closed[sym] = true;
-    } else if (!strncmp(line_buf, u8"clear:", 6)) {
-      char8_t sym = 'd';
-      sscanf(line_buf + 6, u8"%c", &sym);
+    } else if (process(line, u8"clear:")) {
+      char8_t sym = nextchar(line);
       clear[sym] = true;
-    } else if (!strncmp(line_buf, u8"remote:", 7)) {
-      char8_t sym = 'd';
-      sscanf(line_buf + 7, u8"%c", &sym);
+    } else if (process(line, u8"remote:")) {
+      char8_t sym = nextchar(line);
       remote[sym] = true;
-    } else if (!strncmp(line_buf, u8"en_link:", 8)) {
-      en_links.push_back(line_buf + 8);
-    } else if (!strncmp(line_buf, u8"en_place:", 9)) {
-      en_rooms.push_back(line_buf + 9);
+    } else if (process(line, u8"en_link:")) {
+      en_links.emplace_back(line);
+    } else if (process(line, u8"en_place:")) {
+      en_rooms.emplace_back(line);
       en_indoors.push_back(false);
-    } else if (!strncmp(line_buf, u8"en_building:", 12)) {
-      en_rooms.push_back(line_buf + 12);
+    } else if (process(line, u8"en_building:")) {
+      en_rooms.emplace_back(line);
       en_indoors.push_back(true);
-    } else if (!strncmp(line_buf, u8"start:", 6)) {
-      sscanf(line_buf + 6, u8"%c", &start_symbol);
-    } else if (!strncmp(line_buf, u8"ascii_map:", 10)) {
+    } else if (process(line, u8"start:")) {
+      start_symbol = nextchar(line);
+    } else if (process(line, u8"ascii_map:")) {
       in_main_def = true;
     } else if (line_buf[0] == '#') {
       // This is a comment, so just ignore this line.
