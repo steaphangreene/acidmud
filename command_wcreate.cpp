@@ -82,7 +82,7 @@ static Object* new_object(Object* parent) {
 }
 std::multimap<std::u8string, std::pair<std::u8string, Object*>> zone_links;
 
-static NPCType mob_dwarf(
+static NPCType npc_dwarf(
     u8"a dwarf",
     u8"{He} looks pissed.",
     u8"",
@@ -669,13 +669,13 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
     auto room = ascii_map[y][x];
     if (empnames.count(room) > 0) {
       for (size_t n = 0; n < empnames[room].size(); ++n) {
-        mob_dwarf.SetName(empnames[room][n]);
+        npc_dwarf.SetName(empnames[room][n]);
         int num = empnums[room][n](gen);
         int floor = empfloors[room][n];
         for (int m = 0; m < num; ++m) {
-          objs[coord{x, y}][floor]->AddNPC(gen, &mob_dwarf);
-          Object* mob = objs[coord{x, y}][floor]->Contents().back();
-          int gender = (mob->Gender() == 'F') ? 0 : 1;
+          objs[coord{x, y}][floor]->AddNPC(gen, &npc_dwarf);
+          Object* npc = objs[coord{x, y}][floor]->Contents().back();
+          int gender = (npc->Gender() == 'F') ? 0 : 1;
 
           std::vector<std::u8string> first = {u8""};
           std::sample(
@@ -688,9 +688,9 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
           std::vector<std::u8string> last = {u8""};
           std::sample(dwarf_last_names.begin(), dwarf_last_names.end(), last.begin(), 1, gen);
 
-          mob->SetName(first.front() + u8" " + last.front());
+          npc->SetName(first.front() + u8" " + last.front());
 
-          mob->AddAct(act_t::SPECIAL_WORK, objs[coord{x, y}][floor]);
+          npc->AddAct(act_t::SPECIAL_WORK, objs[coord{x, y}][floor]);
 
           // Now find them a home.
           bool housed = false;
@@ -708,7 +708,7 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
                     if (resnames.at(type)[f] == empnames[room][n]) {
                       int resfl = resfloors.at(type)[f];
                       if (beds.at(std::make_pair(objs[loc][resfl], empnames[room][n])) > 0) {
-                        mob->AddAct(act_t::SPECIAL_HOME, objs[loc][resfl]);
+                        npc->AddAct(act_t::SPECIAL_HOME, objs[loc][resfl]);
                         --beds.at(std::make_pair(objs[loc][resfl], empnames[room][n]));
                         housed = true;
                       }
