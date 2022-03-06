@@ -144,6 +144,7 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
   std::map<char8_t, bool> locks;
   std::map<char8_t, bool> locked;
   std::map<char8_t, std::u8string> locktags;
+  std::map<char8_t, int32_t> lockid;
   std::map<char8_t, bool> indoors;
   std::map<char8_t, uint8_t> levels;
   std::map<char8_t, std::vector<std::u8string>> empnames;
@@ -698,8 +699,17 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
         door2->SetSkill(prhash(u8"Transparent"), 1000);
       }
       if (locks.count(door_char) > 0) {
-        door1->SetSkill(prhash(u8"Lock"), door1->Skill(prhash(u8"Object ID")));
-        door2->SetSkill(prhash(u8"Lock"), door1->Skill(prhash(u8"Object ID")));
+        int32_t lid = door1->Skill(prhash(u8"Object ID"));
+        if (locktags.count(door_char) > 0 &&
+            locktags.at(door_char).find(u8"common") != std::u8string_view::npos) {
+          if (lockid.count(door_char) > 0) {
+            lid = lockid.at(door_char);
+          } else {
+            lockid[door_char] = lid;
+          }
+        }
+        door1->SetSkill(prhash(u8"Lock"), lid);
+        door2->SetSkill(prhash(u8"Lock"), lid);
       }
       if (locked.count(door_char) > 0) {
         door1->SetSkill(prhash(u8"Locked"), 1);
