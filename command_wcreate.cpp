@@ -772,19 +772,27 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
 
           npc->AddAct(act_t::SPECIAL_WORK, objs[coord{x, y}][floor]);
 
+          std::set<int32_t> have_keys;
+
           // Grant them all keys needed for their workplace
           if (loc_keys.count(objs[coord{x, y}][floor]) > 0) {
             for (auto keydef : loc_keys[objs[coord{x, y}][floor]]) {
-              Object* key = new Object(npc);
-              key->SetDescs(keynames[keydef.first], u8"", u8"", u8"");
-              key->SetSkill(prhash(u8"Key"), keydef.second);
+              if (!have_keys.contains(keydef.second)) {
+                Object* key = new Object(npc);
+                key->SetDescs(keynames[keydef.first], u8"", u8"", u8"");
+                key->SetSkill(prhash(u8"Key"), keydef.second);
+                have_keys.insert(keydef.second);
+              }
             }
           }
           if (floor != 0 && loc_keys.count(objs[coord{x, y}][0]) > 0) {
             for (auto keydef : loc_keys[objs[coord{x, y}][0]]) {
-              Object* key = new Object(npc);
-              key->SetDescs(keynames[keydef.first], u8"", u8"", u8"");
-              key->SetSkill(prhash(u8"Key"), keydef.second);
+              if (!have_keys.contains(keydef.second)) {
+                Object* key = new Object(npc);
+                key->SetDescs(keynames[keydef.first], u8"", u8"", u8"");
+                key->SetSkill(prhash(u8"Key"), keydef.second);
+                have_keys.insert(keydef.second);
+              }
             }
           }
 
@@ -792,9 +800,12 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
           for (const auto& asp : asp_keys) {
             if (npc->Matches(asp.first)) {
               for (const auto& keydef : asp.second) {
-                Object* key = new Object(npc);
-                key->SetDescs(keynames[keydef.first], u8"", u8"", u8"");
-                key->SetSkill(prhash(u8"Key"), keydef.second);
+                if (!have_keys.contains(keydef.second)) {
+                  Object* key = new Object(npc);
+                  key->SetDescs(keynames[keydef.first], u8"", u8"", u8"");
+                  key->SetSkill(prhash(u8"Key"), keydef.second);
+                  have_keys.insert(keydef.second);
+                }
               }
             }
           }
@@ -829,16 +840,22 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
                         // Grant them all keys needed for their new home
                         if (loc_keys.count(objs[loc][resfl]) > 0) {
                           for (auto keydef : loc_keys[objs[loc][resfl]]) {
-                            Object* key = new Object(npc);
-                            key->SetDescs(keynames[keydef.first], u8"", u8"", u8"");
-                            key->SetSkill(prhash(u8"Key"), keydef.second);
+                            if (!have_keys.contains(keydef.second)) {
+                              Object* key = new Object(npc);
+                              key->SetDescs(keynames[keydef.first], u8"", u8"", u8"");
+                              key->SetSkill(prhash(u8"Key"), keydef.second);
+                              have_keys.insert(keydef.second);
+                            }
                           }
                         }
                         if (resfl != 0 && loc_keys.count(objs[loc][0]) > 0) {
                           for (auto keydef : loc_keys[objs[loc][0]]) {
-                            Object* key = new Object(npc);
-                            key->SetDescs(keynames[keydef.first], u8"", u8"", u8"");
-                            key->SetSkill(prhash(u8"Key"), keydef.second);
+                            if (!have_keys.contains(keydef.second)) {
+                              Object* key = new Object(npc);
+                              key->SetDescs(keynames[keydef.first], u8"", u8"", u8"");
+                              key->SetSkill(prhash(u8"Key"), keydef.second);
+                              have_keys.insert(keydef.second);
+                            }
                           }
                         }
                       }
