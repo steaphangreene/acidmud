@@ -473,7 +473,9 @@ int Object::LoadFrom(FILE* fl) {
     }
   }
 
-  if (Skill(prhash(u8"Personality"))) {
+  if (IsAct(act_t::SPECIAL_WORK)) {
+    Attach(new Mind(mind_t::NPC));
+  } else if (Skill(prhash(u8"Personality"))) {
     Attach(new Mind(mind_t::MOB));
   } else if (Skill(prhash(u8"TBAAction"))) {
     Attach(new Mind(mind_t::TBAMOB));
