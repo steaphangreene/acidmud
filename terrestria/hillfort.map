@@ -32,6 +32,8 @@ building:2:shop
 building:2:inn
 building:2:tavern
 house:2.1:2-4:a dwarven citizen
+house:2.1:0-1:a dwarven soldier
+house:2.1:0-1:a dwarven guard
 employ:2.0:1-2:a dwarven citizen
 place:+:stone street
 employ:+:0-1:a dwarven guard
