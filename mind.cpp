@@ -2820,53 +2820,65 @@ uint32_t items[8] = {
     prhash(u8"Needy")};
 bool Mind::Think(int istick) {
   if (type == mind_t::NPC) {
-    auto day = body->World()->Skill(prhash(u8"Day Length"));
-    auto time = body->World()->Skill(prhash(u8"Day Time"));
-
-    // Work Day (6AM-6PM)
-    if (time > day / 4 && time < 3 * day / 4) {
-      if (body->Pos() == pos_t::LIE) {
-        handle_command(body, u8"wake;stand");
+    if (body->HasSkill(prhash(u8"Day Worker")) || body->HasSkill(prhash(u8"Night Worker"))) {
+      int day = body->World()->Skill(prhash(u8"Day Length"));
+      int time = body->World()->Skill(prhash(u8"Day Time"));
+      int late = body->Skill(prhash(u8"Day Worker"));
+      if (body->HasSkill(prhash(u8"Night Worker"))) {
+        time = (time + (day / 2)) % day;
+        late = body->Skill(prhash(u8"Night Worker"));
       }
-      if (body->Parent() != body->ActTarg(act_t::SPECIAL_WORK)) {
-        // TODO: GO TO WORK!
-        if (body->Pos() != pos_t::SIT) {
-          handle_command(body, u8"say Time to head to work!");
-          auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_WORK));
-          handle_command(body, fmt::format(u8"{}", path[0]));
+      int early = late / 5;
+      if (late < 0) { // Early Risers
+        early = -late;
+        late = early / 5;
+      }
+
+      // Work Day (6AM-6PM)
+      if (time > day / 4 - early && time < 3 * day / 4 + late) {
+        if (body->Pos() == pos_t::LIE) {
+          handle_command(body, u8"wake;stand");
         }
-      } else if (!body->IsAct(act_t::WORK)) {
-        body->AddAct(act_t::WORK);
-        body->Parent()->SendOut(ALL, 0, u8";s starts on the daily work.\n", u8"", body, nullptr);
-      }
-
-      // Night (10PM-4AM)
-    } else if (time > 11 * day / 12 || time < day / 6) {
-      if (body->Parent() != body->ActTarg(act_t::SPECIAL_HOME)) {
-        // TODO: GO HOME!
-        if (body->Pos() != pos_t::SIT) {
-          handle_command(body, u8"say Time to head home!");
-          auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_HOME));
-          handle_command(body, fmt::format(u8"{}", path[0]));
+        if (body->Parent() != body->ActTarg(act_t::SPECIAL_WORK)) {
+          // TODO: GO TO WORK!
+          if (body->Pos() != pos_t::SIT) {
+            handle_command(body, u8"say Time to head to work!");
+            auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_WORK));
+            handle_command(body, fmt::format(u8"{}", path[0]));
+          }
+        } else if (!body->IsAct(act_t::WORK)) {
+          body->AddAct(act_t::WORK);
+          body->Parent()->SendOut(ALL, 0, u8";s starts on the daily work.\n", u8"", body, nullptr);
         }
-      } else if (body->Pos() != pos_t::LIE) {
-        handle_command(body, u8"lie;sleep");
-      }
 
-      // Evening (6PM-10PM)
-    } else if (time > day / 2) {
-      if (body->IsAct(act_t::WORK)) {
-        body->StopAct(act_t::WORK);
-        body->Parent()->SendOut(
-            ALL, 0, u8";s finishes up with the daily work.\n", u8"", body, nullptr);
-        handle_command(body, u8"say I am hungry");
-      }
+        // Night (10PM-4AM)
+      } else if (time > 11 * day / 12 - early || time < day / 6 + late) {
+        if (body->Parent() != body->ActTarg(act_t::SPECIAL_HOME)) {
+          // TODO: GO HOME!
+          if (body->Pos() != pos_t::SIT) {
+            handle_command(body, u8"say Time to head home!");
+            auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_HOME));
+            handle_command(body, fmt::format(u8"{}", path[0]));
+          }
+        } else if (body->Pos() != pos_t::LIE) {
+          handle_command(body, u8"lie;sleep");
+        }
 
-      // Morning (4AM-6AM)
-    } else {
-      if (body->Pos() != pos_t::STAND) {
-        handle_command(body, u8"wake;stand");
-        handle_command(body, u8"say I am thirsty");
+        // Evening (6PM-10PM)
+      } else if (time > day / 2) {
+        if (body->IsAct(act_t::WORK)) {
+          body->StopAct(act_t::WORK);
+          body->Parent()->SendOut(
+              ALL, 0, u8";s finishes up with the daily work.\n", u8"", body, nullptr);
+          handle_command(body, u8"say I am hungry");
+        }
+
+        // Morning (4AM-6AM)
+      } else {
+        if (body->Pos() != pos_t::STAND) {
+          handle_command(body, u8"wake;stand");
+          handle_command(body, u8"say I am thirsty");
+        }
       }
     }
 
