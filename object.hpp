@@ -354,6 +354,7 @@ class alignas(256) Object {
   MinVec<3, Object*> Contents() const;
   MinVec<7, Object*> Connections(int vmode) const; // Includes nulls for unconnected dirs
   MinVec<7, Object*> Connections(bool exits = false) const; // Includes nulls for unconnected dirs
+  std::u8string DirectionsTo(Object* dest); // From "nsewud", or empty if there/unreachable
 
   int ContainedWeight();
   int ContainedVolume();

@@ -24,6 +24,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <filesystem>
+#include <queue>
 #include <string>
 #include <vector>
 
@@ -3762,6 +3763,66 @@ MinVec<7, Object*> Object::Connections(bool exits) const {
     ret.push_back((conn && exits) ? odoor : conn);
   }
   return ret;
+}
+
+// Letters from "nsewud", or empty if there, or unreachable
+std::u8string Object::DirectionsTo(Object* dest) {
+  if (!dest) {
+    return u8""; // You can't go to nowhere.
+  } else if (Zone() != dest->Zone()) {
+    // TODO: Navigation between zones.
+    return u8""; // You can't get there from here.
+  } else if (this == dest) {
+    return u8""; // Already there
+  }
+
+  struct step {
+    uint32_t est_cost;
+    uint32_t base_cost;
+    Object* loc;
+    std::u8string path;
+    bool operator>(const step& o) const {
+      return (est_cost > o.est_cost);
+    };
+  };
+
+  std::set<Object*> visited;
+  std::priority_queue<step, std::vector<step>, std::greater<step>> totry;
+
+  visited.insert(this);
+  totry.push(
+      {static_cast<uint32_t>(std::abs(X() - dest->X())) +
+           static_cast<uint32_t>(std::abs(Y() - dest->Y())) +
+           static_cast<uint32_t>(std::abs(Z() - dest->Z())),
+       0,
+       this,
+       u8""});
+
+  while (totry.size() > 0) {
+    auto cand = totry.top();
+    totry.pop();
+    auto conns = cand.loc->Connections();
+    std::u8string dirs = u8"nsewud";
+    while (conns.size() > 0) {
+      if (conns.back() == dest) {
+        return cand.path + dirs.back();
+      } else {
+        if (conns.back() && !visited.contains(conns.back())) {
+          visited.insert(conns.back());
+          totry.push(
+              {cand.base_cost + static_cast<uint32_t>(std::abs(conns.back()->X() - dest->X())) +
+                   static_cast<uint32_t>(std::abs(conns.back()->Y() - dest->Y())) +
+                   static_cast<uint32_t>(std::abs(conns.back()->Z() - dest->Z())),
+               cand.base_cost + 10,
+               conns.back(),
+               cand.path + dirs.back()});
+        }
+        conns.pop_back();
+        dirs.pop_back();
+      }
+    }
+  }
+  return u8""; // You can't get there from here.
 }
 
 int Object::Contains(const Object* obj) const {
