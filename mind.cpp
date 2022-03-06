@@ -2840,11 +2840,15 @@ bool Mind::Think(int istick) {
           handle_command(body, u8"wake;stand");
         }
         if (body->Parent() != body->ActTarg(act_t::SPECIAL_WORK)) {
-          // TODO: GO TO WORK!
-          if (body->Pos() != pos_t::SIT) {
+          if (!svars.contains(u8"path")) {
             handle_command(body, u8"say Time to head to work!");
             auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_WORK));
-            handle_command(body, fmt::format(u8"{}", path[0]));
+            svars[u8"path"] = path;
+          } else if(svars[u8"path"].length() < 1) {
+            svars.erase(u8"path");
+          } else {
+            handle_command(body, fmt::format(u8"{}", svars[u8"path"][0]));
+            svars[u8"path"] = svars[u8"path"].substr(1);
           }
         } else if (!body->IsAct(act_t::WORK)) {
           body->AddAct(act_t::WORK);
@@ -2854,11 +2858,15 @@ bool Mind::Think(int istick) {
         // Night (10PM-4AM)
       } else if (time > 11 * day / 12 - early || time < day / 6 + late) {
         if (body->Parent() != body->ActTarg(act_t::SPECIAL_HOME)) {
-          // TODO: GO HOME!
-          if (body->Pos() != pos_t::SIT) {
+          if (!svars.contains(u8"path")) {
             handle_command(body, u8"say Time to head home!");
             auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_HOME));
-            handle_command(body, fmt::format(u8"{}", path[0]));
+            svars[u8"path"] = path;
+          } else if(svars[u8"path"].length() < 1) {
+            svars.erase(u8"path");
+          } else {
+            handle_command(body, fmt::format(u8"{}", svars[u8"path"][0]));
+            svars[u8"path"] = svars[u8"path"].substr(1);
           }
         } else if (body->Pos() != pos_t::LIE) {
           handle_command(body, u8"lie;sleep");
