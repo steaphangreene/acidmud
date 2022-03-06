@@ -48,14 +48,17 @@ level:::2
 employ:::0-1:a dwarven soldier
 night:::0-1:a dwarven soldier
 door:o:heavy wooden door
-lock:o
+lock:o:resident
+key:o:an iron key
 door:g:solid iron door
-lock:g
+lock:g:common,soldier,guard
+key:g:a solid iron key
 locked:g
 closed:g
 door:l:heavy iron gate
 doorterm:l:gate
-lock:l
+lock:l:common,dwarven
+key:l:a heavy iron key
 locked:l
 closed:l
 clear:l
