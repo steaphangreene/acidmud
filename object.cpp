@@ -2233,18 +2233,25 @@ Object::~Object() {
 }
 
 void Object::Recycle(int inbin) {
+  if (is_pc(this)) {
+    std::set<Mind*> removals;
+    for (auto mnd : minds) {
+      if (mnd->Type() == mind_t::REMOTE) {
+        removals.insert(mnd);
+      }
+    }
+    for (auto mnd : removals) {
+      Unattach(mnd);
+    }
+    player_rooms_erase(this);
+  }
   Deactivate();
 
   // fprintf(stderr, u8"Deleting: %s\n", Noun(0));
 
-  std::set<Object*> movers;
   std::set<Object*> killers;
   for (auto ind : contents) {
-    if (is_pc(ind)) {
-      movers.insert(ind);
-    } else {
-      killers.insert(ind);
-    }
+    killers.insert(ind);
   }
 
   for (auto indk : killers) {
@@ -2258,31 +2265,10 @@ void Object::Recycle(int inbin) {
 
   contents.clear();
 
-  for (auto indm : movers) {
-    indm->StopAll();
-    for (auto ind2 : indm->contents) {
-      ind2->SetParent(nullptr);
-      killers.insert(ind2);
-    }
-    indm->contents.clear();
-    Object* dest = indm;
-    while ((!dest->ActTarg(act_t::SPECIAL_HOME)) && dest->Parent()) {
-      dest = dest->Parent();
-    }
-    if (dest->ActTarg(act_t::SPECIAL_HOME)) {
-      dest = dest->ActTarg(act_t::SPECIAL_HOME);
-    }
-    if (dest == parent)
-      dest = universe; // Already there, bail!
-    indm->Travel(dest);
-  }
-
   for (auto indk : killers) {
     indk->Recycle();
   }
   killers.clear();
-
-  player_rooms_erase(this);
 
   auto todo = minds;
   for (auto mind : todo) {
@@ -2926,7 +2912,6 @@ void Object::UpdateDamage() {
       Collapse();
       AddAct(act_t::DEAD);
       std::set<Mind*> removals;
-      std::set<Mind*>::iterator mind;
       for (auto mnd : minds) {
         if (mnd->Type() == mind_t::REMOTE)
           removals.insert(mnd);
