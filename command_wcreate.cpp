@@ -115,8 +115,10 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
   std::map<char8_t, bool> remote;
   std::map<char8_t, bool> closed;
   std::map<char8_t, bool> clear;
+  std::map<char8_t, std::u8string> keynames;
   std::map<char8_t, bool> locks;
   std::map<char8_t, bool> locked;
+  std::map<char8_t, std::u8string> locktags;
   std::map<char8_t, bool> indoors;
   std::map<char8_t, uint8_t> levels;
   std::map<char8_t, std::vector<std::u8string>> empnames;
@@ -270,6 +272,17 @@ static bool load_map(Object* world, Mind* mind, const std::u8string_view fn) {
       char8_t sym = 'd';
       sscanf(line_buf + 5, u8"%c", &sym);
       locks[sym] = true;
+      char8_t namebuf[256];
+      if (sscanf(line_buf + 5, u8"%*c:%255[^\n]", namebuf) > 0) {
+        locktags[sym] = namebuf;
+      }
+    } else if (!strncmp(line_buf, u8"key:", 4)) {
+      char8_t sym = 'd';
+      sscanf(line_buf + 4, u8"%c", &sym);
+      char8_t namebuf[256];
+      if (sscanf(line_buf + 4, u8"%*c:%255[^\n]", namebuf) > 0) {
+        keynames[sym] = namebuf;
+      }
     } else if (!strncmp(line_buf, u8"locked:", 7)) {
       char8_t sym = 'd';
       sscanf(line_buf + 7, u8"%c", &sym);
