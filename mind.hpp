@@ -88,8 +88,8 @@ class Mind {
 
   bool Send(const std::u8string&); // Returns false when mind needs to be deleted
   template <typename... Args>
-  bool Send(const std::u8string& mes, Args... args) {
-    auto buf = fmt::format(mes, args...);
+  bool Send(const std::u8string& mes, Args&&... args) {
+    auto buf = fmt::format(mes, std::forward<Args>(args)...);
     return Send(buf);
   };
 

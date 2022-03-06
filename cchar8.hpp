@@ -31,23 +31,27 @@ auto fopen(auto&& fn, auto&& md) {
 };
 
 template <typename... Args>
-auto fprintf(auto&& fl, auto&& fm, Args... args) {
-  return std::fprintf(fl, reinterpret_cast<const char*>(fm), args...);
+auto fprintf(auto&& fl, auto&& fm, Args&&... args) {
+  return std::fprintf(fl, reinterpret_cast<const char*>(fm), std::forward<Args>(args)...);
 };
 
 template <typename... Args>
-auto fscanf(auto&& fl, auto&& fm, Args... args) {
-  return std::fscanf(fl, reinterpret_cast<const char*>(fm), args...);
+auto fscanf(auto&& fl, auto&& fm, Args&&... args) {
+  return std::fscanf(fl, reinterpret_cast<const char*>(fm), std::forward<Args>(args)...);
 };
 
 template <typename... Args>
-auto sprintf(auto&& st, auto&& fm, Args... args) {
-  return std::sprintf(reinterpret_cast<char*>(st), reinterpret_cast<const char*>(fm), args...);
+auto sprintf(auto&& st, auto&& fm, Args&&... args) {
+  return std::sprintf(
+      reinterpret_cast<char*>(st), reinterpret_cast<const char*>(fm), std::forward<Args>(args)...);
 };
 
 template <typename... Args>
-auto sscanf(auto&& st, auto&& fm, Args... args) {
-  return std::sscanf(reinterpret_cast<const char*>(st), reinterpret_cast<const char*>(fm), args...);
+auto sscanf(auto&& st, auto&& fm, Args&&... args) {
+  return std::sscanf(
+      reinterpret_cast<const char*>(st),
+      reinterpret_cast<const char*>(fm),
+      std::forward<Args>(args)...);
 };
 
 auto strstr(auto&& s1, auto&& s2) {

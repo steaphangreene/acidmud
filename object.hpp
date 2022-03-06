@@ -550,13 +550,13 @@ class alignas(256) Object {
   // Unformatted (raw print, but with ;s/;s for actor/targ)
   void Send(channel_t channel, const std::u8string& mes);
   template <typename... Args>
-  void Send(channel_t channel, const std::u8string& mes, Args... args) {
-    Send(channel, fmt::format(mes, args...));
+  void Send(channel_t channel, const std::u8string& mes, Args&&... args) {
+    Send(channel, fmt::format(mes, std::forward<Args>(args)...));
   };
   void Send(int targ, int rsucc, const std::u8string& mes);
   template <typename... Args>
-  void Send(int targ, int rsucc, const std::u8string& mes, Args... args) {
-    Send(targ, rsucc, fmt::format(mes, args...));
+  void Send(int targ, int rsucc, const std::u8string& mes, Args&&... args) {
+    Send(targ, rsucc, fmt::format(mes, std::forward<Args>(args)...));
   };
   void SendOut(
       int tnum,
@@ -574,13 +574,19 @@ class alignas(256) Object {
       const std::u8string& youmes,
       Object* actor,
       Object* targ,
-      Args... args) {
-    SendOut(tnum, rsucc, fmt::format(mes, args...), fmt::format(youmes, args...), actor, targ);
+      Args&&... args) {
+    SendOut(
+        tnum,
+        rsucc,
+        fmt::format(mes, std::forward<Args>(args)...),
+        fmt::format(youmes, std::forward<Args>(args)...),
+        actor,
+        targ);
   };
   void Loud(int str, const std::u8string& mes);
   template <typename... Args>
-  void Loud(int str, const std::u8string& mes, Args... args) {
-    Loud(str, fmt::format(mes, args...));
+  void Loud(int str, const std::u8string& mes, Args&&... args) {
+    Loud(str, fmt::format(mes, std::forward<Args>(args)...));
   };
 
   void TBALoadAll();
