@@ -154,8 +154,7 @@ int main(int argc, char** argv) {
 
     logo(u8"Stopping networking....\n");
     acceptor = suspend_net();
-    char8_t buf[256];
-    sprintf(buf, u8"--network-acceptor=%d%c", acceptor, 0);
+    std::u8string netacc = fmt::format(u8"--network-acceptor={}", acceptor);
 
     int ctr = 0;
     char** new_argv;
@@ -166,7 +165,7 @@ int main(int argc, char** argv) {
         new_argv[ctr++] = strdup(argv[octr]);
     }
     new_argv[ctr] = strdup("--network-stat=acid/current.nst");
-    new_argv[ctr + 1] = strdup(reinterpret_cast<const char*>(buf));
+    new_argv[ctr + 1] = strdup(reinterpret_cast<const char*>(netacc.c_str()));
     new_argv[ctr + 2] = nullptr;
 
     execvp(strdup(argv[0]), new_argv);
