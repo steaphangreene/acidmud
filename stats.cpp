@@ -145,9 +145,7 @@ int roll(int ndice, int targ, std::u8string* res) {
     while ((val % 6) == 0)
       val += (1 + rand() % 6);
     if (res) {
-      char8_t buffer[16];
-      sprintf(buffer, u8"%d,", val);
-      (*res) += buffer;
+      (*res) += fmt::format(u8"{},", val);
     }
     if (val > 1 && val >= targ) {
       unsigned int numwrap = (unsigned int)((val - targ) / 12);
@@ -328,22 +326,17 @@ int Object::RollNoWounds(uint32_t stok, int targ, int penalty, std::u8string* re
   succ = roll(abs(dice), (targ - mod) + penalty, &rolls);
 
   if (res) {
-    char8_t buffer[256];
-    sprintf(buffer, u8"%d%c", abs(dice), 0);
-    (*res) += buffer;
+    (*res) += fmt::format(u8"{}", abs(dice));
     (*res) += u8"(";
-    sprintf(buffer, u8"%d%c", targ, 0);
-    (*res) += buffer;
+    (*res) += fmt::format(u8"{}", targ);
     (*res) += u8")";
     if (mod > 0) {
       (*res) += u8"+";
-      sprintf(buffer, u8"%d%c", mod, 0);
-      (*res) += buffer;
+      (*res) += fmt::format(u8"{}", mod);
     }
     if (penalty > 0) {
       (*res) += u8"-";
-      sprintf(buffer, u8"%d%c", penalty, 0);
-      (*res) += buffer;
+      (*res) += fmt::format(u8"{}", penalty);
     }
     if (!rolls.empty()) {
       (*res) += u8"[";
@@ -351,8 +344,7 @@ int Object::RollNoWounds(uint32_t stok, int targ, int penalty, std::u8string* re
       (*res) += u8"]";
     }
     (*res) += u8":";
-    sprintf(buffer, u8"%d%c", succ, 0);
-    (*res) += buffer;
+    (*res) += fmt::format(u8"{}", succ);
   }
 
   return succ;
