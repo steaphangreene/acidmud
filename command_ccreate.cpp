@@ -62,12 +62,13 @@ int handle_command_ccreate(
     // wall->SetShortDesc(u8"North Wall");
     // wall->SetDesc(u8"The North Wall.");
 
-    char8_t alist[][8] = {u8"West",   u8"Apple",  u8"Breeze", u8"Coconut", u8"Drury",  u8"Earl",
-                          u8"Farley", u8"Gantry", u8"Henry",  u8"Indian",  u8"Jawa",   u8"Kindle",
-                          u8"Lucky",  u8"Moody",  u8"Neddle", u8"Orion",   u8"Puddle", u8"Quaint",
-                          u8"Rocky",  u8"Stone",  u8"True",   u8"Uber",    u8"Violet", u8"Widget",
-                          u8"X-Ray",  u8"Yeller", u8"Zebra",  u8""};
-    sprintf(alist[NUM_AVS - 1], u8"East");
+    const char8_t* alist[] = {
+        u8"West",   u8"Apple",  u8"Breeze", u8"Coconut", u8"Drury",  u8"Earl",  u8"Farley",
+        u8"Gantry", u8"Henry",  u8"Indian", u8"Jawa",    u8"Kindle", u8"Lucky", u8"Moody",
+        u8"Neddle", u8"Orion",  u8"Puddle", u8"Quaint",  u8"Rocky",  u8"Stone", u8"True",
+        u8"Uber",   u8"Violet", u8"Widget", u8"X-Ray",   u8"Yeller", u8"Zebra", u8"",
+    };
+    alist[NUM_AVS - 1] = u8"East";
 
     std::vector<Object*> bldg;
 
@@ -233,27 +234,26 @@ int handle_command_ccreate(
     std::mt19937 g(rd());
     std::shuffle(bldg.begin(), bldg.end(), g);
 
-    char8_t sname[32], aname[32], iname[64];
+    std::u8string sname, aname, iname;
     Object* ave[NUM_AVS] = {nullptr};
     for (int north = 0; north < NUM_STS; ++north) {
       if (north == 0)
-        sprintf(sname, u8"South Street");
+        sname = u8"South Street";
       else if (north == NUM_STS - 1)
-        sprintf(sname, u8"North Street");
+        sname = u8"North Street";
       else if (north % 10 == 1)
-        sprintf(sname, u8"%dst Street", north);
+        sname = fmt::format(u8"{}st Street", north);
       else if (north % 10 == 2)
-        sprintf(sname, u8"%dnd Street", north);
+        sname = fmt::format(u8"{}nd Street", north);
       else if (north % 10 == 3)
-        sprintf(sname, u8"%drd Street", north);
+        sname = fmt::format(u8"{}rd Street", north);
       else
-        sprintf(sname, u8"%dth Street", north);
+        sname = fmt::format(u8"{}th Street", north);
 
       Object* street = nullptr;
       for (int east = 0; east < NUM_AVS; ++east) {
-        sprintf(aname, u8"%s Avenue", alist[east]);
-        sprintf(iname, u8"%s and %s", alist[east], sname);
-        iname[strlen(iname) - 7] = 0;
+        aname = fmt::format(u8"{} Avenue", alist[east]);
+        iname = fmt::format(u8"{} and {}", alist[east], sname.substr(0, sname.length() - 7));
 
         for (int off = -10; off <= 100; off += 2) {
           if (off == 0)
@@ -338,11 +338,11 @@ int handle_command_ccreate(
               dir[1] = u8"east";
             }
             for (int i = 0; i < 2; ++i) {
-              char8_t addr[64];
+              std::u8string addr;
               if (off > 0) {
-                sprintf(addr, u8"%d %s", (east + 1) * 100 + off + i, sname);
+                addr = fmt::format(u8"{} {}", (east + 1) * 100 + off + i, sname);
               } else {
-                sprintf(addr, u8"%d %s", (north + 1) * 10 + 10 + off + i, aname);
+                addr = fmt::format(u8"{} {}", (north + 1) * 10 + 10 + off + i, aname);
               }
 
               static int vacants = 0;
