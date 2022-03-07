@@ -2058,7 +2058,7 @@ int Mind::TBARunLine(std::u8string line) {
     if (room && start != std::u8string::npos) {
       std::u8string mes = line.substr(start);
       trim_string(mes);
-      mes += u8"\n";
+      mes.push_back('\n');
       room->SendOut(ALL, 0, mes, u8"", nullptr, nullptr, false);
       room->Loud(8, mes); // 8 will go 4-8 rooms.
     }
@@ -2066,10 +2066,10 @@ int Mind::TBARunLine(std::u8string line) {
 
   else if (!strncmp(line.c_str(), u8"echoaround ", 11)) {
     Object* targ = nullptr;
-    char8_t mes[256] = u8"";
-    sscanf(line.c_str() + 11, u8" OBJ:%p %254[^\n\r]", &targ, mes);
-    mes[strlen(mes) + 1] = 0;
-    mes[strlen(mes)] = '\n';
+    char8_t buf[256] = u8"";
+    sscanf(line.c_str() + 11, u8" OBJ:%p %254[^\n\r]", &targ, buf);
+    std::u8string mes(buf);
+    mes.push_back('\n');
     Object* troom = targ;
     while (troom && troom->Skill(prhash(u8"TBARoom")) == 0)
       troom = troom->Parent();
@@ -2082,17 +2082,17 @@ int Mind::TBARunLine(std::u8string line) {
     if (room && start != std::u8string::npos) {
       std::u8string mes = line.substr(start);
       trim_string(mes);
-      mes += u8"\n";
+      mes.push_back('\n');
       room->SendOut(0, 0, mes, mes, nullptr, nullptr);
     }
   }
 
   else if (!strncmp(line.c_str(), u8"send ", 5)) {
     Object* targ = nullptr;
-    char8_t mes[1024] = u8"";
-    sscanf(line.c_str() + 5, u8" OBJ:%p %1022[^\n\r]", &targ, mes);
-    mes[strlen(mes) + 1] = 0;
-    mes[strlen(mes)] = '\n';
+    char8_t buf[1024] = u8"";
+    sscanf(line.c_str() + 5, u8" OBJ:%p %1022[^\n\r]", &targ, buf);
+    std::u8string mes(buf);
+    mes.push_back('\n');
     if (targ)
       targ->Send(0, 0, mes);
   }
@@ -2124,10 +2124,12 @@ int Mind::TBARunLine(std::u8string line) {
     //	);
     int pos = 0;
     int dam = 0;
-    char8_t buf2[256] = {};
-    if (sscanf(line.c_str() + 8, u8" %254[^\n\r] %n", buf2, &pos) >= 1) {
-      if (!strcmp(buf2, u8"all")) {
-        strcpy(buf2, u8"everyone");
+    char8_t buf[256] = {};
+    std::u8string tname;
+    if (sscanf(line.c_str() + 8, u8" %254[^\n\r] %n", buf, &pos) >= 1) {
+      tname = buf;
+      if (tname == u8"all") {
+        tname = u8"everyone";
       }
       dam = TBAEval(line.c_str() + 8 + pos);
       if (dam > 0)
@@ -2137,7 +2139,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
     auto options = room->Contents();
     for (auto opt : options) {
-      if (opt->Matches(buf2)) {
+      if (opt->Matches(tname)) {
         if (dam > 0) {
           opt->HitMent(1000, dam, 0);
           //	  logeg(u8"#{} Debug: WDamage '{}', {}\n",
@@ -2333,13 +2335,14 @@ int Mind::TBARunLine(std::u8string line) {
   else if (!strncmp(line.c_str(), u8"transport ", 10)) {
     int dnum;
     int nocheck = 0;
-    char8_t buf2[256];
-    if (sscanf(line.c_str() + 10, u8"%s %d", buf2, &dnum) != 2) {
+    char8_t buf[256];
+    if (sscanf(line.c_str() + 10, u8"%s %d", buf, &dnum) != 2) {
       loger(u8"#{} Error: Bad teleport line '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
-    if (!strcmp(buf2, u8"all")) {
-      strcpy(buf2, u8"everyone");
+    std::u8string tname = buf;
+    if (tname == u8"all") {
+      tname = u8"everyone";
       nocheck = 1;
     }
     Object* dest = ovars[u8"self"]->World();
@@ -2355,7 +2358,7 @@ int Mind::TBARunLine(std::u8string line) {
           dest = opt;
           auto targs = room->Contents();
           for (auto targ : targs) {
-            if (targ->Matches(buf2)) {
+            if (targ->Matches(tname)) {
               targ->Parent()->RemoveLink(targ);
               targ->SetParent(dest);
               nocheck = 1;
@@ -2372,7 +2375,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
     if (!nocheck) { // Check for a MOB by that UNIQUE name ANYWHERE.
       room = room->Parent();
-      Object* targ = room->PickObject(fmt::format(u8"all's {}", buf2), LOC_INTERNAL);
+      Object* targ = room->PickObject(fmt::format(u8"all's {}", tname), LOC_INTERNAL);
       if (targ) {
         targ->Parent()->RemoveLink(targ);
         targ->SetParent(dest);

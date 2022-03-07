@@ -729,7 +729,7 @@ void Object::TBALoadMOB(const std::u8string& fn) {
       std::vector<std::u8string_view> aliases;
       memset(buf, 0, 65536); // Alias List
       fscanf(mudm, u8"%65535[^~\n]~\n", buf);
-      std::u8string buffer(buf, strlen(buf));
+      std::u8string buffer(buf);
       std::transform(buffer.begin(), buffer.end(), buffer.begin(), ascii_tolower);
       std::u8string_view line = buffer;
 
@@ -1184,7 +1184,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       std::vector<std::u8string_view> aliases;
       memset(buf, 0, 65536); // Alias List
       fscanf(mudo, u8"%65535[^~\n]~\n", buf);
-      std::u8string buffer(buf, strlen(buf));
+      std::u8string buffer(buf);
       std::transform(buffer.begin(), buffer.end(), buffer.begin(), ascii_tolower);
       std::u8string_view line = buffer;
 
@@ -2604,9 +2604,9 @@ void Object::TBALoadSHP(const std::u8string& fn) {
           val = atoi(buf);
         }
 
-        memset(buf, 0, 65536);
+        memset(buf, 0, 65536); // Skip the message lines, and Temper
         for (int ctr = 0; ctr < 8; ++ctr) {
-          fscanf(mud, u8"%255[^\n\r]\n", buf + strlen(buf));
+          fscanf(mud, u8"%*[^\n\r]\n");
         }
 
         memset(buf, 0, 65536);
@@ -2771,11 +2771,12 @@ void Object::TBALoadTRG(const std::u8string& fn) { // Triggers
 
       fscanf(mud, u8"~");
       fscanf(mud, u8"%*[\n\r]"); // Go to next Line, don't eat spaces.
-      fscanf(mud, u8"%[^~]~", buf); // Command List (Multi-Line)
-      while (buf[strlen(buf) - 1] != '\n' && (!feof(mud))) { //~ in Middle
-        buf[strlen(buf) + 1] = 0;
-        buf[strlen(buf)] = '~';
-        fscanf(mud, u8"%[^~]~", buf + strlen(buf));
+      fscanf(mud, u8"%65535[^~]~", buf); // Command List (Multi-Line)
+      std::u8string long_desc(buf);
+      while (long_desc.back() != '\n' && (!feof(mud))) { //~ in Middle
+        long_desc.push_back('~');
+        fscanf(mud, u8"%65535[^~]~", buf);
+        long_desc += buf;
       }
       script->SetLongDesc(buf);
       if (script->LongDesc().contains(
@@ -2783,12 +2784,12 @@ void Object::TBALoadTRG(const std::u8string& fn) { // Triggers
         // char8_t dir[16];
         // char8_t* dirp = str:str(buf, u8"if %direction% == ");
         // if (dirp)
-        //  sscanf(dirp + strlen(u8"if %direction% == "), u8"%s", dir);
+        //  sscanf(dirp + str:len(u8"if %direction% == "), u8"%s", dir);
 
         // char8_t cls[16];
         // char8_t* clsp = str:str(buf, u8"if %actor.class% != ");
         // if (clsp)
-        //  sscanf(clsp + strlen(u8"if %actor.class% != "), u8"%s", cls);
+        //  sscanf(clsp + str:len(u8"if %actor.class% != "), u8"%s", cls);
 
         // if (dirp) {
         //  if (clsp) {
