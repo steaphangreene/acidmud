@@ -37,18 +37,18 @@ all:	acidmud
 
 #Production Settings (dynamic)
 CXX=clang++-13
-CXXFLAGS=-std=c++20 -O3 $(COMP) $(ARCH) $(COPT) -flto
+CXXFLAGS=-std=c++2b -O3 $(COMP) $(ARCH) $(COPT) -flto
 
 #Use debugging settings
 debug:
-	+make CXXFLAGS='-std=c++20 -O0 -fno-omit-frame-pointer -fno-optimize-sibling-calls -ggdb -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(COPT)'
+	+make CXXFLAGS='-std=c++2b -O0 -fno-omit-frame-pointer -fno-optimize-sibling-calls -ggdb -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(COPT)'
 
 #Use profiling settings
 profile:
-	+make CXXFLAGS='-std=c++20 -O3 -fno-omit-frame-pointer -fno-optimize-sibling-calls -ggdb $(COMP) $(ARCH) $(COPT)'
+	+make CXXFLAGS='-std=c++2b -O3 -fno-omit-frame-pointer -fno-optimize-sibling-calls -ggdb $(COMP) $(ARCH) $(COPT)'
 
 gcc:
-	+make CXX='g++' CXXFLAGS='-std=c++20 -Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -ggdb -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(GOPT)'
+	+make CXX='g++-11' CXXFLAGS='-std=c++2b -Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -ggdb -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(GOPT)'
 
 clean:
 	rm -f gmon.out deps.mk *.o *.da version.cpp acidmud changes.txt
