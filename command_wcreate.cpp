@@ -719,16 +719,14 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
       }
       if (locks.count(door_char) > 0) {
         int32_t lid = door1->Skill(prhash(u8"Object ID"));
-        if (locktags.count(door_char) > 0 &&
-            locktags.at(door_char).find(u8"common") != std::u8string_view::npos) {
+        if (locktags.count(door_char) > 0 && locktags.at(door_char).contains(u8"common")) {
           if (lockid.count(door_char) > 0) {
             lid = lockid.at(door_char);
           } else {
             lockid[door_char] = lid;
           }
         }
-        if (locktags.count(door_char) > 0 &&
-            locktags.at(door_char).find(u8"resident") != std::u8string_view::npos) {
+        if (locktags.count(door_char) > 0 && locktags.at(door_char).contains(u8"resident")) {
           for (auto loc : {door1->Parent(), door2->Parent()}) {
             if (loc->Skill(prhash(u8"Translucent")) < 1000) { // Only for those *inside* the place.
               loc_keys[loc].push_back(std::make_pair(door_char, lid));
@@ -736,15 +734,15 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
           }
         }
         if (locktags.count(door_char) > 0 && // FIXME: Make generic, for any keyword
-            locktags.at(door_char).find(u8"guard") != std::u8string_view::npos) {
+            locktags.at(door_char).contains(u8"guard")) {
           asp_keys[u8"guard"].push_back(std::make_pair(door_char, lid));
         }
         if (locktags.count(door_char) > 0 && // FIXME: Make generic, for any keyword
-            locktags.at(door_char).find(u8"soldier") != std::u8string_view::npos) {
+            locktags.at(door_char).contains(u8"soldier")) {
           asp_keys[u8"soldier"].push_back(std::make_pair(door_char, lid));
         }
         if (locktags.count(door_char) > 0 && // FIXME: Make generic, for any keyword
-            locktags.at(door_char).find(u8"dwarven") != std::u8string_view::npos) {
+            locktags.at(door_char).contains(u8"dwarven")) {
           asp_keys[u8"dwarven"].push_back(std::make_pair(door_char, lid));
         }
         door1->SetSkill(prhash(u8"Lock"), lid);
@@ -943,7 +941,7 @@ int handle_command_wcreate(
   std::vector<std::filesystem::directory_entry> files;
   try {
     for (const auto& fl : std::filesystem::directory_iterator(args)) {
-      if (fl.path().u8string().find(u8"/.") == std::u8string::npos) { // Ignore hidden files
+      if (!fl.path().u8string().contains(u8"/.")) { // Ignore hidden files
         files.emplace_back(fl);
       }
     }

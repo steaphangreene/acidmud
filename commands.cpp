@@ -4754,7 +4754,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         mind->Send(CYEL u8"There are no trees here.\n" CNRM);
         return 0;
       }
-      if (body->Parent()->ShortDesc().find(u8"orest") != std::u8string::npos &&
+      if (body->Parent()->ShortDesc().contains(u8"orest") &&
           body->Parent()->HasSkill(prhash(u8"TBAZone")) &&
           (!body->Parent()->HasSkill(prhash(u8"Mature Trees")))) {
         body->Parent()->SetSkill(prhash(u8"Mature Trees"), 100);
@@ -5917,7 +5917,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       std::u8string comline = u8"teleport ";
       comline += (std::u8string(args));
       comline += u8"\n";
-      if (src->LongDesc().find(comline) != std::u8string::npos) {
+      if (src->LongDesc().contains(comline)) {
         src = body->NextHasSkill(prhash(u8"Restricted Item"), src);
         continue;
       }

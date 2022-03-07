@@ -1508,13 +1508,13 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
           obj->SetSkill(prhash(u8"Lockable"), 1); // Can it be locked?
         }
 
-        if (obj->ShortDesc().find(u8"bag") < obj->ShortDesc().length()) {
+        if (obj->ShortDesc().contains(u8"bag")) {
           obj->SetSkill(prhash(u8"Closeable"), 1); // Bags CAN be closed
           obj->SetSkill(prhash(u8"Wearable on Left Hip"), 1); // Bags CAN be belted
           obj->SetSkill(prhash(u8"Wearable on Right Hip"), 2);
         }
 
-        if (obj->ShortDesc().find(u8"pouch") < obj->ShortDesc().length()) {
+        if (obj->ShortDesc().contains(u8"pouch")) {
           obj->SetSkill(prhash(u8"Closeable"), 1); // Pouches CAN be closed
           obj->SetSkill(prhash(u8"Wearable on Left Hip"), 1); // Pouches CAN be belted
           obj->SetSkill(prhash(u8"Wearable on Right Hip"), 2);
@@ -2341,7 +2341,7 @@ void Object::TBALoadWLD(const std::u8string& fn) {
         obj->SetSkill(prhash(u8"WaterDepth"), 3); // UNDERWATER
 
       std::u8string name = obj->ShortDescS();
-      if (name.find(u8"Secret") >= 0 && name.find(u8"Secret") < name.length()) {
+      if (name.contains(u8"Secret")) {
         obj->SetSkill(prhash(u8"Accomplishment"), 1100000 + onum);
       }
 

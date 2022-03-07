@@ -351,7 +351,7 @@ std::u8string Mind::TBAComp(std::u8string expr) const {
 
     int res = 0;
     std::u8string comp = u8"0";
-    if (oper == 1 && (arg2.find(arg1) != std::u8string::npos)) {
+    if (oper == 1 && arg2.contains(arg1)) {
       comp = u8"1";
     } else if (oper == 2 && (arg1 == arg2)) {
       comp = u8"1";
@@ -603,8 +603,7 @@ bool Mind::Send(const std::u8string& mes) {
         && (!body->IsAct(act_t::REST)) // I'm not resting
         && (!body->IsAct(act_t::FIGHT)) // I'm not already fighting
     ) {
-      if ((!strncmp(mes.c_str(), u8"From ", 5)) &&
-          (mes.find(u8" you hear someone shout '") != std::u8string::npos) &&
+      if ((!strncmp(mes.c_str(), u8"From ", 5)) && (mes.contains(u8" you hear someone shout '")) &&
           ((strstr(mes.c_str(), u8"HELP")) || (strstr(mes.c_str(), u8"ALARM")))) {
         char8_t buf[256] = u8"                                               ";
         sscanf(mes.c_str() + 4, u8"%128s", buf);
@@ -725,10 +724,10 @@ bool Mind::TBAVarSub(std::u8string& line) const {
       end = line.length();
     if (0
         //	|| body->Skill(prhash(u8"TBAScript")) == 5000099
-        //	|| line.find(u8"eval loc ") != std::u8string::npos
-        //	|| line.find(u8"set first ") != std::u8string::npos
-        //	|| line.find(u8"exclaim") != std::u8string::npos
-        //	|| line.find(u8"speech") != std::u8string::npos
+        //	|| line.contains(u8"eval loc ")
+        //	|| line.contains(u8"set first ")
+        //	|| line.contains(u8"exclaim")
+        //	|| line.contains(u8"speech")
     ) {
       logeg(u8"#{} Debug: '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
     }
@@ -1515,10 +1514,10 @@ bool Mind::TBAVarSub(std::u8string& line) const {
   }
   if (0
       //	|| body->Skill(prhash(u8"TBAScript")) == 5000099
-      //	|| line.find(u8"eval loc ") != std::u8string::npos
-      //	|| line.find(u8"set first ") != std::u8string::npos
-      //	|| line.find(u8"exclaim") != std::u8string::npos
-      //	|| line.find(u8"speech") != std::u8string::npos
+      //	|| line.contains(u8"eval loc ")
+      //	|| line.contains(u8"set first ")
+      //	|| line.contains(u8"exclaim")
+      //	|| line.contains(u8"speech")
   ) {
     logeg(u8"#{} Debug: '{}' <-Final\n", body->Skill(prhash(u8"TBAScript")), line);
   }
@@ -1543,10 +1542,10 @@ bool Mind::TBAVarSub(std::u8string& line) const {
 int Mind::TBARunLine(std::u8string line) {
   if (0
       //	|| body->Skill(prhash(u8"TBAScript")) == 5000099
-      //	|| line.find(u8"eval loc ") != std::u8string::npos
-      //	|| line.find(u8"set first ") != std::u8string::npos
-      //	|| line.find(u8"exclaim") != std::u8string::npos
-      //	|| line.find(u8"speech") != std::u8string::npos
+      //	|| line.contains(u8"eval loc ")
+      //	|| line.contains(u8"set first ")
+      //	|| line.contains(u8"exclaim")
+      //	|| line.contains(u8"speech")
   ) {
     logeg(u8"#{} Debug: Running '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
   }
@@ -1632,9 +1631,9 @@ int Mind::TBARunLine(std::u8string line) {
         if (lpos != std::u8string::npos) {
           std::u8string val = line.substr(lpos);
           if (0
-              //		|| var.find(u8"midgaard") != std::u8string::npos
-              //		|| var.find(u8"exclaim") != std::u8string::npos
-              //		|| var.find(u8"speech") != std::u8string::npos
+              //		|| var.contains(u8"midgaard")
+              //		|| var.contains(u8"exclaim")
+              //		|| var.contains(u8"speech")
           ) {
             logeg(u8"#{} Debug: '{}' = '{}'\n", body->Skill(prhash(u8"TBAScript")), var, val);
           }
