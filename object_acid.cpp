@@ -180,9 +180,7 @@ int Object::Load(const std::u8string& fn) {
   fscanf(fl, u8"%X\n", &ver);
 
   // Load 'prop_names' hashes and strings.
-  if (ver >= 0x0018) {
-    load_prop_names_from(fl);
-  }
+  load_prop_names_from(fl);
 
   todo.clear();
   num2obj.clear();
@@ -223,10 +221,6 @@ int Object::Load(const std::u8string& fn) {
   }
   todo.clear();
 
-  if (ver < 0x0016) {
-    fscanf(fl, u8"%*d\n"); // Used to be start room, which is an action now
-  }
-
   fclose(fl);
   return 0;
 }
@@ -242,17 +236,11 @@ int Object::LoadFrom(FILE* fl) {
   todo.push_back(this);
 
   memset(buf, 0, 65536);
-  if (ver < 0x0015) {
-    res = fscanf(fl, u8"%[^;]; ", buf);
-    if (res < 1)
-      fscanf(fl, u8" ; ");
-  } else {
-    num = 0;
+  num = 0;
+  res = getc(fl);
+  while (res > 0) {
+    buf[num++] = res;
     res = getc(fl);
-    while (res > 0) {
-      buf[num++] = res;
-      res = getc(fl);
-    }
   }
   std::u8string sd = buf;
 
@@ -268,36 +256,20 @@ int Object::LoadFrom(FILE* fl) {
   std::u8string n = buf;
 
   memset(buf, 0, 65536);
-  if (ver < 0x0015) {
-    res = fscanf(fl, u8"%[^;];\n", buf);
-    if (res < 1)
-      fscanf(fl, u8" ; ");
-  } else {
-    num = 0;
+  num = 0;
+  res = getc(fl);
+  while (res > 0) {
+    buf[num++] = res;
     res = getc(fl);
-    while (res > 0) {
-      buf[num++] = res;
-      res = getc(fl);
-    }
   }
   std::u8string d = buf;
 
   memset(buf, 0, 65536);
-  if (ver < 0x0015) {
-    res = fscanf(fl, u8"%[^;]; ", buf);
-    if (res < 1)
-      fscanf(fl, u8" ; ");
-    for (size_t i = 0; i < strlen(buf); ++i) {
-      if (buf[i] == '\e')
-        buf[i] = ';';
-    }
-  } else {
-    num = 0;
+  num = 0;
+  res = getc(fl);
+  while (res > 0) {
+    buf[num++] = res;
     res = getc(fl);
-    while (res > 0) {
-      buf[num++] = res;
-      res = getc(fl);
-    }
   }
   std::u8string ld = buf;
 
@@ -331,20 +303,7 @@ int Object::LoadFrom(FILE* fl) {
 
   fscanf(fl, u8" %d\n", &sexp);
 
-  if (ver < 0x0017) {
-    fscanf(
-        fl,
-        u8"%hhd,%hhd,%hhd,%hhd,%hhd,%hhd,%*d,%*d,%hhd,%hhd,%hhd",
-        &attr[0],
-        &attr[1],
-        &attr[2],
-        &attr[3],
-        &attr[4],
-        &attr[5],
-        &phys,
-        &stun,
-        &stru);
-  } else if (ver < 0x0019) {
+  if (ver < 0x0019) {
     int16_t mods[6];
     fscanf(
         fl,
@@ -394,49 +353,26 @@ int Object::LoadFrom(FILE* fl) {
 
   memset(buf, 0, 65536);
   int val;
-  if (ver <= 0x0010) {
-    while (fscanf(fl, u8":%[^\n,:],%d", buf, &val)) {
-      // loge(u8"Loaded {}: {}\n", buf, val);
-      SetSkill(buf, val);
+  int ret;
+  uint32_t stok;
+  ret = fscanf(fl, u8"|%X|%d", &stok, &val);
+  while (ret > 1) {
+    // loge(u8"Loaded {}: {}\n", buf, val);
+    if (ver < 0x0019) { // Update to new hash algo
+      auto name = SkillName(stok);
+      stok = crc32c(name);
+      insert_skill_hash(stok, name);
     }
-  } else if (ver <= 0x0011) {
-    while (fscanf(fl, u8":%[^\n:|]|%d", buf, &val)) {
-      // loge(u8"Loaded {}: {}\n", buf, val);
-      SetSkill(buf, val);
-    }
-  } else if (ver < 0x0018) { // Backward compatible load between v0x12 and v0x13
-    int ret;
-    ret = fscanf(fl, u8"|%[^\n|;]|%d", buf, &val);
-    while (ret > 1) {
-      // loge(u8"Loaded {}: {}\n", buf, val);
-      SetSkill(buf, val);
-      ret = fscanf(fl, u8"|%[^\n|;]|%d", buf, &val);
-    }
-    if (ret > 0) { // Added the currently used skill to the end in v0x13
-      StartUsing(get_skill(buf));
-    }
-  } else { // Skills now saved/loaded by hash, not name
-    int ret;
-    uint32_t stok;
+    SetSkill(stok, val);
     ret = fscanf(fl, u8"|%X|%d", &stok, &val);
-    while (ret > 1) {
-      // loge(u8"Loaded {}: {}\n", buf, val);
-      if (ver < 0x0019) { // Update to new hash algo
-        auto name = SkillName(stok);
-        stok = crc32c(name);
-        insert_skill_hash(stok, name);
-      }
-      SetSkill(stok, val);
-      ret = fscanf(fl, u8"|%X|%d", &stok, &val);
+  }
+  if (ret > 0) { // Added the currently used skill to the end in v0x13
+    if (ver < 0x0019) { // Update to new hash algo
+      auto name = SkillName(stok);
+      stok = crc32c(name);
+      insert_skill_hash(stok, name);
     }
-    if (ret > 0) { // Added the currently used skill to the end in v0x13
-      if (ver < 0x0019) { // Update to new hash algo
-        auto name = SkillName(stok);
-        stok = crc32c(name);
-        insert_skill_hash(stok, name);
-      }
-      StartUsing(stok);
-    }
+    StartUsing(stok);
   }
   fscanf(fl, u8";\n");
 
@@ -460,15 +396,9 @@ int Object::LoadFrom(FILE* fl) {
   for (int ctr = 0; ctr < num; ++ctr) {
     int num2;
     act_t a;
-    if (ver < 0x0014) { // Action types stored numerically < v0x14
-      uint8_t anum;
-      fscanf(fl, u8"%hhd;%d ", &anum, &num2);
-      a = static_cast<act_t>(anum);
-    } else { // Action types stored as std::u8strings >= v0x14
-      memset(buf, 0, 65536);
-      fscanf(fl, u8"%65535[^;];%d ", buf, &num2);
-      a = act_load(std::u8string(buf));
-    }
+    memset(buf, 0, 65536);
+    fscanf(fl, u8"%65535[^;];%d ", buf, &num2);
+    a = act_load(std::u8string(buf));
     if (a != act_t::SPECIAL_ACTEE) {
       AddAct(a, getbynum(num2));
     }
