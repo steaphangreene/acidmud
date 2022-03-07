@@ -47,9 +47,7 @@ extern int64_t current_time; // From main.cpp
 static const std::u8string bstr[2] = {u8"0", u8"1"};
 
 static std::u8string itos(int val) {
-  char8_t buf[256];
-  sprintf(buf, u8"%d", val);
-  return std::u8string(buf);
+  return fmt::format(u8"{}", val);
 }
 
 static uint32_t tba_bitvec(const std::u8string& val) {
@@ -460,19 +458,20 @@ Mind::~Mind() {
 void Mind::SetRemote(int fd) {
   type = mind_t::REMOTE;
   pers = fd;
-  char8_t buf[256];
 
   if (log >= 0)
     return;
 
   static unsigned long lognum = 0;
-  sprintf(buf, u8"logs/%.8lX.log%c", lognum, 0);
-  while (std::filesystem::exists(buf)) {
+  std::u8string logname = fmt::format(u8"logs/{:08X}.log", lognum);
+  while (std::filesystem::exists(logname)) {
     ++lognum;
-    sprintf(buf, u8"logs/%.8lX.log%c", lognum, 0);
+    logname = fmt::format(u8"logs/{:08X}.log", lognum);
   }
-  log =
-      open(reinterpret_cast<char*>(buf), O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, S_IRUSR | S_IWUSR);
+  log = open(
+      reinterpret_cast<const char*>(logname.c_str()),
+      O_WRONLY | O_CREAT | O_TRUNC | O_SYNC,
+      S_IRUSR | S_IWUSR);
 }
 
 void Mind::SetMob() {
@@ -558,23 +557,20 @@ static const std::u8string sevs_p[] =
 static const std::u8string sevs_s[] =
     {u8"-", u8"l", u8"l", u8"m", u8"m", u8"m", u8"s", u8"s", u8"s", u8"s", u8"u"};
 void Mind::UpdatePrompt() {
-  static char8_t buf[65536];
   if (!Owner()) {
     SetPrompt(pers, u8"Player Name: ");
     if (pname.length() >= 1)
       SetPrompt(pers, u8"Password: ");
   } else if (prompt.length() > 0) {
-    sprintf(buf, u8"%s> %c", prompt.c_str(), 0);
-    SetPrompt(pers, buf);
+    SetPrompt(pers, fmt::format(u8"{}> ", prompt));
   } else if (Body()) {
-    sprintf(
-        buf,
-        u8"[%s][%s] %s> %c",
-        sevs_p[std::min(10, Body()->Phys())].c_str(),
-        sevs_s[std::min(10, Body()->Stun())].c_str(),
-        Body()->NameC(),
-        0);
-    SetPrompt(pers, buf);
+    SetPrompt(
+        pers,
+        fmt::format(
+            u8"[{}][{}] {}> ",
+            sevs_p[std::min(10, Body()->Phys())],
+            sevs_s[std::min(10, Body()->Stun())],
+            Body()->Name()));
   } else
     SetPrompt(pers, u8"No Character> ");
 }
@@ -1511,9 +1507,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
     else if (line[end] == '%')
       ++end;
     if (is_obj) {
-      char8_t buf2[256] = u8"";
-      sprintf(buf2, u8"OBJ:%p", obj);
-      line.replace(cur, end - cur, buf2);
+      line.replace(cur, end - cur, fmt::format(u8"OBJ:{}", reinterpret_cast<void*>(obj)));
     } else { // std::u8string OR u8""
       line.replace(cur, end - cur, val);
     }
