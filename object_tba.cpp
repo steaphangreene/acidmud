@@ -2778,14 +2778,15 @@ void Object::TBALoadTRG(const std::u8string& fn) { // Triggers
         fscanf(mud, u8"%[^~]~", buf + strlen(buf));
       }
       script->SetLongDesc(buf);
-      if (strstr(buf, u8"* Check the direction the player must go to enter the guild.")) {
+      if (script->LongDesc().contains(
+              u8"* Check the direction the player must go to enter the guild.")) {
         // char8_t dir[16];
-        // char8_t* dirp = strstr(buf, u8"if %direction% == ");
+        // char8_t* dirp = str:str(buf, u8"if %direction% == ");
         // if (dirp)
         //  sscanf(dirp + strlen(u8"if %direction% == "), u8"%s", dir);
 
         // char8_t cls[16];
-        // char8_t* clsp = strstr(buf, u8"if %actor.class% != ");
+        // char8_t* clsp = str:str(buf, u8"if %actor.class% != ");
         // if (clsp)
         //  sscanf(clsp + strlen(u8"if %actor.class% != "), u8"%s", cls);
 
@@ -2798,7 +2799,7 @@ void Object::TBALoadTRG(const std::u8string& fn) { // Triggers
         //  }
         //}
         ++untrans_trig; // This is NOT really handled yet.
-      } else if (strstr(buf, u8"if %direction% == ")) {
+      } else if (script->LongDesc().contains(u8"if %direction% == ")) {
         // loge(u8"{} appears to be a direction trigger.\n", tnum);
         ++untrans_trig; // This is NOT really handled yet.
       } else if (0) {

@@ -48,10 +48,6 @@ auto sscanf(auto&& st, auto&& fm, Args&&... args) {
       std::forward<Args>(args)...);
 };
 
-auto strstr(auto&& s1, auto&& s2) {
-  return std::strstr(reinterpret_cast<const char*>(s1), reinterpret_cast<const char*>(s2));
-};
-
 auto strcmp(auto&& s1, auto&& s2) {
   return std::strcmp(reinterpret_cast<const char*>(s1), reinterpret_cast<const char*>(s2));
 };

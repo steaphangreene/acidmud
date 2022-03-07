@@ -604,7 +604,7 @@ bool Mind::Send(const std::u8string& mes) {
         && (!body->IsAct(act_t::FIGHT)) // I'm not already fighting
     ) {
       if ((!strncmp(mes.c_str(), u8"From ", 5)) && (mes.contains(u8" you hear someone shout '")) &&
-          ((strstr(mes.c_str(), u8"HELP")) || (strstr(mes.c_str(), u8"ALARM")))) {
+          (mes.contains(u8"HELP") || mes.contains(u8"ALARM"))) {
         char8_t buf[256] = u8"                                               ";
         sscanf(mes.c_str() + 4, u8"%128s", buf);
 

@@ -852,10 +852,11 @@ static void load_commands() {
       for (int mnum = 0; mnum < 13; ++mnum) {
         fscanf(soc, u8" %255[^\n\r]", buf); // Skip space/newline, read line.
         fscanf(soc, u8"%*[^\n\r]"); // Skip rest of line.
-        if (strstr(buf, u8"#"))
+        if (std::u8string_view(buf).contains('#')) {
           socials[cnum][mnum] = u8"";
-        else
+        } else {
           socials[cnum][mnum] = buf;
+        }
       }
       comlist[cnum].command = soc_com[cnum];
       comlist[cnum].id = COM_SOCIAL;
