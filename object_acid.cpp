@@ -23,6 +23,7 @@
 
 #include "cchar8.hpp"
 #include "color.hpp"
+#include "log.hpp"
 #include "mind.hpp"
 #include "object.hpp"
 #include "properties.hpp"
@@ -95,7 +96,7 @@ int Object::Save(const std::u8string& fn) {
 }
 
 int Object::SaveTo(FILE* fl) {
-  // fprintf(stderr, u8"Saving %s\n", Name());
+  // loge(u8"Saving {}\n", Name());
 
   fprintf(fl, u8"%d\n", getnum(this));
   fprintf(fl, u8"%s%c\n", ShortDescC(), 0);
@@ -166,7 +167,7 @@ int Object::SaveTo(FILE* fl) {
     cind->SaveTo(fl);
   }
 
-  // fprintf(stderr, u8"Saved %s\n", Name());
+  // loge(u8"Saved {}\n", Name());
   return 0;
 }
 
@@ -236,7 +237,7 @@ int Object::LoadFrom(FILE* fl) {
   int num, res;
   fscanf(fl, u8"%d ", &num);
   if (num2obj[num] != this) {
-    fprintf(stderr, CRED u8"Error: Acid number mismatch (%d)!\n" CNRM, num);
+    loger(u8"Error: Acid number mismatch ({})!\n", num);
   }
   todo.push_back(this);
 
@@ -302,7 +303,7 @@ int Object::LoadFrom(FILE* fl) {
 
   SetDescs(sd, n, d, ld);
 
-  // fprintf(stderr, u8"%sLoading %d:%s\n", debug_indent.c_str(), num, buf);
+  // loge(u8"{}Loading {}:{}\n", debug_indent, num, buf);
 
   fscanf(fl, u8"%d %d %d %d %c", &weight, &size, &volume, &value, &gender);
 
@@ -395,19 +396,19 @@ int Object::LoadFrom(FILE* fl) {
   int val;
   if (ver <= 0x0010) {
     while (fscanf(fl, u8":%[^\n,:],%d", buf, &val)) {
-      // fprintf(stderr, u8"Loaded %s: %d\n", buf, val);
+      // loge(u8"Loaded {}: {}\n", buf, val);
       SetSkill(buf, val);
     }
   } else if (ver <= 0x0011) {
     while (fscanf(fl, u8":%[^\n:|]|%d", buf, &val)) {
-      // fprintf(stderr, u8"Loaded %s: %d\n", buf, val);
+      // loge(u8"Loaded {}: {}\n", buf, val);
       SetSkill(buf, val);
     }
   } else if (ver < 0x0018) { // Backward compatible load between v0x12 and v0x13
     int ret;
     ret = fscanf(fl, u8"|%[^\n|;]|%d", buf, &val);
     while (ret > 1) {
-      // fprintf(stderr, u8"Loaded %s: %d\n", buf, val);
+      // loge(u8"Loaded {}: {}\n", buf, val);
       SetSkill(buf, val);
       ret = fscanf(fl, u8"|%[^\n|;]|%d", buf, &val);
     }
@@ -419,7 +420,7 @@ int Object::LoadFrom(FILE* fl) {
     uint32_t stok;
     ret = fscanf(fl, u8"|%X|%d", &stok, &val);
     while (ret > 1) {
-      // fprintf(stderr, u8"Loaded %s: %d\n", buf, val);
+      // loge(u8"Loaded {}: {}\n", buf, val);
       if (ver < 0x0019) { // Update to new hash algo
         auto name = SkillName(stok);
         stok = crc32c(name);
@@ -488,29 +489,29 @@ int Object::LoadFrom(FILE* fl) {
 
   //  int num_loaded = 0;
   //  if(parent && (!(parent->parent))) {
-  //    fprintf(stderr, u8"Loading: %s\n", ShortDescC());
+  //    loge(u8"Loading: {}\n", ShortDescC());
   //    }
   for (auto cind : toload) {
-    // fprintf(stderr, u8"%sCalling loader from %s\n", debug_indent.c_str(),
+    // loge(u8"{}Calling loader from {}\n", debug_indent.c_str(),
     // ShortDescC());
     // std::u8string tmp = debug_indent;
     // debug_indent += u8"  ";
     cind->LoadFrom(fl);
     // debug_indent = tmp;
-    // fprintf(stderr, u8"%sCalled loader from %s\n", debug_indent.c_str(),
+    // loge(u8"{}Called loader from {}\n", debug_indent.c_str(),
     // ShortDescC());
 
     //    if(parent && (!(parent->parent))) {
-    //      fprintf(stderr, u8"\rLoaded: %d/%d (%s)    ",
+    //      loge(u8"\rLoaded: {}/{} ({})    ",
     //	++num_loaded, int(toload.size()), cind->ShortDescC()
     //	);
     //      }
   }
   //  if(parent && (!(parent->parent))) {
-  //    fprintf(stderr, u8"\nLoaded.\n");
+  //    loge(u8"\nLoaded.\n");
   //    }
 
-  // fprintf(stderr, u8"%sLoaded %s\n", debug_indent.c_str(), ShortDescC());
+  // loge(u8"{}Loaded {}\n", debug_indent.c_str(), ShortDescC());
 
   //  if(HasSkill(prhash(u8"Drink"))) {
   //    SetSkill(prhash(u8"Drink"), Skill(prhash(u8"Drink")) * 15);
@@ -551,7 +552,7 @@ int Object::LoadFrom(FILE* fl) {
   //    }
 
   //  if(IsAct(act_t::SPECIAL_PREPARE)) {
-  //    fprintf(stderr, u8"Found one!\n");
+  //    loge(u8"Found one!\n");
   //    StopAct(act_t::SPECIAL_PREPARE);
   //    }
 

@@ -100,7 +100,6 @@ int load_players(const std::u8string& fn);
 void player_rooms_erase(Object*);
 int is_pc(const Object*);
 
-std::vector<Player*> get_current_players();
 std::vector<Player*> get_all_players();
 
 #endif // PLAYER_HPP

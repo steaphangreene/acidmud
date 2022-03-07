@@ -26,6 +26,7 @@
 
 #include "cchar8.hpp"
 #include "color.hpp"
+#include "log.hpp"
 #include "object.hpp"
 #include "properties.hpp"
 #include "utils.hpp"
@@ -52,7 +53,7 @@ int is_skill(uint32_t stok) {
 
 uint32_t get_weapon_skill(int wtype) {
   if (!weaponskills.count(wtype)) {
-    fprintf(stderr, u8"Warning: No Skill Type %d!\n", wtype);
+    loge(u8"Warning: No Skill Type {}!\n", wtype);
     return prhash(u8"None");
   }
   return weaponskills[wtype];
@@ -60,7 +61,7 @@ uint32_t get_weapon_skill(int wtype) {
 
 int get_weapon_type(std::u8string wskill) {
   if (!weapontypes.count(crc32c(wskill))) {
-    fprintf(stderr, u8"Warning: No Skill Named '%s'!\n", wskill.c_str());
+    loge(u8"Warning: No Skill Named '{}'!\n", wskill);
     return 0;
   }
   return weapontypes[crc32c(wskill)];
@@ -319,10 +320,7 @@ int Object::RollNoWounds(uint32_t stok, int targ, int penalty, std::u8string* re
       dice = ModAttribute(defaults[stok]);
     }
   } else {
-    fprintf(
-        stderr,
-        CRED u8"Error: Asked to roll non-existant skill: '%s'\n" CNRM,
-        SkillName(stok).c_str());
+    loger(u8"Error: Asked to roll non-existant skill: '{}'\n", SkillName(stok));
     return 0;
   }
 

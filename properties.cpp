@@ -23,6 +23,7 @@
 
 #include "cchar8.hpp"
 #include "color.hpp"
+#include "log.hpp"
 #include "properties.hpp"
 
 // Generate initial skills definitions pair vector automatically from known skills list.
@@ -47,7 +48,7 @@ void save_prop_names_to(FILE* fl) {
   fprintf(fl, u8"%lu\n", skill_defs.size());
   for (auto skn : skill_defs) {
     if (skn.second.length() > 255) {
-      fprintf(stderr, CRED u8"Error: Skill name too long: '%s'\n", skn.second.c_str());
+      loger(u8"Error: Skill name too long: '{}'\n", skn.second);
       fprintf(fl, u8"%.8X:Undefined\n", skn.first);
     } else {
       fprintf(fl, u8"%.8X:%s\n", skn.first, skn.second.c_str());
@@ -82,7 +83,7 @@ void confirm_skill_hash(uint32_t stok) {
   for (; itn != skill_defs.end() && itn->first != stok; ++itn) {
   }
   if (itn == skill_defs.end()) {
-    fprintf(stderr, CRED u8"Error: bogus skill hash (x%X)\n" CNRM, stok);
+    loger(u8"Error: bogus skill hash (x{:08X})\n", stok);
     skill_defs.emplace_back(std::make_pair(stok, u8"Unknown"));
   }
 }

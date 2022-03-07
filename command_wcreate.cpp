@@ -27,6 +27,7 @@
 #include "cchar8.hpp"
 #include "color.hpp"
 #include "commands.hpp"
+#include "log.hpp"
 #include "mind.hpp"
 #include "npc.hpp"
 #include "object.hpp"
@@ -913,11 +914,7 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
             }
           }
           if (!housed) {
-            fprintf(
-                stderr,
-                CYEL u8"Warning: Homeless NPC in %s: %s\n" CNRM,
-                zone->ShortDescC(),
-                empnames[room][n].c_str());
+            logey(u8"Warning: Homeless NPC in {}: {}\n", zone->ShortDesc(), empnames[room][n]);
             ++homeless;
           }
         }

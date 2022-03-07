@@ -28,6 +28,7 @@
 #include "cchar8.hpp"
 #include "color.hpp"
 #include "commands.hpp"
+#include "log.hpp"
 #include "mind.hpp"
 #include "net.hpp"
 #include "object.hpp"
@@ -633,7 +634,7 @@ int Object::Tick() {
         }
       }
     } else {
-      fprintf(stderr, u8"Warning: Fountain completely out of liquid!\n");
+      loge(u8"Warning: Fountain completely out of liquid!\n");
     }
   }
 
@@ -2073,7 +2074,7 @@ void Object::TryCombine() {
       continue;
 
     if (IsSameAs(*obj)) {
-      // fprintf(stderr, u8"Combining '%s'\n", Noun().c_str());
+      // loge(u8"Combining '{}'\n", Noun());
       int val;
 
       val =
@@ -2146,7 +2147,7 @@ int Object::Travel(Object* dest, int try_combine) {
     for (auto trig : trigs) {
       if (trig->Skill(prhash(u8"TBAScriptType")) & 0x0010000) {
         if ((rand() % 100) < trig->Skill(prhash(u8"TBAScriptNArg"))) { // % Chance
-          // fprintf(stderr, CBLU u8"Triggering: %s\n" CNRM, trig->Noun().c_str());
+          // logeb(u8"Triggering: {}\n", trig->Noun());
           if (new_trigger(0, trig, this, dir))
             return 1;
         }
@@ -2204,7 +2205,7 @@ int Object::Travel(Object* dest, int try_combine) {
             // if (trig->Skill(prhash(u8"TBAScript")) >= 5034503 &&
             // trig->Skill(prhash(u8"TBAScript"))
             // <= 5034507)
-            //  fprintf(stderr, CBLU u8"Triggering: %s\n" CNRM, trig->Noun().c_str());
+            //  logeb(u8"Triggering: {}\n", trig->Noun());
             new_trigger((rand() % 400) + 300, trig, this, rdir);
           }
         }
@@ -2244,7 +2245,7 @@ void Object::Recycle(int inbin) {
   }
   Deactivate();
 
-  // fprintf(stderr, u8"Deleting: %s\n", Noun(0));
+  // loge(u8"Deleting: {}\n", Noun(0));
 
   std::set<Object*> killers;
   for (auto ind : contents) {
@@ -2314,7 +2315,7 @@ void Object::Recycle(int inbin) {
     parent->AddLink(this);
   }
 
-  // fprintf(stderr, u8"Done deleting: %s\n", Noun(0));
+  // loge(u8"Done deleting: {}\n", Noun(0));
 }
 
 void Object::Attach(Mind* m) {
@@ -3137,7 +3138,7 @@ void Object::SendOut(
         if ((trig->Skill(prhash(u8"TBAScriptType")) & 0x1000008) == 0x1000008) {
           // if (trig->Skill(prhash(u8"TBAScript")) >= 5034503 && trig->Skill(prhash(u8"TBAScript"))
           // <= 5034507)
-          //  fprintf(stderr, CBLU u8"[#%d] Got message: '%s'\n" CNRM,
+          //  logeb(u8"[#{}] Got message: '{}'\n",
           //  trig->Skill(prhash(u8"TBAScript")), mes);
           std::u8string speech = (mes.c_str() + 9);
           while (!speech.empty() && speech.back() != '\'') {
@@ -3153,7 +3154,7 @@ void Object::SendOut(
               // if (trig->Skill(prhash(u8"TBAScript")) >= 5034503 &&
               // trig->Skill(prhash(u8"TBAScript"))
               // <= 5034507)
-              //  fprintf(stderr, CBLU u8"Triggering(f): %s\n" CNRM, trig->Noun().c_str());
+              //  logeb(u8"Triggering(f): {}\n", trig->Noun());
               new_trigger((rand() % 400) + 300, trig, actor, speech);
             }
           } else { // Match Words
@@ -3161,7 +3162,7 @@ void Object::SendOut(
               // if (trig->Skill(prhash(u8"TBAScript")) >= 5034503 &&
               // trig->Skill(prhash(u8"TBAScript"))
               // <= 5034507)
-              //  fprintf(stderr, CBLU u8"Triggering(w): %s\n" CNRM, trig->Noun().c_str());
+              //  logeb(u8"Triggering(w): {}\n", trig->Noun());
               new_trigger((rand() % 400) + 300, trig, actor, speech);
             }
           }
@@ -3220,13 +3221,10 @@ void Object::SendOut(
     }
   }
   if (num_braces[0] != num_braces[1]) {
-    fprintf(stderr, CRED u8"ERROR: Mismatched braces in SendOut() str: '%s'!\n" CNRM, str.c_str());
+    loger(u8"ERROR: Mismatched braces in SendOut() str: '{}'!\n", str);
     return; // Abort sending, this may throw an exception!
   } else if (num_braces[0] > 2) {
-    fprintf(
-        stderr,
-        CRED u8"ERROR: Too many opening braces in SendOut() str: '%s'!\n" CNRM,
-        str.c_str());
+    loger(u8"ERROR: Too many opening braces in SendOut() str: '{}'!\n", str);
     return; // Abort sending, this may throw an exception!
   }
 
@@ -3249,16 +3247,10 @@ void Object::SendOut(
     }
   }
   if (num_braces[0] != num_braces[1]) {
-    fprintf(
-        stderr,
-        CRED u8"ERROR: Mismatched braces in SendOut() youstr: '%s'!\n" CNRM,
-        youstr.c_str());
+    loger(u8"ERROR: Mismatched braces in SendOut() youstr: '{}'!\n", youstr);
     return; // Abort sending, this may throw an exception!
   } else if (num_braces[0] > 1) {
-    fprintf(
-        stderr,
-        CRED u8"ERROR: Too many opening braces in SendOut() youstr: '%s'!\n" CNRM,
-        youstr.c_str());
+    loger(u8"ERROR: Too many opening braces in SendOut() youstr: '{}'!\n", youstr);
     return; // Abort sending, this may throw an exception!
   }
 
@@ -3383,15 +3375,15 @@ void save_world(int with_net) {
         std::filesystem::remove(dfn);
         std::filesystem::rename(pfn, dfn);
       } else {
-        fprintf(stderr, u8"Unable to save network status!\n");
+        loge(u8"Unable to save network status!\n");
         perror("save_world");
       }
     } else {
-      fprintf(stderr, u8"Unable to save players!\n");
+      loge(u8"Unable to save players!\n");
       perror("save_world");
     }
   } else {
-    fprintf(stderr, u8"Unable to save world!\n");
+    loge(u8"Unable to save world!\n");
     perror("save_world");
   }
 }
@@ -3404,7 +3396,7 @@ int Object::WriteContentsTo(FILE* fl) {
 }
 
 void Object::BusyFor(long msec, const std::u8string& default_next) {
-  // fprintf(stderr, u8"Holding %p, will default do '%s'!\n", this, default_next);
+  // loge(u8"Holding {}, will default do '{}'!\n", reinterpret_cast<void*>(this), default_next);
   busy_until = (current_time + (msec * 1000)) & 0xFFFFFFFFU; // Save Only Lower 32-Bits
   if (busy_until == 0) {
     busy_until = 1; // Avoid Special Case
@@ -3426,7 +3418,7 @@ void Object::BusyFor(long msec, const std::u8string& default_next) {
 }
 
 void Object::BusyWith(Object* other, const std::u8string& default_next) {
-  // fprintf(stderr, u8"Holding %p, will default do '%s'!\n", this, default_next);
+  // loge(u8"Holding {}, will default do '{}'!\n", reinterpret_cast<void*>(this), default_next);
   busy_until = other->busy_until;
   if (default_next.length() == 0) {
     if (defact[0] != '\0') {
@@ -3457,7 +3449,7 @@ bool Object::StillBusy() const {
 }
 
 void Object::DoWhenFree(const std::u8string& action) {
-  // fprintf(stderr, u8"Adding busyact for %p of '%s'!\n", this, action);
+  // loge(u8"Adding busyact for {} of '{}'!\n", reinterpret_cast<void*>(this), action);
   std::u8string dwf = dowhenfree;
   dwf += u8";";
   dwf += action;
@@ -3478,7 +3470,7 @@ void Object::DoWhenFree(const std::u8string& action) {
 }
 
 bool Object::BusyAct() {
-  // fprintf(stderr, u8"Taking busyact %p!\n", this);
+  // loge(u8"Taking busyact {}!\n", reinterpret_cast<void*>(this));
   busylist.erase(this);
 
   std::u8string comm = dowhenfree;
@@ -3492,7 +3484,7 @@ bool Object::BusyAct() {
     defact = u8"";
   }
 
-  // fprintf(stderr, u8"Act is %s [%s]!\n", comm.c_str(), def.c_str());
+  // loge(u8"Act is {} [{}]!\n", comm, def);
 
   int ret;
   if (minds.size()) {
@@ -3528,9 +3520,8 @@ void Object::FreeActions() {
       // Make sure it's still in busylist
       // (hasn't been deleted by another's BusyAct)!
       if (init.second == phase && busylist.count(init.first)) {
-        //	if(init.first->IsAct(act_t::FIGHT))
-        //	  fprintf(stderr, u8"Going at %d (%s)\n", phase,
-        // init.first->Noun().c_str());
+        // if (init.first->IsAct(act_t::FIGHT))
+        //   loge(u8"Going at {} ({})\n", phase, init.first->Noun());
         init.first->BusyAct();
       }
     }

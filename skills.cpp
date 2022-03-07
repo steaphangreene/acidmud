@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "cchar8.hpp"
+#include "log.hpp"
 #include "properties.hpp"
 #include "stats.hpp"
 #include "utils.hpp"
@@ -1933,11 +1934,10 @@ std::map<uint32_t, int32_t> weapontypes;
 static int last_wtype = 0;
 static void add_wts(uint32_t sk) {
   if (defaults.count(sk) == 0) {
-    fprintf(
-        stderr,
-        u8"Warning: Tried to link weapon type %d to '%s' which isn't a skill.\n",
+    logey(
+        u8"Warning: Tried to link weapon type {} to '{}' which isn't a skill.\n",
         last_wtype + 1,
-        SkillName(sk).c_str());
+        SkillName(sk));
     return;
   }
   ++last_wtype;

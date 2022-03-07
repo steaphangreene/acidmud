@@ -27,6 +27,7 @@
 #include "cchar8.hpp"
 #include "color.hpp"
 #include "commands.hpp"
+#include "log.hpp"
 #include "mind.hpp"
 #include "npc.hpp"
 #include "object.hpp"
@@ -192,8 +193,7 @@ void Object::AddNPC(std::mt19937& gen, const NPCType* type) {
           npc->NormAttribute(get_linked(sk.first)) * sk.second.first / 100 -
               rand() % sk.second.second);
     }
-    // fprintf(stderr, u8"DBG: %d %d %d\n", get_linked(sk.first),
-    // sk.second.first, sk.second.second);
+    // loge(u8"DBG: {} {} {}\n", get_linked(sk.first), sk.second.first, sk.second.second);
   }
 
   npc->SetShortDesc(type->name.c_str());

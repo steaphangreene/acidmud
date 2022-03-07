@@ -27,6 +27,7 @@
 
 #include "cchar8.hpp"
 #include "color.hpp"
+#include "log.hpp"
 #include "net.hpp"
 #include "player.hpp"
 #include "version.hpp"
@@ -42,7 +43,7 @@ static std::u8string md5_crypt(std::u8string pass, std::u8string salt) {
 
   if (!salt.starts_with(u8"$1$") || salt.length() < 11 ||
       (salt.length() > 11 && salt[11] != u8'$')) {
-    fprintf(stderr, CRED u8"Invalid magic in salt submitted to md5_crypt!\n" CNRM);
+    loger(u8"Invalid magic in salt submitted to md5_crypt!\n");
     return u8"";
   }
   salt = salt.substr(0, 11);
@@ -222,7 +223,7 @@ Player* player_login(std::u8string name, std::u8string pass) {
   Player* pl = player_list[name];
   std::u8string enpass = md5_crypt(pass, pl->pass);
 
-  // fprintf(stderr, u8"Trying %s:\n%s\n%s\n", name.c_str(), enpass.c_str(), pl->pass.c_str());
+  // loge(u8"Trying {}:\n{}\n{}\n", name, enpass, pl->pass);
 
   if (enpass != pl->pass) {
     if (non_init.count(pl)) {
@@ -270,7 +271,7 @@ int Player::LoadFrom(FILE* fl) {
 }
 
 int load_players(const std::u8string& fn) {
-  fprintf(stderr, u8"Loading Players.\n");
+  loge(u8"Loading Players.\n");
 
   FILE* fl = fopen(fn.c_str(), u8"r");
   if (!fl)
@@ -280,13 +281,13 @@ int load_players(const std::u8string& fn) {
   unsigned int ver;
   fscanf(fl, u8"%X\n%d\n", &ver, &num);
 
-  fprintf(stderr, u8"Loading Players: %d,%d\n", ver, num);
+  loge(u8"Loading Players: {},{}\n", ver, num);
 
   for (int ctr = 0; ctr < num; ++ctr) {
     Player* pl = new Player(u8";;TEMP;;", u8";;TEMP;;");
     non_init.erase(pl);
     pl->LoadFrom(fl);
-    // fprintf(stderr, u8"Loaded Player: %s\n", pl->Name());
+    // loge(u8"Loaded Player: {}\n", pl->Name());
   }
 
   fclose(fl);
@@ -344,12 +345,6 @@ int is_pc(const Object* obj) {
     }
   }
   return 0;
-}
-
-std::vector<Player*> get_current_players() {
-  fprintf(stderr, u8"Warning: %s called, but not implemented yet!\n", __PRETTY_FUNCTION__);
-  std::vector<Player*> ret;
-  return ret;
 }
 
 std::vector<Player*> get_all_players() {

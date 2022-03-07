@@ -27,6 +27,7 @@
 #include "cchar8.hpp"
 #include "color.hpp"
 #include "commands.hpp"
+#include "log.hpp"
 #include "mind.hpp"
 #include "npc.hpp"
 #include "object.hpp"
@@ -927,9 +928,8 @@ void Object::DynamicInit1() { // Dwarven mine
       door1->SetSkill(prhash(u8"Hidden"), 4 + rand() % 13);
     } break;
     default: {
-      fprintf(
-          stderr,
-          u8"Unknown dynamic-phase-type (%d-%d) init requested!\n",
+      loge(
+          u8"Unknown dynamic-phase-type ({}-{}) init requested!\n",
           Skill(prhash(u8"DynamicInit")),
           Skill(prhash(u8"DynamicPhase")));
     } break;
@@ -946,8 +946,7 @@ void Object::DynamicInit() {
       DynamicInit1();
     } break;
     default: {
-      fprintf(
-          stderr, u8"Unknown dynamic-type (%d) init requested!\n", Skill(prhash(u8"DynamicInit")));
+      loge(u8"Unknown dynamic-type ({}) init requested!\n", Skill(prhash(u8"DynamicInit")));
     } break;
   }
   SetSkill(prhash(u8"DynamicInit"), 0);

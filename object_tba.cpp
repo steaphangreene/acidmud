@@ -30,6 +30,7 @@
 #include "cchar8.hpp"
 #include "color.hpp"
 #include "commands.hpp"
+#include "log.hpp"
 #include "mind.hpp"
 #include "object.hpp"
 #include "properties.hpp"
@@ -127,9 +128,9 @@ void Object::TBALoadAll() {
     fclose(muds);
   }
   TBACleanup();
-  fprintf(stderr, CBYL u8"Warning: %d untranslated triggers!\n" CNRM, untrans_trig);
-  fprintf(stderr, CBYL u8"Warning: %d tacked-on object aliases!\n" CNRM, obj_aliases);
-  fprintf(stderr, CBYL u8"Warning: %d tacked-on mob aliases!\n" CNRM, mob_aliases);
+  logeyy(u8"Warning: {} untranslated triggers!\n", untrans_trig);
+  logeyy(u8"Warning: {} tacked-on object aliases!\n", obj_aliases);
+  logeyy(u8"Warning: {} tacked-on mob aliases!\n", mob_aliases);
 }
 
 static std::vector<Object*> todotrg;
@@ -202,14 +203,14 @@ void Object::TBAFinalizeTriggers() {
       if (bynumwld.count(rnum) > 0) {
         newtext += std::u8string(u8"teleport ") + bynumwld[rnum]->Noun() + u8"\n";
       } else {
-        fprintf(stderr, u8"Error: Can't find teleport dest: %d\n", rnum);
+        loge(u8"Error: Can't find teleport dest: {}\n", rnum);
       }
       cur = trg->LongDesc().find(u8"teleport [", cur + 9);
     }
     if (newtext != u8"Powers List:\n") {
-      trg->Parent()->SetLongDesc(newtext.c_str());
+      trg->Parent()->SetLongDesc(newtext);
       trg->Recycle();
-      // fprintf(stderr, u8"%s", newtext.c_str());
+      // loge(u8"{}", newtext);
     } else if (trg->Skill(prhash(u8"TBAScriptType")) & 0x1000000) { // Room or Obj
       trg->Activate();
       new_trigger(13000 + (rand() % 13000), trg, nullptr, nullptr, u8"");
@@ -238,7 +239,7 @@ static void clean_string(std::u8string& s) {
   // Also remove N00bScript tags
   size_t n00b = s.find('@');
   while (n00b != std::u8string::npos) {
-    // fprintf(stderr, u8"Step: %s\n", s.c_str());
+    // loge(u8"Step: {}\n", s);
     if (s[n00b + 1] == '@') { //@@ -> @
       s = s.substr(0, n00b) + u8"@" + s.substr(n00b + 2);
       n00b = s.find('@', n00b + 1);
@@ -246,7 +247,7 @@ static void clean_string(std::u8string& s) {
       s = s.substr(0, n00b) + s.substr(n00b + 2);
       n00b = s.find('@', n00b);
     }
-    // if(n00b == std::u8string::npos) fprintf(stderr, u8"Done: %s\n\n", s.c_str());
+    // if(n00b == std::u8string::npos) loge(u8"Done: {}\n\n", s);
   }
 }
 
@@ -287,28 +288,28 @@ Object* dup_tba_obj(Object* obj) {
     obj2 = new Object(*obj);
     obj2->SetSkill(prhash(u8"Wearable on Left Hand"), 0);
     obj2->SetSkill(prhash(u8"Wearable on Right Hand"), 1);
-    obj->SetShortDesc((std::u8string(obj->ShortDesc()) + u8" (left)").c_str());
-    obj2->SetShortDesc((std::u8string(obj2->ShortDesc()) + u8" (right)").c_str());
-    //    fprintf(stderr, u8"Duped: '%s'\n", obj2->ShortDesc());
+    obj->SetShortDesc((std::u8string(obj->ShortDesc()) + u8" (left)"));
+    obj2->SetShortDesc((std::u8string(obj2->ShortDesc()) + u8" (right)"));
+    //    loge(u8"Duped: '{}'\n", obj2->ShortDesc());
   } else if (
       obj->Skill(prhash(u8"Wearable on Left Foot")) !=
       obj->Skill(prhash(u8"Wearable on Right Foot"))) {
     obj2 = new Object(*obj);
     obj2->SetSkill(prhash(u8"Wearable on Left Foot"), 0);
     obj2->SetSkill(prhash(u8"Wearable on Right Foot"), 1);
-    obj->SetShortDesc((std::u8string(obj->ShortDesc()) + u8" (left)").c_str());
-    obj2->SetShortDesc((std::u8string(obj2->ShortDesc()) + u8" (right)").c_str());
-    //    fprintf(stderr, u8"Duped: '%s'\n", obj2->ShortDesc());
+    obj->SetShortDesc((std::u8string(obj->ShortDesc()) + u8" (left)"));
+    obj2->SetShortDesc((std::u8string(obj2->ShortDesc()) + u8" (right)"));
+    //    loge(u8"Duped: '{}'\n", obj2->ShortDesc());
   } else if (
       obj->Skill(prhash(u8"Wearable on Left Leg")) !=
       obj->Skill(prhash(u8"Wearable on Right Leg"))) {
     obj2 = new Object(*obj);
-    //    fprintf(stderr, u8"Duped: '%s'\n", obj2->ShortDesc());
+    //    loge(u8"Duped: '{}'\n", obj2->ShortDesc());
   } else if (
       obj->Skill(prhash(u8"Wearable on Left Arm")) !=
       obj->Skill(prhash(u8"Wearable on Right Arm"))) {
     obj2 = new Object(*obj);
-    //    fprintf(stderr, u8"Duped: '%s'\n", obj2->ShortDesc());
+    //    loge(u8"Duped: '{}'\n", obj2->ShortDesc());
   }
   return obj2;
 }
@@ -343,20 +344,16 @@ void Object::TBAFinishMOB(Object* mob) {
 
   if (mob->Skill(prhash(u8"TBAAttack"))) {
     if (mob->IsAct(act_t::WIELD)) {
-      // fprintf(stderr, u8"Weapon def: %s\n", mob->ActTarg(act_t::WIELD)->Noun().c_str());
+      // loge(u8"Weapon def: {}\n", mob->ActTarg(act_t::WIELD)->Noun());
       if (mob->ActTarg(act_t::WIELD)->Skill(prhash(u8"WeaponType")) == 0) {
         if (!mob->ActTarg(act_t::HOLD)) { // Don't wield non-weapons, hold them
-          fprintf(
-              stderr,
-              CYEL u8"Warning: Wielded non-weapon: %s\n" CNRM,
-              mob->ActTarg(act_t::WIELD)->Noun().c_str());
+          logey(u8"Warning: Wielded non-weapon: {}\n", mob->ActTarg(act_t::WIELD)->Noun());
           mob->AddAct(act_t::HOLD, mob->ActTarg(act_t::WIELD));
           mob->StopAct(act_t::WIELD);
         } else {
-          fprintf(
-              stderr,
-              u8"Error: Wielded non-weapon with a held item: %s\n",
-              mob->ActTarg(act_t::WIELD)->Noun().c_str());
+          loge(
+              u8"Error: Wielded non-weapon with a held item: {}\n",
+              mob->ActTarg(act_t::WIELD)->Noun());
         }
       } else {
         mob->SetSkill(
@@ -395,7 +392,7 @@ static std::map<int, Object*> lastobj;
 void Object::TBALoadZON(const std::u8string& fn) {
   FILE* mudz = fopen(fn.c_str(), u8"r");
   if (mudz) {
-    // fprintf(stderr, u8"Loading TBA Zone from \"%s\"\n", fn.c_str());
+    // loge(u8"Loading TBA Zone from \"{}\"\n", fn);
     for (int ctr = 0; ctr < 3; ++ctr) {
       fscanf(mudz, u8"%*[^\n\r]\n");
     }
@@ -403,7 +400,7 @@ void Object::TBALoadZON(const std::u8string& fn) {
     while (!done) {
       char8_t type;
       fscanf(mudz, u8" %c", &type);
-      // fprintf(stderr, u8"Processing %c zone directive.\n", type);
+      // loge(u8"Processing {} zone directive.\n", type);
       switch (type) {
         case ('S'): {
           done = 1;
@@ -433,8 +430,8 @@ void Object::TBALoadZON(const std::u8string& fn) {
             obj->SetShortDesc(u8"a TBAMUD MOB Popper");
             obj->SetDesc(u8"This thing just pops out MOBs.");
 
-            // fprintf(stderr, u8"Put Mob \"%s\" in Room \"%s\"\n",
-            // obj->ShortDescC(), bynumwld[room]->ShortDescC());
+            // loge(u8"Put Mob \"{}\" in Room \"{}\"\n",
+            // obj->ShortDesc(), bynumwld[room]->ShortDesc());
 
             if (lastmob)
               TBAFinishMOB(lastmob);
@@ -454,8 +451,8 @@ void Object::TBALoadZON(const std::u8string& fn) {
           if (bynumwld.count(room) && bynumobj.count(num)) {
             Object* obj = new Object(*(bynumobj[num]));
             obj->SetParent(bynumwld[room]);
-            // fprintf(stderr, u8"Put Obj \"%s\" in Room \"%s\"\n",
-            // obj->ShortDescC(), bynumwld[room]->ShortDescC());
+            // loge(u8"Put Obj \"{}\" in Room \"{}\"\n",
+            // obj->ShortDesc(), bynumwld[room]->ShortDesc());
             if (obj->HasSkill(prhash(u8"Liquid Source"))) {
               obj->Activate();
             }
@@ -482,34 +479,26 @@ void Object::TBALoadZON(const std::u8string& fn) {
               case (1): { // Worn
                 lastmob->AddAct(act_t::WEAR_RFINGER, obj);
                 if (obj->Skill(prhash(u8"Wearable on Right Finger")) == 0) {
-                  fprintf(
-                      stderr,
-                      CYEL u8"%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn.c_str(),
-                      fline(mudz),
-                      obj->ShortDescC());
+                  logey(
+                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
                 }
               } break;
               case (2): { // Worn
                 lastmob->AddAct(act_t::WEAR_LFINGER, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Finger")) == 0) {
-                  fprintf(
-                      stderr,
-                      CYEL u8"%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn.c_str(),
-                      fline(mudz),
-                      obj->ShortDescC());
+                  logey(
+                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
                 }
               } break;
               case (3): { // TBA MOBs have two necks (1/2)
                 if (obj->Skill(prhash(u8"Wearable on Neck")) == 0) {
                   if (obj->Skill(prhash(u8"Wearable on Face")) == 0) {
-                    fprintf(
-                        stderr,
-                        CYEL u8"%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                        fn.c_str(),
+                    logey(
+
+                        u8"{}:{}: Warning: Wear item wrong: {}\n",
+                        fn,
                         fline(mudz),
-                        obj->ShortDescC());
+                        obj->ShortDesc());
                   } else {
                     if (lastmob->IsAct(act_t::WEAR_FACE))
                       bagit = 1;
@@ -526,12 +515,11 @@ void Object::TBALoadZON(const std::u8string& fn) {
               case (4): { // TBA MOBs have two necks (2/2)
                 if (obj->Skill(prhash(u8"Wearable on Collar")) == 0) {
                   if (obj->Skill(prhash(u8"Wearable on Face")) == 0) {
-                    fprintf(
-                        stderr,
-                        CYEL u8"%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                        fn.c_str(),
+                    logey(
+                        u8"{}:{}: Warning: Wear item wrong: {}\n",
+                        fn,
                         fline(mudz),
-                        obj->ShortDescC());
+                        obj->ShortDesc());
                   } else {
                     if (lastmob->IsAct(act_t::WEAR_FACE))
                       bagit = 1;
@@ -549,23 +537,18 @@ void Object::TBALoadZON(const std::u8string& fn) {
                 lastmob->AddAct(act_t::WEAR_CHEST, obj);
                 lastmob->AddAct(act_t::WEAR_BACK, obj);
                 if (obj->Skill(prhash(u8"Wearable on Chest")) == 0) {
-                  fprintf(
-                      stderr,
-                      CYEL u8"%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn.c_str(),
-                      fline(mudz),
-                      obj->ShortDescC());
+                  logey(
+                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
                 }
               } break;
               case (6): { // Worn
                 if (obj->Skill(prhash(u8"Wearable on Head")) == 0) {
                   if (obj->Skill(prhash(u8"Wearable on Face")) == 0) {
-                    fprintf(
-                        stderr,
-                        CYEL u8"%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                        fn.c_str(),
+                    logey(
+                        u8"{}:{}: Warning: Wear item wrong: {}\n",
+                        fn,
                         fline(mudz),
-                        obj->ShortDescC());
+                        obj->ShortDesc());
                   } else {
                     if (lastmob->IsAct(act_t::WEAR_FACE))
                       bagit = 1;
@@ -583,12 +566,8 @@ void Object::TBALoadZON(const std::u8string& fn) {
                 else
                   lastmob->AddAct(act_t::WEAR_RLEG, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Leg")) == 0) {
-                  fprintf(
-                      stderr,
-                      CYEL u8"%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn.c_str(),
-                      fline(mudz),
-                      obj->ShortDescC());
+                  logey(
+                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
                 }
               } break;
               case (8): { // Worn
@@ -598,12 +577,8 @@ void Object::TBALoadZON(const std::u8string& fn) {
                 else
                   lastmob->AddAct(act_t::WEAR_RFOOT, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Foot")) == 0) {
-                  fprintf(
-                      stderr,
-                      CYEL u8"%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn.c_str(),
-                      fline(mudz),
-                      obj->ShortDescC());
+                  logey(
+                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
                 }
               } break;
               case (9): { // Worn
@@ -613,12 +588,8 @@ void Object::TBALoadZON(const std::u8string& fn) {
                 else
                   lastmob->AddAct(act_t::WEAR_RHAND, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Hand")) == 0) {
-                  fprintf(
-                      stderr,
-                      CYEL u8"%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn.c_str(),
-                      fline(mudz),
-                      obj->ShortDescC());
+                  logey(
+                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
                 }
               } break;
               case (10): { // Worn
@@ -628,79 +599,54 @@ void Object::TBALoadZON(const std::u8string& fn) {
                 else
                   lastmob->AddAct(act_t::WEAR_RARM, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Arm")) == 0) {
-                  fprintf(
-                      stderr,
-                      CYEL u8"%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn.c_str(),
-                      fline(mudz),
-                      obj->ShortDescC());
+                  logey(
+                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
                 }
               } break;
               case (11): { // Worn
                 lastmob->AddAct(act_t::WEAR_SHIELD, obj);
                 if (obj->Skill(prhash(u8"Wearable on Shield")) == 0) {
-                  fprintf(
-                      stderr,
-                      CYEL u8"%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn.c_str(),
-                      fline(mudz),
-                      obj->ShortDescC());
+                  logey(
+                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
                 }
               } break;
               case (12): { // Worn
                 lastmob->AddAct(act_t::WEAR_LSHOULDER, obj);
                 lastmob->AddAct(act_t::WEAR_RSHOULDER, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Shoulder")) == 0) {
-                  fprintf(
-                      stderr,
-                      CYEL u8"%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn.c_str(),
-                      fline(mudz),
-                      obj->ShortDescC());
+                  logey(
+                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
                 }
               } break;
               case (13): { // Worn
                 lastmob->AddAct(act_t::WEAR_WAIST, obj);
                 if (obj->Skill(prhash(u8"Wearable on Waist")) == 0) {
-                  fprintf(
-                      stderr,
-                      CYEL u8"%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn.c_str(),
-                      fline(mudz),
-                      obj->ShortDescC());
+                  logey(
+                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
                 }
               } break;
               case (14): { // Worn
                 lastmob->AddAct(act_t::WEAR_RWRIST, obj);
                 if (obj->Skill(prhash(u8"Wearable on Right Wrist")) == 0) {
-                  fprintf(
-                      stderr,
-                      CYEL u8"%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn.c_str(),
-                      fline(mudz),
-                      obj->ShortDescC());
+                  logey(
+                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
                 }
               } break;
               case (15): { // Worn
                 lastmob->AddAct(act_t::WEAR_LWRIST, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Wrist")) == 0) {
-                  fprintf(
-                      stderr,
-                      CYEL u8"%s:%d: Warning: Wear item wrong: %s\n" CNRM,
-                      fn.c_str(),
-                      fline(mudz),
-                      obj->ShortDescC());
+                  logey(
+                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
                 }
               } break;
               case (16): { // Wielded
                 lastmob->AddAct(act_t::WIELD, obj);
                 if (obj->Skill(prhash(u8"WeaponType")) == 0) {
-                  fprintf(
-                      stderr,
-                      CYEL u8"%s:%d: Warning: Wield non-weapon: %s\n" CNRM,
-                      fn.c_str(),
+                  logey(
+                      u8"{}:{}: Warning: Wield non-weapon: {}\n",
+                      fn,
                       fline(mudz),
-                      obj->ShortDescC());
+                      obj->ShortDesc());
                 }
               } break;
               case (17): { // Held
@@ -745,8 +691,8 @@ void Object::TBALoadZON(const std::u8string& fn) {
             obj->SetParent(lastobj[innum]);
             if (obj2)
               obj2->SetParent(lastobj[innum]);
-            // fprintf(stderr, u8"Put Obj \"%s\" in Obj \"%s\"\n", obj->ShortDescC(),
-            // lastobj[innum]->ShortDescC());
+            // loge(u8"Put Obj \"{}\" in Obj \"{}\"\n", obj->ShortDesc(),
+            // lastobj[innum]->ShortDesc());
             lastobj[num] = obj;
           }
         } break;
@@ -769,13 +715,13 @@ void Object::TBALoadMOB(const std::u8string& fn) {
   }
   FILE* mudm = fopen(fn.c_str(), u8"r");
   if (mudm) {
-    // fprintf(stderr, u8"Loading TBA Mobiles from \"%s\"\n", fn.c_str());
+    // loge(u8"Loading TBA Mobiles from \"{}\"\n", fn);
     while (1) {
       char8_t buf[65536];
       int onum;
       if (fscanf(mudm, u8" #%d\n", &onum) < 1)
         break;
-      // fprintf(stderr, u8"Loaded MOB #%d\n", onum);
+      // loge(u8"Loaded MOB #{}\n", onum);
 
       Object* obj = new Object(mobroom);
       obj->SetSkill(prhash(u8"TBAMOB"), 1000000 + onum);
@@ -803,18 +749,17 @@ void Object::TBALoadMOB(const std::u8string& fn) {
       } while (lbeg != std::u8string::npos && lend != std::u8string::npos);
 
       obj->SetShortDesc(load_tba_field(mudm));
-      // fprintf(stderr, u8"Loaded TBA Mobile with Name = %s\n", buf);
+      // loge(u8"Loaded TBA Mobile with Name = {}\n", buf);
 
       std::u8string label = u8"";
       for (unsigned int actr = 0; actr < aliases.size(); ++actr) {
         if (!obj->Matches(std::u8string(aliases[actr]))) {
           if (aliases[actr].find_first_not_of(target_chars) != std::u8string::npos) {
-            fprintf(
-                stderr,
-                CYEL u8"Warning: Ignoring non-alpha alias [%s] in #%d ('%s')\n" CNRM,
+            logey(
+                u8"Warning: Ignoring non-alpha alias [{}] in #{} ('{}')\n",
                 std::u8string(aliases[actr]).c_str(),
                 obj->Skill(prhash(u8"TBAMOB")),
-                obj->ShortDescC());
+                obj->ShortDesc());
           } else if (aliases[actr] == u8"woman" || aliases[actr] == u8"girl") {
             obj->SetGender('F');
           } else if (aliases[actr] == u8"man" || aliases[actr] == u8"boy") {
@@ -833,12 +778,11 @@ void Object::TBALoadMOB(const std::u8string& fn) {
             else
               obj->SetShortDesc(obj->ShortDescS() + u8" the guildguard");
           } else {
-            // fprintf(
-            //    stderr,
-            //    CYEL u8"Warning: Adding [%s] to #%d ('%s')\n" CNRM,
+            // logey(
+            //    u8"Warning: Adding [{}] to #{} ('{}')\n",
             //    std::u8string(aliases[actr]).c_str(),
             //    obj->Skill(prhash(u8"TBAMOB")),
-            //    obj->ShortDescC());
+            //    obj->ShortDesc());
             label += u8" ";
             label += aliases[actr];
             ++mob_aliases;
@@ -852,7 +796,7 @@ void Object::TBALoadMOB(const std::u8string& fn) {
       }
 
       obj->SetDesc(load_tba_field(mudm));
-      // fprintf(stderr, u8"Loaded TBA Mobile with Desc = %s\n", buf);
+      // loge(u8"Loaded TBA Mobile with Desc = {}\n", buf);
 
       auto field = load_tba_field(mudm);
       if (field.length() > 0) {
@@ -863,7 +807,7 @@ void Object::TBALoadMOB(const std::u8string& fn) {
           obj->SetLongDesc(field.substr(1));
         }
       }
-      // fprintf(stderr, u8"Loaded TBA Mobile with LongDesc = %s\n", buf);
+      // loge(u8"Loaded TBA Mobile with LongDesc = {}\n", buf);
 
       obj->SetPos(pos_t::STAND);
       obj->SetAttribute(0, 3);
@@ -1031,8 +975,8 @@ void Object::TBALoadMOB(const std::u8string& fn) {
           Object* trg = new Object(*(bynumtrg[tnum]));
           trg->SetParent(obj);
           todotrg.push_back(trg);
-          //  fprintf(stderr, u8"Put Trg \"%s\" on MOB \"%s\"\n",
-          //	trg->DescC(), obj->ShortDescC()
+          //  loge(u8"Put Trg \"{}\" on MOB \"{}\"\n",
+          //	trg->DescC(), obj->ShortDesc()
           //	);
         }
       }
@@ -1212,7 +1156,7 @@ static void add_tba_spell(Object* obj, int spell, int power) {
       obj->SetSkill(prhash(u8"Darkness Spell"), power);
     } break;
     default: {
-      fprintf(stderr, CYEL u8"Warning: Unhandled CicleMUD Spell: %d\n" CNRM, spell);
+      logey(u8"Warning: Unhandled CicleMUD Spell: {}\n", spell);
     }
   }
 }
@@ -1226,13 +1170,13 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
   }
   FILE* mudo = fopen(fn.c_str(), u8"r");
   if (mudo) {
-    // fprintf(stderr, u8"Loading TBA Objects from \"%s\"\n", fn.c_str());
+    // loge(u8"Loading TBA Objects from \"{}\"\n", fn);
     while (1) {
       int onum;
       int valmod = 1000, powmod = 1;
       if (fscanf(mudo, u8" #%d\n", &onum) < 1)
         break;
-      // fprintf(stderr, u8"Loaded object #%d\n", onum);
+      // loge(u8"Loaded object #{}\n", onum);
 
       Object* obj = new Object(objroom);
       obj->SetSkill(prhash(u8"TBAObject"), 1000000 + onum);
@@ -1260,18 +1204,17 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       } while (lbeg != std::u8string::npos && lend != std::u8string::npos);
 
       obj->SetShortDesc(load_tba_field(mudo));
-      // fprintf(stderr, u8"Loaded TBA Object with Name = %s\n", buf);
+      // loge(u8"Loaded TBA Object with Name = {}\n", buf);
 
       std::u8string label = u8"";
       for (unsigned int actr = 0; actr < aliases.size(); ++actr) {
         if (!obj->Matches(std::u8string(aliases[actr]))) {
           if (aliases[actr].find_first_not_of(target_chars) != std::u8string::npos) {
-            fprintf(
-                stderr,
-                CYEL u8"Warning: Ignoring non-alpha alias [%s] in #%d ('%s')\n" CNRM,
+            logey(
+                u8"Warning: Ignoring non-alpha alias [{}] in #{} ('{}')\n",
                 std::u8string(aliases[actr]).c_str(),
                 obj->Skill(prhash(u8"TBAObject")),
-                obj->ShortDescC());
+                obj->ShortDesc());
           } else if (aliases[actr] == u8"wyv" || aliases[actr] == u8"ghenna") {
             // Ignore these, they're just typing short-cuts.
           } else if (
@@ -1280,12 +1223,11 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
               aliases[actr] == u8"milk") {
             // Ignore these, they're usually referring to the item that *should* be inside them.
           } else {
-            // fprintf(
-            //    stderr,
-            //    CYEL u8"Warning: Adding [%s] to #%d ('%s')\n" CNRM,
+            // logey(
+            //    u8"Warning: Adding [{}] to #{} ('{}')\n",
             //    std::u8string(aliases[actr]).c_str(),
             //    obj->Skill(prhash(u8"TBAObject")),
-            //    obj->ShortDescC());
+            //    obj->ShortDesc());
             label += u8" ";
             label += aliases[actr];
             ++obj_aliases;
@@ -1309,16 +1251,16 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
           obj->SetLongDesc(field.substr(1));
         }
       }
-      // fprintf(stderr, u8"Loaded TBA Object with Desc = %s\n", buf);
+      // loge(u8"Loaded TBA Object with Desc = {}\n", buf);
 
       int tp = 0, val[4];
       memset(buf, 0, 65536);
       if (fscanf(mudo, u8"%d %65535[^ \n\t]", &tp, buf) < 2) { // Effects Bitvector
-        fprintf(stderr, CRED u8"Bad file parse, no effects bitvec!\n" CNRM);
-        fprintf(stderr, CRED u8"LOC: %lu : %s\n" CNRM, ftell(mudo), fn.c_str());
-        fprintf(stderr, CRED u8"SOBJ: %s\n" CNRM, obj->ShortDescC());
-        fprintf(stderr, CRED u8"OBJ: %s\n" CNRM, obj->DescC());
-        fprintf(stderr, CRED u8"LOBJ: %s\n" CNRM, obj->LongDescC());
+        loger(u8"Bad file parse, no effects bitvec!\n");
+        loger(u8"LOC: {} : {}\n", ftell(mudo), fn);
+        loger(u8"SOBJ: {}\n", obj->ShortDesc());
+        loger(u8"OBJ: {}\n", obj->DescC());
+        loger(u8"LOBJ: {}\n", obj->LongDescC());
       }
       uint32_t flags = tba_bitvec(buf);
       if (flags & 1) { // GLOW
@@ -1367,11 +1309,11 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       // Wear Bitvector
       memset(buf, 0, 65536);
       if (fscanf(mudo, u8"%*s %*s %*s %65535[^ \n\t]%*[^\n\r]\n", buf) < 1) {
-        fprintf(stderr, CRED u8"Bad file parse, no main bitvec!\n" CNRM);
-        fprintf(stderr, CRED u8"LOC: %lu : %s\n" CNRM, ftell(mudo), fn.c_str());
-        fprintf(stderr, CRED u8"SOBJ: %s\n" CNRM, obj->ShortDescC());
-        fprintf(stderr, CRED u8"OBJ: %s\n" CNRM, obj->DescC());
-        fprintf(stderr, CRED u8"LOBJ: %s\n" CNRM, obj->LongDescC());
+        loger(u8"Bad file parse, no main bitvec!\n");
+        loger(u8"LOC: {} : {}\n", ftell(mudo), fn);
+        loger(u8"SOBJ: {}\n", obj->ShortDesc());
+        loger(u8"OBJ: {}\n", obj->DescC());
+        loger(u8"LOBJ: {}\n", obj->LongDescC());
       }
       flags = tba_bitvec(buf);
       if (flags & 1) { // TAKE
@@ -1392,10 +1334,10 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
         obj->SetSkill(prhash(u8"Wearable on Right Finger"), 2);
       }
       if (flags & 4) {
-        if (matches(name.c_str(), u8"mask") || matches(name.c_str(), u8"sunglasses") ||
-            matches(name.c_str(), u8"eyeglasses") || matches(name.c_str(), u8"spectacles") ||
-            matches(name.c_str(), u8"glasses") || matches(name.c_str(), u8"goggles") ||
-            matches(name.c_str(), u8"visor") || matches(name.c_str(), u8"eyelets")) {
+        if (matches(name, u8"mask") || matches(name, u8"sunglasses") ||
+            matches(name, u8"eyeglasses") || matches(name, u8"spectacles") ||
+            matches(name, u8"glasses") || matches(name, u8"goggles") || matches(name, u8"visor") ||
+            matches(name, u8"eyelets")) {
           obj->SetSkill(prhash(u8"Wearable on Face"), 1);
         } else {
           obj->SetSkill(prhash(u8"Wearable on Neck"), 1);
@@ -1405,7 +1347,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       if (flags & 8) {
         obj->SetSkill(prhash(u8"Wearable on Chest"), 1);
         obj->SetSkill(prhash(u8"Wearable on Back"), 1);
-        if (matches(name.c_str(), u8"suit of")) {
+        if (matches(name, u8"suit of")) {
           obj->SetSkill(prhash(u8"Wearable on Right Leg"), 1);
           obj->SetSkill(prhash(u8"Wearable on Left Leg"), 1);
           obj->SetSkill(prhash(u8"Wearable on Right Arm"), 1);
@@ -1414,10 +1356,10 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
         }
       }
       if (flags & 16) {
-        if (matches(name.c_str(), u8"mask") || matches(name.c_str(), u8"sunglasses") ||
-            matches(name.c_str(), u8"eyeglasses") || matches(name.c_str(), u8"spectacles") ||
-            matches(name.c_str(), u8"glasses") || matches(name.c_str(), u8"goggles") ||
-            matches(name.c_str(), u8"visor") || matches(name.c_str(), u8"eyelets")) {
+        if (matches(name, u8"mask") || matches(name, u8"sunglasses") ||
+            matches(name, u8"eyeglasses") || matches(name, u8"spectacles") ||
+            matches(name, u8"glasses") || matches(name, u8"goggles") || matches(name, u8"visor") ||
+            matches(name, u8"eyelets")) {
           obj->SetSkill(prhash(u8"Wearable on Face"), 1);
         } else {
           obj->SetSkill(prhash(u8"Wearable on Head"), 1);
@@ -1507,25 +1449,25 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
         obj->SetSkill(prhash(u8"Wearable on Left Wrist"), 1);
         obj->SetSkill(prhash(u8"Wearable on Right Wrist"), 2);
       }
-      obj->SetShortDesc(name.c_str());
+      obj->SetShortDesc(name);
 
       if (fscanf(mudo, u8"%d %d %d %d\n", val + 0, val + 1, val + 2, val + 3) < 4) {
-        fprintf(stderr, CRED u8"Bad file parse, no 4 vals!\n" CNRM);
-        fprintf(stderr, CRED u8"LOC: %lu : %s\n" CNRM, ftell(mudo), fn.c_str());
-        fprintf(stderr, CRED u8"SOBJ: %s\n" CNRM, obj->ShortDescC());
-        fprintf(stderr, CRED u8"OBJ: %s\n" CNRM, obj->DescC());
-        fprintf(stderr, CRED u8"LOBJ: %s\n" CNRM, obj->LongDescC());
+        loger(u8"Bad file parse, no 4 vals!\n");
+        loger(u8"LOC: {} : {}\n", ftell(mudo), fn);
+        loger(u8"SOBJ: {}\n", obj->ShortDescC());
+        loger(u8"OBJ: {}\n", obj->DescC());
+        loger(u8"LOBJ: {}\n", obj->LongDescC());
       }
 
       if (tp == 1) { // LIGHTS
         if (val[2] > 1) {
           obj->SetSkill(prhash(u8"Lightable"), val[2] * 60); // Total Lit Minutes
           obj->SetSkill(prhash(u8"Brightness"), 100); // All TBAMUD Lights
-          if (matches(name.c_str(), u8"lantern")) {
+          if (matches(name, u8"lantern")) {
             obj->SetSkill(prhash(u8"Resilience"), 800); // May last when dropped
-          } else if (matches(name.c_str(), u8"torch")) {
+          } else if (matches(name, u8"torch")) {
             obj->SetSkill(prhash(u8"Resilience"), 200); // Won't last when dropped
-          } else if (matches(name.c_str(), u8"candle")) {
+          } else if (matches(name, u8"candle")) {
             // obj->SetSkill(prhash(u8"Resilience"), 0); // Goes out when dropped
           } else {
             obj->SetSkill(prhash(u8"Resilience"), 100); // Won't last when dropped
@@ -2030,11 +1972,10 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
         } else if (matches(obj->ShortDesc(), u8"net")) {
           skmatch = get_weapon_type(u8"Nets");
         } else {
-          fprintf(
-              stderr,
-              CYEL u8"Warning: Using Default of '%s' for '%s'!\n" CNRM,
-              SkillName(get_weapon_skill(skmatch)).c_str(),
-              obj->ShortDescC());
+          logey(
+              u8"Warning: Using Default of '{}' for '{}'!\n",
+              SkillName(get_weapon_skill(skmatch)),
+              obj->ShortDesc());
         }
 
         if (matches(obj->ShortDesc(), u8"two-handed")) {
@@ -2147,10 +2088,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
           else if (skmatch == get_weapon_type(u8"Punching"))
             wreach = 0;
           else {
-            fprintf(
-                stderr,
-                CYEL u8"Warning: Using Default reach of zero for '%s'!\n" CNRM,
-                obj->ShortDescC());
+            logey(u8"Warning: Using Default reach of zero for '{}'!\n", obj->ShortDesc());
           }
         }
 
@@ -2169,11 +2107,11 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
 
       int wt = 0, vl = 0;
       if (fscanf(mudo, u8"%d %d %*[^\n\r]\n", &wt, &vl) < 2) {
-        fprintf(stderr, CRED u8"Bad file parse, no weight/volume!\n" CNRM);
-        fprintf(stderr, CRED u8"LOC: %lu : %s\n" CNRM, ftell(mudo), fn.c_str());
-        fprintf(stderr, CRED u8"SOBJ: %s\n" CNRM, obj->ShortDescC());
-        fprintf(stderr, CRED u8"OBJ: %s\n" CNRM, obj->DescC());
-        fprintf(stderr, CRED u8"LOBJ: %s\n" CNRM, obj->LongDescC());
+        loger(u8"Bad file parse, no weight/volume!\n");
+        loger(u8"LOC: {} : {}\n", ftell(mudo), fn);
+        loger(u8"SOBJ: {}\n", obj->ShortDesc());
+        loger(u8"OBJ: {}\n", obj->DescC());
+        loger(u8"LOBJ: {}\n", obj->LongDescC());
       }
 
       if (tp != 20) { // MONEY DOESN'T WORK THIS WAY
@@ -2287,7 +2225,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
             Object* trg = new Object(*(bynumtrg[tnum]));
             trg->SetParent(obj);
             todotrg.push_back(trg);
-            //    fprintf(stderr, u8"Put Trg \"%s\" on Obj \"%s\"\n",
+            //    loge(u8"Put Trg \"{}\" on Obj \"{}\"\n",
             //	trg->Desc(), obj->ShortDesc()
             //	);
           }
@@ -2299,14 +2237,10 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
               }
             }
             if (std::u8string(buf).find_first_not_of(target_chars) != std::u8string::npos) {
-              fprintf(
-                  stderr,
-                  CYEL u8"Warning: Ignoring non-alpha extra (%s) for '%s'!\n" CNRM,
-                  buf,
-                  obj->ShortDescC());
+              logey(u8"Warning: Ignoring non-alpha extra ({}) for '{}'!\n", buf, obj->ShortDesc());
             } else if (words_match(obj->ShortDesc(), buf)) {
-              // fprintf(stderr, CYEL u8"Warning: Duplicate (%s) extra for '%s'!\n" CNRM, buf,
-              // obj->ShortDescC());
+              // logey(u8"Warning: Duplicate ({}) extra for '{}'!\n", buf,
+              // obj->ShortDesc());
             } else {
               std::u8string sd = obj->ShortDescS();
               if (sd.back() == ')') {
@@ -2317,8 +2251,8 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
               sd += buf;
               sd += ')';
               obj->SetShortDesc(sd);
-              // fprintf(stderr, CYEL u8"Warning: Non-matching (%s) extra for '%s'!\n" CNRM, buf,
-              // obj->ShortDescC());
+              // logey(u8"Warning: Non-matching ({}) extra for '{}'!\n", buf,
+              // obj->ShortDesc());
             }
           }
           fscanf(mudo, u8"%*[^~]");
@@ -2331,13 +2265,13 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
             ld += u8"\n\n";
             ld += buf;
             obj->SetLongDesc(ld);
-            // fprintf(stderr, CYEL u8"Warning: Had to merge long descriptions of (%s) extra for
-            // '%s'!\n" CNRM, obj->LongDescC(), obj->ShortDescC());
+            // logey(u8"Warning: Had to merge long descriptions of ({}) extra for
+            // '{}'!\n", obj->LongDesc(), obj->ShortDesc());
           }
           fscanf(mudo, u8"%*[^~]");
           fscanf(mudo, u8"~%*[\n\r]");
         } else { // Extra Descriptions FIXME: Handle!
-          fprintf(stderr, u8"ERROR: Unknown tag!\n");
+          loge(u8"ERROR: Unknown tag!\n");
         }
       }
       if (magresist > 0)
@@ -2366,12 +2300,12 @@ void Object::TBALoadWLD(const std::u8string& fn) {
     zone->SetSkill(prhash(u8"Day Length"), 240);
     zone->SetSkill(prhash(u8"Day Time"), 120);
 
-    // fprintf(stderr, u8"Loading TBA Realm from \"%s\"\n", fn.c_str());
+    // loge(u8"Loading TBA Realm from \"{}\"\n", fn);
     while (1) {
       int onum;
       if (fscanf(mud, u8" #%d\n", &onum) < 1)
         break;
-      // fprintf(stderr, u8"Loading room #%d\n", onum);
+      // loge(u8"Loading room #{}\n", onum);
 
       Object* obj = new Object(zone);
       olist.push_back(obj);
@@ -2391,10 +2325,10 @@ void Object::TBALoadWLD(const std::u8string& fn) {
       obj->SetValue(-1);
 
       obj->SetShortDesc(load_tba_field(mud));
-      // fprintf(stderr, u8"Loaded TBA Room with Name = %s\n", buf);
+      // loge(u8"Loaded TBA Room with Name = {}\n", buf);
 
       obj->SetDesc(load_tba_field(mud));
-      // fprintf(stderr, u8"Loaded TBA Room with Desc = %s\n", buf);
+      // loge(u8"Loaded TBA Room with Desc = {}\n", buf);
 
       int val;
       fscanf(mud, u8"%*d %65535[^ \t\n] %*d %*d %*d %d\n", buf, &val);
@@ -2477,7 +2411,7 @@ void Object::TBALoadWLD(const std::u8string& fn) {
           fscanf(mud, u8"%*[^~]"); // FIXME: Load These!
           fscanf(mud, u8"~%*[\n\r]");
         } else if (buf[0] != 'S') {
-          fprintf(stderr, u8"#%d: Warning, didn't see an ending S!\n", onum);
+          loge(u8"#{}: Warning, didn't see an ending S!\n", onum);
         } else {
           break;
         }
@@ -2489,7 +2423,7 @@ void Object::TBALoadWLD(const std::u8string& fn) {
             Object* trg = new Object(*(bynumtrg[tnum]));
             trg->SetParent(obj);
             todotrg.push_back(trg);
-            //    fprintf(stderr, u8"Put Trg \"%s\" on Room \"%s\"\n",
+            //    loge(u8"Put Trg \"{}\" on Room \"{}\"\n",
             //	trg->Desc(), obj->ShortDesc()
             //	);
           }
@@ -2553,8 +2487,8 @@ void Object::TBALoadWLD(const std::u8string& fn) {
             } else {
               des = std::u8string(u8"A passage ") + dirname[dir] + u8" is here.";
             }
-            nobj->SetShortDesc(nm.c_str());
-            nobj->SetDesc(des.c_str());
+            nobj->SetShortDesc(nm);
+            nobj->SetDesc(des);
             nobj->SetSkill(prhash(u8"Open"), 1000);
             nobj->SetSkill(prhash(u8"Enterable"), 1);
             nobj->AddAct(act_t::SPECIAL_LINKED, nobj2);
@@ -2570,7 +2504,7 @@ void Object::TBALoadWLD(const std::u8string& fn) {
     }
     fclose(mud);
   } else {
-    fprintf(stderr, u8"Error: No TBA Realm \"%s\"\n", fn.c_str());
+    loge(u8"Error: No TBA Realm \"{}\"\n", fn);
   }
 }
 
@@ -2578,14 +2512,14 @@ static const std::u8string base = u8"'^&*abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLM
 static std::set<std::u8string> parse_tba_shop_rules(std::u8string rules) {
   std::set<std::u8string> ret;
   if (rules[0]) {
-    //    fprintf(stderr, u8"Initial: '%s'\n", rules.c_str());
+    //    loge(u8"Initial: '{}'\n", rules);
     size_t done = rules.find_first_not_of(base);
     while (done != std::u8string::npos) {
       if (rules[done] == '|' || rules[done] == '+') {
         std::u8string first = rules.substr(0, done);
         trim_string(first);
         ret.insert(first);
-        //	fprintf(stderr, u8"  Done: '%s'\n", first.c_str());
+        //	loge(u8"  Done: '{}'\n", first);
         rules = rules.substr(done + 1);
         trim_string(rules);
         done = rules.find_first_not_of(base);
@@ -2596,24 +2530,23 @@ static std::set<std::u8string> parse_tba_shop_rules(std::u8string rules) {
         std::set<std::u8string> tmp = parse_tba_shop_rules(rules.substr(done + 1));
         for (auto next : tmp) {
           ret.insert(next + rules.substr(end + 1));
-          //	  fprintf(stderr, u8"  Built: '%s'\n",
-          //		((*next) + rules.substr(end+1)).c_str()
+          //	  loge(u8"  Built: '{}'\n",
+          //		((*next) + rules.substr(end+1))
           //		);
         }
         return ret; // FIXME: Handled multiple ()()()....
       } else if (rules[done] == ')' || rules[done] == ']') {
         std::u8string first = rules.substr(0, done);
         trim_string(first);
-        //	fprintf(stderr, u8"  Done: '%s'\n", first.c_str());
+        //	loge(u8"  Done: '{}'\n", first);
         ret.insert(first);
         return ret; // End of sub-call
       } else {
-        fprintf(
-            stderr, CYEL u8"Warning: Can't handle shop rule fragment: '%s'\n" CNRM, rules.c_str());
+        logey(u8"Warning: Can't handle shop rule fragment: '{}'\n", rules);
         done = std::u8string::npos;
       }
     }
-    //    fprintf(stderr, u8"  Done: '%s'\n", rules.c_str());
+    //    loge(u8"  Done: '{}'\n", rules);
     ret.insert(rules);
   }
   return ret;
@@ -2629,7 +2562,7 @@ void Object::TBALoadSHP(const std::u8string& fn) {
         int val, kpr;
         if (!fscanf(mud, u8"#%d~\n", &val))
           break; // Shop Number
-        // fprintf(stderr, u8"Loaded shop #%d\n", val);
+        // loge(u8"Loaded shop #{}\n", val);
 
         vortex = new Object;
         vortex->SetShortDesc(u8"a shopkeeper vortex");
@@ -2643,7 +2576,7 @@ void Object::TBALoadSHP(const std::u8string& fn) {
         fscanf(mud, u8"%d\n", &val); // Item sold
         while (val >= 0) {
           if (val != 0 && bynumobj.count(val) == 0) {
-            fprintf(stderr, u8"Error: Shop's item #%d does not exist!\n", val);
+            loge(u8"Error: Shop's item #{} does not exist!\n", val);
           } else if (val != 0) {
             Object* item = new Object(*(bynumobj[val]));
             Object* item2 = dup_tba_obj(item);
@@ -2769,10 +2702,10 @@ void Object::TBALoadSHP(const std::u8string& fn) {
               type = u8"Cursed"; // According To: Rumble
 
             if (extra[0]) {
-              // fprintf(stderr, u8"Rule: '%s'\n", extra.c_str());
+              // loge(u8"Rule: '{}'\n", extra);
               std::set<std::u8string> extras = parse_tba_shop_rules(extra);
               for (auto ex : extras) {
-                // fprintf(stderr, u8"Adding: 'Accept %s'\n", ex.c_str());
+                // loge(u8"Adding: 'Accept {}'\n", ex);
                 // keeper->SetSkill(prhash(u8"Accept ") + ex, 1);
                 picky += (type + u8": " + ex + u8"\n");
               }
@@ -2787,11 +2720,7 @@ void Object::TBALoadSHP(const std::u8string& fn) {
                 type != u8"Trap" && type != u8"Container" && type != u8"Note" &&
                 type != u8"Liquid Container" && type != u8"Key" && type != u8"Food" &&
                 type != u8"Money" && type != u8"Pen" && type != u8"Boat" && type != u8"Fountain") {
-              fprintf(
-                  stderr,
-                  CYEL u8"Warning: Can't handle %s's buy target: '%s'\n" CNRM,
-                  keeper->Noun().c_str(),
-                  type.c_str());
+              logey(u8"Warning: Can't handle {}'s buy target: '{}'\n", keeper->Noun(), type);
             } else if (type != u8"0") { // Apparently 0 used for u8"Ignore This"
               keeper->SetSkill(std::u8string(u8"Buy ") + type, (int)(num2 * 1000.0 + 0.5));
             }
@@ -2801,15 +2730,15 @@ void Object::TBALoadSHP(const std::u8string& fn) {
           keeper->AddAct(act_t::WEAR_RSHOULDER, vortex);
         } else {
           vortex->Recycle();
-          fprintf(stderr, CYEL u8"Warning: Can't find shopkeeper #%d!\n" CNRM, kpr);
+          logey(u8"Warning: Can't find shopkeeper #{}!\n", kpr);
         }
       }
     } else if (fscanf(mud, u8"%1[$]", buf) < 1) { // Not a Null Shop File!
-      fprintf(stderr, u8"Error: '%s' is not a CircleMUD v3.0 Shop File!\n", fn.c_str());
+      loge(u8"Error: '{}' is not a CircleMUD v3.0 Shop File!\n", fn);
     }
     fclose(mud);
   } else {
-    fprintf(stderr, u8"Error: '%s' does not exist!\n", fn.c_str());
+    loge(u8"Error: '{}' does not exist!\n", fn);
   }
 }
 
@@ -2826,7 +2755,7 @@ void Object::TBALoadTRG(const std::u8string& fn) { // Triggers
       script->SetSkill(prhash(u8"TBAScript"), 1000000 + tnum);
       script->SetSkill(prhash(u8"Accomplishment"), 1200000 + tnum);
       script->SetShortDesc(u8"A tbaMUD trigger script");
-      // fprintf(stderr, u8"Loading #%d\n", tnum);
+      // loge(u8"Loading #{}\n", tnum);
       fscanf(mud, u8" %65535[^~]", buf); // Trigger Name - Discarded!
       // script->SetDesc(buf);
       fscanf(mud, u8"~");
@@ -2863,15 +2792,15 @@ void Object::TBALoadTRG(const std::u8string& fn) { // Triggers
 
         // if (dirp) {
         //  if (clsp) {
-        //    fprintf(stderr, u8"%d appears to be a '%s' %s-guild guard trigger.\n", tnum, dir,
+        //    loge(u8"{} appears to be a '{}' {}-guild guard trigger.\n", tnum, dir,
         //    cls);
         //  } else {
-        //    fprintf(stderr, u8"%d appears to be a '%s' direction guard trigger.\n", tnum, dir);
+        //    loge(u8"{} appears to be a '{}' direction guard trigger.\n", tnum, dir);
         //  }
         //}
         ++untrans_trig; // This is NOT really handled yet.
       } else if (strstr(buf, u8"if %direction% == ")) {
-        // fprintf(stderr, u8"%d appears to be a direction trigger.\n", tnum);
+        // loge(u8"{} appears to be a direction trigger.\n", tnum);
         ++untrans_trig; // This is NOT really handled yet.
       } else if (0) {
       } else {
@@ -2880,6 +2809,6 @@ void Object::TBALoadTRG(const std::u8string& fn) { // Triggers
     }
     fclose(mud);
   } else {
-    fprintf(stderr, u8"Error: '%s' does not exist!\n", fn.c_str());
+    loge(u8"Error: '{}' does not exist!\n", fn);
   }
 }

@@ -34,6 +34,7 @@
 #include "cchar8.hpp"
 #include "color.hpp"
 #include "commands.hpp"
+#include "log.hpp"
 #include "mind.hpp"
 #include "net.hpp"
 #include "object.hpp"
@@ -385,7 +386,7 @@ std::u8string Mind::TBAComp(std::u8string expr) const {
 
     if (oper <= -3) { // Non-Boolean - actual numeric value
       comp = itos(res);
-      // fprintf(stderr, u8"RES: %s\n", buf);
+      // loge(u8"RES: {}\n", buf);
     }
 
     if (expr != u8"") {
@@ -433,7 +434,9 @@ std::map<std::u8string, std::u8string> Mind::cvars;
 Mind::~Mind() {
   // if(body && body->Skill(prhash(u8"TBAScript")) >= 5034503 && body->Skill(prhash(u8"TBAScript"))
   // <= 5034507)
-  //  fprintf(stderr, CBLU u8"Disabled(%p): '%d'\n" CNRM, this, body->Skill(prhash(u8"TBAScript")));
+  // logeb(
+  //    u8"Disabled({}): '{}'\n", reinterpret_cast<void*>(this),
+  //    body->Skill(prhash(u8"TBAScript")));
   if (type == mind_t::REMOTE)
     close_socket(pers);
   type = mind_t::NONE;
@@ -731,11 +734,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
         //	|| line.find(u8"exclaim") != std::u8string::npos
         //	|| line.find(u8"speech") != std::u8string::npos
     ) {
-      fprintf(
-          stderr,
-          CGRN u8"#%d Debug: '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      logeg(u8"#{} Debug: '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
     }
     std::u8string vname = line.substr(cur + 1, end - cur - 1);
     Object* obj = nullptr;
@@ -775,11 +774,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
             //		|| script.find(u8"%damage% %actor% -%actor.level%") !=
             // std::u8string::npos
         ) {
-          fprintf(
-              stderr,
-              CGRN u8"#%d Random: '%s'\n" CNRM,
-              body->Skill(prhash(u8"TBAScript")),
-              obj->Noun().c_str());
+          logeg(u8"#{} Random: '{}'\n", body->Skill(prhash(u8"TBAScript")), obj->Noun());
         }
       } else {
         obj = nullptr;
@@ -1399,11 +1394,10 @@ bool Mind::TBAVarSub(std::u8string& line) const {
         } else if (!strncmp(field.c_str(), u8"affect(", 7)) {
           size_t len = field.find_first_not_of(u8"abcdefghijklmnopqrstuvwxyz-", 7);
           auto spell = tba_spellconvert(field.substr(7, len - 7));
-          // fprintf(
-          //    stderr,
-          //    CBLU u8"Interpreting '%s' as 'spell = %s'\n" CNRM,
-          //    field.c_str(),
-          //    spell.c_str());
+          // logeb(
+          //    CBLU u8"Interpreting '{}' as 'spell = {}'\n" CNRM,
+          //    field,
+          //    spell);
           val = u8"";
           if (obj) {
             val = itos(obj->Power(crc32c(spell)));
@@ -1475,12 +1469,11 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           is_obj = 0;
           // Is no general fighting state, must fight someone!
         } else {
-          fprintf(
-              stderr,
-              CRED u8"#%d Error: Bad sub-obj '%s' in '%s'\n" CNRM,
+          loger(
+              u8"#{} Error: Bad sub-obj '{}' in '{}'\n" CNRM,
               body->Skill(prhash(u8"TBAScript")),
-              field.c_str(),
-              line.c_str());
+              field,
+              line);
           return false;
         }
       } else {
@@ -1504,12 +1497,11 @@ bool Mind::TBAVarSub(std::u8string& line) const {
         } else if (!strcmp(field.c_str(), u8"trim")) {
           trim_string(val);
         } else {
-          fprintf(
-              stderr,
-              CRED u8"#%d Error: Bad sub-str '%s' in '%s'\n" CNRM,
+          loger(
+              u8"#{} Error: Bad sub-str '{}' in '{}'\n" CNRM,
               body->Skill(prhash(u8"TBAScript")),
-              field.c_str(),
-              line.c_str());
+              field,
+              line);
           return false;
         }
       }
@@ -1534,24 +1526,20 @@ bool Mind::TBAVarSub(std::u8string& line) const {
       //	|| line.find(u8"exclaim") != std::u8string::npos
       //	|| line.find(u8"speech") != std::u8string::npos
   ) {
-    fprintf(
-        stderr,
-        CGRN u8"#%d Debug: '%s' <-Final\n" CNRM,
-        body->Skill(prhash(u8"TBAScript")),
-        line.c_str());
+    logeg(u8"#{} Debug: '{}' <-Final\n", body->Skill(prhash(u8"TBAScript")), line);
   }
   return true;
 }
 
-#define QUOTAERROR1 CRED u8"#%d Error: script quota exceeded - killed.\n" CNRM
+#define QUOTAERROR1 CRED u8"#{} Error: script quota exceeded - killed.\n" CNRM
 #define QUOTAERROR2 body->Skill(prhash(u8"TBAScript"))
-#define PING_QUOTA()                             \
-  {                                              \
-    --quota;                                     \
-    if (quota < 1) {                             \
-      fprintf(stderr, QUOTAERROR1, QUOTAERROR2); \
-      return -1;                                 \
-    }                                            \
+#define PING_QUOTA()                  \
+  {                                   \
+    --quota;                          \
+    if (quota < 1) {                  \
+      loge(QUOTAERROR1, QUOTAERROR2); \
+      return -1;                      \
+    }                                 \
   }
 
 // Return:
@@ -1566,11 +1554,7 @@ int Mind::TBARunLine(std::u8string line) {
       //	|| line.find(u8"exclaim") != std::u8string::npos
       //	|| line.find(u8"speech") != std::u8string::npos
   ) {
-    fprintf(
-        stderr,
-        CGRN u8"#%d Debug: Running '%s'\n" CNRM,
-        body->Skill(prhash(u8"TBAScript")),
-        line.c_str());
+    logeg(u8"#{} Debug: Running '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
   }
   Object* room = ovars.at(u8"self");
   while (room && room->Skill(prhash(u8"TBARoom")) == 0) {
@@ -1580,8 +1564,8 @@ int Mind::TBARunLine(std::u8string line) {
       room = room->Parent();
   }
   if (!room) { // Not in a room (dup clone, in a popper, etc...).
-    //    fprintf(stderr, CRED u8"#%d Error: No room in '%s'\n" CNRM,
-    //	body->Skill(prhash(u8"TBAScript")), line.c_str()
+    //    loger(u8"#{} Error: No room in '{}'\n",
+    //	body->Skill(prhash(u8"TBAScript")), line
     //	);
     return -1;
   }
@@ -1589,7 +1573,7 @@ int Mind::TBARunLine(std::u8string line) {
   if ((body->Skill(prhash(u8"TBAScriptType")) & 0x103FFDE) > 0x1000000) {
     if (ovars.at(u8"self")->IsAct(act_t::DEAD) || ovars.at(u8"self")->IsAct(act_t::DYING) ||
         ovars.at(u8"self")->IsAct(act_t::UNCONSCIOUS)) {
-      //      fprintf(stderr, CGRN u8"#%d Debug: Triggered on downed MOB.\n" CNRM,
+      //      logeg(u8"#{} Debug: Triggered on downed MOB.\n",
       //	body->Skill(prhash(u8"TBAScript"))
       //	);
       spos_s.back() = std::u8string::npos; // Jump to End
@@ -1600,7 +1584,7 @@ int Mind::TBARunLine(std::u8string line) {
   size_t spos = spos_s.back();
   int vnum = body->Skill(prhash(u8"TBAScript"));
   if (!TBAVarSub(line)) {
-    fprintf(stderr, CRED u8"#%d Error: VarSub failed in '%s'\n" CNRM, vnum, line.c_str());
+    loger(u8"#{} Error: VarSub failed in '{}'\n", vnum, line);
     return -1;
   }
 
@@ -1621,8 +1605,8 @@ int Mind::TBARunLine(std::u8string line) {
 
   //  //Start of script command if/else if/else
   //  if(line.find(u8"%") != line.rfind(u8"%")) {		//More than one '%'
-  //    fprintf(stderr, CRED u8"#%d Error: Failed to fully expand '%s'\n" CNRM,
-  //	body->Skill(prhash(u8"TBAScript")), line.c_str()
+  //    loger(u8"#{} Error: Failed to fully expand '{}'\n",
+  //	body->Skill(prhash(u8"TBAScript")), line
   //	);
   //    return -1;
   //    }
@@ -1636,11 +1620,7 @@ int Mind::TBARunLine(std::u8string line) {
       ovars.erase(var);
       ovars[u8"context"]->SetSkill(fmt::format(u8"TBA:{}", var), 0);
     } else {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: Malformed unset '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(u8"#{} Error: Malformed unset '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
     return 0;
@@ -1662,17 +1642,12 @@ int Mind::TBARunLine(std::u8string line) {
               //		|| var.find(u8"exclaim") != std::u8string::npos
               //		|| var.find(u8"speech") != std::u8string::npos
           ) {
-            fprintf(
-                stderr,
-                CGRN u8"#%d Debug: '%s' = '%s'\n" CNRM,
-                body->Skill(prhash(u8"TBAScript")),
-                var.c_str(),
-                val.c_str());
+            logeg(u8"#{} Debug: '{}' = '{}'\n", body->Skill(prhash(u8"TBAScript")), var, val);
           }
           if (coml == 'e') {
             int valnum = body->Skill(prhash(u8"TBAScript"));
             if (!TBAVarSub(val)) {
-              fprintf(stderr, CRED u8"#%d Error: Eval failed in '%s'\n" CNRM, valnum, line.c_str());
+              loger(u8"#{} Error: Eval failed in '{}'\n", valnum, line);
               return -1;
             }
             val = TBAComp(val);
@@ -1728,27 +1703,22 @@ int Mind::TBARunLine(std::u8string line) {
             }
             ovars.erase(var);
           } else if (wnum < 0) { // Bad number after varname
-            fprintf(
-                stderr,
-                CRED u8"#%d Error: Malformed extract '%s'\n" CNRM,
+            loger(
+                u8"#{} Error: Malformed extract '{}'\n" CNRM,
                 body->Skill(prhash(u8"TBAScript")),
-                line.c_str());
+                line);
             return -1;
           }
         } else { // Only space after varname
-          fprintf(
-              stderr,
-              CRED u8"#%d Error: Malformed extract '%s'\n" CNRM,
+          loger(
+              u8"#{} Error: Malformed extract '{}'\n" CNRM,
               body->Skill(prhash(u8"TBAScript")),
-              line.c_str());
+              line);
           return -1;
         }
       } else { // Nothing after varname
-        fprintf(
-            stderr,
-            CRED u8"#%d Error: Malformed extract '%s'\n" CNRM,
-            body->Skill(prhash(u8"TBAScript")),
-            line.c_str());
+        loger(
+            u8"#{} Error: Malformed extract '{}'\n" CNRM, body->Skill(prhash(u8"TBAScript")), line);
         return -1;
       }
     }
@@ -1758,11 +1728,7 @@ int Mind::TBARunLine(std::u8string line) {
   else if (!strncmp(line.c_str(), u8"at ", 3)) {
     int dnum, pos;
     if (sscanf(line.c_str(), u8"at %d %n", &dnum, &pos) < 1) {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: Malformed at '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(u8"#{} Error: Malformed at '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
     room = room->Zone();
@@ -1778,11 +1744,8 @@ int Mind::TBARunLine(std::u8string line) {
       }
     }
     if (!room) {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: Can't find room in '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(
+          u8"#{} Error: Can't find room in '{}'\n" CNRM, body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
     Object* oldp = nullptr;
@@ -1804,11 +1767,7 @@ int Mind::TBARunLine(std::u8string line) {
     if (sscanf(line.c_str() + 8, u8" OBJ:%p", &con) >= 1 && con != nullptr) {
       ovars[u8"context"] = con;
     } else {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: No Context Object '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(u8"#{} Error: No Context Object '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       return 1;
     }
   }
@@ -1821,14 +1780,13 @@ int Mind::TBARunLine(std::u8string line) {
       if (con->IsAnimate()) {
         con->Accomplish(body->Skill(prhash(u8"Accomplishment")), u8"completing a quest");
       }
-      //      fprintf(stderr, CGRN u8"#%d Debug: RDelete '%s'\n" CNRM,
-      //		body->Skill(prhash(u8"TBAScript")), line.c_str());
+      //      logeg(u8"#{} Debug: RDelete '{}'\n",
+      //		body->Skill(prhash(u8"TBAScript")), line);
     } else {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: No RDelete VarName/ID '%s'\n" CNRM,
+      loger(
+          u8"#{} Error: No RDelete VarName/ID '{}'\n" CNRM,
           body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+          line);
       return 1;
     }
   }
@@ -1843,23 +1801,21 @@ int Mind::TBARunLine(std::u8string line) {
         if (con->IsAnimate()) {
           con->Accomplish(body->Skill(prhash(u8"Accomplishment")), u8"role playing");
         }
-        //	fprintf(stderr, CGRN u8"#%d Debug: Remote %s=%d '%s'\n" CNRM,
-        //		body->Skill(prhash(u8"TBAScript")), var, val, line.c_str());
+        //	logeg(u8"#{} Debug: Remote {}={} '{}'\n",
+        //		body->Skill(prhash(u8"TBAScript")), var, val, line);
       } else {
-        fprintf(
-            stderr,
-            CRED u8"#%d Error: Non-Existent Remote %s '%s'\n" CNRM,
+        loger(
+            u8"#{} Error: Non-Existent Remote {} '{}'\n" CNRM,
             body->Skill(prhash(u8"TBAScript")),
             var,
-            line.c_str());
+            line);
         return 1;
       }
     } else {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: No Remote VarName/ID '%s'\n" CNRM,
+      loger(
+          u8"#{} Error: No Remote VarName/ID '{}'\n" CNRM,
           body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+          line);
       return 1;
     }
   }
@@ -1871,23 +1827,18 @@ int Mind::TBARunLine(std::u8string line) {
       if (svars.count(var) > 0) {
         int val = atoi(svars[var].c_str());
         con->SetSkill(fmt::format(u8"TBA:{}", var), val);
-        //	fprintf(stderr, CGRN u8"#%d Debug: Global %s=%d '%s'\n" CNRM,
-        //		body->Skill(prhash(u8"TBAScript")), var, val, line.c_str());
+        //	logeg(u8"#{} Debug: Global {}={} '{}'\n",
+        //		body->Skill(prhash(u8"TBAScript")), var, val, line);
       } else {
-        fprintf(
-            stderr,
-            CRED u8"#%d Error: Non-Existent Global %s '%s'\n" CNRM,
+        loger(
+            u8"#{} Error: Non-Existent Global {} '{}'\n" CNRM,
             body->Skill(prhash(u8"TBAScript")),
             var,
-            line.c_str());
+            line);
         return 1;
       }
     } else {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: No Global VarName '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(u8"#{} Error: No Global VarName '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       return 1;
     }
   }
@@ -1912,11 +1863,7 @@ int Mind::TBARunLine(std::u8string line) {
         return 1;
       }
     } else {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: Told '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(u8"#{} Error: Told '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
   }
@@ -1927,16 +1874,12 @@ int Mind::TBARunLine(std::u8string line) {
     if (time > 0) {
       // if(body->Skill(prhash(u8"TBAScript")) >= 5034503 && body->Skill(prhash(u8"TBAScript")) <=
       // 5034507)
-      //  fprintf(stderr, CBLU u8"#%d Suspending for: %d\n" CNRM,
+      //  logeb(u8"#{} Suspending for: {}\n",
       //  body->Skill(prhash(u8"TBAScript")), time * 1000);
       Suspend(time * 1000);
       return 1;
     } else {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: Told '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(u8"#{} Error: Told '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
   }
@@ -1945,11 +1888,7 @@ int Mind::TBARunLine(std::u8string line) {
     int v1, v2;
     size_t end = line.find(u8" ");
     if (sscanf(line.c_str() + end, u8" %d %d", &v1, &v2) != 2) {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: Told '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(u8"#{} Error: Told '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     } else if (ovars[u8"self"]->Skill(prhash(u8"Liquid Source")) && v1 == 0) {
       if (v2 < 0)
@@ -1957,20 +1896,14 @@ int Mind::TBARunLine(std::u8string line) {
       ovars[u8"self"]->SetSkill(prhash(u8"Liquid Source"), v2 + 1);
     } else if (ovars[u8"self"]->Skill(prhash(u8"Liquid Source")) && v1 == 1) {
       if (ovars[u8"self"]->Contents().size() < 1) {
-        fprintf(
-            stderr,
-            CYEL u8"#%d Warning: Empty fountain '%s'\n" CNRM,
-            body->Skill(prhash(u8"TBAScript")),
-            line.c_str());
+        logey(
+            u8"#{} Warning: Empty fountain '{}'\n" CNRM, body->Skill(prhash(u8"TBAScript")), line);
         return -1;
       }
       ovars[u8"self"]->Contents().front()->SetSkill(prhash(u8"Quantity"), v2 + 1);
     } else {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: Unimplemented oset '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(
+          u8"#{} Error: Unimplemented oset '{}'\n" CNRM, body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
   }
@@ -2133,8 +2066,8 @@ int Mind::TBARunLine(std::u8string line) {
       std::u8string mes = line.substr(start);
       trim_string(mes);
       mes += u8"\n";
-      room->SendOut(ALL, 0, mes.c_str(), u8"", nullptr, nullptr, false);
-      room->Loud(8, mes.c_str()); // 8 will go 4-8 rooms.
+      room->SendOut(ALL, 0, mes, u8"", nullptr, nullptr, false);
+      room->Loud(8, mes); // 8 will go 4-8 rooms.
     }
   }
 
@@ -2157,7 +2090,7 @@ int Mind::TBARunLine(std::u8string line) {
       std::u8string mes = line.substr(start);
       trim_string(mes);
       mes += u8"\n";
-      room->SendOut(0, 0, mes.c_str(), mes.c_str(), nullptr, nullptr);
+      room->SendOut(0, 0, mes, mes, nullptr, nullptr);
     }
   }
 
@@ -2193,8 +2126,8 @@ int Mind::TBARunLine(std::u8string line) {
   }
 
   else if (!strncmp(line.c_str(), u8"wdamage ", 8)) {
-    //    fprintf(stderr, CGRN u8"#%d Debug: WDamage '%s'\n" CNRM,
-    //	body->Skill(prhash(u8"TBAScript")), line.c_str()
+    //    logeg(u8"#{} Debug: WDamage '{}'\n",
+    //	body->Skill(prhash(u8"TBAScript")), line
     //	);
     int pos = 0;
     int dam = 0;
@@ -2214,14 +2147,14 @@ int Mind::TBARunLine(std::u8string line) {
       if (opt->Matches(buf2)) {
         if (dam > 0) {
           opt->HitMent(1000, dam, 0);
-          //	  fprintf(stderr, CGRN u8"#%d Debug: WDamage '%s', %d\n" CNRM,
-          //		body->Skill(prhash(u8"TBAScript")), opt->Noun().c_str(), dam
+          //	  logeg(u8"#{} Debug: WDamage '{}', {}\n",
+          //		body->Skill(prhash(u8"TBAScript")), opt->Noun(), dam
           //		);
         } else if (dam < 0) {
           opt->HealStun(((-dam) + 1) / 2);
           opt->HealPhys(((-dam) + 1) / 2);
-          //	  fprintf(stderr, CGRN u8"#%d Debug: WHeal '%s', %d\n" CNRM,
-          //		body->Skill(prhash(u8"TBAScript")), opt->Noun().c_str(), ((-dam)+1)/2
+          //	  logeg(u8"#{} Debug: WHeal '{}', {}\n",
+          //		body->Skill(prhash(u8"TBAScript")), opt->Noun(), ((-dam)+1)/2
           //		);
         }
       }
@@ -2233,11 +2166,8 @@ int Mind::TBARunLine(std::u8string line) {
     char8_t dname[16], xtra;
     const std::u8string args = line.substr(5);
     if (sscanf(args.c_str(), u8"%d %s", &rnum, dname) < 2) {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: short door command '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(
+          u8"#{} Error: short door command '{}'\n" CNRM, body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
 
@@ -2267,40 +2197,34 @@ int Mind::TBARunLine(std::u8string line) {
       }
     }
     if (!room) {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: can't find target in '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(u8"#{} Error: can't find target in '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
 
     Object* door = room->PickObject(dir, LOC_NINJA | LOC_INTERNAL);
 
     if (sscanf(args.c_str(), u8"%*d %*s descriptio%c %n", &xtra, &len) >= 1) {
-      //      fprintf(stderr, CGRN u8"#%d Debug: door redesc '%s'\n" CNRM,
-      //	body->Skill(prhash(u8"TBAScript")), line.c_str()
+      //      logeg(u8"#{} Debug: door redesc '{}'\n",
+      //	body->Skill(prhash(u8"TBAScript")), line
       //	);
       if (door)
         door->SetDesc(line.substr(len + 5));
     } else if (sscanf(args.c_str(), u8"%*d %*s flag%c %n", &xtra, &len) >= 1) {
       if (!door) {
-        fprintf(
-            stderr,
-            CRED u8"#%d Error: No %s door to reflag in '%s'\n" CNRM,
+        loger(
+            u8"#{} Error: No {} door to reflag in '{}'\n" CNRM,
             body->Skill(prhash(u8"TBAScript")),
-            dir.c_str(),
-            line.c_str());
+            dir,
+            line);
         return -1;
       }
       uint32_t newfl = tba_bitvec(line.substr(len + 5));
       if ((newfl & 0xF) == 0) {
-        fprintf(
-            stderr,
-            CRED u8"#%d Error: bad door reflag (x%X) in '%s'\n" CNRM,
+        loger(
+            u8"#{} Error: bad door reflag (x{:X}) in '{}'\n" CNRM,
             body->Skill(prhash(u8"TBAScript")),
             newfl,
-            line.c_str());
+            line);
         return -1;
       }
       if (newfl & 1) { // Can Open/Close
@@ -2309,14 +2233,14 @@ int Mind::TBARunLine(std::u8string line) {
         door->SetSkill(prhash(u8"Locked"), 0);
         door->SetSkill(prhash(u8"Lockable"), 1);
         door->SetSkill(prhash(u8"Pickable"), 4);
-        //	fprintf(stderr, CGRN u8"#%d Debug: %s door can open/close in
-        //'%s'\n" CNRM,
+        //	logeg(u8"#{} Debug: {} door can open/close in
+        //'{}'\n" CNRM,
         //		body->Skill(prhash(u8"TBAScript")), dir.c_str(), line.c_str()
         //		);
       }
       if (newfl & 2) { // Closed
         door->SetSkill(prhash(u8"Open"), 0);
-        //	fprintf(stderr, CGRN u8"#%d Debug: %s door is closed in '%s'\n"
+        //	logeg(u8"#{} Debug: {} door is closed in '{}'\n"
         // CNRM,
         //		body->Skill(prhash(u8"TBAScript")), dir.c_str(), line.c_str()
         //		);
@@ -2325,21 +2249,21 @@ int Mind::TBARunLine(std::u8string line) {
         door->SetSkill(prhash(u8"Locked"), 1);
         door->SetSkill(prhash(u8"Lockable"), 1);
         door->SetSkill(prhash(u8"Pickable"), 4);
-        //	fprintf(stderr, CGRN u8"#%d Debug: %s door is locked in '%s'\n"
+        //	logeg(u8"#{} Debug: {} door is locked in '{}'\n"
         // CNRM,
-        //		body->Skill(prhash(u8"TBAScript")), dir.c_str(), line.c_str()
+        //		body->Skill(prhash(u8"TBAScript")), dir, line
         //		);
       }
       if (newfl & 8) { // Pick-Proof
         door->SetSkill(prhash(u8"Pickable"), 1000);
-        //	fprintf(stderr, CGRN u8"#%d Debug: %s door is pick-proof in
-        //'%s'\n" CNRM,
-        //		body->Skill(prhash(u8"TBAScript")), dir.c_str(), line.c_str()
+        //	logeg(u8"#{} Debug: {} door is pick-proof in
+        //'{}'\n" CNRM,
+        //		body->Skill(prhash(u8"TBAScript")), dir, line
         //		);
       }
     } else if (sscanf(args.c_str(), u8"%*d %*s nam%c %n", &xtra, &len) >= 1) {
-      //      fprintf(stderr, CGRN u8"#%d Debug: door rename '%s'\n" CNRM,
-      //	body->Skill(prhash(u8"TBAScript")), line.c_str()
+      //      logeg(u8"#{} Debug: door rename '{}'\n",
+      //	body->Skill(prhash(u8"TBAScript")), line
       //	);
       if (door) {
         std::u8string newname = door->ShortDescS();
@@ -2352,8 +2276,8 @@ int Mind::TBARunLine(std::u8string line) {
         door->SetShortDesc(newname + u8" (" + line.substr(len + 5) + u8")");
       }
     } else if (sscanf(args.c_str(), u8"%*d %*s room %d", &tnum) == 1) {
-      //      fprintf(stderr, CGRN u8"#%d Debug: door relink '%s'\n" CNRM,
-      //	body->Skill(prhash(u8"TBAScript")), line.c_str()
+      //      logeg(u8"#{} Debug: door relink '{}'\n",
+      //	body->Skill(prhash(u8"TBAScript")), line
       //	);
       if (door)
         door->Recycle();
@@ -2367,11 +2291,10 @@ int Mind::TBARunLine(std::u8string line) {
         }
       }
       if (!toroom) {
-        fprintf(
-            stderr,
-            CRED u8"#%d Error: can't find dest in '%s'\n" CNRM,
+        loger(
+            u8"#{} Error: can't find dest in '{}'\n" CNRM,
             body->Skill(prhash(u8"TBAScript")),
-            line.c_str());
+            line);
         return -1;
       }
       door = new Object(room);
@@ -2387,34 +2310,29 @@ int Mind::TBARunLine(std::u8string line) {
       odoor->AddAct(act_t::SPECIAL_MASTER, door);
     } else if (sscanf(args.c_str(), u8"%*d %*s key %d", &tnum) == 1) {
       if (!door) {
-        fprintf(
-            stderr,
-            CRED u8"#%d Error: No %s door to re-key in '%s'\n" CNRM,
+        loger(
+            u8"#{} Error: No {} door to re-key in '{}'\n" CNRM,
             body->Skill(prhash(u8"TBAScript")),
-            dir.c_str(),
-            line.c_str());
+            dir,
+            line);
         return -1;
       }
       door->SetSkill(prhash(u8"Lockable"), 1);
       door->SetSkill(prhash(u8"Key"), 1000000 + tnum);
       if (door->Skill(prhash(u8"Pickable")) < 1)
         door->SetSkill(prhash(u8"Pickable"), 4);
-      //      fprintf(stderr, CGRN u8"#%d Debug: %s door re-keyed (%d) in '%s'\n"
+      //      logeg(u8"#{} Debug: {} door re-keyed ({}) in '{}'\n"
       //      CNRM,
-      //	body->Skill(prhash(u8"TBAScript")), dir.c_str(), tnum, line.c_str()
+      //	body->Skill(prhash(u8"TBAScript")), dir, tnum, line
       //	);
     } else if (sscanf(args.c_str(), u8"%*d %*s purg%c", &xtra) == 1) {
-      //      fprintf(stderr, CGRN u8"#%d Debug: door purge '%s'\n" CNRM,
-      //	body->Skill(prhash(u8"TBAScript")), line.c_str()
+      //      logeg(u8"#{} Debug: door purge '{}'\n",
+      //	body->Skill(prhash(u8"TBAScript")), line
       //	);
       if (door)
         door->Recycle();
     } else {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: bad door command '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(u8"#{} Error: bad door command '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
   }
@@ -2424,11 +2342,7 @@ int Mind::TBARunLine(std::u8string line) {
     int nocheck = 0;
     char8_t buf2[256];
     if (sscanf(line.c_str() + 10, u8"%s %d", buf2, &dnum) != 2) {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: Bad teleport line '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(u8"#{} Error: Bad teleport line '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
     if (!strcmp(buf2, u8"all")) {
@@ -2471,8 +2385,8 @@ int Mind::TBARunLine(std::u8string line) {
         targ->SetParent(dest);
       }
     }
-    //    fprintf(stderr, CGRN u8"#%d Debug: Transport line: '%s'\n" CNRM,
-    //	body->Skill(prhash(u8"TBAScript")), line.c_str()
+    //    logeg(u8"#{} Debug: Transport line: '{}'\n",
+    //	body->Skill(prhash(u8"TBAScript")), line
     //	);
   }
 
@@ -2491,11 +2405,7 @@ int Mind::TBARunLine(std::u8string line) {
           item->Recycle();
       }
     } else {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: Bad purge target '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(u8"#{} Error: Bad purge target '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       return 1;
     }
     if (!body) { // No longer connected, must have purged self or parent.
@@ -2514,22 +2424,20 @@ int Mind::TBARunLine(std::u8string line) {
     params = sscanf(line.c_str() + 5, u8" %s %d %s %s", buf2, &valnum, targ, where);
     tbatype = ascii_tolower(buf2[0]);
     if ((params != 2 && params != 4) || (tbatype != 'o' && tbatype != 'm')) {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: Nonsensical script load '%s'\n" CNRM,
+      loger(
+          u8"#{} Error: Nonsensical script load '{}'\n" CNRM,
           body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+          line);
       return -1;
     }
     Object* src = room->World();
     if (tbatype == 'o') {
       src = src->PickObject(u8"tbamud object room", LOC_NINJA | LOC_INTERNAL);
       if (src == nullptr) {
-        fprintf(
-            stderr,
-            CRED u8"#%d Error: Can't find Object room '%s'\n" CNRM,
+        loger(
+            u8"#{} Error: Can't find Object room '{}'\n" CNRM,
             body->Skill(prhash(u8"TBAScript")),
-            line.c_str());
+            line);
         return 1;
       }
       auto options = src->Contents();
@@ -2543,11 +2451,10 @@ int Mind::TBARunLine(std::u8string line) {
       dest = room;
       src = src->PickObject(u8"tbamud mob room", LOC_NINJA | LOC_INTERNAL);
       if (src == nullptr) {
-        fprintf(
-            stderr,
-            CRED u8"#%d Error: Can't find MOB room '%s'\n" CNRM,
+        loger(
+            u8"#{} Error: Can't find MOB room '{}'\n" CNRM,
             body->Skill(prhash(u8"TBAScript")),
-            line.c_str());
+            line);
         return 1;
       }
       auto options = src->Contents();
@@ -2559,24 +2466,17 @@ int Mind::TBARunLine(std::u8string line) {
       }
     }
     if (item == nullptr) {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: Failed to find item '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(
+          u8"#{} Error: Failed to find item '{}'\n" CNRM, body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
     if (params > 2) {
-      //      fprintf(stderr, CGRN u8"#%d Debug: (%s) '%s'\n" CNRM,
-      //	body->Skill(prhash(u8"TBAScript")), targ, line.c_str());
+      //      logeg(u8"#{} Debug: ({}) '{}'\n",
+      //	body->Skill(prhash(u8"TBAScript")), targ, line);
       dest = room->PickObject(targ, LOC_NINJA | LOC_INTERNAL);
     }
     if (!dest) {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: Can't find target in '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(u8"#{} Error: can't find target in '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       delete item;
       return -1;
     }
@@ -2641,11 +2541,7 @@ int Mind::TBARunLine(std::u8string line) {
       loc = act_t::HOLD;
     } else if (strcmp(u8"inv", where) == 0 || strcmp(u8"18", where) == 0) {
     } else if (params > 2) {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: Unsupported dest '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(u8"#{} Error: Unsupported dest '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       delete item;
       return -1;
     }
@@ -2674,8 +2570,8 @@ int Mind::TBARunLine(std::u8string line) {
     auto splen = line.find_first_of(u8"'", 9);
     if (splen != std::u8string::npos) {
       auto spell = tba_spellconvert(line.substr(9, splen - 9));
-      // fprintf(stderr, CBLU u8"Cast[Acid]: %s\n" CNRM, spell.c_str());
-      // fprintf(stderr, CYEL u8"Cast[TBA]: %s\n" CNRM, line.substr(9, splen - 9).c_str());
+      // logeb(u8"Cast[Acid]: {}\n", spell);
+      // logey(u8"Cast[TBA]: {}\n", line.substr(9, splen - 9));
       ovars[u8"self"]->SetSkill(spell + u8" Spell", 5);
       std::u8string cline = u8"shout " + spell;
       if (splen + 1 < line.length()) {
@@ -2685,9 +2581,9 @@ int Mind::TBARunLine(std::u8string line) {
         }
       }
       cline += u8";cast " + spell + u8";point";
-      handle_command(ovars[u8"self"], cline.c_str());
+      handle_command(ovars[u8"self"], cline);
     } else {
-      fprintf(stderr, CRED u8"Error: Bad casting command: '%s'\n" CNRM, line.c_str());
+      loger(u8"Error: Bad casting command: '{}'\n", line);
     }
   } else if (!strncmp(line.c_str(), u8"case ", 5)) {
     // Ignore these, as we only hit them here when when running over them
@@ -2700,11 +2596,10 @@ int Mind::TBARunLine(std::u8string line) {
   } else if (!strncmp(line.c_str(), u8"done", 4)) {
     // Means we should be within a while(), pop up a level.
     if (spos_s.size() < 2) {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: Not in while/switch, but '%s'\n" CNRM,
+      loger(
+          u8"#{} Error: Not in while/switch, but '{}'\n" CNRM,
           body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+          line);
       return -1;
     }
     spos_s.pop_back();
@@ -2737,19 +2632,11 @@ int Mind::TBARunLine(std::u8string line) {
           handle_command(ovars[u8"self"], fmt::format(u8"offer {}", line.substr(start)));
         }
       } else {
-        fprintf(
-            stderr,
-            CRED u8"#%d Error: Told just '%s'\n" CNRM,
-            body->Skill(prhash(u8"TBAScript")),
-            line.c_str());
+        loger(u8"#{} Error: Told just '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
         return -1;
       }
     } else {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: Told just '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(u8"#{} Error: Told just '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
   }
@@ -2761,24 +2648,19 @@ int Mind::TBARunLine(std::u8string line) {
       com == COM_DROP || com == COM_WEAR || com == COM_WIELD || com == COM_FOLLOW) {
     // if (body->Skill(prhash(u8"TBAScript")) >= 5034503 && body->Skill(prhash(u8"TBAScript")) <=
     // 5034507)
-    //  fprintf(
-    //      stderr,
-    //      CMAG u8"[#%d] Running command: '%s'\n" CNRM,
+    //  logem(
+    //      u8"[#{}] Running command: '{}'\n" CNRM,
     //      body->Skill(prhash(u8"TBAScript")),
-    //      line.c_str());
+    //      line);
 
     size_t stuff = line.find_first_of(u8" ");
     if (stuff != std::u8string::npos) {
       stuff = line.find_first_not_of(u8" \t\r\n", stuff);
     }
     if (stuff != std::u8string::npos) {
-      handle_command(ovars[u8"self"], line.c_str());
+      handle_command(ovars[u8"self"], line);
     } else {
-      fprintf(
-          stderr,
-          CRED u8"#%d Error: Told just '%s'\n" CNRM,
-          body->Skill(prhash(u8"TBAScript")),
-          line.c_str());
+      loger(u8"#{} Error: Told just '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
   }
@@ -2789,20 +2671,17 @@ int Mind::TBARunLine(std::u8string line) {
       com == COM_DOWN || com == COM_SLEEP || com == COM_REST || com == COM_WAKE ||
       com == COM_STAND || com == COM_SIT || com == COM_LIE || com == COM_LOOK || com == COM_FLEE ||
       com >= COM_SOCIAL) {
-    handle_command(ovars[u8"self"], line.c_str());
+    handle_command(ovars[u8"self"], line);
   }
 
   // Trigger-Supported (only) commands (not shared with real acid commands).
-  else if (com == COM_NONE && handle_command(ovars[u8"self"], line.c_str()) != 1) {
+  else if (com == COM_NONE && handle_command(ovars[u8"self"], line) != 1) {
     // Do Nothing, as handle_command already did it.
   }
 
   else {
-    fprintf(
-        stderr,
-        CRED u8"#%d Error: Gibberish script line '%s'\n" CNRM,
-        body->Skill(prhash(u8"TBAScript")),
-        line.c_str());
+    loger(
+        u8"#{} Error: Gibberish script line '{}'\n" CNRM, body->Skill(prhash(u8"TBAScript")), line);
     return -1;
   }
   return 0;
@@ -3041,7 +2920,7 @@ bool Mind::Think(int istick) {
 
   } else if (type == mind_t::TBATRIG) {
     if (body && body->Parent() && spos_s.size() > 0) {
-      //      fprintf(stderr, CGRN u8"#%d Debug: Running Trigger.\n" CNRM,
+      //      logeg(u8"#{} Debug: Running Trigger.\n",
       //	body->Skill(prhash(u8"TBAScript"))
       //	);
       ovars[u8"self"] = body->Parent();
@@ -3096,7 +2975,7 @@ bool Mind::Think(int istick) {
     if (body && body->ActTarg(act_t::WEAR_SHIELD) && (!body->IsAct(act_t::HOLD))) {
       std::u8string command =
           fmt::format(u8"hold OBJ:{}", static_cast<void*>(body->ActTarg(act_t::WEAR_SHIELD)));
-      body->BusyFor(500, command.c_str());
+      body->BusyFor(500, command);
       return true;
     } else if (
         body && body->ActTarg(act_t::WEAR_SHIELD) && body->ActTarg(act_t::HOLD) &&
@@ -3107,9 +2986,9 @@ bool Mind::Think(int istick) {
           body->Parent()->SendOut(ALL, 0, u8";s stashes ;s.\n", u8"", body, targ);
         std::u8string command =
             fmt::format(u8"hold OBJ:{}", static_cast<void*>(body->ActTarg(act_t::WEAR_SHIELD)));
-        body->BusyFor(500, command.c_str());
+        body->BusyFor(500, command);
       } else {
-        // fprintf(stderr, u8"Warning: %s can't use his shield!\n", body->Noun().c_str());
+        // loge(u8"Warning: {} can't use his shield!\n", body->Noun());
       }
       return true;
     }
@@ -3131,8 +3010,8 @@ bool Mind::Think(int istick) {
             && (!other->IsAct(act_t::DEAD)) // It's not already dead
         ) {
           std::u8string command = fmt::format(u8"attack OBJ:{}", static_cast<void*>(other));
-          body->BusyFor(500, command.c_str());
-          // fprintf(stderr, u8"%s: Tried '%s'\n", body->ShortDescC(), command.c_str());
+          body->BusyFor(500, command);
+          // loge(u8"{}: Tried '{}'\n", body->ShortDesc(), command);
           return true;
         }
       }
@@ -3167,8 +3046,8 @@ bool Mind::Think(int istick) {
             && (!other->IsAct(act_t::DEAD)) // It's not already dead
         ) {
           std::u8string command = fmt::format(u8"attack OBJ:{}", static_cast<void*>(other));
-          body->BusyFor(500, command.c_str());
-          // fprintf(stderr, u8"%s: Tried '%s'\n", body->ShortDescC(), command.c_str());
+          body->BusyFor(500, command);
+          // loge(u8"{}: Tried '{}'\n", body->ShortDesc(), command);
           return true;
         }
       }
@@ -3204,8 +3083,8 @@ bool Mind::Think(int istick) {
         ) {
           std::u8string command =
               fmt::format(u8"call ALARM; attack OBJ:{}", static_cast<void*>(other));
-          body->BusyFor(500, command.c_str());
-          // fprintf(stderr, u8"%s: Tried '%s'\n", body->ShortDescC(), command.c_str());
+          body->BusyFor(500, command);
+          // loge(u8"{}: Tried '{}'\n", body->ShortDesc(), command);
           return true;
         }
       }
@@ -3335,7 +3214,7 @@ std::vector<std::pair<int64_t, Mind*>> Mind::waiting;
 void Mind::Suspend(int msec) {
   // if(body && body->Skill(prhash(u8"TBAScript")) >= 5034503 && body->Skill(prhash(u8"TBAScript"))
   // <= 5034507)
-  //  fprintf(stderr, CBLU u8"Suspended(%d): '%d'\n" CNRM, msec,
+  //  logeb(u8"Suspended({}): '{}'\n", msec,
   //  body->Skill(prhash(u8"TBAScript")));
 
   int64_t when = current_time + int64_t(msec) * int64_t(1000);

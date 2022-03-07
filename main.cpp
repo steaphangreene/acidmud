@@ -40,6 +40,7 @@
 
 #include "cchar8.hpp"
 #include "color.hpp"
+#include "log.hpp"
 #include "net.hpp"
 #include "object.hpp"
 
@@ -97,24 +98,24 @@ int main(int argc, char** argv) {
 
   srand(time(nullptr));
 
-  fprintf(stdout, u8"Starting networking....\n");
+  logo(u8"Starting networking....\n");
   if (acceptor >= 0)
     resume_net(acceptor);
   else
     start_net(port, host);
 
-  fprintf(stdout, u8"Initializing world....\n");
+  logo(u8"Initializing world....\n");
   init_world();
 
   if (!netstat_file.empty()) {
-    fprintf(stdout, u8"Restoring network state....\n");
+    logo(u8"Restoring network state....\n");
     load_net(netstat_file);
     unwarn_net(2);
   }
 
   current_time = get_time();
   auto lastsave_time = current_time;
-  fprintf(stdout, u8"Ready to play!\n");
+  logo(u8"Ready to play!\n");
   while (shutdn <= 0) {
     tick_world();
     update_net();
@@ -126,11 +127,7 @@ int main(int argc, char** argv) {
       usleep(last_time + TICK_USECS - current_time);
       current_time = get_time();
     } else {
-      fprintf(
-          stderr,
-          CYEL u8"Warning: Slow tick: %ldus > %dus\n" CNRM,
-          current_time - last_time,
-          TICK_USECS);
+      logey(u8"Warning: Slow tick: {}s > {}s\n", current_time - last_time, TICK_USECS);
     }
 
     // FIXME: Do real (adjustable) autosave times - hardcoded to 15 minutes!
@@ -143,9 +140,8 @@ int main(int argc, char** argv) {
 
       // World save time doesn't count toward the clock
       current_time = get_time();
-      fprintf(
-          stderr,
-          CCYN u8"World save took %ld,%.3ld,%.3ldus.\n" CNRM,
+      logec(
+          u8"World save took {},{:03},{:03}.\n",
           (current_time - before_save) / 1000000,
           ((current_time - before_save) / 1000) % 1000,
           (current_time - before_save) % 1000);
@@ -156,7 +152,7 @@ int main(int argc, char** argv) {
     warn_net(2);
     save_world(1);
 
-    fprintf(stdout, u8"Stopping networking....\n");
+    logo(u8"Stopping networking....\n");
     acceptor = suspend_net();
     char8_t buf[256];
     sprintf(buf, u8"--network-acceptor=%d%c", acceptor, 0);

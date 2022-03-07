@@ -39,6 +39,7 @@ typedef int socket_t;
 
 #include "cchar8.hpp"
 #include "commands.hpp"
+#include "log.hpp"
 #include "mind.hpp"
 #include "net.hpp"
 #include "object.hpp"
@@ -246,7 +247,7 @@ void update_net() {
       perror("ERROR in accept");
       exit(1);
     }
-    fprintf(stderr, u8"Accepted connection.\n");
+    loge(u8"Accepted connection.\n");
     connect_sock(newsock);
     minds[newsock]->Send(u8"Welcome to AcidMUD!\n");
   }
@@ -255,7 +256,7 @@ void update_net() {
   for (auto sock : fds) {
     if (FD_ISSET(sock, &exc_set)) {
       killfds.insert(sock);
-      fprintf(stderr, u8"Killed %d\n", sock);
+      loge(u8"Killed {}\n", sock);
     }
   }
   for (auto sock : killfds) {
@@ -347,7 +348,7 @@ int suspend_net() {
 }
 
 int save_net(const std::u8string& fn) {
-  fprintf(stderr, u8"Saving Network State.\n");
+  loge(u8"Saving Network State.\n");
 
   FILE* fl = fopen(fn.c_str(), u8"w");
   if (!fl)
@@ -381,13 +382,13 @@ int save_net(const std::u8string& fn) {
 
   fclose(fl);
 
-  fprintf(stderr, u8"Saved Network State.\n");
+  loge(u8"Saved Network State.\n");
 
   return 0;
 }
 
 int load_net(const std::u8string& fn) {
-  fprintf(stderr, u8"Loading Network State.\n");
+  loge(u8"Loading Network State.\n");
 
   static char8_t buf[65536];
 
@@ -399,7 +400,7 @@ int load_net(const std::u8string& fn) {
   unsigned int ver;
   fscanf(fl, u8"%X\n%d\n", &ver, &num);
 
-  fprintf(stderr, u8"Loading Net Stat: %.8X,%d\n", ver, num);
+  loge(u8"Loading Net State: {:08X},{}\n", ver, num);
 
   for (int ctr = 0; ctr < num; ++ctr) {
     int newsock, bod, log = -1;
@@ -410,13 +411,13 @@ int load_net(const std::u8string& fn) {
     if (fscanf(fl, u8":%[^:\n]", buf) > 0) {
       minds[newsock]->SetPlayer(buf);
       if (fscanf(fl, u8":%d", &bod) > 0) {
-        fprintf(stderr, u8"Reattaching %d to %s in %d\n", newsock, buf, bod);
+        loge(u8"Reattaching {} to {} in {}\n", newsock, buf, bod);
         minds[newsock]->Attach(getbynum(bod));
       } else {
-        fprintf(stderr, u8"Reattaching %d to %s\n", newsock, buf);
+        loge(u8"Reattaching {} to {}\n", newsock, buf);
       }
     } else {
-      fprintf(stderr, u8"Reattaching %d (resume login)\n", newsock);
+      loge(u8"Reattaching {} (resume login)\n", newsock);
     }
   }
 
@@ -441,6 +442,6 @@ void SendOut(int sock, const std::u8string& mes) {
 }
 
 void SetPrompt(int sock, const std::u8string& pr) {
-  //  fprintf(stderr, u8"Set %d's prompt to '%s'\n", sock, pr.c_str());
+  //  loge(u8"Set {}'s prompt to '{}'\n", sock, pr);
   prompts[sock] = pr;
 }

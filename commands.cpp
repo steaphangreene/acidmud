@@ -28,6 +28,7 @@
 #include "cchar8.hpp"
 #include "color.hpp"
 #include "commands.hpp"
+#include "log.hpp"
 #include "main.hpp"
 #include "mind.hpp"
 #include "net.hpp"
@@ -842,7 +843,7 @@ static void load_commands() {
   }
   FILE* soc = fopen(u8"tba/socials.new", u8"r");
   if (soc) {
-    // fprintf(stderr, u8"There were %d commands!\n", cnum);
+    // loge(u8"There were {} commands!\n", cnum);
     char8_t com[64] = u8"";
     int v1, v2, v3, v4;
     while (fscanf(soc, u8" ~%s %*s %d %d %d %d", com, &v1, &v2, &v3, &v4) == 5) {
@@ -863,7 +864,7 @@ static void load_commands() {
       comlist[cnum].sit = (REQ_ALERT | CMD_FLAVORTEXT); // FIXME: Import This?
       ++cnum;
     }
-    // fprintf(stderr, u8"There are now %d commands!\n", cnum);
+    // loge(u8"There are now {} commands!\n", cnum);
     fclose(soc);
   }
 }
@@ -940,7 +941,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
   }
 
   if ((!body) && (!mind)) { // Nobody doing something?
-    fprintf(stderr, u8"Warning: absolutely nobody tried to '%s'.\n", line.c_str());
+    loge(u8"Warning: absolutely nobody tried to '{}'.\n", line);
     return 0;
   }
 
@@ -955,14 +956,8 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       for (ctr = 0; ctr < int(cmd.length()); ++ctr) {
         if (!(ascii_isalnum(cmd[ctr]) || cmd[ctr] == ' ')) {
           mind->Send(
-              u8"Name '{}' is invalid.\nNames can only have letters, "
-              u8"numbers, and spaces.\n",
-              cmd);
-          fprintf(
-              stderr,
-              u8"Name '%s' is invalid.\nNames can only have letters, "
-              u8"numbers, and spaces.\n",
-              std::u8string(cmd).c_str());
+              u8"Name '{}' is invalid.\nNames can only have letters, numbers, and spaces.\n", cmd);
+          loge(u8"Name '{}' is invalid.\nNames can only have letters, numbers, and spaces.\n", cmd);
           break;
         }
       }
@@ -3893,8 +3888,8 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
     int did_something = 0;
     for (auto targ : targs) {
-      // fprintf(stderr, u8"You try to wear %s!\n", targ->Noun(0, 0, body).c_str());
-      // if(mind) mind->Send(u8"You try to wear %s!\n", targ->Noun(0, 0, body).c_str());
+      // loge(u8"You try to wear {}!\n", targ->Noun(0, 0, body));
+      // if(mind) mind->Send(u8"You try to wear {}!\n", targ->Noun(0, 0, body));
       if (body->ActTarg(act_t::WEAR_BACK) == targ || body->ActTarg(act_t::WEAR_CHEST) == targ ||
           body->ActTarg(act_t::WEAR_HEAD) == targ || body->ActTarg(act_t::WEAR_NECK) == targ ||
           body->ActTarg(act_t::WEAR_COLLAR) == targ || body->ActTarg(act_t::WEAR_WAIST) == targ ||
@@ -4970,8 +4965,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
   }
 
   if (cnum == COM_ATTACK || cnum == COM_KILL || cnum == COM_PUNCH || cnum == COM_KICK) {
-    // fprintf(stderr, u8"Handling attack command from %p of '%s'\n", mind,
-    // args.c_str());
+    // loge(u8"Handling attack command from {} of '{}'\n", reinterpret_cast<void*>(mind), args);
 
     int attacknow = 1;
     if (!body->IsAct(act_t::FIGHT))
