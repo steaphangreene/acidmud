@@ -5333,11 +5333,8 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       } else { // No Weapon or Natural Weapon
         if (!body->HasSkill(prhash(u8"NaturalWeapon")))
           stun = 1;
-        char8_t mes[128] = u8"";
-        char8_t mes3[128] = u8"";
-        sprintf(mes, u8"*You %s ;s%s.\n", verb.c_str(), locm.c_str());
-        sprintf(mes3, u8"*;s %s ;s%s.\n", verb3.c_str(), locm.c_str());
-        body->Parent()->SendOut(ALL, -1, mes3, mes, body, targ);
+        body->Parent()->SendOut(
+            ALL, -1, u8"*;s {2} ;s{0}.\n", u8"*You {1} ;s{0}.\n", body, targ, locm, verb, verb3);
       }
 
       int sev = 0;
@@ -7261,15 +7258,12 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           nullptr);
       world->Activate();
     } else {
-      char8_t buf[2048];
-      sprintf(buf, u8"tba/wld/%s.wld", std::u8string(args).c_str());
-      body->Parent()->TBALoadWLD(buf);
-      sprintf(buf, u8"tba/obj/%s.obj", std::u8string(args).c_str());
-      body->Parent()->TBALoadOBJ(buf);
+      body->Parent()->TBALoadWLD(fmt::format(u8"tba/wld/{}.wld", args));
+      body->Parent()->TBALoadOBJ(fmt::format(u8"tba/obj/{}.obj", args));
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,
-          u8";s loads a TBA world ;s with Ninja Powers[TM].\n",
+          u8";s loads a TBA world with Ninja Powers[TM].\n",
           u8"You load a TBA world.\n",
           body,
           nullptr);
