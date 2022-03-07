@@ -22,6 +22,10 @@
 #include <algorithm>
 #include <string>
 
+// Replace with C++20 std::format, when widely available
+#define FMT_HEADER_ONLY
+#include <fmt/format.h>
+
 #include "cchar8.hpp"
 #include "color.hpp"
 #include "utils.hpp"
@@ -39,9 +43,7 @@ void replace_all(
 }
 
 void replace_all(std::u8string& str, const std::u8string& oldt, int newn, size_t st) {
-  char8_t buf[4096];
-  sprintf(buf, u8"%d", newn);
-  replace_all(str, oldt, buf, st);
+  replace_all(str, oldt, fmt::format(u8"{}", newn), st);
 }
 
 void trim_string(std::u8string& str) { // Remove extra whitespace from std::u8string
