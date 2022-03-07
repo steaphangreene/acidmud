@@ -77,10 +77,9 @@ static int fline(FILE* f) {
 
 static int untrans_trig = 0;
 void Object::TBALoadAll() {
-  char8_t buf[65536];
   FILE* mudt = fopen(u8"tba/trg/index", u8"r");
   if (mudt) {
-    sprintf(buf, u8"tba/trg/");
+    char8_t buf[65536] = u8"tba/trg/";
     while (fscanf(mudt, u8"%255[^$\n\r]\n", buf + 8) > 0) {
       TBALoadTRG(buf);
     }
@@ -88,7 +87,7 @@ void Object::TBALoadAll() {
   }
   FILE* mudw = fopen(u8"tba/wld/index", u8"r");
   if (mudw) {
-    sprintf(buf, u8"tba/wld/");
+    char8_t buf[65536] = u8"tba/wld/";
     while (fscanf(mudw, u8"%255[^$\n\r]\n", buf + 8) > 0) {
       TBALoadWLD(buf);
     }
@@ -96,7 +95,7 @@ void Object::TBALoadAll() {
   }
   FILE* mudo = fopen(u8"tba/obj/index", u8"r");
   if (mudo) {
-    sprintf(buf, u8"tba/obj/");
+    char8_t buf[65536] = u8"tba/obj/";
     while (fscanf(mudo, u8"%255[^$\n\r]\n", buf + 8) > 0) {
       TBALoadOBJ(buf);
     }
@@ -104,7 +103,7 @@ void Object::TBALoadAll() {
   }
   FILE* mudm = fopen(u8"tba/mob/index", u8"r");
   if (mudm) {
-    sprintf(buf, u8"tba/mob/");
+    char8_t buf[65536] = u8"tba/mob/";
     while (fscanf(mudm, u8"%255[^$\n\r]\n", buf + 8) > 0) {
       TBALoadMOB(buf);
     }
@@ -112,7 +111,7 @@ void Object::TBALoadAll() {
   }
   FILE* mudz = fopen(u8"tba/zon/index", u8"r");
   if (mudz) {
-    sprintf(buf, u8"tba/zon/");
+    char8_t buf[65536] = u8"tba/zon/";
     while (fscanf(mudz, u8"%255[^$\n\r]\n", buf + 8) > 0) {
       TBALoadZON(buf);
     }
@@ -121,7 +120,7 @@ void Object::TBALoadAll() {
   TBAFinalizeTriggers();
   FILE* muds = fopen(u8"tba/shp/index", u8"r");
   if (muds) {
-    sprintf(buf, u8"tba/shp/");
+    char8_t buf[65536] = u8"tba/shp/";
     while (fscanf(muds, u8"%255[^$\n\r]\n", buf + 8) > 0) {
       TBALoadSHP(buf);
     }
