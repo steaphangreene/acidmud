@@ -1037,7 +1037,6 @@ void Object::SendLongDesc(Object* targ, Object* o) {
 }
 
 static std::u8string base = u8"";
-static char8_t buf[65536];
 
 void Object::SendActions(Mind* m) {
   for (auto cur : act) {
@@ -1171,8 +1170,7 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
     } else {
       m->Send(CGRN u8"{}{}.\n" CNRM, qty, targ);
       if (cur.obj()->Skill(prhash(u8"Open")) || cur.obj()->Skill(prhash(u8"Transparent"))) {
-        sprintf(buf, u8"%16s  %c", u8" ", 0);
-        base = buf;
+        base = std::u8string(18, ' ');
         cur.obj()->SendContents(m, nullptr, vmode);
         base = u8"";
         m->Send(CNRM);
@@ -1182,8 +1180,7 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
               base + CNRM + u8"                " + u8"  It is closed and locked.\n" + CGRN;
           m->Send(mes.c_str());
         } else if (vmode & 1) {
-          sprintf(buf, u8"%16s  %c", u8" ", 0);
-          base = buf;
+          base = std::u8string(18, ' ');
           cur.obj()->SendContents(m, nullptr, vmode);
           base = u8"";
           m->Send(CNRM);
@@ -1294,12 +1291,13 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::u8string b) {
           m->Send(u8"(x{}) ", qty);
         ++tlines;
 
+        std::u8string buf;
         if (ind->parent && ind->parent->Skill(prhash(u8"Container"))) {
-          sprintf(buf, u8"%s%c", ind->Noun().c_str(), 0);
+          buf = ind->Noun();
         } else if (vmode & LOC_NINJA) {
-          sprintf(buf, u8"%s %s%c", ind->Noun(false).c_str(), ind->PosString().c_str(), 0);
+          buf = fmt::format(u8"{} {}", ind->Noun(false), ind->PosString());
         } else {
-          sprintf(buf, u8"%s %s%c", ind->Noun(false, true, o).c_str(), ind->PosString().c_str(), 0);
+          buf = fmt::format(u8"{} {}", ind->Noun(false, true, o), ind->PosString());
         }
         buf[0] = ascii_toupper(buf[0]);
         m->Send(buf);
@@ -1330,9 +1328,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::u8string b) {
 }
 
 void Object::SendShortDesc(Mind* m, Object* o) {
-  memset(buf, 0, 65536);
-  sprintf(buf, u8"%s\n", ShortDescC());
-  m->Send(buf);
+  m->Send(fmt::format(u8"{}\n", ShortDesc()));
 }
 
 void Object::SendFullSituation(Mind* m, Object* o) {
@@ -1346,96 +1342,92 @@ void Object::SendFullSituation(Mind* m, Object* o) {
     m->Send(u8"(x{}) ", Skill(prhash(u8"Quantity")));
   }
 
+  std::u8string buf;
+
   if (!parent)
-    sprintf(buf, u8"%s is here%c", Noun().c_str(), 0);
+    buf = fmt::format(u8"{} is here", Noun());
 
   else if (parent->ActTarg(act_t::HOLD) == this)
-    sprintf(buf, u8"%s is here in %s off-hand%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here in {} off-hand", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WIELD) == this)
-    sprintf(buf, u8"%s is here in %s hand%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here in {} hand", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_BACK) == this)
-    sprintf(buf, u8"%s is here on %s back%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} back", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_CHEST) == this)
-    sprintf(buf, u8"%s is here on %s chest%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} chest", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_HEAD) == this)
-    sprintf(buf, u8"%s is here on %s head%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} head", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_FACE) == this)
-    sprintf(buf, u8"%s is here on %s face%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} face", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_NECK) == this)
-    sprintf(buf, u8"%s is here around %s neck%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here around {} neck", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_COLLAR) == this)
-    sprintf(buf, u8"%s is here on %s neck%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} neck", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_WAIST) == this)
-    sprintf(buf, u8"%s is here around %s waist%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here around {} waist", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_SHIELD) == this)
-    sprintf(buf, u8"%s is here on %s shield-arm%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} shield-arm", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_LARM) == this)
-    sprintf(buf, u8"%s is here on %s left arm%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} left arm", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_RARM) == this)
-    sprintf(buf, u8"%s is here on %s right arm%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} right arm", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_LFINGER) == this)
-    sprintf(buf, u8"%s is here on %s left finger%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} left finger", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_RFINGER) == this)
-    sprintf(buf, u8"%s is here on %s right finger%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} right finger", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_LFOOT) == this)
-    sprintf(buf, u8"%s is here on %s left foot%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} left foot", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_RFOOT) == this)
-    sprintf(buf, u8"%s is here on %s right foot%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} right foot", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_LHAND) == this)
-    sprintf(buf, u8"%s is here on %s left hand%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} left hand", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_RHAND) == this)
-    sprintf(buf, u8"%s is here on %s right hand%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} right hand", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_LLEG) == this)
-    sprintf(buf, u8"%s is here on %s left leg%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} left leg", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_RLEG) == this)
-    sprintf(buf, u8"%s is here on %s right leg%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} right leg", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_LWRIST) == this)
-    sprintf(buf, u8"%s is here on %s left wrist%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} left wrist", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_RWRIST) == this)
-    sprintf(buf, u8"%s is here on %s right wrist%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} right wrist", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_LSHOULDER) == this)
-    sprintf(buf, u8"%s is here on %s left shoulder%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} left shoulder", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_RSHOULDER) == this)
-    sprintf(buf, u8"%s is here on %s right shoulder%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} right shoulder", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_LHIP) == this)
-    sprintf(buf, u8"%s is here on %s left hip%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} left hip", Noun(), pname);
 
   else if (parent->ActTarg(act_t::WEAR_RHIP) == this)
-    sprintf(buf, u8"%s is here on %s right hip%c", Noun().c_str(), pname.c_str(), 0);
+    buf = fmt::format(u8"{} is here on {} right hip", Noun(), pname);
 
   else {
     pname = parent->Noun();
-    sprintf(
-        buf,
-        u8"%s %s in %s%c",
-        Noun(false, true, m->Body()).c_str(),
-        PosString().c_str(),
-        pname.c_str(),
-        0);
+    buf = fmt::format(u8"{} {} in {}", Noun(false, true, m->Body()), PosString(), pname);
   }
 
   buf[0] = ascii_toupper(buf[0]);
@@ -1443,21 +1435,19 @@ void Object::SendFullSituation(Mind* m, Object* o) {
 }
 
 void Object::SendDesc(Mind* m, Object* o) {
-  memset(buf, 0, 65536);
-
   if (pos != pos_t::NONE) {
     m->Send(CCYN);
     SendFullSituation(m, o);
     SendActions(m);
   } else {
     m->Send(CCYN);
-    sprintf(buf, u8"%s\n%c", ShortDescC(), 0);
+    std::u8string buf = fmt::format(u8"{}\n", ShortDesc());
     buf[0] = ascii_toupper(buf[0]);
     m->Send(buf);
   }
 
   m->Send(u8"{}   ", CNRM);
-  sprintf(buf, u8"%s\n%c", DescC(), 0);
+  std::u8string buf = fmt::format(u8"{}\n", Desc());
   buf[0] = ascii_toupper(buf[0]);
   m->Send(buf);
   m->Send(CNRM);
@@ -1466,7 +1456,6 @@ void Object::SendDesc(Mind* m, Object* o) {
 void Object::SendDescSurround(Mind* m, Object* o, int vmode) {
   if (no_seek)
     return;
-  memset(buf, 0, 65536);
 
   if (pos != pos_t::NONE) {
     m->Send(CCYN);
@@ -1474,13 +1463,13 @@ void Object::SendDescSurround(Mind* m, Object* o, int vmode) {
     SendActions(m);
   } else {
     m->Send(CCYN);
-    sprintf(buf, u8"%s\n%c", ShortDescC(), 0);
+    std::u8string buf = fmt::format(u8"{}\n", ShortDesc());
     buf[0] = ascii_toupper(buf[0]);
     m->Send(buf);
   }
 
   m->Send(u8"{}   ", CNRM);
-  sprintf(buf, u8"%s\n%c", DescC(), 0);
+  std::u8string buf = fmt::format(u8"{}\n", Desc());
   buf[0] = ascii_toupper(buf[0]);
   m->Send(buf);
 
@@ -1509,13 +1498,13 @@ void Object::SendLongDesc(Mind* m, Object* o) {
     SendActions(m);
   } else {
     m->Send(CCYN);
-    sprintf(buf, u8"%s\n%c", ShortDescC(), 0);
+    std::u8string buf = fmt::format(u8"{}\n", ShortDesc());
     buf[0] = ascii_toupper(buf[0]);
     m->Send(buf);
   }
 
   m->Send(u8"{}   ", CNRM);
-  sprintf(buf, u8"%s\n%c", LongDescC(), 0);
+  std::u8string buf = fmt::format(u8"{}\n", LongDesc());
   buf[0] = ascii_toupper(buf[0]);
   m->Send(buf);
   m->Send(CNRM);
@@ -1692,13 +1681,8 @@ std::vector<std::u8string> Object::FormatSkills(const MinVec<7, skill_pair>& skl
   auto save = skls;
   for (auto skl : save) {
     if (is_skill(skl.first)) {
-      char8_t buf2[256];
-      sprintf(
-          buf2,
-          u8"%28s: " CYEL u8"%2d" CNRM,
-          SkillName(skl.first).c_str(),
-          std::min(99, skl.second));
-      ret.push_back(buf2);
+      ret.emplace_back(fmt::format(
+          u8"%28s: " CYEL u8"%2d" CNRM, SkillName(skl.first), std::min(99, skl.second)));
     }
   }
   return ret;
@@ -1709,19 +1693,12 @@ static void stick_on(
     const MinVec<7, skill_pair>& skls,
     uint32_t stok,
     const std::u8string label) {
-  char8_t buf2[256];
-
   auto itr =
       std::find_if(skls.begin(), skls.end(), [stok](auto skl) { return (skl.first == stok); });
   if (itr != skls.end()) {
     if (itr->second > 0) {
-      sprintf(
-          buf2,
-          u8"  %18s: " CYEL u8"%d.%.3d" CNRM,
-          label.c_str(),
-          itr->second / 1000,
-          itr->second % 1000);
-      out.push_back(buf2);
+      out.emplace_back(fmt::format(
+          u8"  {:18}: " CYEL u8"{}.{:03}" CNRM, label, itr->second / 1000, itr->second % 1000));
     }
   }
 }
@@ -1889,7 +1866,7 @@ std::vector<std::u8string> Object::FormatStats(const MinVec<7, skill_pair>& skls
     }
 
     for (auto type : type_names) {
-      ret.push_back(fmt::format(u8"TBAScriptType: {}", type));
+      ret.emplace_back(fmt::format(u8"TBAScriptType: {}", type));
     }
   }
   if (HasSkill(prhash(u8"WeaponType"))) { // It's a Weapon
@@ -1940,23 +1917,18 @@ std::vector<std::u8string> Object::FormatStats(const MinVec<7, skill_pair>& skls
         u8"D20",
         u8"D20+",
     };
-    ret.push_back(
+    ret.emplace_back(
         u8" Old Weapon: " CYEL + SkillName(get_weapon_skill(Skill(prhash(u8"WeaponType")))) + CNRM);
 
-    char8_t buf2[256];
-    sprintf(
-        buf2,
-        u8"  Damage: " CYEL u8"(Str+%d)%s" CNRM,
+    ret.emplace_back(fmt::format(
+        u8"  Damage: " CYEL u8"(Str+{}){}" CNRM,
         Skill(prhash(u8"WeaponForce")),
-        sevs[std::max(0, std::min(15, Skill(prhash(u8"WeaponSeverity"))))]);
-    ret.push_back(buf2);
+        sevs[std::max(0, std::min(15, Skill(prhash(u8"WeaponSeverity"))))]));
 
     if (Skill(prhash(u8"WeaponReach")) > 4) {
-      sprintf(buf2, u8"  Range: " CYEL u8"%d" CNRM, Skill(prhash(u8"WeaponReach")));
-      ret.push_back(buf2);
+      ret.emplace_back(fmt::format(u8"  Range: " CYEL u8"{}" CNRM, Skill(prhash(u8"WeaponReach"))));
     } else if (Skill(prhash(u8"WeaponReach")) >= 0) {
-      sprintf(buf2, u8"  Reach: " CYEL u8"%d" CNRM, Skill(prhash(u8"WeaponReach")));
-      ret.push_back(buf2);
+      ret.emplace_back(fmt::format(u8"  Reach: " CYEL u8"{}" CNRM, Skill(prhash(u8"WeaponReach"))));
     }
   }
   if (HasSkill(prhash(u8"Thickness"))) { // It's Armor (or just Clothing)
@@ -3344,11 +3316,12 @@ void init_world() {
       fseek(conf, 0, SEEK_END);
       size_t len = ftell(conf);
       fseek(conf, 0, SEEK_SET);
-      char8_t buf2[len + 1];
-      fread(buf2, 1, len, conf);
-      buf2[len] = 0;
 
-      handle_command(autoninja, buf2, automind);
+      char8_t buf[len + 1];
+      fread(buf, 1, len, conf);
+      buf[len] = 0;
+
+      handle_command(autoninja, buf, automind);
       fclose(conf);
 
       delete automind;
