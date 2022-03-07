@@ -41,12 +41,6 @@ auto fscanf(auto&& fl, auto&& fm, Args&&... args) {
 };
 
 template <typename... Args>
-auto sprintf(auto&& st, auto&& fm, Args&&... args) {
-  return std::sprintf(
-      reinterpret_cast<char*>(st), reinterpret_cast<const char*>(fm), std::forward<Args>(args)...);
-};
-
-template <typename... Args>
 auto sscanf(auto&& st, auto&& fm, Args&&... args) {
   return std::sscanf(
       reinterpret_cast<const char*>(st),
