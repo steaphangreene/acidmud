@@ -1320,11 +1320,11 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       }
 
       int sf = 0;
-      if (!strncmp(obj->ShortDescC(), u8"a pair of ", 10))
+      if (obj->ShortDesc().starts_with(u8"a pair of "))
         sf = 9;
-      else if (!strncmp(obj->ShortDescC(), u8"some ", 5))
+      else if (obj->ShortDesc().starts_with(u8"some "))
         sf = 4;
-      else if (!strncmp(obj->ShortDescC(), u8"a set of ", 9))
+      else if (obj->ShortDesc().starts_with(u8"a set of "))
         sf = 8;
 
       std::u8string name = obj->ShortDescS();

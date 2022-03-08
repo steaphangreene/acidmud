@@ -207,7 +207,7 @@ int Object::Matches(std::u8string targ, bool knows) const {
   trim_string(targ);
 
   // Pointer Matches
-  if (!strncmp(targ.c_str(), u8"OBJ:", 4) || !strncmp(targ.c_str(), u8"obj:", 4)) {
+  if (targ.starts_with(u8"OBJ:") || targ.starts_with(u8"obj:")) {
     Object* tofind = nullptr;
     sscanf(targ.c_str() + 4, u8"%p", &tofind);
     return (this == tofind);
@@ -885,13 +885,13 @@ std::u8string Object::Noun(bool definite, bool verbose, const Object* rel, const
   else if (sub == this)
     return u8"itself";
 
-  if (!strncmp(ShortDescC(), u8"a ", 2)) {
+  if (ShortDesc().starts_with(u8"a ")) {
     ret = ShortDesc().substr(2);
     need_an = false;
-  } else if (!strncmp(ShortDescC(), u8"an ", 3)) {
+  } else if (ShortDesc().starts_with(u8"an ")) {
     ret = ShortDesc().substr(3);
     need_an = true;
-  } else if (!strncmp(ShortDescC(), u8"the ", 4)) {
+  } else if (ShortDesc().starts_with(u8"the ")) {
     ret = ShortDesc().substr(4);
     definite = true;
   } else {
@@ -2552,7 +2552,7 @@ MinVec<1, Object*> Object::PickObjects(std::u8string name, int loc, int* ordinal
   }
 
   if (loc & LOC_INTERNAL) {
-    if (!strncmp(name.c_str(), u8"my ", 3)) {
+    if (name.starts_with(u8"my ")) {
       return PickObjects(name.substr(3), loc & (LOC_SPECIAL | LOC_INTERNAL | LOC_SELF));
     }
   }

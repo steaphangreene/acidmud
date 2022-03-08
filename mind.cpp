@@ -603,7 +603,7 @@ bool Mind::Send(const std::u8string& mes) {
         && (!body->IsAct(act_t::REST)) // I'm not resting
         && (!body->IsAct(act_t::FIGHT)) // I'm not already fighting
     ) {
-      if ((!strncmp(mes.c_str(), u8"From ", 5)) && (mes.contains(u8" you hear someone shout '")) &&
+      if ((mes.starts_with(u8"From ")) && (mes.contains(u8" you hear someone shout '")) &&
           (mes.contains(u8"HELP") || mes.contains(u8"ALARM"))) {
         char8_t buf[256] = u8"                                               ";
         sscanf(mes.c_str() + 4, u8"%128s", buf);
@@ -1351,7 +1351,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
             }
           } else
             obj = nullptr;
-        } else if (!strncmp(field.c_str(), u8"skill(", 6)) {
+        } else if (field.starts_with(u8"skill(")) {
           val = u8"";
           if (obj) {
             size_t num = field.find_first_of(u8") .%", 6);
@@ -1360,7 +1360,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           }
           obj = nullptr;
           is_obj = 0;
-        } else if (!strncmp(field.c_str(), u8"varexists(", 10)) {
+        } else if (field.starts_with(u8"varexists(")) {
           val = u8"";
           if (obj) {
             size_t num = field.find_first_of(u8") .%", 10);
@@ -1369,7 +1369,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           }
           obj = nullptr;
           is_obj = 0;
-        } else if (!strncmp(field.c_str(), u8"has_item(", 9)) {
+        } else if (field.starts_with(u8"has_item(")) {
           int vnum = -1;
           size_t num = field.find_first_not_of(u8"0123456789", 9);
           sscanf(field.c_str() + 9, u8"%d", &vnum);
@@ -1386,7 +1386,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           }
           obj = nullptr;
           is_obj = 0;
-        } else if (!strncmp(field.c_str(), u8"affect(", 7)) {
+        } else if (!!field.starts_with(u8"affect(")) {
           size_t len = field.find_first_not_of(u8"abcdefghijklmnopqrstuvwxyz-", 7);
           auto spell = tba_spellconvert(field.substr(7, len - 7));
           // logeb(
@@ -1399,7 +1399,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           }
           obj = nullptr;
           is_obj = 0;
-        } else if (!strncmp(field.c_str(), u8"vnum(", 5)) {
+        } else if (field.starts_with(u8"vnum(")) {
           val = u8"0"; // Default - in case it doesn't have a vnum
           if (obj) {
             int vnum = obj->Skill(prhash(u8"TBAMOB"));
@@ -1604,7 +1604,7 @@ int Mind::TBARunLine(std::u8string line) {
   //    return -1;
   //    }
 
-  if (!strncmp(line.c_str(), u8"unset ", 6)) {
+  if (line.starts_with(u8"unset ")) {
     size_t lpos = line.find_first_not_of(u8" \t", 6);
     if (lpos != std::u8string::npos) {
       std::u8string var = line.substr(lpos);
@@ -1619,7 +1619,7 @@ int Mind::TBARunLine(std::u8string line) {
     return 0;
   }
 
-  else if ((!strncmp(line.c_str(), u8"eval ", 5)) || (!strncmp(line.c_str(), u8"set ", 4))) {
+  else if ((line.starts_with(u8"eval ")) || (line.starts_with(u8"set "))) {
     char8_t coml = ascii_tolower(line[0]); // To tell eval from set later.
     size_t lpos = line.find_first_not_of(u8" \t", 4);
     if (lpos != std::u8string::npos) {
@@ -1645,7 +1645,7 @@ int Mind::TBARunLine(std::u8string line) {
             }
             val = TBAComp(val);
           }
-          if (!strncmp(val.c_str(), u8"OBJ:", 4)) { // Encoded Object
+          if (val.starts_with(u8"OBJ:")) { // Encoded Object
             ovars[var] = nullptr;
             sscanf(val.c_str(), u8"OBJ:%p", &(ovars[var]));
             svars.erase(var);
@@ -1665,7 +1665,7 @@ int Mind::TBARunLine(std::u8string line) {
     return 0;
   }
 
-  else if ((!strncmp(line.c_str(), u8"extract ", 8))) {
+  else if ((line.starts_with(u8"extract "))) {
     size_t lpos = line.find_first_not_of(u8" \t", 8);
     if (lpos != std::u8string::npos) {
       line = line.substr(lpos);
@@ -1718,7 +1718,7 @@ int Mind::TBARunLine(std::u8string line) {
     return 0;
   }
 
-  else if (!strncmp(line.c_str(), u8"at ", 3)) {
+  else if (line.starts_with(u8"at ")) {
     int dnum, pos;
     if (sscanf(line.c_str(), u8"at %d %n", &dnum, &pos) < 1) {
       loger(u8"#{} Error: Malformed at '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
@@ -1755,7 +1755,7 @@ int Mind::TBARunLine(std::u8string line) {
     return ret;
   }
 
-  else if (!strncmp(line.c_str(), u8"context ", 8)) {
+  else if (line.starts_with(u8"context ")) {
     Object* con = nullptr;
     if (sscanf(line.c_str() + 8, u8" OBJ:%p", &con) >= 1 && con != nullptr) {
       ovars[u8"context"] = con;
@@ -1765,7 +1765,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
   }
 
-  else if (!strncmp(line.c_str(), u8"rdelete ", 8)) {
+  else if (line.starts_with(u8"rdelete ")) {
     Object* con = nullptr;
     char8_t var[256] = u8"";
     if (sscanf(line.c_str() + 7, u8" %s OBJ:%p", var, &con) >= 2 && con != nullptr) {
@@ -1784,7 +1784,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
   }
 
-  else if (!strncmp(line.c_str(), u8"remote ", 7)) {
+  else if (!!line.starts_with(u8"remote ")) {
     Object* con = nullptr;
     char8_t var[256] = u8"";
     if (sscanf(line.c_str() + 7, u8" %s OBJ:%p", var, &con) >= 2 && con != nullptr) {
@@ -1813,7 +1813,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
   }
 
-  else if (!strncmp(line.c_str(), u8"global ", 7)) {
+  else if (!!line.starts_with(u8"global ")) {
     Object* con = ovars[u8"context"];
     char8_t var[256] = u8"";
     if (sscanf(line.c_str() + 7, u8" %s", var) >= 1 && con != nullptr) {
@@ -1836,7 +1836,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
   }
 
-  else if (!strncmp(line.c_str(), u8"wait until ", 11)) {
+  else if (line.starts_with(u8"wait until ")) {
     int hour = 0, minute = 0, cur = 0;
     if (sscanf(line.c_str() + 11, u8"%d:%d", &hour, &minute) > 0) {
       if (hour >= 100)
@@ -1861,7 +1861,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
   }
 
-  else if (!strncmp(line.c_str(), u8"wait ", 5)) {
+  else if (line.starts_with(u8"wait ")) {
     int time = 0;
     sscanf(line.c_str() + 5, u8"%d", &time);
     if (time > 0) {
@@ -1877,7 +1877,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
   }
 
-  else if ((!strncmp(line.c_str(), u8"oset ", 5)) || (!strncmp(line.c_str(), u8"osetval ", 8))) {
+  else if ((line.starts_with(u8"oset ")) || (line.starts_with(u8"osetval "))) {
     int v1, v2;
     size_t end = line.find(u8" ");
     if (sscanf(line.c_str() + end, u8" %d %d", &v1, &v2) != 2) {
@@ -1901,7 +1901,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
   }
 
-  else if (!strncmp(line.c_str(), u8"if ", 3)) {
+  else if (line.starts_with(u8"if ")) {
     if (!TBAEval(line.c_str() + 3)) { // Was false
       int depth = 0;
       while (spos != std::u8string::npos) { // Skip to end/elseif
@@ -1929,7 +1929,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
   }
 
-  else if (!strncmp(line.c_str(), u8"else", 4)) { // else/elseif
+  else if (line.starts_with(u8"else")) { // else/elseif
     int depth = 0;
     while (spos != std::u8string::npos) { // Skip to end (considering nesting)
       //      PING_QUOTA();
@@ -1947,7 +1947,7 @@ int Mind::TBARunLine(std::u8string line) {
     spos_s.back() = spos; // Save skip-to position in real PC
   }
 
-  else if (!strncmp(line.c_str(), u8"while ", 6)) {
+  else if (line.starts_with(u8"while ")) {
     int depth = 0;
     size_t rep = prev_line(script, spos);
     size_t begin = spos;
@@ -1974,7 +1974,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
   }
 
-  else if (!strncmp(line.c_str(), u8"switch ", 7)) {
+  else if (!!line.starts_with(u8"switch ")) {
     int depth = 0;
     size_t targ = 0;
     std::u8string value = line.substr(7);
@@ -2017,7 +2017,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
   }
 
-  else if (!strncmp(line.c_str(), u8"break", 5)) { // Skip to done
+  else if (line.starts_with(u8"break")) { // Skip to done
     int depth = 0;
     while (spos != std::u8string::npos) { // Skip to end (considering nesting)
       //      PING_QUOTA();
@@ -2036,7 +2036,7 @@ int Mind::TBARunLine(std::u8string line) {
     spos_s.back() = spos; // Save done position in real PC
   }
 
-  else if ((!strncmp(line.c_str(), u8"asound ", 7))) {
+  else if ((!!line.starts_with(u8"asound "))) {
     size_t start = line.find_first_not_of(u8" \t\r\n", 7);
     if (room && start != std::u8string::npos) {
       std::u8string mes = line.substr(start);
@@ -2051,7 +2051,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
   }
 
-  else if ((!strncmp(line.c_str(), u8"zoneecho ", 9))) {
+  else if ((line.starts_with(u8"zoneecho "))) {
     size_t start = line.find_first_not_of(u8" \t\r\n", 9);
     start = line.find_first_of(u8" \t\r\n", start);
     start = line.find_first_not_of(u8" \t\r\n", start);
@@ -2064,7 +2064,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
   }
 
-  else if (!strncmp(line.c_str(), u8"echoaround ", 11)) {
+  else if (line.starts_with(u8"echoaround ")) {
     Object* targ = nullptr;
     char8_t buf[256] = u8"";
     sscanf(line.c_str() + 11, u8" OBJ:%p %254[^\n\r]", &targ, buf);
@@ -2077,7 +2077,7 @@ int Mind::TBARunLine(std::u8string line) {
       troom->SendOut(0, 0, mes, u8"", targ, nullptr);
   }
 
-  else if ((!strncmp(line.c_str(), u8"mecho ", 6))) {
+  else if ((line.starts_with(u8"mecho "))) {
     size_t start = line.find_first_not_of(u8" \t\r\n", 6);
     if (room && start != std::u8string::npos) {
       std::u8string mes = line.substr(start);
@@ -2087,7 +2087,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
   }
 
-  else if (!strncmp(line.c_str(), u8"send ", 5)) {
+  else if (line.starts_with(u8"send ")) {
     Object* targ = nullptr;
     char8_t buf[1024] = u8"";
     sscanf(line.c_str() + 5, u8" OBJ:%p %1022[^\n\r]", &targ, buf);
@@ -2097,7 +2097,7 @@ int Mind::TBARunLine(std::u8string line) {
       targ->Send(0, 0, mes);
   }
 
-  else if (!strncmp(line.c_str(), u8"force ", 6)) {
+  else if (line.starts_with(u8"force ")) {
     Object* targ = nullptr;
     char8_t tstr[256] = u8"", tcmd[1024] = u8"";
     if (sscanf(line.c_str() + 6, u8" OBJ:%p %1023[^\n\r]", &targ, tcmd) < 2) {
@@ -2118,7 +2118,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
   }
 
-  else if (!strncmp(line.c_str(), u8"wdamage ", 8)) {
+  else if (line.starts_with(u8"wdamage ")) {
     //    logeg(u8"#{} Debug: WDamage '{}'\n",
     //	body->Skill(prhash(u8"TBAScript")), line
     //	);
@@ -2156,7 +2156,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
   }
 
-  else if (!strncmp(line.c_str(), u8"door ", 5)) {
+  else if (line.starts_with(u8"door ")) {
     int rnum, tnum, len;
     char8_t dname[16], xtra;
     const std::u8string args = line.substr(5);
@@ -2332,7 +2332,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
   }
 
-  else if (!strncmp(line.c_str(), u8"transport ", 10)) {
+  else if (line.starts_with(u8"transport ")) {
     int dnum;
     int nocheck = 0;
     char8_t buf[256];
@@ -2386,7 +2386,7 @@ int Mind::TBARunLine(std::u8string line) {
     //	);
   }
 
-  else if (!strncmp(line.c_str(), u8"purge", 5)) {
+  else if (line.starts_with(u8"purge")) {
     Object* targ = nullptr;
     sscanf(line.c_str() + 5, u8" OBJ:%p", &targ);
     if (targ) {
@@ -2409,7 +2409,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
   }
 
-  else if (!strncmp(line.c_str(), u8"load ", 5)) {
+  else if (line.starts_with(u8"load ")) {
     int valnum, params, tbatype, mask = 0;
     act_t loc = act_t::NONE;
     char8_t buf2[256] = u8"";
@@ -2562,7 +2562,7 @@ int Mind::TBARunLine(std::u8string line) {
     } else if (dest != room) { // Have it
       dest->StashOrDrop(item);
     }
-  } else if (!strncmp(line.c_str(), u8"dg_cast '", 9)) {
+  } else if (line.starts_with(u8"dg_cast '")) {
     auto splen = line.find_first_of(u8"'", 9);
     if (splen != std::u8string::npos) {
       auto spell = tba_spellconvert(line.substr(9, splen - 9));
@@ -2581,15 +2581,15 @@ int Mind::TBARunLine(std::u8string line) {
     } else {
       loger(u8"Error: Bad casting command: '{}'\n", line);
     }
-  } else if (!strncmp(line.c_str(), u8"case ", 5)) {
+  } else if (line.starts_with(u8"case ")) {
     // Ignore these, as we only hit them here when when running over them
-  } else if (!strncmp(line.c_str(), u8"default", 7)) {
+  } else if (!!line.starts_with(u8"default")) {
     // Ignore these, as we only hit them here when when running over them
-  } else if (!strncmp(line.c_str(), u8"end", 3)) {
+  } else if (line.starts_with(u8"end")) {
     // Ignore these, as we only hit them here when we're running inside if
-  } else if (!strncmp(line.c_str(), u8"nop ", 4)) {
+  } else if (line.starts_with(u8"nop ")) {
     // Ignore these, as the varsub should have done all that's needed
-  } else if (!strncmp(line.c_str(), u8"done", 4)) {
+  } else if (line.starts_with(u8"done")) {
     // Means we should be within a while(), pop up a level.
     if (spos_s.size() < 2) {
       loger(
@@ -2599,17 +2599,17 @@ int Mind::TBARunLine(std::u8string line) {
       return -1;
     }
     spos_s.pop_back();
-  } else if (!strncmp(line.c_str(), u8"return ", 7)) {
+  } else if (!!line.starts_with(u8"return ")) {
     int retval = TBAEval(line.c_str() + 7);
     if (retval == 0) {
       status = 1; // Set special state
     }
-  } else if (!strncmp(line.c_str(), u8"halt", 4)) {
+  } else if (line.starts_with(u8"halt")) {
     return -1;
   }
 
   // Player commands different between Acid and TBA, requiring arguments
-  else if (!strncmp(line.c_str(), u8"give ", 5)) {
+  else if (line.starts_with(u8"give ")) {
     size_t start = line.find_first_not_of(u8" \t\r\n", 5);
     if (start != std::u8string::npos) {
       size_t end = line.find_first_of(u8" \t\r\n", start);

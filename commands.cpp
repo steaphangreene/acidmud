@@ -1589,7 +1589,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
   if (cnum == COM_SAY) {
     if (args.empty()) {
-      if (strncmp(mind->SpecialPrompt().c_str(), u8"say", 3)) {
+      if (!mind->SpecialPrompt().starts_with(u8"say")) {
         mind->SetSpecialPrompt(u8"say");
         mind->Send(u8"Type what your character will say - exit by just hitting ENTER:");
       } else {
@@ -1611,7 +1611,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
   if (cnum == COM_SHOUT || cnum == COM_YELL || cnum == COM_CALL) {
     if (mind && args.empty()) {
-      if (strncmp(mind->SpecialPrompt().c_str(), u8"shout", 3)) {
+      if (!mind->SpecialPrompt().starts_with(u8"shout")) {
         mind->SetSpecialPrompt(u8"shout");
         mind->Send(
             u8"Type what your character will shout - exit by just hitting "
@@ -3092,7 +3092,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         reason = u8"Sorry, the shopkeeper is asleep!\n";
       } else if (targ->Skill(prhash(u8"Money")) == targ->Value()) { // 1-1 Money
         for (auto skl : shpkp->GetSkills()) {
-          if (!strncmp(SkillName(skl.first).c_str(), u8"Buy ", 4)) {
+          if (SkillName(skl.first).starts_with(u8"Buy ")) {
             skill = prhash(u8"Money");
             break;
           }
@@ -6124,7 +6124,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     if (!mind)
       return 0;
     if (args.empty()) {
-      if (strncmp(mind->SpecialPrompt().c_str(), u8"ooc", 3)) {
+      if (!mind->SpecialPrompt().starts_with(u8"ooc")) {
         mind->SetSpecialPrompt(u8"ooc");
         mind->Send(u8"Type your out-of-character text - exit by just hitting ENTER:");
       } else {
@@ -6149,7 +6149,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     if (!mind)
       return 0;
     if (args.empty()) {
-      if (strncmp(mind->SpecialPrompt().c_str(), u8"newbie", 3)) {
+      if (!mind->SpecialPrompt().starts_with(u8"newbie")) {
         mind->SetSpecialPrompt(u8"newbie");
         mind->Send(u8"Type your newbie-chat text - exit by just hitting ENTER:");
       } else {
@@ -6384,7 +6384,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         mind->Send(u8"You add to the description of '{}'\n", targ->Noun(0, 0, body));
       }
     } else {
-      if (strncmp(mind->SpecialPrompt().c_str(), u8"nin des", 7)) {
+      if (!mind->SpecialPrompt().starts_with(u8"nin des")) {
         mind->SetSpecialPrompt(u8"nin des");
         mind->Send(u8"Type the description - exit by just hitting ENTER:");
       } else {
@@ -6426,7 +6426,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         mind->Send(u8"You add to the definition of '{}'\n", targ->Noun(0, 0, body));
       }
     } else {
-      if (strncmp(mind->SpecialPrompt().c_str(), u8"nin def", 7)) {
+      if (!mind->SpecialPrompt().starts_with(u8"nin def")) {
         mind->SetSpecialPrompt(u8"nin def");
         mind->Send(u8"Type the definition - exit by just hitting ENTER:");
       } else {
