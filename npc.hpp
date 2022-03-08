@@ -115,6 +115,7 @@ class NPCType {
   void Armor(ArmorType*);
   void Carry(ItemType*);
   void SetShortDesc(const std::u8string_view&);
+  void operator+=(const NPCType&);
 
   std::u8string short_desc, desc, long_desc;
   std::vector<gender_t> genders;

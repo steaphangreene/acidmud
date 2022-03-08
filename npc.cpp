@@ -96,15 +96,73 @@ static const std::vector<std::u8string> dwarf_last_names = {
     u8"Torunn",     u8"Trollbleeder", u8"Trueanvil",    u8"Trueblood",   u8"Ungart",
 };
 
-static NPCType npc_dwarf(
-    u8"a dwarf",
-    u8"{He} looks pissed.",
+static NPCType base_npc(
+    u8"a person",
+    u8"{He} seems normal.",
     u8"",
     {gender_t::MALE, gender_t::FEMALE},
-    {9, 4, 6, 4, 9, 4},
-    {10, 7, 11, 8, 18, 8},
-    100,
-    500);
+    {1, 1, 1, 1, 1, 1},
+    {7, 7, 7, 7, 7, 7},
+    0,
+    0);
+
+// Definitions for all built-in NPC tags go here.
+static std::map<std::u8string_view, NPCType> tagdefs = {
+    {u8"dwarf",
+     {u8"a dwarven ",
+      u8"a dwarven ",
+      u8"{He} looks pissed.",
+      {gender_t::MALE, gender_t::FEMALE},
+      {2, 0, 1, 0, 0, 2},
+      {2, -2, 1, -2, 0, 2},
+      100,
+      500}},
+    {u8"citizen",
+     {u8"a citizen",
+      u8"",
+      u8"{He} clearly has a solid place in society.",
+      {gender_t::MALE, gender_t::FEMALE},
+      {0, 0, 0, 0, 0, 0},
+      {0, 0, 0, 0, 0, 0},
+      200,
+      500}},
+    {u8"leader",
+     {u8"a leader",
+      u8"a master of inspiring others.",
+      u8"{He} is an experienced leader of people.",
+      {gender_t::MALE, gender_t::FEMALE},
+      {0, 0, 0, 2, 0, 0},
+      {0, 0, 0, 2, 0, 0},
+      500,
+      1000}},
+    {u8"guard",
+     {u8"a guard",
+      u8"a professional guard.",
+      u8"{He} seems to take his job guarding stuff very seriously.",
+      {gender_t::MALE, gender_t::FEMALE},
+      {0, 0, 1, 0, 1, 1},
+      {0, 0, 1, 0, 1, 1},
+      100,
+      200}},
+    {u8"soldier",
+     {u8"a soldier",
+      u8"a professional soldier.",
+      u8"{He} is prepared for war, from wherever it may come.",
+      {gender_t::MALE, gender_t::FEMALE},
+      {0, 0, 1, 0, 1, 1},
+      {0, 0, 1, 0, 1, 1},
+      100,
+      200}},
+    {u8"elite",
+     {u8"an elite ",
+      u8"a pretty special ",
+      u8"{He} seems quite prepared, and well-trained.",
+      {gender_t::MALE, gender_t::FEMALE},
+      {2, 2, 2, 2, 2, 2},
+      {2, 2, 2, 2, 2, 2},
+      1000,
+      2000}},
+};
 
 static std::map<act_t, std::u8string> wear_attribs;
 static void init_wear_attribs() {
@@ -215,6 +273,50 @@ NPCType::NPCType(
   armed = nullptr;
 }
 
+static std::u8string desc_merge(std::u8string_view d1, std::u8string_view d2) {
+  if (d1.back() == ' ') {
+    process(d2, u8"a ");
+    process(d2, u8"an ");
+    process(d2, u8"A ");
+    process(d2, u8"An ");
+    bool add_definite = (process(d2, u8"the ") || process(d2, u8"The "));
+    if (add_definite) {
+      add_definite &=
+          (process(d1, u8"a ") || process(d1, u8"an ") || process(d1, u8"A ") ||
+           process(d1, u8"An "));
+    }
+    if (add_definite) {
+      return fmt::format(u8"the {}{}", d1, d2);
+    } else {
+      return fmt::format(u8"{}{}", d1, d2);
+    }
+  } else {
+    return fmt::format(u8"{}", d2); // New base after old base, replace *all* previous text
+  }
+}
+
+void NPCType::operator+=(const NPCType& in) {
+  // TODO: Real string compositions
+  short_desc = desc_merge(short_desc, in.short_desc);
+  desc = desc_merge(desc, in.desc);
+  if (in.long_desc != u8"") {
+    long_desc += '\n';
+    long_desc += in.long_desc;
+  }
+
+  // TODO: Real set operations
+  if (genders.size() > in.genders.size()) {
+    genders = in.genders;
+  }
+
+  for (auto i : {0, 1, 2, 3, 4, 5}) {
+    mins.v[i] += in.mins.v[i];
+    maxes.v[i] += in.maxes.v[i];
+  }
+  min_gold += in.min_gold;
+  max_gold += in.max_gold;
+}
+
 void NPCType::Skill(uint32_t stok, int percent, int mod) {
   skills[stok] = std::make_pair(percent, mod);
 }
@@ -240,9 +342,23 @@ void NPCType::SetShortDesc(const std::u8string_view& sds) {
 }
 
 void Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
-  // TODO: Actually process tags to create NPCType
-  npc_dwarf.SetShortDesc(tags);
-  return AddNPC(gen, &npc_dwarf);
+  auto npcdef = base_npc;
+  auto start = tags.cbegin();
+  auto end = std::find(start, tags.cend(), ',');
+  while (start != tags.cend()) {
+    std::u8string_view tag = tags.substr(start - tags.cbegin(), end - start);
+    if (tagdefs.contains(tag)) {
+      npcdef += tagdefs.at(tag);
+    } else {
+      loger(u8"Use of undefined NPC tag: '{}'.  Skipping.\n", tag);
+    }
+    start = end;
+    if (start != tags.cend()) {
+      ++start;
+      end = std::find(start, tags.cend(), ',');
+    }
+  }
+  return AddNPC(gen, &npcdef);
 }
 
 void Object::AddNPC(std::mt19937& gen, const NPCType* type) {
