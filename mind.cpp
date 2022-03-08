@@ -1658,7 +1658,7 @@ int Mind::TBARunLine(std::u8string line) {
         std::u8string var = line.substr(0, end1);
         lpos = line.find_first_not_of(u8" \t", end1 + 1);
         if (lpos != std::u8string::npos) {
-          int wnum = atoi(line.c_str() + lpos) - 1; // Start at 0, -1=fail
+          int wnum = getnum(line.substr(lpos)) - 1; // Start at 0, -1=fail
           lpos = line.find_first_of(u8" \t", lpos);
           if (lpos != std::u8string::npos)
             lpos = line.find_first_not_of(u8" \t", lpos);
@@ -1773,7 +1773,7 @@ int Mind::TBARunLine(std::u8string line) {
     char8_t var[256] = u8"";
     if (sscanf(line.c_str() + 7, u8" %s OBJ:%p", var, &con) >= 2 && con != nullptr) {
       if (svars.count(var) > 0) {
-        int val = atoi(svars[var].c_str());
+        int val = getnum(svars[var]);
         con->SetSkill(fmt::format(u8"TBA:{}", var), val);
         if (con->IsAnimate()) {
           con->Accomplish(body->Skill(prhash(u8"Accomplishment")), u8"role playing");
@@ -1802,7 +1802,7 @@ int Mind::TBARunLine(std::u8string line) {
     char8_t var[256] = u8"";
     if (sscanf(line.c_str() + 7, u8" %s", var) >= 1 && con != nullptr) {
       if (svars.count(var) > 0) {
-        int val = atoi(svars[var].c_str());
+        int val = getnum(svars[var]);
         con->SetSkill(fmt::format(u8"TBA:{}", var), val);
         //	logeg(u8"#{} Debug: Global {}={} '{}'\n",
         //		body->Skill(prhash(u8"TBAScript")), var, val, line);

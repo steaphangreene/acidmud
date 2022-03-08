@@ -48,8 +48,4 @@ auto sscanf(auto&& st, auto&& fm, Args&&... args) {
       std::forward<Args>(args)...);
 };
 
-auto atoi(auto&& s) {
-  return std::atoi(reinterpret_cast<const char*>(s));
-};
-
 #endif // CCHAR8_HPP

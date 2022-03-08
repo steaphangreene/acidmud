@@ -2272,7 +2272,7 @@ void Object::TBALoadWLD(const std::u8string& fn) {
   int znum = 0, offset = fn.length() - 5; // Chop off the .wld
   while (isdigit(fn[offset]))
     --offset;
-  znum = atoi(fn.c_str() + offset + 1);
+  znum = getnum(fn.substr(offset + 1));
   if (mud) {
     Object* zone = new Object(this);
     zone->SetShortDesc(
@@ -2577,13 +2577,13 @@ void Object::TBALoadSHP(const std::u8string& fn) {
 
         memset(buf, 0, 65536);
         fscanf(mud, u8"%65535[^\n\r]\n", buf); // Item types bought
-        val = atoi(buf);
+        val = getnum(buf);
         std::vector<std::u8string> types;
         while (val >= 0) {
           types.push_back(std::u8string(buf));
           memset(buf, 0, 65536);
           fscanf(mud, u8"%65535[^\n\r]\n", buf); // Item types bought
-          val = atoi(buf);
+          val = getnum(buf);
         }
 
         memset(buf, 0, 65536); // Skip the message lines, and Temper
@@ -2622,7 +2622,7 @@ void Object::TBALoadSHP(const std::u8string& fn) {
             }
 
             std::u8string extra = type;
-            int itnum = atoi(extra.c_str());
+            int itnum = getnum(extra);
             if (itnum > 0) {
               while (isdigit(extra[0]))
                 extra = extra.substr(1);
