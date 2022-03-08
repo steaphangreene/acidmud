@@ -646,7 +646,7 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
       } else if (door_char == '-' || door_char == '/' || door_char == '|' || door_char == '\\') {
         // Connections with no level forcing
       } else {
-        if (door_char != ' ') {
+        if (door_char != ' ' && !ascii_isdigit(door_char)) {
           mind->Send(u8"Unrecognized passage symbol '{}'!\n", door_char);
         }
         continue;
