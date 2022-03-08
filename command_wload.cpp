@@ -128,6 +128,8 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
   std::map<char8_t, int32_t> lockid;
   std::map<char8_t, bool> indoors;
   std::map<char8_t, uint8_t> levels;
+  std::map<char8_t, std::vector<bool>> stairblocked;
+  std::map<char8_t, std::vector<std::u8string>> stairnames;
   std::map<char8_t, std::vector<std::u8string>> empnames;
   std::map<char8_t, std::vector<std::uniform_int_distribution<int>>> empnums;
   std::map<char8_t, std::vector<int>> empfloors;
@@ -171,6 +173,52 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
       char8_t sym = nextchar(line);
       if (process(line, u8":")) {
         levels[sym] = nextnum(line);
+      }
+    } else if (process(line, u8"stair:")) {
+      char8_t sym = nextchar(line);
+      int floor = 0;
+      std::u8string_view stair = u8"a stairway";
+      if (process(line, u8".")) {
+        floor = nextnum(line);
+      } else {
+        parse_error = true;
+      }
+      if (process(line, u8":")) {
+        stair = line;
+      } else {
+        parse_error = true;
+      }
+      if (!parse_error) {
+        if (!stairnames.contains(sym)) {
+          stairnames.emplace( // FIXME: This is hard-coded to a max of 10 floors!
+              std::make_pair(sym, std::vector<std::u8string>(10, std::u8string(u8"a stairway"))));
+          stairblocked.emplace(std::make_pair(sym, std::vector<bool>(10, false)));
+        }
+        stairnames[sym][floor] = std::u8string(stair);
+        stairblocked[sym][floor] = false;
+      }
+    } else if (process(line, u8"blockedstair:")) {
+      char8_t sym = nextchar(line);
+      int floor = 0;
+      std::u8string_view stair = u8"a stairway";
+      if (process(line, u8".")) {
+        floor = nextnum(line);
+      } else {
+        parse_error = true;
+      }
+      if (process(line, u8":")) {
+        stair = line;
+      } else {
+        parse_error = true;
+      }
+      if (!parse_error) {
+        if (!stairnames.contains(sym)) {
+          stairnames.emplace(
+              std::make_pair(sym, std::vector<std::u8string>(10, std::u8string(u8"a stairway"))));
+          stairblocked.emplace(std::make_pair(sym, std::vector<bool>(10, false)));
+        }
+        stairnames[sym][floor] = std::u8string(stair);
+        stairblocked[sym][floor] = true;
       }
     } else if (process(line, u8"employ:")) {
       char8_t sym = nextchar(line);
@@ -358,16 +406,16 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
     auto operator<=>(const coord&) const = default;
   };
   static const std::u8string floornames[] = {
-      u8"first floor of the ",
-      u8"second floor of the ",
-      u8"third floor of the ",
-      u8"fourth floor of the ",
-      u8"fifth floor of the ",
-      u8"sixth floor of the ",
-      u8"seventh floor of the ",
-      u8"eighth floor of the ",
-      u8"ninth floor of the ",
-      u8"tenth floor of the ",
+      u8"the first floor of the ",
+      u8"the second floor of the ",
+      u8"the third floor of the ",
+      u8"the fourth floor of the ",
+      u8"the fifth floor of the ",
+      u8"the sixth floor of the ",
+      u8"the seventh floor of the ",
+      u8"the eighth floor of the ",
+      u8"the ninth floor of the ",
+      u8"the tenth floor of the ",
   };
   std::map<coord, std::vector<Object*>> objs;
   for (uint32_t y = 0; y < ascii_map.size(); ++y) {
@@ -413,12 +461,38 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
                 zone->ShortDesc(),
                 world->ShortDesc()));
             if (f > 0) {
-              objs[coord{x, y}][f]->Link(
-                  objs[coord{x, y}][f - 1],
-                  u8"down",
-                  u8"The floor below.\n",
-                  u8"up",
-                  u8"The floor above.\n");
+              std::u8string_view stairname = u8"a stairway";
+              if (stairnames.contains(room)) {
+                stairname = stairnames[room][f];
+              }
+              bool blocked = false;
+              if (stairblocked.contains(room)) {
+                blocked = stairblocked[room][f];
+              }
+
+              // Create the linking stairs
+              Object* door1 = new_object(objs[coord{x, y}][f]);
+              Object* door2 = new_object(objs[coord{x, y}][f - 1]);
+              door1->SetShortDesc(fmt::format(u8"down {}", stairname));
+              door2->SetShortDesc(fmt::format(u8"up {}", stairname));
+              door1->SetDesc(u8"The floor below.\n");
+              door2->SetDesc(u8"The floor above.\n");
+              door1->AddAct(act_t::SPECIAL_LINKED, door2);
+              door2->AddAct(act_t::SPECIAL_LINKED, door1);
+              door1->AddAct(act_t::SPECIAL_MASTER, door2);
+              door2->AddAct(act_t::SPECIAL_MASTER, door1);
+              door1->SetSkill(prhash(u8"Enterable"), 1);
+              door2->SetSkill(prhash(u8"Enterable"), 1);
+              if (blocked) {
+                door1->SetSkill(prhash(u8"Transparent"), 1000);
+                door2->SetSkill(prhash(u8"Transparent"), 1000);
+              } else {
+                door1->SetSkill(prhash(u8"Open"), 1000);
+                door2->SetSkill(prhash(u8"Open"), 1000);
+                //  TODO: Closeable, Lockable, Etc., Stairs
+                //  door1->SetSkill(prhash(u8"Closeable"), 1);
+                //  door2->SetSkill(prhash(u8"Closeable"), 1);
+              }
             }
           }
         } else {
@@ -462,9 +536,9 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
             if (f > 0) {
               objs[coord{x, y}][f]->Link(
                   objs[coord{x, y}][f - 1],
-                  u8"down",
+                  u8"down a stairway",
                   u8"The floor below.\n",
-                  u8"up",
+                  u8"up a stairway",
                   u8"The floor above.\n");
             }
           }
