@@ -623,6 +623,7 @@ class alignas(256) Object {
   int Matches(std::u8string seek, bool knows = false) const;
   int LooksLike(Object* other, int vmode = 0, Object* viewer = nullptr) const;
 
+  void AddNPC(std::mt19937&, const std::u8string_view& tags);
   void AddNPC(std::mt19937&, const NPCType*);
 
   static void FreeActions();

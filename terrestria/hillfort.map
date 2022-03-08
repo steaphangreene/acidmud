@@ -7,37 +7,37 @@ lower_level:0
 building:5:fortress
 stair:5.1:the grand stairway
 stair:5.2:the grand stairway
-house:5.4:1:a dwarven leader
-house:5.3:8:a dwarven elite guard
-employ:5.3:1-2:a dwarven elite guard
-night:5.3:1-2:a dwarven elite guard
-employ:5.2:1-1:a dwarven leader
-employ:5.2:1-2:a dwarven elite guard
-employ:5.1:1-2:a dwarven elite guard
-employ:5.0:4-8:a dwarven guard
-employ:5.0:8-20:a dwarven citizen
+house:5.4:1:dwarf,leader
+house:5.3:8:elite,dwarf,guard
+employ:5.3:1-2:elite,dwarf,guard
+night:5.3:1-2:elite,dwarf,guard
+employ:5.2:1-1:dwarf,leader
+employ:5.2:1-2:elite,dwarf,guard
+employ:5.1:1-2:elite,dwarf,guard
+employ:5.0:4-8:dwarf,guard
+employ:5.0:8-20:dwarf,citizen
 building:4:tower
-employ:4.3:2:a dwarven soldier
-house:4.1:16:a dwarven soldier
-house:4.0:12:a dwarven guard
+employ:4.3:2:dwarf,soldier
+house:4.1:16:dwarf,soldier
+house:4.0:12:dwarf,guard
 building:3:gate house
 blockedstair:3.1:a heavy iron grate
-employ:3.2:1:a dwarven soldier
-night:3.2:1:a dwarven soldier
-employ:3.1:1:a dwarven soldier
-night:3.1:1:a dwarven soldier
-employ:3.0:2:a dwarven soldier
-night:3.0:2:a dwarven soldier
+employ:3.2:1:dwarf,soldier
+night:3.2:1:dwarf,soldier
+employ:3.1:1:dwarf,soldier
+night:3.1:1:dwarf,soldier
+employ:3.0:2:dwarf,soldier
+night:3.0:2:dwarf,soldier
 building:2:shop
 building:2:shop
 building:2:shop
 building:2:shop
 building:2:inn
 building:2:tavern
-house:2.1:2-4:a dwarven citizen
-house:2.1:0-1:a dwarven soldier
-house:2.1:0-1:a dwarven guard
-employ:2.0:1-2:a dwarven citizen
+house:2.1:2-4:dwarf,citizen
+house:2.1:0-1:dwarf,soldier
+house:2.1:0-1:dwarf,guard
+employ:2.0:1-2:dwarf,citizen
 building:1:The Hillfort Refinery
 building:1:The Hillfort Foundry
 building:1:The Hillfort Mint
@@ -50,21 +50,21 @@ building:1:The Hillfort Woodshop
 building:1:The Hillfort Inn
 building:1:The Hillfort Tavern
 building:1:The Hillfort Grocery
-employ:1:2-4:a dwarven citizen
+employ:1:2-4:dwarf,citizen
 place:0:a market stall
-employ:0:1-2:a dwarven citizen
+employ:0:1-2:dwarf,citizen
 place:+:stone street
-employ:+:0-1:a dwarven guard
-night:+:0-1:a dwarven guard
+employ:+:0-1:dwarf,guard
+night:+:0-1:dwarf,guard
 place:#:wide stone street
 en_place:wide stone street
 en_place:wide stone street
-employ:#:1-2:a dwarven guard
+employ:#:1-2:dwarf,guard
 place:=:massive stone bridge
 place:::atop the stone wall
 level:::2
-employ:::0-1:a dwarven soldier
-night:::0-1:a dwarven soldier
+employ:::0-1:dwarf,soldier
+night:::0-1:dwarf,soldier
 door:o:heavy wooden door
 lock:o:resident
 key:o:an iron key

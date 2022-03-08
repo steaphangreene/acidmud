@@ -34,6 +34,83 @@
 #include "properties.hpp"
 #include "utils.hpp"
 
+static const std::u8string gen_replace[][4] = {
+    {u8"{He}", u8"She", u8"He", u8"It"},
+    {u8"{Him}", u8"Her", u8"Him", u8"It"},
+    {u8"{His}", u8"Hers", u8"His", u8"Its"},
+    {u8"{he}", u8"she", u8"he", u8"it"},
+    {u8"{him}", u8"her", u8"him", u8"it"},
+    {u8"{his}", u8"hers", u8"his", u8"its"},
+    {u8"", u8"", u8"", u8""}};
+
+static std::u8string gender_proc(const std::u8string_view& in, char8_t gender) {
+  std::u8string ret(in);
+  int ctr = 0, gen = 3;
+
+  if (gender == 'F')
+    gen = 1;
+  if (gender == 'M')
+    gen = 2;
+
+  for (ctr = 0; !gen_replace[ctr][0].empty(); ++ctr) {
+    size_t where = ret.find(gen_replace[ctr][0]);
+    while (where <= ret.length()) {
+      ret = ret.substr(0, where) + gen_replace[ctr][gen] +
+          ret.substr(where + gen_replace[ctr][0].length());
+      where = ret.find(gen_replace[ctr][0]);
+    }
+  }
+  return ret;
+}
+
+// From: https://gist.github.com/Brennall/b9c3a0202eb11c5cfd54868c5752012a
+static const std::vector<std::u8string> dwarf_first_names[2] = {
+    {
+        u8"Anbera",    u8"Artin",    u8"Audhild",  u8"Balifra",  u8"Barbena",  u8"Bardryn",
+        u8"Bolhild",   u8"Dagnal",   u8"Dafifi",   u8"Delre",    u8"Diesa",    u8"Hdeth",
+        u8"Eridred",   u8"Falkrunn", u8"Fallthra", u8"Finelien", u8"Gillydd",  u8"Gunnloda",
+        u8"Gurdis",    u8"Helgret",  u8"Helja",    u8"Hlin",     u8"llde",     u8"Jarana",
+        u8"Kathra",    u8"Kilia",    u8"Kristryd", u8"Liftrasa", u8"Marastyr", u8"Mardred",
+        u8"Morana",    u8"Nalaed",   u8"Nora",     u8"Nurkara",  u8"Orifi",    u8"Ovina",
+        u8"Riswynn",   u8"Sannl",    u8"Therlin",  u8"Thodris",  u8"Torbera",  u8"Tordrid",
+        u8"Torgga",    u8"Urshar",   u8"Valida",   u8"Vistra",   u8"Vonana",   u8"Werydd",
+        u8"Whurd red", u8"Yurgunn",
+    },
+    {
+        u8"Adrik",   u8"Alberich", u8"Baern",   u8"Barendd",  u8"Beloril", u8"Brottor", u8"Dain",
+        u8"Dalgal",  u8"Darrak",   u8"Delg",    u8"Duergath", u8"Dworic",  u8"Eberk",   u8"Einkil",
+        u8"Elaim",   u8"Erias",    u8"Fallond", u8"Fargrim",  u8"Gardain", u8"Gilthur", u8"Gimgen",
+        u8"Gimurt",  u8"Harbek",   u8"Kildrak", u8"Kilvar",   u8"Morgran", u8"Morkral", u8"Nalral",
+        u8"Nordak",  u8"Nuraval",  u8"Oloric",  u8"Olunt",    u8"Osrik",   u8"Oskar",   u8"Rangrim",
+        u8"Reirak",  u8"Rurik",    u8"Taklinn", u8"Thoradin", u8"Thorin",  u8"Thradal", u8"Tordek",
+        u8"Traubon", u8"Travok",   u8"Ulfgar",  u8"Uraim",    u8"Veit",    u8"Vonbin",  u8"Vondal",
+        u8"Whurbin",
+    }};
+
+// From: https://gist.github.com/Brennall/b9c3a0202eb11c5cfd54868c5752012a
+static const std::vector<std::u8string> dwarf_last_names = {
+    u8"Aranore",    u8"Balderk",      u8"Battlehammer", u8"Bigtoe",      u8"Bloodkith",
+    u8"Bofdarm",    u8"Brawnanvil",   u8"Brazzik",      u8"Broodfist",   u8"Burrowfound",
+    u8"Caebrek",    u8"Daerdahk",     u8"Dankil",       u8"Daraln",      u8"Deepdelver",
+    u8"Durthane",   u8"Eversharp",    u8"FaHack",       u8"Fire-forge",  u8"Foamtankard",
+    u8"Frostbeard", u8"Glanhig",      u8"Goblinbane",   u8"Goldfinder",  u8"Gorunn",
+    u8"Graybeard",  u8"Hammerstone",  u8"Helcral",      u8"Holderhek",   u8"Ironfist",
+    u8"Loderr",     u8"Lutgehr",      u8"Morigak",      u8"Orcfoe",      u8"Rakankrak",
+    u8"Ruby-Eye",   u8"Rumnaheim",    u8"Silveraxe",    u8"Silverstone", u8"Steelfist",
+    u8"Stoutale",   u8"Strakeln",     u8"Strongheart",  u8"Thrahak",     u8"Torevir",
+    u8"Torunn",     u8"Trollbleeder", u8"Trueanvil",    u8"Trueblood",   u8"Ungart",
+};
+
+static NPCType npc_dwarf(
+    u8"a dwarf",
+    u8"{He} looks pissed.",
+    u8"",
+    u8"MF",
+    {9, 4, 6, 4, 9, 4},
+    {10, 7, 11, 8, 18, 8},
+    100,
+    500);
+
 static std::map<act_t, std::u8string> wear_attribs;
 static void init_wear_attribs() {
   wear_attribs[act_t::WEAR_BACK] = u8"Wearable on Back";
@@ -122,8 +199,9 @@ static void add_pouch(Object* npc) {
   npc->AddAct(act_t::WEAR_RHIP, bag);
 }
 
+
 NPCType::NPCType(
-    const std::u8string& nm,
+    const std::u8string& sds,
     const std::u8string& ds,
     const std::u8string& lds,
     const std::u8string& gens,
@@ -131,7 +209,7 @@ NPCType::NPCType(
     NPCAttrs max,
     int gmin,
     int gmax) {
-  name = nm;
+  short_desc = sds;
   desc = ds;
   long_desc = lds;
   genders = gens;
@@ -163,8 +241,14 @@ void NPCType::Carry(ItemType* item) {
   items.push_back(item);
 }
 
-void NPCType::SetName(const std::u8string& nm) {
-  name = nm;
+void NPCType::SetShortDesc(const std::u8string_view& sds) {
+  short_desc = sds;
+}
+
+void Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
+  // TODO: Actually process tags to create NPCType
+  npc_dwarf.SetShortDesc(tags);
+  return AddNPC(gen, &npc_dwarf);
 }
 
 void Object::AddNPC(std::mt19937& gen, const NPCType* type) {
@@ -196,14 +280,21 @@ void Object::AddNPC(std::mt19937& gen, const NPCType* type) {
     // loge(u8"DBG: {} {} {}\n", get_linked(sk.first), sk.second.first, sk.second.second);
   }
 
-  npc->SetShortDesc(type->name.c_str());
-  npc->SetDesc(type->desc.c_str());
-  npc->SetLongDesc(type->long_desc.c_str());
   if (type->genders.length() > 0) {
     npc->SetGender(type->genders[rand() % type->genders.length()]);
   }
+
+  npc->SetShortDesc(gender_proc(type->short_desc, npc->Gender()));
   npc->SetDesc(gender_proc(type->desc, npc->Gender()));
   npc->SetLongDesc(gender_proc(type->long_desc, npc->Gender()));
+
+  int gidx = (npc->Gender() == 'F') ? 0 : 1;
+  std::vector<std::u8string> first = {u8""};
+  std::sample(
+      dwarf_first_names[gidx].begin(), dwarf_first_names[gidx].end(), first.begin(), 1, gen);
+  std::vector<std::u8string> last = {u8""};
+  std::sample(dwarf_last_names.begin(), dwarf_last_names.end(), last.begin(), 1, gen);
+  npc->SetName(first.front() + u8" " + last.front());
 
   if (type->min_gold > 0 || type->max_gold > 0) {
     std::uniform_int_distribution<int> gnum(type->min_gold, type->max_gold);
@@ -386,33 +477,4 @@ ItemType::ItemType(
   weight = w;
   volume = vol;
   value = val;
-}
-
-static const std::u8string gen_replace[][4] = {
-    {u8"{He}", u8"She", u8"He", u8"It"},
-    {u8"{Him}", u8"Her", u8"Him", u8"It"},
-    {u8"{His}", u8"Hers", u8"His", u8"Its"},
-    {u8"{he}", u8"she", u8"he", u8"it"},
-    {u8"{him}", u8"her", u8"him", u8"it"},
-    {u8"{his}", u8"hers", u8"his", u8"its"},
-    {u8"", u8"", u8"", u8""}};
-
-std::u8string gender_proc(const std::u8string& in, char8_t gender) {
-  std::u8string ret = in;
-  int ctr = 0, gen = 3;
-
-  if (gender == 'F')
-    gen = 1;
-  if (gender == 'M')
-    gen = 2;
-
-  for (ctr = 0; !gen_replace[ctr][0].empty(); ++ctr) {
-    int where = ret.find(gen_replace[ctr][0]);
-    while (where >= 0 && where <= int(ret.length())) {
-      ret = ret.substr(0, where) + gen_replace[ctr][gen] +
-          ret.substr(where + gen_replace[ctr][0].length());
-      where = ret.find(gen_replace[ctr][0]);
-    }
-  }
-  return ret;
 }

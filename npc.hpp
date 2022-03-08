@@ -101,7 +101,7 @@ struct NPCAttrs {
 class NPCType {
  public:
   NPCType(
-      const std::u8string& nm,
+      const std::u8string& sds,
       const std::u8string& ds,
       const std::u8string& lds,
       const std::u8string& gens,
@@ -114,9 +114,9 @@ class NPCType {
   void Arm(WeaponType*);
   void Armor(ArmorType*);
   void Carry(ItemType*);
-  void SetName(const std::u8string&);
+  void SetShortDesc(const std::u8string_view&);
 
-  std::u8string name, desc, long_desc, genders;
+  std::u8string short_desc, desc, long_desc, genders;
   NPCAttrs mins, maxes;
   int min_gold, max_gold;
   std::map<uint32_t, std::pair<int, int>> skills;
@@ -124,5 +124,3 @@ class NPCType {
   std::vector<ArmorType*> armor;
   std::vector<ItemType*> items;
 };
-
-std::u8string gender_proc(const std::u8string& in, char8_t gender);

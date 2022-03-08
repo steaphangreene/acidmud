@@ -34,44 +34,6 @@
 #include "properties.hpp"
 #include "utils.hpp"
 
-// From: https://gist.github.com/Brennall/b9c3a0202eb11c5cfd54868c5752012a
-static const std::vector<std::u8string> dwarf_first_names[2] = {
-    {
-        u8"Anbera",    u8"Artin",    u8"Audhild",  u8"Balifra",  u8"Barbena",  u8"Bardryn",
-        u8"Bolhild",   u8"Dagnal",   u8"Dafifi",   u8"Delre",    u8"Diesa",    u8"Hdeth",
-        u8"Eridred",   u8"Falkrunn", u8"Fallthra", u8"Finelien", u8"Gillydd",  u8"Gunnloda",
-        u8"Gurdis",    u8"Helgret",  u8"Helja",    u8"Hlin",     u8"llde",     u8"Jarana",
-        u8"Kathra",    u8"Kilia",    u8"Kristryd", u8"Liftrasa", u8"Marastyr", u8"Mardred",
-        u8"Morana",    u8"Nalaed",   u8"Nora",     u8"Nurkara",  u8"Orifi",    u8"Ovina",
-        u8"Riswynn",   u8"Sannl",    u8"Therlin",  u8"Thodris",  u8"Torbera",  u8"Tordrid",
-        u8"Torgga",    u8"Urshar",   u8"Valida",   u8"Vistra",   u8"Vonana",   u8"Werydd",
-        u8"Whurd red", u8"Yurgunn",
-    },
-    {
-        u8"Adrik",   u8"Alberich", u8"Baern",   u8"Barendd",  u8"Beloril", u8"Brottor", u8"Dain",
-        u8"Dalgal",  u8"Darrak",   u8"Delg",    u8"Duergath", u8"Dworic",  u8"Eberk",   u8"Einkil",
-        u8"Elaim",   u8"Erias",    u8"Fallond", u8"Fargrim",  u8"Gardain", u8"Gilthur", u8"Gimgen",
-        u8"Gimurt",  u8"Harbek",   u8"Kildrak", u8"Kilvar",   u8"Morgran", u8"Morkral", u8"Nalral",
-        u8"Nordak",  u8"Nuraval",  u8"Oloric",  u8"Olunt",    u8"Osrik",   u8"Oskar",   u8"Rangrim",
-        u8"Reirak",  u8"Rurik",    u8"Taklinn", u8"Thoradin", u8"Thorin",  u8"Thradal", u8"Tordek",
-        u8"Traubon", u8"Travok",   u8"Ulfgar",  u8"Uraim",    u8"Veit",    u8"Vonbin",  u8"Vondal",
-        u8"Whurbin",
-    }};
-
-// From: https://gist.github.com/Brennall/b9c3a0202eb11c5cfd54868c5752012a
-static const std::vector<std::u8string> dwarf_last_names = {
-    u8"Aranore",    u8"Balderk",      u8"Battlehammer", u8"Bigtoe",      u8"Bloodkith",
-    u8"Bofdarm",    u8"Brawnanvil",   u8"Brazzik",      u8"Broodfist",   u8"Burrowfound",
-    u8"Caebrek",    u8"Daerdahk",     u8"Dankil",       u8"Daraln",      u8"Deepdelver",
-    u8"Durthane",   u8"Eversharp",    u8"FaHack",       u8"Fire-forge",  u8"Foamtankard",
-    u8"Frostbeard", u8"Glanhig",      u8"Goblinbane",   u8"Goldfinder",  u8"Gorunn",
-    u8"Graybeard",  u8"Hammerstone",  u8"Helcral",      u8"Holderhek",   u8"Ironfist",
-    u8"Loderr",     u8"Lutgehr",      u8"Morigak",      u8"Orcfoe",      u8"Rakankrak",
-    u8"Ruby-Eye",   u8"Rumnaheim",    u8"Silveraxe",    u8"Silverstone", u8"Steelfist",
-    u8"Stoutale",   u8"Strakeln",     u8"Strongheart",  u8"Thrahak",     u8"Torevir",
-    u8"Torunn",     u8"Trollbleeder", u8"Trueanvil",    u8"Trueblood",   u8"Ungart",
-};
-
 static std::random_device rd;
 static std::mt19937 gen(rd());
 
@@ -83,16 +45,6 @@ static Object* new_object(Object* parent) {
   return body;
 }
 std::multimap<std::u8string, std::pair<std::u8string, Object*>> zone_links;
-
-static NPCType npc_dwarf(
-    u8"a dwarf",
-    u8"{He} looks pissed.",
-    u8"",
-    u8"MF",
-    {9, 4, 6, 4, 9, 4},
-    {10, 7, 11, 8, 18, 8},
-    100,
-    500);
 
 static bool load_map(Object* world, Mind* mind, const std::filesystem::directory_entry& ent) {
   auto filename = ent.path().u8string();
@@ -130,11 +82,11 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
   std::map<char8_t, uint8_t> levels;
   std::map<char8_t, std::vector<bool>> stairblocked;
   std::map<char8_t, std::vector<std::u8string>> stairnames;
-  std::map<char8_t, std::vector<std::u8string>> empnames;
+  std::map<char8_t, std::vector<std::u8string>> emptags;
   std::map<char8_t, std::vector<std::uniform_int_distribution<int>>> empnums;
   std::map<char8_t, std::vector<int>> empfloors;
   std::map<char8_t, std::vector<bool>> empnight;
-  std::map<char8_t, std::vector<std::u8string>> resnames;
+  std::map<char8_t, std::vector<std::u8string>> restags;
   std::map<char8_t, std::vector<std::uniform_int_distribution<int>>> resnums;
   std::map<char8_t, std::vector<int>> resfloors;
   std::map<std::pair<Object*, std::u8string>, int> beds;
@@ -238,7 +190,7 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
         hnum = lnum;
       }
       if (process(line, u8":")) {
-        empnames[sym].emplace_back(line);
+        emptags[sym].emplace_back(line);
       } else {
         parse_error = true;
       }
@@ -265,7 +217,7 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
         hnum = lnum;
       }
       if (process(line, u8":")) {
-        empnames[sym].emplace_back(line);
+        emptags[sym].emplace_back(line);
       } else {
         parse_error = true;
       }
@@ -292,7 +244,7 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
         hnum = lnum;
       }
       if (process(line, u8":")) {
-        resnames[sym].emplace_back(line);
+        restags[sym].emplace_back(line);
       } else {
         parse_error = true;
       }
@@ -502,12 +454,12 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
         }
 
         // Load data for housing capacities for these new objects
-        if (resnames.count(room) > 0) {
+        if (restags.count(room) > 0) {
           auto loc = coord{x, y};
-          for (size_t f = 0; f < resnames.at(room).size(); ++f) {
+          for (size_t f = 0; f < restags.at(room).size(); ++f) {
             int resfl = resfloors.at(room)[f];
-            if (beds.count(std::make_pair(objs[loc][resfl], resnames[room][f])) == 0) {
-              beds[std::make_pair(objs[loc][resfl], resnames[room][f])] = resnums.at(room)[f](gen);
+            if (beds.count(std::make_pair(objs[loc][resfl], restags[room][f])) == 0) {
+              beds[std::make_pair(objs[loc][resfl], restags[room][f])] = resnums.at(room)[f](gen);
             }
           }
         }
@@ -547,12 +499,12 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
         }
 
         // Load data for housing capacities for these new objects
-        if (resnames.count(room) > 0) {
+        if (restags.count(room) > 0) {
           auto loc = coord{x, y};
-          for (size_t f = 0; f < resnames.at(room).size(); ++f) {
+          for (size_t f = 0; f < restags.at(room).size(); ++f) {
             int resfl = resfloors.at(room)[f];
-            if (beds.count(std::make_pair(objs[loc][resfl], resnames[room][f])) == 0) {
-              beds[std::make_pair(objs[loc][resfl], resnames[room][f])] = resnums.at(room)[f](gen);
+            if (beds.count(std::make_pair(objs[loc][resfl], restags[room][f])) == 0) {
+              beds[std::make_pair(objs[loc][resfl], restags[room][f])] = resnums.at(room)[f](gen);
             }
           }
         }
@@ -794,30 +746,14 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
     auto x = obj.first.x;
     auto y = obj.first.y;
     auto room = ascii_map[y][x];
-    if (empnames.count(room) > 0) {
-      for (size_t n = 0; n < empnames[room].size(); ++n) {
-        npc_dwarf.SetName(empnames[room][n]);
+    if (emptags.count(room) > 0) {
+      for (size_t n = 0; n < emptags[room].size(); ++n) {
         int num = empnums[room][n](gen);
         int floor = empfloors[room][n];
         bool night = empnight[room][n];
         for (int m = 0; m < num; ++m) {
-          objs[coord{x, y}][floor]->AddNPC(gen, &npc_dwarf);
+          objs[coord{x, y}][floor]->AddNPC(gen, emptags[room][n]);
           Object* npc = objs[coord{x, y}][floor]->Contents().back();
-          int gender = (npc->Gender() == 'F') ? 0 : 1;
-
-          std::vector<std::u8string> first = {u8""};
-          std::sample(
-              dwarf_first_names[gender].begin(),
-              dwarf_first_names[gender].end(),
-              first.begin(),
-              1,
-              gen);
-
-          std::vector<std::u8string> last = {u8""};
-          std::sample(dwarf_last_names.begin(), dwarf_last_names.end(), last.begin(), 1, gen);
-
-          npc->SetName(first.front() + u8" " + last.front());
-
           npc->AddAct(act_t::SPECIAL_WORK, objs[coord{x, y}][floor]);
 
           std::set<int32_t> have_keys;
@@ -895,13 +831,13 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
               if (loc_x < ascii_map[0].size() && loc_y < ascii_map.size()) { // >= 0 is implied
                 auto loc = coord{loc_x, loc_y};
                 char8_t type = ascii_map[loc_y][loc_x];
-                if (resnames.count(type) > 0) {
-                  for (size_t f = 0; !housed && f < resnames.at(type).size(); ++f) {
-                    if (resnames.at(type)[f] == empnames[room][n]) {
+                if (restags.count(type) > 0) {
+                  for (size_t f = 0; !housed && f < restags.at(type).size(); ++f) {
+                    if (restags.at(type)[f] == emptags[room][n]) {
                       int resfl = resfloors.at(type)[f];
-                      if (beds.at(std::make_pair(objs[loc][resfl], empnames[room][n])) > 0) {
+                      if (beds.at(std::make_pair(objs[loc][resfl], emptags[room][n])) > 0) {
                         npc->AddAct(act_t::SPECIAL_HOME, objs[loc][resfl]);
-                        --beds.at(std::make_pair(objs[loc][resfl], empnames[room][n]));
+                        --beds.at(std::make_pair(objs[loc][resfl], emptags[room][n]));
                         housed = true;
 
                         // Grant them all keys needed for their new home
@@ -945,7 +881,7 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
             }
           }
           if (!housed) {
-            logey(u8"Warning: Homeless NPC in {}: {}\n", zone->ShortDesc(), empnames[room][n]);
+            logey(u8"Warning: Homeless NPC in {}: {}\n", zone->ShortDesc(), emptags[room][n]);
             ++homeless;
           }
         }
