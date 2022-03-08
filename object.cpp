@@ -910,7 +910,7 @@ std::u8string Object::Noun(bool definite, bool verbose, const Object* rel, const
     } else if (own && own == sub) {
       ret = fmt::format(u8"its {}", ret);
     } else if (own) {
-      ret = own->Noun() + u8"'s " + ret;
+      ret = own->Noun(definite, verbose, rel, sub) + u8"'s " + ret;
     } else if (definite && (!proper)) {
       ret = fmt::format(u8"the {}", ret);
     } else if ((!proper) && need_an) {
@@ -1333,10 +1333,15 @@ void Object::SendShortDesc(Mind* m, Object* o) {
 
 void Object::SendFullSituation(Mind* m, Object* o) {
   std::u8string pname = u8"its";
-  if (parent && parent->Gender() == 'M')
-    pname = u8"his";
-  else if (parent && parent->Gender() == 'F')
-    pname = u8"her";
+  if (Owner()) {
+    if (Owner() == o) {
+      pname = u8"your";
+    } else if (Owner()->Gender() == 'M') {
+      pname = u8"his";
+    } else if (Owner()->Gender() == 'F') {
+      pname = u8"her";
+    }
+  }
 
   if (Skill(prhash(u8"Quantity")) > 1) {
     m->Send(u8"(x{}) ", Skill(prhash(u8"Quantity")));
@@ -1345,89 +1350,91 @@ void Object::SendFullSituation(Mind* m, Object* o) {
   std::u8string buf;
 
   if (!parent)
-    buf = fmt::format(u8"{} is here", Noun());
+    buf = fmt::format(u8"{} is here", Noun(false, false, o));
 
   else if (parent->ActTarg(act_t::HOLD) == this)
-    buf = fmt::format(u8"{} is here in {} off-hand", Noun(), pname);
+    buf = fmt::format(u8"{} is here in {} off-hand", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WIELD) == this)
-    buf = fmt::format(u8"{} is here in {} hand", Noun(), pname);
+    buf = fmt::format(u8"{} is here in {} hand", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_BACK) == this)
-    buf = fmt::format(u8"{} is here on {} back", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} back", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_CHEST) == this)
-    buf = fmt::format(u8"{} is here on {} chest", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} chest", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_HEAD) == this)
-    buf = fmt::format(u8"{} is here on {} head", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} head", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_FACE) == this)
-    buf = fmt::format(u8"{} is here on {} face", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} face", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_NECK) == this)
-    buf = fmt::format(u8"{} is here around {} neck", Noun(), pname);
+    buf = fmt::format(u8"{} is here around {} neck", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_COLLAR) == this)
-    buf = fmt::format(u8"{} is here on {} neck", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} neck", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_WAIST) == this)
-    buf = fmt::format(u8"{} is here around {} waist", Noun(), pname);
+    buf = fmt::format(u8"{} is here around {} waist", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_SHIELD) == this)
-    buf = fmt::format(u8"{} is here on {} shield-arm", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} shield-arm", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_LARM) == this)
-    buf = fmt::format(u8"{} is here on {} left arm", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} left arm", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_RARM) == this)
-    buf = fmt::format(u8"{} is here on {} right arm", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} right arm", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_LFINGER) == this)
-    buf = fmt::format(u8"{} is here on {} left finger", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} left finger", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_RFINGER) == this)
-    buf = fmt::format(u8"{} is here on {} right finger", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} right finger", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_LFOOT) == this)
-    buf = fmt::format(u8"{} is here on {} left foot", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} left foot", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_RFOOT) == this)
-    buf = fmt::format(u8"{} is here on {} right foot", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} right foot", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_LHAND) == this)
-    buf = fmt::format(u8"{} is here on {} left hand", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} left hand", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_RHAND) == this)
-    buf = fmt::format(u8"{} is here on {} right hand", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} right hand", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_LLEG) == this)
-    buf = fmt::format(u8"{} is here on {} left leg", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} left leg", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_RLEG) == this)
-    buf = fmt::format(u8"{} is here on {} right leg", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} right leg", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_LWRIST) == this)
-    buf = fmt::format(u8"{} is here on {} left wrist", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} left wrist", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_RWRIST) == this)
-    buf = fmt::format(u8"{} is here on {} right wrist", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} right wrist", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_LSHOULDER) == this)
-    buf = fmt::format(u8"{} is here on {} left shoulder", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} left shoulder", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_RSHOULDER) == this)
-    buf = fmt::format(u8"{} is here on {} right shoulder", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} right shoulder", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_LHIP) == this)
-    buf = fmt::format(u8"{} is here on {} left hip", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} left hip", Noun(false, false, o), pname);
 
   else if (parent->ActTarg(act_t::WEAR_RHIP) == this)
-    buf = fmt::format(u8"{} is here on {} right hip", Noun(), pname);
+    buf = fmt::format(u8"{} is here on {} right hip", Noun(false, false, o), pname);
 
   else {
-    pname = parent->Noun();
-    buf = fmt::format(u8"{} {} in {}", Noun(false, true, m->Body()), PosString(), pname);
+    if (parent && Owner()) {
+      pname = parent->Noun(false, false, o, Owner());
+    }
+    buf = fmt::format(u8"{} {} in {}", Noun(false, false, o), PosString(), pname);
   }
 
   buf[0] = ascii_toupper(buf[0]);
