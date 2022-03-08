@@ -66,7 +66,7 @@ void trim_string(std::u8string_view& str) { // Remove extra whitespace from std:
   }
 }
 
-size_t skip_line(const std::u8string& str, size_t pos) {
+size_t skip_line(const std::u8string_view& str, size_t pos) {
   pos = str.find_first_of(u8"\n\r", pos + 1);
   while (pos != std::u8string::npos && pos < str.length() && isspace(str[pos]))
     ++pos;
@@ -75,7 +75,7 @@ size_t skip_line(const std::u8string& str, size_t pos) {
   return pos;
 }
 
-size_t prev_line(const std::u8string& str, size_t pos) {
+size_t prev_line(const std::u8string_view& str, size_t pos) {
   pos = str.find_last_of(u8"\n\r", pos - 1);
   while (pos != std::u8string::npos && pos > 0 && isspace(str[pos]))
     --pos;

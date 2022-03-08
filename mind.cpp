@@ -504,8 +504,8 @@ void Mind::SetTBATrigger(Object* tr, Object* tripper, Object* targ, std::u8strin
   Attach(tr);
   spos_s.clear();
   spos_s.push_back(0);
-  script = body->LongDesc();
-  script += u8"\n";
+  svars[u8"script"] = fmt::format(u8"{}\n", body->LongDesc());
+
   if (tripper)
     ovars[u8"actor"] = tripper;
 
@@ -1583,6 +1583,7 @@ int Mind::TBARunLine(std::u8string line) {
 
   int com = COM_NONE; // ComNum for Pass-Through
   std::u8string_view cmd = line;
+  std::u8string_view script = svars[u8"script"];
 
   auto c1 = cmd.find_first_not_of(u8" \t\n\r;");
   if (c1 != std::u8string::npos) {
@@ -1906,21 +1907,21 @@ int Mind::TBARunLine(std::u8string line) {
       int depth = 0;
       while (spos != std::u8string::npos) { // Skip to end/elseif
         //        PING_QUOTA();
-        if ((!depth) && (!strncmp(script.c_str() + spos, u8"elseif ", 7))) {
+        if ((!depth) && (script.substr(spos).starts_with(u8"elseif "))) {
           spos += 4; // Make it into an u8"if" and go
           break;
-        } else if (!strncmp(script.c_str() + spos, u8"else", 4)) {
+        } else if (script.substr(spos).starts_with(u8"else")) {
           if (!depth) { // Only right if all the way back
             spos = skip_line(script, spos);
             break;
           }
-        } else if (!strncmp(script.c_str() + spos, u8"end", 3)) {
+        } else if (script.substr(spos).starts_with(u8"end")) {
           if (!depth) { // Only done if all the way back
             spos = skip_line(script, spos);
             break;
           }
           --depth; // Otherwise am just 1 nesting level less deep
-        } else if (!strncmp(script.c_str() + spos, u8"if ", 3)) {
+        } else if (script.substr(spos).starts_with(u8"if ")) {
           ++depth; // Am now 1 nesting level deeper!
         }
         spos = skip_line(script, spos);
@@ -1933,13 +1934,13 @@ int Mind::TBARunLine(std::u8string line) {
     int depth = 0;
     while (spos != std::u8string::npos) { // Skip to end (considering nesting)
       //      PING_QUOTA();
-      if (!strncmp(script.c_str() + spos, u8"end", 3)) {
+      if (script.substr(spos).starts_with(u8"end")) {
         if (depth == 0) { // Only done if all the way back
           spos = skip_line(script, spos);
           break;
         }
         --depth; // Otherwise am just 1 nesting level less deep
-      } else if (!strncmp(script.c_str() + spos, u8"if ", 3)) {
+      } else if (script.substr(spos).starts_with(u8"if ")) {
         ++depth; // Am now 1 nesting level deeper!
       }
       spos = skip_line(script, spos);
@@ -1953,15 +1954,15 @@ int Mind::TBARunLine(std::u8string line) {
     size_t begin = spos;
     while (spos != std::u8string::npos) { // Skip to end (considering nesting)
       //      PING_QUOTA();
-      if (!strncmp(script.c_str() + spos, u8"done", 4)) {
+      if (script.substr(spos).starts_with(u8"done")) {
         if (depth == 0) { // Only done if all the way back
           spos = skip_line(script, spos);
           break;
         }
         --depth; // Otherwise am just 1 nesting level less deep
-      } else if (!strncmp(script.c_str() + spos, u8"switch ", 7)) {
+      } else if (script.substr(spos).starts_with(u8"switch ")) {
         ++depth; // Am now 1 nesting level deeper!
-      } else if (!strncmp(script.c_str() + spos, u8"while ", 6)) {
+      } else if (script.substr(spos).starts_with(u8"while ")) {
         ++depth; // Am now 1 nesting level deeper!
       }
       spos = skip_line(script, spos);
@@ -1981,28 +1982,25 @@ int Mind::TBARunLine(std::u8string line) {
     trim_string(value);
     while (spos != std::u8string::npos) { // Skip to end (considering nesting)
       //      PING_QUOTA();
-      if (!strncmp(script.c_str() + spos, u8"done", 4)) {
+      if (script.substr(spos).starts_with(u8"done")) {
         if (depth == 0) { // Only done if all the way back
           spos = skip_line(script, spos);
           break;
         }
         --depth; // Otherwise am just 1 nesting level less deep
-      } else if (!strncmp(script.c_str() + spos, u8"switch ", 7)) {
+      } else if (script.substr(spos).starts_with(u8"switch ")) {
         ++depth; // Am now 1 nesting level deeper!
-      } else if (!strncmp(script.c_str() + spos, u8"while ", 6)) {
+      } else if (script.substr(spos).starts_with(u8"while ")) {
         ++depth; // Am now 1 nesting level deeper!
       } else if (
-          depth == 0 && (!strncmp(script.c_str() + spos, u8"case ", 5)) &&
-          TBAEval(value + u8" == " + script.substr(spos + 5))) { // The actual case I want!
+          depth == 0 && (script.substr(spos).starts_with(u8"case ")) &&
+          TBAEval(value + fmt::format(u8" == {}", script.substr(spos + 5)))) {
+        // The actual case I want!
         spos = skip_line(script, spos);
         targ = spos;
         continue;
-      } else if (
-          depth == 0 &&
-          (!strncmp(
-              script.c_str() + spos,
-              u8"default",
-              7))) { // Maybe the case I want
+      } else if (depth == 0 && (script.substr(spos).starts_with(u8"default"))) {
+        // Maybe the case I want
         if (targ == 0) {
           spos = skip_line(script, spos);
           targ = spos;
@@ -2021,14 +2019,14 @@ int Mind::TBARunLine(std::u8string line) {
     int depth = 0;
     while (spos != std::u8string::npos) { // Skip to end (considering nesting)
       //      PING_QUOTA();
-      if (!strncmp(script.c_str() + spos, u8"done", 4)) {
+      if (script.substr(spos).starts_with(u8"done")) {
         if (depth == 0) { // Only done if all the way back
           break;
         }
         --depth; // Otherwise am just 1 nesting level less deep
-      } else if (!strncmp(script.c_str() + spos, u8"switch ", 7)) {
+      } else if (script.substr(spos).starts_with(u8"switch ")) {
         ++depth; // Am now 1 nesting level deeper!
-      } else if (!strncmp(script.c_str() + spos, u8"while ", 6)) {
+      } else if (script.substr(spos).starts_with(u8"while ")) {
         ++depth; // Am now 1 nesting level deeper!
       }
       spos = skip_line(script, spos);
@@ -2921,6 +2919,7 @@ bool Mind::Think(int istick) {
       //	);
       ovars[u8"self"] = body->Parent();
       ovars[u8"context"] = ovars[u8"self"]; // Initial global var context
+      std::u8string_view script = svars[u8"script"];
 
       int quota = 1024;
       int stype = body->Skill(prhash(u8"TBAScriptType"));

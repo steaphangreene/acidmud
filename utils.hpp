@@ -36,11 +36,11 @@ void replace_all(
 void replace_all(std::u8string& str, const std::u8string& oldt, int newn, size_t st = 0);
 
 size_t skip_line( // IDX of next line start, skipping leading whitespace
-    const std::u8string& str,
+    const std::u8string_view& str,
     size_t pos);
 
 size_t prev_line( // IDX of prev line start, skipping leading whitespace
-    const std::u8string& str,
+    const std::u8string_view& str,
     size_t pos);
 
 void trim_string(std::u8string& str); // Remove extra whitespace from string

@@ -137,7 +137,6 @@ class Mind {
   int pers = 0; // File Descriptor
   int log = -1; // File Descriptor
 
-  std::u8string script;
   std::vector<size_t> spos_s;
 
   static std::vector<std::pair<int64_t, Mind*>> waiting;
