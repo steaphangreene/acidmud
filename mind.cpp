@@ -50,7 +50,7 @@ static std::u8string itos(int val) {
   return fmt::format(u8"{}", val);
 }
 
-static std::u8string tba_spellconvert(const std::u8string& tba) {
+static std::u8string tba_spellconvert(const std::u8string_view& tba) {
   std::u8string acid;
 
   switch (crc32c(tba)) {
@@ -706,10 +706,11 @@ std::u8string Mind::Tactics(int phase) const {
   return u8"attack";
 }
 
-bool Mind::TBAVarSub(std::u8string& line) const {
-  size_t cur = line.find('%');
+bool Mind::TBAVarSub(std::u8string& edit) const {
+  size_t cur = edit.find('%');
   size_t end;
   while (cur != std::u8string::npos) {
+    std::u8string_view line(edit);
     end = line.find_first_of(u8"%. \t", cur + 1);
     if (end == std::u8string::npos)
       end = line.length();
@@ -722,15 +723,15 @@ bool Mind::TBAVarSub(std::u8string& line) const {
     ) {
       logeg(u8"#{} Debug: '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
     }
-    std::u8string vname = line.substr(cur + 1, end - cur - 1);
+    std::u8string_view vname = line.substr(cur + 1, end - cur - 1);
     Object* obj = nullptr;
     std::u8string val = u8"";
     int is_obj = 0;
-    if (ovars.count(vname) > 0) {
-      obj = ovars.at(vname);
+    if (ovars.count(std::u8string(vname)) > 0) {
+      obj = ovars.at(std::u8string(vname));
       is_obj = 1;
-    } else if (svars.count(vname) > 0) {
-      val = svars.at(vname);
+    } else if (svars.count(std::u8string(vname)) > 0) {
+      val = svars.at(std::u8string(vname));
     } else if (line.substr(cur).starts_with(u8"%time.hour%")) {
       Object* world = body->World();
       if (world->Skill(prhash(u8"Day Time")) && world->Skill(prhash(u8"Day Length"))) {
@@ -794,7 +795,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
       if (isdigit(line[cur + 8])) {
         size_t vend = line.find_first_not_of(u8"0123456789", cur + 8);
         if (vend != std::u8string::npos && line[vend] == '%') {
-          val = itos((rand() % atoi(line.c_str() + cur + 8)) + 1);
+          val = itos((rand() % getnum(line.substr(cur + 8))) + 1);
         }
       }
       end = line.find_first_of(u8"% \t", cur + 1); // Done.  Replace All.
@@ -819,7 +820,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
       }
       if (end == std::u8string::npos)
         end = line.length();
-      std::u8string field = line.substr(start, end - start);
+      std::u8string_view field = line.substr(start, end - start);
       if (is_obj) {
         if (field == u8"id") {
           // obj is already right
@@ -1347,17 +1348,15 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           val = u8"";
           if (obj) {
             size_t num = field.find_first_of(u8") .%", 10);
-            std::u8string var = field.substr(10, num - 10); // FIXME: Variables!
+            std::u8string_view var = field.substr(10, num - 10); // FIXME: Variables!
             val = bstr[obj->HasSkill(crc32c(fmt::format(u8"TBA:{}", var)))];
           }
           obj = nullptr;
           is_obj = 0;
-        } else if (field.starts_with(u8"has_item(")) {
-          int vnum = -1;
-          size_t num = field.find_first_not_of(u8"0123456789", 9);
-          sscanf(field.c_str() + 9, u8"%d", &vnum);
+        } else if (process(field, u8"has_item(")) {
+          int vnum = getnum(field);
           val = u8"";
-          if (obj && vnum != -1 && field[num] == ')') {
+          if (obj && vnum != 0 && field[0] == ')') {
             vnum += 1000000;
             auto pos = obj->PickObjects(u8"all", LOC_INTERNAL);
             for (auto item : pos) {
@@ -1393,8 +1392,8 @@ bool Mind::TBAVarSub(std::u8string& line) const {
             if (vnum > 0) {
               vnum %= 1000000; // Convert from Acid number
               int off = field.find_first_of(u8")", 5);
-              std::u8string query = field.substr(5, off - 5);
-              int qnum = TBAEval(query.c_str());
+              std::u8string_view query = field.substr(5, off - 5);
+              int qnum = TBAEval(std::u8string(query));
               val = bstr[(vnum == qnum)];
             }
           }
@@ -1489,10 +1488,11 @@ bool Mind::TBAVarSub(std::u8string& line) const {
     else if (line[end] == '%')
       ++end;
     if (is_obj) {
-      line.replace(cur, end - cur, fmt::format(u8"OBJ:{}", reinterpret_cast<void*>(obj)));
+      edit.replace(cur, end - cur, fmt::format(u8"OBJ:{}", reinterpret_cast<void*>(obj)));
     } else { // std::u8string OR u8""
-      line.replace(cur, end - cur, val);
+      edit.replace(cur, end - cur, val);
     }
+    line = edit;
     cur = line.find('%', cur + 1);
   }
   if (0
@@ -1502,7 +1502,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
       //	|| line.contains(u8"exclaim")
       //	|| line.contains(u8"speech")
   ) {
-    logeg(u8"#{} Debug: '{}' <-Final\n", body->Skill(prhash(u8"TBAScript")), line);
+    logeg(u8"#{} Debug: '{}' <-Final\n", body->Skill(prhash(u8"TBAScript")), edit);
   }
   return true;
 }
