@@ -1276,7 +1276,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::u8string b) {
         int qty = 1; // Even animate objects can have higher quantities.
         auto oth = std::find(cont.begin(), cont.end(), ind);
         for (qty = 0; oth != cont.end(); ++oth) {
-          if (ind->LooksLike(*oth, vmode, o)) {
+          if (ind->LooksLike(*oth, vmode, (vmode & LOC_NINJA) ? nullptr : o)) {
             master.erase(*oth);
             qty += std::max(1, (*oth)->Skill(prhash(u8"Quantity")));
           }
