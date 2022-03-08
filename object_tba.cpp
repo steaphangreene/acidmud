@@ -1367,9 +1367,9 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       if (flags & 32) {
         obj->SetSkill(prhash(u8"Wearable on Left Leg"), 1);
         if (sf) {
-          if (!strcmp(name.c_str() + (name.length() - 9), u8" leggings"))
+          if (name.ends_with(u8" leggings"))
             name = std::u8string(u8"a") + name.substr(sf, name.length() - (sf + 1));
-          else if (!strcmp(name.c_str() + (name.length() - 7), u8" plates"))
+          else if (name.ends_with(u8" plates"))
             name = std::u8string(u8"a") + name.substr(sf, name.length() - (sf + 1));
           else
             obj->SetSkill(prhash(u8"Wearable on Right Leg"), 1);
@@ -1384,11 +1384,11 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       if (flags & 64) {
         obj->SetSkill(prhash(u8"Wearable on Left Foot"), 1);
         if (sf) {
-          if (!strcmp(name.c_str() + (name.length() - 8), u8" sandals"))
+          if (name.ends_with(u8" sandals"))
             name = std::u8string(u8"a") + name.substr(sf, name.length() - (sf + 1));
-          else if (!strcmp(name.c_str() + (name.length() - 6), u8" boots"))
+          else if (name.ends_with(u8" boots"))
             name = std::u8string(u8"a") + name.substr(sf, name.length() - (sf + 1));
-          else if (!strcmp(name.c_str() + (name.length() - 6), u8" shoes"))
+          else if (name.ends_with(u8" shoes"))
             name = std::u8string(u8"a") + name.substr(sf, name.length() - (sf + 1));
           else
             obj->SetSkill(prhash(u8"Wearable on Right Foot"), 1);
@@ -1402,9 +1402,9 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       if (flags & 128) {
         obj->SetSkill(prhash(u8"Wearable on Left Hand"), 1);
         if (sf) {
-          if (!strcmp(name.c_str() + (name.length() - 10), u8" gauntlets"))
+          if (name.ends_with(u8" gauntlets"))
             name = std::u8string(u8"a") + name.substr(sf, name.length() - (sf + 1));
-          else if (!strcmp(name.c_str() + (name.length() - 7), u8" gloves"))
+          else if (name.ends_with(u8" gloves"))
             name = std::u8string(u8"a") + name.substr(sf, name.length() - (sf + 1));
           else
             obj->SetSkill(prhash(u8"Wearable on Right Hand"), 1);
@@ -1418,11 +1418,11 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       if (flags & 256) {
         obj->SetSkill(prhash(u8"Wearable on Left Arm"), 1);
         if (sf) {
-          if (!strcmp(name.c_str() + (name.length() - 8), u8" sleeves"))
+          if (name.ends_with(u8" sleeves"))
             name = std::u8string(u8"a") + name.substr(sf, name.length() - (sf + 1));
-          else if (!strcmp(name.c_str() + (name.length() - 8), u8" bracers"))
+          else if (name.ends_with(u8" bracers"))
             name = std::u8string(u8"a") + name.substr(sf, name.length() - (sf + 1));
-          else if (!strcmp(name.c_str() + (name.length() - 7), u8" plates"))
+          else if (name.ends_with(u8" plates"))
             name = std::u8string(u8"a") + name.substr(sf, name.length() - (sf + 1));
           else
             obj->SetSkill(prhash(u8"Wearable on Right Arm"), 1);

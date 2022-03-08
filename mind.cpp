@@ -831,9 +831,9 @@ bool Mind::TBAVarSub(std::u8string& line) const {
         end = line.length();
       std::u8string field = line.substr(start, end - start);
       if (is_obj) {
-        if (!strcmp(field.c_str(), u8"id")) {
+        if (field == u8"id") {
           // obj is already right
-        } else if (!strcmp(field.c_str(), u8"vnum")) {
+        } else if (field == u8"vnum") {
           int vnum = 0;
           if (obj) {
             vnum = obj->Skill(prhash(u8"TBAMOB"));
@@ -847,7 +847,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           val = itos(vnum);
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"gold")) {
+        } else if (field == u8"gold") {
           int gold = 0;
           if (obj) {
             auto pay = obj->PickObjects(u8"all a gold piece", LOC_INTERNAL);
@@ -858,7 +858,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           val = itos(gold);
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"type")) {
+        } else if (field == u8"type") {
           val = u8"OTHER";
           if (obj) {
             if (obj->HasSkill(prhash(u8"Container")))
@@ -875,29 +875,29 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           }
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"cost_per_day")) {
+        } else if (field == u8"cost_per_day") {
           val = u8"0";
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"cost")) {
+        } else if (field == u8"cost") {
           val = u8"";
           if (obj)
             val = itos(obj->Value());
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"count")) {
+        } else if (field == u8"count") {
           val = u8"";
           if (obj)
             val = itos(obj->Quantity());
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"weight")) {
+        } else if (field == u8"weight") {
           val = u8"";
           if (obj)
             val = itos(obj->Weight());
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"sex")) {
+        } else if (field == u8"sex") {
           val = u8"";
           if (obj) {
             if (obj->Gender() == 'M')
@@ -909,66 +909,66 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           }
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"race")) {
+        } else if (field == u8"race") {
           val = u8"";
           if (obj && obj->IsAnimate()) {
             val = u8"human"; // FIXME: Implement Race!
           }
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"level")) {
+        } else if (field == u8"level") {
           val = u8"";
           if (obj)
             val = itos(obj->TotalExp() / 10 + 1);
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"name")) {
+        } else if (field == u8"name") {
           val = u8"";
           if (obj)
             val = obj->Noun();
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"shortdesc")) {
+        } else if (field == u8"shortdesc") {
           val = u8"";
           if (obj)
             val = obj->ShortDesc();
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"alias")) {
+        } else if (field == u8"alias") {
           val = u8"";
           if (obj)
             val = obj->ShortDesc();
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"heshe")) {
+        } else if (field == u8"heshe") {
           val = u8"";
           if (obj)
             val = obj->Pron();
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"hisher")) {
+        } else if (field == u8"hisher") {
           val = u8"";
           if (obj)
             val = obj->Poss();
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"himher")) {
+        } else if (field == u8"himher") {
           val = u8"";
           if (obj)
             val = obj->Obje();
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"maxhitp")) {
+        } else if (field == u8"maxhitp") {
           val = itos(1000); // Everybody has 1000 HP.
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"hitp")) {
+        } else if (field == u8"hitp") {
           val = u8"";
           if (obj)
             val = itos(1000 - 50 * (obj->Phys() + obj->Stun()));
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"align")) {
+        } else if (field == u8"align") {
           val = u8"";
           if (obj) {
             int align = 0;
@@ -979,61 +979,61 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           }
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"is_pc")) {
+        } else if (field == u8"is_pc") {
           val = u8"";
           if (obj)
             val = bstr[is_pc(obj)];
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"is_killer")) {
+        } else if (field == u8"is_killer") {
           val = u8"0"; // FIXME: Real value?
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"is_thief")) {
+        } else if (field == u8"is_thief") {
           val = u8"0"; // FIXME: Real value?
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"con")) {
+        } else if (field == u8"con") {
           val = u8"";
           if (obj)
             val = itos(obj->NormAttribute(0) * 3);
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"dex")) {
+        } else if (field == u8"dex") {
           val = u8"";
           if (obj)
             val = itos(obj->NormAttribute(1) * 3);
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"str")) {
+        } else if (field == u8"str") {
           val = u8"";
           if (obj)
             val = itos(obj->NormAttribute(2) * 3);
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"stradd")) { // D&D is Dumb
+        } else if (field == u8"stradd") { // D&D is Dumb
           val = u8"0";
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"cha")) {
+        } else if (field == u8"cha") {
           val = u8"";
           if (obj)
             val = itos(obj->NormAttribute(3) * 3);
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"int")) {
+        } else if (field == u8"int") {
           val = u8"";
           if (obj)
             val = itos(obj->NormAttribute(4) * 3);
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"wis")) {
+        } else if (field == u8"wis") {
           val = u8"";
           if (obj)
             val = itos(obj->NormAttribute(5) * 3);
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"pos")) {
+        } else if (field == u8"pos") {
           val = u8"";
           if (obj) {
             if (obj->IsAct(act_t::SLEEP))
@@ -1051,45 +1051,45 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           }
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"title")) {
+        } else if (field == u8"title") {
           val = u8"";
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"val0")) { // FIXME: Implement?
+        } else if (field == u8"val0") { // FIXME: Implement?
           val = u8"0";
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"val1")) { // FIXME: Implement?
+        } else if (field == u8"val1") { // FIXME: Implement?
           val = u8"0";
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"val2")) { // FIXME: Implement?
+        } else if (field == u8"val2") { // FIXME: Implement?
           val = u8"0";
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"val3")) { // FIXME: Implement?
+        } else if (field == u8"val3") { // FIXME: Implement?
           val = u8"0";
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"timer")) {
+        } else if (field == u8"timer") {
           val = u8"";
           if (obj)
             val = itos(obj->Skill(prhash(u8"Temporary"))); // FIXME: More Kinds?
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"move")) {
+        } else if (field == u8"move") {
           val = u8"";
           if (obj)
             val = itos(10 - obj->Stun());
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"maxmove")) {
+        } else if (field == u8"maxmove") {
           val = u8"";
           if (obj)
             val = u8"10";
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"mana")) {
+        } else if (field == u8"mana") {
           val = u8"";
           if (obj) {
             if (obj->HasSkill(prhash(u8"Faith"))) {
@@ -1100,7 +1100,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           }
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"maxmana")) {
+        } else if (field == u8"maxmana") {
           val = u8"";
           if (obj) {
             if (obj->HasSkill(prhash(u8"Faith"))) {
@@ -1111,73 +1111,73 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           }
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"saving_para")) {
+        } else if (field == u8"saving_para") {
           val = u8"";
           if (obj)
             val = u8"0";
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"saving_rod")) {
+        } else if (field == u8"saving_rod") {
           val = u8"";
           if (obj)
             val = u8"0";
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"saving_petri")) {
+        } else if (field == u8"saving_petri") {
           val = u8"";
           if (obj)
             val = u8"0";
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"saving_breath")) {
+        } else if (field == u8"saving_breath") {
           val = u8"";
           if (obj)
             val = u8"0";
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"saving_spell")) {
+        } else if (field == u8"saving_spell") {
           val = u8"";
           if (obj)
             val = u8"0";
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"prac")) {
+        } else if (field == u8"prac") {
           val = u8"";
           if (obj)
             val = u8"0";
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"questpoints")) {
+        } else if (field == u8"questpoints") {
           val = u8"";
           if (obj)
             val = u8"0";
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"exp")) {
+        } else if (field == u8"exp") {
           val = u8"";
           if (obj)
             val = itos(obj->TotalExp());
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"hunger")) {
+        } else if (field == u8"hunger") {
           val = u8"";
           if (obj)
             val = itos(obj->Skill(prhash(u8"Hungry"))); // FIXME: Convert
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"thirst")) {
+        } else if (field == u8"thirst") {
           val = u8"";
           if (obj)
             val = itos(obj->Skill(prhash(u8"Thirsty"))); // FIXME: Convert
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"drunk")) {
+        } else if (field == u8"drunk") {
           val = u8"";
           if (obj)
             val = u8"0"; // FIXME: Query Drunkenness Here
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"class")) {
+        } else if (field == u8"class") {
           val = u8"";
           if (obj) {
             if (obj->HasSkill(prhash(u8"Spellcasting")) || obj->HasSkill(prhash(u8"Spellcraft"))) {
@@ -1193,21 +1193,21 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           }
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"canbeseen")) {
+        } else if (field == u8"canbeseen") {
           val = u8"";
           if (obj)
             val =
                 bstr[!(obj->HasSkill(prhash(u8"Invisible")) || obj->HasSkill(prhash(u8"Hidden")))];
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"affect")) {
+        } else if (field == u8"affect") {
           val = u8""; // FIXME: Translate & List Spell Effects?
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"fighting")) {
+        } else if (field == u8"fighting") {
           if (obj)
             obj = obj->ActTarg(act_t::FIGHT);
-        } else if (!strcmp(field.c_str(), u8"worn_by")) {
+        } else if (field == u8"worn_by") {
           if (obj) {
             Object* owner = obj->Owner();
             if (owner && owner->Wearing(obj))
@@ -1216,86 +1216,78 @@ bool Mind::TBAVarSub(std::u8string& line) const {
               obj = nullptr;
           } else
             obj = nullptr;
-        } else if (!strcmp(field.c_str(), u8"room")) {
+        } else if (field == u8"room") {
           while (obj && obj->Skill(prhash(u8"TBARoom")) == 0)
             obj = obj->Parent();
-        } else if (!strcmp(field.c_str(), u8"people")) {
+        } else if (field == u8"people") {
           if (obj)
             obj = obj->PickObject(u8"someone", LOC_INTERNAL);
-        } else if (!strcmp(field.c_str(), u8"contents")) {
+        } else if (field == u8"contents") {
           if (obj)
             obj = obj->PickObject(u8"something", LOC_INTERNAL);
-        } else if (!strcmp(field.c_str(), u8"inventory")) {
+        } else if (field == u8"inventory") {
           if (obj)
             obj = obj->PickObject(u8"something", LOC_INTERNAL | LOC_NOTWORN);
-        } else if ((!strcmp(field.c_str(), u8"eq(*)")) || (!strcmp(field.c_str(), u8"eq"))) {
+        } else if ((field == u8"eq(*)") || (field == u8"eq")) {
           if (obj)
             obj = obj->PickObject(u8"something", LOC_INTERNAL | LOC_NOTUNWORN);
         } else if (
-            (!strcmp(field.c_str(), u8"eq(light)")) || (!strcmp(field.c_str(), u8"eq(hold)")) ||
-            (!strcmp(field.c_str(), u8"eq(0)")) || (!strcmp(field.c_str(), u8"eq(17)"))) {
+            (field == u8"eq(light)") || (field == u8"eq(hold)") || (field == u8"eq(0)") ||
+            (field == u8"eq(17)")) {
           if (obj)
             obj = obj->ActTarg(act_t::HOLD);
-        } else if (
-            (!strcmp(field.c_str(), u8"eq(wield)")) || (!strcmp(field.c_str(), u8"eq(16)"))) {
+        } else if ((field == u8"eq(wield)") || (field == u8"eq(16)")) {
           if (obj)
             obj = obj->ActTarg(act_t::WIELD);
-        } else if (
-            (!strcmp(field.c_str(), u8"eq(rfinger)")) || (!strcmp(field.c_str(), u8"eq(1)"))) {
+        } else if ((field == u8"eq(rfinger)") || (field == u8"eq(1)")) {
           if (obj)
             obj = obj->ActTarg(act_t::WEAR_RFINGER);
-        } else if (
-            (!strcmp(field.c_str(), u8"eq(lfinger)")) || (!strcmp(field.c_str(), u8"eq(2)"))) {
+        } else if ((field == u8"eq(lfinger)") || (field == u8"eq(2)")) {
           if (obj)
             obj = obj->ActTarg(act_t::WEAR_LFINGER);
-        } else if ((!strcmp(field.c_str(), u8"eq(neck1)")) || (!strcmp(field.c_str(), u8"eq(3)"))) {
+        } else if ((field == u8"eq(neck1)") || (field == u8"eq(3)")) {
           if (obj)
             obj = obj->ActTarg(act_t::WEAR_NECK);
-        } else if ((!strcmp(field.c_str(), u8"eq(neck2)")) || (!strcmp(field.c_str(), u8"eq(4)"))) {
+        } else if ((field == u8"eq(neck2)") || (field == u8"eq(4)")) {
           if (obj)
             obj = obj->ActTarg(act_t::WEAR_COLLAR);
-        } else if ((!strcmp(field.c_str(), u8"eq(body)")) || (!strcmp(field.c_str(), u8"eq(5)"))) {
+        } else if ((field == u8"eq(body)") || (field == u8"eq(5)")) {
           if (obj)
             obj = obj->ActTarg(act_t::WEAR_CHEST);
-        } else if ((!strcmp(field.c_str(), u8"eq(head)")) || (!strcmp(field.c_str(), u8"eq(6)"))) {
+        } else if ((field == u8"eq(head)") || (field == u8"eq(6)")) {
           if (obj)
             obj = obj->ActTarg(act_t::WEAR_HEAD);
-        } else if ((!strcmp(field.c_str(), u8"eq(legs)")) || (!strcmp(field.c_str(), u8"eq(7)"))) {
+        } else if ((field == u8"eq(legs)") || (field == u8"eq(7)")) {
           if (obj)
             obj = obj->ActTarg(act_t::WEAR_LLEG);
-        } else if ((!strcmp(field.c_str(), u8"eq(feet)")) || (!strcmp(field.c_str(), u8"eq(8)"))) {
+        } else if ((field == u8"eq(feet)") || (field == u8"eq(8)")) {
           if (obj)
             obj = obj->ActTarg(act_t::WEAR_LFOOT);
-        } else if ((!strcmp(field.c_str(), u8"eq(hands)")) || (!strcmp(field.c_str(), u8"eq(9)"))) {
+        } else if ((field == u8"eq(hands)") || (field == u8"eq(9)")) {
           if (obj)
             obj = obj->ActTarg(act_t::WEAR_LHAND);
-        } else if ((!strcmp(field.c_str(), u8"eq(arms)")) || (!strcmp(field.c_str(), u8"eq(10)"))) {
+        } else if ((field == u8"eq(arms)") || (field == u8"eq(10)")) {
           if (obj)
             obj = obj->ActTarg(act_t::WEAR_LARM);
-        } else if (
-            (!strcmp(field.c_str(), u8"eq(shield)")) || (!strcmp(field.c_str(), u8"eq(11)"))) {
+        } else if ((field == u8"eq(shield)") || (field == u8"eq(11)")) {
           if (obj)
             obj = obj->ActTarg(act_t::WEAR_SHIELD);
-        } else if (
-            (!strcmp(field.c_str(), u8"eq(about)")) || (!strcmp(field.c_str(), u8"eq(12)"))) {
+        } else if ((field == u8"eq(about)") || (field == u8"eq(12)")) {
           if (obj)
             obj = obj->ActTarg(act_t::WEAR_LSHOULDER);
-        } else if (
-            (!strcmp(field.c_str(), u8"eq(waits)")) || (!strcmp(field.c_str(), u8"eq(13)"))) {
+        } else if ((field == u8"eq(waits)") || (field == u8"eq(13)")) {
           if (obj)
             obj = obj->ActTarg(act_t::WEAR_WAIST);
-        } else if (
-            (!strcmp(field.c_str(), u8"eq(rwrist)")) || (!strcmp(field.c_str(), u8"eq(14)"))) {
+        } else if ((field == u8"eq(rwrist)") || (field == u8"eq(14)")) {
           if (obj)
             obj = obj->ActTarg(act_t::WEAR_RWRIST);
-        } else if (
-            (!strcmp(field.c_str(), u8"eq(lwrist)")) || (!strcmp(field.c_str(), u8"eq(15)"))) {
+        } else if ((field == u8"eq(lwrist)") || (field == u8"eq(15)")) {
           if (obj)
             obj = obj->ActTarg(act_t::WEAR_LWRIST);
-        } else if (!strcmp(field.c_str(), u8"carried_by")) {
+        } else if (field == u8"carried_by") {
           if (obj)
             obj = obj->Owner();
-        } else if (!strcmp(field.c_str(), u8"next_in_list")) {
+        } else if (field == u8"next_in_list") {
           if (obj) {
             Object* par = obj->Owner();
             if (!par)
@@ -1314,7 +1306,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
             } else
               obj = nullptr;
           }
-        } else if (!strcmp(field.c_str(), u8"next_in_room")) {
+        } else if (field == u8"next_in_room") {
           if (obj) {
             Object* room = obj->Parent();
             while (room && room->Skill(prhash(u8"TBARoom")) == 0)
@@ -1333,10 +1325,10 @@ bool Mind::TBAVarSub(std::u8string& line) const {
             } else
               obj = nullptr;
           }
-        } else if (!strcmp(field.c_str(), u8"master")) {
+        } else if (field == u8"master") {
           if (obj)
             obj = obj->ActTarg(act_t::FOLLOW); // FIXME: More Kinds?
-        } else if (!strcmp(field.c_str(), u8"follower")) {
+        } else if (field == u8"follower") {
           if (obj) {
             auto touch = obj->Touching();
             bool found = false;
@@ -1418,7 +1410,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           }
           obj = nullptr;
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"pos(sleeping)")) {
+        } else if (field == u8"pos(sleeping)") {
           if (obj) {
             obj->SetPos(pos_t::LIE);
             obj->StopAct(act_t::REST);
@@ -1427,7 +1419,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           obj = nullptr;
           val = u8"";
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"pos(resting)")) {
+        } else if (field == u8"pos(resting)") {
           if (obj) {
             obj->StopAct(act_t::SLEEP);
             obj->SetPos(pos_t::SIT);
@@ -1436,7 +1428,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           obj = nullptr;
           val = u8"";
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"pos(sitting)")) {
+        } else if (field == u8"pos(sitting)") {
           if (obj) {
             obj->StopAct(act_t::SLEEP);
             obj->StopAct(act_t::REST);
@@ -1445,7 +1437,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           obj = nullptr;
           val = u8"";
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"pos(fighting)")) {
+        } else if (field == u8"pos(fighting)") {
           if (obj) {
             obj->StopAct(act_t::SLEEP);
             obj->StopAct(act_t::REST);
@@ -1454,7 +1446,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           obj = nullptr;
           val = u8"";
           is_obj = 0;
-        } else if (!strcmp(field.c_str(), u8"pos(standing)")) {
+        } else if (field == u8"pos(standing)") {
           if (obj) {
             obj->StopAct(act_t::SLEEP);
             obj->StopAct(act_t::REST);
@@ -1473,14 +1465,14 @@ bool Mind::TBAVarSub(std::u8string& line) const {
           return false;
         }
       } else {
-        if (!strcmp(field.c_str(), u8"mudcommand")) {
+        if (field == u8"mudcommand") {
           // val is already right
-        } else if (!strcmp(field.c_str(), u8"car")) {
+        } else if (field == u8"car") {
           size_t apos = val.find_first_of(u8" \t\n\r");
           if (apos != std::u8string::npos) {
             val = val.substr(0, apos);
           }
-        } else if (!strcmp(field.c_str(), u8"cdr")) {
+        } else if (field == u8"cdr") {
           size_t apos = val.find_first_of(u8" \t\n\r");
           if (apos != std::u8string::npos) {
             apos = val.find_first_not_of(u8" \t\n\r", apos);
@@ -1490,7 +1482,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
               val = u8"";
           } else
             val = u8"";
-        } else if (!strcmp(field.c_str(), u8"trim")) {
+        } else if (field == u8"trim") {
           trim_string(val);
         } else {
           loger(
@@ -2414,10 +2406,10 @@ int Mind::TBARunLine(std::u8string line) {
     act_t loc = act_t::NONE;
     char8_t buf2[256] = u8"";
     char8_t targ[256] = u8"";
-    char8_t where[256] = u8"";
+    char8_t where_buf[256] = u8"";
     Object* dest = ovars[u8"self"];
     Object* item = nullptr;
-    params = sscanf(line.c_str() + 5, u8" %s %d %s %s", buf2, &valnum, targ, where);
+    params = sscanf(line.c_str() + 5, u8" %s %d %s %s", buf2, &valnum, targ, where_buf);
     tbatype = ascii_tolower(buf2[0]);
     if ((params != 2 && params != 4) || (tbatype != 'o' && tbatype != 'm')) {
       loger(
@@ -2476,66 +2468,67 @@ int Mind::TBARunLine(std::u8string line) {
       delete item;
       return -1;
     }
-    if (strcmp(u8"rfinger", where) == 0 || strcmp(u8"1", where) == 0) {
+    std::u8string_view where(where_buf);
+    if (where == u8"rfinger" || where == u8"1") {
       mask = item->Skill(prhash(u8"Wearable on Right Finger"));
       loc = act_t::WEAR_RFINGER;
-    } else if (strcmp(u8"lfinger", where) == 0 || strcmp(u8"2", where) == 0) {
+    } else if (where == u8"lfinger" || where == u8"2") {
       mask = item->Skill(prhash(u8"Wearable on Left Finger"));
       loc = act_t::WEAR_LFINGER;
-    } else if (strcmp(u8"neck1", where) == 0 || strcmp(u8"3", where) == 0) {
+    } else if (where == u8"neck1" || where == u8"3") {
       mask = item->Skill(prhash(u8"Wearable on Neck"));
       mask |= item->Skill(prhash(u8"Wearable on Collar"));
       loc = act_t::WEAR_NECK;
-    } else if (strcmp(u8"neck2", where) == 0 || strcmp(u8"4", where) == 0) {
+    } else if (where == u8"neck2" || where == u8"4") {
       mask = item->Skill(prhash(u8"Wearable on Neck"));
       mask |= item->Skill(prhash(u8"Wearable on Collar"));
       loc = act_t::WEAR_COLLAR;
-    } else if (strcmp(u8"body", where) == 0 || strcmp(u8"5", where) == 0) {
+    } else if (where == u8"body" || where == u8"5") {
       mask = item->Skill(prhash(u8"Wearable on Chest"));
       mask &= item->Skill(prhash(u8"Wearable on Back")); // Both
       loc = act_t::WEAR_CHEST;
-    } else if (strcmp(u8"head", where) == 0 || strcmp(u8"6", where) == 0) {
+    } else if (where == u8"head" || where == u8"6") {
       mask = item->Skill(prhash(u8"Wearable on Head"));
       loc = act_t::WEAR_HEAD;
-    } else if (strcmp(u8"legs", where) == 0 || strcmp(u8"7", where) == 0) {
+    } else if (where == u8"legs" || where == u8"7") {
       mask = item->Skill(prhash(u8"Wearable on Left Leg"));
       mask |= item->Skill(prhash(u8"Wearable on Right Leg"));
       loc = act_t::WEAR_LLEG;
-    } else if (strcmp(u8"feet", where) == 0 || strcmp(u8"8", where) == 0) {
+    } else if (where == u8"feet" || where == u8"8") {
       mask = item->Skill(prhash(u8"Wearable on Left Foot"));
       mask |= item->Skill(prhash(u8"Wearable on Right Foot"));
       loc = act_t::WEAR_LFOOT;
-    } else if (strcmp(u8"hands", where) == 0 || strcmp(u8"9", where) == 0) {
+    } else if (where == u8"hands" || where == u8"9") {
       mask = item->Skill(prhash(u8"Wearable on Left Hand"));
       mask |= item->Skill(prhash(u8"Wearable on Right Hand"));
       loc = act_t::WEAR_LHAND;
-    } else if (strcmp(u8"arms", where) == 0 || strcmp(u8"10", where) == 0) {
+    } else if (where == u8"arms" || where == u8"10") {
       mask = item->Skill(prhash(u8"Wearable on Left Arm"));
       mask |= item->Skill(prhash(u8"Wearable on Right Arm"));
       loc = act_t::WEAR_LARM;
-    } else if (strcmp(u8"shield", where) == 0 || strcmp(u8"11", where) == 0) {
+    } else if (where == u8"shield" || where == u8"11") {
       mask = item->Skill(prhash(u8"Wearable on Shield"));
       loc = act_t::WEAR_SHIELD;
-    } else if (strcmp(u8"about", where) == 0 || strcmp(u8"12", where) == 0) {
+    } else if (where == u8"about" || where == u8"12") {
       mask = item->Skill(prhash(u8"Wearable on Left Shoulder"));
       mask &= item->Skill(prhash(u8"Wearable on Right Shoulder")); // Both
       loc = act_t::WEAR_LSHOULDER;
-    } else if (strcmp(u8"waist", where) == 0 || strcmp(u8"13", where) == 0) {
+    } else if (where == u8"waist" || where == u8"13") {
       mask = item->Skill(prhash(u8"Wearable on Waist"));
       loc = act_t::WEAR_WAIST;
-    } else if (strcmp(u8"rwrist", where) == 0 || strcmp(u8"14", where) == 0) {
+    } else if (where == u8"rwrist" || where == u8"14") {
       mask = item->Skill(prhash(u8"Wearable on Right Wrist"));
       loc = act_t::WEAR_RWRIST;
-    } else if (strcmp(u8"lwrist", where) == 0 || strcmp(u8"15", where) == 0) {
+    } else if (where == u8"lwrist" || where == u8"15") {
       mask = item->Skill(prhash(u8"Wearable on Left Wrist"));
       loc = act_t::WEAR_LWRIST;
-    } else if (strcmp(u8"wield", where) == 0 || strcmp(u8"16", where) == 0) {
+    } else if (where == u8"wield" || where == u8"16") {
       loc = act_t::WIELD;
-    } else if (strcmp(u8"light", where) == 0 || strcmp(u8"0", where) == 0) {
+    } else if (where == u8"light" || where == u8"0") {
       loc = act_t::HOLD;
-    } else if (strcmp(u8"hold", where) == 0 || strcmp(u8"17", where) == 0) {
+    } else if (where == u8"hold" || where == u8"17") {
       loc = act_t::HOLD;
-    } else if (strcmp(u8"inv", where) == 0 || strcmp(u8"18", where) == 0) {
+    } else if (where == u8"inv" || where == u8"18") {
     } else if (params > 2) {
       loger(u8"#{} Error: Unsupported dest '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       delete item;
