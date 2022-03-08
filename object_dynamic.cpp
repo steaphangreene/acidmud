@@ -102,7 +102,7 @@ void Object::DynamicInit1() { // Dwarven mine
         u8"a dwarf miner",
         u8"{He} looks pissed.",
         u8"",
-        u8"M",
+        {gender_t::MALE, gender_t::FEMALE},
         {7, 7, 4, 5, 6, 7},
         {9, 9, 8, 8, 14, 14},
         500,
@@ -144,9 +144,9 @@ void Object::DynamicInit1() { // Dwarven mine
 
     dwarf_engineer = new NPCType(
         u8"a dwarf engineer",
-        u8"She looks pissed.",
+        u8"{He} looks pissed.",
         u8"",
-        u8"F",
+        {gender_t::MALE, gender_t::FEMALE},
         {5, 7, 4, 5, 5, 7},
         {8, 9, 9, 8, 13, 14},
         2000,
@@ -190,7 +190,7 @@ void Object::DynamicInit1() { // Dwarven mine
         u8"a dwarf guard",
         u8"{He} looks pissed.",
         u8"",
-        u8"MF",
+        {gender_t::MALE, gender_t::FEMALE},
         {9, 4, 6, 4, 9, 4},
         {10, 7, 11, 8, 18, 8},
         100,
@@ -312,7 +312,7 @@ void Object::DynamicInit1() { // Dwarven mine
         u8"a dwarf explorer",
         u8"{He} looks pissed.",
         u8"",
-        u8"MF",
+        {gender_t::MALE, gender_t::FEMALE},
         {5, 4, 5, 4, 6, 4},
         {8, 6, 11, 8, 17, 9},
         1000,
@@ -357,7 +357,7 @@ void Object::DynamicInit1() { // Dwarven mine
         u8"This elf looks like {he}'s been a "
         u8"prisoner longer than you've been alive.",
         u8"",
-        u8"MF",
+        {gender_t::MALE, gender_t::FEMALE},
         {4, 2, 8, 4, 5, 2},
         {12, 4, 15, 8, 9, 6});
     elf_prisoner->Skill(prhash(u8"Carromeleg - Tier I"), 2);

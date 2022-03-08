@@ -742,9 +742,9 @@ void Object::TBALoadMOB(const std::u8string& fn) {
                 obj->Skill(prhash(u8"TBAMOB")),
                 obj->ShortDesc());
           } else if (aliases[actr] == u8"woman" || aliases[actr] == u8"girl") {
-            obj->SetGender('F');
+            obj->SetGender(gender_t::FEMALE);
           } else if (aliases[actr] == u8"man" || aliases[actr] == u8"boy") {
-            obj->SetGender('M');
+            obj->SetGender(gender_t::MALE);
           } else if (aliases[actr] == u8"wyv" || aliases[actr] == u8"ghenna") {
             // Ignore these, they're just typing short-cuts.
           } else if (
@@ -887,7 +887,7 @@ void Object::TBALoadMOB(const std::u8string& fn) {
           obj->SetPos(pos_t::SIT);
         }
 
-        static char8_t genderlist[] = {'N', 'M', 'F'};
+        static gender_t genderlist[] = {gender_t::NONE, gender_t::MALE, gender_t::FEMALE};
         obj->gender = genderlist[val3];
       }
 

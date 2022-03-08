@@ -162,6 +162,13 @@ struct skill_pair {
   auto operator<=>(const skill_pair&) const = default;
 };
 
+enum class gender_t : int8_t {
+  NONE = 0,
+  FEMALE,
+  MALE,
+  NEITHER,
+};
+
 #define ALL (-0x7FFFFFFF)
 #define SOME (-0x7FFFFFFE)
 
@@ -370,7 +377,7 @@ class alignas(256) Object {
   int Value() const {
     return value;
   };
-  int8_t Gender() const {
+  gender_t Gender() const {
     return gender;
   };
 
@@ -401,7 +408,7 @@ class alignas(256) Object {
   void SetValue(int v) {
     value = v;
   };
-  void SetGender(int8_t g) {
+  void SetGender(gender_t g) {
     gender = g;
   };
 
@@ -651,7 +658,7 @@ class alignas(256) Object {
   int volume; // Also Y Coordinate for Zone Locations
   int size; // Also Z Coordinate for Zone Locations
   int value;
-  int8_t gender;
+  gender_t gender;
 
   int8_t phys, stun, stru;
   int8_t attr[6] = {0, 0, 0, 0, 0, 0};

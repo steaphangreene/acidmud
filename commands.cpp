@@ -6276,7 +6276,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       return 0;
     }
     if (!args.empty()) {
-      char8_t gender = 0;
+      gender_t gender = gender_t::NONE;
       int num, weight = 0, size = 0, volume = 0, value = 0;
       num = sscanf(
           std::u8string(args).c_str(),
@@ -6294,7 +6294,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         targ->SetVolume(volume);
       if (num > 3)
         targ->SetValue(value);
-      if (gender == 'N' || gender == 'M' || gender == 'F') {
+      if (gender != gender_t::NONE) {
         targ->SetGender(gender);
       }
     } else {

@@ -258,11 +258,11 @@ int Object::Matches(std::u8string targ, bool knows) const {
 
   // Matches for sexist TBA aliases :)
   if (ttok == crc32c(u8"man") || ttok == crc32c(u8"boy")) {
-    if (IsAnimate() && Gender() == 'M')
+    if (IsAnimate() && Gender() == gender_t::MALE)
       return 1;
   }
   if (ttok == crc32c(u8"woman") || ttok == crc32c(u8"girl")) {
-    if (IsAnimate() && Gender() == 'F')
+    if (IsAnimate() && Gender() == gender_t::FEMALE)
       return 1;
   }
 
@@ -296,7 +296,7 @@ Object* new_body(Object* world) {
   body->SetVolume(100);
   body->SetValue(-1);
   body->SetWeight(80000);
-  body->SetGender('M');
+  body->SetGender(gender_t::MALE);
 
   body->SetSkill(prhash(u8"Attribute Points"), 12);
   body->SetSkill(prhash(u8"Skill Points"), 64);
@@ -701,7 +701,7 @@ Object::Object() {
   volume = 0;
   size = 0;
   value = 0;
-  gender = 'N';
+  gender = gender_t::NONE;
 
   sexp = 0;
 
@@ -731,7 +731,7 @@ Object::Object(Object* o) {
   volume = 0;
   size = 0;
   value = 0;
-  gender = 'N';
+  gender = gender_t::NONE;
 
   sexp = 0;
 
@@ -824,9 +824,9 @@ Object::Object(const Object& o) {
 
 std::u8string Object::Pron() const {
   std::u8string ret;
-  if (Gender() == 'M') {
+  if (Gender() == gender_t::MALE) {
     ret = u8"he";
-  } else if (Gender() == 'F') {
+  } else if (Gender() == gender_t::FEMALE) {
     ret = u8"she";
   } else {
     ret = u8"it";
@@ -836,9 +836,9 @@ std::u8string Object::Pron() const {
 
 std::u8string Object::Poss() const {
   std::u8string ret;
-  if (Gender() == 'M') {
+  if (Gender() == gender_t::MALE) {
     ret = u8"his";
-  } else if (Gender() == 'F') {
+  } else if (Gender() == gender_t::FEMALE) {
     ret = u8"her";
   } else {
     ret = u8"its";
@@ -848,9 +848,9 @@ std::u8string Object::Poss() const {
 
 std::u8string Object::Obje() const {
   std::u8string ret;
-  if (Gender() == 'M') {
+  if (Gender() == gender_t::MALE) {
     ret = u8"him";
-  } else if (Gender() == 'F') {
+  } else if (Gender() == gender_t::FEMALE) {
     ret = u8"her";
   } else {
     ret = u8"it";
@@ -871,16 +871,16 @@ std::u8string Object::Noun(bool definite, bool verbose, const Object* rel, const
     return u8"you";
 
   // FIXME: Hack!  Really detect/specify reflexives?
-  else if (rel == nullptr && sub == this && sub->Gender() == 'F')
+  else if (rel == nullptr && sub == this && sub->Gender() == gender_t::FEMALE)
     return u8"her";
-  else if (rel == nullptr && sub == this && sub->Gender() == 'M')
+  else if (rel == nullptr && sub == this && sub->Gender() == gender_t::MALE)
     return u8"him";
   else if (rel == nullptr && sub == this)
     return u8"it";
 
-  else if (sub == this && sub->Gender() == 'F')
+  else if (sub == this && sub->Gender() == gender_t::FEMALE)
     return u8"herself";
-  else if (sub == this && sub->Gender() == 'M')
+  else if (sub == this && sub->Gender() == gender_t::MALE)
     return u8"himself";
   else if (sub == this)
     return u8"itself";
@@ -903,9 +903,9 @@ std::u8string Object::Noun(bool definite, bool verbose, const Object* rel, const
     Object* own = Owner();
     if (own && own == rel) {
       ret = fmt::format(u8"your {}", ret);
-    } else if (own && own == sub && own->Gender() == 'F') {
+    } else if (own && own == sub && own->Gender() == gender_t::FEMALE) {
       ret = fmt::format(u8"her {}", ret);
-    } else if (own && own == sub && own->Gender() == 'M') {
+    } else if (own && own == sub && own->Gender() == gender_t::MALE) {
       ret = fmt::format(u8"his {}", ret);
     } else if (own && own == sub) {
       ret = fmt::format(u8"its {}", ret);
@@ -1336,9 +1336,9 @@ void Object::SendFullSituation(Mind* m, Object* o) {
   if (Owner()) {
     if (Owner() == o) {
       pname = u8"your";
-    } else if (Owner()->Gender() == 'M') {
+    } else if (Owner()->Gender() == gender_t::MALE) {
       pname = u8"his";
-    } else if (Owner()->Gender() == 'F') {
+    } else if (Owner()->Gender() == gender_t::FEMALE) {
       pname = u8"her";
     }
   }

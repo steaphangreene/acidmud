@@ -34,23 +34,18 @@
 #include "properties.hpp"
 #include "utils.hpp"
 
-static const std::u8string gen_replace[][4] = {
-    {u8"{He}", u8"She", u8"He", u8"It"},
-    {u8"{Him}", u8"Her", u8"Him", u8"It"},
-    {u8"{His}", u8"Hers", u8"His", u8"Its"},
-    {u8"{he}", u8"she", u8"he", u8"it"},
-    {u8"{him}", u8"her", u8"him", u8"it"},
-    {u8"{his}", u8"hers", u8"his", u8"its"},
-    {u8"", u8"", u8"", u8""}};
+static const std::u8string gen_replace[][5] = {
+    {u8"{He}", u8"It", u8"She", u8"He", u8"They"},
+    {u8"{Him}", u8"It", u8"Her", u8"Him", u8"Their"},
+    {u8"{His}", u8"Its", u8"Hers", u8"His", u8"Theirs"},
+    {u8"{he}", u8"it", u8"she", u8"he", u8"they"},
+    {u8"{him}", u8"it", u8"her", u8"him", u8"their"},
+    {u8"{his}", u8"its", u8"hers", u8"his", u8"theirs"},
+    {u8"", u8"", u8"", u8"", u8""}};
 
-static std::u8string gender_proc(const std::u8string_view& in, char8_t gender) {
+static std::u8string gender_proc(const std::u8string_view& in, gender_t gender) {
   std::u8string ret(in);
-  int ctr = 0, gen = 3;
-
-  if (gender == 'F')
-    gen = 1;
-  if (gender == 'M')
-    gen = 2;
+  int ctr = 0, gen = static_cast<int8_t>(gender) + 1;
 
   for (ctr = 0; !gen_replace[ctr][0].empty(); ++ctr) {
     size_t where = ret.find(gen_replace[ctr][0]);
@@ -105,7 +100,7 @@ static NPCType npc_dwarf(
     u8"a dwarf",
     u8"{He} looks pissed.",
     u8"",
-    u8"MF",
+    {gender_t::MALE, gender_t::FEMALE},
     {9, 4, 6, 4, 9, 4},
     {10, 7, 11, 8, 18, 8},
     100,
@@ -199,12 +194,11 @@ static void add_pouch(Object* npc) {
   npc->AddAct(act_t::WEAR_RHIP, bag);
 }
 
-
 NPCType::NPCType(
     const std::u8string& sds,
     const std::u8string& ds,
     const std::u8string& lds,
-    const std::u8string& gens,
+    const std::vector<gender_t>& gens,
     NPCAttrs min,
     NPCAttrs max,
     int gmin,
@@ -280,15 +274,15 @@ void Object::AddNPC(std::mt19937& gen, const NPCType* type) {
     // loge(u8"DBG: {} {} {}\n", get_linked(sk.first), sk.second.first, sk.second.second);
   }
 
-  if (type->genders.length() > 0) {
-    npc->SetGender(type->genders[rand() % type->genders.length()]);
+  if (type->genders.size() > 0) {
+    npc->SetGender(type->genders[rand() % type->genders.size()]);
   }
 
   npc->SetShortDesc(gender_proc(type->short_desc, npc->Gender()));
   npc->SetDesc(gender_proc(type->desc, npc->Gender()));
   npc->SetLongDesc(gender_proc(type->long_desc, npc->Gender()));
 
-  int gidx = (npc->Gender() == 'F') ? 0 : 1;
+  int gidx = (npc->Gender() == gender_t::FEMALE) ? 0 : 1;
   std::vector<std::u8string> first = {u8""};
   std::sample(
       dwarf_first_names[gidx].begin(), dwarf_first_names[gidx].end(), first.begin(), 1, gen);

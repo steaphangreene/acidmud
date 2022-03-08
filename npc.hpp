@@ -104,7 +104,7 @@ class NPCType {
       const std::u8string& sds,
       const std::u8string& ds,
       const std::u8string& lds,
-      const std::u8string& gens,
+      const std::vector<gender_t>& gens,
       NPCAttrs min,
       NPCAttrs max,
       int gmin = 0,
@@ -116,7 +116,8 @@ class NPCType {
   void Carry(ItemType*);
   void SetShortDesc(const std::u8string_view&);
 
-  std::u8string short_desc, desc, long_desc, genders;
+  std::u8string short_desc, desc, long_desc;
+  std::vector<gender_t> genders;
   NPCAttrs mins, maxes;
   int min_gold, max_gold;
   std::map<uint32_t, std::pair<int, int>> skills;
