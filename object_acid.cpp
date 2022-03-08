@@ -67,7 +67,7 @@ Object* getbynum(int num) {
 
 static int last_object_number = 0;
 static std::map<Object*, int> obj2num;
-int getnum(Object* obj) {
+int getonum(Object* obj) {
   if (!obj2num.count(obj))
     obj2num[obj] = ++last_object_number;
   return obj2num[obj];
@@ -98,7 +98,7 @@ int Object::Save(const std::u8string& fn) {
 int Object::SaveTo(FILE* fl) {
   // loge(u8"Saving {}\n", Name());
 
-  fprintf(fl, u8"%d\n", getnum(this));
+  fprintf(fl, u8"%d\n", getonum(this));
   fprintf(fl, u8"%s%c\n", ShortDescC(), 0);
   fprintf(fl, u8"%s%c\n", NameC(), 0);
   if (HasDesc()) {
@@ -149,7 +149,7 @@ int Object::SaveTo(FILE* fl) {
 
   fprintf(fl, u8"%d\n", (int)(contents.size()));
   for (auto cind : contents) {
-    fprintf(fl, u8"%d\n", getnum(cind));
+    fprintf(fl, u8"%d\n", getonum(cind));
   }
 
   uint8_t num8 = static_cast<uint8_t>(pos);
@@ -158,7 +158,7 @@ int Object::SaveTo(FILE* fl) {
   fprintf(fl, u8"%d\n", (int)(act.size()));
   for (auto aind : act) {
     fprintf(
-        fl, u8"%s;%d\n", act_save[static_cast<uint8_t>(aind.act())].c_str(), getnum(aind.obj()));
+        fl, u8"%s;%d\n", act_save[static_cast<uint8_t>(aind.act())].c_str(), getonum(aind.obj()));
   }
 
   fprintf(fl, u8"\n");

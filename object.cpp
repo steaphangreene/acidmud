@@ -3363,7 +3363,7 @@ void save_world(int with_net) {
 
 int Object::WriteContentsTo(FILE* fl) {
   for (auto cind : contents) {
-    fprintf(fl, u8":%d", getnum(cind));
+    fprintf(fl, u8":%d", getonum(cind));
   }
   return 0;
 }

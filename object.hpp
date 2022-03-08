@@ -688,7 +688,7 @@ void init_world();
 void save_world(int with_net = 0);
 Object* new_body(Object* world);
 Object* getbynum(int);
-int getnum(Object*);
+int getonum(Object*);
 int matches(const std::u8string_view& name, const std::u8string_view& seek);
 
 uint32_t get_skill(std::u8string sk);

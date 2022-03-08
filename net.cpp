@@ -372,10 +372,10 @@ int save_net(const std::u8string& fn) {
           sk,
           minds[sk]->LogFD(),
           minds[sk]->Owner()->Name().c_str(),
-          getnum(minds[sk]->Body()));
+          getonum(minds[sk]->Body()));
     } else {
       fprintf(
-          fl, u8"%d:%s:%d\n", sk, minds[sk]->Owner()->Name().c_str(), getnum(minds[sk]->Body()));
+          fl, u8"%d:%s:%d\n", sk, minds[sk]->Owner()->Name().c_str(), getonum(minds[sk]->Body()));
     }
   }
   sleep(1); // Make sure messages really get flushed!
