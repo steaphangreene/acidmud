@@ -66,7 +66,7 @@ closed:l
 clear:l
 door:p:massive steel portcullis
 doorterm:p:portcullis
-remote:p
+fromabove:p
 clear:p
 ascii_map:
 

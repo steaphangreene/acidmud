@@ -118,7 +118,7 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
   std::map<char8_t, std::vector<std::u8string>> rooms;
   std::map<char8_t, std::u8string> doors;
   std::map<char8_t, std::u8string> doorterms;
-  std::map<char8_t, bool> remote;
+  std::map<char8_t, bool> from_above;
   std::map<char8_t, bool> closed;
   std::map<char8_t, bool> clear;
   std::map<char8_t, std::u8string> keynames;
@@ -282,9 +282,9 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
     } else if (process(line, u8"clear:")) {
       char8_t sym = nextchar(line);
       clear[sym] = true;
-    } else if (process(line, u8"remote:")) {
+    } else if (process(line, u8"fromabove:")) {
       char8_t sym = nextchar(line);
-      remote[sym] = true;
+      from_above[sym] = true;
     } else if (process(line, u8"en_link:")) {
       en_links.emplace_back(line);
     } else if (process(line, u8"en_place:")) {
