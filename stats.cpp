@@ -80,7 +80,7 @@ uint32_t get_skill(std::u8string sk) {
   for (auto itr : defaults) {
     std::u8string lc = SkillName(itr.first);
     std::transform(lc.begin(), lc.end(), lc.begin(), ascii_tolower);
-    if (!strncmp(sk.c_str(), lc.c_str(), sk.length())) {
+    if (lc.starts_with(sk)) {
       return itr.first;
     }
   }
@@ -96,7 +96,7 @@ std::u8string get_skill_cat(std::u8string cat) {
   for (auto itr : skcat) {
     auto skn = itr.first;
     std::transform(skn.begin(), skn.end(), skn.begin(), ascii_tolower);
-    if (!strncmp(cat.c_str(), skn.c_str(), cat.length())) {
+    if (skn.starts_with(cat)) {
       return itr.first;
     }
   }

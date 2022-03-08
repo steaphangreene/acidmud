@@ -267,7 +267,7 @@ std::u8string Mind::TBAComp(std::u8string expr) const {
     }
     if (cls == std::u8string::npos)
       return TBAComp(expr.substr(1));
-    expr = TBAComp(expr.substr(1, cls - 1)) + u8" " + expr.substr(cls + 1);
+    expr = TBAComp(fmt::format(u8"{} {}", expr.substr(1, cls - 1), expr.substr(cls + 1)));
     trim_string(expr);
   }
 
@@ -281,38 +281,39 @@ std::u8string Mind::TBAComp(std::u8string expr) const {
          ascii_isalpha(expr[op + 1])) {
     op = expr.find_first_of(u8"|&=!<>/-+*", op + 1); // Skip Hyphens
   }
-  if (op == std::u8string::npos)
-    return expr; // No ops, just val
+  if (op == std::u8string::npos) {
+    return std::u8string(expr); // No ops, just val
+  }
 
   int oper = 0; // Positive for 2-char ops, negative for 1-char
   int weak = 0; // Reverse-Precedence!  Hack!!!
-  if (!strncmp(expr.c_str() + op, u8"/=", 2)) {
+  if (expr.substr(op).starts_with(u8"/=")) {
     oper = 1;
-  } else if (!strncmp(expr.c_str() + op, u8"==", 2)) {
+  } else if (expr.substr(op).starts_with(u8"==")) {
     oper = 2;
-  } else if (!strncmp(expr.c_str() + op, u8"!=", 2)) {
+  } else if (expr.substr(op).starts_with(u8"!=")) {
     oper = 3;
-  } else if (!strncmp(expr.c_str() + op, u8"<=", 2)) {
+  } else if (expr.substr(op).starts_with(u8"<=")) {
     oper = 4;
-  } else if (!strncmp(expr.c_str() + op, u8">=", 2)) {
+  } else if (expr.substr(op).starts_with(u8">=")) {
     oper = 5;
-  } else if (!strncmp(expr.c_str() + op, u8"&&", 2)) {
+  } else if (expr.substr(op).starts_with(u8"&&")) {
     oper = 6;
     weak = 1;
-  } else if (!strncmp(expr.c_str() + op, u8"||", 2)) {
+  } else if (expr.substr(op).starts_with(u8"||")) {
     oper = 7;
     weak = 1;
-  } else if (!strncmp(expr.c_str() + op, u8"<", 1)) {
+  } else if (expr.substr(op).starts_with(u8"<")) {
     oper = -1;
-  } else if (!strncmp(expr.c_str() + op, u8">", 1)) {
+  } else if (expr.substr(op).starts_with(u8">")) {
     oper = -2;
-  } else if (!strncmp(expr.c_str() + op, u8"+", 1)) {
+  } else if (expr.substr(op).starts_with(u8"+")) {
     oper = -3;
-  } else if (!strncmp(expr.c_str() + op, u8"-", 1)) {
+  } else if (expr.substr(op).starts_with(u8"-")) {
     oper = -4;
-  } else if (!strncmp(expr.c_str() + op, u8"*", 1)) {
+  } else if (expr.substr(op).starts_with(u8"*")) {
     oper = -5;
-  } else if (!strncmp(expr.c_str() + op, u8"/", 1)) {
+  } else if (expr.substr(op).starts_with(u8"/")) {
     oper = -6;
   }
 
@@ -740,7 +741,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
       is_obj = 1;
     } else if (svars.count(vname) > 0) {
       val = svars.at(vname);
-    } else if (!strncmp(line.c_str() + cur, u8"%time.hour%", 11)) {
+    } else if (line.substr(cur).starts_with(u8"%time.hour%")) {
       Object* world = body->World();
       if (world->Skill(prhash(u8"Day Time")) && world->Skill(prhash(u8"Day Length"))) {
         int hour = world->Skill(prhash(u8"Day Time"));
@@ -749,7 +750,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
         val = itos(hour);
       }
       end = line.find_first_of(u8"% \t", cur + 1); // Done.  Replace All.
-    } else if (!strncmp(line.c_str() + cur, u8"%random.char%", 13)) {
+    } else if (line.substr(cur).starts_with(u8"%random.char%")) {
       MinVec<1, Object*> others;
       if (ovars.at(u8"self")->HasSkill(prhash(u8"TBARoom"))) {
         others = ovars.at(u8"self")->PickObjects(u8"everyone", LOC_INTERNAL);
@@ -776,7 +777,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
       }
       is_obj = 1;
       end = line.find_first_of(u8"% \t", cur + 1); // Done.  Replace All.
-    } else if (!strncmp(line.c_str() + cur, u8"%random.dir%", 12)) {
+    } else if (line.substr(cur).starts_with(u8"%random.dir%")) {
       Object* room = ovars.at(u8"self");
       while (room && room->Skill(prhash(u8"TBARoom")) == 0)
         room = room->Parent();
@@ -799,7 +800,7 @@ bool Mind::TBAVarSub(std::u8string& line) const {
         }
       }
       end = line.find_first_of(u8"% \t", cur + 1); // Done.  Replace All.
-    } else if (!strncmp(line.c_str() + cur, u8"%random.", 8)) {
+    } else if (line.substr(cur).starts_with(u8"%random.")) {
       if (isdigit(line[cur + 8])) {
         size_t vend = line.find_first_not_of(u8"0123456789", cur + 8);
         if (vend != std::u8string::npos && line[vend] == '%') {
@@ -2166,18 +2167,19 @@ int Mind::TBARunLine(std::u8string line) {
 
     // Handle abbreviated standard directions.
     std::u8string dir = dname;
-    if (!strncmp(u8"north", dir.c_str(), dir.length()))
+    if (std::u8string_view(u8"north").starts_with(dir)) {
       dir = u8"north";
-    else if (!strncmp(u8"south", dir.c_str(), dir.length()))
+    } else if (std::u8string_view(u8"south").starts_with(dir)) {
       dir = u8"south";
-    else if (!strncmp(u8"east", dir.c_str(), dir.length()))
+    } else if (std::u8string_view(u8"east").starts_with(dir)) {
       dir = u8"east";
-    else if (!strncmp(u8"west", dir.c_str(), dir.length()))
+    } else if (std::u8string_view(u8"west").starts_with(dir)) {
       dir = u8"west";
-    else if (!strncmp(u8"up", dir.c_str(), dir.length()))
+    } else if (std::u8string_view(u8"up").starts_with(dir)) {
       dir = u8"up";
-    else if (!strncmp(u8"down", dir.c_str(), dir.length()))
+    } else if (std::u8string_view(u8"down").starts_with(dir)) {
       dir = u8"down";
+    }
 
     auto options = room->Zone()->Contents();
     room = nullptr;

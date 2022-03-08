@@ -3090,7 +3090,7 @@ void Object::SendOut(
 
   if (this != actor) { // Don't trigger yourself!
     for (auto trig : contents) {
-      if (strncmp(mes.c_str(), u8";s says '", 9)) {
+      if (!mes.starts_with(u8";s says '")) {
         // Type 0x1000010 (MOB + MOB-ACT)
         if ((trig->Skill(prhash(u8"TBAScriptType")) & 0x1000010) == 0x1000010) {
           if (trig->Desc()[0] == '*') { // All Actions

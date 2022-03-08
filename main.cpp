@@ -160,8 +160,8 @@ int main(int argc, char** argv) {
     char** new_argv;
     new_argv = new char*[argc + 3];
     for (int octr = 0; octr < argc; ++octr) {
-      if (strncmp(argv[octr], u8"--network-acceptor=", 19) &&
-          strncmp(argv[octr], u8"--network-stat=", 15))
+      if (strncmp(argv[octr], "--network-acceptor=", 19) &&
+          strncmp(argv[octr], "--network-stat=", 15))
         new_argv[ctr++] = strdup(argv[octr]);
     }
     new_argv[ctr] = strdup("--network-stat=acid/current.nst");
