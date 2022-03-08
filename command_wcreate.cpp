@@ -94,47 +94,6 @@ static NPCType npc_dwarf(
     100,
     500);
 
-static char8_t nextchar(std::u8string_view& line) {
-  char8_t ret = line.front();
-  line = line.substr(1);
-  return ret;
-}
-
-static int nextnum(std::u8string_view& line) {
-  int ret = 0;
-  while (ascii_isdigit(line.front())) {
-    ret *= 10;
-    ret += (line.front() - '0');
-    line = line.substr(1);
-  }
-  return ret;
-}
-
-static bool process(std::u8string_view& line, const std::u8string_view& dir) {
-  if (line.starts_with(dir)) {
-    line = line.substr(dir.length());
-    return true;
-  } else {
-    return false;
-  }
-}
-
-static std::u8string_view next_line(const std::u8string_view& file, auto& cursor) {
-  if (cursor == std::u8string::npos) {
-    return u8"";
-  }
-  auto next_cursor = file.find_first_of('\n', cursor);
-
-  std::u8string_view ret = file.substr(cursor, next_cursor - cursor);
-
-  if (next_cursor != std::u8string::npos) {
-    cursor = file.find_first_not_of('\n', next_cursor);
-  } else {
-    cursor = next_cursor;
-  }
-  return ret;
-}
-
 static bool load_map(Object* world, Mind* mind, const std::filesystem::directory_entry& ent) {
   auto filename = ent.path().u8string();
 

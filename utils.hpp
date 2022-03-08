@@ -77,6 +77,47 @@ constexpr bool ascii_isdigit(char8_t chr) {
   return (chr >= '0' && chr <= '9');
 }
 
+inline char8_t nextchar(std::u8string_view& line) {
+  char8_t ret = line.front();
+  line = line.substr(1);
+  return ret;
+}
+
+inline int nextnum(std::u8string_view& line) {
+  int ret = 0;
+  while (ascii_isdigit(line.front())) {
+    ret *= 10;
+    ret += (line.front() - '0');
+    line = line.substr(1);
+  }
+  return ret;
+}
+
+inline bool process(std::u8string_view& line, const std::u8string_view& dir) {
+  if (line.starts_with(dir)) {
+    line = line.substr(dir.length());
+    return true;
+  } else {
+    return false;
+  }
+}
+
+inline std::u8string_view next_line(const std::u8string_view& file, auto& cursor) {
+  if (cursor == std::u8string::npos) {
+    return u8"";
+  }
+  auto next_cursor = file.find_first_of('\n', cursor);
+
+  std::u8string_view ret = file.substr(cursor, next_cursor - cursor);
+
+  if (next_cursor != std::u8string::npos) {
+    cursor = file.find_first_not_of('\n', next_cursor);
+  } else {
+    cursor = next_cursor;
+  }
+  return ret;
+}
+
 constexpr uint32_t crc32tab[] = {
     0x00000000, 0xF26B8303, 0xE13B70F7, 0x1350F3F4, 0xC79A971F, 0x35F1141C, 0x26A1E7E8, 0xD4CA64EB,
     0x8AD958CF, 0x78B2DBCC, 0x6BE22838, 0x9989AB3B, 0x4D43CFD0, 0xBF284CD3, 0xAC78BF27, 0x5E133C24,
