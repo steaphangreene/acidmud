@@ -93,6 +93,11 @@ inline int nextnum(std::u8string_view& line) {
   return ret;
 }
 
+inline int getnum(const std::u8string_view& in_line) {
+  std::u8string_view line(in_line);
+  return nextnum(line);
+}
+
 inline bool process(std::u8string_view& line, const std::u8string_view& dir) {
   if (line.starts_with(dir)) {
     line = line.substr(dir.length());
