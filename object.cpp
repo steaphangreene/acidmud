@@ -2332,20 +2332,20 @@ static int get_ordinal(const std::u8string& t) {
 
   std::u8string_view text = t;
   if (isdigit(text[0])) {
-    text.remove_prefix(std::min(text.find_first_not_of(u8"0123456789"), text.size()));
+    int prefix_numeral = nextnum(text);
     if (text[0] == '.') {
-      ret = atoi(t.c_str());
+      ret = prefix_numeral;
     } else if (!isgraph(text[0])) {
-      ret = -atoi(t.c_str());
+      ret = -prefix_numeral;
     } else if (text.length() >= 3 && isgraph(text[2])) {
       if (text.substr(0, 2) == u8"st") {
-        ret = atoi(t.c_str());
+        ret = -prefix_numeral;
       } else if (text.substr(0, 2) == u8"nd") {
-        ret = atoi(t.c_str());
+        ret = -prefix_numeral;
       } else if (text.substr(0, 2) == u8"rd") {
-        ret = atoi(t.c_str());
+        ret = -prefix_numeral;
       } else if (text.substr(0, 2) == u8"th") {
-        ret = atoi(t.c_str());
+        ret = -prefix_numeral;
       }
     }
   } else if (text.substr(0, 6) == u8"first ") {
