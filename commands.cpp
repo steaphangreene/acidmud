@@ -7152,21 +7152,15 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
     int amt = 1;
     if (isdigit(args[0])) {
-      amt = atoi(std::u8string(args).c_str());
-      auto prefix = args.find_first_not_of(u8"0123456789");
-      if (prefix == std::u8string::npos) {
-        args = u8"";
-      } else {
-        auto start = args.find_first_not_of(u8" \t\n\r;", prefix);
-        args = args.substr(start);
-      }
+      amt = nextnum(args);
+      trim_string(args);
     }
 
-    if (!is_skill(crc32c(std::u8string(args)))) {
+    if (!is_skill(crc32c(args))) {
       mind->Send(u8"Warning, '{}' is not a real skill name!\n", std::u8string(args));
     }
 
-    targ->SetSkill(std::u8string(args), targ->Skill(crc32c(std::u8string(args))) + amt);
+    targ->SetSkill(args, targ->Skill(crc32c(args)) + amt);
 
     body->Parent()->SendOut(
         stealth_t,
@@ -7191,17 +7185,11 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
     int amt = 1;
     if (isdigit(args[0])) {
-      amt = atoi(std::u8string(args).c_str());
-      auto prefix = args.find_first_not_of(u8"0123456789");
-      if (prefix == std::u8string::npos) {
-        args = u8"";
-      } else {
-        auto start = args.find_first_not_of(u8" \t\n\r;", prefix);
-        args = args.substr(start);
-      }
+      amt = nextnum(args);
+      trim_string(args);
     }
 
-    targ->SetSkill(std::u8string(args), targ->Skill(crc32c(std::u8string(args))) - amt);
+    targ->SetSkill(args, targ->Skill(crc32c(args)) - amt);
 
     body->Parent()->SendOut(
         stealth_t,
