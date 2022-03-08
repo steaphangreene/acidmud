@@ -41,24 +41,6 @@ static int mob_aliases = 0;
 static const std::u8string target_chars =
     u8"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-'";
 
-static uint32_t tba_bitvec(const std::u8string_view& val) {
-  uint32_t ret = 0;
-  for (auto ch : val) {
-    if (ascii_isalpha(ch)) {
-      ret |= (1 << ((static_cast<uint32_t>(ch) & 0x1FU) - 1));
-    }
-  }
-  if (ret == 0) {
-    for (auto ch : val) { // std::stoul() still doesnt support u8string.  :/
-      if (ascii_isdigit(ch)) {
-        ret *= 10;
-        ret += (static_cast<uint32_t>(ch) & 0x0FU);
-      }
-    }
-  }
-  return ret;
-}
-
 static const std::u8string dirname[6] =
     {u8"north", u8"east", u8"south", u8"west", u8"up", u8"down"};
 

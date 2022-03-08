@@ -50,16 +50,6 @@ static std::u8string itos(int val) {
   return fmt::format(u8"{}", val);
 }
 
-static uint32_t tba_bitvec(const std::u8string& val) {
-  uint32_t ret = atoi(val.c_str());
-  if (ret == 0) {
-    for (size_t idx = 0; idx < val.length(); ++idx) {
-      ret |= 1 << ((val[idx] & 31) - 1);
-    }
-  }
-  return ret;
-}
-
 static std::u8string tba_spellconvert(const std::u8string& tba) {
   std::u8string acid;
 
