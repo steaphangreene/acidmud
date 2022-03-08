@@ -59,7 +59,7 @@ uint32_t get_weapon_skill(int wtype) {
   return weaponskills[wtype];
 }
 
-int get_weapon_type(std::u8string wskill) {
+int get_weapon_type(const std::u8string_view& wskill) {
   if (!weapontypes.count(crc32c(wskill))) {
     loge(u8"Warning: No Skill Named '{}'!\n", wskill);
     return 0;
@@ -67,9 +67,9 @@ int get_weapon_type(std::u8string wskill) {
   return weapontypes[crc32c(wskill)];
 }
 
-uint32_t get_skill(std::u8string sk) {
-  while (sk.length() > 0 && isspace(sk.back()))
-    sk.pop_back();
+uint32_t get_skill(const std::u8string_view& in_sk) {
+  std::u8string_view sk(in_sk);
+  trim_string(sk);
 
   auto stok = crc32c(sk);
   if (defaults.count(stok))
@@ -87,7 +87,8 @@ uint32_t get_skill(std::u8string sk) {
   return prhash(u8"None");
 }
 
-std::u8string get_skill_cat(std::u8string cat) {
+std::u8string get_skill_cat(const std::u8string_view& in_cat) {
+  std::u8string_view cat(in_cat);
   trim_string(cat);
 
   if (cat.length() < 2)
@@ -115,11 +116,11 @@ int get_linked(std::u8string sk) {
   return get_linked(crc32c(sk));
 }
 
-std::vector<uint32_t> get_skills(std::u8string cat) {
+std::vector<uint32_t> get_skills(const std::u8string_view& in_cat) {
   std::vector<uint32_t> ret;
 
-  while (cat.length() > 0 && isspace(cat.back()))
-    cat.pop_back();
+  std::u8string_view cat(in_cat);
+  trim_string(cat);
 
   if (cat == u8"Categories") {
     for (auto ind : skcat) {
@@ -129,8 +130,8 @@ std::vector<uint32_t> get_skills(std::u8string cat) {
     for (auto ind : defaults) {
       ret.push_back(ind.first);
     }
-  } else if (skcat.count(cat)) {
-    for (auto ind : skcat[cat]) {
+  } else if (skcat.count(std::u8string(cat))) {
+    for (auto ind : skcat[std::u8string(cat)]) {
       ret.push_back(ind);
     }
   }
