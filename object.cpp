@@ -1431,7 +1431,7 @@ void Object::SendFullSituation(Mind* m, Object* o) {
     buf = fmt::format(u8"{} is here on {} right hip", Noun(false, false, o), pname);
 
   else {
-    if (parent && Owner()) {
+    if (parent) {
       pname = parent->Noun(false, false, o, Owner());
     }
     buf = fmt::format(u8"{} {} in {}", Noun(false, false, o), PosString(), pname);
@@ -4511,9 +4511,13 @@ Object* Object::NextHasSkill(uint32_t stok, const Object* last) {
 }
 
 Object* Object::Owner() const {
-  Object* owner = parent;
-  while (owner && (!owner->IsAnimate()))
+  if (IsAnimate()) { // Can't own people.  No.
+    return nullptr;
+  }
+  Object* owner = Parent();
+  while (owner && (!owner->IsAnimate())) {
     owner = owner->Parent();
+  }
   return owner;
 }
 
