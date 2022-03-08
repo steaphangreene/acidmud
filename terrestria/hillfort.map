@@ -35,6 +35,8 @@ house:2.1:2-4:a dwarven citizen
 house:2.1:0-1:a dwarven soldier
 house:2.1:0-1:a dwarven guard
 employ:2.0:1-2:a dwarven citizen
+place:1:market stall
+employ:1:1-2:a dwarven citizen
 place:+:stone street
 employ:+:0-1:a dwarven guard
 night:+:0-1:a dwarven guard
@@ -84,11 +86,11 @@ ascii_map:
     | l     l     l     l |                                                               | l     l     l     l |
     : +o2 2o+o2 2o+o2 2o+ :                                                               : +o2 2o+o2 2o+o2 2o+ :
     I |     |     |     | I                                                               I |     |     |     | I
-    4g+o2 2o+o2 2o+o2 2o+g4                                                               4g+o2 2o+o2 2o+o2 2o+g4
-    I |     |     |     | I                                                               I |     |     |     | I
+1 1 4g+o2 2o+o2 2o+o2 2o+g4                                                               4g+o2 2o+o2 2o+o2 2o+g4 1 1
+| | I |     |     |     | I                                                               I |     |     |     | I | |
 @-#p3p#--#--#--#--#--#--#p3p=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=p3p#--#--#--#--#--#--#p3p#-@
-    I |     |     |     | I                                                               I |     |     |     | I
-    4g+o2 2o+o2 2o+o2 2o+g4                                                               4g+o2 2o+o2 2o+o2 2o+g4
+| | I |     |     |     | I                                                               I |     |     |     | I | |
+1 1 4g+o2 2o+o2 2o+o2 2o+g4                                                               4g+o2 2o+o2 2o+o2 2o+g4 1 1
     I |     |     |     | I                                                               I |     |     |     | I
     : +o2 2o+o2 2o+o2 2o+ :                                                               : +o2 2o+o2 2o+o2 2o+ :
     | l     l     l     l |                                                               | l     l     l     l |
