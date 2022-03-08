@@ -85,12 +85,17 @@ inline char8_t nextchar(std::u8string_view& line) {
 
 inline int nextnum(std::u8string_view& line) {
   int ret = 0;
+  bool negative = false;
+  if (line.front() == '-') {
+    line = line.substr(1);
+    negative = true;
+  }
   while (ascii_isdigit(line.front())) {
     ret *= 10;
     ret += (line.front() - '0');
     line = line.substr(1);
   }
-  return ret;
+  return (negative) ? -ret : ret;
 }
 
 inline int getnum(const std::u8string_view& in_line) {
