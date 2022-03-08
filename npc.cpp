@@ -374,8 +374,8 @@ void Object::AddNPC(std::mt19937& gen, const NPCType* type) {
   npc->Activate();
   npc->SetPos(pos_t::STAND);
   for (int a : {0, 1, 2, 3, 4, 5}) {
-    npc->SetAttribute(
-        a, std::uniform_int_distribution<int>(type->mins.v[a], type->maxes.v[a])(gen));
+    auto gen_attr = std::uniform_int_distribution<int>(type->mins.v[a], type->maxes.v[a]);
+    npc->SetAttribute(a, (gen_attr(gen) + gen_attr(gen) + gen_attr(gen) + 2) / 3);
   }
 
   for (auto sk : type->skills) {
