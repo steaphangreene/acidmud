@@ -5,6 +5,8 @@ en_link:Western Road
 upper_level:2
 lower_level:0
 building:5:fortress
+stair:5.1:the grand stairway
+stair:5.2:the grand stairway
 house:5.4:1:a dwarven leader
 house:5.3:8:a dwarven elite guard
 employ:5.3:1-2:a dwarven elite guard
@@ -19,6 +21,7 @@ employ:4.3:2:a dwarven soldier
 house:4.1:16:a dwarven soldier
 house:4.0:12:a dwarven guard
 building:3:gate house
+blockedstair:3.1:a heavy iron grate
 employ:3.2:1:a dwarven soldier
 night:3.2:1:a dwarven soldier
 employ:3.1:1:a dwarven soldier
