@@ -880,7 +880,21 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
   }
 
   if (homeless > 0) {
-    mind->Send(CYEL u8"Warning: {} Homeless NPCs\n" CNRM, homeless);
+    mind->Send(CYEL u8"Warning: {} Homeless NPCs in {}\n" CNRM, homeless, zone->ShortDesc());
+  } else {
+    std::map<std::u8string, int> housing;
+    for (auto bed : beds) {
+      if (bed.second > 0) {
+        housing[bed.first.second] += bed.second;
+      }
+    }
+    for (auto house : housing) {
+      mind->Send(
+          CGRN u8"TODO: Available Housing in {} for {}: {}\n" CNRM,
+          zone->ShortDesc(),
+          house.first,
+          house.second);
+    }
   }
 
   mind->Send(u8"Loaded {} From: '{}'!\n", name, filename);
