@@ -74,7 +74,7 @@
 #define REQ_ANY (SIT_CORPOREAL | SIT_ETHEREAL)
 
 int handle_command_ccreate(Object*, Mind*, const std::u8string_view, int, int);
-int handle_command_wcreate(Object*, Mind*, const std::u8string_view, int, int);
+int handle_command_wload(Object*, Mind*, const std::u8string_view, int, int);
 
 static int count_ones(int mask) {
   int ret = 0;
@@ -523,8 +523,8 @@ constexpr Command static_comlist[COM_MAX] = {
      u8"Ninja command.",
      u8"Ninja command - ninjas only!",
      (REQ_ALERT | REQ_NINJAMODE)},
-    {COM_WCREATE,
-     u8"wcreate",
+    {COM_WLOAD,
+     u8"wload",
      u8"Ninja command.",
      u8"Ninja command - ninjas only!",
      (REQ_ALERT | REQ_NINJAMODE)},
@@ -795,7 +795,7 @@ static_assert(static_comlist[COM_MAKESUPERNINJA].id == COM_MAKESUPERNINJA);
 static_assert(static_comlist[COM_CREATE].id == COM_CREATE);
 static_assert(static_comlist[COM_DCREATE].id == COM_DCREATE);
 static_assert(static_comlist[COM_CCREATE].id == COM_CCREATE);
-static_assert(static_comlist[COM_WCREATE].id == COM_WCREATE);
+static_assert(static_comlist[COM_WLOAD].id == COM_WLOAD);
 static_assert(static_comlist[COM_ANCHOR].id == COM_ANCHOR);
 static_assert(static_comlist[COM_LINK].id == COM_LINK);
 static_assert(static_comlist[COM_CONNECT].id == COM_CONNECT);
@@ -6595,20 +6595,6 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     return 0;
   }
 
-#define NUM_AVS 5 // 28 Max!
-#define NUM_STS 5 // No Max
-  if (cnum == COM_CCREATE) {
-    if (!mind)
-      return 0;
-    return handle_command_ccreate(body, mind, args, stealth_t, stealth_s);
-  }
-
-  if (cnum == COM_WCREATE) {
-    if (!mind)
-      return 0;
-    return handle_command_wcreate(body, mind, args, stealth_t, stealth_s);
-  }
-
   static Object* anchor = nullptr;
 
   if (cnum == COM_ANCHOR) {
@@ -7226,6 +7212,18 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       }
     }
     return 0;
+  }
+
+  if (cnum == COM_CCREATE) {
+    if (!mind)
+      return 0;
+    return handle_command_ccreate(body, mind, args, stealth_t, stealth_s);
+  }
+
+  if (cnum == COM_WLOAD) {
+    if (!mind)
+      return 0;
+    return handle_command_wload(body, mind, args, stealth_t, stealth_s);
   }
 
   if (cnum == COM_TLOAD) {

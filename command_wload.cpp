@@ -887,7 +887,7 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
   return true;
 }
 
-int handle_command_wcreate(
+int handle_command_wload(
     Object* body,
     Mind* mind,
     const std::u8string_view args,
