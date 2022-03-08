@@ -221,7 +221,7 @@ void Object::SetSkill(uint32_t stok, int v) {
   }
 }
 
-void Object::SetSkill(const std::u8string& s, int v) {
+void Object::SetSkill(const std::u8string_view& s, int v) {
   if (v > 1000000000)
     v = 1000000000;
   else if (v < -1000000000)

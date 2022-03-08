@@ -31,6 +31,6 @@ void save_prop_names_to(FILE* fl);
 void load_prop_names_from(FILE* fl);
 void purge_invalid_prop_names();
 void confirm_skill_hash(uint32_t);
-void insert_skill_hash(uint32_t, const std::u8string&);
+void insert_skill_hash(uint32_t, const std::u8string_view&);
 
 #endif // STATS_HPP

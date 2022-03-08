@@ -87,7 +87,7 @@ void confirm_skill_hash(uint32_t stok) {
     skill_defs.emplace_back(std::make_pair(stok, u8"Unknown"));
   }
 }
-void insert_skill_hash(uint32_t stok, const std::u8string& s) {
+void insert_skill_hash(uint32_t stok, const std::u8string_view& s) {
   auto itn = skill_defs.begin();
   for (; itn != skill_defs.end() && itn->first != stok; ++itn) {
   }
