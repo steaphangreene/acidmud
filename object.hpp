@@ -555,14 +555,14 @@ class alignas(256) Object {
 
   // Unformatted (raw print, but with ;s/;s for actor/targ)
   void Send(channel_t channel, const std::u8string& mes);
-  template <typename... Args>
-  void Send(channel_t channel, const std::u8string& mes, Args&&... args) {
-    Send(channel, fmt::format(mes, std::forward<Args>(args)...));
+  template <typename S, typename... Args>
+  void Send(channel_t channel, const S& mes, Args&&... args) {
+    Send(channel, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)));
   };
   void Send(int targ, int rsucc, const std::u8string& mes);
-  template <typename... Args>
-  void Send(int targ, int rsucc, const std::u8string& mes, Args&&... args) {
-    Send(targ, rsucc, fmt::format(mes, std::forward<Args>(args)...));
+  template <typename S, typename... Args>
+  void Send(int targ, int rsucc, const S& mes, Args&&... args) {
+    Send(targ, rsucc, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)));
   };
   void SendOut(
       int tnum,
@@ -572,27 +572,27 @@ class alignas(256) Object {
       Object* actor,
       Object* targ,
       bool expanding = true);
-  template <typename... Args>
+  template <typename Sm, typename Sy, typename... Args>
   void SendOut(
       int tnum,
       int rsucc,
-      const std::u8string& mes,
-      const std::u8string& youmes,
+      const Sm& mes,
+      const Sy& youmes,
       Object* actor,
       Object* targ,
       Args&&... args) {
     SendOut(
         tnum,
         rsucc,
-        fmt::format(mes, std::forward<Args>(args)...),
-        fmt::format(youmes, std::forward<Args>(args)...),
+        fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)),
+        fmt::vformat(youmes, fmt::make_args_checked<Args...>(youmes, args...)),
         actor,
         targ);
   };
   void Loud(int str, const std::u8string& mes);
-  template <typename... Args>
-  void Loud(int str, const std::u8string& mes, Args&&... args) {
-    Loud(str, fmt::format(mes, std::forward<Args>(args)...));
+  template <typename S, typename... Args>
+  void Loud(int str, const S& mes, Args&&... args) {
+    Loud(str, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)));
   };
 
   void TBALoadAll();

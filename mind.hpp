@@ -87,10 +87,9 @@ class Mind {
   };
 
   bool Send(const std::u8string&); // Returns false when mind needs to be deleted
-  template <typename... Args>
-  bool Send(const std::u8string& mes, Args&&... args) {
-    auto buf = fmt::format(mes, std::forward<Args>(args)...);
-    return Send(buf);
+  template <typename S, typename... Args>
+  bool Send(const S& mes, Args&&... args) {
+    return Send(fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)));
   };
 
   void UpdatePrompt();

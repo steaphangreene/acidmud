@@ -42,61 +42,61 @@ inline std::ostream& operator<<(std::ostream& out, const char8_t* in) {
   return out << reinterpret_cast<const char*>(in);
 }
 
-template <typename... Args>
-void logo(const std::u8string_view& mes, Args&&... args) {
-  std::cout << fmt::format(mes, std::forward<Args>(args)...);
+template <typename S, typename... Args>
+void logo(const S& mes, Args&&... args) {
+  std::cout << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...));
 };
-template <typename... Args>
-void loge(const std::u8string_view& mes, Args&&... args) {
-  std::cerr << fmt::format(mes, std::forward<Args>(args)...);
+template <typename S, typename... Args>
+void loge(const S& mes, Args&&... args) {
+  std::cerr << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...));
 };
-template <typename... Args>
-void loger(const std::u8string_view& mes, Args&&... args) {
-  std::cerr << CRED << fmt::format(mes, std::forward<Args>(args)...) << CNRM;
+template <typename S, typename... Args>
+void loger(const S& mes, Args&&... args) {
+  std::cerr << CRED << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
 };
-template <typename... Args>
-void logerr(const std::u8string_view& mes, Args&&... args) {
-  std::cerr << CBRD << fmt::format(mes, std::forward<Args>(args)...) << CNRM;
+template <typename S, typename... Args>
+void logerr(const S& mes, Args&&... args) {
+  std::cerr << CBRD << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
 };
-template <typename... Args>
-void logeg(const std::u8string_view& mes, Args&&... args) {
-  std::cerr << CGRN << fmt::format(mes, std::forward<Args>(args)...) << CNRM;
+template <typename S, typename... Args>
+void logeg(const S& mes, Args&&... args) {
+  std::cerr << CGRN << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
 };
-template <typename... Args>
-void logegg(const std::u8string_view& mes, Args&&... args) {
-  std::cerr << CBGR << fmt::format(mes, std::forward<Args>(args)...) << CNRM;
+template <typename S, typename... Args>
+void logegg(const S& mes, Args&&... args) {
+  std::cerr << CBGR << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
 };
-template <typename... Args>
-void logeb(const std::u8string_view& mes, Args&&... args) {
-  std::cerr << CBLU << fmt::format(mes, std::forward<Args>(args)...) << CNRM;
+template <typename S, typename... Args>
+void logeb(const S& mes, Args&&... args) {
+  std::cerr << CBLU << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
 };
-template <typename... Args>
-void logebb(const std::u8string_view& mes, Args&&... args) {
-  std::cerr << CBBL << fmt::format(mes, std::forward<Args>(args)...) << CNRM;
+template <typename S, typename... Args>
+void logebb(const S& mes, Args&&... args) {
+  std::cerr << CBBL << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
 };
-template <typename... Args>
-void logey(const std::u8string_view& mes, Args&&... args) {
-  std::cerr << CYEL << fmt::format(mes, std::forward<Args>(args)...) << CNRM;
+template <typename S, typename... Args>
+void logey(const S& mes, Args&&... args) {
+  std::cerr << CYEL << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
 };
-template <typename... Args>
-void logeyy(const std::u8string_view& mes, Args&&... args) {
-  std::cerr << CBYL << fmt::format(mes, std::forward<Args>(args)...) << CNRM;
+template <typename S, typename... Args>
+void logeyy(const S& mes, Args&&... args) {
+  std::cerr << CBYL << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
 };
-template <typename... Args>
-void logem(const std::u8string_view& mes, Args&&... args) {
-  std::cerr << CMAG << fmt::format(mes, std::forward<Args>(args)...) << CNRM;
+template <typename S, typename... Args>
+void logem(const S& mes, Args&&... args) {
+  std::cerr << CMAG << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
 };
-template <typename... Args>
-void logemm(const std::u8string_view& mes, Args&&... args) {
-  std::cerr << CBMG << fmt::format(mes, std::forward<Args>(args)...) << CNRM;
+template <typename S, typename... Args>
+void logemm(const S& mes, Args&&... args) {
+  std::cerr << CBMG << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
 };
-template <typename... Args>
-void logec(const std::u8string_view& mes, Args&&... args) {
-  std::cerr << CCYN << fmt::format(mes, std::forward<Args>(args)...) << CNRM;
+template <typename S, typename... Args>
+void logec(const S& mes, Args&&... args) {
+  std::cerr << CCYN << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
 };
-template <typename... Args>
-void logecc(const std::u8string_view& mes, Args&&... args) {
-  std::cerr << CBCN << fmt::format(mes, std::forward<Args>(args)...) << CNRM;
+template <typename S, typename... Args>
+void logecc(const S& mes, Args&&... args) {
+  std::cerr << CBCN << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
 };
 
 #endif // LOG_HPP
