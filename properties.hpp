@@ -594,15 +594,19 @@ consteval bool same_string(const char8_t* s1, const char8_t* s2, size_t pos) {
                                               : same_string(s1, s2, pos + 1);
 }
 
-consteval bool is_in_prop_list(const char8_t* pr, size_t pos) {
-  return (pos >= prop_names.size())           ? false
-      : (same_string(pr, prop_names[pos], 0)) ? true
-                                              : is_in_prop_list(pr, pos + 1);
+consteval bool is_in_prop_list(const char8_t* pr, size_t pos, size_t max) {
+  return (pos >= max || pos >= prop_names.size()) ? false
+      : (same_string(pr, prop_names[pos], 0))     ? true
+                                                  : is_in_prop_list(pr, pos + 1, max);
 }
 
 consteval bool is_in_prop_list(const char8_t* pr) {
-  return is_in_prop_list(pr, 0);
+  return is_in_prop_list(pr, 0, 128) || is_in_prop_list(pr, 128, 256) ||
+      is_in_prop_list(pr, 256, 384) || is_in_prop_list(pr, 384, 512) ||
+      is_in_prop_list(pr, 512, 640) || is_in_prop_list(pr, 640, 768) ||
+      is_in_prop_list(pr, 768, 896) || is_in_prop_list(pr, 896, 1024);
 }
+static_assert(prop_names.size() <= 1024); // Must add more steps to above function if this fails.
 
 // This fails ugly if you use a string not in the list ...but at least it fails. :)
 // Hopefully later C++ revs will provide better ways to cleanly assert in consteval.
