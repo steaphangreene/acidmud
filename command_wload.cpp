@@ -79,6 +79,7 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
   std::map<char8_t, std::u8string> locktags;
   std::map<char8_t, int32_t> lockid;
   std::map<char8_t, bool> indoors;
+  std::map<char8_t, bool> trees;
   std::map<char8_t, uint8_t> levels;
   std::map<char8_t, std::vector<bool>> stairblocked;
   std::map<char8_t, std::vector<std::u8string>> stairnames;
@@ -126,6 +127,9 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
       if (process(line, u8":")) {
         levels[sym] = nextnum(line);
       }
+    } else if (process(line, u8"trees:")) {
+      char8_t sym = nextchar(line);
+      trees[sym] = true;
     } else if (process(line, u8"stair:")) {
       char8_t sym = nextchar(line);
       int floor = 0;
@@ -394,6 +398,9 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
             objs[coord{x, y}].back()->SetSkill(prhash(u8"Light Source"), 100);
           } else {
             objs[coord{x, y}].back()->SetSkill(prhash(u8"Translucent"), 1000);
+          }
+          if (trees[room]) {
+            objs[coord{x, y}].back()->SetSkill(prhash(u8"Mature Trees"), 100);
           }
           if (start_symbol == room) {
             world->AddAct(act_t::SPECIAL_HOME, objs[coord{x, y}].back());
