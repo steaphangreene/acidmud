@@ -4774,7 +4774,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         if (body->Roll(skill, 10) > 0) { // Succeeded!
           body->Parent()->SendOut(
               ALL, 0, u8";s shouts 'TIMBER'!!!\n", u8"You shout 'TIMBER'!!!\n", body, body);
-          body->Parent()->Loud(body->Skill(prhash(u8"Strength")), u8"someone shout 'TIMBER'!!!");
+          body->Parent()->Loud(body->ModAttribute(2), u8"someone shout 'TIMBER'!!!");
           body->Parent()->SetSkill(
               prhash(u8"Mature Trees"), body->Parent()->Skill(prhash(u8"Mature Trees")) - 1);
           body->SetSkill(prhash(u8"Hidden"), 0);
@@ -4797,7 +4797,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
             u8"You continue chopping down trees.\n",
             body,
             body);
-        body->Parent()->Loud(body->Skill(prhash(u8"Strength")) / 2, u8"loud chopping sounds.");
+        body->Parent()->Loud(body->ModAttribute(2) / 2, u8"loud chopping sounds.");
         body->SetSkill(prhash(u8"Hidden"), 0);
       }
     }
