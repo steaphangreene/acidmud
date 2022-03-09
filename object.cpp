@@ -1689,7 +1689,7 @@ std::vector<std::u8string> Object::FormatSkills(const MinVec<7, skill_pair>& skl
   for (auto skl : save) {
     if (is_skill(skl.first)) {
       ret.emplace_back(fmt::format(
-          u8"%28s: " CYEL u8"%2d" CNRM, SkillName(skl.first), std::min(99, skl.second)));
+          u8"{:>28}: " CYEL u8"{:>2}" CNRM, SkillName(skl.first), std::min(99, skl.second)));
     }
   }
   return ret;
