@@ -3279,10 +3279,16 @@ void Object::Loud(std::set<Object*>& visited, int str, const std::u8string& mes)
   visited.insert(this);
   auto targs = Connections(true);
   for (auto dest : targs) {
-    if (dest && dest->Parent() && str > 0) {
+    if (dest && dest->Parent()) {
       if (!visited.contains(dest->Parent())) {
-        dest->Parent()->SendOut(ALL, 0, u8"From ;s you hear {}\n", u8"", dest, dest, mes);
-        dest->Parent()->Loud(visited, str - 1, mes);
+        int sound_reduction = 1;
+        if (dest->Skill(prhash(u8"Open")) < 1 && dest->Skill(prhash(u8"Transparent")) < 1) {
+          sound_reduction = 2; // TODO: Transparent is wrong prop: Soundproof Glass, etc.
+        }
+        if ((str - sound_reduction) > 0) {
+          dest->Parent()->SendOut(ALL, 0, u8"From ;s you hear {}\n", u8"", dest, dest, mes);
+          dest->Parent()->Loud(visited, str - sound_reduction, mes);
+        }
       }
     }
   }
