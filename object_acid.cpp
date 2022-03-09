@@ -30,6 +30,15 @@
 #include "utils.hpp"
 #include "version.hpp"
 
+const struct {
+  char8_t c;
+  gender_t g;
+} gender_save[4] = {
+    {'N', gender_t::NONE},
+    {'M', gender_t::MALE},
+    {'F', gender_t::FEMALE},
+    {'O', gender_t::NEITHER}};
+
 const std::u8string act_save[static_cast<uint8_t>(act_t::SPECIAL_MAX)] = {
     u8"NONE",           u8"DEAD",         u8"DYING",        u8"UNCONSCIOUS",     u8"SLEEP",
     u8"REST",           u8"WORK",         u8"HEAL",         u8"POINT",           u8"FOLLOW",
@@ -112,7 +121,13 @@ int Object::SaveTo(FILE* fl) {
     fprintf(fl, u8"%c\n", 0);
   }
 
-  fprintf(fl, u8"%d %d %d %d %c\n", weight, size, volume, value, gender);
+  char8_t gen_char = 'N';
+  for (auto g : gender_save) {
+    if (gender == g.g) {
+      gen_char = g.c;
+    }
+  }
+  fprintf(fl, u8"%d %d %d %d %c\n", weight, size, volume, value, gen_char);
 
   for (auto ind : known) {
     fprintf(fl, u8";%ld", ind);
@@ -277,7 +292,14 @@ int Object::LoadFrom(FILE* fl) {
 
   // loge(u8"{}Loading {}:{}\n", debug_indent, num, buf);
 
-  fscanf(fl, u8"%d %d %d %d %c", &weight, &size, &volume, &value, &gender);
+  gender = gender_t::NONE;
+  char8_t gen_char = 'N';
+  fscanf(fl, u8"%d %d %d %d %c", &weight, &size, &volume, &value, &gen_char);
+  for (auto g : gender_save) {
+    if (gen_char == g.c) {
+      gender = g.g;
+    }
+  }
 
   if (ver < 0x001A) {
     fscanf(fl, u8"%*d"); // Experience (Redundant)
