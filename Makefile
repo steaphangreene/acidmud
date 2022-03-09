@@ -28,27 +28,27 @@ OBJS:=	main.o version.o stats.o net.o commands.o mind.o player.o npc.o object.o 
         object_acid.o object_dynamic.o command_ccreate.o command_wload.o utils.o \
 	object_tba.o skills.o properties.o
 LIBS:=
-COPT:=	-mbranches-within-32B-boundaries -ferror-limit=2 -stdlib=libc++
-GOPT:=
+COPT:=	-std=c++2b -mbranches-within-32B-boundaries -ferror-limit=2 -stdlib=libc++
+GOPT:=	-std=c++2b
 ARCH:=	-mavx2 -mfma -mbmi2 -falign-functions=32
-COMP:=	-Wall -Wshadow -Werror -fconstexpr-depth=1024 -Wno-format-security
+COMP:=	-Wall -Wshadow -Werror -Wno-format-security
 
 all:	acidmud
 
 #Production Settings (dynamic)
 CXX=clang++-13
-CXXFLAGS=-std=c++2b -g3 -O3 $(COMP) $(ARCH) $(COPT) -flto
+CXXFLAGS=-g3 -O3 $(COMP) $(ARCH) $(COPT) -flto
 
 #Use debugging settings
 debug:
-	+make CXXFLAGS='-std=c++2b -O0 -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(COPT)'
+	+make CXXFLAGS='-O0 -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(COPT)'
 
 #Use profiling settings
 profile:
-	+make CXXFLAGS='-std=c++2b -O3 -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 $(COMP) $(ARCH) $(COPT)'
+	+make CXXFLAGS='-O3 -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 $(COMP) $(ARCH) $(COPT)'
 
 gcc:
-	+make CXX='g++-11' CXXFLAGS='-std=c++2b -Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(GOPT)'
+	+make CXX='g++-11' CXXFLAGS='-Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(GOPT)'
 
 clean:
 	rm -f gmon.out deps.mk *.o *.da version.cpp acidmud changes.txt
