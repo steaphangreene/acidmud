@@ -438,8 +438,6 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
               door2->SetDesc(u8"The floor above.\n");
               door1->AddAct(act_t::SPECIAL_LINKED, door2);
               door2->AddAct(act_t::SPECIAL_LINKED, door1);
-              door1->AddAct(act_t::SPECIAL_MASTER, door2);
-              door2->AddAct(act_t::SPECIAL_MASTER, door1);
               door1->SetSkill(prhash(u8"Enterable"), 1);
               door2->SetSkill(prhash(u8"Enterable"), 1);
               if (blocked) {
@@ -693,8 +691,6 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
       door2->SetDesc(start + dirnames[dir ^ 3] + u8" is here.\n");
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
-      door1->AddAct(act_t::SPECIAL_MASTER, door2);
-      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->SetSkill(prhash(u8"Enterable"), 1);
       if (doors.count(door_char) > 0) {

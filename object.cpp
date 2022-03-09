@@ -35,32 +35,36 @@
 #include "properties.hpp"
 #include "utils.hpp"
 
-const std::u8string pos_str[static_cast<uint8_t>(pos_t::MAX)] = {
+const std::u8string pos_str[] = {
     u8"is here",
     u8"is lying here",
     u8"is sitting here",
     u8"is standing here",
     u8"is using a skill",
 };
+// Check if there are too few/many items (forgot to add/remove one here?) in the above list.
+static_assert(std::size(pos_str) == static_cast<uint8_t>(pos_t::MAX));
 
-const std::u8string act_str[static_cast<uint8_t>(act_t::SPECIAL_MAX)] = {
-    u8"doing nothing",  u8"dead",           u8"bleeding and dying",
-    u8"unconscious",    u8"fast asleep",    u8"resting",
-    u8"working",        u8"healing {0}",    u8"pointing {1}{2}at {0}",
-    u8"following {0}",  u8"fighting {0}",   u8"offering something to {0}",
-    u8"holding {0}",    u8"wielding {0}",   u8"wearing {0}",
-    u8"wearing {0}",    u8"wearing {0}",    u8"wearing {0}",
-    u8"wearing {0}",    u8"wearing {0}",    u8"wearing {0}",
-    u8"wearing {0}",    u8"wearing {0}",    u8"wearing {0}",
-    u8"wearing {0}",    u8"wearing {0}",    u8"wearing {0}",
-    u8"wearing {0}",    u8"wearing {0}",    u8"wearing {0}",
-    u8"wearing {0}",    u8"wearing {0}",    u8"wearing {0}",
-    u8"wearing {0}",    u8"wearing {0}",    u8"wearing {0}",
-    u8"wearing {0}",    u8"wearing_{0}",    u8"SPECIAL_MONITOR",
-    u8"SPECIAL_MASTER", u8"SPECIAL_LINKED", u8"SPECIAL_HOME",
-    u8"SPECIAL_WORK",   u8"SPECIAL_ACTEE",
+const std::u8string act_str[] = {
+    u8"doing nothing",  u8"dead",         u8"bleeding and dying",
+    u8"unconscious",    u8"fast asleep",  u8"resting",
+    u8"working",        u8"healing {0}",  u8"pointing {1}{2}at {0}",
+    u8"following {0}",  u8"fighting {0}", u8"offering something to {0}",
+    u8"holding {0}",    u8"wielding {0}", u8"wearing {0}",
+    u8"wearing {0}",    u8"wearing {0}",  u8"wearing {0}",
+    u8"wearing {0}",    u8"wearing {0}",  u8"wearing {0}",
+    u8"wearing {0}",    u8"wearing {0}",  u8"wearing {0}",
+    u8"wearing {0}",    u8"wearing {0}",  u8"wearing {0}",
+    u8"wearing {0}",    u8"wearing {0}",  u8"wearing {0}",
+    u8"wearing {0}",    u8"wearing {0}",  u8"wearing {0}",
+    u8"wearing {0}",    u8"wearing {0}",  u8"wearing {0}",
+    u8"wearing {0}",    u8"wearing_{0}",  u8"SPECIAL_MONITOR",
+    u8"SPECIAL_LINKED", u8"SPECIAL_HOME", u8"SPECIAL_WORK",
+    u8"SPECIAL_ACTEE",
     //"SPECIAL_MAX"
 };
+// Check if there are too few/many items (forgot to add/remove one here?) in the above list.
+static_assert(std::size(act_str) == static_cast<uint8_t>(act_t::SPECIAL_MAX));
 
 static Object* universe = nullptr;
 static Object* trash_bin = nullptr;
@@ -2000,11 +2004,9 @@ void Object::Link(
   door1->SetDesc(dsc.c_str());
   door2->SetDesc(odsc.c_str());
   door1->AddAct(act_t::SPECIAL_LINKED, door2);
-  door1->AddAct(act_t::SPECIAL_MASTER, door2);
   door1->SetSkill(prhash(u8"Open"), 1000);
   door1->SetSkill(prhash(u8"Enterable"), 1);
   door2->AddAct(act_t::SPECIAL_LINKED, door1);
-  door2->AddAct(act_t::SPECIAL_MASTER, door1);
   door2->SetSkill(prhash(u8"Open"), 1000);
   door2->SetSkill(prhash(u8"Enterable"), 1);
 }
@@ -2022,12 +2024,10 @@ void Object::LinkClosed(
   door1->SetDesc(dsc.c_str());
   door2->SetDesc(odsc.c_str());
   door1->AddAct(act_t::SPECIAL_LINKED, door2);
-  door1->AddAct(act_t::SPECIAL_MASTER, door2);
   door1->SetSkill(prhash(u8"Closeable"), 1);
   door1->SetSkill(prhash(u8"Enterable"), 1);
   door1->SetSkill(prhash(u8"Transparent"), 1000);
   door2->AddAct(act_t::SPECIAL_LINKED, door1);
-  door2->AddAct(act_t::SPECIAL_MASTER, door1);
   door2->SetSkill(prhash(u8"Closeable"), 1);
   door2->SetSkill(prhash(u8"Enterable"), 1);
   door2->SetSkill(prhash(u8"Transparent"), 1000);
@@ -2260,8 +2260,6 @@ void Object::Recycle(int inbin) {
 
   // Actions over long distances must be notified!
   std::set<Object*> tonotify;
-  if (ActTarg(act_t::SPECIAL_MASTER))
-    tonotify.insert(ActTarg(act_t::SPECIAL_MASTER));
   if (ActTarg(act_t::SPECIAL_MONITOR))
     tonotify.insert(ActTarg(act_t::SPECIAL_MONITOR));
   if (ActTarg(act_t::SPECIAL_LINKED))
@@ -2272,19 +2270,18 @@ void Object::Recycle(int inbin) {
     tonotify.insert(touch);
   }
 
-  StopAct(act_t::SPECIAL_MASTER);
   StopAct(act_t::SPECIAL_MONITOR);
   StopAct(act_t::SPECIAL_LINKED);
 
   for (auto noti : tonotify) {
     int del = 0;
-    if (noti->ActTarg(act_t::SPECIAL_MASTER) == this)
+    if (noti->ActTarg(act_t::SPECIAL_LINKED) == this) {
       del = 1;
-    else if (noti->ActTarg(act_t::SPECIAL_LINKED) == this)
-      del = 1;
+    }
     noti->NotifyLeft(this);
-    if (del)
+    if (del) {
       noti->Recycle();
+    }
   }
 
   busylist.erase(this);

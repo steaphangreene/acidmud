@@ -39,20 +39,22 @@ const struct {
     {'F', gender_t::FEMALE},
     {'O', gender_t::NEITHER}};
 
-const std::u8string act_save[static_cast<uint8_t>(act_t::SPECIAL_MAX)] = {
-    u8"NONE",           u8"DEAD",         u8"DYING",        u8"UNCONSCIOUS",     u8"SLEEP",
-    u8"REST",           u8"WORK",         u8"HEAL",         u8"POINT",           u8"FOLLOW",
-    u8"FIGHT",          u8"OFFER",        u8"HOLD",         u8"WIELD",           u8"WEAR_BACK",
-    u8"WEAR_CHEST",     u8"WEAR_HEAD",    u8"WEAR_NECK",    u8"WEAR_COLLAR",     u8"WEAR_WAIST",
-    u8"WEAR_SHIELD",    u8"WEAR_LARM",    u8"WEAR_RARM",    u8"WEAR_LFINGER",    u8"WEAR_RFINGER",
-    u8"WEAR_LFOOT",     u8"WEAR_RFOOT",   u8"WEAR_LHAND",   u8"WEAR_RHAND",      u8"WEAR_LLEG",
-    u8"WEAR_RLEG",      u8"WEAR_LWRIST",  u8"WEAR_RWRIST",  u8"WEAR_LSHOULDER",  u8"WEAR_RSHOULDER",
-    u8"WEAR_LHIP",      u8"WEAR_RHIP",    u8"WEAR_FACE",    u8"SPECIAL_MONITOR", u8"SPECIAL_MASTER",
-    u8"SPECIAL_LINKED", u8"SPECIAL_HOME", u8"SPECIAL_WORK", u8"SPECIAL_ACTEE",
+const std::u8string act_save[] = {
+    u8"NONE",         u8"DEAD",         u8"DYING",         u8"UNCONSCIOUS",     u8"SLEEP",
+    u8"REST",         u8"WORK",         u8"HEAL",          u8"POINT",           u8"FOLLOW",
+    u8"FIGHT",        u8"OFFER",        u8"HOLD",          u8"WIELD",           u8"WEAR_BACK",
+    u8"WEAR_CHEST",   u8"WEAR_HEAD",    u8"WEAR_NECK",     u8"WEAR_COLLAR",     u8"WEAR_WAIST",
+    u8"WEAR_SHIELD",  u8"WEAR_LARM",    u8"WEAR_RARM",     u8"WEAR_LFINGER",    u8"WEAR_RFINGER",
+    u8"WEAR_LFOOT",   u8"WEAR_RFOOT",   u8"WEAR_LHAND",    u8"WEAR_RHAND",      u8"WEAR_LLEG",
+    u8"WEAR_RLEG",    u8"WEAR_LWRIST",  u8"WEAR_RWRIST",   u8"WEAR_LSHOULDER",  u8"WEAR_RSHOULDER",
+    u8"WEAR_LHIP",    u8"WEAR_RHIP",    u8"WEAR_FACE",     u8"SPECIAL_MONITOR", u8"SPECIAL_LINKED",
+    u8"SPECIAL_HOME", u8"SPECIAL_WORK", u8"SPECIAL_ACTEE",
     //	"SPECIAL_MAX"
 };
+// Check if there are too few/many items (forgot to add/remove one here?) in the above list.
+static_assert(std::size(act_save) == static_cast<uint8_t>(act_t::SPECIAL_MAX));
 
-static std::map<std::u8string, act_t> act_load_map;
+static std::map<std::u8string_view, act_t> act_load_map;
 static act_t act_load(const std::u8string& str) {
   if (act_load_map.size() < 1) {
     for (act_t a = act_t::NONE; a != act_t::SPECIAL_MAX; ++a) {
@@ -421,7 +423,7 @@ int Object::LoadFrom(FILE* fl) {
     memset(buf, 0, 65536);
     fscanf(fl, u8"%65535[^;];%d ", buf, &num2);
     a = act_load(std::u8string(buf));
-    if (a != act_t::SPECIAL_ACTEE) {
+    if (a != act_t::SPECIAL_ACTEE && a != act_t::NONE) {
       AddAct(a, getbynum(num2));
     }
   }

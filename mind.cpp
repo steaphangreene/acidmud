@@ -2284,7 +2284,6 @@ int Mind::TBARunLine(std::u8string line) {
       odoor->SetSkill(prhash(u8"Enterable"), 1);
       odoor->SetSkill(prhash(u8"Open"), 1000);
       odoor->SetSkill(prhash(u8"Invisible"), 1000);
-      odoor->AddAct(act_t::SPECIAL_MASTER, door);
     } else if (sscanf(args.c_str(), u8"%*d %*s key %d", &tnum) == 1) {
       if (!door) {
         loger(

@@ -2676,8 +2676,8 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       targ->SetSkill(prhash(u8"Locked"), 1);
       body->Parent()->SendOut(
           stealth_t, stealth_s, u8";s locks ;s.\n", u8"You lock ;s.\n", body, targ);
-      if (targ->ActTarg(act_t::SPECIAL_MASTER)) {
-        Object* targ2 = targ->ActTarg(act_t::SPECIAL_MASTER);
+      if (targ->ActTarg(act_t::SPECIAL_LINKED)) {
+        Object* targ2 = targ->ActTarg(act_t::SPECIAL_LINKED);
         targ2->Parent()->SendOut(stealth_t, stealth_s, u8";s locks.\n", u8"", targ2, nullptr);
         targ2->SetSkill(prhash(u8"Locked"), 1);
       }
@@ -2721,8 +2721,8 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       targ->SetSkill(prhash(u8"Locked"), 0);
       body->Parent()->SendOut(
           stealth_t, stealth_s, u8";s unlocks ;s.\n", u8"You unlock ;s.\n", body, targ);
-      if (targ->ActTarg(act_t::SPECIAL_MASTER)) {
-        Object* targ2 = targ->ActTarg(act_t::SPECIAL_MASTER);
+      if (targ->ActTarg(act_t::SPECIAL_LINKED)) {
+        Object* targ2 = targ->ActTarg(act_t::SPECIAL_LINKED);
         targ2->Parent()->SendOut(stealth_t, stealth_s, u8";s unlocks.\n", u8"", targ2, nullptr);
         targ2->SetSkill(prhash(u8"Locked"), 0);
       }
@@ -2758,8 +2758,8 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       targ->SetSkill(prhash(u8"Open"), 1000);
       body->Parent()->SendOut(
           stealth_t, stealth_s, u8";s opens ;s.\n", u8"You open ;s.\n", body, targ);
-      if (targ->ActTarg(act_t::SPECIAL_MASTER)) {
-        Object* targ2 = targ->ActTarg(act_t::SPECIAL_MASTER);
+      if (targ->ActTarg(act_t::SPECIAL_LINKED)) {
+        Object* targ2 = targ->ActTarg(act_t::SPECIAL_LINKED);
         targ2->Parent()->SendOut(stealth_t, stealth_s, u8";s opens.\n", u8"", targ2, nullptr);
         targ2->SetSkill(prhash(u8"Open"), 1000);
         targ2->SetSkill(prhash(u8"Locked"), 0); // FIXME: Do I want to do this?
@@ -2792,8 +2792,8 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       targ->SetSkill(prhash(u8"Open"), 0);
       body->Parent()->SendOut(
           stealth_t, stealth_s, u8";s closes ;s.\n", u8"You close ;s.\n", body, targ);
-      if (targ->ActTarg(act_t::SPECIAL_MASTER)) {
-        Object* targ2 = targ->ActTarg(act_t::SPECIAL_MASTER);
+      if (targ->ActTarg(act_t::SPECIAL_LINKED)) {
+        Object* targ2 = targ->ActTarg(act_t::SPECIAL_LINKED);
         targ2->Parent()->SendOut(stealth_t, stealth_s, u8";s closes.\n", u8"", targ2, nullptr);
         targ2->SetSkill(prhash(u8"Open"), 0);
         targ2->SetSkill(prhash(u8"Locked"), 0); // FIXME: Do I want to do this?
@@ -6511,7 +6511,6 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       src->SetSkill(prhash(u8"Open"), 1000);
       src->SetSkill(prhash(u8"Enterable"), 1);
       src->AddAct(act_t::SPECIAL_LINKED, exit);
-      exit->AddAct(act_t::SPECIAL_MASTER, src);
       if (mind) {
         mind->Send(u8"You link {} to {}.\n", src->Noun(0, 0, body), dest->Noun(0, 0, body));
       }
@@ -6637,11 +6636,9 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       link = new Object(body->Parent());
       link->SetShortDesc(std::u8string(args));
       link->AddAct(act_t::SPECIAL_LINKED, anchor);
-      link->AddAct(act_t::SPECIAL_MASTER, anchor);
       link->SetSkill(prhash(u8"Open"), 1000);
       link->SetSkill(prhash(u8"Enterable"), 1);
       anchor->AddAct(act_t::SPECIAL_LINKED, link);
-      anchor->AddAct(act_t::SPECIAL_MASTER, link);
       anchor->SetSkill(prhash(u8"Open"), 1000);
       anchor->SetSkill(prhash(u8"Enterable"), 1);
       std::u8string other = std::u8string(args);

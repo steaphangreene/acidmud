@@ -419,7 +419,6 @@ void Object::TBALoadZON(const std::u8string& fn) {
             lastmob = new Object(*(bynummob[num]));
             bynummobinst[num] = lastmob;
             lastmob->SetParent(obj);
-            lastmob->AddAct(act_t::SPECIAL_MASTER, obj);
             obj->SetSkill(prhash(u8"TBAPopper"), 1);
             obj->SetSkill(prhash(u8"Invisible"), 1000);
             obj->Activate();
@@ -2424,9 +2423,9 @@ void Object::TBALoadWLD(const std::u8string& fn) {
             auto cont = ob->Contents();
             for (auto cind : cont) {
               if (cind->ShortDesc() == u8"a passage exit") {
-                if (cind->ActTarg(act_t::SPECIAL_MASTER)->Parent() == bynumwld[tnum]) {
+                if (cind->ActTarg(act_t::SPECIAL_ACTEE)->Parent() == bynumwld[tnum]) {
                   nobj = cind;
-                  nobj2 = cind->ActTarg(act_t::SPECIAL_MASTER);
+                  nobj2 = cind->ActTarg(act_t::SPECIAL_ACTEE);
                 }
               } else if (cind->ActTarg(act_t::SPECIAL_LINKED)) {
                 if (cind->ActTarg(act_t::SPECIAL_LINKED)->Parent() == bynumwld[tnum]) {
@@ -2473,7 +2472,6 @@ void Object::TBALoadWLD(const std::u8string& fn) {
             nobj->SetSkill(prhash(u8"Open"), 1000);
             nobj->SetSkill(prhash(u8"Enterable"), 1);
             nobj->AddAct(act_t::SPECIAL_LINKED, nobj2);
-            nobj2->AddAct(act_t::SPECIAL_MASTER, nobj);
 
             nmnum[dir].erase(ob);
             tonum[dir].erase(ob);

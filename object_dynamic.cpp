@@ -417,11 +417,9 @@ void Object::DynamicInit1() { // Dwarven mine
       door1->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dir));
       door2->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dirb));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
-      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
       door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
-      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(prhash(u8"Open"), 1000);
       door2->SetSkill(prhash(u8"Enterable"), 1);
 
@@ -464,11 +462,9 @@ void Object::DynamicInit1() { // Dwarven mine
       door1->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dir));
       door2->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dirb));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
-      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
       door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
-      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(prhash(u8"Open"), 1000);
       door2->SetSkill(prhash(u8"Enterable"), 1);
     } break;
@@ -510,11 +506,9 @@ void Object::DynamicInit1() { // Dwarven mine
       door1->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dir));
       door2->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dirb));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
-      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
       door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
-      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(prhash(u8"Open"), 1000);
       door2->SetSkill(prhash(u8"Enterable"), 1);
 
@@ -534,11 +528,9 @@ void Object::DynamicInit1() { // Dwarven mine
       door1->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir2));
       door2->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir3));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
-      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
       door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
-      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(prhash(u8"Open"), 1000);
       door2->SetSkill(prhash(u8"Enterable"), 1);
     } break;
@@ -580,11 +572,9 @@ void Object::DynamicInit1() { // Dwarven mine
       door1->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dir));
       door2->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dirb));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
-      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
       door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
-      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(prhash(u8"Open"), 1000);
       door2->SetSkill(prhash(u8"Enterable"), 1);
 
@@ -605,11 +595,9 @@ void Object::DynamicInit1() { // Dwarven mine
       door1->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir2));
       door2->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir3));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
-      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
       door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
-      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(prhash(u8"Open"), 1000);
       door2->SetSkill(prhash(u8"Enterable"), 1);
       door1->SetSkill(prhash(u8"Hidden"), 4 + rand() % 13);
@@ -697,11 +685,9 @@ void Object::DynamicInit1() { // Dwarven mine
       door1->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dir));
       door2->SetDesc(fmt::format(u8"You see a solid passage leading {}.\n", dirb));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
-      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
       door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
-      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(prhash(u8"Open"), 1000);
       door2->SetSkill(prhash(u8"Enterable"), 1);
     } break;
@@ -744,11 +730,9 @@ void Object::DynamicInit1() { // Dwarven mine
       door1->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir));
       door2->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dirb));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
-      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
       door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
-      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(prhash(u8"Open"), 1000);
       door2->SetSkill(prhash(u8"Enterable"), 1);
     } break;
@@ -790,11 +774,9 @@ void Object::DynamicInit1() { // Dwarven mine
       door1->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir2));
       door2->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir3));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
-      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
       door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
-      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(prhash(u8"Open"), 1000);
       door2->SetSkill(prhash(u8"Enterable"), 1);
     } break;
@@ -834,11 +816,9 @@ void Object::DynamicInit1() { // Dwarven mine
       door1->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir2));
       door2->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir3));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
-      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
       door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
-      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(prhash(u8"Open"), 1000);
       door2->SetSkill(prhash(u8"Enterable"), 1);
 
@@ -858,11 +838,9 @@ void Object::DynamicInit1() { // Dwarven mine
       door1->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir2));
       door2->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir3));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
-      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
       door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
-      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(prhash(u8"Open"), 1000);
       door2->SetSkill(prhash(u8"Enterable"), 1);
     } break;
@@ -918,11 +896,9 @@ void Object::DynamicInit1() { // Dwarven mine
       door1->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dir));
       door2->SetDesc(fmt::format(u8"You see a crumbling passage leading {}.\n", dirb));
       door1->AddAct(act_t::SPECIAL_LINKED, door2);
-      door1->AddAct(act_t::SPECIAL_MASTER, door2);
       door1->SetSkill(prhash(u8"Open"), 1000);
       door1->SetSkill(prhash(u8"Enterable"), 1);
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
-      door2->AddAct(act_t::SPECIAL_MASTER, door1);
       door2->SetSkill(prhash(u8"Open"), 1000);
       door2->SetSkill(prhash(u8"Enterable"), 1);
       door1->SetSkill(prhash(u8"Hidden"), 4 + rand() % 13);
