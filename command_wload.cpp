@@ -299,6 +299,7 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
       en_indoors.push_back(true);
     } else if (process(line, u8"start:")) {
       start_symbol = nextchar(line);
+    } else if (process(line, u8"product:")) {
     } else if (process(line, u8"ascii_map:")) {
       in_main_def = true;
     } else if (line.front() == '#') {
