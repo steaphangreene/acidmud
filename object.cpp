@@ -1634,12 +1634,11 @@ void Object::SendScore(Mind* m, Object* o) {
     m->Send(u8"\n");
   }
 
-  for (act_t actt = act_t::MAX; actt < act_t::SPECIAL_MAX; actt = act_t(int(actt) + 1)) {
-    if (ActTarg(actt)) {
-      m->Send(
-          CGRN u8"  {} -> {}\n" CNRM, act_str[static_cast<uint8_t>(actt)], ActTarg(actt)->Noun());
-    } else if (IsAct(actt)) {
-      m->Send(CGRN u8"  {}\n" CNRM, act_str[static_cast<uint8_t>(actt)]);
+  for (const auto a : act) {
+    if (a.act() >= act_t::MAX && a.obj()) {
+      m->Send(CGRN u8"  {} -> {}\n" CNRM, act_str[static_cast<uint8_t>(a.act())], a.obj()->Noun());
+    } else if (a.act() >= act_t::MAX) {
+      m->Send(CGRN u8"  {}\n" CNRM, act_str[static_cast<uint8_t>(a.act())]);
     }
   }
 
