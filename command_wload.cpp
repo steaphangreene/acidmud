@@ -68,6 +68,7 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
   uint8_t upper_level = 1;
 
   std::map<char8_t, std::vector<std::u8string>> rooms;
+  std::map<char8_t, std::vector<std::u8string>> roomtags;
   std::map<char8_t, std::u8string> doors;
   std::map<char8_t, std::u8string> doorterms;
   std::map<char8_t, bool> from_above;
@@ -114,13 +115,15 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
     } else if (process(line, u8"building:")) {
       char8_t sym = nextchar(line);
       if (process(line, u8":")) {
-        rooms[sym].emplace_back(line);
+        rooms[sym].emplace_back(getuntil(line, ':'));
+        roomtags[sym].emplace_back(line);
         indoors[sym] = true;
       }
     } else if (process(line, u8"place:")) {
       char8_t sym = nextchar(line);
       if (process(line, u8":")) {
-        rooms[sym].emplace_back(line);
+        rooms[sym].emplace_back(getuntil(line, ':'));
+        roomtags[sym].emplace_back(line);
       }
     } else if (process(line, u8"level:")) {
       char8_t sym = nextchar(line);
@@ -400,7 +403,7 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
           } else {
             objs[coord{x, y}].back()->SetSkill(prhash(u8"Translucent"), 1000);
           }
-          if (trees[room]) {
+          if (trees[room]) { // FIXME: Convert to a normal tag
             objs[coord{x, y}].back()->SetSkill(prhash(u8"Mature Trees"), 100);
           }
           if (start_symbol == room) {
@@ -408,10 +411,11 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
           }
         }
         std::u8string roomname = rooms[room][0];
-        if (rooms[room].size() > 1) {
+        std::u8string roomtag = roomtags[room][0];
+        if (rooms[room].size() > 1) { // FIXME: Same number means one of each.
           std::vector<std::u8string> out = {u8""};
           std::sample(rooms[room].begin(), rooms[room].end(), out.begin(), 1, gen);
-          roomname = out.front();
+          roomname = out.front(); // FIXME: Sync index with roomtags.
         }
         if (objs[coord{x, y}].size() > 1) {
           for (uint32_t f = 0; f < objs[coord{x, y}].size(); ++f) {
@@ -420,6 +424,8 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
                 u8"This is a building in {0}, on {1}.  {0} is nice.",
                 zone->ShortDesc(),
                 world->ShortDesc()));
+            objs[coord{x, y}].back()->SetLongDesc(roomtag); // TODO: Delete This
+            objs[coord{x, y}].back()->SetTags(roomtag);
             if (f > 0) {
               std::u8string_view stairname = u8"a stairway";
               if (stairnames.contains(room)) {
@@ -457,6 +463,10 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
           objs[coord{x, y}].back()->SetShortDesc(roomname);
           objs[coord{x, y}].back()->SetDesc(fmt::format(
               u8"This is {0}, on {1}.  {0} is nice.", zone->ShortDesc(), world->ShortDesc()));
+          if (roomtags.contains(room)) {
+            objs[coord{x, y}].back()->SetLongDesc(roomtags[room][0]); // TODO: Delete This
+            objs[coord{x, y}].back()->SetTags(roomtags[room][0]);
+          }
         }
 
         // Load data for housing capacities for these new objects
