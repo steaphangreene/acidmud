@@ -112,7 +112,7 @@ static std::map<std::u8string_view, NPCType> tagdefs = {
      {u8"a dwarven ",
       u8"a dwarven ",
       u8"{He} looks pissed.",
-      {gender_t::MALE, gender_t::FEMALE},
+      {gender_t::NEITHER},
       {2, 0, 1, 0, 0, 2},
       {2, -2, 1, -2, 0, 2},
       100,
