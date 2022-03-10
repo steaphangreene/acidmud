@@ -56,7 +56,7 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
 
   infile datafile(ent);
   if (!datafile) {
-    mind->Send(u8"Can't find (non-empty) definition file '{}'!\n", filename);
+    mind->Send(u8"Can't find definition file '{}'!\n", filename);
     return false;
   }
   std::u8string_view file = datafile.all();

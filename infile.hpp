@@ -34,7 +34,8 @@ class infile {
   ~infile();
 
  private:
-  std::u8string filedata_;
+  void* rawdata_ = nullptr;
+  size_t length_ = 0;
 };
 
 #endif // INFILE_HPP
