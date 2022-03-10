@@ -832,6 +832,8 @@ std::u8string Object::Pron() const {
     ret = u8"he";
   } else if (Gender() == gender_t::FEMALE) {
     ret = u8"she";
+  } else if (Gender() == gender_t::NEITHER) {
+    ret = u8"they";
   } else {
     ret = u8"it";
   }
@@ -844,6 +846,8 @@ std::u8string Object::Poss() const {
     ret = u8"his";
   } else if (Gender() == gender_t::FEMALE) {
     ret = u8"her";
+  } else if (Gender() == gender_t::NEITHER) {
+    ret = u8"their";
   } else {
     ret = u8"its";
   }
@@ -856,6 +860,8 @@ std::u8string Object::Obje() const {
     ret = u8"him";
   } else if (Gender() == gender_t::FEMALE) {
     ret = u8"her";
+  } else if (Gender() == gender_t::NEITHER) {
+    ret = u8"them";
   } else {
     ret = u8"it";
   }
@@ -879,6 +885,8 @@ std::u8string Object::Noun(bool definite, bool verbose, const Object* rel, const
     return u8"her";
   else if (rel == nullptr && sub == this && sub->Gender() == gender_t::MALE)
     return u8"him";
+  else if (rel == nullptr && sub == this && sub->Gender() == gender_t::NEITHER)
+    return u8"them";
   else if (rel == nullptr && sub == this)
     return u8"it";
 
@@ -886,6 +894,8 @@ std::u8string Object::Noun(bool definite, bool verbose, const Object* rel, const
     return u8"herself";
   else if (sub == this && sub->Gender() == gender_t::MALE)
     return u8"himself";
+  else if (sub == this && sub->Gender() == gender_t::NEITHER)
+    return u8"themself";
   else if (sub == this)
     return u8"itself";
 
@@ -911,6 +921,8 @@ std::u8string Object::Noun(bool definite, bool verbose, const Object* rel, const
       ret = fmt::format(u8"her {}", ret);
     } else if (own && own == sub && own->Gender() == gender_t::MALE) {
       ret = fmt::format(u8"his {}", ret);
+    } else if (own && own == sub && own->Gender() == gender_t::NEITHER) {
+      ret = fmt::format(u8"their {}", ret);
     } else if (own && own == sub) {
       ret = fmt::format(u8"its {}", ret);
     } else if (own) {
@@ -1344,6 +1356,8 @@ void Object::SendFullSituation(Mind* m, Object* o) {
       pname = u8"his";
     } else if (Owner()->Gender() == gender_t::FEMALE) {
       pname = u8"her";
+    } else if (Owner()->Gender() == gender_t::NEITHER) {
+      pname = u8"their";
     }
   }
 

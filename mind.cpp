@@ -895,6 +895,8 @@ bool Mind::TBAVarSub(std::u8string& edit) const {
               val = u8"male";
             else if (obj->Gender() == gender_t::FEMALE)
               val = u8"female";
+            else if (obj->Gender() == gender_t::NEITHER)
+              val = u8"other";
             else
               val = u8"none";
           }
