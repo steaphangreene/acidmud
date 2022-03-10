@@ -54,14 +54,15 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
     return false;
   }
 
-  std::u8string file(ent.file_size(), 0);
+  std::u8string filedata(ent.file_size(), 0);
   std::ifstream def_file(ent.path(), std::ios::in | std::ios::binary);
   if (!def_file.is_open()) {
     mind->Send(u8"Can't find definition file '{}'!\n", filename);
     return false;
   }
-  def_file.read(reinterpret_cast<char*>(file.data()), ent.file_size());
+  def_file.read(reinterpret_cast<char*>(filedata.data()), ent.file_size());
   def_file.close();
+  std::u8string_view file = filedata;
 
   std::u8string name = u8"Unknown Land";
   uint8_t lower_level = 0;
