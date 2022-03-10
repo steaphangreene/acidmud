@@ -404,7 +404,7 @@ void NPCType::SetShortDesc(const std::u8string_view& sds) {
   short_desc = sds;
 }
 
-void Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
+Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
   auto npcdef = base_npc;
   auto start = tags.cbegin();
   auto end = std::find(start, tags.cend(), ',');
@@ -421,10 +421,10 @@ void Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
       end = std::find(start, tags.cend(), ',');
     }
   }
-  AddNPC(gen, &npcdef, tags);
+  return AddNPC(gen, &npcdef, tags);
 }
 
-void Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8string_view& tags) {
+Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8string_view& tags) {
   Object* npc = new Object(this);
   npc->SetTags(tags);
 
@@ -472,9 +472,9 @@ void Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8string_
 
   if (type->min_gold > 0 || type->max_gold > 0) {
     std::uniform_int_distribution<int> gnum(type->min_gold, type->max_gold);
-    int gold = gnum(gen);
-    if (gold > 0) {
-      give_gold(npc, gold);
+    int num_gold = gnum(gen);
+    if (num_gold > 0) {
+      give_gold(npc, num_gold);
     }
   }
 
@@ -558,6 +558,7 @@ void Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8string_
       obj->SetPos(pos_t::LIE);
     }
   }
+  return npc;
 }
 
 WeaponType::WeaponType(

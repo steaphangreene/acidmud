@@ -779,8 +779,7 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
         int floor = empfloors[room][n];
         bool night = empnight[room][n];
         for (int m = 0; m < num; ++m) {
-          objs[coord{x, y}][floor]->AddNPC(gen, emptags[room][n]);
-          Object* npc = objs[coord{x, y}][floor]->Contents().back();
+          Object* npc = objs[coord{x, y}][floor]->AddNPC(gen, emptags[room][n]);
           npc->AddAct(act_t::SPECIAL_WORK, objs[coord{x, y}][floor]);
 
           std::set<int32_t> have_keys;
