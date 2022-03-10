@@ -103,6 +103,19 @@ inline int getnum(const std::u8string_view& in_line) {
   return nextnum(line);
 }
 
+inline std::u8string_view getuntil(std::u8string_view& line, char8_t delim) {
+  auto pos = line.find(delim);
+  if (pos == std::u8string_view::npos) {
+    auto ret = line;
+    line = u8"";
+    return ret;
+  } else {
+    auto ret = line.substr(0, pos);
+    line = line.substr(pos + 1);
+    return ret;
+  }
+}
+
 inline bool process(std::u8string_view& line, const std::u8string_view& dir) {
   if (line.starts_with(dir)) {
     line = line.substr(dir.length());
