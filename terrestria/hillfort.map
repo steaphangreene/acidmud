@@ -35,8 +35,7 @@ building:2:shop
 building:2:inn
 building:2:tavern
 house:2.1:2-4:dwarf,citizen
-house:2.1:0-1:dwarf,soldier
-house:2.1:0-1:dwarf,guard
+house:2.1:0-3:dwarf
 employ:2.0:1-2:dwarf,citizen
 building:1:The Hillfort Furnace:furnace,dwarven
 product:charcoal:100:100:furnace,master:wood:200:10
