@@ -413,6 +413,10 @@ class alignas(256) Object {
 
   int LightLevel(int updown = 0);
 
+  void SetTags(const std::u8string_view& tags);
+  void AddTag(uint64_t tag);
+  bool HasTag(uint64_t tag) const;
+
   void SpendExp(int);
   bool Accomplish(uint64_t, const std::u8string&);
   bool HasAccomplished(uint64_t) const;

@@ -3783,6 +3783,34 @@ int Object::Contains(const Object* obj) const {
   return (std::find(contents.begin(), contents.end(), obj) != contents.end());
 }
 
+void Object::SetTags(const std::u8string_view& tags_in) {
+  std::u8string_view tags = tags_in;
+  completed.clear();
+  std::u8string_view tag = getuntil(tags, ',');
+  while (tag.length() > 0 || tags.length() > 0) {
+    if (tag.length() > 0) {
+      completed.push_back(crc32c(tag));
+    }
+    tag = getuntil(tags, ',');
+  }
+}
+
+void Object::AddTag(uint64_t tag) {
+  if (HasTag(tag)) {
+    return;
+  }
+  completed.push_back(tag);
+}
+
+bool Object::HasTag(uint64_t tag) const {
+  for (auto comp : completed) {
+    if (comp == tag) {
+      return true;
+    }
+  }
+  return false;
+}
+
 void Object::SpendExp(int e) {
   sexp += e;
 }
@@ -3797,6 +3825,9 @@ bool Object::HasAccomplished(uint64_t acc) const {
 }
 
 bool Object::Accomplish(uint64_t acc, const std::u8string& why) {
+  if (!is_pc(this)) { // Only PCs use this for Accomplishments
+    return false;
+  }
   if (HasAccomplished(acc)) {
     return false;
   }
