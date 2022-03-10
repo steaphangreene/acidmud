@@ -308,8 +308,8 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
     }
 
     if (parse_error) {
-      mind->Send(u8"Bad definition file '{}'!\n", filename);
-      mind->Send(u8"Read: '{}'!\n", line);
+      mind->Send(CRED u8"Bad definition file '{}'!\n" CNRM, filename);
+      mind->Send(CRED u8"Read: '{}'!\n" CNRM, line);
       return false;
     }
   }
