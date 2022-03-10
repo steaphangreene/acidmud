@@ -38,19 +38,21 @@ house:2.1:2-4:dwarf,citizen
 house:2.1:0-1:dwarf,soldier
 house:2.1:0-1:dwarf,guard
 employ:2.0:1-2:dwarf,citizen
-building:1:The Hillfort Refinery
-building:1:The Hillfort Foundry
-building:1:The Hillfort Mint
-building:1:The Hillfort Smithy
-building:1:The Hillfort Armory
-building:1:The Hillfort Bladesmithy
-building:1:The Hillfort Woodmill
-building:1:The Hillfort Furnace
-building:1:The Hillfort Woodshop
-building:1:The Hillfort Inn
-building:1:The Hillfort Tavern
-building:1:The Hillfort Grocery
-employ:1:2-4:dwarf,citizen
+building:1:The Hillfort Furnace:furnace,dwarven
+product:charcoal:100:100:furnace,master:wood:200:10
+building:1:The Hillfort Refinery:refinery,dwarven
+building:1:The Hillfort Foundry:foundry,dwarven
+building:1:The Hillfort Mint:mint,dwarven
+building:1:The Hillfort Smithy:smithy,dwarven
+building:1:The Hillfort Armory:armory,dwarven
+building:1:The Hillfort Bladesmithy:bladesmithy,dwarven
+building:1:The Hillfort Woodmill:woodmill,dearven
+building:1:The Hillfort Woodshop:woodshop,dwarven
+building:1:The Hillfort Inn:inn,large,good,meals,dwarven
+building:1:The Hillfort Tavern:tavern,dwarven
+building:1:The Hillfort Grocery:store,food,human
+employ:1:1:dwarf,master
+employ:1:1-3:dwarf,citizen
 place:0:a market stall
 employ:0:1-2:dwarf,citizen
 place:+:stone street
