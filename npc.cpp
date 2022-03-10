@@ -367,11 +367,12 @@ void Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
       end = std::find(start, tags.cend(), ',');
     }
   }
-  return AddNPC(gen, &npcdef);
+  AddNPC(gen, &npcdef, tags);
 }
 
-void Object::AddNPC(std::mt19937& gen, const NPCType* type) {
+void Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8string_view& tags) {
   Object* npc = new Object(this);
+  npc->SetTags(tags);
 
   if (npc->World()) {
     auto obj_id = npc->World()->Skill(prhash(u8"Last Object ID")) + 1;
