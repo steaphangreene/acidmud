@@ -406,10 +406,10 @@ int Mind::TBAEval(std::u8string expr) const {
     return !ret; //! Numeric
 
   Object* holder;
-  sscanf(base.c_str(), u8" OBJ:%p %n", &holder, &len);
+  sscanf(base.c_str(), u8" obj:%p %n", &holder, &len);
   if (len == int(base.length()))
     return (holder != nullptr); // Object
-  sscanf(base.c_str(), u8" ! OBJ:%p %n", &holder, &len);
+  sscanf(base.c_str(), u8" ! obj:%p %n", &holder, &len);
   if (len == int(base.length()))
     return (holder == nullptr); //! Object
 
@@ -1490,7 +1490,7 @@ bool Mind::TBAVarSub(std::u8string& edit) const {
     else if (line[end] == '%')
       ++end;
     if (is_obj) {
-      edit.replace(cur, end - cur, fmt::format(u8"OBJ:{}", reinterpret_cast<void*>(obj)));
+      edit.replace(cur, end - cur, fmt::format(u8"obj:{}", reinterpret_cast<void*>(obj)));
     } else { // std::u8string OR u8""
       edit.replace(cur, end - cur, val);
     }
@@ -1631,9 +1631,9 @@ int Mind::TBARunLine(std::u8string line) {
             }
             val = TBAComp(val);
           }
-          if (val.starts_with(u8"OBJ:")) { // Encoded Object
+          if (val.starts_with(u8"obj:")) { // Encoded Object
             ovars[var] = nullptr;
-            sscanf(val.c_str(), u8"OBJ:%p", &(ovars[var]));
+            sscanf(val.c_str(), u8"obj:%p", &(ovars[var]));
             svars.erase(var);
           } else {
             svars[var] = val;
@@ -1743,7 +1743,7 @@ int Mind::TBARunLine(std::u8string line) {
 
   else if (line.starts_with(u8"context ")) {
     Object* con = nullptr;
-    if (sscanf(line.c_str() + 8, u8" OBJ:%p", &con) >= 1 && con != nullptr) {
+    if (sscanf(line.c_str() + 8, u8" obj:%p", &con) >= 1 && con != nullptr) {
       ovars[u8"context"] = con;
     } else {
       loger(u8"#{} Error: No Context Object '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
@@ -1754,7 +1754,7 @@ int Mind::TBARunLine(std::u8string line) {
   else if (line.starts_with(u8"rdelete ")) {
     Object* con = nullptr;
     char8_t var[256] = u8"";
-    if (sscanf(line.c_str() + 7, u8" %s OBJ:%p", var, &con) >= 2 && con != nullptr) {
+    if (sscanf(line.c_str() + 7, u8" %s obj:%p", var, &con) >= 2 && con != nullptr) {
       con->SetSkill(fmt::format(u8"TBA:{}", var), 0);
       if (con->IsAnimate()) {
         con->Accomplish(body->Skill(prhash(u8"Accomplishment")), u8"completing a quest");
@@ -1773,7 +1773,7 @@ int Mind::TBARunLine(std::u8string line) {
   else if (!!line.starts_with(u8"remote ")) {
     Object* con = nullptr;
     char8_t var[256] = u8"";
-    if (sscanf(line.c_str() + 7, u8" %s OBJ:%p", var, &con) >= 2 && con != nullptr) {
+    if (sscanf(line.c_str() + 7, u8" %s obj:%p", var, &con) >= 2 && con != nullptr) {
       if (svars.count(var) > 0) {
         int val = getnum(svars[var]);
         con->SetSkill(fmt::format(u8"TBA:{}", var), val);
@@ -2050,7 +2050,7 @@ int Mind::TBARunLine(std::u8string line) {
   else if (line.starts_with(u8"echoaround ")) {
     Object* targ = nullptr;
     char8_t buf[256] = u8"";
-    sscanf(line.c_str() + 11, u8" OBJ:%p %254[^\n\r]", &targ, buf);
+    sscanf(line.c_str() + 11, u8" obj:%p %254[^\n\r]", &targ, buf);
     std::u8string mes(buf);
     mes.push_back('\n');
     Object* troom = targ;
@@ -2073,7 +2073,7 @@ int Mind::TBARunLine(std::u8string line) {
   else if (line.starts_with(u8"send ")) {
     Object* targ = nullptr;
     char8_t buf[1024] = u8"";
-    sscanf(line.c_str() + 5, u8" OBJ:%p %1022[^\n\r]", &targ, buf);
+    sscanf(line.c_str() + 5, u8" obj:%p %1022[^\n\r]", &targ, buf);
     std::u8string mes(buf);
     mes.push_back('\n');
     if (targ)
@@ -2083,7 +2083,7 @@ int Mind::TBARunLine(std::u8string line) {
   else if (line.starts_with(u8"force ")) {
     Object* targ = nullptr;
     char8_t tstr[256] = u8"", tcmd[1024] = u8"";
-    if (sscanf(line.c_str() + 6, u8" OBJ:%p %1023[^\n\r]", &targ, tcmd) < 2) {
+    if (sscanf(line.c_str() + 6, u8" obj:%p %1023[^\n\r]", &targ, tcmd) < 2) {
       if (sscanf(line.c_str() + 6, u8" %255s %1023[^\n\r]", tstr, tcmd) >= 2) {
         targ = room->PickObject(tstr, LOC_NINJA | LOC_INTERNAL);
       }
@@ -2371,7 +2371,7 @@ int Mind::TBARunLine(std::u8string line) {
 
   else if (line.starts_with(u8"purge")) {
     Object* targ = nullptr;
-    sscanf(line.c_str() + 5, u8" OBJ:%p", &targ);
+    sscanf(line.c_str() + 5, u8" obj:%p", &targ);
     if (targ) {
       if (!is_pc(targ))
         targ->Recycle();
@@ -2556,7 +2556,7 @@ int Mind::TBARunLine(std::u8string line) {
       std::u8string cline = u8"shout " + spell;
       if (splen + 1 < line.length()) {
         Object* targ;
-        if (sscanf(line.c_str() + splen + 1, u8" OBJ:%p", &targ) > 0) {
+        if (sscanf(line.c_str() + splen + 1, u8" obj:%p", &targ) > 0) {
           ovars[u8"self"]->AddAct(act_t::POINT, targ);
         }
       }
@@ -2955,7 +2955,7 @@ bool Mind::Think(int istick) {
     // Temporary
     if (body && body->ActTarg(act_t::WEAR_SHIELD) && (!body->IsAct(act_t::HOLD))) {
       std::u8string command =
-          fmt::format(u8"hold OBJ:{}", static_cast<void*>(body->ActTarg(act_t::WEAR_SHIELD)));
+          fmt::format(u8"hold obj:{}", static_cast<void*>(body->ActTarg(act_t::WEAR_SHIELD)));
       body->BusyFor(500, command);
       return true;
     } else if (
@@ -2966,7 +2966,7 @@ bool Mind::Think(int istick) {
         if (body->Parent())
           body->Parent()->SendOut(ALL, 0, u8";s stashes ;s.\n", u8"", body, targ);
         std::u8string command =
-            fmt::format(u8"hold OBJ:{}", static_cast<void*>(body->ActTarg(act_t::WEAR_SHIELD)));
+            fmt::format(u8"hold obj:{}", static_cast<void*>(body->ActTarg(act_t::WEAR_SHIELD)));
         body->BusyFor(500, command);
       } else {
         // loge(u8"Warning: {} can't use his shield!\n", body->Noun());
@@ -2990,7 +2990,7 @@ bool Mind::Think(int istick) {
             && (!other->IsAct(act_t::DYING)) // It's not already dying
             && (!other->IsAct(act_t::DEAD)) // It's not already dead
         ) {
-          std::u8string command = fmt::format(u8"attack OBJ:{}", static_cast<void*>(other));
+          std::u8string command = fmt::format(u8"attack obj:{}", static_cast<void*>(other));
           body->BusyFor(500, command);
           // loge(u8"{}: Tried '{}'\n", body->ShortDesc(), command);
           return true;
@@ -3026,7 +3026,7 @@ bool Mind::Think(int istick) {
             && (!other->IsAct(act_t::DYING)) // It's not already dying
             && (!other->IsAct(act_t::DEAD)) // It's not already dead
         ) {
-          std::u8string command = fmt::format(u8"attack OBJ:{}", static_cast<void*>(other));
+          std::u8string command = fmt::format(u8"attack obj:{}", static_cast<void*>(other));
           body->BusyFor(500, command);
           // loge(u8"{}: Tried '{}'\n", body->ShortDesc(), command);
           return true;
@@ -3063,7 +3063,7 @@ bool Mind::Think(int istick) {
             //...against another MOB
         ) {
           std::u8string command =
-              fmt::format(u8"call ALARM; attack OBJ:{}", static_cast<void*>(other));
+              fmt::format(u8"call ALARM; attack obj:{}", static_cast<void*>(other));
           body->BusyFor(500, command);
           // loge(u8"{}: Tried '{}'\n", body->ShortDesc(), command);
           return true;
