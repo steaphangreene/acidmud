@@ -25,11 +25,11 @@
 
 #include "md5.hpp"
 
-#include "cchar8.hpp"
 #include "color.hpp"
 #include "log.hpp"
 #include "net.hpp"
 #include "player.hpp"
+#include "utils.hpp"
 #include "version.hpp"
 
 static std::map<std::u8string, Player*> player_list;
@@ -241,31 +241,35 @@ Player* player_login(std::u8string name, std::u8string pass) {
   return pl;
 }
 
-static char8_t buf[65536];
-int Player::LoadFrom(FILE* fl) {
-  memset(buf, 0, 65536);
-  fscanf(fl, u8"%s\n", buf);
-  SetName(buf);
-  memset(buf, 0, 65536);
-  fscanf(fl, u8"%s\n", buf);
-  pass = buf;
+int Player::LoadFrom(std::u8string_view& fl) {
+  SetName(std::u8string(getuntil(fl, '\n')));
+  skipspace(fl);
+  pass = getuntil(fl, '\n');
+  skipspace(fl);
 
   // Player experience - obsolete, ignored
-  fscanf(fl, u8":%*d");
-  while (fscanf(fl, u8";%*d") > 0) {
+  nextchar(fl); // Skip Colon
+  nextnum(fl); // Skip Number
+
+  char8_t delim = nextchar(fl);
+  while (delim == ';') {
+    nextnum(fl);
     // Do nothing - ignore these
+    delim = nextchar(fl);
+  }
+  if (delim == ':') {
+    flags = nexthex(fl);
   }
 
-  fscanf(fl, u8":%lX\n", &flags);
-
-  int num;
-  while (fscanf(fl, u8":%d\n", &num) > 0) {
-    AddChar(getbynum(num));
+  while (nextchar(fl) == ':') {
+    AddChar(getbynum(nextnum(fl)));
   }
 
   // Won't be present previous to v0x02, but that's ok, will work fine anyway
-  while (fscanf(fl, u8"\n;%32767[^:]:%32767[^; \t\n\r]", buf, buf + 32768) >= 2) {
-    vars[buf] = (buf + 32768);
+  while (nextchar(fl) == ';') {
+    auto varname = getuntil(fl, ':');
+    nextchar(fl); // Skip the ':'
+    vars[std::u8string(varname)] = getuntil(fl, ';');
   }
   return 0;
 }
@@ -273,13 +277,15 @@ int Player::LoadFrom(FILE* fl) {
 int load_players(const std::u8string& fn) {
   loge(u8"Loading Players.\n");
 
-  FILE* fl = fopen(fn.c_str(), u8"r");
-  if (!fl)
+  infile file(fn);
+  if (!file)
     return -1;
+  std::u8string_view fl = file.all();
 
-  int num;
-  unsigned int ver;
-  fscanf(fl, u8"%X\n%d\n", &ver, &num);
+  unsigned int ver = nexthex(fl);
+  skipspace(fl);
+  int num = nextnum(fl);
+  skipspace(fl);
 
   loge(u8"Loading Players: {},{}\n", ver, num);
 
@@ -289,8 +295,6 @@ int load_players(const std::u8string& fn) {
     pl->LoadFrom(fl);
     // loge(u8"Loaded Player: {}\n", pl->Name());
   }
-
-  fclose(fl);
   return 0;
 }
 

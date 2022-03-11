@@ -23,6 +23,7 @@
 #include <set>
 #include <vector>
 
+#include "infile.hpp"
 #include "object.hpp"
 #include "outfile.hpp"
 
@@ -70,7 +71,7 @@ class Player {
     flags &= (~f);
   };
   int SaveTo(const outfile&);
-  int LoadFrom(FILE*);
+  int LoadFrom(std::u8string_view&);
   std::u8string Name() {
     return name;
   }
