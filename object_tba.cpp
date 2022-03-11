@@ -175,18 +175,19 @@ void Object::TBACleanup() {
 void Object::TBAFinalizeTriggers() {
   for (auto trg : todotrg) {
     std::u8string newtext = u8"Powers List:\n";
-    auto cur = trg->LongDesc().find(u8"teleport [");
-    while (cur != std::u8string::npos) {
-      int rnum;
+    std::u8string_view script = trg->LongDesc();
+    auto cur = script.find(u8"teleport [");
+    while (cur != std::u8string_view::npos) {
+      script = script.substr(cur + 10);
       trg->Parent()->SetSkill(prhash(u8"Teleport"), 10);
       trg->Parent()->SetSkill(prhash(u8"Restricted Item"), 1);
-      sscanf(trg->LongDescC() + cur, u8"teleport [%d]\n", &rnum);
+      int rnum = nextnum(script);
       if (bynumwld.count(rnum) > 0) {
         newtext += std::u8string(u8"teleport ") + bynumwld[rnum]->Noun() + u8"\n";
       } else {
         loge(u8"Error: Can't find teleport dest: {}\n", rnum);
       }
-      cur = trg->LongDesc().find(u8"teleport [", cur + 9);
+      cur = script.find(u8"teleport [");
     }
     if (newtext != u8"Powers List:\n") {
       trg->Parent()->SetLongDesc(newtext);
@@ -2764,12 +2765,12 @@ void Object::TBALoadTRG(const std::u8string& fn) { // Triggers
         // char8_t dir[16];
         // char8_t* dirp = str:str(buf, u8"if %direction% == ");
         // if (dirp)
-        //  sscanf(dirp + str:len(u8"if %direction% == "), u8"%s", dir);
+        //  ssc:anf(dirp + str:len(u8"if %direction% == "), u8"%s", dir);
 
         // char8_t cls[16];
         // char8_t* clsp = str:str(buf, u8"if %actor.class% != ");
         // if (clsp)
-        //  sscanf(clsp + str:len(u8"if %actor.class% != "), u8"%s", cls);
+        //  ssc:anf(clsp + str:len(u8"if %actor.class% != "), u8"%s", cls);
 
         // if (dirp) {
         //  if (clsp) {
