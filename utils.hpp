@@ -111,6 +111,26 @@ inline int getnum(const std::u8string_view& in_line) {
   return nextnum(line);
 }
 
+inline int nexthex(std::u8string_view& line) {
+  int ret = 0;
+  bool negative = false;
+  if (line.front() == '-') {
+    line = line.substr(1);
+    negative = true;
+  }
+  while (ascii_ishexdigit(line.front())) {
+    ret *= 16;
+    ret += (ascii_isdigit(line.front())) ? (line.front() - '0') : ((line.front() | 32) - 'a' + 10);
+    line = line.substr(1);
+  }
+  return (negative) ? -ret : ret;
+}
+
+inline int gethex(const std::u8string_view& in_line) {
+  std::u8string_view line(in_line);
+  return nexthex(line);
+}
+
 inline std::u8string_view getuntil(std::u8string_view& line, char8_t delim) {
   auto pos = line.find(delim);
   if (pos == std::u8string_view::npos) {
