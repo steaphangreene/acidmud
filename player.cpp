@@ -135,8 +135,6 @@ static std::u8string md5_crypt(std::u8string pass, std::u8string salt) {
 }
 
 Player::Player(std::u8string nm, std::u8string ps) {
-  flags = 0;
-
   room = new Object();
   creator = nullptr;
   world = nullptr;

@@ -38,6 +38,7 @@ class Player;
 
 class Player {
  public:
+  Player() = delete;
   Player(std::u8string nm, std::u8string ps);
   ~Player();
   void SetName(std::u8string);
@@ -61,13 +62,13 @@ class Player {
     world = o;
     creator = nullptr;
   };
-  int Is(unsigned long f) {
-    return (flags & f);
+  bool Is(uint64_t f) {
+    return ((flags & f) != 0);
   };
-  void Set(unsigned long f) {
+  void Set(uint64_t f) {
     flags |= f;
   };
-  void UnSet(unsigned long f) {
+  void UnSet(uint64_t f) {
     flags &= (~f);
   };
   int SaveTo(const outfile&);
@@ -87,7 +88,7 @@ class Player {
   std::map<std::u8string, Object*> body;
   std::u8string name, pass;
   Object *room, *creator, *world;
-  unsigned long flags;
+  uint64_t flags = 0;
   std::map<std::u8string, std::u8string> vars;
 
   friend Player* player_login(std::u8string name, std::u8string pass);
