@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "object.hpp"
+#include "outfile.hpp"
 
 class Player;
 
@@ -68,7 +69,7 @@ class Player {
   void UnSet(unsigned long f) {
     flags &= (~f);
   };
-  int SaveTo(FILE*);
+  int SaveTo(const outfile&);
   int LoadFrom(FILE*);
   std::u8string Name() {
     return name;

@@ -294,29 +294,29 @@ int load_players(const std::u8string& fn) {
   return 0;
 }
 
-int Player::SaveTo(FILE* fl) {
-  fprintf(fl, u8"%s\n%s\n", name.c_str(), pass.c_str());
+int Player::SaveTo(const outfile& fl) {
+  fl.append(u8"{}\n{}\n", name, pass);
 
-  fprintf(fl, u8":0"); // Player experience, obsolete, always zero
+  fl.append(u8":0"); // Player experience, obsolete, always zero
 
-  fprintf(fl, u8":%lX", flags);
-  fprintf(fl, u8"%s\n", room->WriteContents().c_str());
+  fl.append(u8":{:X}", flags);
+  fl.append(u8"{}\n", room->WriteContents().c_str());
 
   for (auto var : vars) {
-    fprintf(fl, u8";%s:%s", var.first.c_str(), var.second.c_str());
+    fl.append(u8";{}:{}", var.first.c_str(), var.second.c_str());
   }
-  fprintf(fl, u8"\n");
+  fl.append(u8"\n");
   return 0;
 }
 
 int save_players(const std::u8string& fn) {
-  FILE* fl = fopen(fn.c_str(), u8"w");
+  outfile fl(fn);
   if (!fl)
     return -1;
 
-  fprintf(fl, u8"%.8X\n", CurrentVersion.savefile_version_player);
+  fl.append(u8"{:08X}\n", CurrentVersion.savefile_version_player);
 
-  fprintf(fl, u8"%d\n", (int)(player_list.size() - non_init.size()));
+  fl.append(u8"{}\n", player_list.size() - non_init.size());
 
   for (auto pl : player_list) {
     if (non_init.count(pl.second) == 0) {
@@ -324,8 +324,6 @@ int save_players(const std::u8string& fn) {
         return -1;
     }
   }
-
-  fclose(fl);
   return 0;
 }
 
