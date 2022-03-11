@@ -91,8 +91,8 @@ inline char8_t nextchar(std::u8string_view& line) {
   return ret;
 }
 
-inline int nextnum(std::u8string_view& line) {
-  int ret = 0;
+inline int64_t nextnum(std::u8string_view& line) {
+  int64_t ret = 0;
   bool negative = false;
   if (line.front() == '-') {
     line = line.substr(1);
@@ -106,27 +106,22 @@ inline int nextnum(std::u8string_view& line) {
   return (negative) ? -ret : ret;
 }
 
-inline int getnum(const std::u8string_view& in_line) {
+inline int64_t getnum(const std::u8string_view& in_line) {
   std::u8string_view line(in_line);
   return nextnum(line);
 }
 
-inline int nexthex(std::u8string_view& line) {
-  int ret = 0;
-  bool negative = false;
-  if (line.front() == '-') {
-    line = line.substr(1);
-    negative = true;
-  }
+inline uint64_t nexthex(std::u8string_view& line) {
+  uint64_t ret = 0;
   while (ascii_ishexdigit(line.front())) {
     ret *= 16;
     ret += (ascii_isdigit(line.front())) ? (line.front() - '0') : ((line.front() | 32) - 'a' + 10);
     line = line.substr(1);
   }
-  return (negative) ? -ret : ret;
+  return ret;
 }
 
-inline int gethex(const std::u8string_view& in_line) {
+inline uint64_t gethex(const std::u8string_view& in_line) {
   std::u8string_view line(in_line);
   return nexthex(line);
 }
