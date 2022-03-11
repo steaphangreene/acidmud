@@ -23,8 +23,6 @@
 #define CCHAR8_HPP
 
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
 
 auto fopen(auto&& fn, auto&& md) {
   return std::fopen(reinterpret_cast<const char*>(fn), reinterpret_cast<const char*>(md));

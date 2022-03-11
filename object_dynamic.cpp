@@ -24,7 +24,6 @@
 #include <random>
 #include <string>
 
-#include "cchar8.hpp"
 #include "color.hpp"
 #include "commands.hpp"
 #include "log.hpp"

@@ -24,7 +24,6 @@
 #include <string>
 #include <vector>
 
-#include "cchar8.hpp"
 #include "color.hpp"
 #include "log.hpp"
 #include "object.hpp"

@@ -22,7 +22,6 @@
 #include <cassert>
 #include <climits>
 #include <cmath>
-#include <cstdint>
 #include <initializer_list>
 #include <string>
 #include <type_traits>

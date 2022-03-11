@@ -25,7 +25,6 @@
 #include <unistd.h>
 
 #include <algorithm>
-#include <cstdarg>
 #include <filesystem>
 #include <limits>
 #include <random>

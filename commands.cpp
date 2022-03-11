@@ -19,8 +19,6 @@
 //
 // *************************************************************************
 
-#include <ctype.h>
-#include <unistd.h>
 #include <algorithm>
 #include <string>
 #include <vector>

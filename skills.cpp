@@ -26,7 +26,6 @@
 #include <map>
 #include <vector>
 
-#include "cchar8.hpp"
 #include "log.hpp"
 #include "properties.hpp"
 #include "stats.hpp"

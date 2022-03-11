@@ -22,7 +22,6 @@
 #include <algorithm>
 #include <random>
 
-#include "cchar8.hpp"
 #include "commands.hpp"
 #include "mind.hpp"
 #include "object.hpp"

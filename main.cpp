@@ -28,7 +28,6 @@
 #include <getopt.h>
 #include <sys/time.h>
 #include <unistd.h>
-#include <cerrno>
 #include <csignal>
 #include <ctime>
 
@@ -38,7 +37,6 @@
 #endif
 #endif
 
-#include "cchar8.hpp"
 #include "color.hpp"
 #include "log.hpp"
 #include "net.hpp"

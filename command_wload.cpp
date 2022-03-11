@@ -23,7 +23,6 @@
 #include <filesystem>
 #include <random>
 
-#include "cchar8.hpp"
 #include "color.hpp"
 #include "commands.hpp"
 #include "infile.hpp"

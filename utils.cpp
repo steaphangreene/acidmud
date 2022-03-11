@@ -26,7 +26,6 @@
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
-#include "cchar8.hpp"
 #include "color.hpp"
 #include "utils.hpp"
 
