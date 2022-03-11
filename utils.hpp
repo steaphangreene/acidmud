@@ -129,6 +129,12 @@ inline bool process(std::u8string_view& line, const std::u8string_view& dir) {
   }
 }
 
+inline void skipspace(std::u8string_view& line) {
+  while (line.length() > 0 && ascii_isspace(line[0])) {
+    line = line.substr(1);
+  }
+}
+
 inline std::u8string_view next_line(const std::u8string_view& file, auto& cursor) {
   if (cursor == std::u8string::npos) {
     return u8"";
