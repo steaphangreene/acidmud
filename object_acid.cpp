@@ -21,7 +21,6 @@
 
 #include <map>
 
-#include "cchar8.hpp"
 #include "color.hpp"
 #include "infile.hpp"
 #include "log.hpp"
