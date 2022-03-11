@@ -37,7 +37,6 @@
 
 typedef int socket_t;
 
-#include "cchar8.hpp"
 #include "commands.hpp"
 #include "log.hpp"
 #include "mind.hpp"
@@ -385,40 +384,48 @@ int save_net(const std::u8string& fn) {
 }
 
 int load_net(const std::u8string& fn) {
-  loge(u8"Loading Network State.\n");
+  { // Scope the infile so it shuts down before we delete the file.
+    loge(u8"Loading Network State.\n");
 
-  static char8_t buf[65536];
+    infile file(fn);
+    if (!file)
+      return -1;
+    std::u8string_view fl = file.all();
 
-  FILE* fl = fopen(fn.c_str(), u8"r");
-  if (!fl)
-    return -1;
+    unsigned int ver = nexthex(fl);
+    skipspace(fl);
+    int num = nextnum(fl);
+    skipspace(fl);
 
-  int num;
-  unsigned int ver;
-  fscanf(fl, u8"%X\n%d\n", &ver, &num);
+    loge(u8"Loading Net State: {:08X},{}\n", ver, num);
 
-  loge(u8"Loading Net State: {:08X},{}\n", ver, num);
+    for (int ctr = 0; ctr < num; ++ctr) {
+      int newsock, bod, log = -1;
+      newsock = nextnum(fl);
 
-  for (int ctr = 0; ctr < num; ++ctr) {
-    int newsock, bod, log = -1;
-    fscanf(fl, u8"%d;%d", &newsock, &log);
-    reconnect_sock(newsock, log);
-
-    memset(buf, 0, 65536);
-    if (fscanf(fl, u8":%[^:\n]", buf) > 0) {
-      minds[newsock]->SetPlayer(buf);
-      if (fscanf(fl, u8":%d", &bod) > 0) {
-        loge(u8"Reattaching {} to {} in {}\n", newsock, buf, bod);
-        minds[newsock]->Attach(getbynum(bod));
-      } else {
-        loge(u8"Reattaching {} to {}\n", newsock, buf);
+      char8_t delim = nextchar(fl);
+      if (delim == ';') {
+        log = nextnum(fl);
+        delim = nextchar(fl);
       }
-    } else {
-      loge(u8"Reattaching {} (resume login)\n", newsock);
+      reconnect_sock(newsock, log);
+
+      if (delim == ':') {
+        std::u8string_view line = getuntil(fl, '\n');
+        auto player = getuntil(line, ':');
+        minds[newsock]->SetPlayer(std::u8string(player));
+        if (line.length() > 0) {
+          bod = nextnum(line);
+          loge(u8"Reattaching {} to {} in {}\n", newsock, player, bod);
+          minds[newsock]->Attach(getbynum(bod));
+        } else {
+          loge(u8"Reattaching {} to {}\n", newsock, player);
+        }
+      } else {
+        loge(u8"Reattaching {} (resume login)\n", newsock);
+      }
     }
   }
-
-  fclose(fl);
   std::filesystem::remove(fn);
   return 0;
 }
