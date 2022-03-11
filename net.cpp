@@ -43,6 +43,7 @@ typedef int socket_t;
 #include "mind.hpp"
 #include "net.hpp"
 #include "object.hpp"
+#include "outfile.hpp"
 #include "utils.hpp"
 #include "version.hpp"
 
@@ -350,37 +351,33 @@ int suspend_net() {
 int save_net(const std::u8string& fn) {
   loge(u8"Saving Network State.\n");
 
-  FILE* fl = fopen(fn.c_str(), u8"w");
+  outfile fl(fn);
   if (!fl)
     return -1;
 
-  fprintf(fl, u8"%.8X\n", CurrentVersion.savefile_version_net);
+  fl.append(u8"{:08X}\n", CurrentVersion.savefile_version_net);
 
-  fprintf(fl, u8"%d\n", (int)(fds.size()));
+  fl.append(u8"{}\n", (int)(fds.size()));
 
   for (auto sk : fds) {
     if (!(minds[sk]->Owner() || minds[sk]->Body())) {
-      fprintf(fl, u8"%d\n", sk);
+      fl.append(u8"{}\n", sk);
     } else if ((!(minds[sk]->Body())) && minds[sk]->LogFD() >= 0) {
-      fprintf(fl, u8"%d;%d:%s\n", sk, minds[sk]->LogFD(), minds[sk]->Owner()->Name().c_str());
+      fl.append(u8"{};{}:{}\n", sk, minds[sk]->LogFD(), minds[sk]->Owner()->Name());
     } else if (!(minds[sk]->Body())) {
-      fprintf(fl, u8"%d:%s\n", sk, minds[sk]->Owner()->Name().c_str());
+      fl.append(u8"{}:{}\n", sk, minds[sk]->Owner()->Name());
     } else if (minds[sk]->LogFD() >= 0) {
-      fprintf(
-          fl,
-          u8"%d;%d:%s:%d\n",
+      fl.append(
+          u8"{};{}:{}:{}\n",
           sk,
           minds[sk]->LogFD(),
-          minds[sk]->Owner()->Name().c_str(),
+          minds[sk]->Owner()->Name(),
           getonum(minds[sk]->Body()));
     } else {
-      fprintf(
-          fl, u8"%d:%s:%d\n", sk, minds[sk]->Owner()->Name().c_str(), getonum(minds[sk]->Body()));
+      fl.append(u8"{}:{}:{}\n", sk, minds[sk]->Owner()->Name(), getonum(minds[sk]->Body()));
     }
   }
   sleep(1); // Make sure messages really get flushed!
-
-  fclose(fl);
 
   loge(u8"Saved Network State.\n");
 
