@@ -29,11 +29,13 @@ class infile {
  public:
   infile() = delete;
   infile(const std::filesystem::directory_entry& filesystem_entry);
+  infile(const std::u8string_view filename);
   operator bool() const;
   std::u8string_view all() const;
   ~infile();
 
  private:
+  void init(const std::filesystem::directory_entry& filesystem_entry);
   void* rawdata_ = nullptr;
   size_t length_ = 0;
 };
