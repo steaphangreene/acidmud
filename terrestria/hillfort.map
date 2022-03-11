@@ -67,7 +67,7 @@ level:::2
 employ:::0-1:dwarf,soldier
 night:::0-1:dwarf,soldier
 door:o:heavy wooden door
-lock:o:resident
+lock:o:resident,worker
 key:o:an iron key
 door:g:solid iron door
 lock:g:common,soldier,guard
@@ -76,7 +76,7 @@ locked:g
 closed:g
 door:l:heavy iron gate
 doorterm:l:gate
-lock:l:common,dwarven
+lock:l:common,dwarf
 key:l:a heavy iron key
 locked:l
 closed:l
@@ -105,9 +105,9 @@ ascii_map:
     I |     |     |     | I                                                               I |     |     |     | I
     4g+o2 2o+o2 2o+o2 2o+g4                                                               4g+o2 2o+o2 2o+o2 2o+g4
 0 0 I |  1  |  1  |  1  | I                                                               I |  1  |  1  |  1  | I 0 0
-| | I |  |  |  |  |  |  | I                                                               I |  |  |  |  |  |  | I | |
+| | I |  o  |  o  |  o  | I                                                               I |  o  |  o  |  o  | I | |
 @-#p3p#--#--#--#--#--#--#p3p=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=p3p#--#--#--#--#--#--#p3p#-@
-| | I |  |  |  |  |  |  | I                                                               I |  |  |  |  |  |  | I | |
+| | I |  o  |  o  |  o  | I                                                               I |  o  |  o  |  o  | I | |
 0 0 I |  1  |  1  |  1  | I                                                               I |  1  |  1  |  1  | I 0 0
     4g+o2 2o+o2 2o+o2 2o+g4                                                               4g+o2 2o+o2 2o+o2 2o+g4
     I |     |     |     | I                                                               I |     |     |     | I
