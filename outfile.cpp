@@ -30,11 +30,17 @@ outfile::outfile(const std::u8string_view filename) {
   fd = open(path.c_str(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
   if (fd < 0) {
     perror("outfile::init() open()");
+  } else {
+    buffer.reserve(65536);
   }
 }
 
-void outfile::append(const std::u8string_view& mes) const {
-  write(fd, mes.data(), mes.length());
+void outfile::append(const std::u8string_view& mes) {
+  buffer += mes;
+  while (buffer.length() > 4096) {
+    write(fd, buffer.data(), 4096);
+    buffer = buffer.substr(4096);
+  }
 }
 
 outfile::operator bool() const {
@@ -42,5 +48,6 @@ outfile::operator bool() const {
 }
 
 outfile::~outfile() {
+  write(fd, buffer.data(), buffer.length());
   close(fd);
 }

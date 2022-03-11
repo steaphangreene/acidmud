@@ -104,7 +104,7 @@ int Object::Save(const std::u8string& fn) {
   return 0;
 }
 
-int Object::SaveTo(const outfile& fl) {
+int Object::SaveTo(outfile& fl) {
   // loge(u8"Saving {}\n", Name());
 
   fl.append(u8"{}\n", getonum(this));

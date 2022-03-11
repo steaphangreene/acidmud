@@ -34,14 +34,15 @@ class outfile {
   outfile() = delete;
   outfile(const std::u8string_view filename);
   operator bool() const;
-  void append(const std::u8string_view& mes) const;
+  void append(const std::u8string_view& mes);
   template <typename... Args>
-  void append(const std::u8string_view& mes, Args&&... args) const {
+  void append(const std::u8string_view& mes, Args&&... args) {
     append(fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)));
   };
   ~outfile();
 
  private:
+  std::u8string buffer;
   int fd;
 };
 

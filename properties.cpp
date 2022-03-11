@@ -43,7 +43,7 @@ static std::vector<std::pair<uint32_t, std::u8string>> skill_defs(
     skill_defs_array.begin(),
     skill_defs_array.end());
 
-void save_prop_names_to(const outfile& fl) {
+void save_prop_names_to(outfile& fl) {
   std::sort(skill_defs.begin(), skill_defs.end());
   skill_defs.erase(std::unique(skill_defs.begin(), skill_defs.end()), skill_defs.end());
   fl.append(u8"{}\n", skill_defs.size());

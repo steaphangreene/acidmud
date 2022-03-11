@@ -296,7 +296,7 @@ int load_players(const std::u8string& fn) {
   return 0;
 }
 
-int Player::SaveTo(const outfile& fl) {
+int Player::SaveTo(outfile& fl) {
   fl.append(u8"{}\n{}\n", name, pass);
 
   fl.append(u8":0"); // Player experience, obsolete, always zero

@@ -71,7 +71,7 @@ class Player {
   void UnSet(uint64_t f) {
     flags &= (~f);
   };
-  int SaveTo(const outfile&);
+  int SaveTo(outfile&);
   int LoadFrom(std::u8string_view&);
   std::u8string Name() {
     return name;

@@ -29,7 +29,7 @@
 std::u8string SkillName(uint32_t);
 
 void init_skill_list();
-void save_prop_names_to(const outfile& fl);
+void save_prop_names_to(outfile& fl);
 void load_prop_names_from(std::u8string_view& fl);
 void purge_invalid_prop_names();
 void confirm_skill_hash(uint32_t);
