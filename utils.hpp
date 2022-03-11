@@ -66,15 +66,19 @@ constexpr bool ascii_islower(char8_t chr) {
 }
 
 constexpr bool ascii_isalpha(char8_t chr) {
-  return ((chr >= 'a' && chr <= 'z') || (chr >= 'A' && chr <= 'Z'));
+  return ((chr | 32) >= 'a' && (chr | 32) <= 'z');
 }
 
 constexpr bool ascii_isalnum(char8_t chr) {
-  return ((chr >= 'a' && chr <= 'z') || (chr >= 'A' && chr <= 'Z') || (chr >= '0' && chr <= '9'));
+  return (((chr | 32) >= 'a' && (chr | 32) <= 'z') || (chr >= '0' && chr <= '9'));
 }
 
 constexpr bool ascii_isdigit(char8_t chr) {
   return (chr >= '0' && chr <= '9');
+}
+
+constexpr bool ascii_ishexdigit(char8_t chr) {
+  return (chr >= '0' && chr <= '9') || ((chr | 32) >= 'a' && (chr | 32) <= 'f');
 }
 
 constexpr bool ascii_isspace(char8_t chr) {
