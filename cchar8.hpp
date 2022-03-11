@@ -29,11 +29,6 @@ auto fopen(auto&& fn, auto&& md) {
 };
 
 template <typename... Args>
-auto fprintf(auto&& fl, auto&& fm, Args&&... args) {
-  return std::fprintf(fl, reinterpret_cast<const char*>(fm), std::forward<Args>(args)...);
-};
-
-template <typename... Args>
 auto fscanf(auto&& fl, auto&& fm, Args&&... args) {
   return std::fscanf(fl, reinterpret_cast<const char*>(fm), std::forward<Args>(args)...);
 };

@@ -24,6 +24,7 @@
 #include "cchar8.hpp"
 #include "color.hpp"
 #include "log.hpp"
+#include "outfile.hpp"
 #include "properties.hpp"
 
 // Generate initial skills definitions pair vector automatically from known skills list.
@@ -42,16 +43,16 @@ static std::vector<std::pair<uint32_t, std::u8string>> skill_defs(
     skill_defs_array.begin(),
     skill_defs_array.end());
 
-void save_prop_names_to(FILE* fl) {
+void save_prop_names_to(const outfile& fl) {
   std::sort(skill_defs.begin(), skill_defs.end());
   skill_defs.erase(std::unique(skill_defs.begin(), skill_defs.end()), skill_defs.end());
-  fprintf(fl, u8"%lu\n", skill_defs.size());
+  fl.append(u8"{}\n", skill_defs.size());
   for (auto skn : skill_defs) {
     if (skn.second.length() > 255) {
       loger(u8"Error: Skill name too long: '{}'\n", skn.second);
-      fprintf(fl, u8"%.8X:Undefined\n", skn.first);
+      fl.append(u8"{:08X}:Undefined\n", skn.first);
     } else {
-      fprintf(fl, u8"%.8X:%s\n", skn.first, skn.second.c_str());
+      fl.append(u8"{:08X}:{}\n", skn.first, skn.second.c_str());
     }
   }
 }

@@ -85,11 +85,11 @@ int getonum(Object* obj) {
 }
 
 int Object::Save(const std::u8string& fn) {
-  FILE* fl = fopen(fn.c_str(), u8"w");
+  outfile fl(fn);
   if (!fl)
     return -1;
 
-  fprintf(fl, u8"%.8X\n", CurrentVersion.savefile_version_object);
+  fl.append(u8"{:08X}\n", CurrentVersion.savefile_version_object);
 
   // Save 'prop_names' hashes and strings.
   save_prop_names_to(fl);
@@ -98,29 +98,26 @@ int Object::Save(const std::u8string& fn) {
   obj2num[nullptr] = 0;
   last_object_number = 0;
   if (SaveTo(fl)) {
-    fclose(fl);
     return -1;
   }
-
-  fclose(fl);
   return 0;
 }
 
-int Object::SaveTo(FILE* fl) {
+int Object::SaveTo(const outfile& fl) {
   // loge(u8"Saving {}\n", Name());
 
-  fprintf(fl, u8"%d\n", getonum(this));
-  fprintf(fl, u8"%s%c\n", ShortDescC(), 0);
-  fprintf(fl, u8"%s%c\n", NameC(), 0);
+  fl.append(u8"{}\n", getonum(this));
+  fl.append(u8"{}{:c}\n", ShortDescC(), 0);
+  fl.append(u8"{}{:c}\n", NameC(), 0);
   if (HasDesc()) {
-    fprintf(fl, u8"%s%c\n", DescC(), 0);
+    fl.append(u8"{}{:c}\n", DescC(), 0);
   } else {
-    fprintf(fl, u8"%c\n", 0);
+    fl.append(u8"{:c}\n", 0);
   }
   if (HasLongDesc()) {
-    fprintf(fl, u8"%s%c\n", LongDescC(), 0);
+    fl.append(u8"{}{:c}\n", LongDescC(), 0);
   } else {
-    fprintf(fl, u8"%c\n", 0);
+    fl.append(u8"{:c}\n", 0);
   }
 
   char8_t gen_char = 'N';
@@ -129,23 +126,22 @@ int Object::SaveTo(FILE* fl) {
       gen_char = g.c;
     }
   }
-  fprintf(fl, u8"%d %d %d %d %c\n", weight, size, volume, value, gen_char);
+  fl.append(u8"{} {} {} {} {:c}\n", weight, size, volume, value, gen_char);
 
   for (auto ind : known) {
-    fprintf(fl, u8";%ld", ind);
+    fl.append(u8";{}", ind);
   }
-  fprintf(fl, u8":\n");
+  fl.append(u8":\n");
 
   for (auto ind : completed) {
-    fprintf(fl, u8";%ld", ind);
+    fl.append(u8";{}", ind);
   }
-  fprintf(fl, u8":\n");
+  fl.append(u8":\n");
 
-  fprintf(fl, u8" %d\n", sexp);
+  fl.append(u8" {}\n", sexp);
 
-  fprintf(
-      fl,
-      u8"%hhd,%hhd,%hhd,%hhd,%hhd,%hhd,%hhd,%hhd,%hhd;%d",
+  fl.append(
+      u8"{},{},{},{},{},{},{},{},{};{}",
       attr[0],
       attr[1],
       attr[2],
@@ -158,27 +154,26 @@ int Object::SaveTo(FILE* fl) {
       IsActive());
 
   for (const auto& sk : skills)
-    fprintf(fl, u8"|%.8X|%d", sk.first, sk.second);
+    fl.append(u8"|{:08X}|{}", sk.first, sk.second);
   if (cur_skill != prhash(u8"None")) { // Added current skill to end in v0x13
-    fprintf(fl, u8"|%.8X", cur_skill);
+    fl.append(u8"|{:08X}", cur_skill);
   }
-  fprintf(fl, u8";\n");
+  fl.append(u8";\n");
 
-  fprintf(fl, u8"%d\n", (int)(contents.size()));
+  fl.append(u8"{}\n", (int)(contents.size()));
   for (auto cind : contents) {
-    fprintf(fl, u8"%d\n", getonum(cind));
+    fl.append(u8"{}\n", getonum(cind));
   }
 
   uint8_t num8 = static_cast<uint8_t>(pos);
-  fprintf(fl, u8"%hhu\n", num8);
+  fl.append(u8"{}\n", num8);
 
-  fprintf(fl, u8"%d\n", (int)(act.size()));
+  fl.append(u8"{}\n", (int)(act.size()));
   for (auto aind : act) {
-    fprintf(
-        fl, u8"%s;%d\n", act_save[static_cast<uint8_t>(aind.act())].c_str(), getonum(aind.obj()));
+    fl.append(u8"{};{}\n", act_save[static_cast<uint8_t>(aind.act())].c_str(), getonum(aind.obj()));
   }
 
-  fprintf(fl, u8"\n");
+  fl.append(u8"\n");
 
   for (auto cind : contents) {
     cind->SaveTo(fl);

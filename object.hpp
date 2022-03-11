@@ -613,7 +613,7 @@ class alignas(256) Object {
   int Load(const std::u8string&);
   int LoadFrom(FILE*);
   int Save(const std::u8string&);
-  int SaveTo(FILE*);
+  int SaveTo(const outfile&);
   std::u8string WriteContents();
 
   int Tick();
