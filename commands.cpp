@@ -6276,26 +6276,34 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       return 0;
     }
     if (!args.empty()) {
-      gender_t gender = gender_t::NONE;
-      int num, weight = 0, size = 0, volume = 0, value = 0;
-      num = sscanf(
-          std::u8string(args).c_str(),
-          u8"%d %d %d %d %c;\n",
-          &weight,
-          &size,
-          &volume,
-          &value,
-          &gender);
-      if (num > 0)
-        targ->SetWeight(weight);
-      if (num > 1)
-        targ->SetSize(size);
-      if (num > 3)
-        targ->SetVolume(volume);
-      if (num > 3)
-        targ->SetValue(value);
-      if (gender != gender_t::NONE) {
-        targ->SetGender(gender);
+      char8_t gchar = 'N';
+      int weight = 0, size = 0, volume = 0, value = 0;
+      weight = nextnum(args);
+      skipspace(args);
+      size = nextnum(args);
+      skipspace(args);
+      volume = nextnum(args);
+      skipspace(args);
+      value = nextnum(args);
+      skipspace(args);
+      if (args.length() != 1) {
+        mind->Send(u8"You need to specify 5 stats (weight, size, volume, value, gender)\n");
+        mind->Send(u8"Example: " CCYN u8"setstats 100000 1800 2000 0 F\n" CNRM);
+        return 0;
+      }
+      gchar = nextchar(args);
+      targ->SetWeight(weight);
+      targ->SetSize(size);
+      targ->SetVolume(volume);
+      targ->SetValue(value);
+      if (ascii_toupper(gchar) == 'N') {
+        targ->SetGender(gender_t::NONE);
+      } else if (ascii_toupper(gchar) == 'F') {
+        targ->SetGender(gender_t::FEMALE);
+      } else if (ascii_toupper(gchar) == 'M') {
+        targ->SetGender(gender_t::MALE);
+      } else {
+        targ->SetGender(gender_t::NEITHER);
       }
     } else {
       mind->Send(u8"Set stats to what?\n");
