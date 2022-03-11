@@ -2109,7 +2109,7 @@ int Mind::TBARunLine(std::u8string line) {
     int dam = 0;
     char8_t buf[256] = {};
     std::u8string tname;
-    if (sscanf(line.c_str() + 8, u8" %254[^\n\r] %n", buf, &pos) >= 1) {
+    if (sscanf(line.c_str() + 8, u8" %254[^\n\r ] %n", buf, &pos) >= 1) {
       tname = buf;
       if (tname == u8"all") {
         tname = u8"everyone";
