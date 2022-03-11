@@ -731,31 +731,30 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
       }
       if (locks.count(door_char) > 0) {
         int32_t lid = door1->Skill(prhash(u8"Object ID"));
-        if (locktags.count(door_char) > 0 && locktags.at(door_char).contains(u8"common")) {
-          if (lockid.count(door_char) > 0) {
-            lid = lockid.at(door_char);
-          } else {
-            lockid[door_char] = lid;
-          }
-        }
-        if (locktags.count(door_char) > 0 && locktags.at(door_char).contains(u8"resident")) {
-          for (auto loc : {door1->Parent(), door2->Parent()}) {
-            if (loc->Skill(prhash(u8"Translucent")) < 1000) { // Only for those *inside* the place.
-              loc_keys[loc].push_back(std::make_pair(door_char, lid));
+        if (locktags.contains(door_char)) {
+          std::u8string_view tags = locktags.at(door_char);
+          std::u8string_view tag = getuntil(tags, ',');
+          while (tag.length() > 0 || tags.length() > 0) {
+            if (tag.length() > 0) {
+              if (tag == u8"common") {
+                if (lockid.count(door_char) > 0) {
+                  lid = lockid.at(door_char);
+                } else {
+                  lockid[door_char] = lid;
+                }
+              } else if (tag == u8"resident") {
+                for (auto loc : {door1->Parent(), door2->Parent()}) {
+                  if (loc->Skill(prhash(u8"Translucent")) <
+                      1000) { // Only for those *inside* the place.
+                    loc_keys[loc].push_back(std::make_pair(door_char, lid));
+                  }
+                }
+              } else {
+                asp_keys[std::u8string(tag)].push_back(std::make_pair(door_char, lid));
+              }
             }
+            tag = getuntil(tags, ',');
           }
-        }
-        if (locktags.count(door_char) > 0 && // FIXME: Make generic, for any keyword
-            locktags.at(door_char).contains(u8"guard")) {
-          asp_keys[u8"guard"].push_back(std::make_pair(door_char, lid));
-        }
-        if (locktags.count(door_char) > 0 && // FIXME: Make generic, for any keyword
-            locktags.at(door_char).contains(u8"soldier")) {
-          asp_keys[u8"soldier"].push_back(std::make_pair(door_char, lid));
-        }
-        if (locktags.count(door_char) > 0 && // FIXME: Make generic, for any keyword
-            locktags.at(door_char).contains(u8"dwarven")) {
-          asp_keys[u8"dwarven"].push_back(std::make_pair(door_char, lid));
         }
         door1->SetSkill(prhash(u8"Lock"), lid);
         door2->SetSkill(prhash(u8"Lock"), lid);
@@ -822,7 +821,7 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
 
           // Grant them all keys they deserve for their title(s)
           for (const auto& asp : asp_keys) {
-            if (npc->Matches(asp.first)) {
+            if (npc->HasTag(crc32c(asp.first))) {
               for (const auto& keydef : asp.second) {
                 if (!have_keys.contains(keydef.second)) {
                   Object* key = new Object(bag);
