@@ -28,6 +28,7 @@
 #include "cchar8.hpp"
 #include "color.hpp"
 #include "commands.hpp"
+#include "infile.hpp"
 #include "log.hpp"
 #include "mind.hpp"
 #include "net.hpp"
@@ -3317,7 +3318,7 @@ void init_world() {
   if (!universe->Load(u8"acid/current.wld")) {
     load_players(u8"acid/current.plr");
   } else {
-    FILE* conf = fopen(u8"acid/startup.conf", u8"r");
+    infile conf(u8"acid/startup.conf");
     if (conf) {
       Object* autoninja = new Object(universe);
       autoninja->SetShortDesc(u8"The AutoNinja");
@@ -3334,16 +3335,7 @@ void init_world() {
       automind->SetSystem();
       automind->Attach(autoninja);
 
-      fseek(conf, 0, SEEK_END);
-      size_t len = ftell(conf);
-      fseek(conf, 0, SEEK_SET);
-
-      char8_t buf[len + 1];
-      fread(buf, 1, len, conf);
-      buf[len] = 0;
-
-      handle_command(autoninja, buf, automind);
-      fclose(conf);
+      handle_command(autoninja, conf.all(), automind);
 
       delete automind;
       delete anp;
