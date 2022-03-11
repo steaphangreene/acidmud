@@ -487,9 +487,9 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
     obj->SetSkill(prhash(u8"WeaponReach"), type->armed->reach);
     obj->SetSkill(prhash(u8"WeaponForce"), type->armed->force + rand() % type->armed->forcem);
     obj->SetSkill(prhash(u8"WeaponSeverity"), type->armed->sev + rand() % type->armed->sevm);
-    obj->SetShortDesc(type->armed->name.c_str());
-    obj->SetDesc(type->armed->desc.c_str());
-    obj->SetLongDesc(type->armed->long_desc.c_str());
+    obj->SetShortDesc(type->armed->name);
+    obj->SetDesc(type->armed->desc);
+    obj->SetLongDesc(type->armed->long_desc);
     obj->SetWeight(type->armed->weight);
     obj->SetVolume(type->armed->volume);
     obj->SetValue(type->armed->value);
@@ -510,9 +510,9 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
     obj->SetSkill(prhash(u8"ArmorI"), ar->impact + rand() % ar->impactm);
     obj->SetSkill(prhash(u8"ArmorT"), ar->thread + rand() % ar->threadm);
     obj->SetSkill(prhash(u8"ArmorP"), ar->planar + rand() % ar->planarm);
-    obj->SetShortDesc(ar->name.c_str());
-    obj->SetDesc(ar->desc.c_str());
-    obj->SetLongDesc(ar->long_desc.c_str());
+    obj->SetShortDesc(ar->name);
+    obj->SetDesc(ar->desc);
+    obj->SetLongDesc(ar->long_desc);
     obj->SetWeight(ar->weight);
     obj->SetVolume(ar->volume);
     obj->SetValue(ar->value);
@@ -548,9 +548,9 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
       for (auto sk : it->skills) {
         obj->SetSkill(sk.first, sk.second);
       }
-      obj->SetShortDesc(it->name.c_str());
-      obj->SetDesc(it->desc.c_str());
-      obj->SetLongDesc(it->long_desc.c_str());
+      obj->SetShortDesc(it->name);
+      obj->SetDesc(it->desc);
+      obj->SetLongDesc(it->long_desc);
       obj->SetWeight(it->weight);
       obj->SetVolume(it->volume);
       obj->SetValue(it->value);

@@ -3468,7 +3468,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         if (end != label.npos)
           label = label.substr(0, end);
         trim_string(label);
-        if (matches(label.c_str(), std::u8string(args))) {
+        if (matches(label, std::u8string(args))) {
           if (mind)
             mind->Send(
                 u8"{} already has that on the label.\n",
@@ -5041,12 +5041,12 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     if (!(!targ->IsAnimate() || targ->IsAct(act_t::DEAD) || targ->IsAct(act_t::DYING) ||
           targ->IsAct(act_t::UNCONSCIOUS))) {
       body->AddAct(act_t::FIGHT, targ);
-      body->BusyFor(3000, body->Tactics().c_str());
+      body->BusyFor(3000, body->Tactics());
       if (!targ->IsAct(act_t::FIGHT)) {
-        targ->BusyFor(3000, body->Tactics().c_str());
+        targ->BusyFor(3000, body->Tactics());
         targ->AddAct(act_t::FIGHT, body);
       } else if (targ->StillBusy()) {
-        body->BusyWith(targ, body->Tactics().c_str());
+        body->BusyWith(targ, body->Tactics());
       }
     } else {
       attacknow = 1; // Uncontested.

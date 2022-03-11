@@ -169,7 +169,7 @@ void Player::SetName(std::u8string nm) {
   name = nm;
   player_list[name] = this;
   std::u8string desc = nm + u8"'s character room";
-  room->SetShortDesc(desc.c_str());
+  room->SetShortDesc(desc);
   desc = u8"Available commands:\n";
   desc += u8"     " CMAG u8"look" CNRM u8": Show all your existing characters.\n";
   desc += u8"     " CMAG u8"world" CNRM u8": Show list of currently available worlds.\n";
@@ -189,7 +189,7 @@ void Player::SetName(std::u8string nm) {
   desc +=
       u8"     " CMAG u8"help" CNRM u8" " CGRN u8"<topic>" CNRM u8": Get more info (try 'help commands').\n";
   desc += u8"   Here are all of your current characters:";
-  room->SetDesc(desc.c_str());
+  room->SetDesc(desc);
 }
 
 void Player::Link(Object* obj) {}
@@ -302,10 +302,10 @@ int Player::SaveTo(outfile& fl) {
   fl.append(u8":0"); // Player experience, obsolete, always zero
 
   fl.append(u8":{:X}", flags);
-  fl.append(u8"{}\n", room->WriteContents().c_str());
+  fl.append(u8"{}\n", room->WriteContents());
 
   for (auto var : vars) {
-    fl.append(u8";{}:{}", var.first.c_str(), var.second.c_str());
+    fl.append(u8";{}:{}", var.first, var.second);
   }
   fl.append(u8"\n");
   return 0;

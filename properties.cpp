@@ -51,7 +51,7 @@ void save_prop_names_to(outfile& fl) {
       loger(u8"Error: Skill name too long: '{}'\n", skn.second);
       fl.append(u8"{:08X}:Undefined\n", skn.first);
     } else {
-      fl.append(u8"{:08X}:{}\n", skn.first, skn.second.c_str());
+      fl.append(u8"{:08X}:{}\n", skn.first, skn.second);
     }
   }
 }

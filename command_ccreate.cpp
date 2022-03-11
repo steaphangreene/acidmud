@@ -51,11 +51,11 @@ int handle_command_ccreate(
 
     // Object *bay = new Object(city);
     // bay->SetShortDesc(u8"Bay");
-    // bay->SetDesc((string(u8"The ") + args + u8" Bay.").c_str());
+    // bay->SetDesc((string(u8"The ") + args + u8" Bay."));
 
     // Object *inlet = new Object(city);
     // inlet->SetShortDesc(u8"Inlet");
-    // inlet->SetDesc((string(u8"The ") + args + u8" Inlet.").c_str());
+    // inlet->SetDesc((string(u8"The ") + args + u8" Inlet."));
 
     // Object *wall = new Object(city);
     // wall->SetShortDesc(u8"North Wall");

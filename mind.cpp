@@ -628,7 +628,7 @@ bool Mind::Send(const std::u8string& mes) {
     }
     newmes += u8"\n";
 
-    write(pers, newmes.c_str(), newmes.length());
+    write(pers, newmes.data(), newmes.length());
   }
   return true;
 }
@@ -1891,7 +1891,7 @@ int Mind::TBARunLine(std::u8string line) {
   }
 
   else if (line.starts_with(u8"if ")) {
-    if (!TBAEval(line.c_str() + 3)) { // Was false
+    if (!TBAEval(line.substr(3))) { // Was false
       int depth = 0;
       while (spos != std::u8string::npos) { // Skip to end/elseif
         //        PING_QUOTA();
@@ -1955,7 +1955,7 @@ int Mind::TBARunLine(std::u8string line) {
       }
       spos = skip_line(script, spos);
     }
-    if (TBAEval(line.c_str() + 6)) {
+    if (TBAEval(line.substr(6))) {
       spos_s.back() = rep; // Will repeat the u8"while"
       spos_s.push_back(begin); // But run the inside of the loop first.
     } else {
@@ -2033,7 +2033,7 @@ int Mind::TBARunLine(std::u8string line) {
       replace_all(mes, u8" from close by", u8"");
       replace_all(mes, u8" from nearby", u8"");
       mes += u8"\n";
-      room->Loud(2, mes.c_str()); // 2 will go through 1 closed door.
+      room->Loud(2, mes); // 2 will go through 1 closed door.
     }
   }
 
@@ -2117,7 +2117,7 @@ int Mind::TBARunLine(std::u8string line) {
       if (tname == u8"all") {
         tname = u8"everyone";
       }
-      dam = TBAEval(line.c_str() + 8 + pos);
+      dam = TBAEval(line.substr(8 + pos));
       if (dam > 0)
         dam = (dam + 180) / 100;
       if (dam < 0)
@@ -2215,17 +2215,18 @@ int Mind::TBARunLine(std::u8string line) {
         door->SetSkill(prhash(u8"Locked"), 0);
         door->SetSkill(prhash(u8"Lockable"), 1);
         door->SetSkill(prhash(u8"Pickable"), 4);
-        //	logeg(u8"#{} Debug: {} door can open/close in
-        //'{}'\n" CNRM,
-        //		body->Skill(prhash(u8"TBAScript")), dir.c_str(), line.c_str()
-        //		);
+        // logeg(u8"#{} Debug: {} door can open/close in '{}'\n " CNRM,
+        //       body->Skill(prhash(u8"TBAScript")),
+        //       dir,
+        //       line);
       }
       if (newfl & 2) { // Closed
         door->SetSkill(prhash(u8"Open"), 0);
-        //	logeg(u8"#{} Debug: {} door is closed in '{}'\n"
-        // CNRM,
-        //		body->Skill(prhash(u8"TBAScript")), dir.c_str(), line.c_str()
-        //		);
+        // logeg(
+        //     u8"#{} Debug: {} door is closed in '{}'\n" CNRM,
+        //     body->Skill(prhash(u8"TBAScript")),
+        //     dir,
+        //     line);
       }
       if (newfl & 4) { // Locked
         door->SetSkill(prhash(u8"Locked"), 1);
@@ -2587,7 +2588,7 @@ int Mind::TBARunLine(std::u8string line) {
     }
     spos_s.pop_back();
   } else if (!!line.starts_with(u8"return ")) {
-    int retval = TBAEval(line.c_str() + 7);
+    int retval = TBAEval(line.substr(7));
     if (retval == 0) {
       status = 1; // Set special state
     }

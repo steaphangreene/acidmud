@@ -170,7 +170,7 @@ int Object::SaveTo(outfile& fl) {
 
   fl.append(u8"{}\n", (int)(act.size()));
   for (auto aind : act) {
-    fl.append(u8"{};{}\n", act_save[static_cast<uint8_t>(aind.act())].c_str(), getonum(aind.obj()));
+    fl.append(u8"{};{}\n", act_save[static_cast<uint8_t>(aind.act())], getonum(aind.obj()));
   }
 
   fl.append(u8"\n");
@@ -221,7 +221,7 @@ int Object::Load(const std::u8string& fn) {
           killacts.push_back(aind.act());
         }
         if (aind.act() == act_t::FIGHT) {
-          ind->BusyFor(500, ind->Tactics().c_str());
+          ind->BusyFor(500, ind->Tactics());
         }
       }
     }
@@ -388,13 +388,13 @@ int Object::LoadFrom(std::u8string_view& fl) {
   //    loge(u8"Loading: {}\n", ShortDescC());
   //    }
   for (auto cind : toload) {
-    // loge(u8"{}Calling loader from {}\n", debug_indent.c_str(),
+    // loge(u8"{}Calling loader from {}\n", debug_indent,
     // ShortDescC());
     // std::u8string tmp = debug_indent;
     // debug_indent += u8"  ";
     cind->LoadFrom(fl);
     // debug_indent = tmp;
-    // loge(u8"{}Called loader from {}\n", debug_indent.c_str(),
+    // loge(u8"{}Called loader from {}\n", debug_indent,
     // ShortDescC());
 
     //    if(parent && (!(parent->parent))) {
@@ -407,7 +407,7 @@ int Object::LoadFrom(std::u8string_view& fl) {
   //    loge(u8"\nLoaded.\n");
   //    }
 
-  // loge(u8"{}Loaded {}\n", debug_indent.c_str(), ShortDescC());
+  // loge(u8"{}Loaded {}\n", debug_indent, ShortDescC());
 
   //  if(HasSkill(prhash(u8"Drink"))) {
   //    SetSkill(prhash(u8"Drink"), Skill(prhash(u8"Drink")) * 15);

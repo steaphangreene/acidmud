@@ -738,7 +738,7 @@ void Object::TBALoadMOB(const std::u8string& fn) {
           if (aliases[actr].find_first_not_of(target_chars) != std::u8string::npos) {
             logey(
                 u8"Warning: Ignoring non-alpha alias [{}] in #{} ('{}')\n",
-                std::u8string(aliases[actr]).c_str(),
+                aliases[actr],
                 obj->Skill(prhash(u8"TBAMOB")),
                 obj->ShortDesc());
           } else if (aliases[actr] == u8"woman" || aliases[actr] == u8"girl") {
@@ -761,7 +761,7 @@ void Object::TBALoadMOB(const std::u8string& fn) {
           } else {
             // logey(
             //    u8"Warning: Adding [{}] to #{} ('{}')\n",
-            //    std::u8string(aliases[actr]).c_str(),
+            //    aliases[actr],
             //    obj->Skill(prhash(u8"TBAMOB")),
             //    obj->ShortDesc());
             label += u8" ";
@@ -1193,7 +1193,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
           if (aliases[actr].find_first_not_of(target_chars) != std::u8string::npos) {
             logey(
                 u8"Warning: Ignoring non-alpha alias [{}] in #{} ('{}')\n",
-                std::u8string(aliases[actr]).c_str(),
+                aliases[actr],
                 obj->Skill(prhash(u8"TBAObject")),
                 obj->ShortDesc());
           } else if (aliases[actr] == u8"wyv" || aliases[actr] == u8"ghenna") {
@@ -1206,7 +1206,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
           } else {
             // logey(
             //    u8"Warning: Adding [{}] to #{} ('{}')\n",
-            //    std::u8string(aliases[actr]).c_str(),
+            //    aliases[actr],
             //    obj->Skill(prhash(u8"TBAObject")),
             //    obj->ShortDesc());
             label += u8" ";

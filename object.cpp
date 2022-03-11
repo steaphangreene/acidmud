@@ -1193,7 +1193,7 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
         if ((vmode & 1) && cur.obj()->Skill(prhash(u8"Locked"))) {
           std::u8string mes =
               base + CNRM + u8"                " + u8"  It is closed and locked.\n" + CGRN;
-          m->Send(mes.c_str());
+          m->Send(mes);
         } else if (vmode & 1) {
           base = std::u8string(18, ' ');
           cur.obj()->SendContents(m, nullptr, vmode);
@@ -1261,7 +1261,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::u8string b) {
             send += u8".\n";
           }
           send[0] = ascii_toupper(send[0]);
-          m->Send(send.c_str());
+          m->Send(send);
           m->Send(CNRM);
         }
         continue;
@@ -1275,7 +1275,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::u8string b) {
           size_t ignore = 0;
           if (o && o->Parent() == this)
             ignore = 1;
-          m->Send(base.c_str());
+          m->Send(base);
           m->Send(
               CGRN u8"...and {} more things are here too.\n" CNRM, cont.size() - tlines - ignore);
           break;
@@ -1328,7 +1328,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::u8string b) {
         } else if (ind->Skill(prhash(u8"Container")) || ind->Skill(prhash(u8"Liquid Container"))) {
           if ((vmode & 1) && ind->Skill(prhash(u8"Locked"))) {
             std::u8string mes = base + u8"  It is closed and locked, you can't see inside.\n";
-            m->Send(mes.c_str());
+            m->Send(mes);
           } else if (vmode & 1) {
             std::u8string tmp = base;
             base += u8"  ";
@@ -2011,10 +2011,10 @@ void Object::Link(
     const std::u8string& odsc) {
   Object* door1 = new Object(this);
   Object* door2 = new Object(other);
-  door1->SetShortDesc(name.c_str());
-  door2->SetShortDesc(oname.c_str());
-  door1->SetDesc(dsc.c_str());
-  door2->SetDesc(odsc.c_str());
+  door1->SetShortDesc(name);
+  door2->SetShortDesc(oname);
+  door1->SetDesc(dsc);
+  door2->SetDesc(odsc);
   door1->AddAct(act_t::SPECIAL_LINKED, door2);
   door1->SetSkill(prhash(u8"Open"), 1000);
   door1->SetSkill(prhash(u8"Enterable"), 1);
@@ -2031,10 +2031,10 @@ void Object::LinkClosed(
     const std::u8string& odsc) {
   Object* door1 = new Object(this);
   Object* door2 = new Object(other);
-  door1->SetShortDesc(name.c_str());
-  door2->SetShortDesc(oname.c_str());
-  door1->SetDesc(dsc.c_str());
-  door2->SetDesc(odsc.c_str());
+  door1->SetShortDesc(name);
+  door2->SetShortDesc(oname);
+  door1->SetDesc(dsc);
+  door2->SetDesc(odsc);
   door1->AddAct(act_t::SPECIAL_LINKED, door2);
   door1->SetSkill(prhash(u8"Closeable"), 1);
   door1->SetSkill(prhash(u8"Enterable"), 1);
@@ -3128,12 +3128,14 @@ void Object::SendOut(
           // <= 5034507)
           //  logeb(u8"[#{}] Got message: '{}'\n",
           //  trig->Skill(prhash(u8"TBAScript")), mes);
-          std::u8string speech = (mes.c_str() + 9);
+          std::u8string_view speech = mes;
+          speech = speech.substr(9);
           while (!speech.empty() && speech.back() != '\'') {
-            speech.pop_back();
+            speech = speech.substr(0, speech.length() - 1);
           }
-          if (!speech.empty())
-            speech.pop_back();
+          if (!speech.empty()) {
+            speech = speech.substr(0, speech.length() - 1);
+          }
 
           if (trig->Desc()[0] == '*') { // All Speech
             new_trigger((rand() % 400) + 300, trig, actor, speech);
@@ -3157,12 +3159,14 @@ void Object::SendOut(
 
           // Type 0x4000008 (ROOM + ROOM-SPEECH)
         } else if ((trig->Skill(prhash(u8"TBAScriptType")) & 0x4000008) == 0x4000008) {
-          std::u8string speech = (mes.c_str() + 9);
+          std::u8string_view speech = mes;
+          speech = speech.substr(9);
           while (!speech.empty() && speech.back() != '\'') {
-            speech.pop_back();
+            speech = speech.substr(0, speech.length() - 1);
           }
-          if (!speech.empty())
-            speech.pop_back();
+          if (!speech.empty()) {
+            speech = speech.substr(0, speech.length() - 1);
+          }
 
           if (trig->Desc()[0] == '*') { // All Speech
             new_trigger((rand() % 400) + 300, trig, actor, speech);
@@ -3347,11 +3351,11 @@ void init_world() {
 void save_world(int with_net) {
   std::u8string fn = u8"acid/current";
   std::u8string wfn = fn + u8".wld.tmp";
-  if (!universe->Save(wfn.c_str())) {
+  if (!universe->Save(wfn)) {
     std::u8string pfn = fn + u8".plr.tmp";
-    if (!save_players(pfn.c_str())) {
+    if (!save_players(pfn)) {
       std::u8string nfn = fn + u8".nst";
-      if ((!with_net) || (!save_net(nfn.c_str()))) {
+      if ((!with_net) || (!save_net(nfn))) {
         std::u8string dfn = fn + u8".wld";
         std::filesystem::remove(dfn);
         std::filesystem::rename(wfn, dfn);
@@ -3474,13 +3478,13 @@ bool Object::BusyAct() {
 
   int ret;
   if (minds.size()) {
-    ret = handle_command(this, comm.c_str(), (minds.front()));
+    ret = handle_command(this, comm, (minds.front()));
     if (ret != 2 && (!StillBusy()))
-      ret = handle_command(this, def.c_str(), (minds.front()));
+      ret = handle_command(this, def, (minds.front()));
   } else {
-    ret = handle_command(this, comm.c_str());
+    ret = handle_command(this, comm);
     if (ret != 2 && (!StillBusy()))
-      ret = handle_command(this, def.c_str());
+      ret = handle_command(this, def);
   }
 
   if (!StillBusy()) {
@@ -3516,7 +3520,7 @@ void Object::FreeActions() {
     if (init.first->IsAct(act_t::FIGHT)) { // Still in combat!
       if (!init.first->StillBusy()) { // Make Sure!
         std::u8string ret = init.first->Tactics();
-        init.first->BusyFor(3000, ret.c_str());
+        init.first->BusyFor(3000, ret);
       }
 
       // Type 0x1000400 (MOB + MOB-FIGHT)
