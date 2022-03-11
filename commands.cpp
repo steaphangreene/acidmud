@@ -23,9 +23,9 @@
 #include <string>
 #include <vector>
 
-#include "cchar8.hpp"
 #include "color.hpp"
 #include "commands.hpp"
+#include "infile.hpp"
 #include "log.hpp"
 #include "main.hpp"
 #include "mind.hpp"
@@ -839,32 +839,44 @@ static void load_commands() {
     comlist[cnum] = static_comlist[cnum];
     ++cnum;
   }
-  FILE* soc = fopen(u8"tba/socials.new", u8"r");
-  if (soc) {
+  infile socfile(u8"tba/socials.new");
+  if (socfile) {
     // loge(u8"There were {} commands!\n", cnum);
-    char8_t com[64] = u8"";
-    int v1, v2, v3, v4;
-    while (fscanf(soc, u8" ~%s %*s %d %d %d %d", com, &v1, &v2, &v3, &v4) == 5) {
+    std::u8string_view soc = socfile.all();
+    while (soc.length() > 0 && nextchar(soc) == '~') {
+      std::u8string_view com = getuntil(soc, ' ');
+      skipspace(soc);
+      getuntil(soc, ' '); // Skip abbreviation - automatically determined by AcidMUD
+      skipspace(soc);
+      nextnum(soc); // v1 - ignored in AcidMUD
+      skipspace(soc);
+      nextnum(soc); // v2 - ignored in AcidMUD
+      skipspace(soc);
+      nextnum(soc); // v3 - ignored in AcidMUD
+      skipspace(soc);
+      nextnum(soc); // v4 - ignored in AcidMUD
+      skipspace(soc);
+
       soc_com[cnum] = com;
-      char8_t buf[256] = u8"";
       for (int mnum = 0; mnum < 13; ++mnum) {
-        fscanf(soc, u8" %255[^\n\r]", buf); // Skip space/newline, read line.
-        fscanf(soc, u8"%*[^\n\r]"); // Skip rest of line.
-        if (std::u8string_view(buf).contains('#')) {
+        std::u8string_view line = getuntil(soc, '\n');
+        if (line.contains('#')) {
           socials[cnum][mnum] = u8"";
         } else {
-          socials[cnum][mnum] = buf;
+          socials[cnum][mnum] = line;
         }
       }
+
       comlist[cnum].command = soc_com[cnum];
       comlist[cnum].id = COM_SOCIAL;
       comlist[cnum].shortdesc = u8"Social command.";
       comlist[cnum].longdesc = u8"Social command.";
       comlist[cnum].sit = (REQ_ALERT | CMD_FLAVORTEXT); // FIXME: Import This?
       ++cnum;
+
+      skipspace(soc); // Eat blank line before next social command, or the terminating '$'
     }
     // loge(u8"There are now {} commands!\n", cnum);
-    fclose(soc);
   }
 }
 
