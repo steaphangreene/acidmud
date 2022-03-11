@@ -58,6 +58,8 @@ cat <<- 'EOF'
 	#include <map>
 	#include <vector>
 
+	#include "log.hpp"
+	#include "properties.hpp"
 	#include "stats.hpp"
 	#include "utils.hpp"
 
@@ -68,27 +70,27 @@ for sk in $(cat ${tmpdir}/skills | cut -f3-4 -d";" | sed "s- -_-g" | sort -uk1.3
   skname="$(echo "$sk" | cut -f2 -d";" | sed "s-_- -g")"
 
   if [[ "$(echo "$sk" | cut -f1 -d";")" == "B" ]]; then
-    echo "    {crc32c(\"${skname}\"), 0},"
+    echo "    {prhash(u8\"${skname}\"), 0},"
   elif [[ "$(echo "$sk" | cut -f1 -d";")" == "Q" ]]; then
-    echo "    {crc32c(\"${skname}\"), 1},"
+    echo "    {prhash(u8\"${skname}\"), 1},"
   elif [[ "$(echo "$sk" | cut -f1 -d";")" == "S" ]]; then
-    echo "    {crc32c(\"${skname}\"), 2},"
+    echo "    {prhash(u8\"${skname}\"), 2},"
   elif [[ "$(echo "$sk" | cut -f1 -d";")" == "C" ]]; then
-    echo "    {crc32c(\"${skname}\"), 3},"
+    echo "    {prhash(u8\"${skname}\"), 3},"
   elif [[ "$(echo "$sk" | cut -f1 -d";")" == "I" ]]; then
-    echo "    {crc32c(\"${skname}\"), 4},"
+    echo "    {prhash(u8\"${skname}\"), 4},"
   elif [[ "$(echo "$sk" | cut -f1 -d";")" == "W" ]]; then
-    echo "    {crc32c(\"${skname}\"), 5},"
+    echo "    {prhash(u8\"${skname}\"), 5},"
   elif [[ "$(echo "$sk" | cut -f1 -d";")" == "R" ]]; then
-    echo "    {crc32c(\"${skname}\"), 6},"
+    echo "    {prhash(u8\"${skname}\"), 6},"
   elif [[ "$(echo "$sk" | cut -f1 -d";")" == "M" ]]; then
-    echo "    {crc32c(\"${skname}\"), 7},"
+    echo "    {prhash(u8\"${skname}\"), 7},"
   elif [[ "$(echo "$sk" | cut -f1 -d";")" == "F" ]]; then
-    echo "    {crc32c(\"${skname}\"), 7},"
+    echo "    {prhash(u8\"${skname}\"), 7},"
   elif [[ "$(echo "$sk" | cut -f1 -d";")" == "J" ]]; then
-    echo "    {crc32c(\"${skname}\"), 7},"
+    echo "    {prhash(u8\"${skname}\"), 7},"
   elif [[ "$(echo "$sk" | cut -f1 -d";")" == "T" ]]; then
-    echo "    {crc32c(\"${skname}\"), 7},"
+    echo "    {prhash(u8\"${skname}\"), 7},"
   fi
 done
 echo '};'
@@ -101,13 +103,13 @@ for sk in $(cat ${tmpdir}/skills | cut -f3-4 -d";" | sed "s- -_-g" | sort -uk1.3
         | sed 's/title=Category:\([A-Za-z0-9_/\-]*\)&/@\1@/g' \
 	| tr '\n' '?' | tr @ '\n' | grep -v '\?'); do
     catname="$(echo "$skcat" | sed "s-_- -g" | sed "s-/-_-g")"
-    echo "         crc32c(\"${skname}\")," >> "${tmpdir}/skcat#$catname"
+    echo "         prhash(u8\"${skname}\")," >> "${tmpdir}/skcat#$catname"
     if [ -n "$(echo "$catname" | grep -E "(Combat|Pistol|Rifle|Weapon) Skills")" ]; then
       weapon=1
     fi
   done
   if [ -n "$weapon" ]; then
-    echo "  add_wts(crc32c(\"${skname}\"));" >> "${tmpdir}/weapons"
+    echo "  add_wts(prhash(u8\"${skname}\"));" >> "${tmpdir}/weapons"
     weapon=1
   fi
 done
@@ -116,7 +118,7 @@ echo ""
 echo "std::map<std::string, std::vector<uint32_t>> skcat = {"
 for cat in ${tmpdir}/skcat#*; do
     catname="$(echo "$cat" | cut -f2 -d"#" | sed "s-_-/-g")"
-    echo "    {\"${catname}\","
+    echo "    {u8\"${catname}\","
     echo "     {"
     cat "$cat"
     echo "     }},"
@@ -130,11 +132,10 @@ cat <<- EOF
 	static int last_wtype = 0;
 	static void add_wts(uint32_t sk) {
 	  if (defaults.count(sk) == 0) {
-	    fprintf(
-	        stderr,
-	        "Warning: Tried to link weapon type %d to '%s' which isn't a skill.\n",
+	    logey(
+	        u8"Warning: Tried to link weapon type {} to '{}' which isn't a skill.\n",
 	        last_wtype + 1,
-	        SkillName(sk).c_str());
+	        SkillName(sk));
 	    return;
 	  }
 	  ++last_wtype;
