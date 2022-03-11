@@ -77,6 +77,10 @@ constexpr bool ascii_isdigit(char8_t chr) {
   return (chr >= '0' && chr <= '9');
 }
 
+constexpr bool ascii_isspace(char8_t chr) {
+  return (chr == ' ' || chr == '\t' || chr == '\n' || chr == '\r' || chr == '\f' || chr == '\v');
+}
+
 inline char8_t nextchar(std::u8string_view& line) {
   char8_t ret = line.front();
   line = line.substr(1);
