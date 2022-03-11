@@ -23,9 +23,11 @@
 
 #include "cchar8.hpp"
 #include "color.hpp"
+#include "infile.hpp"
 #include "log.hpp"
 #include "mind.hpp"
 #include "object.hpp"
+#include "outfile.hpp"
 #include "properties.hpp"
 #include "utils.hpp"
 #include "version.hpp"
@@ -55,7 +57,7 @@ const std::u8string act_save[] = {
 static_assert(std::size(act_save) == static_cast<uint8_t>(act_t::SPECIAL_MAX));
 
 static std::map<std::u8string_view, act_t> act_load_map;
-static act_t act_load(const std::u8string& str) {
+static act_t act_load(const std::u8string_view& str) {
   if (act_load_map.size() < 1) {
     for (act_t a = act_t::NONE; a != act_t::SPECIAL_MAX; ++a) {
       act_load_map[act_save[static_cast<uint8_t>(a)]] = a;
@@ -66,7 +68,6 @@ static act_t act_load(const std::u8string& str) {
   return act_load_map[str];
 }
 
-static char8_t buf[65536];
 static std::vector<Object*> todo;
 
 static std::map<int, Object*> num2obj;
@@ -185,11 +186,13 @@ int Object::SaveTo(const outfile& fl) {
 
 static unsigned int ver;
 int Object::Load(const std::u8string& fn) {
-  FILE* fl = fopen(fn.c_str(), u8"r");
-  if (!fl)
+  infile file(fn);
+  if (!file)
     return -1;
+  std::u8string_view fl = file.all();
 
-  fscanf(fl, u8"%X\n", &ver);
+  ver = nexthex(fl);
+  skipspace(fl);
 
   // Load 'prop_names' hashes and strings.
   load_prop_names_from(fl);
@@ -199,7 +202,6 @@ int Object::Load(const std::u8string& fn) {
   num2obj[0] = nullptr;
   num2obj[1] = this;
   if (LoadFrom(fl)) {
-    fclose(fl);
     return -1;
   }
 
@@ -232,194 +234,140 @@ int Object::Load(const std::u8string& fn) {
     }
   }
   todo.clear();
-
-  fclose(fl);
   return 0;
 }
 
-int Object::LoadFrom(FILE* fl) {
+int Object::LoadFrom(std::u8string_view& fl) {
   // static std::u8string debug_indent = u8"";
 
-  int num, res;
-  fscanf(fl, u8"%d ", &num);
+  int num = nextnum(fl);
+  skipspace(fl);
   if (num2obj[num] != this) {
     loger(u8"Error: Acid number mismatch ({})!\n", num);
   }
   todo.push_back(this);
 
-  memset(buf, 0, 65536);
-  num = 0;
-  res = getc(fl);
-  while (res > 0) {
-    buf[num++] = res;
-    res = getc(fl);
-  }
-  std::u8string sd = buf;
-
-  memset(buf, 0, 65536);
+  std::u8string_view sd = getuntil(fl, 0);
+  skipspace(fl);
+  std::u8string_view n = u8"";
   if (ver >= 0x001B) {
-    num = 0;
-    res = getc(fl);
-    while (res > 0) {
-      buf[num++] = res;
-      res = getc(fl);
-    }
+    n = getuntil(fl, 0);
+    skipspace(fl);
   }
-  std::u8string n = buf;
-
-  memset(buf, 0, 65536);
-  num = 0;
-  res = getc(fl);
-  while (res > 0) {
-    buf[num++] = res;
-    res = getc(fl);
-  }
-  std::u8string d = buf;
-
-  memset(buf, 0, 65536);
-  num = 0;
-  res = getc(fl);
-  while (res > 0) {
-    buf[num++] = res;
-    res = getc(fl);
-  }
-  std::u8string ld = buf;
+  std::u8string_view d = getuntil(fl, 0);
+  skipspace(fl);
+  std::u8string_view ld = getuntil(fl, 0);
+  skipspace(fl);
 
   SetDescs(sd, n, d, ld);
 
   // loge(u8"{}Loading {}:{}\n", debug_indent, num, buf);
 
+  weight = nextnum(fl);
+  skipspace(fl);
+  size = nextnum(fl);
+  skipspace(fl);
+  volume = nextnum(fl);
+  skipspace(fl);
+  value = nextnum(fl);
+  skipspace(fl);
+
   gender = gender_t::NONE;
-  char8_t gen_char = 'N';
-  fscanf(fl, u8"%d %d %d %d %c", &weight, &size, &volume, &value, &gen_char);
+  char8_t gen_char = nextchar(fl);
+  skipspace(fl);
   for (auto g : gender_save) {
     if (gen_char == g.c) {
       gender = g.g;
     }
   }
 
-  if (ver < 0x001A) {
-    fscanf(fl, u8"%*d"); // Experience (Redundant)
-    fscanf(fl, u8";"); // Was present pre v0x15, causes no problems until v0x1A.
-    fscanf(fl, u8"\n"); // Skip the white-space, if ';' was used or not.
-  } else {
-    fscanf(fl, u8"\n"); // Skip the white-space before the line of u8"known".
-    unsigned long know;
-    while (fscanf(fl, u8";%ld", &know)) {
-      known.push_back(know);
-    }
-    fscanf(fl, u8":\n"); // Skip the ending colon and white-space after the line of u8"known".
+  while (nextchar(fl) == ';') {
+    known.push_back(nextnum(fl));
   }
+  skipspace(fl);
 
-  fscanf(fl, u8"\n"); // Skip the white-space before the line of u8"completed".
-  unsigned long accom;
-  while (fscanf(fl, u8";%ld", &accom)) {
-    completed.push_back(accom);
+  while (nextchar(fl) == ';') {
+    completed.push_back(nextnum(fl));
   }
-  if (ver >= 0x001A) {
-    fscanf(fl, u8":\n"); // Skip the ending colon and white-space after the line of u8"completed".
-  }
+  skipspace(fl);
 
-  fscanf(fl, u8" %d\n", &sexp);
+  sexp = nextnum(fl);
+  skipspace(fl);
 
-  if (ver < 0x0019) {
-    int16_t mods[6];
-    fscanf(
-        fl,
-        u8"%*d,%hhd,%hd,%*d,%hhd,%hd,%*d,%hhd,%hd,%*d,%hhd,%hd,%*d,%hhd,%hd,%*d,%hhd,%hd,%hhd,%hhd,%hhd",
-        &attr[0],
-        &mods[0],
-        &attr[1],
-        &mods[1],
-        &attr[2],
-        &mods[2],
-        &attr[3],
-        &mods[3],
-        &attr[4],
-        &mods[4],
-        &attr[5],
-        &mods[5],
-        &phys,
-        &stun,
-        &stru);
-    for (int a = 0; a < 6; ++a) {
-      if (mods[a] != 0) {
-        SetModifier(a, mods[a]);
-      }
-    }
-  } else {
-    fscanf(
-        fl,
-        u8"%hhd,%hhd,%hhd,%hhd,%hhd,%hhd,%hhd,%hhd,%hhd",
-        &attr[0],
-        &attr[1],
-        &attr[2],
-        &attr[3],
-        &attr[4],
-        &attr[5],
-        &phys,
-        &stun,
-        &stru);
-  }
+  attr[0] = nextnum(fl);
+  nextchar(fl); // Comma
+  attr[1] = nextnum(fl);
+  nextchar(fl); // Comma
+  attr[2] = nextnum(fl);
+  nextchar(fl); // Comma
+  attr[3] = nextnum(fl);
+  nextchar(fl); // Comma
+  attr[4] = nextnum(fl);
+  nextchar(fl); // Comma
+  attr[5] = nextnum(fl);
+  nextchar(fl); // Comma
+  phys = nextnum(fl);
+  nextchar(fl); // Comma
+  stun = nextnum(fl);
+  nextchar(fl); // Comma
+  stru = nextnum(fl);
 
-  int do_tick;
-  if (fscanf(fl, u8";%d", &do_tick)) {
+  char8_t delim = nextchar(fl);
+  if (delim == ';') {
+    int do_tick = nextnum(fl);
     if (do_tick)
       Activate();
+    delim = nextchar(fl);
   }
 
-  fscanf(fl, u8"\n");
+  while (delim == '|') {
+    uint32_t stok = nexthex(fl);
+    delim = nextchar(fl); // The '|' Separator
 
-  memset(buf, 0, 65536);
-  int val;
-  int ret;
-  uint32_t stok;
-  ret = fscanf(fl, u8"|%X|%d", &stok, &val);
-  while (ret > 1) {
-    // loge(u8"Loaded {}: {}\n", buf, val);
     if (ver < 0x0019) { // Update to new hash algo
       auto name = SkillName(stok);
       stok = crc32c(name);
       insert_skill_hash(stok, name);
     }
-    SetSkill(stok, val);
-    ret = fscanf(fl, u8"|%X|%d", &stok, &val);
-  }
-  if (ret > 0) { // Added the currently used skill to the end in v0x13
-    if (ver < 0x0019) { // Update to new hash algo
-      auto name = SkillName(stok);
-      stok = crc32c(name);
-      insert_skill_hash(stok, name);
+
+    if (delim == '|') {
+      int val = nextnum(fl);
+      delim = nextchar(fl);
+      SetSkill(stok, val);
+    } else { // Only the skill name, so "currently used skill"
+      StartUsing(stok);
     }
-    StartUsing(stok);
   }
-  fscanf(fl, u8";\n");
+  if (delim != ';') {
+    logerr(u8"ERROR[{}]: Object skill list parse error (delim='{:c}').\n", ShortDesc(), delim);
+  }
+  skipspace(fl);
+
+  num = nextnum(fl);
+  skipspace(fl);
 
   std::vector<Object*> toload;
-  fscanf(fl, u8"%d ", &num);
   contents.reserve(num);
   for (int ctr = 0; ctr < num; ++ctr) {
-    int num2;
-    fscanf(fl, u8"%d ", &num2);
-    Object* obj = getbynum(num2);
+    Object* obj = getbynum(nextnum(fl));
     obj->SetParent(this);
     toload.push_back(obj);
     AddLink(obj);
+    skipspace(fl);
   }
 
-  uint8_t num8;
-  fscanf(fl, u8"%hhu\n", &num8);
-  pos = static_cast<pos_t>(num8);
+  pos = static_cast<pos_t>(nextnum(fl));
+  skipspace(fl);
 
-  fscanf(fl, u8"%d ", &num);
+  num = nextnum(fl);
+  skipspace(fl);
   for (int ctr = 0; ctr < num; ++ctr) {
-    int num2;
-    act_t a;
-    memset(buf, 0, 65536);
-    fscanf(fl, u8"%65535[^;];%d ", buf, &num2);
-    a = act_load(std::u8string(buf));
+    auto acts = getuntil(fl, ';');
+    int onum = nextnum(fl);
+    skipspace(fl);
+    act_t a = act_load(acts);
     if (a != act_t::SPECIAL_ACTEE && a != act_t::NONE) {
-      AddAct(a, getbynum(num2));
+      AddAct(a, getbynum(onum));
     }
   }
 

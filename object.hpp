@@ -611,7 +611,7 @@ class alignas(256) Object {
   static void TBACleanup();
 
   int Load(const std::u8string&);
-  int LoadFrom(FILE*);
+  int LoadFrom(std::u8string_view&);
   int Save(const std::u8string&);
   int SaveTo(const outfile&);
   std::u8string WriteContents();

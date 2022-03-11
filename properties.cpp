@@ -57,15 +57,14 @@ void save_prop_names_to(const outfile& fl) {
   }
 }
 
-void load_prop_names_from(FILE* fl) {
-  int32_t size;
-  fscanf(fl, u8"%d\n", &size);
-  char8_t buf[256];
+void load_prop_names_from(std::u8string_view& fl) {
+  int32_t size = nextnum(fl);
+
   skill_defs.reserve(skill_defs.size() + size);
   for (int sk = 0; sk < size; ++sk) {
-    uint32_t hash;
-    fscanf(fl, u8"%X:%255[^\n]\n", &hash, buf);
-    skill_defs.emplace_back(std::make_pair(hash, buf));
+    uint32_t hash = nexthex(fl);
+    nextchar(fl); // Skip Colon
+    skill_defs.emplace_back(std::make_pair(hash, getuntil(fl, '\n')));
   }
   std::sort(skill_defs.begin(), skill_defs.end());
   skill_defs.erase(std::unique(skill_defs.begin(), skill_defs.end()), skill_defs.end());
