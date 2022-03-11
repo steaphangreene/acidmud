@@ -7292,11 +7292,11 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
   return 0;
 }
 
-int handle_command(Object* body, const std::u8string& cl, Mind* mind) {
+int handle_command(Object* body, const std::u8string_view& cl, Mind* mind) {
   int ret = 0;
 
   if (mind && !mind->SpecialPrompt().empty()) {
-    std::u8string cmd = mind->SpecialPrompt() + u8" " + cl;
+    std::u8string cmd = fmt::format(u8"{} {}", mind->SpecialPrompt(), cl);
     ret = handle_single_command(body, cmd, mind);
     return ret;
   }
