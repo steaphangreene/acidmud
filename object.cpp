@@ -212,9 +212,8 @@ int Object::Matches(std::u8string targ, bool knows) const {
 
   // Pointer Matches
   if (targ.starts_with(u8"OBJ:") || targ.starts_with(u8"obj:")) {
-    Object* tofind = nullptr;
-    sscanf(targ.c_str() + 4, u8"%p", &tofind);
-    return (this == tofind);
+    std::u8string addr = fmt::format(u8"{}", reinterpret_cast<const void*>(this));
+    return (targ.substr(4) == addr);
   }
 
   auto ttok = crc32c(targ);
