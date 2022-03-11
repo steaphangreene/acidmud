@@ -25,7 +25,6 @@
 #include <string>
 #include <vector>
 
-#include "cchar8.hpp"
 #include "color.hpp"
 #include "commands.hpp"
 #include "infile.hpp"
@@ -3374,11 +3373,12 @@ void save_world(int with_net) {
   }
 }
 
-int Object::WriteContentsTo(FILE* fl) {
+std::u8string Object::WriteContents() {
+  std::u8string ret;
   for (auto cind : contents) {
-    fprintf(fl, u8":%d", getonum(cind));
+    ret += fmt::format(u8":{}", getonum(cind));
   }
-  return 0;
+  return ret;
 }
 
 void Object::BusyFor(long msec, const std::u8string& default_next) {

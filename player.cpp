@@ -300,8 +300,7 @@ int Player::SaveTo(FILE* fl) {
   fprintf(fl, u8":0"); // Player experience, obsolete, always zero
 
   fprintf(fl, u8":%lX", flags);
-  room->WriteContentsTo(fl);
-  fprintf(fl, u8"\n");
+  fprintf(fl, u8"%s\n", room->WriteContents().c_str());
 
   for (auto var : vars) {
     fprintf(fl, u8";%s:%s", var.first.c_str(), var.second.c_str());
