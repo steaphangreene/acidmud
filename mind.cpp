@@ -389,32 +389,51 @@ std::u8string Mind::TBAComp(const std::u8string_view& in_expr) const {
 }
 
 int Mind::TBAEval(const std::u8string_view& expr) const {
-  std::u8string base = TBAComp(expr);
+  std::u8string basestr = TBAComp(expr);
+  std::u8string_view base(basestr);
   trim_string(base);
 
-  if (base.length() == 0)
+  if (base.length() == 0) {
     return 0; // Null
-  if (base.length() == 1 && base[0] == '!')
+  }
+  if (base.length() == 1 && base.front() == '!') {
     return 1; //! Null
+  }
 
-  int ret = 0, len = 0;
-  sscanf(base.c_str(), u8" %d %n", &ret, &len);
-  if (len == int(base.length()))
+  int ret = nextnum(base);
+  skipspace(base);
+  if (base.length() == 0) {
     return ret; // Numeric
-  sscanf(base.c_str(), u8" ! %d %n", &ret, &len);
-  if (len == int(base.length()))
-    return !ret; //! Numeric
+  }
 
-  Object* holder;
-  sscanf(base.c_str(), u8" obj:%p %n", &holder, &len);
-  if (len == int(base.length()))
-    return (holder != nullptr); // Object
-  sscanf(base.c_str(), u8" ! obj:%p %n", &holder, &len);
-  if (len == int(base.length()))
-    return (holder == nullptr); //! Object
+  if (base.starts_with(u8"obj:0x")) {
+    getuntil(base, 'x');
+    uint64_t pointer = nexthex(base);
+    if (base.length() == 0) {
+      return (pointer != 0); // Object
+    }
+  }
 
-  if (base[0] == '!')
+  if (base.front() == '!') {
+    nextchar(base);
+    skipspace(base);
+
+    ret = nextnum(base);
+    skipspace(base);
+    if (base.length() == 0) {
+      return !ret; // Numeric
+    }
+
+    if (base.starts_with(u8"obj:0x")) {
+      getuntil(base, 'x');
+      uint64_t pointer = nexthex(base);
+      if (base.length() == 0) {
+        return (pointer == 0); // Object
+      }
+    }
+
     return 0; //! Non-Numeric, Non-nullptr, Non-Object
+  }
   return 1; // Non-Numeric, Non-nullptr, Non-Object
 }
 
