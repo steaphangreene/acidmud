@@ -27,7 +27,7 @@
 
 outfile::outfile(const std::u8string_view filename) {
   std::filesystem::path path(filename);
-  fd = open(path.c_str(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+  fd = open(path.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
   if (fd < 0) {
     perror("outfile::init() open()");
   } else {
