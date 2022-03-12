@@ -2249,7 +2249,7 @@ int Mind::TBARunLine(std::u8string line) {
       //	body->Skill(prhash(u8"TBAScript")), line
       //	);
       if (door) {
-        std::u8string newname = door->ShortDescS();
+        std::u8string newname(door->ShortDesc());
         size_t end = newname.find(u8"(");
         if (end != std::u8string::npos) {
           end = newname.find_last_not_of(u8" \t", end - 1);

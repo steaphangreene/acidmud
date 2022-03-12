@@ -228,22 +228,6 @@ class alignas(256) Object {
     return std::u8string_view(descriptions + dlens.sd + dlens.n + dlens.d + 3, dlens.ld);
   };
 
-  std::u8string ShortDescS() const {
-    return std::u8string(ShortDesc());
-  };
-
-  std::u8string NameS() const {
-    return std::u8string(Name());
-  };
-
-  std::u8string DescS() const {
-    return std::u8string(Desc());
-  };
-
-  std::u8string LongDescS() const {
-    return std::u8string(LongDesc());
-  };
-
   void SetDescs(std::u8string_view, std::u8string_view, std::u8string_view, std::u8string_view);
   void SetShortDesc(const std::u8string_view&);
   void SetName(const std::u8string_view&);
@@ -402,7 +386,7 @@ class alignas(256) Object {
   bool HasTag(uint64_t tag) const;
 
   void SpendExp(int);
-  bool Accomplish(uint64_t, const std::u8string&);
+  bool Accomplish(uint64_t, const std::u8string_view&);
   bool HasAccomplished(uint64_t) const;
   int TotalExp() const {
     return (completed.size() - sexp) + (known.size() / 100);
@@ -411,7 +395,7 @@ class alignas(256) Object {
     return completed.size();
   };
 
-  bool Learn(uint64_t, const std::u8string&);
+  bool Learn(uint64_t, const std::u8string_view&);
   bool Knows(uint64_t) const;
   bool Knows(const Object*) const;
 

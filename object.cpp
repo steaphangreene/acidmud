@@ -1250,7 +1250,7 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::u8string b) {
           if (base != u8"")
             m->Send(u8"{}{}Inside: ", base, CNRM);
           m->Send(CCYN);
-          std::u8string send = ind->ShortDescS();
+          std::u8string send(ind->ShortDesc());
           if (!(ind->Skill(prhash(u8"Open")) || ind->Skill(prhash(u8"Transparent")))) {
             send += u8", the door is closed.\n";
           } else {
@@ -3279,7 +3279,7 @@ void Object::SendOut(
 
   if (targ && targ != this && minds.size() > 0 && targ->HasSkill(prhash(u8"Object ID")) &&
       mes.starts_with(u8";s introduces ;s as")) {
-    Learn(targ->Skill(prhash(u8"Object ID")), targ->NameS());
+    Learn(targ->Skill(prhash(u8"Object ID")), targ->Name());
   }
 }
 
@@ -3833,7 +3833,7 @@ bool Object::HasAccomplished(uint64_t acc) const {
   return false;
 }
 
-bool Object::Accomplish(uint64_t acc, const std::u8string& why) {
+bool Object::Accomplish(uint64_t acc, const std::u8string_view& why) {
   if (!is_pc(this)) { // Only PCs use this for Accomplishments
     return false;
   }
@@ -3870,7 +3870,7 @@ bool Object::Knows(uint64_t k) const {
   return false;
 }
 
-bool Object::Learn(uint64_t k, const std::u8string& what) {
+bool Object::Learn(uint64_t k, const std::u8string_view& what) {
   if (Knows(k)) {
     return false;
   }
