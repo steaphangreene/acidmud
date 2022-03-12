@@ -30,7 +30,6 @@
 #include <random>
 #include <string>
 
-#include "cchar8.hpp"
 #include "color.hpp"
 #include "commands.hpp"
 #include "log.hpp"
@@ -726,6 +725,24 @@ std::u8string Mind::Tactics(int phase) const {
     }
   }
   return u8"attack";
+}
+
+static Object* decode_object(std::u8string_view& enc) {
+  Object* ret = nullptr;
+  if (process(enc, u8"obj:0x")) {
+    // uintptr_t encint = gethex(enc); // Just preview the digits
+    // ret = reinterpret_cast<Object*>(encint);
+    // assert(fmt::format(u8"{}", reinterpret_cast<void*>(ret)).substr(2) == enc);
+    // nexthex(enc); // Actually consume the digits
+    uintptr_t encint = nexthex(enc); // Just preview the digits
+    ret = reinterpret_cast<Object*>(encint);
+  }
+  return ret;
+}
+
+static Object* decode_object(const std::u8string_view& enc) {
+  std::u8string_view stub = enc;
+  return decode_object(stub);
 }
 
 bool Mind::TBAVarSub(std::u8string& edit) const {
@@ -1655,8 +1672,7 @@ int Mind::TBARunLine(std::u8string linestr) {
             val = TBAComp(val);
           }
           if (val.starts_with(u8"obj:")) { // Encoded Object
-            ovars[std::u8string(var)] = nullptr;
-            sscanf(val.c_str(), u8"obj:%p", &(ovars[std::u8string(var)]));
+            ovars[std::u8string(var)] = decode_object(val);
             svars.erase(std::u8string(var));
           } else {
             svars[std::u8string(var)] = val;
@@ -1765,9 +1781,10 @@ int Mind::TBARunLine(std::u8string linestr) {
     return ret;
   }
 
-  else if (line.starts_with(u8"context ")) {
-    Object* con = nullptr;
-    if (sscanf(std::u8string(line).c_str() + 8, u8" obj:%p", &con) >= 1 && con != nullptr) {
+  else if (process(line, u8"context ")) {
+    skipspace(line);
+    Object* con = decode_object(line);
+    if (con != nullptr) {
       ovars[u8"context"] = con;
     } else {
       loger(u8"#{} Error: No Context Object '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
@@ -1775,10 +1792,12 @@ int Mind::TBARunLine(std::u8string linestr) {
     }
   }
 
-  else if (line.starts_with(u8"rdelete ")) {
-    Object* con = nullptr;
-    char8_t var[256] = u8"";
-    if (sscanf(std::u8string(line).c_str() + 7, u8" %s obj:%p", var, &con) >= 2 && con != nullptr) {
+  else if (process(line, u8"rdelete ")) {
+    skipspace(line);
+    std::u8string_view var = getgraph(line);
+    skipspace(line);
+    Object* con = decode_object(line);
+    if (var.length() > 0 && con != nullptr) {
       con->SetSkill(fmt::format(u8"TBA:{}", var), 0);
       if (con->IsAnimate()) {
         con->Accomplish(body->Skill(prhash(u8"Accomplishment")), u8"completing a quest");
@@ -1794,11 +1813,13 @@ int Mind::TBARunLine(std::u8string linestr) {
     }
   }
 
-  else if (!!line.starts_with(u8"remote ")) {
-    Object* con = nullptr;
-    char8_t var[256] = u8"";
-    if (sscanf(std::u8string(line).c_str() + 7, u8" %s obj:%p", var, &con) >= 2 && con != nullptr) {
-      if (svars.count(var) > 0) {
+  else if (process(line, u8"remote ")) {
+    skipspace(line);
+    std::u8string_view var = getgraph(line);
+    skipspace(line);
+    Object* con = decode_object(line);
+    if (var.length() > 0 && con != nullptr) {
+      if (svars.contains(std::u8string(var))) {
         int val = getnum(svars[std::u8string(var)]);
         con->SetSkill(fmt::format(u8"TBA:{}", var), val);
         if (con->IsAnimate()) {
@@ -2075,11 +2096,11 @@ int Mind::TBARunLine(std::u8string linestr) {
     }
   }
 
-  else if (line.starts_with(u8"echoaround ")) {
-    Object* targ = nullptr;
-    char8_t buf[256] = u8"";
-    sscanf(std::u8string(line).c_str() + 11, u8" obj:%p %254[^\n\r]", &targ, buf);
-    std::u8string mes(buf);
+  else if (process(line, u8"echoaround ")) {
+    skipspace(line);
+    Object* targ = decode_object(line);
+    skipspace(line);
+    std::u8string mes(getuntil(line, '\n'));
     mes.push_back('\n');
     Object* troom = targ;
     while (troom && troom->Skill(prhash(u8"TBARoom")) == 0)
@@ -2098,23 +2119,21 @@ int Mind::TBARunLine(std::u8string linestr) {
     }
   }
 
-  else if (line.starts_with(u8"send ")) {
-    Object* targ = nullptr;
-    char8_t buf[1024] = u8"";
-    sscanf(std::u8string(line).c_str() + 5, u8" obj:%p %1022[^\n\r]", &targ, buf);
-    std::u8string mes(buf);
+  else if (process(line, u8"send ")) {
+    skipspace(line);
+    Object* targ = decode_object(line);
+    skipspace(line);
+    std::u8string mes(getuntil(line, '\n'));
     mes.push_back('\n');
     if (targ)
       targ->Send(0, 0, mes);
   }
 
-  else if (line.starts_with(u8"force ")) {
-    Object* targ = nullptr;
-    char8_t tstr[256] = u8"", tcmd[1024] = u8"";
-    if (sscanf(std::u8string(line).c_str() + 6, u8" obj:%p %1023[^\n\r]", &targ, tcmd) < 2) {
-      if (sscanf(std::u8string(line).c_str() + 6, u8" %255s %1023[^\n\r]", tstr, tcmd) >= 2) {
-        targ = room->PickObject(tstr, LOC_NINJA | LOC_INTERNAL);
-      }
+  else if (process(line, u8"force ")) {
+    skipspace(line);
+    Object* targ = decode_object(line);
+    if (!targ) {
+      targ = room->PickObject(getgraph(line), LOC_NINJA | LOC_INTERNAL);
     }
     if (targ) {
       Mind* amind = nullptr; // Make sure human minds see it!
@@ -2125,7 +2144,8 @@ int Mind::TBARunLine(std::u8string linestr) {
           break;
         }
       }
-      handle_command(targ, tcmd, amind);
+      skipspace(line);
+      handle_command(targ, line, amind);
     }
   }
 
@@ -2395,9 +2415,9 @@ int Mind::TBARunLine(std::u8string linestr) {
     //	);
   }
 
-  else if (line.starts_with(u8"purge")) {
-    Object* targ = nullptr;
-    sscanf(std::u8string(line).c_str() + 5, u8" obj:%p", &targ);
+  else if (process(line, u8"purge ")) {
+    skipspace(line);
+    Object* targ = decode_object(line);
     if (targ) {
       if (!is_pc(targ))
         targ->Recycle();
@@ -2587,17 +2607,19 @@ int Mind::TBARunLine(std::u8string linestr) {
     } else if (dest != room) { // Have it
       dest->StashOrDrop(item);
     }
-  } else if (line.starts_with(u8"dg_cast '")) {
-    auto splen = line.find_first_of(u8"'", 9);
+  } else if (process(line, u8"dg_cast '")) {
+    auto splen = line.find_first_of(u8"'");
     if (splen != std::u8string::npos) {
-      auto spell = tba_spellconvert(line.substr(9, splen - 9));
+      auto spell = tba_spellconvert(line.substr(0, splen));
       // logeb(u8"Cast[Acid]: {}\n", spell);
-      // logey(u8"Cast[TBA]: {}\n", line.substr(9, splen - 9));
+      // logey(u8"Cast[TBA]: {}\n", line.substr(splen));
       ovars[u8"self"]->SetSkill(spell + u8" Spell", 5);
       std::u8string cline = u8"shout " + spell;
       if (splen + 1 < line.length()) {
-        Object* targ;
-        if (sscanf(std::u8string(line).c_str() + splen + 1, u8" obj:%p", &targ) > 0) {
+        line = line.substr(splen + 1);
+        skipspace(line);
+        Object* targ = decode_object(line);
+        if (targ) {
           ovars[u8"self"]->AddAct(act_t::POINT, targ);
         }
       }
