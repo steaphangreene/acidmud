@@ -241,7 +241,8 @@ static std::u8string tba_spellconvert(const std::u8string_view& tba) {
   return acid;
 }
 
-std::u8string Mind::TBAComp(std::u8string expr) const {
+std::u8string Mind::TBAComp(const std::u8string_view& in_expr) const {
+  std::u8string expr(in_expr);
   size_t end = expr.find_first_of(u8"\n\r");
   if (end != std::u8string::npos)
     expr = expr.substr(0, end);
@@ -387,7 +388,7 @@ std::u8string Mind::TBAComp(std::u8string expr) const {
   return u8"0";
 }
 
-int Mind::TBAEval(std::u8string expr) const {
+int Mind::TBAEval(const std::u8string_view& expr) const {
   std::u8string base = TBAComp(expr);
   trim_string(base);
 

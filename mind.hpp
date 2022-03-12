@@ -116,8 +116,8 @@ class Mind {
  private:
   int TBACanWanderTo(Object* dest) const;
 
-  std::u8string TBAComp(std::u8string expr) const;
-  int TBAEval(std::u8string expr) const;
+  std::u8string TBAComp(const std::u8string_view& expr) const;
+  int TBAEval(const std::u8string_view& expr) const;
   bool TBAVarSub(std::u8string& line) const; // Returns false when mind needs to be deleted
 
   int TBARunLine(std::u8string line);
