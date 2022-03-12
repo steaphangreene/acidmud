@@ -22,7 +22,6 @@
 #ifndef LOG_HPP
 #define LOG_HPP
 
-#include <iostream>
 #include <string>
 #include <utility>
 
@@ -32,71 +31,76 @@
 
 #include "color.hpp"
 
-// Seriously, this type isn't supported by iostream?
-inline std::ostream& operator<<(std::ostream& out, const std::u8string& in) {
-  return out << reinterpret_cast<const char*>(in.c_str());
-}
-
-// Seriously, this type is totally broken in iostream?
-inline std::ostream& operator<<(std::ostream& out, const char8_t* in) {
-  return out << reinterpret_cast<const char*>(in);
-}
+void write_out(const std::u8string_view&);
+void write_err(const std::u8string_view&);
 
 template <typename S, typename... Args>
 void logo(const S& mes, Args&&... args) {
-  std::cout << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...));
+  write_out(fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)));
 };
 template <typename S, typename... Args>
 void loge(const S& mes, Args&&... args) {
-  std::cerr << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...));
+  write_err(fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)));
 };
 template <typename S, typename... Args>
 void loger(const S& mes, Args&&... args) {
-  std::cerr << CRED << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
+  write_err(fmt::format(
+      CRED u8"{}" CNRM, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...))));
 };
 template <typename S, typename... Args>
 void logerr(const S& mes, Args&&... args) {
-  std::cerr << CBRD << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
+  write_err(fmt::format(
+      CBRD u8"{}" CNRM, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...))));
 };
 template <typename S, typename... Args>
 void logeg(const S& mes, Args&&... args) {
-  std::cerr << CGRN << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
+  write_err(fmt::format(
+      CGRN u8"{}" CNRM, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...))));
 };
 template <typename S, typename... Args>
 void logegg(const S& mes, Args&&... args) {
-  std::cerr << CBGR << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
+  write_err(fmt::format(
+      CBGR u8"{}" CNRM, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...))));
 };
 template <typename S, typename... Args>
 void logeb(const S& mes, Args&&... args) {
-  std::cerr << CBLU << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
+  write_err(fmt::format(
+      CBLU u8"{}" CNRM, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...))));
 };
 template <typename S, typename... Args>
 void logebb(const S& mes, Args&&... args) {
-  std::cerr << CBBL << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
+  write_err(fmt::format(
+      CBBL u8"{}" CNRM, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...))));
 };
 template <typename S, typename... Args>
 void logey(const S& mes, Args&&... args) {
-  std::cerr << CYEL << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
+  write_err(fmt::format(
+      CYEL u8"{}" CNRM, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...))));
 };
 template <typename S, typename... Args>
 void logeyy(const S& mes, Args&&... args) {
-  std::cerr << CBYL << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
+  write_err(fmt::format(
+      CBYL u8"{}" CNRM, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...))));
 };
 template <typename S, typename... Args>
 void logem(const S& mes, Args&&... args) {
-  std::cerr << CMAG << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
+  write_err(fmt::format(
+      CMAG u8"{}" CNRM, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...))));
 };
 template <typename S, typename... Args>
 void logemm(const S& mes, Args&&... args) {
-  std::cerr << CBMG << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
+  write_err(fmt::format(
+      CBMG u8"{}" CNRM, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...))));
 };
 template <typename S, typename... Args>
 void logec(const S& mes, Args&&... args) {
-  std::cerr << CCYN << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
+  write_err(fmt::format(
+      CCYN u8"{}" CNRM, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...))));
 };
 template <typename S, typename... Args>
 void logecc(const S& mes, Args&&... args) {
-  std::cerr << CBCN << fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)) << CNRM;
+  write_err(fmt::format(
+      CBCN u8"{}" CNRM, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...))));
 };
 
 #endif // LOG_HPP
