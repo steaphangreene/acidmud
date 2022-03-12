@@ -59,54 +59,48 @@ static int fline(FILE* f) {
 
 static int untrans_trig = 0;
 void Object::TBALoadAll() {
-  FILE* mudt = fopen(u8"tba/trg/index", u8"r");
+  infile mudt(u8"tba/trg/index");
   if (mudt) {
-    char8_t buf[65536] = u8"tba/trg/";
-    while (fscanf(mudt, u8"%255[^$\n\r]\n", buf + 8) > 0) {
-      TBALoadTRG(buf);
+    std::u8string_view mud = mudt.all();
+    while (mud.length() > 3) {
+      TBALoadTRG(fmt::format(u8"tba/trg/{}", getuntil(mud, '\n')));
     }
-    fclose(mudt);
   }
-  FILE* mudw = fopen(u8"tba/wld/index", u8"r");
+  infile mudw(u8"tba/wld/index");
   if (mudw) {
-    char8_t buf[65536] = u8"tba/wld/";
-    while (fscanf(mudw, u8"%255[^$\n\r]\n", buf + 8) > 0) {
-      TBALoadWLD(buf);
+    std::u8string_view mud = mudw.all();
+    while (mud.length() > 3) {
+      TBALoadWLD(fmt::format(u8"tba/wld/{}", getuntil(mud, '\n')));
     }
-    fclose(mudw);
   }
-  FILE* mudo = fopen(u8"tba/obj/index", u8"r");
+  infile mudo(u8"tba/obj/index");
   if (mudo) {
-    char8_t buf[65536] = u8"tba/obj/";
-    while (fscanf(mudo, u8"%255[^$\n\r]\n", buf + 8) > 0) {
-      TBALoadOBJ(buf);
+    std::u8string_view mud = mudo.all();
+    while (mud.length() > 3) {
+      TBALoadOBJ(fmt::format(u8"tba/obj/{}", getuntil(mud, '\n')));
     }
-    fclose(mudo);
   }
-  FILE* mudm = fopen(u8"tba/mob/index", u8"r");
+  infile mudm(u8"tba/mob/index");
   if (mudm) {
-    char8_t buf[65536] = u8"tba/mob/";
-    while (fscanf(mudm, u8"%255[^$\n\r]\n", buf + 8) > 0) {
-      TBALoadMOB(buf);
+    std::u8string_view mud = mudm.all();
+    while (mud.length() > 3) {
+      TBALoadMOB(fmt::format(u8"tba/mob/{}", getuntil(mud, '\n')));
     }
-    fclose(mudm);
   }
-  FILE* mudz = fopen(u8"tba/zon/index", u8"r");
+  infile mudz(u8"tba/zon/index");
   if (mudz) {
-    char8_t buf[65536] = u8"tba/zon/";
-    while (fscanf(mudz, u8"%255[^$\n\r]\n", buf + 8) > 0) {
-      TBALoadZON(buf);
+    std::u8string_view mud = mudz.all();
+    while (mud.length() > 3) {
+      TBALoadZON(fmt::format(u8"tba/zon/{}", getuntil(mud, '\n')));
     }
-    fclose(mudz);
   }
   TBAFinalizeTriggers();
-  FILE* muds = fopen(u8"tba/shp/index", u8"r");
+  infile muds(u8"tba/shp/index");
   if (muds) {
-    char8_t buf[65536] = u8"tba/shp/";
-    while (fscanf(muds, u8"%255[^$\n\r]\n", buf + 8) > 0) {
-      TBALoadSHP(buf);
+    std::u8string_view mud = muds.all();
+    while (mud.length() > 3) {
+      TBALoadSHP(fmt::format(u8"tba/shp/{}", getuntil(mud, '\n')));
     }
-    fclose(muds);
   }
   TBACleanup();
   logeyy(u8"Warning: {} untranslated triggers!\n", untrans_trig);
