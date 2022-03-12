@@ -2616,6 +2616,20 @@ int Mind::TBARunLine(std::u8string line) {
     return -1;
   }
 
+  // Player commands with extra m prefix in TBA, but otherwise working the same in Acid
+  else if (line.starts_with(u8"mkill ") || line.starts_with(u8"mfollow ")) {
+    size_t stuff = line.find_first_of(u8" ");
+    if (stuff != std::u8string::npos) {
+      stuff = line.find_first_not_of(u8" \t\r\n", stuff);
+    }
+    if (stuff != std::u8string::npos) {
+      handle_command(ovars[u8"self"], line.substr(1));
+    } else {
+      loger(u8"#{} Error: Told just '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      return -1;
+    }
+  }
+
   // Player commands different between Acid and TBA, requiring arguments
   else if (line.starts_with(u8"give ")) {
     size_t start = line.find_first_not_of(u8" \t\r\n", 5);
@@ -2649,7 +2663,8 @@ int Mind::TBARunLine(std::u8string line) {
   else if (
       com == COM_SAY || com == COM_SHOUT || com == COM_EMOTE || com == COM_LOCK ||
       com == COM_UNLOCK || com == COM_OPEN || com == COM_CLOSE || com == COM_GET ||
-      com == COM_DROP || com == COM_WEAR || com == COM_WIELD || com == COM_FOLLOW) {
+      com == COM_DROP || com == COM_WEAR || com == COM_WIELD || com == COM_FOLLOW ||
+      com == COM_KILL) {
     // if (body->Skill(prhash(u8"TBAScript")) >= 5034503 && body->Skill(prhash(u8"TBAScript")) <=
     // 5034507)
     //  logem(
