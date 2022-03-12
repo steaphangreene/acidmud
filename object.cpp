@@ -2277,6 +2277,10 @@ void Object::Recycle(int inbin) {
     tonotify.insert(ActTarg(act_t::SPECIAL_MONITOR));
   if (ActTarg(act_t::SPECIAL_LINKED))
     tonotify.insert(ActTarg(act_t::SPECIAL_LINKED));
+  if (ActTarg(act_t::SPECIAL_HOME))
+    tonotify.insert(ActTarg(act_t::SPECIAL_HOME));
+  if (ActTarg(act_t::SPECIAL_WORK))
+    tonotify.insert(ActTarg(act_t::SPECIAL_WORK));
 
   auto touches = Touching();
   for (auto touch : touches) {
@@ -2285,6 +2289,8 @@ void Object::Recycle(int inbin) {
 
   StopAct(act_t::SPECIAL_MONITOR);
   StopAct(act_t::SPECIAL_LINKED);
+  StopAct(act_t::SPECIAL_HOME);
+  StopAct(act_t::SPECIAL_WORK);
 
   for (auto noti : tonotify) {
     int del = 0;

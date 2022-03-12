@@ -49,9 +49,7 @@ class Player {
   Object* Creator() {
     return creator;
   };
-  Object* World() {
-    return world;
-  };
+  Object* World();
   void SetCreator(Object* o) {
     creator = o;
     if (creator) {

@@ -200,6 +200,10 @@ void Player::AddChar(Object* ch) {
   world = ch->World();
 }
 
+Object* Player::World() {
+  return (world && Object::Universe()->Contains(world)) ? world : nullptr;
+}
+
 int player_exists(const std::u8string_view& name) {
   return player_list.count(std::u8string(name));
 }
