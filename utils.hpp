@@ -91,6 +91,35 @@ inline char8_t nextchar(std::u8string_view& line) {
   return ret;
 }
 
+inline double nextdouble(std::u8string_view& line) {
+  double ret = 0;
+  bool negative = false;
+  if (line.front() == '-') {
+    line = line.substr(1);
+    negative = true;
+  }
+  while (ascii_isdigit(line.front())) {
+    ret *= 10;
+    ret += (line.front() - '0');
+    line = line.substr(1);
+  }
+  if (line.front() == '.') {
+    line = line.substr(1);
+    double factor = 10.0;
+    while (ascii_isdigit(line.front())) {
+      ret += (line.front() - '0') / factor;
+      line = line.substr(1);
+      factor *= 10.0;
+    }
+  }
+  return (negative) ? -ret : ret;
+}
+
+inline double getdouble(const std::u8string_view& in_line) {
+  std::u8string_view line(in_line);
+  return nextdouble(line);
+}
+
 inline int64_t nextnum(std::u8string_view& line) {
   int64_t ret = 0;
   bool negative = false;
