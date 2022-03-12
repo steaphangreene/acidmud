@@ -39,9 +39,9 @@ class Player;
 class Player {
  public:
   Player() = delete;
-  Player(std::u8string nm, std::u8string ps);
+  Player(const std::u8string_view& nm, const std::u8string_view& ps);
   ~Player();
-  void SetName(std::u8string);
+  void SetName(const std::u8string_view&);
   void Link(Object*);
   Object* Room() {
     return room;
@@ -91,15 +91,15 @@ class Player {
   uint64_t flags = 0;
   std::map<std::u8string, std::u8string> vars;
 
-  friend Player* player_login(std::u8string name, std::u8string pass);
-  friend Player* get_player(std::u8string name);
+  friend Player* player_login(const std::u8string_view& name, const std::u8string_view& pass);
+  friend Player* get_player(const std::u8string_view& name);
 };
 
-Player* player_login(std::u8string name, std::u8string pass);
-Player* get_player(std::u8string name);
-int player_exists(std::u8string name);
-int save_players(const std::u8string& fn);
-int load_players(const std::u8string& fn);
+Player* player_login(const std::u8string_view& name, const std::u8string_view& pass);
+Player* get_player(const std::u8string_view& name);
+int player_exists(const std::u8string_view& name);
+int save_players(const std::u8string_view& fn);
+int load_players(const std::u8string_view& fn);
 void player_rooms_erase(Object*);
 int is_pc(const Object*);
 

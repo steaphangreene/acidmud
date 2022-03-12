@@ -76,9 +76,9 @@ class Mind {
   std::u8string PName() const {
     return pname;
   };
-  void SetPName(std::u8string);
-  void SetPPass(std::u8string);
-  void SetPlayer(std::u8string);
+  void SetPName(const std::u8string_view&);
+  void SetPPass(const std::u8string_view&);
+  void SetPlayer(const std::u8string_view&);
   mind_t Type() const {
     return type;
   };
@@ -86,10 +86,11 @@ class Mind {
     return log;
   };
 
-  bool Send(const std::u8string&); // Returns false when mind needs to be deleted
+  bool Send(const std::u8string_view&); // Returns false when mind needs to be deleted
   template <typename S, typename... Args>
   bool Send(const S& mes, Args&&... args) {
-    return Send(fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)));
+    return Send(
+        std::u8string_view(fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...))));
   };
 
   void UpdatePrompt();

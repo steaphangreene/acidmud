@@ -317,8 +317,9 @@ class alignas(256) Object {
 
   void NotifyGone(Object* obj, Object* newloc = nullptr, int up = 1);
 
-  Object* PickObject(const std::u8string& name, int loc, int* ordinal = nullptr) const;
-  MinVec<1, Object*> PickObjects(std::u8string name, int loc, int* ordinal = nullptr) const;
+  Object* PickObject(const std::u8string_view& name, int loc, int* ordinal = nullptr) const;
+  MinVec<1, Object*> PickObjects(const std::u8string_view& name, int loc, int* ordinal = nullptr)
+      const;
   int IsNearBy(const Object* obj) const;
   int SeeWithin(const Object* obj) const; // Recursive & Visible
   int HasWithin(const Object* obj) const; // Recursive (All)
@@ -526,15 +527,20 @@ class alignas(256) Object {
   void Deafen(bool deaf = true);
 
   // Unformatted (raw print, but with ;s/;s for actor/targ)
-  void Send(channel_t channel, const std::u8string& mes);
+  void Send(channel_t channel, const std::u8string_view& mes);
   template <typename S, typename... Args>
   void Send(channel_t channel, const S& mes, Args&&... args) {
-    Send(channel, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)));
+    Send(
+        channel,
+        std::u8string_view(fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...))));
   };
-  void Send(int targ, int rsucc, const std::u8string& mes);
+  void Send(int targ, int rsucc, const std::u8string_view& mes);
   template <typename S, typename... Args>
   void Send(int targ, int rsucc, const S& mes, Args&&... args) {
-    Send(targ, rsucc, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)));
+    Send(
+        targ,
+        rsucc,
+        std::u8string_view(fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...))));
   };
   void SendOut(
       int tnum,
@@ -598,7 +604,7 @@ class alignas(256) Object {
 
   bool IsSameAs(const Object& in) const;
 
-  int Matches(std::u8string seek, bool knows = false) const;
+  int Matches(const std::u8string_view& seek, bool knows = false) const;
   int LooksLike(Object* other, int vmode = 0, Object* viewer = nullptr) const;
 
   Object* AddNPC(std::mt19937&, const std::u8string_view& tags);

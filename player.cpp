@@ -38,9 +38,10 @@ static std::set<Player*> non_init;
 static const std::u8string salt_char =
     u8"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
 
-static std::u8string md5_crypt(std::u8string pass, std::u8string salt) {
+static std::u8string md5_crypt(const std::u8string_view& pass, const std::u8string_view& insalt) {
   Chocobo1::MD5 md5;
 
+  std::u8string_view salt = insalt;
   if (!salt.starts_with(u8"$1$") || salt.length() < 11 ||
       (salt.length() > 11 && salt[11] != u8'$')) {
     loger(u8"Invalid magic in salt submitted to md5_crypt!\n");
@@ -120,7 +121,7 @@ static std::u8string md5_crypt(std::u8string pass, std::u8string salt) {
   }};
 
   // Final Encoding
-  std::u8string hash = salt + u8"$";
+  std::u8string hash = fmt::format(u8"{}$", salt);
   static const char8_t* cb64 = u8"./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   for (int off = 15; off >= 0; off -= 3) {
     hash.push_back(cb64[final[off + 2] & 0x3F]);
@@ -134,7 +135,7 @@ static std::u8string md5_crypt(std::u8string pass, std::u8string salt) {
   return hash;
 }
 
-Player::Player(std::u8string nm, std::u8string ps) {
+Player::Player(const std::u8string_view& nm, const std::u8string_view& ps) {
   room = new Object();
   creator = nullptr;
   world = nullptr;
@@ -164,13 +165,12 @@ Player::~Player() {
     delete room;
 }
 
-void Player::SetName(std::u8string nm) {
+void Player::SetName(const std::u8string_view& nm) {
   player_list.erase(name);
   name = nm;
   player_list[name] = this;
-  std::u8string desc = nm + u8"'s character room";
-  room->SetShortDesc(desc);
-  desc = u8"Available commands:\n";
+  room->SetShortDesc(fmt::format(u8"{}'s character room", nm));
+  std::u8string desc = u8"Available commands:\n";
   desc += u8"     " CMAG u8"look" CNRM u8": Show all your existing characters.\n";
   desc += u8"     " CMAG u8"world" CNRM u8": Show list of currently available worlds.\n";
   desc +=
@@ -200,32 +200,32 @@ void Player::AddChar(Object* ch) {
   world = ch->World();
 }
 
-int player_exists(std::u8string name) {
-  return player_list.count(name);
+int player_exists(const std::u8string_view& name) {
+  return player_list.count(std::u8string(name));
 }
 
-Player* get_player(std::u8string name) {
-  if (!player_list.count(name))
+Player* get_player(const std::u8string_view& name) {
+  if (!player_list.contains(std::u8string(name))) {
     return nullptr;
-
-  Player* pl = player_list[name];
+  }
+  Player* pl = player_list[std::u8string(name)];
   non_init.erase(pl);
 
   return pl;
 }
 
-Player* player_login(std::u8string name, std::u8string pass) {
-  if (!player_list.count(name))
+Player* player_login(const std::u8string_view& name, const std::u8string_view& pass) {
+  if (!player_list.contains(std::u8string(name))) {
     return nullptr;
-
-  Player* pl = player_list[name];
+  }
+  Player* pl = player_list[std::u8string(name)];
   std::u8string enpass = md5_crypt(pass, pl->pass);
 
   // loge(u8"Trying {}:\n{}\n{}\n", name, enpass, pl->pass);
 
   if (enpass != pl->pass) {
     if (non_init.count(pl)) {
-      player_list.erase(name);
+      player_list.erase(std::u8string(name));
       non_init.erase(pl);
     }
     return nullptr;
@@ -272,7 +272,7 @@ int Player::LoadFrom(std::u8string_view& fl) {
   return 0;
 }
 
-int load_players(const std::u8string& fn) {
+int load_players(const std::u8string_view& fn) {
   loge(u8"Loading Players.\n");
 
   infile file(fn);
@@ -311,7 +311,7 @@ int Player::SaveTo(outfile& fl) {
   return 0;
 }
 
-int save_players(const std::u8string& fn) {
+int save_players(const std::u8string_view& fn) {
   outfile fl(fn);
   if (!fl)
     return -1;

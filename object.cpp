@@ -207,7 +207,8 @@ int matches(const std::u8string_view& name, const std::u8string_view& seek) {
   return ret;
 }
 
-int Object::Matches(std::u8string targ, bool knows) const {
+int Object::Matches(const std::u8string_view& intarg, bool knows) const {
+  std::u8string_view targ = intarg;
   trim_string(targ);
 
   // Pointer Matches
@@ -2343,7 +2344,7 @@ int Object::ContainedVolume() {
   return ret;
 }
 
-static int get_ordinal(const std::u8string& t) {
+static int get_ordinal(const std::u8string_view& t) {
   int ret = 0;
 
   std::u8string_view text = t;
@@ -2396,7 +2397,7 @@ static int get_ordinal(const std::u8string& t) {
   return ret;
 }
 
-static int strip_ordinal(std::u8string& text) {
+static int strip_ordinal(std::u8string_view& text) {
   trim_string(text);
   int ret = get_ordinal(text);
   if (ret) {
@@ -2408,7 +2409,7 @@ static int strip_ordinal(std::u8string& text) {
   return ret;
 }
 
-Object* Object::PickObject(const std::u8string& name, int loc, int* ordinal) const {
+Object* Object::PickObject(const std::u8string_view& name, int loc, int* ordinal) const {
   auto ret = PickObjects(name, loc, ordinal);
   if (ret.size() != 1) {
     return nullptr;
@@ -2508,9 +2509,11 @@ static int tag(Object* obj, MinVec<1, Object*>& ret, int* ordinal, int vmode = 0
   return 0;
 }
 
-MinVec<1, Object*> Object::PickObjects(std::u8string name, int loc, int* ordinal) const {
+MinVec<1, Object*> Object::PickObjects(const std::u8string_view& inname, int loc, int* ordinal)
+    const {
   MinVec<1, Object*> ret;
 
+  std::u8string_view name = inname;
   trim_string(name);
   uint32_t ntok = crc32c(name);
 
@@ -3060,34 +3063,49 @@ int Object::HitStru(int force, int sev, int succ) {
   return sev;
 }
 
-void Object::Send(int tnum, int rsucc, const std::u8string& mes) {
-  if (no_hear)
+void Object::Send(int tnum, int rsucc, const std::u8string_view& mes) {
+  if (no_hear) {
     return;
+  }
+
+  if (mes.length() == 0) {
+    return;
+  }
+
+  if (ascii_islower(mes.front())) {
+    std::u8string tosend(mes);
+    tosend.front() = ascii_toupper(tosend[0]);
+    return Send(tnum, rsucc, tosend);
+  }
 
   if (tnum != ALL && rsucc >= 0 && Roll(prhash(u8"Perception"), tnum) <= rsucc) {
     return;
   }
 
-  auto tosend = mes;
-  tosend[0] = ascii_toupper(tosend[0]);
-
   for (auto mind : minds) {
     Object* body = mind->Body();
     mind->Attach(this);
-    mind->Send(tosend);
+    mind->Send(mes);
     mind->Attach(body);
   }
 }
 
-void Object::Send(channel_t channel, const std::u8string& mes) {
-  auto tosend = mes;
-  tosend[0] = ascii_toupper(tosend[0]);
+void Object::Send(channel_t channel, const std::u8string_view& mes) {
+  if (mes.length() == 0) {
+    return;
+  }
+
+  if (ascii_islower(mes.front())) {
+    std::u8string tosend(mes);
+    tosend.front() = ascii_toupper(tosend[0]);
+    return Send(channel, tosend);
+  }
 
   for (auto mind : minds) {
     if (channel == CHANNEL_ROLLS && mind->IsSVar(u8"combatinfo")) {
       Object* body = mind->Body();
       mind->Attach(this);
-      mind->Send(tosend);
+      mind->Send(mes);
       mind->Attach(body);
     }
   }

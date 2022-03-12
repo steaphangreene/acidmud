@@ -441,11 +441,11 @@ std::vector<Mind*> get_human_minds() {
   return ret;
 }
 
-void SendOut(int sock, const std::u8string& mes) {
+void SendOut(int sock, const std::u8string_view& mes) {
   outbufs[sock] += mes;
 }
 
-void SetPrompt(int sock, const std::u8string& pr) {
+void SetPrompt(int sock, const std::u8string_view& pr) {
   //  loge(u8"Set {}'s prompt to '{}'\n", sock, pr);
   prompts[sock] = pr;
 }

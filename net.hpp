@@ -34,8 +34,8 @@ int suspend_net(void);
 int save_net(const std::u8string& fn);
 int load_net(const std::u8string& fn);
 
-void SendOut(int, const std::u8string&);
-void SetPrompt(int, const std::u8string&);
+void SendOut(int, const std::u8string_view&);
+void SetPrompt(int, const std::u8string_view&);
 
 class Mind;
 class Player;

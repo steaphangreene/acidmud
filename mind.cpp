@@ -602,7 +602,7 @@ void Mind::Unattach() {
     bod->Unattach(this);
 }
 
-bool Mind::Send(const std::u8string& mes) {
+bool Mind::Send(const std::u8string_view& mes) {
   if (type == mind_t::REMOTE) {
     SendOut(pers, mes);
   } else if (type == mind_t::MOB) {
@@ -619,17 +619,16 @@ bool Mind::Send(const std::u8string& mes) {
     ) {
       if ((mes.starts_with(u8"From ")) && (mes.contains(u8" you hear someone shout '")) &&
           (mes.contains(u8"HELP") || mes.contains(u8"ALARM"))) {
-        char8_t buf[256] = u8"                                               ";
-        sscanf(mes.c_str() + 4, u8"%128s", buf);
+        std::u8string_view dir = mes.substr(4);
+        skipspace(dir);
+        dir = getgraph(dir);
 
-        Object* door = body->PickObject(buf, LOC_NEARBY);
+        Object* door = body->PickObject(dir, LOC_NEARBY);
 
         if (door && door->ActTarg(act_t::SPECIAL_LINKED) &&
             door->ActTarg(act_t::SPECIAL_LINKED)->Parent() &&
             TBACanWanderTo(door->ActTarg(act_t::SPECIAL_LINKED)->Parent())) {
-          char8_t buf2[256] = u8"enter                                          ";
-          sscanf(mes.c_str() + 4, u8"%128s", buf2 + 6);
-          body->BusyFor(500, buf2);
+          body->BusyFor(500, fmt::format(u8"enter {}", dir));
         }
         return true;
       }
@@ -653,7 +652,7 @@ bool Mind::Send(const std::u8string& mes) {
   return true;
 }
 
-void Mind::SetPName(std::u8string pn) {
+void Mind::SetPName(const std::u8string_view& pn) {
   pname = pn;
   if (player_exists(pname))
     Send(
@@ -670,7 +669,7 @@ void Mind::SetPName(std::u8string pn) {
         pname);
 }
 
-void Mind::SetPPass(std::u8string ppass) {
+void Mind::SetPPass(const std::u8string_view& ppass) {
   if (player_exists(pname)) {
     player = player_login(pname, ppass);
     if (player == nullptr) {
@@ -709,7 +708,7 @@ void Mind::SetPPass(std::u8string ppass) {
   player->Room()->SendContents(this);
 }
 
-void Mind::SetPlayer(std::u8string pn) {
+void Mind::SetPlayer(const std::u8string_view& pn) {
   if (player_exists(pn)) {
     pname = pn;
     player = get_player(pname);
@@ -1547,15 +1546,15 @@ bool Mind::TBAVarSub(std::u8string& edit) const {
 // 0 to continue running
 // 1 to be done now (suspend)
 // -1 to destroy mind (error/done)
-int Mind::TBARunLine(std::u8string line) {
+int Mind::TBARunLine(std::u8string linestr) {
   if (0
       //	|| body->Skill(prhash(u8"TBAScript")) == 5000099
-      //	|| line.contains(u8"eval loc ")
-      //	|| line.contains(u8"set first ")
-      //	|| line.contains(u8"exclaim")
-      //	|| line.contains(u8"speech")
+      //	|| linestr.contains(u8"eval loc ")
+      //	|| linestr.contains(u8"set first ")
+      //	|| linestr.contains(u8"exclaim")
+      //	|| linestr.contains(u8"speech")
   ) {
-    logeg(u8"#{} Debug: Running '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+    logeg(u8"#{} Debug: Running '{}'\n", body->Skill(prhash(u8"TBAScript")), linestr);
   }
   Object* room = ovars.at(u8"self");
   while (room && room->Skill(prhash(u8"TBARoom")) == 0) {
@@ -1566,7 +1565,7 @@ int Mind::TBARunLine(std::u8string line) {
   }
   if (!room) { // Not in a room (dup clone, in a popper, etc...).
     //    loger(u8"#{} Error: No room in '{}'\n",
-    //	body->Skill(prhash(u8"TBAScript")), line
+    //	body->Skill(prhash(u8"TBAScript")), linestr
     //	);
     return -1;
   }
@@ -1584,12 +1583,13 @@ int Mind::TBARunLine(std::u8string line) {
 
   size_t spos = spos_s.back();
   int vnum = body->Skill(prhash(u8"TBAScript"));
-  if (!TBAVarSub(line)) {
-    loger(u8"#{} Error: VarSub failed in '{}'\n", vnum, line);
+  if (!TBAVarSub(linestr)) {
+    loger(u8"#{} Error: VarSub failed in '{}'\n", vnum, linestr);
     return -1;
   }
 
   int com = COM_NONE; // ComNum for Pass-Through
+  std::u8string_view line = linestr;
   std::u8string_view cmd = line;
   std::u8string_view script = svars[u8"script"];
 
@@ -1616,10 +1616,10 @@ int Mind::TBARunLine(std::u8string line) {
   if (line.starts_with(u8"unset ")) {
     size_t lpos = line.find_first_not_of(u8" \t", 6);
     if (lpos != std::u8string::npos) {
-      std::u8string var = line.substr(lpos);
+      std::u8string_view var = line.substr(lpos);
       trim_string(var);
-      svars.erase(var);
-      ovars.erase(var);
+      svars.erase(std::u8string(var));
+      ovars.erase(std::u8string(var));
       ovars[u8"context"]->SetSkill(fmt::format(u8"TBA:{}", var), 0);
     } else {
       loger(u8"#{} Error: Malformed unset '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
@@ -1635,10 +1635,10 @@ int Mind::TBARunLine(std::u8string line) {
       line = line.substr(lpos);
       size_t end1 = line.find_first_of(u8" \t\n\r");
       if (end1 != std::u8string::npos) {
-        std::u8string var = line.substr(0, end1);
+        std::u8string_view var = line.substr(0, end1);
         lpos = line.find_first_not_of(u8" \t", end1 + 1);
         if (lpos != std::u8string::npos) {
-          std::u8string val = line.substr(lpos);
+          std::u8string val(line.substr(lpos));
           if (0
               //		|| var.contains(u8"midgaard")
               //		|| var.contains(u8"exclaim")
@@ -1655,20 +1655,20 @@ int Mind::TBARunLine(std::u8string line) {
             val = TBAComp(val);
           }
           if (val.starts_with(u8"obj:")) { // Encoded Object
-            ovars[var] = nullptr;
-            sscanf(val.c_str(), u8"obj:%p", &(ovars[var]));
-            svars.erase(var);
+            ovars[std::u8string(var)] = nullptr;
+            sscanf(val.c_str(), u8"obj:%p", &(ovars[std::u8string(var)]));
+            svars.erase(std::u8string(var));
           } else {
-            svars[var] = val;
-            ovars.erase(var);
+            svars[std::u8string(var)] = val;
+            ovars.erase(std::u8string(var));
           }
         } else { // Only space after varname
-          svars[var] = u8"";
-          ovars.erase(var);
+          svars[std::u8string(var)] = u8"";
+          ovars.erase(std::u8string(var));
         }
       } else { // Nothing after varname
-        svars[line] = u8"";
-        ovars.erase(line);
+        svars[std::u8string(line)] = u8"";
+        ovars.erase(std::u8string(line));
       }
     }
     return 0;
@@ -1680,7 +1680,7 @@ int Mind::TBARunLine(std::u8string line) {
       line = line.substr(lpos);
       size_t end1 = line.find_first_of(u8" \t\n\r");
       if (end1 != std::u8string::npos) {
-        std::u8string var = line.substr(0, end1);
+        std::u8string_view var = line.substr(0, end1);
         lpos = line.find_first_not_of(u8" \t", end1 + 1);
         if (lpos != std::u8string::npos) {
           int wnum = getnum(line.substr(lpos)) - 1; // Start at 0, -1=fail
@@ -1699,11 +1699,11 @@ int Mind::TBARunLine(std::u8string line) {
               end1 = line.find_first_of(u8" \t\n\r", lpos);
               if (end1 == std::u8string::npos)
                 end1 = line.length();
-              svars[var] = line.substr(lpos, end1 - lpos);
+              svars[std::u8string(var)] = line.substr(lpos, end1 - lpos);
             } else {
-              svars[var] = u8"";
+              svars[std::u8string(var)] = u8"";
             }
-            ovars.erase(var);
+            ovars.erase(std::u8string(var));
           } else if (wnum < 0) { // Bad number after varname
             loger(
                 u8"#{} Error: Malformed extract '{}'\n" CNRM,
@@ -1727,12 +1727,13 @@ int Mind::TBARunLine(std::u8string line) {
     return 0;
   }
 
-  else if (line.starts_with(u8"at ")) {
-    int dnum, pos;
-    if (sscanf(line.c_str(), u8"at %d %n", &dnum, &pos) < 1) {
-      loger(u8"#{} Error: Malformed at '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
-      return -1;
-    }
+  else if (process(line, u8"at ")) {
+    int dnum = nextnum(line);
+    skipspace(line);
+    // if (ssc:anf(std::u8string(line).c_str(), u8"at %d %n", &dnum, &pos) < 1) {
+    //   loger(u8"#{} Error: Malformed at '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+    //   return -1;
+    // }
     room = room->Zone();
     auto options = room->Contents();
 
@@ -1756,7 +1757,7 @@ int Mind::TBARunLine(std::u8string line) {
       oldp->RemoveLink(ovars.at(u8"self"));
       ovars.at(u8"self")->SetParent(room);
     }
-    int ret = TBARunLine(line.substr(pos));
+    int ret = TBARunLine(std::u8string(line));
     if (oldp) {
       ovars.at(u8"self")->Parent()->RemoveLink(ovars.at(u8"self"));
       ovars.at(u8"self")->SetParent(oldp);
@@ -1766,7 +1767,7 @@ int Mind::TBARunLine(std::u8string line) {
 
   else if (line.starts_with(u8"context ")) {
     Object* con = nullptr;
-    if (sscanf(line.c_str() + 8, u8" obj:%p", &con) >= 1 && con != nullptr) {
+    if (sscanf(std::u8string(line).c_str() + 8, u8" obj:%p", &con) >= 1 && con != nullptr) {
       ovars[u8"context"] = con;
     } else {
       loger(u8"#{} Error: No Context Object '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
@@ -1777,7 +1778,7 @@ int Mind::TBARunLine(std::u8string line) {
   else if (line.starts_with(u8"rdelete ")) {
     Object* con = nullptr;
     char8_t var[256] = u8"";
-    if (sscanf(line.c_str() + 7, u8" %s obj:%p", var, &con) >= 2 && con != nullptr) {
+    if (sscanf(std::u8string(line).c_str() + 7, u8" %s obj:%p", var, &con) >= 2 && con != nullptr) {
       con->SetSkill(fmt::format(u8"TBA:{}", var), 0);
       if (con->IsAnimate()) {
         con->Accomplish(body->Skill(prhash(u8"Accomplishment")), u8"completing a quest");
@@ -1796,9 +1797,9 @@ int Mind::TBARunLine(std::u8string line) {
   else if (!!line.starts_with(u8"remote ")) {
     Object* con = nullptr;
     char8_t var[256] = u8"";
-    if (sscanf(line.c_str() + 7, u8" %s obj:%p", var, &con) >= 2 && con != nullptr) {
+    if (sscanf(std::u8string(line).c_str() + 7, u8" %s obj:%p", var, &con) >= 2 && con != nullptr) {
       if (svars.count(var) > 0) {
-        int val = getnum(svars[var]);
+        int val = getnum(svars[std::u8string(var)]);
         con->SetSkill(fmt::format(u8"TBA:{}", var), val);
         if (con->IsAnimate()) {
           con->Accomplish(body->Skill(prhash(u8"Accomplishment")), u8"role playing");
@@ -1822,12 +1823,12 @@ int Mind::TBARunLine(std::u8string line) {
     }
   }
 
-  else if (!!line.starts_with(u8"global ")) {
+  else if (process(line, u8"global ")) {
     Object* con = ovars[u8"context"];
-    char8_t var[256] = u8"";
-    if (sscanf(line.c_str() + 7, u8" %s", var) >= 1 && con != nullptr) {
-      if (svars.count(var) > 0) {
-        int val = getnum(svars[var]);
+    if (con != nullptr) {
+      std::u8string_view var = getgraph(line);
+      if (svars.count(std::u8string(var)) > 0) {
+        int val = getnum(svars[std::u8string(var)]);
         con->SetSkill(fmt::format(u8"TBA:{}", var), val);
         //	logeg(u8"#{} Debug: Global {}={} '{}'\n",
         //		body->Skill(prhash(u8"TBAScript")), var, val, line);
@@ -1847,7 +1848,7 @@ int Mind::TBARunLine(std::u8string line) {
 
   else if (line.starts_with(u8"wait until ")) {
     int hour = 0, minute = 0, cur = 0;
-    if (sscanf(line.c_str() + 11, u8"%d:%d", &hour, &minute) > 0) {
+    if (sscanf(std::u8string(line).c_str() + 11, u8"%d:%d", &hour, &minute) > 0) {
       if (hour >= 100)
         hour /= 100;
       minute += hour * 60;
@@ -1872,7 +1873,7 @@ int Mind::TBARunLine(std::u8string line) {
 
   else if (line.starts_with(u8"wait ")) {
     int time = 0;
-    sscanf(line.c_str() + 5, u8"%d", &time);
+    sscanf(std::u8string(line).c_str() + 5, u8"%d", &time);
     if (time > 0) {
       // if(body->Skill(prhash(u8"TBAScript")) >= 5034503 && body->Skill(prhash(u8"TBAScript")) <=
       // 5034507)
@@ -1889,7 +1890,7 @@ int Mind::TBARunLine(std::u8string line) {
   else if ((line.starts_with(u8"oset ")) || (line.starts_with(u8"osetval "))) {
     int v1, v2;
     size_t end = line.find(u8" ");
-    if (sscanf(line.c_str() + end, u8" %d %d", &v1, &v2) != 2) {
+    if (sscanf(std::u8string(line).c_str() + end, u8" %d %d", &v1, &v2) != 2) {
       loger(u8"#{} Error: Told '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     } else if (ovars[u8"self"]->Skill(prhash(u8"Liquid Source")) && v1 == 0) {
@@ -1986,7 +1987,7 @@ int Mind::TBARunLine(std::u8string line) {
   else if (!!line.starts_with(u8"switch ")) {
     int depth = 0;
     size_t targ = 0;
-    std::u8string value = line.substr(7);
+    std::u8string_view value = line.substr(7);
     trim_string(value);
     while (spos != std::u8string::npos) { // Skip to end (considering nesting)
       //      PING_QUOTA();
@@ -2002,7 +2003,7 @@ int Mind::TBARunLine(std::u8string line) {
         ++depth; // Am now 1 nesting level deeper!
       } else if (
           depth == 0 && (script.substr(spos).starts_with(u8"case ")) &&
-          TBAEval(value + fmt::format(u8" == {}", script.substr(spos + 5)))) {
+          TBAEval(fmt::format(u8"{} == {}", value, script.substr(spos + 5)))) {
         // The actual case I want!
         spos = skip_line(script, spos);
         targ = spos;
@@ -2045,7 +2046,7 @@ int Mind::TBARunLine(std::u8string line) {
   else if ((!!line.starts_with(u8"asound "))) {
     size_t start = line.find_first_not_of(u8" \t\r\n", 7);
     if (room && start != std::u8string::npos) {
-      std::u8string mes = line.substr(start);
+      std::u8string mes(line.substr(start));
       trim_string(mes);
       replace_all(mes, u8"You hear ", u8"");
       replace_all(mes, u8" can be heard close by", u8"");
@@ -2062,7 +2063,7 @@ int Mind::TBARunLine(std::u8string line) {
     start = line.find_first_of(u8" \t\r\n", start);
     start = line.find_first_not_of(u8" \t\r\n", start);
     if (room && start != std::u8string::npos) {
-      std::u8string mes = line.substr(start);
+      std::u8string mes(line.substr(start));
       trim_string(mes);
       mes.push_back('\n');
       room->SendOut(ALL, 0, mes, u8"", nullptr, nullptr, false);
@@ -2073,7 +2074,7 @@ int Mind::TBARunLine(std::u8string line) {
   else if (line.starts_with(u8"echoaround ")) {
     Object* targ = nullptr;
     char8_t buf[256] = u8"";
-    sscanf(line.c_str() + 11, u8" obj:%p %254[^\n\r]", &targ, buf);
+    sscanf(std::u8string(line).c_str() + 11, u8" obj:%p %254[^\n\r]", &targ, buf);
     std::u8string mes(buf);
     mes.push_back('\n');
     Object* troom = targ;
@@ -2086,7 +2087,7 @@ int Mind::TBARunLine(std::u8string line) {
   else if ((line.starts_with(u8"mecho "))) {
     size_t start = line.find_first_not_of(u8" \t\r\n", 6);
     if (room && start != std::u8string::npos) {
-      std::u8string mes = line.substr(start);
+      std::u8string mes(line.substr(start));
       trim_string(mes);
       mes.push_back('\n');
       room->SendOut(0, 0, mes, mes, nullptr, nullptr);
@@ -2096,7 +2097,7 @@ int Mind::TBARunLine(std::u8string line) {
   else if (line.starts_with(u8"send ")) {
     Object* targ = nullptr;
     char8_t buf[1024] = u8"";
-    sscanf(line.c_str() + 5, u8" obj:%p %1022[^\n\r]", &targ, buf);
+    sscanf(std::u8string(line).c_str() + 5, u8" obj:%p %1022[^\n\r]", &targ, buf);
     std::u8string mes(buf);
     mes.push_back('\n');
     if (targ)
@@ -2106,8 +2107,8 @@ int Mind::TBARunLine(std::u8string line) {
   else if (line.starts_with(u8"force ")) {
     Object* targ = nullptr;
     char8_t tstr[256] = u8"", tcmd[1024] = u8"";
-    if (sscanf(line.c_str() + 6, u8" obj:%p %1023[^\n\r]", &targ, tcmd) < 2) {
-      if (sscanf(line.c_str() + 6, u8" %255s %1023[^\n\r]", tstr, tcmd) >= 2) {
+    if (sscanf(std::u8string(line).c_str() + 6, u8" obj:%p %1023[^\n\r]", &targ, tcmd) < 2) {
+      if (sscanf(std::u8string(line).c_str() + 6, u8" %255s %1023[^\n\r]", tstr, tcmd) >= 2) {
         targ = room->PickObject(tstr, LOC_NINJA | LOC_INTERNAL);
       }
     }
@@ -2132,7 +2133,7 @@ int Mind::TBARunLine(std::u8string line) {
     int dam = 0;
     char8_t buf[256] = {};
     std::u8string tname;
-    if (sscanf(line.c_str() + 8, u8" %254[^\n\r ] %n", buf, &pos) >= 1) {
+    if (sscanf(std::u8string(line).c_str() + 8, u8" %254[^\n\r ] %n", buf, &pos) >= 1) {
       tname = buf;
       if (tname == u8"all") {
         tname = u8"everyone";
@@ -2165,8 +2166,8 @@ int Mind::TBARunLine(std::u8string line) {
   else if (line.starts_with(u8"door ")) {
     int rnum, tnum, len;
     char8_t dname[16], xtra;
-    const std::u8string args = line.substr(5);
-    if (sscanf(args.c_str(), u8"%d %s", &rnum, dname) < 2) {
+    const std::u8string_view args = line.substr(5);
+    if (sscanf(std::u8string(args).c_str(), u8"%d %s", &rnum, dname) < 2) {
       loger(
           u8"#{} Error: short door command '{}'\n" CNRM, body->Skill(prhash(u8"TBAScript")), line);
       return -1;
@@ -2205,13 +2206,13 @@ int Mind::TBARunLine(std::u8string line) {
 
     Object* door = room->PickObject(dir, LOC_NINJA | LOC_INTERNAL);
 
-    if (sscanf(args.c_str(), u8"%*d %*s descriptio%c %n", &xtra, &len) >= 1) {
+    if (sscanf(std::u8string(args).c_str(), u8"%*d %*s descriptio%c %n", &xtra, &len) >= 1) {
       //      logeg(u8"#{} Debug: door redesc '{}'\n",
       //	body->Skill(prhash(u8"TBAScript")), line
       //	);
       if (door)
         door->SetDesc(line.substr(len + 5));
-    } else if (sscanf(args.c_str(), u8"%*d %*s flag%c %n", &xtra, &len) >= 1) {
+    } else if (sscanf(std::u8string(args).c_str(), u8"%*d %*s flag%c %n", &xtra, &len) >= 1) {
       if (!door) {
         loger(
             u8"#{} Error: No {} door to reflag in '{}'\n" CNRM,
@@ -2264,7 +2265,7 @@ int Mind::TBARunLine(std::u8string line) {
         //		body->Skill(prhash(u8"TBAScript")), dir, line
         //		);
       }
-    } else if (sscanf(args.c_str(), u8"%*d %*s nam%c %n", &xtra, &len) >= 1) {
+    } else if (sscanf(std::u8string(args).c_str(), u8"%*d %*s nam%c %n", &xtra, &len) >= 1) {
       //      logeg(u8"#{} Debug: door rename '{}'\n",
       //	body->Skill(prhash(u8"TBAScript")), line
       //	);
@@ -2276,9 +2277,9 @@ int Mind::TBARunLine(std::u8string line) {
           if (end != std::u8string::npos)
             newname = newname.substr(0, end);
         }
-        door->SetShortDesc(newname + u8" (" + line.substr(len + 5) + u8")");
+        door->SetShortDesc(fmt::format(u8"{} ({})", newname, line.substr(len + 5)));
       }
-    } else if (sscanf(args.c_str(), u8"%*d %*s room %d", &tnum) == 1) {
+    } else if (sscanf(std::u8string(args).c_str(), u8"%*d %*s room %d", &tnum) == 1) {
       //      logeg(u8"#{} Debug: door relink '{}'\n",
       //	body->Skill(prhash(u8"TBAScript")), line
       //	);
@@ -2310,7 +2311,7 @@ int Mind::TBARunLine(std::u8string line) {
       odoor->SetSkill(prhash(u8"Enterable"), 1);
       odoor->SetSkill(prhash(u8"Open"), 1000);
       odoor->SetSkill(prhash(u8"Invisible"), 1000);
-    } else if (sscanf(args.c_str(), u8"%*d %*s key %d", &tnum) == 1) {
+    } else if (sscanf(std::u8string(args).c_str(), u8"%*d %*s key %d", &tnum) == 1) {
       if (!door) {
         loger(
             u8"#{} Error: No {} door to re-key in '{}'\n" CNRM,
@@ -2327,7 +2328,7 @@ int Mind::TBARunLine(std::u8string line) {
       //      CNRM,
       //	body->Skill(prhash(u8"TBAScript")), dir, tnum, line
       //	);
-    } else if (sscanf(args.c_str(), u8"%*d %*s purg%c", &xtra) == 1) {
+    } else if (sscanf(std::u8string(args).c_str(), u8"%*d %*s purg%c", &xtra) == 1) {
       //      logeg(u8"#{} Debug: door purge '{}'\n",
       //	body->Skill(prhash(u8"TBAScript")), line
       //	);
@@ -2343,7 +2344,7 @@ int Mind::TBARunLine(std::u8string line) {
     int dnum;
     int nocheck = 0;
     char8_t buf[256];
-    if (sscanf(line.c_str() + 10, u8"%s %d", buf, &dnum) != 2) {
+    if (sscanf(std::u8string(line).c_str() + 10, u8"%s %d", buf, &dnum) != 2) {
       loger(u8"#{} Error: Bad teleport line '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
@@ -2395,7 +2396,7 @@ int Mind::TBARunLine(std::u8string line) {
 
   else if (line.starts_with(u8"purge")) {
     Object* targ = nullptr;
-    sscanf(line.c_str() + 5, u8" obj:%p", &targ);
+    sscanf(std::u8string(line).c_str() + 5, u8" obj:%p", &targ);
     if (targ) {
       if (!is_pc(targ))
         targ->Recycle();
@@ -2424,7 +2425,7 @@ int Mind::TBARunLine(std::u8string line) {
     char8_t where_buf[256] = u8"";
     Object* dest = ovars[u8"self"];
     Object* item = nullptr;
-    params = sscanf(line.c_str() + 5, u8" %s %d %s %s", buf2, &valnum, targ, where_buf);
+    params = sscanf(std::u8string(line).c_str() + 5, u8" %s %d %s %s", buf2, &valnum, targ, where_buf);
     tbatype = ascii_tolower(buf2[0]);
     if ((params != 2 && params != 4) || (tbatype != 'o' && tbatype != 'm')) {
       loger(
@@ -2580,7 +2581,7 @@ int Mind::TBARunLine(std::u8string line) {
       std::u8string cline = u8"shout " + spell;
       if (splen + 1 < line.length()) {
         Object* targ;
-        if (sscanf(line.c_str() + splen + 1, u8" obj:%p", &targ) > 0) {
+        if (sscanf(std::u8string(line).c_str() + splen + 1, u8" obj:%p", &targ) > 0) {
           ovars[u8"self"]->AddAct(act_t::POINT, targ);
         }
       }
