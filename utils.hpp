@@ -139,6 +139,19 @@ inline std::u8string_view getuntil(std::u8string_view& line, char8_t delim) {
   }
 }
 
+inline std::u8string_view getgraph(std::u8string_view& line) {
+  auto pos = std::find_if(line.begin(), line.end(), ascii_isspace);
+  if (pos == line.end()) {
+    auto ret = line;
+    line = u8"";
+    return ret;
+  } else {
+    auto ret = line.substr(0, pos - line.begin());
+    line = line.substr(pos - line.begin());
+    return ret;
+  }
+}
+
 inline bool process(std::u8string_view& line, const std::u8string_view& dir) {
   if (line.starts_with(dir)) {
     line = line.substr(dir.length());
