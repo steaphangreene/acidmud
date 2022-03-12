@@ -24,8 +24,6 @@
 
 #include <fcntl.h>
 #include <unistd.h>
-#include <cctype>
-#include <cmath>
 
 #include "color.hpp"
 #include "commands.hpp"

@@ -20,8 +20,6 @@
 // *************************************************************************
 
 #include <unistd.h>
-#include <cctype>
-#include <cmath>
 #include <string>
 
 #include "color.hpp"
