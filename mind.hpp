@@ -62,7 +62,7 @@ class Mind {
       Object* tr,
       Object* tripper = nullptr,
       Object* targ = nullptr,
-      std::u8string text = u8"");
+      const std::u8string_view& text = u8"");
   void SetNPC();
   void SetSystem();
   void Attach(Object* bod);
@@ -146,8 +146,17 @@ Mind* new_mind(
     Object* obj = nullptr,
     Object* obj2 = nullptr,
     Object* obj3 = nullptr,
-    std::u8string text = u8"");
-int new_trigger(int msec, Object* obj, Object* tripper = nullptr, std::u8string text = u8"");
-int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, std::u8string text = u8"");
+    const std::u8string_view& text = u8"");
+int new_trigger(
+    int msec,
+    Object* obj,
+    Object* tripper = nullptr,
+    const std::u8string_view& text = u8"");
+int new_trigger(
+    int msec,
+    Object* obj,
+    Object* tripper,
+    Object* targ,
+    const std::u8string_view& text = u8"");
 
 #endif // MIND_HPP

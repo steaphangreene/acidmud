@@ -469,7 +469,11 @@ void Mind::SetMob() {
   pers = fileno(stderr);
 }
 
-void Mind::SetTBATrigger(Object* tr, Object* tripper, Object* targ, std::u8string text) {
+void Mind::SetTBATrigger(
+    Object* tr,
+    Object* tripper,
+    Object* targ,
+    const std::u8string_view& text) {
   if ((!tr) || (!(tr->Parent())))
     return;
 
@@ -3156,7 +3160,7 @@ std::u8string Mind::SpecialPrompt() const {
   return prompt;
 }
 
-Mind* new_mind(mind_t tp, Object* obj, Object* obj2, Object* obj3, std::u8string text) {
+Mind* new_mind(mind_t tp, Object* obj, Object* obj2, Object* obj3, const std::u8string_view& text) {
   Mind* m = new Mind(tp);
   if (tp == mind_t::TBATRIG && obj) {
     m->SetTBATrigger(obj, obj2, obj3, text);
@@ -3166,12 +3170,17 @@ Mind* new_mind(mind_t tp, Object* obj, Object* obj2, Object* obj3, std::u8string
   return m;
 }
 
-int new_trigger(int msec, Object* obj, Object* tripper, std::u8string text) {
+int new_trigger(int msec, Object* obj, Object* tripper, const std::u8string_view& text) {
   return new_trigger(msec, obj, tripper, nullptr, text);
 }
 
 static bool in_new_trigger = false;
-int new_trigger(int msec, Object* obj, Object* tripper, Object* targ, std::u8string text) {
+int new_trigger(
+    int msec,
+    Object* obj,
+    Object* tripper,
+    Object* targ,
+    const std::u8string_view& text) {
   if ((!obj) || (!(obj->Parent())))
     return 0;
 
