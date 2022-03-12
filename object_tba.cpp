@@ -27,7 +27,6 @@
 #include <cctype>
 #include <cmath>
 
-#include "cchar8.hpp"
 #include "color.hpp"
 #include "commands.hpp"
 #include "log.hpp"
@@ -43,19 +42,6 @@ static const std::u8string target_chars =
 
 static const std::u8string dirname[6] =
     {u8"north", u8"east", u8"south", u8"west", u8"up", u8"down"};
-
-static int fline(FILE* f) {
-  long pos = ftell(f);
-  int lnum = 0;
-  rewind(f);
-  fscanf(f, u8"%*[^\n]");
-  while ((!feof(f)) && pos > ftell(f)) {
-    ++lnum;
-    fscanf(f, u8"%*c%*[^\n]");
-  }
-  fseek(f, pos, SEEK_SET);
-  return lnum;
-}
 
 static int untrans_trig = 0;
 void Object::TBALoadAll() {
@@ -229,30 +215,13 @@ static void clean_string(std::u8string& s) {
 
 // Format: Strings, terminated by only an EoL '~'.
 // ...other '~' characters are valid components.
-std::u8string load_tba_field(FILE* fd) {
-  std::u8string ret = u8"";
-  {
-    char8_t buffer[65536] = {};
-    if (!fscanf(fd, u8"%65535[^\n]%*c", buffer)) {
-      fscanf(fd, u8"%*c");
-    } else {
-      ret = buffer;
-    }
+std::u8string load_tba_field(std::u8string_view& mud) {
+  std::u8string ret(getuntil(mud, '~'));
+  while (mud.length() > 0 && mud.front() != '\n') {
+    ret += '~';
+    ret += getuntil(mud, '~');
   }
-  while (ret.length() == 0 || ret.back() != '~') {
-    char8_t buffer[65536] = {};
-    ret += u8"\n";
-    if (!fscanf(fd, u8"%65535[^\n]%*c", buffer)) {
-      fscanf(fd, u8"%*c");
-    } else {
-      ret += buffer;
-    }
-  }
-
-  ret.pop_back(); // Remove the terminating '~'
-
   std::transform(ret.begin(), ret.end(), ret.begin(), [](auto c) { return (c == ';') ? ',' : c; });
-
   clean_string(ret);
   return ret;
 }
@@ -366,24 +335,34 @@ void Object::TBAFinishMOB(Object* mob) {
 static Object *lastmob = nullptr, *lastbag = nullptr;
 static std::map<int, Object*> lastobj;
 void Object::TBALoadZON(const std::u8string& fn) {
-  FILE* mudz = fopen(fn.c_str(), u8"r");
+  infile mudz(fn);
   if (mudz) {
+    std::u8string_view mud = mudz.all();
     // loge(u8"Loading TBA Zone from \"{}\"\n", fn);
     for (int ctr = 0; ctr < 3; ++ctr) {
-      fscanf(mudz, u8"%*[^\n\r]\n");
+      getuntil(mud, '\n');
     }
+    skipspace(mud);
+
     int done = 0;
     while (!done) {
-      char8_t type;
-      fscanf(mudz, u8" %c", &type);
+      char8_t type = nextchar(mud);
+      skipspace(mud);
       // loge(u8"Processing {} zone directive.\n", type);
       switch (type) {
         case ('S'): {
           done = 1;
         } break;
         case ('D'): { // Door state
-          int dnum, room, state;
-          fscanf(mudz, u8" %*d %d %d %d\n", &room, &dnum, &state);
+          nextnum(mud);
+          skipspace(mud);
+          int room = nextnum(mud);
+          skipspace(mud);
+          int dnum = nextnum(mud);
+          skipspace(mud);
+          int state = nextnum(mud);
+          getuntil(mud, '\n');
+
           Object* door = nullptr;
           if (bynumwld.count(room) > 0)
             door = bynumwld[room]->PickObject(dirname[dnum], LOC_INTERNAL);
@@ -399,8 +378,15 @@ void Object::TBALoadZON(const std::u8string& fn) {
           }
         } break;
         case ('M'): {
-          int num, room;
-          fscanf(mudz, u8" %*d %d %*d %d %*[^\n\r]\n", &num, &room);
+          nextnum(mud);
+          skipspace(mud);
+          int num = nextnum(mud);
+          skipspace(mud);
+          nextnum(mud);
+          skipspace(mud);
+          int room = nextnum(mud);
+          getuntil(mud, '\n');
+
           if (bynumwld.count(room) && bynummob.count(num)) {
             Object* obj = new Object(bynumwld[room]);
             obj->SetShortDesc(u8"a TBAMUD MOB Popper");
@@ -421,8 +407,15 @@ void Object::TBALoadZON(const std::u8string& fn) {
           }
         } break;
         case ('O'): {
-          int num, room;
-          fscanf(mudz, u8" %*d %d %*d %d %*[^\n\r]\n", &num, &room);
+          nextnum(mud);
+          skipspace(mud);
+          int num = nextnum(mud);
+          skipspace(mud);
+          nextnum(mud);
+          skipspace(mud);
+          int room = nextnum(mud);
+          getuntil(mud, '\n');
+
           if (bynumwld.count(room) && bynumobj.count(num)) {
             Object* obj = new Object(*(bynumobj[num]));
             obj->SetParent(bynumwld[room]);
@@ -436,11 +429,18 @@ void Object::TBALoadZON(const std::u8string& fn) {
         } break;
         case ('G'):
         case ('E'): {
-          int num, posit = -1;
-          if (type == 'E')
-            fscanf(mudz, u8" %*d %d %*d %d%*[^\n\r]\n", &num, &posit);
-          if (type == 'G')
-            fscanf(mudz, u8" %*d %d %*d%*[^\n\r]\n", &num);
+          nextnum(mud);
+          skipspace(mud);
+          int num = nextnum(mud);
+          skipspace(mud);
+          nextnum(mud);
+          int posit = -1;
+          if (type == 'E') {
+            skipspace(mud);
+            posit = nextnum(mud);
+          }
+          getuntil(mud, '\n');
+
           if (lastmob && bynumobj.count(num)) {
             Object* obj = new Object(*(bynumobj[num]));
             Object* obj2 = dup_tba_obj(obj);
@@ -454,15 +454,13 @@ void Object::TBALoadZON(const std::u8string& fn) {
               case (1): { // Worn
                 lastmob->AddAct(act_t::WEAR_RFINGER, obj);
                 if (obj->Skill(prhash(u8"Wearable on Right Finger")) == 0) {
-                  logey(
-                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
                 }
               } break;
               case (2): { // Worn
                 lastmob->AddAct(act_t::WEAR_LFINGER, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Finger")) == 0) {
-                  logey(
-                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
                 }
               } break;
               case (3): { // TBA MOBs have two necks (1/2)
@@ -470,10 +468,7 @@ void Object::TBALoadZON(const std::u8string& fn) {
                   if (obj->Skill(prhash(u8"Wearable on Face")) == 0) {
                     logey(
 
-                        u8"{}:{}: Warning: Wear item wrong: {}\n",
-                        fn,
-                        fline(mudz),
-                        obj->ShortDesc());
+                        u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
                   } else {
                     if (lastmob->IsAct(act_t::WEAR_FACE))
                       bagit = 1;
@@ -490,11 +485,7 @@ void Object::TBALoadZON(const std::u8string& fn) {
               case (4): { // TBA MOBs have two necks (2/2)
                 if (obj->Skill(prhash(u8"Wearable on Collar")) == 0) {
                   if (obj->Skill(prhash(u8"Wearable on Face")) == 0) {
-                    logey(
-                        u8"{}:{}: Warning: Wear item wrong: {}\n",
-                        fn,
-                        fline(mudz),
-                        obj->ShortDesc());
+                    logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
                   } else {
                     if (lastmob->IsAct(act_t::WEAR_FACE))
                       bagit = 1;
@@ -512,18 +503,13 @@ void Object::TBALoadZON(const std::u8string& fn) {
                 lastmob->AddAct(act_t::WEAR_CHEST, obj);
                 lastmob->AddAct(act_t::WEAR_BACK, obj);
                 if (obj->Skill(prhash(u8"Wearable on Chest")) == 0) {
-                  logey(
-                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
                 }
               } break;
               case (6): { // Worn
                 if (obj->Skill(prhash(u8"Wearable on Head")) == 0) {
                   if (obj->Skill(prhash(u8"Wearable on Face")) == 0) {
-                    logey(
-                        u8"{}:{}: Warning: Wear item wrong: {}\n",
-                        fn,
-                        fline(mudz),
-                        obj->ShortDesc());
+                    logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
                   } else {
                     if (lastmob->IsAct(act_t::WEAR_FACE))
                       bagit = 1;
@@ -541,8 +527,7 @@ void Object::TBALoadZON(const std::u8string& fn) {
                 else
                   lastmob->AddAct(act_t::WEAR_RLEG, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Leg")) == 0) {
-                  logey(
-                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
                 }
               } break;
               case (8): { // Worn
@@ -552,8 +537,7 @@ void Object::TBALoadZON(const std::u8string& fn) {
                 else
                   lastmob->AddAct(act_t::WEAR_RFOOT, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Foot")) == 0) {
-                  logey(
-                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
                 }
               } break;
               case (9): { // Worn
@@ -563,8 +547,7 @@ void Object::TBALoadZON(const std::u8string& fn) {
                 else
                   lastmob->AddAct(act_t::WEAR_RHAND, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Hand")) == 0) {
-                  logey(
-                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
                 }
               } break;
               case (10): { // Worn
@@ -574,54 +557,44 @@ void Object::TBALoadZON(const std::u8string& fn) {
                 else
                   lastmob->AddAct(act_t::WEAR_RARM, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Arm")) == 0) {
-                  logey(
-                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
                 }
               } break;
               case (11): { // Worn
                 lastmob->AddAct(act_t::WEAR_SHIELD, obj);
                 if (obj->Skill(prhash(u8"Wearable on Shield")) == 0) {
-                  logey(
-                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
                 }
               } break;
               case (12): { // Worn
                 lastmob->AddAct(act_t::WEAR_LSHOULDER, obj);
                 lastmob->AddAct(act_t::WEAR_RSHOULDER, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Shoulder")) == 0) {
-                  logey(
-                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
                 }
               } break;
               case (13): { // Worn
                 lastmob->AddAct(act_t::WEAR_WAIST, obj);
                 if (obj->Skill(prhash(u8"Wearable on Waist")) == 0) {
-                  logey(
-                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
                 }
               } break;
               case (14): { // Worn
                 lastmob->AddAct(act_t::WEAR_RWRIST, obj);
                 if (obj->Skill(prhash(u8"Wearable on Right Wrist")) == 0) {
-                  logey(
-                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
                 }
               } break;
               case (15): { // Worn
                 lastmob->AddAct(act_t::WEAR_LWRIST, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Wrist")) == 0) {
-                  logey(
-                      u8"{}:{}: Warning: Wear item wrong: {}\n", fn, fline(mudz), obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
                 }
               } break;
               case (16): { // Wielded
                 lastmob->AddAct(act_t::WIELD, obj);
                 if (obj->Skill(prhash(u8"WeaponType")) == 0) {
-                  logey(
-                      u8"{}:{}: Warning: Wield non-weapon: {}\n",
-                      fn,
-                      fline(mudz),
-                      obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wield non-weapon: {}\n", fn, num, obj->ShortDesc());
                 }
               } break;
               case (17): { // Held
@@ -658,8 +631,15 @@ void Object::TBALoadZON(const std::u8string& fn) {
           }
         } break;
         case ('P'): {
-          int num, innum;
-          fscanf(mudz, u8" %*d %d %*d %d %*[^\n\r]\n", &num, &innum);
+          nextnum(mud);
+          skipspace(mud);
+          int num = nextnum(mud);
+          skipspace(mud);
+          nextnum(mud);
+          skipspace(mud);
+          int innum = nextnum(mud);
+          getuntil(mud, '\n');
+
           if (lastobj.count(innum) && bynumobj.count(num)) {
             Object* obj = new Object(*(bynumobj[num]));
             Object* obj2 = dup_tba_obj(obj);
@@ -672,13 +652,12 @@ void Object::TBALoadZON(const std::u8string& fn) {
           }
         } break;
         default: {
-          fscanf(mudz, u8"%*[^\n\r]\n");
+          getuntil(mud, '\n');
         } break;
       }
     }
     if (lastmob)
       TBAFinishMOB(lastmob);
-    fclose(mudz);
   }
 }
 
@@ -688,14 +667,16 @@ void Object::TBALoadMOB(const std::u8string& fn) {
     mobroom->SetSkill(prhash(u8"Invisible"), 1000);
     mobroom->SetShortDesc(u8"The TBAMUD MOB Room");
   }
-  FILE* mudm = fopen(fn.c_str(), u8"r");
+  infile mudm(fn);
   if (mudm) {
+    std::u8string_view mud = mudm.all();
     // loge(u8"Loading TBA Mobiles from \"{}\"\n", fn);
     while (1) {
-      char8_t buf[65536];
-      int onum;
-      if (fscanf(mudm, u8" #%d\n", &onum) < 1)
+      if (mud.length() == 0 || nextchar(mud) != '#') {
         break;
+      }
+      int onum = nextnum(mud);
+      skipspace(mud);
       // loge(u8"Loaded MOB #{}\n", onum);
 
       Object* obj = new Object(mobroom);
@@ -703,11 +684,10 @@ void Object::TBALoadMOB(const std::u8string& fn) {
       bynummob[onum] = obj;
 
       std::vector<std::u8string_view> aliases;
-      memset(buf, 0, 65536); // Alias List
-      fscanf(mudm, u8"%65535[^~\n]~\n", buf);
-      std::u8string buffer(buf);
+      std::u8string buffer(load_tba_field(mud));
       std::transform(buffer.begin(), buffer.end(), buffer.begin(), ascii_tolower);
       std::u8string_view line = buffer;
+      skipspace(mud);
 
       size_t lbeg = 0;
       size_t lend = 0;
@@ -723,7 +703,8 @@ void Object::TBALoadMOB(const std::u8string& fn) {
         }
       } while (lbeg != std::u8string::npos && lend != std::u8string::npos);
 
-      obj->SetShortDesc(load_tba_field(mudm));
+      obj->SetShortDesc(load_tba_field(mud));
+      skipspace(mud);
       // loge(u8"Loaded TBA Mobile with Name = {}\n", buf);
 
       std::u8string label = u8"";
@@ -731,7 +712,7 @@ void Object::TBALoadMOB(const std::u8string& fn) {
         if (!obj->Matches(std::u8string(aliases[actr]))) {
           if (aliases[actr].find_first_not_of(target_chars) != std::u8string::npos) {
             logey(
-                u8"Warning: Ignoring non-alpha alias [{}] in #{} ('{}')\n",
+                u8"Warning: Ignoring non-alpha MOB alias [{}] in #{} ('{}')\n",
                 aliases[actr],
                 obj->Skill(prhash(u8"TBAMOB")),
                 obj->ShortDesc());
@@ -771,10 +752,12 @@ void Object::TBALoadMOB(const std::u8string& fn) {
         obj->SetShortDesc(fmt::format(u8"{} {}", obj->ShortDesc(), label));
       }
 
-      obj->SetDesc(load_tba_field(mudm));
+      obj->SetDesc(load_tba_field(mud));
+      skipspace(mud);
       // loge(u8"Loaded TBA Mobile with Desc = {}\n", buf);
 
-      auto field = load_tba_field(mudm);
+      auto field = load_tba_field(mud);
+      skipspace(mud);
       if (field.length() > 0) {
         if (field[0] != '.') {
           obj->SetLongDesc(field);
@@ -796,9 +779,8 @@ void Object::TBALoadMOB(const std::u8string& fn) {
       int aware = 0, hidden = 0, sneak = 0;
       int val, val2, val3;
       char8_t tp;
-      memset(buf, 0, 65536);
-      fscanf(mudm, u8"%65535[^ \t\n]", buf); // Rest of line read below...
-      uint32_t flags = tba_bitvec(buf);
+      uint32_t flags = tba_bitvec(getgraph(mud)); // Rest of line read below...
+      skipspace(mud);
 
       obj->SetSkill(prhash(u8"TBAAction"), 8); // IS_NPC - I'll use it to see if(MOB)
       if (flags & 2) { // SENTINEL
@@ -827,9 +809,14 @@ void Object::TBALoadMOB(const std::u8string& fn) {
       }
       // FIXME: Add others here.
 
-      memset(buf, 0, 65536);
-      fscanf(mudm, u8" %*s %*s %*s %65535[^ \t\n]", buf); // Rest of line read below...
-      flags = tba_bitvec(buf);
+      getgraph(mud);
+      skipspace(mud);
+      getgraph(mud);
+      skipspace(mud);
+      getgraph(mud);
+      skipspace(mud);
+      flags = tba_bitvec(getgraph(mud)); // Rest of line read below...
+      skipspace(mud);
       if (flags & 64) { // WATERWALK
         obj->SetSkill(prhash(u8"TBAAffection"), obj->Skill(prhash(u8"TBAAffection")) | 64);
       }
@@ -841,8 +828,16 @@ void Object::TBALoadMOB(const std::u8string& fn) {
       }
       // FIXME: Implement special powers of MOBs here.
 
-      memset(buf, 0, 65536);
-      fscanf(mudm, u8" %*s %*s %*s %d %c\n", &val, &tp);
+      getgraph(mud);
+      skipspace(mud);
+      getgraph(mud);
+      skipspace(mud);
+      getgraph(mud);
+      skipspace(mud);
+      val = nextnum(mud);
+      skipspace(mud);
+      tp = nextchar(mud);
+      skipspace(mud);
       if (val > 0)
         obj->SetSkill(prhash(u8"Honor"), val);
       else
@@ -851,27 +846,48 @@ void Object::TBALoadMOB(const std::u8string& fn) {
       obj->SetSkill(prhash(u8"Accomplishment"), 1000000 + onum);
 
       if (tp == 'E' || tp == 'S') {
-        fscanf(mudm, u8"%d %d %d", &val, &val2, &val3);
+        val = nextnum(mud);
+        skipspace(mud);
+        val2 = nextnum(mud);
+        skipspace(mud);
+        val3 = nextnum(mud);
+        skipspace(mud);
         for (int ctr = 0; ctr < val; ++ctr)
           obj->SetAttribute(ctr % 6, obj->NormAttribute(ctr % 6) + 1); // val1 = Level
         obj->SetSkill(prhash(u8"TBAAttack"), ((20 - val2) / 3) + 3); // val2 = THAC0
         obj->SetSkill(prhash(u8"TBADefense"), ((10 - val3) / 3) + 3); // val2 = AC
 
-        fscanf(mudm, u8" %dd%d+%d", &val, &val2, &val3); // Hit Points
+        // Hit Points
+        val = nextnum(mud);
+        nextchar(mud); // 'd' - as in '4d6'
+        val2 = nextnum(mud);
+        nextchar(mud); // '+' - as in '4d6+2'
+        val3 = nextnum(mud);
+        skipspace(mud);
         val = (val * (val2 + 1) + 1) / 2 + val3;
         obj->SetAttribute(0, (val + 49) / 50); // Becomes Body
 
-        fscanf(mudm, u8" %dd%d+%d\n", &val, &val2, &val3); // Barehand Damage
+        // Barehand Damage
+        val = nextnum(mud);
+        nextchar(mud); // 'd' - as in '4d6'
+        val2 = nextnum(mud);
+        nextchar(mud); // '+' - as in '4d6+2'
+        val3 = nextnum(mud);
+        skipspace(mud);
         val = (val * (val2 + 1) + 1) / 2 + val3;
         obj->SetAttribute(2, (val / 3) + 3); // Becomes Strength
 
-        fscanf(mudm, u8"%d", &val); // Gold
+        val = nextnum(mud); // Gold
         obj->SetSkill(prhash(u8"TBAGold"), val);
 
-        fscanf(mudm, u8"%*[^\n\r]\n"); // XP //FIXME: Worth Karma?
+        getuntil(mud, '\n'); // XP //FIXME: Worth Karma?
 
-        fscanf(mudm, u8"%d %d %d\n", &val, &val2, &val3);
-
+        val = nextnum(mud);
+        skipspace(mud);
+        val2 = nextnum(mud);
+        skipspace(mud);
+        val3 = nextnum(mud);
+        skipspace(mud);
         if (val == 4) { // Mob Starts off Sleeping
           obj->SetPos(pos_t::LIE);
           obj->AddAct(act_t::SLEEP);
@@ -887,39 +903,36 @@ void Object::TBALoadMOB(const std::u8string& fn) {
       }
 
       obj->SetSkill(prhash(u8"NaturalWeapon"), 13); //"Hits" (is default in TBA)
-      memset(buf, 0, 65536);
       while (tp == 'E') { // Basically an if with an infinite loop ;)
-        if (fscanf(mudm, u8"Con: %d\n", &val))
-          obj->SetAttribute(0, std::max(obj->NormAttribute(0), (val / 3) + 3));
-
-        else if (fscanf(mudm, u8"Dex: %d\n", &val))
-          obj->SetAttribute(1, std::max(obj->NormAttribute(1), (val / 3) + 3));
-
-        else if (fscanf(mudm, u8"Str: %d\n", &val))
-          obj->SetAttribute(2, std::max(obj->NormAttribute(2), (val / 3) + 3));
-
-        else if (fscanf(mudm, u8"ha: %d\n", &val)) //'Cha' minus 'Con' Conflict!
-          obj->SetAttribute(3, std::max(obj->NormAttribute(3), (val / 3) + 3));
-
-        else if (fscanf(mudm, u8"Int: %d\n", &val))
-          obj->SetAttribute(4, std::max(obj->NormAttribute(4), (val / 3) + 3));
-
-        else if (fscanf(mudm, u8"Wis: %d\n", &val))
-          obj->SetAttribute(5, std::max(obj->NormAttribute(5), (val / 3) + 3));
-
-        else if (fscanf(mudm, u8"Add: %d\n", &val))
-          ; //'StrAdd' - Do Nothing
-
-        else if (fscanf(mudm, u8"BareHandAttack: %d\n", &val)) {
-          if (val == 13)
-            val = 0; // Punches (is the Default in Acid)
-          obj->SetSkill(prhash(u8"NaturalWeapon"), val);
-        }
-
-        else
+        field = getgraph(mud);
+        skipspace(mud);
+        if (field.back() == ':') {
+          val = nextnum(mud);
+          skipspace(mud);
+          if (field == u8"Con:") {
+            obj->SetAttribute(0, std::max(obj->NormAttribute(0), (val / 3) + 3));
+          } else if (field == u8"Dex:") {
+            obj->SetAttribute(1, std::max(obj->NormAttribute(1), (val / 3) + 3));
+          } else if (field == u8"Str:") {
+            obj->SetAttribute(2, std::max(obj->NormAttribute(2), (val / 3) + 3));
+          } else if (field == u8"Cha:") {
+            obj->SetAttribute(3, std::max(obj->NormAttribute(3), (val / 3) + 3));
+          } else if (field == u8"Int:") {
+            obj->SetAttribute(4, std::max(obj->NormAttribute(4), (val / 3) + 3));
+          } else if (field == u8"Wis:") {
+            obj->SetAttribute(5, std::max(obj->NormAttribute(5), (val / 3) + 3));
+          } else if (field == u8"Add:") {
+            ; //'StrAdd' - Do Nothing
+          } else if (field == u8"BareHandAttack:") {
+            if (val == 13) {
+              val = 0; // Punches (is the Default in Acid)
+            }
+            obj->SetSkill(prhash(u8"NaturalWeapon"), val);
+          }
+        } else {
           break;
+        }
       }
-      fscanf(mudm, u8" E"); // Nuke the terminating u8"E", if present.
 
       obj->SetWeight(obj->NormAttribute(0) * 20000);
       obj->SetSize(1000 + obj->NormAttribute(0) * 200);
@@ -945,8 +958,11 @@ void Object::TBALoadMOB(const std::u8string& fn) {
         obj->StartUsing(prhash(u8"Stealth"));
       }
 
-      int tnum;
-      while (fscanf(mudm, u8" T %d\n", &tnum) > 0) {
+      while (mud.front() == 'T') {
+        nextchar(mud); // The 'T'
+        skipspace(mud);
+        int tnum = nextnum(mud);
+        skipspace(mud);
         if (tnum > 0 && bynumtrg.count(tnum) > 0) {
           Object* trg = new Object(*(bynumtrg[tnum]));
           trg->SetParent(obj);
@@ -956,10 +972,7 @@ void Object::TBALoadMOB(const std::u8string& fn) {
           //	);
         }
       }
-
-      fscanf(mudm, u8" %*[^#$]");
     }
-    fclose(mudm);
   }
 }
 
@@ -1132,26 +1145,28 @@ static void add_tba_spell(Object* obj, int spell, int power) {
       obj->SetSkill(prhash(u8"Darkness Spell"), power);
     } break;
     default: {
-      logey(u8"Warning: Unhandled CicleMUD Spell: {}\n", spell);
+      logey(u8"Warning: Unhandled tbaMUD Spell: {}\n", spell);
     }
   }
 }
 
 void Object::TBALoadOBJ(const std::u8string& fn) {
-  char8_t buf[65536];
   if (objroom == nullptr) {
     objroom = new Object(this->World());
     objroom->SetSkill(prhash(u8"Invisible"), 1000);
     objroom->SetShortDesc(u8"The TBAMUD Object Room");
   }
-  FILE* mudo = fopen(fn.c_str(), u8"r");
+  infile mudo(fn);
   if (mudo) {
+    std::u8string_view mud = mudo.all();
     // loge(u8"Loading TBA Objects from \"{}\"\n", fn);
     while (1) {
-      int onum;
-      int valmod = 1000, powmod = 1;
-      if (fscanf(mudo, u8" #%d\n", &onum) < 1)
+      if (mud.length() == 0 || nextchar(mud) != '#') {
         break;
+      }
+      int onum = nextnum(mud);
+      skipspace(mud);
+      int valmod = 1000, powmod = 1;
       // loge(u8"Loaded object #{}\n", onum);
 
       Object* obj = new Object(objroom);
@@ -1159,11 +1174,10 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       bynumobj[onum] = obj;
 
       std::vector<std::u8string_view> aliases;
-      memset(buf, 0, 65536); // Alias List
-      fscanf(mudo, u8"%65535[^~\n]~\n", buf);
-      std::u8string buffer(buf);
+      std::u8string buffer(load_tba_field(mud));
       std::transform(buffer.begin(), buffer.end(), buffer.begin(), ascii_tolower);
       std::u8string_view line = buffer;
+      skipspace(mud);
 
       size_t lbeg = 0;
       size_t lend = 0;
@@ -1179,7 +1193,8 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
         }
       } while (lbeg != std::u8string::npos && lend != std::u8string::npos);
 
-      obj->SetShortDesc(load_tba_field(mudo));
+      obj->SetShortDesc(load_tba_field(mud));
+      skipspace(mud);
       // loge(u8"Loaded TBA Object with Name = {}\n", buf);
 
       std::u8string label = u8"";
@@ -1187,7 +1202,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
         if (!obj->Matches(std::u8string(aliases[actr]))) {
           if (aliases[actr].find_first_not_of(target_chars) != std::u8string::npos) {
             logey(
-                u8"Warning: Ignoring non-alpha alias [{}] in #{} ('{}')\n",
+                u8"Warning: Ignoring non-alpha OBJ alias [{}] in #{} ('{}')\n",
                 aliases[actr],
                 obj->Skill(prhash(u8"TBAObject")),
                 obj->ShortDesc());
@@ -1216,9 +1231,11 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
         obj->SetShortDesc(fmt::format(u8"{} {}", obj->ShortDesc(), label));
       }
 
-      obj->SetDesc(load_tba_field(mudo));
+      obj->SetDesc(load_tba_field(mud));
+      skipspace(mud);
 
-      auto field = load_tba_field(mudo);
+      auto field = load_tba_field(mud);
+      skipspace(mud);
       if (field.length() > 0) {
         if (field[0] != '.') {
           obj->SetLongDesc(field);
@@ -1229,16 +1246,10 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       }
       // loge(u8"Loaded TBA Object with Desc = {}\n", buf);
 
-      int tp = 0, val[4];
-      memset(buf, 0, 65536);
-      if (fscanf(mudo, u8"%d %65535[^ \n\t]", &tp, buf) < 2) { // Effects Bitvector
-        loger(u8"Bad file parse, no effects bitvec!\n");
-        loger(u8"LOC: {} : {}\n", ftell(mudo), fn);
-        loger(u8"SOBJ: {}\n", obj->ShortDesc());
-        loger(u8"OBJ: {}\n", obj->Desc());
-        loger(u8"LOBJ: {}\n", obj->LongDesc());
-      }
-      uint32_t flags = tba_bitvec(buf);
+      int tp = nextnum(mud);
+      skipspace(mud);
+      uint32_t flags = tba_bitvec(getgraph(mud));
+      skipspace(mud);
       if (flags & 1) { // GLOW
         obj->SetSkill(prhash(u8"Light Source"), 10);
       }
@@ -1283,15 +1294,14 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       }
 
       // Wear Bitvector
-      memset(buf, 0, 65536);
-      if (fscanf(mudo, u8"%*s %*s %*s %65535[^ \n\t]%*[^\n\r]\n", buf) < 1) {
-        loger(u8"Bad file parse, no main bitvec!\n");
-        loger(u8"LOC: {} : {}\n", ftell(mudo), fn);
-        loger(u8"SOBJ: {}\n", obj->ShortDesc());
-        loger(u8"OBJ: {}\n", obj->Desc());
-        loger(u8"LOBJ: {}\n", obj->LongDesc());
-      }
-      flags = tba_bitvec(buf);
+      getgraph(mud);
+      skipspace(mud);
+      getgraph(mud);
+      skipspace(mud);
+      getgraph(mud);
+      skipspace(mud);
+      flags = tba_bitvec(getgraph(mud));
+      getuntil(mud, '\n');
       if (flags & 1) { // TAKE
         obj->SetPos(pos_t::LIE);
       }
@@ -1427,13 +1437,15 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       }
       obj->SetShortDesc(name);
 
-      if (fscanf(mudo, u8"%d %d %d %d\n", val + 0, val + 1, val + 2, val + 3) < 4) {
-        loger(u8"Bad file parse, no 4 vals!\n");
-        loger(u8"LOC: {} : {}\n", ftell(mudo), fn);
-        loger(u8"SOBJ: {}\n", obj->ShortDesc());
-        loger(u8"OBJ: {}\n", obj->Desc());
-        loger(u8"LOBJ: {}\n", obj->LongDesc());
-      }
+      int val[4];
+      val[0] = nextnum(mud);
+      skipspace(mud);
+      val[1] = nextnum(mud);
+      skipspace(mud);
+      val[2] = nextnum(mud);
+      skipspace(mud);
+      val[3] = nextnum(mud);
+      skipspace(mud);
 
       if (tp == 1) { // LIGHTS
         if (val[2] > 1) {
@@ -2081,14 +2093,11 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
         obj->SetSkill(prhash(u8"WeaponReach"), wreach);
       }
 
-      int wt = 0, vl = 0;
-      if (fscanf(mudo, u8"%d %d %*[^\n\r]\n", &wt, &vl) < 2) {
-        loger(u8"Bad file parse, no weight/volume!\n");
-        loger(u8"LOC: {} : {}\n", ftell(mudo), fn);
-        loger(u8"SOBJ: {}\n", obj->ShortDesc());
-        loger(u8"OBJ: {}\n", obj->Desc());
-        loger(u8"LOBJ: {}\n", obj->LongDesc());
-      }
+      int wt = nextnum(mud);
+      skipspace(mud);
+      int vl = nextnum(mud);
+      skipspace(mud);
+      getuntil(mud, '\n');
 
       if (tp != 20) { // MONEY DOESN'T WORK THIS WAY
         obj->SetWeight((wt >= 1000000) ? 1000000 : wt * 454);
@@ -2101,10 +2110,14 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       }
 
       int magresist = 0;
-      while (fscanf(mudo, u8"%1[AET] ", buf) > 0) {
-        if (buf[0] == 'A') { // Extra Affects
-          int anum, aval;
-          fscanf(mudo, u8"%d %d\n", &anum, &aval);
+      while (mud.front() == 'A' || mud.front() == 'E' || mud.front() == 'T') {
+        char8_t tag = nextchar(mud);
+        skipspace(mud);
+        if (tag == 'A') { // Extra Affects
+          int anum = nextnum(mud);
+          skipspace(mud);
+          int aval = nextnum(mud);
+          skipspace(mud);
           switch (anum) {
             case (1): { // STR -> Strength
               obj->SetModifier(2, aval * 400 / powmod);
@@ -2194,9 +2207,9 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
               magresist += (aval * 400 / powmod);
             } break;
           }
-        } else if (buf[0] == 'T') { // Triggers
-          int tnum = 0;
-          fscanf(mudo, u8"%d\n", &tnum);
+        } else if (tag == 'T') { // Triggers
+          int tnum = nextnum(mud);
+          skipspace(mud);
           if (tnum > 0 && bynumtrg.count(tnum) > 0) {
             Object* trg = new Object(*(bynumtrg[tnum]));
             trg->SetParent(obj);
@@ -2205,14 +2218,19 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
             //	trg->Desc(), obj->ShortDesc()
             //	);
           }
-        } else if (buf[0] == 'E') { // Extra Affects
-          while (fscanf(mudo, u8" %65535[^~ ]", buf) > 0) {
-            for (auto chr = buf; *chr != 0; ++chr) {
-              if (ascii_isalpha(*chr)) {
-                *chr = ascii_tolower(*chr);
-              }
+        } else if (tag == 'E') { // Extra Affects
+          std::u8string_view word = u8" ";
+          while (word.back() != '~') {
+            word = getgraph(mud);
+            skipspace(mud);
+            std::u8string buf(word);
+            if (buf.back() == '~') {
+              buf.pop_back();
             }
-            if (std::u8string(buf).find_first_not_of(target_chars) != std::u8string::npos) {
+            for (auto& chr : buf) {
+              chr = ascii_tolower(chr);
+            }
+            if (buf.find_first_not_of(target_chars) != std::u8string::npos) {
               logey(u8"Warning: Ignoring non-alpha extra ({}) for '{}'!\n", buf, obj->ShortDesc());
             } else if (words_match(obj->ShortDesc(), buf)) {
               // logey(u8"Warning: Duplicate ({}) extra for '{}'!\n", buf,
@@ -2231,9 +2249,8 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
               // obj->ShortDesc());
             }
           }
-          fscanf(mudo, u8"%*[^~]");
-          fscanf(mudo, u8"~%*[\n\r]");
-          fscanf(mudo, u8"%65535[^~]", buf);
+          auto buf = load_tba_field(mud);
+          skipspace(mud);
           if (!obj->HasLongDesc()) {
             obj->SetLongDesc(buf);
           } else {
@@ -2244,31 +2261,28 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
             // logey(u8"Warning: Had to merge long descriptions of ({}) extra for
             // '{}'!\n", obj->LongDesc(), obj->ShortDesc());
           }
-          fscanf(mudo, u8"%*[^~]");
-          fscanf(mudo, u8"~%*[\n\r]");
         } else { // Extra Descriptions FIXME: Handle!
           loge(u8"ERROR: Unknown tag!\n");
         }
       }
-      if (magresist > 0)
+      if (magresist > 0) {
         obj->SetSkill(prhash(u8"Magic Resistance"), magresist);
-      else if (magresist < 0)
+      } else if (magresist < 0) {
         obj->SetSkill(prhash(u8"Magic Vulnerability"), -magresist);
-
-      fscanf(mudo, u8"%*[^#$]");
+      }
     }
-    fclose(mudo);
   }
 }
 
 void Object::TBALoadWLD(const std::u8string& fn) {
-  char8_t buf[65536];
-  FILE* mud = fopen(fn.c_str(), u8"r");
+  infile mudw(fn);
   int znum = 0, offset = fn.length() - 5; // Chop off the .wld
   while (isdigit(fn[offset]))
     --offset;
   znum = getnum(fn.substr(offset + 1));
-  if (mud) {
+  if (mudw) {
+    std::u8string_view mud = mudw.all();
+
     Object* zone = new Object(this);
     zone->SetShortDesc(
         std::u8string(u8"TBA Zone-") + fn.substr(0, fn.length() - 4).substr(offset + 1));
@@ -2278,9 +2292,11 @@ void Object::TBALoadWLD(const std::u8string& fn) {
 
     // loge(u8"Loading TBA Realm from \"{}\"\n", fn);
     while (1) {
-      int onum;
-      if (fscanf(mud, u8" #%d\n", &onum) < 1)
+      if (mud.length() == 0 || nextchar(mud) != '#') {
         break;
+      }
+      int onum = nextnum(mud);
+      skipspace(mud);
       // loge(u8"Loading room #{}\n", onum);
 
       Object* obj = new Object(zone);
@@ -2301,14 +2317,25 @@ void Object::TBALoadWLD(const std::u8string& fn) {
       obj->SetValue(-1);
 
       obj->SetShortDesc(load_tba_field(mud));
+      skipspace(mud);
       // loge(u8"Loaded TBA Room with Name = {}\n", buf);
 
       obj->SetDesc(load_tba_field(mud));
+      skipspace(mud);
       // loge(u8"Loaded TBA Room with Desc = {}\n", buf);
 
-      int val;
-      fscanf(mud, u8"%*d %65535[^ \t\n] %*d %*d %*d %d\n", buf, &val);
-      uint32_t flags = tba_bitvec(buf);
+      nextnum(mud);
+      skipspace(mud);
+      uint32_t flags = tba_bitvec(getuntil(mud, ' '));
+      skipspace(mud);
+      nextnum(mud);
+      skipspace(mud);
+      nextnum(mud);
+      skipspace(mud);
+      nextnum(mud);
+      skipspace(mud);
+      int val = nextnum(mud);
+      skipspace(mud);
       // FIXME: TBA's extra 3 flags variables (ignored now)?
       if (val == 6)
         obj->SetSkill(prhash(u8"WaterDepth"), 1); // WATER_SWIM
@@ -2364,37 +2391,48 @@ void Object::TBALoadWLD(const std::u8string& fn) {
 
       while (1) {
         int dnum, tnum, tmp, tmp2;
-        fscanf(mud, u8"%c", buf);
-        if (buf[0] == 'D') {
-          fscanf(mud, u8"%d\n", &dnum);
+        if (mud.front() == 'D') {
+          nextchar(mud);
+          dnum = nextnum(mud);
+          skipspace(mud);
 
-          memset(buf, 0, 65536);
-          fscanf(mud, u8"%65535[^~]", buf);
-          fscanf(mud, u8"~%*[\n\r]");
-          memset(buf, 0, 65536);
-          fscanf(mud, u8"%65535[^~]", buf);
-          fscanf(mud, u8"~%*[\n\r]");
-          nmnum[dnum][obj] = buf;
+          load_tba_field(mud);
+          skipspace(mud);
+          nmnum[dnum][obj] = load_tba_field(mud);
+          skipspace(mud);
 
-          fscanf(mud, u8"%d %d %d\n", &tmp, &tmp2, &tnum);
+          tmp = nextnum(mud);
+          skipspace(mud);
+          tmp2 = nextnum(mud);
+          skipspace(mud);
+          tnum = nextnum(mud);
+          skipspace(mud);
 
           tonum[dnum][obj] = tnum;
           tynum[dnum][obj] = tmp;
           knum[dnum][obj] = tmp2;
-        } else if (buf[0] == 'E') {
-          fscanf(mud, u8"%*[^~]"); // FIXME: Load These!
-          fscanf(mud, u8"~%*[\n\r]");
-          fscanf(mud, u8"%*[^~]"); // FIXME: Load These!
-          fscanf(mud, u8"~%*[\n\r]");
-        } else if (buf[0] != 'S') {
+        } else if (mud.front() == 'E') {
+          // FIXME: Load These!
+          load_tba_field(mud);
+          skipspace(mud);
+          load_tba_field(mud);
+          skipspace(mud);
+        } else if (mud.front() != 'S') {
           loge(u8"#{}: Warning, didn't see an ending S!\n", onum);
         } else {
           break;
         }
       }
+      nextchar(mud); // Skip the 'S'
+      skipspace(mud);
+
       {
         int tnum;
-        while (fscanf(mud, u8" T %d\n", &tnum) > 0) {
+        while (mud.front() == 'T') {
+          nextchar(mud);
+          skipspace(mud);
+          tnum = nextnum(mud);
+          skipspace(mud);
           if (tnum > 0 && bynumtrg.count(tnum) > 0) {
             Object* trg = new Object(*(bynumtrg[tnum]));
             trg->SetParent(obj);
@@ -2477,7 +2515,6 @@ void Object::TBALoadWLD(const std::u8string& fn) {
         }
       }
     }
-    fclose(mud);
   } else {
     loge(u8"Error: No TBA Realm \"{}\"\n", fn);
   }
@@ -2528,16 +2565,21 @@ static std::set<std::u8string> parse_tba_shop_rules(std::u8string rules) {
 }
 
 void Object::TBALoadSHP(const std::u8string& fn) {
-  char8_t buf[65536];
-  FILE* mud = fopen(fn.c_str(), u8"r");
-  if (mud) {
+  infile muds(fn);
+  if (muds) {
+    std::u8string_view mud = muds.all();
     Object* vortex = nullptr;
-    if (fscanf(mud, u8"CircleMUD v3.0 Shop File~%65535[\n\r]", buf) > 0) {
+    if (mud.substr(0, 25) == u8"CircleMUD v3.0 Shop File~") {
+      getuntil(mud, '\n');
       while (1) {
-        int val, kpr;
-        if (!fscanf(mud, u8"#%d~\n", &val))
-          break; // Shop Number
-        // loge(u8"Loaded shop #{}\n", val);
+        if (mud.length() == 0 || nextchar(mud) != '#') {
+          break;
+        }
+        int val = nextnum(mud);
+        nextchar(mud); // Skip the extra '~' in these files.
+        skipspace(mud);
+
+        // loge(u8"Loading shop #{}\n", val);
 
         vortex = new Object;
         vortex->SetShortDesc(u8"a shopkeeper vortex");
@@ -2548,7 +2590,8 @@ void Object::TBALoadSHP(const std::u8string& fn) {
         vortex->SetSkill(prhash(u8"Wearable on Right Shoulder"), 1);
         vortex->SetSkill(prhash(u8"Wearable on Left Shoulder"), 2);
 
-        fscanf(mud, u8"%d\n", &val); // Item sold
+        val = nextnum(mud); // Item sold
+        skipspace(mud);
         while (val >= 0) {
           if (val != 0 && bynumobj.count(val) == 0) {
             loge(u8"Error: Shop's item #{} does not exist!\n", val);
@@ -2562,49 +2605,55 @@ void Object::TBALoadSHP(const std::u8string& fn) {
               item2->SetSkill(prhash(u8"Quantity"), 1000);
             }
           }
-          fscanf(mud, u8"%d\n", &val); // Item sold
+          val = nextnum(mud); // Item sold
+          skipspace(mud);
         }
 
-        double num, num2;
-        fscanf(mud, u8"%lf\n", &num); // Profit when Sell
-        fscanf(mud, u8"%lf\n", &num2); // Profit when Buy
+        double num = nextdouble(mud); // Profit when Sell
+        skipspace(mud);
+        double num2 = nextdouble(mud); // Profit when Buy
+        skipspace(mud);
 
-        memset(buf, 0, 65536);
-        fscanf(mud, u8"%65535[^\n\r]\n", buf); // Item types bought
-        val = getnum(buf);
+        auto buytype = getuntil(mud, '\n');
+        skipspace(mud);
         std::vector<std::u8string> types;
-        while (val >= 0) {
-          types.push_back(std::u8string(buf));
-          memset(buf, 0, 65536);
-          fscanf(mud, u8"%65535[^\n\r]\n", buf); // Item types bought
-          val = getnum(buf);
+        while (getnum(buytype) >= 0) { // Terminated with a "-1"
+          types.push_back(std::u8string(buytype));
+          buytype = getuntil(mud, '\n');
+          skipspace(mud);
         }
 
-        memset(buf, 0, 65536); // Skip the message lines, and Temper
+        // Skip the message lines, and Temper
         for (int ctr = 0; ctr < 8; ++ctr) {
-          fscanf(mud, u8"%*[^\n\r]\n");
+          getuntil(mud, '\n');
         }
 
-        memset(buf, 0, 65536);
-        fscanf(mud, u8"%65535[^\n\r]\n", buf); // Shop Bitvectors
+        getuntil(mud, '\n'); // Shop Bitvectors
 
-        fscanf(mud, u8"%d\n", &kpr); // Shopkeeper!
+        int kpr = nextnum(mud);
+        skipspace(mud);
         Object* keeper = nullptr;
-        if (bynummobinst.count(kpr))
+        if (bynummobinst.contains(kpr)) {
           keeper = bynummobinst[kpr];
-
-        memset(buf, 0, 65536);
-        fscanf(mud, u8"%65535[^\n\r]\n", buf); // With Bitvectors
-
-        fscanf(mud, u8"%d\n", &val); // Shop rooms
-        while (val >= 0) {
-          fscanf(mud, u8"%d\n", &val); // Shop rooms
         }
 
-        fscanf(mud, u8"%*d\n"); // Open time
-        fscanf(mud, u8"%*d\n"); // Close time
-        fscanf(mud, u8"%*d\n"); // Open time
-        fscanf(mud, u8"%*d\n"); // Close time
+        getuntil(mud, '\n'); // With Bitvectors
+
+        val = nextnum(mud); // Shop rooms
+        skipspace(mud);
+        while (val >= 0) {
+          val = nextnum(mud); // Shop rooms
+          skipspace(mud);
+        }
+
+        val = nextnum(mud); // Open time
+        skipspace(mud);
+        val = nextnum(mud); // Close time
+        skipspace(mud);
+        val = nextnum(mud); // Open time
+        skipspace(mud);
+        val = nextnum(mud); // Close time
+        skipspace(mud);
 
         if (keeper) {
           std::u8string picky = u8"";
@@ -2708,21 +2757,23 @@ void Object::TBALoadSHP(const std::u8string& fn) {
           logey(u8"Warning: Can't find shopkeeper #{}!\n", kpr);
         }
       }
-    } else if (fscanf(mud, u8"%1[$]", buf) < 1) { // Not a Null Shop File!
+    } else if (mud.front() != '$') { // Not a Null Shop File!
       loge(u8"Error: '{}' is not a CircleMUD v3.0 Shop File!\n", fn);
     }
-    fclose(mud);
   } else {
     loge(u8"Error: '{}' does not exist!\n", fn);
   }
 }
 
 void Object::TBALoadTRG(const std::u8string& fn) { // Triggers
-  char8_t buf[65536];
-  FILE* mud = fopen(fn.c_str(), u8"r");
-  if (mud) {
+  infile mudt(fn);
+  if (mudt) {
+    std::u8string_view mud = mudt.all();
     int tnum = -1;
-    while (fscanf(mud, u8" #%d", &tnum) > 0) {
+    while (mud.front() == '#') {
+      nextchar(mud);
+      tnum = nextnum(mud);
+      skipspace(mud);
       Object* script = nullptr;
       script = new Object();
       bynumtrg[tnum] = script;
@@ -2731,30 +2782,26 @@ void Object::TBALoadTRG(const std::u8string& fn) { // Triggers
       script->SetSkill(prhash(u8"Accomplishment"), 1200000 + tnum);
       script->SetShortDesc(u8"A tbaMUD trigger script");
       // loge(u8"Loading #{}\n", tnum);
-      fscanf(mud, u8" %65535[^~]", buf); // Trigger Name - Discarded!
+      load_tba_field(mud); // Trigger Name - Discarded!
       // script->SetDesc(buf);
-      fscanf(mud, u8"~");
+      skipspace(mud);
 
-      int atype, ttype, narg;
-      fscanf(mud, u8" %d %65535s %d", &atype, buf, &narg);
-      ttype = tba_bitvec(buf); // Trigger Types
+      int atype = nextnum(mud);
+      skipspace(mud);
+      int ttype = tba_bitvec(getuntil(mud, ' ')); // Trigger Types
+      skipspace(mud);
+      int narg = nextnum(mud);
+      skipspace(mud);
       atype = 1 << (atype + 24); // Attach Type
       script->SetSkill(prhash(u8"TBAScriptType"), atype | ttype); // Combined
       script->SetSkill(prhash(u8"TBAScriptNArg"), narg); // Numeric Arg
 
-      fscanf(mud, u8" %65535[^~]", buf); // Text argument!
-      script->SetDesc(buf);
+      script->SetDesc(load_tba_field(mud)); // Text argument!
+      getuntil(mud, '\n'); // Go to next Line, don't eat spaces.
 
-      fscanf(mud, u8"~");
-      fscanf(mud, u8"%*[\n\r]"); // Go to next Line, don't eat spaces.
-      fscanf(mud, u8"%65535[^~]~", buf); // Command List (Multi-Line)
-      std::u8string long_desc(buf);
-      while (long_desc.back() != '\n' && (!feof(mud))) { //~ in Middle
-        long_desc.push_back('~');
-        fscanf(mud, u8"%65535[^~]~", buf);
-        long_desc += buf;
-      }
-      script->SetLongDesc(buf);
+      std::u8string long_desc(load_tba_field(mud)); // Command List (Multi-Line)
+      skipspace(mud);
+      script->SetLongDesc(long_desc);
       if (script->LongDesc().contains(
               u8"* Check the direction the player must go to enter the guild.")) {
         // char8_t dir[16];
@@ -2784,7 +2831,6 @@ void Object::TBALoadTRG(const std::u8string& fn) { // Triggers
         ++untrans_trig; // FIXME: Handle some more!
       }
     }
-    fclose(mud);
   } else {
     loge(u8"Error: '{}' does not exist!\n", fn);
   }

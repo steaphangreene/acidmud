@@ -24,15 +24,6 @@
 
 #include <cstdio>
 
-auto fopen(auto&& fn, auto&& md) {
-  return std::fopen(reinterpret_cast<const char*>(fn), reinterpret_cast<const char*>(md));
-};
-
-template <typename... Args>
-auto fscanf(auto&& fl, auto&& fm, Args&&... args) {
-  return std::fscanf(fl, reinterpret_cast<const char*>(fm), std::forward<Args>(args)...);
-};
-
 template <typename... Args>
 auto sscanf(auto&& st, auto&& fm, Args&&... args) {
   return std::sscanf(
