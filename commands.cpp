@@ -1262,7 +1262,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           u8"Use the 'newcharacter' command to create a new character.\n");
       return 0;
     } else {
-      mind->Send(u8"'{}' is now selected as your currect character to work on.\n", sel->NameC());
+      mind->Send(u8"'{}' is now selected as your currect character to work on.\n", sel->Name());
       mind->Owner()->SetCreator(sel);
       return 0;
     }

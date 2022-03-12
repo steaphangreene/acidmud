@@ -228,22 +228,6 @@ class alignas(256) Object {
     return std::u8string_view(descriptions + dlens.sd + dlens.n + dlens.d + 3, dlens.ld);
   };
 
-  const char8_t* ShortDescC() const {
-    return descriptions;
-  };
-
-  const char8_t* NameC() const {
-    return descriptions + dlens.sd + 1;
-  };
-
-  const char8_t* DescC() const {
-    return descriptions + dlens.sd + dlens.n + 2;
-  };
-
-  const char8_t* LongDescC() const {
-    return descriptions + dlens.sd + dlens.n + dlens.d + 3;
-  };
-
   std::u8string ShortDescS() const {
     return std::u8string(ShortDesc());
   };

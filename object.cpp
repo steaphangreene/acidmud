@@ -2850,7 +2850,7 @@ void Object::Collapse() {
           u8"You drop {}!\n",
           this,
           nullptr,
-          ActTarg(act_t::WIELD)->ShortDescC());
+          ActTarg(act_t::WIELD)->ShortDesc());
       ActTarg(act_t::WIELD)->Travel(parent);
     }
     if (ActTarg(act_t::HOLD) && ActTarg(act_t::HOLD) != ActTarg(act_t::WEAR_SHIELD)) {
@@ -2861,7 +2861,7 @@ void Object::Collapse() {
           u8"You drop {}!\n",
           this,
           nullptr,
-          ActTarg(act_t::HOLD)->ShortDescC());
+          ActTarg(act_t::HOLD)->ShortDesc());
       ActTarg(act_t::HOLD)->Travel(parent);
     } else if (ActTarg(act_t::HOLD)) {
       parent->SendOut(
@@ -2871,7 +2871,7 @@ void Object::Collapse() {
           u8"You stop holding {}!\n",
           this,
           nullptr,
-          ActTarg(act_t::HOLD)->ShortDescC());
+          ActTarg(act_t::HOLD)->ShortDesc());
       StopAct(act_t::HOLD);
     }
   }

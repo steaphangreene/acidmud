@@ -957,7 +957,7 @@ void Object::TBALoadMOB(const std::u8string& fn) {
           trg->SetParent(obj);
           todotrg.push_back(trg);
           //  loge(u8"Put Trg \"{}\" on MOB \"{}\"\n",
-          //	trg->DescC(), obj->ShortDesc()
+          //	trg->Desc(), obj->ShortDesc()
           //	);
         }
       }
@@ -1240,8 +1240,8 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
         loger(u8"Bad file parse, no effects bitvec!\n");
         loger(u8"LOC: {} : {}\n", ftell(mudo), fn);
         loger(u8"SOBJ: {}\n", obj->ShortDesc());
-        loger(u8"OBJ: {}\n", obj->DescC());
-        loger(u8"LOBJ: {}\n", obj->LongDescC());
+        loger(u8"OBJ: {}\n", obj->Desc());
+        loger(u8"LOBJ: {}\n", obj->LongDesc());
       }
       uint32_t flags = tba_bitvec(buf);
       if (flags & 1) { // GLOW
@@ -1293,8 +1293,8 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
         loger(u8"Bad file parse, no main bitvec!\n");
         loger(u8"LOC: {} : {}\n", ftell(mudo), fn);
         loger(u8"SOBJ: {}\n", obj->ShortDesc());
-        loger(u8"OBJ: {}\n", obj->DescC());
-        loger(u8"LOBJ: {}\n", obj->LongDescC());
+        loger(u8"OBJ: {}\n", obj->Desc());
+        loger(u8"LOBJ: {}\n", obj->LongDesc());
       }
       flags = tba_bitvec(buf);
       if (flags & 1) { // TAKE
@@ -1435,9 +1435,9 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       if (fscanf(mudo, u8"%d %d %d %d\n", val + 0, val + 1, val + 2, val + 3) < 4) {
         loger(u8"Bad file parse, no 4 vals!\n");
         loger(u8"LOC: {} : {}\n", ftell(mudo), fn);
-        loger(u8"SOBJ: {}\n", obj->ShortDescC());
-        loger(u8"OBJ: {}\n", obj->DescC());
-        loger(u8"LOBJ: {}\n", obj->LongDescC());
+        loger(u8"SOBJ: {}\n", obj->ShortDesc());
+        loger(u8"OBJ: {}\n", obj->Desc());
+        loger(u8"LOBJ: {}\n", obj->LongDesc());
       }
 
       if (tp == 1) { // LIGHTS
@@ -2091,8 +2091,8 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
         loger(u8"Bad file parse, no weight/volume!\n");
         loger(u8"LOC: {} : {}\n", ftell(mudo), fn);
         loger(u8"SOBJ: {}\n", obj->ShortDesc());
-        loger(u8"OBJ: {}\n", obj->DescC());
-        loger(u8"LOBJ: {}\n", obj->LongDescC());
+        loger(u8"OBJ: {}\n", obj->Desc());
+        loger(u8"LOBJ: {}\n", obj->LongDesc());
       }
 
       if (tp != 20) { // MONEY DOESN'T WORK THIS WAY
