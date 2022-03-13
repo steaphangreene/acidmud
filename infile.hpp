@@ -25,7 +25,7 @@
 #include <filesystem>
 #include <string>
 
-class infile {
+class infile : public std::basic_string_view<char8_t> {
  public:
   infile() = delete;
   explicit infile(const std::filesystem::directory_entry& filesystem_entry);

@@ -41,6 +41,8 @@ void infile::init(const std::filesystem::directory_entry& filesystem_entry) {
       perror("infile::init() mmap()");
     } else {
       length_ = filesystem_entry.file_size();
+      (*(static_cast<std::u8string_view*>(this))) = // Yuk!
+          std::u8string_view(static_cast<char8_t*>(rawdata_), length_);
     }
     close(fd);
   }
