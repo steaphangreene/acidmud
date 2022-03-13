@@ -1637,7 +1637,7 @@ int Mind::TBARunLine(std::u8string linestr) {
       trim_string(var);
       svars.erase(std::u8string(var));
       ovars.erase(std::u8string(var));
-      ovars[u8"context"]->SetSkill(fmt::format(u8"TBA:{}", var), 0);
+      ovars[u8"context"]->ClearSkill(fmt::format(u8"TBA:{}", var));
     } else {
       loger(u8"#{} Error: Malformed unset '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
@@ -1798,7 +1798,7 @@ int Mind::TBARunLine(std::u8string linestr) {
     skipspace(line);
     Object* con = decode_object(line);
     if (var.length() > 0 && con != nullptr) {
-      con->SetSkill(fmt::format(u8"TBA:{}", var), 0);
+      con->ClearSkill(fmt::format(u8"TBA:{}", var));
       if (con->IsAnimate()) {
         con->Accomplish(body->Skill(prhash(u8"Accomplishment")), u8"completing a quest");
       }
@@ -2253,7 +2253,7 @@ int Mind::TBARunLine(std::u8string linestr) {
       if (newfl & 1) { // Can Open/Close
         door->SetSkill(prhash(u8"Open"), 1000);
         door->SetSkill(prhash(u8"Closeable"), 1);
-        door->SetSkill(prhash(u8"Locked"), 0);
+        door->ClearSkill(prhash(u8"Locked"));
         door->SetSkill(prhash(u8"Lockable"), 1);
         door->SetSkill(prhash(u8"Pickable"), 4);
         // logeg(u8"#{} Debug: {} door can open/close in '{}'\n " CNRM,
@@ -2262,7 +2262,7 @@ int Mind::TBARunLine(std::u8string linestr) {
         //       line);
       }
       if (newfl & 2) { // Closed
-        door->SetSkill(prhash(u8"Open"), 0);
+        door->ClearSkill(prhash(u8"Open"));
         // logeg(
         //     u8"#{} Debug: {} door is closed in '{}'\n" CNRM,
         //     body->Skill(prhash(u8"TBAScript")),

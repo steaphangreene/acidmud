@@ -1307,7 +1307,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     }
 
     body->StartUsing(prhash(u8"Sprinting"));
-    body->SetSkill(prhash(u8"Hidden"), 0);
+    body->ClearSkill(prhash(u8"Hidden"));
 
     auto dir = dirs.begin();
     int sel = rand() % dirs.size();
@@ -1366,7 +1366,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
       if (!body->HasSkill(prhash(u8"Object ID"))) {
         if (body->World()) {
-          body->SetSkill(prhash(u8"Invisible"), 0);
+          body->ClearSkill(prhash(u8"Invisible"));
           auto obj_id = body->World()->Skill(prhash(u8"Last Object ID")) + 1;
           body->World()->SetSkill(prhash(u8"Last Object ID"), obj_id);
           body->SetSkill(prhash(u8"Object ID"), obj_id);
@@ -1375,9 +1375,9 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
       if (nmode) {
         // This is ninja-healing and bypasses all healing mechanisms.
-        body->SetSkill(prhash(u8"Poisoned"), 0);
-        body->SetSkill(prhash(u8"Thirsty"), 0);
-        body->SetSkill(prhash(u8"Hungry"), 0);
+        body->ClearSkill(prhash(u8"Poisoned"));
+        body->ClearSkill(prhash(u8"Thirsty"));
+        body->ClearSkill(prhash(u8"Hungry"));
         body->SetStun(0);
         body->SetPhys(0);
         body->SetStru(0);
@@ -1610,7 +1610,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       bool shouting = (args.length() >= 4 && !std::any_of(args.begin(), args.end(), ascii_islower));
       if (!shouting) {
         body->Parent()->SendOut(ALL, 0, u8";s says '{}'\n", u8"You say '{}'\n", body, body, args);
-        body->SetSkill(prhash(u8"Hidden"), 0);
+        body->ClearSkill(prhash(u8"Hidden"));
         return 0;
       } else {
         cnum = COM_SHOUT;
@@ -1645,7 +1645,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           ALL, 0, u8";s shouts '{}'!!!\n", u8"You shout '{}'!!!\n", body, body, mes);
       body->Parent()->Loud(body->ModAttribute(2), u8"someone shout '{}'!!!", mes);
     }
-    body->SetSkill(prhash(u8"Hidden"), 0);
+    body->ClearSkill(prhash(u8"Hidden"));
     return 0;
   }
 
@@ -1733,7 +1733,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     }
     body->Parent()->SendOut(
         ALL, 0, u8";s {}{}\n", u8"Your character {}{}\n", body, body, args, dot);
-    body->SetSkill(prhash(u8"Hidden"), 0);
+    body->ClearSkill(prhash(u8"Hidden"));
     return 0;
   }
 
@@ -1762,7 +1762,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         body,
         targ,
         targ->Name());
-    body->SetSkill(prhash(u8"Hidden"), 0);
+    body->ClearSkill(prhash(u8"Hidden"));
     return 0;
   }
 
@@ -1879,7 +1879,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         }
 
         if (must_open) {
-          targ->SetSkill(prhash(u8"Open"), 0);
+          targ->ClearSkill(prhash(u8"Open"));
           body->Parent()->SendOut(
               stealth_t, stealth_s, u8";s closes ;s.\n", u8"You close ;s.\n", body, targ);
         }
@@ -1928,7 +1928,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           body->UsingString());
     }
     body->StartUsing(prhash(u8"Perception"));
-    body->SetSkill(prhash(u8"Hidden"), 0);
+    body->ClearSkill(prhash(u8"Hidden"));
     for (auto targ : targs) {
       std::u8string denied = u8"";
       for (Object* own = targ; own; own = own->Parent()) {
@@ -1967,7 +1967,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       for (auto obj : objs) {
         if (obj->Skill(prhash(u8"Hidden"))) {
           if (body->Roll(prhash(u8"Perception"), obj->Skill(prhash(u8"Hidden")))) {
-            obj->SetSkill(prhash(u8"Hidden"), 0);
+            obj->ClearSkill(prhash(u8"Hidden"));
             body->Parent()->SendOut(
                 stealth_t, stealth_s, u8";s reveals ;s.\n", u8"you reveal ;s.\n", body, obj);
           }
@@ -2727,17 +2727,17 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           return 0;
         }
       }
-      targ->SetSkill(prhash(u8"Locked"), 0);
+      targ->ClearSkill(prhash(u8"Locked"));
       body->Parent()->SendOut(
           stealth_t, stealth_s, u8";s unlocks ;s.\n", u8"You unlock ;s.\n", body, targ);
       if (targ->ActTarg(act_t::SPECIAL_LINKED)) {
         Object* targ2 = targ->ActTarg(act_t::SPECIAL_LINKED);
         targ2->Parent()->SendOut(stealth_t, stealth_s, u8";s unlocks.\n", u8"", targ2, nullptr);
-        targ2->SetSkill(prhash(u8"Locked"), 0);
+        targ2->ClearSkill(prhash(u8"Locked"));
       }
       if (targ->Skill(prhash(u8"Accomplishment"))) {
         body->Accomplish(targ->Skill(prhash(u8"Accomplishment")), u8"unlocking this");
-        targ->SetSkill(prhash(u8"Accomplishment"), 0);
+        targ->ClearSkill(prhash(u8"Accomplishment"));
       }
     }
     return 0;
@@ -2771,7 +2771,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         Object* targ2 = targ->ActTarg(act_t::SPECIAL_LINKED);
         targ2->Parent()->SendOut(stealth_t, stealth_s, u8";s opens.\n", u8"", targ2, nullptr);
         targ2->SetSkill(prhash(u8"Open"), 1000);
-        targ2->SetSkill(prhash(u8"Locked"), 0); // FIXME: Do I want to do this?
+        targ2->ClearSkill(prhash(u8"Locked")); // FIXME: Do I want to do this?
       }
     }
     return 0;
@@ -2798,14 +2798,14 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       if (mind)
         mind->Send(u8"It is locked!\n");
     } else {
-      targ->SetSkill(prhash(u8"Open"), 0);
+      targ->ClearSkill(prhash(u8"Open"));
       body->Parent()->SendOut(
           stealth_t, stealth_s, u8";s closes ;s.\n", u8"You close ;s.\n", body, targ);
       if (targ->ActTarg(act_t::SPECIAL_LINKED)) {
         Object* targ2 = targ->ActTarg(act_t::SPECIAL_LINKED);
         targ2->Parent()->SendOut(stealth_t, stealth_s, u8";s closes.\n", u8"", targ2, nullptr);
-        targ2->SetSkill(prhash(u8"Open"), 0);
-        targ2->SetSkill(prhash(u8"Locked"), 0); // FIXME: Do I want to do this?
+        targ2->ClearSkill(prhash(u8"Open"));
+        targ2->ClearSkill(prhash(u8"Locked")); // FIXME: Do I want to do this?
       }
     }
     return 0;
@@ -4786,7 +4786,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           body->Parent()->Loud(body->ModAttribute(2), u8"someone shout 'TIMBER'!!!");
           body->Parent()->SetSkill(
               prhash(u8"Mature Trees"), body->Parent()->Skill(prhash(u8"Mature Trees")) - 1);
-          body->SetSkill(prhash(u8"Hidden"), 0);
+          body->ClearSkill(prhash(u8"Hidden"));
 
           Object* log = new Object(body->Parent());
           log->SetShortDesc(u8"a log");
@@ -4807,7 +4807,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
             body,
             body);
         body->Parent()->Loud(body->ModAttribute(2) / 2, u8"loud chopping sounds.");
-        body->SetSkill(prhash(u8"Hidden"), 0);
+        body->ClearSkill(prhash(u8"Hidden"));
       }
     }
 
@@ -5131,8 +5131,8 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     }
 
     // Attacking, or being attacked removes hidden-ness.
-    body->SetSkill(prhash(u8"Hidden"), 0);
-    targ->SetSkill(prhash(u8"Hidden"), 0);
+    body->ClearSkill(prhash(u8"Hidden"));
+    targ->ClearSkill(prhash(u8"Hidden"));
 
     int reachmod = 0;
     auto sk1 = prhash(u8"Punching");
@@ -5435,7 +5435,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       body->BusyFor(3000);
       if (targ->Skill(prhash(u8"Accomplishment"))) {
         body->Accomplish(targ->Skill(prhash(u8"Accomplishment")), u8"this victory");
-        targ->SetSkill(prhash(u8"Accomplishment"), 0);
+        targ->ClearSkill(prhash(u8"Accomplishment"));
       }
     }
 
@@ -5567,7 +5567,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       body->SetAttribute(3, 2);
       body->SetAttribute(4, 6);
       body->SetAttribute(5, 5);
-      body->SetSkill(prhash(u8"Attribute Points"), 0);
+      body->ClearSkill(prhash(u8"Attribute Points"));
 
       body->SetSkill(prhash(u8"Long Blades"), 3);
       body->SetSkill(prhash(u8"Two-Handed Blades"), 3);
@@ -5583,7 +5583,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       body->SetSkill(prhash(u8"Kicking"), 3);
       body->SetSkill(prhash(u8"Grappling"), 3);
       body->SetSkill(prhash(u8"Intimidation"), 1);
-      body->SetSkill(prhash(u8"Skill Points"), 0);
+      body->ClearSkill(prhash(u8"Skill Points"));
 
       auto weap = new Object(body);
       weap->SetShortDesc(u8"a dull arming sword");
@@ -5629,7 +5629,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       helm->SetPos(pos_t::LIE);
       body->AddAct(act_t::WEAR_HEAD, helm);
 
-      body->SetSkill(prhash(u8"Status Points"), 0);
+      body->ClearSkill(prhash(u8"Status Points"));
 
       mind->Send(u8"You reform '{}' into a {}.\n", body->Name(), u8"Fighter");
       mind->Send(u8"You can now adjust things from here, or just enter the game.\n");
@@ -5961,7 +5961,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       if (mind)
         mind->Send(u8"No such teleportation destination found.\n");
     } else {
-      body->SetSkill(prhash(u8"Teleport"), 0); // Use it up
+      body->ClearSkill(prhash(u8"Teleport")); // Use it up
       body->Parent()->SendOut(
           0,
           0, // Not Stealthy!
@@ -6003,10 +6003,10 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
             if (mind)
               mind->Send(u8"{} is not long dead (yet).\n", ch->Noun());
           } else {
-            body->SetSkill(prhash(u8"Resurrect"), 0); // Use it up
-            ch->SetSkill(prhash(u8"Poisoned"), 0);
-            ch->SetSkill(prhash(u8"Thirsty"), 0);
-            ch->SetSkill(prhash(u8"Hungry"), 0);
+            body->ClearSkill(prhash(u8"Resurrect")); // Use it up
+            ch->ClearSkill(prhash(u8"Poisoned"));
+            ch->ClearSkill(prhash(u8"Thirsty"));
+            ch->ClearSkill(prhash(u8"Hungry"));
             ch->SetPhys(0);
             ch->SetStun(0);
             ch->SetStru(0);
@@ -6589,7 +6589,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           u8"This tunnel looks to have been carved centuries ago.  It is so well crafted\n"
           u8"that you think it will stand as-is for another millenium.\n");
       next->SetSkill(prhash(u8"DynamicInit"), 1);
-      next->SetSkill(prhash(u8"DynamicPhase"), 0); // Entrance
+      next->ClearSkill(prhash(u8"DynamicPhase")); // Entrance
       next->SetSkill(prhash(u8"DynamicMojo"), 1000000);
 
       body->Parent()->Link(
@@ -6988,9 +6988,9 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       mind->Send(u8"You can't heal {}, it is not alive.\n", targ->Noun(0, 0, body));
     } else if (nmode) {
       // This is ninja-healing and bypasses all healing mechanisms.
-      targ->SetSkill(prhash(u8"Poisoned"), 0);
-      targ->SetSkill(prhash(u8"Thirsty"), 0);
-      targ->SetSkill(prhash(u8"Hungry"), 0);
+      targ->ClearSkill(prhash(u8"Poisoned"));
+      targ->ClearSkill(prhash(u8"Thirsty"));
+      targ->ClearSkill(prhash(u8"Hungry"));
       targ->SetPhys(0);
       targ->SetStun(0);
       targ->SetStru(0);

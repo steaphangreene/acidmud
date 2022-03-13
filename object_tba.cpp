@@ -229,7 +229,7 @@ Object* dup_tba_obj(Object* obj) {
   if (obj->Skill(prhash(u8"Wearable on Left Hand")) !=
       obj->Skill(prhash(u8"Wearable on Right Hand"))) {
     obj2 = new Object(*obj);
-    obj2->SetSkill(prhash(u8"Wearable on Left Hand"), 0);
+    obj2->ClearSkill(prhash(u8"Wearable on Left Hand"));
     obj2->SetSkill(prhash(u8"Wearable on Right Hand"), 1);
     obj->SetShortDesc((std::u8string(obj->ShortDesc()) + u8" (left)"));
     obj2->SetShortDesc((std::u8string(obj2->ShortDesc()) + u8" (right)"));
@@ -238,7 +238,7 @@ Object* dup_tba_obj(Object* obj) {
       obj->Skill(prhash(u8"Wearable on Left Foot")) !=
       obj->Skill(prhash(u8"Wearable on Right Foot"))) {
     obj2 = new Object(*obj);
-    obj2->SetSkill(prhash(u8"Wearable on Left Foot"), 0);
+    obj2->ClearSkill(prhash(u8"Wearable on Left Foot"));
     obj2->SetSkill(prhash(u8"Wearable on Right Foot"), 1);
     obj->SetShortDesc((std::u8string(obj->ShortDesc()) + u8" (left)"));
     obj2->SetShortDesc((std::u8string(obj2->ShortDesc()) + u8" (right)"));
@@ -282,7 +282,7 @@ void Object::TBAFinishMOB(Object* mob) {
     Object* g = new Object(*gold);
     g->SetParent(bag);
     g->SetSkill(prhash(u8"Quantity"), mob->Skill(prhash(u8"TBAGold")));
-    mob->SetSkill(prhash(u8"TBAGold"), 0);
+    mob->ClearSkill(prhash(u8"TBAGold"));
   }
 
   if (mob->Skill(prhash(u8"TBAAttack"))) {
@@ -304,12 +304,12 @@ void Object::TBAFinishMOB(Object* mob) {
             mob->Skill(prhash(u8"TBAAttack")));
       }
       if (mob->Skill(prhash(u8"NaturalWeapon")) == 13) { // Default (hit), but is armed!
-        mob->SetSkill(prhash(u8"NaturalWeapon"), 0); // So remove it
+        mob->ClearSkill(prhash(u8"NaturalWeapon")); // So remove it
       }
     } else {
       mob->SetSkill(prhash(u8"Punching"), mob->Skill(prhash(u8"TBAAttack")));
     }
-    mob->SetSkill(prhash(u8"TBAAttack"), 0);
+    mob->ClearSkill(prhash(u8"TBAAttack"));
   }
   if (mob->Skill(prhash(u8"TBADefense"))) {
     if (mob->IsAct(act_t::WEAR_SHIELD)) {
@@ -322,7 +322,7 @@ void Object::TBAFinishMOB(Object* mob) {
           prhash(u8"Punching"),
           mob->Skill(prhash(u8"TBADefense")) - mob->Skill(prhash(u8"Kicking")));
     }
-    mob->SetSkill(prhash(u8"TBADefense"), 0);
+    mob->ClearSkill(prhash(u8"TBADefense"));
   }
 
   if (Matches(u8"snake") || Matches(u8"spider") || Matches(u8"poisonous")) {
@@ -366,12 +366,12 @@ void Object::TBALoadZON(const std::u8string& fn) {
             door = bynumwld[room]->PickObject(dirname[dnum], LOC_INTERNAL);
           if (door && state == 0) {
             door->SetSkill(prhash(u8"Open"), 1000);
-            door->SetSkill(prhash(u8"Locked"), 0);
+            door->ClearSkill(prhash(u8"Locked"));
           } else if (door && state == 1) {
-            door->SetSkill(prhash(u8"Open"), 0);
-            door->SetSkill(prhash(u8"Locked"), 0);
+            door->ClearSkill(prhash(u8"Open"));
+            door->ClearSkill(prhash(u8"Locked"));
           } else if (door && state == 2) {
-            door->SetSkill(prhash(u8"Open"), 0);
+            door->ClearSkill(prhash(u8"Open"));
             door->SetSkill(prhash(u8"Locked"), 1);
           }
         } break;
@@ -1454,7 +1454,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
           } else if (matches(name, u8"torch")) {
             obj->SetSkill(prhash(u8"Resilience"), 200); // Won't last when dropped
           } else if (matches(name, u8"candle")) {
-            // obj->SetSkill(prhash(u8"Resilience"), 0); // Goes out when dropped
+            // obj->ClearSkill(prhash(u8"Resilience")); // Goes out when dropped
           } else {
             obj->SetSkill(prhash(u8"Resilience"), 100); // Won't last when dropped
           }
@@ -2353,8 +2353,8 @@ void Object::TBALoadWLD(const std::u8string& fn) {
         obj->SetSkill(prhash(u8"Light Source"), 100); // Torches (unless DARK)
       }
       if (flags & 1) { // DARK
-        obj->SetSkill(prhash(u8"Translucent"), 0); // No sky, no windows
-        obj->SetSkill(prhash(u8"Light Source"), 0); // No torches
+        obj->ClearSkill(prhash(u8"Translucent")); // No sky, no windows
+        obj->ClearSkill(prhash(u8"Light Source")); // No torches
       }
       if (flags & 2) { // DEATH
         obj->SetSkill(prhash(u8"Accomplishment"), 1100000 + onum);
@@ -2476,7 +2476,7 @@ void Object::TBALoadWLD(const std::u8string& fn) {
               nobj2->SetDesc(u8"A passage exit.");
               nobj2->SetSkill(prhash(u8"Invisible"), 1000);
             } else {
-              nobj->SetSkill(prhash(u8"Invisible"), 0);
+              nobj->ClearSkill(prhash(u8"Invisible"));
             }
 
             if (nmnum[dir][ob] != u8"") {

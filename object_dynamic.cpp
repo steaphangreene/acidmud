@@ -368,7 +368,7 @@ void Object::DynamicInit1() { // Dwarven mine
   }
 
   int mojo = Skill(prhash(u8"DynamicMojo"));
-  SetSkill(prhash(u8"DynamicMojo"), 0);
+  ClearSkill(prhash(u8"DynamicMojo"));
 
   // Tree structure, start with one door - dir of travel is opposite it.
   std::u8string dirb = u8"south";
@@ -908,7 +908,7 @@ void Object::DynamicInit1() { // Dwarven mine
           Skill(prhash(u8"DynamicPhase")));
     } break;
   }
-  SetSkill(prhash(u8"DynamicPhase"), 0);
+  ClearSkill(prhash(u8"DynamicPhase"));
 }
 
 void Object::DynamicInit() {
@@ -923,5 +923,5 @@ void Object::DynamicInit() {
       loge(u8"Unknown dynamic-type ({}) init requested!\n", Skill(prhash(u8"DynamicInit")));
     } break;
   }
-  SetSkill(prhash(u8"DynamicInit"), 0);
+  ClearSkill(prhash(u8"DynamicInit"));
 }

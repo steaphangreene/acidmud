@@ -354,7 +354,7 @@ int handle_command_ccreate(
                 places[i * 2] = new Object(city);
                 places[i * 2]->SetShortDesc(u8"a vacant lot");
                 places[i * 2]->SetSkill(prhash(u8"DynamicInit"), 2); // City
-                places[i * 2]->SetSkill(prhash(u8"DynamicPhase"), 0); // Lot
+                places[i * 2]->ClearSkill(prhash(u8"DynamicPhase")); // Lot
                 places[i * 2]->SetSkill(prhash(u8"DynamicMojo"), 1000);
                 places[i + 1]->LinkClosed(places[i], dir[0], addr, dir[1], addr);
               }

@@ -653,7 +653,7 @@ int Object::Tick() {
       goesout = ((rand() % 1000) >= chances);
     }
     if (goesout) {
-      SetSkill(prhash(u8"Light Source"), 0);
+      ClearSkill(prhash(u8"Light Source"));
       parent->SendOut(ALL, -1, u8";s goes out.\n", u8"", this, nullptr);
       return -1; // Deactivate Me!
     }
@@ -663,7 +663,7 @@ int Object::Tick() {
   if (Skill(prhash(u8"Day Length")) > 1) { // Must be > 1 (divide by it/2 below!)
     SetSkill(prhash(u8"Day Time"), Skill(prhash(u8"Day Time")) + 1);
     if (Skill(prhash(u8"Day Time")) >= Skill(prhash(u8"Day Length"))) {
-      SetSkill(prhash(u8"Day Time"), 0);
+      ClearSkill(prhash(u8"Day Time"));
     }
     int light = Skill(prhash(u8"Day Time")) - (Skill(prhash(u8"Day Length")) / 2);
     if (light < 0)
@@ -2168,7 +2168,7 @@ int Object::Travel(Object* dest, int try_combine) {
       StopAct(act_t::HOLD);
     }
   }
-  SetSkill(prhash(u8"Hidden"), 0);
+  ClearSkill(prhash(u8"Hidden"));
 
   if (parent->Skill(prhash(u8"DynamicInit")) > 0) { // Room is dynamic, but uninitialized
     parent->DynamicInit();
@@ -4064,7 +4064,7 @@ void Object::Consume(const Object* item) {
   // Special effect: Cure Poison
   if (item->Skill(prhash(u8"Cure Poison Spell")) > 0 && Skill(prhash(u8"Poisoned")) > 0) {
     if (item->Skill(prhash(u8"Cure Poison Spell")) >= Skill(prhash(u8"Poisoned"))) {
-      SetSkill(prhash(u8"Poisoned"), 0);
+      ClearSkill(prhash(u8"Poisoned"));
       Send(ALL, 0, u8"You feel better.\n");
     }
   }

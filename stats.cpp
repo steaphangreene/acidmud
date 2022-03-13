@@ -189,9 +189,9 @@ void Object::SetModifier(int a, int v) {
     v = -10000;
   if (v > 0) {
     SetSkill(attr_bonus[a], v);
-    SetSkill(attr_penalty[a], 0);
+    ClearSkill(attr_penalty[a]);
   } else {
-    SetSkill(attr_bonus[a], 0);
+    ClearSkill(attr_bonus[a]);
     SetSkill(attr_penalty[a], -v);
   }
 }
@@ -211,40 +211,34 @@ void Object::SetSkill(uint32_t stok, int v) {
     }
   }
   if (itr == skills.end()) {
-    if (v != 0) {
-      skills.push_back(skill_pair{stok, v});
-    }
-  } else if (v == 0) {
-    skills.erase(itr);
+    skills.push_back(skill_pair{stok, v});
   } else {
     itr->second = v;
   }
 }
 
 void Object::SetSkill(const std::u8string_view& s, int v) {
-  if (v > 1000000000)
-    v = 1000000000;
-  else if (v < -1000000000)
-    v = -1000000000;
-
   auto stok = crc32c(s);
   insert_skill_hash(stok, s);
+  SetSkill(stok, v);
+}
 
+void Object::ClearSkill(uint32_t stok) {
   auto itr = skills.begin();
   for (; itr != skills.end(); ++itr) {
     if (itr->first == stok) {
       break;
     }
   }
-  if (itr == skills.end()) {
-    if (v != 0) {
-      skills.push_back(skill_pair{stok, v});
-    }
-  } else if (v == 0) {
+  if (itr != skills.end()) {
     skills.erase(itr);
-  } else {
-    itr->second = v;
   }
+}
+
+void Object::ClearSkill(const std::u8string_view& s) {
+  auto stok = crc32c(s);
+  insert_skill_hash(stok, s);
+  ClearSkill(stok);
 }
 
 int Object::SkillTarget(uint32_t stok) const {

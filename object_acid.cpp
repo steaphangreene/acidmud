@@ -419,7 +419,7 @@ int Object::LoadFrom(std::u8string_view& fl) {
 
   //  if(HasSkill(prhash(u8"Heal Effect"))) {
   //    SetSkill(prhash(u8"Heal Spell"), Skill(prhash(u8"Heal Effect")));
-  //    SetSkill(prhash(u8"Heal Effect"), 0);
+  //    ClearSkill(prhash(u8"Heal Effect"));
   //    }
 
   //  if(HasSkill(prhash(u8"Open"))) {
@@ -440,11 +440,11 @@ int Object::LoadFrom(std::u8string_view& fl) {
 
   //  if(HasSkill(prhash(u8"Evasion Penalty"))) {
   //    SetSkill(prhash(u8"Evasion Bonus"), Skill(prhash(u8"Evasion Penalty")));
-  //    SetSkill(prhash(u8"Evasion Penalty"), 0);
+  //    ClearSkill(prhash(u8"Evasion Penalty"));
   //    }
   //  else if(HasSkill(prhash(u8"Evasion Bonus"))) {
   //    SetSkill(prhash(u8"Evasion Penalty"), Skill(prhash(u8"Evasion Bonus")));
-  //    SetSkill(prhash(u8"Evasion Bonus"), 0);
+  //    ClearSkill(prhash(u8"Evasion Bonus"));
   //    }
 
   //  if(IsAct(act_t::SPECIAL_PREPARE)) {

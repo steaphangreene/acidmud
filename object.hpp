@@ -458,6 +458,8 @@ class alignas(256) Object {
   void SetModifier(int, int);
   void SetSkill(uint32_t, int);
   void SetSkill(const std::u8string_view&, int);
+  void ClearSkill(uint32_t);
+  void ClearSkill(const std::u8string_view&);
 
   void DynamicInit();
   void DynamicInit1();
