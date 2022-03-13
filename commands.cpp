@@ -2911,7 +2911,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           int price = targ->Value() * targ->Quantity();
           if (price < 0) {
             if (mind)
-              mind->Send(u8"You can't sell {}.\n", targ->Noun(0, 0, body));
+              mind->Send(u8"You can't buy {}.\n", targ->Noun(0, 0, body));
             continue;
           } else if (price == 0) {
             if (mind) {

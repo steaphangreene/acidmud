@@ -2075,16 +2075,32 @@ void Object::TryCombine() {
       SetSkill(prhash(u8"Quantity"), val);
 
       val = Skill(prhash(u8"Hungry")) + obj->Skill(prhash(u8"Hungry"));
-      SetSkill(prhash(u8"Hungry"), val);
+      if (val > 0) {
+        SetSkill(prhash(u8"Hungry"), val);
+      } else {
+        ClearSkill(prhash(u8"Hungry"));
+      }
 
       val = Skill(prhash(u8"Bored")) + obj->Skill(prhash(u8"Bored"));
-      SetSkill(prhash(u8"Bored"), val);
+      if (val > 0) {
+        SetSkill(prhash(u8"Bored"), val);
+      } else {
+        ClearSkill(prhash(u8"Bored"));
+      }
 
       val = Skill(prhash(u8"Needy")) + obj->Skill(prhash(u8"Needy"));
-      SetSkill(prhash(u8"Needy"), val);
+      if (val > 0) {
+        SetSkill(prhash(u8"Needy"), val);
+      } else {
+        ClearSkill(prhash(u8"Needy"));
+      }
 
       val = Skill(prhash(u8"Tired")) + obj->Skill(prhash(u8"Tired"));
-      SetSkill(prhash(u8"Tired"), val);
+      if (val > 0) {
+        SetSkill(prhash(u8"Tired"), val);
+      } else {
+        ClearSkill(prhash(u8"Tired"));
+      }
 
       obj->Recycle();
       break;
@@ -2433,9 +2449,17 @@ Object* Object::Split(int nqty) {
 
   Object* nobj = new Object(*this);
   nobj->SetParent(Parent());
-  nobj->SetSkill(prhash(u8"Quantity"), (nqty <= 1) ? 0 : nqty);
+  if (nqty <= 1) {
+    nobj->ClearSkill(prhash(u8"Quantity"));
+  } else {
+    nobj->SetSkill(prhash(u8"Quantity"), nqty);
+  }
 
-  SetSkill(prhash(u8"Quantity"), (qty <= 1) ? 0 : qty);
+  if (qty <= 1) {
+    ClearSkill(prhash(u8"Quantity"));
+  } else {
+    SetSkill(prhash(u8"Quantity"), qty);
+  }
 
   for (int ctr = 0; ctr < 4; ++ctr) {
     int val = Skill(splits[ctr]);
