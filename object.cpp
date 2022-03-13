@@ -1631,12 +1631,13 @@ void Object::SendScore(Mind* m, Object* o) {
     m->Send(u8"\n");
   }
 
+  bool animate = IsAnimate();
   bool nmode = (m && m->Owner() && m->Owner()->Is(PLAYER_NINJAMODE));
 
   std::vector<std::u8string> col1;
   auto skls = GetSkills();
 
-  if (!IsAnimate()) { // Inanimate
+  if (!animate) { // Inanimate
     col1 = FormatStats(skls);
   } else if (nmode) {
     col1 = FormatSkills(skls);
@@ -1644,8 +1645,8 @@ void Object::SendScore(Mind* m, Object* o) {
     col1 = FormatNonweaponSkills(skls);
   }
 
-  auto c2cond = [nmode](auto skl) {
-    if (nmode) {
+  auto c2cond = [animate, nmode](auto skl) {
+    if (nmode || !animate) {
       return !is_skill(skl.first);
     } else {
       return is_weapon_skill(skl.first);
@@ -1663,7 +1664,7 @@ void Object::SendScore(Mind* m, Object* o) {
     }
 
     if (c2 != skls.end()) {
-      if (nmode) {
+      if (nmode || !animate) {
         m->Send(u8"{:>28}: {:>8}", SkillName(c2->first), c2->second);
       } else {
         m->Send(u8"{:>28}: " CYEL u8"{:>2}" CNRM, SkillName(c2->first), std::min(99, c2->second));
