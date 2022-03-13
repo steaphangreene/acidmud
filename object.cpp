@@ -3415,15 +3415,12 @@ void Object::BusyFor(long msec, const std::u8string& default_next) {
   if (busy_until == 0) {
     busy_until = 1; // Avoid Special Case
   }
+  if (defact[0] != '\0') {
+    delete[] defact;
+  }
   if (default_next.length() == 0) {
-    if (defact[0] != '\0') {
-      delete[] defact;
-    }
     defact = u8"";
   } else {
-    if (defact[0] != '\0') {
-      delete[] defact;
-    }
     auto new_d = new char8_t[default_next.length() + 1];
     std::memcpy(new_d, default_next.c_str(), default_next.length() + 1);
     defact = new_d;
@@ -3434,15 +3431,12 @@ void Object::BusyFor(long msec, const std::u8string& default_next) {
 void Object::BusyWith(Object* other, const std::u8string& default_next) {
   // loge(u8"Holding {}, will default do '{}'!\n", reinterpret_cast<void*>(this), default_next);
   busy_until = other->busy_until;
+  if (defact[0] != '\0') {
+    delete[] defact;
+  }
   if (default_next.length() == 0) {
-    if (defact[0] != '\0') {
-      delete[] defact;
-    }
     defact = u8"";
   } else {
-    if (defact[0] != '\0') {
-      delete[] defact;
-    }
     auto new_d = new char8_t[default_next.length() + 1];
     std::memcpy(new_d, default_next.c_str(), default_next.length() + 1);
     defact = new_d;
