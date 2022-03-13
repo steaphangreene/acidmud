@@ -2054,16 +2054,17 @@ void Object::TryCombine() {
     if (obj == this)
       continue; // Skip self
 
-    // Never combine with an actee.
+    // Never combine with a targeted actor/actee.
     bool actee = false;
-    for (auto a : parent->act) {
-      if (a.obj() == obj) {
+    for (auto a : act) { // Note, includes act_t::SPECIAL_ACTEE
+      if (a.obj() != nullptr) {
         actee = true;
         break;
       }
     }
-    if (actee)
+    if (actee) {
       continue;
+    }
 
     if (IsSameAs(*obj)) {
       // loge(u8"Combining '{}'\n", Noun());
