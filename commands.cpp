@@ -2519,10 +2519,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         body = mind->Owner()->Creator();
       }
       if (body) {
-        mind->Send(CCYN);
-        body->SendFullSituation(mind, body);
-        body->SendActions(mind);
-        mind->Send(CNRM);
+        mind->Send(CCYN u8"{} is in {}.\n" CNRM, body->Noun(), body->Parent()->ShortDesc());
         body->SendScore(mind, body);
       } else {
         mind->Send(u8"You need to select a character first.\n");
@@ -2638,10 +2635,12 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         mind->Send(u8"You don't see that here.\n");
     } else {
       if (mind) {
-        mind->Send(CCYN);
-        targ->SendFullSituation(mind, body);
-        targ->SendActions(mind);
-        mind->Send(CNRM);
+        mind->Send(
+            CCYN u8"{} is in {}, in {}, in {}.\n" CNRM,
+            body->Noun(),
+            body->Parent()->ShortDesc(),
+            body->Zone()->ShortDesc(),
+            body->World()->ShortDesc());
         targ->SendScore(mind, body);
       }
     }
@@ -4687,10 +4686,12 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           obj->Noun());
     } else if (spname == prhash(u8"Identify")) { // Other kinds of spells
       if (mind) {
-        mind->Send(CCYN);
-        targ->SendFullSituation(mind, body);
-        targ->SendActions(mind);
-        mind->Send(CNRM);
+        mind->Send(
+            CCYN u8"{} is in {}, in {}, in {}.\n" CNRM,
+            body->Noun(),
+            body->Parent()->ShortDesc(),
+            body->Zone()->ShortDesc(),
+            body->World()->ShortDesc());
         targ->SendScore(mind, body);
       }
     }
