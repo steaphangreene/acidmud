@@ -45,45 +45,39 @@ static int untrans_trig = 0;
 void Object::TBALoadAll() {
   infile mudt(u8"tba/trg/index");
   if (mudt) {
-    std::u8string_view mud = mudt.all();
-    while (mud.length() > 3) {
-      TBALoadTRG(fmt::format(u8"tba/trg/{}", getuntil(mud, '\n')));
+    while (mudt.length() > 3) {
+      TBALoadTRG(fmt::format(u8"tba/trg/{}", getuntil(mudt, '\n')));
     }
   }
   infile mudw(u8"tba/wld/index");
   if (mudw) {
-    std::u8string_view mud = mudw.all();
-    while (mud.length() > 3) {
-      TBALoadWLD(fmt::format(u8"tba/wld/{}", getuntil(mud, '\n')));
+    while (mudw.length() > 3) {
+      TBALoadWLD(fmt::format(u8"tba/wld/{}", getuntil(mudw, '\n')));
     }
   }
   infile mudo(u8"tba/obj/index");
   if (mudo) {
-    std::u8string_view mud = mudo.all();
-    while (mud.length() > 3) {
-      TBALoadOBJ(fmt::format(u8"tba/obj/{}", getuntil(mud, '\n')));
+    while (mudo.length() > 3) {
+      TBALoadOBJ(fmt::format(u8"tba/obj/{}", getuntil(mudo, '\n')));
     }
   }
   infile mudm(u8"tba/mob/index");
   if (mudm) {
-    std::u8string_view mud = mudm.all();
-    while (mud.length() > 3) {
-      TBALoadMOB(fmt::format(u8"tba/mob/{}", getuntil(mud, '\n')));
+    while (mudm.length() > 3) {
+      TBALoadMOB(fmt::format(u8"tba/mob/{}", getuntil(mudm, '\n')));
     }
   }
   infile mudz(u8"tba/zon/index");
   if (mudz) {
-    std::u8string_view mud = mudz.all();
-    while (mud.length() > 3) {
-      TBALoadZON(fmt::format(u8"tba/zon/{}", getuntil(mud, '\n')));
+    while (mudz.length() > 3) {
+      TBALoadZON(fmt::format(u8"tba/zon/{}", getuntil(mudz, '\n')));
     }
   }
   TBAFinalizeTriggers();
   infile muds(u8"tba/shp/index");
   if (muds) {
-    std::u8string_view mud = muds.all();
-    while (mud.length() > 3) {
-      TBALoadSHP(fmt::format(u8"tba/shp/{}", getuntil(mud, '\n')));
+    while (muds.length() > 3) {
+      TBALoadSHP(fmt::format(u8"tba/shp/{}", getuntil(muds, '\n')));
     }
   }
   TBACleanup();
@@ -333,9 +327,8 @@ void Object::TBAFinishMOB(Object* mob) {
 static Object *lastmob = nullptr, *lastbag = nullptr;
 static std::map<int, Object*> lastobj;
 void Object::TBALoadZON(const std::u8string& fn) {
-  infile mudz(fn);
-  if (mudz) {
-    std::u8string_view mud = mudz.all();
+  infile mud(fn);
+  if (mud) {
     // loge(u8"Loading TBA Zone from \"{}\"\n", fn);
     for (int ctr = 0; ctr < 3; ++ctr) {
       getuntil(mud, '\n');
@@ -665,9 +658,8 @@ void Object::TBALoadMOB(const std::u8string& fn) {
     mobroom->SetSkill(prhash(u8"Invisible"), 1000);
     mobroom->SetShortDesc(u8"The TBAMUD MOB Room");
   }
-  infile mudm(fn);
-  if (mudm) {
-    std::u8string_view mud = mudm.all();
+  infile mud(fn);
+  if (mud) {
     // loge(u8"Loading TBA Mobiles from \"{}\"\n", fn);
     while (1) {
       if (mud.length() == 0 || nextchar(mud) != '#') {
@@ -1154,9 +1146,8 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
     objroom->SetSkill(prhash(u8"Invisible"), 1000);
     objroom->SetShortDesc(u8"The TBAMUD Object Room");
   }
-  infile mudo(fn);
-  if (mudo) {
-    std::u8string_view mud = mudo.all();
+  infile mud(fn);
+  if (mud) {
     // loge(u8"Loading TBA Objects from \"{}\"\n", fn);
     while (1) {
       if (mud.length() == 0 || nextchar(mud) != '#') {
@@ -2273,14 +2264,12 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
 }
 
 void Object::TBALoadWLD(const std::u8string& fn) {
-  infile mudw(fn);
+  infile mud(fn);
   int znum = 0, offset = fn.length() - 5; // Chop off the .wld
   while (isdigit(fn[offset]))
     --offset;
   znum = getnum(fn.substr(offset + 1));
-  if (mudw) {
-    std::u8string_view mud = mudw.all();
-
+  if (mud) {
     Object* zone = new Object(this);
     zone->SetShortDesc(
         std::u8string(u8"TBA Zone-") + fn.substr(0, fn.length() - 4).substr(offset + 1));
@@ -2563,9 +2552,8 @@ static std::set<std::u8string> parse_tba_shop_rules(std::u8string rules) {
 }
 
 void Object::TBALoadSHP(const std::u8string& fn) {
-  infile muds(fn);
-  if (muds) {
-    std::u8string_view mud = muds.all();
+  infile mud(fn);
+  if (mud) {
     Object* vortex = nullptr;
     if (mud.substr(0, 25) == u8"CircleMUD v3.0 Shop File~") {
       getuntil(mud, '\n');
@@ -2764,9 +2752,8 @@ void Object::TBALoadSHP(const std::u8string& fn) {
 }
 
 void Object::TBALoadTRG(const std::u8string& fn) { // Triggers
-  infile mudt(fn);
-  if (mudt) {
-    std::u8string_view mud = mudt.all();
+  infile mud(fn);
+  if (mud) {
     int tnum = -1;
     while (mud.front() == '#') {
       nextchar(mud);
