@@ -28,8 +28,8 @@
 class infile {
  public:
   infile() = delete;
-  infile(const std::filesystem::directory_entry& filesystem_entry);
-  infile(const std::u8string_view filename);
+  explicit infile(const std::filesystem::directory_entry& filesystem_entry);
+  explicit infile(const std::u8string_view& filename);
   operator bool() const;
   std::u8string_view all() const;
   ~infile();

@@ -50,7 +50,7 @@ infile::infile(const std::filesystem::directory_entry& filesystem_entry) {
   init(filesystem_entry);
 }
 
-infile::infile(const std::u8string_view filename) {
+infile::infile(const std::u8string_view& filename) {
   init(std::filesystem::directory_entry(filename));
 }
 

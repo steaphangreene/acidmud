@@ -32,7 +32,7 @@
 class outfile {
  public:
   outfile() = delete;
-  outfile(const std::u8string_view filename);
+  explicit outfile(const std::u8string_view& filename);
   operator bool() const;
   void append(const std::u8string_view& mes);
   template <typename... Args>
