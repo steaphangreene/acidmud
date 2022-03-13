@@ -1366,6 +1366,8 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
       if (!body->HasSkill(prhash(u8"Object ID"))) {
         if (body->World()) {
+          body->ClearSkill(prhash(u8"Attribute Points"));
+          body->ClearSkill(prhash(u8"Skill Points"));
           body->ClearSkill(prhash(u8"Invisible"));
           auto obj_id = body->World()->Skill(prhash(u8"Last Object ID")) + 1;
           body->World()->SetSkill(prhash(u8"Last Object ID"), obj_id);
