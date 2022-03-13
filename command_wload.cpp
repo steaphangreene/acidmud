@@ -68,12 +68,11 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
     return false;
   }
 
-  infile datafile(ent);
-  if (!datafile) {
+  infile file(ent);
+  if (!file) {
     mind->Send(u8"Can't find definition file '{}'!\n", filename);
     return false;
   }
-  std::u8string_view file = datafile.all();
 
   std::u8string name = u8"Unknown Land";
   uint8_t lower_level = 0;

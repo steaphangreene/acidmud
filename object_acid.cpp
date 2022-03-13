@@ -185,10 +185,9 @@ int Object::SaveTo(outfile& fl) {
 
 static unsigned int ver;
 int Object::Load(const std::u8string& fn) {
-  infile file(fn);
-  if (!file)
+  infile fl(fn);
+  if (!fl)
     return -1;
-  std::u8string_view fl = file.all();
 
   ver = nexthex(fl);
   skipspace(fl);

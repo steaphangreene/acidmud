@@ -3445,7 +3445,7 @@ void init_world() {
       automind->SetSystem();
       automind->Attach(autoninja);
 
-      handle_command(autoninja, conf.all(), automind);
+      handle_command(autoninja, conf, automind);
 
       delete automind;
       delete anp;

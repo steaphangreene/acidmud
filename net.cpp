@@ -387,10 +387,9 @@ int load_net(const std::u8string& fn) {
   { // Scope the infile so it shuts down before we delete the file.
     loge(u8"Loading Network State.\n");
 
-    infile file(fn);
-    if (!file)
+    infile fl(fn);
+    if (!fl)
       return -1;
-    std::u8string_view fl = file.all();
 
     unsigned int ver = nexthex(fl);
     skipspace(fl);

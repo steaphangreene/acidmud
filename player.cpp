@@ -279,10 +279,9 @@ int Player::LoadFrom(std::u8string_view& fl) {
 int load_players(const std::u8string_view& fn) {
   loge(u8"Loading Players.\n");
 
-  infile file(fn);
-  if (!file)
+  infile fl(fn);
+  if (!fl)
     return -1;
-  std::u8string_view fl = file.all();
 
   unsigned int ver = nexthex(fl);
   skipspace(fl);

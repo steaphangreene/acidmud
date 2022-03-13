@@ -839,10 +839,9 @@ static void load_commands() {
     comlist[cnum] = static_comlist[cnum];
     ++cnum;
   }
-  infile socfile(u8"tba/socials.new");
-  if (socfile) {
+  infile soc(u8"tba/socials.new");
+  if (soc) {
     // loge(u8"There were {} commands!\n", cnum);
-    std::u8string_view soc = socfile.all();
     while (soc.length() > 0 && nextchar(soc) == '~') {
       std::u8string_view com = getuntil(soc, ' ');
       skipspace(soc);
