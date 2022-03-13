@@ -634,17 +634,19 @@ bool Mind::Send(const std::u8string_view& mes) {
     }
     return Think(); // Reactionary actions (HACK!).
   } else if (type == mind_t::SYSTEM) {
-    std::u8string newmes = u8"";
-    if (body)
-      newmes += body->ShortDesc();
-    newmes += u8": ";
-    newmes += mes;
+    std::u8string_view inmes = mes;
+    trim_string(inmes);
 
-    for (auto chr : newmes) {
+    std::u8string newmes = fmt::format(
+        CMAG u8"{}|{}" CNRM u8": {}\n",
+        (body) ? body->Name() : u8"?",
+        (body) ? body->ShortDesc() : u8"?",
+        inmes);
+    for (auto& chr : newmes) {
       if (chr == '\n' || chr == '\r')
         chr = ' ';
     }
-    newmes += u8"\n";
+    newmes.back() = '\n';
 
     write(pers, newmes.data(), newmes.length());
   }
