@@ -1945,7 +1945,7 @@ std::vector<std::u8string> Object::FormatStats(const MinVec<7, skill_pair>& skls
         u8" Old Weapon: " CYEL + SkillName(get_weapon_skill(Skill(prhash(u8"WeaponType")))) + CNRM);
 
     ret.emplace_back(fmt::format(
-        u8"  Damage: " CYEL u8"(Str+{}){}" CNRM,
+        u8"  Damage: " CYEL u8"(Str{:+}){}" CNRM,
         Skill(prhash(u8"WeaponForce")),
         sevs[std::max(0, std::min(15, Skill(prhash(u8"WeaponSeverity"))))]));
 
