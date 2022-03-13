@@ -281,8 +281,11 @@ class alignas(256) Object {
   void SendLongDesc(Mind* m, Object* o = nullptr);
   void SendLongDesc(Object* m, Object* o = nullptr);
   void SendScore(Mind* m, Object* o = nullptr);
-  std::vector<std::u8string> FormatStats(const MinVec<7, skill_pair>& skls); // Modifies skls
-  std::vector<std::u8string> FormatSkills(const MinVec<7, skill_pair>& skls); // Modifies skls
+
+  // All of these modify the "skls" parameter.
+  std::vector<std::u8string> FormatStats(const MinVec<7, skill_pair>& skls);
+  std::vector<std::u8string> FormatSkills(const MinVec<7, skill_pair>& skls);
+  std::vector<std::u8string> FormatNonweaponSkills(const MinVec<7, skill_pair>& skls);
 
   void Link(
       Object* other,

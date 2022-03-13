@@ -1618,17 +1618,29 @@ void Object::SendScore(Mind* m, Object* o) {
     m->Send(u8"\n");
   }
 
+  bool nmode = (m && m->Owner() && m->Owner()->Is(PLAYER_NINJAMODE));
+
   std::vector<std::u8string> col1;
   auto skls = GetSkills();
 
   if (!IsAnimate()) { // Inanimate
     col1 = FormatStats(skls);
-  } else {
+  } else if (nmode) {
     col1 = FormatSkills(skls);
+  } else {
+    col1 = FormatNonweaponSkills(skls);
   }
 
+  auto c2cond = [nmode](auto skl) {
+    if (nmode) {
+      return !is_skill(skl.first);
+    } else {
+      return is_weapon_skill(skl.first);
+    }
+  };
+
   auto c1 = col1.begin();
-  auto c2 = std::find_if(skls.begin(), skls.end(), [](auto skl) { return !is_skill(skl.first); });
+  auto c2 = std::find_if(skls.begin(), skls.end(), c2cond);
   while (c1 != col1.end() || c2 != skls.end()) {
     if (c1 != col1.end()) {
       m->Send(u8"{:>41} ", *c1); // Note: 41 is 32 (2 Color Escape Codes)
@@ -1638,64 +1650,83 @@ void Object::SendScore(Mind* m, Object* o) {
     }
 
     if (c2 != skls.end()) {
-      m->Send(u8"{:>28}: {:>8}", SkillName(c2->first), c2->second);
+      if (nmode) {
+        m->Send(u8"{:>28}: {:>8}", SkillName(c2->first), c2->second);
+      } else {
+        m->Send(u8"{:>28}: " CYEL u8"{:>2}" CNRM, SkillName(c2->first), std::min(99, c2->second));
+      }
       c2++;
       if (c2 != skls.end()) {
-        c2 = std::find_if(c2, skls.end(), [](auto skl) { return !is_skill(skl.first); });
+        c2 = std::find_if(c2, skls.end(), c2cond);
       }
     }
 
     m->Send(u8"\n");
   }
+  m->Send(u8"\n");
 
-  for (const auto a : act) {
-    if (a.act() >= act_t::MAX && a.obj()) {
-      m->Send(CGRN u8"  {} -> {}\n" CNRM, act_str[static_cast<uint8_t>(a.act())], a.obj()->Noun());
-    } else if (a.act() >= act_t::MAX) {
-      m->Send(CGRN u8"  {}\n" CNRM, act_str[static_cast<uint8_t>(a.act())]);
+  if (nmode) {
+    for (const auto a : act) {
+      if (a.act() >= act_t::MAX && a.obj()) {
+        m->Send(
+            CGRN u8"  {} -> {}\n" CNRM, act_str[static_cast<uint8_t>(a.act())], a.obj()->Noun());
+      } else if (a.act() >= act_t::MAX) {
+        m->Send(CGRN u8"  {}\n" CNRM, act_str[static_cast<uint8_t>(a.act())]);
+      }
     }
-  }
 
-  if (IsActive())
-    m->Send(CCYN u8"  ACTIVE\n" CNRM);
+    if (IsActive())
+      m->Send(CCYN u8"  ACTIVE\n" CNRM);
 
-  for (auto mind : minds) {
-    if (mind->Owner()) {
-      m->Send(CBLU u8"->Player Connected: {}\n" CNRM, mind->Owner()->Name());
-    } else if (mind->Type() == mind_t::NPC) {
-      m->Send(CBLU u8"->NPC_MIND\n" CNRM);
-    } else if (mind->Type() == mind_t::MOB) {
-      m->Send(CBLU u8"->MOB_MIND\n" CNRM);
-    } else if (mind->Type() == mind_t::TBAMOB) {
-      m->Send(CBLU u8"->TBA_MOB_MIND\n" CNRM);
-    } else if (mind->Type() == mind_t::TBATRIG) {
-      m->Send(CBLU u8"->TBA_TRIGGER\n" CNRM);
+    for (auto mind : minds) {
+      if (mind->Owner()) {
+        m->Send(CBLU u8"->Player Connected: {}\n" CNRM, mind->Owner()->Name());
+      } else if (mind->Type() == mind_t::NPC) {
+        m->Send(CBLU u8"->NPC_MIND\n" CNRM);
+      } else if (mind->Type() == mind_t::MOB) {
+        m->Send(CBLU u8"->MOB_MIND\n" CNRM);
+      } else if (mind->Type() == mind_t::TBAMOB) {
+        m->Send(CBLU u8"->TBA_MOB_MIND\n" CNRM);
+      } else if (mind->Type() == mind_t::TBATRIG) {
+        m->Send(CBLU u8"->TBA_TRIGGER\n" CNRM);
+      }
     }
-  }
 
-  // Other Misc Stats
-  if (LightLevel() > 0) {
-    m->Send(CYEL u8"  Light Level: {} ({})\n" CNRM, Skill(prhash(u8"Light Source")), LightLevel());
-  }
-  if (Power(prhash(u8"Cursed"))) {
-    m->Send(CRED u8"  Cursed: {}\n" CNRM, Power(prhash(u8"Cursed")));
-  }
+    // Other Misc Stats
+    if (LightLevel() > 0) {
+      m->Send(
+          CYEL u8"  Light Level: {} ({})\n" CNRM, Skill(prhash(u8"Light Source")), LightLevel());
+    }
+    if (Power(prhash(u8"Cursed"))) {
+      m->Send(CRED u8"  Cursed: {}\n" CNRM, Power(prhash(u8"Cursed")));
+    }
 
-  // Experience Summary
-  if (IsAnimate()) {
-    m->Send(CYEL);
-    m->Send(
-        u8"\nEarned Exp: {:>4}  Unspent Exp: {:>4}  Knowledge: {:>4}\n",
-        Exp(),
-        TotalExp(),
-        known.size());
+    // Special Vision Powers
     if (Power(prhash(u8"Heat Vision")) || Power(prhash(u8"Dark Vision"))) {
       m->Send(
-          u8"Heat/Dark Vision: {}/{}\n",
+          CMAG u8"Heat/Dark Vision: {}/{}\n" CNRM,
           Power(prhash(u8"Heat Vision")),
           Power(prhash(u8"Dark Vision")));
     }
     m->Send(CNRM);
+  }
+
+  // Experience Summary/Chargen Status
+  if (is_pc(this)) {
+    if (HasSkill(prhash(u8"Object ID"))) {
+      m->Send(
+          CYEL u8"Earned Exp: {:>4}  Unspent Exp: {:>4}  Knowledge: {:>4}\n" CNRM,
+          Exp(),
+          TotalExp(),
+          known.size());
+    } else {
+      m->Send(
+          u8"Unspent Attribute Points: " CGRN u8"{:>4}" CNRM u8"  Unspent Skill Points: " CGRN u8"{:>4}\n" CNRM,
+          Skill(prhash(u8"Attribute Points")),
+          Skill(prhash(u8"Skill Points")));
+    }
+  } else {
+    m->Send(CYEL u8"Number of Flags: {:>4}  Knowledge: {:>4}\n" CNRM, Exp(), known.size());
   }
 }
 
@@ -1705,6 +1736,19 @@ std::vector<std::u8string> Object::FormatSkills(const MinVec<7, skill_pair>& skl
   auto save = skls;
   for (auto skl : save) {
     if (is_skill(skl.first)) {
+      ret.emplace_back(fmt::format(
+          u8"{:>28}: " CYEL u8"{:>2}" CNRM, SkillName(skl.first), std::min(99, skl.second)));
+    }
+  }
+  return ret;
+}
+
+std::vector<std::u8string> Object::FormatNonweaponSkills(const MinVec<7, skill_pair>& skls) {
+  std::vector<std::u8string> ret;
+
+  auto save = skls;
+  for (auto skl : save) {
+    if (is_skill(skl.first) && !is_weapon_skill(skl.first)) {
       ret.emplace_back(fmt::format(
           u8"{:>28}: " CYEL u8"{:>2}" CNRM, SkillName(skl.first), std::min(99, skl.second)));
     }
@@ -3172,7 +3216,8 @@ void Object::SendOut(
       } else {
         // Type 0x1000008 (MOB + MOB-SPEECH)
         if ((trig->Skill(prhash(u8"TBAScriptType")) & 0x1000008) == 0x1000008) {
-          // if (trig->Skill(prhash(u8"TBAScript")) >= 5034503 && trig->Skill(prhash(u8"TBAScript"))
+          // if (trig->Skill(prhash(u8"TBAScript")) >= 5034503 &&
+          // trig->Skill(prhash(u8"TBAScript"))
           // <= 5034507)
           //  logeb(u8"[#{}] Got message: '{}'\n",
           //  trig->Skill(prhash(u8"TBAScript")), mes);

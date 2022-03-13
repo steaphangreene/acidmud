@@ -66,6 +66,10 @@ int get_weapon_type(const std::u8string_view& wskill) {
   return weapontypes[crc32c(wskill)];
 }
 
+bool is_weapon_skill(uint32_t stok) {
+  return (weapontypes.contains(stok));
+}
+
 uint32_t get_skill(const std::u8string_view& in_sk) {
   std::u8string_view sk(in_sk);
   trim_string(sk);

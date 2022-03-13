@@ -34,5 +34,6 @@ void load_prop_names_from(std::u8string_view& fl);
 void purge_invalid_prop_names();
 void confirm_skill_hash(uint32_t);
 void insert_skill_hash(uint32_t, const std::u8string_view&);
+bool is_weapon_skill(uint32_t stok);
 
 #endif // STATS_HPP
