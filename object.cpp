@@ -2092,7 +2092,7 @@ void Object::TryCombine() {
   }
 }
 
-int Object::Travel(Object* dest, int try_combine) {
+int Object::Travel(Object* dest) {
   if ((!parent) || (!dest))
     return -1;
 
@@ -2159,8 +2159,7 @@ int Object::Travel(Object* dest, int try_combine) {
     touch->NotifyLeft(this, dest);
   }
 
-  if (try_combine)
-    TryCombine();
+  TryCombine();
 
   StopAct(act_t::POINT);
   StopAct(act_t::FOLLOW);
@@ -2766,7 +2765,7 @@ void Object::NotifyLeft(Object* obj, Object* newloc) {
     if (parent != newloc) { // Actually went somewhere
       parent->SendOut(
           ALL, -1, u8";s drags ;s along.\n", u8"You drag ;s along with you.\n", obj, this);
-      Travel(newloc, 0);
+      Travel(newloc);
       parent->SendOut(ALL, -1, u8";s drags ;s along.\n", u8"", obj, this);
     }
   }
@@ -4112,7 +4111,7 @@ void Object::Consume(const Object* item) {
     if (dest->ActTarg(act_t::SPECIAL_HOME)) {
       dest = dest->ActTarg(act_t::SPECIAL_HOME);
     }
-    Travel(dest, 0);
+    Travel(dest);
     if (parent) {
       parent->SendOut(0, 0, u8"BAMF! ;s teleports here.\n", u8"", this, nullptr);
       parent->SendDescSurround(this, this);
@@ -4446,7 +4445,7 @@ std::u8string Object::WearNames(int m) const {
   return WearNames(WearSlots(m));
 }
 
-Object* Object::Stash(Object* item, int message, int force, int try_combine) {
+Object* Object::Stash(Object* item, bool message, bool force) {
   MinVec<1, Object*> containers;
   auto my_cont = PickObjects(u8"all", LOC_INTERNAL);
   for (auto ind : my_cont) {
@@ -4473,7 +4472,7 @@ Object* Object::Stash(Object* item, int message, int force, int try_combine) {
   }
 
   // See if it actually makes it!
-  if (dest && (item->Travel(dest, try_combine)))
+  if (dest && (item->Travel(dest)))
     dest = nullptr;
 
   if (message && dest) {
@@ -4491,7 +4490,7 @@ Object* Object::Stash(Object* item, int message, int force, int try_combine) {
   return dest;
 }
 
-int Object::Drop(Object* item, int message, int force, int try_combine) {
+int Object::Drop(Object* item, bool message, bool force) {
   if (!item)
     return 1;
   if (!parent)
@@ -4502,7 +4501,7 @@ int Object::Drop(Object* item, int message, int force, int try_combine) {
     return -4;
   }
 
-  int ret = item->Travel(parent, try_combine);
+  int ret = item->Travel(parent);
   if (ret)
     return ret;
 
@@ -4517,19 +4516,19 @@ int Object::Drop(Object* item, int message, int force, int try_combine) {
   return 0;
 }
 
-int Object::DropOrStash(Object* item, int message, int force, int try_combine) {
-  int ret = Drop(item, message, force, try_combine);
+int Object::DropOrStash(Object* item, bool message, bool force) {
+  int ret = Drop(item, message, force);
   if (ret) {
-    if (!Stash(item, message, force, try_combine)) {
+    if (!Stash(item, message, force)) {
       return ret;
     }
   }
   return 0;
 }
 
-int Object::StashOrDrop(Object* item, int message, int force, int try_combine) {
-  if (!Stash(item, message, force, try_combine)) {
-    return Drop(item, message, force, try_combine);
+int Object::StashOrDrop(Object* item, bool message, bool force) {
+  if (!Stash(item, message, force)) {
+    return Drop(item, message, force);
   }
   return 0;
 }
@@ -4591,7 +4590,7 @@ void Object::Deafen(bool deaf) {
   no_hear = deaf;
 }
 
-int Object::Wear(Object* targ, unsigned long masks, int mes) {
+int Object::Wear(Object* targ, unsigned long masks, bool message) {
   unsigned long mask = 1;
   while ((mask & masks) == 0 && mask != 0)
     mask <<= 1;
@@ -4673,15 +4672,17 @@ int Object::Wear(Object* targ, unsigned long masks, int mes) {
 
     if (locations.size() < 1) {
       if (mask == 1) {
-        if (mes)
+        if (message) {
           targ->Send(ALL, -1, u8"You can't wear {} - it's not wearable!\n", targ->Noun(0, 0, this));
+        }
       } else {
-        if (mes)
+        if (message) {
           targ->Send(
               ALL,
               -1,
               u8"You can't wear {} with what you are already wearing!\n",
               targ->Noun(0, 0, this));
+        }
       }
       break;
     }
@@ -4701,7 +4702,7 @@ int Object::Wear(Object* targ, unsigned long masks, int mes) {
       }
     }
     if (success) {
-      targ->Travel(this, 0); // Kills Holds and Wields on u8"targ"
+      targ->Travel(this); // Kills Holds and Wields on u8"targ"
       for (auto loc : locations) {
         AddAct(loc, targ);
       }

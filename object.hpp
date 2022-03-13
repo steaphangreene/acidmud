@@ -296,7 +296,7 @@ class alignas(256) Object {
       const std::u8string& desc,
       const std::u8string& oname,
       const std::u8string& odesc);
-  int Travel(Object*, int try_combine = 1);
+  int Travel(Object*);
   void AddLink(Object*);
   void RemoveLink(Object*);
   void Attach(Mind* mind);
@@ -304,11 +304,11 @@ class alignas(256) Object {
 
   void TryCombine();
 
-  Object* Stash(Object*, int message = 1, int force = 0, int try_combine = 1);
-  int Drop(Object* item, int message = 1, int force = 0, int try_combine = 1);
-  int DropOrStash(Object* item, int message = 1, int force = 0, int try_combine = 1);
-  int StashOrDrop(Object* item, int message = 1, int force = 0, int try_combine = 1);
-  int Wear(Object* targ, int unsigned long = (~(0UL)), int mes = 1);
+  Object* Stash(Object*, bool message = true, bool force = false);
+  int Drop(Object* item, bool message = true, bool force = false);
+  int DropOrStash(Object* item, bool message = true, bool force = false);
+  int StashOrDrop(Object* item, bool message = true, bool force = false);
+  int Wear(Object* targ, int unsigned long = (~(0UL)), bool message = true);
 
   Object* Owner() const;
   int NumMinds() const {

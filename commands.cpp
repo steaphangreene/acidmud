@@ -2939,7 +2939,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           if (togo > 0) {
             if (mind)
               mind->Send(u8"You can't afford the {} gold (short {}).\n", price, togo);
-          } else if (body->Stash(targ, 0, 0, 0)) {
+          } else if (body->Stash(targ, 0, 0)) {
             body->Parent()->SendOut(
                 stealth_t,
                 stealth_s,
@@ -3674,7 +3674,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           mind->Send(u8"You can't seem to stop wielding {}!\n", wield->Noun(0, 0, body));
         return 0;
       }
-      targ->Travel(body, 0); // Kills Holds and Wields on u8"targ"
+      targ->Travel(body); // Kills Holds and Wields on u8"targ"
       if (wield) {
         body->StopAct(act_t::WIELD);
         body->Parent()->SendOut(
@@ -3763,7 +3763,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
             body->ActTarg(act_t::HOLD));
         body->StopAct(act_t::HOLD);
       }
-      targ->Travel(body, 0); // Kills Holds, Wears and Wields on u8"targ"
+      targ->Travel(body); // Kills Holds, Wears and Wields on u8"targ"
       body->AddAct(act_t::HOLD, targ);
       if (cnum == COM_LIGHT) {
         if (targ->HasSkill(prhash(u8"Lightable"))) {
@@ -3833,7 +3833,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       if (!removed) {
         if (mind)
           mind->Send(u8"You are not wearing {}!\n", targ->Noun(0, 0, body));
-      } else if (body->Stash(targ, 0, 0, 0)) {
+      } else if (body->Stash(targ, 0, 0)) {
         body->Parent()->SendOut(
             stealth_t,
             stealth_s,
@@ -3860,7 +3860,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
               body->ActTarg(act_t::HOLD));
           body->StopAct(act_t::HOLD);
         }
-        targ->Travel(body, 0);
+        targ->Travel(body);
         body->AddAct(act_t::HOLD, targ);
         body->Parent()->SendOut(
             stealth_t,
@@ -4920,7 +4920,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           if ((trig->Skill(prhash(u8"TBAScriptType")) & 0x1000200) ==
               0x1000200) { // MOB-RECEIVE trigs
             if (!new_trigger(0, trig, body, body->ActTarg(act_t::HOLD))) {
-              body->ActTarg(act_t::OFFER)->Travel(targ, 0);
+              body->ActTarg(act_t::OFFER)->Travel(targ);
               return 0; // Handled, unless script says not.
             }
           }
@@ -5898,7 +5898,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           u8"BAMF! You teleport home.\n",
           body,
           nullptr);
-      body->Travel(dest, 0);
+      body->Travel(dest);
       body->Parent()->SendOut(
           0,
           0, // Not Stealthy!
@@ -5971,7 +5971,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           u8"BAMF! You teleport.\n",
           body,
           nullptr);
-      body->Travel(dest, 0);
+      body->Travel(dest);
       body->Parent()->SendOut(
           0,
           0, // Not Stealthy!
@@ -6768,7 +6768,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
       if (dest->ActTarg(act_t::SPECIAL_HOME)) {
         dest = dest->ActTarg(act_t::SPECIAL_HOME);
       }
-      targ->Travel(dest, 0);
+      targ->Travel(dest);
 
       body->Parent()->SendOut(
           stealth_t,

@@ -5,6 +5,8 @@ Remove all need for the cchar8.hpp file.
 
 Handle deleting on error cases falling back out of Mind::Send().
 
+Restore MOB mind types ability for it's bodies to combine.
+
 Move TBA Trigger vars to more efficient storage (token vecs?).
 
 Implement various types of armor, weapons and damage.
