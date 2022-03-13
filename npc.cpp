@@ -321,16 +321,16 @@ NPCType::NPCType(
     NPCAttrs max,
     int gmin,
     int gmax) {
-  short_desc = sds;
-  desc = ds;
-  long_desc = lds;
-  genders = gens;
-  mins = min;
-  maxes = max;
-  min_gold = gmin;
-  max_gold = gmax;
+  short_desc_ = sds;
+  desc_ = ds;
+  long_desc_ = lds;
+  genders_ = gens;
+  min_ = min;
+  max_ = max;
+  min_gold_ = gmin;
+  max_gold_ = gmax;
 
-  armed = nullptr;
+  armed_ = nullptr;
 }
 
 static std::u8string desc_merge(std::u8string_view d1, std::u8string_view d2) {
@@ -357,48 +357,48 @@ static std::u8string desc_merge(std::u8string_view d1, std::u8string_view d2) {
 
 void NPCType::operator+=(const NPCType& in) {
   // TODO: Real string compositions
-  short_desc = desc_merge(short_desc, in.short_desc);
-  desc = desc_merge(desc, in.desc);
-  if (in.long_desc != u8"") {
-    long_desc += '\n';
-    long_desc += in.long_desc;
+  short_desc_ = desc_merge(short_desc_, in.short_desc_);
+  desc_ = desc_merge(desc_, in.desc_);
+  if (in.long_desc_ != u8"") {
+    long_desc_ += '\n';
+    long_desc_ += in.long_desc_;
   }
 
   // TODO: Real set operations
-  if (genders.size() > in.genders.size()) {
-    genders = in.genders;
+  if (genders_.size() > in.genders_.size()) {
+    genders_ = in.genders_;
   }
 
   for (auto i : {0, 1, 2, 3, 4, 5}) {
-    mins.v[i] += in.mins.v[i];
-    maxes.v[i] += in.maxes.v[i];
+    min_.v[i] += in.min_.v[i];
+    max_.v[i] += in.max_.v[i];
   }
-  min_gold += in.min_gold;
-  max_gold += in.max_gold;
+  min_gold_ += in.min_gold_;
+  max_gold_ += in.max_gold_;
 }
 
 void NPCType::Skill(uint32_t stok, int percent, int mod) {
-  skills[stok] = std::make_pair(percent, mod);
+  skills_[stok] = std::make_pair(percent, mod);
 }
 
 void NPCType::Skill(uint32_t stok, int val) {
-  skills[stok] = std::make_pair(-1, val);
+  skills_[stok] = std::make_pair(-1, val);
 }
 
 void NPCType::Arm(WeaponType* weap) {
-  armed = weap;
+  armed_ = weap;
 }
 
 void NPCType::Armor(ArmorType* arm) {
-  armor.push_back(arm);
+  armor_.push_back(arm);
 }
 
 void NPCType::Carry(ItemType* item) {
-  items.push_back(item);
+  items_.push_back(item);
 }
 
 void NPCType::SetShortDesc(const std::u8string_view& sds) {
-  short_desc = sds;
+  short_desc_ = sds;
 }
 
 Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
@@ -435,11 +435,11 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
   npc->Activate();
   npc->SetPos(pos_t::STAND);
   for (int a : {0, 1, 2, 3, 4, 5}) {
-    auto gen_attr = std::uniform_int_distribution<int>(type->mins.v[a], type->maxes.v[a]);
+    auto gen_attr = std::uniform_int_distribution<int>(type->min_.v[a], type->max_.v[a]);
     npc->SetAttribute(a, (gen_attr(gen) + gen_attr(gen) + gen_attr(gen) + 2) / 3);
   }
 
-  for (auto sk : type->skills) {
+  for (auto sk : type->skills_) {
     if (sk.second.first < 0) {
       npc->SetSkill(sk.first, sk.second.second);
     } else {
@@ -451,13 +451,13 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
     // loge(u8"DBG: {} {} {}\n", get_linked(sk.first), sk.second.first, sk.second.second);
   }
 
-  if (type->genders.size() > 0) {
-    npc->SetGender(type->genders[rand() % type->genders.size()]);
+  if (type->genders_.size() > 0) {
+    npc->SetGender(type->genders_[rand() % type->genders_.size()]);
   }
 
-  npc->SetShortDesc(gender_proc(type->short_desc, npc->Gender()));
-  npc->SetDesc(gender_proc(type->desc, npc->Gender()));
-  npc->SetLongDesc(gender_proc(type->long_desc, npc->Gender()));
+  npc->SetShortDesc(gender_proc(type->short_desc_, npc->Gender()));
+  npc->SetDesc(gender_proc(type->desc_, npc->Gender()));
+  npc->SetLongDesc(gender_proc(type->long_desc_, npc->Gender()));
 
   int gidx = (npc->Gender() == gender_t::FEMALE) ? 0 : 1;
   std::vector<std::u8string> first = {u8""};
@@ -467,8 +467,8 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
   std::sample(dwarf_last_names.begin(), dwarf_last_names.end(), last.begin(), 1, gen);
   npc->SetName(first.front() + u8" " + last.front());
 
-  if (type->min_gold > 0 || type->max_gold > 0) {
-    std::uniform_int_distribution<int> gnum(type->min_gold, type->max_gold);
+  if (type->min_gold_ > 0 || type->max_gold_ > 0) {
+    std::uniform_int_distribution<int> gnum(type->min_gold_, type->max_gold_);
     int num_gold = gnum(gen);
     if (num_gold > 0) {
       give_gold(npc, num_gold);
@@ -479,50 +479,67 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
     add_pouch(npc);
   }
 
-  if (type->armed) {
+  if (type->armed_) {
     Object* obj = new Object(npc);
-    obj->SetSkill(prhash(u8"WeaponType"), type->armed->type);
-    obj->SetSkill(prhash(u8"WeaponReach"), type->armed->reach);
-    obj->SetSkill(prhash(u8"WeaponForce"), type->armed->force + rand() % type->armed->forcem);
-    obj->SetSkill(prhash(u8"WeaponSeverity"), type->armed->sev + rand() % type->armed->sevm);
-    obj->SetShortDesc(type->armed->name);
-    obj->SetDesc(type->armed->desc);
-    obj->SetLongDesc(type->armed->long_desc);
-    obj->SetWeight(type->armed->weight);
-    obj->SetVolume(type->armed->volume);
-    obj->SetValue(type->armed->value);
+    obj->SetSkill(prhash(u8"WeaponType"), type->armed_->wtype_);
+    obj->SetSkill(
+        prhash(u8"WeaponReach"),
+        std::uniform_int_distribution(type->armed_->wmin_.reach, type->armed_->wmax_.reach)(gen));
+    obj->SetSkill(
+        prhash(u8"WeaponForce"),
+        std::uniform_int_distribution(type->armed_->wmin_.force, type->armed_->wmax_.force)(gen));
+    obj->SetSkill(
+        prhash(u8"WeaponSeverity"),
+        std::uniform_int_distribution(
+            type->armed_->wmin_.severity, type->armed_->wmax_.severity)(gen));
+    obj->SetShortDesc(type->armed_->name_);
+    obj->SetDesc(type->armed_->desc_);
+    obj->SetLongDesc(type->armed_->long_desc_);
+    obj->SetWeight(
+        std::uniform_int_distribution(type->armed_->min_.weight, type->armed_->max_.weight)(gen));
+    obj->SetSize(
+        std::uniform_int_distribution(type->armed_->min_.size, type->armed_->max_.size)(gen));
+    obj->SetVolume(
+        std::uniform_int_distribution(type->armed_->min_.volume, type->armed_->max_.volume)(gen));
+    obj->SetValue(
+        std::uniform_int_distribution(type->armed_->min_.value, type->armed_->max_.value)(gen));
     obj->SetPos(pos_t::LIE);
     npc->AddAct(act_t::WIELD, obj);
-    if (two_handed(type->armed->type)) {
+    if (two_handed(type->armed_->wtype_)) {
       npc->AddAct(act_t::HOLD, obj);
     }
   }
 
-  for (auto ar : type->armor) {
+  for (auto ar : type->armor_) {
     if (wear_attribs.size() <= 0) {
       init_wear_attribs();
     }
     Object* obj = new Object(npc);
-    obj->SetAttribute(0, ar->bulk + rand() % ar->bulkm);
-    obj->SetSkill(prhash(u8"ArmorB"), ar->bulk + rand() % ar->bulkm);
-    obj->SetSkill(prhash(u8"ArmorI"), ar->impact + rand() % ar->impactm);
-    obj->SetSkill(prhash(u8"ArmorT"), ar->thread + rand() % ar->threadm);
-    obj->SetSkill(prhash(u8"ArmorP"), ar->planar + rand() % ar->planarm);
-    obj->SetShortDesc(ar->name);
-    obj->SetDesc(ar->desc);
-    obj->SetLongDesc(ar->long_desc);
-    obj->SetWeight(ar->weight);
-    obj->SetVolume(ar->volume);
-    obj->SetValue(ar->value);
+    obj->SetAttribute(0, std::uniform_int_distribution(ar->amin_.bulk, ar->amax_.bulk)(gen));
+    obj->SetSkill(
+        prhash(u8"ArmorB"), std::uniform_int_distribution(ar->amin_.bulk, ar->amax_.bulk)(gen));
+    obj->SetSkill(
+        prhash(u8"ArmorI"), std::uniform_int_distribution(ar->amin_.impact, ar->amax_.impact)(gen));
+    obj->SetSkill(
+        prhash(u8"ArmorT"), std::uniform_int_distribution(ar->amin_.thread, ar->amax_.thread)(gen));
+    obj->SetSkill(
+        prhash(u8"ArmorP"), std::uniform_int_distribution(ar->amin_.planar, ar->amax_.planar)(gen));
+    obj->SetShortDesc(ar->name_);
+    obj->SetDesc(ar->desc_);
+    obj->SetLongDesc(ar->long_desc_);
+    obj->SetWeight(std::uniform_int_distribution(ar->min_.weight, ar->max_.weight)(gen));
+    obj->SetSize(std::uniform_int_distribution(ar->min_.size, ar->max_.size)(gen));
+    obj->SetVolume(std::uniform_int_distribution(ar->min_.volume, ar->max_.volume)(gen));
+    obj->SetValue(std::uniform_int_distribution(ar->min_.value, ar->max_.value)(gen));
     obj->SetPos(pos_t::LIE);
 
-    for (auto loc : ar->loc) {
+    for (auto loc : ar->loc_) {
       obj->SetSkill(wear_attribs[loc], 1);
       npc->AddAct(loc, obj);
     }
   }
 
-  if (type->items.size() > 0) {
+  if (type->items_.size() > 0) {
     Object* sack = new Object(npc);
     sack->SetShortDesc(u8"a small sack");
     sack->SetDesc(u8"A small, durable, practical belt sack.");
@@ -541,17 +558,18 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
     sack->SetPos(pos_t::LIE);
     npc->AddAct(act_t::WEAR_RHIP, sack);
 
-    for (auto it : type->items) {
+    for (auto it : type->items_) {
       Object* obj = new Object(sack);
-      for (auto sk : it->skills) {
+      for (auto sk : it->skills_) {
         obj->SetSkill(sk.first, sk.second);
       }
-      obj->SetShortDesc(it->name);
-      obj->SetDesc(it->desc);
-      obj->SetLongDesc(it->long_desc);
-      obj->SetWeight(it->weight);
-      obj->SetVolume(it->volume);
-      obj->SetValue(it->value);
+      obj->SetShortDesc(it->name_);
+      obj->SetDesc(it->desc_);
+      obj->SetLongDesc(it->long_desc_);
+      obj->SetWeight(std::uniform_int_distribution(it->min_.weight, it->max_.weight)(gen));
+      obj->SetSize(std::uniform_int_distribution(it->min_.size, it->max_.size)(gen));
+      obj->SetVolume(std::uniform_int_distribution(it->min_.volume, it->max_.volume)(gen));
+      obj->SetValue(std::uniform_int_distribution(it->min_.value, it->max_.value)(gen));
       obj->SetPos(pos_t::LIE);
     }
   }
@@ -563,78 +581,54 @@ WeaponType::WeaponType(
     const std::u8string& ds,
     const std::u8string& lds,
     const std::u8string& t,
-    int r,
-    int f,
-    int fm,
-    int s,
-    int sm,
-    int w,
-    int vol,
-    int val) {
-  name = nm;
-  desc = ds;
-  long_desc = lds;
-  type = get_weapon_type(t);
-  reach = r;
-  force = f;
-  forcem = std::max(fm, 1);
-  sev = s;
-  sevm = std::max(sm, 1);
-  weight = w;
-  volume = vol;
-  value = val;
+    ItemAttrs min,
+    ItemAttrs max,
+    WeaponAttrs wmin,
+    WeaponAttrs wmax) {
+  name_ = nm;
+  desc_ = ds;
+  long_desc_ = lds;
+  wtype_ = get_weapon_type(t);
+  wmin_ = wmin;
+  wmax_ = wmax;
+  min_ = min;
+  max_ = max;
 }
 
 ArmorType::ArmorType(
     const std::u8string& nm,
     const std::u8string& ds,
     const std::u8string& lds,
-    int b,
-    int bm,
-    int i,
-    int im,
-    int t,
-    int tm,
-    int p,
-    int pm,
-    int w,
-    int vol,
-    int val,
+    ItemAttrs min,
+    ItemAttrs max,
+    ArmorAttrs amin,
+    ArmorAttrs amax,
     act_t l1,
     act_t l2,
     act_t l3,
     act_t l4,
     act_t l5,
     act_t l6) {
-  name = nm;
-  desc = ds;
-  long_desc = lds;
-
-  bulk = b;
-  bulkm = std::max(bm, 1);
-  impact = i;
-  impactm = std::max(im, 1);
-  thread = t;
-  threadm = std::max(tm, 1);
-  planar = p;
-  planarm = std::max(pm, 1);
+  name_ = nm;
+  desc_ = ds;
+  long_desc_ = lds;
+  min_ = min;
+  max_ = max;
+  amin_ = amin;
+  amax_ = amax;
 
   if (l1 != act_t::NONE)
-    loc.push_back(l1);
+    loc_.push_back(l1);
   if (l2 != act_t::NONE)
-    loc.push_back(l2);
+    loc_.push_back(l2);
   if (l3 != act_t::NONE)
-    loc.push_back(l3);
+    loc_.push_back(l3);
   if (l4 != act_t::NONE)
-    loc.push_back(l4);
+    loc_.push_back(l4);
   if (l5 != act_t::NONE)
-    loc.push_back(l5);
+    loc_.push_back(l5);
   if (l6 != act_t::NONE)
-    loc.push_back(l6);
-
-  weight = w;
-  volume = vol;
-  value = val;
+    loc_.push_back(l6);
 }
 
 ItemType::ItemType(
@@ -642,14 +636,12 @@ ItemType::ItemType(
     const std::u8string& ds,
     const std::u8string& lds,
     const std::vector<skill_pair>& sk,
-    int w,
-    int vol,
-    int val) {
-  name = nm;
-  desc = ds;
-  long_desc = lds;
-  skills = sk;
-  weight = w;
-  volume = vol;
-  value = val;
+    ItemAttrs min,
+    ItemAttrs max) {
+  name_ = nm;
+  desc_ = ds;
+  long_desc_ = lds;
+  skills_ = sk;
+  min_ = min;
+  max_ = max;
 }
