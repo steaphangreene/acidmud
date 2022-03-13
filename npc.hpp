@@ -120,9 +120,9 @@ class NPCType {
       int gmax = 0);
   void Skill(uint32_t, int, int);
   void Skill(uint32_t, int);
-  void Arm(WeaponType*);
-  void Armor(ArmorType*);
-  void Carry(ItemType*);
+  void Arm(const WeaponType&);
+  void Armor(const ArmorType&);
+  void Carry(const ItemType&);
   void SetShortDesc(const std::u8string_view&);
   void operator+=(const NPCType&);
 
@@ -131,7 +131,7 @@ class NPCType {
   NPCAttrs min_, max_;
   int min_gold_, max_gold_;
   std::map<uint32_t, std::pair<int, int>> skills_;
-  WeaponType* armed_;
-  std::vector<ArmorType*> armor_;
-  std::vector<ItemType*> items_;
+  std::vector<WeaponType> weapons_;
+  std::vector<ArmorType> armor_;
+  std::vector<ItemType> items_;
 };

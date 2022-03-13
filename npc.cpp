@@ -329,8 +329,6 @@ NPCType::NPCType(
   max_ = max;
   min_gold_ = gmin;
   max_gold_ = gmax;
-
-  armed_ = nullptr;
 }
 
 static std::u8string desc_merge(std::u8string_view d1, std::u8string_view d2) {
@@ -385,16 +383,16 @@ void NPCType::Skill(uint32_t stok, int val) {
   skills_[stok] = std::make_pair(-1, val);
 }
 
-void NPCType::Arm(WeaponType* weap) {
-  armed_ = weap;
+void NPCType::Arm(const WeaponType& weap) {
+  weapons_.emplace_back(weap);
 }
 
-void NPCType::Armor(ArmorType* arm) {
-  armor_.push_back(arm);
+void NPCType::Armor(const ArmorType& arm) {
+  armor_.emplace_back(arm);
 }
 
-void NPCType::Carry(ItemType* item) {
-  items_.push_back(item);
+void NPCType::Carry(const ItemType& item) {
+  items_.emplace_back(item);
 }
 
 void NPCType::SetShortDesc(const std::u8string_view& sds) {
@@ -479,33 +477,28 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
     add_pouch(npc);
   }
 
-  if (type->armed_) {
+  for (auto wp : type->weapons_) {
     Object* obj = new Object(npc);
-    obj->SetSkill(prhash(u8"WeaponType"), type->armed_->wtype_);
+    obj->SetSkill(prhash(u8"WeaponType"), wp.wtype_);
     obj->SetSkill(
         prhash(u8"WeaponReach"),
-        std::uniform_int_distribution(type->armed_->wmin_.reach, type->armed_->wmax_.reach)(gen));
+        std::uniform_int_distribution(wp.wmin_.reach, wp.wmax_.reach)(gen));
     obj->SetSkill(
         prhash(u8"WeaponForce"),
-        std::uniform_int_distribution(type->armed_->wmin_.force, type->armed_->wmax_.force)(gen));
+        std::uniform_int_distribution(wp.wmin_.force, wp.wmax_.force)(gen));
     obj->SetSkill(
         prhash(u8"WeaponSeverity"),
-        std::uniform_int_distribution(
-            type->armed_->wmin_.severity, type->armed_->wmax_.severity)(gen));
-    obj->SetShortDesc(type->armed_->name_);
-    obj->SetDesc(type->armed_->desc_);
-    obj->SetLongDesc(type->armed_->long_desc_);
-    obj->SetWeight(
-        std::uniform_int_distribution(type->armed_->min_.weight, type->armed_->max_.weight)(gen));
-    obj->SetSize(
-        std::uniform_int_distribution(type->armed_->min_.size, type->armed_->max_.size)(gen));
-    obj->SetVolume(
-        std::uniform_int_distribution(type->armed_->min_.volume, type->armed_->max_.volume)(gen));
-    obj->SetValue(
-        std::uniform_int_distribution(type->armed_->min_.value, type->armed_->max_.value)(gen));
+        std::uniform_int_distribution(wp.wmin_.severity, wp.wmax_.severity)(gen));
+    obj->SetShortDesc(wp.name_);
+    obj->SetDesc(wp.desc_);
+    obj->SetLongDesc(wp.long_desc_);
+    obj->SetWeight(std::uniform_int_distribution(wp.min_.weight, wp.max_.weight)(gen));
+    obj->SetSize(std::uniform_int_distribution(wp.min_.size, wp.max_.size)(gen));
+    obj->SetVolume(std::uniform_int_distribution(wp.min_.volume, wp.max_.volume)(gen));
+    obj->SetValue(std::uniform_int_distribution(wp.min_.value, wp.max_.value)(gen));
     obj->SetPos(pos_t::LIE);
     npc->AddAct(act_t::WIELD, obj);
-    if (two_handed(type->armed_->wtype_)) {
+    if (two_handed(wp.wtype_)) {
       npc->AddAct(act_t::HOLD, obj);
     }
   }
@@ -515,25 +508,25 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
       init_wear_attribs();
     }
     Object* obj = new Object(npc);
-    obj->SetAttribute(0, std::uniform_int_distribution(ar->amin_.bulk, ar->amax_.bulk)(gen));
+    obj->SetAttribute(0, std::uniform_int_distribution(ar.amin_.bulk, ar.amax_.bulk)(gen));
     obj->SetSkill(
-        prhash(u8"ArmorB"), std::uniform_int_distribution(ar->amin_.bulk, ar->amax_.bulk)(gen));
+        prhash(u8"ArmorB"), std::uniform_int_distribution(ar.amin_.bulk, ar.amax_.bulk)(gen));
     obj->SetSkill(
-        prhash(u8"ArmorI"), std::uniform_int_distribution(ar->amin_.impact, ar->amax_.impact)(gen));
+        prhash(u8"ArmorI"), std::uniform_int_distribution(ar.amin_.impact, ar.amax_.impact)(gen));
     obj->SetSkill(
-        prhash(u8"ArmorT"), std::uniform_int_distribution(ar->amin_.thread, ar->amax_.thread)(gen));
+        prhash(u8"ArmorT"), std::uniform_int_distribution(ar.amin_.thread, ar.amax_.thread)(gen));
     obj->SetSkill(
-        prhash(u8"ArmorP"), std::uniform_int_distribution(ar->amin_.planar, ar->amax_.planar)(gen));
-    obj->SetShortDesc(ar->name_);
-    obj->SetDesc(ar->desc_);
-    obj->SetLongDesc(ar->long_desc_);
-    obj->SetWeight(std::uniform_int_distribution(ar->min_.weight, ar->max_.weight)(gen));
-    obj->SetSize(std::uniform_int_distribution(ar->min_.size, ar->max_.size)(gen));
-    obj->SetVolume(std::uniform_int_distribution(ar->min_.volume, ar->max_.volume)(gen));
-    obj->SetValue(std::uniform_int_distribution(ar->min_.value, ar->max_.value)(gen));
+        prhash(u8"ArmorP"), std::uniform_int_distribution(ar.amin_.planar, ar.amax_.planar)(gen));
+    obj->SetShortDesc(ar.name_);
+    obj->SetDesc(ar.desc_);
+    obj->SetLongDesc(ar.long_desc_);
+    obj->SetWeight(std::uniform_int_distribution(ar.min_.weight, ar.max_.weight)(gen));
+    obj->SetSize(std::uniform_int_distribution(ar.min_.size, ar.max_.size)(gen));
+    obj->SetVolume(std::uniform_int_distribution(ar.min_.volume, ar.max_.volume)(gen));
+    obj->SetValue(std::uniform_int_distribution(ar.min_.value, ar.max_.value)(gen));
     obj->SetPos(pos_t::LIE);
 
-    for (auto loc : ar->loc_) {
+    for (auto loc : ar.loc_) {
       obj->SetSkill(wear_attribs[loc], 1);
       npc->AddAct(loc, obj);
     }
@@ -560,16 +553,16 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
 
     for (auto it : type->items_) {
       Object* obj = new Object(sack);
-      for (auto sk : it->skills_) {
+      for (auto sk : it.skills_) {
         obj->SetSkill(sk.first, sk.second);
       }
-      obj->SetShortDesc(it->name_);
-      obj->SetDesc(it->desc_);
-      obj->SetLongDesc(it->long_desc_);
-      obj->SetWeight(std::uniform_int_distribution(it->min_.weight, it->max_.weight)(gen));
-      obj->SetSize(std::uniform_int_distribution(it->min_.size, it->max_.size)(gen));
-      obj->SetVolume(std::uniform_int_distribution(it->min_.volume, it->max_.volume)(gen));
-      obj->SetValue(std::uniform_int_distribution(it->min_.value, it->max_.value)(gen));
+      obj->SetShortDesc(it.name_);
+      obj->SetDesc(it.desc_);
+      obj->SetLongDesc(it.long_desc_);
+      obj->SetWeight(std::uniform_int_distribution(it.min_.weight, it.max_.weight)(gen));
+      obj->SetSize(std::uniform_int_distribution(it.min_.size, it.max_.size)(gen));
+      obj->SetVolume(std::uniform_int_distribution(it.min_.volume, it.max_.volume)(gen));
+      obj->SetValue(std::uniform_int_distribution(it.min_.value, it.max_.value)(gen));
       obj->SetPos(pos_t::LIE);
     }
   }

@@ -92,10 +92,6 @@ void Object::DynamicInit1() { // Dwarven mine
   static NPCType* dwarf_explorer;
   static NPCType* elf_prisoner;
   if (!dwarf_miner) {
-    WeaponType* weap;
-    ArmorType* arm;
-    ItemType* item;
-
     dwarf_miner = new NPCType(
         u8"a dwarf miner",
         u8"{He} looks pissed.",
@@ -107,27 +103,25 @@ void Object::DynamicInit1() { // Dwarven mine
         2500);
     dwarf_miner->Skill(prhash(u8"Two-Handed Cleaves"), 100, 4);
     dwarf_miner->Skill(prhash(u8"Accomplishment"), 1500000);
-    weap = new WeaponType(
-        u8"a dwarven mining pickaxe",
-        u8"A super-strong, super-sharp, super-heavy pickaxe.",
-        u8"",
-        u8"Two-Handed Cleaves",
-        {20000, 50, 2000},
-        {20000, 50, 2000},
-        {2, 2, 3},
-        {2, 7, 3});
-    dwarf_miner->Arm(weap);
-    arm = new ArmorType(
-        u8"a dwarven leather jerkin",
-        u8"A heavy dwarven leather jerkin.  It'll probably stop an arrow.",
-        u8"",
-        {10000, 10, 150},
-        {10000, 10, 150},
-        {3, 2, 2, 2},
-        {3, 2, 3, 2},
-        act_t::WEAR_CHEST,
-        act_t::WEAR_BACK);
-    dwarf_miner->Armor(arm);
+    dwarf_miner->Arm(
+        {u8"a dwarven mining pickaxe",
+         u8"A super-strong, super-sharp, super-heavy pickaxe.",
+         u8"",
+         u8"Two-Handed Cleaves",
+         {20000, 50, 2000},
+         {20000, 50, 2000},
+         {2, 2, 3},
+         {2, 7, 3}});
+    dwarf_miner->Armor(
+        {u8"a dwarven leather jerkin",
+         u8"A heavy dwarven leather jerkin.  It'll probably stop an arrow.",
+         u8"",
+         {10000, 10, 150},
+         {10000, 10, 150},
+         {3, 2, 2, 2},
+         {3, 2, 3, 2},
+         act_t::WEAR_CHEST,
+         act_t::WEAR_BACK});
 
     dwarf_engineer = new NPCType(
         u8"a dwarf engineer",
@@ -140,27 +134,25 @@ void Object::DynamicInit1() { // Dwarven mine
         10000);
     dwarf_engineer->Skill(prhash(u8"Long Cleaves"), 100, 2);
     dwarf_engineer->Skill(prhash(u8"Accomplishment"), 1500001);
-    weap = new WeaponType(
-        u8"a dwarven combat axe",
-        u8"A super-strong, super-sharp combat axe.",
-        u8"",
-        u8"Long Cleaves",
-        {4000, 10, 1000},
-        {4000, 10, 1000},
-        {1, 2, 2},
-        {1, 7, 2});
-    dwarf_engineer->Arm(weap);
-    arm = new ArmorType(
-        u8"a dwarven leather jerkin",
-        u8"A heavy dwarven leather jerkin.  It'll probably stop an arrow.",
-        u8"",
-        {10000, 10, 150},
-        {10000, 10, 150},
-        {3, 2, 2, 2},
-        {3, 2, 3, 2},
-        act_t::WEAR_CHEST,
-        act_t::WEAR_BACK);
-    dwarf_engineer->Armor(arm);
+    dwarf_engineer->Arm(
+        {u8"a dwarven combat axe",
+         u8"A super-strong, super-sharp combat axe.",
+         u8"",
+         u8"Long Cleaves",
+         {4000, 10, 1000},
+         {4000, 10, 1000},
+         {1, 2, 2},
+         {1, 7, 2}});
+    dwarf_engineer->Armor(
+        {u8"a dwarven leather jerkin",
+         u8"A heavy dwarven leather jerkin.  It'll probably stop an arrow.",
+         u8"",
+         {10000, 10, 150},
+         {10000, 10, 150},
+         {3, 2, 2, 2},
+         {3, 2, 3, 2},
+         act_t::WEAR_CHEST,
+         act_t::WEAR_BACK});
 
     dwarf_guard = new NPCType(
         u8"a dwarf guard",
@@ -173,76 +165,69 @@ void Object::DynamicInit1() { // Dwarven mine
         500);
     dwarf_guard->Skill(prhash(u8"Two-Handed Cleaves"), 100, 4);
     dwarf_guard->Skill(prhash(u8"Accomplishment"), 1500002);
-    weap = new WeaponType(
-        u8"a dwarven war axe",
-        u8"A super-strong, super-sharp, super-heavy, high-quality war axe.",
-        u8"",
-        u8"Two-Handed Cleaves",
-        {20000, 40, 5000},
-        {20000, 40, 5000},
-        {2, 4, 2},
-        {2, 8, 2});
-    dwarf_guard->Arm(weap);
-    arm = new ArmorType(
-        u8"a dwarven heavy breastplate",
-        u8"A heavy dwarven breastplate.  It'll probably stop a warhammer.",
-        u8"",
-        {200000, 100, 15000},
-        {200000, 100, 15000},
-        {8, 4, 6, 2},
-        {12, 6, 16, 7},
-        act_t::WEAR_CHEST,
-        act_t::WEAR_BACK);
-    dwarf_guard->Armor(arm);
-    arm = new ArmorType(
-        u8"a dwarven great helm",
-        u8"A heavy dwarven great helm.  It'll probably stop a warhammer.",
-        u8"",
-        {50000, 70, 5000},
-        {50000, 70, 5000},
-        {8, 4, 6, 2},
-        {12, 6, 16, 7},
-        act_t::WEAR_HEAD);
-    dwarf_guard->Armor(arm);
-    arm = new ArmorType(
-        u8"a dwarven arm plate (right)",
-        u8"A heavy dwarven arm plate.  It'll probably stop a warhammer.",
-        u8"",
-        {50000, 60, 5000},
-        {50000, 60, 5000},
-        {8, 4, 6, 2},
-        {12, 6, 16, 7},
-        act_t::WEAR_RARM);
-    dwarf_guard->Armor(arm);
-    arm = new ArmorType(
-        u8"a dwarven arm plate (left)",
-        u8"A heavy dwarven arm plate.  It'll probably stop a warhammer.",
-        u8"",
-        {50000, 60, 5000},
-        {50000, 60, 5000},
-        {8, 4, 6, 2},
-        {12, 6, 16, 7},
-        act_t::WEAR_LARM);
-    dwarf_guard->Armor(arm);
-    arm = new ArmorType(
-        u8"a dwarven battle skirt",
-        u8"A heavy dwarven battle skirt.  It'll probably stop a warhammer.",
-        u8"",
-        {100000, 80, 10000},
-        {100000, 80, 10000},
-        {8, 4, 6, 2},
-        {12, 6, 16, 7},
-        act_t::WEAR_RLEG,
-        act_t::WEAR_LLEG);
-    dwarf_guard->Armor(arm);
-    item = new ItemType(
-        u8"a key",
-        u8"A heavy steel key.  It looks dwarven, and very old.",
-        u8"",
-        {skill_pair{prhash(u8"Key"), 1510003}},
-        {100, 10, 20},
-        {100, 10, 20});
-    dwarf_guard->Carry(item);
+    dwarf_guard->Arm(
+        {u8"a dwarven war axe",
+         u8"A super-strong, super-sharp, super-heavy, high-quality war axe.",
+         u8"",
+         u8"Two-Handed Cleaves",
+         {20000, 40, 5000},
+         {20000, 40, 5000},
+         {2, 4, 2},
+         {2, 8, 2}});
+    dwarf_guard->Armor(
+        {u8"a dwarven heavy breastplate",
+         u8"A heavy dwarven breastplate.  It'll probably stop a warhammer.",
+         u8"",
+         {200000, 100, 15000},
+         {200000, 100, 15000},
+         {8, 4, 6, 2},
+         {12, 6, 16, 7},
+         act_t::WEAR_CHEST,
+         act_t::WEAR_BACK});
+    dwarf_guard->Armor(
+        {u8"a dwarven great helm",
+         u8"A heavy dwarven great helm.  It'll probably stop a warhammer.",
+         u8"",
+         {50000, 70, 5000},
+         {50000, 70, 5000},
+         {8, 4, 6, 2},
+         {12, 6, 16, 7},
+         act_t::WEAR_HEAD});
+    dwarf_guard->Armor(
+        {u8"a dwarven arm plate (right)",
+         u8"A heavy dwarven arm plate.  It'll probably stop a warhammer.",
+         u8"",
+         {50000, 60, 5000},
+         {50000, 60, 5000},
+         {8, 4, 6, 2},
+         {12, 6, 16, 7},
+         act_t::WEAR_RARM});
+    dwarf_guard->Armor(
+        {u8"a dwarven arm plate (left)",
+         u8"A heavy dwarven arm plate.  It'll probably stop a warhammer.",
+         u8"",
+         {50000, 60, 5000},
+         {50000, 60, 5000},
+         {8, 4, 6, 2},
+         {12, 6, 16, 7},
+         act_t::WEAR_LARM});
+    dwarf_guard->Armor(
+        {u8"a dwarven battle skirt",
+         u8"A heavy dwarven battle skirt.  It'll probably stop a warhammer.",
+         u8"",
+         {100000, 80, 10000},
+         {100000, 80, 10000},
+         {8, 4, 6, 2},
+         {12, 6, 16, 7},
+         act_t::WEAR_RLEG,
+         act_t::WEAR_LLEG});
+    dwarf_guard->Carry(
+        {u8"a key",
+         u8"A heavy steel key.  It looks dwarven, and very old.",
+         u8"",
+         {skill_pair{prhash(u8"Key"), 1510003}},
+         {100, 10, 20},
+         {100, 10, 20}});
 
     dwarf_explorer = new NPCType(
         u8"a dwarf explorer",
@@ -255,27 +240,25 @@ void Object::DynamicInit1() { // Dwarven mine
         5000);
     dwarf_explorer->Skill(prhash(u8"Long Cleaves"), 100, 4);
     dwarf_explorer->Skill(prhash(u8"Accomplishment"), 1500003);
-    weap = new WeaponType(
-        u8"a dwarven climbing pick",
-        u8"A super-sharp, lightweight pick.",
-        u8"",
-        u8"Long Cleaves",
-        {2000, 10, 500},
-        {2000, 10, 500},
-        {1, 1, 1},
-        {1, 3, 1});
-    dwarf_explorer->Arm(weap);
-    arm = new ArmorType(
-        u8"a dwarven leather jerkin",
-        u8"A heavy dwarven leather jerkin.  It'll probably stop an arrow.",
-        u8"",
-        {10000, 10, 150},
-        {10000, 10, 150},
-        {3, 2, 2, 2},
-        {3, 2, 3, 2},
-        act_t::WEAR_CHEST,
-        act_t::WEAR_BACK);
-    dwarf_explorer->Armor(arm);
+    dwarf_explorer->Arm(
+        {u8"a dwarven climbing pick",
+         u8"A super-sharp, lightweight pick.",
+         u8"",
+         u8"Long Cleaves",
+         {2000, 10, 500},
+         {2000, 10, 500},
+         {1, 1, 1},
+         {1, 3, 1}});
+    dwarf_explorer->Armor(
+        {u8"a dwarven leather jerkin",
+         u8"A heavy dwarven leather jerkin.  It'll probably stop an arrow.",
+         u8"",
+         {10000, 10, 150},
+         {10000, 10, 150},
+         {3, 2, 2, 2},
+         {3, 2, 3, 2},
+         act_t::WEAR_CHEST,
+         act_t::WEAR_BACK});
 
     elf_prisoner = new NPCType(
         u8"an elf slave",
