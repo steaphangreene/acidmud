@@ -31,7 +31,7 @@ LIBS:=
 COPT:=	-std=c++2b -mbranches-within-32B-boundaries -ferror-limit=2 -stdlib=libc++
 GOPT:=	-std=c++2b
 ARCH:=	-mavx2 -mfma -mbmi2 -falign-functions=32
-COMP:=	-Wall -Wshadow -Werror -Wno-format-security
+COMP:=	-Wall -Wshadow -Werror -Wno-format-security -fno-rtti -fno-exceptions
 
 all:	acidmud
 
