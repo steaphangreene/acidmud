@@ -186,6 +186,7 @@ class alignas(256) Object {
 
   static Object* Universe();
   static Object* TrashBin();
+  Object* Room();
   Object* World();
   Object* Zone();
 

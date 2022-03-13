@@ -2635,13 +2635,24 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         mind->Send(u8"You don't see that here.\n");
     } else {
       if (mind) {
-        mind->Send(
-            CCYN u8"{} is in {}, in {}, in {}.\n" CNRM,
-            body->Noun(),
-            body->Parent()->ShortDesc(),
-            body->Zone()->ShortDesc(),
-            body->World()->ShortDesc());
-        targ->SendScore(mind, body);
+        if (body->Room() == body->Parent()) {
+          mind->Send(
+              CCYN u8"{} is in {}, in {}, in {}.\n" CNRM,
+              body->Noun(),
+              body->Parent()->ShortDesc(),
+              body->Zone()->ShortDesc(),
+              body->World()->ShortDesc());
+          targ->SendScore(mind, body);
+        } else {
+          mind->Send(
+              CCYN u8"{} is in {}, in {}, in {}, in {}.\n" CNRM,
+              body->Noun(),
+              body->Parent()->ShortDesc(),
+              body->Room()->ShortDesc(),
+              body->Zone()->ShortDesc(),
+              body->World()->ShortDesc());
+          targ->SendScore(mind, body);
+        }
       }
     }
     if (targ && body && targ != body && targ != body->Parent()) {
@@ -4686,13 +4697,24 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           obj->Noun());
     } else if (spname == prhash(u8"Identify")) { // Other kinds of spells
       if (mind) {
-        mind->Send(
-            CCYN u8"{} is in {}, in {}, in {}.\n" CNRM,
-            body->Noun(),
-            body->Parent()->ShortDesc(),
-            body->Zone()->ShortDesc(),
-            body->World()->ShortDesc());
-        targ->SendScore(mind, body);
+        if (body->Room() == body->Parent()) {
+          mind->Send(
+              CCYN u8"{} is in {}, in {}, in {}.\n" CNRM,
+              body->Noun(),
+              body->Parent()->ShortDesc(),
+              body->Zone()->ShortDesc(),
+              body->World()->ShortDesc());
+          targ->SendScore(mind, body);
+        } else {
+          mind->Send(
+              CCYN u8"{} is in {}, in {}, in {}, in {}.\n" CNRM,
+              body->Noun(),
+              body->Parent()->ShortDesc(),
+              body->Room()->ShortDesc(),
+              body->Zone()->ShortDesc(),
+              body->World()->ShortDesc());
+          targ->SendScore(mind, body);
+        }
       }
     }
 

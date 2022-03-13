@@ -100,6 +100,19 @@ Object* Object::Zone() {
   return zone;
 }
 
+Object* Object::Room() {
+  Object* room = this;
+  if (room->Parent()) {
+    if (room->Parent()->Parent()) {
+      if (room->Parent()->Parent()->Parent()) {
+        while (room->Parent()->Parent()->Parent()->Parent())
+          room = room->Parent();
+      }
+    }
+  }
+  return room;
+}
+
 int matches(const std::u8string_view& name, const std::u8string_view& seek) {
   if (seek.empty())
     return 0;
