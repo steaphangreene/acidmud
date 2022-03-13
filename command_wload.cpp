@@ -945,15 +945,32 @@ int handle_command_wload(
     mind->Send(u8"You need to specify the directory of the datafiles!\n");
     return 1;
   }
-  std::vector<std::filesystem::directory_entry> files;
-  try {
-    for (const auto& fl : std::filesystem::directory_iterator(args)) {
-      if (!fl.path().u8string().contains(u8"/.")) { // Ignore hidden files
-        files.emplace_back(fl);
-      }
+
+  std::vector<std::filesystem::directory_entry> map_files;
+
+  std::error_code err[4];
+  auto directory = std::filesystem::directory_entry(args, err[0]);
+  for (const auto& fl : std::filesystem::directory_iterator(args, err[3])) {
+    if (fl.path().u8string().contains(u8"/.")) { // Ignore hidden files
+    } else if (fl.path().u8string().ends_with(u8".map")) { // World Map Files
+      map_files.emplace_back(fl);
     }
-  } catch (...) {
-    mind->Send(u8"You need to specify the correct directory of the datafiles!\n");
+  }
+
+  for (auto e : err) {
+    if (e) {
+      auto rawmes = e.message(); // Available in old-school char string only. :(
+      std::u8string mes(rawmes.length() + 1, 0); // Make char8_t string of same size.
+      std::copy(rawmes.begin(), rawmes.end(), mes.begin()); // Copy chars to char8_ts.
+      mind->Send(CRED u8"Error loading '{}': {}\n" CNRM, args, mes);
+      mind->Send(CYEL u8"You need to specify the correct directory of the datafiles!\n" CNRM);
+      return 1;
+    }
+  }
+
+  if (map_files.size() == 0) {
+    mind->Send(CRED u8"No map files found in '{}'.\n" CNRM, args);
+    mind->Send(CYEL u8"You need to specify the correct directory of the datafiles!\n" CNRM);
     return 1;
   }
 
@@ -966,7 +983,7 @@ int handle_command_wload(
   world->SetSkill(prhash(u8"Day Time"), 120);
 
   zone_links.clear();
-  for (const auto& fl : files) {
+  for (const auto& fl : map_files) {
     if (!load_map(world, mind, fl)) {
       delete world;
       return 0;
