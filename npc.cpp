@@ -47,11 +47,12 @@ class ItemType {
       const std::vector<skill_pair>& sk,
       ItemAttrs min,
       ItemAttrs max);
+  ItemType(const std::u8string_view& tagdef);
   void operator+=(const ItemType&);
   std::u8string short_desc_, desc_, long_desc_;
   std::vector<skill_pair> skills_;
-  ItemAttrs min_;
-  ItemAttrs max_;
+  ItemAttrs min_ = {0, 0, 0, 0};
+  ItemAttrs max_ = {0, 0, 0, 0};
 };
 
 struct ArmorAttrs {
@@ -80,10 +81,10 @@ class ArmorType {
   void operator+=(const ArmorType&);
   std::u8string short_desc_, desc_, long_desc_;
   std::vector<act_t> loc_;
-  ItemAttrs min_;
-  ItemAttrs max_;
-  ArmorAttrs amin_;
-  ArmorAttrs amax_;
+  ItemAttrs min_ = {0, 0, 0, 0};
+  ItemAttrs max_ = {0, 0, 0, 0};
+  ArmorAttrs amin_ = {0, 0, 0, 0};
+  ArmorAttrs amax_ = {0, 0, 0, 0};
 };
 
 struct WeaponAttrs {
@@ -106,10 +107,10 @@ class WeaponType {
   void operator+=(const WeaponType&);
   std::u8string short_desc_, desc_, long_desc_;
   int wtype_;
-  WeaponAttrs wmin_;
-  WeaponAttrs wmax_;
-  ItemAttrs min_;
-  ItemAttrs max_;
+  WeaponAttrs wmin_ = {0, 0, 0};
+  WeaponAttrs wmax_ = {0, 0, 0};
+  ItemAttrs min_ = {0, 0, 0, 0};
+  ItemAttrs max_ = {0, 0, 0, 0};
 };
 
 struct NPCAttrs {
@@ -354,6 +355,23 @@ NPCType::NPCType(
   wtags_.insert(wtags_.end(), weapons.begin(), weapons.end());
   atags_.insert(atags_.end(), armor.begin(), armor.end());
   itags_.insert(itags_.end(), items.begin(), items.end());
+}
+
+static bool intparam(std::u8string_view& line, const std::u8string_view& lab, int& min, int& max) {
+  if (process(line, lab)) {
+    min = nextnum(line);
+    skipspace(line);
+    if (line.length() > 0 && nextchar(line) == '-') {
+      skipspace(line);
+      max = nextnum(line);
+      skipspace(line);
+    } else {
+      max = min;
+    }
+    return true;
+  } else {
+    return false;
+  }
 }
 
 static std::u8string desc_merge(std::u8string_view d1, std::u8string_view d2) {
@@ -1207,4 +1225,27 @@ ItemType::ItemType(
   skills_ = sk;
   min_ = min;
   max_ = max;
+}
+
+ItemType::ItemType(const std::u8string_view& tagdef) {
+  std::u8string_view def = tagdef;
+
+  while (def.length() > 0 && !def.starts_with(u8"tag:")) {
+    auto line = getuntil(def, '\n');
+    if (process(line, u8"short:")) {
+      short_desc_ = std::u8string(getuntil(line, '\n'));
+    } else if (process(line, u8"desc:")) {
+      desc_ = std::u8string(getuntil(line, '\n'));
+    } else if (process(line, u8"long:")) {
+      long_desc_ = std::u8string(getuntil(line, '\n'));
+    } else if (process(line, u8"prop:")) {
+      auto sname = getuntil(line, ':');
+      int32_t sval = getnum(line);
+      skills_.push_back({crc32c(sname), sval});
+    } else if (intparam(line, u8"weight:", min_.weight, max_.weight)) {
+    } else if (intparam(line, u8"size:", min_.size, max_.size)) {
+    } else if (intparam(line, u8"volume:", min_.volume, max_.volume)) {
+    } else if (intparam(line, u8"value:", min_.value, max_.value)) {
+    }
+  }
 }
