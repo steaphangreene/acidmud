@@ -1,0 +1,26 @@
+tag:npc:guard
+short:a guard
+desc:a professional guard.
+long:{He} seems to take his job guarding stuff very seriously.
+wtag:combat
+atag:breastplate
+atag:helm
+atag:shield
+s:1
+i:1
+w:1
+gold:100-200
+tag:npc:soldier
+short:a soldier
+desc:a professional soldier.
+long:{He} is prepared for war, from wherever it may come.
+wtag:war
+atag:breastplate
+atag:great helm
+atag:battle skirt
+atag:left arm plate
+atag:right arm plate
+s:1
+i:1
+w:1
+gold:100-200
