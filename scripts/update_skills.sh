@@ -115,7 +115,7 @@ for sk in $(cat ${tmpdir}/skills | cut -f3-4 -d";" | sed "s- -_-g" | sort -uk1.3
 done
 
 echo ""
-echo "std::map<std::string, std::vector<uint32_t>> skcat = {"
+echo "std::map<std::u8string, std::vector<uint32_t>> skcat = {"
 for cat in ${tmpdir}/skcat#*; do
     catname="$(echo "$cat" | cut -f2 -d"#" | sed "s-_-/-g")"
     echo "    {u8\"${catname}\","
