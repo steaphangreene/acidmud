@@ -35,17 +35,6 @@ extern std::map<int32_t, uint32_t> weaponskills;
 extern std::map<uint32_t, int32_t> weapontypes;
 extern std::map<std::u8string, std::vector<uint32_t>> skcat;
 
-static bool defaults_init = false;
-static void init_defaults() {
-  defaults_init = true;
-  init_skill_list();
-}
-void Object::InitSkillsData() {
-  if (!defaults_init) {
-    init_defaults();
-  }
-}
-
 int is_skill(uint32_t stok) {
   return (defaults.count(stok) != 0);
 }

@@ -56,12 +56,10 @@ cat <<- 'EOF'
 	// clang-format off
 
 	#include <map>
+	#include <string>
 	#include <vector>
 
-	#include "log.hpp"
 	#include "properties.hpp"
-	#include "stats.hpp"
-	#include "utils.hpp"
 
 	std::map<uint32_t, int32_t> defaults = {
 EOF
@@ -95,6 +93,7 @@ for sk in $(cat ${tmpdir}/skills | cut -f3-4 -d";" | sed "s- -_-g" | sort -uk1.3
 done
 echo '};'
 
+wsnum=1
 for sk in $(cat ${tmpdir}/skills | cut -f3-4 -d";" | sed "s- -_-g" | sort -uk1.3,2); do
   weapon=
   skname="$(echo "$sk" | cut -f2 -d";" | sed "s-_- -g")"
@@ -109,8 +108,9 @@ for sk in $(cat ${tmpdir}/skills | cut -f3-4 -d";" | sed "s- -_-g" | sort -uk1.3
     fi
   done
   if [ -n "$weapon" ]; then
-    echo "  add_wts(prhash(u8\"${skname}\"));" >> "${tmpdir}/weapons"
-    weapon=1
+    echo "    {$wsnum, prhash(u8\"${skname}\")}," >> "${tmpdir}/weapons1"
+    echo "    {prhash(u8\"${skname}\"), $wsnum}," >> "${tmpdir}/weapons2"
+    wsnum=$(($wsnum + 1))
   fi
 done
 
@@ -126,26 +126,17 @@ done
 cat <<- EOF
 	};
 
-	std::map<int32_t, uint32_t> weaponskills;
-	std::map<uint32_t, int32_t> weapontypes;
-
-	static int last_wtype = 0;
-	static void add_wts(uint32_t sk) {
-	  if (defaults.count(sk) == 0) {
-	    logey(
-	        u8"Warning: Tried to link weapon type {} to '{}' which isn't a skill.\n",
-	        last_wtype + 1,
-	        SkillName(sk));
-	    return;
-	  }
-	  ++last_wtype;
-	  weaponskills[last_wtype] = sk;
-	  weapontypes[sk] = last_wtype;
-	}
-
-	void init_skill_list() {
+	std::map<int32_t, uint32_t> weaponskills = {
 EOF
 
-cat "${tmpdir}/weapons"
-echo '}'
+cat "${tmpdir}/weapons1"
+
+cat <<- EOF
+	};
+
+	std::map<uint32_t, int32_t> weapontypes = {
+EOF
+
+cat "${tmpdir}/weapons2"
+echo '};'
 echo "// clang-format on"

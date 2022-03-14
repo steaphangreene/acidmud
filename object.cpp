@@ -3415,8 +3415,6 @@ void Object::Loud(std::set<Object*>& visited, int str, const std::u8string& mes)
 }
 
 void init_world() {
-  Object::InitSkillsData();
-
   universe = new Object;
   universe->SetShortDesc(u8"The Universe");
   universe->SetDesc(u8"An Infinite Universe within which to play.");

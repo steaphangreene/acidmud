@@ -24,12 +24,10 @@
 // clang-format off
 
 #include <map>
+#include <string>
 #include <vector>
 
-#include "log.hpp"
 #include "properties.hpp"
-#include "stats.hpp"
-#include "utils.hpp"
 
 std::map<uint32_t, int32_t> defaults = {
     {prhash(u8"Acrobatics"), 1},
@@ -1930,109 +1928,181 @@ std::map<std::u8string, std::vector<uint32_t>> skcat = {
      }},
 };
 
-std::map<int32_t, uint32_t> weaponskills;
-std::map<uint32_t, int32_t> weapontypes;
+std::map<int32_t, uint32_t> weaponskills = {
+    {1, prhash(u8"Air Pistols")},
+    {2, prhash(u8"Air Rifles")},
+    {3, prhash(u8"Archery")},
+    {4, prhash(u8"Assault Rifles")},
+    {5, prhash(u8"Blowgun")},
+    {6, prhash(u8"Body Checking")},
+    {7, prhash(u8"Crossbow")},
+    {8, prhash(u8"Grappling")},
+    {9, prhash(u8"Hurling")},
+    {10, prhash(u8"Kicking")},
+    {11, prhash(u8"Laser Pistols")},
+    {12, prhash(u8"Laser Rifles")},
+    {13, prhash(u8"Lasso")},
+    {14, prhash(u8"Long Blades")},
+    {15, prhash(u8"Long Cleaves")},
+    {16, prhash(u8"Long Crushing")},
+    {17, prhash(u8"Long Flails")},
+    {18, prhash(u8"Long Piercing")},
+    {19, prhash(u8"Long Staves")},
+    {20, prhash(u8"Machine Pistols")},
+    {21, prhash(u8"Mounted Air Pistols")},
+    {22, prhash(u8"Mounted Archery")},
+    {23, prhash(u8"Mounted Blades")},
+    {24, prhash(u8"Mounted Blowgun")},
+    {25, prhash(u8"Mounted Cleaves")},
+    {26, prhash(u8"Mounted Crossbow")},
+    {27, prhash(u8"Mounted Crushing")},
+    {28, prhash(u8"Mounted Flails")},
+    {29, prhash(u8"Mounted Hurling")},
+    {30, prhash(u8"Mounted Laser Pistols")},
+    {31, prhash(u8"Mounted Machine Pistols")},
+    {32, prhash(u8"Mounted Nets")},
+    {33, prhash(u8"Mounted Piercing")},
+    {34, prhash(u8"Mounted Pistols")},
+    {35, prhash(u8"Mounted Plasma Pistols")},
+    {36, prhash(u8"Mounted Shot Pistols")},
+    {37, prhash(u8"Mounted Slings")},
+    {38, prhash(u8"Mounted SMGs")},
+    {39, prhash(u8"Mounted Throwing, Aero")},
+    {40, prhash(u8"Mounted Throwing, Non-Aero")},
+    {41, prhash(u8"Mounted Whips")},
+    {42, prhash(u8"Nets")},
+    {43, prhash(u8"Offhand Air Pistols")},
+    {44, prhash(u8"Offhand Blades")},
+    {45, prhash(u8"Offhand Cleaves")},
+    {46, prhash(u8"Offhand Crossbow")},
+    {47, prhash(u8"Offhand Crushing")},
+    {48, prhash(u8"Offhand Flails")},
+    {49, prhash(u8"Offhand Hurling")},
+    {50, prhash(u8"Offhand Laser Pistols")},
+    {51, prhash(u8"Offhand Machine Pistols")},
+    {52, prhash(u8"Offhand Piercing")},
+    {53, prhash(u8"Offhand Pistols")},
+    {54, prhash(u8"Offhand Plasma Pistols")},
+    {55, prhash(u8"Offhand Shot Pistols")},
+    {56, prhash(u8"Offhand SMGs")},
+    {57, prhash(u8"Offhand Staves")},
+    {58, prhash(u8"Offhand Throwing, Aero")},
+    {59, prhash(u8"Offhand Throwing, Non-Aero")},
+    {60, prhash(u8"Offhand Whips")},
+    {61, prhash(u8"Pistols")},
+    {62, prhash(u8"Plasma Pistols")},
+    {63, prhash(u8"Plasma Rifles")},
+    {64, prhash(u8"Punching")},
+    {65, prhash(u8"Rifles")},
+    {66, prhash(u8"Shields")},
+    {67, prhash(u8"Short Blades")},
+    {68, prhash(u8"Short Cleaves")},
+    {69, prhash(u8"Short Crushing")},
+    {70, prhash(u8"Short Flails")},
+    {71, prhash(u8"Short Piercing")},
+    {72, prhash(u8"Short Staves")},
+    {73, prhash(u8"Shotguns")},
+    {74, prhash(u8"Shot Pistols")},
+    {75, prhash(u8"Slings")},
+    {76, prhash(u8"SMGs")},
+    {77, prhash(u8"Staff Slings")},
+    {78, prhash(u8"Throwing, Aero")},
+    {79, prhash(u8"Throwing, Non-Aero")},
+    {80, prhash(u8"Two-Handed Blades")},
+    {81, prhash(u8"Two-Handed Cleaves")},
+    {82, prhash(u8"Two-Handed Crushing")},
+    {83, prhash(u8"Two-Handed Flails")},
+    {84, prhash(u8"Two-Handed Piercing")},
+    {85, prhash(u8"Two-Handed Staves")},
+    {86, prhash(u8"Whips")},
+};
 
-static int last_wtype = 0;
-static void add_wts(uint32_t sk) {
-  if (defaults.count(sk) == 0) {
-    logey(
-        u8"Warning: Tried to link weapon type {} to '{}' which isn't a skill.\n",
-        last_wtype + 1,
-        SkillName(sk));
-    return;
-  }
-  ++last_wtype;
-  weaponskills[last_wtype] = sk;
-  weapontypes[sk] = last_wtype;
-}
-
-void init_skill_list() {
-  add_wts(prhash(u8"Air Pistols"));
-  add_wts(prhash(u8"Air Rifles"));
-  add_wts(prhash(u8"Archery"));
-  add_wts(prhash(u8"Assault Rifles"));
-  add_wts(prhash(u8"Blowgun"));
-  add_wts(prhash(u8"Body Checking"));
-  add_wts(prhash(u8"Crossbow"));
-  add_wts(prhash(u8"Grappling"));
-  add_wts(prhash(u8"Hurling"));
-  add_wts(prhash(u8"Kicking"));
-  add_wts(prhash(u8"Laser Pistols"));
-  add_wts(prhash(u8"Laser Rifles"));
-  add_wts(prhash(u8"Lasso"));
-  add_wts(prhash(u8"Long Blades"));
-  add_wts(prhash(u8"Long Cleaves"));
-  add_wts(prhash(u8"Long Crushing"));
-  add_wts(prhash(u8"Long Flails"));
-  add_wts(prhash(u8"Long Piercing"));
-  add_wts(prhash(u8"Long Staves"));
-  add_wts(prhash(u8"Machine Pistols"));
-  add_wts(prhash(u8"Mounted Air Pistols"));
-  add_wts(prhash(u8"Mounted Archery"));
-  add_wts(prhash(u8"Mounted Blades"));
-  add_wts(prhash(u8"Mounted Blowgun"));
-  add_wts(prhash(u8"Mounted Cleaves"));
-  add_wts(prhash(u8"Mounted Crossbow"));
-  add_wts(prhash(u8"Mounted Crushing"));
-  add_wts(prhash(u8"Mounted Flails"));
-  add_wts(prhash(u8"Mounted Hurling"));
-  add_wts(prhash(u8"Mounted Laser Pistols"));
-  add_wts(prhash(u8"Mounted Machine Pistols"));
-  add_wts(prhash(u8"Mounted Nets"));
-  add_wts(prhash(u8"Mounted Piercing"));
-  add_wts(prhash(u8"Mounted Pistols"));
-  add_wts(prhash(u8"Mounted Plasma Pistols"));
-  add_wts(prhash(u8"Mounted Shot Pistols"));
-  add_wts(prhash(u8"Mounted Slings"));
-  add_wts(prhash(u8"Mounted SMGs"));
-  add_wts(prhash(u8"Mounted Throwing, Aero"));
-  add_wts(prhash(u8"Mounted Throwing, Non-Aero"));
-  add_wts(prhash(u8"Mounted Whips"));
-  add_wts(prhash(u8"Nets"));
-  add_wts(prhash(u8"Offhand Air Pistols"));
-  add_wts(prhash(u8"Offhand Blades"));
-  add_wts(prhash(u8"Offhand Cleaves"));
-  add_wts(prhash(u8"Offhand Crossbow"));
-  add_wts(prhash(u8"Offhand Crushing"));
-  add_wts(prhash(u8"Offhand Flails"));
-  add_wts(prhash(u8"Offhand Hurling"));
-  add_wts(prhash(u8"Offhand Laser Pistols"));
-  add_wts(prhash(u8"Offhand Machine Pistols"));
-  add_wts(prhash(u8"Offhand Piercing"));
-  add_wts(prhash(u8"Offhand Pistols"));
-  add_wts(prhash(u8"Offhand Plasma Pistols"));
-  add_wts(prhash(u8"Offhand Shot Pistols"));
-  add_wts(prhash(u8"Offhand SMGs"));
-  add_wts(prhash(u8"Offhand Staves"));
-  add_wts(prhash(u8"Offhand Throwing, Aero"));
-  add_wts(prhash(u8"Offhand Throwing, Non-Aero"));
-  add_wts(prhash(u8"Offhand Whips"));
-  add_wts(prhash(u8"Pistols"));
-  add_wts(prhash(u8"Plasma Pistols"));
-  add_wts(prhash(u8"Plasma Rifles"));
-  add_wts(prhash(u8"Punching"));
-  add_wts(prhash(u8"Rifles"));
-  add_wts(prhash(u8"Shields"));
-  add_wts(prhash(u8"Short Blades"));
-  add_wts(prhash(u8"Short Cleaves"));
-  add_wts(prhash(u8"Short Crushing"));
-  add_wts(prhash(u8"Short Flails"));
-  add_wts(prhash(u8"Short Piercing"));
-  add_wts(prhash(u8"Short Staves"));
-  add_wts(prhash(u8"Shotguns"));
-  add_wts(prhash(u8"Shot Pistols"));
-  add_wts(prhash(u8"Slings"));
-  add_wts(prhash(u8"SMGs"));
-  add_wts(prhash(u8"Staff Slings"));
-  add_wts(prhash(u8"Throwing, Aero"));
-  add_wts(prhash(u8"Throwing, Non-Aero"));
-  add_wts(prhash(u8"Two-Handed Blades"));
-  add_wts(prhash(u8"Two-Handed Cleaves"));
-  add_wts(prhash(u8"Two-Handed Crushing"));
-  add_wts(prhash(u8"Two-Handed Flails"));
-  add_wts(prhash(u8"Two-Handed Piercing"));
-  add_wts(prhash(u8"Two-Handed Staves"));
-  add_wts(prhash(u8"Whips"));
-}
+std::map<uint32_t, int32_t> weapontypes = {
+    {prhash(u8"Air Pistols"), 1},
+    {prhash(u8"Air Rifles"), 2},
+    {prhash(u8"Archery"), 3},
+    {prhash(u8"Assault Rifles"), 4},
+    {prhash(u8"Blowgun"), 5},
+    {prhash(u8"Body Checking"), 6},
+    {prhash(u8"Crossbow"), 7},
+    {prhash(u8"Grappling"), 8},
+    {prhash(u8"Hurling"), 9},
+    {prhash(u8"Kicking"), 10},
+    {prhash(u8"Laser Pistols"), 11},
+    {prhash(u8"Laser Rifles"), 12},
+    {prhash(u8"Lasso"), 13},
+    {prhash(u8"Long Blades"), 14},
+    {prhash(u8"Long Cleaves"), 15},
+    {prhash(u8"Long Crushing"), 16},
+    {prhash(u8"Long Flails"), 17},
+    {prhash(u8"Long Piercing"), 18},
+    {prhash(u8"Long Staves"), 19},
+    {prhash(u8"Machine Pistols"), 20},
+    {prhash(u8"Mounted Air Pistols"), 21},
+    {prhash(u8"Mounted Archery"), 22},
+    {prhash(u8"Mounted Blades"), 23},
+    {prhash(u8"Mounted Blowgun"), 24},
+    {prhash(u8"Mounted Cleaves"), 25},
+    {prhash(u8"Mounted Crossbow"), 26},
+    {prhash(u8"Mounted Crushing"), 27},
+    {prhash(u8"Mounted Flails"), 28},
+    {prhash(u8"Mounted Hurling"), 29},
+    {prhash(u8"Mounted Laser Pistols"), 30},
+    {prhash(u8"Mounted Machine Pistols"), 31},
+    {prhash(u8"Mounted Nets"), 32},
+    {prhash(u8"Mounted Piercing"), 33},
+    {prhash(u8"Mounted Pistols"), 34},
+    {prhash(u8"Mounted Plasma Pistols"), 35},
+    {prhash(u8"Mounted Shot Pistols"), 36},
+    {prhash(u8"Mounted Slings"), 37},
+    {prhash(u8"Mounted SMGs"), 38},
+    {prhash(u8"Mounted Throwing, Aero"), 39},
+    {prhash(u8"Mounted Throwing, Non-Aero"), 40},
+    {prhash(u8"Mounted Whips"), 41},
+    {prhash(u8"Nets"), 42},
+    {prhash(u8"Offhand Air Pistols"), 43},
+    {prhash(u8"Offhand Blades"), 44},
+    {prhash(u8"Offhand Cleaves"), 45},
+    {prhash(u8"Offhand Crossbow"), 46},
+    {prhash(u8"Offhand Crushing"), 47},
+    {prhash(u8"Offhand Flails"), 48},
+    {prhash(u8"Offhand Hurling"), 49},
+    {prhash(u8"Offhand Laser Pistols"), 50},
+    {prhash(u8"Offhand Machine Pistols"), 51},
+    {prhash(u8"Offhand Piercing"), 52},
+    {prhash(u8"Offhand Pistols"), 53},
+    {prhash(u8"Offhand Plasma Pistols"), 54},
+    {prhash(u8"Offhand Shot Pistols"), 55},
+    {prhash(u8"Offhand SMGs"), 56},
+    {prhash(u8"Offhand Staves"), 57},
+    {prhash(u8"Offhand Throwing, Aero"), 58},
+    {prhash(u8"Offhand Throwing, Non-Aero"), 59},
+    {prhash(u8"Offhand Whips"), 60},
+    {prhash(u8"Pistols"), 61},
+    {prhash(u8"Plasma Pistols"), 62},
+    {prhash(u8"Plasma Rifles"), 63},
+    {prhash(u8"Punching"), 64},
+    {prhash(u8"Rifles"), 65},
+    {prhash(u8"Shields"), 66},
+    {prhash(u8"Short Blades"), 67},
+    {prhash(u8"Short Cleaves"), 68},
+    {prhash(u8"Short Crushing"), 69},
+    {prhash(u8"Short Flails"), 70},
+    {prhash(u8"Short Piercing"), 71},
+    {prhash(u8"Short Staves"), 72},
+    {prhash(u8"Shotguns"), 73},
+    {prhash(u8"Shot Pistols"), 74},
+    {prhash(u8"Slings"), 75},
+    {prhash(u8"SMGs"), 76},
+    {prhash(u8"Staff Slings"), 77},
+    {prhash(u8"Throwing, Aero"), 78},
+    {prhash(u8"Throwing, Non-Aero"), 79},
+    {prhash(u8"Two-Handed Blades"), 80},
+    {prhash(u8"Two-Handed Cleaves"), 81},
+    {prhash(u8"Two-Handed Crushing"), 82},
+    {prhash(u8"Two-Handed Flails"), 83},
+    {prhash(u8"Two-Handed Piercing"), 84},
+    {prhash(u8"Two-Handed Staves"), 85},
+    {prhash(u8"Whips"), 86},
+};
 // clang-format on

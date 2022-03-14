@@ -618,8 +618,6 @@ class alignas(256) Object {
 
   static void FreeActions();
 
-  static void InitSkillsData();
-
  private:
   void NotifyLeft(Object* obj, Object* newloc = nullptr);
 
