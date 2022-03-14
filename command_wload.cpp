@@ -944,6 +944,7 @@ int handle_command_wload(
     return 1;
   }
 
+  std::vector<std::filesystem::directory_entry> tag_files;
   std::vector<std::filesystem::directory_entry> map_files;
 
   std::error_code err[4];
@@ -952,6 +953,8 @@ int handle_command_wload(
     if (fl.path().u8string().contains(u8"/.")) { // Ignore hidden files
     } else if (fl.path().u8string().ends_with(u8".map")) { // World Map Files
       map_files.emplace_back(fl);
+    } else if (fl.path().u8string().ends_with(u8".tags")) { // Tag Definition Files
+      tag_files.emplace_back(fl);
     }
   }
 
@@ -979,6 +982,17 @@ int handle_command_wload(
   world->SetSkill(prhash(u8"Light Source"), 1000);
   world->SetSkill(prhash(u8"Day Length"), 240);
   world->SetSkill(prhash(u8"Day Time"), 120);
+
+  for (const auto& fl : tag_files) {
+    infile tags(fl);
+    if (tags && world->LoadTagsFrom(tags)) {
+      mind->Send(u8"Loaded Tags From: '{}'!\n", fl.path().u8string());
+    } else {
+      mind->Send(CRED u8"Failed Loading Tags From: '{}'!\n" CNRM, fl.path().u8string());
+      delete world;
+      return 0;
+    }
+  }
 
   zone_links.clear();
   for (const auto& fl : map_files) {
