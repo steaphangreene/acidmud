@@ -158,8 +158,10 @@ class NPCType {
   std::u8string short_desc_, desc_, long_desc_;
   std::vector<skill_pair> props_;
   std::vector<gender_t> genders_;
-  NPCAttrs min_, max_;
-  int min_gold_, max_gold_;
+  NPCAttrs min_ = {0, 0, 0, 0, 0, 0};
+  NPCAttrs max_ = {0, 0, 0, 0, 0, 0};
+  int min_gold_ = 0;
+  int max_gold_ = 0;
   std::vector<std::u8string> wtags_;
   std::vector<std::u8string> atags_;
   std::vector<std::u8string> itags_;
