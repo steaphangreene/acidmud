@@ -114,6 +114,9 @@ static NPCType base_npc(
     0,
     0);
 
+// Definitions for all built-in item tags go here.
+static std::map<std::u8string_view, ItemType> itemtagdefs = {};
+
 // Definitions for all built-in armor tags go here.
 static std::map<std::u8string_view, ArmorType> armortagdefs = {
     {u8"shirt",
@@ -728,7 +731,14 @@ void NPCType::FinalizeTags() {
     }
   }
 
-  // TODO: Merge Given Item Tags into Item Defs
+  // Merge Given Item Tags into Item Defs
+  for (auto itag : itags_) {
+    if (itemtagdefs.contains(itag)) {
+      items_.emplace_back(itemtagdefs.at(itag));
+    } else {
+      loger(u8"ERROR: Use of undefined Item tag: '{}'.  Skipping.\n", itag);
+    }
+  }
 }
 
 Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
