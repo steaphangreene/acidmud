@@ -920,15 +920,14 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
 
   if (!itemtagdefs.contains(World())) {
     // Definitions for all built-in item tags go here.
-    itemtagdefs[World()] = {
-        {u8"dungeon_cage_key", // Hard-coded for dynamic mine dungeon (for now)
-         {u8"a key",
-          u8"A heavy steel key.  It looks dwarven, and very old.",
-          u8"",
-          {skill_pair{prhash(u8"Key"), 1510003}},
-          {100, 10, 20},
-          {100, 10, 20}}},
-    };
+    itemtagdefs[World()].try_emplace(
+        u8"dungeon_cage_key",
+        u8"short:a key\n"
+        u8"desc:A heavy steel key.  It looks dwarven, and very old.\n"
+        u8"prop:Key:1510003\n"
+        u8"weight:100\n"
+        u8"size:10\n"
+        u8"volume:20\n");
   }
 
   // Merge Given NPC Tags into new NPC Def
