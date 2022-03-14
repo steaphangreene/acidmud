@@ -232,33 +232,32 @@ static std::map<std::u8string_view, NPCType> tagdefs = {
       2000}},
 };
 
-static std::map<act_t, std::u8string> wear_attribs;
-static void init_wear_attribs() {
-  wear_attribs[act_t::WEAR_BACK] = u8"Wearable on Back";
-  wear_attribs[act_t::WEAR_CHEST] = u8"Wearable on Chest";
-  wear_attribs[act_t::WEAR_HEAD] = u8"Wearable on Head";
-  wear_attribs[act_t::WEAR_NECK] = u8"Wearable on Neck";
-  wear_attribs[act_t::WEAR_COLLAR] = u8"Wearable on Collar";
-  wear_attribs[act_t::WEAR_WAIST] = u8"Wearable on Waist";
-  wear_attribs[act_t::WEAR_SHIELD] = u8"Wearable on Shield";
-  wear_attribs[act_t::WEAR_LARM] = u8"Wearable on Left Arm";
-  wear_attribs[act_t::WEAR_RARM] = u8"Wearable on Right Arm";
-  wear_attribs[act_t::WEAR_LFINGER] = u8"Wearable on Left Finger";
-  wear_attribs[act_t::WEAR_RFINGER] = u8"Wearable on Right Finger";
-  wear_attribs[act_t::WEAR_LFOOT] = u8"Wearable on Left Foot";
-  wear_attribs[act_t::WEAR_RFOOT] = u8"Wearable on Right Foot";
-  wear_attribs[act_t::WEAR_LHAND] = u8"Wearable on Left Hand";
-  wear_attribs[act_t::WEAR_RHAND] = u8"Wearable on Right Hand";
-  wear_attribs[act_t::WEAR_LLEG] = u8"Wearable on Left Leg";
-  wear_attribs[act_t::WEAR_RLEG] = u8"Wearable on Right Leg";
-  wear_attribs[act_t::WEAR_LWRIST] = u8"Wearable on Left Wrist";
-  wear_attribs[act_t::WEAR_RWRIST] = u8"Wearable on Right Wrist";
-  wear_attribs[act_t::WEAR_LSHOULDER] = u8"Wearable on Left Shoulder";
-  wear_attribs[act_t::WEAR_RSHOULDER] = u8"Wearable on Right Shoulder";
-  wear_attribs[act_t::WEAR_LHIP] = u8"Wearable on Left Hip";
-  wear_attribs[act_t::WEAR_RHIP] = u8"Wearable on Right Hip";
-  wear_attribs[act_t::WEAR_FACE] = u8"Wearable on Face";
-}
+static std::map<act_t, std::u8string> wear_attribs = {
+    {act_t::WEAR_BACK, u8"Wearable on Back"},
+    {act_t::WEAR_CHEST, u8"Wearable on Chest"},
+    {act_t::WEAR_HEAD, u8"Wearable on Head"},
+    {act_t::WEAR_NECK, u8"Wearable on Neck"},
+    {act_t::WEAR_COLLAR, u8"Wearable on Collar"},
+    {act_t::WEAR_WAIST, u8"Wearable on Waist"},
+    {act_t::WEAR_SHIELD, u8"Wearable on Shield"},
+    {act_t::WEAR_LARM, u8"Wearable on Left Arm"},
+    {act_t::WEAR_RARM, u8"Wearable on Right Arm"},
+    {act_t::WEAR_LFINGER, u8"Wearable on Left Finger"},
+    {act_t::WEAR_RFINGER, u8"Wearable on Right Finger"},
+    {act_t::WEAR_LFOOT, u8"Wearable on Left Foot"},
+    {act_t::WEAR_RFOOT, u8"Wearable on Right Foot"},
+    {act_t::WEAR_LHAND, u8"Wearable on Left Hand"},
+    {act_t::WEAR_RHAND, u8"Wearable on Right Hand"},
+    {act_t::WEAR_LLEG, u8"Wearable on Left Leg"},
+    {act_t::WEAR_RLEG, u8"Wearable on Right Leg"},
+    {act_t::WEAR_LWRIST, u8"Wearable on Left Wrist"},
+    {act_t::WEAR_RWRIST, u8"Wearable on Right Wrist"},
+    {act_t::WEAR_LSHOULDER, u8"Wearable on Left Shoulder"},
+    {act_t::WEAR_RSHOULDER, u8"Wearable on Right Shoulder"},
+    {act_t::WEAR_LHIP, u8"Wearable on Left Hip"},
+    {act_t::WEAR_RHIP, u8"Wearable on Right Hip"},
+    {act_t::WEAR_FACE, u8"Wearable on Face"},
+};
 
 static Object* gold = nullptr;
 static void init_gold() {
@@ -504,9 +503,6 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
   }
 
   for (auto ar : type->armor_) {
-    if (wear_attribs.size() <= 0) {
-      init_wear_attribs();
-    }
     Object* obj = new Object(npc);
     obj->SetAttribute(0, rint3(gen, ar.amin_.bulk, ar.amax_.bulk));
     obj->SetSkill(prhash(u8"ArmorB"), rint3(gen, ar.amin_.bulk, ar.amax_.bulk));
