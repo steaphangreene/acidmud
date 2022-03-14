@@ -50,7 +50,7 @@ class ItemType {
   ItemType(const std::u8string_view& tagdef);
   void operator+=(const ItemType&);
   std::u8string short_desc_, desc_, long_desc_;
-  std::vector<skill_pair> skills_;
+  std::vector<skill_pair> props_;
   ItemAttrs min_ = {0, 0, 0, 0};
   ItemAttrs max_ = {0, 0, 0, 0};
 };
@@ -79,7 +79,9 @@ class ArmorType {
       act_t l5 = act_t::NONE,
       act_t l6 = act_t::NONE);
   void operator+=(const ArmorType&);
+  ArmorType(const std::u8string_view& tagdef);
   std::u8string short_desc_, desc_, long_desc_;
+  std::vector<skill_pair> props_;
   std::vector<act_t> loc_;
   ItemAttrs min_ = {0, 0, 0, 0};
   ItemAttrs max_ = {0, 0, 0, 0};
@@ -105,7 +107,9 @@ class WeaponType {
       WeaponAttrs wmin,
       WeaponAttrs wmax);
   void operator+=(const WeaponType&);
+  WeaponType(const std::u8string_view& tagdef);
   std::u8string short_desc_, desc_, long_desc_;
+  std::vector<skill_pair> props_;
   int wtype_;
   WeaponAttrs wmin_ = {0, 0, 0};
   WeaponAttrs wmax_ = {0, 0, 0};
@@ -131,22 +135,23 @@ class NPCType {
       NPCAttrs max,
       int gmin = 0,
       int gmax = 0);
-  void Skill(uint32_t, int, int);
-  void Skill(uint32_t, int);
+  void operator+=(const NPCType&);
+  NPCType(const std::u8string_view& tagdef);
+  void Prop(uint32_t, int, int);
+  void Prop(uint32_t, int);
   void Arm(const WeaponType&);
   void Armor(const ArmorType&);
   void Carry(const ItemType&);
   void SetShortDesc(const std::u8string_view&);
-  void operator+=(const NPCType&);
   void FinalizeWeaponTags(const std::map<std::u8string, WeaponType>&);
   void FinalizeArmorTags(const std::map<std::u8string, ArmorType>&);
   void FinalizeItemTags(const std::map<std::u8string, ItemType>&);
 
   std::u8string short_desc_, desc_, long_desc_;
+  std::vector<skill_pair> props_;
   std::vector<gender_t> genders_;
   NPCAttrs min_, max_;
   int min_gold_, max_gold_;
-  std::map<uint32_t, std::pair<int, int>> skills_;
   std::vector<std::u8string> wtags_;
   std::vector<std::u8string> atags_;
   std::vector<std::u8string> itags_;
@@ -428,12 +433,8 @@ void NPCType::operator+=(const NPCType& in) {
   itags_.insert(itags_.end(), in.itags_.begin(), in.itags_.end());
 }
 
-void NPCType::Skill(uint32_t stok, int percent, int mod) {
-  skills_[stok] = std::make_pair(percent, mod);
-}
-
-void NPCType::Skill(uint32_t stok, int val) {
-  skills_[stok] = std::make_pair(-1, val);
+void NPCType::Prop(uint32_t stok, int sval) {
+  props_.push_back({stok, sval});
 }
 
 void NPCType::Arm(const WeaponType& weap) {
@@ -971,16 +972,8 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
     npc->SetAttribute(a, rint3(gen, type->min_.v[a], type->max_.v[a]));
   }
 
-  for (auto sk : type->skills_) {
-    if (sk.second.first < 0) {
-      npc->SetSkill(sk.first, sk.second.second);
-    } else {
-      npc->SetSkill(
-          sk.first,
-          npc->NormAttribute(get_linked(sk.first)) * sk.second.first / 100 -
-              rint1(gen, 0, sk.second.second));
-    }
-    // loge(u8"DBG: {} {} {}\n", get_linked(sk.first), sk.second.first, sk.second.second);
+  for (auto sk : type->props_) {
+    npc->SetSkill(sk.first, sk.second);
   }
 
   if (type->genders_.size() > 0) {
@@ -1073,7 +1066,7 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
 
     for (auto it : type->items_) {
       Object* obj = new Object(sack);
-      for (auto sk : it.skills_) {
+      for (auto sk : it.props_) {
         obj->SetSkill(sk.first, sk.second);
       }
       obj->SetShortDesc(it.short_desc_);
@@ -1215,15 +1208,93 @@ ItemType::ItemType(
     const std::u8string& nm,
     const std::u8string& ds,
     const std::u8string& lds,
-    const std::vector<skill_pair>& sk,
+    const std::vector<skill_pair>& pr,
     ItemAttrs min,
     ItemAttrs max) {
   short_desc_ = nm;
   desc_ = ds;
   long_desc_ = lds;
-  skills_ = sk;
+  props_ = pr;
   min_ = min;
   max_ = max;
+}
+
+NPCType::NPCType(const std::u8string_view& tagdef) {
+  std::u8string_view def = tagdef;
+
+  while (def.length() > 0 && !def.starts_with(u8"tag:")) {
+    auto line = getuntil(def, '\n');
+    if (process(line, u8"short:")) {
+      short_desc_ = std::u8string(getuntil(line, '\n'));
+    } else if (process(line, u8"desc:")) {
+      desc_ = std::u8string(getuntil(line, '\n'));
+    } else if (process(line, u8"long:")) {
+      long_desc_ = std::u8string(getuntil(line, '\n'));
+    } else if (process(line, u8"prop:")) {
+      auto sname = getuntil(line, ':');
+      int32_t sval = getnum(line);
+      props_.push_back({crc32c(sname), sval});
+    } else if (intparam(line, u8"b:", min_.v[0], max_.v[0])) {
+    } else if (intparam(line, u8"q:", min_.v[1], max_.v[1])) {
+    } else if (intparam(line, u8"s:", min_.v[2], max_.v[2])) {
+    } else if (intparam(line, u8"c:", min_.v[3], max_.v[3])) {
+    } else if (intparam(line, u8"i:", min_.v[4], max_.v[4])) {
+    } else if (intparam(line, u8"w:", min_.v[5], max_.v[5])) {
+    } else if (intparam(line, u8"gold:", min_gold_, max_gold_)) {
+    } else if (process(line, u8"wtag:")) {
+      weapons_.emplace_back(getuntil(line, '\n'));
+    } else if (process(line, u8"atag:")) {
+      armor_.emplace_back(getuntil(line, '\n'));
+    } else if (process(line, u8"itag:")) {
+      items_.emplace_back(getuntil(line, '\n'));
+    }
+  }
+}
+
+WeaponType::WeaponType(const std::u8string_view& tagdef) {
+  std::u8string_view def = tagdef;
+
+  while (def.length() > 0 && !def.starts_with(u8"tag:")) {
+    auto line = getuntil(def, '\n');
+    if (process(line, u8"short:")) {
+      short_desc_ = std::u8string(getuntil(line, '\n'));
+    } else if (process(line, u8"desc:")) {
+      desc_ = std::u8string(getuntil(line, '\n'));
+    } else if (process(line, u8"long:")) {
+      long_desc_ = std::u8string(getuntil(line, '\n'));
+    } else if (process(line, u8"prop:")) {
+      auto sname = getuntil(line, ':');
+      int32_t sval = getnum(line);
+      props_.push_back({crc32c(sname), sval});
+    } else if (intparam(line, u8"weight:", min_.weight, max_.weight)) {
+    } else if (intparam(line, u8"size:", min_.size, max_.size)) {
+    } else if (intparam(line, u8"volume:", min_.volume, max_.volume)) {
+    } else if (intparam(line, u8"value:", min_.value, max_.value)) {
+    }
+  }
+}
+
+ArmorType::ArmorType(const std::u8string_view& tagdef) {
+  std::u8string_view def = tagdef;
+
+  while (def.length() > 0 && !def.starts_with(u8"tag:")) {
+    auto line = getuntil(def, '\n');
+    if (process(line, u8"short:")) {
+      short_desc_ = std::u8string(getuntil(line, '\n'));
+    } else if (process(line, u8"desc:")) {
+      desc_ = std::u8string(getuntil(line, '\n'));
+    } else if (process(line, u8"long:")) {
+      long_desc_ = std::u8string(getuntil(line, '\n'));
+    } else if (process(line, u8"prop:")) {
+      auto sname = getuntil(line, ':');
+      int32_t sval = getnum(line);
+      props_.push_back({crc32c(sname), sval});
+    } else if (intparam(line, u8"weight:", min_.weight, max_.weight)) {
+    } else if (intparam(line, u8"size:", min_.size, max_.size)) {
+    } else if (intparam(line, u8"volume:", min_.volume, max_.volume)) {
+    } else if (intparam(line, u8"value:", min_.value, max_.value)) {
+    }
+  }
 }
 
 ItemType::ItemType(const std::u8string_view& tagdef) {
@@ -1240,7 +1311,7 @@ ItemType::ItemType(const std::u8string_view& tagdef) {
     } else if (process(line, u8"prop:")) {
       auto sname = getuntil(line, ':');
       int32_t sval = getnum(line);
-      skills_.push_back({crc32c(sname), sval});
+      props_.push_back({crc32c(sname), sval});
     } else if (intparam(line, u8"weight:", min_.weight, max_.weight)) {
     } else if (intparam(line, u8"size:", min_.size, max_.size)) {
     } else if (intparam(line, u8"volume:", min_.volume, max_.volume)) {
