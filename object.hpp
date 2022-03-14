@@ -614,11 +614,12 @@ class alignas(256) Object {
   int LooksLike(Object* other, int vmode = 0, Object* viewer = nullptr) const;
 
   Object* AddNPC(std::mt19937&, const std::u8string_view& tags);
-  Object* AddNPC(std::mt19937&, const NPCType*, const std::u8string_view& tags = u8"");
 
   static void FreeActions();
 
  private:
+  Object* AddNPC(std::mt19937&, const NPCType*, const std::u8string_view& tags = u8"");
+
   void NotifyLeft(Object* obj, Object* newloc = nullptr);
 
   void Loud(std::set<Object*>& visited, int str, const std::u8string& mes);

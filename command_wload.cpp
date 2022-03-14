@@ -28,7 +28,6 @@
 #include "infile.hpp"
 #include "log.hpp"
 #include "mind.hpp"
-#include "npc.hpp"
 #include "object.hpp"
 #include "properties.hpp"
 #include "utils.hpp"
