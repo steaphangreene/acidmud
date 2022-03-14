@@ -24,3 +24,106 @@ s:1
 i:1
 w:1
 gold:100-200
+tag:npc:dwarf
+short:a dwarven
+desc:a dwarven
+long:{He} looks pissed.
+wtag:axe
+wtag:dwarven
+atag:dwarven
+itag:dwarven
+b:2-2
+q:0--2
+s:1-1
+c:0--2
+w:2-2
+gold:100-500
+tag:npc:elf
+short:an elven
+desc:an elven
+long:{He} looks arrogant.
+wtag:sword
+wtag:elven
+atag:elven
+itag:elven
+b:0--2
+q:2-0
+c:2-2
+gold:100-500
+tag:npc:civilian
+short:a civilian
+desc:
+long:{He} is not really a martial person.
+gold:200-500
+tag:npc:citizen
+short:a citizen
+desc:
+long:{He} clearly has a solid place in society.
+gold:200-500
+tag:npc:slave
+short:a slave
+desc:
+long:{He} seems to have had a hard life.  {His} will was broken long ago.
+wtag:none
+atag:none
+itag:none
+b:2-0
+q:2-0
+s:2-0
+w:0--4
+gold:-1000000
+tag:npc:miner
+short:a miner
+desc:
+long:{He} clearly has digging in {his} blood.
+wtag:pickaxe
+c:2-0
+w:2-1
+gold:200-500
+tag:npc:explorer
+short:an explorer
+desc:
+long:{He} seems to be motivated only by what is not yet known or discovered.
+wtag:pick
+wtag:climbing
+q:1-1
+i:1-1
+gold:200-500
+tag:npc:engineer
+short:an engineer
+desc:
+long:{He} is reflexively inspecting all the construction around {him}.
+wtag:pick
+i:2-2
+w:1-1
+gold:200-500
+tag:npc:master
+short:the master
+desc:
+long:{He} is among the best at what {he} does.
+wtag:hammer
+q:1-1
+s:1-1
+c:1-1
+i:2-2
+w:2-2
+gold:200-500
+tag:npc:leader
+short:a leader
+desc:a master of inspiring others.
+long:{He} is an experienced leader of people.
+c:2-2
+gold:500-1000
+tag:npc:elite
+short:an elite
+desc:a pretty special
+long:{He} seems quite prepared, and well-trained.
+wtag:high-quality
+atag:high-quality
+b:2-2
+q:2-2
+s:2-2
+c:2-2
+i:2-2
+w:2-2
+gold:1000-2000
