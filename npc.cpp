@@ -31,6 +31,8 @@
 #include "properties.hpp"
 #include "utils.hpp"
 
+bool load_tags_from(const Object* world, const std::u8string_view& tagdefs);
+
 struct ItemAttrs {
   int weight;
   int size;
@@ -48,6 +50,8 @@ class ItemType {
       ItemAttrs min,
       ItemAttrs max);
   ItemType(const std::u8string_view& tagdef);
+  ItemType(std::u8string_view& tagdef);
+  bool LoadFrom(std::u8string_view& tagdef);
   void operator+=(const ItemType&);
   std::u8string short_desc_, desc_, long_desc_;
   std::vector<skill_pair> props_;
@@ -80,6 +84,8 @@ class ArmorType {
       act_t l6 = act_t::NONE);
   void operator+=(const ArmorType&);
   ArmorType(const std::u8string_view& tagdef);
+  ArmorType(std::u8string_view& tagdef);
+  bool LoadFrom(std::u8string_view& tagdef);
   std::u8string short_desc_, desc_, long_desc_;
   std::vector<skill_pair> props_;
   std::vector<act_t> loc_;
@@ -108,6 +114,8 @@ class WeaponType {
       WeaponAttrs wmax);
   void operator+=(const WeaponType&);
   WeaponType(const std::u8string_view& tagdef);
+  WeaponType(std::u8string_view& tagdef);
+  bool LoadFrom(std::u8string_view& tagdef);
   std::u8string short_desc_, desc_, long_desc_;
   std::vector<skill_pair> props_;
   int wtype_;
@@ -137,6 +145,8 @@ class NPCType {
       int gmax = 0);
   void operator+=(const NPCType&);
   NPCType(const std::u8string_view& tagdef);
+  NPCType(std::u8string_view& tagdef);
+  bool LoadFrom(std::u8string_view& tagdef);
   void Prop(uint32_t, int, int);
   void Prop(uint32_t, int);
   void Arm(const WeaponType&);
@@ -160,10 +170,10 @@ class NPCType {
   std::vector<ItemType> items_;
 };
 
-static std::map<Object*, std::map<std::u8string, NPCType>> npctagdefs;
-static std::map<Object*, std::map<std::u8string, WeaponType>> weapontagdefs;
-static std::map<Object*, std::map<std::u8string, ArmorType>> armortagdefs;
-static std::map<Object*, std::map<std::u8string, ItemType>> itemtagdefs;
+static std::map<const Object*, std::map<std::u8string, NPCType>> npctagdefs;
+static std::map<const Object*, std::map<std::u8string, WeaponType>> weapontagdefs;
+static std::map<const Object*, std::map<std::u8string, ArmorType>> armortagdefs;
+static std::map<const Object*, std::map<std::u8string, ItemType>> itemtagdefs;
 
 static const std::u8string gen_replace[][5] = {
     {u8"{He}", u8"It", u8"She", u8"He", u8"They"},
@@ -921,8 +931,9 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
 
   if (!itemtagdefs.contains(World())) {
     // Definitions for all built-in item tags go here.
-    itemtagdefs[World()].try_emplace(
-        u8"dungeon_cage_key",
+    load_tags_from(
+        World(),
+        u8"tag:item:dungeon_cage_key\n"
         u8"short:a key\n"
         u8"desc:A heavy steel key.  It looks dwarven, and very old.\n"
         u8"prop:Key:1510003\n"
@@ -1221,7 +1232,14 @@ ItemType::ItemType(
 
 NPCType::NPCType(const std::u8string_view& tagdef) {
   std::u8string_view def = tagdef;
+  LoadFrom(def);
+}
 
+NPCType::NPCType(std::u8string_view& tagdef) {
+  LoadFrom(tagdef);
+}
+
+bool NPCType::LoadFrom(std::u8string_view& def) {
   while (def.length() > 0 && !def.starts_with(u8"tag:")) {
     auto line = getuntil(def, '\n');
     if (process(line, u8"short:")) {
@@ -1242,18 +1260,29 @@ NPCType::NPCType(const std::u8string_view& tagdef) {
     } else if (intparam(line, u8"w:", min_.v[5], max_.v[5])) {
     } else if (intparam(line, u8"gold:", min_gold_, max_gold_)) {
     } else if (process(line, u8"wtag:")) {
-      weapons_.emplace_back(getuntil(line, '\n'));
+      wtags_.emplace_back(getuntil(line, '\n'));
     } else if (process(line, u8"atag:")) {
-      armor_.emplace_back(getuntil(line, '\n'));
+      atags_.emplace_back(getuntil(line, '\n'));
     } else if (process(line, u8"itag:")) {
-      items_.emplace_back(getuntil(line, '\n'));
+      itags_.emplace_back(getuntil(line, '\n'));
+    } else {
+      loger(u8"ERROR: bad npc tag file entry: '{}'\n", line);
+      return false;
     }
   }
+  return true;
 }
 
 WeaponType::WeaponType(const std::u8string_view& tagdef) {
   std::u8string_view def = tagdef;
+  LoadFrom(def);
+}
 
+WeaponType::WeaponType(std::u8string_view& tagdef) {
+  LoadFrom(tagdef);
+}
+
+bool WeaponType::LoadFrom(std::u8string_view& def) {
   while (def.length() > 0 && !def.starts_with(u8"tag:")) {
     auto line = getuntil(def, '\n');
     if (process(line, u8"short:")) {
@@ -1270,13 +1299,24 @@ WeaponType::WeaponType(const std::u8string_view& tagdef) {
     } else if (intparam(line, u8"size:", min_.size, max_.size)) {
     } else if (intparam(line, u8"volume:", min_.volume, max_.volume)) {
     } else if (intparam(line, u8"value:", min_.value, max_.value)) {
+    } else {
+      loger(u8"ERROR: bad weapon tag file entry: '{}'\n", line);
+      return false;
     }
   }
+  return true;
 }
 
 ArmorType::ArmorType(const std::u8string_view& tagdef) {
   std::u8string_view def = tagdef;
+  LoadFrom(def);
+}
 
+ArmorType::ArmorType(std::u8string_view& tagdef) {
+  LoadFrom(tagdef);
+}
+
+bool ArmorType::LoadFrom(std::u8string_view& def) {
   while (def.length() > 0 && !def.starts_with(u8"tag:")) {
     auto line = getuntil(def, '\n');
     if (process(line, u8"short:")) {
@@ -1293,13 +1333,24 @@ ArmorType::ArmorType(const std::u8string_view& tagdef) {
     } else if (intparam(line, u8"size:", min_.size, max_.size)) {
     } else if (intparam(line, u8"volume:", min_.volume, max_.volume)) {
     } else if (intparam(line, u8"value:", min_.value, max_.value)) {
+    } else {
+      loger(u8"ERROR: bad armor tag file entry: '{}'\n", line);
+      return false;
     }
   }
+  return true;
 }
 
 ItemType::ItemType(const std::u8string_view& tagdef) {
   std::u8string_view def = tagdef;
+  LoadFrom(def);
+}
 
+ItemType::ItemType(std::u8string_view& tagdef) {
+  LoadFrom(tagdef);
+}
+
+bool ItemType::LoadFrom(std::u8string_view& def) {
   while (def.length() > 0 && !def.starts_with(u8"tag:")) {
     auto line = getuntil(def, '\n');
     if (process(line, u8"short:")) {
@@ -1316,6 +1367,54 @@ ItemType::ItemType(const std::u8string_view& tagdef) {
     } else if (intparam(line, u8"size:", min_.size, max_.size)) {
     } else if (intparam(line, u8"volume:", min_.volume, max_.volume)) {
     } else if (intparam(line, u8"value:", min_.value, max_.value)) {
+    } else {
+      loger(u8"ERROR: bad item tag file entry: '{}'\n", line);
+      return false;
     }
   }
+  return true;
+}
+
+bool load_tags_from(const Object* world, const std::u8string_view& tagdefs) {
+  std::u8string_view defs = tagdefs;
+
+  skipspace(defs);
+  while (process(defs, u8"tag:")) {
+    if (process(defs, u8"npc:")) {
+      std::u8string tag(getuntil(defs, '\n'));
+      if (!npctagdefs[world].try_emplace(tag, defs).second) {
+        loger(u8"Duplicate NPC tag '{}' insertion into {} rejected.\n", tag, world->ShortDesc());
+        return false;
+      }
+    } else if (process(defs, u8"weapon:")) {
+      std::u8string tag(getuntil(defs, '\n'));
+      if (!weapontagdefs[world].try_emplace(tag, defs).second) {
+        loger(u8"Duplicate Weapon tag '{}' insertion into {} rejected.\n", tag, world->ShortDesc());
+        return false;
+      }
+    } else if (process(defs, u8"armor:")) {
+      std::u8string tag(getuntil(defs, '\n'));
+      if (!armortagdefs[world].try_emplace(tag, defs).second) {
+        loger(u8"Duplicate Armor tag '{}' insertion into {} rejected.\n", tag, world->ShortDesc());
+        return false;
+      }
+    } else if (process(defs, u8"item:")) {
+      std::u8string tag(getuntil(defs, '\n'));
+      if (!itemtagdefs[world].try_emplace(tag, defs).second) {
+        loger(u8"Duplicate Item tag '{}' insertion into {} rejected.\n", tag, world->ShortDesc());
+        return false;
+      }
+    } else {
+      loger(u8"Bad tag type '{}'.\n", getuntil(defs, '\n'));
+      return false;
+    }
+    skipspace(defs);
+  }
+
+  if (defs.length() > 0) {
+    loger(u8"Bad content at end of .tags file: '{}'.\n", getuntil(defs, '\n'));
+    return false;
+  }
+
+  return true;
 }
