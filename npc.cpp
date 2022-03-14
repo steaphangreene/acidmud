@@ -19,7 +19,6 @@
 //
 // *************************************************************************
 
-#include <unistd.h>
 #include <string>
 
 #include "color.hpp"
@@ -92,6 +91,15 @@ static const std::vector<std::u8string> dwarf_last_names = {
     u8"Stoutale",   u8"Strakeln",     u8"Strongheart",  u8"Thrahak",     u8"Torevir",
     u8"Torunn",     u8"Trollbleeder", u8"Trueanvil",    u8"Trueblood",   u8"Ungart",
 };
+
+static int rint1(auto& gen, int min, int max) { // Flat
+  return std::uniform_int_distribution<int>(min, max)(gen);
+}
+
+static int rint3(auto& gen, int min, int max) { // Bell-Curve-Ish
+  auto rando = std::uniform_int_distribution<int>(min, max);
+  return (rando(gen) + rando(gen) + rando(gen) + 2) / 3;
+}
 
 static NPCType base_npc(
     u8"a person",
@@ -433,8 +441,7 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
   npc->Activate();
   npc->SetPos(pos_t::STAND);
   for (int a : {0, 1, 2, 3, 4, 5}) {
-    auto gen_attr = std::uniform_int_distribution<int>(type->min_.v[a], type->max_.v[a]);
-    npc->SetAttribute(a, (gen_attr(gen) + gen_attr(gen) + gen_attr(gen) + 2) / 3);
+    npc->SetAttribute(a, rint3(gen, type->min_.v[a], type->max_.v[a]));
   }
 
   for (auto sk : type->skills_) {
@@ -444,13 +451,13 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
       npc->SetSkill(
           sk.first,
           npc->NormAttribute(get_linked(sk.first)) * sk.second.first / 100 -
-              rand() % sk.second.second);
+              rint1(gen, 0, sk.second.second));
     }
     // loge(u8"DBG: {} {} {}\n", get_linked(sk.first), sk.second.first, sk.second.second);
   }
 
   if (type->genders_.size() > 0) {
-    npc->SetGender(type->genders_[rand() % type->genders_.size()]);
+    npc->SetGender(type->genders_[rint1(gen, 0, type->genders_.size() - 1)]);
   }
 
   npc->SetShortDesc(gender_proc(type->short_desc_, npc->Gender()));
@@ -466,8 +473,7 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
   npc->SetName(first.front() + u8" " + last.front());
 
   if (type->min_gold_ > 0 || type->max_gold_ > 0) {
-    std::uniform_int_distribution<int> gnum(type->min_gold_, type->max_gold_);
-    int num_gold = gnum(gen);
+    int num_gold = rint3(gen, type->min_gold_, type->max_gold_);
     if (num_gold > 0) {
       give_gold(npc, num_gold);
     }
@@ -480,22 +486,16 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
   for (auto wp : type->weapons_) {
     Object* obj = new Object(npc);
     obj->SetSkill(prhash(u8"WeaponType"), wp.wtype_);
-    obj->SetSkill(
-        prhash(u8"WeaponReach"),
-        std::uniform_int_distribution(wp.wmin_.reach, wp.wmax_.reach)(gen));
-    obj->SetSkill(
-        prhash(u8"WeaponForce"),
-        std::uniform_int_distribution(wp.wmin_.force, wp.wmax_.force)(gen));
-    obj->SetSkill(
-        prhash(u8"WeaponSeverity"),
-        std::uniform_int_distribution(wp.wmin_.severity, wp.wmax_.severity)(gen));
+    obj->SetSkill(prhash(u8"WeaponReach"), rint3(gen, wp.wmin_.reach, wp.wmax_.reach));
+    obj->SetSkill(prhash(u8"WeaponForce"), rint3(gen, wp.wmin_.force, wp.wmax_.force));
+    obj->SetSkill(prhash(u8"WeaponSeverity"), rint3(gen, wp.wmin_.severity, wp.wmax_.severity));
     obj->SetShortDesc(wp.name_);
     obj->SetDesc(wp.desc_);
     obj->SetLongDesc(wp.long_desc_);
-    obj->SetWeight(std::uniform_int_distribution(wp.min_.weight, wp.max_.weight)(gen));
-    obj->SetSize(std::uniform_int_distribution(wp.min_.size, wp.max_.size)(gen));
-    obj->SetVolume(std::uniform_int_distribution(wp.min_.volume, wp.max_.volume)(gen));
-    obj->SetValue(std::uniform_int_distribution(wp.min_.value, wp.max_.value)(gen));
+    obj->SetWeight(rint3(gen, wp.min_.weight, wp.max_.weight));
+    obj->SetSize(rint3(gen, wp.min_.size, wp.max_.size));
+    obj->SetVolume(rint3(gen, wp.min_.volume, wp.max_.volume));
+    obj->SetValue(rint3(gen, wp.min_.value, wp.max_.value));
     obj->SetPos(pos_t::LIE);
     npc->AddAct(act_t::WIELD, obj);
     if (two_handed(wp.wtype_)) {
@@ -508,22 +508,18 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
       init_wear_attribs();
     }
     Object* obj = new Object(npc);
-    obj->SetAttribute(0, std::uniform_int_distribution(ar.amin_.bulk, ar.amax_.bulk)(gen));
-    obj->SetSkill(
-        prhash(u8"ArmorB"), std::uniform_int_distribution(ar.amin_.bulk, ar.amax_.bulk)(gen));
-    obj->SetSkill(
-        prhash(u8"ArmorI"), std::uniform_int_distribution(ar.amin_.impact, ar.amax_.impact)(gen));
-    obj->SetSkill(
-        prhash(u8"ArmorT"), std::uniform_int_distribution(ar.amin_.thread, ar.amax_.thread)(gen));
-    obj->SetSkill(
-        prhash(u8"ArmorP"), std::uniform_int_distribution(ar.amin_.planar, ar.amax_.planar)(gen));
+    obj->SetAttribute(0, rint3(gen, ar.amin_.bulk, ar.amax_.bulk));
+    obj->SetSkill(prhash(u8"ArmorB"), rint3(gen, ar.amin_.bulk, ar.amax_.bulk));
+    obj->SetSkill(prhash(u8"ArmorI"), rint3(gen, ar.amin_.impact, ar.amax_.impact));
+    obj->SetSkill(prhash(u8"ArmorT"), rint3(gen, ar.amin_.thread, ar.amax_.thread));
+    obj->SetSkill(prhash(u8"ArmorP"), rint3(gen, ar.amin_.planar, ar.amax_.planar));
     obj->SetShortDesc(ar.name_);
     obj->SetDesc(ar.desc_);
     obj->SetLongDesc(ar.long_desc_);
-    obj->SetWeight(std::uniform_int_distribution(ar.min_.weight, ar.max_.weight)(gen));
-    obj->SetSize(std::uniform_int_distribution(ar.min_.size, ar.max_.size)(gen));
-    obj->SetVolume(std::uniform_int_distribution(ar.min_.volume, ar.max_.volume)(gen));
-    obj->SetValue(std::uniform_int_distribution(ar.min_.value, ar.max_.value)(gen));
+    obj->SetWeight(rint3(gen, ar.min_.weight, ar.max_.weight));
+    obj->SetSize(rint3(gen, ar.min_.size, ar.max_.size));
+    obj->SetVolume(rint3(gen, ar.min_.volume, ar.max_.volume));
+    obj->SetValue(rint3(gen, ar.min_.value, ar.max_.value));
     obj->SetPos(pos_t::LIE);
 
     for (auto loc : ar.loc_) {
@@ -559,10 +555,10 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
       obj->SetShortDesc(it.name_);
       obj->SetDesc(it.desc_);
       obj->SetLongDesc(it.long_desc_);
-      obj->SetWeight(std::uniform_int_distribution(it.min_.weight, it.max_.weight)(gen));
-      obj->SetSize(std::uniform_int_distribution(it.min_.size, it.max_.size)(gen));
-      obj->SetVolume(std::uniform_int_distribution(it.min_.volume, it.max_.volume)(gen));
-      obj->SetValue(std::uniform_int_distribution(it.min_.value, it.max_.value)(gen));
+      obj->SetWeight(rint3(gen, it.min_.weight, it.max_.weight));
+      obj->SetSize(rint3(gen, it.min_.size, it.max_.size));
+      obj->SetVolume(rint3(gen, it.min_.volume, it.max_.volume));
+      obj->SetValue(rint3(gen, it.min_.value, it.max_.value));
       obj->SetPos(pos_t::LIE);
     }
   }
