@@ -41,7 +41,8 @@ class ItemType {
       const std::vector<skill_pair>& sk,
       ItemAttrs min,
       ItemAttrs max);
-  std::u8string name_, desc_, long_desc_;
+  void operator+=(const ItemType&);
+  std::u8string short_desc_, desc_, long_desc_;
   std::vector<skill_pair> skills_;
   ItemAttrs min_;
   ItemAttrs max_;
@@ -70,7 +71,8 @@ class ArmorType {
       act_t l4 = act_t::NONE,
       act_t l5 = act_t::NONE,
       act_t l6 = act_t::NONE);
-  std::u8string name_, desc_, long_desc_;
+  void operator+=(const ArmorType&);
+  std::u8string short_desc_, desc_, long_desc_;
   std::vector<act_t> loc_;
   ItemAttrs min_;
   ItemAttrs max_;
@@ -95,7 +97,8 @@ class WeaponType {
       ItemAttrs max,
       WeaponAttrs wmin,
       WeaponAttrs wmax);
-  std::u8string name_, desc_, long_desc_;
+  void operator+=(const WeaponType&);
+  std::u8string short_desc_, desc_, long_desc_;
   int wtype_;
   WeaponAttrs wmin_;
   WeaponAttrs wmax_;
@@ -114,6 +117,9 @@ class NPCType {
       const std::u8string& ds,
       const std::u8string& lds,
       const std::vector<gender_t>& gens,
+      const std::vector<std::u8string_view>& weapons,
+      const std::vector<std::u8string_view>& armor,
+      const std::vector<std::u8string_view>& items,
       NPCAttrs min,
       NPCAttrs max,
       int gmin = 0,
@@ -125,12 +131,16 @@ class NPCType {
   void Carry(const ItemType&);
   void SetShortDesc(const std::u8string_view&);
   void operator+=(const NPCType&);
+  void FinalizeTags();
 
   std::u8string short_desc_, desc_, long_desc_;
   std::vector<gender_t> genders_;
   NPCAttrs min_, max_;
   int min_gold_, max_gold_;
   std::map<uint32_t, std::pair<int, int>> skills_;
+  std::vector<std::u8string_view> wtags_;
+  std::vector<std::u8string_view> atags_;
+  std::vector<std::u8string_view> itags_;
   std::vector<WeaponType> weapons_;
   std::vector<ArmorType> armor_;
   std::vector<ItemType> items_;

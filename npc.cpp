@@ -106,18 +106,249 @@ static NPCType base_npc(
     u8"{He} seems normal.",
     u8"",
     {gender_t::MALE, gender_t::FEMALE},
+    {u8"spear"},
+    {u8"shirt"},
+    {u8"pack"},
     {1, 1, 1, 1, 1, 1},
     {7, 7, 7, 7, 7, 7},
     0,
     0);
 
+// Definitions for all built-in armor tags go here.
+static std::map<std::u8string_view, ArmorType> armortagdefs = {
+    {u8"shirt",
+     {u8"a shirt",
+      u8"A shirt.",
+      u8"",
+      {10000, 10, 150},
+      {10000, 10, 150},
+      {0, 0, 0, 0},
+      {0, 0, 0, 0}}},
+    {u8"jerkin",
+     {u8"a jerkin",
+      u8"A jerkin.",
+      u8"",
+      {10000, 10, 150},
+      {10000, 10, 150},
+      {0, 0, 0, 0},
+      {1, 1, 1, 0}}},
+    {u8"leather",
+     {u8"a leather ",
+      u8"A leather ",
+      u8"",
+      {10000, 10, 150},
+      {10000, 10, 150},
+      {1, 1, 0, 1},
+      {1, 1, 0, 1}}},
+    {u8"steel",
+     {u8"a steel ",
+      u8"A steel ",
+      u8"",
+      {10000, 10, 150},
+      {10000, 10, 150},
+      {0, 0, 2, 4},
+      {0, 0, 2, 6}}},
+    {u8"dwarven",
+     {u8"a dwarven ",
+      u8"A dwarven ",
+      u8"",
+      {10000, 10, 150},
+      {10000, 10, 150},
+      {0, 0, 0, 0},
+      {1, 1, 0, 1}}},
+    {u8"heavy",
+     {u8"", u8"A heavy ", u8"", {10000, 10, 150}, {10000, 10, 150}, {1, 0, 0, 0}, {0, 1, 0, 0}}},
+    {u8"breastplate",
+     {u8"breastplate",
+      u8"A breastplate.",
+      u8"",
+      {200000, 100, 15000},
+      {200000, 100, 15000},
+      {6, 4, 2, 1},
+      {10, 6, 6, 2},
+      act_t::WEAR_CHEST,
+      act_t::WEAR_BACK}},
+    {u8"great helm",
+     {u8"a great helm",
+      u8"A great helm.",
+      u8"",
+      {50000, 70, 5000},
+      {50000, 70, 5000},
+      {6, 4, 2, 1},
+      {10, 6, 6, 2},
+      act_t::WEAR_HEAD}},
+    {u8"helm",
+     {u8"a helm",
+      u8"A helm.",
+      u8"",
+      {50000, 70, 5000},
+      {50000, 70, 5000},
+      {6, 4, 2, 1},
+      {10, 6, 6, 2},
+      act_t::WEAR_HEAD}},
+    {u8"right arm plate",
+     {u8"an arm plate (right)",
+      u8"An arm plate.",
+      u8"",
+      {50000, 60, 5000},
+      {50000, 60, 5000},
+      {6, 4, 2, 1},
+      {10, 6, 6, 2},
+      act_t::WEAR_RARM}},
+    {u8"left arm plate",
+     {u8"an arm plate (left)",
+      u8"An arm plate.",
+      u8"",
+      {50000, 60, 5000},
+      {50000, 60, 5000},
+      {6, 4, 2, 1},
+      {10, 6, 6, 2},
+      act_t::WEAR_LARM}},
+    {u8"battle skirt",
+     {u8"a battle skirt",
+      u8"A battle skirt.",
+      u8"",
+      {100000, 80, 10000},
+      {100000, 80, 10000},
+      {6, 4, 2, 1},
+      {10, 6, 6, 2},
+      act_t::WEAR_RLEG,
+      act_t::WEAR_LLEG}},
+    {u8"shield",
+     {u8"a shield",
+      u8"A shield.",
+      u8"",
+      {100000, 80, 10000},
+      {100000, 80, 10000},
+      {6, 4, 2, 1},
+      {10, 6, 6, 2},
+      act_t::WEAR_SHIELD}},
+};
+
+// Definitions for all built-in weapon tags go here.
+static std::map<std::u8string_view, WeaponType> weapontagdefs = {
+    {u8"spear",
+     {u8"a spear",
+      u8"A spear.",
+      u8"",
+      u8"Long Piercing",
+      {1000, 10, 1000},
+      {1000, 10, 1000},
+      {1, -2, 2},
+      {1, 2, 2}}},
+    {u8"sword",
+     {u8"a sword",
+      u8"A sword.",
+      u8"",
+      u8"Long Blades",
+      {1000, 10, 1000},
+      {1000, 10, 1000},
+      {1, -2, 2},
+      {1, 2, 2}}},
+    {u8"axe",
+     {u8"an axe",
+      u8"An axe.",
+      u8"",
+      u8"Long Cleaves",
+      {1000, 10, 1000},
+      {1000, 10, 1000},
+      {1, -2, 2},
+      {1, 2, 2}}},
+    {u8"pick",
+     {u8"a pick",
+      u8"A pick.",
+      u8"",
+      u8"Long Cleaves",
+      {1000, 10, 1000},
+      {1000, 10, 1000},
+      {1, -2, 2},
+      {1, 2, 2}}},
+    {u8"pickaxe",
+     {u8"a pickaxe",
+      u8"A pickaxe.",
+      u8"",
+      u8"Two-Handed Cleaves",
+      {1000, 10, 1000},
+      {1000, 10, 1000},
+      {2, -3, 3},
+      {2, 1, 3}}},
+    {u8"dwarven",
+     {u8"dwarven ",
+      u8"A super-strong ",
+      u8"",
+      u8"",
+      {1000, 10, 1000},
+      {1000, 10, 1000},
+      {0, 1, 0},
+      {0, 1, 0}}},
+    {u8"combat",
+     {u8"combat ",
+      u8"A combat ",
+      u8"",
+      u8"",
+      {4000, 10, 1000},
+      {4000, 10, 1000},
+      {0, 1, 0},
+      {0, 2, 0}}},
+    {u8"climbing",
+     {u8"climbing ",
+      u8"A lightweight ",
+      u8"",
+      u8"",
+      {4000, 10, 1000},
+      {4000, 10, 1000},
+      {0, 2, -1},
+      {0, 4, -1}}},
+    {u8"sharp",
+     {u8"", u8"A super-sharp ", u8"", u8"", {0, 0, 1000}, {0, 0, 1000}, {0, 1, 0}, {0, 1, 0}}},
+    {u8"heavy",
+     {u8"",
+      u8"A super-heavy ",
+      u8"",
+      u8"",
+      {1000, 0, 1000},
+      {1000, 0, 1000},
+      {0, 0, 0},
+      {0, 0, 0}}},
+    {u8"light",
+     {u8"",
+      u8"A super-light ",
+      u8"",
+      u8"",
+      {-500, 0, 1000},
+      {-500, 0, 1000},
+      {0, 1, 0},
+      {0, 1, 0}}},
+    {u8"high-quality",
+     {u8"",
+      u8"A high-quality ",
+      u8"",
+      u8"",
+      {4000, 10, 1000},
+      {4000, 10, 1000},
+      {0, 1, 0},
+      {0, 1, 0}}},
+    {u8"war",
+     {u8"a war ",
+      u8"A war ",
+      u8"",
+      u8"Two-Handed ",
+      {20000, 40, 5000},
+      {20000, 40, 5000},
+      {1, 1, 1},
+      {1, 0, 1}}},
+};
+
 // Definitions for all built-in NPC tags go here.
-static std::map<std::u8string_view, NPCType> tagdefs = {
+static std::map<std::u8string_view, NPCType> npctagdefs = {
     {u8"dwarf",
      {u8"a dwarven ",
       u8"a dwarven ",
       u8"{He} looks pissed.",
       {gender_t::NEITHER},
+      {u8"axe", u8"dwarven"},
+      {u8"dwarven"},
+      {u8"dwarven"},
       {2, 0, 1, 0, 0, 2},
       {2, -2, 1, -2, 0, 2},
       100,
@@ -127,6 +358,9 @@ static std::map<std::u8string_view, NPCType> tagdefs = {
       u8"an elven ",
       u8"{He} looks arrogant.",
       {gender_t::MALE, gender_t::FEMALE},
+      {u8"sword", u8"elven"},
+      {u8"elven"},
+      {u8"elven"},
       {0, 2, 0, 2, 0, 0},
       {-2, 0, 0, 2, 0, 0},
       100,
@@ -136,6 +370,9 @@ static std::map<std::u8string_view, NPCType> tagdefs = {
       u8"",
       u8"{He} is not really a martial person.",
       {gender_t::MALE, gender_t::FEMALE},
+      {},
+      {},
+      {},
       {0, 0, 0, 0, 0, 0},
       {0, 0, 0, 0, 0, 0},
       200,
@@ -145,6 +382,9 @@ static std::map<std::u8string_view, NPCType> tagdefs = {
       u8"",
       u8"{He} clearly has a solid place in society.",
       {gender_t::MALE, gender_t::FEMALE},
+      {},
+      {},
+      {},
       {0, 0, 0, 0, 0, 0},
       {0, 0, 0, 0, 0, 0},
       200,
@@ -154,6 +394,9 @@ static std::map<std::u8string_view, NPCType> tagdefs = {
       u8"",
       u8"{He} seems to have had a hard life.  {His} will was broken long ago.",
       {gender_t::MALE, gender_t::FEMALE},
+      {u8"none"},
+      {u8"none"},
+      {u8"none"},
       {2, 2, 2, 0, 0, 0},
       {0, 0, 0, 0, 0, -4},
       -1000000,
@@ -163,33 +406,45 @@ static std::map<std::u8string_view, NPCType> tagdefs = {
       u8"",
       u8"{He} clearly has digging in {his} blood.",
       {gender_t::MALE, gender_t::FEMALE},
+      {u8"pickaxe"},
+      {},
+      {},
       {0, 0, 2, 0, 0, 2},
       {0, 0, 0, 0, 0, 1},
       200,
       500}},
     {u8"explorer",
-     {u8"a explorer",
+     {u8"an explorer",
       u8"",
       u8"{He} seems to be motivated only by what is not yet known or discovered.",
       {gender_t::MALE, gender_t::FEMALE},
+      {u8"pick", u8"climbing"},
+      {},
+      {},
       {0, 1, 0, 0, 1, 0},
       {0, 1, 0, 0, 1, 0},
       200,
       500}},
     {u8"engineer",
-     {u8"a engineer",
+     {u8"an engineer",
       u8"",
       u8"{He} is reflexively inspecting all the construction around {him}.",
       {gender_t::MALE, gender_t::FEMALE},
+      {u8"pick"},
+      {},
+      {},
       {0, 0, 0, 0, 2, 1},
       {0, 0, 0, 0, 2, 1},
       200,
       500}},
     {u8"master",
-     {u8"a master",
+     {u8"the master",
       u8"",
       u8"{He} is among the best at what {he} does.",
       {gender_t::MALE, gender_t::FEMALE},
+      {u8"hammer"},
+      {},
+      {},
       {0, 1, 1, 1, 2, 2},
       {0, 1, 1, 1, 2, 2},
       200,
@@ -199,6 +454,9 @@ static std::map<std::u8string_view, NPCType> tagdefs = {
       u8"a master of inspiring others.",
       u8"{He} is an experienced leader of people.",
       {gender_t::MALE, gender_t::FEMALE},
+      {},
+      {},
+      {},
       {0, 0, 0, 2, 0, 0},
       {0, 0, 0, 2, 0, 0},
       500,
@@ -208,6 +466,9 @@ static std::map<std::u8string_view, NPCType> tagdefs = {
       u8"a professional guard.",
       u8"{He} seems to take his job guarding stuff very seriously.",
       {gender_t::MALE, gender_t::FEMALE},
+      {u8"combat"},
+      {u8"breastplate", u8"helm", u8"shield"},
+      {},
       {0, 0, 1, 0, 1, 1},
       {0, 0, 1, 0, 1, 1},
       100,
@@ -217,6 +478,9 @@ static std::map<std::u8string_view, NPCType> tagdefs = {
       u8"a professional soldier.",
       u8"{He} is prepared for war, from wherever it may come.",
       {gender_t::MALE, gender_t::FEMALE},
+      {u8"war"},
+      {u8"breastplate", u8"great helm", u8"battle skirt", u8"left arm plate", u8"right arm plate"},
+      {},
       {0, 0, 1, 0, 1, 1},
       {0, 0, 1, 0, 1, 1},
       100,
@@ -226,6 +490,9 @@ static std::map<std::u8string_view, NPCType> tagdefs = {
       u8"a pretty special ",
       u8"{He} seems quite prepared, and well-trained.",
       {gender_t::MALE, gender_t::FEMALE},
+      {u8"high-quality"},
+      {u8"high-quality"},
+      {},
       {2, 2, 2, 2, 2, 2},
       {2, 2, 2, 2, 2, 2},
       1000,
@@ -324,6 +591,9 @@ NPCType::NPCType(
     const std::u8string& ds,
     const std::u8string& lds,
     const std::vector<gender_t>& gens,
+    const std::vector<std::u8string_view>& weapons,
+    const std::vector<std::u8string_view>& armor,
+    const std::vector<std::u8string_view>& items,
     NPCAttrs min,
     NPCAttrs max,
     int gmin,
@@ -336,10 +606,18 @@ NPCType::NPCType(
   max_ = max;
   min_gold_ = gmin;
   max_gold_ = gmax;
+
+  wtags_.insert(wtags_.end(), weapons.begin(), weapons.end());
+  atags_.insert(atags_.end(), armor.begin(), armor.end());
+  itags_.insert(itags_.end(), items.begin(), items.end());
 }
 
 static std::u8string desc_merge(std::u8string_view d1, std::u8string_view d2) {
-  if (d1.back() == ' ') {
+  if (d1.length() == 0) {
+    return std::u8string(d2);
+  } else if (d2.length() == 0) {
+    return std::u8string(d1);
+  } else if (d1.back() == ' ') {
     process(d2, u8"a ");
     process(d2, u8"an ");
     process(d2, u8"A ");
@@ -355,6 +633,8 @@ static std::u8string desc_merge(std::u8string_view d1, std::u8string_view d2) {
     } else {
       return fmt::format(u8"{}{}", d1, d2);
     }
+  } else if (d2.back() == ' ') {
+    return (desc_merge(d2, d1));
   } else {
     return fmt::format(u8"{}", d2); // New base after old base, replace *all* previous text
   }
@@ -380,6 +660,10 @@ void NPCType::operator+=(const NPCType& in) {
   }
   min_gold_ += in.min_gold_;
   max_gold_ += in.max_gold_;
+
+  wtags_.insert(wtags_.end(), in.wtags_.begin(), in.wtags_.end());
+  atags_.insert(atags_.end(), in.atags_.begin(), in.atags_.end());
+  itags_.insert(itags_.end(), in.itags_.begin(), in.itags_.end());
 }
 
 void NPCType::Skill(uint32_t stok, int percent, int mod) {
@@ -406,16 +690,57 @@ void NPCType::SetShortDesc(const std::u8string_view& sds) {
   short_desc_ = sds;
 }
 
+void NPCType::FinalizeTags() {
+  // Merge Given Weapon Tags into Weapon Defs
+  for (auto wtag : wtags_) {
+    if (weapontagdefs.contains(wtag)) {
+      if (weapons_.size() == 0) {
+        weapons_.emplace_back(weapontagdefs.at(wtag));
+      } else {
+        weapons_.back() += weapontagdefs.at(wtag);
+      }
+    } else {
+      loger(u8"ERROR: Use of undefined Weapon tag: '{}'.  Skipping.\n", wtag);
+    }
+  }
+
+  // Merge Given Armor Tags into Armor Defs
+  for (auto atag : atags_) {
+    if (armortagdefs.contains(atag)) {
+      if (armor_.size() == 0) {
+        armor_.emplace_back(armortagdefs.at(atag));
+      } else if (armortagdefs.at(atag).loc_.size() > 0) {
+        armor_.emplace_back(armortagdefs.at(atag));
+      } else if (armor_.front().loc_.size() > 0) {
+        armor_.emplace(armor_.begin(), armortagdefs.at(atag));
+      } else {
+        armor_.front() += armortagdefs.at(atag);
+      }
+    } else {
+      loger(u8"ERROR: Use of undefined Armor tag: '{}'.  Skipping.\n", atag);
+    }
+  }
+  if (armor_.size() > 0 && armor_.front().loc_.size() == 0) { // Unlocated up front
+    for (auto arm : armor_) { // Merge with the individually located bits
+      if (arm.loc_.size() > 0) {
+        arm += armor_.front();
+      }
+    }
+  }
+
+  // TODO: Merge Given Item Tags into Item Defs
+}
+
 Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
   auto npcdef = base_npc;
   auto start = tags.cbegin();
   auto end = std::find(start, tags.cend(), ',');
   while (start != tags.cend()) {
     std::u8string_view tag = tags.substr(start - tags.cbegin(), end - start);
-    if (tagdefs.contains(tag)) {
-      npcdef += tagdefs.at(tag);
+    if (npctagdefs.contains(tag)) {
+      npcdef += npctagdefs.at(tag);
     } else {
-      loger(u8"Use of undefined NPC tag: '{}'.  Skipping.\n", tag);
+      loger(u8"ERROR: Use of undefined NPC tag: '{}'.  Skipping.\n", tag);
     }
     start = end;
     if (start != tags.cend()) {
@@ -423,6 +748,8 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
       end = std::find(start, tags.cend(), ',');
     }
   }
+  npcdef.FinalizeTags();
+
   return AddNPC(gen, &npcdef, tags);
 }
 
@@ -488,7 +815,7 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
     obj->SetSkill(prhash(u8"WeaponReach"), rint3(gen, wp.wmin_.reach, wp.wmax_.reach));
     obj->SetSkill(prhash(u8"WeaponForce"), rint3(gen, wp.wmin_.force, wp.wmax_.force));
     obj->SetSkill(prhash(u8"WeaponSeverity"), rint3(gen, wp.wmin_.severity, wp.wmax_.severity));
-    obj->SetShortDesc(wp.name_);
+    obj->SetShortDesc(wp.short_desc_);
     obj->SetDesc(wp.desc_);
     obj->SetLongDesc(wp.long_desc_);
     obj->SetWeight(rint3(gen, wp.min_.weight, wp.max_.weight));
@@ -509,7 +836,7 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
     obj->SetSkill(prhash(u8"ArmorI"), rint3(gen, ar.amin_.impact, ar.amax_.impact));
     obj->SetSkill(prhash(u8"ArmorT"), rint3(gen, ar.amin_.thread, ar.amax_.thread));
     obj->SetSkill(prhash(u8"ArmorP"), rint3(gen, ar.amin_.planar, ar.amax_.planar));
-    obj->SetShortDesc(ar.name_);
+    obj->SetShortDesc(ar.short_desc_);
     obj->SetDesc(ar.desc_);
     obj->SetLongDesc(ar.long_desc_);
     obj->SetWeight(rint3(gen, ar.min_.weight, ar.max_.weight));
@@ -548,7 +875,7 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
       for (auto sk : it.skills_) {
         obj->SetSkill(sk.first, sk.second);
       }
-      obj->SetShortDesc(it.name_);
+      obj->SetShortDesc(it.short_desc_);
       obj->SetDesc(it.desc_);
       obj->SetLongDesc(it.long_desc_);
       obj->SetWeight(rint3(gen, it.min_.weight, it.max_.weight));
@@ -561,6 +888,38 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
   return npc;
 }
 
+void WeaponType::operator+=(const WeaponType& in) {
+  // TODO: Real string compositions
+  short_desc_ = desc_merge(short_desc_, in.short_desc_);
+  desc_ = desc_merge(desc_, in.desc_);
+  if (in.long_desc_ != u8"") {
+    long_desc_ += '\n';
+    long_desc_ += in.long_desc_;
+  }
+
+  // TODO: Real set operations on tags
+
+  wmin_.reach += in.wmin_.reach;
+  wmax_.reach += in.wmax_.reach;
+  wmin_.force += in.wmin_.force;
+  wmax_.force += in.wmax_.force;
+  wmin_.severity += in.wmin_.severity;
+  wmax_.severity += in.wmax_.severity;
+
+  min_.weight += in.min_.weight;
+  max_.weight += in.max_.weight;
+  min_.size += in.min_.size;
+  max_.size += in.max_.size;
+  min_.volume += in.min_.volume;
+  max_.volume += in.max_.volume;
+  min_.value += in.min_.value;
+  max_.value += in.max_.value;
+
+  if (in.wtype_ != 0) {
+    wtype_ = in.wtype_;
+  }
+}
+
 WeaponType::WeaponType(
     const std::u8string& nm,
     const std::u8string& ds,
@@ -570,7 +929,7 @@ WeaponType::WeaponType(
     ItemAttrs max,
     WeaponAttrs wmin,
     WeaponAttrs wmax) {
-  name_ = nm;
+  short_desc_ = nm;
   desc_ = ds;
   long_desc_ = lds;
   wtype_ = get_weapon_type(t);
@@ -578,6 +937,41 @@ WeaponType::WeaponType(
   wmax_ = wmax;
   min_ = min;
   max_ = max;
+}
+
+void ArmorType::operator+=(const ArmorType& in) {
+  // TODO: Real string compositions
+  short_desc_ = desc_merge(short_desc_, in.short_desc_);
+  desc_ = desc_merge(desc_, in.desc_);
+  if (in.long_desc_ != u8"") {
+    long_desc_ += '\n';
+    long_desc_ += in.long_desc_;
+  }
+
+  // TODO: Real set operations on tags
+
+  amin_.bulk += in.amin_.bulk;
+  amax_.bulk += in.amax_.bulk;
+  amin_.impact += in.amin_.impact;
+  amax_.impact += in.amax_.impact;
+  amin_.thread += in.amin_.thread;
+  amax_.thread += in.amax_.thread;
+  amin_.planar += in.amin_.planar;
+  amax_.planar += in.amax_.planar;
+
+  min_.weight += in.min_.weight;
+  max_.weight += in.max_.weight;
+  min_.size += in.min_.size;
+  max_.size += in.max_.size;
+  min_.volume += in.min_.volume;
+  max_.volume += in.max_.volume;
+  min_.value += in.min_.value;
+  max_.value += in.max_.value;
+
+  // FIXME: Make this sort armor correctly
+  if (loc_.empty()) {
+    loc_ = in.loc_;
+  }
 }
 
 ArmorType::ArmorType(
@@ -594,7 +988,7 @@ ArmorType::ArmorType(
     act_t l4,
     act_t l5,
     act_t l6) {
-  name_ = nm;
+  short_desc_ = nm;
   desc_ = ds;
   long_desc_ = lds;
   min_ = min;
@@ -623,7 +1017,7 @@ ItemType::ItemType(
     const std::vector<skill_pair>& sk,
     ItemAttrs min,
     ItemAttrs max) {
-  name_ = nm;
+  short_desc_ = nm;
   desc_ = ds;
   long_desc_ = lds;
   skills_ = sk;
