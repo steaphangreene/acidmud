@@ -115,7 +115,15 @@ static NPCType base_npc(
     0);
 
 // Definitions for all built-in item tags go here.
-static std::map<std::u8string_view, ItemType> itemtagdefs = {};
+static std::map<std::u8string_view, ItemType> itemtagdefs = {
+    {u8"dungeon_cage_key", // Hard-coded for dynamic mine dungeon (for now)
+     {u8"a key",
+      u8"A heavy steel key.  It looks dwarven, and very old.",
+      u8"",
+      {skill_pair{prhash(u8"Key"), 1510003}},
+      {100, 10, 20},
+      {100, 10, 20}}},
+};
 
 // Definitions for all built-in armor tags go here.
 static std::map<std::u8string_view, ArmorType> armortagdefs = {
@@ -344,6 +352,18 @@ static std::map<std::u8string_view, WeaponType> weapontagdefs = {
 
 // Definitions for all built-in NPC tags go here.
 static std::map<std::u8string_view, NPCType> npctagdefs = {
+    {u8"dungeon_cage_key", // Hard-coded for dynamic mine dungeon (for now)
+     {u8"",
+      u8"",
+      u8"",
+      {gender_t::MALE, gender_t::FEMALE, gender_t::NEITHER},
+      {},
+      {},
+      {u8"dungeon_cage_key"},
+      {0, 0, 0, 0, 0, 0},
+      {0, 0, 0, 0, 0, 0},
+      0,
+      0}},
     {u8"dwarf",
      {u8"a dwarven ",
       u8"a dwarven ",

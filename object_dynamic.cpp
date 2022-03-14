@@ -86,211 +86,7 @@ void Object::DynamicInit1() { // Dwarven mine
       u8"might collapse at any moment.\n",
       u8"The tunnel comes to an end in a rough opening here.\n"};
 
-  static NPCType* dwarf_miner;
-  static NPCType* dwarf_engineer;
-  static NPCType* dwarf_guard;
-  static NPCType* dwarf_explorer;
-  static NPCType* elf_prisoner;
-  if (!dwarf_miner) {
-    dwarf_miner = new NPCType(
-        u8"a dwarf miner",
-        u8"{He} looks pissed.",
-        u8"",
-        {gender_t::MALE, gender_t::FEMALE},
-        {},
-        {},
-        {},
-        {7, 7, 4, 5, 6, 7},
-        {9, 9, 8, 8, 14, 14},
-        500,
-        2500);
-    dwarf_miner->Skill(prhash(u8"Two-Handed Cleaves"), 100, 4);
-    dwarf_miner->Skill(prhash(u8"Accomplishment"), 1500000);
-    dwarf_miner->Arm(
-        {u8"a dwarven mining pickaxe",
-         u8"A super-strong, super-sharp, super-heavy pickaxe.",
-         u8"",
-         u8"Two-Handed Cleaves",
-         {20000, 50, 2000},
-         {20000, 50, 2000},
-         {2, 2, 3},
-         {2, 7, 3}});
-    dwarf_miner->Armor(
-        {u8"a dwarven leather jerkin",
-         u8"A heavy dwarven leather jerkin.  It'll probably stop an arrow.",
-         u8"",
-         {10000, 10, 150},
-         {10000, 10, 150},
-         {3, 2, 2, 2},
-         {3, 2, 3, 2},
-         act_t::WEAR_CHEST,
-         act_t::WEAR_BACK});
-
-    dwarf_engineer = new NPCType(
-        u8"a dwarf engineer",
-        u8"{He} looks pissed.",
-        u8"",
-        {gender_t::MALE, gender_t::FEMALE},
-        {},
-        {},
-        {},
-        {5, 7, 4, 5, 5, 7},
-        {8, 9, 9, 8, 13, 14},
-        2000,
-        10000);
-    dwarf_engineer->Skill(prhash(u8"Long Cleaves"), 100, 2);
-    dwarf_engineer->Skill(prhash(u8"Accomplishment"), 1500001);
-    dwarf_engineer->Arm(
-        {u8"a dwarven combat axe",
-         u8"A super-strong, super-sharp combat axe.",
-         u8"",
-         u8"Long Cleaves",
-         {4000, 10, 1000},
-         {4000, 10, 1000},
-         {1, 2, 2},
-         {1, 7, 2}});
-    dwarf_engineer->Armor(
-        {u8"a dwarven leather jerkin",
-         u8"A heavy dwarven leather jerkin.  It'll probably stop an arrow.",
-         u8"",
-         {10000, 10, 150},
-         {10000, 10, 150},
-         {3, 2, 2, 2},
-         {3, 2, 3, 2},
-         act_t::WEAR_CHEST,
-         act_t::WEAR_BACK});
-
-    dwarf_guard = new NPCType(
-        u8"a dwarf guard",
-        u8"{He} looks pissed.",
-        u8"",
-        {gender_t::MALE, gender_t::FEMALE},
-        {},
-        {},
-        {},
-        {9, 4, 6, 4, 9, 4},
-        {10, 7, 11, 8, 18, 8},
-        100,
-        500);
-    dwarf_guard->Skill(prhash(u8"Two-Handed Cleaves"), 100, 4);
-    dwarf_guard->Skill(prhash(u8"Accomplishment"), 1500002);
-    dwarf_guard->Arm(
-        {u8"a dwarven war axe",
-         u8"A super-strong, super-sharp, super-heavy, high-quality war axe.",
-         u8"",
-         u8"Two-Handed Cleaves",
-         {20000, 40, 5000},
-         {20000, 40, 5000},
-         {2, 2, 3},
-         {2, 5, 3}});
-    dwarf_guard->Armor(
-        {u8"a dwarven heavy breastplate",
-         u8"A heavy dwarven breastplate.  It'll probably stop a warhammer.",
-         u8"",
-         {200000, 100, 15000},
-         {200000, 100, 15000},
-         {8, 4, 6, 2},
-         {12, 6, 16, 7},
-         act_t::WEAR_CHEST,
-         act_t::WEAR_BACK});
-    dwarf_guard->Armor(
-        {u8"a dwarven great helm",
-         u8"A heavy dwarven great helm.  It'll probably stop a warhammer.",
-         u8"",
-         {50000, 70, 5000},
-         {50000, 70, 5000},
-         {8, 4, 6, 2},
-         {12, 6, 16, 7},
-         act_t::WEAR_HEAD});
-    dwarf_guard->Armor(
-        {u8"a dwarven arm plate (right)",
-         u8"A heavy dwarven arm plate.  It'll probably stop a warhammer.",
-         u8"",
-         {50000, 60, 5000},
-         {50000, 60, 5000},
-         {8, 4, 6, 2},
-         {12, 6, 16, 7},
-         act_t::WEAR_RARM});
-    dwarf_guard->Armor(
-        {u8"a dwarven arm plate (left)",
-         u8"A heavy dwarven arm plate.  It'll probably stop a warhammer.",
-         u8"",
-         {50000, 60, 5000},
-         {50000, 60, 5000},
-         {8, 4, 6, 2},
-         {12, 6, 16, 7},
-         act_t::WEAR_LARM});
-    dwarf_guard->Armor(
-        {u8"a dwarven battle skirt",
-         u8"A heavy dwarven battle skirt.  It'll probably stop a warhammer.",
-         u8"",
-         {100000, 80, 10000},
-         {100000, 80, 10000},
-         {8, 4, 6, 2},
-         {12, 6, 16, 7},
-         act_t::WEAR_RLEG,
-         act_t::WEAR_LLEG});
-    dwarf_guard->Carry(
-        {u8"a key",
-         u8"A heavy steel key.  It looks dwarven, and very old.",
-         u8"",
-         {skill_pair{prhash(u8"Key"), 1510003}},
-         {100, 10, 20},
-         {100, 10, 20}});
-
-    dwarf_explorer = new NPCType(
-        u8"a dwarf explorer",
-        u8"{He} looks pissed.",
-        u8"",
-        {gender_t::MALE, gender_t::FEMALE},
-        {},
-        {},
-        {},
-        {5, 4, 5, 4, 6, 4},
-        {8, 6, 11, 8, 17, 9},
-        1000,
-        5000);
-    dwarf_explorer->Skill(prhash(u8"Long Cleaves"), 100, 4);
-    dwarf_explorer->Skill(prhash(u8"Accomplishment"), 1500003);
-    dwarf_explorer->Arm(
-        {u8"a dwarven climbing pick",
-         u8"A super-sharp, lightweight pick.",
-         u8"",
-         u8"Long Cleaves",
-         {2000, 10, 500},
-         {2000, 10, 500},
-         {1, 1, 1},
-         {1, 3, 1}});
-    dwarf_explorer->Armor(
-        {u8"a dwarven leather jerkin",
-         u8"A heavy dwarven leather jerkin.  It'll probably stop an arrow.",
-         u8"",
-         {10000, 10, 150},
-         {10000, 10, 150},
-         {3, 2, 2, 2},
-         {3, 2, 3, 2},
-         act_t::WEAR_CHEST,
-         act_t::WEAR_BACK});
-
-    elf_prisoner = new NPCType(
-        u8"an elf slave",
-        u8"This elf looks like {he}'s been a "
-        u8"prisoner longer than you've been alive.",
-        u8"",
-        {gender_t::MALE, gender_t::FEMALE},
-        {},
-        {},
-        {},
-        {4, 2, 8, 4, 5, 2},
-        {12, 4, 15, 8, 9, 6});
-    elf_prisoner->Skill(prhash(u8"Carromeleg - Tier I"), 2);
-    elf_prisoner->Skill(prhash(u8"Carromeleg - Tier II"), 2);
-    elf_prisoner->Skill(prhash(u8"Carromeleg - Tier III"), 2);
-    elf_prisoner->Skill(prhash(u8"Carromeleg - Tier IV"), 2);
-    elf_prisoner->Skill(prhash(u8"Carromeleg - Tier V"), 2);
-    elf_prisoner->Skill(prhash(u8"Carromeleg - Tier VI"), 2);
-    elf_prisoner->Skill(prhash(u8"Accomplishment"), 1500004);
-  }
+  // TODO: Add 'dungeon_cage_key' itemtag, and npctag, here *dynamically* to add this to NPC
 
   int mojo = Skill(prhash(u8"DynamicMojo"));
   ClearSkill(prhash(u8"DynamicMojo"));
@@ -350,19 +146,21 @@ void Object::DynamicInit1() { // Dwarven mine
     case (1): { // Major Shaft
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, dwarf_miner);
+        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 10) {
         mojo -= 500;
-        AddNPC(gen, dwarf_engineer);
+        AddNPC(gen, u8"dwarf,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, dwarf_guard);
+        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+            ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, dwarf_guard);
+        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+            ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
 
       if (mojo <= 0)
@@ -394,19 +192,21 @@ void Object::DynamicInit1() { // Dwarven mine
     case (2): { // Major Shaft w/ Minor Offshoot
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, dwarf_miner);
+        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 10) {
         mojo -= 500;
-        AddNPC(gen, dwarf_engineer);
+        AddNPC(gen, u8"dwarf,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, dwarf_guard);
+        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+            ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, dwarf_guard);
+        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+            ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
 
       if (mojo <= 0)
@@ -460,19 +260,21 @@ void Object::DynamicInit1() { // Dwarven mine
     case (3): { // Major Shaft w/ Secret Minor Offshoot
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, dwarf_miner);
+        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 10) {
         mojo -= 500;
-        AddNPC(gen, dwarf_engineer);
+        AddNPC(gen, u8"dwarf,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, dwarf_guard);
+        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+            ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, dwarf_guard);
+        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+            ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
 
       if (mojo <= 0)
@@ -528,43 +330,47 @@ void Object::DynamicInit1() { // Dwarven mine
     case (4): { // Major Chamber
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, dwarf_miner);
+        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, dwarf_miner);
+        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, dwarf_miner);
+        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, dwarf_miner);
+        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 10) {
         mojo -= 500;
-        AddNPC(gen, dwarf_engineer);
+        AddNPC(gen, u8"dwarf,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
       if ((rand() % 100) < 10) {
         mojo -= 500;
-        AddNPC(gen, dwarf_engineer);
+        AddNPC(gen, u8"dwarf,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, dwarf_guard);
+        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+            ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, dwarf_guard);
+        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+            ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, dwarf_guard);
+        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+            ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, dwarf_guard);
+        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+            ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
 
       Object* cage = new Object(this);
@@ -581,11 +387,11 @@ void Object::DynamicInit1() { // Dwarven mine
 
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        cage->AddNPC(gen, elf_prisoner);
+        cage->AddNPC(gen, u8"elf,prisoner")->SetSkill(prhash(u8"Accomplishment"), 1500004);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        cage->AddNPC(gen, elf_prisoner);
+        cage->AddNPC(gen, u8"elf,prisoner")->SetSkill(prhash(u8"Accomplishment"), 1500004);
       }
 
       if (mojo <= 0)
@@ -617,19 +423,19 @@ void Object::DynamicInit1() { // Dwarven mine
     case (5): { // Minor Shaft
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, dwarf_miner);
+        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, dwarf_miner);
+        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 10) {
         mojo -= 500;
-        AddNPC(gen, dwarf_engineer);
+        AddNPC(gen, u8"dwarf,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, dwarf_explorer);
+        AddNPC(gen, u8"dwarf,explorer")->SetSkill(prhash(u8"Accomplishment"), 1500003);
       }
 
       if (mojo <= 0)
@@ -662,19 +468,19 @@ void Object::DynamicInit1() { // Dwarven mine
     case (6): { // Minor Shaft (Bend)
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, dwarf_miner);
+        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, dwarf_miner);
+        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 10) {
         mojo -= 500;
-        AddNPC(gen, dwarf_engineer);
+        AddNPC(gen, u8"dwarf,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, dwarf_explorer);
+        AddNPC(gen, u8"dwarf,explorer")->SetSkill(prhash(u8"Accomplishment"), 1500003);
       }
 
       //      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7, 8, 9 };
@@ -706,19 +512,19 @@ void Object::DynamicInit1() { // Dwarven mine
     case (7): { // Minor Shaft Fork
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, dwarf_miner);
+        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, dwarf_miner);
+        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 10) {
         mojo -= 500;
-        AddNPC(gen, dwarf_engineer);
+        AddNPC(gen, u8"dwarf,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, dwarf_explorer);
+        AddNPC(gen, u8"dwarf,explorer")->SetSkill(prhash(u8"Accomplishment"), 1500003);
       }
 
       //      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7, 8, 9 };
@@ -770,19 +576,19 @@ void Object::DynamicInit1() { // Dwarven mine
     case (8): { // Minor Shaft Alcove
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, dwarf_miner);
+        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, dwarf_miner);
+        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 10) {
         mojo -= 500;
-        AddNPC(gen, dwarf_engineer);
+        AddNPC(gen, u8"dwarf,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, dwarf_explorer);
+        AddNPC(gen, u8"dwarf,explorer")->SetSkill(prhash(u8"Accomplishment"), 1500003);
       }
 
       if (mojo <= 0)
