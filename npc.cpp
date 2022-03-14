@@ -31,8 +31,6 @@
 #include "properties.hpp"
 #include "utils.hpp"
 
-bool load_tags_from(const Object* world, const std::u8string_view& tagdefs);
-
 struct ItemAttrs {
   int weight;
   int size;
@@ -931,8 +929,7 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
 
   if (!itemtagdefs.contains(World())) {
     // Definitions for all built-in item tags go here.
-    load_tags_from(
-        World(),
+    World()->LoadTagsFrom(
         u8"tag:item:dungeon_cage_key\n"
         u8"short:a key\n"
         u8"desc:A heavy steel key.  It looks dwarven, and very old.\n"
@@ -1375,33 +1372,33 @@ bool ItemType::LoadFrom(std::u8string_view& def) {
   return true;
 }
 
-bool load_tags_from(const Object* world, const std::u8string_view& tagdefs) {
+bool Object::LoadTagsFrom(const std::u8string_view& tagdefs) const {
   std::u8string_view defs = tagdefs;
 
   skipspace(defs);
   while (process(defs, u8"tag:")) {
     if (process(defs, u8"npc:")) {
       std::u8string tag(getuntil(defs, '\n'));
-      if (!npctagdefs[world].try_emplace(tag, defs).second) {
-        loger(u8"Duplicate NPC tag '{}' insertion into {} rejected.\n", tag, world->ShortDesc());
+      if (!npctagdefs[this].try_emplace(tag, defs).second) {
+        loger(u8"Duplicate NPC tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
       }
     } else if (process(defs, u8"weapon:")) {
       std::u8string tag(getuntil(defs, '\n'));
-      if (!weapontagdefs[world].try_emplace(tag, defs).second) {
-        loger(u8"Duplicate Weapon tag '{}' insertion into {} rejected.\n", tag, world->ShortDesc());
+      if (!weapontagdefs[this].try_emplace(tag, defs).second) {
+        loger(u8"Duplicate Weapon tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
       }
     } else if (process(defs, u8"armor:")) {
       std::u8string tag(getuntil(defs, '\n'));
-      if (!armortagdefs[world].try_emplace(tag, defs).second) {
-        loger(u8"Duplicate Armor tag '{}' insertion into {} rejected.\n", tag, world->ShortDesc());
+      if (!armortagdefs[this].try_emplace(tag, defs).second) {
+        loger(u8"Duplicate Armor tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
       }
     } else if (process(defs, u8"item:")) {
       std::u8string tag(getuntil(defs, '\n'));
-      if (!itemtagdefs[world].try_emplace(tag, defs).second) {
-        loger(u8"Duplicate Item tag '{}' insertion into {} rejected.\n", tag, world->ShortDesc());
+      if (!itemtagdefs[this].try_emplace(tag, defs).second) {
+        loger(u8"Duplicate Item tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
       }
     } else {

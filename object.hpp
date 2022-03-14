@@ -614,6 +614,7 @@ class alignas(256) Object {
   int LooksLike(Object* other, int vmode = 0, Object* viewer = nullptr) const;
 
   Object* AddNPC(std::mt19937&, const std::u8string_view& tags);
+  bool LoadTagsFrom(const std::u8string_view& tagdefs) const;
 
   static void FreeActions();
 
