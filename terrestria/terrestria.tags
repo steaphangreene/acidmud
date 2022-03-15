@@ -242,3 +242,147 @@ skill:Two-Handed Blades
 reach:1
 force:1-0
 severity:1
+
+tag:armor:shirt
+short:a shirt
+desc:A shirt.
+weight:100-200
+size:10-15
+volume:10-15
+value:5-10
+
+tag:armor:jerkin
+short:a jerkin
+desc:A jerkin.
+weight:500-1000
+size:100-200
+volume:600-800
+value:50-75
+bulk:0-1
+impact:0-1
+thread:0-1
+
+tag:armor:leather
+short:a leather 
+desc:A leather 
+weight:500-1000
+volume:200-400
+value:200-300
+bulk:1
+impact:1
+planar:1
+
+tag:armor:steel
+short:a steel 
+desc:A steel 
+weight:2000-3000
+volume:500-800
+value:600-800
+thread:2
+planar:4-6
+
+tag:armor:dwarven
+short:a dwarven 
+desc:A dwarven 
+weight:500-1000
+volume:100-200
+value:500-800
+bulk:0-1
+impact:0-1
+planar:0-1
+
+tag:armor:heavy
+short:
+desc:A heavy 
+weight:1000-2000
+volume:100-200
+value:500-800
+bulk:1-0
+impact:0-1
+
+tag:armor:breastplate
+short:breastplate
+desc:A breastplate.
+weight:20000-25000
+size:100-200
+volume:100-200
+value:2000-3000
+bulk:6-10
+impact:4-6
+thread:2-6
+planar:1-2
+wear:CHEST,BACK
+
+tag:armor:great helm
+short:a great helm
+desc:A great helm.
+weight:2000-2500
+size:100-200
+volume:100-200
+value:2000-3000
+bulk:6-10
+impact:4-6
+thread:2-6
+planar:1-2
+wear:HEAD
+
+tag:armor:helm
+short:a helm
+desc:A helm.
+weight:1000-2000
+size:100-200
+volume:100-200
+value:2000-3000
+bulk:6-10
+impact:4-6
+thread:2-6
+planar:1-2
+wear:HEAD
+
+tag:armor:right arm plate
+short:an arm plate (right)
+desc:An arm plate.
+weight:2000-2500
+size:100-200
+volume:100-200
+value:2000-3000
+bulk:6-10
+impact:4-6
+thread:2-6
+planar:1-2
+wear:RARM
+
+tag:armor:left arm plate
+short:an arm plate (left)
+desc:An arm plate.
+weight:2000-2500
+size:100-200
+volume:100-200
+value:2000-3000
+bulk:6-10
+impact:4-6
+thread:2-6
+planar:1-2
+wear:LARM
+
+tag:armor:battle skirt
+short:a battle skirt
+desc:A battle skirt.
+weight:5000-6000
+size:500-600
+volume:400-600
+value:1000-2000
+bulk:6-10
+impact:4-6
+thread:2-6
+planar:1-2
+wear:RLEG,LLEG
+
+tag:armor:shield
+short:a shield
+desc:A shield.
+weight:2000-4000
+size:800-1200
+volume:800-1200
+value:500-800
+wear:SHIELD
