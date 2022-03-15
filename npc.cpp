@@ -733,8 +733,8 @@ void WeaponType::operator+=(const WeaponType& in) {
   } else if (two_handed(wtype_)) { // Convert Long to Two-Handed
     wtype_ = in.wtype_ + get_weapon_type(u8"Two-Handed Blades") - get_weapon_type(u8"Long Blades");
   } else {
+    logey(u8"Warning: No idea how to combine weapon types {} and {}.\n", wtype_, in.wtype_);
     wtype_ = in.wtype_;
-    logey(u8"Warning: No idea how to combine weapon types {} and {}.", wtype_, in.wtype_);
   }
 }
 
