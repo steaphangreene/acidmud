@@ -139,3 +139,106 @@ c:2-2
 i:2-2
 w:2-2
 gold:1000-2000
+
+tag:weapon:spear
+short:a spear
+desc:A spear.
+skill:Long Piercing
+weight:1000
+size:2000
+volume:100
+value:10
+reach:2
+force:-2-2
+severity:2
+
+tag:weapon:sword
+short:a sword
+desc:A sword.
+skill:Long Blades
+weight:1000
+size:1000
+volume:100
+value:100
+reach:1
+force:-2-2
+severity:2
+
+tag:weapon:axe
+short:an axe
+desc:An axe.
+skill:Long Cleaves
+weight:1000
+size:1000
+volume:100
+value:100
+reach:1
+force:-2-2
+severity:2
+
+tag:weapon:pick
+short:a pick
+desc:A pick.
+skill:Long Cleaves
+weight:1000
+size:1000
+volume:100
+value:100
+reach:1
+force:-2-2
+severity:2
+
+tag:weapon:pickaxe
+short:a pickaxe
+desc:A pickaxe.
+skill:Two-Handed Cleaves
+weight:1000
+size:1000
+volume:100
+value:100
+reach:2
+force:-2-0
+severity:3
+
+tag:weapon:dwarven
+short:dwarven 
+desc:A super-strong 
+force:1
+
+tag:weapon:combat
+short:combat 
+desc:A combat 
+force:1-2
+
+tag:weapon:climbing
+short:a climbing 
+desc:A lightweight 
+weight:-500
+force:2-4
+severity:-1
+
+tag:weapon:sharp
+desc:A super-sharp 
+force:1
+
+tag:weapon:heavy
+desc:A super-heavy 
+weight:1000
+force:2
+
+tag:weapon:light
+desc:A super-light 
+weight:-500
+force:-2-0
+
+tag:weapon:high-quality
+desc:A high-quality 
+force:1
+
+tag:weapon:war
+short:a war 
+desc:A war 
+skill:Two-Handed Blades
+reach:1
+force:1-0
+severity:1
