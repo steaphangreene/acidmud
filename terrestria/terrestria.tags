@@ -176,6 +176,18 @@ reach:1
 force:-2-2
 severity:2
 
+tag:weapon:hammer
+short:a hammer
+desc:A hammer.
+skill:Long Crushing
+weight:1000
+size:1000
+volume:100
+value:100
+reach:1
+force:-1-1
+severity:2
+
 tag:weapon:pick
 short:a pick
 desc:A pick.
@@ -233,7 +245,7 @@ force:-2-0
 
 tag:weapon:high-quality
 desc:A high-quality 
-force:1
+force:0-2
 
 tag:weapon:war
 short:a war 
@@ -299,6 +311,13 @@ volume:100-200
 value:500-800
 bulk:1-0
 impact:0-1
+
+tag:armor:high-quality
+desc:A high-quality 
+bulk:0-1
+impact:0-1
+thread:0-1
+planar:0-1
 
 tag:armor:breastplate
 short:breastplate
