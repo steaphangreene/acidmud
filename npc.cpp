@@ -40,13 +40,6 @@ struct ItemAttrs {
 
 class ItemType {
  public:
-  ItemType(
-      const std::u8string& nm,
-      const std::u8string& ds,
-      const std::u8string& lds,
-      const std::vector<skill_pair>& sk,
-      ItemAttrs min,
-      ItemAttrs max);
   ItemType(const std::u8string_view& tagdef);
   ItemType(std::u8string_view& tagdef);
   bool LoadFrom(std::u8string_view& tagdef);
@@ -66,20 +59,6 @@ struct ArmorAttrs {
 
 class ArmorType {
  public:
-  ArmorType(
-      const std::u8string& nm,
-      const std::u8string& ds,
-      const std::u8string& lds,
-      ItemAttrs min,
-      ItemAttrs max,
-      ArmorAttrs amin,
-      ArmorAttrs amax,
-      act_t l1 = act_t::NONE,
-      act_t l2 = act_t::NONE,
-      act_t l3 = act_t::NONE,
-      act_t l4 = act_t::NONE,
-      act_t l5 = act_t::NONE,
-      act_t l6 = act_t::NONE);
   void operator+=(const ArmorType&);
   ArmorType(const std::u8string_view& tagdef);
   ArmorType(std::u8string_view& tagdef);
@@ -101,15 +80,6 @@ struct WeaponAttrs {
 
 class WeaponType {
  public:
-  WeaponType(
-      const std::u8string& nm,
-      const std::u8string& ds,
-      const std::u8string& lds,
-      const std::u8string& t,
-      ItemAttrs min,
-      ItemAttrs max,
-      WeaponAttrs wmin,
-      WeaponAttrs wmax);
   void operator+=(const WeaponType&);
   WeaponType(const std::u8string_view& tagdef);
   WeaponType(std::u8string_view& tagdef);
@@ -129,18 +99,6 @@ struct NPCAttrs {
 
 class NPCType {
  public:
-  NPCType(
-      const std::u8string& sds,
-      const std::u8string& ds,
-      const std::u8string& lds,
-      const std::vector<gender_t>& gens,
-      const std::vector<std::u8string_view>& weapons,
-      const std::vector<std::u8string_view>& armor,
-      const std::vector<std::u8string_view>& items,
-      NPCAttrs min,
-      NPCAttrs max,
-      int gmin = 0,
-      int gmax = 0);
   void operator+=(const NPCType&);
   NPCType(const std::u8string_view& tagdef);
   NPCType(std::u8string_view& tagdef);
@@ -247,17 +205,17 @@ static int rint3(auto& gen, int min, int max) { // Bell-Curve-Ish
 }
 
 static NPCType base_npc(
-    u8"a person",
-    u8"{He} seems normal.",
-    u8"",
-    {gender_t::MALE, gender_t::FEMALE},
-    {u8"spear"},
-    {u8"shirt"},
-    {u8"pack"},
-    {1, 1, 1, 1, 1, 1},
-    {7, 7, 7, 7, 7, 7},
-    0,
-    0);
+    u8"short:a person\n"
+    u8"desc:{He} seems normal.\n"
+    u8"wtag:spear\n"
+    u8"atag:shirt\n"
+    u8"itag:pack\n"
+    u8"b:1-7\n"
+    u8"q:1-7\n"
+    u8"s:1-7\n"
+    u8"c:1-7\n"
+    u8"i:1-7\n"
+    u8"w:1-7\n");
 
 static std::map<act_t, std::u8string> wear_attribs = {
     {act_t::WEAR_BACK, u8"Wearable on Back"},
@@ -344,32 +302,6 @@ static void add_pouch(Object* npc) {
 
   bag->SetPos(pos_t::LIE);
   npc->AddAct(act_t::WEAR_RHIP, bag);
-}
-
-NPCType::NPCType(
-    const std::u8string& sds,
-    const std::u8string& ds,
-    const std::u8string& lds,
-    const std::vector<gender_t>& gens,
-    const std::vector<std::u8string_view>& weapons,
-    const std::vector<std::u8string_view>& armor,
-    const std::vector<std::u8string_view>& items,
-    NPCAttrs min,
-    NPCAttrs max,
-    int gmin,
-    int gmax) {
-  short_desc_ = sds;
-  desc_ = ds;
-  long_desc_ = lds;
-  genders_ = gens;
-  min_ = min;
-  max_ = max;
-  min_gold_ = gmin;
-  max_gold_ = gmax;
-
-  wtags_.insert(wtags_.end(), weapons.begin(), weapons.end());
-  atags_.insert(atags_.end(), armor.begin(), armor.end());
-  itags_.insert(itags_.end(), items.begin(), items.end());
 }
 
 static bool intparam(std::u8string_view& line, const std::u8string_view& lab, int& min, int& max) {
@@ -738,25 +670,6 @@ void WeaponType::operator+=(const WeaponType& in) {
   }
 }
 
-WeaponType::WeaponType(
-    const std::u8string& nm,
-    const std::u8string& ds,
-    const std::u8string& lds,
-    const std::u8string& t,
-    ItemAttrs min,
-    ItemAttrs max,
-    WeaponAttrs wmin,
-    WeaponAttrs wmax) {
-  short_desc_ = nm;
-  desc_ = ds;
-  long_desc_ = lds;
-  wtype_ = get_weapon_type(t);
-  wmin_ = wmin;
-  wmax_ = wmax;
-  min_ = min;
-  max_ = max;
-}
-
 void ArmorType::operator+=(const ArmorType& in) {
   // TODO: Real string compositions
   short_desc_ = desc_merge(short_desc_, in.short_desc_);
@@ -790,57 +703,6 @@ void ArmorType::operator+=(const ArmorType& in) {
   if (loc_.empty()) {
     loc_ = in.loc_;
   }
-}
-
-ArmorType::ArmorType(
-    const std::u8string& nm,
-    const std::u8string& ds,
-    const std::u8string& lds,
-    ItemAttrs min,
-    ItemAttrs max,
-    ArmorAttrs amin,
-    ArmorAttrs amax,
-    act_t l1,
-    act_t l2,
-    act_t l3,
-    act_t l4,
-    act_t l5,
-    act_t l6) {
-  short_desc_ = nm;
-  desc_ = ds;
-  long_desc_ = lds;
-  min_ = min;
-  max_ = max;
-  amin_ = amin;
-  amax_ = amax;
-
-  if (l1 != act_t::NONE)
-    loc_.push_back(l1);
-  if (l2 != act_t::NONE)
-    loc_.push_back(l2);
-  if (l3 != act_t::NONE)
-    loc_.push_back(l3);
-  if (l4 != act_t::NONE)
-    loc_.push_back(l4);
-  if (l5 != act_t::NONE)
-    loc_.push_back(l5);
-  if (l6 != act_t::NONE)
-    loc_.push_back(l6);
-}
-
-ItemType::ItemType(
-    const std::u8string& nm,
-    const std::u8string& ds,
-    const std::u8string& lds,
-    const std::vector<skill_pair>& pr,
-    ItemAttrs min,
-    ItemAttrs max) {
-  short_desc_ = nm;
-  desc_ = ds;
-  long_desc_ = lds;
-  props_ = pr;
-  min_ = min;
-  max_ = max;
 }
 
 NPCType::NPCType(const std::u8string_view& tagdef) {
