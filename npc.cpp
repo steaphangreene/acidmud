@@ -374,6 +374,7 @@ NPCType::NPCType(
 
 static bool intparam(std::u8string_view& line, const std::u8string_view& lab, int& min, int& max) {
   if (process(line, lab)) {
+    skipspace(line);
     min = nextnum(line);
     skipspace(line);
     if (line.length() > 0 && nextchar(line) == '-') {
@@ -1079,8 +1080,10 @@ NPCType::NPCType(std::u8string_view& tagdef) {
 }
 
 bool NPCType::LoadFrom(std::u8string_view& def) {
+  skipspace(def);
   while (def.length() > 0 && !def.starts_with(u8"tag:")) {
     auto line = getuntil(def, '\n');
+    skipspace(def); // Ignore indentation, blank lines, etc.
     if (process(line, u8"short:")) {
       short_desc_ = std::u8string(getuntil(line, '\n'));
     } else if (process(line, u8"desc:")) {
