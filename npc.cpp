@@ -436,7 +436,6 @@ static std::u8string desc_merge(std::u8string_view d1, std::u8string_view d2) {
 }
 
 void NPCType::operator+=(const NPCType& in) {
-  // TODO: Real string compositions
   short_desc_ = desc_merge(short_desc_, in.short_desc_);
   desc_ = desc_merge(desc_, in.desc_);
   if (in.long_desc_ != u8"") {
@@ -721,7 +720,6 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
 }
 
 void WeaponType::operator+=(const WeaponType& in) {
-  // TODO: Real string compositions
   short_desc_ = desc_merge(short_desc_, in.short_desc_);
   desc_ = desc_merge(desc_, in.desc_);
   if (in.long_desc_ != u8"") {
@@ -762,7 +760,6 @@ void WeaponType::operator+=(const WeaponType& in) {
 }
 
 void ArmorType::operator+=(const ArmorType& in) {
-  // TODO: Real string compositions
   short_desc_ = desc_merge(short_desc_, in.short_desc_);
   desc_ = desc_merge(desc_, in.desc_);
   if (in.long_desc_ != u8"") {
