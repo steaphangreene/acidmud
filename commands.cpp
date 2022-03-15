@@ -6582,7 +6582,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     if (args.empty()) {
       mind->Send(u8"You need to specify in what direction!\n");
     } else {
-      Object* box = new Object(body->Parent()->Parent());
+      Object* box = new Object(body->World()); // It's in its own zone.
       Object* next = new Object(box);
       std::u8string dirb = u8"south";
       std::u8string dir = u8"north";
