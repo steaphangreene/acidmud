@@ -534,22 +534,16 @@ void NPCType::FinalizeItemTags(const std::map<std::u8string, ItemType>& tagdefs)
 
 Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
   if (!npctagdefs.contains(World())) {
-    // Definitions for all built-in NPC tags go here.
+    if (!World()->LoadTags()) {
+      loger(u8"ERROR: Asked to load NPC in a world with no tags defined.\n");
+    }
   }
 
-  if (!weapontagdefs.contains(World())) {
-    // Definitions for all built-in weapon tags go here.
-    weapontagdefs[World()] = {};
-  }
-
-  if (!armortagdefs.contains(World())) {
-    // Definitions for all built-in armor tags go here.
-    armortagdefs[World()] = {};
-  }
-
-  if (!itemtagdefs.contains(World())) {
-    // Definitions for all built-in item tags go here.
-  }
+  // Make sure these all exist, even if they remain empty.
+  npctagdefs[World()];
+  weapontagdefs[World()];
+  armortagdefs[World()];
+  itemtagdefs[World()];
 
   // Merge Given NPC Tags into new NPC Def
   auto npcdef = base_npc;
@@ -978,7 +972,28 @@ bool ItemType::LoadFrom(std::u8string_view& def) {
   return true;
 }
 
+bool Object::LoadTags() const {
+  // Make sure these all exist, even if they remain empty.
+  npctagdefs[this];
+  weapontagdefs[this];
+  armortagdefs[this];
+  itemtagdefs[this];
+
+  Object* data = PickObject(u8"world data: defined tags", LOC_INTERNAL | LOC_NINJA);
+  if (data) {
+    return LoadTagsFrom(data->LongDesc());
+  }
+  loger(u8"ERROR: Failed Loading Saved Tags Into World: '{}'!\n", ShortDesc());
+  return false;
+}
+
 bool Object::LoadTagsFrom(const std::u8string_view& tagdefs) const {
+  // Make sure these all exist, even if they remain empty.
+  npctagdefs[this];
+  weapontagdefs[this];
+  armortagdefs[this];
+  itemtagdefs[this];
+
   std::u8string_view defs = tagdefs;
 
   skipspace(defs);

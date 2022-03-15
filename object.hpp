@@ -618,6 +618,7 @@ class alignas(256) Object {
 
   Object* AddNPC(std::mt19937&, const std::u8string_view& tags);
   bool LoadTagsFrom(const std::u8string_view& tagdefs) const;
+  bool LoadTags() const;
 
   static void FreeActions();
 
