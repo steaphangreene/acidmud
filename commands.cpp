@@ -6623,6 +6623,17 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
           dirb,
           std::u8string(u8"You see a solid passage leading ") + dirb + u8".\n");
 
+      body->World()->LoadTagsFrom( // Load the special tags for this scenario into this world.
+          u8"tag:npc:dungeon_cage_key\n"
+          u8"itag:dungeon_cage_key\n"
+          u8"tag:item:dungeon_cage_key\n"
+          u8"short:a key\n"
+          u8"desc:A heavy steel key.  It looks dwarven, and very old.\n"
+          u8"prop:Key:1510003\n"
+          u8"weight:100\n"
+          u8"size:10\n"
+          u8"volume:20\n");
+
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,

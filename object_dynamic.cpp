@@ -85,17 +85,6 @@ void Object::DynamicInit1() { // Dwarven mine
       u8"might collapse at any moment.\n",
       u8"The tunnel comes to an end in a rough opening here.\n"};
 
-  World()->LoadTagsFrom( // Load the special tags for this scenario into the current world.
-      u8"tag:npc:dungeon_cage_key\n"
-      u8"itag:dungeon_cage_key\n"
-      u8"tag:item:dungeon_cage_key\n"
-      u8"short:a key\n"
-      u8"desc:A heavy steel key.  It looks dwarven, and very old.\n"
-      u8"prop:Key:1510003\n"
-      u8"weight:100\n"
-      u8"size:10\n"
-      u8"volume:20\n");
-
   int mojo = Skill(prhash(u8"DynamicMojo"));
   ClearSkill(prhash(u8"DynamicMojo"));
 
