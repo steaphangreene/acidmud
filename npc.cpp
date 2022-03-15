@@ -116,7 +116,7 @@ class WeaponType {
   bool LoadFrom(std::u8string_view& tagdef);
   std::u8string short_desc_, desc_, long_desc_;
   std::vector<skill_pair> props_;
-  int wtype_;
+  int wtype_ = 0;
   WeaponAttrs wmin_ = {0, 0, 0};
   WeaponAttrs wmax_ = {0, 0, 0};
   ItemAttrs min_ = {0, 0, 0, 0};
@@ -537,8 +537,7 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
 
   if (!weapontagdefs.contains(World())) {
     // Definitions for all built-in weapon tags go here.
-    weapontagdefs[World()] = {
-    };
+    weapontagdefs[World()] = {};
   }
 
   if (!armortagdefs.contains(World())) {
@@ -850,8 +849,17 @@ void WeaponType::operator+=(const WeaponType& in) {
   min_.value += in.min_.value;
   max_.value += in.max_.value;
 
-  if (in.wtype_ != 0) {
+  if (wtype_ == 0) {
     wtype_ = in.wtype_;
+  } else if (in.wtype_ == 0) {
+  } else if (wtype_ == in.wtype_) {
+  } else if (two_handed(in.wtype_)) { // Convert Long to Two-Handed
+    wtype_ += get_weapon_type(u8"Two-Handed Blades") - get_weapon_type(u8"Long Blades");
+  } else if (two_handed(wtype_)) { // Convert Long to Two-Handed
+    wtype_ = in.wtype_ + get_weapon_type(u8"Two-Handed Blades") - get_weapon_type(u8"Long Blades");
+  } else {
+    wtype_ = in.wtype_;
+    logey(u8"Warning: No idea how to combine weapon types {} and {}.", wtype_, in.wtype_);
   }
 }
 
@@ -1023,6 +1031,8 @@ bool WeaponType::LoadFrom(std::u8string_view& def) {
       desc_ = std::u8string(getuntil(line, '\n'));
     } else if (process(line, u8"long:")) {
       long_desc_ = std::u8string(getuntil(line, '\n'));
+    } else if (process(line, u8"skill:")) {
+      wtype_ = get_weapon_type(getuntil(line, '\n'));
     } else if (process(line, u8"prop:")) {
       auto sname = getuntil(line, ':');
       int32_t sval = getnum(line);
