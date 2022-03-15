@@ -386,3 +386,15 @@ size:800-1200
 volume:800-1200
 value:500-800
 wear:SHIELD
+
+tag:item:dwarven
+short:a dwarven 
+desc:A well-made
+long:This was clearly made by dwarves.  It should last forever.
+
+tag:item:pack
+short:a pack 
+desc:A pack
+long:A simple pack for holding items.  This can be quickly thrown over one shoulder for easy portability.
+wear:RSHOULDER
+wear:LSHOULDER
