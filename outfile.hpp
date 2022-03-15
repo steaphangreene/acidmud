@@ -36,7 +36,9 @@ class outfile {
   operator bool() const;
   void append(const std::u8string_view& mes);
   template <typename... Args>
-  void append(const std::u8string_view& mes, Args&&... args) {
+  void append(const std::u8string_view& mes, Args&&... args)
+    requires(sizeof...(args) >= 1)
+  {
     append(fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)));
   };
   ~outfile();

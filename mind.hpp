@@ -88,9 +88,10 @@ class Mind {
 
   bool Send(const std::u8string_view&); // Returns false when mind needs to be deleted
   template <typename S, typename... Args>
-  bool Send(const S& mes, Args&&... args) {
-    return Send(
-        std::u8string_view(fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...))));
+  bool Send(const S& mes, Args&&... args)
+    requires(sizeof...(args) >= 1)
+  {
+    return Send(fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)));
   };
 
   void UpdatePrompt();

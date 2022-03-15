@@ -535,18 +535,17 @@ class alignas(256) Object {
   // Unformatted (raw print, but with ;s/;s for actor/targ)
   void Send(channel_t channel, const std::u8string_view& mes);
   template <typename S, typename... Args>
-  void Send(channel_t channel, const S& mes, Args&&... args) {
-    Send(
-        channel,
-        std::u8string_view(fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...))));
+  void Send(channel_t channel, const S& mes, Args&&... args)
+    requires(sizeof...(args) >= 1)
+  {
+    Send(channel, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)));
   };
   void Send(int targ, int rsucc, const std::u8string_view& mes);
   template <typename S, typename... Args>
-  void Send(int targ, int rsucc, const S& mes, Args&&... args) {
-    Send(
-        targ,
-        rsucc,
-        std::u8string_view(fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...))));
+  void Send(int targ, int rsucc, const S& mes, Args&&... args)
+    requires(sizeof...(args) >= 1)
+  {
+    Send(targ, rsucc, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)));
   };
   void SendOut(
       int tnum,
@@ -564,7 +563,9 @@ class alignas(256) Object {
       const Sy& youmes,
       Object* actor,
       Object* targ,
-      Args&&... args) {
+      Args&&... args)
+    requires(sizeof...(args) >= 1)
+  {
     SendOut(
         tnum,
         rsucc,
@@ -575,7 +576,9 @@ class alignas(256) Object {
   };
   void Loud(int str, const std::u8string& mes);
   template <typename S, typename... Args>
-  void Loud(int str, const S& mes, Args&&... args) {
+  void Loud(int str, const S& mes, Args&&... args)
+    requires(sizeof...(args) >= 1)
+  {
     Loud(str, fmt::vformat(mes, fmt::make_args_checked<Args...>(mes, args...)));
   };
 
