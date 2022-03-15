@@ -46,6 +46,7 @@ class ItemType {
   void operator+=(const ItemType&);
   std::u8string short_desc_, desc_, long_desc_;
   std::vector<skill_pair> props_;
+  std::vector<std::vector<act_t>> loc_;
   ItemAttrs min_ = {0, 0, 0, 0};
   ItemAttrs max_ = {0, 0, 0, 0};
 };
@@ -65,7 +66,7 @@ class ArmorType {
   bool LoadFrom(std::u8string_view& tagdef);
   std::u8string short_desc_, desc_, long_desc_;
   std::vector<skill_pair> props_;
-  std::vector<act_t> loc_;
+  std::vector<std::vector<act_t>> loc_;
   ItemAttrs min_ = {0, 0, 0, 0};
   ItemAttrs max_ = {0, 0, 0, 0};
   ArmorAttrs amin_ = {0, 0, 0, 0};
@@ -315,6 +316,89 @@ static bool intparam(std::u8string_view& line, const std::u8string_view& lab, in
       skipspace(line);
     } else {
       max = min;
+    }
+    return true;
+  } else {
+    return false;
+  }
+}
+
+static bool wearparam(std::u8string_view& line, std::vector<std::vector<act_t>>& defs) {
+  if (process(line, u8"wear:")) {
+    defs.push_back(std::vector<act_t>());
+    while (line.length() > 0) {
+      std::u8string wearstr(getuntil(line, ','));
+      std::transform(wearstr.begin(), wearstr.end(), wearstr.begin(), ascii_toupper);
+      std::u8string_view wear = wearstr;
+      if (wear.starts_with(u8"SHIE")) {
+        defs.back().push_back(act_t::WEAR_SHIELD);
+      } else if (wear.starts_with(u8"BACK")) {
+        defs.back().push_back(act_t::WEAR_BACK);
+      } else if (wear.starts_with(u8"CHES")) {
+        defs.back().push_back(act_t::WEAR_CHEST);
+      } else if (wear.starts_with(u8"HEAD")) {
+        defs.back().push_back(act_t::WEAR_HEAD);
+      } else if (wear.starts_with(u8"FACE")) {
+        defs.back().push_back(act_t::WEAR_FACE);
+      } else if (wear.starts_with(u8"NECK")) {
+        defs.back().push_back(act_t::WEAR_NECK);
+      } else if (wear.starts_with(u8"COLL")) {
+        defs.back().push_back(act_t::WEAR_COLLAR);
+      } else if (wear.starts_with(u8"WAIS")) {
+        defs.back().push_back(act_t::WEAR_WAIST);
+      } else if (
+          process(wear, u8"LEFT_") || process(wear, u8"LEFT.") || process(wear, u8"LEFT ") ||
+          process(wear, u8"LEFT") || process(wear, u8"L_") || process(wear, u8"L.") ||
+          process(wear, u8"L ") || process(wear, u8"L")) {
+        if (wear.starts_with(u8"ARM")) {
+          defs.back().push_back(act_t::WEAR_LARM);
+        } else if (wear.starts_with(u8"ARM")) {
+          defs.back().push_back(act_t::WEAR_LARM);
+        } else if (wear.starts_with(u8"FIN")) {
+          defs.back().push_back(act_t::WEAR_LFINGER);
+        } else if (wear.starts_with(u8"FOO")) {
+          defs.back().push_back(act_t::WEAR_LFOOT);
+        } else if (wear.starts_with(u8"HAN")) {
+          defs.back().push_back(act_t::WEAR_LHAND);
+        } else if (wear.starts_with(u8"LEG")) {
+          defs.back().push_back(act_t::WEAR_LLEG);
+        } else if (wear.starts_with(u8"SHO")) {
+          defs.back().push_back(act_t::WEAR_LSHOULDER);
+        } else if (wear.starts_with(u8"WRI")) {
+          defs.back().push_back(act_t::WEAR_LWRIST);
+        } else if (wear.starts_with(u8"HIP")) {
+          defs.back().push_back(act_t::WEAR_LHIP);
+        } else {
+          loger(u8"ERROR: Unknown left wear location: '{}'\n", line);
+        }
+      } else if (
+          process(wear, u8"RIGHT_") || process(wear, u8"RIGHT.") || process(wear, u8"RIGHT ") ||
+          process(wear, u8"RIGHT") || process(wear, u8"R_") || process(wear, u8"R.") ||
+          process(wear, u8"R ") || process(wear, u8"R")) {
+        if (wear.starts_with(u8"ARM")) {
+          defs.back().push_back(act_t::WEAR_RARM);
+        } else if (wear.starts_with(u8"ARM")) {
+          defs.back().push_back(act_t::WEAR_RARM);
+        } else if (wear.starts_with(u8"FIN")) {
+          defs.back().push_back(act_t::WEAR_RFINGER);
+        } else if (wear.starts_with(u8"FOO")) {
+          defs.back().push_back(act_t::WEAR_RFOOT);
+        } else if (wear.starts_with(u8"HAN")) {
+          defs.back().push_back(act_t::WEAR_RHAND);
+        } else if (wear.starts_with(u8"LEG")) {
+          defs.back().push_back(act_t::WEAR_RLEG);
+        } else if (wear.starts_with(u8"SHO")) {
+          defs.back().push_back(act_t::WEAR_RSHOULDER);
+        } else if (wear.starts_with(u8"WRI")) {
+          defs.back().push_back(act_t::WEAR_RWRIST);
+        } else if (wear.starts_with(u8"HIP")) {
+          defs.back().push_back(act_t::WEAR_RHIP);
+        } else {
+          loger(u8"ERROR: Unknown right wear location: '{}'\n", line);
+        }
+      } else {
+        loger(u8"ERROR: Unknown wear location: '{}'\n", line);
+      }
     }
     return true;
   } else {
@@ -586,9 +670,15 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
     obj->SetValue(rint3(gen, ar.min_.value, ar.max_.value));
     obj->SetPos(pos_t::LIE);
 
-    for (auto loc : ar.loc_) {
-      obj->SetSkill(wear_attribs[loc], 1);
-      npc->AddAct(loc, obj);
+    int modenum = 1;
+    for (auto mode : ar.loc_) {
+      for (auto loc : mode) {
+        obj->SetSkill(wear_attribs[loc], modenum);
+        if (modenum == 1) {
+          npc->AddAct(loc, obj);
+        }
+      }
+      modenum *= 2;
     }
   }
 
@@ -624,6 +714,17 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
       obj->SetVolume(rint3(gen, it.min_.volume, it.max_.volume));
       obj->SetValue(rint3(gen, it.min_.value, it.max_.value));
       obj->SetPos(pos_t::LIE);
+
+      int modenum = 1;
+      for (auto mode : it.loc_) {
+        for (auto loc : mode) {
+          obj->SetSkill(wear_attribs[loc], modenum);
+          if (modenum == 1) {
+            npc->AddAct(loc, obj);
+          }
+        }
+        modenum *= 2;
+      }
     }
   }
   return npc;
@@ -821,6 +922,7 @@ bool ArmorType::LoadFrom(std::u8string_view& def) {
       auto sname = getuntil(line, ':');
       int32_t sval = getnum(line);
       props_.push_back({crc32c(sname), sval});
+    } else if (wearparam(line, loc_)) {
     } else if (intparam(line, u8"weight:", min_.weight, max_.weight)) {
     } else if (intparam(line, u8"size:", min_.size, max_.size)) {
     } else if (intparam(line, u8"volume:", min_.volume, max_.volume)) {
@@ -863,6 +965,7 @@ bool ItemType::LoadFrom(std::u8string_view& def) {
       auto sname = getuntil(line, ':');
       int32_t sval = getnum(line);
       props_.push_back({crc32c(sname), sval});
+    } else if (wearparam(line, loc_)) {
     } else if (intparam(line, u8"weight:", min_.weight, max_.weight)) {
     } else if (intparam(line, u8"size:", min_.size, max_.size)) {
     } else if (intparam(line, u8"volume:", min_.volume, max_.volume)) {
