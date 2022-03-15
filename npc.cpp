@@ -1041,6 +1041,9 @@ bool WeaponType::LoadFrom(std::u8string_view& def) {
     } else if (intparam(line, u8"size:", min_.size, max_.size)) {
     } else if (intparam(line, u8"volume:", min_.volume, max_.volume)) {
     } else if (intparam(line, u8"value:", min_.value, max_.value)) {
+    } else if (intparam(line, u8"reach:", wmin_.reach, wmax_.reach)) {
+    } else if (intparam(line, u8"force:", wmin_.force, wmax_.force)) {
+    } else if (intparam(line, u8"severity:", wmin_.severity, wmax_.severity)) {
     } else {
       loger(u8"ERROR: bad weapon tag file entry: '{}'\n", line);
       return false;
@@ -1075,6 +1078,10 @@ bool ArmorType::LoadFrom(std::u8string_view& def) {
     } else if (intparam(line, u8"size:", min_.size, max_.size)) {
     } else if (intparam(line, u8"volume:", min_.volume, max_.volume)) {
     } else if (intparam(line, u8"value:", min_.value, max_.value)) {
+    } else if (intparam(line, u8"bulk:", amin_.bulk, amax_.bulk)) {
+    } else if (intparam(line, u8"impact:", amin_.impact, amax_.impact)) {
+    } else if (intparam(line, u8"thread:", amin_.thread, amax_.thread)) {
+    } else if (intparam(line, u8"planar:", amin_.planar, amax_.planar)) {
     } else {
       loger(u8"ERROR: bad armor tag file entry: '{}'\n", line);
       return false;
