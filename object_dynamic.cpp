@@ -154,20 +154,20 @@ void Object::DynamicInit1() { // Dwarven mine
     case (1): { // Major Shaft
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
+        AddNPC(gen, u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 10) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
+        AddNPC(gen, u8"dwarven,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+        AddNPC(gen, u8"dwarven,guard,dungeon_cage_key")
             ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+        AddNPC(gen, u8"dwarven,guard,dungeon_cage_key")
             ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
 
@@ -200,20 +200,20 @@ void Object::DynamicInit1() { // Dwarven mine
     case (2): { // Major Shaft w/ Minor Offshoot
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
+        AddNPC(gen, u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 10) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
+        AddNPC(gen, u8"dwarven,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+        AddNPC(gen, u8"dwarven,guard,dungeon_cage_key")
             ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+        AddNPC(gen, u8"dwarven,guard,dungeon_cage_key")
             ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
 
@@ -268,20 +268,20 @@ void Object::DynamicInit1() { // Dwarven mine
     case (3): { // Major Shaft w/ Secret Minor Offshoot
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
+        AddNPC(gen, u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 10) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
+        AddNPC(gen, u8"dwarven,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+        AddNPC(gen, u8"dwarven,guard,dungeon_cage_key")
             ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+        AddNPC(gen, u8"dwarven,guard,dungeon_cage_key")
             ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
 
@@ -338,46 +338,46 @@ void Object::DynamicInit1() { // Dwarven mine
     case (4): { // Major Chamber
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
+        AddNPC(gen, u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
+        AddNPC(gen, u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
+        AddNPC(gen, u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
+        AddNPC(gen, u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 10) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
+        AddNPC(gen, u8"dwarven,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
       if ((rand() % 100) < 10) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
+        AddNPC(gen, u8"dwarven,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+        AddNPC(gen, u8"dwarven,guard,dungeon_cage_key")
             ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+        AddNPC(gen, u8"dwarven,guard,dungeon_cage_key")
             ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+        AddNPC(gen, u8"dwarven,guard,dungeon_cage_key")
             ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,guard,dungeon_cage_key")
+        AddNPC(gen, u8"dwarven,guard,dungeon_cage_key")
             ->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
 
@@ -431,19 +431,19 @@ void Object::DynamicInit1() { // Dwarven mine
     case (5): { // Minor Shaft
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
+        AddNPC(gen, u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
+        AddNPC(gen, u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 10) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
+        AddNPC(gen, u8"dwarven,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,explorer")->SetSkill(prhash(u8"Accomplishment"), 1500003);
+        AddNPC(gen, u8"dwarven,explorer")->SetSkill(prhash(u8"Accomplishment"), 1500003);
       }
 
       if (mojo <= 0)
@@ -476,19 +476,19 @@ void Object::DynamicInit1() { // Dwarven mine
     case (6): { // Minor Shaft (Bend)
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
+        AddNPC(gen, u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
+        AddNPC(gen, u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 10) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
+        AddNPC(gen, u8"dwarven,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,explorer")->SetSkill(prhash(u8"Accomplishment"), 1500003);
+        AddNPC(gen, u8"dwarven,explorer")->SetSkill(prhash(u8"Accomplishment"), 1500003);
       }
 
       //      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7, 8, 9 };
@@ -520,19 +520,19 @@ void Object::DynamicInit1() { // Dwarven mine
     case (7): { // Minor Shaft Fork
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
+        AddNPC(gen, u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
+        AddNPC(gen, u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 10) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
+        AddNPC(gen, u8"dwarven,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,explorer")->SetSkill(prhash(u8"Accomplishment"), 1500003);
+        AddNPC(gen, u8"dwarven,explorer")->SetSkill(prhash(u8"Accomplishment"), 1500003);
       }
 
       //      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7, 8, 9 };
@@ -584,19 +584,19 @@ void Object::DynamicInit1() { // Dwarven mine
     case (8): { // Minor Shaft Alcove
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
+        AddNPC(gen, u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 30) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
+        AddNPC(gen, u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
       if ((rand() % 100) < 10) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
+        AddNPC(gen, u8"dwarven,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        AddNPC(gen, u8"dwarf,explorer")->SetSkill(prhash(u8"Accomplishment"), 1500003);
+        AddNPC(gen, u8"dwarven,explorer")->SetSkill(prhash(u8"Accomplishment"), 1500003);
       }
 
       if (mojo <= 0)
