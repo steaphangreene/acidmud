@@ -519,20 +519,9 @@ void NPCType::FinalizeItemTags(const std::map<std::u8string, ItemType>& tagdefs)
 Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
   if (!npctagdefs.contains(World())) {
     // Definitions for all built-in NPC tags go here.
-    npctagdefs[World()] = {
-        {u8"dungeon_cage_key", // Hard-coded for dynamic mine dungeon (for now)
-         {u8"",
-          u8"",
-          u8"",
-          {gender_t::MALE, gender_t::FEMALE, gender_t::NEITHER},
-          {},
-          {},
-          {u8"dungeon_cage_key"},
-          {0, 0, 0, 0, 0, 0},
-          {0, 0, 0, 0, 0, 0},
-          0,
-          0}},
-    };
+    World()->LoadTagsFrom(
+        u8"tag:npc:dungeon_cage_key\n"
+        u8"itag:dungeon_cage_key\n");
   }
 
   if (!weapontagdefs.contains(World())) {
