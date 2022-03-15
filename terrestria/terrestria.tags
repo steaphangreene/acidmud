@@ -27,8 +27,8 @@ w:1
 gold:100-200
 
 tag:npc:dwarven
-short:a dwarven
-desc:a dwarven
+short:a dwarven 
+desc:a dwarven 
 long:{He} looks pissed.
 wtag:axe
 wtag:dwarven
@@ -42,8 +42,8 @@ w:2-2
 gold:100-500
 
 tag:npc:elven
-short:an elven
-desc:an elven
+short:an elven 
+desc:an elven 
 long:{He} looks arrogant.
 wtag:sword
 wtag:elven
@@ -127,8 +127,8 @@ c:2-2
 gold:500-1000
 
 tag:npc:elite
-short:an elite
-desc:a pretty special
+short:an elite 
+desc:a pretty special 
 long:{He} seems quite prepared, and well-trained.
 wtag:high-quality
 atag:high-quality
