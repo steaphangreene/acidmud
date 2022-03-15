@@ -30,6 +30,7 @@ tag:npc:dwarven
 short:a dwarven 
 desc:a dwarven 
 long:{He} looks pissed.
+genders:O
 wtag:axe
 wtag:dwarven
 atag:dwarven

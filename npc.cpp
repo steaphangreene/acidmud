@@ -208,6 +208,7 @@ static int rint3(auto& gen, int min, int max) { // Bell-Curve-Ish
 static NPCType base_npc(
     u8"short:a person\n"
     u8"desc:{He} seems normal.\n"
+    u8"genders:FM\n"
     u8"wtag:spear\n"
     u8"atag:shirt\n"
     u8"itag:pack\n"
@@ -444,7 +445,7 @@ void NPCType::operator+=(const NPCType& in) {
   }
 
   // TODO: Real set operations
-  if (genders_.size() > in.genders_.size()) {
+  if (genders_.size() == 0 || (in.genders_.size() > 0 && genders_.size() > in.genders_.size())) {
     genders_ = in.genders_;
   }
 
@@ -828,6 +829,19 @@ bool NPCType::LoadFrom(std::u8string_view& def) {
       desc_ = std::u8string(getuntil(line, '\n'));
     } else if (process(line, u8"long:")) {
       long_desc_ = std::u8string(getuntil(line, '\n'));
+    } else if (process(line, u8"genders:")) {
+      while (line.length() > 0) {
+        char8_t gen = nextchar(line);
+        if (ascii_toupper(gen) == 'N') {
+          genders_.push_back(gender_t::NONE);
+        } else if (ascii_toupper(gen) == 'F') {
+          genders_.push_back(gender_t::FEMALE);
+        } else if (ascii_toupper(gen) == 'M') {
+          genders_.push_back(gender_t::MALE);
+        } else if (ascii_toupper(gen) == 'O') {
+          genders_.push_back(gender_t::NEITHER);
+        }
+      }
     } else if (process(line, u8"prop:")) {
       auto sname = getuntil(line, ':');
       int32_t sval = getnum(line);
