@@ -986,9 +986,6 @@ int handle_command_wload(
   for (const auto& fl : tag_files) {
     infile tags(fl);
     if (tags && world->LoadTagsFrom(tags)) {
-      Object* worldtags = new Object(world);
-      worldtags->SetShortDesc(u8"World Data: Defined Tags");
-      worldtags->SetLongDesc(tags.all());
       mind->Send(u8"Loaded Tags From: '{}'!\n", fl.path().u8string());
     } else {
       mind->Send(CRED u8"Failed Loading Tags From: '{}'!\n" CNRM, fl.path().u8string());

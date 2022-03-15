@@ -972,22 +972,28 @@ bool ItemType::LoadFrom(std::u8string_view& def) {
   return true;
 }
 
-bool Object::LoadTags() const {
+bool Object::LoadTags() {
   // Make sure these all exist, even if they remain empty.
   npctagdefs[this];
   weapontagdefs[this];
   armortagdefs[this];
   itemtagdefs[this];
 
-  Object* data = PickObject(u8"world data: defined tags", LOC_INTERNAL | LOC_NINJA);
-  if (data) {
-    return LoadTagsFrom(data->LongDesc());
+  auto datasets = PickObjects(u8"all world data: defined tags", LOC_INTERNAL | LOC_NINJA);
+  if (datasets.size() == 0) {
+    logey(u8"Warning: No Saved Tags For World: '{}'!\n", ShortDesc());
+    return false;
   }
-  loger(u8"ERROR: Failed Loading Saved Tags Into World: '{}'!\n", ShortDesc());
-  return false;
+  for (auto data : datasets) {
+    if (!LoadTagsFrom(data->LongDesc(), false)) {
+      loger(u8"ERROR: Failed Loading Saved Tags Into World: '{}'!\n", ShortDesc());
+      return false;
+    }
+  }
+  return true;
 }
 
-bool Object::LoadTagsFrom(const std::u8string_view& tagdefs) const {
+bool Object::LoadTagsFrom(const std::u8string_view& tagdefs, bool save) {
   // Make sure these all exist, even if they remain empty.
   npctagdefs[this];
   weapontagdefs[this];
@@ -1032,6 +1038,13 @@ bool Object::LoadTagsFrom(const std::u8string_view& tagdefs) const {
   if (defs.length() > 0) {
     loger(u8"Bad content at end of .tags file: '{}'.\n", getuntil(defs, '\n'));
     return false;
+  }
+
+  if (save) {
+    // Load Worked!  So, Now Safe These For The Future.
+    Object* worldtags = new Object(this);
+    worldtags->SetShortDesc(u8"World Data: Defined Tags");
+    worldtags->SetLongDesc(tagdefs);
   }
 
   return true;
