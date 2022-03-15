@@ -131,16 +131,18 @@ class NPCType {
   void Carry(const ItemType&);
   void SetShortDesc(const std::u8string_view&);
   void operator+=(const NPCType&);
-  void FinalizeTags();
+  void FinalizeWeaponTags(const std::map<std::u8string, WeaponType>&);
+  void FinalizeArmorTags(const std::map<std::u8string, ArmorType>&);
+  void FinalizeItemTags(const std::map<std::u8string, ItemType>&);
 
   std::u8string short_desc_, desc_, long_desc_;
   std::vector<gender_t> genders_;
   NPCAttrs min_, max_;
   int min_gold_, max_gold_;
   std::map<uint32_t, std::pair<int, int>> skills_;
-  std::vector<std::u8string_view> wtags_;
-  std::vector<std::u8string_view> atags_;
-  std::vector<std::u8string_view> itags_;
+  std::vector<std::u8string> wtags_;
+  std::vector<std::u8string> atags_;
+  std::vector<std::u8string> itags_;
   std::vector<WeaponType> weapons_;
   std::vector<ArmorType> armor_;
   std::vector<ItemType> items_;
