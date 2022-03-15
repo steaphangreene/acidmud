@@ -1617,9 +1617,10 @@ void Object::SendScore(Mind* m, Object* o) {
       if (Pos() == pos_t::NONE) {
         m->Send(u8"  Zone Coords: ({},{},{})  Value: {}Y\n", X(), Y(), Z(), value);
       } else {
+        char8_t gens[4] = {'N', 'F', 'M', 'O'};
         m->Send(
-            u8"  Sex: {}, {}.{:03}kg, {}.{:03}m, {}v, {}Y\n",
-            static_cast<char8_t>(gender),
+            u8"  Gen: {}, {}.{:03}kg, {}.{:03}m, {}v, {}Y\n",
+            gens[static_cast<int8_t>(gender)],
             weight / 1000,
             weight % 1000,
             size / 1000,
