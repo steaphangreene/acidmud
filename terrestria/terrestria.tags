@@ -24,7 +24,7 @@ s:1
 i:1
 w:1
 gold:100-200
-tag:npc:dwarf
+tag:npc:dwarven
 short:a dwarven
 desc:a dwarven
 long:{He} looks pissed.
@@ -38,7 +38,7 @@ s:1-1
 c:0--2
 w:2-2
 gold:100-500
-tag:npc:elf
+tag:npc:elven
 short:an elven
 desc:an elven
 long:{He} looks arrogant.

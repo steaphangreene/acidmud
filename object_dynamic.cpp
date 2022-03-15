@@ -386,11 +386,11 @@ void Object::DynamicInit1() { // Dwarven mine
 
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        cage->AddNPC(gen, u8"elf,prisoner")->SetSkill(prhash(u8"Accomplishment"), 1500004);
+        cage->AddNPC(gen, u8"elven,prisoner")->SetSkill(prhash(u8"Accomplishment"), 1500004);
       }
       if ((rand() % 100) < 20) {
         mojo -= 500;
-        cage->AddNPC(gen, u8"elf,prisoner")->SetSkill(prhash(u8"Accomplishment"), 1500004);
+        cage->AddNPC(gen, u8"elven,prisoner")->SetSkill(prhash(u8"Accomplishment"), 1500004);
       }
 
       if (mojo <= 0)
