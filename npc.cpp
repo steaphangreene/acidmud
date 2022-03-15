@@ -536,9 +536,6 @@ void NPCType::FinalizeItemTags(const std::map<std::u8string, ItemType>& tagdefs)
 Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
   if (!npctagdefs.contains(World())) {
     // Definitions for all built-in NPC tags go here.
-    World()->LoadTagsFrom(
-        u8"tag:npc:dungeon_cage_key\n"
-        u8"itag:dungeon_cage_key\n");
   }
 
   if (!weapontagdefs.contains(World())) {
@@ -553,14 +550,6 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
 
   if (!itemtagdefs.contains(World())) {
     // Definitions for all built-in item tags go here.
-    World()->LoadTagsFrom(
-        u8"tag:item:dungeon_cage_key\n"
-        u8"short:a key\n"
-        u8"desc:A heavy steel key.  It looks dwarven, and very old.\n"
-        u8"prop:Key:1510003\n"
-        u8"weight:100\n"
-        u8"size:10\n"
-        u8"volume:20\n");
   }
 
   // Merge Given NPC Tags into new NPC Def
