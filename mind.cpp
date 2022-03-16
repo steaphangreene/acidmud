@@ -2764,6 +2764,58 @@ uint32_t items[8] = {
     prhash(u8"Needy")};
 bool Mind::Think(int istick) {
   if (type == mind_t::NPC) {
+    // Currently Travelling
+    if (svars.contains(u8"path")) {
+      if (svars[u8"path"].length() < 1) {
+        svars.erase(u8"path");
+      } else {
+        auto old = body->Parent();
+        handle_command(body, fmt::format(u8"{}", svars[u8"path"][0]));
+        if (old != body->Parent()) { // Actually went somewhere
+          svars[u8"path"] = svars[u8"path"].substr(1);
+        } else {
+          // TODO: Open/Unlock Doors, Reroute, Etc.
+          std::u8string_view dir = u8"north";
+          std::u8string_view odir = u8"south";
+          if (svars[u8"path"][0] == 's') {
+            dir = u8"south";
+            odir = u8"north";
+          } else if (svars[u8"path"][0] == 'e') {
+            dir = u8"east";
+            odir = u8"west";
+          } else if (svars[u8"path"][0] == 'w') {
+            dir = u8"west";
+            odir = u8"east";
+          } else if (svars[u8"path"][0] == 'u') {
+            dir = u8"up";
+            odir = u8"down";
+          } else if (svars[u8"path"][0] == 'd') {
+            dir = u8"down";
+            odir = u8"up";
+          }
+
+          handle_command(body, fmt::format(u8"open {0};{0}", dir));
+          if (old != body->Parent()) { // Actually went somewhere
+            handle_command(body, fmt::format(u8"close {0}", odir));
+            svars[u8"path"] = svars[u8"path"].substr(1);
+          } else {
+            handle_command(body, fmt::format(u8"unlock {0};open {0};{0}", dir));
+            if (old != body->Parent()) { // Actually went somewhere
+              handle_command(body, fmt::format(u8"close {0};lock {0}", odir));
+              svars[u8"path"] = svars[u8"path"].substr(1);
+            } else {
+              // Object* door = PickObject(dir, LOC_NEARBY);
+              // if (door) {
+              //  TODO: Actually figure out what's wrong.
+              //}
+            }
+          }
+        }
+      }
+      return true;
+    }
+
+    // Work-Schedule NPCs
     if (body->HasSkill(prhash(u8"Day Worker")) || body->HasSkill(prhash(u8"Night Worker"))) {
       int day = body->World()->Skill(prhash(u8"Day Length"));
       int time = body->World()->Skill(prhash(u8"Day Time"));
@@ -2789,51 +2841,6 @@ bool Mind::Think(int istick) {
             handle_command(body, u8"say 'Time to head to work!");
             auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_WORK));
             svars[u8"path"] = path;
-          } else if (svars[u8"path"].length() < 1) {
-            svars.erase(u8"path");
-          } else {
-            auto old = body->Parent();
-            handle_command(body, fmt::format(u8"{}", svars[u8"path"][0]));
-            if (old != body->Parent()) { // Actually went somewhere
-              svars[u8"path"] = svars[u8"path"].substr(1);
-            } else {
-              // TODO: Open/Unlock Doors, Reroute, Etc.
-              std::u8string_view dir = u8"north";
-              std::u8string_view odir = u8"south";
-              if (svars[u8"path"][0] == 's') {
-                dir = u8"south";
-                odir = u8"north";
-              } else if (svars[u8"path"][0] == 'e') {
-                dir = u8"east";
-                odir = u8"west";
-              } else if (svars[u8"path"][0] == 'w') {
-                dir = u8"west";
-                odir = u8"east";
-              } else if (svars[u8"path"][0] == 'u') {
-                dir = u8"up";
-                odir = u8"down";
-              } else if (svars[u8"path"][0] == 'd') {
-                dir = u8"down";
-                odir = u8"up";
-              }
-
-              handle_command(body, fmt::format(u8"open {0};{0}", dir));
-              if (old != body->Parent()) { // Actually went somewhere
-                handle_command(body, fmt::format(u8"close {0}", odir));
-                svars[u8"path"] = svars[u8"path"].substr(1);
-              } else {
-                handle_command(body, fmt::format(u8"unlock {0};open {0};{0}", dir));
-                if (old != body->Parent()) { // Actually went somewhere
-                  handle_command(body, fmt::format(u8"close {0};lock {0}", odir));
-                  svars[u8"path"] = svars[u8"path"].substr(1);
-                } else {
-                  // Object* door = PickObject(dir, LOC_NEARBY);
-                  // if (door) {
-                  //  TODO: Actually figure out what's wrong.
-                  //}
-                }
-              }
-            }
           }
         } else if (!body->IsAct(act_t::WORK)) {
           body->AddAct(act_t::WORK);
@@ -2847,51 +2854,6 @@ bool Mind::Think(int istick) {
             handle_command(body, u8"say Time to head home!");
             auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_HOME));
             svars[u8"path"] = path;
-          } else if (svars[u8"path"].length() < 1) {
-            svars.erase(u8"path");
-          } else {
-            auto old = body->Parent();
-            handle_command(body, fmt::format(u8"{}", svars[u8"path"][0]));
-            if (old != body->Parent()) { // Actually went somewhere
-              svars[u8"path"] = svars[u8"path"].substr(1);
-            } else {
-              // TODO: Open/Unlock Doors, Reroute, Etc.
-              std::u8string_view dir = u8"north";
-              std::u8string_view odir = u8"south";
-              if (svars[u8"path"][0] == 's') {
-                dir = u8"south";
-                odir = u8"north";
-              } else if (svars[u8"path"][0] == 'e') {
-                dir = u8"east";
-                odir = u8"west";
-              } else if (svars[u8"path"][0] == 'w') {
-                dir = u8"west";
-                odir = u8"east";
-              } else if (svars[u8"path"][0] == 'u') {
-                dir = u8"up";
-                odir = u8"down";
-              } else if (svars[u8"path"][0] == 'd') {
-                dir = u8"down";
-                odir = u8"up";
-              }
-
-              handle_command(body, fmt::format(u8"open {0};{0}", dir));
-              if (old != body->Parent()) { // Actually went somewhere
-                handle_command(body, fmt::format(u8"close {0}", odir));
-                svars[u8"path"] = svars[u8"path"].substr(1);
-              } else {
-                handle_command(body, fmt::format(u8"unlock {0};open {0};{0}", dir));
-                if (old != body->Parent()) { // Actually went somewhere
-                  handle_command(body, fmt::format(u8"close {0};lock {0}", odir));
-                  svars[u8"path"] = svars[u8"path"].substr(1);
-                } else {
-                  // Object* door = PickObject(dir, LOC_NEARBY);
-                  // if (door) {
-                  //  TODO: Actually figure out what's wrong.
-                  //}
-                }
-              }
-            }
           }
         } else if (body->Pos() != pos_t::LIE) {
           handle_command(body, u8"lie;sleep");
@@ -2934,7 +2896,7 @@ bool Mind::Think(int istick) {
           shuffle(options.begin(), options.end(), gen);
         }
         if (options.size() > 0) {
-          handle_command(body, options.front());
+          svars[u8"path"] = options.front().substr(0, 1);
         }
       }
     }
