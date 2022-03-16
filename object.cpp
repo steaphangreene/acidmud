@@ -472,7 +472,7 @@ int Object::Tick() {
     SetSkill(prhash(u8"Mature Trees"), Skill(prhash(u8"Mature Trees")) + 1);
   }
 
-  if (IsAct(act_t::DEAD)) { // Rotting corpses
+  if (parent && IsAct(act_t::DEAD)) { // Rotting corpses
     ++stru;
     if (stru == 1) {
       parent->SendOut(ALL, 0, u8";s's corpse starts to smell.\n", u8"", this, nullptr);
@@ -3731,6 +3731,10 @@ bool Object::IsSameAs(const Object& in) const {
 }
 
 void Object::operator=(const Object& in) {
+  if (&in == this) {
+    return;
+  }
+
   dlens = in.dlens;
   if (descriptions != default_descriptions) {
     delete[] descriptions;
