@@ -59,7 +59,8 @@ bool tag_superset(const std::u8string_view& big, const std::u8string_view& littl
   return true;
 }
 
-static bool load_map(Object* world, Mind* mind, const std::filesystem::directory_entry& ent) {
+static bool
+load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::directory_entry& ent) {
   auto filename = ent.path().u8string();
 
   if (filename.empty()) {
@@ -935,7 +936,7 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
 
 int handle_command_wload(
     Object* body,
-    Mind* mind,
+    std::shared_ptr<Mind> mind,
     const std::u8string_view args,
     int stealth_t,
     int stealth_s) {

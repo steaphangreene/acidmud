@@ -370,16 +370,16 @@ int Object::LoadFrom(std::u8string_view& fl) {
   }
 
   if (IsAct(act_t::SPECIAL_WORK)) {
-    Attach(new Mind(mind_t::NPC));
+    Attach(std::make_shared<Mind>(mind_t::NPC));
   } else if (Skill(prhash(u8"Personality"))) {
-    Attach(new Mind(mind_t::MOB));
+    Attach(std::make_shared<Mind>(mind_t::MOB));
   } else if (Skill(prhash(u8"TBAAction"))) {
-    Attach(new Mind(mind_t::TBAMOB));
+    Attach(std::make_shared<Mind>(mind_t::TBAMOB));
   }
 
   if (Skill(prhash(u8"TBAScriptType")) & 2) { // Random/Permanent Triggers
-    Mind* trig = new_mind(mind_t::TBATRIG, this);
-    trig->Suspend((rand() % 13000) + 3000); // 3-16 Seconds
+    std::shared_ptr<Mind> trig = new_mind(mind_t::TBATRIG, this);
+    trig->Suspend(trig, (rand() % 13000) + 3000); // 3-16 Seconds
   }
 
   //  int num_loaded = 0;

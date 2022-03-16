@@ -34,6 +34,7 @@
 
 #include "minvec.hpp"
 #include "stats.hpp"
+#include "vec32.hpp"
 
 class Object;
 class Player;
@@ -267,21 +268,23 @@ class alignas(256) Object {
     }
   };
 
-  void SendActions(Mind* m);
-  void SendExtendedActions(Mind* m, int vmode = 0);
-  void SendContents(Mind* m, Object* o = nullptr, int vmode = 0, std::u8string b = u8"");
-  void SendContents(Object* m, Object* o = nullptr, int vmode = 0, std::u8string b = u8"");
+  void SendActions(std::shared_ptr<Mind> m);
+  void SendExtendedActions(std::shared_ptr<Mind> m, int vmode = 0);
+  void SendFullSituation(std::shared_ptr<Mind> m, Object* o = nullptr);
+  void
+  SendContents(std::shared_ptr<Mind> m, Object* o = nullptr, int vmode = 0, std::u8string b = u8"");
 
-  void SendFullSituation(Mind* m, Object* o = nullptr);
-  void SendShortDesc(Mind* m, Object* o = nullptr);
+  void SendShortDesc(std::shared_ptr<Mind> m, Object* o = nullptr);
+  void SendDesc(std::shared_ptr<Mind> m, Object* o = nullptr);
+  void SendDescSurround(std::shared_ptr<Mind> m, Object* o = nullptr, int vmode = 0);
+  void SendLongDesc(std::shared_ptr<Mind> m, Object* o = nullptr);
+  void SendScore(std::shared_ptr<Mind> m, Object* o = nullptr);
+
   void SendShortDesc(Object* m, Object* o = nullptr);
-  void SendDesc(Mind* m, Object* o = nullptr);
-  void SendDescSurround(Mind* m, Object* o = nullptr, int vmode = 0);
   void SendDesc(Object* m, Object* o = nullptr);
   void SendDescSurround(Object* m, Object* o = nullptr, int vmode = 0);
-  void SendLongDesc(Mind* m, Object* o = nullptr);
   void SendLongDesc(Object* m, Object* o = nullptr);
-  void SendScore(Mind* m, Object* o = nullptr);
+  void SendContents(Object* m, Object* o = nullptr, int vmode = 0, std::u8string b = u8"");
 
   // All of these modify the "skls" parameter.
   std::vector<std::u8string> FormatStats(const MinVec<7, skill_pair>& skls);
@@ -303,8 +306,8 @@ class alignas(256) Object {
   int Travel(Object*);
   void AddLink(Object*);
   void RemoveLink(Object*);
-  void Attach(Mind* mind);
-  void Unattach(Mind* mind);
+  void Attach(std::shared_ptr<Mind> mind);
+  void Unattach(std::shared_ptr<Mind> mind);
 
   void TryCombine();
 
@@ -665,7 +668,7 @@ class alignas(256) Object {
   const char8_t* dowhenfree = u8"";
   const char8_t* defact = u8"";
 
-  MinVec<1, Mind*> minds;
+  Vec32<std::shared_ptr<Mind>> minds;
 
   MinVec<1, uint64_t> known;
 

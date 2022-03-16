@@ -459,7 +459,7 @@ Mind::~Mind() {
   log = -1;
 
   auto itr = waiting.begin();
-  for (; itr != waiting.end() && itr->second != this; ++itr) {
+  for (; itr != waiting.end() && itr->second.get() != this; ++itr) {
   }
   if (itr != waiting.end()) {
     // Set it for u8"never", so it won't run, and will be purged
@@ -596,22 +596,17 @@ void Mind::UpdatePrompt() {
 
 void Mind::Attach(Object* bod) {
   body = bod;
-  if (body)
-    body->Attach(this);
 }
 
 void Mind::Unattach() {
-  Object* bod = body;
   body = nullptr;
-  if (bod)
-    bod->Unattach(this);
 }
 
 bool Mind::Send(const std::u8string_view& mes) {
   if (type == mind_t::REMOTE) {
     SendOut(pers, mes);
   } else if (type == mind_t::MOB) {
-    // return Think(); //Reactionary actions (NO!).
+    // ...these folks aren't big listeners....
   } else if (type == mind_t::TBAMOB) {
     // HELPER TBA Mobs
     if (body && body->Parent() && (body->Skill(prhash(u8"TBAAction")) & 4096) // Helpers
@@ -638,7 +633,6 @@ bool Mind::Send(const std::u8string_view& mes) {
         return true;
       }
     }
-    return Think(); // Reactionary actions (HACK!).
   } else if (type == mind_t::SYSTEM) {
     std::u8string_view inmes = mes;
     trim_string(inmes);
@@ -711,8 +705,15 @@ void Mind::SetPPass(const std::u8string_view& ppass) {
       static_cast<char8_t>(WONT),
       static_cast<char8_t>(TELOPT_ECHO));
   svars = player->Vars();
-  player->Room()->SendDesc(this);
-  player->Room()->SendContents(this);
+
+  // Grab the actual shared_ptr for this mind
+  auto plminds = get_human_minds();
+  for (auto mind : plminds) {
+    if (mind.get() == this) {
+      player->Room()->SendDesc(mind);
+      player->Room()->SendContents(mind);
+    }
+  }
 }
 
 void Mind::SetPlayer(const std::u8string_view& pn) {
@@ -1580,7 +1581,7 @@ bool Mind::TBAVarSub(std::u8string& edit) const {
 // 0 to continue running
 // 1 to be done now (suspend)
 // -1 to destroy mind (error/done)
-int Mind::TBARunLine(std::u8string linestr) {
+int Mind::TBARunLine(std::shared_ptr<Mind>& sptr, std::u8string linestr) {
   if (0
       //	|| body->Skill(prhash(u8"TBAScript")) == 5000099
       //	|| linestr.contains(u8"eval loc ")
@@ -1783,7 +1784,7 @@ int Mind::TBARunLine(std::u8string linestr) {
       oldp->RemoveLink(ovars.at(u8"self"));
       ovars.at(u8"self")->SetParent(room);
     }
-    int ret = TBARunLine(std::u8string(line));
+    int ret = TBARunLine(sptr, std::u8string(line));
     if (oldp) {
       ovars.at(u8"self")->Parent()->RemoveLink(ovars.at(u8"self"));
       ovars.at(u8"self")->SetParent(oldp);
@@ -1891,7 +1892,7 @@ int Mind::TBARunLine(std::u8string linestr) {
         minute += 24 * 60; // Not Time Until Tomorrow!
       }
       if (minute > cur) { // Not Time Yet!
-        Suspend((minute - cur) * 1000 * world->Skill(prhash(u8"Day Length")) / 24);
+        Suspend(sptr, (minute - cur) * 1000 * world->Skill(prhash(u8"Day Length")) / 24);
         // Note: The above calculation removed the *60 and the /60
         return 1;
       }
@@ -1909,7 +1910,7 @@ int Mind::TBARunLine(std::u8string linestr) {
       // 5034507)
       //  logeb(u8"#{} Suspending for: {}\n",
       //  body->Skill(prhash(u8"TBAScript")), time * 1000);
-      Suspend(time * 1000);
+      Suspend(sptr, time * 1000);
       return 1;
     } else {
       loger(u8"#{} Error: Told '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
@@ -2138,8 +2139,8 @@ int Mind::TBARunLine(std::u8string linestr) {
       targ = room->PickObject(getgraph(line), LOC_NINJA | LOC_INTERNAL);
     }
     if (targ) {
-      Mind* amind = nullptr; // Make sure human minds see it!
-      std::vector<Mind*> mns = get_human_minds();
+      std::shared_ptr<Mind> amind = nullptr; // Make sure human minds see it!
+      std::vector<std::shared_ptr<Mind>> mns = get_human_minds();
       for (auto mn : mns) {
         if (mn->Body() == targ) {
           amind = mn;
@@ -2744,7 +2745,7 @@ uint32_t items[8] = {
     prhash(u8"Bored"),
     prhash(u8"Stuff"),
     prhash(u8"Needy")};
-bool Mind::Think(int istick) {
+bool Mind::Think(std::shared_ptr<Mind>& sptr, int istick) {
   if (type == mind_t::NPC) {
     // Currently Travelling
     if (svars.contains(u8"path")) {
@@ -2977,7 +2978,7 @@ bool Mind::Think(int istick) {
 
         PING_QUOTA();
 
-        int ret = TBARunLine(line);
+        int ret = TBARunLine(sptr, line);
         if (ret < 0) {
           return false;
         } else if (ret > 0) {
@@ -2993,7 +2994,7 @@ bool Mind::Think(int istick) {
               delay += 13000;
             spos_s.clear();
             spos_s.push_back(0); // We never die!
-            Suspend(delay); // We'll be back!
+            Suspend(sptr, delay); // We'll be back!
             return true;
           }
         }
@@ -3209,8 +3210,9 @@ std::u8string Mind::SpecialPrompt() const {
   return prompt;
 }
 
-Mind* new_mind(mind_t tp, Object* obj, Object* obj2, Object* obj3, const std::u8string_view& text) {
-  Mind* m = new Mind(tp);
+std::shared_ptr<Mind>
+new_mind(mind_t tp, Object* obj, Object* obj2, Object* obj3, const std::u8string_view& text) {
+  std::shared_ptr<Mind> m = std::make_shared<Mind>(tp);
   if (tp == mind_t::TBATRIG && obj) {
     m->SetTBATrigger(obj, obj2, obj3, text);
   } else if (obj) {
@@ -3234,22 +3236,24 @@ int new_trigger(
     return 0;
 
   int status = 0;
-  Mind* m = new_mind(mind_t::TBATRIG, obj, tripper, targ, text);
+  std::shared_ptr<Mind> m = new_mind(mind_t::TBATRIG, obj, tripper, targ, text);
   if (msec == 0 && !in_new_trigger) { // Triggers can not immediately trigger triggers
     in_new_trigger = true;
-    if (!m->Think(1)) {
+    if (!m->Think(m, 1)) {
       status = m->Status();
-      delete m;
+      if (m->Body()) {
+        m->Body()->Unattach(m);
+      }
     }
     in_new_trigger = false;
   } else {
-    m->Suspend(msec);
+    m->Suspend(m, msec);
   }
   return status;
 }
 
-std::vector<std::pair<int64_t, Mind*>> Mind::waiting;
-void Mind::Suspend(int msec) {
+std::vector<std::pair<int64_t, std::shared_ptr<Mind>>> Mind::waiting;
+void Mind::Suspend(std::shared_ptr<Mind>& sptr, int msec) {
   // if(body && body->Skill(prhash(u8"TBAScript")) >= 5034503 &&
   // body->Skill(prhash(u8"TBAScript"))
   // <= 5034507)
@@ -3259,12 +3263,12 @@ void Mind::Suspend(int msec) {
   int64_t when = current_time + int64_t(msec) * int64_t(1000);
 
   auto itr = waiting.begin();
-  for (; itr != waiting.end() && itr->second != this; ++itr) {
+  for (; itr != waiting.end() && itr->second != sptr; ++itr) {
   }
   if (itr != waiting.end()) {
     itr->first = when;
   } else {
-    waiting.emplace_back(std::make_pair(when, this));
+    waiting.emplace_back(std::make_pair(when, sptr));
   }
 }
 
@@ -3283,9 +3287,11 @@ void Mind::Resume() {
   // Now fire off those at the beginning that should have already happened
   itr = waiting.begin();
   for (; itr != waiting.end() && itr->first <= current_time; ++itr) {
-    if (!itr->second->Think(0)) {
+    if (!itr->second->Think(itr->second, 0)) {
       itr->first = std::numeric_limits<int64_t>::max();
-      delete itr->second;
+      if (itr->second->Body()) {
+        itr->second->Body()->Unattach(itr->second);
+      }
     }
   }
 }

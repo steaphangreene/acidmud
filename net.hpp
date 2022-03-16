@@ -19,6 +19,7 @@
 //
 // *************************************************************************
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -40,5 +41,5 @@ void SetPrompt(int, const std::u8string_view&);
 class Mind;
 class Player;
 
-std::vector<Mind*> get_human_minds();
+std::vector<std::shared_ptr<Mind>> get_human_minds();
 void notify_player_deleted(Player* pl);

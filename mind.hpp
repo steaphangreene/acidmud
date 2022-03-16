@@ -96,11 +96,13 @@ class Mind {
 
   void UpdatePrompt();
 
-  bool Think(int istick = 0); // Returns false when mind needs to be deleted
+  bool Think(
+      std::shared_ptr<Mind>& sptr,
+      int istick = 0); // Returns false when mind needs to be deleted
   std::u8string Tactics(int phase = -1) const;
 
   static void Resume();
-  void Suspend(int msec);
+  static void Suspend(std::shared_ptr<Mind>& sptr, int msec);
 
   void SetSpecialPrompt(const std::u8string& newp);
   std::u8string SpecialPrompt() const;
@@ -122,7 +124,7 @@ class Mind {
   int TBAEval(const std::u8string_view& expr) const;
   bool TBAVarSub(std::u8string& line) const; // Returns false when mind needs to be deleted
 
-  int TBARunLine(std::u8string line);
+  int TBARunLine(std::shared_ptr<Mind>& sptr, std::u8string line);
 
   std::u8string pname;
   std::u8string prompt;
@@ -140,10 +142,10 @@ class Mind {
 
   std::vector<size_t> spos_s;
 
-  static std::vector<std::pair<int64_t, Mind*>> waiting;
+  static std::vector<std::pair<int64_t, std::shared_ptr<Mind>>> waiting;
 };
 
-Mind* new_mind(
+std::shared_ptr<Mind> new_mind(
     mind_t tp,
     Object* obj = nullptr,
     Object* obj2 = nullptr,

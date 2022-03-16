@@ -47,7 +47,7 @@ typedef int socket_t;
 #include "version.hpp"
 
 static std::set<socket_t> fds;
-static std::map<socket_t, Mind*> minds;
+static std::map<socket_t, std::shared_ptr<Mind>> minds;
 static std::map<socket_t, std::u8string> comlines;
 static std::map<socket_t, std::u8string> outbufs;
 static std::map<socket_t, std::u8string> prompts;
@@ -71,7 +71,6 @@ void close_socket(socket_t d_s) {
 
 void drop_socket(socket_t d_s) {
   if (minds.count(d_s)) {
-    delete minds[d_s];
     minds.erase(d_s);
   } else {
     close_socket(d_s);
@@ -100,7 +99,7 @@ void handle_input(socket_t in_s) {
 
   std::u8string_view input(buf, amt);
 
-  Mind* mind = nullptr;
+  std::shared_ptr<Mind> mind = nullptr;
   if (minds.contains(in_s)) {
     mind = minds[in_s];
   }
@@ -132,8 +131,10 @@ void handle_input(socket_t in_s) {
 
         int result = handle_command(mind->Body(), comlines[in_s], mind);
         comlines[in_s] = u8"";
-        if (result < 0)
+        if (result < 0) {
+          minds.erase(in_s);
           return; // Player Disconnected
+        }
       } else {
         return; // Mind Disappeared?!?
       }
@@ -196,7 +197,7 @@ void connect_sock(int newsock) {
   nonblock(newsock);
   fds.insert(newsock);
   maxfd = std::max(maxfd, newsock);
-  Mind* mind = new Mind(newsock);
+  std::shared_ptr<Mind> mind = std::make_shared<Mind>(newsock);
   minds[newsock] = mind;
 }
 
@@ -204,7 +205,7 @@ void reconnect_sock(int newsock, int log) {
   nonblock(newsock);
   fds.insert(newsock);
   maxfd = std::max(maxfd, newsock);
-  Mind* mind = new Mind(newsock, log);
+  std::shared_ptr<Mind> mind = std::make_shared<Mind>(newsock, log);
   minds[newsock] = mind;
 }
 
@@ -436,8 +437,8 @@ int load_net(const std::u8string& fn) {
   return 0;
 }
 
-std::vector<Mind*> get_human_minds() {
-  std::vector<Mind*> ret;
+std::vector<std::shared_ptr<Mind>> get_human_minds() {
+  std::vector<std::shared_ptr<Mind>> ret;
 
   for (auto sock : fds) {
     if (minds[sock]->Owner())

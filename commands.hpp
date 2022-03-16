@@ -182,5 +182,5 @@ typedef enum {
   COM_SOCIAL = COM_MAX, // Many commands, which all have no real effect.
 } com_t;
 
-int handle_command(Object*, const std::u8string_view&, Mind* mind = nullptr);
+int handle_command(Object*, const std::u8string_view&, std::shared_ptr<Mind> mind = nullptr);
 com_t identify_command(const std::u8string_view line, bool corporeal);

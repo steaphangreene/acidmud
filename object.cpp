@@ -402,8 +402,8 @@ int Object::Tick() {
   auto mnds = minds;
   for (auto m : mnds) {
     m->Attach(this);
-    if (!m->Think(1)) {
-      delete m;
+    if (!m->Think(m, 1)) {
+      Unattach(m);
     }
   }
 
@@ -454,7 +454,7 @@ int Object::Tick() {
       obj->SetParent(this);
       obj->Travel(parent);
       AddAct(act_t::SPECIAL_MONITOR, obj);
-      obj->Attach(new Mind(mind_t::TBAMOB));
+      obj->Attach(std::make_shared<Mind>(mind_t::TBAMOB));
       obj->Activate();
       parent->SendOut(ALL, -1, u8";s arrives.\n", u8"", obj, nullptr);
       for (auto trg : obj->Contents()) { // Enable any untriggered triggers
@@ -1067,7 +1067,7 @@ void Object::SendLongDesc(Object* targ, Object* o) {
 
 static std::u8string base = u8"";
 
-void Object::SendActions(Mind* m) {
+void Object::SendActions(std::shared_ptr<Mind> m) {
   for (auto cur : act) {
     if (cur.act() < act_t::WEAR_BACK) {
       std::u8string targ;
@@ -1116,7 +1116,7 @@ void Object::SendActions(Mind* m) {
   m->Send(u8".\n");
 }
 
-void Object::SendExtendedActions(Mind* m, int vmode) {
+void Object::SendExtendedActions(std::shared_ptr<Mind> m, int vmode) {
   std::map<Object*, std::u8string> shown;
   for (auto cur : act) {
     if ((vmode & (LOC_TOUCH | LOC_HEAT | LOC_NINJA)) == 0 // Can't See/Feel Invis
@@ -1220,7 +1220,7 @@ void Object::SendExtendedActions(Mind* m, int vmode) {
   }
 }
 
-void Object::SendContents(Mind* m, Object* o, int vmode, std::u8string b) {
+void Object::SendContents(std::shared_ptr<Mind> m, Object* o, int vmode, std::u8string b) {
   auto cont = contents;
 
   if (!b.empty())
@@ -1356,11 +1356,11 @@ void Object::SendContents(Mind* m, Object* o, int vmode, std::u8string b) {
     base = u8"";
 }
 
-void Object::SendShortDesc(Mind* m, Object* o) {
+void Object::SendShortDesc(std::shared_ptr<Mind> m, Object* o) {
   m->Send(fmt::format(u8"{}\n", ShortDesc()));
 }
 
-void Object::SendFullSituation(Mind* m, Object* o) {
+void Object::SendFullSituation(std::shared_ptr<Mind> m, Object* o) {
   std::u8string pname = u8"its";
   if (Owner()) {
     if (Owner() == o) {
@@ -1472,7 +1472,7 @@ void Object::SendFullSituation(Mind* m, Object* o) {
   m->Send(buf);
 }
 
-void Object::SendDesc(Mind* m, Object* o) {
+void Object::SendDesc(std::shared_ptr<Mind> m, Object* o) {
   if (pos != pos_t::NONE) {
     m->Send(CCYN);
     SendFullSituation(m, o);
@@ -1491,7 +1491,7 @@ void Object::SendDesc(Mind* m, Object* o) {
   m->Send(CNRM);
 }
 
-void Object::SendDescSurround(Mind* m, Object* o, int vmode) {
+void Object::SendDescSurround(std::shared_ptr<Mind> m, Object* o, int vmode) {
   if (no_seek)
     return;
 
@@ -1529,7 +1529,7 @@ void Object::SendDescSurround(Mind* m, Object* o, int vmode) {
   m->Send(CNRM);
 }
 
-void Object::SendLongDesc(Mind* m, Object* o) {
+void Object::SendLongDesc(std::shared_ptr<Mind> m, Object* o) {
   if (pos != pos_t::NONE) {
     m->Send(CCYN);
     SendFullSituation(m, o);
@@ -1549,7 +1549,7 @@ void Object::SendLongDesc(Mind* m, Object* o) {
 }
 
 static const std::u8string atnames[] = {u8"Bod", u8"Qui", u8"Str", u8"Cha", u8"Int", u8"Wil"};
-void Object::SendScore(Mind* m, Object* o) {
+void Object::SendScore(std::shared_ptr<Mind> m, Object* o) {
   if (!m)
     return;
   m->Send(u8"\n{}", CNRM);
@@ -2299,7 +2299,7 @@ Object::~Object() {
 
 void Object::Recycle(int inbin) {
   if (is_pc(this)) {
-    std::set<Mind*> removals;
+    std::set<std::shared_ptr<Mind>> removals;
     for (auto mnd : minds) {
       if (mnd->Type() == mind_t::REMOTE) {
         removals.insert(mnd);
@@ -2388,7 +2388,7 @@ void Object::Recycle(int inbin) {
   // loge(u8"Done deleting: {}\n", Noun(0));
 }
 
-void Object::Attach(Mind* m) {
+void Object::Attach(std::shared_ptr<Mind> m) {
   auto itr = minds.begin();
   for (; itr != minds.end() && (*itr) != m; ++itr) {
   }
@@ -2397,7 +2397,7 @@ void Object::Attach(Mind* m) {
   }
 }
 
-void Object::Unattach(Mind* m) {
+void Object::Unattach(std::shared_ptr<Mind> m) {
   auto itr = minds.begin();
   for (; itr != minds.end() && (*itr) != m; ++itr) {
   }
@@ -2989,7 +2989,7 @@ void Object::UpdateDamage() {
       stun = 10;
       Collapse();
       AddAct(act_t::DEAD);
-      std::set<Mind*> removals;
+      std::set<std::shared_ptr<Mind>> removals;
       for (auto mnd : minds) {
         if (mnd->Type() == mind_t::REMOTE)
           removals.insert(mnd);
@@ -3439,14 +3439,13 @@ void init_world() {
       anp->Set(PLAYER_NINJA);
       anp->Set(PLAYER_NINJAMODE);
 
-      Mind* automind = new Mind();
+      std::shared_ptr<Mind> automind = std::make_shared<Mind>();
       automind->SetPlayer(u8"AutoNinja");
       automind->SetSystem();
       automind->Attach(autoninja);
 
       handle_command(autoninja, conf, automind);
 
-      delete automind;
       delete anp;
       autoninja->Recycle();
     }
@@ -3638,7 +3637,7 @@ void Object::FreeActions() {
 std::u8string Object::Tactics(int phase) {
   if (minds.size() < 1)
     return u8"attack";
-  Mind* mind = (*(minds.begin())); // FIXME: Handle Multiple Minds
+  std::shared_ptr<Mind> mind = minds.front(); // FIXME: Handle Multiple Minds
   Object* body = mind->Body();
   mind->Attach(this);
   std::u8string ret = mind->Tactics();

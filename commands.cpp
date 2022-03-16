@@ -71,8 +71,8 @@
 
 #define REQ_ANY (SIT_CORPOREAL | SIT_ETHEREAL)
 
-int handle_command_ccreate(Object*, Mind*, const std::u8string_view, int, int);
-int handle_command_wload(Object*, Mind*, const std::u8string_view, int, int);
+int handle_command_ccreate(Object*, std::shared_ptr<Mind>, const std::u8string_view, int, int);
+int handle_command_wload(Object*, std::shared_ptr<Mind>, const std::u8string_view, int, int);
 
 static int count_ones(int mask) {
   int ret = 0;
@@ -915,7 +915,7 @@ com_t identify_command(const std::u8string_view str, bool corporeal) {
 //                0: Command Understood
 //                1: Command NOT Understood
 //                2: Command Understood - No More Actions This Round
-static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
+static int handle_single_command(Object* body, std::u8string line, std::shared_ptr<Mind> mind) {
   if (comlist[COM_MAX].id == COM_NONE) { // Haven't loaded commands yet
     load_commands();
   }
@@ -1522,7 +1522,6 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
 
   if (cnum == COM_QUIT) {
     if (!body) {
-      delete mind;
       return -1; // Player Disconnected
     }
     // if(body) delete body;
@@ -6139,7 +6138,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
     if (!mind)
       return 0;
     std::u8string users = u8"Currently on this MUD:\n";
-    std::vector<Mind*> mns = get_human_minds();
+    std::vector<std::shared_ptr<Mind>> mns = get_human_minds();
 
     for (auto mn : mns) {
       users += mn->Owner()->Name();
@@ -6170,7 +6169,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         name = mind->Owner()->Name();
       std::u8string mes =
           std::u8string(u8"OOC: <") + name + u8"> " + (std::u8string(args)) + u8"\n";
-      std::vector<Mind*> mns = get_human_minds();
+      std::vector<std::shared_ptr<Mind>> mns = get_human_minds();
       for (auto mn : mns) {
         mn->Send(mes);
       }
@@ -6195,7 +6194,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
         name = mind->Owner()->Name();
       std::u8string mes =
           std::u8string(u8"NEWBIE: <") + name + u8"> " + (std::u8string(args)) + u8"\n";
-      std::vector<Mind*> mns = get_human_minds();
+      std::vector<std::shared_ptr<Mind>> mns = get_human_minds();
       for (auto mn : mns) {
         mn->Send(mes);
       }
@@ -7326,7 +7325,7 @@ static int handle_single_command(Object* body, std::u8string line, Mind* mind) {
   return 0;
 }
 
-int handle_command(Object* body, const std::u8string_view& cl, Mind* mind) {
+int handle_command(Object* body, const std::u8string_view& cl, std::shared_ptr<Mind> mind) {
   int ret = 0;
 
   if (mind && !mind->SpecialPrompt().empty()) {

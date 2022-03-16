@@ -579,7 +579,7 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCType* type, const std::u8stri
     npc->SetSkill(prhash(u8"Object ID"), obj_id);
   }
 
-  npc->Attach(new Mind(mind_t::NPC));
+  npc->Attach(std::make_shared<Mind>(mind_t::NPC));
   npc->Activate();
   npc->SetPos(pos_t::STAND);
   for (int a : {0, 1, 2, 3, 4, 5}) {

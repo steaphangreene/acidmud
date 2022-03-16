@@ -32,7 +32,7 @@
 #define NUM_STS 5 // No Max
 int handle_command_ccreate(
     Object* body,
-    Mind* mind,
+    std::shared_ptr<Mind> mind,
     const std::u8string_view args,
     int stealth_t,
     int stealth_s) {
@@ -301,7 +301,7 @@ int handle_command_ccreate(
             people->SetSkill(prhash(u8"Tired"), 10000);
             people->SetSkill(prhash(u8"Needy"), 1000);
             people->SetPos(pos_t::STAND);
-            people->Attach(new Mind(mind_t::MOB));
+            people->Attach(std::make_shared<Mind>(mind_t::MOB));
             for (int a = 0; a < 6; ++a)
               people->SetAttribute(a, 3);
             people->Activate();
