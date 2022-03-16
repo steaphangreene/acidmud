@@ -101,8 +101,9 @@ void handle_input(socket_t in_s) {
   std::u8string_view input(buf, amt);
 
   Mind* mind = nullptr;
-  if (minds.count(in_s))
+  if (minds.contains(in_s)) {
     mind = minds[in_s];
+  }
 
   int skip = 0;
   for (auto ch : input) {
@@ -113,23 +114,29 @@ void handle_input(socket_t in_s) {
     if (ch == '\b' || ch == '\x7F') {
       if (comlines[in_s].length() > 0) {
         comlines[in_s] = comlines[in_s].substr(0, comlines[in_s].length() - 1);
-        mind->Send(u8"\b \b");
+        if (mind) {
+          mind->Send(u8"\b \b");
+        }
       }
     } else if (ch == '\r') {
       // Ignore these, since they mean nothing unless teamed with \n anyway.
     } else if (ch == '\n') {
       outbufs[in_s] += u8""; // Make sure they still get a prompt!
 
-      if ((mind->PName().length() <= 0 || mind->Owner()) && mind->LogFD() >= 0)
-        write(mind->LogFD(), comlines[in_s].data(), comlines[in_s].length());
-      else if (mind->LogFD() >= 0)
-        write(mind->LogFD(), u8"XXXXXXXXXXXXXXXX", 17);
-      write(mind->LogFD(), u8"\n", 1);
+      if (mind) {
+        if ((mind->PName().length() <= 0 || mind->Owner()) && mind->LogFD() >= 0)
+          write(mind->LogFD(), comlines[in_s].data(), comlines[in_s].length());
+        else if (mind->LogFD() >= 0)
+          write(mind->LogFD(), u8"XXXXXXXXXXXXXXXX", 17);
+        write(mind->LogFD(), u8"\n", 1);
 
-      int result = handle_command(mind->Body(), comlines[in_s], mind);
-      comlines[in_s] = u8"";
-      if (result < 0)
-        return; // Player Disconnected
+        int result = handle_command(mind->Body(), comlines[in_s], mind);
+        comlines[in_s] = u8"";
+        if (result < 0)
+          return; // Player Disconnected
+      } else {
+        return; // Mind Disappeared?!?
+      }
     } else if (ch == static_cast<char8_t>(IAC)) {
       // FIXME: actually HANDLE these messages!
       // FIXME: HANDLE these messages that don't come all at once!
@@ -140,7 +147,7 @@ void handle_input(socket_t in_s) {
   }
 
   //  FIXME: Manual echoing?
-  //  if(comlines[in_s].length() > 0) mind->Send(comlines[in_s]);
+  //  if(mind && comlines[in_s].length() > 0) mind->Send(comlines[in_s]);
 }
 
 void resume_net(int fd) {
