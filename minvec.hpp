@@ -88,7 +88,7 @@ class alignas(next_pow_2(C * 8)) MinVec {
       }
     }
   };
-  MinVec(MinVec&& in) {
+  MinVec(MinVec&& in) noexcept(noexcept(data_ = in.data_)) {
     cap_ = in.cap_;
     size_ = in.size_;
     data_ = in.data_;
