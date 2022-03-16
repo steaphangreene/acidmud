@@ -43,6 +43,7 @@
 // *************************************************************************
 
 #include <cassert>
+#include <cstdint>
 
 #ifndef MINVEC_HPP
 #define MINVEC_HPP
@@ -173,10 +174,10 @@ class alignas(next_pow_2(C * 8)) MinVec {
   bool empty() const {
     return size_ == 0;
   };
-  size_t size() const {
+  std::size_t size() const {
     return size_;
   };
-  size_t capacity() const {
+  std::size_t capacity() const {
     if (cap_ == 0) {
       return C;
     } else {
@@ -184,9 +185,9 @@ class alignas(next_pow_2(C * 8)) MinVec {
     }
   };
 
-  void reserve(size_t cap) {
+  void reserve(std::size_t cap) {
     if (cap > C && cap > cap_) {
-      assert(cap <= 0x80000000U);
+      assert(cap <= 0x80000000UL);
       if (cap_ == 0 && size_ == 0) {
         cap_ = cap;
         data_.arr = new T[cap_];
