@@ -42,7 +42,13 @@
 
 extern int64_t current_time; // From main.cpp
 
+static std::random_device rd;
+static std::mt19937 gen(rd());
+
 static const std::u8string bstr[2] = {u8"0", u8"1"};
+
+static const std::u8string dirnames[6] =
+    {u8"north", u8"south", u8"east", u8"west", u8"up", u8"down"};
 
 static std::u8string itos(int val) {
   return fmt::format(u8"{}", val);
@@ -2747,7 +2753,6 @@ int Mind::TBARunLine(std::u8string linestr) {
   return 0;
 }
 
-static const std::u8string dirnames[4] = {u8"north", u8"south", u8"east", u8"west"};
 uint32_t items[8] = {
     prhash(u8"Food"),
     prhash(u8"Hungry"), // Order is Most to Least Important
@@ -2777,8 +2782,9 @@ bool Mind::Think(int istick) {
       if (time > day / 4 - early && time < 3 * day / 4 + late) {
         if (body->Pos() == pos_t::LIE) {
           handle_command(body, u8"wake;stand");
-        }
-        if (body->Parent() != body->ActTarg(act_t::SPECIAL_WORK)) {
+        } else if (body->IsAct(act_t::WORK)) {
+          // Already working, nothing to do here.
+        } else if (body->Parent() != body->ActTarg(act_t::SPECIAL_WORK)) {
           if (!svars.contains(u8"path")) {
             handle_command(body, u8"say 'Time to head to work!");
             auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_WORK));
@@ -2909,6 +2915,30 @@ bool Mind::Think(int istick) {
       }
     }
 
+    // On Patrol
+    if ((body->HasTag(crc32c(u8"guard")) || body->HasTag(crc32c(u8"soldier"))) &&
+        body->IsAct(act_t::WORK)) {
+      if (std::uniform_int_distribution(0, 999)(gen) < 55) { // 5.5% Chance
+        std::vector<std::u8string_view> options;
+        auto conns = body->Room()->Connections();
+        std::u8string_view area = u8"";
+        if (body->ActTarg(act_t::SPECIAL_WORK)) { // Only patrol the street you patrol, etc.
+          area = body->ActTarg(act_t::SPECIAL_WORK)->ShortDesc();
+        }
+        for (int d = 0; d < 6; ++d) {
+          if (conns[d] && (area.length() == 0 || conns[d]->ShortDesc() == area)) {
+            options.push_back(dirnames[d]);
+          }
+        }
+        if (options.size() > 1) {
+          shuffle(options.begin(), options.end(), gen);
+        }
+        if (options.size() > 0) {
+          handle_command(body, options.front());
+        }
+      }
+    }
+
   } else if (type == mind_t::MOB) {
     if (body->Skill(prhash(u8"Personality")) & 1) { // Group Mind
       //      body->TryCombine();	// I AM a group, after all.
@@ -2946,9 +2976,7 @@ bool Mind::Think(int istick) {
           }
         }
 
-        std::random_device rd;
-        std::mt19937 g(rd());
-        std::shuffle(dirs.begin(), dirs.end(), g);
+        std::shuffle(dirs.begin(), dirs.end(), gen);
 
         int orig = body->Skill(items[req + 1]);
         int leave = orig / 10000;
@@ -3278,7 +3306,8 @@ int new_trigger(
 
 std::vector<std::pair<int64_t, Mind*>> Mind::waiting;
 void Mind::Suspend(int msec) {
-  // if(body && body->Skill(prhash(u8"TBAScript")) >= 5034503 && body->Skill(prhash(u8"TBAScript"))
+  // if(body && body->Skill(prhash(u8"TBAScript")) >= 5034503 &&
+  // body->Skill(prhash(u8"TBAScript"))
   // <= 5034507)
   //  logeb(u8"Suspended({}): '{}'\n", msec,
   //  body->Skill(prhash(u8"TBAScript")));
