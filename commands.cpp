@@ -7336,9 +7336,8 @@ int handle_command(Object* body, const std::u8string_view& cl, Mind* mind) {
   }
 
   auto start = cl.find_first_not_of(u8"; \t\r\n");
-  auto end = start;
   while (start != std::u8string::npos) {
-    end = cl.find_first_of(u8";\r\n", start + 1);
+    auto end = cl.find_first_of(u8";\r\n", start + 1);
 
     std::u8string_view single(cl);
     if (end != std::u8string::npos) {

@@ -874,7 +874,7 @@ void Object::TBALoadMOB(const std::u8string& fn) {
 
         val = nextnum(mud);
         skipspace(mud);
-        val2 = nextnum(mud);
+        nextnum(mud); // val2 is unused
         skipspace(mud);
         val3 = nextnum(mud);
         skipspace(mud);
@@ -2570,6 +2570,8 @@ void Object::TBALoadSHP(const std::u8string& fn) {
         vortex = new Object;
         vortex->SetShortDesc(u8"a shopkeeper vortex");
         vortex->SetDesc(u8"An advanced wormhole that shopkeeper's use.");
+        vortex->SetLongDesc(
+            fmt::format(u8"This inexplicable wormhole seems to implement shop #{}.", val));
         vortex->SetSkill(prhash(u8"Vortex"), 1); // Mark it as a shopkeeper Vortex.
         vortex->SetSkill(prhash(u8"Invisible"), 1000);
         vortex->SetSkill(prhash(u8"Perishable"), 1);
@@ -2632,13 +2634,13 @@ void Object::TBALoadSHP(const std::u8string& fn) {
           skipspace(mud);
         }
 
-        val = nextnum(mud); // Open time
+        nextnum(mud); // Open time
         skipspace(mud);
-        val = nextnum(mud); // Close time
+        nextnum(mud); // Close time
         skipspace(mud);
-        val = nextnum(mud); // Open time
+        nextnum(mud); // Open time
         skipspace(mud);
-        val = nextnum(mud); // Close time
+        nextnum(mud); // Close time
         skipspace(mud);
 
         if (keeper) {
