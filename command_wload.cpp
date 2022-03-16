@@ -198,13 +198,13 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
       }
       if (process(line, u8":")) {
         lnum = nextnum(line);
+        if (process(line, u8"-")) {
+          hnum = nextnum(line);
+        } else {
+          hnum = lnum;
+        }
       } else {
         parse_error = true;
-      }
-      if (process(line, u8"-")) {
-        hnum = nextnum(line);
-      } else {
-        hnum = lnum;
       }
       if (process(line, u8":")) {
         emptags[sym].emplace_back(line);
@@ -225,13 +225,13 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
       }
       if (process(line, u8":")) {
         lnum = nextnum(line);
+        if (process(line, u8"-")) {
+          hnum = nextnum(line);
+        } else {
+          hnum = lnum;
+        }
       } else {
         parse_error = true;
-      }
-      if (process(line, u8"-")) {
-        hnum = nextnum(line);
-      } else {
-        hnum = lnum;
       }
       if (process(line, u8":")) {
         emptags[sym].emplace_back(line);
@@ -252,13 +252,13 @@ static bool load_map(Object* world, Mind* mind, const std::filesystem::directory
       }
       if (process(line, u8":")) {
         lnum = nextnum(line);
+        if (process(line, u8"-")) {
+          hnum = nextnum(line);
+        } else {
+          hnum = lnum;
+        }
       } else {
         parse_error = true;
-      }
-      if (process(line, u8"-")) {
-        hnum = nextnum(line);
-      } else {
-        hnum = lnum;
       }
       if (process(line, u8":")) {
         restags[sym].emplace_back(line);
