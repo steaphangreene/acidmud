@@ -166,8 +166,15 @@ int main(int argc, char** argv) {
     new_argv[ctr + 1] = strdup(reinterpret_cast<const char*>(netacc.c_str()));
     new_argv[ctr + 2] = nullptr;
 
-    execvp(strdup(argv[0]), new_argv);
+    char* new_argv0 = strdup(argv[0]);
+    execvp(new_argv0, new_argv);
+
     perror("execvp() failed for restart");
+    free(new_argv0);
+    for (int i = 0; i < ctr + 2; ++i) {
+      free(new_argv[i]);
+    }
+    delete[] new_argv;
   }
 
   warn_net(1);
