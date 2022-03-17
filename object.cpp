@@ -939,7 +939,7 @@ std::u8string Object::Noun(bool definite, bool verbose, const Object* rel, const
     } else if (own && own == sub) {
       ret = fmt::format(u8"its {}", ret);
     } else if (own) {
-      ret = own->Noun(definite, verbose, rel, sub) + u8"'s " + ret;
+      ret = own->Noun(definite, false, rel, sub) + u8"'s " + ret;
     } else if (definite && (!proper)) {
       ret = fmt::format(u8"the {}", ret);
     } else if ((!proper) && need_an) {
