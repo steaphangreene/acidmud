@@ -428,3 +428,49 @@ desc:A pack
 long:A simple pack for holding items.  This can be quickly thrown over one shoulder for easy portability.
 wear:RSHOULDER
 wear:LSHOULDER
+
+tag:room:dwarven
+
+tag:room:human
+
+tag:room:furnace
+otag:furnace
+
+tag:obj:furnace
+short:A furnace
+desc:A furnace furnace is set up here, to turn wood to charcoal.
+
+tag:room:armory
+otag:forge
+
+tag:obj:forge
+short:A forge
+desc:A forge has been built here, ready for a smith to use.
+
+tag:room:tavern
+
+tag:room:smithy
+
+tag:room:bladesmithy
+
+tag:room:refinery
+
+tag:room:woodmill
+
+tag:room:woodshop
+
+tag:room:inn
+
+tag:room:store
+
+tag:room:mint
+
+tag:room:foundry
+
+tag:room:food
+
+tag:room:large
+
+tag:room:meals
+
+tag:room:good
