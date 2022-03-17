@@ -1074,11 +1074,11 @@ void Object::SendActions(std::shared_ptr<Mind> m) {
       std::u8string dirn = u8"";
       std::u8string dirp = u8"";
 
-      if (!cur.obj())
+      if (!cur.obj()) {
         targ = u8"";
-      else
+      } else {
         targ = cur.obj()->Noun(0, 0, m->Body(), this);
-
+      }
       //      //FIXME: Busted!  This should be the u8"pointing north to bob"
       //      thingy.
       //      for(auto dir : connections) {
@@ -1088,8 +1088,15 @@ void Object::SendActions(std::shared_ptr<Mind> m) {
       //	  break;
       //	  }
       //	}
-      m->Send(u8", ");
-      m->Send(act_str[static_cast<uint8_t>(cur.act())], targ, dirn, dirp);
+      if (cur.act() == act_t::WIELD && IsAct(act_t::HOLD) && ActTarg(act_t::HOLD) == cur.obj()) {
+        m->Send(u8", wielding {0} with both hands", targ);
+      } else if (
+          cur.act() == act_t::HOLD && IsAct(act_t::WIELD) && ActTarg(act_t::WIELD) == cur.obj()) {
+        // Show nothing, already included above.
+      } else {
+        m->Send(u8", ");
+        m->Send(act_str[static_cast<uint8_t>(cur.act())], targ, dirn, dirp);
+      }
     }
   }
   if (HasSkill(prhash(u8"Invisible"))) {
