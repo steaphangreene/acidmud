@@ -39,7 +39,7 @@
 class Object;
 class Player;
 class Mind;
-class NPCType;
+class NPCTag;
 
 #ifndef OBJECT_HPP
 #define OBJECT_HPP
@@ -626,7 +626,7 @@ class alignas(256) Object {
   static void FreeActions();
 
  private:
-  Object* AddNPC(std::mt19937&, const NPCType*, const std::u8string_view& tags = u8"");
+  Object* AddNPC(std::mt19937&, const NPCTag*, const std::u8string_view& tags = u8"");
 
   void NotifyLeft(Object* obj, Object* newloc = nullptr);
 
