@@ -2532,7 +2532,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
     if (body) {
       Object* world = body->World();
       if (world) {
-        if (world->Skill(prhash(u8"Day Time")) && world->Skill(prhash(u8"Day Length"))) {
+        if (world->HasSkill(prhash(u8"Day Time")) && world->HasSkill(prhash(u8"Day Length"))) {
           int curtime = world->Skill(prhash(u8"Day Time"));
           curtime *= 24 * 60;
           curtime /= world->Skill(prhash(u8"Day Length"));
