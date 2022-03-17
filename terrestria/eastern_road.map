@@ -4,13 +4,13 @@ en_link:Northern Road
 en_link:Forest Trail
 en_link:Hillfort
 en_link:Southern Road
-place:$:in the thick woods
+place:$::in the thick woods
 trees:$
-place:&:on the wide plain
-place:+:a well-worn road through the woods
-place:=:a well-worn road across the plain
-place:.:a narrow path through the woods
-place:%:an intersection at the edge of the woods
+place:&::on the wide plain
+place:+::a well-worn road through the woods
+place:=::a well-worn road across the plain
+place:.::a narrow path through the woods
+place:%::an intersection at the edge of the woods
 start:%
 ascii_map:
 

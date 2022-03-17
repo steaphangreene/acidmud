@@ -127,15 +127,15 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
     } else if (process(line, u8"building:")) {
       char8_t sym = nextchar(line);
       if (process(line, u8":")) {
-        rooms[sym].emplace_back(getuntil(line, ':'));
-        roomtags[sym].emplace_back(line);
+        roomtags[sym].emplace_back(getuntil(line, ':'));
+        rooms[sym].emplace_back(line);
         indoors[sym] = true;
       }
     } else if (process(line, u8"place:")) {
       char8_t sym = nextchar(line);
       if (process(line, u8":")) {
-        rooms[sym].emplace_back(getuntil(line, ':'));
-        roomtags[sym].emplace_back(line);
+        roomtags[sym].emplace_back(getuntil(line, ':'));
+        rooms[sym].emplace_back(line);
       }
     } else if (process(line, u8"level:")) {
       char8_t sym = nextchar(line);
