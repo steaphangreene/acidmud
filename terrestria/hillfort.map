@@ -39,20 +39,29 @@ house:2.1:0-3:dwarven
 employ:2.0:1-2:dwarven,citizen
 building:1:The Hillfort Furnace:furnace,dwarven
 product:charcoal:100:100:furnace,master:wood:200:10
-building:1:The Hillfort Refinery:refinery,dwarven
-building:1:The Hillfort Foundry:foundry,dwarven
-building:1:The Hillfort Mint:mint,dwarven
-building:1:The Hillfort Smithy:smithy,dwarven
 building:1:The Hillfort Armory:armory,dwarven
+building:1:The Hillfort Tavern:tavern,dwarven
+building:1:The Hillfort Smithy:smithy,dwarven
 building:1:The Hillfort Bladesmithy:bladesmithy,dwarven
+building:1:The Hillfort Refinery:refinery,dwarven
 building:1:The Hillfort Woodmill:woodmill,dearven
 building:1:The Hillfort Woodshop:woodshop,dwarven
 building:1:The Hillfort Inn:inn,large,good,meals,dwarven
-building:1:The Hillfort Tavern:tavern,dwarven
 building:1:The Hillfort Grocery:store,food,human
+building:1:The Hillfort Mint:mint,dwarven
+building:1:The Hillfort Foundry:foundry,dwarven
+inorder:1
 employ:1:1:dwarven,master
 employ:1:1-3:dwarven,citizen
-place:0:a market stall
+place:0:a lumber tent
+place:0:a grainery tent
+place:0:a grocery tent
+place:0:a furrier tent
+place:0:a furrier tent
+place:0:a grocery tent
+place:0:a grainery tent
+place:0:a mining tent
+inorder:0
 employ:0:1-2:dwarven,citizen
 place:+:stone street
 employ:+:0-1:dwarven,guard

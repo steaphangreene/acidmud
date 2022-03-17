@@ -3322,7 +3322,6 @@ void Mind::SetSVars(const std::map<std::u8string, std::u8string>& sv) {
   svars = sv;
 }
 
-
 static std::shared_ptr<Mind> mob_mind = std::make_shared<Mind>(mind_t::MOB);
 std::shared_ptr<Mind> get_mob_mind() {
   return mob_mind;
