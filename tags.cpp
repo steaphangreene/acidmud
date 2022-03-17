@@ -10,6 +10,8 @@ static std::map<const Object*, std::map<std::u8string, NPCTag>> npctagdefs;
 static std::map<const Object*, std::map<std::u8string, WeaponTag>> weapontagdefs;
 static std::map<const Object*, std::map<std::u8string, ArmorTag>> armortagdefs;
 static std::map<const Object*, std::map<std::u8string, ItemTag>> itemtagdefs;
+static std::map<const Object*, std::map<std::u8string, ItemTag>> roomtagdefs;
+static std::map<const Object*, std::map<std::u8string, ItemTag>> objtagdefs;
 
 static bool intparam(std::u8string_view& line, const std::u8string_view& lab, int& min, int& max) {
   if (process(line, lab)) {
@@ -485,6 +487,8 @@ bool ItemTag::LoadFrom(std::u8string_view& def) {
       desc_ = std::u8string(getuntil(line, '\n'));
     } else if (process(line, u8"long:")) {
       long_desc_ = std::u8string(getuntil(line, '\n'));
+    } else if (process(line, u8"otag:")) {
+      otags_.emplace_back(getuntil(line, '\n'));
     } else if (process(line, u8"prop:")) {
       auto sname = getuntil(line, ':');
       int32_t sval = getnum(line);
@@ -513,6 +517,8 @@ bool Object::LoadTags() {
   weapontagdefs[this];
   armortagdefs[this];
   itemtagdefs[this];
+  roomtagdefs[this];
+  objtagdefs[this];
 
   auto datasets = PickObjects(u8"all world data: defined tags", LOC_INTERNAL | LOC_NINJA);
   if (datasets.size() == 0) {
@@ -534,6 +540,8 @@ bool Object::LoadTagsFrom(const std::u8string_view& tagdefs, bool save) {
   weapontagdefs[this];
   armortagdefs[this];
   itemtagdefs[this];
+  roomtagdefs[this];
+  objtagdefs[this];
 
   std::u8string_view defs = tagdefs;
 
@@ -561,6 +569,18 @@ bool Object::LoadTagsFrom(const std::u8string_view& tagdefs, bool save) {
       std::u8string tag(getuntil(defs, '\n'));
       if (!itemtagdefs[this].try_emplace(tag, defs).second) {
         loger(u8"Duplicate Item tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
+        return false;
+      }
+    } else if (process(defs, u8"room:")) {
+      std::u8string tag(getuntil(defs, '\n'));
+      if (!roomtagdefs[this].try_emplace(tag, defs).second) {
+        loger(u8"Duplicate Room tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
+        return false;
+      }
+    } else if (process(defs, u8"obj:")) {
+      std::u8string tag(getuntil(defs, '\n'));
+      if (!objtagdefs[this].try_emplace(tag, defs).second) {
+        loger(u8"Duplicate Object tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
       }
     } else {
@@ -603,6 +623,12 @@ std::u8string get_tags_string(Object* world, const MinVec<1, uint64_t>& tags) {
   for (const auto& t : itemtagdefs[world]) {
     tagnames.insert(t.first);
   }
+  for (const auto& t : roomtagdefs[world]) {
+    tagnames.insert(t.first);
+  }
+  for (const auto& t : objtagdefs[world]) {
+    tagnames.insert(t.first);
+  }
 
   std::u8string ret = u8"";
   for (const auto& t : tagnames) {
@@ -636,12 +662,6 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
   if (!World()->LoadTags()) {
     loger(u8"ERROR: Asked to load NPC in a world with no tags defined.\n");
   }
-
-  // Make sure these all exist, even if they remain empty.
-  npctagdefs[World()];
-  weapontagdefs[World()];
-  armortagdefs[World()];
-  itemtagdefs[World()];
 
   // Merge Given NPC Tags into new NPC Def
   auto npcdef = base_npc;
