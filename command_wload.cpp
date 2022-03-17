@@ -425,16 +425,17 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
             world->AddAct(act_t::SPECIAL_HOME, objs[coord{x, y}].back());
           }
         }
-        std::u8string roomname = rooms[room][0];
-        std::u8string roomtag = roomtags[room][0];
+        std::u8string roomname = rooms[room].front();
+        std::u8string roomtag = roomtags[room].front();
         if (rooms[room].size() > 1) { // FIXME: Same number means one of each.
           std::vector<std::u8string> out = {u8""};
           if (inorder[room]) {
-            roomname = rooms[room].front();
             std::rotate(rooms[room].begin(), rooms[room].begin() + 1, rooms[room].end());
+            std::rotate(roomtags[room].begin(), roomtags[room].begin() + 1, roomtags[room].end());
           } else {
-            std::sample(rooms[room].begin(), rooms[room].end(), out.begin(), 1, gen);
-            roomname = out.front(); // FIXME: Sync index with roomtags.
+            int idx = std::uniform_int_distribution<int>(0, rooms[room].size() - 1)(gen);
+            roomname = rooms[room].at(idx);
+            roomtag = roomtags[room].at(idx);
           }
         }
         if (objs[coord{x, y}].size() > 1) {
@@ -483,10 +484,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
           objs[coord{x, y}].back()->SetShortDesc(roomname);
           objs[coord{x, y}].back()->SetDesc(fmt::format(
               u8"This is {0}, on {1}.  {0} is nice.", zone->ShortDesc(), world->ShortDesc()));
-          if (roomtags.contains(room)) {
-            objs[coord{x, y}].back()->SetLongDesc(roomtags[room][0]); // TODO: Delete This
-            objs[coord{x, y}].back()->SetTags(roomtags[room][0]);
-          }
+          objs[coord{x, y}].back()->SetTags(roomtag);
         }
 
         // Load data for housing capacities for these new objects
