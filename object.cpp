@@ -1741,7 +1741,11 @@ void Object::SendScore(std::shared_ptr<Mind> m, Object* o) {
           Skill(prhash(u8"Skill Points")));
     }
   } else {
-    m->Send(CYEL u8"Number of Flags: {:>4}  Knowledge: {:>4}\n" CNRM, Exp(), known.size());
+    m->Send(
+        CYEL u8"Knowledge: {:>4}  Tags[{}]: {}\n" CNRM,
+        known.size(),
+        completed.size(),
+        get_tags_string(World(), completed));
   }
 }
 

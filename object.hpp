@@ -698,6 +698,7 @@ int is_skill(uint32_t stok);
 uint32_t get_weapon_skill(int wtype);
 int get_weapon_type(const std::u8string_view& wskill);
 int two_handed(int wtype);
+std::u8string get_tags_string(Object* world, const MinVec<1, uint64_t>& tags);
 
 void tick_world();
 

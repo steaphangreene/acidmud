@@ -1049,3 +1049,40 @@ bool Object::LoadTagsFrom(const std::u8string_view& tagdefs, bool save) {
 
   return true;
 }
+
+std::u8string get_tags_string(Object* world, const MinVec<1, uint64_t>& tags) {
+  if (!npctagdefs.contains(world)) {
+    if (!world->LoadTags()) {
+      logey(u8"Warning: Asked to inspect tags in a world with no tags defined.\n");
+    }
+  }
+
+  std::set<std::u8string_view> tagnames;
+  for (const auto& t : npctagdefs[world]) {
+    tagnames.insert(t.first);
+  }
+  for (const auto& t : weapontagdefs[world]) {
+    tagnames.insert(t.first);
+  }
+  for (const auto& t : armortagdefs[world]) {
+    tagnames.insert(t.first);
+  }
+  for (const auto& t : itemtagdefs[world]) {
+    tagnames.insert(t.first);
+  }
+
+  std::u8string ret = u8"";
+  for (const auto& t : tagnames) {
+    uint32_t tag = crc32c(t);
+    for (const auto& tn : tags) {
+      if (tag == tn) {
+        ret += fmt::format(u8"{},", t);
+        break;
+      }
+    }
+  }
+  if (ret.length() > 0) {
+    ret.pop_back();
+  }
+  return ret;
+}

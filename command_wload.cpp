@@ -445,7 +445,6 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
                 u8"This is a building in {0}, on {1}.  {0} is nice.",
                 zone->ShortDesc(),
                 world->ShortDesc()));
-            objs[coord{x, y}].back()->SetLongDesc(roomtag); // TODO: Delete This
             objs[coord{x, y}].back()->SetTags(roomtag);
             if (f > 0) {
               std::u8string_view stairname = u8"a stairway";
