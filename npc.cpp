@@ -430,7 +430,12 @@ static std::u8string desc_merge(std::u8string_view d1, std::u8string_view d2) {
       return fmt::format(u8"{}{}", d1, d2);
     }
   } else if (d2.back() == '+') {
-    return (desc_merge(d2, d1));
+    return desc_merge(d2, d1);
+  } else if (d1.contains('+')) {
+    auto pos = d1.find_last_of('+');
+    return desc_merge(d1.substr(0, pos + 1), d2);
+  } else if (d2.contains('+')) {
+    return desc_merge(d2, d1);
   } else {
     return fmt::format(u8"{}", d2); // New base after old base, replace *all* previous text
   }
@@ -494,7 +499,7 @@ void NPCType::FinalizeWeaponTags(const std::map<std::u8string, WeaponType>& tagd
       loger(u8"ERROR: Use of undefined Weapon tag: '{}'.  Skipping.\n", wtag);
     }
   }
-  for(auto& w : weapons_) {
+  for (auto& w : weapons_) {
     std::replace(w.short_desc_.begin(), w.short_desc_.end(), '+', ' ');
     std::replace(w.desc_.begin(), w.desc_.end(), '+', ' ');
   }
@@ -524,7 +529,7 @@ void NPCType::FinalizeArmorTags(const std::map<std::u8string, ArmorType>& tagdef
       }
     }
   }
-  for(auto& a : armor_) {
+  for (auto& a : armor_) {
     std::replace(a.short_desc_.begin(), a.short_desc_.end(), '+', ' ');
     std::replace(a.desc_.begin(), a.desc_.end(), '+', ' ');
   }
@@ -539,7 +544,7 @@ void NPCType::FinalizeItemTags(const std::map<std::u8string, ItemType>& tagdefs)
       loger(u8"ERROR: Use of undefined Item tag: '{}'.  Skipping.\n", itag);
     }
   }
-  for(auto& i : items_) {
+  for (auto& i : items_) {
     std::replace(i.short_desc_.begin(), i.short_desc_.end(), '+', ' ');
     std::replace(i.desc_.begin(), i.desc_.end(), '+', ' ');
   }

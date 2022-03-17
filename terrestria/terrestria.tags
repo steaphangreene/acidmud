@@ -214,12 +214,12 @@ force:-2-0
 severity:3
 
 tag:weapon:dwarven
-short:dwarven+
+short:a dwarven+
 desc:A super-strong+
 force:1
 
 tag:weapon:combat
-short:combat+
+short:a combat+
 desc:A combat+
 force:1-2
 
