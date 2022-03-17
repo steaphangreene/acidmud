@@ -90,6 +90,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
   std::map<char8_t, bool> locked;
   std::map<char8_t, std::u8string> locktags;
   std::map<char8_t, int32_t> lockid;
+  std::map<char8_t, bool> inorder;
   std::map<char8_t, bool> indoors;
   std::map<char8_t, bool> trees;
   std::map<char8_t, uint8_t> levels;
@@ -144,6 +145,9 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
     } else if (process(line, u8"trees:")) {
       char8_t sym = nextchar(line);
       trees[sym] = true;
+    } else if (process(line, u8"inorder:")) {
+      char8_t sym = nextchar(line);
+      inorder[sym] = true;
     } else if (process(line, u8"stair:")) {
       char8_t sym = nextchar(line);
       int floor = 0;
@@ -425,8 +429,13 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
         std::u8string roomtag = roomtags[room][0];
         if (rooms[room].size() > 1) { // FIXME: Same number means one of each.
           std::vector<std::u8string> out = {u8""};
-          std::sample(rooms[room].begin(), rooms[room].end(), out.begin(), 1, gen);
-          roomname = out.front(); // FIXME: Sync index with roomtags.
+          if (inorder[room]) {
+            roomname = rooms[room].front();
+            std::rotate(rooms[room].begin(), rooms[room].begin() + 1, rooms[room].end());
+          } else {
+            std::sample(rooms[room].begin(), rooms[room].end(), out.begin(), 1, gen);
+            roomname = out.front(); // FIXME: Sync index with roomtags.
+          }
         }
         if (objs[coord{x, y}].size() > 1) {
           for (uint32_t f = 0; f < objs[coord{x, y}].size(); ++f) {
