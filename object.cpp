@@ -2811,8 +2811,13 @@ int Object::IsNearBy(const Object* obj) const {
 }
 
 void Object::NotifyLeft(Object* obj, Object* newloc) {
-  if (this == obj)
-    return;
+  if (this == obj) {
+    return; // It's myself.
+  }
+
+  if (newloc && Room() == newloc->Room()) {
+    return; // It's still here.
+  }
 
   std::set<act_t> stops, stops2;
   int following = 0;
