@@ -3258,17 +3258,21 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       return 0;
     }
 
-    if (body->IsAct(act_t::HOLD)) {
-      if (mind)
-        mind->Send(u8"You are already holding something.  Drop it first.\n");
-      return 0;
-    }
-
     Object* targ = body->PickObject(std::u8string(args), vmode | LOC_NEARBY);
     if (!targ) {
       if (mind)
         mind->Send(u8"You want to drag what?\n");
       return 0;
+    } else if (body->ActTarg(act_t::HOLD) == targ) {
+      if (mind) {
+        mind->Send(u8"You are already holding {}!\n", targ->Noun(1, 1, body));
+      }
+    } else if (
+        body->IsAct(act_t::HOLD) && body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WIELD) &&
+        body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WEAR_SHIELD)) {
+      if (mind) {
+        mind->Send(u8"You are already holding something.  Drop or stash it first.\n");
+      }
     }
 
     if (targ->Pos() == pos_t::NONE) {
@@ -3729,21 +3733,23 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
 
     Object* targ = body->PickObject(std::u8string(args), vmode | LOC_INTERNAL);
     if (!targ) {
-      if (mind)
+      if (mind) {
         mind->Send(u8"You want to hold what?\n");
-    }
-    // FIXME - Implement Str-based Holding Capacity
-    //    else if(targ->Skill(prhash(u8"WeaponType")) <= 0) {
-    //      if(mind) mind->Send(u8"You can't hold that - you are too weak!\n");
-    //      }
-    else if (body->ActTarg(act_t::HOLD) == targ) {
-      if (mind)
+      }
+      // FIXME - Implement Str-based Holding Capacity
+      //    else if(targ->Skill(prhash(u8"WeaponType")) <= 0) {
+      //      if(mind) mind->Send(u8"You can't hold that - you are too weak!\n");
+      //      }
+    } else if (body->ActTarg(act_t::HOLD) == targ) {
+      if (mind) {
         mind->Send(u8"You are already holding {}!\n", targ->Noun(1, 1, body));
+      }
     } else if (
         body->IsAct(act_t::HOLD) && body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WIELD) &&
         body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WEAR_SHIELD)) {
-      if (mind)
-        mind->Send(u8"You are already holding something!\n");
+      if (mind) {
+        mind->Send(u8"You are already holding something.  Drop or stash it first.\n");
+      }
     } else if (
         body->ActTarg(act_t::WIELD) == targ &&
         two_handed(body->ActTarg(act_t::WIELD)->Skill(prhash(u8"WeaponType")))) {
