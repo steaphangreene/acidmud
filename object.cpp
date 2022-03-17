@@ -454,7 +454,7 @@ int Object::Tick() {
       obj->SetParent(this);
       obj->Travel(parent);
       AddAct(act_t::SPECIAL_MONITOR, obj);
-      obj->Attach(std::make_shared<Mind>(mind_t::TBAMOB));
+      obj->Attach(get_tbamob_mind());
       obj->Activate();
       parent->SendOut(ALL, -1, u8";s arrives.\n", u8"", obj, nullptr);
       for (auto trg : obj->Contents()) { // Enable any untriggered triggers

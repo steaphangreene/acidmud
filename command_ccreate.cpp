@@ -301,7 +301,7 @@ int handle_command_ccreate(
             people->SetSkill(prhash(u8"Tired"), 10000);
             people->SetSkill(prhash(u8"Needy"), 1000);
             people->SetPos(pos_t::STAND);
-            people->Attach(std::make_shared<Mind>(mind_t::MOB));
+            people->Attach(get_mob_mind());
             for (int a = 0; a < 6; ++a)
               people->SetAttribute(a, 3);
             people->Activate();

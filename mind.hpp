@@ -144,6 +144,10 @@ class Mind {
   static std::vector<std::pair<int64_t, std::shared_ptr<Mind>>> waiting;
 };
 
+std::shared_ptr<Mind> get_mob_mind();
+
+std::shared_ptr<Mind> get_tbamob_mind();
+
 std::shared_ptr<Mind> new_mind(
     mind_t tp,
     Object* obj = nullptr,

@@ -372,9 +372,9 @@ int Object::LoadFrom(std::u8string_view& fl) {
   if (IsAct(act_t::SPECIAL_WORK)) {
     Attach(std::make_shared<Mind>(mind_t::NPC));
   } else if (Skill(prhash(u8"Personality"))) {
-    Attach(std::make_shared<Mind>(mind_t::MOB));
+    Attach(get_mob_mind());
   } else if (Skill(prhash(u8"TBAAction"))) {
-    Attach(std::make_shared<Mind>(mind_t::TBAMOB));
+    Attach(get_tbamob_mind());
   }
 
   if (Skill(prhash(u8"TBAScriptType")) & 2) { // Random/Permanent Triggers
