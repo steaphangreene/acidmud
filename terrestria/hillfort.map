@@ -7,36 +7,36 @@ lower_level:0
 building:5::fortress
 stair:5.1:the grand stairway
 stair:5.2:the grand stairway
-house:5.4:1:dwarven,leader
-house:5.3:8:elite,dwarven,guard
-employ:5.3:1-2:elite,dwarven,guard
-night:5.3:1-2:elite,dwarven,guard
-employ:5.2:1-1:dwarven,leader
-employ:5.2:1-2:elite,dwarven,guard
-employ:5.1:1-2:elite,dwarven,guard
-employ:5.0:4-8:dwarven,guard
-employ:5.0:8-20:dwarven,citizen
+house:5.4:1:leader,dwarven
+house:5.3:8:elite,guard,dwarven
+employ:5.3:1-2:elite,guard,dwarven
+night:5.3:1-2:elite,guard,dwarven
+employ:5.2:1-1:leader,dwarven
+employ:5.2:1-2:elite,guard,dwarven
+employ:5.1:1-2:elite,guard,dwarven
+employ:5.0:4-8:guard,dwarven
+employ:5.0:8-20:citizen,dwarven
 building:4::tower
-employ:4.3:2:dwarven,soldier
-house:4.1:16:dwarven,soldier
-house:4.0:12:dwarven,guard
+employ:4.3:2:soldier,dwarven
+house:4.1:16:soldier,dwarven
+house:4.0:12:guard,dwarven
 building:3::gate house
 blockedstair:3.1:a heavy iron grate
-employ:3.2:1:dwarven,soldier
-night:3.2:1:dwarven,soldier
-employ:3.1:1:dwarven,soldier
-night:3.1:1:dwarven,soldier
-employ:3.0:2:dwarven,soldier
-night:3.0:2:dwarven,soldier
+employ:3.2:1:soldier,dwarven
+night:3.2:1:soldier,dwarven
+employ:3.1:1:soldier,dwarven
+night:3.1:1:soldier,dwarven
+employ:3.0:2:soldier,dwarven
+night:3.0:2:soldier,dwarven
 building:2::shop
 building:2::shop
 building:2::shop
 building:2::shop
 building:2::inn
 building:2::tavern
-house:2.1:2-4:dwarven,citizen
+house:2.1:2-4:citizen,dwarven
 house:2.1:0-3:dwarven
-employ:2.0:1-2:dwarven,citizen
+employ:2.0:1-2:citizen,dwarven
 building:1:furnace,dwarven:The Hillfort Furnace
 product:charcoal:100:100:furnace,master:wood:200:10
 building:1:armory,dwarven:The Hillfort Armory
@@ -51,8 +51,8 @@ building:1:store,food,human:The Hillfort Grocery
 building:1:mint,dwarven:The Hillfort Mint
 building:1:foundry,dwarven:The Hillfort Foundry
 inorder:1
-employ:1:1:dwarven,master
-employ:1:1-3:dwarven,citizen
+employ:1:1:master,dwarven
+employ:1:1-3:citizen,dwarven
 place:0::a lumber tent
 place:0::a grainery tent
 place:0::a grocery tent
@@ -62,19 +62,19 @@ place:0::a grocery tent
 place:0::a grainery tent
 place:0::a mining tent
 inorder:0
-employ:0:1-2:dwarven,citizen
+employ:0:1-2:citizen,dwarven
 place:+::stone street
-employ:+:0-1:dwarven,guard
-night:+:0-1:dwarven,guard
+employ:+:0-1:guard,dwarven
+night:+:0-1:guard,dwarven
 place:#::wide stone street
 en_place:wide stone street
 en_place:wide stone street
-employ:#:1-2:dwarven,guard
+employ:#:1-2:guard,dwarven
 place:=::massive stone bridge
 place::::atop the stone wall
 level:::2
-employ:::0-1:dwarven,soldier
-night:::0-1:dwarven,soldier
+employ:::0-1:soldier,dwarven
+night:::0-1:soldier,dwarven
 door:o:heavy wooden door
 lock:o:resident,worker
 key:o:an iron key
