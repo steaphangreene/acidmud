@@ -141,17 +141,27 @@ i:2-2
 w:2-2
 gold:1000-2000
 
+tag:weapon:stick
+short:a stick
+desc:A stick picked up off the ground.
+skill:Long Crushing
+weight:1000
+size:1000
+volume:200
+value:0
+reach:1
+force:-2-2
+severity:1
+
 tag:weapon:spear
 short:a spear
 desc:A spear.
 skill:Long Piercing
-weight:1000
-size:2000
-volume:100
+size:1000
+volume:-100
 value:10
-reach:2
-force:-2-2
-severity:2
+reach:1
+severity:1
 
 tag:weapon:sword
 short:a sword
@@ -161,9 +171,9 @@ weight:1000
 size:1000
 volume:100
 value:100
-reach:1
-force:-2-2
-severity:2
+reach:0
+force:0
+severity:1
 
 tag:weapon:axe
 short:an axe
@@ -173,9 +183,9 @@ weight:1000
 size:1000
 volume:100
 value:100
-reach:1
-force:-2-2
-severity:2
+reach:0
+force:0
+severity:1
 
 tag:weapon:hammer
 short:a hammer
@@ -185,9 +195,9 @@ weight:1000
 size:1000
 volume:100
 value:100
-reach:1
+reach:0
 force:-1-1
-severity:2
+severity:1
 
 tag:weapon:pick
 short:a pick
@@ -197,9 +207,9 @@ weight:1000
 size:1000
 volume:100
 value:100
-reach:1
+reach:0
 force:-2-2
-severity:2
+severity:1
 
 tag:weapon:pickaxe
 short:a pickaxe
@@ -209,9 +219,9 @@ weight:1000
 size:1000
 volume:100
 value:100
-reach:2
+reach:1
 force:-2-0
-severity:3
+severity:2
 
 tag:weapon:dwarven
 short:a dwarven+
