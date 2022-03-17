@@ -1088,7 +1088,10 @@ void Object::SendActions(std::shared_ptr<Mind> m) {
       //	  break;
       //	  }
       //	}
-      if (cur.act() == act_t::WIELD && IsAct(act_t::HOLD) && ActTarg(act_t::HOLD) == cur.obj()) {
+      if (cur.act() == act_t::HOLD && ActTarg(act_t::HOLD)->Parent() != this) {
+        m->Send(u8", dragging {0}", targ);
+      } else if (
+          cur.act() == act_t::WIELD && IsAct(act_t::HOLD) && ActTarg(act_t::HOLD) == cur.obj()) {
         m->Send(u8", wielding {0} with both hands", targ);
       } else if (
           cur.act() == act_t::HOLD && IsAct(act_t::WIELD) && ActTarg(act_t::WIELD) == cur.obj()) {
