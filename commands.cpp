@@ -2633,7 +2633,14 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
         mind->Send(u8"You don't see that here.\n");
     } else {
       if (mind) {
-        if (targ->Room() == targ->Parent()) {
+        if (targ->Room() == targ) {
+          mind->Send(
+              CCYN u8"{} is in {}, in {}.\n" CNRM,
+              targ->Noun(),
+              targ->Zone()->ShortDesc(),
+              targ->World()->ShortDesc());
+          targ->SendScore(mind, body);
+        } else if (targ->Room() == targ->Parent()) {
           mind->Send(
               CCYN u8"{} is in {}, in {}, in {}.\n" CNRM,
               targ->Noun(),
