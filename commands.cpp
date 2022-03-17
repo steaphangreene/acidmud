@@ -1331,7 +1331,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       if (!mind->Owner()) { // The Autoninja (Initial Startup)
         Object* god = new_body(Object::Universe());
         god->SetDescs(u8"a metaphysical being", std::u8string(args), u8"", u8"");
-        mind->Attach(god);
+        god->Attach(mind);
         return 0;
       }
 
@@ -1361,7 +1361,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       if (mind->Owner()->Creator() == body)
         mind->Owner()->SetCreator(nullptr);
 
-      mind->Attach(body);
+      body->Attach(mind);
 
       if (!body->HasSkill(prhash(u8"Object ID"))) {
         if (body->World()) {
@@ -1526,7 +1526,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
     }
     // if(body) delete body;
     if (mind)
-      mind->Unattach();
+      body->Detach(mind);
 
     if (mind && mind->Owner() && mind->Owner()->Room()) {
       mind->Owner()->Room()->SendDesc(mind);
@@ -6494,8 +6494,8 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
           u8"You control ;s.\n",
           body,
           targ);
-      mind->Unattach();
-      mind->Attach(targ);
+      body->Detach(mind);
+      targ->Attach(mind);
     }
     return 0;
   }

@@ -65,8 +65,6 @@ class Mind {
       const std::u8string_view& text = u8"");
   void SetNPC();
   void SetSystem();
-  void Attach(Object* bod);
-  void Unattach();
   Object* Body() const {
     return body;
   };
@@ -130,6 +128,7 @@ class Mind {
   std::u8string prompt;
   Player* player = nullptr;
   Object* body = nullptr;
+  friend class Object;
 
   static std::map<std::u8string, std::u8string> cvars;
   std::map<std::u8string, std::u8string> svars;

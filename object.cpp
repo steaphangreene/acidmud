@@ -401,9 +401,9 @@ void tick_world() {
 int Object::Tick() {
   auto mnds = minds;
   for (auto m : mnds) {
-    m->Attach(this);
+    m->body = this;
     if (!m->Think(m, 1)) {
-      Unattach(m);
+      Detach(m);
     }
   }
 
@@ -2306,7 +2306,7 @@ void Object::Recycle(int inbin) {
       }
     }
     for (auto mnd : removals) {
-      Unattach(mnd);
+      Detach(mnd);
     }
     player_rooms_erase(this);
   }
@@ -2337,7 +2337,7 @@ void Object::Recycle(int inbin) {
 
   auto todo = minds;
   for (auto mind : todo) {
-    Unattach(mind);
+    Detach(mind);
   }
   minds.clear();
 
@@ -2395,17 +2395,18 @@ void Object::Attach(std::shared_ptr<Mind> m) {
   if (itr == minds.end()) {
     minds.push_back(m);
   }
+  m->body = this;
 }
 
-void Object::Unattach(std::shared_ptr<Mind> m) {
+void Object::Detach(std::shared_ptr<Mind> m) {
   auto itr = minds.begin();
   for (; itr != minds.end() && (*itr) != m; ++itr) {
   }
   if (itr != minds.end()) {
     minds.erase(itr);
   }
-  if (m->Body() == this) {
-    m->Unattach();
+  if (m->body == this) {
+    m->body = nullptr;
   }
 }
 
@@ -2995,7 +2996,7 @@ void Object::UpdateDamage() {
           removals.insert(mnd);
       }
       for (auto mnd : removals) {
-        Unattach(mnd);
+        Detach(mnd);
       }
     }
     SetPos(pos_t::LIE);
@@ -3173,9 +3174,9 @@ void Object::Send(int tnum, int rsucc, const std::u8string_view& mes) {
 
   for (auto mind : minds) {
     Object* body = mind->Body();
-    mind->Attach(this);
+    mind->body = this;
     mind->Send(mes);
-    mind->Attach(body);
+    mind->body = body;
   }
 }
 
@@ -3193,9 +3194,9 @@ void Object::Send(channel_t channel, const std::u8string_view& mes) {
   for (auto mind : minds) {
     if (channel == CHANNEL_ROLLS && mind->IsSVar(u8"combatinfo")) {
       Object* body = mind->Body();
-      mind->Attach(this);
+      mind->body = this;
       mind->Send(mes);
-      mind->Attach(body);
+      mind->body = body;
     }
   }
 }
@@ -3442,7 +3443,7 @@ void init_world() {
       std::shared_ptr<Mind> automind = std::make_shared<Mind>();
       automind->SetPlayer(u8"AutoNinja");
       automind->SetSystem();
-      automind->Attach(autoninja);
+      autoninja->Attach(automind);
 
       handle_command(autoninja, conf, automind);
 
@@ -3639,9 +3640,9 @@ std::u8string Object::Tactics(int phase) {
     return u8"attack";
   std::shared_ptr<Mind> mind = minds.front(); // FIXME: Handle Multiple Minds
   Object* body = mind->Body();
-  mind->Attach(this);
+  mind->body = this;
   std::u8string ret = mind->Tactics();
-  mind->Attach(body);
+  mind->body = body;
   return ret;
 }
 

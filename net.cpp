@@ -424,7 +424,7 @@ int load_net(const std::u8string& fn) {
         if (line.length() > 0) {
           bod = nextnum(line);
           loge(u8"Reattaching {} to {} in {}\n", newsock, player, bod);
-          minds[newsock]->Attach(getbynum(bod));
+          getbynum(bod)->Attach(minds[newsock]);
         } else {
           loge(u8"Reattaching {} to {}\n", newsock, player);
         }

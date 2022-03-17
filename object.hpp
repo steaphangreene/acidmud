@@ -307,7 +307,7 @@ class alignas(256) Object {
   void AddLink(Object*);
   void RemoveLink(Object*);
   void Attach(std::shared_ptr<Mind> mind);
-  void Unattach(std::shared_ptr<Mind> mind);
+  void Detach(std::shared_ptr<Mind> mind);
 
   void TryCombine();
 

@@ -453,7 +453,6 @@ Mind::~Mind() {
   if (type == mind_t::REMOTE)
     close_socket(pers);
   type = mind_t::NONE;
-  Unattach();
   if (log >= 0)
     close(log);
   log = -1;
@@ -520,15 +519,14 @@ void Mind::SetTBATrigger(
   }
   svars = cvars;
   pers = fileno(stderr);
-  Attach(tr);
   spos_s.clear();
   spos_s.push_back(0);
-  svars[u8"script"] = fmt::format(u8"{}\n", body->LongDesc());
+  svars[u8"script"] = fmt::format(u8"{}\n", tr->LongDesc());
 
   if (tripper)
     ovars[u8"actor"] = tripper;
 
-  int stype = body->Skill(prhash(u8"TBAScriptType"));
+  int stype = tr->Skill(prhash(u8"TBAScriptType"));
   if ((stype & 0x2000008) == 0x0000008) { //-SPEECH MOB/ROOM Triggers
     svars[u8"speech"] = text;
   }
@@ -592,14 +590,6 @@ void Mind::UpdatePrompt() {
             Body()->Name()));
   } else
     SetPrompt(pers, u8"No Character> ");
-}
-
-void Mind::Attach(Object* bod) {
-  body = bod;
-}
-
-void Mind::Unattach() {
-  body = nullptr;
 }
 
 bool Mind::Send(const std::u8string_view& mes) {
@@ -3215,8 +3205,9 @@ new_mind(mind_t tp, Object* obj, Object* obj2, Object* obj3, const std::u8string
   std::shared_ptr<Mind> m = std::make_shared<Mind>(tp);
   if (tp == mind_t::TBATRIG && obj) {
     m->SetTBATrigger(obj, obj2, obj3, text);
+    obj->Attach(m);
   } else if (obj) {
-    m->Attach(obj);
+    obj->Attach(m);
   }
   return m;
 }
@@ -3242,7 +3233,7 @@ int new_trigger(
     if (!m->Think(m, 1)) {
       status = m->Status();
       if (m->Body()) {
-        m->Body()->Unattach(m);
+        m->Body()->Detach(m);
       }
     }
     in_new_trigger = false;
@@ -3290,7 +3281,7 @@ void Mind::Resume() {
     if (!itr->second->Think(itr->second, 0)) {
       itr->first = std::numeric_limits<int64_t>::max();
       if (itr->second->Body()) {
-        itr->second->Body()->Unattach(itr->second);
+        itr->second->Body()->Detach(itr->second);
       }
     }
   }
