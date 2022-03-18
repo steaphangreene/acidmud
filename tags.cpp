@@ -19,12 +19,27 @@ enum class tag_t {
   MAX
 };
 
-static std::map<const Object*, std::map<std::u8string, ObjectTag>> npctagdefs;
-static std::map<const Object*, std::map<std::u8string, ObjectTag>> weapontagdefs;
-static std::map<const Object*, std::map<std::u8string, ObjectTag>> armortagdefs;
-static std::map<const Object*, std::map<std::u8string, ObjectTag>> itemtagdefs;
-static std::map<const Object*, std::map<std::u8string, ObjectTag>> roomtagdefs;
-static std::map<const Object*, std::map<std::u8string, ObjectTag>> objtagdefs;
+static std::map<const Object*, std::map<uint32_t, ObjectTag>> npctagdefs;
+static std::map<const Object*, std::map<uint32_t, ObjectTag>> weapontagdefs;
+static std::map<const Object*, std::map<uint32_t, ObjectTag>> armortagdefs;
+static std::map<const Object*, std::map<uint32_t, ObjectTag>> itemtagdefs;
+static std::map<const Object*, std::map<uint32_t, ObjectTag>> roomtagdefs;
+static std::map<const Object*, std::map<uint32_t, ObjectTag>> objtagdefs;
+
+static std::map<uint32_t, std::u8string> tag_dictionary;
+static uint32_t add_to_dictionary(const std::u8string_view& tag) {
+  if (tag_dictionary.contains(crc32c(tag))) {
+    if (tag_dictionary.at(crc32c(tag)) != tag) {
+      logerr(
+          u8"ERROR: Duplicate crc32c in tags system ('{}' and '{})!\n",
+          tag_dictionary.at(crc32c(tag)),
+          tag);
+    }
+  } else {
+    tag_dictionary[crc32c(tag)] = tag;
+  }
+  return crc32c(tag);
+}
 
 static bool intparam(std::u8string_view& line, const std::u8string_view& lab, int& min, int& max) {
   if (process(line, lab)) {
@@ -160,7 +175,7 @@ static std::u8string desc_merge(std::u8string_view d1, std::u8string_view d2) {
   }
 }
 
-void ObjectTag::FinalizeWeaponTags(const std::map<std::u8string, ObjectTag>& tagdefs) {
+void ObjectTag::FinalizeWeaponTags(const std::map<uint32_t, ObjectTag>& tagdefs) {
   // Merge Given Weapon Tags into Weapon Defs
   for (auto wtag : wtags_) {
     if (tagdefs.contains(wtag)) {
@@ -179,7 +194,7 @@ void ObjectTag::FinalizeWeaponTags(const std::map<std::u8string, ObjectTag>& tag
   }
 }
 
-void ObjectTag::FinalizeArmorTags(const std::map<std::u8string, ObjectTag>& tagdefs) {
+void ObjectTag::FinalizeArmorTags(const std::map<uint32_t, ObjectTag>& tagdefs) {
   // Merge Given Armor Tags into Armor Defs
   for (auto atag : atags_) {
     if (tagdefs.contains(atag)) {
@@ -209,7 +224,7 @@ void ObjectTag::FinalizeArmorTags(const std::map<std::u8string, ObjectTag>& tagd
   }
 }
 
-void ObjectTag::FinalizeItemTags(const std::map<std::u8string, ObjectTag>& tagdefs) {
+void ObjectTag::FinalizeItemTags(const std::map<uint32_t, ObjectTag>& tagdefs) {
   // Merge Given Item Tags into Item Defs
   for (auto itag : itags_) {
     if (tagdefs.contains(itag)) {
@@ -341,15 +356,15 @@ bool ObjectTag::LoadFrom(std::u8string_view& def) {
     } else if (intparam(line, u8"w:", min_.v[5], max_.v[5])) {
     } else if (intparam(line, u8"gold:", min_gold_, max_gold_)) {
     } else if (process(line, u8"wtag:")) {
-      wtags_.emplace_back(getuntil(line, '\n'));
+      wtags_.push_back(add_to_dictionary(getuntil(line, '\n')));
     } else if (process(line, u8"atag:")) {
-      atags_.emplace_back(getuntil(line, '\n'));
+      atags_.push_back(add_to_dictionary(getuntil(line, '\n')));
     } else if (process(line, u8"itag:")) {
-      itags_.emplace_back(getuntil(line, '\n'));
+      itags_.push_back(add_to_dictionary(getuntil(line, '\n')));
     } else if (process(line, u8"otag:")) {
-      otags_.emplace_back(getuntil(line, '\n'));
+      otags_.push_back(add_to_dictionary(getuntil(line, '\n')));
     } else if (process(line, u8"ntag:")) {
-      ntags_.emplace_back(getuntil(line, '\n'));
+      ntags_.push_back(add_to_dictionary(getuntil(line, '\n')));
     } else if (process(line, u8"skill:")) {
       wtype_ = get_weapon_type(getuntil(line, '\n'));
     } else if (process(line, u8"prop:")) {
@@ -419,37 +434,43 @@ bool Object::LoadTagsFrom(const std::u8string_view& tagdefs, bool save) {
   while (process(defs, u8"tag:")) {
     if (process(defs, u8"npc:")) {
       std::u8string tag(getuntil(defs, '\n'));
-      if (!npctagdefs[this].try_emplace(tag, defs).second) {
+      add_to_dictionary(tag);
+      if (!npctagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
         loger(u8"Duplicate NPC tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
       }
     } else if (process(defs, u8"weapon:")) {
       std::u8string tag(getuntil(defs, '\n'));
-      if (!weapontagdefs[this].try_emplace(tag, defs).second) {
+      add_to_dictionary(tag);
+      if (!weapontagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
         loger(u8"Duplicate Weapon tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
       }
     } else if (process(defs, u8"armor:")) {
       std::u8string tag(getuntil(defs, '\n'));
-      if (!armortagdefs[this].try_emplace(tag, defs).second) {
+      add_to_dictionary(tag);
+      if (!armortagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
         loger(u8"Duplicate Armor tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
       }
     } else if (process(defs, u8"item:")) {
       std::u8string tag(getuntil(defs, '\n'));
-      if (!itemtagdefs[this].try_emplace(tag, defs).second) {
+      add_to_dictionary(tag);
+      if (!itemtagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
         loger(u8"Duplicate Item tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
       }
     } else if (process(defs, u8"room:")) {
       std::u8string tag(getuntil(defs, '\n'));
-      if (!roomtagdefs[this].try_emplace(tag, defs).second) {
+      add_to_dictionary(tag);
+      if (!roomtagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
         loger(u8"Duplicate Room tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
       }
     } else if (process(defs, u8"obj:")) {
       std::u8string tag(getuntil(defs, '\n'));
-      if (!objtagdefs[this].try_emplace(tag, defs).second) {
+      add_to_dictionary(tag);
+      if (!objtagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
         loger(u8"Duplicate Object tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
       }
@@ -482,22 +503,22 @@ std::u8string get_tags_string(Object* world, const MinVec<1, uint64_t>& tags) {
 
   std::set<std::u8string_view> tagnames;
   for (const auto& t : npctagdefs[world]) {
-    tagnames.insert(t.first);
+    tagnames.insert(tag_dictionary[t.first]);
   }
   for (const auto& t : weapontagdefs[world]) {
-    tagnames.insert(t.first);
+    tagnames.insert(tag_dictionary[t.first]);
   }
   for (const auto& t : armortagdefs[world]) {
-    tagnames.insert(t.first);
+    tagnames.insert(tag_dictionary[t.first]);
   }
   for (const auto& t : itemtagdefs[world]) {
-    tagnames.insert(t.first);
+    tagnames.insert(tag_dictionary[t.first]);
   }
   for (const auto& t : roomtagdefs[world]) {
-    tagnames.insert(t.first);
+    tagnames.insert(tag_dictionary[t.first]);
   }
   for (const auto& t : objtagdefs[world]) {
-    tagnames.insert(t.first);
+    tagnames.insert(tag_dictionary[t.first]);
   }
 
   std::u8string ret = u8"";
@@ -539,8 +560,8 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
   auto end = std::find(start, tags.cend(), ',');
   while (start != tags.cend()) {
     std::u8string tag(tags.substr(start - tags.cbegin(), end - start));
-    if (npctagdefs.at(World()).contains(tag)) {
-      npcdef += npctagdefs.at(World()).at(tag);
+    if (npctagdefs.at(World()).contains(crc32c(tag))) {
+      npcdef += npctagdefs.at(World()).at(crc32c(tag));
     } else {
       loger(u8"ERROR: Use of undefined NPC tag: '{}'.  Skipping.\n", tag);
     }

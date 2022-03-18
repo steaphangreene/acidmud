@@ -59,9 +59,9 @@ class ObjectTag {
   bool LoadFrom(std::u8string_view& tagdef);
   void operator+=(const ObjectTag&);
 
-  void FinalizeWeaponTags(const std::map<std::u8string, ObjectTag>&);
-  void FinalizeArmorTags(const std::map<std::u8string, ObjectTag>&);
-  void FinalizeItemTags(const std::map<std::u8string, ObjectTag>&);
+  void FinalizeWeaponTags(const std::map<uint32_t, ObjectTag>&);
+  void FinalizeArmorTags(const std::map<uint32_t, ObjectTag>&);
+  void FinalizeItemTags(const std::map<uint32_t, ObjectTag>&);
   void Finalize();
 
   std::u8string short_desc_, desc_, long_desc_;
@@ -74,17 +74,17 @@ class ObjectTag {
   ArmorAttrs amax_ = {0, 0, 0, 0};
   WeaponAttrs wmin_ = {0, 0, 0};
   WeaponAttrs wmax_ = {0, 0, 0};
-  std::vector<std::u8string> otags_;
-  std::vector<std::u8string> ntags_;
+  std::vector<uint32_t> otags_;
+  std::vector<uint32_t> ntags_;
 
   std::vector<gender_t> genders_;
   NPCAttrs min_ = {0, 0, 0, 0, 0, 0};
   NPCAttrs max_ = {0, 0, 0, 0, 0, 0};
   int min_gold_ = 0;
   int max_gold_ = 0;
-  std::vector<std::u8string> wtags_;
-  std::vector<std::u8string> atags_;
-  std::vector<std::u8string> itags_;
+  std::vector<uint32_t> wtags_;
+  std::vector<uint32_t> atags_;
+  std::vector<uint32_t> itags_;
   std::vector<ObjectTag> weapons_;
   std::vector<ObjectTag> armor_;
   std::vector<ObjectTag> items_;
