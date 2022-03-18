@@ -19,12 +19,12 @@ enum class tag_t {
   MAX
 };
 
-static std::map<const Object*, std::map<std::u8string, NPCTag>> npctagdefs;
-static std::map<const Object*, std::map<std::u8string, ItemTag>> weapontagdefs;
-static std::map<const Object*, std::map<std::u8string, ItemTag>> armortagdefs;
-static std::map<const Object*, std::map<std::u8string, ItemTag>> itemtagdefs;
-static std::map<const Object*, std::map<std::u8string, ItemTag>> roomtagdefs;
-static std::map<const Object*, std::map<std::u8string, ItemTag>> objtagdefs;
+static std::map<const Object*, std::map<std::u8string, ObjectTag>> npctagdefs;
+static std::map<const Object*, std::map<std::u8string, ObjectTag>> weapontagdefs;
+static std::map<const Object*, std::map<std::u8string, ObjectTag>> armortagdefs;
+static std::map<const Object*, std::map<std::u8string, ObjectTag>> itemtagdefs;
+static std::map<const Object*, std::map<std::u8string, ObjectTag>> roomtagdefs;
+static std::map<const Object*, std::map<std::u8string, ObjectTag>> objtagdefs;
 
 static bool intparam(std::u8string_view& line, const std::u8string_view& lab, int& min, int& max) {
   if (process(line, lab)) {
@@ -160,32 +160,7 @@ static std::u8string desc_merge(std::u8string_view d1, std::u8string_view d2) {
   }
 }
 
-void NPCTag::operator+=(const NPCTag& in) {
-  short_desc_ = desc_merge(short_desc_, in.short_desc_);
-  desc_ = desc_merge(desc_, in.desc_);
-  if (in.long_desc_ != u8"") {
-    long_desc_ += '\n';
-    long_desc_ += in.long_desc_;
-  }
-
-  // TODO: Real set operations
-  if (genders_.size() == 0 || (in.genders_.size() > 0 && genders_.size() > in.genders_.size())) {
-    genders_ = in.genders_;
-  }
-
-  for (auto i : {0, 1, 2, 3, 4, 5}) {
-    min_.v[i] += in.min_.v[i];
-    max_.v[i] += in.max_.v[i];
-  }
-  min_gold_ += in.min_gold_;
-  max_gold_ += in.max_gold_;
-
-  wtags_.insert(wtags_.end(), in.wtags_.begin(), in.wtags_.end());
-  atags_.insert(atags_.end(), in.atags_.begin(), in.atags_.end());
-  itags_.insert(itags_.end(), in.itags_.begin(), in.itags_.end());
-}
-
-void NPCTag::FinalizeWeaponTags(const std::map<std::u8string, ItemTag>& tagdefs) {
+void ObjectTag::FinalizeWeaponTags(const std::map<std::u8string, ObjectTag>& tagdefs) {
   // Merge Given Weapon Tags into Weapon Defs
   for (auto wtag : wtags_) {
     if (tagdefs.contains(wtag)) {
@@ -204,7 +179,7 @@ void NPCTag::FinalizeWeaponTags(const std::map<std::u8string, ItemTag>& tagdefs)
   }
 }
 
-void NPCTag::FinalizeArmorTags(const std::map<std::u8string, ItemTag>& tagdefs) {
+void ObjectTag::FinalizeArmorTags(const std::map<std::u8string, ObjectTag>& tagdefs) {
   // Merge Given Armor Tags into Armor Defs
   for (auto atag : atags_) {
     if (tagdefs.contains(atag)) {
@@ -234,7 +209,7 @@ void NPCTag::FinalizeArmorTags(const std::map<std::u8string, ItemTag>& tagdefs) 
   }
 }
 
-void NPCTag::FinalizeItemTags(const std::map<std::u8string, ItemTag>& tagdefs) {
+void ObjectTag::FinalizeItemTags(const std::map<std::u8string, ObjectTag>& tagdefs) {
   // Merge Given Item Tags into Item Defs
   for (auto itag : itags_) {
     if (tagdefs.contains(itag)) {
@@ -249,12 +224,12 @@ void NPCTag::FinalizeItemTags(const std::map<std::u8string, ItemTag>& tagdefs) {
   }
 }
 
-void NPCTag::Finalize() {
+void ObjectTag::Finalize() {
   std::replace(short_desc_.begin(), short_desc_.end(), '+', ' ');
   std::replace(desc_.begin(), desc_.end(), '+', ' ');
 }
 
-void ItemTag::operator+=(const ItemTag& in) {
+void ObjectTag::operator+=(const ObjectTag& in) {
   short_desc_ = desc_merge(short_desc_, in.short_desc_);
   desc_ = desc_merge(desc_, in.desc_);
   if (in.long_desc_ != u8"") {
@@ -263,6 +238,21 @@ void ItemTag::operator+=(const ItemTag& in) {
   }
 
   // TODO: Real set operations on tags
+
+  if (genders_.size() == 0 || (in.genders_.size() > 0 && genders_.size() > in.genders_.size())) {
+    genders_ = in.genders_;
+  }
+
+  for (auto i : {0, 1, 2, 3, 4, 5}) {
+    min_.v[i] += in.min_.v[i];
+    max_.v[i] += in.max_.v[i];
+  }
+  min_gold_ += in.min_gold_;
+  max_gold_ += in.max_gold_;
+
+  wtags_.insert(wtags_.end(), in.wtags_.begin(), in.wtags_.end());
+  atags_.insert(atags_.end(), in.atags_.begin(), in.atags_.end());
+  itags_.insert(itags_.end(), in.itags_.begin(), in.itags_.end());
 
   wmin_.reach += in.wmin_.reach;
   wmax_.reach += in.wmax_.reach;
@@ -280,14 +270,14 @@ void ItemTag::operator+=(const ItemTag& in) {
   amin_.planar += in.amin_.planar;
   amax_.planar += in.amax_.planar;
 
-  min_.weight += in.min_.weight;
-  max_.weight += in.max_.weight;
-  min_.size += in.min_.size;
-  max_.size += in.max_.size;
-  min_.volume += in.min_.volume;
-  max_.volume += in.max_.volume;
-  min_.value += in.min_.value;
-  max_.value += in.max_.value;
+  omin_.weight += in.omin_.weight;
+  omax_.weight += in.omax_.weight;
+  omin_.size += in.omin_.size;
+  omax_.size += in.omax_.size;
+  omin_.volume += in.omin_.volume;
+  omax_.volume += in.omax_.volume;
+  omin_.value += in.omin_.value;
+  omax_.value += in.omax_.value;
 
   if (wtype_ == 0) {
     wtype_ = in.wtype_;
@@ -308,16 +298,16 @@ void ItemTag::operator+=(const ItemTag& in) {
   }
 }
 
-NPCTag::NPCTag(const std::u8string_view& tagdef) {
+ObjectTag::ObjectTag(const std::u8string_view& tagdef) {
   std::u8string_view def = tagdef;
   LoadFrom(def);
 }
 
-NPCTag::NPCTag(std::u8string_view& tagdef) {
+ObjectTag::ObjectTag(std::u8string_view& tagdef) {
   LoadFrom(tagdef);
 }
 
-bool NPCTag::LoadFrom(std::u8string_view& def) {
+bool ObjectTag::LoadFrom(std::u8string_view& def) {
   skipspace(def);
   while (def.length() > 0 && !def.starts_with(u8"tag:")) {
     auto line = getuntil(def, '\n');
@@ -343,10 +333,6 @@ bool NPCTag::LoadFrom(std::u8string_view& def) {
           genders_.push_back(gender_t::NEITHER);
         }
       }
-    } else if (process(line, u8"prop:")) {
-      auto sname = getuntil(line, ':');
-      int32_t sval = getnum(line);
-      props_.push_back({crc32c(sname), sval});
     } else if (intparam(line, u8"b:", min_.v[0], max_.v[0])) {
     } else if (intparam(line, u8"q:", min_.v[1], max_.v[1])) {
     } else if (intparam(line, u8"s:", min_.v[2], max_.v[2])) {
@@ -360,36 +346,6 @@ bool NPCTag::LoadFrom(std::u8string_view& def) {
       atags_.emplace_back(getuntil(line, '\n'));
     } else if (process(line, u8"itag:")) {
       itags_.emplace_back(getuntil(line, '\n'));
-    } else {
-      loger(u8"ERROR: bad npc tag file entry: '{}'\n", line);
-      return false;
-    }
-  }
-  return true;
-}
-
-ItemTag::ItemTag(const std::u8string_view& tagdef) {
-  std::u8string_view def = tagdef;
-  LoadFrom(def);
-}
-
-ItemTag::ItemTag(std::u8string_view& tagdef) {
-  LoadFrom(tagdef);
-}
-
-bool ItemTag::LoadFrom(std::u8string_view& def) {
-  skipspace(def);
-  while (def.length() > 0 && !def.starts_with(u8"tag:")) {
-    auto line = getuntil(def, '\n');
-    skipspace(line); // Ignore indentation, blank lines, etc.
-    if (line.length() == 0 || line.front() == '#') {
-      // Comment or blank link - skip it.
-    } else if (process(line, u8"short:")) {
-      short_desc_ = std::u8string(getuntil(line, '\n'));
-    } else if (process(line, u8"desc:")) {
-      desc_ = std::u8string(getuntil(line, '\n'));
-    } else if (process(line, u8"long:")) {
-      long_desc_ = std::u8string(getuntil(line, '\n'));
     } else if (process(line, u8"otag:")) {
       otags_.emplace_back(getuntil(line, '\n'));
     } else if (process(line, u8"ntag:")) {
@@ -401,10 +357,10 @@ bool ItemTag::LoadFrom(std::u8string_view& def) {
       int32_t sval = getnum(line);
       props_.push_back({crc32c(sname), sval});
     } else if (wearparam(line, loc_)) {
-    } else if (intparam(line, u8"weight:", min_.weight, max_.weight)) {
-    } else if (intparam(line, u8"size:", min_.size, max_.size)) {
-    } else if (intparam(line, u8"volume:", min_.volume, max_.volume)) {
-    } else if (intparam(line, u8"value:", min_.value, max_.value)) {
+    } else if (intparam(line, u8"weight:", omin_.weight, omax_.weight)) {
+    } else if (intparam(line, u8"size:", omin_.size, omax_.size)) {
+    } else if (intparam(line, u8"volume:", omin_.volume, omax_.volume)) {
+    } else if (intparam(line, u8"value:", omin_.value, omax_.value)) {
     } else if (intparam(line, u8"reach:", wmin_.reach, wmax_.reach)) {
     } else if (intparam(line, u8"force:", wmin_.force, wmax_.force)) {
     } else if (intparam(line, u8"severity:", wmin_.severity, wmax_.severity)) {
@@ -560,7 +516,7 @@ std::u8string get_tags_string(Object* world, const MinVec<1, uint64_t>& tags) {
   return ret;
 }
 
-static NPCTag base_npc(
+static ObjectTag base_npc(
     u8"short:a person\n"
     u8"desc:{He} seems normal.\n"
     u8"genders:FM\n"

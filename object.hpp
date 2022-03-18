@@ -39,7 +39,7 @@
 class Object;
 class Player;
 class Mind;
-class NPCTag;
+class ObjectTag;
 
 #ifndef OBJECT_HPP
 #define OBJECT_HPP
@@ -626,7 +626,7 @@ class alignas(256) Object {
   static void FreeActions();
 
  private:
-  void GenerateNPC(const NPCTag&, std::mt19937&);
+  void GenerateNPC(const ObjectTag&, std::mt19937&);
 
   void NotifyLeft(Object* obj, Object* newloc = nullptr);
 

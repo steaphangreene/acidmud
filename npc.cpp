@@ -190,7 +190,7 @@ static void add_pouch(Object* npc) {
   npc->AddAct(act_t::WEAR_RHIP, bag);
 }
 
-void Object::GenerateNPC(const NPCTag& type, std::mt19937& gen) {
+void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
   if (World()) {
     auto obj_id = World()->Skill(prhash(u8"Last Object ID")) + 1;
     World()->SetSkill(prhash(u8"Last Object ID"), obj_id);
@@ -244,10 +244,10 @@ void Object::GenerateNPC(const NPCTag& type, std::mt19937& gen) {
     obj->SetShortDesc(wp.short_desc_);
     obj->SetDesc(wp.desc_);
     obj->SetLongDesc(wp.long_desc_);
-    obj->SetWeight(rint3(gen, wp.min_.weight, wp.max_.weight));
-    obj->SetSize(rint3(gen, wp.min_.size, wp.max_.size));
-    obj->SetVolume(rint3(gen, wp.min_.volume, wp.max_.volume));
-    obj->SetValue(rint3(gen, wp.min_.value, wp.max_.value));
+    obj->SetWeight(rint3(gen, wp.omin_.weight, wp.omax_.weight));
+    obj->SetSize(rint3(gen, wp.omin_.size, wp.omax_.size));
+    obj->SetVolume(rint3(gen, wp.omin_.volume, wp.omax_.volume));
+    obj->SetValue(rint3(gen, wp.omin_.value, wp.omax_.value));
     obj->SetPos(pos_t::LIE);
     AddAct(act_t::WIELD, obj);
     if (two_handed(wp.wtype_)) {
@@ -265,10 +265,10 @@ void Object::GenerateNPC(const NPCTag& type, std::mt19937& gen) {
     obj->SetShortDesc(ar.short_desc_);
     obj->SetDesc(ar.desc_);
     obj->SetLongDesc(ar.long_desc_);
-    obj->SetWeight(rint3(gen, ar.min_.weight, ar.max_.weight));
-    obj->SetSize(rint3(gen, ar.min_.size, ar.max_.size));
-    obj->SetVolume(rint3(gen, ar.min_.volume, ar.max_.volume));
-    obj->SetValue(rint3(gen, ar.min_.value, ar.max_.value));
+    obj->SetWeight(rint3(gen, ar.omin_.weight, ar.omax_.weight));
+    obj->SetSize(rint3(gen, ar.omin_.size, ar.omax_.size));
+    obj->SetVolume(rint3(gen, ar.omin_.volume, ar.omax_.volume));
+    obj->SetValue(rint3(gen, ar.omin_.value, ar.omax_.value));
     obj->SetPos(pos_t::LIE);
 
     int modenum = 1;
@@ -310,10 +310,10 @@ void Object::GenerateNPC(const NPCTag& type, std::mt19937& gen) {
       obj->SetShortDesc(it.short_desc_);
       obj->SetDesc(it.desc_);
       obj->SetLongDesc(it.long_desc_);
-      obj->SetWeight(rint3(gen, it.min_.weight, it.max_.weight));
-      obj->SetSize(rint3(gen, it.min_.size, it.max_.size));
-      obj->SetVolume(rint3(gen, it.min_.volume, it.max_.volume));
-      obj->SetValue(rint3(gen, it.min_.value, it.max_.value));
+      obj->SetWeight(rint3(gen, it.omin_.weight, it.omax_.weight));
+      obj->SetSize(rint3(gen, it.omin_.size, it.omax_.size));
+      obj->SetVolume(rint3(gen, it.omin_.volume, it.omax_.volume));
+      obj->SetValue(rint3(gen, it.omin_.value, it.omax_.value));
       obj->SetPos(pos_t::LIE);
 
       int modenum = 1;

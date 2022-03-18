@@ -48,43 +48,35 @@ struct WeaponAttrs {
   int severity;
 };
 
-class ItemTag {
+struct NPCAttrs {
+  int v[6];
+};
+
+class ObjectTag {
  public:
-  ItemTag(const std::u8string_view& tagdef);
-  ItemTag(std::u8string_view& tagdef);
+  ObjectTag(const std::u8string_view& tagdef);
+  ObjectTag(std::u8string_view& tagdef);
   bool LoadFrom(std::u8string_view& tagdef);
-  void operator+=(const ItemTag&);
+  void operator+=(const ObjectTag&);
+
+  void FinalizeWeaponTags(const std::map<std::u8string, ObjectTag>&);
+  void FinalizeArmorTags(const std::map<std::u8string, ObjectTag>&);
+  void FinalizeItemTags(const std::map<std::u8string, ObjectTag>&);
+  void Finalize();
+
   std::u8string short_desc_, desc_, long_desc_;
   std::vector<skill_pair> props_;
   std::vector<std::vector<act_t>> loc_;
   int wtype_ = 0;
-  ItemAttrs min_ = {0, 0, 0, 0};
-  ItemAttrs max_ = {0, 0, 0, 0};
+  ItemAttrs omin_ = {0, 0, 0, 0};
+  ItemAttrs omax_ = {0, 0, 0, 0};
   ArmorAttrs amin_ = {0, 0, 0, 0};
   ArmorAttrs amax_ = {0, 0, 0, 0};
   WeaponAttrs wmin_ = {0, 0, 0};
   WeaponAttrs wmax_ = {0, 0, 0};
   std::vector<std::u8string> otags_;
   std::vector<std::u8string> ntags_;
-};
 
-struct NPCAttrs {
-  int v[6];
-};
-
-class NPCTag {
- public:
-  NPCTag(const std::u8string_view& tagdef);
-  NPCTag(std::u8string_view& tagdef);
-  bool LoadFrom(std::u8string_view& tagdef);
-  void operator+=(const NPCTag&);
-  void FinalizeWeaponTags(const std::map<std::u8string, ItemTag>&);
-  void FinalizeArmorTags(const std::map<std::u8string, ItemTag>&);
-  void FinalizeItemTags(const std::map<std::u8string, ItemTag>&);
-  void Finalize();
-
-  std::u8string short_desc_, desc_, long_desc_;
-  std::vector<skill_pair> props_;
   std::vector<gender_t> genders_;
   NPCAttrs min_ = {0, 0, 0, 0, 0, 0};
   NPCAttrs max_ = {0, 0, 0, 0, 0, 0};
@@ -93,9 +85,9 @@ class NPCTag {
   std::vector<std::u8string> wtags_;
   std::vector<std::u8string> atags_;
   std::vector<std::u8string> itags_;
-  std::vector<ItemTag> weapons_;
-  std::vector<ItemTag> armor_;
-  std::vector<ItemTag> items_;
+  std::vector<ObjectTag> weapons_;
+  std::vector<ObjectTag> armor_;
+  std::vector<ObjectTag> items_;
 };
 
 #endif // TAGS_HPP
