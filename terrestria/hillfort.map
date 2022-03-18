@@ -37,8 +37,8 @@ building:2::tavern
 house:2.1:2-4:citizen,dwarven
 house:2.1:0-3:dwarven
 employ:2.0:1-2:citizen,dwarven
-building:1:furnace,dwarven:The Hillfort Furnace
-product:charcoal:100:100:furnace,master:wood:200:10
+building:1:kiln,dwarven:The Hillfort Kiln
+product:charcoal:100:100:kiln,master:wood:200:10
 building:1:armory,dwarven:The Hillfort Armory
 building:1:tavern,dwarven:The Hillfort Tavern
 building:1:smithy,dwarven:The Hillfort Smithy

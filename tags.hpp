@@ -47,6 +47,7 @@ class ItemTag {
   ItemAttrs min_ = {0, 0, 0, 0};
   ItemAttrs max_ = {0, 0, 0, 0};
   std::vector<std::u8string> otags_;
+  std::vector<std::u8string> ntags_;
 };
 
 struct ArmorAttrs {

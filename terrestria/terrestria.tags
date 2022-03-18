@@ -433,12 +433,13 @@ tag:room:dwarven
 
 tag:room:human
 
-tag:room:furnace
-otag:furnace
+tag:room:kiln
+otag:kiln
+ntag:collier
 
-tag:obj:furnace
-short:A furnace
-desc:A furnace furnace is set up here, to turn wood to charcoal.
+tag:obj:kiln
+short:A kiln
+desc:A kiln is set up here, to turn wood to charcoal.
 
 tag:room:armory
 otag:forge

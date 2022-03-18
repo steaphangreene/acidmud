@@ -485,6 +485,8 @@ bool ItemTag::LoadFrom(std::u8string_view& def) {
       long_desc_ = std::u8string(getuntil(line, '\n'));
     } else if (process(line, u8"otag:")) {
       otags_.emplace_back(getuntil(line, '\n'));
+    } else if (process(line, u8"ntag:")) {
+      ntags_.emplace_back(getuntil(line, '\n'));
     } else if (process(line, u8"prop:")) {
       auto sname = getuntil(line, ':');
       int32_t sval = getnum(line);
