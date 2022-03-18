@@ -2,6 +2,23 @@
 #include "log.hpp"
 #include "utils.hpp"
 
+// Yes, this is the order of (descriptive) adjectives in English
+enum class tag_t {
+  NONE = 0,
+  OPINION,
+  SIZE,
+  QUALITY,
+  AGE,
+  SHAPE,
+  COLOR,
+  ORIGIN,
+  MATERIAL,
+  TYPE,
+  PURPOSE,
+  NOUN,
+  MAX
+};
+
 static std::map<const Object*, std::map<std::u8string, NPCTag>> npctagdefs;
 static std::map<const Object*, std::map<std::u8string, WeaponTag>> weapontagdefs;
 static std::map<const Object*, std::map<std::u8string, ArmorTag>> armortagdefs;
