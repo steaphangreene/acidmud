@@ -626,7 +626,7 @@ class alignas(256) Object {
   static void FreeActions();
 
  private:
-  Object* AddNPC(std::mt19937&, const NPCTag*, const std::u8string_view& tags = u8"");
+  void GenerateNPC(const NPCTag&, std::mt19937&);
 
   void NotifyLeft(Object* obj, Object* newloc = nullptr);
 

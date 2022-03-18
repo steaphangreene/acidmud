@@ -683,5 +683,8 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
   npcdef.FinalizeItemTags(itemtagdefs.at(World()));
   npcdef.Finalize();
 
-  return AddNPC(gen, &npcdef, tags);
+  Object* npc = new Object(this);
+  npc->SetTags(tags);
+  npc->GenerateNPC(npcdef, gen);
+  return npc;
 }

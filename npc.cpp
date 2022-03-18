@@ -190,56 +190,53 @@ static void add_pouch(Object* npc) {
   npc->AddAct(act_t::WEAR_RHIP, bag);
 }
 
-Object* Object::AddNPC(std::mt19937& gen, const NPCTag* type, const std::u8string_view& tags) {
-  Object* npc = new Object(this);
-  npc->SetTags(tags);
-
-  if (npc->World()) {
-    auto obj_id = npc->World()->Skill(prhash(u8"Last Object ID")) + 1;
-    npc->World()->SetSkill(prhash(u8"Last Object ID"), obj_id);
-    npc->SetSkill(prhash(u8"Object ID"), obj_id);
+void Object::GenerateNPC(const NPCTag& type, std::mt19937& gen) {
+  if (World()) {
+    auto obj_id = World()->Skill(prhash(u8"Last Object ID")) + 1;
+    World()->SetSkill(prhash(u8"Last Object ID"), obj_id);
+    SetSkill(prhash(u8"Object ID"), obj_id);
   }
 
-  npc->Attach(std::make_shared<Mind>(mind_t::NPC));
-  npc->Activate();
-  npc->SetPos(pos_t::STAND);
+  Attach(std::make_shared<Mind>(mind_t::NPC));
+  Activate();
+  SetPos(pos_t::STAND);
   for (int a : {0, 1, 2, 3, 4, 5}) {
-    npc->SetAttribute(a, rint3(gen, type->min_.v[a], type->max_.v[a]));
+    SetAttribute(a, rint3(gen, type.min_.v[a], type.max_.v[a]));
   }
 
-  for (auto sk : type->props_) {
-    npc->SetSkill(sk.first, sk.second);
+  for (auto sk : type.props_) {
+    SetSkill(sk.first, sk.second);
   }
 
-  if (type->genders_.size() > 0) {
-    npc->SetGender(type->genders_[rint1(gen, 0, type->genders_.size() - 1)]);
+  if (type.genders_.size() > 0) {
+    SetGender(type.genders_[rint1(gen, 0, type.genders_.size() - 1)]);
   }
 
-  npc->SetShortDesc(gender_proc(type->short_desc_, npc->Gender()));
-  npc->SetDesc(gender_proc(type->desc_, npc->Gender()));
-  npc->SetLongDesc(gender_proc(type->long_desc_, npc->Gender()));
+  SetShortDesc(gender_proc(type.short_desc_, Gender()));
+  SetDesc(gender_proc(type.desc_, Gender()));
+  SetLongDesc(gender_proc(type.long_desc_, Gender()));
 
-  int gidx = (npc->Gender() == gender_t::FEMALE) ? 0 : 1;
+  int gidx = (Gender() == gender_t::FEMALE) ? 0 : 1;
   std::vector<std::u8string> first = {u8""};
   std::sample(
       dwarf_first_names[gidx].begin(), dwarf_first_names[gidx].end(), first.begin(), 1, gen);
   std::vector<std::u8string> last = {u8""};
   std::sample(dwarf_last_names.begin(), dwarf_last_names.end(), last.begin(), 1, gen);
-  npc->SetName(first.front() + u8" " + last.front());
+  SetName(first.front() + u8" " + last.front());
 
-  if (type->min_gold_ > 0 || type->max_gold_ > 0) {
-    int num_gold = rint3(gen, type->min_gold_, type->max_gold_);
+  if (type.min_gold_ > 0 || type.max_gold_ > 0) {
+    int num_gold = rint3(gen, type.min_gold_, type.max_gold_);
     if (num_gold > 0) {
-      give_gold(npc, num_gold);
+      give_gold(this, num_gold);
     }
   }
 
   if (true) { // TODO: Figure out who should get these, and who should not
-    add_pouch(npc);
+    add_pouch(this);
   }
 
-  for (auto wp : type->weapons_) {
-    Object* obj = new Object(npc);
+  for (auto wp : type.weapons_) {
+    Object* obj = new Object(this);
     obj->SetSkill(prhash(u8"WeaponType"), wp.wtype_);
     obj->SetSkill(prhash(u8"WeaponReach"), rint3(gen, wp.wmin_.reach, wp.wmax_.reach));
     obj->SetSkill(prhash(u8"WeaponForce"), rint3(gen, wp.wmin_.force, wp.wmax_.force));
@@ -252,14 +249,14 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCTag* type, const std::u8strin
     obj->SetVolume(rint3(gen, wp.min_.volume, wp.max_.volume));
     obj->SetValue(rint3(gen, wp.min_.value, wp.max_.value));
     obj->SetPos(pos_t::LIE);
-    npc->AddAct(act_t::WIELD, obj);
+    AddAct(act_t::WIELD, obj);
     if (two_handed(wp.wtype_)) {
-      npc->AddAct(act_t::HOLD, obj);
+      AddAct(act_t::HOLD, obj);
     }
   }
 
-  for (auto ar : type->armor_) {
-    Object* obj = new Object(npc);
+  for (auto ar : type.armor_) {
+    Object* obj = new Object(this);
     obj->SetAttribute(0, rint3(gen, ar.amin_.bulk, ar.amax_.bulk));
     obj->SetSkill(prhash(u8"ArmorB"), rint3(gen, ar.amin_.bulk, ar.amax_.bulk));
     obj->SetSkill(prhash(u8"ArmorI"), rint3(gen, ar.amin_.impact, ar.amax_.impact));
@@ -279,15 +276,15 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCTag* type, const std::u8strin
       for (auto loc : mode) {
         obj->SetSkill(wear_attribs[loc], modenum);
         if (modenum == 1) {
-          npc->AddAct(loc, obj);
+          AddAct(loc, obj);
         }
       }
       modenum *= 2;
     }
   }
 
-  if (type->items_.size() > 0) {
-    Object* sack = new Object(npc);
+  if (type.items_.size() > 0) {
+    Object* sack = new Object(this);
     sack->SetShortDesc(u8"a small sack");
     sack->SetDesc(u8"A small, durable, practical belt sack.");
 
@@ -303,9 +300,9 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCTag* type, const std::u8strin
     sack->SetValue(100);
 
     sack->SetPos(pos_t::LIE);
-    npc->AddAct(act_t::WEAR_RHIP, sack);
+    AddAct(act_t::WEAR_RHIP, sack);
 
-    for (auto it : type->items_) {
+    for (auto it : type.items_) {
       Object* obj = new Object(sack);
       for (auto sk : it.props_) {
         obj->SetSkill(sk.first, sk.second);
@@ -324,12 +321,11 @@ Object* Object::AddNPC(std::mt19937& gen, const NPCTag* type, const std::u8strin
         for (auto loc : mode) {
           obj->SetSkill(wear_attribs[loc], modenum);
           if (modenum == 1) {
-            npc->AddAct(loc, obj);
+            AddAct(loc, obj);
           }
         }
         modenum *= 2;
       }
     }
   }
-  return npc;
 }
