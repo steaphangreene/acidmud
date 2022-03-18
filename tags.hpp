@@ -22,6 +22,10 @@
 #ifndef TAGS_HPP
 #define TAGS_HPP
 
+#include <map>
+#include <string>
+#include <vector>
+
 #include "object.hpp"
 
 struct ItemAttrs {

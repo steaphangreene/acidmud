@@ -1,9 +1,5 @@
-#include <map>
-#include <string>
-#include <vector>
-
-#include "log.hpp"
 #include "tags.hpp"
+#include "log.hpp"
 #include "utils.hpp"
 
 static std::map<const Object*, std::map<std::u8string, NPCTag>> npctagdefs;
