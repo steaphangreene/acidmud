@@ -103,12 +103,6 @@ class NPCTag {
   NPCTag(const std::u8string_view& tagdef);
   NPCTag(std::u8string_view& tagdef);
   bool LoadFrom(std::u8string_view& tagdef);
-  void Prop(uint32_t, int, int);
-  void Prop(uint32_t, int);
-  void Arm(const WeaponTag&);
-  void Armor(const ArmorTag&);
-  void Carry(const ItemTag&);
-  void SetShortDesc(const std::u8string_view&);
   void FinalizeWeaponTags(const std::map<std::u8string, WeaponTag>&);
   void FinalizeArmorTags(const std::map<std::u8string, ArmorTag>&);
   void FinalizeItemTags(const std::map<std::u8string, ItemTag>&);

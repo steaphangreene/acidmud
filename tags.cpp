@@ -185,10 +185,6 @@ void NPCTag::operator+=(const NPCTag& in) {
   itags_.insert(itags_.end(), in.itags_.begin(), in.itags_.end());
 }
 
-void NPCTag::SetShortDesc(const std::u8string_view& sds) {
-  short_desc_ = sds;
-}
-
 void NPCTag::FinalizeWeaponTags(const std::map<std::u8string, WeaponTag>& tagdefs) {
   // Merge Given Weapon Tags into Weapon Defs
   for (auto wtag : wtags_) {
