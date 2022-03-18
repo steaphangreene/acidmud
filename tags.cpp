@@ -20,8 +20,8 @@ enum class tag_t {
 };
 
 static std::map<const Object*, std::map<std::u8string, NPCTag>> npctagdefs;
-static std::map<const Object*, std::map<std::u8string, WeaponTag>> weapontagdefs;
-static std::map<const Object*, std::map<std::u8string, ArmorTag>> armortagdefs;
+static std::map<const Object*, std::map<std::u8string, ItemTag>> weapontagdefs;
+static std::map<const Object*, std::map<std::u8string, ItemTag>> armortagdefs;
 static std::map<const Object*, std::map<std::u8string, ItemTag>> itemtagdefs;
 static std::map<const Object*, std::map<std::u8string, ItemTag>> roomtagdefs;
 static std::map<const Object*, std::map<std::u8string, ItemTag>> objtagdefs;
@@ -185,7 +185,7 @@ void NPCTag::operator+=(const NPCTag& in) {
   itags_.insert(itags_.end(), in.itags_.begin(), in.itags_.end());
 }
 
-void NPCTag::FinalizeWeaponTags(const std::map<std::u8string, WeaponTag>& tagdefs) {
+void NPCTag::FinalizeWeaponTags(const std::map<std::u8string, ItemTag>& tagdefs) {
   // Merge Given Weapon Tags into Weapon Defs
   for (auto wtag : wtags_) {
     if (tagdefs.contains(wtag)) {
@@ -204,7 +204,7 @@ void NPCTag::FinalizeWeaponTags(const std::map<std::u8string, WeaponTag>& tagdef
   }
 }
 
-void NPCTag::FinalizeArmorTags(const std::map<std::u8string, ArmorTag>& tagdefs) {
+void NPCTag::FinalizeArmorTags(const std::map<std::u8string, ItemTag>& tagdefs) {
   // Merge Given Armor Tags into Armor Defs
   for (auto atag : atags_) {
     if (tagdefs.contains(atag)) {
@@ -254,7 +254,7 @@ void NPCTag::Finalize() {
   std::replace(desc_.begin(), desc_.end(), '+', ' ');
 }
 
-void WeaponTag::operator+=(const WeaponTag& in) {
+void ItemTag::operator+=(const ItemTag& in) {
   short_desc_ = desc_merge(short_desc_, in.short_desc_);
   desc_ = desc_merge(desc_, in.desc_);
   if (in.long_desc_ != u8"") {
@@ -270,6 +270,15 @@ void WeaponTag::operator+=(const WeaponTag& in) {
   wmax_.force += in.wmax_.force;
   wmin_.severity += in.wmin_.severity;
   wmax_.severity += in.wmax_.severity;
+
+  amin_.bulk += in.amin_.bulk;
+  amax_.bulk += in.amax_.bulk;
+  amin_.impact += in.amin_.impact;
+  amax_.impact += in.amax_.impact;
+  amin_.thread += in.amin_.thread;
+  amax_.thread += in.amax_.thread;
+  amin_.planar += in.amin_.planar;
+  amax_.planar += in.amax_.planar;
 
   min_.weight += in.min_.weight;
   max_.weight += in.max_.weight;
@@ -292,35 +301,6 @@ void WeaponTag::operator+=(const WeaponTag& in) {
     // logey(u8"Warning: No idea how to combine weapon types {} and {}.\n", wtype_, in.wtype_);
     wtype_ = in.wtype_;
   }
-}
-
-void ArmorTag::operator+=(const ArmorTag& in) {
-  short_desc_ = desc_merge(short_desc_, in.short_desc_);
-  desc_ = desc_merge(desc_, in.desc_);
-  if (in.long_desc_ != u8"") {
-    long_desc_ += '\n';
-    long_desc_ += in.long_desc_;
-  }
-
-  // TODO: Real set operations on tags
-
-  amin_.bulk += in.amin_.bulk;
-  amax_.bulk += in.amax_.bulk;
-  amin_.impact += in.amin_.impact;
-  amax_.impact += in.amax_.impact;
-  amin_.thread += in.amin_.thread;
-  amax_.thread += in.amax_.thread;
-  amin_.planar += in.amin_.planar;
-  amax_.planar += in.amax_.planar;
-
-  min_.weight += in.min_.weight;
-  max_.weight += in.max_.weight;
-  min_.size += in.min_.size;
-  max_.size += in.max_.size;
-  min_.volume += in.min_.volume;
-  max_.volume += in.max_.volume;
-  min_.value += in.min_.value;
-  max_.value += in.max_.value;
 
   // FIXME: Make this sort armor correctly
   if (loc_.empty()) {
@@ -388,92 +368,6 @@ bool NPCTag::LoadFrom(std::u8string_view& def) {
   return true;
 }
 
-WeaponTag::WeaponTag(const std::u8string_view& tagdef) {
-  std::u8string_view def = tagdef;
-  LoadFrom(def);
-}
-
-WeaponTag::WeaponTag(std::u8string_view& tagdef) {
-  LoadFrom(tagdef);
-}
-
-bool WeaponTag::LoadFrom(std::u8string_view& def) {
-  skipspace(def);
-  while (def.length() > 0 && !def.starts_with(u8"tag:")) {
-    auto line = getuntil(def, '\n');
-    skipspace(line); // Ignore indentation, blank lines, etc.
-    if (line.length() == 0 || line.front() == '#') {
-      // Comment or blank link - skip it.
-    } else if (process(line, u8"short:")) {
-      short_desc_ = std::u8string(getuntil(line, '\n'));
-    } else if (process(line, u8"desc:")) {
-      desc_ = std::u8string(getuntil(line, '\n'));
-    } else if (process(line, u8"long:")) {
-      long_desc_ = std::u8string(getuntil(line, '\n'));
-    } else if (process(line, u8"skill:")) {
-      wtype_ = get_weapon_type(getuntil(line, '\n'));
-    } else if (process(line, u8"prop:")) {
-      auto sname = getuntil(line, ':');
-      int32_t sval = getnum(line);
-      props_.push_back({crc32c(sname), sval});
-    } else if (intparam(line, u8"weight:", min_.weight, max_.weight)) {
-    } else if (intparam(line, u8"size:", min_.size, max_.size)) {
-    } else if (intparam(line, u8"volume:", min_.volume, max_.volume)) {
-    } else if (intparam(line, u8"value:", min_.value, max_.value)) {
-    } else if (intparam(line, u8"reach:", wmin_.reach, wmax_.reach)) {
-    } else if (intparam(line, u8"force:", wmin_.force, wmax_.force)) {
-    } else if (intparam(line, u8"severity:", wmin_.severity, wmax_.severity)) {
-    } else {
-      loger(u8"ERROR: bad weapon tag file entry: '{}'\n", line);
-      return false;
-    }
-  }
-  return true;
-}
-
-ArmorTag::ArmorTag(const std::u8string_view& tagdef) {
-  std::u8string_view def = tagdef;
-  LoadFrom(def);
-}
-
-ArmorTag::ArmorTag(std::u8string_view& tagdef) {
-  LoadFrom(tagdef);
-}
-
-bool ArmorTag::LoadFrom(std::u8string_view& def) {
-  skipspace(def);
-  while (def.length() > 0 && !def.starts_with(u8"tag:")) {
-    auto line = getuntil(def, '\n');
-    skipspace(line); // Ignore indentation, blank lines, etc.
-    if (line.length() == 0 || line.front() == '#') {
-      // Comment or blank link - skip it.
-    } else if (process(line, u8"short:")) {
-      short_desc_ = std::u8string(getuntil(line, '\n'));
-    } else if (process(line, u8"desc:")) {
-      desc_ = std::u8string(getuntil(line, '\n'));
-    } else if (process(line, u8"long:")) {
-      long_desc_ = std::u8string(getuntil(line, '\n'));
-    } else if (process(line, u8"prop:")) {
-      auto sname = getuntil(line, ':');
-      int32_t sval = getnum(line);
-      props_.push_back({crc32c(sname), sval});
-    } else if (wearparam(line, loc_)) {
-    } else if (intparam(line, u8"weight:", min_.weight, max_.weight)) {
-    } else if (intparam(line, u8"size:", min_.size, max_.size)) {
-    } else if (intparam(line, u8"volume:", min_.volume, max_.volume)) {
-    } else if (intparam(line, u8"value:", min_.value, max_.value)) {
-    } else if (intparam(line, u8"bulk:", amin_.bulk, amax_.bulk)) {
-    } else if (intparam(line, u8"impact:", amin_.impact, amax_.impact)) {
-    } else if (intparam(line, u8"thread:", amin_.thread, amax_.thread)) {
-    } else if (intparam(line, u8"planar:", amin_.planar, amax_.planar)) {
-    } else {
-      loger(u8"ERROR: bad armor tag file entry: '{}'\n", line);
-      return false;
-    }
-  }
-  return true;
-}
-
 ItemTag::ItemTag(const std::u8string_view& tagdef) {
   std::u8string_view def = tagdef;
   LoadFrom(def);
@@ -500,6 +394,8 @@ bool ItemTag::LoadFrom(std::u8string_view& def) {
       otags_.emplace_back(getuntil(line, '\n'));
     } else if (process(line, u8"ntag:")) {
       ntags_.emplace_back(getuntil(line, '\n'));
+    } else if (process(line, u8"skill:")) {
+      wtype_ = get_weapon_type(getuntil(line, '\n'));
     } else if (process(line, u8"prop:")) {
       auto sname = getuntil(line, ':');
       int32_t sval = getnum(line);
@@ -509,6 +405,13 @@ bool ItemTag::LoadFrom(std::u8string_view& def) {
     } else if (intparam(line, u8"size:", min_.size, max_.size)) {
     } else if (intparam(line, u8"volume:", min_.volume, max_.volume)) {
     } else if (intparam(line, u8"value:", min_.value, max_.value)) {
+    } else if (intparam(line, u8"reach:", wmin_.reach, wmax_.reach)) {
+    } else if (intparam(line, u8"force:", wmin_.force, wmax_.force)) {
+    } else if (intparam(line, u8"severity:", wmin_.severity, wmax_.severity)) {
+    } else if (intparam(line, u8"bulk:", amin_.bulk, amax_.bulk)) {
+    } else if (intparam(line, u8"impact:", amin_.impact, amax_.impact)) {
+    } else if (intparam(line, u8"thread:", amin_.thread, amax_.thread)) {
+    } else if (intparam(line, u8"planar:", amin_.planar, amax_.planar)) {
     } else {
       loger(u8"ERROR: bad item tag file entry: '{}'\n", line);
       return false;

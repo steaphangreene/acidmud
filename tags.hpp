@@ -35,6 +35,19 @@ struct ItemAttrs {
   int value;
 };
 
+struct ArmorAttrs {
+  int bulk; // Body-Tag (adds mass, reduces shock)
+  int impact; // Cushion (absorbs shock, softens impact)
+  int thread; // Tensile (won't rip/cut, prevents slashing)
+  int planar; // Plate (won't bend, spreads impact)
+};
+
+struct WeaponAttrs {
+  int reach;
+  int force;
+  int severity;
+};
+
 class ItemTag {
  public:
   ItemTag(const std::u8string_view& tagdef);
@@ -44,53 +57,15 @@ class ItemTag {
   std::u8string short_desc_, desc_, long_desc_;
   std::vector<skill_pair> props_;
   std::vector<std::vector<act_t>> loc_;
-  ItemAttrs min_ = {0, 0, 0, 0};
-  ItemAttrs max_ = {0, 0, 0, 0};
-  std::vector<std::u8string> otags_;
-  std::vector<std::u8string> ntags_;
-};
-
-struct ArmorAttrs {
-  int bulk; // Body-Tag (adds mass, reduces shock)
-  int impact; // Cushion (absorbs shock, softens impact)
-  int thread; // Tensile (won't rip/cut, prevents slashing)
-  int planar; // Plate (won't bend, spreads impact)
-};
-
-class ArmorTag {
- public:
-  void operator+=(const ArmorTag&);
-  ArmorTag(const std::u8string_view& tagdef);
-  ArmorTag(std::u8string_view& tagdef);
-  bool LoadFrom(std::u8string_view& tagdef);
-  std::u8string short_desc_, desc_, long_desc_;
-  std::vector<skill_pair> props_;
-  std::vector<std::vector<act_t>> loc_;
+  int wtype_ = 0;
   ItemAttrs min_ = {0, 0, 0, 0};
   ItemAttrs max_ = {0, 0, 0, 0};
   ArmorAttrs amin_ = {0, 0, 0, 0};
   ArmorAttrs amax_ = {0, 0, 0, 0};
-};
-
-struct WeaponAttrs {
-  int reach;
-  int force;
-  int severity;
-};
-
-class WeaponTag {
- public:
-  void operator+=(const WeaponTag&);
-  WeaponTag(const std::u8string_view& tagdef);
-  WeaponTag(std::u8string_view& tagdef);
-  bool LoadFrom(std::u8string_view& tagdef);
-  std::u8string short_desc_, desc_, long_desc_;
-  std::vector<skill_pair> props_;
-  int wtype_ = 0;
   WeaponAttrs wmin_ = {0, 0, 0};
   WeaponAttrs wmax_ = {0, 0, 0};
-  ItemAttrs min_ = {0, 0, 0, 0};
-  ItemAttrs max_ = {0, 0, 0, 0};
+  std::vector<std::u8string> otags_;
+  std::vector<std::u8string> ntags_;
 };
 
 struct NPCAttrs {
@@ -99,12 +74,12 @@ struct NPCAttrs {
 
 class NPCTag {
  public:
-  void operator+=(const NPCTag&);
   NPCTag(const std::u8string_view& tagdef);
   NPCTag(std::u8string_view& tagdef);
   bool LoadFrom(std::u8string_view& tagdef);
-  void FinalizeWeaponTags(const std::map<std::u8string, WeaponTag>&);
-  void FinalizeArmorTags(const std::map<std::u8string, ArmorTag>&);
+  void operator+=(const NPCTag&);
+  void FinalizeWeaponTags(const std::map<std::u8string, ItemTag>&);
+  void FinalizeArmorTags(const std::map<std::u8string, ItemTag>&);
   void FinalizeItemTags(const std::map<std::u8string, ItemTag>&);
   void Finalize();
 
@@ -118,8 +93,8 @@ class NPCTag {
   std::vector<std::u8string> wtags_;
   std::vector<std::u8string> atags_;
   std::vector<std::u8string> itags_;
-  std::vector<WeaponTag> weapons_;
-  std::vector<ArmorTag> armor_;
+  std::vector<ItemTag> weapons_;
+  std::vector<ItemTag> armor_;
   std::vector<ItemTag> items_;
 };
 
