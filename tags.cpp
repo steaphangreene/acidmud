@@ -571,6 +571,25 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
       end = std::find(start, tags.cend(), ',');
     }
   }
+  for (const auto& rtag : completed) {
+    if (roomtagdefs.at(World()).contains(rtag)) {
+      for (const auto& ntag : roomtagdefs.at(World()).at(rtag).ntags_) {
+        if (npctagdefs.at(World()).contains(ntag)) {
+          npcdef += npctagdefs.at(World()).at(ntag);
+        } else {
+          loger(
+              u8"ERROR: Use of undefined NPC tag: '{}' from room tag '{}'.  Skipping.\n",
+              tag_dictionary[ntag],
+              tag_dictionary[rtag]);
+        }
+      }
+    } else {
+      loger(
+          u8"ERROR: Use of undefined Room tag: '{}' in room '{}'.  Skipping.\n",
+          tag_dictionary[rtag],
+          ShortDesc());
+    }
+  }
   npcdef.FinalizeWeaponTags(weapontagdefs.at(World()));
   npcdef.FinalizeArmorTags(armortagdefs.at(World()));
   npcdef.FinalizeItemTags(itemtagdefs.at(World()));
