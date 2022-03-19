@@ -3605,6 +3605,12 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
   }
 
   if (cnum == COM_UNWIELD) {
+    if (!body->IsAct(act_t::WIELD)) {
+      if (mind) {
+        mind->Send(u8"You aren't currently wielding anything.\n");
+      }
+      return 0; // Already not wielding anything.  So, done.
+    }
     cnum = COM_WIELD;
     args = u8"";
   }

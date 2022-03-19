@@ -2737,6 +2737,12 @@ uint32_t items[8] = {
     prhash(u8"Needy")};
 bool Mind::Think(std::shared_ptr<Mind>& sptr, int istick) {
   if (type == mind_t::NPC) {
+    // Not Fighting, Put Weapon Away
+    if (!body->IsAct(act_t::FIGHT) && body->IsAct(act_t::WIELD)) {
+      handle_command(body, u8"unwield");
+      return true;
+    }
+
     // Currently Travelling
     if (svars.contains(u8"path")) {
       if (svars[u8"path"].length() < 1) {
