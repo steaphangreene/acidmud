@@ -3610,13 +3610,14 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
   }
 
   if (cnum == COM_WIELD) {
+    Object* targ = nullptr;
     if (args.empty()) {
       if (body->IsAct(act_t::WIELD)) {
         Object* wield = body->ActTarg(act_t::WIELD);
         if ((!nmode) && wield && wield->SubHasSkill(prhash(u8"Cursed"))) {
           if (mind)
             mind->Send(u8"You can't seem to stop wielding {}!\n", wield->Noun(0, 0, body));
-        } else if (wield && body->Wear(wield)) {
+        } else if (wield && body->Wear(wield, ~(0UL), 0)) {
           body->StopAct(act_t::WIELD);
           body->Parent()->SendOut(
               stealth_t, stealth_s, u8";s puts ;s away.\n", u8"You put ;s away.\n", body, wield);
@@ -3651,35 +3652,40 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
           if (!body->Stash(wield))
             body->AddAct(act_t::HOLD, wield);
         }
+        return 0;
+      } else if (
+          body->ActTarg(act_t::WEAR_RHIP) &&
+          body->ActTarg(act_t::WEAR_RHIP)->HasSkill(prhash(u8"WeaponType"))) {
+        targ = body->ActTarg(act_t::WEAR_RHIP);
+      } else if (
+          body->ActTarg(act_t::WEAR_RSHOULDER) &&
+          body->ActTarg(act_t::WEAR_RSHOULDER)->HasSkill(prhash(u8"WeaponType"))) {
+        targ = body->ActTarg(act_t::WEAR_RSHOULDER);
+      } else if (
+          body->ActTarg(act_t::WEAR_LHIP) &&
+          body->ActTarg(act_t::WEAR_LHIP)->HasSkill(prhash(u8"WeaponType"))) {
+        targ = body->ActTarg(act_t::WEAR_LHIP);
+      } else if (
+          body->ActTarg(act_t::WEAR_LSHOULDER) &&
+          body->ActTarg(act_t::WEAR_LSHOULDER)->HasSkill(prhash(u8"WeaponType"))) {
+        targ = body->ActTarg(act_t::WEAR_LSHOULDER);
       } else {
-        if (mind)
-          mind->Send(u8"You are not wielding anything.\n");
+        if (mind) {
+          mind->Send(u8"You are not wielding anything, and have no weapon ready to draw.\n");
+        }
+        return 0;
       }
-      return 0;
     }
 
-    Object* targ = body->PickObject(std::u8string(args), vmode | LOC_INTERNAL);
+    if (!targ) {
+      targ = body->PickObject(std::u8string(args), vmode | LOC_INTERNAL);
+    }
     if (!targ) {
       if (mind)
         mind->Send(u8"You want to wield what?\n");
     } else if (targ->Skill(prhash(u8"WeaponType")) <= 0) {
       if (mind)
         mind->Send(u8"You can't wield that - it's not a weapon!\n");
-    } else if (
-        body->ActTarg(act_t::WEAR_BACK) == targ || body->ActTarg(act_t::WEAR_CHEST) == targ ||
-        body->ActTarg(act_t::WEAR_HEAD) == targ || body->ActTarg(act_t::WEAR_NECK) == targ ||
-        body->ActTarg(act_t::WEAR_COLLAR) == targ || body->ActTarg(act_t::WEAR_WAIST) == targ ||
-        body->ActTarg(act_t::WEAR_SHIELD) == targ || body->ActTarg(act_t::WEAR_LARM) == targ ||
-        body->ActTarg(act_t::WEAR_RARM) == targ || body->ActTarg(act_t::WEAR_LFINGER) == targ ||
-        body->ActTarg(act_t::WEAR_RFINGER) == targ || body->ActTarg(act_t::WEAR_LFOOT) == targ ||
-        body->ActTarg(act_t::WEAR_RFOOT) == targ || body->ActTarg(act_t::WEAR_LHAND) == targ ||
-        body->ActTarg(act_t::WEAR_RHAND) == targ || body->ActTarg(act_t::WEAR_LLEG) == targ ||
-        body->ActTarg(act_t::WEAR_RLEG) == targ || body->ActTarg(act_t::WEAR_LWRIST) == targ ||
-        body->ActTarg(act_t::WEAR_RWRIST) == targ || body->ActTarg(act_t::WEAR_LSHOULDER) == targ ||
-        body->ActTarg(act_t::WEAR_RSHOULDER) == targ || body->ActTarg(act_t::WEAR_LHIP) == targ ||
-        body->ActTarg(act_t::WEAR_RHIP) == targ || body->ActTarg(act_t::WEAR_FACE) == targ) {
-      if (mind)
-        mind->Send(u8"You are wearing that, perhaps you want to 'remove' it?\n");
     } else {
       if (body->IsAct(act_t::WIELD) && body->IsAct(act_t::HOLD)) {
         if (body->ActTarg(act_t::HOLD) != targ) {

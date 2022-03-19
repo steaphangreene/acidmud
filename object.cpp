@@ -4788,13 +4788,15 @@ int Object::Wear(Object* targ, unsigned long masks, bool message) {
       for (auto loc : locations) {
         AddAct(loc, targ);
       }
-      Parent()->SendOut(
-          0,
-          0, // FIXME: stealth_t, stealth_s,
-          u8";s puts on ;s.\n",
-          u8"You put on ;s.\n",
-          this,
-          targ);
+      if (message) {
+        Parent()->SendOut(
+            0,
+            0, // FIXME: stealth_t, stealth_s,
+            u8";s puts on ;s.\n",
+            u8"You put on ;s.\n",
+            this,
+            targ);
+      }
     }
   }
   return success;
