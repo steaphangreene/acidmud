@@ -2815,17 +2815,17 @@ void Object::NotifyLeft(Object* obj, Object* newloc) {
     return; // It's myself.
   }
 
-  if (newloc && Room() == newloc->Room()) {
-    return; // It's still here.
-  }
-
   std::set<act_t> stops, stops2;
   int following = 0;
   for (auto curact : act) {
     if (curact.obj() && curact.act() < act_t::MAX &&
         (curact.obj() == obj || obj->HasWithin(curact.obj()))) {
       if (curact.act() != act_t::FOLLOW || (!newloc)) {
-        stops.insert(curact.act());
+        if (curact.act() < act_t::MAX_SIMPLE && newloc && Room() == newloc->Room()) {
+          // Simple action, and object is still here, don't stop it.
+        } else {
+          stops.insert(curact.act());
+        }
       } else if (parent != newloc) { // Do nothing if we didn't leave!
         following = 1; // Run Follow Response AFTER loop!
       }
@@ -4564,6 +4564,10 @@ Object* Object::Stash(Object* item, bool message, bool force) {
       parent->SendOut(0, 0, u8";s closes ;s.\n", u8"You close ;s.\n", this, dest);
   }
 
+  if (dest && ActTarg(act_t::HOLD) == item) {
+    StopAct(act_t::HOLD);
+  }
+
   return dest;
 }
 
@@ -4779,7 +4783,8 @@ int Object::Wear(Object* targ, unsigned long masks, bool message) {
       }
     }
     if (success) {
-      targ->Travel(this); // Kills Holds and Wields on u8"targ"
+      targ->Travel(Zone()); // Kills Holds and Wields on u8"targ"
+      targ->Travel(this);
       for (auto loc : locations) {
         AddAct(loc, targ);
       }
