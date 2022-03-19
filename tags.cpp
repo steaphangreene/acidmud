@@ -600,3 +600,31 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
   npc->GenerateNPC(npcdef, gen);
   return npc;
 }
+
+void Object::SetTags(const std::u8string_view& tags_in) {
+  std::u8string_view tags = tags_in;
+  completed.clear();
+  std::u8string_view tag = getuntil(tags, ',');
+  while (tag.length() > 0 || tags.length() > 0) {
+    if (tag.length() > 0) {
+      completed.push_back(crc32c(tag));
+    }
+    tag = getuntil(tags, ',');
+  }
+}
+
+void Object::AddTag(uint64_t tag) {
+  if (HasTag(tag)) {
+    return;
+  }
+  completed.push_back(tag);
+}
+
+bool Object::HasTag(uint64_t tag) const {
+  for (auto comp : completed) {
+    if (comp == tag) {
+      return true;
+    }
+  }
+  return false;
+}
