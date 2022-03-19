@@ -607,7 +607,7 @@ void Object::SetTags(const std::u8string_view& tags_in) {
   std::u8string_view tag = getuntil(tags, ',');
   while (tag.length() > 0 || tags.length() > 0) {
     if (tag.length() > 0) {
-      if(!tag_dictionary.contains(crc32c(tag))) {
+      if (!tag_dictionary.contains(crc32c(tag))) {
         loger(u8"ERROR: Applied an undefined tag: '{}'\n", tag);
       }
       completed.push_back(crc32c(tag));

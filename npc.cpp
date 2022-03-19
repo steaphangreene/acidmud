@@ -169,14 +169,14 @@ static void give_gold(Object* npc, int qty) {
   g->SetSkill(prhash(u8"Quantity"), qty);
 }
 
-static void add_pouch(Object* npc) {
+static Object* add_pack(Object* npc) {
   Object* bag = new Object(npc);
 
-  bag->SetShortDesc(u8"a small pouch");
-  bag->SetDesc(u8"A small, durable, practical beltpouch.");
+  bag->SetShortDesc(u8"a small pack");
+  bag->SetDesc(u8"A small, durable, practical shoulder pack.");
 
-  bag->SetSkill(prhash(u8"Wearable on Left Hip"), 1);
-  bag->SetSkill(prhash(u8"Wearable on Right Hip"), 2);
+  bag->SetSkill(prhash(u8"Wearable on Left Shoulder"), 1);
+  bag->SetSkill(prhash(u8"Wearable on Right Shoulder"), 2);
   bag->SetSkill(prhash(u8"Container"), 5 * 454);
   bag->SetSkill(prhash(u8"Capacity"), 5);
   bag->SetSkill(prhash(u8"Closeable"), 1);
@@ -187,7 +187,9 @@ static void add_pouch(Object* npc) {
   bag->SetValue(100);
 
   bag->SetPos(pos_t::LIE);
-  npc->AddAct(act_t::WEAR_RHIP, bag);
+  npc->AddAct(act_t::WEAR_LSHOULDER, bag);
+
+  return bag;
 }
 
 void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
@@ -229,10 +231,6 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
     if (num_gold > 0) {
       give_gold(this, num_gold);
     }
-  }
-
-  if (true) { // TODO: Figure out who should get these, and who should not
-    add_pouch(this);
   }
 
   for (auto wp : type.weapons_) {
@@ -284,26 +282,10 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
   }
 
   if (type.items_.size() > 0) {
-    Object* sack = new Object(this);
-    sack->SetShortDesc(u8"a small sack");
-    sack->SetDesc(u8"A small, durable, practical belt sack.");
-
-    sack->SetSkill(prhash(u8"Wearable on Left Hip"), 1);
-    sack->SetSkill(prhash(u8"Wearable on Right Hip"), 2);
-    sack->SetSkill(prhash(u8"Container"), 5 * 454);
-    sack->SetSkill(prhash(u8"Capacity"), 5);
-    sack->SetSkill(prhash(u8"Closeable"), 1);
-
-    sack->SetWeight(1 * 454);
-    sack->SetSize(2);
-    sack->SetVolume(1);
-    sack->SetValue(100);
-
-    sack->SetPos(pos_t::LIE);
-    AddAct(act_t::WEAR_RHIP, sack);
+    Object* pack = add_pack(this);
 
     for (auto it : type.items_) {
-      Object* obj = new Object(sack);
+      Object* obj = new Object(pack);
       for (auto sk : it.props_) {
         obj->SetSkill(sk.first, sk.second);
       }
