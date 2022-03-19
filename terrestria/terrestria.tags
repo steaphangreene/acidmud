@@ -109,16 +109,102 @@ w:1-1
 gold:200-500
 
 tag:npc:master
-short:the master
+short:the master+
 desc:
 long:{He} is among the best at what {he} does.
-wtag:hammer
 q:1-1
 s:1-1
 c:1-1
 i:2-2
 w:2-2
 gold:200-500
+
+tag:npc:collier
+short:a collier
+desc:a charcoal kiln operator.
+long:{He} is covered in soot from head to toe.  You don't think {he} even notices it anymore.
+b:1-1
+gold:200-400
+
+tag:npc:blacksmith
+short:a blacksmith
+desc:a smith specializing in metal tools and weapons.
+long:{His} build makes it clear {he} has been swinging a hammer {his} entire life.
+wtag:hammer
+s:2-2
+gold:200-400
+
+tag:npc:bladesmith
+short:a bladesmith
+desc:a smith specializing in metal swords and knives.
+long:{His} build makes it clear {he} has been swinging a hammer {his} entire life.
+wtag:hammer
+s:2-2
+gold:200-400
+
+tag:npc:armorer
+short:an armorer
+desc:a smith specializing in metal armor and shields.
+long:{His} build makes it clear {he} has been swinging a hammer {his} entire life.
+wtag:hammer
+s:2-2
+gold:200-400
+
+tag:npc:metalworker
+short:a metalworker
+desc:an artisan who works with molten metals.
+long:{His} skin shows {he} has been around high heat all {his} life.
+s:2-2
+gold:200-400
+
+tag:npc:refiner
+short:a refiner
+desc:an expert at extracting pure metals from rough ores.
+long:{His} dried out skin is covered in soot.  You get the impress {he} always looks like this.
+s:2-2
+gold:200-400
+
+tag:npc:coinmaker
+short:a coinmaker
+desc:an expert at stamping coins of exacting weights.
+long:{His} hunched-over body gives away that {his} whole life has been spent bent over in study of minute details.
+s:2-2
+gold:500-1000
+
+tag:npc:miller
+short:a miller
+desc:an expert at turning raw logs into usable lumber.
+long:{His} clothing is covered in sawdust.
+s:2-2
+gold:500-1000
+
+tag:npc:woodcarver
+short:a woodcarver
+desc:a woodcarver
+long:{He} is an expert carver of wooden items, both functional and decorative.
+s:2-2
+gold:500-1000
+
+tag:npc:innkeeper
+short:an innkeeper
+desc:an innkeeper
+long:The proprieter of an establishment offering rooms for rent to weary travellers.
+s:2-2
+gold:200-400
+
+tag:npc:tavernkeeper
+short:a tavernkeeper
+desc:a tavernkeeper
+long:The proprieter of an establishment offering drinks to weary travellers and locals alike.
+s:2-2
+gold:200-400
+
+tag:npc:storekeeper
+short:a storekeeper
+desc:a storekeeper
+long:The proprieter of an establishment offering supplies to those who need them.
+s:2-2
+gold:200-400
 
 tag:npc:leader
 short:a leader
@@ -429,10 +515,6 @@ long:A simple pack for holding items.  This can be quickly thrown over one shoul
 wear:RSHOULDER
 wear:LSHOULDER
 
-tag:room:dwarven
-
-tag:room:human
-
 tag:room:kiln
 otag:kiln
 ntag:collier
@@ -443,30 +525,46 @@ desc:A kiln is set up here, to turn wood to charcoal.
 
 tag:room:armory
 otag:forge
+ntag:armorer
 
 tag:obj:forge
 short:A forge
 desc:A forge has been built here, ready for a smith to use.
 
 tag:room:tavern
+otag:bar
+ntag:tavernkeeper
 
 tag:room:smithy
+otag:forge
+ntag:blacksmith
 
 tag:room:bladesmithy
+otag:forge
+ntag:bladesmith
 
 tag:room:refinery
+otag:furnace
+ntag:refiner
 
 tag:room:woodmill
+ntag:miller
 
 tag:room:woodshop
+ntag:woodcarver
 
 tag:room:inn
+otag:room
+ntag:innkeeper
 
 tag:room:store
+ntag:storekeeper
 
 tag:room:mint
+ntag:coinmaker
 
 tag:room:foundry
+ntag:metalworker
 
 tag:room:food
 
@@ -475,3 +573,7 @@ tag:room:large
 tag:room:meals
 
 tag:room:good
+
+tag:room:dwarven
+
+tag:room:human
