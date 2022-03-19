@@ -250,6 +250,11 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
     AddAct(act_t::WIELD, obj);
     if (two_handed(wp.wtype_)) {
       AddAct(act_t::HOLD, obj);
+      obj->SetSkill(prhash(u8"Wearable on Right Shoulder"), 1);
+      obj->SetSkill(prhash(u8"Wearable on Left Shoulder"), 2);
+    } else {
+      obj->SetSkill(prhash(u8"Wearable on Right Hip"), 1);
+      obj->SetSkill(prhash(u8"Wearable on Left Hip"), 2);
     }
   }
 

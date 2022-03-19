@@ -5619,15 +5619,19 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       body->SetSkill(prhash(u8"Kicking"), 3);
       body->SetSkill(prhash(u8"Grappling"), 3);
       body->SetSkill(prhash(u8"Intimidation"), 1);
-      body->ClearSkill(prhash(u8"Skill Points"));
+      body->SetSkill(prhash(u8"Skill Points"), 0);
 
       auto weap = new Object(body);
       weap->SetShortDesc(u8"a dull arming sword");
-      weap->SetDesc(u8"This sword really isn't that great.  Is even metal?  It's sure not steel.");
+      weap->SetDesc(
+          u8"This sword really isn't that great.  Is even metal?  It's sure not steel.  "
+          u8"At least it includes its own custom scabbard.");
       weap->SetSkill(prhash(u8"WeaponType"), get_weapon_type(u8"Long Blades"));
       weap->SetSkill(prhash(u8"WeaponForce"), -2);
       weap->SetSkill(prhash(u8"WeaponSeverity"), 1);
       weap->SetSkill(prhash(u8"WeaponReach"), 1);
+      weap->SetSkill(prhash(u8"Wearable on Right Hip"), 1);
+      weap->SetSkill(prhash(u8"Wearable on Left Hip"), 2);
       weap->SetPos(pos_t::LIE);
       body->AddAct(act_t::WIELD, weap);
 

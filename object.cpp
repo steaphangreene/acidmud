@@ -329,11 +329,11 @@ Object* new_body(Object* world) {
   bag->SetSkill(prhash(u8"Closeable"), 1);
   bag->SetSkill(prhash(u8"Container"), 20000);
   bag->SetSkill(prhash(u8"Open"), 1000);
-  bag->SetSkill(prhash(u8"Wearable on Left Hip"), 1);
-  bag->SetSkill(prhash(u8"Wearable on Right Hip"), 2);
+  bag->SetSkill(prhash(u8"Wearable on Left Shoulder"), 1);
+  bag->SetSkill(prhash(u8"Wearable on Right Shoulder"), 2);
 
-  bag->SetShortDesc(u8"a small bag");
-  bag->SetDesc(u8"A small bag is here.");
+  bag->SetShortDesc(u8"a small pack");
+  bag->SetDesc(u8"A small pack is here.");
 
   bag->SetWeight(800);
   bag->SetSize(1);
@@ -342,7 +342,7 @@ Object* new_body(Object* world) {
 
   bag->SetPos(pos_t::LIE);
 
-  body->AddAct(act_t::WEAR_RHIP, bag);
+  body->AddAct(act_t::WEAR_LSHOULDER, bag);
 
   return body;
 }
