@@ -256,6 +256,9 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
       obj->SetSkill(prhash(u8"Wearable on Right Hip"), 1);
       obj->SetSkill(prhash(u8"Wearable on Left Hip"), 2);
     }
+    for (auto t : wp.tags_) {
+      obj->AddTag(t);
+    }
   }
 
   for (auto ar : type.armor_) {
@@ -283,6 +286,9 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
         }
       }
       modenum *= 2;
+    }
+    for (auto t : ar.tags_) {
+      obj->AddTag(t);
     }
   }
 
@@ -312,6 +318,9 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
           }
         }
         modenum *= 2;
+      }
+      for (auto t : it.tags_) {
+        obj->AddTag(t);
       }
     }
   }
