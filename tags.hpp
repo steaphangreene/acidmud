@@ -28,6 +28,23 @@
 
 #include "object.hpp"
 
+// Yes, this is the order of (descriptive) adjectives in English
+enum class tag_t {
+  NONE = 0,
+  OPINION,
+  SIZE,
+  QUALITY,
+  AGE,
+  SHAPE,
+  COLOR,
+  ORIGIN,
+  MATERIAL,
+  TYPE,
+  PURPOSE,
+  NOUN,
+  MAX
+};
+
 struct ItemAttrs {
   int weight;
   int size;
@@ -64,6 +81,7 @@ class ObjectTag {
   void FinalizeItemTags(const std::map<uint32_t, ObjectTag>&);
   void Finalize();
 
+  tag_t type_ = tag_t::NONE;
   std::u8string short_desc_, desc_, long_desc_;
   std::vector<skill_pair> props_;
   std::vector<std::vector<act_t>> loc_;

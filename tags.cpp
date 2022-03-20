@@ -2,23 +2,6 @@
 #include "log.hpp"
 #include "utils.hpp"
 
-// Yes, this is the order of (descriptive) adjectives in English
-enum class tag_t {
-  NONE = 0,
-  OPINION,
-  SIZE,
-  QUALITY,
-  AGE,
-  SHAPE,
-  COLOR,
-  ORIGIN,
-  MATERIAL,
-  TYPE,
-  PURPOSE,
-  NOUN,
-  MAX
-};
-
 static std::map<const Object*, std::map<uint32_t, ObjectTag>> npctagdefs;
 static std::map<const Object*, std::map<uint32_t, ObjectTag>> weapontagdefs;
 static std::map<const Object*, std::map<uint32_t, ObjectTag>> armortagdefs;
@@ -329,6 +312,34 @@ bool ObjectTag::LoadFrom(std::u8string_view& def) {
     skipspace(line); // Ignore indentation, blank lines, etc.
     if (line.length() == 0 || line.front() == '#') {
       // Comment or blank link - skip it.
+    } else if (process(line, u8"type:")) {
+      std::u8string typestr(getuntil(line, '\n'));
+      std::transform(typestr.begin(), typestr.end(), typestr.begin(), ascii_toupper);
+      if (typestr == u8"OPINION") {
+        type_ = tag_t::OPINION;
+      } else if (typestr == u8"SIZE") {
+        type_ = tag_t::SIZE;
+      } else if (typestr == u8"QUALITY") {
+        type_ = tag_t::QUALITY;
+      } else if (typestr == u8"AGE") {
+        type_ = tag_t::AGE;
+      } else if (typestr == u8"SHAPE") {
+        type_ = tag_t::SHAPE;
+      } else if (typestr == u8"COLOR") {
+        type_ = tag_t::COLOR;
+      } else if (typestr == u8"ORIGIN") {
+        type_ = tag_t::ORIGIN;
+      } else if (typestr == u8"MATERIAL") {
+        type_ = tag_t::MATERIAL;
+      } else if (typestr == u8"TYPE") {
+        type_ = tag_t::TYPE;
+      } else if (typestr == u8"PURPOSE") {
+        type_ = tag_t::PURPOSE;
+      } else if (typestr == u8"NOUN") {
+        type_ = tag_t::NOUN;
+      } else {
+        loger(u8"ERROR: bad tag type: '{}'\n", typestr);
+      }
     } else if (process(line, u8"short:")) {
       short_desc_ = std::u8string(getuntil(line, '\n'));
     } else if (process(line, u8"desc:")) {
@@ -387,6 +398,10 @@ bool ObjectTag::LoadFrom(std::u8string_view& def) {
       loger(u8"ERROR: bad item tag file entry: '{}'\n", line);
       return false;
     }
+  }
+  if (type_ == tag_t::NONE) {
+    loger(u8"ERROR: tag with no type: '{}'\n", short_desc_);
+    return false;
   }
   return true;
 }
