@@ -2684,20 +2684,11 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       if (mind)
         mind->Send(u8"It does not seem to have a keyhole!\n");
     } else {
-      if (!nmode) {
-        auto keys = body->PickObjects(u8"all", vmode | LOC_INTERNAL);
-        bool can_open = false;
-        for (auto key : keys) {
-          if (key->Skill(prhash(u8"Key")) == targ->Skill(prhash(u8"Lock"))) {
-            can_open = true;
-            break;
-          }
+      if ((!nmode) && (!body->HasKeyFor(targ, vmode))) {
+        if (mind) {
+          mind->Send(u8"You don't seem to have the right key.\n");
         }
-        if (!can_open) {
-          if (mind)
-            mind->Send(u8"You don't seem to have the right key.\n");
-          return 0;
-        }
+        return 0;
       }
       targ->SetSkill(prhash(u8"Locked"), 1);
       body->Parent()->SendOut(
@@ -2729,20 +2720,11 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       if (mind)
         mind->Send(u8"It does not seem to have a keyhole!\n");
     } else {
-      if (!nmode) {
-        auto keys = body->PickObjects(u8"all", vmode | LOC_INTERNAL);
-        bool can_open = false;
-        for (auto key : keys) {
-          if (key->Skill(prhash(u8"Key")) == targ->Skill(prhash(u8"Lock"))) {
-            can_open = true;
-            break;
-          }
+      if ((!nmode) && (!body->HasKeyFor(targ, vmode))) {
+        if (mind) {
+          mind->Send(u8"You don't seem to have the right key.\n");
         }
-        if (!can_open) {
-          if (mind)
-            mind->Send(u8"You don't seem to have the right key.\n");
-          return 0;
-        }
+        return 0;
       }
       targ->ClearSkill(prhash(u8"Locked"));
       body->Parent()->SendOut(

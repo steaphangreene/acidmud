@@ -518,6 +518,8 @@ class alignas(256) Object {
   std::u8string WearNames(const std::set<act_t>& locs) const;
   std::u8string WearNames(int m = -1) const;
 
+  bool HasKeyFor(Object* lock, int vmode = 0);
+
   int Quantity() const;
 
   void Collapse();

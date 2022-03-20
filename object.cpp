@@ -4833,3 +4833,13 @@ MinVec<7, skill_pair> Object::GetSkills() const {
 
   return ret;
 }
+
+bool Object::HasKeyFor(Object* lock, int vmode) {
+  auto keys = PickObjects(u8"all", vmode | LOC_INTERNAL);
+  for (auto key : keys) {
+    if (key->Skill(prhash(u8"Key")) == lock->Skill(prhash(u8"Lock"))) {
+      return true;
+    }
+  }
+  return false;
+}
