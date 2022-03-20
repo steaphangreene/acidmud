@@ -2985,7 +2985,7 @@ bool Mind::Think(std::shared_ptr<Mind>& sptr, int istick) {
         }
       }
       if (stype & 2) { // Random Triggers
-        if (Body()->NumMinds() < 2) { // Not Already Being Covered
+        if (!Body()->HasMultipleMinds()) { // Not Already Being Covered
           int chance = body->Skill(prhash(u8"TBAScriptNArg")); // Percent Chance
           if (chance > 0) {
             int delay = 13000; // Next try in 13 seconds.

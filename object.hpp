@@ -19,6 +19,8 @@
 //
 // *************************************************************************
 
+#include <forward_list>
+#include <memory>
 #include <random>
 #include <set>
 #include <string>
@@ -34,7 +36,6 @@
 
 #include "minvec.hpp"
 #include "stats.hpp"
-#include "vec32.hpp"
 
 class Object;
 class Player;
@@ -319,8 +320,23 @@ class alignas(256) Object {
   int Wear(Object* targ, int unsigned long = (~(0UL)), bool message = true);
 
   Object* Owner() const;
-  int NumMinds() const {
-    return minds.size();
+  bool HasMultipleMinds() const {
+    auto mitr = minds.begin();
+    if (mitr == minds.end()) {
+      return false;
+    }
+    ++mitr;
+    if (mitr == minds.end()) {
+      return false;
+    }
+    return true;
+  }
+  bool HasMind() const {
+    auto mitr = minds.begin();
+    if (mitr == minds.end()) {
+      return false;
+    }
+    return true;
   }
 
   void NotifyGone(Object* obj, Object* newloc = nullptr, int up = 1);
@@ -669,7 +685,7 @@ class alignas(256) Object {
   const char8_t* dowhenfree = u8"";
   const char8_t* defact = u8"";
 
-  Vec32<std::shared_ptr<Mind>> minds;
+  std::forward_list<std::shared_ptr<Mind>> minds;
 
   MinVec<1, uint64_t> known;
 

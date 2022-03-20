@@ -2407,17 +2407,26 @@ void Object::Attach(std::shared_ptr<Mind> m) {
   for (; itr != minds.end() && (*itr) != m; ++itr) {
   }
   if (itr == minds.end()) {
-    minds.push_back(m);
+    minds.push_front(m);
   }
   m->body = this;
 }
 
 void Object::Detach(std::shared_ptr<Mind> m) {
   auto itr = minds.begin();
-  for (; itr != minds.end() && (*itr) != m; ++itr) {
-  }
   if (itr != minds.end()) {
-    minds.erase(itr);
+    if (*itr == m) {
+      minds.pop_front();
+    } else {
+      auto prev = itr;
+      ++itr;
+      for (; itr != minds.end() && (*itr) != m; ++itr) {
+        prev = itr;
+      }
+      if (itr != minds.end()) {
+        minds.erase_after(prev);
+      }
+    }
   }
   if (m->body == this) {
     m->body = nullptr;
@@ -3405,7 +3414,7 @@ void Object::SendOut(
     no_seek = false;
   }
 
-  if (targ && targ != this && minds.size() > 0 && targ->HasSkill(prhash(u8"Object ID")) &&
+  if (targ && targ != this && HasMind() && targ->HasSkill(prhash(u8"Object ID")) &&
       mes.starts_with(u8";s introduces ;s as")) {
     Learn(targ->Skill(prhash(u8"Object ID")), targ->Name());
   }
@@ -3596,7 +3605,7 @@ bool Object::BusyAct() {
   // loge(u8"Act is {} [{}]!\n", comm, def);
 
   int ret;
-  if (minds.size()) {
+  if (HasMind()) {
     ret = handle_command(this, comm, (minds.front()));
     if (ret != 2 && (!StillBusy()))
       ret = handle_command(this, def, (minds.front()));
@@ -3655,8 +3664,9 @@ void Object::FreeActions() {
 }
 
 std::u8string Object::Tactics(int phase) {
-  if (minds.size() < 1)
+  if (!HasMind()) {
     return u8"attack";
+  }
   std::shared_ptr<Mind> mind = minds.front(); // FIXME: Handle Multiple Minds
   Object* body = mind->Body();
   mind->body = this;
