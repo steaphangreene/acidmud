@@ -3828,12 +3828,16 @@ MinVec<3, Object*> Object::Contents() const {
   return contents;
 }
 
-MinVec<7, Object*> Object::Connections(int vmode) const {
+MinVec<7, Object*> Object::Connections(Object* traveller) const {
   MinVec<7, Object*> ret; // Includes nulls for unconnected dirs
   for (std::u8string dir : {u8"north", u8"south", u8"east", u8"west", u8"up", u8"down"}) {
     Object* conn = nullptr;
-    Object* door = PickObject(dir, vmode | LOC_INTERNAL);
-    if (door && (door->Skill(prhash(u8"Open")) >= 1000 || door->Skill(prhash(u8"Closeable")) > 0)) {
+    Object* door = PickObject(dir, LOC_INTERNAL);
+    if (door &&
+        (door->Skill(prhash(u8"Open")) >= 1000 ||
+         (door->HasSkill(prhash(u8"Closeable")) &&
+          ((!door->HasSkill(prhash(u8"Locked"))) ||
+           (door->HasSkill(prhash(u8"Locked")) && traveller && traveller->HasKeyFor(door)))))) {
       Object* odoor = door->ActTarg(act_t::SPECIAL_LINKED);
       if (odoor) {
         conn = odoor->Parent();
@@ -3850,7 +3854,7 @@ MinVec<7, Object*> Object::Connections(bool exits) const {
     Object* door = PickObject(dir, LOC_NINJA | LOC_INTERNAL);
     Object* odoor = nullptr;
     Object* conn = nullptr;
-    if (door && (door->Skill(prhash(u8"Open")) >= 1000 || door->Skill(prhash(u8"Closeable")) > 0)) {
+    if (door) {
       odoor = door->ActTarg(act_t::SPECIAL_LINKED);
       if (odoor) {
         conn = odoor->Parent();
@@ -3862,7 +3866,7 @@ MinVec<7, Object*> Object::Connections(bool exits) const {
 }
 
 // Letters from "nsewud", or empty if there, or unreachable
-std::u8string Object::DirectionsTo(Object* dest) {
+std::u8string Object::DirectionsTo(Object* dest, Object* traveller) {
   if (!dest) {
     return u8""; // You can't go to nowhere.
   } else if (Zone() != dest->Zone()) {
@@ -3897,7 +3901,7 @@ std::u8string Object::DirectionsTo(Object* dest) {
   while (totry.size() > 0) {
     auto cand = totry.top();
     totry.pop();
-    auto conns = cand.loc->Connections();
+    auto conns = cand.loc->Connections(traveller);
     std::u8string dirs = u8"nsewud";
     while (conns.size() > 0) {
       if (conns.back() == dest) {

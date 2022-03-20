@@ -350,9 +350,11 @@ class alignas(256) Object {
   int Contains(const Object* obj) const; // Only Immediately (No Recursion)
   MinVec<3, Object*> Contents(int vmode) const;
   MinVec<3, Object*> Contents() const;
-  MinVec<7, Object*> Connections(int vmode) const; // Includes nulls for unconnected dirs
+  MinVec<7, Object*> Connections(Object* traveller) const; // Includes nulls for unconnected dirs
   MinVec<7, Object*> Connections(bool exits = false) const; // Includes nulls for unconnected dirs
-  std::u8string DirectionsTo(Object* dest); // From "nsewud", or empty if there/unreachable
+  std::u8string DirectionsTo(
+      Object* dest,
+      Object* traveller); // From "nsewud", or empty if there/unreachable
 
   int ContainedWeight();
   int ContainedVolume();

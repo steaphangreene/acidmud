@@ -2824,7 +2824,7 @@ bool Mind::Think(std::shared_ptr<Mind>& sptr, int istick) {
           // Already working, nothing to do here.
         } else if (body->Parent() != body->ActTarg(act_t::SPECIAL_WORK)) {
           if (!svars.contains(u8"path")) {
-            auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_WORK));
+            auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_WORK), body);
             svars[u8"path"] = path;
           }
         } else if (!body->IsAct(act_t::WORK)) {
@@ -2836,7 +2836,7 @@ bool Mind::Think(std::shared_ptr<Mind>& sptr, int istick) {
       } else if (time > 11 * day / 12 - early || time < day / 6 + late) {
         if (body->Parent() != body->ActTarg(act_t::SPECIAL_HOME)) {
           if (!svars.contains(u8"path")) {
-            auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_HOME));
+            auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_HOME), body);
             svars[u8"path"] = path;
           }
         } else if (body->Pos() != pos_t::LIE) {
@@ -2864,7 +2864,7 @@ bool Mind::Think(std::shared_ptr<Mind>& sptr, int istick) {
         body->IsAct(act_t::WORK)) {
       if (std::uniform_int_distribution(0, 999)(gen) < 55) { // 5.5% Chance
         std::vector<std::u8string_view> options;
-        auto conns = body->Room()->Connections();
+        auto conns = body->Room()->Connections(body);
         std::u8string_view area = u8"";
         if (body->ActTarg(act_t::SPECIAL_WORK)) { // Only patrol the street you patrol, etc.
           area = body->ActTarg(act_t::SPECIAL_WORK)->ShortDesc();
