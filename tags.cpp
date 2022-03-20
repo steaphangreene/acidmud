@@ -399,10 +399,6 @@ bool ObjectTag::LoadFrom(std::u8string_view& def) {
       return false;
     }
   }
-  if (type_ == tag_t::NONE) {
-    loger(u8"ERROR: tag with no type: '{}'\n", short_desc_);
-    return false;
-  }
   return true;
 }
 

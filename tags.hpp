@@ -30,7 +30,6 @@
 
 // Yes, this is the order of (descriptive) adjectives in English
 enum class tag_t {
-  NONE = 0,
   OPINION,
   SIZE,
   QUALITY,
@@ -81,7 +80,7 @@ class ObjectTag {
   void FinalizeItemTags(const std::map<uint32_t, ObjectTag>&);
   void Finalize();
 
-  tag_t type_ = tag_t::NONE;
+  tag_t type_ = tag_t::NOUN;
   std::u8string short_desc_, desc_, long_desc_;
   std::vector<skill_pair> props_;
   std::vector<std::vector<act_t>> loc_;
