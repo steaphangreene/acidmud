@@ -2741,13 +2741,11 @@ bool Mind::Think(std::shared_ptr<Mind>& sptr, int istick) {
     if ((body->HasTag(crc32c(u8"guard")) || body->HasTag(crc32c(u8"soldier"))) &&
         body->IsAct(act_t::WORK)) {
       if (!body->IsAct(act_t::WIELD)) {
-        handle_command(body, u8"say I should probably get out mu gunz.");
         handle_command(body, u8"wield");
         return true;
       }
     } else if (body->IsAct(act_t::WIELD) && (!body->IsAct(act_t::FIGHT))) {
       // Otherwise, If Not Fighting, Put Weapon Away
-      handle_command(body, u8"say I should put this shit away.");
       handle_command(body, u8"unwield");
       return true;
     }
@@ -2826,7 +2824,6 @@ bool Mind::Think(std::shared_ptr<Mind>& sptr, int istick) {
           // Already working, nothing to do here.
         } else if (body->Parent() != body->ActTarg(act_t::SPECIAL_WORK)) {
           if (!svars.contains(u8"path")) {
-            handle_command(body, u8"say 'Time to head to work!");
             auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_WORK));
             svars[u8"path"] = path;
           }
@@ -2839,7 +2836,6 @@ bool Mind::Think(std::shared_ptr<Mind>& sptr, int istick) {
       } else if (time > 11 * day / 12 - early || time < day / 6 + late) {
         if (body->Parent() != body->ActTarg(act_t::SPECIAL_HOME)) {
           if (!svars.contains(u8"path")) {
-            handle_command(body, u8"say Time to head home!");
             auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_HOME));
             svars[u8"path"] = path;
           }
@@ -2853,14 +2849,12 @@ bool Mind::Think(std::shared_ptr<Mind>& sptr, int istick) {
           body->StopAct(act_t::WORK);
           body->Parent()->SendOut(
               ALL, 0, u8";s finishes up with the daily work.\n", u8"", body, nullptr);
-          handle_command(body, u8"say I am hungry");
         }
 
         // Morning (4AM-6AM)
       } else {
         if (body->Pos() != pos_t::STAND) {
           handle_command(body, u8"wake;stand");
-          handle_command(body, u8"say I am thirsty");
         }
       }
     }
