@@ -44,13 +44,12 @@ static Object* new_object(Object* parent) {
 }
 std::multimap<std::u8string, std::pair<std::u8string, Object*>> zone_links;
 
-bool tag_superset(const std::u8string_view& big, const std::u8string_view& little) {
-  std::u8string posessed_tags = fmt::format(u8",{},", big);
+bool tag_superset(const Object* npc, const std::u8string_view& little) {
   std::u8string_view required_tags = little;
   std::u8string_view tag = getuntil(required_tags, ',');
   while (tag.length() > 0 || required_tags.length() > 0) {
     if (tag.length() > 0) {
-      if (!posessed_tags.contains(fmt::format(u8",{},", tag))) {
+      if (!npc->HasTag(crc32c(tag))) {
         return false;
       }
     }
@@ -862,7 +861,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
                 char8_t type = ascii_map[loc_y][loc_x];
                 if (restags.count(type) > 0) {
                   for (size_t f = 0; !housed && f < restags.at(type).size(); ++f) {
-                    if (tag_superset(emptags[room][n], restags.at(type)[f])) {
+                    if (tag_superset(npc, restags.at(type)[f])) {
                       int resfl = resfloors.at(type)[f];
                       if (beds.at(std::make_pair(objs[loc][resfl], restags.at(type)[f])) > 0) {
                         npc->AddAct(act_t::SPECIAL_HOME, objs[loc][resfl]);

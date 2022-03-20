@@ -248,6 +248,9 @@ void ObjectTag::operator+=(const ObjectTag& in) {
   min_gold_ += in.min_gold_;
   max_gold_ += in.max_gold_;
 
+  tags_.insert(tags_.end(), in.tags_.begin(), in.tags_.end());
+  otags_.insert(otags_.end(), in.otags_.begin(), in.otags_.end());
+  ntags_.insert(ntags_.end(), in.ntags_.begin(), in.ntags_.end());
   wtags_.insert(wtags_.end(), in.wtags_.begin(), in.wtags_.end());
   atags_.insert(atags_.end(), in.atags_.begin(), in.atags_.end());
   itags_.insert(itags_.end(), in.itags_.begin(), in.itags_.end());
@@ -306,6 +309,8 @@ ObjectTag::ObjectTag(std::u8string_view& tagdef) {
 }
 
 bool ObjectTag::LoadFrom(std::u8string_view& def) {
+  skipspace(def);
+  tags_.push_back(add_to_dictionary(getuntil(def, '\n')));
   skipspace(def);
   while (def.length() > 0 && !def.starts_with(u8"tag:")) {
     auto line = getuntil(def, '\n');
@@ -366,6 +371,8 @@ bool ObjectTag::LoadFrom(std::u8string_view& def) {
     } else if (intparam(line, u8"i:", min_.v[4], max_.v[4])) {
     } else if (intparam(line, u8"w:", min_.v[5], max_.v[5])) {
     } else if (intparam(line, u8"gold:", min_gold_, max_gold_)) {
+    } else if (process(line, u8"includes:")) {
+      tags_.push_back(add_to_dictionary(getuntil(line, '\n')));
     } else if (process(line, u8"wtag:")) {
       wtags_.push_back(add_to_dictionary(getuntil(line, '\n')));
     } else if (process(line, u8"atag:")) {
@@ -444,43 +451,43 @@ bool Object::LoadTagsFrom(const std::u8string_view& tagdefs, bool save) {
   skipspace(defs);
   while (process(defs, u8"tag:")) {
     if (process(defs, u8"npc:")) {
-      std::u8string tag(getuntil(defs, '\n'));
-      add_to_dictionary(tag);
+      std::u8string_view tag(defs);
+      tag = getuntil(tag, '\n');
       if (!npctagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
         loger(u8"Duplicate NPC tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
       }
     } else if (process(defs, u8"weapon:")) {
-      std::u8string tag(getuntil(defs, '\n'));
-      add_to_dictionary(tag);
+      std::u8string_view tag(defs);
+      tag = getuntil(tag, '\n');
       if (!weapontagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
         loger(u8"Duplicate Weapon tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
       }
     } else if (process(defs, u8"armor:")) {
-      std::u8string tag(getuntil(defs, '\n'));
-      add_to_dictionary(tag);
+      std::u8string_view tag(defs);
+      tag = getuntil(tag, '\n');
       if (!armortagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
         loger(u8"Duplicate Armor tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
       }
     } else if (process(defs, u8"item:")) {
-      std::u8string tag(getuntil(defs, '\n'));
-      add_to_dictionary(tag);
+      std::u8string_view tag(defs);
+      tag = getuntil(tag, '\n');
       if (!itemtagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
         loger(u8"Duplicate Item tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
       }
     } else if (process(defs, u8"room:")) {
-      std::u8string tag(getuntil(defs, '\n'));
-      add_to_dictionary(tag);
+      std::u8string_view tag(defs);
+      tag = getuntil(tag, '\n');
       if (!roomtagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
         loger(u8"Duplicate Room tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
       }
     } else if (process(defs, u8"obj:")) {
-      std::u8string tag(getuntil(defs, '\n'));
-      add_to_dictionary(tag);
+      std::u8string_view tag(defs);
+      tag = getuntil(tag, '\n');
       if (!objtagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
         loger(u8"Duplicate Object tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
@@ -549,6 +556,7 @@ std::u8string get_tags_string(Object* world, const MinVec<1, uint64_t>& tags) {
 }
 
 static ObjectTag base_npc(
+    u8"npc\n"
     u8"short:a person\n"
     u8"desc:{He} seems normal.\n"
     u8"genders:FM\n"
@@ -607,7 +615,9 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
   npcdef.Finalize();
 
   Object* npc = new Object(this);
-  npc->SetTags(tags);
+  for (auto t : npcdef.tags_) {
+    npc->AddTag(t);
+  }
   npc->GenerateNPC(npcdef, gen);
   return npc;
 }

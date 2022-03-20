@@ -91,20 +91,22 @@ class ObjectTag {
   ArmorAttrs amax_ = {0, 0, 0, 0};
   WeaponAttrs wmin_ = {0, 0, 0};
   WeaponAttrs wmax_ = {0, 0, 0};
-  std::vector<uint32_t> otags_;
-  std::vector<uint32_t> ntags_;
 
   std::vector<gender_t> genders_;
   NPCAttrs min_ = {0, 0, 0, 0, 0, 0};
   NPCAttrs max_ = {0, 0, 0, 0, 0, 0};
   int min_gold_ = 0;
   int max_gold_ = 0;
-  std::vector<uint32_t> wtags_;
-  std::vector<uint32_t> atags_;
-  std::vector<uint32_t> itags_;
   std::vector<ObjectTag> weapons_;
   std::vector<ObjectTag> armor_;
   std::vector<ObjectTag> items_;
+
+  std::vector<uint32_t> tags_;
+  std::vector<uint32_t> otags_;
+  std::vector<uint32_t> ntags_;
+  std::vector<uint32_t> wtags_;
+  std::vector<uint32_t> atags_;
+  std::vector<uint32_t> itags_;
 };
 
 #endif // TAGS_HPP
