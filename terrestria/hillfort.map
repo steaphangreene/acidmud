@@ -34,8 +34,8 @@ building:2::shop
 building:2::shop
 building:2::inn
 building:2::tavern
-house:2.1:2-4:citizen,dwarven
-house:2.1:0-3:dwarven
+house:2.1:2-4:civilian,dwarven
+house:2.1:0-2:dwarven
 employ:2.0:1-2:citizen,dwarven
 building:1:kiln,dwarven:The Hillfort Kiln
 product:charcoal:100:100:kiln,master:wood:200:10

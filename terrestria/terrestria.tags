@@ -64,6 +64,7 @@ long:{He} is not really a martial person.
 gold:200-500
 
 tag:npc:citizen
+includes:civilian
 short:a citizen
 desc:
 long:{He} clearly has a solid place in society.
@@ -83,6 +84,7 @@ w:0--4
 gold:-1000000
 
 tag:npc:miner
+includes:civilian
 short:a miner
 desc:
 long:{He} clearly has digging in {his} blood.
@@ -92,6 +94,7 @@ w:2-1
 gold:200-500
 
 tag:npc:explorer
+includes:civilian
 short:an explorer
 desc:
 long:{He} seems to be motivated only by what is not yet known or discovered.
@@ -102,6 +105,7 @@ i:1-1
 gold:200-500
 
 tag:npc:engineer
+includes:civilian
 short:an engineer
 desc:
 long:{He} is reflexively inspecting all the construction around {him}.
@@ -123,6 +127,7 @@ w:2-2
 gold:200-500
 
 tag:npc:collier
+includes:civilian
 short:a collier
 desc:a charcoal kiln operator.
 long:{He} is covered in soot from head to toe.  You don't think {he} even notices it anymore.
@@ -130,6 +135,7 @@ b:1-1
 gold:200-400
 
 tag:npc:blacksmith
+includes:civilian
 short:a blacksmith
 desc:a smith specializing in metal tools and weapons.
 long:{His} build makes it clear {he} has been swinging a hammer {his} entire life.
@@ -138,6 +144,7 @@ s:2-2
 gold:200-400
 
 tag:npc:bladesmith
+includes:civilian
 short:a bladesmith
 desc:a smith specializing in metal swords and knives.
 long:{His} build makes it clear {he} has been swinging a hammer {his} entire life.
@@ -146,6 +153,7 @@ s:2-2
 gold:200-400
 
 tag:npc:armorer
+includes:civilian
 short:an armorer
 desc:a smith specializing in metal armor and shields.
 long:{His} build makes it clear {he} has been swinging a hammer {his} entire life.
@@ -154,6 +162,7 @@ s:2-2
 gold:200-400
 
 tag:npc:metalworker
+includes:civilian
 short:a metalworker
 desc:an artisan who works with molten metals.
 long:{His} skin shows {he} has been around high heat all {his} life.
@@ -161,6 +170,7 @@ s:2-2
 gold:200-400
 
 tag:npc:refiner
+includes:civilian
 short:a refiner
 desc:an expert at extracting pure metals from rough ores.
 long:{His} dried out skin is covered in soot.  You get the impress {he} always looks like this.
@@ -168,6 +178,7 @@ s:2-2
 gold:200-400
 
 tag:npc:coinmaker
+includes:civilian
 short:a coinmaker
 desc:an expert at stamping coins of exacting weights.
 long:{His} hunched-over body gives away that {his} whole life has been spent bent over in study of minute details.
@@ -175,6 +186,7 @@ s:2-2
 gold:500-1000
 
 tag:npc:miller
+includes:civilian
 short:a miller
 desc:an expert at turning raw logs into usable lumber.
 long:{His} clothing is covered in sawdust.
@@ -182,6 +194,7 @@ s:2-2
 gold:500-1000
 
 tag:npc:woodcarver
+includes:civilian
 short:a woodcarver
 desc:a woodcarver
 long:{He} is an expert carver of wooden items, both functional and decorative.
@@ -189,6 +202,7 @@ s:2-2
 gold:500-1000
 
 tag:npc:innkeeper
+includes:civilian
 short:an innkeeper
 desc:an innkeeper
 long:The proprieter of an establishment offering rooms for rent to weary travellers.
@@ -196,6 +210,7 @@ s:2-2
 gold:200-400
 
 tag:npc:tavernkeeper
+includes:civilian
 short:a tavernkeeper
 desc:a tavernkeeper
 long:The proprieter of an establishment offering drinks to weary travellers and locals alike.
@@ -203,6 +218,7 @@ s:2-2
 gold:200-400
 
 tag:npc:storekeeper
+includes:civilian
 short:a storekeeper
 desc:a storekeeper
 long:The proprieter of an establishment offering supplies to those who need them.
@@ -210,6 +226,7 @@ s:2-2
 gold:200-400
 
 tag:npc:leader
+includes:civilian
 short:a leader
 desc:a master of inspiring others.
 long:{He} is an experienced leader of people.
