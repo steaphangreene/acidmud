@@ -3823,7 +3823,7 @@ MinVec<7, Object*> Object::Connections(int vmode) const {
   for (std::u8string dir : {u8"north", u8"south", u8"east", u8"west", u8"up", u8"down"}) {
     Object* conn = nullptr;
     Object* door = PickObject(dir, vmode | LOC_INTERNAL);
-    if (door) {
+    if (door && (door->Skill(prhash(u8"Open")) >= 1000 || door->Skill(prhash(u8"Closeable")) > 0)) {
       Object* odoor = door->ActTarg(act_t::SPECIAL_LINKED);
       if (odoor) {
         conn = odoor->Parent();
@@ -3840,7 +3840,7 @@ MinVec<7, Object*> Object::Connections(bool exits) const {
     Object* door = PickObject(dir, LOC_NINJA | LOC_INTERNAL);
     Object* odoor = nullptr;
     Object* conn = nullptr;
-    if (door) {
+    if (door && (door->Skill(prhash(u8"Open")) >= 1000 || door->Skill(prhash(u8"Closeable")) > 0)) {
       odoor = door->ActTarg(act_t::SPECIAL_LINKED);
       if (odoor) {
         conn = odoor->Parent();
