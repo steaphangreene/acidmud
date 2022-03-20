@@ -1,5 +1,4 @@
 tag:npc:guard
-type:noun
 short:a guard
 desc:a professional guard.
 long:{He} seems to take his job guarding stuff very seriously.
@@ -13,7 +12,6 @@ w:1
 gold:100-200
 
 tag:npc:soldier
-type:noun
 short:a soldier
 desc:a professional soldier.
 long:{He} is prepared for war, from wherever it may come.
@@ -60,21 +58,18 @@ c:2-2
 gold:100-500
 
 tag:npc:civilian
-type:noun
 short:a civilian
 desc:
 long:{He} is not really a martial person.
 gold:200-500
 
 tag:npc:citizen
-type:noun
 short:a citizen
 desc:
 long:{He} clearly has a solid place in society.
 gold:200-500
 
 tag:npc:slave
-type:noun
 short:a slave
 desc:
 long:{He} seems to have had a hard life.  {His} will was broken long ago.
@@ -88,7 +83,6 @@ w:0--4
 gold:-1000000
 
 tag:npc:miner
-type:noun
 short:a miner
 desc:
 long:{He} clearly has digging in {his} blood.
@@ -98,7 +92,6 @@ w:2-1
 gold:200-500
 
 tag:npc:explorer
-type:noun
 short:an explorer
 desc:
 long:{He} seems to be motivated only by what is not yet known or discovered.
@@ -109,7 +102,6 @@ i:1-1
 gold:200-500
 
 tag:npc:engineer
-type:noun
 short:an engineer
 desc:
 long:{He} is reflexively inspecting all the construction around {him}.
@@ -131,7 +123,6 @@ w:2-2
 gold:200-500
 
 tag:npc:collier
-type:noun
 short:a collier
 desc:a charcoal kiln operator.
 long:{He} is covered in soot from head to toe.  You don't think {he} even notices it anymore.
@@ -139,7 +130,6 @@ b:1-1
 gold:200-400
 
 tag:npc:blacksmith
-type:noun
 short:a blacksmith
 desc:a smith specializing in metal tools and weapons.
 long:{His} build makes it clear {he} has been swinging a hammer {his} entire life.
@@ -148,7 +138,6 @@ s:2-2
 gold:200-400
 
 tag:npc:bladesmith
-type:noun
 short:a bladesmith
 desc:a smith specializing in metal swords and knives.
 long:{His} build makes it clear {he} has been swinging a hammer {his} entire life.
@@ -157,7 +146,6 @@ s:2-2
 gold:200-400
 
 tag:npc:armorer
-type:noun
 short:an armorer
 desc:a smith specializing in metal armor and shields.
 long:{His} build makes it clear {he} has been swinging a hammer {his} entire life.
@@ -166,7 +154,6 @@ s:2-2
 gold:200-400
 
 tag:npc:metalworker
-type:noun
 short:a metalworker
 desc:an artisan who works with molten metals.
 long:{His} skin shows {he} has been around high heat all {his} life.
@@ -174,7 +161,6 @@ s:2-2
 gold:200-400
 
 tag:npc:refiner
-type:noun
 short:a refiner
 desc:an expert at extracting pure metals from rough ores.
 long:{His} dried out skin is covered in soot.  You get the impress {he} always looks like this.
@@ -182,7 +168,6 @@ s:2-2
 gold:200-400
 
 tag:npc:coinmaker
-type:noun
 short:a coinmaker
 desc:an expert at stamping coins of exacting weights.
 long:{His} hunched-over body gives away that {his} whole life has been spent bent over in study of minute details.
@@ -190,7 +175,6 @@ s:2-2
 gold:500-1000
 
 tag:npc:miller
-type:noun
 short:a miller
 desc:an expert at turning raw logs into usable lumber.
 long:{His} clothing is covered in sawdust.
@@ -198,7 +182,6 @@ s:2-2
 gold:500-1000
 
 tag:npc:woodcarver
-type:noun
 short:a woodcarver
 desc:a woodcarver
 long:{He} is an expert carver of wooden items, both functional and decorative.
@@ -206,7 +189,6 @@ s:2-2
 gold:500-1000
 
 tag:npc:innkeeper
-type:noun
 short:an innkeeper
 desc:an innkeeper
 long:The proprieter of an establishment offering rooms for rent to weary travellers.
@@ -214,7 +196,6 @@ s:2-2
 gold:200-400
 
 tag:npc:tavernkeeper
-type:noun
 short:a tavernkeeper
 desc:a tavernkeeper
 long:The proprieter of an establishment offering drinks to weary travellers and locals alike.
@@ -222,7 +203,6 @@ s:2-2
 gold:200-400
 
 tag:npc:storekeeper
-type:noun
 short:a storekeeper
 desc:a storekeeper
 long:The proprieter of an establishment offering supplies to those who need them.
@@ -230,7 +210,6 @@ s:2-2
 gold:200-400
 
 tag:npc:leader
-type:noun
 short:a leader
 desc:a master of inspiring others.
 long:{He} is an experienced leader of people.
@@ -253,7 +232,6 @@ w:2-2
 gold:1000-2000
 
 tag:weapon:stick
-type:noun
 short:a stick
 desc:A stick picked up off the ground.
 skill:Long Crushing
@@ -266,7 +244,6 @@ force:-2-2
 severity:1
 
 tag:weapon:spear
-type:noun
 short:a spear
 desc:A spear.
 skill:Long Piercing
@@ -277,7 +254,6 @@ reach:1
 severity:1
 
 tag:weapon:sword
-type:noun
 short:a sword
 desc:A sword.
 skill:Long Blades
@@ -290,7 +266,6 @@ force:0
 severity:1
 
 tag:weapon:axe
-type:noun
 short:an axe
 desc:An axe.
 skill:Long Cleaves
@@ -303,7 +278,6 @@ force:0
 severity:1
 
 tag:weapon:hammer
-type:noun
 short:a hammer
 desc:A hammer.
 skill:Long Crushing
@@ -316,7 +290,6 @@ force:-1-1
 severity:1
 
 tag:weapon:pick
-type:noun
 short:a pick
 desc:A pick.
 skill:Long Cleaves
@@ -329,7 +302,6 @@ force:-2-2
 severity:1
 
 tag:weapon:pickaxe
-type:noun
 short:a pickaxe
 desc:A pickaxe.
 skill:Two-Handed Cleaves
@@ -393,7 +365,6 @@ force:1-0
 severity:1
 
 tag:armor:shirt
-type:noun
 short:a shirt
 desc:A shirt.
 weight:100-200
@@ -402,7 +373,6 @@ volume:10-15
 value:5-10
 
 tag:armor:jerkin
-type:noun
 short:a jerkin
 desc:A jerkin.
 weight:500-1000
@@ -464,7 +434,6 @@ thread:0-1
 planar:0-1
 
 tag:armor:breastplate
-type:noun
 short:breastplate
 desc:A breastplate.
 weight:20000-25000
@@ -478,7 +447,6 @@ planar:1-2
 wear:CHEST,BACK
 
 tag:armor:great helm
-type:noun
 short:a great helm
 desc:A great helm.
 weight:2000-2500
@@ -492,7 +460,6 @@ planar:1-2
 wear:HEAD
 
 tag:armor:helm
-type:noun
 short:a helm
 desc:A helm.
 weight:1000-2000
@@ -506,7 +473,6 @@ planar:1-2
 wear:HEAD
 
 tag:armor:right arm plate
-type:noun
 short:an arm plate (right)
 desc:An arm plate.
 weight:2000-2500
@@ -520,7 +486,6 @@ planar:1-2
 wear:RARM
 
 tag:armor:left arm plate
-type:noun
 short:an arm plate (left)
 desc:An arm plate.
 weight:2000-2500
@@ -534,7 +499,6 @@ planar:1-2
 wear:LARM
 
 tag:armor:battle skirt
-type:noun
 short:a battle skirt
 desc:A battle skirt.
 weight:5000-6000
@@ -548,7 +512,6 @@ planar:1-2
 wear:RLEG,LLEG
 
 tag:armor:shield
-type:noun
 short:a shield
 desc:A shield.
 weight:2000-4000
@@ -564,7 +527,6 @@ desc:A well-made
 long:This was clearly made by dwarves.  It should last forever.
 
 tag:item:pack
-type:noun
 short:a pack+
 desc:A pack
 long:A simple pack for holding items.  This can be quickly thrown over one shoulder for easy portability.
@@ -572,78 +534,62 @@ wear:RSHOULDER
 wear:LSHOULDER
 
 tag:room:kiln
-type:noun
 otag:kiln
 ntag:collier
 
 tag:obj:kiln
-type:noun
 short:A kiln
 desc:A kiln is set up here, to turn wood to charcoal.
 
 tag:room:armory
-type:noun
 otag:forge
 ntag:armorer
 
 tag:obj:forge
-type:noun
 short:A forge
 desc:A forge has been built here, ready for a smith to use.
 
 tag:room:tavern
-type:noun
 otag:bar
 ntag:tavernkeeper
 
 tag:room:smithy
-type:noun
 otag:forge
 ntag:blacksmith
 
 tag:room:bladesmithy
-type:noun
 otag:forge
 ntag:bladesmith
 
 tag:room:refinery
-type:noun
 otag:furnace
 ntag:refiner
 
 tag:room:woodmill
-type:noun
 ntag:miller
 
 tag:room:woodshop
-type:noun
 ntag:woodcarver
 
 tag:room:inn
-type:noun
 otag:room
 ntag:innkeeper
 
 tag:room:store
-type:noun
 ntag:storekeeper
 
 tag:room:mint
-type:noun
 ntag:coinmaker
 
 tag:room:foundry
-type:noun
 ntag:metalworker
 
 tag:room:food
-type:noun
 
 tag:room:large
 type:size
 
 tag:room:meals
-type:noun
 
 tag:room:good
 type:quality
