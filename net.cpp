@@ -71,6 +71,9 @@ void close_socket(socket_t d_s) {
 
 void drop_socket(socket_t d_s) {
   if (minds.count(d_s)) {
+    if (minds[d_s]->Body()) {
+      minds[d_s]->Body()->Detach(minds[d_s]);
+    }
     minds.erase(d_s);
   } else {
     close_socket(d_s);
