@@ -28,7 +28,7 @@
 
 #include "utils.hpp"
 
-constexpr std::array<const char8_t*, 545> prop_names = {{
+constexpr std::array<const char8_t*, 547> prop_names = {{
     u8"Accomplishment",
     u8"Accuracy Bonus",
     u8"Accuracy Penalty",
@@ -537,6 +537,8 @@ constexpr std::array<const char8_t*, 545> prop_names = {{
     u8"WeaponForce",
     u8"WeaponReach",
     u8"WeaponSeverity",
+    u8"WeaponSkill",
+    u8"Weapon2Skill",
     u8"WeaponType",
     u8"Wearable on Back",
     u8"Wearable on Chest",

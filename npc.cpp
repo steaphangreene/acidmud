@@ -262,6 +262,15 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
     for (auto t : wp.tags_) {
       obj->AddTag(t);
     }
+    if (HasSkill(prhash(u8"WeaponSkill"))) { // First Weapon's Skill
+      auto val = Skill(prhash(u8"WeaponSkill"));
+      ClearSkill(prhash(u8"WeaponSkill"));
+      SetSkill(get_weapon_skill(wp.wtype_), val);
+    } else if (HasSkill(prhash(u8"Weapon2Skill"))) { // Second Weapon's Skill
+      auto val = Skill(prhash(u8"Weapon2Skill"));
+      ClearSkill(prhash(u8"Weapon2Skill"));
+      SetSkill(get_weapon_skill(wp.wtype_), std::max(val, Skill(get_weapon_skill(wp.wtype_))));
+    }
   }
 
   for (auto ar : type.armor_) {
