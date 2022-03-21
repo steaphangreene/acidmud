@@ -215,7 +215,7 @@ void ObjectTag::operator+=(const ObjectTag& in) {
     long_desc_ += in.long_desc_;
   }
 
-  // TODO: Real set operations on tags
+  props_.insert(props_.end(), in.props_.begin(), in.props_.end());
 
   if (genders_.size() == 0 || (in.genders_.size() > 0 && genders_.size() > in.genders_.size())) {
     genders_ = in.genders_;
