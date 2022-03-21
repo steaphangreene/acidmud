@@ -529,34 +529,12 @@ std::u8string get_tags_string(Object* world, const MinVec<1, uint64_t>& tags) {
     logey(u8"Warning: Asked to inspect tags in a world with no tags defined.\n");
   }
 
-  std::set<std::u8string_view> tagnames;
-  for (const auto& t : npctagdefs[world]) {
-    tagnames.insert(tag_dictionary[t.first]);
-  }
-  for (const auto& t : weapontagdefs[world]) {
-    tagnames.insert(tag_dictionary[t.first]);
-  }
-  for (const auto& t : armortagdefs[world]) {
-    tagnames.insert(tag_dictionary[t.first]);
-  }
-  for (const auto& t : itemtagdefs[world]) {
-    tagnames.insert(tag_dictionary[t.first]);
-  }
-  for (const auto& t : roomtagdefs[world]) {
-    tagnames.insert(tag_dictionary[t.first]);
-  }
-  for (const auto& t : objtagdefs[world]) {
-    tagnames.insert(tag_dictionary[t.first]);
-  }
-
   std::u8string ret = u8"";
-  for (const auto& t : tagnames) {
-    uint32_t tag = crc32c(t);
-    for (const auto& tn : tags) {
-      if (tag == tn) {
-        ret += fmt::format(u8"{},", t);
-        break;
-      }
+  for (const auto& t : tags) {
+    if (tag_dictionary.contains(t)) {
+      ret += fmt::format(u8"{},", tag_dictionary.at(t));
+    } else {
+      ret += fmt::format(u8"{:08X},", t);
     }
   }
   if (ret.length() > 0) {
