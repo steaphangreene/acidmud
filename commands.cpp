@@ -5087,6 +5087,23 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       attacknow = 1; // Uncontested.
     }
 
+    // Draw your weapon, if it's sheathed on your body.
+    if (!body->ActTarg(act_t::WIELD)) {
+      // Yes, I know, and I agree.  But, this is Fantasy, so you can draw swords from your back.
+      for (auto loc :
+           {act_t::WEAR_RHIP, act_t::WEAR_RSHOULDER, act_t::WEAR_LHIP, act_t::WEAR_LSHOULDER}) {
+        Object* weap = body->ActTarg(loc);
+        if (weap && weap->HasSkill(prhash(u8"WeaponType"))) {
+          weap->Travel(body->Zone()); // Kills wear actions on "weap"
+          weap->Travel(body);
+          body->AddAct(act_t::WIELD, weap);
+          body->Parent()->SendOut(
+              stealth_t, stealth_s, u8";s wields ;s.\n", u8"You wield ;s.\n", body, weap);
+          break;
+        }
+      }
+    }
+
     // Free your off-hand if needed (if it's not a shield or weapon)
     if (body->ActTarg(act_t::HOLD) // FIXME: Don't drop offhand weapons?!?
         && body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WEAR_SHIELD) &&
