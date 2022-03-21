@@ -30,6 +30,7 @@
 #include "mind.hpp"
 #include "object.hpp"
 #include "properties.hpp"
+#include "tags.hpp"
 #include "utils.hpp"
 
 static std::random_device rd;
@@ -44,18 +45,41 @@ static Object* new_object(Object* parent) {
 }
 std::multimap<std::u8string, std::pair<std::u8string, Object*>> zone_links;
 
-bool tag_superset(const Object* npc, const std::u8string_view& little) {
-  std::u8string_view required_tags = little;
+bool tag_superset(const ObjectTag npcdef, const std::u8string_view& requirements) {
+  std::u8string_view required_tags = requirements;
   std::u8string_view tag = getuntil(required_tags, ',');
   while (tag.length() > 0 || required_tags.length() > 0) {
     if (tag.length() > 0) {
-      if (!npc->HasTag(crc32c(tag))) {
+      bool found = false;
+      for (auto t : npcdef.tags_) {
+        if (t == crc32c(tag)) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
         return false;
       }
     }
     tag = getuntil(required_tags, ',');
   }
   return true;
+}
+
+static ObjectTag make_key(Object* world, const std::u8string_view& keyname, uint32_t keynum) {
+  world->LoadTagsFrom(fmt::format(
+      u8"tag:item:key_{0}\n"
+      u8"short:{1}\n"
+      u8"desc:A rather well-made key.\n"
+      u8"weight:30\n"
+      u8"value:1\n"
+      u8"prop:Key:{0}\n",
+      keynum,
+      keyname));
+  return ObjectTag(fmt::format(
+      u8"has_key_{0}\n"
+      u8"itag:key_{0}\n",
+      keynum));
 }
 
 static bool
@@ -781,75 +805,43 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
         int floor = empfloors[room][n];
         bool night = empnight[room][n];
         for (int m = 0; m < num; ++m) {
-          Object* npc = objs[coord{x, y}][floor]->AddNPC(gen, emptags[room][n]);
-          npc->AddAct(act_t::SPECIAL_WORK, objs[coord{x, y}][floor]);
+          // Build the definition of this NPC
+          ObjectTag npcdef = objs[coord{x, y}][floor]->BuildNPC(emptags[room][n]);
 
           std::set<int32_t> have_keys;
-          Object* bag = npc->ActTarg(act_t::WEAR_RHIP);
-          if (!bag) {
-            bag = npc; // FIXME: Dimensional storage.  Create bag instead.
-          }
 
           // Grant them all keys needed for their workplace
           if (loc_keys.count(objs[coord{x, y}][floor]) > 0) {
             for (auto keydef : loc_keys[objs[coord{x, y}][floor]]) {
               if (!have_keys.contains(keydef.second)) {
-                Object* key = new Object(bag);
-                key->SetDescs(keynames[keydef.first], u8"A rather well-made key.", u8"", u8"");
-                key->SetWeight(454 / 16);
-                key->SetVolume(0);
-                key->SetValue(1);
-                key->SetSize(0);
-                key->SetPos(pos_t::LIE);
-                key->SetSkill(prhash(u8"Key"), keydef.second);
                 have_keys.insert(keydef.second);
+                npcdef += make_key(world, keynames[keydef.first], keydef.second);
               }
             }
           }
           if (floor != 0 && loc_keys.count(objs[coord{x, y}][0]) > 0) {
             for (auto keydef : loc_keys[objs[coord{x, y}][0]]) {
               if (!have_keys.contains(keydef.second)) {
-                Object* key = new Object(bag);
-                key->SetDescs(keynames[keydef.first], u8"A rather well-made key.", u8"", u8"");
-                key->SetWeight(454 / 16);
-                key->SetVolume(0);
-                key->SetValue(1);
-                key->SetSize(0);
-                key->SetPos(pos_t::LIE);
-                key->SetSkill(prhash(u8"Key"), keydef.second);
                 have_keys.insert(keydef.second);
+                npcdef += make_key(world, keynames[keydef.first], keydef.second);
               }
             }
           }
 
           // Grant them all keys they deserve for their title(s)
           for (const auto& asp : asp_keys) {
-            if (npc->HasTag(crc32c(asp.first))) {
+            if (tag_superset(npcdef, asp.first)) {
               for (const auto& keydef : asp.second) {
                 if (!have_keys.contains(keydef.second)) {
-                  Object* key = new Object(bag);
-                  key->SetDescs(keynames[keydef.first], u8"A rather well-made key.", u8"", u8"");
-                  key->SetWeight(454 / 16);
-                  key->SetVolume(0);
-                  key->SetValue(1);
-                  key->SetSize(0);
-                  key->SetPos(pos_t::LIE);
-                  key->SetSkill(prhash(u8"Key"), keydef.second);
                   have_keys.insert(keydef.second);
+                  npcdef += make_key(world, keynames[keydef.first], keydef.second);
                 }
               }
             }
           }
 
-          int timeliness = std::uniform_int_distribution<int>(-5, 20)(gen);
-          if (night) {
-            npc->SetSkill(prhash(u8"Night Worker"), timeliness);
-          } else {
-            npc->SetSkill(prhash(u8"Day Worker"), timeliness);
-          }
-
           // Now find them a home.
-          bool housed = false;
+          Object* housed = nullptr;
           uint32_t rng = ascii_map[0].size() + ascii_map.size();
           for (uint32_t d = 0; !housed && d < rng; ++d) { // Commute Distance, Limited by Map Size
             for (uint32_t s = 0; !housed && s < std::max(1U, d * 4); ++s) { // Num Samples To Check
@@ -861,43 +853,26 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
                 char8_t type = ascii_map[loc_y][loc_x];
                 if (restags.count(type) > 0) {
                   for (size_t f = 0; !housed && f < restags.at(type).size(); ++f) {
-                    if (tag_superset(npc, restags.at(type)[f])) {
+                    if (tag_superset(npcdef, restags.at(type)[f])) {
                       int resfl = resfloors.at(type)[f];
                       if (beds.at(std::make_pair(objs[loc][resfl], restags.at(type)[f])) > 0) {
-                        npc->AddAct(act_t::SPECIAL_HOME, objs[loc][resfl]);
                         --beds.at(std::make_pair(objs[loc][resfl], restags.at(type)[f]));
-                        housed = true;
+                        housed = objs[loc][resfl];
 
                         // Grant them all keys needed for their new home
                         if (loc_keys.count(objs[loc][resfl]) > 0) {
                           for (auto keydef : loc_keys[objs[loc][resfl]]) {
                             if (!have_keys.contains(keydef.second)) {
-                              Object* key = new Object(bag);
-                              key->SetDescs(
-                                  keynames[keydef.first], u8"A rather well-made key.", u8"", u8"");
-                              key->SetWeight(454 / 16);
-                              key->SetVolume(0);
-                              key->SetValue(1);
-                              key->SetSize(0);
-                              key->SetPos(pos_t::LIE);
-                              key->SetSkill(prhash(u8"Key"), keydef.second);
                               have_keys.insert(keydef.second);
+                              npcdef += make_key(world, keynames[keydef.first], keydef.second);
                             }
                           }
                         }
                         if (resfl != 0 && loc_keys.count(objs[loc][0]) > 0) {
                           for (auto keydef : loc_keys[objs[loc][0]]) {
                             if (!have_keys.contains(keydef.second)) {
-                              Object* key = new Object(bag);
-                              key->SetDescs(
-                                  keynames[keydef.first], u8"A rather well-made key.", u8"", u8"");
-                              key->SetWeight(454 / 16);
-                              key->SetVolume(0);
-                              key->SetValue(1);
-                              key->SetSize(0);
-                              key->SetPos(pos_t::LIE);
-                              key->SetSkill(prhash(u8"Key"), keydef.second);
                               have_keys.insert(keydef.second);
+                              npcdef += make_key(world, keynames[keydef.first], keydef.second);
                             }
                           }
                         }
@@ -908,6 +883,18 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
               }
             }
           }
+          // Now, create the actual NPC.
+          Object* npc = objs[coord{x, y}][floor]->MakeNPC(gen, npcdef);
+          npc->AddAct(act_t::SPECIAL_WORK, objs[coord{x, y}][floor]);
+          npc->AddAct(act_t::SPECIAL_HOME, housed);
+
+          int timeliness = std::uniform_int_distribution<int>(-5, 20)(gen);
+          if (night) {
+            npc->SetSkill(prhash(u8"Night Worker"), timeliness);
+          } else {
+            npc->SetSkill(prhash(u8"Day Worker"), timeliness);
+          }
+
           if (!housed) {
             logey(u8"Warning: Homeless NPC in {}: {}\n", zone->ShortDesc(), emptags[room][n]);
             ++homeless;

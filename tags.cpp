@@ -520,7 +520,7 @@ static ObjectTag base_npc(
     u8"i:1-7\n"
     u8"w:1-7\n");
 
-Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tagstr) {
+ObjectTag Object::BuildNPC(const std::u8string_view& tagstr) {
   if (!World()->LoadTags()) {
     loger(u8"ERROR: Asked to load NPC in a world with no tags defined.\n");
   }
@@ -565,6 +565,12 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tagstr) {
   auto npcdefs = finalize_tags(1, tags, npctagdefs.at(World()));
   npcdef += npcdefs.front();
 
+  return npcdef;
+}
+
+Object* Object::MakeNPC(std::mt19937& gen, const ObjectTag& npcdef_in) {
+  ObjectTag npcdef = npcdef_in;
+
   npcdef.weapons_ = finalize_tags(1, npcdef.wtags_, weapontagdefs.at(World()));
   npcdef.armor_ = finalize_tags(0, npcdef.atags_, armortagdefs.at(World()));
   npcdef.items_ = finalize_tags(0, npcdef.itags_, itemtagdefs.at(World()));
@@ -575,6 +581,10 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tagstr) {
   }
   npc->GenerateNPC(npcdef, gen);
   return npc;
+}
+
+Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tagstr) {
+  return MakeNPC(gen, BuildNPC(tagstr));
 }
 
 void Object::SetTags(const std::u8string_view& tags_in) {

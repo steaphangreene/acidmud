@@ -640,6 +640,8 @@ class alignas(256) Object {
   int Matches(const std::u8string_view& seek, bool knows = false) const;
   int LooksLike(Object* other, int vmode = 0, Object* viewer = nullptr) const;
 
+  ObjectTag BuildNPC(const std::u8string_view& tags);
+  Object* MakeNPC(std::mt19937&, const ObjectTag& npcdef);
   Object* AddNPC(std::mt19937&, const std::u8string_view& tags);
   bool LoadTagsFrom(const std::u8string_view& tagdefs, bool save = true);
   bool LoadTags();
