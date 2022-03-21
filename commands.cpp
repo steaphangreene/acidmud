@@ -3605,7 +3605,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
         if ((!nmode) && wield && wield->SubHasSkill(prhash(u8"Cursed"))) {
           if (mind)
             mind->Send(u8"You can't seem to stop wielding {}!\n", wield->Noun(0, 0, body));
-        } else if (wield && body->Wear(wield, ~(0UL), 0)) {
+        } else if (wield && body->Wear(wield, ~(0UL), false)) {
           body->StopAct(act_t::WIELD);
           body->Parent()->SendOut(
               stealth_t, stealth_s, u8";s puts ;s away.\n", u8"You put ;s away.\n", body, wield);
@@ -3948,8 +3948,9 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
           }
         }
 
-        if (body->Wear(targ, ~(0UL), 0))
+        if (body->Wear(targ)) {
           did_something = 1;
+        }
       }
     }
     if (!did_something)
