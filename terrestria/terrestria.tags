@@ -273,8 +273,9 @@ skill:Long Piercing
 size:1000
 volume:-100
 value:10
-reach:1
-severity:1
+reach:2
+force:-2-2
+severity:2
 
 tag:weapon:sword
 short:a sword
@@ -284,9 +285,9 @@ weight:1000
 size:1000
 volume:100
 value:100
-reach:0
-force:0
-severity:1
+reach:1
+force:-2-2
+severity:2
 
 tag:weapon:axe
 short:an axe
@@ -296,9 +297,9 @@ weight:1000
 size:1000
 volume:100
 value:100
-reach:0
-force:0
-severity:1
+reach:1
+force:-2-2
+severity:2
 
 tag:weapon:hammer
 short:a hammer
@@ -308,9 +309,9 @@ weight:1000
 size:1000
 volume:100
 value:100
-reach:0
-force:-1-1
-severity:1
+reach:1
+force:-3-3
+severity:2
 
 tag:weapon:pick
 short:a pick
@@ -320,9 +321,9 @@ weight:1000
 size:1000
 volume:100
 value:100
-reach:0
-force:-2-2
-severity:1
+reach:1
+force:-4-4
+severity:2
 
 tag:weapon:pickaxe
 short:a pickaxe
@@ -332,9 +333,9 @@ weight:1000
 size:1000
 volume:100
 value:100
-reach:1
-force:-2-0
-severity:2
+reach:2
+force:-4-2
+severity:3
 
 tag:weapon:dwarven
 type:origin
