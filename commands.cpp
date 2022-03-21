@@ -5011,7 +5011,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
   }
 
   if (cnum == COM_ATTACK || cnum == COM_KILL || cnum == COM_PUNCH || cnum == COM_KICK) {
-    // loge(u8"Handling attack command from {} of '{}'\n", reinterpret_cast<void*>(mind), args);
+    // logemm(u8"Handling attack command from {} of '{}'\n", body->Name(), args);
 
     int attacknow = 1;
     if (!body->IsAct(act_t::FIGHT))
