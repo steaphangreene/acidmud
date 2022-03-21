@@ -6,6 +6,8 @@ wtag:combat
 atag:breastplate
 atag:helm
 atag:shield
+prop:WeaponSkill:3
+prop:Shield:2
 s:1
 i:1
 w:1
@@ -21,6 +23,7 @@ atag:great helm
 atag:battle skirt
 atag:left arm plate
 atag:right arm plate
+prop:WeaponSkill:4
 s:1
 i:1
 w:1
@@ -89,6 +92,7 @@ short:a miner
 desc:
 long:{He} clearly has digging in {his} blood.
 wtag:pickaxe
+prop:WeaponSkill:2
 c:2-0
 w:2-1
 gold:200-500
@@ -100,6 +104,7 @@ desc:
 long:{He} seems to be motivated only by what is not yet known or discovered.
 wtag:pick
 wtag:climbing
+prop:WeaponSkill:2
 q:1-1
 i:1-1
 gold:200-500
@@ -110,6 +115,7 @@ short:an engineer
 desc:
 long:{He} is reflexively inspecting all the construction around {him}.
 wtag:pick
+prop:WeaponSkill:1
 i:2-2
 w:1-1
 gold:200-500
@@ -119,6 +125,7 @@ type:type
 short:the master
 desc:
 long:{He} is among the best at what {he} does.
+prop:WeaponSkill:2
 q:1-1
 s:1-1
 c:1-1
@@ -131,6 +138,7 @@ type:type
 short:an apprentice
 desc:
 long:{He} is eager to learn, and willing to work hard in the process.
+prop:WeaponSkill:1
 
 tag:npc:collier
 includes:civilian
@@ -146,6 +154,7 @@ short:a blacksmith
 desc:a smith specializing in metal tools and weapons.
 long:{His} build makes it clear {he} has been swinging a hammer {his} entire life.
 wtag:hammer
+prop:WeaponSkill:3
 s:2-2
 gold:200-400
 
@@ -155,6 +164,7 @@ short:a bladesmith
 desc:a smith specializing in metal swords and knives.
 long:{His} build makes it clear {he} has been swinging a hammer {his} entire life.
 wtag:hammer
+prop:WeaponSkill:3
 s:2-2
 gold:200-400
 
@@ -164,6 +174,7 @@ short:an armorer
 desc:a smith specializing in metal armor and shields.
 long:{His} build makes it clear {he} has been swinging a hammer {his} entire life.
 wtag:hammer
+prop:WeaponSkill:3
 s:2-2
 gold:200-400
 
@@ -172,6 +183,7 @@ includes:civilian
 short:a metalworker
 desc:an artisan who works with molten metals.
 long:{His} skin shows {he} has been around high heat all {his} life.
+prop:WeaponSkill:2
 s:2-2
 gold:200-400
 
@@ -204,6 +216,7 @@ includes:civilian
 short:a woodcarver
 desc:a woodcarver
 long:{He} is an expert carver of wooden items, both functional and decorative.
+prop:WeaponSkill:2
 s:2-2
 gold:500-1000
 
@@ -246,6 +259,8 @@ desc:a pretty special
 long:{He} seems quite prepared, and well-trained.
 wtag:high-quality
 atag:high-quality
+prop:WeaponSkill:4
+prop:Shield:4
 b:2-2
 q:2-2
 s:2-2
