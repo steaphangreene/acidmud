@@ -30,16 +30,16 @@
 
 // Yes, this is the order of (descriptive) adjectives in English
 enum class tag_t {
-  OPINION,
-  SIZE,
-  QUALITY,
-  AGE,
-  SHAPE,
-  COLOR,
-  ORIGIN,
-  MATERIAL,
-  TYPE,
-  PURPOSE,
+  OPINION, // Pretty, Ugly, Smart, Dumb, etc.
+  SIZE, // Big, Little, Heavy, Light, etc.
+  QUALITY, // Thin, Rough, Sharp, Dull, etc.
+  AGE, // Ancient, Old, Young, New, Aged, etc.
+  SHAPE, // Round, Square, Oval, etc.
+  COLOR, // Blue, Red, White, etc.
+  ORIGIN, // Dwarven, Elven, Human, Eastern, Arctic, etc.
+  MATERIAL, // Steel, Leather, Wood, Plastic, etc.
+  TYPE, // Apprentice, Master, Elite, Three-Pronged, etc.
+  PURPOSE, // War, Combat, Cooking, Crafting, etc.
   NOUN,
   MAX
 };
