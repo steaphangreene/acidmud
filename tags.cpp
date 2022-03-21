@@ -567,10 +567,7 @@ std::u8string get_tags_string(Object* world, const MinVec<1, uint64_t>& tags) {
 
 static ObjectTag base_npc(
     u8"npc\n"
-    u8"short:a person\n"
-    u8"desc:{He} seems normal.\n"
     u8"genders:FM\n"
-    u8"wtag:stick\n"
     u8"b:1-7\n"
     u8"q:1-7\n"
     u8"s:1-7\n"
