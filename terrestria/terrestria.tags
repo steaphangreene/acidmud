@@ -28,8 +28,8 @@ gold:100-200
 
 tag:npc:dwarven
 type:origin
-short:a dwarven+
-desc:a dwarven+
+short:a dwarven
+desc:a dwarven
 long:{He} looks pissed.
 genders:O
 wtag:axe
@@ -45,8 +45,8 @@ gold:100-500
 
 tag:npc:elven
 type:origin
-short:an elven+
-desc:an elven+
+short:an elven
+desc:an elven
 long:{He} looks arrogant.
 wtag:sword
 wtag:elven
@@ -116,7 +116,7 @@ gold:200-500
 
 tag:npc:master
 type:type
-short:the master+
+short:the master
 desc:
 long:{He} is among the best at what {he} does.
 q:1-1
@@ -128,7 +128,7 @@ gold:200-500
 
 tag:npc:apprentice
 type:type
-short:an apprentice+
+short:an apprentice
 desc:
 long:{He} is eager to learn, and willing to work hard in the process.
 
@@ -241,8 +241,8 @@ gold:500-1000
 
 tag:npc:elite
 type:type
-short:an elite+
-desc:a pretty special+
+short:an elite
+desc:a pretty special
 long:{He} seems quite prepared, and well-trained.
 wtag:high-quality
 atag:high-quality
@@ -339,50 +339,50 @@ severity:3
 
 tag:weapon:dwarven
 type:origin
-short:a dwarven+
-desc:A super-strong+
+short:a dwarven
+desc:A super-strong
 force:1
 
 tag:weapon:combat
 type:purpose
-short:a combat+
-desc:A combat+
+short:a combat
+desc:A combat
 force:1-2
 
 tag:weapon:climbing
 type:purpose
-short:a climbing+
-desc:A lightweight+
+short:a climbing
+desc:A lightweight
 weight:-500
 force:2-4
 severity:-1
 
 tag:weapon:sharp
 type:quality
-desc:A super-sharp+
+desc:A super-sharp
 force:1
 
 tag:weapon:heavy
 type:size
-desc:A super-heavy+
+desc:A super-heavy
 weight:1000
 force:2
 
 tag:weapon:light
 type:size
-desc:A super-light+
+desc:A super-light
 weight:-500
 force:-2-0
 
 tag:weapon:high-quality
 type:quality
-desc:A high-quality+
+desc:A high-quality
 force:0-2
 
 tag:weapon:war
 type:purpose
-short:a war+
-desc:A war+
+short:a war
+desc:A war
 skill:Two-Handed Blades
 reach:1
 force:1-0
@@ -409,8 +409,8 @@ thread:0-1
 
 tag:armor:leather
 type:material
-short:a leather+
-desc:A leather+
+short:a leather
+desc:A leather
 weight:500-1000
 volume:200-400
 value:200-300
@@ -420,8 +420,8 @@ planar:1
 
 tag:armor:steel
 type:material
-short:a steel+
-desc:A steel+
+short:a steel
+desc:A steel
 weight:2000-3000
 volume:500-800
 value:600-800
@@ -430,8 +430,8 @@ planar:4-6
 
 tag:armor:dwarven
 type:origin
-short:a dwarven+
-desc:A dwarven+
+short:a dwarven
+desc:A dwarven
 weight:500-1000
 volume:100-200
 value:500-800
@@ -442,7 +442,7 @@ planar:0-1
 tag:armor:heavy
 type:size
 short:
-desc:A heavy+
+desc:A heavy
 weight:1000-2000
 volume:100-200
 value:500-800
@@ -451,7 +451,7 @@ impact:0-1
 
 tag:armor:high-quality
 type:quality
-desc:A high-quality+
+desc:A high-quality
 bulk:0-1
 impact:0-1
 thread:0-1
@@ -546,12 +546,12 @@ wear:SHIELD
 
 tag:item:dwarven
 type:origin
-short:a dwarven+
+short:a dwarven
 desc:A well-made
 long:This was clearly made by dwarves.  It should last forever.
 
 tag:item:pack
-short:a pack+
+short:a pack
 desc:A pack
 long:A simple pack for holding items.  This can be quickly thrown over one shoulder for easy portability.
 wear:RSHOULDER
