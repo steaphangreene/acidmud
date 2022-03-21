@@ -96,6 +96,8 @@ int main(int argc, char** argv) {
 
   srand(time(nullptr));
 
+  current_time = get_time();
+
   logo(u8"Starting networking....\n");
   if (acceptor >= 0)
     resume_net(acceptor);
@@ -111,7 +113,6 @@ int main(int argc, char** argv) {
     unwarn_net(2);
   }
 
-  current_time = get_time();
   auto lastsave_time = current_time;
   logo(u8"Ready to play!\n");
   while (shutdn <= 0) {
