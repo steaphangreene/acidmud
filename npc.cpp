@@ -239,6 +239,9 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
     obj->SetSkill(prhash(u8"WeaponReach"), rint3(gen, wp.wmin_.reach, wp.wmax_.reach));
     obj->SetSkill(prhash(u8"WeaponForce"), rint3(gen, wp.wmin_.force, wp.wmax_.force));
     obj->SetSkill(prhash(u8"WeaponSeverity"), rint3(gen, wp.wmin_.severity, wp.wmax_.severity));
+    for (auto sk : wp.props_) {
+      obj->SetSkill(sk.first, sk.second);
+    }
     obj->SetShortDesc(wp.short_desc_);
     obj->SetDesc(wp.desc_);
     obj->SetLongDesc(wp.long_desc_);
@@ -268,6 +271,9 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
     obj->SetSkill(prhash(u8"ArmorI"), rint3(gen, ar.amin_.impact, ar.amax_.impact));
     obj->SetSkill(prhash(u8"ArmorT"), rint3(gen, ar.amin_.thread, ar.amax_.thread));
     obj->SetSkill(prhash(u8"ArmorP"), rint3(gen, ar.amin_.planar, ar.amax_.planar));
+    for (auto sk : ar.props_) {
+      obj->SetSkill(sk.first, sk.second);
+    }
     obj->SetShortDesc(ar.short_desc_);
     obj->SetDesc(ar.desc_);
     obj->SetLongDesc(ar.long_desc_);
