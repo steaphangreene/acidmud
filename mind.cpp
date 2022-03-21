@@ -2737,6 +2737,22 @@ uint32_t items[8] = {
     prhash(u8"Needy")};
 bool Mind::Think(std::shared_ptr<Mind>& sptr, int istick) {
   if (type == mind_t::NPC) {
+    // Currently Fighting!
+    if (body->IsAct(act_t::FIGHT)) {
+      if (body->HasTag(crc32c(u8"soldier"))) {
+        handle_command(body, u8"call TO ARMS");
+      } else if (body->HasTag(crc32c(u8"guard"))) {
+        handle_command(body, u8"call ALARM");
+      } else if (body->HasTag(crc32c(u8"citizen"))) {
+        handle_command(body, u8"call GUARDS");
+      } else if (body->HasTag(crc32c(u8"civilian"))) {
+        handle_command(body, u8"call HELP");
+      } else {
+        handle_command(body, u8"call AAAAAAAAHHHHHH");
+      }
+      return true;
+    }
+
     // Soldiers and Guards On The Job Wield Weapons
     if ((body->HasTag(crc32c(u8"guard")) || body->HasTag(crc32c(u8"soldier"))) &&
         body->IsAct(act_t::WORK)) {
