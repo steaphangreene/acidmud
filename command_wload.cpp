@@ -66,16 +66,20 @@ bool tag_superset(const ObjectTag npcdef, const std::u8string_view& requirements
   return true;
 }
 
-static ObjectTag make_key(Object* world, const std::u8string_view& keyname, uint32_t keynum) {
-  world->LoadTagsFrom(fmt::format(
-      u8"tag:item:key_{0}\n"
-      u8"short:{1}\n"
-      u8"desc:A rather well-made key.\n"
-      u8"weight:30\n"
-      u8"value:1\n"
-      u8"prop:Key:{0}\n",
-      keynum,
-      keyname));
+static std::set<int32_t> world_has_key;
+static ObjectTag make_key(Object* world, const std::u8string_view& keyname, int32_t keynum) {
+  if (!world_has_key.contains(keynum)) {
+    world_has_key.insert(keynum);
+    world->LoadTagsFrom(fmt::format(
+        u8"tag:item:key_{0}\n"
+        u8"short:{1}\n"
+        u8"desc:A rather well-made key.\n"
+        u8"weight:30\n"
+        u8"value:1\n"
+        u8"prop:Key:{0}\n",
+        keynum,
+        keyname));
+  }
   return ObjectTag(fmt::format(
       u8"has_key_{0}\n"
       u8"itag:key_{0}\n",
@@ -795,6 +799,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
 
   // Now, populate this new zone.
   int homeless = 0;
+  world_has_key.clear();
   for (auto obj : objs) {
     auto x = obj.first.x;
     auto y = obj.first.y;
@@ -808,21 +813,21 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
           // Build the definition of this NPC
           ObjectTag npcdef = objs[coord{x, y}][floor]->BuildNPC(emptags[room][n]);
 
-          std::set<int32_t> have_keys;
+          std::set<int32_t> npc_has_key;
 
           // Grant them all keys needed for their workplace
           if (loc_keys.count(objs[coord{x, y}][floor]) > 0) {
             for (auto keydef : loc_keys[objs[coord{x, y}][floor]]) {
-              if (!have_keys.contains(keydef.second)) {
-                have_keys.insert(keydef.second);
+              if (!npc_has_key.contains(keydef.second)) {
+                npc_has_key.insert(keydef.second);
                 npcdef += make_key(world, keynames[keydef.first], keydef.second);
               }
             }
           }
           if (floor != 0 && loc_keys.count(objs[coord{x, y}][0]) > 0) {
             for (auto keydef : loc_keys[objs[coord{x, y}][0]]) {
-              if (!have_keys.contains(keydef.second)) {
-                have_keys.insert(keydef.second);
+              if (!npc_has_key.contains(keydef.second)) {
+                npc_has_key.insert(keydef.second);
                 npcdef += make_key(world, keynames[keydef.first], keydef.second);
               }
             }
@@ -832,8 +837,8 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
           for (const auto& asp : asp_keys) {
             if (tag_superset(npcdef, asp.first)) {
               for (const auto& keydef : asp.second) {
-                if (!have_keys.contains(keydef.second)) {
-                  have_keys.insert(keydef.second);
+                if (!npc_has_key.contains(keydef.second)) {
+                  npc_has_key.insert(keydef.second);
                   npcdef += make_key(world, keynames[keydef.first], keydef.second);
                 }
               }
@@ -862,16 +867,16 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
                         // Grant them all keys needed for their new home
                         if (loc_keys.count(objs[loc][resfl]) > 0) {
                           for (auto keydef : loc_keys[objs[loc][resfl]]) {
-                            if (!have_keys.contains(keydef.second)) {
-                              have_keys.insert(keydef.second);
+                            if (!npc_has_key.contains(keydef.second)) {
+                              npc_has_key.insert(keydef.second);
                               npcdef += make_key(world, keynames[keydef.first], keydef.second);
                             }
                           }
                         }
                         if (resfl != 0 && loc_keys.count(objs[loc][0]) > 0) {
                           for (auto keydef : loc_keys[objs[loc][0]]) {
-                            if (!have_keys.contains(keydef.second)) {
-                              have_keys.insert(keydef.second);
+                            if (!npc_has_key.contains(keydef.second)) {
+                              npc_has_key.insert(keydef.second);
                               npcdef += make_key(world, keynames[keydef.first], keydef.second);
                             }
                           }
