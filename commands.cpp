@@ -2260,7 +2260,8 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       }
 
       // Armor/Clothing
-      if (!targ->HasSkill("WeaponType")) { // Exclude weapons which can be worn (sheathed).
+      if (!targ->HasSkill(
+              prhash(u8"WeaponType"))) { // Exclude weapons which can be worn (sheathed).
         int all = targ->WearMask();
         int num = count_ones(all);
         if (num > 1) {
@@ -2319,12 +2320,42 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
         mes[0] = ascii_toupper(mes[0]);
         mind->Send(mes);
 
-        if ((!targ->ActTarg(act_t::WIELD)) && (!body->ActTarg(act_t::WIELD))) {
-          mind->Send(u8"   ...is unarmed, but so are you.\n");
+        if ((targ->ActTarg(act_t::WIELD)) && (body->ActTarg(act_t::WIELD))) {
+          mind->Send(u8"   ...has a weapon out and ready, but so do you.\n");
         } else if (!targ->ActTarg(act_t::WIELD)) {
-          mind->Send(CGRN u8"   ...is unarmed.\n" CNRM);
+          mind->Send(CGRN u8"   ...doesn't have a weapon out.\n" CNRM);
         } else if (!body->ActTarg(act_t::WIELD)) {
-          mind->Send(CYEL u8"   ...is armed, and you are not!\n" CNRM);
+          mind->Send(CYEL u8"   ...has a weapon out and ready, and you do not!\n" CNRM);
+        }
+
+        Object* myweap = nullptr;
+        Object* enweap = nullptr;
+        for (auto loc :
+             {act_t::WIELD,
+              act_t::WEAR_RHIP,
+              act_t::WEAR_RSHOULDER,
+              act_t::WEAR_LHIP,
+              act_t::WEAR_LSHOULDER}) {
+          if (!myweap) {
+            if (body->ActTarg(loc)) {
+              myweap = body->ActTarg(loc);
+            }
+          }
+          if (!enweap) {
+            if (targ->ActTarg(loc)) {
+              enweap = targ->ActTarg(loc);
+            }
+          }
+        }
+
+        if ((enweap) && (myweap)) {
+          mind->Send(u8"   ...is armed, but so are you.\n");
+        } else if ((!enweap) && (!myweap)) {
+          mind->Send(u8"   ...is unarmed, but so are you.\n");
+        } else if (!enweap) {
+          mind->Send(CGRN u8"   ...is unarmed, and you are armed.\n" CNRM);
+        } else if (!myweap) {
+          mind->Send(CYEL u8"   ...is armed, and you are unarmed!\n" CNRM);
         }
 
         if (targ->HasSkill(prhash(u8"NaturalWeapon")) &&
@@ -2337,40 +2368,44 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
         }
 
         diff = 0;
-        if (body->ActTarg(act_t::WIELD))
-          diff = (body->ActTarg(act_t::WIELD)->Skill(prhash(u8"WeaponReach")) > 9);
-        if (targ->ActTarg(act_t::WIELD) &&
-            targ->ActTarg(act_t::WIELD)->Skill(prhash(u8"WeaponReach")) > 9) {
-          if (diff)
+        if (myweap) {
+          diff = (myweap->Skill(prhash(u8"WeaponReach")) > 9);
+        }
+        if (enweap && enweap->Skill(prhash(u8"WeaponReach")) > 9) {
+          if (diff) {
             mind->Send(u8"   ...has a ranged weapon, and so do you!\n");
-          else
+          } else {
             mind->Send(CYEL u8"   ...has a ranged weapon!\n" CNRM);
+          }
         } else if (diff) {
           mind->Send(CGRN u8"   ...doesn't have a ranged weapon, and you do!\n" CNRM);
         } else {
           diff = 0;
-          if (body->ActTarg(act_t::WIELD))
-            diff += body->ActTarg(act_t::WIELD)->Skill(prhash(u8"WeaponReach"));
-          if (targ->ActTarg(act_t::WIELD))
-            diff -= targ->ActTarg(act_t::WIELD)->Skill(prhash(u8"WeaponReach"));
-          if (diff < -5)
+          if (myweap) {
+            diff += myweap->Skill(prhash(u8"WeaponReach"));
+          }
+          if (enweap) {
+            diff -= enweap->Skill(prhash(u8"WeaponReach"));
+          }
+          if (diff < -5) {
             mind->Send(CRED u8"   ...outreaches you by a mile.\n" CNRM);
-          else if (diff < -2)
+          } else if (diff < -2) {
             mind->Send(CRED u8"   ...has much greater reach than you.\n" CNRM);
-          else if (diff < -1)
+          } else if (diff < -1) {
             mind->Send(CYEL u8"   ...has greater reach than you.\n" CNRM);
-          else if (diff < 0)
+          } else if (diff < 0) {
             mind->Send(CYEL u8"   ...has a bit greater reach than you.\n" CNRM);
-          else if (diff > 5)
+          } else if (diff > 5) {
             mind->Send(CGRN u8"   ...has a mile less reach than you.\n" CNRM);
-          else if (diff > 2)
+          } else if (diff > 2) {
             mind->Send(CGRN u8"   ...has much less reach than you.\n" CNRM);
-          else if (diff > 1)
+          } else if (diff > 1) {
             mind->Send(CGRN u8"   ...has less reach than you.\n" CNRM);
-          else if (diff > 0)
+          } else if (diff > 0) {
             mind->Send(CGRN u8"   ...has a bit less reach than you.\n" CNRM);
-          else
+          } else {
             mind->Send(u8"   ...has about your reach.\n");
+          }
         }
 
         if ((!targ->ActTarg(act_t::WEAR_SHIELD)) && (!body->ActTarg(act_t::WEAR_SHIELD))) {
@@ -2383,110 +2418,110 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
 
         diff = 0;
         uint32_t sk = prhash(u8"Punching");
-        if (body->IsAct(act_t::WIELD)) {
-          sk = get_weapon_skill(body->ActTarg(act_t::WIELD)->Skill(prhash(u8"WeaponType")));
+        if (myweap) {
+          sk = get_weapon_skill(myweap->Skill(prhash(u8"WeaponType")));
         }
         if (body->HasSkill(sk)) {
           diff += body->Skill(sk);
         }
         sk = prhash(u8"Punching");
-        if (targ->IsAct(act_t::WIELD)) {
-          sk = get_weapon_skill(targ->ActTarg(act_t::WIELD)->Skill(prhash(u8"WeaponType")));
+        if (enweap) {
+          sk = get_weapon_skill(enweap->Skill(prhash(u8"WeaponType")));
         }
         if (targ->HasSkill(sk)) {
           diff -= targ->Skill(sk);
         }
-        if (diff < -5)
+        if (diff < -5) {
           mind->Send(CRED u8"   ...is far more skilled than you.\n" CNRM);
-        else if (diff < -2)
+        } else if (diff < -2) {
           mind->Send(CRED u8"   ...is much more skilled than you.\n" CNRM);
-        else if (diff < -1)
+        } else if (diff < -1) {
           mind->Send(CYEL u8"   ...is more skilled than you.\n" CNRM);
-        else if (diff < 0)
+        } else if (diff < 0) {
           mind->Send(CYEL u8"   ...is a bit more skilled than you.\n" CNRM);
-        else if (diff > 5)
+        } else if (diff > 5) {
           mind->Send(CGRN u8"   ...is far less skilled than you.\n" CNRM);
-        else if (diff > 2)
+        } else if (diff > 2) {
           mind->Send(CGRN u8"   ...is much less skilled than you.\n" CNRM);
-        else if (diff > 1)
+        } else if (diff > 1) {
           mind->Send(CGRN u8"   ...is less skilled than you.\n" CNRM);
-        else if (diff > 0)
+        } else if (diff > 0) {
           mind->Send(CGRN u8"   ...is a bit less skilled than you.\n" CNRM);
-        else
+        } else {
           mind->Send(u8"   ...is about as skilled as you.\n");
-
+        }
         diff = body->NormAttribute(0) - targ->NormAttribute(0);
-        if (diff < -10)
+        if (diff < -10) {
           mind->Send(CRED u8"   ...is titanic.\n" CNRM);
-        else if (diff < -5)
+        } else if (diff < -5) {
           mind->Send(CRED u8"   ...is gargantuan.\n" CNRM);
-        else if (diff < -2)
+        } else if (diff < -2) {
           mind->Send(CRED u8"   ...is much larger than you.\n" CNRM);
-        else if (diff < -1)
+        } else if (diff < -1) {
           mind->Send(CYEL u8"   ...is larger than you.\n" CNRM);
-        else if (diff < 0)
+        } else if (diff < 0) {
           mind->Send(CYEL u8"   ...is a bit larger than you.\n" CNRM);
-        else if (diff > 10)
+        } else if (diff > 10) {
           mind->Send(CGRN u8"   ...is an ant compared to you.\n" CNRM);
-        else if (diff > 5)
+        } else if (diff > 5) {
           mind->Send(CGRN u8"   ...is tiny compared to you.\n" CNRM);
-        else if (diff > 2)
+        } else if (diff > 2) {
           mind->Send(CGRN u8"   ...is much smaller than you.\n" CNRM);
-        else if (diff > 1)
+        } else if (diff > 1) {
           mind->Send(CGRN u8"   ...is smaller than you.\n" CNRM);
-        else if (diff > 0)
+        } else if (diff > 0) {
           mind->Send(CGRN u8"   ...is a bit smaller than you.\n" CNRM);
-        else
+        } else {
           mind->Send(u8"   ...is about your size.\n");
-
+        }
         diff = body->NormAttribute(1) - targ->NormAttribute(1);
-        if (diff < -10)
+        if (diff < -10) {
           mind->Send(CRED u8"   ...is a blur of speed.\n" CNRM);
-        else if (diff < -5)
+        } else if (diff < -5) {
           mind->Send(CRED u8"   ...is lightning fast.\n" CNRM);
-        else if (diff < -2)
+        } else if (diff < -2) {
           mind->Send(CRED u8"   ...is much faster than you.\n" CNRM);
-        else if (diff < -1)
+        } else if (diff < -1) {
           mind->Send(CYEL u8"   ...is faster than you.\n" CNRM);
-        else if (diff < 0)
+        } else if (diff < 0) {
           mind->Send(CYEL u8"   ...is a bit faster than you.\n" CNRM);
-        else if (diff > 10)
+        } else if (diff > 10) {
           mind->Send(CGRN u8"   ...is a turtle on valium.\n" CNRM);
-        else if (diff > 5)
+        } else if (diff > 5) {
           mind->Send(CGRN u8"   ...is slower than dial-up.\n" CNRM);
-        else if (diff > 2)
+        } else if (diff > 2) {
           mind->Send(CGRN u8"   ...is much slower than you.\n" CNRM);
-        else if (diff > 1)
+        } else if (diff > 1) {
           mind->Send(CGRN u8"   ...is slower than you.\n" CNRM);
-        else if (diff > 0)
+        } else if (diff > 0) {
           mind->Send(CGRN u8"   ...is a bit slower than you.\n" CNRM);
-        else
+        } else {
           mind->Send(u8"   ...is about your speed.\n");
-
+        }
         diff = body->NormAttribute(2) - targ->NormAttribute(2);
-        if (diff < -10)
+        if (diff < -10) {
           mind->Send(CRED u8"   ...is the strongest thing you've ever seen.\n" CNRM);
-        else if (diff < -5)
+        } else if (diff < -5) {
           mind->Send(CRED u8"   ...is super-strong.\n" CNRM);
-        else if (diff < -2)
+        } else if (diff < -2) {
           mind->Send(CRED u8"   ...is much stronger than you.\n" CNRM);
-        else if (diff < -1)
+        } else if (diff < -1) {
           mind->Send(CYEL u8"   ...is stronger than you.\n" CNRM);
-        else if (diff < 0)
+        } else if (diff < 0) {
           mind->Send(CYEL u8"   ...is a bit stronger than you.\n" CNRM);
-        else if (diff > 10)
+        } else if (diff > 10) {
           mind->Send(CGRN u8"   ...is a complete push-over.\n" CNRM);
-        else if (diff > 5)
+        } else if (diff > 5) {
           mind->Send(CGRN u8"   ...is a wimp compared to you.\n" CNRM);
-        else if (diff > 2)
+        } else if (diff > 2) {
           mind->Send(CGRN u8"   ...is much weaker than you.\n" CNRM);
-        else if (diff > 1)
+        } else if (diff > 1) {
           mind->Send(CGRN u8"   ...is weaker than you.\n" CNRM);
-        else if (diff > 0)
+        } else if (diff > 0) {
           mind->Send(CGRN u8"   ...is a bit weaker than you.\n" CNRM);
-        else
+        } else {
           mind->Send(u8"   ...is about your strength.\n");
-
+        }
         if (targ->HasSkill(prhash(u8"TBAAction"))) {
           if ((targ->Skill(prhash(u8"TBAAction")) & 4128) == 0) {
             mind->Send(CGRN u8"   ...does not seem threatening.\n" CNRM);
