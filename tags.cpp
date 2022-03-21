@@ -213,51 +213,6 @@ static std::vector<ObjectTag> finalize_tags(
   return ret;
 }
 
-void ObjectTag::FinalizeArmorTags(const std::map<uint32_t, ObjectTag>& tagdefs) {
-  // Merge Given Armor Tags into Armor Defs
-  for (auto atag : atags_) {
-    if (tagdefs.contains(atag)) {
-      if (armor_.size() == 0) {
-        armor_.emplace_back(tagdefs.at(atag));
-      } else if (tagdefs.at(atag).loc_.size() > 0) {
-        armor_.emplace_back(tagdefs.at(atag));
-      } else if (armor_.front().loc_.size() > 0) {
-        armor_.emplace(armor_.begin(), tagdefs.at(atag));
-      } else {
-        armor_.front() += tagdefs.at(atag);
-      }
-    } else {
-      loger(u8"ERROR: Use of undefined Armor tag: '{}'.  Skipping.\n", atag);
-    }
-  }
-  if (armor_.size() > 0 && armor_.front().loc_.size() == 0) { // Unlocated up front
-    for (auto arm : armor_) { // Merge with the individually located bits
-      if (arm.loc_.size() > 0) {
-        arm += armor_.front();
-      }
-    }
-  }
-  for (auto& a : armor_) {
-    std::replace(a.short_desc_.begin(), a.short_desc_.end(), '+', ' ');
-    std::replace(a.desc_.begin(), a.desc_.end(), '+', ' ');
-  }
-}
-
-void ObjectTag::FinalizeItemTags(const std::map<uint32_t, ObjectTag>& tagdefs) {
-  // Merge Given Item Tags into Item Defs
-  for (auto itag : itags_) {
-    if (tagdefs.contains(itag)) {
-      items_.emplace_back(tagdefs.at(itag));
-    } else {
-      loger(u8"ERROR: Use of undefined Item tag: '{}'.  Skipping.\n", itag);
-    }
-  }
-  for (auto& i : items_) {
-    std::replace(i.short_desc_.begin(), i.short_desc_.end(), '+', ' ');
-    std::replace(i.desc_.begin(), i.desc_.end(), '+', ' ');
-  }
-}
-
 void ObjectTag::Finalize() {
   std::replace(short_desc_.begin(), short_desc_.end(), '+', ' ');
   std::replace(desc_.begin(), desc_.end(), '+', ' ');
@@ -636,8 +591,8 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
   }
 
   npcdef.weapons_ = finalize_tags(1, npcdef.wtags_, weapontagdefs.at(World()));
-  npcdef.FinalizeArmorTags(armortagdefs.at(World()));
-  npcdef.FinalizeItemTags(itemtagdefs.at(World()));
+  npcdef.armor_ = finalize_tags(0, npcdef.atags_, armortagdefs.at(World()));
+  npcdef.items_ = finalize_tags(0, npcdef.itags_, itemtagdefs.at(World()));
   npcdef.Finalize();
 
   Object* npc = new Object(this);

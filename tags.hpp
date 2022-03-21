@@ -75,8 +75,6 @@ class ObjectTag {
   bool LoadFrom(std::u8string_view& tagdef);
   void operator+=(const ObjectTag&);
 
-  void FinalizeArmorTags(const std::map<uint32_t, ObjectTag>&);
-  void FinalizeItemTags(const std::map<uint32_t, ObjectTag>&);
   void Finalize();
 
   tag_t type_ = tag_t::NOUN;
