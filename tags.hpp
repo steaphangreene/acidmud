@@ -75,8 +75,6 @@ class ObjectTag {
   bool LoadFrom(std::u8string_view& tagdef);
   void operator+=(const ObjectTag&);
 
-  void Finalize();
-
   tag_t type_ = tag_t::NOUN;
   std::u8string short_desc_, desc_, long_desc_;
   std::vector<skill_pair> props_;

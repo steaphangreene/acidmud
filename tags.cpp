@@ -130,7 +130,7 @@ static std::u8string desc_merge(std::u8string_view d1, std::u8string_view d2) {
     return std::u8string(d2);
   } else if (d2.length() == 0) {
     return std::u8string(d1);
-  } else if (d1.back() == '+') {
+  } else {
     process(d2, u8"a ");
     process(d2, u8"an ");
     process(d2, u8"A ");
@@ -142,19 +142,10 @@ static std::u8string desc_merge(std::u8string_view d1, std::u8string_view d2) {
            process(d1, u8"An "));
     }
     if (add_definite) {
-      return fmt::format(u8"the {}{}", d1, d2);
+      return fmt::format(u8"the {} {}", d1, d2);
     } else {
-      return fmt::format(u8"{}{}", d1, d2);
+      return fmt::format(u8"{} {}", d1, d2);
     }
-  } else if (d2.back() == '+') {
-    return desc_merge(d2, d1);
-  } else if (d1.contains('+')) {
-    auto pos = d1.find_last_of('+');
-    return desc_merge(d1.substr(0, pos + 1), d2);
-  } else if (d2.contains('+')) {
-    return desc_merge(d2, d1);
-  } else {
-    return fmt::format(u8"{}", d2); // New base after old base, replace *all* previous text
   }
 }
 
@@ -203,22 +194,17 @@ static std::vector<ObjectTag> finalize_tags(
     noun += adjectives.front();
   }
 
-  // Clean Up Internal Text Mangling
-  for (auto& t : ret) {
-    std::replace(t.short_desc_.begin(), t.short_desc_.end(), '+', ' ');
-    std::replace(t.desc_.begin(), t.desc_.end(), '+', ' ');
-  }
-
   // Profit
   return ret;
 }
 
-void ObjectTag::Finalize() {
-  std::replace(short_desc_.begin(), short_desc_.end(), '+', ' ');
-  std::replace(desc_.begin(), desc_.end(), '+', ' ');
-}
-
 void ObjectTag::operator+=(const ObjectTag& in) {
+  if (type_ > in.type_) { // Preserve Adjective Order
+    auto tmp = in;
+    tmp += (*this);
+    (*this) = tmp;
+    return;
+  }
   short_desc_ = desc_merge(short_desc_, in.short_desc_);
   desc_ = desc_merge(desc_, in.desc_);
   if (in.long_desc_ != u8"") {
@@ -582,7 +568,6 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tagstr) {
   npcdef.weapons_ = finalize_tags(1, npcdef.wtags_, weapontagdefs.at(World()));
   npcdef.armor_ = finalize_tags(0, npcdef.atags_, armortagdefs.at(World()));
   npcdef.items_ = finalize_tags(0, npcdef.itags_, itemtagdefs.at(World()));
-  npcdef.Finalize();
 
   Object* npc = new Object(this);
   for (auto t : npcdef.tags_) {
