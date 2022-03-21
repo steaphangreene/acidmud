@@ -182,6 +182,9 @@ static std::vector<ObjectTag> finalize_tags(
     }
   }
 
+  // Order Nouns by Highest Priority First
+  std::reverse(ret.begin(), ret.end());
+
   // Limit Total Number of Items, If Requested
   if (max_items > 0) {
     if (ret.size() > max_items) {
