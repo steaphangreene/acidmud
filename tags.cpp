@@ -158,33 +158,59 @@ static std::u8string desc_merge(std::u8string_view d1, std::u8string_view d2) {
   }
 }
 
-void ObjectTag::FinalizeWeaponTags(const std::map<uint32_t, ObjectTag>& tagdefs) {
-  // Merge Given Weapon Tags into Weapon Defs
+static std::vector<ObjectTag> finalize_tags(
+    int max_items,
+    const std::vector<uint32_t>& tags,
+    const std::map<uint32_t, ObjectTag>& tagdefs) {
+  std::vector<ObjectTag> ret;
+
+  // Merge Given Tags into Single Set of Adjectives, and List of Nouns
   std::map<tag_t, ObjectTag> defs;
-  for (auto tag : wtags_) {
+  for (auto tag : tags) {
     if (tagdefs.contains(tag)) {
       auto& def = tagdefs.at(tag);
-      if (defs.contains(def.type_)) {
+      if (def.type_ == tag_t::NOUN) {
+        ret.emplace_back(def);
+      } else if (defs.contains(def.type_)) {
         defs.at(def.type_) = def;
       } else {
         defs.try_emplace(def.type_, def);
       }
     } else {
-      loger(u8"ERROR: Use of undefined Weapon tag: '{}'.  Skipping.\n", tag);
+      loger(u8"ERROR: Use of undefined tag: '{}'.  Skipping.\n", tag);
     }
   }
 
+  // Merge Set of Adjectives into a Single Adjectives Definition
+  std::vector<ObjectTag> adjectives;
   for (auto tag : defs) {
-    if (weapons_.size() == 0) {
-      weapons_.emplace_back(tag.second);
+    if (adjectives.size() == 0) {
+      adjectives.emplace_back(tag.second);
     } else {
-      weapons_.back() += tag.second;
+      adjectives.back() += tag.second;
     }
   }
-  for (auto& w : weapons_) {
-    std::replace(w.short_desc_.begin(), w.short_desc_.end(), '+', ' ');
-    std::replace(w.desc_.begin(), w.desc_.end(), '+', ' ');
+
+  // Limit Total Number of Items, If Requested
+  if (max_items > 0) {
+    if (ret.size() > max_items) {
+      ret.erase(ret.begin() + max_items, ret.end());
+    }
   }
+
+  // Apply List of Adjectives To Each Noun
+  for (auto& noun : ret) {
+    noun += adjectives.front();
+  }
+
+  // Clean Up Internal Text Mangling
+  for (auto& t : ret) {
+    std::replace(t.short_desc_.begin(), t.short_desc_.end(), '+', ' ');
+    std::replace(t.desc_.begin(), t.desc_.end(), '+', ' ');
+  }
+
+  // Profit
+  return ret;
 }
 
 void ObjectTag::FinalizeArmorTags(const std::map<uint32_t, ObjectTag>& tagdefs) {
@@ -609,7 +635,7 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
     npcdef += def.second;
   }
 
-  npcdef.FinalizeWeaponTags(weapontagdefs.at(World()));
+  npcdef.weapons_ = finalize_tags(1, npcdef.wtags_, weapontagdefs.at(World()));
   npcdef.FinalizeArmorTags(armortagdefs.at(World()));
   npcdef.FinalizeItemTags(itemtagdefs.at(World()));
   npcdef.Finalize();
