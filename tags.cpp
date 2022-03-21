@@ -534,23 +534,18 @@ static ObjectTag base_npc(
     u8"i:1-7\n"
     u8"w:1-7\n");
 
-Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
+Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tagstr) {
   if (!World()->LoadTags()) {
     loger(u8"ERROR: Asked to load NPC in a world with no tags defined.\n");
   }
 
   // Merge Given NPC Tags into new NPC Def
-  std::map<tag_t, ObjectTag> npcdefs;
+  std::vector<uint32_t> tags;
   for (const auto& rtag : completed) {
     if (roomtagdefs.at(World()).contains(rtag)) {
       for (const auto& ntag : roomtagdefs.at(World()).at(rtag).ntags_) {
         if (npctagdefs.at(World()).contains(ntag)) {
-          auto& def = npctagdefs.at(World()).at(ntag);
-          if (npcdefs.contains(def.type_)) {
-            npcdefs.at(def.type_) = def;
-          } else {
-            npcdefs.try_emplace(def.type_, def);
-          }
+          tags.push_back(ntag);
         } else {
           loger(
               u8"ERROR: Use of undefined NPC tag: '{}' from room tag '{}'.  Skipping.\n",
@@ -565,30 +560,24 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
           ShortDesc());
     }
   }
-  auto start = tags.cbegin();
-  auto end = std::find(start, tags.cend(), ',');
-  while (start != tags.cend()) {
-    std::u8string tag(tags.substr(start - tags.cbegin(), end - start));
-    if (npctagdefs.at(World()).contains(crc32c(tag))) {
-      auto& def = npctagdefs.at(World()).at(crc32c(tag));
-      if (npcdefs.contains(def.type_)) {
-        npcdefs.at(def.type_) = def;
-      } else {
-        npcdefs.try_emplace(def.type_, def);
-      }
+  auto start = tagstr.cbegin();
+  auto end = std::find(start, tagstr.cend(), ',');
+  while (start != tagstr.cend()) {
+    std::u8string ntag(tagstr.substr(start - tagstr.cbegin(), end - start));
+    if (npctagdefs.at(World()).contains(crc32c(ntag))) {
+      tags.push_back(crc32c(ntag));
     } else {
-      loger(u8"ERROR: Use of undefined NPC tag: '{}'.  Skipping.\n", tag);
+      loger(u8"ERROR: Use of undefined NPC tag: '{}'.  Skipping.\n", ntag);
     }
     start = end;
-    if (start != tags.cend()) {
+    if (start != tagstr.cend()) {
       ++start;
-      end = std::find(start, tags.cend(), ',');
+      end = std::find(start, tagstr.cend(), ',');
     }
   }
   ObjectTag npcdef = base_npc;
-  for (auto& def : npcdefs) {
-    npcdef += def.second;
-  }
+  auto npcdefs = finalize_tags(1, tags, npctagdefs.at(World()));
+  npcdef += npcdefs.front();
 
   npcdef.weapons_ = finalize_tags(1, npcdef.wtags_, weapontagdefs.at(World()));
   npcdef.armor_ = finalize_tags(0, npcdef.atags_, armortagdefs.at(World()));
