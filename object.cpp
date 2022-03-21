@@ -4597,8 +4597,14 @@ int Object::Drop(Object* item, bool message, bool force) {
   }
 
   int ret = item->Travel(parent);
-  if (ret)
+  if (ret) {
     return ret;
+  }
+
+  // If "this" was holding or dragging it, now it's not.
+  if (ActTarg(act_t::HOLD) && ActTarg(act_t::HOLD) == item) {
+    StopAct(act_t::HOLD);
+  }
 
   // Activate perishable dropped stuff, so it will rot
   if (item->HasSkill(prhash(u8"Perishable"))) {
