@@ -585,26 +585,6 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
 
   // Merge Given NPC Tags into new NPC Def
   std::map<tag_t, ObjectTag> npcdefs;
-  auto start = tags.cbegin();
-  auto end = std::find(start, tags.cend(), ',');
-  while (start != tags.cend()) {
-    std::u8string tag(tags.substr(start - tags.cbegin(), end - start));
-    if (npctagdefs.at(World()).contains(crc32c(tag))) {
-      auto& def = npctagdefs.at(World()).at(crc32c(tag));
-      if (npcdefs.contains(def.type_)) {
-        npcdefs.at(def.type_) = def;
-      } else {
-        npcdefs.try_emplace(def.type_, def);
-      }
-    } else {
-      loger(u8"ERROR: Use of undefined NPC tag: '{}'.  Skipping.\n", tag);
-    }
-    start = end;
-    if (start != tags.cend()) {
-      ++start;
-      end = std::find(start, tags.cend(), ',');
-    }
-  }
   for (const auto& rtag : completed) {
     if (roomtagdefs.at(World()).contains(rtag)) {
       for (const auto& ntag : roomtagdefs.at(World()).at(rtag).ntags_) {
@@ -627,6 +607,26 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tags) {
           u8"ERROR: Use of undefined Room tag: '{}' in room '{}'.  Skipping.\n",
           tag_dictionary[rtag],
           ShortDesc());
+    }
+  }
+  auto start = tags.cbegin();
+  auto end = std::find(start, tags.cend(), ',');
+  while (start != tags.cend()) {
+    std::u8string tag(tags.substr(start - tags.cbegin(), end - start));
+    if (npctagdefs.at(World()).contains(crc32c(tag))) {
+      auto& def = npctagdefs.at(World()).at(crc32c(tag));
+      if (npcdefs.contains(def.type_)) {
+        npcdefs.at(def.type_) = def;
+      } else {
+        npcdefs.try_emplace(def.type_, def);
+      }
+    } else {
+      loger(u8"ERROR: Use of undefined NPC tag: '{}'.  Skipping.\n", tag);
+    }
+    start = end;
+    if (start != tags.cend()) {
+      ++start;
+      end = std::find(start, tags.cend(), ',');
     }
   }
   ObjectTag npcdef = base_npc;
