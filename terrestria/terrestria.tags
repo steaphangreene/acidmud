@@ -126,6 +126,12 @@ i:2-2
 w:2-2
 gold:200-500
 
+tag:npc:apprentice
+type:type
+short:an apprentice+
+desc:
+long:{He} is eager to learn, and willing to work hard in the process.
+
 tag:npc:collier
 includes:civilian
 short:a collier

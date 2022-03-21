@@ -52,7 +52,7 @@ building:1:mint,dwarven:The Hillfort Mint
 building:1:foundry,dwarven:The Hillfort Foundry
 inorder:1
 employ:1:1:master,dwarven
-employ:1:1-3:citizen,dwarven
+employ:1:1-3:apprentice,dwarven
 place:0::a lumber tent
 place:0::a grainery tent
 place:0::a grocery tent
