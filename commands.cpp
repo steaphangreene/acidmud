@@ -2260,40 +2260,42 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       }
 
       // Armor/Clothing
-      int all = targ->WearMask();
-      int num = count_ones(all);
-      if (num > 1) {
-        mind->Send(u8"{} can be worn in {} different ways:\n", targ->Noun(0, 0, body), num);
-      } else if (num == 1) {
-        mind->Send(u8"{} can only be worn one way:\n", targ->Noun(0, 0, body));
-      }
-      for (int mask = 1; mask <= all; mask <<= 1) {
-        std::set<act_t> locs = targ->WearSlots(mask);
-        if (locs.size() > 0) {
-          mind->Send(u8"It can be worn on {}.\n", targ->WearNames(locs));
-          handled = 1;
+      if (!targ->HasSkill("WeaponType")) { // Exclude weapons which can be worn (sheathed).
+        int all = targ->WearMask();
+        int num = count_ones(all);
+        if (num > 1) {
+          mind->Send(u8"{} can be worn in {} different ways:\n", targ->Noun(0, 0, body), num);
+        } else if (num == 1) {
+          mind->Send(u8"{} can only be worn one way:\n", targ->Noun(0, 0, body));
+        }
+        for (int mask = 1; mask <= all; mask <<= 1) {
+          std::set<act_t> locs = targ->WearSlots(mask);
+          if (locs.size() > 0) {
+            mind->Send(u8"It can be worn on {}.\n", targ->WearNames(locs));
+            handled = 1;
 
-          std::set<Object*> repls;
-          for (const auto loc : locs) {
-            if (body->ActTarg(loc))
-              repls.insert(body->ActTarg(loc));
-          }
+            std::set<Object*> repls;
+            for (const auto loc : locs) {
+              if (body->ActTarg(loc))
+                repls.insert(body->ActTarg(loc));
+            }
 
-          for (const auto repl : repls) {
-            if (repl != targ) {
-              mind->Send(u8"   ...it would replace {}.\n", repl->Noun(0, 0, body));
+            for (const auto repl : repls) {
+              if (repl != targ) {
+                mind->Send(u8"   ...it would replace {}.\n", repl->Noun(0, 0, body));
 
-              int diff = targ->NormAttribute(0);
-              diff -= repl->NormAttribute(0);
-              if (diff > 0) {
-                mind->Send(CGRN u8"      ...and would provide better protection.\n" CNRM);
-              } else if (diff < 0) {
-                mind->Send(CYEL u8"      ...and would not provide as much protection.\n" CNRM);
-              } else {
-                mind->Send(u8"      ...and would provide similar protection.\n");
+                int diff = targ->NormAttribute(0);
+                diff -= repl->NormAttribute(0);
+                if (diff > 0) {
+                  mind->Send(CGRN u8"      ...and would provide better protection.\n" CNRM);
+                } else if (diff < 0) {
+                  mind->Send(CYEL u8"      ...and would not provide as much protection.\n" CNRM);
+                } else {
+                  mind->Send(u8"      ...and would provide similar protection.\n");
+                }
+              } else if (repls.size() == 1) {
+                mind->Send(u8"   ...it is already being worn there.\n");
               }
-            } else if (repls.size() == 1) {
-              mind->Send(u8"   ...it is already being worn there.\n");
             }
           }
         }
