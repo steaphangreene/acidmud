@@ -1,3 +1,12 @@
+Let 'consider' command consider enemies' sheathed weapons.
+Let 'consider' command warn of those with ready weapons.
+Stop 'consider' command from evaluating weapons also as clothing.
+
+Don't have patrolling combatants wander away from fights.
+Get working NPCs to stand up when they get knocked down.
+Get recovering NPCs to collect their dropped weapon(s).
+Have NPC soldiers and guards help native NPCs in fights.
+
 Replace as many u8string creations as possible with u8string_view usages.
 Replace all uses of rand() with new type/thread safe C++ stuff.
 
