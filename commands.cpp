@@ -2425,6 +2425,56 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
           } else {
             mind->Send(u8"   ...has about your reach.\n");
           }
+
+          if (myweap && enweap) {
+            uint32_t sk1 = (get_weapon_skill(myweap->Skill(prhash(u8"WeaponType"))));
+            uint32_t sk2 = (get_weapon_skill(enweap->Skill(prhash(u8"WeaponType"))));
+            if (body->HasSkill(sk1) && body->HasSkill(sk2)) {
+              diff = myweap->Skill(prhash(u8"WeaponForce"));
+              diff -= enweap->Skill(prhash(u8"WeaponForce"));
+              if (diff < -5) {
+                mind->Send(CRED u8"   ...has a far more effective weapon than yours.\n" CNRM);
+              } else if (diff < -2) {
+                mind->Send(CRED u8"   ...has a much more effective weapon than yours.\n" CNRM);
+              } else if (diff < -1) {
+                mind->Send(CYEL u8"   ...has a more effective weapon than yours.\n" CNRM);
+              } else if (diff < 0) {
+                mind->Send(CYEL u8"   ...has a bit more effective weapon than yours.\n" CNRM);
+              } else if (diff > 5) {
+                mind->Send(CGRN u8"   ...has a far less effective weapon than yours.\n" CNRM);
+              } else if (diff > 2) {
+                mind->Send(CGRN u8"   ...has a much less effective weapon than yours.\n" CNRM);
+              } else if (diff > 1) {
+                mind->Send(CGRN u8"   ...has a less effective weapon than yours.\n" CNRM);
+              } else if (diff > 0) {
+                mind->Send(CGRN u8"   ...has a bit less effective weapon than yours.\n" CNRM);
+              } else {
+                mind->Send(u8"   ...has a weapon about as effective as yours.\n");
+              }
+
+              diff = myweap->Skill(prhash(u8"WeaponSeverity"));
+              diff -= enweap->Skill(prhash(u8"WeaponSeverity"));
+              if (diff < -2) {
+                mind->Send(CRED u8"   ...has a far more damaging weapon than yours.\n" CNRM);
+              } else if (diff < -1) {
+                mind->Send(CRED u8"   ...has a much more damaging weapon than yours.\n" CNRM);
+              } else if (diff < 0) {
+                mind->Send(CYEL u8"   ...has a more damaging weapon than yours.\n" CNRM);
+              } else if (diff > 2) {
+                mind->Send(CGRN u8"   ...has a far less damaging weapon than yours.\n" CNRM);
+              } else if (diff > 1) {
+                mind->Send(CGRN u8"   ...has a much less damaging weapon than yours.\n" CNRM);
+              } else if (diff > 0) {
+                mind->Send(CGRN u8"   ...has a less damaging weapon than yours.\n" CNRM);
+              } else {
+                mind->Send(u8"   ...has a weapon about as damaging as yours.\n");
+              }
+            } else if (!body->HasSkill(sk2)) {
+              mind->Send(CYEL u8"   ...has a weapon you are not familiar with.\n" CNRM);
+            } else {
+              mind->Send(CYEL u8"   ...has a weapon you familiar with, unlike your own.\n" CNRM);
+            }
+          }
         }
 
         if ((!targ->ActTarg(act_t::WEAR_SHIELD)) && (!body->ActTarg(act_t::WEAR_SHIELD))) {
