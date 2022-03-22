@@ -42,20 +42,20 @@
 //
 // *************************************************************************
 
-#include <cassert>
-#include <cstdint>
-
 #ifndef MINVEC_HPP
 #define MINVEC_HPP
 
-constexpr uint32_t smear_bits_right(uint32_t val) {
-  uint32_t ret = (val >> 1);
+#include <cassert>
+#include <cstdint>
+
+constexpr auto smear_bits_right(uint32_t val) -> uint32_t {
+  uint32_t ret = (val >> 1U);
   if (ret != 0) {
     ret |= smear_bits_right(ret);
   }
   return ret | val;
 }
-constexpr uint32_t next_pow_2(uint32_t val) {
+constexpr auto next_pow_2(uint32_t val) -> uint32_t {
   return smear_bits_right(val) + 1;
 };
 static_assert(next_pow_2(0U) == 1U);
@@ -76,9 +76,7 @@ class alignas(next_pow_2(C * 8)) MinVec {
   using const_iterator = T const*;
 
   MinVec() = default;
-  MinVec(const MinVec& in) {
-    cap_ = in.cap_;
-    size_ = in.size_;
+  MinVec(const MinVec& in) : cap_(in.cap_), size_(in.size_) {
     if (cap_ == 0) {
       data_ = in.data_;
     } else {
@@ -88,10 +86,8 @@ class alignas(next_pow_2(C * 8)) MinVec {
       }
     }
   };
-  MinVec(MinVec&& in) noexcept(noexcept(data_ = in.data_)) {
-    cap_ = in.cap_;
-    size_ = in.size_;
-    data_ = in.data_;
+  MinVec(MinVec&& in) noexcept(noexcept(data_ = in.data_))
+      : data_(in.data_), cap_(in.cap_), size_(in.size_) {
     in.cap_ = 0;
     in.size_ = 0;
   };
@@ -122,7 +118,7 @@ class alignas(next_pow_2(C * 8)) MinVec {
     in.size_ = 0;
   };
 
-  bool operator==(const MinVec& in) const {
+  auto operator==(const MinVec& in) const -> bool {
     if (size_ != in.size_) {
       return false;
     }
@@ -163,7 +159,7 @@ class alignas(next_pow_2(C * 8)) MinVec {
     }
   };
 
-  T& operator[](int idx) {
+  auto operator[](int idx) -> T& {
     if (cap_ == 0) {
       return data_.val[idx];
     } else {
@@ -171,13 +167,13 @@ class alignas(next_pow_2(C * 8)) MinVec {
     }
   };
 
-  bool empty() const {
+  [[nodiscard]] auto empty() const -> bool {
     return size_ == 0;
   };
-  std::size_t size() const {
+  [[nodiscard]] auto size() const -> std::size_t {
     return size_;
   };
-  std::size_t capacity() const {
+  [[nodiscard]] auto capacity() const -> std::size_t {
     if (cap_ == 0) {
       return C;
     } else {
@@ -278,28 +274,28 @@ class alignas(next_pow_2(C * 8)) MinVec {
     ++size_;
   };
 
-  T& front() {
+  [[nodiscard]] auto front() -> T& {
     if (cap_ == 0) {
       return data_.val[0];
     } else {
       return data_.arr[0];
     }
   };
-  T const& front() const {
+  [[nodiscard]] auto front() const -> T const& {
     if (cap_ == 0) {
       return data_.val[0];
     } else {
       return data_.arr[0];
     }
   };
-  T& back() {
+  [[nodiscard]] auto back() -> T& {
     if (cap_ == 0) {
       return data_.val[size_ - 1];
     } else {
       return data_.arr[size_ - 1];
     }
   };
-  T const& back() const {
+  [[nodiscard]] auto back() const -> T const& {
     if (cap_ == 0) {
       return data_.val[size_ - 1];
     } else {
@@ -307,42 +303,42 @@ class alignas(next_pow_2(C * 8)) MinVec {
     }
   };
 
-  T* begin() {
+  [[nodiscard]] auto begin() -> T* {
     if (cap_ == 0) {
       return data_.val;
     } else {
       return data_.arr;
     }
   };
-  T const* begin() const {
+  [[nodiscard]] auto begin() const -> T const* {
     if (cap_ == 0) {
       return data_.val;
     } else {
       return data_.arr;
     }
   };
-  T const* cbegin() const {
+  [[nodiscard]] auto cbegin() const -> T const* {
     if (cap_ == 0) {
       return data_.val;
     } else {
       return data_.arr;
     }
   };
-  T* end() {
+  [[nodiscard]] auto end() -> T* {
     if (cap_ == 0) {
       return data_.val + size_;
     } else {
       return data_.arr + size_;
     }
   };
-  T const* end() const {
+  [[nodiscard]] auto end() const -> T const* {
     if (cap_ == 0) {
       return data_.val + size_;
     } else {
       return data_.arr + size_;
     }
   };
-  T const* cend() const {
+  [[nodiscard]] auto cend() const -> T const* {
     if (cap_ == 0) {
       return data_.val + size_;
     } else {
