@@ -80,6 +80,15 @@ Object* Object::TrashBin() {
   return trash_bin;
 }
 
+const Object* Object::World() const {
+  const Object* world = this;
+  if (world->Parent()) {
+    while (world->Parent()->Parent())
+      world = world->Parent();
+  }
+  return world;
+}
+
 Object* Object::World() {
   Object* world = this;
   if (world->Parent()) {
@@ -87,6 +96,17 @@ Object* Object::World() {
       world = world->Parent();
   }
   return world;
+}
+
+const Object* Object::Zone() const {
+  const Object* zone = this;
+  if (zone->Parent()) {
+    if (zone->Parent()->Parent()) {
+      while (zone->Parent()->Parent()->Parent())
+        zone = zone->Parent();
+    }
+  }
+  return zone;
 }
 
 Object* Object::Zone() {
@@ -98,6 +118,19 @@ Object* Object::Zone() {
     }
   }
   return zone;
+}
+
+const Object* Object::Room() const {
+  const Object* room = this;
+  if (room->Parent()) {
+    if (room->Parent()->Parent()) {
+      if (room->Parent()->Parent()->Parent()) {
+        while (room->Parent()->Parent()->Parent()->Parent())
+          room = room->Parent();
+      }
+    }
+  }
+  return room;
 }
 
 Object* Object::Room() {

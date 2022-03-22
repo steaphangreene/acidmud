@@ -189,8 +189,11 @@ class alignas(256) Object {
 
   static Object* Universe();
   static Object* TrashBin();
+  const Object* Room() const;
   Object* Room();
+  const Object* World() const;
   Object* World();
+  const Object* Zone() const;
   Object* Zone();
 
   Object* Next(std::u8string&);
