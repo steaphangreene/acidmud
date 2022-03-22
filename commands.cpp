@@ -6765,6 +6765,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
 
       body->World()->LoadTagsFrom( // Load the special tags for this scenario into this world.
           u8"tag:npc:dungeon_cage_key\n"
+          u8"type:none\n"
           u8"itag:dungeon_cage_key\n"
           u8"tag:item:dungeon_cage_key\n"
           u8"short:a key\n"

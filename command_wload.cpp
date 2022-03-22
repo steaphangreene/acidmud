@@ -86,6 +86,7 @@ static ObjectTag make_key(Object* world, const std::u8string_view& keyname, int3
   }
   return ObjectTag(fmt::format(
       u8"has_key_{0}\n"
+      u8"type:none\n"
       u8"itag:key_{0}\n",
       keynum));
 }
