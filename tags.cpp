@@ -231,12 +231,19 @@ void ObjectTag::operator+=(const ObjectTag& in) {
   min_gold_ += in.min_gold_;
   max_gold_ += in.max_gold_;
 
-  tags_.insert(tags_.end(), in.tags_.begin(), in.tags_.end());
+  if (type_ == tag_t::NONE) {
+    tags_.clear();
+  }
+  if (in.type_ != tag_t::NONE) {
+    tags_.insert(tags_.end(), in.tags_.begin(), in.tags_.end());
+  }
   dtags_.insert(dtags_.end(), in.dtags_.begin(), in.dtags_.end());
   ntags_.insert(ntags_.end(), in.ntags_.begin(), in.ntags_.end());
   wtags_.insert(wtags_.end(), in.wtags_.begin(), in.wtags_.end());
   atags_.insert(atags_.end(), in.atags_.begin(), in.atags_.end());
   itags_.insert(itags_.end(), in.itags_.begin(), in.itags_.end());
+
+  type_ = std::max(type_, in.type_);
 
   wmin_.reach += in.wmin_.reach;
   wmax_.reach += in.wmax_.reach;
@@ -303,7 +310,9 @@ bool ObjectTag::LoadFrom(std::u8string_view& def) {
     } else if (process(line, u8"type:")) {
       std::u8string typestr(getuntil(line, '\n'));
       std::transform(typestr.begin(), typestr.end(), typestr.begin(), ascii_toupper);
-      if (typestr == u8"OPINION") {
+      if (typestr == u8"NONE") {
+        type_ = tag_t::NONE;
+      } else if (typestr == u8"OPINION") {
         type_ = tag_t::OPINION;
       } else if (typestr == u8"SIZE") {
         type_ = tag_t::SIZE;
@@ -388,6 +397,9 @@ bool ObjectTag::LoadFrom(std::u8string_view& def) {
       loger(u8"ERROR: bad item tag file entry: '{}'\n", line);
       return false;
     }
+  }
+  if (type_ == tag_t::NONE) {
+    tags_.clear();
   }
   return true;
 }
@@ -518,6 +530,7 @@ std::u8string get_tags_string(Object* world, const MinVec<1, uint64_t>& tags) {
 
 static ObjectTag base_npc(
     u8"npc\n"
+    u8"type:none\n"
     u8"genders:FM\n"
     u8"b:1-7\n"
     u8"q:1-7\n"
@@ -526,7 +539,9 @@ static ObjectTag base_npc(
     u8"i:1-7\n"
     u8"w:1-7\n");
 
-static ObjectTag base_room(u8"room\n");
+static ObjectTag base_room(
+    u8"room\n"
+    u8"type:none\n");
 
 ObjectTag Object::BuildNPC(const std::u8string_view& tagstr) {
   if (!World()->LoadTags()) {

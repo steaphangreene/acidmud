@@ -30,6 +30,7 @@
 
 // Yes, this is the order of (descriptive) adjectives in English
 enum class tag_t {
+  NONE, // Tag name will not be preserved in target's tags list.
   OPINION, // Pretty, Ugly, Smart, Dumb, etc.
   SIZE, // Big, Little, Heavy, Light, etc.
   QUALITY, // Thin, Rough, Sharp, Dull, etc.
