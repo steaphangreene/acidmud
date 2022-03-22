@@ -572,6 +572,8 @@ long:A simple pack for holding items.  This can be quickly thrown over one shoul
 wear:RSHOULDER
 wear:LSHOULDER
 
+tag:room:room
+
 tag:room:kiln
 dtag:kiln
 ntag:collier
@@ -624,11 +626,13 @@ tag:room:foundry
 ntag:metalworker
 
 tag:room:food
+type:purpose
 
 tag:room:large
 type:size
 
 tag:room:meals
+type:purpose
 
 tag:room:good
 type:quality
