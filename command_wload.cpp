@@ -851,42 +851,38 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
 
           // Now find them a home.
           Object* housed = nullptr;
-          uint32_t rng = ascii_map[0].size() + ascii_map.size();
-          for (uint32_t d = 0; !housed && d < rng; ++d) { // Commute Distance, Limited by Map Size
-            for (uint32_t s = 0; !housed && s < std::max(1U, d * 4); ++s) { // Num Samples To Check
-              uint32_t loc_x = x - d + ((s <= (d * 2)) ? s : (d * 4) - s);
-              uint32_t t = (d == 0) ? 0 : (s + d) % (d * 4);
-              uint32_t loc_y = y - d + ((t <= (d * 2)) ? t : (d * 4) - t);
-              if (loc_x < ascii_map[0].size() && loc_y < ascii_map.size()) { // >= 0 is implied
-                auto loc = coord{loc_x, loc_y};
-                char8_t type = ascii_map[loc_y][loc_x];
-                if (restags.count(type) > 0) {
-                  for (size_t f = 0; !housed && f < restags.at(type).size(); ++f) {
-                    if (tag_superset(npcdef, restags.at(type)[f])) {
-                      int resfl = resfloors.at(type)[f];
-                      if (beds.at(std::make_pair(objs[loc][resfl], restags.at(type)[f])) > 0) {
-                        --beds.at(std::make_pair(objs[loc][resfl], restags.at(type)[f]));
-                        housed = objs[loc][resfl];
 
-                        // Grant them all keys needed for their new home
-                        if (loc_keys.count(objs[loc][resfl]) > 0) {
-                          for (auto keydef : loc_keys[objs[loc][resfl]]) {
-                            if (!npc_has_key.contains(keydef.second)) {
-                              npc_has_key.insert(keydef.second);
-                              npcdef += make_key(world, keynames[keydef.first], keydef.second);
-                            }
-                          }
-                        }
-                        if (resfl != 0 && loc_keys.count(objs[loc][0]) > 0) {
-                          for (auto keydef : loc_keys[objs[loc][0]]) {
-                            if (!npc_has_key.contains(keydef.second)) {
-                              npc_has_key.insert(keydef.second);
-                              npcdef += make_key(world, keynames[keydef.first], keydef.second);
-                            }
-                          }
-                        }
-                      }
-                    }
+          // Get a list of all places which can house them.
+          std::vector<decltype(beds)::key_type> places;
+          places.reserve(beds.size() + 1);
+          for (const auto& bed : beds) {
+            if (tag_superset(npcdef, bed.first.second)) {
+              places.emplace_back(bed.first);
+            }
+          }
+          if (places.size() > 0) { // FIXME: This just selects one randomly, do better.
+            std::sample(places.begin(), places.end(), places.end(), 1, gen);
+            housed = places.back().first;
+            --beds.at(places.back());
+
+            // Grant them all keys needed for their new home
+            if (loc_keys.count(housed) > 0) {
+              for (auto keydef : loc_keys[housed]) {
+                if (!npc_has_key.contains(keydef.second)) {
+                  npc_has_key.insert(keydef.second);
+                  npcdef += make_key(world, keynames[keydef.first], keydef.second);
+                }
+              }
+            }
+            if (housed->Z() != 0) { // Ground Floor Key Too
+              uint32_t loc_x = housed->X();
+              uint32_t loc_y = housed->Y();
+              auto loc = coord{loc_x, loc_y};
+              if (loc_keys.count(objs[loc][0]) > 0) {
+                for (auto keydef : loc_keys[objs[loc][0]]) {
+                  if (!npc_has_key.contains(keydef.second)) {
+                    npc_has_key.insert(keydef.second);
+                    npcdef += make_key(world, keynames[keydef.first], keydef.second);
                   }
                 }
               }
@@ -905,7 +901,12 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
           }
 
           if (!housed) {
-            logey(u8"Warning: Homeless NPC in {}: {}\n", zone->ShortDesc(), emptags[room][n]);
+            logey(
+                u8"Warning: Homeless NPC in {}/{}: {} [{}]\n",
+                zone->ShortDesc(),
+                npc->Room()->ShortDesc(),
+                npc->ShortDesc(),
+                emptags[room][n]);
             ++homeless;
           }
         }
