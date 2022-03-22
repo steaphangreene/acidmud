@@ -816,6 +816,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
         for (int m = 0; m < num; ++m) {
           // Build the definition of this NPC
           ObjectTag npcdef = objs[coord{x, y}][floor]->BuildNPC(emptags[room][n]);
+          Object* employed = objs[coord{x, y}][floor];
 
           std::set<int32_t> npc_has_key;
 
@@ -857,7 +858,10 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
           places.reserve(beds.size() + 1);
           for (const auto& bed : beds) {
             if (tag_superset(npcdef, bed.first.second)) {
-              places.emplace_back(bed.first);
+              if (employed->ManhattanDistance(bed.first.first) < 25) { // Max commute distance.
+                // TODO: Different NPCs have different commute distance preferences.
+                places.emplace_back(bed.first);
+              }
             }
           }
           if (places.size() > 0) { // FIXME: This just selects one randomly, do better.
@@ -890,7 +894,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
           }
           // Now, create the actual NPC.
           Object* npc = objs[coord{x, y}][floor]->MakeNPC(gen, npcdef);
-          npc->AddAct(act_t::SPECIAL_WORK, objs[coord{x, y}][floor]);
+          npc->AddAct(act_t::SPECIAL_WORK, employed);
           npc->AddAct(act_t::SPECIAL_HOME, housed);
 
           int timeliness = std::uniform_int_distribution<int>(-5, 20)(gen);
