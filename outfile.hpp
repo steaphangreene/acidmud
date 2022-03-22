@@ -32,6 +32,10 @@
 class outfile {
  public:
   outfile() = delete;
+  outfile(const outfile&) = delete;
+  outfile(outfile&&) = delete;
+  void operator=(const outfile&) = delete;
+  void operator=(outfile&&) = delete;
   explicit outfile(const std::u8string_view& filename);
   operator bool() const;
   void append(const std::u8string_view& mes);

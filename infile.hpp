@@ -28,10 +28,14 @@
 class infile : public std::basic_string_view<char8_t> {
  public:
   infile() = delete;
+  infile(const infile&) = delete;
+  infile(infile&&) = delete;
+  void operator=(const infile&) = delete;
+  void operator=(infile&&) = delete;
   explicit infile(const std::filesystem::directory_entry& filesystem_entry);
   explicit infile(const std::u8string_view& filename);
   operator bool() const;
-  std::u8string_view all() const;
+  auto all() const -> std::u8string_view;
   ~infile();
 
  private:
