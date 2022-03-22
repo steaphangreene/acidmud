@@ -95,6 +95,7 @@ class ObjectTag {
   std::vector<ObjectTag> weapons_;
   std::vector<ObjectTag> armor_;
   std::vector<ObjectTag> items_;
+  std::vector<ObjectTag> decors_;
 
   std::vector<uint32_t> tags_;
   std::vector<uint32_t> dtags_;

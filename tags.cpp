@@ -193,8 +193,10 @@ static std::vector<ObjectTag> finalize_tags(
   }
 
   // Apply List of Adjectives To Each Noun
-  for (auto& noun : ret) {
-    noun += adjectives.front();
+  if (adjectives.size() > 0) {
+    for (auto& noun : ret) {
+      noun += adjectives.front();
+    }
   }
 
   // Profit
@@ -523,6 +525,8 @@ static ObjectTag base_npc(
     u8"i:1-7\n"
     u8"w:1-7\n");
 
+static ObjectTag base_room(u8"room\n");
+
 ObjectTag Object::BuildNPC(const std::u8string_view& tagstr) {
   if (!World()->LoadTags()) {
     loger(u8"ERROR: Asked to load NPC in a world with no tags defined.\n");
@@ -564,10 +568,12 @@ ObjectTag Object::BuildNPC(const std::u8string_view& tagstr) {
       end = std::find(start, tagstr.cend(), ',');
     }
   }
+
   ObjectTag npcdef = base_npc;
   auto npcdefs = finalize_tags(1, tags, npctagdefs.at(World()));
-  npcdef += npcdefs.front();
-
+  if (npcdefs.size() > 0) {
+    npcdef += npcdefs.front();
+  }
   return npcdef;
 }
 
@@ -588,6 +594,53 @@ Object* Object::MakeNPC(std::mt19937& gen, const ObjectTag& npcdef_in) {
 
 Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tagstr) {
   return MakeNPC(gen, BuildNPC(tagstr));
+}
+
+ObjectTag Object::BuildRoom(const std::u8string_view& tagstr) {
+  if (!World()->LoadTags()) {
+    loger(u8"ERROR: Asked to load Room in a world with no tags defined.\n");
+  }
+
+  std::vector<uint32_t> tags;
+  auto start = tagstr.cbegin();
+  auto end = std::find(start, tagstr.cend(), ',');
+  while (start != tagstr.cend()) {
+    std::u8string rtag(tagstr.substr(start - tagstr.cbegin(), end - start));
+    if (roomtagdefs.at(World()).contains(crc32c(rtag))) {
+      tags.push_back(crc32c(rtag));
+    } else {
+      loger(u8"ERROR: Use of undefined Room tag: '{}'.  Skipping.\n", rtag);
+    }
+    start = end;
+    if (start != tagstr.cend()) {
+      ++start;
+      end = std::find(start, tagstr.cend(), ',');
+    }
+  }
+
+  ObjectTag roomdef = base_room;
+  auto roomdefs = finalize_tags(1, tags, roomtagdefs.at(World()));
+  if (roomdefs.size() > 0) {
+    roomdef += roomdefs.front();
+  }
+  return roomdef;
+}
+
+Object* Object::MakeRoom(std::mt19937& gen, const ObjectTag& roomdef_in) {
+  ObjectTag roomdef = roomdef_in;
+
+  roomdef.decors_ = finalize_tags(1, roomdef.dtags_, decortagdefs.at(World()));
+
+  Object* room = new Object(this);
+  for (auto t : roomdef.tags_) {
+    room->AddTag(t);
+  }
+  room->GenerateRoom(roomdef, gen);
+  return room;
+}
+
+Object* Object::AddRoom(std::mt19937& gen, const std::u8string_view& tagstr) {
+  return MakeRoom(gen, BuildRoom(tagstr));
 }
 
 void Object::SetTags(const std::u8string_view& tags_in) {
@@ -619,4 +672,41 @@ bool Object::HasTag(uint64_t tag) const {
     }
   }
   return false;
+}
+
+static int rint1(auto& gen, int min, int max) { // Flat
+  return std::uniform_int_distribution<int>(min, max)(gen);
+}
+
+static int rint3(auto& gen, int min, int max) { // Bell-Curve-Ish
+  auto rando = std::uniform_int_distribution<int>(min, max);
+  return (rando(gen) + rando(gen) + rando(gen) + 2) / 3;
+}
+
+void Object::GenerateRoom(const ObjectTag& type, std::mt19937& gen) {
+  for (auto sk : type.props_) {
+    SetSkill(sk.first, sk.second);
+  }
+
+  SetShortDesc(type.short_desc_);
+  SetDesc(type.desc_);
+  SetLongDesc(type.long_desc_);
+
+  for (auto dc : type.decors_) {
+    Object* obj = new Object(this);
+    for (auto sk : dc.props_) {
+      obj->SetSkill(sk.first, sk.second);
+    }
+    obj->SetShortDesc(dc.short_desc_);
+    obj->SetDesc(dc.desc_);
+    obj->SetLongDesc(dc.long_desc_);
+    obj->SetWeight(rint3(gen, dc.omin_.weight, dc.omax_.weight));
+    obj->SetSize(rint3(gen, dc.omin_.size, dc.omax_.size));
+    obj->SetVolume(rint3(gen, dc.omin_.volume, dc.omax_.volume));
+    obj->SetValue(rint3(gen, dc.omin_.value, dc.omax_.value));
+
+    for (auto t : dc.tags_) {
+      obj->AddTag(t);
+    }
+  }
 }

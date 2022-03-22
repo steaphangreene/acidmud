@@ -36,12 +36,16 @@
 static std::random_device rd;
 static std::mt19937 gen(rd());
 
+static Object* add_oid(Object* obj) {
+  auto obj_id = obj->World()->Skill(prhash(u8"Last Object ID")) + 1;
+  obj->World()->SetSkill(prhash(u8"Last Object ID"), obj_id);
+  obj->SetSkill(prhash(u8"Object ID"), obj_id);
+  return obj;
+}
+
 static Object* new_object(Object* parent) {
-  Object* body = new Object(parent);
-  auto obj_id = body->World()->Skill(prhash(u8"Last Object ID")) + 1;
-  body->World()->SetSkill(prhash(u8"Last Object ID"), obj_id);
-  body->SetSkill(prhash(u8"Object ID"), obj_id);
-  return body;
+  Object* obj = add_oid(new Object(parent));
+  return obj;
 }
 std::multimap<std::u8string, std::pair<std::u8string, Object*>> zone_links;
 
@@ -432,8 +436,23 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
         if (num_floors < 1) {
           num_floors = 1;
         }
+
+        std::u8string roomname = rooms[room].front();
+        std::u8string roomtag = roomtags[room].front();
+        if (rooms[room].size() > 1) { // FIXME: Same number means one of each.
+          std::vector<std::u8string> out = {u8""};
+          if (inorder[room]) {
+            std::rotate(rooms[room].begin(), rooms[room].begin() + 1, rooms[room].end());
+            std::rotate(roomtags[room].begin(), roomtags[room].begin() + 1, roomtags[room].end());
+          } else {
+            int idx = std::uniform_int_distribution<int>(0, rooms[room].size() - 1)(gen);
+            roomname = rooms[room].at(idx);
+            roomtag = roomtags[room].at(idx);
+          }
+        }
+
         for (int f = 0; f < num_floors; ++f) {
-          objs[coord{x, y}].push_back(new_object(zone));
+          objs[coord{x, y}].push_back(add_oid(zone->AddRoom(gen, roomtag)));
           if (levels.count(room) > 0) {
             objs[coord{x, y}].back()->SetCoords(x, y, levels.at(room) + f);
           } else {
@@ -452,19 +471,6 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
             world->AddAct(act_t::SPECIAL_HOME, objs[coord{x, y}].back());
           }
         }
-        std::u8string roomname = rooms[room].front();
-        std::u8string roomtag = roomtags[room].front();
-        if (rooms[room].size() > 1) { // FIXME: Same number means one of each.
-          std::vector<std::u8string> out = {u8""};
-          if (inorder[room]) {
-            std::rotate(rooms[room].begin(), rooms[room].begin() + 1, rooms[room].end());
-            std::rotate(roomtags[room].begin(), roomtags[room].begin() + 1, roomtags[room].end());
-          } else {
-            int idx = std::uniform_int_distribution<int>(0, rooms[room].size() - 1)(gen);
-            roomname = rooms[room].at(idx);
-            roomtag = roomtags[room].at(idx);
-          }
-        }
         if (objs[coord{x, y}].size() > 1) {
           for (uint32_t f = 0; f < objs[coord{x, y}].size(); ++f) {
             objs[coord{x, y}][f]->SetShortDesc(floornames[f] + roomname);
@@ -472,7 +478,6 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
                 u8"This is a building in {0}, on {1}.  {0} is nice.",
                 zone->ShortDesc(),
                 world->ShortDesc()));
-            objs[coord{x, y}].back()->SetTags(roomtag);
             if (f > 0) {
               std::u8string_view stairname = u8"a stairway";
               if (stairnames.contains(room)) {
@@ -510,7 +515,6 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
           objs[coord{x, y}].back()->SetShortDesc(roomname);
           objs[coord{x, y}].back()->SetDesc(fmt::format(
               u8"This is {0}, on {1}.  {0} is nice.", zone->ShortDesc(), world->ShortDesc()));
-          objs[coord{x, y}].back()->SetTags(roomtag);
         }
 
         // Load data for housing capacities for these new objects
@@ -530,7 +534,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
           num_floors = 1;
         }
         for (int f = 0; f < num_floors; ++f) {
-          objs[coord{x, y}].push_back(new_object(zone));
+          objs[coord{x, y}].push_back(add_oid(zone->AddRoom(gen, u8"")));
           objs[coord{x, y}].back()->SetCoords(x, y);
           if (indoors[room]) {
             objs[coord{x, y}].back()->SetSkill(prhash(u8"Translucent"), 200);
@@ -587,7 +591,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
 
         Object* entrance;
         if (!linked) { // No object yet, so make one.
-          entrance = new_object(zone);
+          entrance = add_oid(zone->AddRoom(gen, u8""));
           entrance->SetShortDesc(u8"a generic zone entrance");
           objs[coord{x, y}].push_back(entrance);
           objs[coord{x, y}].back()->SetCoords(x, y);

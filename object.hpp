@@ -643,6 +643,11 @@ class alignas(256) Object {
   ObjectTag BuildNPC(const std::u8string_view& tags);
   Object* MakeNPC(std::mt19937&, const ObjectTag& npcdef);
   Object* AddNPC(std::mt19937&, const std::u8string_view& tags);
+
+  ObjectTag BuildRoom(const std::u8string_view& tags);
+  Object* MakeRoom(std::mt19937&, const ObjectTag& roomdef);
+  Object* AddRoom(std::mt19937&, const std::u8string_view& tags);
+
   bool LoadTagsFrom(const std::u8string_view& tagdefs, bool save = true);
   bool LoadTags();
 
@@ -650,6 +655,7 @@ class alignas(256) Object {
 
  private:
   void GenerateNPC(const ObjectTag&, std::mt19937&);
+  void GenerateRoom(const ObjectTag&, std::mt19937&);
 
   void NotifyLeft(Object* obj, Object* newloc = nullptr);
 
