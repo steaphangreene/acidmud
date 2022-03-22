@@ -565,74 +565,96 @@ int Object::Tick() {
   if (NormAttribute(2) > 0 // Needs Food & Water
       && (HasSkill(prhash(u8"Object ID"))) // Active PC/NPC
   ) {
-    int level;
+    int level, oldlevel;
 
     // Get Hungrier
-    level = Skill(prhash(u8"Hungry"));
-    if (level < 1)
+    oldlevel = Skill(prhash(u8"Hungry"));
+    level = oldlevel;
+    if (level < 1) {
       level = ModAttribute(2);
-    else
+    } else {
       level += ModAttribute(2); // Base Strength Scales Food Req
-    if (level > 2999999)
+    }
+    if (level > 2999999) {
       level = 2999999;
+    }
     SetSkill(prhash(u8"Hungry"), level);
 
-    if (level == 50000)
-      Send(ALL, -1, u8"You could use a snack.\n");
-    else if (level == 100000)
-      Send(ALL, -1, u8"You officially have the munchies.\n");
-    else if (level == 150000)
-      Send(ALL, -1, u8"You really could go for a snack.\n");
-    else if (level == 200000)
-      Send(ALL, -1, u8"You are getting hungry.\n");
-    else if (level == 250000)
-      Send(ALL, -1, u8"You are getting very hungry.\n");
-    else if (level == 300000)
-      Send(ALL, -1, u8"You are really quite hungry.\n");
-    else if (level == 350000)
-      Send(ALL, -1, u8"You are really dying for food.\n");
-    else if (level == 400000)
-      Send(ALL, -1, u8"You need to get some food soon!\n");
-    else if (level == 450000)
-      Send(ALL, -1, u8"You are starting to starve!\n");
-    else if (level >= 500000) {
-      if (level % 10 == 0) {
-        Send(ALL, -1, u8"You are starving!\n");
+    oldlevel /= 50000;
+    level /= 50000;
+
+    if (level != oldlevel) {
+      if (level == 1) {
+        Send(ALL, -1, u8"You could use a snack.\n");
+      } else if (level == 2) {
+        Send(ALL, -1, u8"You officially have the munchies.\n");
+      } else if (level == 3) {
+        Send(ALL, -1, u8"You really could go for a snack.\n");
+      } else if (level == 4) {
+        Send(ALL, -1, u8"You are getting hungry.\n");
+      } else if (level == 5) {
+        Send(ALL, -1, CYEL u8"You are getting very hungry.\n" CNRM);
+      } else if (level == 6) {
+        Send(ALL, -1, CYEL u8"You are really quite hungry.\n" CNRM);
+      } else if (level == 7) {
+        Send(ALL, -1, CYEL u8"You are really dying for food.\n" CNRM);
+      } else if (level == 8) {
+        Send(ALL, -1, CYEL u8"You need to get some food soon!\n" CNRM);
+      } else if (level == 9) {
+        Send(ALL, -1, CRED u8"You are starting to starve!\n" CNRM);
+      } else if (level >= 10) {
+        Send(ALL, -1, CRED u8"You are starving!\n" CNRM);
+      }
+    }
+    if (level >= 10) {
+      if (Skill(prhash(u8"Hungry")) % 100 < ModAttribute(2)) {
+        Send(ALL, -1, CRED u8"You are starving!\n" CNRM);
       }
       UpdateDamage();
     }
 
-    // Get Thurstier
-    level = Skill(prhash(u8"Thirsty"));
-    if (level < 1)
+    // Get Thirstier
+    oldlevel = Skill(prhash(u8"Thirsty"));
+    level = oldlevel;
+    if (level < 1) {
       level = ModAttribute(0);
-    else
+    } else {
       level += ModAttribute(0); // Body Scales Water Req
-    if (level > 299999)
+    }
+    if (level > 299999) {
       level = 299999;
+    }
     SetSkill(prhash(u8"Thirsty"), level);
 
-    if (level == 5000)
-      Send(ALL, -1, u8"You could use a drink.\n");
-    else if (level == 10000)
-      Send(ALL, -1, u8"Your mouth is getting dry.\n");
-    else if (level == 15000)
-      Send(ALL, -1, u8"You really could go for a drink.\n");
-    else if (level == 20000)
-      Send(ALL, -1, u8"You are getting thirsty.\n");
-    else if (level == 25000)
-      Send(ALL, -1, u8"You are getting very thirsty.\n");
-    else if (level == 30000)
-      Send(ALL, -1, u8"You are really quite thirsty.\n");
-    else if (level == 35000)
-      Send(ALL, -1, u8"You are really dying for water.\n");
-    else if (level == 40000)
-      Send(ALL, -1, u8"You need to get some water soon!\n");
-    else if (level == 45000)
-      Send(ALL, -1, u8"You are starting to dehydrate!\n");
-    else if (level >= 50000) {
-      if (level % 10 == 0) {
-        Send(ALL, -1, u8"You are dehydrated!\n");
+    oldlevel /= 5000;
+    level /= 5000;
+
+    if (level != oldlevel) {
+      if (level == 1) {
+        Send(ALL, -1, u8"You could use a drink.\n");
+      } else if (level == 2) {
+        Send(ALL, -1, u8"Your mouth is getting dry.\n");
+      } else if (level == 3) {
+        Send(ALL, -1, u8"You really could go for a drink.\n");
+      } else if (level == 4) {
+        Send(ALL, -1, u8"You are getting thirsty.\n");
+      } else if (level == 5) {
+        Send(ALL, -1, CYEL u8"You are getting very thirsty.\n" CNRM);
+      } else if (level == 6) {
+        Send(ALL, -1, CYEL u8"You are really quite thirsty.\n" CNRM);
+      } else if (level == 7) {
+        Send(ALL, -1, CYEL u8"You are really dying for water.\n" CNRM);
+      } else if (level == 8) {
+        Send(ALL, -1, CYEL u8"You need to get some water soon!\n" CNRM);
+      } else if (level == 9) {
+        Send(ALL, -1, CRED u8"You are starting to dehydrate!\n" CNRM);
+      } else if (level >= 10) {
+        Send(ALL, -1, CRED u8"You are dehydrated!\n" CNRM);
+      }
+    }
+    if (level >= 10) {
+      if (Skill(prhash(u8"Thirsty")) % 100 < ModAttribute(0)) {
+        Send(ALL, -1, CRED u8"You are dehydrated!\n" CNRM);
       }
       UpdateDamage();
     }
