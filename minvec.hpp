@@ -47,6 +47,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <utility>
 
 constexpr auto smear_bits_right(uint32_t val) -> uint32_t {
   uint32_t ret = (val >> 1U);
@@ -86,13 +87,16 @@ class alignas(next_pow_2(C * 8)) MinVec {
       }
     }
   };
-  MinVec(MinVec&& in) noexcept(noexcept(data_ = in.data_))
-      : data_(in.data_), cap_(in.cap_), size_(in.size_) {
+  MinVec(MinVec&& in) noexcept(noexcept(data_ = std::move(in.data_)))
+      : data_(std::move(in.data_)), cap_(in.cap_), size_(in.size_) {
     in.cap_ = 0;
     in.size_ = 0;
   };
 
   void operator=(const MinVec& in) {
+    if (this == &in) {
+      return; // Self-assign
+    }
     if (cap_ != 0) {
       delete[] data_.arr;
     }
@@ -107,13 +111,16 @@ class alignas(next_pow_2(C * 8)) MinVec {
       }
     }
   };
-  void operator=(MinVec&& in) {
+  void operator=(MinVec&& in) noexcept(noexcept(data_ = std::move(in.data_))) {
+    if (this == &in) {
+      return; // Self-assign
+    }
     if (cap_ != 0) {
       delete[] data_.arr;
     }
     cap_ = in.cap_;
     size_ = in.size_;
-    data_ = in.data_;
+    data_ = std::move(in.data_);
     in.cap_ = 0;
     in.size_ = 0;
   };
