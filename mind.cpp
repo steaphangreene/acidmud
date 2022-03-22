@@ -595,6 +595,35 @@ void Mind::UpdatePrompt() {
 bool Mind::Send(const std::u8string_view& mes) {
   if (type == mind_t::REMOTE) {
     SendOut(pers, mes);
+  } else if (type == mind_t::NPC) {
+    if (body->HasTag(crc32c(u8"guard")) && !body->IsAct(act_t::SLEEP)) {
+      if (mes.starts_with(u8"From ") && mes.contains(u8" you hear someone shout '") &&
+          (mes.contains(u8"HELP") || mes.contains(u8"ALARM") || mes.contains(u8"TO ARMS") ||
+           mes.contains(u8"GUARDS") || mes.contains(u8"AAAAAAAA"))) {
+        std::u8string_view dir = mes.substr(5);
+        skipspace(dir);
+        dir = getgraph(dir);
+
+        Object* door = body->PickObject(dir, LOC_NEARBY);
+
+        if (door && door->ActTarg(act_t::SPECIAL_LINKED)) {
+          svars[u8"path"] = dir.substr(0, 1);
+        }
+      }
+    } else if (body->HasTag(crc32c(u8"soldier"))) {
+      if (mes.starts_with(u8"From ") && mes.contains(u8" you hear someone shout '") &&
+          (mes.contains(u8"TO ARMS"))) {
+        std::u8string_view dir = mes.substr(5);
+        skipspace(dir);
+        dir = getgraph(dir);
+
+        Object* door = body->PickObject(dir, LOC_NEARBY);
+
+        if (door && door->ActTarg(act_t::SPECIAL_LINKED)) {
+          svars[u8"path"] = dir.substr(0, 1);
+        }
+      }
+    }
   } else if (type == mind_t::MOB) {
     // ...these folks aren't big listeners....
   } else if (type == mind_t::TBAMOB) {
