@@ -7,7 +7,7 @@ static std::map<const Object*, std::map<uint32_t, ObjectTag>> weapontagdefs;
 static std::map<const Object*, std::map<uint32_t, ObjectTag>> armortagdefs;
 static std::map<const Object*, std::map<uint32_t, ObjectTag>> itemtagdefs;
 static std::map<const Object*, std::map<uint32_t, ObjectTag>> roomtagdefs;
-static std::map<const Object*, std::map<uint32_t, ObjectTag>> objtagdefs;
+static std::map<const Object*, std::map<uint32_t, ObjectTag>> decortagdefs;
 
 static std::map<uint32_t, std::u8string> tag_dictionary;
 static uint32_t add_to_dictionary(const std::u8string_view& tag) {
@@ -229,7 +229,7 @@ void ObjectTag::operator+=(const ObjectTag& in) {
   max_gold_ += in.max_gold_;
 
   tags_.insert(tags_.end(), in.tags_.begin(), in.tags_.end());
-  otags_.insert(otags_.end(), in.otags_.begin(), in.otags_.end());
+  dtags_.insert(dtags_.end(), in.dtags_.begin(), in.dtags_.end());
   ntags_.insert(ntags_.end(), in.ntags_.begin(), in.ntags_.end());
   wtags_.insert(wtags_.end(), in.wtags_.begin(), in.wtags_.end());
   atags_.insert(atags_.end(), in.atags_.begin(), in.atags_.end());
@@ -359,8 +359,8 @@ bool ObjectTag::LoadFrom(std::u8string_view& def) {
       atags_.push_back(add_to_dictionary(getuntil(line, '\n')));
     } else if (process(line, u8"itag:")) {
       itags_.push_back(add_to_dictionary(getuntil(line, '\n')));
-    } else if (process(line, u8"otag:")) {
-      otags_.push_back(add_to_dictionary(getuntil(line, '\n')));
+    } else if (process(line, u8"dtag:")) {
+      dtags_.push_back(add_to_dictionary(getuntil(line, '\n')));
     } else if (process(line, u8"ntag:")) {
       ntags_.push_back(add_to_dictionary(getuntil(line, '\n')));
     } else if (process(line, u8"skill:")) {
@@ -401,7 +401,7 @@ bool Object::LoadTags() {
   armortagdefs[this];
   itemtagdefs[this];
   roomtagdefs[this];
-  objtagdefs[this];
+  decortagdefs[this];
 
   auto datasets = PickObjects(u8"all world data: defined tags", LOC_INTERNAL | LOC_NINJA);
   if (datasets.size() == 0) {
@@ -424,7 +424,7 @@ bool Object::LoadTagsFrom(const std::u8string_view& tagdefs, bool save) {
   armortagdefs[this];
   itemtagdefs[this];
   roomtagdefs[this];
-  objtagdefs[this];
+  decortagdefs[this];
 
   std::u8string_view defs = tagdefs;
 
@@ -465,11 +465,11 @@ bool Object::LoadTagsFrom(const std::u8string_view& tagdefs, bool save) {
         loger(u8"Duplicate Room tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
       }
-    } else if (process(defs, u8"obj:")) {
+    } else if (process(defs, u8"decor:")) {
       std::u8string_view tag(defs);
       tag = getuntil(tag, '\n');
-      if (!objtagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
-        loger(u8"Duplicate Object tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
+      if (!decortagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
+        loger(u8"Duplicate Decor tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
         return false;
       }
     } else {

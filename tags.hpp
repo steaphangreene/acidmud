@@ -97,7 +97,7 @@ class ObjectTag {
   std::vector<ObjectTag> items_;
 
   std::vector<uint32_t> tags_;
-  std::vector<uint32_t> otags_;
+  std::vector<uint32_t> dtags_;
   std::vector<uint32_t> ntags_;
   std::vector<uint32_t> wtags_;
   std::vector<uint32_t> atags_;

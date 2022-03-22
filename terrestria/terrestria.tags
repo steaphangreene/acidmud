@@ -573,35 +573,35 @@ wear:RSHOULDER
 wear:LSHOULDER
 
 tag:room:kiln
-otag:kiln
+dtag:kiln
 ntag:collier
 
-tag:obj:kiln
+tag:decor:kiln
 short:A kiln
 desc:A kiln is set up here, to turn wood to charcoal.
 
 tag:room:armory
-otag:forge
+dtag:forge
 ntag:armorer
 
-tag:obj:forge
+tag:decor:forge
 short:A forge
 desc:A forge has been built here, ready for a smith to use.
 
 tag:room:tavern
-otag:bar
+dtag:bar
 ntag:tavernkeeper
 
 tag:room:smithy
-otag:forge
+dtag:forge
 ntag:blacksmith
 
 tag:room:bladesmithy
-otag:forge
+dtag:forge
 ntag:bladesmith
 
 tag:room:refinery
-otag:furnace
+dtag:furnace
 ntag:refiner
 
 tag:room:woodmill
@@ -611,7 +611,7 @@ tag:room:woodshop
 ntag:woodcarver
 
 tag:room:inn
-otag:room
+dtag:room
 ntag:innkeeper
 
 tag:room:store
