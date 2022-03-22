@@ -2914,16 +2914,20 @@ bool Mind::Think(std::shared_ptr<Mind>& sptr, int istick) {
         if (body->ActTarg(act_t::SPECIAL_WORK)) { // Only patrol the street you patrol, etc.
           area = body->ActTarg(act_t::SPECIAL_WORK)->ShortDesc();
         }
-        for (int d = 0; d < 6; ++d) {
-          if (conns[d] && (area.length() == 0 || conns[d]->ShortDesc() == area)) {
-            options.push_back(dirnames[d]);
+        if (area.length() > 0 && body->Room()->ShortDesc() != area) { // Out of position, go back.
+          svars[u8"path"] = body->Room()->DirectionsTo(body->ActTarg(act_t::SPECIAL_WORK), body);
+        } else {
+          for (int d = 0; d < 6; ++d) {
+            if (conns[d] && (area.length() == 0 || conns[d]->ShortDesc() == area)) {
+              options.push_back(dirnames[d]);
+            }
           }
-        }
-        if (options.size() > 1) {
-          shuffle(options.begin(), options.end(), gen);
-        }
-        if (options.size() > 0) {
-          svars[u8"path"] = options.front().substr(0, 1);
+          if (options.size() > 1) {
+            shuffle(options.begin(), options.end(), gen);
+          }
+          if (options.size() > 0) {
+            svars[u8"path"] = options.front().substr(0, 1);
+          }
         }
       }
     }
