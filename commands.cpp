@@ -2093,7 +2093,20 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       // Weapons
       if (targ->HasSkill(prhash(u8"WeaponType"))) {
         handled = 1;
-        Object* base = body->ActTarg(act_t::WIELD);
+        Object* base = nullptr;
+        for (auto loc :
+             {act_t::WIELD,
+              act_t::WEAR_RHIP,
+              act_t::WEAR_RSHOULDER,
+              act_t::WEAR_LHIP,
+              act_t::WEAR_LSHOULDER}) {
+          if (!base) {
+            if (body->ActTarg(loc)) {
+              base = body->ActTarg(loc);
+            }
+          }
+        }
+
         if (base == targ) {
           mind->Send(u8"{} is your current weapon!\n", base->Noun(0, 0, body));
           mind->Send(u8"Consider using something else for comparison.\n");
@@ -2108,6 +2121,12 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
         } else {
           int diff;
           mind->Send(u8"Use of this weapon would use your {} skill.\n", SkillName(sk));
+
+          if (base) {
+            mind->Send(u8"You would use this weapon instead of {}.\n", base->Noun(1, 1, body));
+          } else {
+            mind->Send(u8"You would use this weapon instead of your fists.\n");
+          }
 
           diff = body->Skill(sk);
           if (base)
