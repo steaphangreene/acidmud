@@ -66,6 +66,7 @@ employ:0:1-2:citizen,dwarven
 place:+::stone street
 employ:+:0-1:guard,dwarven
 night:+:0-1:guard,dwarven
+place:%:dwarven,fountain:wide stone street
 place:#::wide stone street
 en_place:wide stone street
 en_place:wide stone street
@@ -115,7 +116,7 @@ ascii_map:
     4g+o2 2o+o2 2o+o2 2o+g4                                                               4g+o2 2o+o2 2o+o2 2o+g4
 0 0 I |  1  |  1  |  1  | I                                                               I |  1  |  1  |  1  | I 0 0
 | | I |  o  |  o  |  o  | I                                                               I |  o  |  o  |  o  | I | |
-@-#p3p#--#--#--#--#--#--#p3p=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=p3p#--#--#--#--#--#--#p3p#-@
+@-#p3p#--#--#--#--%--#--#p3p=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=p3p#--#--%--#--#--#--#p3p#-@
 | | I |  o  |  o  |  o  | I                                                               I |  o  |  o  |  o  | I | |
 0 0 I |  1  |  1  |  1  | I                                                               I |  1  |  1  |  1  | I 0 0
     4g+o2 2o+o2 2o+o2 2o+g4                                                               4g+o2 2o+o2 2o+o2 2o+g4

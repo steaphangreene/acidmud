@@ -635,6 +635,23 @@ type:quality
 
 tag:room:dwarven
 type:origin
+dtag:dwarven
 
 tag:room:human
 type:origin
+
+tag:room:fountain
+dtag:fountain
+
+tag:decor:dwarven
+type:origin
+short:a dwarven
+desc:A well-made
+
+tag:decor:fountain
+short:a fountain
+desc:A water fountain
+prop:Liquid Container:1000
+prop:Liquid Source:10
+prop:Obvious:1000
+prop:Open:1000
