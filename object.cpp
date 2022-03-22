@@ -3883,7 +3883,7 @@ MinVec<3, Object*> Object::Contents() const {
   return contents;
 }
 
-MinVec<7, Object*> Object::Connections(Object* traveller) const {
+MinVec<7, Object*> Object::Connections(const Object* traveller) const {
   MinVec<7, Object*> ret; // Includes nulls for unconnected dirs
   for (std::u8string dir : {u8"north", u8"south", u8"east", u8"west", u8"up", u8"down"}) {
     Object* conn = nullptr;
@@ -4899,7 +4899,7 @@ MinVec<7, skill_pair> Object::GetSkills() const {
   return ret;
 }
 
-bool Object::HasKeyFor(Object* lock, int vmode) {
+bool Object::HasKeyFor(const Object* lock, int vmode) const {
   auto keys = PickObjects(u8"all", vmode | LOC_INTERNAL);
   for (auto key : keys) {
     if (key->Skill(prhash(u8"Key")) == lock->Skill(prhash(u8"Lock"))) {

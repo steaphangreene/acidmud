@@ -353,7 +353,7 @@ class alignas(256) Object {
   int Contains(const Object* obj) const; // Only Immediately (No Recursion)
   MinVec<3, Object*> Contents(int vmode) const;
   MinVec<3, Object*> Contents() const;
-  MinVec<7, Object*> Connections(Object* traveller) const; // Includes nulls for unconnected dirs
+  MinVec<7, Object*> Connections(const Object* traveller) const; // Includes nulls for no-go dirs
   MinVec<7, Object*> Connections(bool exits = false) const; // Includes nulls for unconnected dirs
   std::u8string DirectionsTo(
       Object* dest,
@@ -523,7 +523,7 @@ class alignas(256) Object {
   std::u8string WearNames(const std::set<act_t>& locs) const;
   std::u8string WearNames(int m = -1) const;
 
-  bool HasKeyFor(Object* lock, int vmode = 0);
+  bool HasKeyFor(const Object* lock, int vmode = 0) const;
 
   int Quantity() const;
 
