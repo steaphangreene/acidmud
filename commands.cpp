@@ -4121,7 +4121,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
         mind->Send(u8"What do you want to drink from?\n");
       return 0;
     }
-    if (!body->HasSkill(prhash(u8"Thirsty"))) {
+    if (body->Skill(prhash(u8"Thirsty")) < 100) {
       if (mind)
         mind->Send(u8"You are not thirsty, you can't drink any more.\n");
       return 0;
