@@ -1,5 +1,6 @@
 #include "tags.hpp"
 #include "log.hpp"
+#include "properties.hpp"
 #include "utils.hpp"
 
 static std::map<const Object*, std::map<uint32_t, ObjectTag>> npctagdefs;
@@ -707,6 +708,17 @@ void Object::GenerateRoom(const ObjectTag& type, std::mt19937& gen) {
 
     for (auto t : dc.tags_) {
       obj->AddTag(t);
+    }
+
+    if (obj->HasTag(crc32c(u8"fountain"))) { // These Need Water!
+      Object* water = new Object(obj);
+      water->SetShortDesc(u8"water");
+      water->SetDesc(u8"clean, drinkable, water");
+      water->SetSkill(prhash(u8"Liquid"), 1);
+      water->SetSkill(prhash(u8"Ingestible"), 1);
+      water->SetSkill(prhash(u8"Drink"), 10000);
+      water->SetSkill(prhash(u8"Quantity"), std::max(10, obj->Skill(prhash(u8"Liquid Container"))));
+      obj->Activate();
     }
   }
 }
