@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <limits>
 #include <queue>
 #include <string>
 #include <vector>
@@ -3920,8 +3921,25 @@ MinVec<7, Object*> Object::Connections(bool exits) const {
   return ret;
 }
 
+size_t Object::ManhattanDistance(const Object* dest) const {
+  if ((!dest) || Zone() != dest->Zone()) {
+    // TODO: Navigation between zones.
+    return std::numeric_limits<size_t>::max() / 2; // Forever, but math safe.
+  }
+  size_t x1 = X();
+  size_t x2 = dest->X();
+  size_t y1 = Y();
+  size_t y2 = dest->Y();
+  size_t z1 = Z();
+  size_t z2 = dest->Z();
+  size_t xoff = std::max(x1, x2) - std::min(x1, x2);
+  size_t yoff = std::max(y1, y2) - std::min(y1, y2);
+  size_t zoff = std::max(z1, z2) - std::min(z1, z2);
+  return xoff + yoff + zoff;
+}
+
 // Letters from "nsewud", or empty if there, or unreachable
-std::u8string Object::DirectionsTo(Object* dest, Object* traveller) {
+std::u8string Object::DirectionsTo(const Object* dest, const Object* traveller) const {
   if (!dest) {
     return u8""; // You can't go to nowhere.
   } else if (Zone() != dest->Zone()) {
@@ -3932,26 +3950,20 @@ std::u8string Object::DirectionsTo(Object* dest, Object* traveller) {
   }
 
   struct step {
-    uint32_t est_cost;
-    uint32_t base_cost;
-    Object* loc;
+    size_t est_cost;
+    size_t base_cost;
+    const Object* loc;
     std::u8string path;
     bool operator>(const step& o) const {
       return (est_cost > o.est_cost);
     };
   };
 
-  std::set<Object*> visited;
+  std::set<const Object*> visited;
   std::priority_queue<step, std::vector<step>, std::greater<step>> totry;
 
   visited.insert(this);
-  totry.push(
-      {static_cast<uint32_t>(std::abs(X() - dest->X())) +
-           static_cast<uint32_t>(std::abs(Y() - dest->Y())) +
-           static_cast<uint32_t>(std::abs(Z() - dest->Z())),
-       0,
-       this,
-       u8""});
+  totry.push({ManhattanDistance(dest), 0, this, u8""});
 
   while (totry.size() > 0) {
     auto cand = totry.top();
@@ -3965,9 +3977,7 @@ std::u8string Object::DirectionsTo(Object* dest, Object* traveller) {
         if (conns.back() && !visited.contains(conns.back())) {
           visited.insert(conns.back());
           totry.push(
-              {cand.base_cost + static_cast<uint32_t>(std::abs(conns.back()->X() - dest->X())) +
-                   static_cast<uint32_t>(std::abs(conns.back()->Y() - dest->Y())) +
-                   static_cast<uint32_t>(std::abs(conns.back()->Z() - dest->Z())),
+              {cand.base_cost + 10 + conns.back()->ManhattanDistance(dest),
                cand.base_cost + 10,
                conns.back(),
                cand.path + dirs.back()});

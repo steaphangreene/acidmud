@@ -355,9 +355,10 @@ class alignas(256) Object {
   MinVec<3, Object*> Contents() const;
   MinVec<7, Object*> Connections(const Object* traveller) const; // Includes nulls for no-go dirs
   MinVec<7, Object*> Connections(bool exits = false) const; // Includes nulls for unconnected dirs
-  std::u8string DirectionsTo(
-      Object* dest,
-      Object* traveller); // From "nsewud", or empty if there/unreachable
+  std::u8string DirectionsTo( // From "nsewud", or empty if there/unreachable
+      const Object* dest,
+      const Object* traveller) const;
+  size_t ManhattanDistance(const Object* dest) const;
 
   int ContainedWeight();
   int ContainedVolume();
