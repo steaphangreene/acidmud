@@ -3483,7 +3483,7 @@ void Object::Loud(int str, const std::u8string& mes) {
 
 void Object::Loud(std::set<Object*>& visited, int str, const std::u8string& mes) {
   visited.insert(this);
-  auto targs = Connections(true);
+  auto targs = ConnectionExits();
   for (auto dest : targs) {
     if (dest && dest->Parent()) {
       if (!visited.contains(dest->Parent())) {
@@ -3904,7 +3904,7 @@ MinVec<7, Object*> Object::Connections(const Object* traveller) const {
   return ret;
 }
 
-MinVec<7, Object*> Object::Connections(bool exits) const {
+MinVec<7, Object*> Object::ConnectionExits() const {
   MinVec<7, Object*> ret; // Includes nulls for unconnected dirs
   for (std::u8string dir : {u8"north", u8"south", u8"east", u8"west", u8"up", u8"down"}) {
     Object* door = PickObject(dir, LOC_NINJA | LOC_INTERNAL);
@@ -3916,7 +3916,7 @@ MinVec<7, Object*> Object::Connections(bool exits) const {
         conn = odoor->Parent();
       }
     }
-    ret.push_back((conn && exits) ? odoor : conn);
+    ret.push_back((conn) ? odoor : nullptr); // Returns the exit door in dest, not the actual dest.
   }
   return ret;
 }
