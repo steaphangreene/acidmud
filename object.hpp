@@ -34,7 +34,7 @@
 #include <sys/time.h>
 #include <ctime>
 
-#include "minvec.hpp"
+#include "darr64.hpp"
 #include "stats.hpp"
 
 class Object;
@@ -244,8 +244,8 @@ class alignas(256) Object {
   Object* Parent() const {
     return parent;
   };
-  MinVec<1, Object*> Touching() const {
-    MinVec<1, Object*> ret;
+  DArr64<1, Object*> Touching() const {
+    DArr64<1, Object*> ret;
     for (auto o : act) {
       if (o.act() == act_t::SPECIAL_ACTEE) {
         ret.push_back(o.obj());
@@ -292,9 +292,9 @@ class alignas(256) Object {
   void SendContents(Object* m, Object* o = nullptr, int vmode = 0, std::u8string b = u8"");
 
   // All of these modify the "skls" parameter.
-  std::vector<std::u8string> FormatStats(const MinVec<7, skill_pair>& skls);
-  std::vector<std::u8string> FormatSkills(const MinVec<7, skill_pair>& skls);
-  std::vector<std::u8string> FormatNonweaponSkills(const MinVec<7, skill_pair>& skls);
+  std::vector<std::u8string> FormatStats(const DArr64<7, skill_pair>& skls);
+  std::vector<std::u8string> FormatSkills(const DArr64<7, skill_pair>& skls);
+  std::vector<std::u8string> FormatNonweaponSkills(const DArr64<7, skill_pair>& skls);
 
   void Link(
       Object* other,
@@ -345,16 +345,16 @@ class alignas(256) Object {
   void NotifyGone(Object* obj, Object* newloc = nullptr, int up = 1);
 
   Object* PickObject(const std::u8string_view& name, int loc, int* ordinal = nullptr) const;
-  MinVec<1, Object*> PickObjects(const std::u8string_view& name, int loc, int* ordinal = nullptr)
+  DArr64<1, Object*> PickObjects(const std::u8string_view& name, int loc, int* ordinal = nullptr)
       const;
   int IsNearBy(const Object* obj) const;
   int SeeWithin(const Object* obj) const; // Recursive & Visible
   int HasWithin(const Object* obj) const; // Recursive (All)
   int Contains(const Object* obj) const; // Only Immediately (No Recursion)
-  MinVec<3, Object*> Contents(int vmode) const;
-  MinVec<3, Object*> Contents() const;
-  MinVec<7, Object*> Connections(const Object* traveller) const; // Includes nulls for no-go dirs
-  MinVec<7, Object*> ConnectionExits() const; // Includes nulls for unconnected dirs
+  DArr64<3, Object*> Contents(int vmode) const;
+  DArr64<3, Object*> Contents() const;
+  DArr64<7, Object*> Connections(const Object* traveller) const; // Includes nulls for no-go dirs
+  DArr64<7, Object*> ConnectionExits() const; // Includes nulls for unconnected dirs
   std::u8string DirectionsTo( // From "nsewud", or empty if there/unreachable
       const Object* dest,
       const Object* traveller) const;
@@ -483,7 +483,7 @@ class alignas(256) Object {
   int SubHasSkill(uint32_t) const;
   int SubMaxSkill(uint32_t) const;
   Object* NextHasSkill(uint32_t, const Object* last = nullptr);
-  MinVec<7, skill_pair> GetSkills() const;
+  DArr64<7, skill_pair> GetSkills() const;
   void SetAttribute(int, int);
   void SetModifier(int, int);
   void SetSkill(uint32_t, int);
@@ -691,9 +691,9 @@ class alignas(256) Object {
   pos_t pos;
 
   int sexp;
-  MinVec<1, uint64_t> completed;
+  DArr64<1, uint64_t> completed;
 
-  MinVec<3, Object*> contents;
+  DArr64<3, Object*> contents;
   Object* parent;
   uint32_t cur_skill;
 
@@ -703,11 +703,11 @@ class alignas(256) Object {
 
   std::forward_list<std::shared_ptr<Mind>> minds;
 
-  MinVec<1, uint64_t> known;
+  DArr64<1, uint64_t> known;
 
-  MinVec<3, act_pair> act;
+  DArr64<3, act_pair> act;
 
-  MinVec<7, skill_pair> skills;
+  DArr64<7, skill_pair> skills;
 
   friend void player_rooms_erase(Object*);
 };
@@ -731,7 +731,7 @@ int is_skill(uint32_t stok);
 uint32_t get_weapon_skill(int wtype);
 int get_weapon_type(const std::u8string_view& wskill);
 int two_handed(int wtype);
-std::u8string get_tags_string(Object* world, const MinVec<1, uint64_t>& tags);
+std::u8string get_tags_string(Object* world, const DArr64<1, uint64_t>& tags);
 
 void tick_world();
 

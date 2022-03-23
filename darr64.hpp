@@ -1,49 +1,49 @@
 // *************************************************************************
-//  This file is the MinVec container implementation by Steaphan Greene
+//  This file is the DArr64 container implementation by Steaphan Greene
 //
-//  MinVec is a minimal vector-like container implementation, designed to
+//  DArr64 is a minimal vector-like container implementation, designed to
 //  reduce both the memory and CPU footprint of small vectors of 64-bit
 //  objects, such as pointers.
 //
-//  MinVec is essentially just a special case of small-vector-optimized
+//  DArr64 is essentially just a special case of small-vector-optimized
 //  vector, where only capacity C is stored within the class, and for all
 //  higher capacities, the data is stored in a dynamic array, like vector.
 //
 //  The length and capacity are limited to a 32-bit unsigned value, which
-//  reduces the total size of each MinVec<1> to 16 bytes, making it always
+//  reduces the total size of each DArr64<1> to 16 bytes, making it always
 //  smaller than vector, except perhaps in some cases with untuned capacity.
 //
-//  The capacity of MinVec is never reduced, except on object destruction,
+//  The capacity of DArr64 is never reduced, except on object destruction,
 //  or when being moved from.
 //
-//  The cap_ member of MinVec is the capacity, or is zero if the capacity
+//  The cap_ member of DArr64 is the capacity, or is zero if the capacity
 //  is the default (which is C).  This is so most of the comparisons can be
 //  with zero (which is often best optimized), and so this class can be
 //  trivially default initialized by setting all memory to zeros.
 //
-//  MinVec is not a complete container implementation, as only the elements
+//  DArr64 is not a complete container implementation, as only the elements
 //  which have actually been needed so far have been implemented.
 //
 //  Copyright 2022 Steaphan Greene <steaphan@gmail.com>
 //
-//  MinVec is free software; you can redistribute it and/or modify
+//  DArr64 is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 3 of the License, or
 //  (at your option) any later version.
 //
-//  MinVec is distributed in the hope that it will be useful,
+//  DArr64 is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with MinVec (see the file named "COPYING");
+//  along with DArr64 (see the file named "COPYING");
 //  If not, see <http://www.gnu.org/licenses/>.
 //
 // *************************************************************************
 
-#ifndef MINVEC_HPP
-#define MINVEC_HPP
+#ifndef DARR64_HPP
+#define DARR64_HPP
 
 #include <cassert>
 #include <cstdint>
@@ -71,13 +71,13 @@ static_assert(next_pow_2(0x40000000U) == 0x80000000U);
 static_assert(next_pow_2(0x7FFFFFFFU) == 0x80000000U);
 
 template <int C, typename T>
-class alignas(next_pow_2(C * 8)) MinVec {
+class alignas(next_pow_2(C * 8)) DArr64 {
  public:
   using iterator = T*;
   using const_iterator = T const*;
 
-  MinVec() = default;
-  MinVec(const MinVec& in) : cap_(in.cap_), size_(in.size_) {
+  DArr64() = default;
+  DArr64(const DArr64& in) : cap_(in.cap_), size_(in.size_) {
     if (cap_ == 0) {
       data_ = in.data_;
     } else {
@@ -87,13 +87,13 @@ class alignas(next_pow_2(C * 8)) MinVec {
       }
     }
   };
-  MinVec(MinVec&& in) noexcept(noexcept(data_ = std::move(in.data_)))
+  DArr64(DArr64&& in) noexcept(noexcept(data_ = std::move(in.data_)))
       : data_(std::move(in.data_)), cap_(in.cap_), size_(in.size_) {
     in.cap_ = 0;
     in.size_ = 0;
   };
 
-  void operator=(const MinVec& in) {
+  void operator=(const DArr64& in) {
     if (this == &in) {
       return; // Self-assign
     }
@@ -111,7 +111,7 @@ class alignas(next_pow_2(C * 8)) MinVec {
       }
     }
   };
-  void operator=(MinVec&& in) noexcept(noexcept(data_ = std::move(in.data_))) {
+  void operator=(DArr64&& in) noexcept(noexcept(data_ = std::move(in.data_))) {
     if (this == &in) {
       return; // Self-assign
     }
@@ -125,7 +125,7 @@ class alignas(next_pow_2(C * 8)) MinVec {
     in.size_ = 0;
   };
 
-  auto operator==(const MinVec& in) const -> bool {
+  auto operator==(const DArr64& in) const -> bool {
     if (size_ != in.size_) {
       return false;
     }
@@ -160,7 +160,7 @@ class alignas(next_pow_2(C * 8)) MinVec {
     }
   };
 
-  ~MinVec() {
+  ~DArr64() {
     if (cap_ != 0) {
       delete[] data_.arr;
     }
@@ -369,6 +369,6 @@ class alignas(next_pow_2(C * 8)) MinVec {
 };
 
 // This implementation is optimized assuming its total size is 16
-static_assert(sizeof(MinVec<1, void*>) == 16);
+static_assert(sizeof(DArr64<1, void*>) == 16);
 
-#endif // MINVEC_HPP
+#endif // DARR64_HPP

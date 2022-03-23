@@ -530,7 +530,7 @@ int Object::Tick() {
       corpse->SetVolume(Volume());
 
       std::set<Object*> todrop;
-      MinVec<1, Object*> todropfrom;
+      DArr64<1, Object*> todropfrom;
       todropfrom.push_back(this);
 
       for (auto con : todropfrom) {
@@ -1815,7 +1815,7 @@ void Object::SendScore(std::shared_ptr<Mind> m, Object* o) {
   }
 }
 
-std::vector<std::u8string> Object::FormatSkills(const MinVec<7, skill_pair>& skls) {
+std::vector<std::u8string> Object::FormatSkills(const DArr64<7, skill_pair>& skls) {
   std::vector<std::u8string> ret;
 
   auto save = skls;
@@ -1828,7 +1828,7 @@ std::vector<std::u8string> Object::FormatSkills(const MinVec<7, skill_pair>& skl
   return ret;
 }
 
-std::vector<std::u8string> Object::FormatNonweaponSkills(const MinVec<7, skill_pair>& skls) {
+std::vector<std::u8string> Object::FormatNonweaponSkills(const DArr64<7, skill_pair>& skls) {
   std::vector<std::u8string> ret;
 
   auto save = skls;
@@ -1843,7 +1843,7 @@ std::vector<std::u8string> Object::FormatNonweaponSkills(const MinVec<7, skill_p
 
 static void stick_on(
     std::vector<std::u8string>& out,
-    const MinVec<7, skill_pair>& skls,
+    const DArr64<7, skill_pair>& skls,
     uint32_t stok,
     const std::u8string label) {
   auto itr =
@@ -1856,7 +1856,7 @@ static void stick_on(
   }
 }
 
-std::vector<std::u8string> Object::FormatStats(const MinVec<7, skill_pair>& skls) {
+std::vector<std::u8string> Object::FormatStats(const DArr64<7, skill_pair>& skls) {
   std::vector<std::u8string> ret;
 
   if (HasSkill(prhash(u8"TBAScriptType"))) { // It's a TBA script
@@ -2611,7 +2611,7 @@ Object* Object::Split(int nqty) {
   return nobj;
 }
 
-static int tag(Object* obj, MinVec<1, Object*>& ret, int* ordinal, int vmode = 0) {
+static int tag(Object* obj, DArr64<1, Object*>& ret, int* ordinal, int vmode = 0) {
   // Only Ninjas in Ninja-Mode should detect these
   if (obj->Skill(prhash(u8"Invisible")) > 999 && (vmode & LOC_NINJA) == 0)
     return 0;
@@ -2678,9 +2678,9 @@ static int tag(Object* obj, MinVec<1, Object*>& ret, int* ordinal, int vmode = 0
   return 0;
 }
 
-MinVec<1, Object*> Object::PickObjects(const std::u8string_view& inname, int loc, int* ordinal)
+DArr64<1, Object*> Object::PickObjects(const std::u8string_view& inname, int loc, int* ordinal)
     const {
-  MinVec<1, Object*> ret;
+  DArr64<1, Object*> ret;
 
   std::u8string_view name = inname;
   trim_string(name);
@@ -3859,8 +3859,8 @@ void Object::operator=(const Object& in) {
   //  act = in.act;
 }
 
-MinVec<3, Object*> Object::Contents(int vmode) const {
-  MinVec<3, Object*> ret;
+DArr64<3, Object*> Object::Contents(int vmode) const {
+  DArr64<3, Object*> ret;
   if (vmode & LOC_NINJA) {
     ret = contents;
   } else {
@@ -3880,12 +3880,12 @@ MinVec<3, Object*> Object::Contents(int vmode) const {
   return ret;
 }
 
-MinVec<3, Object*> Object::Contents() const {
+DArr64<3, Object*> Object::Contents() const {
   return contents;
 }
 
-MinVec<7, Object*> Object::Connections(const Object* traveller) const {
-  MinVec<7, Object*> ret; // Includes nulls for unconnected dirs
+DArr64<7, Object*> Object::Connections(const Object* traveller) const {
+  DArr64<7, Object*> ret; // Includes nulls for unconnected dirs
   for (std::u8string dir : {u8"north", u8"south", u8"east", u8"west", u8"up", u8"down"}) {
     Object* conn = nullptr;
     Object* door = PickObject(dir, LOC_INTERNAL);
@@ -3904,8 +3904,8 @@ MinVec<7, Object*> Object::Connections(const Object* traveller) const {
   return ret;
 }
 
-MinVec<7, Object*> Object::ConnectionExits() const {
-  MinVec<7, Object*> ret; // Includes nulls for unconnected dirs
+DArr64<7, Object*> Object::ConnectionExits() const {
+  DArr64<7, Object*> ret; // Includes nulls for unconnected dirs
   for (std::u8string dir : {u8"north", u8"south", u8"east", u8"west", u8"up", u8"down"}) {
     Object* door = PickObject(dir, LOC_NINJA | LOC_INTERNAL);
     Object* odoor = nullptr;
@@ -4602,7 +4602,7 @@ std::u8string Object::WearNames(int m) const {
 }
 
 Object* Object::Stash(Object* item, bool message, bool force) {
-  MinVec<1, Object*> containers;
+  DArr64<1, Object*> containers;
   auto my_cont = PickObjects(u8"all", LOC_INTERNAL);
   for (auto ind : my_cont) {
     if (ind->Skill(prhash(u8"Container")) &&
@@ -4899,7 +4899,7 @@ Object* new_obj(const Object& o) {
   return new Object(o);
 }
 
-MinVec<7, skill_pair> Object::GetSkills() const {
+DArr64<7, skill_pair> Object::GetSkills() const {
   auto ret = skills;
 
   std::sort(ret.begin(), ret.end(), [](auto& s1, auto& s2) {

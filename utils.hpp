@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include "minvec.hpp"
+#include "darr64.hpp"
 
 // String Functions
 void replace_all(

@@ -509,7 +509,7 @@ bool Object::LoadTagsFrom(const std::u8string_view& tagdefs, bool save) {
   return true;
 }
 
-std::u8string get_tags_string(Object* world, const MinVec<1, uint64_t>& tags) {
+std::u8string get_tags_string(Object* world, const DArr64<1, uint64_t>& tags) {
   if (!world->LoadTags()) {
     logey(u8"Warning: Asked to inspect tags in a world with no tags defined.\n");
   }
