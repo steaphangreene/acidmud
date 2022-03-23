@@ -1032,7 +1032,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
   }
 
   if ((!nmode) && cnum != COM_RECALL && body && body->Parent()) {
-    DArr64<1, Object*> items;
+    DArr64<Object*> items;
     Object* room = body->PickObject(u8"here", LOC_HERE);
     auto items2 = body->PickObjects(u8"everything", LOC_INTERNAL | LOC_NEARBY);
     auto items3 = body->PickObjects(u8"everyone", LOC_NEARBY);
@@ -1817,7 +1817,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       within = 1;
     }
 
-    DArr64<1, Object*> targs;
+    DArr64<Object*> targs;
     if (!args.empty()) {
       targs = body->PickObjects(
           std::u8string(args), vmode | LOC_NEARBY | LOC_ADJACENT | LOC_SELF | LOC_INTERNAL);
@@ -1902,7 +1902,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       return 0;
     }
 
-    DArr64<1, Object*> targs;
+    DArr64<Object*> targs;
     if (!args.empty()) {
       targs = body->PickObjects(
           std::u8string(args), vmode | LOC_NEARBY | LOC_ADJACENT | LOC_SELF | LOC_INTERNAL);
@@ -1983,7 +1983,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
   }
 
   if (cnum == COM_HIDE) {
-    DArr64<1, Object*> targs;
+    DArr64<Object*> targs;
     if (args.empty()) {
       targs.push_back(body);
     } else {
@@ -2921,7 +2921,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       return 0;
 
     auto objs = body->Parent()->Contents(vmode);
-    DArr64<1, Object*> shpkps;
+    DArr64<Object*> shpkps;
     std::u8string reason = u8"";
     for (auto shpkp : objs) {
       if (shpkp->Skill(prhash(u8"Sell Profit"))) {
@@ -2975,7 +2975,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
     }
 
     auto objs = body->Parent()->Contents(vmode);
-    DArr64<1, Object*> shpkps;
+    DArr64<Object*> shpkps;
     std::u8string reason = u8"";
     for (auto shpkp : objs) {
       if (shpkp->Skill(prhash(u8"Sell Profit"))) {
@@ -3192,7 +3192,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       wearable = 1;
 
     auto objs = body->Parent()->Contents();
-    DArr64<1, Object*> shpkps;
+    DArr64<Object*> shpkps;
     std::u8string reason = u8"Sorry, nobody is buying that sort of thing here.\n";
     uint32_t skill = prhash(u8"None");
     for (auto shpkp : objs) {
@@ -4002,7 +4002,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
   }
 
   if (cnum == COM_WEAR) {
-    DArr64<1, Object*> targs;
+    DArr64<Object*> targs;
 
     if (args.empty()) {
       if (body->ActTarg(act_t::HOLD)) {

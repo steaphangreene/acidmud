@@ -70,9 +70,10 @@ static_assert(next_pow_2(1024U) == 2048U);
 static_assert(next_pow_2(0x40000000U) == 0x80000000U);
 static_assert(next_pow_2(0x7FFFFFFFU) == 0x80000000U);
 
-template <int C, typename T>
+template <typename T, std::size_t C = 1>
 class alignas(next_pow_2(C * 8)) DArr64 {
  public:
+  using value_type = T;
   using iterator = T*;
   using const_iterator = T const*;
 
@@ -254,7 +255,7 @@ class alignas(next_pow_2(C * 8)) DArr64 {
     --size_;
   };
 
-  void push_back(T in) {
+  void push_back(const T& in) {
     if (cap_ == 0 && size_ < C) {
       data_.val[size_] = in;
     } else if (cap_ == 0) {
@@ -364,11 +365,14 @@ class alignas(next_pow_2(C * 8)) DArr64 {
   // This implementation is optimized for storing only 64-bit types
   static_assert(sizeof(T) == 8);
 
+  // Sanity check - this containter's minimum base capacity is 1
+  static_assert(C >= 1);
+
   // Sanity check - this containter is for SMALL vectors
   static_assert(next_pow_2(C) <= 0x80000000U);
 };
 
 // This implementation is optimized assuming its total size is 16
-static_assert(sizeof(DArr64<1, void*>) == 16);
+static_assert(sizeof(DArr64<void*>) == 16);
 
 #endif // DARR64_HPP

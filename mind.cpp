@@ -828,7 +828,7 @@ bool Mind::TBAVarSub(std::u8string& edit) const {
       }
       end = line.find_first_of(u8"% \t", cur + 1); // Done.  Replace All.
     } else if (line.substr(cur).starts_with(u8"%random.char%")) {
-      DArr64<1, Object*> others;
+      DArr64<Object*> others;
       if (ovars.at(u8"self")->HasSkill(prhash(u8"TBARoom"))) {
         others = ovars.at(u8"self")->PickObjects(u8"everyone", LOC_INTERNAL);
       } else if (ovars.at(u8"self")->Owner()) {
