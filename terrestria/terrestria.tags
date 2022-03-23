@@ -2,6 +2,7 @@ tag:npc:guard
 short:a guard
 desc:a professional guard.
 long:{He} seems to take his job guarding stuff very seriously.
+includes:citizen
 wtag:combat
 atag:breastplate
 atag:helm
@@ -17,6 +18,7 @@ tag:npc:soldier
 short:a soldier
 desc:a professional soldier.
 long:{He} is prepared for war, from wherever it may come.
+includes:citizen
 wtag:war
 atag:breastplate
 atag:great helm
@@ -64,6 +66,7 @@ tag:npc:civilian
 short:a civilian
 desc:
 long:{He} is not really a martial person.
+includes:citizen
 gold:200-500
 
 tag:npc:citizen
@@ -88,6 +91,7 @@ gold:-1000000
 
 tag:npc:miner
 includes:civilian
+includes:citizen
 short:a miner
 desc:
 long:{He} clearly has digging in {his} blood.
@@ -99,6 +103,7 @@ gold:200-500
 
 tag:npc:explorer
 includes:civilian
+includes:citizen
 short:an explorer
 desc:
 long:{He} seems to be motivated only by what is not yet known or discovered.
@@ -111,6 +116,7 @@ gold:200-500
 
 tag:npc:engineer
 includes:civilian
+includes:citizen
 short:an engineer
 desc:
 long:{He} is reflexively inspecting all the construction around {him}.
@@ -142,6 +148,7 @@ prop:WeaponSkill:1
 
 tag:npc:collier
 includes:civilian
+includes:citizen
 short:a collier
 desc:a charcoal kiln operator.
 long:{He} is covered in soot from head to toe.  You don't think {he} even notices it anymore.
@@ -150,6 +157,7 @@ gold:200-400
 
 tag:npc:blacksmith
 includes:civilian
+includes:citizen
 short:a blacksmith
 desc:a smith specializing in metal tools and weapons.
 long:{His} build makes it clear {he} has been swinging a hammer {his} entire life.
@@ -160,6 +168,7 @@ gold:200-400
 
 tag:npc:bladesmith
 includes:civilian
+includes:citizen
 short:a bladesmith
 desc:a smith specializing in metal swords and knives.
 long:{His} build makes it clear {he} has been swinging a hammer {his} entire life.
@@ -170,6 +179,7 @@ gold:200-400
 
 tag:npc:armorer
 includes:civilian
+includes:citizen
 short:an armorer
 desc:a smith specializing in metal armor and shields.
 long:{His} build makes it clear {he} has been swinging a hammer {his} entire life.
@@ -180,6 +190,7 @@ gold:200-400
 
 tag:npc:metalworker
 includes:civilian
+includes:citizen
 short:a metalworker
 desc:an artisan who works with molten metals.
 long:{His} skin shows {he} has been around high heat all {his} life.
@@ -189,6 +200,7 @@ gold:200-400
 
 tag:npc:refiner
 includes:civilian
+includes:citizen
 short:a refiner
 desc:an expert at extracting pure metals from rough ores.
 long:{His} dried out skin is covered in soot.  You get the impress {he} always looks like this.
@@ -197,6 +209,7 @@ gold:200-400
 
 tag:npc:coinmaker
 includes:civilian
+includes:citizen
 short:a coinmaker
 desc:an expert at stamping coins of exacting weights.
 long:{His} hunched-over body gives away that {his} whole life has been spent bent over in study of minute details.
@@ -205,6 +218,7 @@ gold:500-1000
 
 tag:npc:miller
 includes:civilian
+includes:citizen
 short:a miller
 desc:an expert at turning raw logs into usable lumber.
 long:{His} clothing is covered in sawdust.
@@ -213,6 +227,7 @@ gold:500-1000
 
 tag:npc:woodcarver
 includes:civilian
+includes:citizen
 short:a woodcarver
 desc:a woodcarver
 long:{He} is an expert carver of wooden items, both functional and decorative.
@@ -222,6 +237,7 @@ gold:500-1000
 
 tag:npc:innkeeper
 includes:civilian
+includes:citizen
 short:an innkeeper
 desc:an innkeeper
 long:The proprieter of an establishment offering rooms for rent to weary travellers.
@@ -230,6 +246,7 @@ gold:200-400
 
 tag:npc:tavernkeeper
 includes:civilian
+includes:citizen
 short:a tavernkeeper
 desc:a tavernkeeper
 long:The proprieter of an establishment offering drinks to weary travellers and locals alike.
@@ -238,6 +255,7 @@ gold:200-400
 
 tag:npc:storekeeper
 includes:civilian
+includes:citizen
 short:a storekeeper
 desc:a storekeeper
 long:The proprieter of an establishment offering supplies to those who need them.
@@ -246,6 +264,7 @@ gold:200-400
 
 tag:npc:leader
 includes:civilian
+includes:citizen
 short:a leader
 desc:a master of inspiring others.
 long:{He} is an experienced leader of people.
