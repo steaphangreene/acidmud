@@ -1619,7 +1619,7 @@ bool Mind::TBAVarSub(std::u8string& edit) const {
 // 0 to continue running
 // 1 to be done now (suspend)
 // -1 to destroy mind (error/done)
-int Mind::TBARunLine(std::shared_ptr<Mind>& sptr, std::u8string linestr) {
+int Mind::TBARunLine(std::u8string linestr) {
   if (0
       //	|| body->Skill(prhash(u8"TBAScript")) == 5000099
       //	|| linestr.contains(u8"eval loc ")
@@ -1822,7 +1822,7 @@ int Mind::TBARunLine(std::shared_ptr<Mind>& sptr, std::u8string linestr) {
       oldp->RemoveLink(ovars.at(u8"self"));
       ovars.at(u8"self")->SetParent(room);
     }
-    int ret = TBARunLine(sptr, std::u8string(line));
+    int ret = TBARunLine(std::u8string(line));
     if (oldp) {
       ovars.at(u8"self")->Parent()->RemoveLink(ovars.at(u8"self"));
       ovars.at(u8"self")->SetParent(oldp);
@@ -1930,7 +1930,7 @@ int Mind::TBARunLine(std::shared_ptr<Mind>& sptr, std::u8string linestr) {
         minute += 24 * 60; // Not Time Until Tomorrow!
       }
       if (minute > cur) { // Not Time Yet!
-        Suspend(sptr, (minute - cur) * 1000 * world->Skill(prhash(u8"Day Length")) / 24);
+        Suspend((minute - cur) * 1000 * world->Skill(prhash(u8"Day Length")) / 24);
         // Note: The above calculation removed the *60 and the /60
         return 1;
       }
@@ -1948,7 +1948,7 @@ int Mind::TBARunLine(std::shared_ptr<Mind>& sptr, std::u8string linestr) {
       // 5034507)
       //  logeb(u8"#{} Suspending for: {}\n",
       //  body->Skill(prhash(u8"TBAScript")), time * 1000);
-      Suspend(sptr, time * 1000);
+      Suspend(time * 1000);
       return 1;
     } else {
       loger(u8"#{} Error: Told '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
@@ -2783,7 +2783,7 @@ uint32_t items[8] = {
     prhash(u8"Bored"),
     prhash(u8"Stuff"),
     prhash(u8"Needy")};
-bool Mind::Think(std::shared_ptr<Mind>& sptr, int istick) {
+bool Mind::Think(int istick) {
   if (type == mind_t::NPC) {
     // Currently Fighting!
     if (body->IsAct(act_t::FIGHT)) {
@@ -3045,7 +3045,7 @@ bool Mind::Think(std::shared_ptr<Mind>& sptr, int istick) {
 
         PING_QUOTA();
 
-        int ret = TBARunLine(sptr, line);
+        int ret = TBARunLine(line);
         if (ret < 0) {
           return false;
         } else if (ret > 0) {
@@ -3061,7 +3061,7 @@ bool Mind::Think(std::shared_ptr<Mind>& sptr, int istick) {
               delay += 13000;
             spos_s.clear();
             spos_s.push_back(0); // We never die!
-            Suspend(sptr, delay); // We'll be back!
+            Suspend(delay); // We'll be back!
             return true;
           }
         }
@@ -3307,7 +3307,7 @@ int new_trigger(
   std::shared_ptr<Mind> m = new_mind(mind_t::TBATRIG, obj, tripper, targ, text);
   if (msec == 0 && !in_new_trigger) { // Triggers can not immediately trigger triggers
     in_new_trigger = true;
-    if (!m->Think(m, 1)) {
+    if (!m->Think(1)) {
       status = m->Status();
       if (m->Body()) {
         m->Body()->Detach(m);
@@ -3315,13 +3315,13 @@ int new_trigger(
     }
     in_new_trigger = false;
   } else {
-    m->Suspend(m, msec);
+    m->Suspend(msec);
   }
   return status;
 }
 
 std::vector<std::pair<int64_t, std::shared_ptr<Mind>>> Mind::waiting;
-void Mind::Suspend(std::shared_ptr<Mind>& sptr, int msec) {
+void Mind::Suspend(int msec) {
   // if(body && body->Skill(prhash(u8"TBAScript")) >= 5034503 &&
   // body->Skill(prhash(u8"TBAScript"))
   // <= 5034507)
@@ -3331,12 +3331,12 @@ void Mind::Suspend(std::shared_ptr<Mind>& sptr, int msec) {
   int64_t when = current_time + int64_t(msec) * int64_t(1000);
 
   auto itr = waiting.begin();
-  for (; itr != waiting.end() && itr->second != sptr; ++itr) {
+  for (; itr != waiting.end() && itr->second.get() != this; ++itr) {
   }
   if (itr != waiting.end()) {
     itr->first = when;
   } else {
-    waiting.emplace_back(std::make_pair(when, sptr));
+    waiting.emplace_back(std::make_pair(when, shared_from_this()));
   }
 }
 
@@ -3355,7 +3355,7 @@ void Mind::Resume() {
   // Now fire off those at the beginning that should have already happened
   itr = waiting.begin();
   for (; itr != waiting.end() && itr->first <= current_time; ++itr) {
-    if (!itr->second->Think(itr->second, 0)) {
+    if (!itr->second->Think(0)) {
       itr->first = std::numeric_limits<int64_t>::max();
       if (itr->second->Body()) {
         itr->second->Body()->Detach(itr->second);

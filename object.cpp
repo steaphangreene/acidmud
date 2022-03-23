@@ -436,7 +436,7 @@ int Object::Tick() {
   auto mnds = minds;
   for (auto m : mnds) {
     m->body = this;
-    if (!m->Think(m, 1)) {
+    if (!m->Think(1)) {
       Detach(m);
     }
   }

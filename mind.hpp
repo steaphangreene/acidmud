@@ -95,13 +95,11 @@ class Mind : public std::enable_shared_from_this<Mind> {
 
   void UpdatePrompt();
 
-  bool Think(
-      std::shared_ptr<Mind>& sptr,
-      int istick = 0); // Returns false when mind needs to be deleted
+  bool Think(int istick = 0); // Returns false when mind needs to be deleted
   std::u8string Tactics(int phase = -1) const;
 
   static void Resume();
-  static void Suspend(std::shared_ptr<Mind>& sptr, int msec);
+  void Suspend(int msec);
 
   void SetSpecialPrompt(const std::u8string& newp);
   std::u8string SpecialPrompt() const;
@@ -123,7 +121,7 @@ class Mind : public std::enable_shared_from_this<Mind> {
   int TBAEval(const std::u8string_view& expr) const;
   bool TBAVarSub(std::u8string& line) const; // Returns false when mind needs to be deleted
 
-  int TBARunLine(std::shared_ptr<Mind>& sptr, std::u8string line);
+  int TBARunLine(std::u8string line);
 
   std::u8string pname;
   std::u8string prompt;
