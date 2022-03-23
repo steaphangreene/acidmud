@@ -609,6 +609,19 @@ bool Mind::Send(const std::u8string_view& mes) {
         if (door && door->ActTarg(act_t::SPECIAL_LINKED)) {
           svars[u8"path"] = dir.substr(0, 1);
         }
+      } else if (!body->IsAct(act_t::FIGHT)) { // Guards help others in fights
+        // FIXME: Ability to 'hear' directly who is fighting
+        auto folks = body->PickObjects(u8"everyone", LOC_NEARBY);
+        for (auto folk : folks) {
+          auto other = folk->ActTarg(act_t::FIGHT);
+          if (other) {
+            if ((!folk->HasTag(crc32c(u8"citizen"))) && other->HasTag(crc32c(u8"citizen"))) {
+              handle_command(body, fmt::format(u8"attack obj:{}", reinterpret_cast<void*>(folk)));
+            } else if ((!folk->HasTag(crc32c(u8"guard"))) && other->HasTag(crc32c(u8"guard"))) {
+              handle_command(body, fmt::format(u8"attack obj:{}", reinterpret_cast<void*>(folk)));
+            }
+          }
+        }
       }
     } else if (body->HasTag(crc32c(u8"soldier"))) {
       if (mes.starts_with(u8"From ") && mes.contains(u8" you hear someone shout '") &&
@@ -621,6 +634,19 @@ bool Mind::Send(const std::u8string_view& mes) {
 
         if (door && door->ActTarg(act_t::SPECIAL_LINKED)) {
           svars[u8"path"] = dir.substr(0, 1);
+        }
+      } else if (!body->IsAct(act_t::FIGHT)) { // Soldiers help their own (and guards) in fights
+        // FIXME: Ability to 'hear' directly who is fighting
+        auto folks = body->PickObjects(u8"everyone", LOC_NEARBY);
+        for (auto folk : folks) {
+          auto other = folk->ActTarg(act_t::FIGHT);
+          if (other) {
+            if ((!folk->HasTag(crc32c(u8"soldier"))) && other->HasTag(crc32c(u8"soldier"))) {
+              handle_command(body, fmt::format(u8"attack obj:{}", reinterpret_cast<void*>(folk)));
+            } else if ((!folk->HasTag(crc32c(u8"guard"))) && other->HasTag(crc32c(u8"guard"))) {
+              handle_command(body, fmt::format(u8"attack obj:{}", reinterpret_cast<void*>(folk)));
+            }
+          }
         }
       }
     }
