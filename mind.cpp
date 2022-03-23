@@ -750,15 +750,8 @@ void Mind::SetPPass(const std::u8string_view& ppass) {
       static_cast<char8_t>(WONT),
       static_cast<char8_t>(TELOPT_ECHO));
   svars = player->Vars();
-
-  // Grab the actual shared_ptr for this mind
-  auto plminds = get_human_minds();
-  for (auto mind : plminds) {
-    if (mind.get() == this) {
-      player->Room()->SendDesc(mind);
-      player->Room()->SendContents(mind);
-    }
-  }
+  player->Room()->SendDesc(shared_from_this());
+  player->Room()->SendContents(shared_from_this());
 }
 
 void Mind::SetPlayer(const std::u8string_view& pn) {

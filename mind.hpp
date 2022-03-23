@@ -19,6 +19,12 @@
 //
 // *************************************************************************
 
+class Mind;
+class Object;
+
+#ifndef MIND_HPP
+#define MIND_HPP
+
 #include "player.hpp"
 
 // Replace with C++20 std::format, when widely available
@@ -26,13 +32,8 @@
 #include <fmt/format.h>
 
 #include <map>
+#include <memory>
 #include <vector>
-
-class Mind;
-class Object;
-
-#ifndef MIND_HPP
-#define MIND_HPP
 
 enum class mind_t : uint8_t {
   NONE = 0,
@@ -44,7 +45,7 @@ enum class mind_t : uint8_t {
   SYSTEM = 6,
 };
 
-class Mind {
+class Mind : public std::enable_shared_from_this<Mind> {
  public:
   Mind() = default; // New mind of unknown type
   Mind(mind_t t) : type(t){}; // New mind of known type (MOBs)
