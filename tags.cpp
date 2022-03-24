@@ -418,16 +418,14 @@ bool Object::LoadTags() {
   roomtagdefs[this];
   decortagdefs[this];
 
-  auto datasets = PickObjects(u8"all world data: defined tags", LOC_INTERNAL | LOC_NINJA);
-  if (datasets.size() == 0) {
+  Object* dataset = PickObject(u8"world data: defined tags", LOC_INTERNAL | LOC_NINJA);
+  if (!dataset) {
     logey(u8"Warning: No Saved Tags For World: '{}'!\n", ShortDesc());
     return false;
   }
-  for (auto data : datasets) {
-    if (!LoadTagsFrom(data->LongDesc(), false)) {
-      loger(u8"ERROR: Failed Loading Saved Tags Into World: '{}'!\n", ShortDesc());
-      return false;
-    }
+  if (!LoadTagsFrom(dataset->LongDesc(), false)) {
+    loger(u8"ERROR: Failed Loading Saved Tags Into World: '{}'!\n", ShortDesc());
+    return false;
   }
   return true;
 }
@@ -500,10 +498,15 @@ bool Object::LoadTagsFrom(const std::u8string_view& tagdefs, bool save) {
   }
 
   if (save) {
-    // Load Worked!  So, Now Safe These For The Future.
-    Object* worldtags = new Object(this);
-    worldtags->SetShortDesc(u8"World Data: Defined Tags");
-    worldtags->SetLongDesc(tagdefs);
+    // Load Worked!  So, Now Save These For The Future.
+    Object* worldtags = PickObject(u8"world data: defined tags", LOC_INTERNAL | LOC_NINJA);
+    if (worldtags) {
+      worldtags->SetLongDesc(fmt::format(u8"{}\n\n{}", worldtags->LongDesc(), tagdefs));
+    } else {
+      worldtags = new Object(this);
+      worldtags->SetShortDesc(u8"World Data: Defined Tags");
+      worldtags->SetLongDesc(tagdefs);
+    }
   }
 
   return true;
