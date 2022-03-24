@@ -55,7 +55,7 @@ class alignas(next_pow_2(C * 4)) DArr32 {
   using const_iterator = T const*;
 
   DArr32() {
-    data_.sta.cap = 0;
+    data_.sta.size = 0;
   };
   DArr32(const DArr32& in) : data_(in.data_) {
     if (data_.dyn.cap > C) {
@@ -66,22 +66,22 @@ class alignas(next_pow_2(C * 4)) DArr32 {
     }
   };
   DArr32(DArr32&& in) noexcept(noexcept(data_ = std::move(in.data_))) : data_(std::move(in.data_)) {
-    in.data_.sta.cap = 0;
+    in.data_.sta.size = 0;
   };
 
   void operator=(const DArr32& in) {
     if (this == &in) {
       return; // Self-assign
     }
-    if (data_.sta.cap > C) {
+    if (data_.dyn.cap > C) {
       delete[] data_.dyn.arr;
     }
-    data_.sta.cap = in.data_.sta.cap;
-    if (data_.sta.cap <= C) {
+    data_.sta.size = in.data_.sta.size;
+    if (data_.sta.size <= C) {
       data_ = in.data_;
     } else {
       data_.dyn.size = in.data_.dyn.size;
-      data_.dyn.arr = new T[data_.sta.cap];
+      data_.dyn.arr = new T[data_.dyn.cap];
       for (uint32_t idx = 0; idx < data_.dyn.size; ++idx) {
         data_.dyn.arr[idx] = in.data_.dyn.arr[idx];
       }
@@ -91,34 +91,44 @@ class alignas(next_pow_2(C * 4)) DArr32 {
     if (this == &in) {
       return; // Self-assign
     }
-    if (data_.sta.cap != 0) {
+    if (data_.dyn.cap > C) {
       delete[] data_.dyn.arr;
     }
-    data_.sta.cap = in.data_.sta.cap;
-    data_.dyn.size = in.data_.dyn.size;
-    data_ = std::move(in.data_);
-    in.data_.sta.cap = 0;
+    if (in.data_.dyn.cap > C) {
+      data_.dyn.cap = in.data_.dyn.cap;
+      data_.dyn.size = in.data_.dyn.size;
+      for (std::size_t idx = 0; idx < data_.dyn.size; ++idx) {
+        data_.dyn.arr[idx] = std::move(in.data_.dyn.arr[idx]);
+      }
+    } else {
+      data_.sta.size = in.data_.sta.size;
+      data_.sta = std::move(in.data_.sta);
+      for (std::size_t idx = 0; idx < data_.dyn.size; ++idx) {
+        data_.sta.val[idx] = std::move(in.data_.dyn.val[idx]);
+      }
+    }
+    in.data_.sta.size = 0;
   };
 
   auto operator==(const DArr32& in) const -> bool {
-    if (data_.dyn.size != in.data_.dyn.size) {
+    if (size() != in.size()) {
       return false;
     }
-    if (data_.sta.cap <= C && in.data_.sta.cap <= C) {
+    if (data_.sta.size <= C && in.data_.sta.size <= C) {
       for (uint32_t idx = 0; idx < size(); ++idx) {
         if (data_.sta.val[idx] != in.data_.sta.val[idx]) {
           return false;
         }
       }
       return true;
-    } else if (data_.sta.cap <= C) {
+    } else if (data_.sta.size <= C) {
       for (uint32_t idx = 0; idx < size(); ++idx) {
         if (data_.sta.val[idx] != in.data_.dyn.arr[idx]) {
           return false;
         }
       }
       return true;
-    } else if (in.data_.sta.cap <= C) {
+    } else if (in.data_.sta.size <= C) {
       for (uint32_t idx = 0; idx < size(); ++idx) {
         if (data_.dyn.arr[idx] != in.data_.sta.val[idx]) {
           return false;
@@ -136,13 +146,13 @@ class alignas(next_pow_2(C * 4)) DArr32 {
   };
 
   ~DArr32() {
-    if (data_.sta.cap != 0) {
+    if (data_.sta.size > C) {
       delete[] data_.dyn.arr;
     }
   };
 
   auto operator[](int idx) -> T& {
-    if (data_.sta.cap <= C) {
+    if (data_.sta.size <= C) {
       return data_.sta.val[idx];
     } else {
       return data_.dyn.arr[idx];
@@ -153,35 +163,35 @@ class alignas(next_pow_2(C * 4)) DArr32 {
     return size() == 0;
   };
   [[nodiscard]] auto size() const -> std::size_t {
-    return (data_.sta.cap <= C) ? data_.sta.cap : data_.dyn.size;
+    return (data_.sta.size <= C) ? data_.sta.size : data_.dyn.size;
   };
   [[nodiscard]] auto capacity() const -> std::size_t {
-    if (data_.sta.cap <= C) {
+    if (data_.sta.size <= C) {
       return C;
     } else {
-      return data_.sta.cap;
+      return data_.dyn.cap;
     }
   };
 
   void reserve(std::size_t cap) {
-    if (cap > C && cap > data_.sta.cap) {
+    if (cap > C && cap > data_.dyn.cao) {
       assert(cap <= 0x80000000UL);
-      if (data_.sta.cap == 0) {
-        data_.sta.cap = cap;
-        data_.dyn.arr = new T[data_.sta.cap];
+      if (data_.sta.size == 0) {
+        data_.dyn.cao = cap;
+        data_.dyn.arr = new T[data_.dyn.cao];
         data_.dyn.size = 0;
-      } else if (data_.sta.cap <= C) {
+      } else if (data_.sta.size <= C) {
         auto temp = data_;
-        data_.dyn.size = data_.sta.cap;
-        data_.sta.cap = cap;
-        data_.dyn.arr = new T[data_.sta.cap];
+        data_.dyn.size = data_.sta.size;
+        data_.dyn.cao = cap;
+        data_.dyn.arr = new T[data_.dyn.cao];
         for (uint32_t idx = 0; idx < data_.dyn.size; ++idx) {
           data_.dyn.arr[idx] = temp.sta.val[idx];
         }
       } else {
         T* temp = data_.dyn.arr;
-        data_.sta.cap = cap;
-        data_.dyn.arr = new T[data_.sta.cap];
+        data_.dyn.cao = cap;
+        data_.dyn.arr = new T[data_.dyn.cao];
         for (uint32_t idx = 0; idx < data_.dyn.size; ++idx) {
           data_.dyn.arr[idx] = temp[idx];
         }
@@ -190,26 +200,26 @@ class alignas(next_pow_2(C * 4)) DArr32 {
     }
   };
   void clear() {
-    if (data_.sta.cap <= C) {
-      data_.sta.cap = 0;
+    if (data_.sta.size <= C) {
+      data_.sta.size = 0;
     } else {
       data_.dyn.size = 0;
     }
   };
   void erase(auto b) {
-    if (data_.sta.cap <= C) {
-      --data_.sta.cap;
+    if (data_.sta.size <= C) {
+      --data_.sta.size;
     } else {
       --data_.dyn.size;
     }
     for (auto itr = b; itr != end(); ++itr) {
-      *itr = *(itr + 1);
+      *itr = std::move(*(itr + 1));
     }
   };
   void erase(auto b, auto e) {
     assert(e == end()); // Only support truncation of end.
-    if (data_.sta.cap <= C) {
-      data_.sta.cap = b - begin(); // Assume deleting all the rest.
+    if (data_.sta.size <= C) {
+      data_.sta.size = b - begin(); // Assume deleting all the rest.
     } else {
       data_.dyn.size = b - begin(); // Assume deleting all the rest.
     }
@@ -240,35 +250,35 @@ class alignas(next_pow_2(C * 4)) DArr32 {
   };
 
   void pop_back() {
-    if (data_.sta.cap <= C) {
-      --data_.sta.cap;
+    if (data_.sta.size <= C) {
+      --data_.sta.size;
     } else {
       --data_.dyn.size;
     }
   };
 
   void push_back(const T& in) {
-    if (data_.sta.cap < C) {
-      data_.sta.val[data_.sta.cap] = in;
-      ++data_.sta.cap;
-    } else if (data_.sta.cap == C) {
-      auto temp = data_;
-      auto size = data_.sta.cap;
-      data_.sta.cap = next_pow_2(C);
-      data_.dyn.arr = new T[data_.sta.cap];
+    if (data_.sta.size < C) {
+      data_.sta.val[data_.sta.size] = in;
+      ++data_.sta.size;
+    } else if (data_.sta.size == C) {
+      auto temp = data_.sta;
+      auto size = data_.sta.size;
+      data_.dyn.cap = next_pow_2(C);
+      data_.dyn.arr = new T[data_.dyn.cap];
       for (uint32_t idx = 0; idx < size; ++idx) {
-        data_.dyn.arr[idx] = temp.sta.val[idx];
+        data_.dyn.arr[idx] = temp.val[idx];
       }
       data_.dyn.arr[size] = in;
       data_.dyn.size = size + 1;
-    } else if (data_.dyn.size < data_.sta.cap) {
+    } else if (data_.dyn.size < data_.dyn.cap) {
       data_.dyn.arr[data_.dyn.size] = in;
       ++data_.dyn.size;
     } else {
-      assert(data_.sta.cap <= 0x40000000U);
+      assert(data_.dyn.cap <= 0x40000000U);
       T* temp = data_.dyn.arr;
-      data_.sta.cap *= 2;
-      data_.dyn.arr = new T[data_.sta.cap];
+      data_.dyn.cap *= 2;
+      data_.dyn.arr = new T[data_.dyn.cap];
       for (uint32_t idx = 0; idx < data_.dyn.size; ++idx) {
         data_.dyn.arr[idx] = temp[idx];
       }
@@ -279,72 +289,72 @@ class alignas(next_pow_2(C * 4)) DArr32 {
   };
 
   [[nodiscard]] auto front() -> T& {
-    if (data_.sta.cap <= C) {
+    if (data_.sta.size <= C) {
       return data_.sta.val[0];
     } else {
       return data_.dyn.arr[0];
     }
   };
   [[nodiscard]] auto front() const -> T const& {
-    if (data_.sta.cap <= C) {
+    if (data_.sta.size <= C) {
       return data_.sta.val[0];
     } else {
       return data_.dyn.arr[0];
     }
   };
   [[nodiscard]] auto back() -> T& {
-    if (data_.sta.cap <= C) {
-      return data_.sta.val[data_.sta.cap - 1];
+    if (data_.sta.size <= C) {
+      return data_.sta.val[data_.sta.size - 1];
     } else {
       return data_.dyn.arr[data_.dyn.size - 1];
     }
   };
   [[nodiscard]] auto back() const -> T const& {
-    if (data_.sta.cap <= C) {
-      return data_.sta.val[data_.sta.cap - 1];
+    if (data_.sta.size <= C) {
+      return data_.sta.val[data_.sta.size - 1];
     } else {
       return data_.dyn.arr[data_.dyn.size - 1];
     }
   };
 
   [[nodiscard]] auto begin() -> T* {
-    if (data_.sta.cap <= C) {
+    if (data_.sta.size <= C) {
       return data_.sta.val;
     } else {
       return data_.dyn.arr;
     }
   };
   [[nodiscard]] auto begin() const -> T const* {
-    if (data_.sta.cap <= C) {
+    if (data_.sta.size <= C) {
       return data_.sta.val;
     } else {
       return data_.dyn.arr;
     }
   };
   [[nodiscard]] auto cbegin() const -> T const* {
-    if (data_.sta.cap <= C) {
+    if (data_.sta.size <= C) {
       return data_.sta.val;
     } else {
       return data_.dyn.arr;
     }
   };
   [[nodiscard]] auto end() -> T* {
-    if (data_.sta.cap <= C) {
-      return data_.sta.val + data_.sta.cap;
+    if (data_.sta.size <= C) {
+      return data_.sta.val + data_.sta.size;
     } else {
       return data_.dyn.arr + data_.dyn.size;
     }
   };
   [[nodiscard]] auto end() const -> T const* {
-    if (data_.sta.cap <= C) {
-      return data_.sta.val + data_.sta.cap;
+    if (data_.sta.size <= C) {
+      return data_.sta.val + data_.sta.size;
     } else {
       return data_.dyn.arr + data_.dyn.size;
     }
   };
   [[nodiscard]] auto cend() const -> T const* {
-    if (data_.sta.cap <= C) {
-      return data_.sta.val + data_.sta.cap;
+    if (data_.sta.size <= C) {
+      return data_.sta.val + data_.sta.size;
     } else {
       return data_.dyn.arr + data_.dyn.size;
     }
@@ -353,11 +363,11 @@ class alignas(next_pow_2(C * 4)) DArr32 {
  private:
   union {
     struct {
-      uint32_t cap; // cap<=C means default capacity (of C), and cap contains size
+      uint32_t size; // size > C: this struct is inactive
       T val[C];
     } sta;
     struct {
-      uint32_t cap; // cap<=C means default capacity (of C), and cap contains size
+      uint32_t cap; // cap <= C: capacity is C, and this struct is inactive
       uint32_t size;
       T* arr;
     } dyn;
