@@ -282,9 +282,64 @@ consteval uint32_t crc32c(const char8_t* str) {
 }
 
 inline uint32_t crc32c_r(const char8_t* str, int32_t len, uint32_t crc) {
-  for (const char8_t* bptr = str; bptr < str + len; ++bptr) {
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(*bptr)) & 0xFFU];
+  const char8_t* bptr = str;
+
+  // First, single-byte process any leading byte not aligned to 2.
+  if ((reinterpret_cast<uintptr_t>(bptr) & 1) != 0 && bptr < str + len) {
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[0])) & 0xFFU];
+    bptr += 1;
   }
+
+  // Second, double-byte process any leading bytes not aligned to 4.
+  if ((reinterpret_cast<uintptr_t>(bptr) & 3) != 0 && bptr + 2 <= str + len) {
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[0])) & 0xFFU];
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[1])) & 0xFFU];
+    bptr += 2;
+  }
+
+  // Third, quad-byte process any leading bytes not aligned to 8.
+  if ((reinterpret_cast<uintptr_t>(bptr) & 7) != 0 && bptr + 4 <= str + len) {
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[0])) & 0xFFU];
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[1])) & 0xFFU];
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[2])) & 0xFFU];
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[3])) & 0xFFU];
+    bptr += 4;
+  }
+
+  // Process main body of text 8 aligned bytes at a time
+  for (; bptr + 7 < str + len; bptr += 8) {
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[0])) & 0xFFU];
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[1])) & 0xFFU];
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[2])) & 0xFFU];
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[3])) & 0xFFU];
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[4])) & 0xFFU];
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[5])) & 0xFFU];
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[6])) & 0xFFU];
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[7])) & 0xFFU];
+  }
+
+  // Third To Last, quad-byte process any trailing bytes not aligned to 8.
+  if (bptr + 4 <= str + len) {
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[0])) & 0xFFU];
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[1])) & 0xFFU];
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[2])) & 0xFFU];
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[3])) & 0xFFU];
+    bptr += 4;
+  }
+
+  // Second To Last, double-byte process any trailing bytes not aligned to 4.
+  if (bptr + 2 <= str + len) {
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[0])) & 0xFFU];
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[1])) & 0xFFU];
+    bptr += 2;
+  }
+
+  // Last, single-byte process any trailing byte not aligned to 2.
+  if (bptr < str + len) {
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(bptr[0])) & 0xFFU];
+    bptr += 1;
+  }
+
   return crc;
 }
 
