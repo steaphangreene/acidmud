@@ -704,7 +704,7 @@ class alignas(256) Object {
 
   std::forward_list<std::shared_ptr<Mind>> minds;
 
-  DArr64<uint64_t> known;
+  DArr32<uint32_t> known;
 
   DArr64<act_pair, 3> act;
 
