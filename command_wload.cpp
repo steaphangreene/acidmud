@@ -866,7 +866,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
             }
           }
           if (places.size() > 0) { // FIXME: This just selects one randomly, do better.
-            std::sample(places.begin(), places.end(), places.end(), 1, gen);
+            std::sample(places.begin(), places.end(), std::back_inserter(places), 1, gen);
             housed = places.back().first;
             --beds.at(places.back());
 
