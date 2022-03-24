@@ -34,6 +34,7 @@
 #include <sys/time.h>
 #include <ctime>
 
+#include "darr32.hpp"
 #include "darr64.hpp"
 #include "stats.hpp"
 
@@ -691,7 +692,7 @@ class alignas(256) Object {
   pos_t pos;
 
   int sexp;
-  DArr64<uint64_t> completed;
+  DArr32<uint32_t> completed;
 
   DArr64<Object*, 3> contents;
   Object* parent;
@@ -731,7 +732,7 @@ int is_skill(uint32_t stok);
 uint32_t get_weapon_skill(int wtype);
 int get_weapon_type(const std::u8string_view& wskill);
 int two_handed(int wtype);
-std::u8string get_tags_string(Object* world, const DArr64<uint64_t>& tags);
+std::u8string get_tags_string(Object* world, const DArr32<uint32_t>& tags);
 
 void tick_world();
 
