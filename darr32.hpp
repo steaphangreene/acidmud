@@ -54,9 +54,7 @@ class alignas(next_pow_2(C * 4)) DArr32 {
   using iterator = T*;
   using const_iterator = T const*;
 
-  DArr32() {
-    data_.sta.size = 0;
-  };
+  DArr32() = default;
   DArr32(const DArr32& in) : data_(in.data_) {
     if (data_.dyn.cap > C) {
       data_.dyn.arr = new T[data_.dyn.cap];
@@ -361,7 +359,10 @@ class alignas(next_pow_2(C * 4)) DArr32 {
   };
 
  private:
-  union {
+  union internal {
+    internal() {
+      sta.size = 0;
+    }
     struct {
       uint32_t size; // size > C: this struct is inactive
       T val[C];

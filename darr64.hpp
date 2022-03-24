@@ -47,6 +47,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <memory>
 #include <utility>
 
 constexpr auto smear_bits_right(uint32_t val) -> uint32_t {
@@ -80,16 +81,25 @@ class alignas(next_pow_2(C * 8)) DArr64 {
   DArr64() = default;
   DArr64(const DArr64& in) : cap_(in.cap_), size_(in.size_) {
     if (cap_ == 0) {
-      data_ = in.data_;
-    } else {
-      data_.arr = new T[cap_];
       for (uint32_t idx = 0; idx < size_; ++idx) {
-        data_.arr[idx] = in.data_.arr[idx];
+        std::construct_at(data_.val + idx, in.data_.val[idx]);
+      }
+    } else {
+      data_.arr = std::allocator<T>().allocate(cap_);
+      for (uint32_t idx = 0; idx < size_; ++idx) {
+        std::construct_at(data_.arr + idx, in.data_.arr[idx]);
       }
     }
   };
-  DArr64(DArr64&& in) noexcept(noexcept(data_ = std::move(in.data_)))
-      : data_(std::move(in.data_)), cap_(in.cap_), size_(in.size_) {
+  DArr64(DArr64&& in) noexcept(noexcept(data_.val[0] = std::move(in.data_.val[0])))
+      : cap_(in.cap_), size_(in.size_) {
+    if (cap_ == 0) {
+      for (uint32_t idx = 0; idx < size_; ++idx) {
+        std::construct_at(data_.val + idx, std::move(in.data_.val[idx]));
+      }
+    } else {
+      data_.arr = in.data_.arr;
+    }
     in.cap_ = 0;
     in.size_ = 0;
   };
@@ -98,30 +108,34 @@ class alignas(next_pow_2(C * 8)) DArr64 {
     if (this == &in) {
       return; // Self-assign
     }
-    if (cap_ != 0) {
-      delete[] data_.arr;
-    }
+    destroy_self();
     cap_ = in.cap_;
     size_ = in.size_;
     if (cap_ == 0) {
-      data_ = in.data_;
-    } else {
-      data_.arr = new T[cap_];
       for (uint32_t idx = 0; idx < size_; ++idx) {
-        data_.arr[idx] = in.data_.arr[idx];
+        std::construct_at(data_.val + idx, in.data_.val[idx]);
+      }
+    } else {
+      data_.arr = std::allocator<T>().allocate(cap_);
+      for (uint32_t idx = 0; idx < size_; ++idx) {
+        std::construct_at(data_.arr + idx, in.data_.arr[idx]);
       }
     }
   };
-  void operator=(DArr64&& in) noexcept(noexcept(data_ = std::move(in.data_))) {
+  void operator=(DArr64&& in) noexcept(noexcept(data_.val[0] = std::move(in.data_.val[0]))) {
     if (this == &in) {
       return; // Self-assign
     }
-    if (cap_ != 0) {
-      delete[] data_.arr;
-    }
+    destroy_self();
     cap_ = in.cap_;
     size_ = in.size_;
-    data_ = std::move(in.data_);
+    if (cap_ == 0) {
+      for (uint32_t idx = 0; idx < size_; ++idx) {
+        std::construct_at(data_.val + idx, std::move(in.data_.val[idx]));
+      }
+    } else {
+      data_ = in.data_;
+    }
     in.cap_ = 0;
     in.size_ = 0;
   };
@@ -162,9 +176,7 @@ class alignas(next_pow_2(C * 8)) DArr64 {
   };
 
   ~DArr64() {
-    if (cap_ != 0) {
-      delete[] data_.arr;
-    }
+    destroy_self();
   };
 
   auto operator[](int idx) -> T& {
@@ -194,40 +206,49 @@ class alignas(next_pow_2(C * 8)) DArr64 {
       assert(cap <= 0x80000000UL);
       if (cap_ == 0 && size_ == 0) {
         cap_ = cap;
-        data_.arr = new T[cap_];
+        data_.arr = std::allocator<T>().allocate(cap_);
       } else if (cap_ == 0) {
-        auto temp = data_;
         cap_ = cap;
-        data_.arr = new T[cap_];
+        auto temp = std::allocator<T>().allocate(cap_);
         for (uint32_t idx = 0; idx < size_; ++idx) {
-          data_.arr[idx] = temp.val[idx];
+          temp[idx] = std::move(data_.val[idx]);
         }
+        data_.arr = temp;
       } else {
         T* temp = data_.arr;
+        auto temp_cap = cap_;
         cap_ = cap;
-        data_.arr = new T[cap_];
+        data_.arr = std::allocator<T>().allocate(cap_);
         for (uint32_t idx = 0; idx < size_; ++idx) {
           data_.arr[idx] = temp[idx];
         }
-        delete[] temp;
+        std::allocator<T>().deallocate(temp, temp_cap);
       }
     }
   };
   void clear() {
+    destroy_self();
     size_ = 0;
   };
   void erase(auto b) {
     --size_;
     for (auto itr = b; itr != end(); ++itr) {
-      *itr = *(itr + 1);
+      *itr = std::move(*(itr + 1));
     }
+    std::destroy_at(end());
   };
   void erase(auto b, auto e) {
     assert(e == end()); // Only support truncation of end.
+    for (auto i = b; i != e; ++i) {
+      std::destroy_at(i);
+    }
     size_ = b - begin(); // Assume deleting all the rest.
   };
   void emplace(auto to, auto b, auto e) {
-    insert(to, b, e);
+    assert(to == end()); // Only support appending to end.
+    for (auto idx = b; idx != e; ++idx) {
+      emplace_back(*idx); // Assuming appending to the end.
+    }
   }
   void insert(auto to, auto b, auto e) {
     assert(to == end()); // Only support appending to end.
@@ -235,51 +256,59 @@ class alignas(next_pow_2(C * 8)) DArr64 {
       push_back(*idx); // Assuming appending to the end.
     }
   };
-  void emplace(auto to, const T& in) {
-    insert(to, in);
+  template <typename I, typename... Args>
+  void emplace(I to, Args&&... args) {
+    if (to == end()) {
+      emplace_back(std::forward<Args>(args)...);
+    } else {
+      emplace_back(std::forward<Args>(args)...);
+      T temp = std::move(back());
+      for (auto itr = end() - 1; itr != to; --itr) {
+        *itr = std::move(*(itr - 1));
+      }
+      *to = std::move(temp);
+    }
   }
   void insert(auto to, const T& in) {
-    if (to == end()) {
-      push_back(in);
-    } else {
-      T temp = back();
-      for (auto itr = end() - 1; itr != to; --itr) {
-        *itr = *(itr - 1);
-      }
-      *to = in;
-      push_back(temp);
-    }
+    emplace(to, in);
   };
 
   void pop_back() {
     --size_;
+    std::destroy_at(end());
   };
 
-  void push_back(const T& in) {
+  template <typename... Args>
+  void emplace_back(Args&&... args) {
     if (cap_ == 0 && size_ < C) {
-      data_.val[size_] = in;
+      std::construct_at(data_.val + size_, std::forward<Args>(args)...);
     } else if (cap_ == 0) {
-      auto temp = data_;
       cap_ = next_pow_2(C);
-      data_.arr = new T[cap_];
+      auto temp = std::allocator<T>().allocate(cap_);
       for (uint32_t idx = 0; idx < size_; ++idx) {
-        data_.arr[idx] = temp.val[idx];
+        temp[idx] = std::move(data_.val[idx]);
       }
-      data_.arr[size_] = in;
+      data_.arr = temp;
+      std::construct_at(data_.arr + size_, std::forward<Args>(args)...);
     } else if (size_ < cap_) {
-      data_.arr[size_] = in;
+      std::construct_at(data_.arr + size_, std::forward<Args>(args)...);
     } else {
       assert(cap_ <= 0x40000000U);
       T* temp = data_.arr;
+      auto temp_cap = cap_;
       cap_ *= 2;
-      data_.arr = new T[cap_];
+      data_.arr = std::allocator<T>().allocate(cap_);
       for (uint32_t idx = 0; idx < size_; ++idx) {
         data_.arr[idx] = temp[idx];
       }
-      delete[] temp;
-      data_.arr[size_] = in;
+      std::allocator<T>().deallocate(temp, temp_cap);
+      std::construct_at(data_.arr + size_, std::forward<Args>(args)...);
     }
     ++size_;
+  }
+
+  void push_back(const T& in) {
+    emplace_back(in);
   };
 
   [[nodiscard]] auto front() -> T& {
@@ -355,7 +384,22 @@ class alignas(next_pow_2(C * 8)) DArr64 {
   };
 
  private:
-  union {
+  void destroy_self() {
+    if (cap_ != 0) {
+      for (std::size_t idx = 0; idx < size_; ++idx) {
+        std::destroy_at(data_.arr + idx);
+      }
+      std::allocator<T>().deallocate(data_.arr, cap_);
+    } else {
+      for (std::size_t idx = 0; idx < size_; ++idx) {
+        std::destroy_at(data_.val + idx);
+      }
+    }
+  }
+
+  union internal {
+    internal(){};
+    ~internal(){};
     T val[C];
     T* arr;
   } data_;
