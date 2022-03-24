@@ -410,10 +410,14 @@ inline uint32_t crc32c_r_mc(const char8_t* str, int32_t len, uint32_t crc) {
 
 inline uint32_t crc32c_r(const char8_t* str, int32_t len, uint32_t crc) {
   uint32_t ret = crc32c_r_lc(str, len, crc);
+  bool uppercase_free = true;
   for (const char8_t* bptr = str; bptr < str + len; ++bptr) {
     if (ascii_isupper(*bptr)) {
-      return crc32c_r_mc(str, len, crc);
+      uppercase_free = false;
     }
+  }
+  if (!uppercase_free) [[unlikely]] {
+    ret = crc32c_r_mc(str, len, crc);
   }
   return ret;
 }
