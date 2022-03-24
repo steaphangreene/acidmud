@@ -282,38 +282,108 @@ consteval uint32_t crc32c(const char8_t* str) {
 }
 
 inline uint32_t crc32c_r(const char8_t* str, int32_t len, uint32_t crc) {
-  const char8_t* bptr = str;
-
-  // First, single-byte process any leading byte not aligned to 2.
-  if ((reinterpret_cast<uintptr_t>(bptr) & 1) != 0 && bptr < str + len) {
-    char8_t const data[] = {
-        ascii_tolower(bptr[0]),
-    };
-    __asm__("crc32b (%1), %0" : "=r"(crc) : "r"(data), "m"(*data), "0"(crc));
-    bptr += 1;
+  // First, process any leading bytes not aligned to 8.
+  uintptr_t align = (reinterpret_cast<uintptr_t>(str) & 7) ^ 7;
+  if (len == 0) {
+    return crc;
+  } else if (len + 4 < align) {
+    align &= 1;
+  } else if (len < align) {
+    if ((align & 4) != 0) {
+      align &= 3;
+    } else {
+      align &= 1;
+    }
+  }
+  switch (align) {
+    case (1): {
+      char8_t const data[] = {
+          ascii_tolower(str[0]),
+      };
+      __asm__("crc32b (%1),%0" : "=r"(crc) : "r"(data), "m"(*data), "0"(crc));
+    } break;
+    case (2): {
+      char8_t const data[] = {
+          ascii_tolower(str[0]),
+          ascii_tolower(str[1]),
+      };
+      __asm__("crc32w (%1),%0" : "=r"(crc) : "r"(data), "m"(*data), "0"(crc));
+    } break;
+    case (3): {
+      char8_t const data[] = {
+          ascii_tolower(str[0]),
+          ascii_tolower(str[1]),
+          ascii_tolower(str[2]),
+      };
+      __asm__(
+          "crc32b (%1),%0"
+          "\n\t"
+          "crc32w 1(%1),%0"
+          : "=r"(crc)
+          : "r"(data), "m"(*data), "0"(crc));
+    } break;
+    case (4): {
+      char8_t const data[] = {
+          ascii_tolower(str[0]),
+          ascii_tolower(str[1]),
+          ascii_tolower(str[2]),
+          ascii_tolower(str[3]),
+      };
+      __asm__("crc32l (%1),%0" : "=r"(crc) : "r"(data), "m"(*data), "0"(crc));
+    } break;
+    case (5): {
+      char8_t const data[] = {
+          ascii_tolower(str[0]),
+          ascii_tolower(str[1]),
+          ascii_tolower(str[2]),
+          ascii_tolower(str[3]),
+          ascii_tolower(str[4]),
+      };
+      __asm__(
+          "crc32b (%1),%0"
+          "\n\t"
+          "crc32l 1(%1),%0"
+          : "=r"(crc)
+          : "r"(data), "m"(*data), "0"(crc));
+    } break;
+    case (6): {
+      char8_t const data[] = {
+          ascii_tolower(str[0]),
+          ascii_tolower(str[1]),
+          ascii_tolower(str[2]),
+          ascii_tolower(str[3]),
+          ascii_tolower(str[4]),
+          ascii_tolower(str[5]),
+      };
+      __asm__(
+          "crc32w (%1),%0"
+          "\n\t"
+          "crc32l 2(%1),%0"
+          : "=r"(crc)
+          : "r"(data), "m"(*data), "0"(crc));
+    } break;
+    case (7): {
+      char8_t const data[] = {
+          ascii_tolower(str[0]),
+          ascii_tolower(str[1]),
+          ascii_tolower(str[2]),
+          ascii_tolower(str[3]),
+          ascii_tolower(str[4]),
+          ascii_tolower(str[5]),
+          ascii_tolower(str[6]),
+      };
+      __asm__(
+          "crc32b (%1),%0"
+          "\n\t"
+          "crc32w 1(%1),%0"
+          "\n\t"
+          "crc32l 3(%1),%0"
+          : "=r"(crc)
+          : "r"(data), "m"(*data), "0"(crc));
+    } break;
   }
 
-  // Second, double-byte process any leading bytes not aligned to 4.
-  if ((reinterpret_cast<uintptr_t>(bptr) & 3) != 0 && bptr + 2 <= str + len) {
-    char8_t const data[] = {
-        ascii_tolower(bptr[0]),
-        ascii_tolower(bptr[1]),
-    };
-    __asm__("crc32w (%1), %0" : "=r"(crc) : "r"(data), "m"(*data), "0"(crc));
-    bptr += 2;
-  }
-
-  // Third, quad-byte process any leading bytes not aligned to 8.
-  if ((reinterpret_cast<uintptr_t>(bptr) & 7) != 0 && bptr + 4 <= str + len) {
-    char8_t const data[] = {
-        ascii_tolower(bptr[0]),
-        ascii_tolower(bptr[1]),
-        ascii_tolower(bptr[2]),
-        ascii_tolower(bptr[3]),
-    };
-    __asm__("crc32l (%1), %0" : "=r"(crc) : "r"(data), "m"(*data), "0"(crc));
-    bptr += 4;
-  }
+  const char8_t* bptr = str + align;
 
   // Process main body of text 8 aligned bytes at a time
   for (; bptr + 7 < str + len; bptr += 8) {
@@ -328,39 +398,98 @@ inline uint32_t crc32c_r(const char8_t* str, int32_t len, uint32_t crc) {
         ascii_tolower(bptr[7]),
     };
     uint64_t crcreg = crc;
-    __asm__("crc32q (%1), %0" : "=r"(crcreg) : "r"(data), "m"(*data), "0"(crcreg));
+    __asm__("crc32q (%1),%0" : "=r"(crcreg) : "r"(data), "m"(*data), "0"(crcreg));
     crc = crcreg;
   }
 
-  // Third To Last, quad-byte process any trailing bytes not aligned to 8.
-  if (bptr + 4 <= str + len) {
-    char8_t const data[] = {
-        ascii_tolower(bptr[0]),
-        ascii_tolower(bptr[1]),
-        ascii_tolower(bptr[2]),
-        ascii_tolower(bptr[3]),
-    };
-    __asm__("crc32l (%1), %0" : "=r"(crc) : "r"(data), "m"(*data), "0"(crc));
-    bptr += 4;
-  }
-
-  // Second To Last, double-byte process any trailing bytes not aligned to 4.
-  if (bptr + 2 <= str + len) {
-    char8_t const data[] = {
-        ascii_tolower(bptr[0]),
-        ascii_tolower(bptr[1]),
-    };
-    __asm__("crc32w (%1), %0" : "=r"(crc) : "r"(data), "m"(*data), "0"(crc));
-    bptr += 2;
-  }
-
-  // Last, single-byte process any trailing byte not aligned to 2.
-  if (bptr < str + len) {
-    char8_t const data[] = {
-        ascii_tolower(bptr[0]),
-    };
-    __asm__("crc32b (%1), %0" : "=r"(crc) : "r"(data), "m"(*data), "0"(crc));
-    bptr += 1;
+  // Last, process any trailing bytes not aligned to 8.
+  int rem = str + len - bptr;
+  switch (rem) {
+    case (1): {
+      char8_t const data[] = {
+          ascii_tolower(bptr[0]),
+      };
+      __asm__("crc32b (%1),%0" : "=r"(crc) : "r"(data), "m"(*data), "0"(crc));
+    } break;
+    case (2): {
+      char8_t const data[] = {
+          ascii_tolower(bptr[0]),
+          ascii_tolower(bptr[1]),
+      };
+      __asm__("crc32w (%1),%0" : "=r"(crc) : "r"(data), "m"(*data), "0"(crc));
+    } break;
+    case (3): {
+      char8_t const data[] = {
+          ascii_tolower(bptr[0]),
+          ascii_tolower(bptr[1]),
+          ascii_tolower(bptr[2]),
+      };
+      __asm__(
+          "crc32w (%1),%0"
+          "\n\t"
+          "crc32b 2(%1),%0"
+          : "=r"(crc)
+          : "r"(data), "m"(*data), "0"(crc));
+    } break;
+    case (4): {
+      char8_t const data[] = {
+          ascii_tolower(bptr[0]),
+          ascii_tolower(bptr[1]),
+          ascii_tolower(bptr[2]),
+          ascii_tolower(bptr[3]),
+      };
+      __asm__("crc32l (%1),%0" : "=r"(crc) : "r"(data), "m"(*data), "0"(crc));
+    } break;
+    case (5): {
+      char8_t const data[] = {
+          ascii_tolower(bptr[0]),
+          ascii_tolower(bptr[1]),
+          ascii_tolower(bptr[2]),
+          ascii_tolower(bptr[3]),
+          ascii_tolower(bptr[4]),
+      };
+      __asm__(
+          "crc32l (%1),%0"
+          "\n\t"
+          "crc32b 4(%1),%0"
+          : "=r"(crc)
+          : "r"(data), "m"(*data), "0"(crc));
+    } break;
+    case (6): {
+      char8_t const data[] = {
+          ascii_tolower(bptr[0]),
+          ascii_tolower(bptr[1]),
+          ascii_tolower(bptr[2]),
+          ascii_tolower(bptr[3]),
+          ascii_tolower(bptr[4]),
+          ascii_tolower(bptr[5]),
+      };
+      __asm__(
+          "crc32l (%1),%0"
+          "\n\t"
+          "crc32w 4(%1),%0"
+          : "=r"(crc)
+          : "r"(data), "m"(*data), "0"(crc));
+    } break;
+    case (7): {
+      char8_t const data[] = {
+          ascii_tolower(bptr[0]),
+          ascii_tolower(bptr[1]),
+          ascii_tolower(bptr[2]),
+          ascii_tolower(bptr[3]),
+          ascii_tolower(bptr[4]),
+          ascii_tolower(bptr[5]),
+          ascii_tolower(bptr[6]),
+      };
+      __asm__(
+          "crc32l (%1),%0"
+          "\n\t"
+          "crc32w 4(%1),%0"
+          "\n\t"
+          "crc32b 6(%1),%0"
+          : "=r"(crc)
+          : "r"(data), "m"(*data), "0"(crc));
+    } break;
   }
 
   return crc;
