@@ -172,7 +172,7 @@ static std::u8string desc_merge(std::u8string_view d1, std::u8string_view d2) {
 }
 
 static std::vector<ObjectTag> finalize_tags(
-    int max_items,
+    size_t max_items,
     const std::vector<uint32_t>& tags,
     const std::map<uint32_t, ObjectTag>& tagdefs) {
   std::vector<ObjectTag> ret;
