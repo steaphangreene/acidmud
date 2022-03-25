@@ -401,37 +401,33 @@ inline uint32_t crc32c_r_lc(const char8_t* str, int32_t len, uint32_t crc) {
   return crc;
 }
 
-inline uint32_t crc32c_r_mc(const char8_t* str, int32_t len, uint32_t crc) {
-  for (const char8_t* bptr = str; bptr < str + len; ++bptr) {
-    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(*bptr)) & 0xFFU];
+inline uint32_t crc32c_r_mc(const std::u8string_view& str, uint32_t crc) {
+  for (const auto& b : str) {
+    crc = (crc >> 8) ^ crc32tab[(crc ^ ascii_tolower(b)) & 0xFFU];
   }
   return crc;
 }
 
-inline uint32_t crc32c_r(const char8_t* str, int32_t len, uint32_t crc) {
-  uint32_t ret = crc32c_r_lc(str, len, crc);
+inline uint32_t crc32c_r(const std::u8string_view& str, uint32_t crc) {
+  uint32_t ret = crc32c_r_lc(str.data(), str.length(), crc);
   bool uppercase_free = true;
-  for (const char8_t* bptr = str; bptr < str + len; ++bptr) {
-    if (ascii_isupper(*bptr)) {
+  for (const auto& b : str) {
+    if (ascii_isupper(b)) {
       uppercase_free = false;
     }
   }
   if (!uppercase_free) [[unlikely]] {
-    ret = crc32c_r_mc(str, len, crc);
+    ret = crc32c_r_mc(str, crc);
   }
   return ret;
 }
 
 inline uint32_t crc32c(const char8_t* str, int32_t len) {
-  return crc32c_r(str, len, 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
-}
-
-inline uint32_t crc32c(const std::u8string& str) {
-  return crc32c(str.data(), str.length());
+  return crc32c_r(std::u8string_view(str, len), 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
 }
 
 inline uint32_t crc32c(const std::u8string_view& str) {
-  return crc32c(str.data(), str.length());
+  return crc32c_r(str, 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
 }
 
 // Assert A Few Independently Confirmed CRC32C Hashes
