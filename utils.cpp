@@ -26,6 +26,10 @@
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
+// Replace with C++20 std::ranges, when widely available
+#include <range/v3/algorithm.hpp>
+namespace rng = ranges;
+
 #include "color.hpp"
 #include "utils.hpp"
 
@@ -96,7 +100,7 @@ static bool phrase_match_sensitive(
         (desc.length() == phrase.length() || !ascii_isalnum(desc.at(phrase.length())))) {
       return true;
     }
-    auto off = std::find_if_not(desc.begin(), desc.end(), ascii_isalnum);
+    auto off = rng::find_if_not(desc, ascii_isalnum);
     if (off == desc.end()) {
       return false;
     }
@@ -113,9 +117,9 @@ bool phrase_match(const std::u8string_view& str, const std::u8string_view& phras
   if (phrase.length() == 0)
     return false;
 
-  if (std::any_of(str.cbegin(), str.cend(), ascii_isupper)) {
+  if (rng::any_of(str, ascii_isupper)) {
     std::u8string str2(str);
-    std::transform(str2.begin(), str2.end(), str2.begin(), ascii_tolower);
+    rng::transform(str2, str2.begin(), ascii_tolower);
     return phrase_match_sensitive(str2, phrase);
   } else {
     return phrase_match_sensitive(str, phrase);
@@ -123,7 +127,7 @@ bool phrase_match(const std::u8string_view& str, const std::u8string_view& phras
 }
 
 bool words_match(const std::u8string_view& str, const std::u8string_view& words) {
-  auto start = std::find_if(words.begin(), words.end(), ascii_isalpha);
+  auto start = rng::find_if(words, ascii_isalpha);
   while (start != words.end()) {
     auto end = std::find_if_not(start, words.end(), ascii_isalnum);
     if (phrase_match(str, words.substr(start - words.begin(), end - start))) {
