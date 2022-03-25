@@ -98,6 +98,7 @@ Player* get_player(const std::u8string_view& name);
 int player_exists(const std::u8string_view& name);
 int save_players(const std::u8string_view& fn);
 int load_players(const std::u8string_view& fn);
+void free_players();
 void player_rooms_erase(Object*);
 int is_pc(const Object*);
 

@@ -276,6 +276,16 @@ int Player::LoadFrom(std::u8string_view& fl) {
   return 0;
 }
 
+void free_players() {
+  std::set<Player*> todel;
+  for (auto p : player_list) {
+    todel.insert(p.second);
+  }
+  for (auto p : todel) {
+    delete p;
+  }
+}
+
 int load_players(const std::u8string_view& fn) {
   loge(u8"Loading Players.\n");
 

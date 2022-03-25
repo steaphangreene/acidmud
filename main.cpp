@@ -41,6 +41,7 @@
 #include "log.hpp"
 #include "net.hpp"
 #include "object.hpp"
+#include "player.hpp"
 
 int shutdn = 0;
 
@@ -181,13 +182,7 @@ int main(int argc, char** argv) {
   warn_net(1);
   stop_net();
   save_world();
-
-#if defined(__has_feature)
-#if __has_feature(address_sanitizer)
-  __lsan_do_leak_check();
-  __lsan_disable(); // We don't clean up on exit.
-#endif
-#endif
+  free_players();
 
   return 0;
 }
