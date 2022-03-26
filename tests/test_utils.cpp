@@ -80,3 +80,79 @@ TEST_CASE("Test crc32c", "[crc32c]") {
   res_c = crc32c_c(test_string2 + off1, off2, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
   REQUIRE(res_r == res_c);
 }
+
+TEST_CASE("Test ascii_* functions", "[ascii]") {
+  SECTION("Spaces") {
+    char8_t ch = GENERATE(' ', '\t', '\n', '\r', '\v');
+    REQUIRE(ascii_isspace(ch) == true);
+  }
+  SECTION("Not Spaces") {
+    char8_t ch = GENERATE('\0', range('!', '~'), '~');
+    REQUIRE(ascii_isspace(ch) == false);
+  }
+
+  SECTION("Letters") {
+    char8_t ch = GENERATE(range('A', 'Z'), 'Z', range('a', 'z'), 'z');
+    REQUIRE(ascii_isalpha(ch) == true);
+  }
+  SECTION("Not Letters") {
+    char8_t ch = GENERATE(range('\0', 'A'), range('[', 'a'), range('{', '~'), '~');
+    REQUIRE(ascii_isalpha(ch) == false);
+  }
+
+  SECTION("Uppercase") {
+    char8_t ch = GENERATE(range('A', 'Z'), 'Z');
+    REQUIRE(ascii_isupper(ch) == true);
+  }
+  SECTION("Not Uppercase") {
+    char8_t ch = GENERATE(range('\0', 'A'), range('[', '~'), '~');
+    REQUIRE(ascii_isupper(ch) == false);
+  }
+
+  SECTION("Lowercase") {
+    char8_t ch = GENERATE(range('a', 'z'), 'z');
+    REQUIRE(ascii_islower(ch) == true);
+  }
+  SECTION("Not Lowercase") {
+    char8_t ch = GENERATE(range('\0', 'a'), range('{', '~'), '~');
+    REQUIRE(ascii_islower(ch) == false);
+  }
+
+  SECTION("Decimal Digits") {
+    char8_t ch = GENERATE(range('0', '9'), '9');
+    REQUIRE(ascii_isdigit(ch) == true);
+  }
+  SECTION("Not Decimal Digits") {
+    char8_t ch = GENERATE(range('\0', '0'), range(':', '~'), '~');
+    REQUIRE(ascii_isdigit(ch) == false);
+  }
+
+  SECTION("Alphanumeric") {
+    char8_t ch = GENERATE(range('0', '9'), '9', range('A', 'Z'), 'Z', range('a', 'z'), 'z');
+    REQUIRE(ascii_isalnum(ch) == true);
+  }
+  SECTION("Not Alphanumeric") {
+    char8_t ch = GENERATE(range('\0', '0'), range(':', 'A'), range('[', 'a'), range('{', '~'), '~');
+    REQUIRE(ascii_isalnum(ch) == false);
+  }
+
+  REQUIRE(ascii_tolower('H') == 'h');
+  SECTION("Uppercase to Lowercase") {
+    char8_t ch = GENERATE(range('A', 'Z'), 'Z');
+    REQUIRE(ascii_tolower(ch) == ch + 32);
+  }
+  SECTION("Not Uppercase to Lowercase") {
+    char8_t ch = GENERATE(range('\0', 'A'), range('[', '~'), '~');
+    REQUIRE(ascii_tolower(ch) == ch);
+  }
+
+  REQUIRE(ascii_toupper('h') == 'H');
+  SECTION("Lowercase to Uppercase") {
+    char8_t ch = GENERATE(range('a', 'z'), 'z');
+    REQUIRE(ascii_toupper(ch) == ch - 32);
+  }
+  SECTION("Not Lowercase to Uppercase") {
+    char8_t ch = GENERATE(range('\0', 'a'), range('{', '~'), '~');
+    REQUIRE(ascii_toupper(ch) == ch);
+  }
+}
