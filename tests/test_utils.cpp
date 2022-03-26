@@ -136,7 +136,6 @@ TEST_CASE("Test ascii_* functions", "[ascii]") {
     REQUIRE(ascii_isalnum(ch) == false);
   }
 
-  REQUIRE(ascii_tolower('H') == 'h');
   SECTION("Uppercase to Lowercase") {
     char8_t ch = GENERATE(range('A', 'Z'), 'Z');
     REQUIRE(ascii_tolower(ch) == ch + 32);
@@ -146,7 +145,6 @@ TEST_CASE("Test ascii_* functions", "[ascii]") {
     REQUIRE(ascii_tolower(ch) == ch);
   }
 
-  REQUIRE(ascii_toupper('h') == 'H');
   SECTION("Lowercase to Uppercase") {
     char8_t ch = GENERATE(range('a', 'z'), 'z');
     REQUIRE(ascii_toupper(ch) == ch - 32);
@@ -154,5 +152,10 @@ TEST_CASE("Test ascii_* functions", "[ascii]") {
   SECTION("Not Lowercase to Uppercase") {
     char8_t ch = GENERATE(range('\0', 'a'), range('{', '~'), '~');
     REQUIRE(ascii_toupper(ch) == ch);
+  }
+
+  SECTION("Baseline Case Sanity Check") {
+    REQUIRE(ascii_tolower('H') == 'h');
+    REQUIRE(ascii_toupper('h') == 'H');
   }
 }
