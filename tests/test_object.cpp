@@ -23,6 +23,7 @@
 #include <catch2/catch.hpp>
 
 #include "../object.hpp"
+#include "../properties.hpp"
 
 TEST_CASE("Object Sanity", "[object]") {
   auto universe = new Object();
@@ -43,13 +44,13 @@ TEST_CASE("Object Sanity", "[object]") {
 }
 
 TEST_CASE("Object Movement", "[object]") {
-  auto universe = new Object();
-  REQUIRE(universe != nullptr);
+  init_universe();
+  REQUIRE(Object::Universe() != nullptr);
 
   // Note: Each must have a different ShortDesc to avoid being auto-combined.
-  auto world1 = new Object(universe);
+  auto world1 = new Object(Object::Universe());
   world1->SetShortDesc(u8"world1");
-  auto world2 = new Object(universe);
+  auto world2 = new Object(Object::Universe());
   world2->SetShortDesc(u8"world2");
   auto zone1a = new Object(world1);
   zone1a->SetShortDesc(u8"zone1a");
@@ -68,14 +69,14 @@ TEST_CASE("Object Movement", "[object]") {
   auto item1a1a2 = new Object(obj1a1a);
   item1a1a2->SetShortDesc(u8"item1a1a2");
 
-  REQUIRE(universe->HasWithin(item1a1a1));
+  REQUIRE(Object::Universe()->HasWithin(item1a1a1));
   REQUIRE(obj1a1a->HasWithin(item1a1a1));
 
   REQUIRE(item1a1a1->World() == world1);
   REQUIRE(item1a1a1->Zone() == zone1a);
   REQUIRE(item1a1a1->Room() == room1a1);
 
-  REQUIRE(universe->Contents().size() == 2);
+  REQUIRE(Object::Universe()->Contents().size() == 2);
   REQUIRE(world1->Contents().size() == 2);
   REQUIRE(zone1a->Contents().size() == 2);
   REQUIRE(room1a1->Contents().size() == 2);
@@ -106,15 +107,66 @@ TEST_CASE("Object Movement", "[object]") {
     obj1a1a->Travel(room1a2);
     REQUIRE(!room1a1->HasWithin(obj1a1a));
     REQUIRE(room1a2->HasWithin(obj1a1a));
+    REQUIRE(room1a1->HasWithin(obj1a1b));
+    REQUIRE(!room1a2->HasWithin(obj1a1b));
     REQUIRE(room1a2->HasWithin(item1a1a1));
     REQUIRE(room1a2->HasWithin(item1a1a2));
     REQUIRE(zone1a->HasWithin(room1a1));
     obj1a1a->Travel(room1a1);
+    REQUIRE(room1a1->HasWithin(obj1a1a));
+    REQUIRE(!room1a2->HasWithin(obj1a1a));
+    REQUIRE(room1a1->HasWithin(obj1a1b));
+    REQUIRE(!room1a2->HasWithin(obj1a1b));
+  }
+
+  SECTION("Do Not Combine Non-Empty Objects") {
+    obj1a1a->SetShortDesc(u8"do not merge me");
+    obj1a1b->SetShortDesc(u8"do not merge me");
+    obj1a1a->Travel(room1a2);
+    REQUIRE(!room1a1->HasWithin(obj1a1a));
+    REQUIRE(room1a2->HasWithin(obj1a1a));
+    REQUIRE(room1a1->HasWithin(obj1a1b));
+    REQUIRE(!room1a2->HasWithin(obj1a1b));
+    REQUIRE(room1a2->HasWithin(item1a1a1));
+    REQUIRE(room1a2->HasWithin(item1a1a2));
+    REQUIRE(zone1a->HasWithin(room1a1));
+    obj1a1a->Travel(room1a1);
+    REQUIRE(room1a1->HasWithin(obj1a1a));
+    REQUIRE(!room1a2->HasWithin(obj1a1a));
+    REQUIRE(room1a1->HasWithin(obj1a1b));
+    REQUIRE(!room1a2->HasWithin(obj1a1b));
+  }
+
+  SECTION("Combine Empty Objects") {
+    item1a1a1->SetShortDesc(u8"merge me");
+    item1a1a2->SetShortDesc(u8"merge me");
+    item1a1a1->Travel(obj1a1b);
+    REQUIRE(obj1a1a->Contents().size() == 1);
+    REQUIRE(obj1a1b->Contents().size() == 1);
+    REQUIRE(room1a1->HasWithin(obj1a1a));
+    REQUIRE(!room1a2->HasWithin(obj1a1a));
+    REQUIRE(room1a1->HasWithin(obj1a1b));
+    REQUIRE(!room1a2->HasWithin(obj1a1b));
+    REQUIRE(room1a1->HasWithin(item1a1a1));
+    REQUIRE(room1a1->HasWithin(item1a1a2));
+    REQUIRE(!room1a2->HasWithin(item1a1a1));
+    REQUIRE(!room1a2->HasWithin(item1a1a2));
+    REQUIRE(zone1a->HasWithin(room1a1));
+    item1a1a1->Travel(obj1a1a);
+    REQUIRE(item1a1a1->HasSkill(prhash(u8"Quantity")));
+    REQUIRE(item1a1a1->Skill(prhash(u8"Quantity")) == 2);
+    REQUIRE(item1a1a2->Parent() == Object::TrashBin());
+    REQUIRE(obj1a1a->Contents().size() == 1);
+    REQUIRE(obj1a1b->Contents().size() == 0);
+    REQUIRE(room1a1->HasWithin(obj1a1a));
+    REQUIRE(!room1a2->HasWithin(obj1a1a));
+    REQUIRE(room1a1->HasWithin(obj1a1b));
+    REQUIRE(!room1a2->HasWithin(obj1a1b));
   }
 
   REQUIRE(item1a1a1->World() == world1);
   REQUIRE(item1a1a1->Zone() == zone1a);
   REQUIRE(item1a1a1->Room() == room1a1);
 
-  delete universe;
+  destroy_universe();
 }
