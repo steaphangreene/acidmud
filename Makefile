@@ -24,7 +24,7 @@ ACIDHOST:=acidmud
 TSTR:=  $(shell date -u +"%Y%m%d%H%M")
 RSTR:=  $(shell git log --oneline | wc -l)
 HSTR:=  $(shell git log -1 --format=%h)
-OBJS:=	main.o global.o version.o stats.o net.o commands.o mind.o player.o npc.o object.o \
+OBJS:=	global.o version.o stats.o net.o commands.o mind.o player.o npc.o object.o \
         object_acid.o object_dynamic.o command_ccreate.o command_wload.o utils.o \
 	object_tba.o skills.o properties.o infile.o outfile.o log.o tags.o
 LIBS:=
@@ -33,7 +33,7 @@ GOPT:=	-std=c++2b
 ARCH:=	-mavx2 -mfma -mbmi2 -falign-functions=32
 COMP:=	-Wall -Wshadow -Werror -Wno-format-security -fno-rtti -fno-exceptions -isystem ../range-v3/include
 
-all:	acidmud
+all:	acidmud test
 
 #Production Settings (dynamic)
 CXX=clang++-13
@@ -51,7 +51,7 @@ gcc:
 	+make CXX='g++-11' CXXFLAGS='-Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(GOPT)'
 
 clean:
-	rm -f gmon.out deps.mk *.o *.da version.cpp acidmud changes.txt
+	rm -f gmon.out deps.mk tests/*.o tests/*.da *.o *.da version.cpp acidmud changes.txt
 
 backup:
 	cd ..;tar chvf ~/c/archive/acidmud.$(TSTR).tar \
@@ -66,12 +66,21 @@ upload:
 	scp changes.txt acidmud@$(ACIDHOST):~acidmud/public_html/
 	rm -f changes.txt
 
-acidmud: $(OBJS)
+acidmud: main.o $(OBJS)
 	rm -f acidmud
-	$(CXX) $(CXXFLAGS) -o acidmud $(OBJS) $(LIBS)
+	$(CXX) $(CXXFLAGS) -o $@ $< $(OBJS) $(LIBS)
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
+
+test:	tests/test_object
+	tests/test_object
+
+tests/test_object: tests/test_object.o $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $< $(OBJS) $(LIBS)
+
+tests/%.o: tests/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 version.cpp:	version.cpp.template *.hpp [a-uw-z]*.cpp
 	cat version.cpp.template \
@@ -82,5 +91,5 @@ version.cpp:	version.cpp.template *.hpp [a-uw-z]*.cpp
 
 include deps.mk
 
-deps.mk:	*.cpp *.hpp
-	$(CXX) $(CXXFLAGS) -MM *.cpp > deps.mk
+deps.mk:	*.cpp *.hpp tests/*.cpp
+	$(CXX) $(CXXFLAGS) -MM *.cpp tests/*.cpp > deps.mk

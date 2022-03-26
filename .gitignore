@@ -7,3 +7,4 @@ acid/current.wld
 perf.data
 perf.data.old
 logs/
+tests/test_object
