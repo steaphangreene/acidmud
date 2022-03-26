@@ -3517,6 +3517,12 @@ void init_universe() {
   trash_bin->SetDesc(u8"The place objects come to die.");
 }
 
+void destroy_universe() {
+  delete universe;
+  universe = nullptr;
+  delete trash_bin;
+  trash_bin = nullptr;
+}
 void start_universe() {
   if (!universe->Load(u8"acid/current.wld")) {
     load_players(u8"acid/current.plr");

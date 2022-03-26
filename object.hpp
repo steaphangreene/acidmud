@@ -719,6 +719,7 @@ int roll(int ndice, int targ, std::u8string* res = nullptr);
 void init_universe();
 void start_universe();
 void save_universe(int with_net = 0);
+void destroy_universe();
 Object* new_body(Object* world);
 Object* getbynum(int);
 int getonum(Object*);
