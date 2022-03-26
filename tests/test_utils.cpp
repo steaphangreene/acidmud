@@ -43,43 +43,35 @@ TEST_CASE("Test crc32c", "[crc32c]") {
   REQUIRE(
       crc32c(std::u8string_view(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/")) == 0x497FC7AD);
 
-  res_r = crc32c_r(std::u8string_view(u8"", 0), 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
-  res_c = crc32c_c(u8"", 0, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
+  res_r = crc32c(std::u8string_view(u8""));
+  res_c = crc32c(u8"");
   REQUIRE(res_r == res_c);
 
-  res_r = crc32c_r(std::u8string_view(u8"Warm", 4), 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
-  res_c = crc32c_c(u8"Warm", 4, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
+  res_r = crc32c(std::u8string_view(u8"Warm"));
+  res_c = crc32c(u8"Warm");
   REQUIRE(res_r == res_c);
 
-  res_r = crc32c_r(std::u8string_view(u8"Day Time", 8), 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
-  res_c = crc32c_c(u8"Day Time", 8, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
+  res_r = crc32c(std::u8string_view(u8"Day Time"));
+  res_c = crc32c(u8"Day Time");
   REQUIRE(res_r == res_c);
 
-  res_r =
-      crc32c_r(
-          std::u8string_view(u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/", 45), 0xFFFFFFFFU) ^
-      0xFFFFFFFFU;
-  res_c =
-      crc32c_c(u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/", 45, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
+  res_r = crc32c(std::u8string_view(u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/"));
+  res_c = crc32c(u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/");
   REQUIRE(res_r == res_c);
 
-  res_r =
-      crc32c_r(
-          std::u8string_view(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/", 45), 0xFFFFFFFFU) ^
-      0xFFFFFFFFU;
-  res_c =
-      crc32c_c(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/", 45, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
+  res_r = crc32c(std::u8string_view(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/"));
+  res_c = crc32c(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/");
   REQUIRE(res_r == res_c);
 
   char8_t const* test_string = u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/";
   for (int off = 0; off < 8; ++off) {
-    res_r = crc32c_r(std::u8string_view(test_string + off, 45 - off), 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
+    res_r = crc32c(std::u8string_view(test_string + off, 45 - off));
     res_c = crc32c_c(test_string + off, 45 - off, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
     REQUIRE(res_r == res_c);
   }
 
   for (int off = 1; off < 8; ++off) {
-    res_r = crc32c_r(std::u8string_view(test_string, 45 - off), 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
+    res_r = crc32c(std::u8string_view(test_string, 45 - off));
     res_c = crc32c_c(test_string, 45 - off, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
     REQUIRE(res_r == res_c);
   }
