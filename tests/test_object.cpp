@@ -186,11 +186,11 @@ TEST_CASE("Object Actions", "[object]") {
   auto room1a1 = new Object(zone1a);
   room1a1->SetShortDesc(u8"room1a1");
   auto room1a2 = new Object(zone1a);
-  room1a1->SetShortDesc(u8"room1a2");
+  room1a2->SetShortDesc(u8"room1a2");
   auto room1b1 = new Object(zone1b);
   room1b1->SetShortDesc(u8"room1b1");
   auto room1b2 = new Object(zone1b);
-  room1b1->SetShortDesc(u8"room1b2");
+  room1b2->SetShortDesc(u8"room1b2");
   auto obj1a1a = new Object(room1a1);
   obj1a1a->SetShortDesc(u8"obj1a1a");
   auto obj1b1a = new Object(room1b1);
@@ -267,4 +267,171 @@ TEST_CASE("Object Actions", "[object]") {
   }
 
   destroy_universe();
+}
+
+TEST_CASE("Object Text", "[object]") {
+  init_universe();
+  REQUIRE(Object::Universe() != nullptr);
+
+  // Note: Each must have a different ShortDesc to avoid being auto-combined.
+  auto world1 = new Object(Object::Universe());
+  world1->SetShortDesc(u8"world1");
+  auto world2 = new Object(Object::Universe());
+  world2->SetShortDesc(u8"world2");
+  auto zone1a = new Object(world1);
+  zone1a->SetShortDesc(u8"zone1a");
+  auto zone1b = new Object(world1);
+  zone1b->SetShortDesc(u8"zone1b");
+  auto room1a1 = new Object(zone1a);
+  room1a1->SetShortDesc(u8"room1a1");
+  auto room1a2 = new Object(zone1a);
+  room1a2->SetShortDesc(u8"room1a2");
+  auto room1b1 = new Object(zone1b);
+  room1b1->SetShortDesc(u8"room1b1");
+  auto room1b2 = new Object(zone1b);
+  room1b2->SetShortDesc(u8"room1b2");
+  auto obj1a1a = new Object(room1a1);
+  obj1a1a->SetName(u8"Jane Doe");
+  obj1a1a->SetShortDesc(u8"Test Object");
+  auto obj1b1a = new Object(room1b1);
+  obj1b1a->SetName(u8"John Doe");
+  obj1b1a->SetShortDesc(u8"Test Object");
+  auto item1a1a1 = new Object(obj1a1a);
+  item1a1a1->SetShortDesc(u8"item1a1a1");
+  auto item1b1a1 = new Object(obj1b1a);
+  item1b1a1->SetShortDesc(u8"item1b1a1");
+
+  REQUIRE(item1a1a1->ShortDesc() != item1b1a1->ShortDesc());
+  REQUIRE(item1a1a1->Noun() != item1b1a1->Noun());
+
+  REQUIRE(obj1a1a->ShortDesc() == obj1b1a->ShortDesc());
+  REQUIRE(obj1a1a->Name() != obj1b1a->Name());
+  REQUIRE(obj1a1a->Noun() != obj1b1a->Noun());
+  REQUIRE(obj1a1a->Noun(false, false, obj1b1a) == obj1b1a->Noun(false, false, obj1a1a));
+  REQUIRE(obj1a1a->Noun(false, true, obj1b1a) == obj1b1a->Noun(false, true, obj1a1a));
+  REQUIRE(obj1a1a->Noun(false, true, obj1a1a) == obj1b1a->Noun(false, true, obj1b1a));
+
+  obj1a1a->SetSkill(prhash(u8"Object ID"), 42);
+  obj1b1a->Learn(42, u8"Jane Doe");
+
+  // Now, Joe knows Jane's name, so these should be different.
+  REQUIRE(obj1a1a->Noun(false, false, obj1b1a) != obj1b1a->Noun(false, false, obj1a1a));
+  REQUIRE(obj1a1a->Noun(false, true, obj1b1a) != obj1b1a->Noun(false, true, obj1a1a));
+
+  destroy_universe();
+}
+
+TEST_CASE("Object Text Limits", "[object]") {
+  Object obj;
+
+  obj.SetName(u8"Jane Doe");
+  REQUIRE(obj.Name() == u8"Jane Doe");
+
+  obj.SetShortDesc(u8"a female wizard");
+  REQUIRE(obj.ShortDesc() == u8"a female wizard");
+
+  obj.SetName( // 79 Chars: Ok
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAA");
+  REQUIRE(
+      obj.Name() ==
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAA");
+
+  obj.SetName( // 80 Chars: Ok
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA");
+  REQUIRE(
+      obj.Name() ==
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA");
+
+  obj.SetName( // 81 Chars: Truncate to 80
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAAA");
+  REQUIRE(
+      obj.Name() ==
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA");
+
+  obj.SetName( // More: Truncate to 80
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA");
+  REQUIRE(
+      obj.Name() ==
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA");
+
+  obj.SetShortDesc( // 79 Chars: Ok
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAA");
+  REQUIRE(
+      obj.ShortDesc() ==
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAA");
+
+  obj.SetShortDesc( // 80 Chars: Ok
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA");
+  REQUIRE(
+      obj.ShortDesc() ==
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA");
+
+  obj.SetShortDesc( // 81 Chars: Truncate to 80
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAAA");
+  REQUIRE(
+      obj.ShortDesc() ==
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA");
+
+  obj.SetShortDesc( // More: Truncate to 80
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA");
+  REQUIRE(
+      obj.ShortDesc() ==
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA"
+      u8"AAAAAAAAAAAAAAAAAAAA");
+
 }
