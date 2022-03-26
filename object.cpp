@@ -2405,13 +2405,7 @@ void Object::Recycle(int inbin) {
     }
   }
   killers.clear();
-
   contents.clear();
-
-  for (auto indk : killers) {
-    indk->Recycle();
-  }
-  killers.clear();
 
   auto todo = minds;
   for (auto mind : todo) {
@@ -2421,38 +2415,28 @@ void Object::Recycle(int inbin) {
 
   if (parent) {
     parent->RemoveLink(this);
-    parent->NotifyGone(this);
+    parent = nullptr;
   }
 
-  // Actions over long distances must be notified!
-  std::set<Object*> tonotify;
-  if (ActTarg(act_t::SPECIAL_MONITOR))
-    tonotify.insert(ActTarg(act_t::SPECIAL_MONITOR));
-  if (ActTarg(act_t::SPECIAL_LINKED))
-    tonotify.insert(ActTarg(act_t::SPECIAL_LINKED));
-  if (ActTarg(act_t::SPECIAL_HOME))
-    tonotify.insert(ActTarg(act_t::SPECIAL_HOME));
-  if (ActTarg(act_t::SPECIAL_WORK))
-    tonotify.insert(ActTarg(act_t::SPECIAL_WORK));
+  auto acts = act;
+  for (auto a : acts) {
+    if (a.act() != act_t::SPECIAL_ACTEE) {
+      StopAct(a.act());
+    }
+  }
 
   auto touches = Touching();
   for (auto touch : touches) {
-    tonotify.insert(touch);
-  }
-
-  StopAct(act_t::SPECIAL_MONITOR);
-  StopAct(act_t::SPECIAL_LINKED);
-  StopAct(act_t::SPECIAL_HOME);
-  StopAct(act_t::SPECIAL_WORK);
-
-  for (auto noti : tonotify) {
-    int del = 0;
-    if (noti->ActTarg(act_t::SPECIAL_LINKED) == this) {
-      del = 1;
+    bool linked = false;
+    auto other_acts = touch->act;
+    for (auto a : other_acts) {
+      if (a.act() != act_t::SPECIAL_ACTEE && a.obj() == this) {
+        linked = (linked || a.act() == act_t::SPECIAL_LINKED);
+        touch->StopAct(a.act());
+      }
     }
-    noti->NotifyLeft(this);
-    if (del) {
-      noti->Recycle();
+    if (linked) {
+      touch->Recycle();
     }
   }
 
@@ -2994,7 +2978,7 @@ void Object::StopAct(act_t a) {
     }
     if (obj) {
       for (auto opt : act) {
-        if (opt.obj() == obj) {
+        if (opt.act() != act_t::SPECIAL_ACTEE && opt.obj() == obj) {
           return; // Still touching it, so done
         }
       }
