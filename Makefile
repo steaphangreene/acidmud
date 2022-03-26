@@ -73,10 +73,18 @@ acidmud: main.o $(OBJS)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
-test:	tests/test_object
+test:	tests/test_object tests/test_utils tests/test_darr
 	tests/test_object
+	tests/test_utils
+	tests/test_darr
 
 tests/test_object: tests/test_object.o $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $< $(OBJS) $(LIBS)
+
+tests/test_utils: tests/test_utils.o $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $< $(OBJS) $(LIBS)
+
+tests/test_darr: tests/test_darr.o $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $< $(OBJS) $(LIBS)
 
 tests/%.o: tests/%.cpp
