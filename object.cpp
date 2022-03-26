@@ -2354,6 +2354,14 @@ int Object::Travel(Object* dest) {
 }
 
 Object::~Object() {
+  while (!contents.empty()) {
+    if (contents.back()->parent == this) {
+      delete contents.back();
+    } else { // Not really here (player rooms, etc.)
+      contents.pop_back();
+    }
+  }
+
   Recycle(0);
 
   if (descriptions != default_descriptions) {
