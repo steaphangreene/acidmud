@@ -103,8 +103,11 @@ int main(int argc, char** argv) {
   else
     start_net(port, host);
 
-  logo(u8"Initializing world....\n");
-  init_world();
+  logo(u8"Initializing universe....\n");
+  init_universe();
+
+  logo(u8"Starting universe....\n");
+  start_universe();
 
   if (!netstat_file.empty()) {
     logo(u8"Restoring network state....\n");
@@ -115,7 +118,7 @@ int main(int argc, char** argv) {
   auto lastsave_time = current_time;
   logo(u8"Ready to play!\n");
   while (shutdn <= 0) {
-    tick_world();
+    tick_universe();
     update_net();
     Object::FreeActions();
 
@@ -132,7 +135,7 @@ int main(int argc, char** argv) {
     if (shutdn < 0 || current_time > lastsave_time + int64_t(900000000)) {
       auto before_save = get_time();
       warn_net(shutdn);
-      save_world();
+      save_universe();
       unwarn_net(shutdn);
       shutdn = 0;
 
@@ -148,7 +151,7 @@ int main(int argc, char** argv) {
   }
   if (shutdn == 2) { // Do Ninja Restart
     warn_net(2);
-    save_world(1);
+    save_universe(1);
 
     logo(u8"Stopping networking....\n");
     acceptor = suspend_net();
@@ -179,7 +182,7 @@ int main(int argc, char** argv) {
 
   warn_net(1);
   stop_net();
-  save_world();
+  save_universe();
   free_players();
 
   return 0;

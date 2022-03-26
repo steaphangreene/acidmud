@@ -716,8 +716,9 @@ static_assert(sizeof(Object) == 256); // Prevent Bloat
 
 int roll(int ndice, int targ, std::u8string* res = nullptr);
 
-void init_world();
-void save_world(int with_net = 0);
+void init_universe();
+void start_universe();
+void save_universe(int with_net = 0);
 Object* new_body(Object* world);
 Object* getbynum(int);
 int getonum(Object*);
@@ -734,7 +735,7 @@ int get_weapon_type(const std::u8string_view& wskill);
 int two_handed(int wtype);
 std::u8string get_tags_string(Object* world, const DArr32<uint32_t>& tags);
 
-void tick_world();
+void tick_universe();
 
 Object* new_obj();
 Object* new_obj(Object*);

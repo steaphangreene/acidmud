@@ -404,7 +404,7 @@ void Object::Deactivate() {
   tickstep = -1;
 }
 
-void tick_world() {
+void tick_universe() {
   static int tickstage = 0;
   std::set<Object*> todel, todeact;
 
@@ -3507,7 +3507,7 @@ void Object::Loud(std::set<Object*>& visited, int str, const std::u8string& mes)
   }
 }
 
-void init_world() {
+void init_universe() {
   universe = new Object;
   universe->SetShortDesc(u8"The Universe");
   universe->SetDesc(u8"An Infinite Universe within which to play.");
@@ -3515,7 +3515,9 @@ void init_world() {
   trash_bin = new Object;
   trash_bin->SetShortDesc(u8"The Trash Bin");
   trash_bin->SetDesc(u8"The place objects come to die.");
+}
 
+void start_universe() {
   if (!universe->Load(u8"acid/current.wld")) {
     load_players(u8"acid/current.plr");
   } else {
@@ -3545,7 +3547,7 @@ void init_world() {
   universe->SetSkill(prhash(u8"Light Source"), 1000); // Ninjas need to see too.
 }
 
-void save_world(int with_net) {
+void save_universe(int with_net) {
   std::u8string fn = u8"acid/current";
   std::u8string wfn = fn + u8".wld.tmp";
   if (!universe->Save(wfn)) {
@@ -3562,15 +3564,15 @@ void save_world(int with_net) {
         std::filesystem::rename(pfn, dfn);
       } else {
         loge(u8"Unable to save network status!\n");
-        perror("save_world");
+        perror("save_universe");
       }
     } else {
       loge(u8"Unable to save players!\n");
-      perror("save_world");
+      perror("save_universe");
     }
   } else {
-    loge(u8"Unable to save world!\n");
-    perror("save_world");
+    loge(u8"Unable to save universe!\n");
+    perror("save_universe");
   }
 }
 
