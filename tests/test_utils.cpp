@@ -19,8 +19,7 @@
 //
 // *************************************************************************
 
-#define CATCH_CONFIG_MAIN
-#include <catch2/catch.hpp>
+#include "catch2.hpp"
 
 #include "../utils.hpp"
 
@@ -138,7 +137,7 @@ TEST_CASE("Test ascii_* functions", "[ascii]") {
 
   SECTION("Uppercase to Lowercase") {
     char8_t ch = GENERATE(range('A', 'Z'), 'Z');
-    REQUIRE(ascii_tolower(ch) == ch + 32);
+    REQUIRE(ascii_tolower(ch) == static_cast<char8_t>(ch + 32));
   }
   SECTION("Not Uppercase to Lowercase") {
     char8_t ch = GENERATE(range('\0', 'A'), range('[', '~'), '~');
@@ -147,7 +146,7 @@ TEST_CASE("Test ascii_* functions", "[ascii]") {
 
   SECTION("Lowercase to Uppercase") {
     char8_t ch = GENERATE(range('a', 'z'), 'z');
-    REQUIRE(ascii_toupper(ch) == ch - 32);
+    REQUIRE(ascii_toupper(ch) == static_cast<char8_t>(ch - 32));
   }
   SECTION("Not Lowercase to Uppercase") {
     char8_t ch = GENERATE(range('\0', 'a'), range('{', '~'), '~');
