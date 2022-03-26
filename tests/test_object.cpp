@@ -170,3 +170,102 @@ TEST_CASE("Object Movement", "[object]") {
 
   destroy_universe();
 }
+
+TEST_CASE("Object Actions", "[object]") {
+  init_universe();
+  REQUIRE(Object::Universe() != nullptr);
+
+  // Note: Each must have a different ShortDesc to avoid being auto-combined.
+  auto world1 = new Object(Object::Universe());
+  world1->SetShortDesc(u8"world1");
+  auto world2 = new Object(Object::Universe());
+  world2->SetShortDesc(u8"world2");
+  auto zone1a = new Object(world1);
+  zone1a->SetShortDesc(u8"zone1a");
+  auto zone1b = new Object(world1);
+  zone1b->SetShortDesc(u8"zone1b");
+  auto room1a1 = new Object(zone1a);
+  room1a1->SetShortDesc(u8"room1a1");
+  auto room1a2 = new Object(zone1a);
+  room1a1->SetShortDesc(u8"room1a2");
+  auto room1b1 = new Object(zone1b);
+  room1b1->SetShortDesc(u8"room1b1");
+  auto room1b2 = new Object(zone1b);
+  room1b1->SetShortDesc(u8"room1b2");
+  auto obj1a1a = new Object(room1a1);
+  obj1a1a->SetShortDesc(u8"obj1a1a");
+  auto obj1b1a = new Object(room1b1);
+  obj1b1a->SetShortDesc(u8"obj1b1a");
+  auto item1a1a1 = new Object(obj1a1a);
+  item1a1a1->SetShortDesc(u8"item1a1a1");
+  auto item1b1a1 = new Object(obj1b1a);
+  item1b1a1->SetShortDesc(u8"item1b1a1");
+
+  for (auto a = act_t::NONE; a < act_t::SPECIAL_ACTEE; ++a) {
+    if (a != act_t::NONE && a != act_t::SPECIAL_LINKED) {
+      obj1a1a->AddAct(a, obj1b1a);
+    }
+  }
+
+  SECTION("Distant Actions") {
+    REQUIRE(obj1a1a->ActTarg(act_t::FIGHT) == obj1b1a);
+    REQUIRE(obj1a1a->ActTarg(act_t::SPECIAL_HOME) == obj1b1a);
+    REQUIRE(obj1b1a->Touching().size() == 1);
+    REQUIRE(obj1b1a->Touching().front() == obj1a1a);
+    REQUIRE(obj1a1a->Parent() == room1a1);
+    REQUIRE(obj1b1a->Parent() == room1b1);
+  }
+
+  SECTION("Delete Actor") {
+    delete obj1a1a;
+    REQUIRE(obj1b1a->Touching().size() == 0);
+    REQUIRE(obj1b1a->Parent() == room1b1);
+  }
+
+  SECTION("Delete Actee") {
+    delete obj1b1a;
+    REQUIRE(obj1a1a->IsAct(act_t::FIGHT) == false);
+    REQUIRE(obj1a1a->ActTarg(act_t::FIGHT) == nullptr);
+    REQUIRE(obj1a1a->IsAct(act_t::SPECIAL_HOME) == false);
+    REQUIRE(obj1a1a->ActTarg(act_t::SPECIAL_HOME) == nullptr);
+    REQUIRE(obj1a1a->Parent() == room1a1);
+  }
+
+  SECTION("Linked Delete Actor") {
+    obj1a1a->AddAct(act_t::SPECIAL_LINKED, obj1b1a);
+    delete obj1a1a;
+    REQUIRE(obj1b1a->Touching().size() == 0);
+    REQUIRE(obj1b1a->Parent() == room1b1);
+  }
+
+  SECTION("Linked Delete Actee") {
+    obj1a1a->AddAct(act_t::SPECIAL_LINKED, obj1b1a);
+    delete obj1b1a;
+    REQUIRE(obj1a1a->IsAct(act_t::FIGHT) == false);
+    REQUIRE(obj1a1a->ActTarg(act_t::FIGHT) == nullptr);
+    REQUIRE(obj1a1a->IsAct(act_t::SPECIAL_HOME) == false);
+    REQUIRE(obj1a1a->ActTarg(act_t::SPECIAL_HOME) == nullptr);
+    REQUIRE(obj1a1a->Parent() == Object::TrashBin());
+  }
+
+  SECTION("Move Distant Actor") {
+    obj1a1a->Travel(room1a2);
+    // FIXME: Object movement should use Touching() mechanism, not notifications.
+    // REQUIRE(obj1a1a->IsAct(act_t::FIGHT) == false);
+    // REQUIRE(obj1a1a->ActTarg(act_t::FIGHT) == nullptr);
+    REQUIRE(obj1a1a->ActTarg(act_t::SPECIAL_HOME) == obj1b1a);
+    REQUIRE(obj1b1a->Touching().size() == 1);
+    REQUIRE(obj1b1a->Parent() == room1b1);
+  }
+
+  SECTION("Move Distant Actee") {
+    obj1b1a->Travel(room1b2);
+    REQUIRE(obj1a1a->IsAct(act_t::FIGHT) == false);
+    REQUIRE(obj1a1a->ActTarg(act_t::FIGHT) == nullptr);
+    REQUIRE(obj1a1a->ActTarg(act_t::SPECIAL_HOME) == obj1b1a);
+    // FIXME: Follow should not work at a distance.
+    // REQUIRE(obj1a1a->Parent() == room1a1);
+  }
+
+  destroy_universe();
+}
