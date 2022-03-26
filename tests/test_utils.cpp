@@ -27,6 +27,22 @@
 TEST_CASE("Test crc32c", "[crc32c]") {
   uint32_t res_r, res_c;
 
+  // Compile Time (conteval) Version
+  REQUIRE(crc32c(u8"") == 0x00000000U);
+  REQUIRE(crc32c(u8"Warm") == 0x0112DB37U);
+  REQUIRE(crc32c(u8"Day Time") == 0x0BDB09F5U);
+  REQUIRE(crc32c(u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/") == 0x497FC7AD);
+  REQUIRE(crc32c(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/") == 0x497FC7AD);
+
+  // Runtime (inline) Version
+  REQUIRE(crc32c(std::u8string_view(u8"")) == 0x00000000U);
+  REQUIRE(crc32c(std::u8string_view(u8"Warm")) == 0x0112DB37U);
+  REQUIRE(crc32c(std::u8string_view(u8"Day Time")) == 0x0BDB09F5U);
+  REQUIRE(
+      crc32c(std::u8string_view(u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/")) == 0x497FC7AD);
+  REQUIRE(
+      crc32c(std::u8string_view(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/")) == 0x497FC7AD);
+
   res_r = crc32c_r(std::u8string_view(u8"", 0), 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
   res_c = crc32c_c(u8"", 0, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
   REQUIRE(res_r == res_c);
