@@ -93,3 +93,4 @@ include deps.mk
 
 deps.mk:	*.cpp *.hpp tests/*.cpp
 	$(CXX) $(CXXFLAGS) -MM *.cpp tests/*.cpp > deps.mk
+	sed -i 's|^test_|tests/test_|' deps.mk
