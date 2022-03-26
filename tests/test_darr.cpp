@@ -26,6 +26,8 @@
 #include "../darr64.hpp"
 
 TEST_CASE("Test DArr64", "[DArr64]") {
+  uint64_t val = 0;
+
   DArr64<uint64_t> arr1;
   DArr64<uint64_t, 3> arr3;
   DArr64<uint64_t, 7> arr7;
@@ -36,9 +38,9 @@ TEST_CASE("Test DArr64", "[DArr64]") {
   REQUIRE(arr3.capacity() == 3);
   REQUIRE(arr7.capacity() == 7);
 
-  arr1.push_back(1);
-  arr3.push_back(1);
-  arr7.push_back(1);
+  arr1.push_back(++val);
+  arr3.push_back(++val);
+  arr7.push_back(++val);
   REQUIRE(arr1.size() == 1);
   REQUIRE(arr3.size() == 1);
   REQUIRE(arr7.size() == 1);
@@ -46,9 +48,9 @@ TEST_CASE("Test DArr64", "[DArr64]") {
   REQUIRE(arr3.capacity() == 3);
   REQUIRE(arr7.capacity() == 7);
 
-  arr1.push_back(1);
-  arr3.push_back(1);
-  arr7.push_back(1);
+  arr1.push_back(++val);
+  arr3.push_back(++val);
+  arr7.push_back(++val);
   REQUIRE(arr1.size() == 2);
   REQUIRE(arr3.size() == 2);
   REQUIRE(arr7.size() == 2);
@@ -56,9 +58,9 @@ TEST_CASE("Test DArr64", "[DArr64]") {
   REQUIRE(arr3.capacity() == 3);
   REQUIRE(arr7.capacity() == 7);
 
-  arr1.push_back(1);
-  arr3.push_back(1);
-  arr7.push_back(1);
+  arr1.push_back(++val);
+  arr3.push_back(++val);
+  arr7.push_back(++val);
   REQUIRE(arr1.size() == 3);
   REQUIRE(arr3.size() == 3);
   REQUIRE(arr7.size() == 3);
@@ -66,9 +68,9 @@ TEST_CASE("Test DArr64", "[DArr64]") {
   REQUIRE(arr3.capacity() == 3);
   REQUIRE(arr7.capacity() == 7);
 
-  arr1.push_back(1);
-  arr3.push_back(1);
-  arr7.push_back(1);
+  arr1.push_back(++val);
+  arr3.push_back(++val);
+  arr7.push_back(++val);
   REQUIRE(arr1.size() == 4);
   REQUIRE(arr3.size() == 4);
   REQUIRE(arr7.size() == 4);
@@ -76,9 +78,9 @@ TEST_CASE("Test DArr64", "[DArr64]") {
   REQUIRE(arr3.capacity() == 4);
   REQUIRE(arr7.capacity() == 7);
 
-  arr1.push_back(1);
-  arr3.push_back(1);
-  arr7.push_back(1);
+  arr1.push_back(++val);
+  arr3.push_back(++val);
+  arr7.push_back(++val);
   REQUIRE(arr1.size() == 5);
   REQUIRE(arr3.size() == 5);
   REQUIRE(arr7.size() == 5);
@@ -86,9 +88,9 @@ TEST_CASE("Test DArr64", "[DArr64]") {
   REQUIRE(arr3.capacity() == 8);
   REQUIRE(arr7.capacity() == 7);
 
-  arr1.push_back(1);
-  arr3.push_back(1);
-  arr7.push_back(1);
+  arr1.push_back(++val);
+  arr3.push_back(++val);
+  arr7.push_back(++val);
   REQUIRE(arr1.size() == 6);
   REQUIRE(arr3.size() == 6);
   REQUIRE(arr7.size() == 6);
@@ -96,9 +98,9 @@ TEST_CASE("Test DArr64", "[DArr64]") {
   REQUIRE(arr3.capacity() == 8);
   REQUIRE(arr7.capacity() == 7);
 
-  arr1.push_back(1);
-  arr3.push_back(1);
-  arr7.push_back(1);
+  arr1.push_back(++val);
+  arr3.push_back(++val);
+  arr7.push_back(++val);
   REQUIRE(arr1.size() == 7);
   REQUIRE(arr3.size() == 7);
   REQUIRE(arr7.size() == 7);
@@ -106,9 +108,9 @@ TEST_CASE("Test DArr64", "[DArr64]") {
   REQUIRE(arr3.capacity() == 8);
   REQUIRE(arr7.capacity() == 7);
 
-  arr1.push_back(1);
-  arr3.push_back(1);
-  arr7.push_back(1);
+  arr1.push_back(++val);
+  arr3.push_back(++val);
+  arr7.push_back(++val);
   REQUIRE(arr1.size() == 8);
   REQUIRE(arr3.size() == 8);
   REQUIRE(arr7.size() == 8);
@@ -116,15 +118,45 @@ TEST_CASE("Test DArr64", "[DArr64]") {
   REQUIRE(arr3.capacity() == 8);
   REQUIRE(arr7.capacity() == 8);
 
-  arr1.push_back(1);
-  arr3.push_back(1);
-  arr7.push_back(1);
+  arr1.push_back(++val);
+  arr3.push_back(++val);
+  arr7.push_back(++val);
   REQUIRE(arr1.size() == 9);
   REQUIRE(arr3.size() == 9);
   REQUIRE(arr7.size() == 9);
   REQUIRE(arr1.capacity() == 16);
   REQUIRE(arr3.capacity() == 16);
   REQUIRE(arr7.capacity() == 16);
+
+  REQUIRE(arr1[0] == 1);
+  REQUIRE(arr1[1] == 4);
+  REQUIRE(arr1[2] == 7);
+  REQUIRE(arr1[3] == 10);
+  REQUIRE(arr1[4] == 13);
+  REQUIRE(arr1[5] == 16);
+  REQUIRE(arr1[6] == 19);
+  REQUIRE(arr1[7] == 22);
+  REQUIRE(arr1[8] == 25);
+
+  REQUIRE(arr3[0] == 2);
+  REQUIRE(arr3[1] == 5);
+  REQUIRE(arr3[2] == 8);
+  REQUIRE(arr3[3] == 11);
+  REQUIRE(arr3[4] == 14);
+  REQUIRE(arr3[5] == 17);
+  REQUIRE(arr3[6] == 20);
+  REQUIRE(arr3[7] == 23);
+  REQUIRE(arr3[8] == 26);
+
+  REQUIRE(arr7[0] == 3);
+  REQUIRE(arr7[1] == 6);
+  REQUIRE(arr7[2] == 9);
+  REQUIRE(arr7[3] == 12);
+  REQUIRE(arr7[4] == 15);
+  REQUIRE(arr7[5] == 18);
+  REQUIRE(arr7[6] == 21);
+  REQUIRE(arr7[7] == 24);
+  REQUIRE(arr7[8] == 27);
 
   arr1.clear();
   arr3.clear();
@@ -138,6 +170,8 @@ TEST_CASE("Test DArr64", "[DArr64]") {
 }
 
 TEST_CASE("Test DArr32", "[DArr32]") {
+  uint32_t val = 0;
+
   DArr32<uint32_t> arr3;
   DArr32<uint32_t, 7> arr7;
   DArr32<uint32_t, 15> arr15;
@@ -148,9 +182,9 @@ TEST_CASE("Test DArr32", "[DArr32]") {
   REQUIRE(arr7.capacity() == 7);
   REQUIRE(arr15.capacity() == 15);
 
-  arr3.push_back(1);
-  arr7.push_back(1);
-  arr15.push_back(1);
+  arr3.push_back(++val);
+  arr7.push_back(++val);
+  arr15.push_back(++val);
   REQUIRE(arr3.size() == 1);
   REQUIRE(arr7.size() == 1);
   REQUIRE(arr15.size() == 1);
@@ -158,9 +192,9 @@ TEST_CASE("Test DArr32", "[DArr32]") {
   REQUIRE(arr7.capacity() == 7);
   REQUIRE(arr15.capacity() == 15);
 
-  arr3.push_back(1);
-  arr7.push_back(1);
-  arr15.push_back(1);
+  arr3.push_back(++val);
+  arr7.push_back(++val);
+  arr15.push_back(++val);
   REQUIRE(arr3.size() == 2);
   REQUIRE(arr7.size() == 2);
   REQUIRE(arr15.size() == 2);
@@ -168,9 +202,9 @@ TEST_CASE("Test DArr32", "[DArr32]") {
   REQUIRE(arr7.capacity() == 7);
   REQUIRE(arr15.capacity() == 15);
 
-  arr3.push_back(1);
-  arr7.push_back(1);
-  arr15.push_back(1);
+  arr3.push_back(++val);
+  arr7.push_back(++val);
+  arr15.push_back(++val);
   REQUIRE(arr3.size() == 3);
   REQUIRE(arr7.size() == 3);
   REQUIRE(arr15.size() == 3);
@@ -178,9 +212,9 @@ TEST_CASE("Test DArr32", "[DArr32]") {
   REQUIRE(arr7.capacity() == 7);
   REQUIRE(arr15.capacity() == 15);
 
-  arr3.push_back(1);
-  arr7.push_back(1);
-  arr15.push_back(1);
+  arr3.push_back(++val);
+  arr7.push_back(++val);
+  arr15.push_back(++val);
   REQUIRE(arr3.size() == 4);
   REQUIRE(arr7.size() == 4);
   REQUIRE(arr15.size() == 4);
@@ -188,9 +222,9 @@ TEST_CASE("Test DArr32", "[DArr32]") {
   REQUIRE(arr7.capacity() == 7);
   REQUIRE(arr15.capacity() == 15);
 
-  arr3.push_back(1);
-  arr7.push_back(1);
-  arr15.push_back(1);
+  arr3.push_back(++val);
+  arr7.push_back(++val);
+  arr15.push_back(++val);
   REQUIRE(arr3.size() == 5);
   REQUIRE(arr7.size() == 5);
   REQUIRE(arr15.size() == 5);
@@ -198,9 +232,9 @@ TEST_CASE("Test DArr32", "[DArr32]") {
   REQUIRE(arr7.capacity() == 7);
   REQUIRE(arr15.capacity() == 15);
 
-  arr3.push_back(1);
-  arr7.push_back(1);
-  arr15.push_back(1);
+  arr3.push_back(++val);
+  arr7.push_back(++val);
+  arr15.push_back(++val);
   REQUIRE(arr3.size() == 6);
   REQUIRE(arr7.size() == 6);
   REQUIRE(arr15.size() == 6);
@@ -208,9 +242,9 @@ TEST_CASE("Test DArr32", "[DArr32]") {
   REQUIRE(arr7.capacity() == 7);
   REQUIRE(arr15.capacity() == 15);
 
-  arr3.push_back(1);
-  arr7.push_back(1);
-  arr15.push_back(1);
+  arr3.push_back(++val);
+  arr7.push_back(++val);
+  arr15.push_back(++val);
   REQUIRE(arr3.size() == 7);
   REQUIRE(arr7.size() == 7);
   REQUIRE(arr15.size() == 7);
@@ -218,9 +252,9 @@ TEST_CASE("Test DArr32", "[DArr32]") {
   REQUIRE(arr7.capacity() == 7);
   REQUIRE(arr15.capacity() == 15);
 
-  arr3.push_back(1);
-  arr7.push_back(1);
-  arr15.push_back(1);
+  arr3.push_back(++val);
+  arr7.push_back(++val);
+  arr15.push_back(++val);
   REQUIRE(arr3.size() == 8);
   REQUIRE(arr7.size() == 8);
   REQUIRE(arr15.size() == 8);
@@ -228,15 +262,45 @@ TEST_CASE("Test DArr32", "[DArr32]") {
   REQUIRE(arr7.capacity() == 8);
   REQUIRE(arr15.capacity() == 15);
 
-  arr3.push_back(1);
-  arr7.push_back(1);
-  arr15.push_back(1);
+  arr3.push_back(++val);
+  arr7.push_back(++val);
+  arr15.push_back(++val);
   REQUIRE(arr3.size() == 9);
   REQUIRE(arr7.size() == 9);
   REQUIRE(arr15.size() == 9);
   REQUIRE(arr3.capacity() == 16);
   REQUIRE(arr7.capacity() == 16);
   REQUIRE(arr15.capacity() == 15);
+
+  REQUIRE(arr3[0] == 1);
+  REQUIRE(arr3[1] == 4);
+  REQUIRE(arr3[2] == 7);
+  REQUIRE(arr3[3] == 10);
+  REQUIRE(arr3[4] == 13);
+  REQUIRE(arr3[5] == 16);
+  REQUIRE(arr3[6] == 19);
+  REQUIRE(arr3[7] == 22);
+  REQUIRE(arr3[8] == 25);
+
+  REQUIRE(arr7[0] == 2);
+  REQUIRE(arr7[1] == 5);
+  REQUIRE(arr7[2] == 8);
+  REQUIRE(arr7[3] == 11);
+  REQUIRE(arr7[4] == 14);
+  REQUIRE(arr7[5] == 17);
+  REQUIRE(arr7[6] == 20);
+  REQUIRE(arr7[7] == 23);
+  REQUIRE(arr7[8] == 26);
+
+  REQUIRE(arr15[0] == 3);
+  REQUIRE(arr15[1] == 6);
+  REQUIRE(arr15[2] == 9);
+  REQUIRE(arr15[3] == 12);
+  REQUIRE(arr15[4] == 15);
+  REQUIRE(arr15[5] == 18);
+  REQUIRE(arr15[6] == 21);
+  REQUIRE(arr15[7] == 24);
+  REQUIRE(arr15[8] == 27);
 
   arr3.clear();
   arr7.clear();
