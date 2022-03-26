@@ -23,6 +23,7 @@
 #include <catch2/catch.hpp>
 
 namespace Catch {
+
 template <>
 struct StringMaker<char8_t> {
   static std::string convert(char8_t c);
@@ -30,4 +31,52 @@ struct StringMaker<char8_t> {
 std::string StringMaker<char8_t>::convert(char8_t c) {
   return ::Catch::Detail::stringify(static_cast<signed char>(c));
 }
+
+template <>
+struct StringMaker<const std::u8string> {
+  static std::string convert(const std::u8string str);
+};
+std::string StringMaker<const std::u8string>::convert(const std::u8string str) {
+  return ::Catch::Detail::stringify(reinterpret_cast<char const*>(str.c_str()));
+}
+
+template <>
+struct StringMaker<std::u8string> {
+  static std::string convert(std::u8string str);
+};
+std::string StringMaker<std::u8string>::convert(std::u8string str) {
+  return ::Catch::Detail::stringify(reinterpret_cast<char const*>(str.c_str()));
+}
+
+template <>
+struct StringMaker<const std::u8string_view> {
+  static std::string convert(const std::u8string_view str);
+};
+std::string StringMaker<const std::u8string_view>::convert(const std::u8string_view str) {
+  return ::Catch::Detail::stringify(reinterpret_cast<char const*>(std::u8string(str).c_str()));
+}
+
+template <>
+struct StringMaker<std::u8string_view> {
+  static std::string convert(std::u8string_view str);
+};
+std::string StringMaker<std::u8string_view>::convert(std::u8string_view str) {
+  return ::Catch::Detail::stringify(reinterpret_cast<char const*>(std::u8string(str).c_str()));
+}
+
+template <>
+struct StringMaker<char8_t const*> {
+  static std::string convert(char8_t const* str);
+};
+std::string StringMaker<char8_t const*>::convert(char8_t const* str) {
+  return ::Catch::Detail::stringify(reinterpret_cast<char const*>(str));
+}
+
+template <int SZ>
+struct StringMaker<char8_t[SZ]> {
+  static std::string convert(char8_t const* str) {
+    return ::Catch::Detail::stringify(reinterpret_cast<char const*>(str));
+  }
+};
+
 } // namespace Catch
