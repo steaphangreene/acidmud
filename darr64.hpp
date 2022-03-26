@@ -229,6 +229,7 @@ class alignas(next_pow_2(C * 8)) DArr64 {
   void clear() {
     destroy_self();
     size_ = 0;
+    cap_ = 0;
   };
   void erase(auto b) {
     --size_;
