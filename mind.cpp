@@ -32,6 +32,7 @@
 
 #include "color.hpp"
 #include "commands.hpp"
+#include "global.hpp"
 #include "log.hpp"
 #include "mind.hpp"
 #include "net.hpp"
@@ -39,8 +40,6 @@
 #include "player.hpp"
 #include "properties.hpp"
 #include "utils.hpp"
-
-extern int64_t current_time; // From main.cpp
 
 static std::random_device rd;
 static std::mt19937 gen(rd());

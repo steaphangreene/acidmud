@@ -28,6 +28,7 @@
 
 #include "color.hpp"
 #include "commands.hpp"
+#include "global.hpp"
 #include "infile.hpp"
 #include "log.hpp"
 #include "mind.hpp"
@@ -71,7 +72,6 @@ static Object* universe = nullptr;
 static Object* trash_bin = nullptr;
 
 static std::set<Object*> busylist;
-extern int64_t current_time; // From main.cpp
 
 Object* Object::Universe() {
   return universe;

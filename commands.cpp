@@ -25,9 +25,9 @@
 
 #include "color.hpp"
 #include "commands.hpp"
+#include "global.hpp"
 #include "infile.hpp"
 #include "log.hpp"
-#include "main.hpp"
 #include "mind.hpp"
 #include "net.hpp"
 #include "object.hpp"

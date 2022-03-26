@@ -38,12 +38,11 @@
 #endif
 
 #include "color.hpp"
+#include "global.hpp"
 #include "log.hpp"
 #include "net.hpp"
 #include "object.hpp"
 #include "player.hpp"
-
-int shutdn = 0;
 
 // Signal handlers
 static void do_restart(int) {
@@ -53,7 +52,6 @@ static void do_shutdown(int) {
   shutdn = 1;
 }
 
-int64_t current_time;
 static int64_t get_time() {
   timeval cur_time = {0, 0};
   gettimeofday(&cur_time, nullptr);

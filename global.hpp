@@ -19,4 +19,8 @@
 //
 // *************************************************************************
 
+#include <cstdint>
+
 extern int shutdn;
+
+extern int64_t current_time;
