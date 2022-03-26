@@ -25,76 +25,46 @@
 #include "../utils.hpp"
 
 TEST_CASE("Test crc32c", "[crc32c]") {
-  bool all_crcs_good = true;
   uint32_t res_r, res_c;
+
   res_r = crc32c_r(std::u8string_view(u8"", 0), 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
   res_c = crc32c_c(u8"", 0, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
-  if (res_r != res_c) {
-    //loger(u8"CRC32C:  0x{:08X} == 0x{:08X}\n", res_r, res_c);
-    all_crcs_good = false;
-  } else {
-    //logeg(u8"CRC32C:  0x{:08X} == 0x{:08X}\n", res_r, res_c);
-  }
+  REQUIRE(res_r == res_c);
+
   res_r = crc32c_r(std::u8string_view(u8"Warm", 4), 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
   res_c = crc32c_c(u8"Warm", 4, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
-  if (res_r != res_c) {
-    //loger(u8"CRC32C:  0x{:08X} == 0x{:08X}\n", res_r, res_c);
-    all_crcs_good = false;
-  } else {
-    //logeg(u8"CRC32C:  0x{:08X} == 0x{:08X}\n", res_r, res_c);
-  }
+  REQUIRE(res_r == res_c);
+
   res_r = crc32c_r(std::u8string_view(u8"Day Time", 8), 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
   res_c = crc32c_c(u8"Day Time", 8, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
-  if (res_r != res_c) {
-    //loger(u8"CRC32C:  0x{:08X} == 0x{:08X}\n", res_r, res_c);
-    all_crcs_good = false;
-  } else {
-    //logeg(u8"CRC32C:  0x{:08X} == 0x{:08X}\n", res_r, res_c);
-  }
+  REQUIRE(res_r == res_c);
+
   res_r =
       crc32c_r(
           std::u8string_view(u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/", 45), 0xFFFFFFFFU) ^
       0xFFFFFFFFU;
   res_c =
       crc32c_c(u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/", 45, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
-  if (res_r != res_c) {
-    //loger(u8"CRC32C:  0x{:08X} == 0x{:08X}\n", res_r, res_c);
-    all_crcs_good = false;
-  } else {
-    //logeg(u8"CRC32C:  0x{:08X} == 0x{:08X}\n", res_r, res_c);
-  }
+  REQUIRE(res_r == res_c);
+
   res_r =
       crc32c_r(
           std::u8string_view(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/", 45), 0xFFFFFFFFU) ^
       0xFFFFFFFFU;
   res_c =
       crc32c_c(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/", 45, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
-  if (res_r != res_c) {
-    //loger(u8"CRC32C:  0x{:08X} == 0x{:08X}\n", res_r, res_c);
-    all_crcs_good = false;
-  } else {
-    //logeg(u8"CRC32C:  0x{:08X} == 0x{:08X}\n", res_r, res_c);
-  }
+  REQUIRE(res_r == res_c);
+
   char8_t const* test_string = u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/";
   for (int off = 0; off < 8; ++off) {
     res_r = crc32c_r(std::u8string_view(test_string + off, 45 - off), 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
     res_c = crc32c_c(test_string + off, 45 - off, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
-    if (res_r != res_c) {
-      //loger(u8"CRC32C:  0x{:08X} == 0x{:08X}\n", res_r, res_c);
-      all_crcs_good = false;
-    } else {
-      //logeg(u8"CRC32C:  0x{:08X} == 0x{:08X}\n", res_r, res_c);
-    }
+    REQUIRE(res_r == res_c);
   }
+
   for (int off = 1; off < 8; ++off) {
     res_r = crc32c_r(std::u8string_view(test_string, 45 - off), 0xFFFFFFFFU) ^ 0xFFFFFFFFU;
     res_c = crc32c_c(test_string, 45 - off, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
-    if (res_r != res_c) {
-      //loger(u8"CRC32C:  0x{:08X} == 0x{:08X}\n", res_r, res_c);
-      all_crcs_good = false;
-    } else {
-      //logeg(u8"CRC32C:  0x{:08X} == 0x{:08X}\n", res_r, res_c);
-    }
+    REQUIRE(res_r == res_c);
   }
-  REQUIRE(all_crcs_good == true);
 }
