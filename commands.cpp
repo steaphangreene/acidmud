@@ -2923,7 +2923,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
     auto objs = body->Parent()->Contents(vmode);
     DArr64<Object*> shpkps;
     std::u8string reason = u8"";
-    for (auto shpkp : objs) {
+    for (auto shpkp : objs) { // Circle/TBA Shopkeepers
       if (shpkp->Skill(prhash(u8"Sell Profit"))) {
         if (shpkp->IsAct(act_t::DEAD)) {
           reason = u8"Sorry, the shopkeeper is dead!\n";
@@ -2938,6 +2938,12 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
         }
       }
     }
+    auto workers = body->Room()->Touching();
+    for (auto shpkp : workers) { // Acid Shopkeepers
+      if (shpkp->IsAct(act_t::WORK) && shpkp->ActTarg(act_t::SPECIAL_WORK) == body->Room()) {
+        shpkps.push_back(shpkp);
+      }
+    }
     if (shpkps.size() == 0) {
       if (mind) {
         mind->Send(reason);
@@ -2946,7 +2952,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
     } else {
       Object* shpkp = shpkps.front();
       if (shpkp->ActTarg(act_t::WEAR_RSHOULDER) &&
-          shpkp->ActTarg(act_t::WEAR_RSHOULDER)->Skill(prhash(u8"Vortex"))) {
+          shpkp->ActTarg(act_t::WEAR_RSHOULDER)->Skill(prhash(u8"Vortex"))) { // Circle/TBA
         Object* vortex = shpkp->ActTarg(act_t::WEAR_RSHOULDER);
         objs = vortex->Contents(vmode);
         auto oobj = objs.front();
@@ -2961,6 +2967,19 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
           }
           mind->Send(u8"{:>10} gp: {}\n", price, obj->ShortDesc());
           oobj = obj;
+        }
+      } else {
+        auto items = body->Room()->PickObjects(u8"all", LOC_INTERNAL);
+        bool have_stock = false;
+        for (auto item : items) {
+          if (item->ActTarg(act_t::SPECIAL_OWNER) == body->Room()) {
+            have_stock = true;
+            int price = item->Value();
+            mind->Send(u8"{:>10} cp: {}\n", price, item->ShortDesc());
+          }
+        }
+        if (!have_stock) {
+          mind->Send(u8"Nothing is for sale here, sorry.\n");
         }
       }
     }
