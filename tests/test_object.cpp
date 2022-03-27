@@ -510,45 +510,60 @@ TEST_CASE("Object Money", "[money]") {
   paper->SetShortDesc(u8"a dollar of Monopoly money");
   paper->SetSkill(prhash(u8"Quantity"), 3);
 
-  REQUIRE(jane->CanPayFor(0) == 0);
-  REQUIRE(jane->CanPayFor(1) == 0);
-  REQUIRE(jane->CanPayFor(2) == 0);
-  REQUIRE(jane->CanPayFor(3) == 0);
-  REQUIRE(jane->CanPayFor(4) == 0);
-  REQUIRE(jane->CanPayFor(5) == 0);
-  REQUIRE(jane->CanPayFor(6) == 0);
-  REQUIRE(jane->CanPayFor(7) == 1); // Can't Make Change
-  REQUIRE(jane->CanPayFor(8) == 1); // Can't Make Change
-  REQUIRE(jane->CanPayFor(9) == 1); // Can't Make Change
-  REQUIRE(jane->CanPayFor(10) == 0);
-  REQUIRE(jane->CanPayFor(11) == 0);
+  SECTION("Simple Read-Only Checks") {
+    REQUIRE(jane->CanPayFor(0) == 0);
+    REQUIRE(jane->CanPayFor(1) == 0);
+    REQUIRE(jane->CanPayFor(2) == 0);
+    REQUIRE(jane->CanPayFor(3) == 0);
+    REQUIRE(jane->CanPayFor(4) == 0);
+    REQUIRE(jane->CanPayFor(5) == 0);
+    REQUIRE(jane->CanPayFor(6) == 0);
+    REQUIRE(jane->CanPayFor(7) == 1); // Can't Make Change
+    REQUIRE(jane->CanPayFor(8) == 1); // Can't Make Change
+    REQUIRE(jane->CanPayFor(9) == 1); // Can't Make Change
+    REQUIRE(jane->CanPayFor(10) == 0);
+    REQUIRE(jane->CanPayFor(11) == 0);
 
-  REQUIRE(jane->CanPayFor(12) == 0);
-  REQUIRE(jane->CanPayFor(120) == 0);
-  REQUIRE(jane->CanPayFor(1200) == 0);
-  REQUIRE(jane->CanPayFor(12000) == 0);
-  REQUIRE(jane->CanPayFor(120000) == -1); // Can't Afford
+    REQUIRE(jane->CanPayFor(12) == 0);
+    REQUIRE(jane->CanPayFor(120) == 0);
+    REQUIRE(jane->CanPayFor(1200) == 0);
+    REQUIRE(jane->CanPayFor(12000) == 0);
+    REQUIRE(jane->CanPayFor(120000) == -1); // Can't Afford
 
-  REQUIRE(jane->CanPayFor(1) == 0);
-  REQUIRE(jane->CanPayFor(13) == 0);
-  REQUIRE(jane->CanPayFor(130) == 0);
-  REQUIRE(jane->CanPayFor(1300) == 0);
-  REQUIRE(jane->CanPayFor(13000) == 0);
-  REQUIRE(jane->CanPayFor(130000) == -1); // Can't Afford
+    REQUIRE(jane->CanPayFor(1) == 0);
+    REQUIRE(jane->CanPayFor(13) == 0);
+    REQUIRE(jane->CanPayFor(130) == 0);
+    REQUIRE(jane->CanPayFor(1300) == 0);
+    REQUIRE(jane->CanPayFor(13000) == 0);
+    REQUIRE(jane->CanPayFor(130000) == -1); // Can't Afford
 
-  REQUIRE(jane->CanPayFor(1) == 0);
-  REQUIRE(jane->CanPayFor(14) == 0);
-  REQUIRE(jane->CanPayFor(140) == 1); // Can't Make Change
-  REQUIRE(jane->CanPayFor(1400) == 1); // Can't Make Change
-  REQUIRE(jane->CanPayFor(14000) == 1); // Can't Make Change
-  REQUIRE(jane->CanPayFor(140000) == -1); // Can't Afford
+    REQUIRE(jane->CanPayFor(1) == 0);
+    REQUIRE(jane->CanPayFor(14) == 0);
+    REQUIRE(jane->CanPayFor(140) == 1); // Can't Make Change
+    REQUIRE(jane->CanPayFor(1400) == 1); // Can't Make Change
+    REQUIRE(jane->CanPayFor(14000) == 1); // Can't Make Change
+    REQUIRE(jane->CanPayFor(140000) == -1); // Can't Afford
 
-  REQUIRE(jane->CanPayFor(15) == 0);
-  REQUIRE(jane->CanPayFor(16) == 0);
-  REQUIRE(jane->CanPayFor(17) == 1); // Can't Make Change
+    REQUIRE(jane->CanPayFor(15) == 0);
+    REQUIRE(jane->CanPayFor(16) == 0);
+    REQUIRE(jane->CanPayFor(17) == 1); // Can't Make Change
 
-  REQUIRE(jane->CanPayFor(4000000000UL) == -1); // Can't Afford
-  REQUIRE(jane->CanPayFor(140000000000UL) == -1); // Can't Afford
+    REQUIRE(jane->CanPayFor(4000000000UL) == -1); // Can't Afford
+    REQUIRE(jane->CanPayFor(140000000000UL) == -1); // Can't Afford
+  }
+
+  SECTION("Actual Payment Check") {
+    REQUIRE(jane->CanPayFor(222) == 0);
+
+    auto payment = jane->PayFor(1324);
+    REQUIRE(payment.size() == 5);
+    REQUIRE(jane->CanPayFor(222) == 0); // Still In Her Posession
+
+    for (auto p : payment) {
+      delete p;
+    }
+    REQUIRE(jane->CanPayFor(222) == 1); // Can't Make Change Anymore
+  }
 
   destroy_universe();
 }

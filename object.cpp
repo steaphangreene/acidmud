@@ -4979,6 +4979,68 @@ int Object::CanPayFor(size_t amount) const {
 
 DArr64<Object*, 3> Object::PayFor(size_t amount) {
   DArr64<Object*, 3> ret;
+  if (amount == 0) {
+    return ret;
+  }
 
+  size_t togo = amount;
+  std::vector<Object*> cash;
+  const auto money = PickObjects(u8"all money", LOC_INTERNAL);
+  for (const auto m : money) {
+    if (m->Skill(prhash(u8"Money")) > 0) { // Real Money Only
+      if (m->Value() == m->Skill(prhash(u8"Money"))) { // Gold Pieces, Etc.
+        // Basic intrinsic money (gp, sp, etc.) is the only thing supported, so far.
+        cash.push_back(m);
+        if (togo > 0) {
+          size_t val = m->Value();
+          size_t qty = m->Quantity();
+          if (togo < (val * qty)) {
+            togo = 0;
+          } else {
+            togo -= (val * qty);
+          }
+        }
+      } else if (m->Value() <= 0) { // Script, Disney Dollars, Etc.
+      } else if (m->Value() < m->Skill(prhash(u8"Money"))) { // Paper Money, Etc.
+      } else { // (Value > Monetary Value): Treasure
+      }
+    }
+  }
+  if (togo > 0) {
+    return ret; // Can't Afford It
+  }
+  if (cash.size() > 1) {
+    rng::sort(cash, [](const Object* a, const Object* b) { return a->Value() > b->Value(); });
+  }
+
+  togo = amount;
+  for (const auto c : cash) { // Not Universal: Assumes 1/10/100 style money system
+    size_t val = c->Value();
+    size_t qty = c->Quantity();
+    if (val <= togo) { // Denomination Small Enough?
+      size_t want = togo / val;
+      togo -= std::min(want, qty) * val;
+    }
+  }
+  if (togo != 0) {
+    return ret; // Can't Make Change.
+  }
+
+  // I can do it: So construct the payment
+  togo = amount;
+  for (auto c : cash) { // Not Universal: Assumes 1/10/100 style money system
+    size_t val = c->Value();
+    size_t qty = c->Quantity();
+    if (val <= togo) { // Denomination Small Enough?
+      size_t want = togo / val;
+      if (want >= qty) {
+        ret.push_back(c);
+        togo -= (qty * val);
+      } else {
+        ret.push_back(c->Split(want));
+        togo -= (want * val);
+      }
+    }
+  }
   return ret;
 }
