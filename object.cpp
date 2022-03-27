@@ -4925,10 +4925,11 @@ bool Object::HasKeyFor(const Object* lock, int vmode) const {
   return false;
 }
 
-// Returns 0:Yes -1:Can't Afford, 1:Can't Make Change
-int Object::CanPayFor(size_t amount) const {
+// Returns| =amount:Yes | <amount:Can't Afford | >amount:Can't Make Change
+size_t Object::CanPayFor(size_t amount) const {
+  size_t ret = 0;
   if (amount == 0) {
-    return 0;
+    return ret;
   }
 
   size_t togo = amount;
@@ -4955,7 +4956,7 @@ int Object::CanPayFor(size_t amount) const {
     }
   }
   if (togo > 0) {
-    return -1; // Can't Afford It
+    return amount - togo; // Can't Afford It
   }
   if (cash.size() > 1) {
     rng::sort(cash, [](const Object* a, const Object* b) { return a->Value() > b->Value(); });
@@ -4967,14 +4968,19 @@ int Object::CanPayFor(size_t amount) const {
     size_t qty = c->Quantity();
     if (val <= togo) { // Denomination Small Enough?
       size_t want = togo / val;
+      if (qty > want) {
+        ret = amount + ((want + 1) * val) - togo; // Closest known change, so far
+      }
       togo -= std::min(want, qty) * val;
+    } else {
+      ret = val; // Closest known change, so far (a single, too-big, coin/bill)
     }
   }
   if (togo == 0) {
-    return 0; // Have Exact Change
+    return amount; // Have Exact Change
   }
 
-  return 1; // Can't Make Change.
+  return ret; // Can't Make Change.
 }
 
 DArr64<Object*, 3> Object::PayFor(size_t amount) {
