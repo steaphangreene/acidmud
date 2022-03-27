@@ -1179,6 +1179,9 @@ void Object::SendActions(std::shared_ptr<Mind> m) {
     else
       m->Send(u8", roaring");
   }
+  if (ActTarg(act_t::SPECIAL_OWNER) == Room()) {
+    m->Send(u8", for sale");
+  }
   m->Send(u8".\n");
 }
 
