@@ -265,22 +265,22 @@ int handle_command_shops(
       return 0;
     }
 
-    Object* targ = body->PickObject(std::u8string(args), LOC_NOTWORN | LOC_INTERNAL);
-    if ((!targ) && body->ActTarg(act_t::HOLD) &&
+    Object* item = body->PickObject(std::u8string(args), LOC_NOTWORN | LOC_INTERNAL);
+    if ((!item) && body->ActTarg(act_t::HOLD) &&
         body->ActTarg(act_t::HOLD)->Parent() != body // Dragging
         && body->ActTarg(act_t::HOLD)->Matches(std::u8string(args))) {
-      targ = body->ActTarg(act_t::HOLD);
+      item = body->ActTarg(act_t::HOLD);
     }
 
-    if (!targ) {
+    if (!item) {
       if (mind)
         mind->Send(u8"You want to sell what?\n");
       return 0;
     }
 
-    if (targ->Skill(prhash(u8"Container")) || targ->Skill(prhash(u8"Liquid Container"))) {
+    if (item->Skill(prhash(u8"Container")) || item->Skill(prhash(u8"Liquid Container"))) {
       if (mind) {
-        std::u8string mes = targ->Noun(0, 0, body);
+        std::u8string mes = item->Noun(0, 0, body);
         mes += u8" is a container.";
         mes += u8"  You can't sell containers (yet).\n";
         mes[0] = ascii_toupper(mes[0]);
@@ -289,9 +289,9 @@ int handle_command_shops(
       return 0;
     }
 
-    if (targ->Contents(LOC_TOUCH | LOC_NOTFIXED).size() > 0) {
+    if (item->Contents(LOC_TOUCH | LOC_NOTFIXED).size() > 0) {
       if (mind) {
-        std::u8string mes = targ->Noun(0, 0, body);
+        std::u8string mes = item->Noun(0, 0, body);
         mes += u8" is not empty.";
         mes += u8"  You must empty it before you can sell it.\n";
         mes[0] = ascii_toupper(mes[0]);
@@ -300,64 +300,64 @@ int handle_command_shops(
       return 0;
     }
 
-    int price = targ->Value() * targ->Quantity();
-    if (price < 0 || targ->HasSkill(prhash(u8"Priceless")) || targ->HasSkill(prhash(u8"Cursed"))) {
+    int price = item->Value() * item->Quantity();
+    if (price < 0 || item->HasSkill(prhash(u8"Priceless")) || item->HasSkill(prhash(u8"Cursed"))) {
       if (mind)
-        mind->Send(u8"You can't sell {}.\n", targ->Noun(0, 0, body));
+        mind->Send(u8"You can't sell {}.\n", item->Noun(0, 0, body));
       return 0;
     }
     if (price == 0) {
       if (mind)
-        mind->Send(u8"{} is worthless.\n", targ->Noun(0, 0, body));
+        mind->Send(u8"{} is worthless.\n", item->Noun(0, 0, body));
       return 0;
     }
 
     int wearable = 0;
-    if (targ->HasSkill(prhash(u8"Wearable on Back")))
+    if (item->HasSkill(prhash(u8"Wearable on Back")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Chest")))
+    if (item->HasSkill(prhash(u8"Wearable on Chest")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Head")))
+    if (item->HasSkill(prhash(u8"Wearable on Head")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Neck")))
+    if (item->HasSkill(prhash(u8"Wearable on Neck")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Collar")))
+    if (item->HasSkill(prhash(u8"Wearable on Collar")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Waist")))
+    if (item->HasSkill(prhash(u8"Wearable on Waist")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Shield")))
+    if (item->HasSkill(prhash(u8"Wearable on Shield")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Left Arm")))
+    if (item->HasSkill(prhash(u8"Wearable on Left Arm")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Right Arm")))
+    if (item->HasSkill(prhash(u8"Wearable on Right Arm")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Left Finger")))
+    if (item->HasSkill(prhash(u8"Wearable on Left Finger")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Right Finger")))
+    if (item->HasSkill(prhash(u8"Wearable on Right Finger")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Left Foot")))
+    if (item->HasSkill(prhash(u8"Wearable on Left Foot")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Right Foot")))
+    if (item->HasSkill(prhash(u8"Wearable on Right Foot")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Left Hand")))
+    if (item->HasSkill(prhash(u8"Wearable on Left Hand")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Right Hand")))
+    if (item->HasSkill(prhash(u8"Wearable on Right Hand")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Left Leg")))
+    if (item->HasSkill(prhash(u8"Wearable on Left Leg")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Right Leg")))
+    if (item->HasSkill(prhash(u8"Wearable on Right Leg")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Left Wrist")))
+    if (item->HasSkill(prhash(u8"Wearable on Left Wrist")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Right Wrist")))
+    if (item->HasSkill(prhash(u8"Wearable on Right Wrist")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Left Shoulder")))
+    if (item->HasSkill(prhash(u8"Wearable on Left Shoulder")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Right Shoulder")))
+    if (item->HasSkill(prhash(u8"Wearable on Right Shoulder")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Left Hip")))
+    if (item->HasSkill(prhash(u8"Wearable on Left Hip")))
       wearable = 1;
-    if (targ->HasSkill(prhash(u8"Wearable on Right Hip")))
+    if (item->HasSkill(prhash(u8"Wearable on Right Hip")))
       wearable = 1;
 
     auto people = body->Room()->PickObjects(u8"everyone", LOC_INTERNAL);
@@ -373,26 +373,30 @@ int handle_command_shops(
         reason = u8"Sorry, the shopkeeper is unconscious!\n";
       } else if (shpkp->IsAct(act_t::SLEEP)) {
         reason = u8"Sorry, the shopkeeper is asleep!\n";
-      } else if (targ->Skill(prhash(u8"Money")) == targ->Value()) { // 1-1 Money
+      } else if (item->ShortDesc() == u8"a widget") { // Temporary Test Object
+        if (shpkp->HasTag(crc32c(u8"master"))) {
+          skill = 0; // Special Marker: Acid Seller, Not Circle/TBA
+        }
+      } else if (item->Skill(prhash(u8"Money")) == item->Value()) { // 1-1 Money
         for (auto skl : shpkp->GetSkills()) {
           if (SkillName(skl.first).starts_with(u8"Buy ")) {
             skill = prhash(u8"Money");
             break;
           }
         }
-      } else if (wearable && targ->NormAttribute(0) > 0) {
+      } else if (wearable && item->NormAttribute(0) > 0) {
         if (shpkp->HasSkill(prhash(u8"Buy Armor"))) {
           skill = prhash(u8"Buy Armor");
         }
-      } else if (targ->Skill(prhash(u8"Vehicle")) == 4) {
+      } else if (item->Skill(prhash(u8"Vehicle")) == 4) {
         if (shpkp->HasSkill(prhash(u8"Buy Boat"))) {
           skill = prhash(u8"Buy Boat");
         }
-      } else if (targ->HasSkill(prhash(u8"Container"))) {
+      } else if (item->HasSkill(prhash(u8"Container"))) {
         if (shpkp->HasSkill(prhash(u8"Buy Container"))) {
           skill = prhash(u8"Buy Container");
         }
-      } else if (targ->HasSkill(prhash(u8"Food")) && (!targ->HasSkill(prhash(u8"Drink")))) {
+      } else if (item->HasSkill(prhash(u8"Food")) && (!item->HasSkill(prhash(u8"Drink")))) {
         if (shpkp->HasSkill(prhash(u8"Buy Food"))) {
           skill = prhash(u8"Buy Food");
         }
@@ -402,23 +406,23 @@ int handle_command_shops(
       //	  skill = prhash(u8"Buy Light");
       //	  }
       //	}
-      else if (targ->HasSkill(prhash(u8"Liquid Container"))) { // FIXME: Not Potions?
+      else if (item->HasSkill(prhash(u8"Liquid Container"))) { // FIXME: Not Potions?
         if (shpkp->HasSkill(prhash(u8"Buy Liquid Container"))) {
           skill = prhash(u8"Buy Liquid Container");
         }
-      } else if (targ->HasSkill(prhash(u8"Liquid Container"))) { // FIXME: Not Bottles?
+      } else if (item->HasSkill(prhash(u8"Liquid Container"))) { // FIXME: Not Bottles?
         if (shpkp->HasSkill(prhash(u8"Buy Potion"))) {
           skill = prhash(u8"Buy Potion");
         }
-      } else if (targ->HasSkill(prhash(u8"Magical Scroll"))) {
+      } else if (item->HasSkill(prhash(u8"Magical Scroll"))) {
         if (shpkp->HasSkill(prhash(u8"Buy Scroll"))) {
           skill = prhash(u8"Buy Scroll");
         }
-      } else if (targ->HasSkill(prhash(u8"Magical Staff"))) {
+      } else if (item->HasSkill(prhash(u8"Magical Staff"))) {
         if (shpkp->HasSkill(prhash(u8"Buy Staff"))) {
           skill = prhash(u8"Buy Staff");
         }
-      } else if (targ->HasSkill(prhash(u8"Magical Wand"))) {
+      } else if (item->HasSkill(prhash(u8"Magical Wand"))) {
         if (shpkp->HasSkill(prhash(u8"Buy Wand"))) {
           skill = prhash(u8"Buy Wand");
         }
@@ -433,11 +437,11 @@ int handle_command_shops(
       //	  skill = prhash(u8"Buy Treasure");
       //	  }
       //	}
-      else if (targ->Skill(prhash(u8"WeaponType")) > 0) {
+      else if (item->Skill(prhash(u8"WeaponType")) > 0) {
         if (shpkp->HasSkill(prhash(u8"Buy Weapon"))) {
           skill = prhash(u8"Buy Weapon");
         }
-      } else if (wearable && targ->NormAttribute(0) == 0) {
+      } else if (wearable && item->NormAttribute(0) == 0) {
         if (shpkp->HasSkill(prhash(u8"Buy Worn"))) {
           skill = prhash(u8"Buy Worn");
         }
@@ -462,11 +466,11 @@ int handle_command_shops(
         mind->Send(reason);
       }
     } else {
+      Object* vortex = nullptr;
       Object* shpkp = shpkps.front();
       if (shpkp->ActTarg(act_t::WEAR_RSHOULDER) &&
-          shpkp->ActTarg(act_t::WEAR_RSHOULDER)->Skill(prhash(u8"Vortex"))) {
-        Object* vortex = shpkp->ActTarg(act_t::WEAR_RSHOULDER);
-
+          shpkp->ActTarg(act_t::WEAR_RSHOULDER)->Skill(prhash(u8"Vortex"))) { // Circle/TBA
+        vortex = shpkp->ActTarg(act_t::WEAR_RSHOULDER);
         if (skill != prhash(u8"Money")) { // Not 1-1 Money
           price *= shpkp->Skill(skill);
           price += 0;
@@ -474,34 +478,39 @@ int handle_command_shops(
           if (price <= 0)
             price = 1;
         }
-        mind->Send(u8"I'll give you {}gp for {}\n", price, targ->ShortDesc());
+      }
+      mind->Send(u8"I'll give you {}gp for {}\n", price, item->ShortDesc());
 
-        if (cnum == COM_SELL) {
-          int togo = price, ord = -price;
-          auto pay = shpkp->PickObjects(u8"a gold piece", LOC_INTERNAL, &ord);
+      if (cnum == COM_SELL) {
+        int togo = price, ord = -price;
+        auto pay = shpkp->PickObjects(u8"a gold piece", LOC_INTERNAL, &ord);
+        for (auto coin : pay) {
+          togo -= std::max(1, coin->Skill(prhash(u8"Quantity")));
+        }
+
+        if (togo <= 0) {
+          body->Parent()->SendOut(
+              stealth_t, stealth_s, u8";s sells ;s.\n", u8"You sell ;s.\n", body, item);
+          Object* payment = new Object;
           for (auto coin : pay) {
-            togo -= std::max(1, coin->Skill(prhash(u8"Quantity")));
+            coin->Travel(payment);
           }
-
-          if (togo <= 0) {
-            body->Parent()->SendOut(
-                stealth_t, stealth_s, u8";s sells ;s.\n", u8"You sell ;s.\n", body, targ);
-            Object* payment = new Object;
-            for (auto coin : pay) {
-              coin->Travel(payment);
+          if (body->Stash(payment->Contents().front())) {
+            if (vortex) {
+              item->Travel(vortex);
+            } else {
+              item->Travel(body->Room());
+              item->AddAct(act_t::SPECIAL_OWNER, body->Room());
             }
-            if (body->Stash(payment->Contents().front())) {
-              targ->Travel(vortex);
-            } else { // Keeper gets it back
-              shpkp->Stash(payment->Contents().front(), 0, 1);
-              if (mind)
-                mind->Send(u8"You couldn't stash {} gold!\n", price);
-            }
-            delete payment;
-          } else {
+          } else { // Keeper gets it back
+            shpkp->Stash(payment->Contents().front(), 0, 1);
             if (mind)
-              mind->Send(u8"I can't afford the {} gold.\n", price);
+              mind->Send(u8"You couldn't stash {} gold!\n", price);
           }
+          delete payment;
+        } else {
+          if (mind)
+            mind->Send(u8"I can't afford the {} gold.\n", price);
         }
       }
     }
