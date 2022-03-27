@@ -3395,6 +3395,12 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
     } else if (targ->Weight() > body->ModAttribute(2) * 50000) {
       if (mind)
         mind->Send(u8"You could never lift {}, it is too heavy.\n", targ->Noun());
+    } else if (targ->IsAct(act_t::SPECIAL_OWNER) && targ->ActTarg(act_t::SPECIAL_OWNER) != body) {
+      if (mind) {
+        mind->Send(
+            u8"Well, {} clearly belongs to someone else.  Did you mean to 'buy' (or 'steal') it?.\n",
+            targ->Noun(true));
+      }
     } else {
       body->AddAct(act_t::HOLD, targ);
       body->Parent()->SendOut(
@@ -3448,6 +3454,12 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       } else if ((!nmode) && targ->Weight() > body->ModAttribute(2) * 10000) {
         if (mind)
           mind->Send(u8"You can't carry {}, it is too heavy.  Try 'drag' instead.\n", targ->Noun());
+      } else if (targ->IsAct(act_t::SPECIAL_OWNER) && targ->ActTarg(act_t::SPECIAL_OWNER) != body) {
+        if (mind) {
+          mind->Send(
+              u8"Well, {} clearly belongs to someone else.  Did you mean to 'buy' (or 'steal') it?.\n",
+              targ->Noun(true));
+        }
       } else {
         std::u8string denied = u8"";
         for (Object* owner = targ->Parent(); owner; owner = owner->Parent()) {
