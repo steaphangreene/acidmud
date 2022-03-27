@@ -19,6 +19,7 @@
 //
 // *************************************************************************
 
+#include "color.hpp"
 #include "commands.hpp"
 #include "object.hpp"
 #include "properties.hpp"
@@ -85,7 +86,7 @@ int handle_command_shops(
           oobj = obj;
         }
       } else {
-        auto items = body->Room()->PickObjects(u8"all", LOC_INTERNAL);
+        auto items = body->PickObjects(u8"everything", LOC_NEARBY);
         bool have_stock = false;
         for (auto item : items) {
           if (item->ActTarg(act_t::SPECIAL_OWNER) == body->Room()) {
@@ -109,11 +110,11 @@ int handle_command_shops(
       return 0;
     }
 
-    auto people = body->Room()->PickObjects(u8"everyone", LOC_INTERNAL);
+    auto people = body->PickObjects(u8"everyone", LOC_NEARBY);
     DArr64<Object*> shpkps;
     std::u8string reason = u8"";
     for (auto shpkp : people) {
-      if (shpkp->Skill(prhash(u8"Sell Profit"))) {
+      if (shpkp->Skill(prhash(u8"Sell Profit"))) { // Circle/TBA Shopkeepers
         if (shpkp->IsAct(act_t::DEAD)) {
           reason = u8"Sorry, the shopkeeper is dead!\n";
         } else if (shpkp->IsAct(act_t::DYING)) {
@@ -127,97 +128,130 @@ int handle_command_shops(
         }
       }
     }
+    auto workers = body->Room()->Touching();
+    for (auto shpkp : workers) { // Acid Shopkeepers
+      if (shpkp->IsAct(act_t::WORK) && shpkp->ActTarg(act_t::SPECIAL_WORK) == body->Room()) {
+        shpkps.push_back(shpkp);
+      }
+    }
     if (shpkps.size() == 0) {
       if (mind) {
         mind->Send(reason);
         mind->Send(u8"You can only do that around a shopkeeper.\n");
       }
     } else {
+      auto items = body->PickObjects(args, LOC_NEARBY);
+
       Object* shpkp = shpkps.front();
       if (shpkp->ActTarg(act_t::WEAR_RSHOULDER) &&
-          shpkp->ActTarg(act_t::WEAR_RSHOULDER)->Skill(prhash(u8"Vortex"))) {
+          shpkp->ActTarg(act_t::WEAR_RSHOULDER)->Skill(prhash(u8"Vortex"))) { // Circle/TBA
         Object* vortex = shpkp->ActTarg(act_t::WEAR_RSHOULDER);
 
-        auto targs = vortex->PickObjects(std::u8string(args), LOC_INTERNAL);
-        if (!targs.size()) {
-          if (mind)
-            mind->Send(u8"The shopkeeper doesn't have that.\n");
+        items = vortex->PickObjects(std::u8string(args), LOC_INTERNAL);
+
+      } else {
+        int price = 0;
+        bool all_for_sale = true;
+        for (auto item : items) {
+          if (item->ActTarg(act_t::SPECIAL_OWNER) != body->Room()) {
+            mind->Send(CRED u8" Not For Sale: {}\n" CNRM, item->ShortDesc());
+            all_for_sale = false;
+          } else {
+            price += item->Value();
+            mind->Send(u8"{:>10} cp: {}\n", item->Value(), item->ShortDesc());
+          }
+        }
+        if (!all_for_sale) {
+          mind->Send(CRED u8"Sorry, you can't buy that.\n" CNRM);
           return 0;
+        } else {
+          mind->Send(CGRN u8"Deal.  That will be {} cp.\n" CNRM, price);
+        }
+      }
+
+      if (items.size() == 0) {
+        if (mind)
+          mind->Send(u8"The shopkeeper doesn't have that.\n");
+        return 0;
+      }
+
+      for (auto item : items) {
+        int price = item->Value() * item->Quantity();
+        if (price < 0) {
+          if (mind) {
+            mind->Send(u8"You can't buy {}.\n", item->Noun(0, 0, body));
+          }
+          continue;
+        } else if (price == 0) {
+          if (mind) {
+            std::u8string mes = item->Noun(0, 0, body);
+            mes += u8" is worthless.\n";
+            mes[0] = ascii_toupper(mes[0]);
+            mind->Send(mes);
+          }
+          continue;
         }
 
-        for (auto targ : targs) {
-          int price = targ->Value() * targ->Quantity();
-          if (price < 0) {
-            if (mind)
-              mind->Send(u8"You can't buy {}.\n", targ->Noun(0, 0, body));
-            continue;
-          } else if (price == 0) {
-            if (mind) {
-              std::u8string mes = targ->Noun(0, 0, body);
-              mes += u8" is worthless.\n";
-              mes[0] = ascii_toupper(mes[0]);
-              mind->Send(mes);
-            }
-            continue;
-          }
-
-          if (targ->Skill(prhash(u8"Money")) != targ->Value()) { // Not 1-1 Money
+        if (shpkp->HasSkill(prhash(u8"Sell Profit"))) { // Circle/TBA
+          if (item->Skill(prhash(u8"Money")) != item->Value()) { // Not 1-1 Money
             price *= shpkp->Skill(prhash(u8"Sell Profit"));
             price += 999;
             price /= 1000;
           }
-          mind->Send(u8"{} gp: {}\n", price, targ->ShortDesc());
+        }
+        mind->Send(u8"{} gp: {}\n", price, item->ShortDesc());
 
-          int togo = price, ord = -price;
-          auto pay = body->PickObjects(u8"a gold piece", LOC_INTERNAL, &ord);
+        int togo = price, ord = -price;
+        auto pay = body->PickObjects(u8"a gold piece", LOC_INTERNAL, &ord);
+        for (auto coin : pay) {
+          togo -= coin->Quantity();
+        }
+
+        if (togo > 0) {
+          if (mind)
+            mind->Send(u8"You can't afford the {} gold (short {}).\n", price, togo);
+        } else if (body->Stash(item, 0, 0)) {
+          body->Parent()->SendOut(
+              stealth_t,
+              stealth_s,
+              u8";s buys and stashes ;s.\n",
+              u8"You buy and stash ;s.\n",
+              body,
+              item);
+          item->StopAct(act_t::SPECIAL_OWNER);
           for (auto coin : pay) {
-            togo -= coin->Quantity();
+            shpkp->Stash(coin, 0, 1);
           }
-
-          if (togo > 0) {
-            if (mind)
-              mind->Send(u8"You can't afford the {} gold (short {}).\n", price, togo);
-          } else if (body->Stash(targ, 0, 0)) {
+        } else if (
+            ((!body->IsAct(act_t::HOLD)) ||
+             body->ActTarg(act_t::HOLD) == body->ActTarg(act_t::WIELD) ||
+             body->ActTarg(act_t::HOLD) == body->ActTarg(act_t::WEAR_SHIELD)) &&
+            (!item->Travel(body))) {
+          if (body->IsAct(act_t::HOLD)) {
             body->Parent()->SendOut(
                 stealth_t,
                 stealth_s,
-                u8";s buys and stashes ;s.\n",
-                u8"You buy and stash ;s.\n",
+                u8";s stops holding ;s.\n",
+                u8"You stop holding ;s.\n",
                 body,
-                targ);
-            for (auto coin : pay) {
-              shpkp->Stash(coin, 0, 1);
-            }
-          } else if (
-              ((!body->IsAct(act_t::HOLD)) ||
-               body->ActTarg(act_t::HOLD) == body->ActTarg(act_t::WIELD) ||
-               body->ActTarg(act_t::HOLD) == body->ActTarg(act_t::WEAR_SHIELD)) &&
-              (!targ->Travel(body))) {
-            if (body->IsAct(act_t::HOLD)) {
-              body->Parent()->SendOut(
-                  stealth_t,
-                  stealth_s,
-                  u8";s stops holding ;s.\n",
-                  u8"You stop holding ;s.\n",
-                  body,
-                  body->ActTarg(act_t::HOLD));
-              body->StopAct(act_t::HOLD);
-            }
-            body->AddAct(act_t::HOLD, targ);
-            body->Parent()->SendOut(
-                stealth_t,
-                stealth_s,
-                u8";s buys and holds ;s.\n",
-                u8"You buy and hold ;s.\n",
-                body,
-                targ);
-            for (auto coin : pay) {
-              shpkp->Stash(coin, 0, 1);
-            }
-          } else {
-            if (mind)
-              mind->Send(u8"You can't stash or hold {}.\n", targ->Noun(1));
+                body->ActTarg(act_t::HOLD));
+            body->StopAct(act_t::HOLD);
           }
+          body->AddAct(act_t::HOLD, item);
+          body->Parent()->SendOut(
+              stealth_t,
+              stealth_s,
+              u8";s buys and holds ;s.\n",
+              u8"You buy and hold ;s.\n",
+              body,
+              item);
+          item->StopAct(act_t::SPECIAL_OWNER);
+          for (auto coin : pay) {
+            shpkp->Stash(coin, 0, 1);
+          }
+        } else {
+          if (mind)
+            mind->Send(u8"You can't stash or hold {}.\n", item->Noun(1));
         }
       }
     }
