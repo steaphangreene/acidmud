@@ -25,7 +25,7 @@ TSTR:=  $(shell date -u +"%Y%m%d%H%M")
 RSTR:=  $(shell git log --oneline | wc -l)
 HSTR:=  $(shell git log -1 --format=%h)
 OBJS:=	global.o version.o stats.o net.o mind.o player.o npc.o tags.o \
-        object.o object_acid.o object_dynamic.o object_tba.o \
+	object.o object_acid.o object_dynamic.o object_tba.o \
 	commands.o command_shops.o command_ccreate.o command_wload.o \
 	skills.o properties.o infile.o outfile.o log.o utils.o
 LIBS:=
@@ -41,15 +41,16 @@ CXX=clang++-13
 CXXFLAGS=-g3 -O3 $(COMP) $(ARCH) $(COPT) -flto
 
 #Use debugging settings
-debug:
-	+make CXXFLAGS='-O0 -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(COPT)'
+debug: CXXFLAGS=-O0 -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(COPT)
+debug: all
 
 #Use profiling settings
-profile:
-	+make CXXFLAGS='-O3 -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 $(COMP) $(ARCH) $(COPT)'
+profile: CXXFLAGS=-O3 -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 $(COMP) $(ARCH) $(COPT)
+profile: all
 
-gcc:
-	+make CXX='g++-11' CXXFLAGS='-Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(GOPT)'
+gcc: CXX=g++-11
+gcc: CXXFLAGS=-Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(GOPT)
+gcc: all
 
 clean:
 	rm -f gmon.out deps.mk tests/*.o tests/*.da *.o *.da version.cpp acidmud changes.txt
