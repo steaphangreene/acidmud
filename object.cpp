@@ -26,6 +26,10 @@
 #include <string>
 #include <vector>
 
+// Replace with C++20 std::ranges, when widely available
+#include <range/v3/algorithm.hpp>
+namespace rng = ranges;
+
 #include "color.hpp"
 #include "commands.hpp"
 #include "global.hpp"
@@ -4919,4 +4923,62 @@ bool Object::HasKeyFor(const Object* lock, int vmode) const {
     }
   }
   return false;
+}
+
+// Returns 0:Yes -1:Can't Afford, 1:Can't Make Change
+int Object::CanPayFor(size_t amount) const {
+  if (amount == 0) {
+    return 0;
+  }
+
+  size_t togo = amount;
+  std::vector<const Object*> cash;
+  const auto money = PickObjects(u8"all money", LOC_INTERNAL);
+  for (const auto m : money) {
+    if (m->Skill(prhash(u8"Money")) > 0) { // Real Money Only
+      if (m->Value() == m->Skill(prhash(u8"Money"))) { // Gold Pieces, Etc.
+        // Basic intrinsic money (gp, sp, etc.) is the only thing supported, so far.
+        cash.push_back(m);
+        if (togo > 0) {
+          size_t val = m->Value();
+          size_t qty = m->Quantity();
+          if (togo < (val * qty)) {
+            togo = 0;
+          } else {
+            togo -= (val * qty);
+          }
+        }
+      } else if (m->Value() <= 0) { // Script, Disney Dollars, Etc.
+      } else if (m->Value() < m->Skill(prhash(u8"Money"))) { // Paper Money, Etc.
+      } else { // (Value > Monetary Value): Treasure
+      }
+    }
+  }
+  if (togo > 0) {
+    return -1; // Can't Afford It
+  }
+  if (cash.size() > 1) {
+    rng::sort(cash, [](const Object* a, const Object* b) { return a->Value() > b->Value(); });
+  }
+
+  togo = amount;
+  for (const auto c : cash) { // Not Universal: Assumes 1/10/100 style money system
+    size_t val = c->Value();
+    size_t qty = c->Quantity();
+    if (val <= togo) { // Denomination Small Enough?
+      size_t want = togo / val;
+      togo -= std::min(want, qty) * val;
+    }
+  }
+  if (togo == 0) {
+    return 0; // Have Exact Change
+  }
+
+  return 1; // Can't Make Change.
+}
+
+DArr64<Object*, 3> Object::PayFor(size_t amount) {
+  DArr64<Object*, 3> ret;
+
+  return ret;
 }

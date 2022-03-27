@@ -362,6 +362,10 @@ class alignas(256) Object {
       const Object* traveller) const;
   size_t ManhattanDistance(const Object* dest) const;
 
+  // Returns 0:Yes -1:Can't Afford, 1:Can't Make Change
+  int CanPayFor(size_t) const;
+  DArr64<Object*, 3> PayFor(size_t);
+
   int ContainedWeight();
   int ContainedVolume();
 

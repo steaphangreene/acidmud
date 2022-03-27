@@ -434,3 +434,121 @@ TEST_CASE("Object Text Limits", "[object]") {
       u8"AAAAAAAAAAAAAAAAAAAA"
       u8"AAAAAAAAAAAAAAAAAAAA");
 }
+
+TEST_CASE("Object Money", "[money]") {
+  init_universe();
+  REQUIRE(Object::Universe() != nullptr);
+
+  // Note: Each must have a different ShortDesc to avoid being auto-combined.
+  auto world1 = new Object(Object::Universe());
+  world1->SetShortDesc(u8"world1");
+  auto world2 = new Object(Object::Universe());
+  world2->SetShortDesc(u8"world2");
+  auto zone1a = new Object(world1);
+  zone1a->SetShortDesc(u8"zone1a");
+  auto zone1b = new Object(world1);
+  zone1b->SetShortDesc(u8"zone1b");
+  auto room1a1 = new Object(zone1a);
+  room1a1->SetShortDesc(u8"room1a1");
+  auto room1a2 = new Object(zone1a);
+  room1a2->SetShortDesc(u8"room1a2");
+  auto jane = new Object(room1a1);
+  jane->SetShortDesc(u8"a person");
+  jane->SetName(u8"Jane Doe");
+  auto john = new Object(room1a1);
+  john->SetShortDesc(u8"a person");
+  john->SetName(u8"John Doe");
+  auto item1a1a1 = new Object(jane);
+  item1a1a1->SetShortDesc(u8"item1a1a1");
+  auto item1a1a2 = new Object(jane);
+  item1a1a2->SetShortDesc(u8"item1a1a2");
+
+  // Give Jane some coins.
+  Object* chits1 = new Object(jane);
+  chits1->SetShortDesc(u8"a bone chit");
+  chits1->SetValue(1);
+  chits1->SetSkill(prhash(u8"Money"), 1);
+  chits1->SetSkill(prhash(u8"Quantity"), 3);
+  Object* silver = new Object(jane);
+  silver->SetShortDesc(u8"a silver piece");
+  silver->SetValue(100);
+  silver->SetSkill(prhash(u8"Money"), 100);
+  silver->SetSkill(prhash(u8"Quantity"), 3);
+  Object* platinum = new Object(jane);
+  platinum->SetShortDesc(u8"a platinum piece");
+  platinum->SetValue(10000);
+  platinum->SetSkill(prhash(u8"Money"), 10000);
+  platinum->SetSkill(prhash(u8"Quantity"), 3);
+  Object* copper = new Object(jane);
+  copper->SetShortDesc(u8"a copper piece");
+  copper->SetValue(10);
+  copper->SetSkill(prhash(u8"Money"), 10);
+  copper->SetSkill(prhash(u8"Quantity"), 3);
+  Object* gold = new Object(jane);
+  gold->SetShortDesc(u8"a gold piece");
+  gold->SetValue(1000);
+  gold->SetSkill(prhash(u8"Money"), 1000);
+  gold->SetSkill(prhash(u8"Quantity"), 3);
+  Object* chits2 = new Object(jane);
+  chits2->SetShortDesc(u8"a bone chit");
+  chits2->SetValue(1);
+  chits2->SetSkill(prhash(u8"Money"), 1);
+  chits2->SetSkill(prhash(u8"Quantity"), 3);
+  // And some money with non-intrinsic value
+  Object* dollar = new Object(jane);
+  dollar->SetShortDesc(u8"a dollar");
+  dollar->SetValue(1);
+  dollar->SetSkill(prhash(u8"Money"), 100);
+  dollar->SetSkill(prhash(u8"Quantity"), 3);
+  // And some completely non-intrinsic money
+  Object* script = new Object(jane);
+  script->SetShortDesc(u8"a credit of script");
+  script->SetSkill(prhash(u8"Money"), 10);
+  script->SetSkill(prhash(u8"Quantity"), 3);
+  // And some worthless fake money
+  Object* paper = new Object(jane);
+  paper->SetShortDesc(u8"a dollar of Monopoly money");
+  paper->SetSkill(prhash(u8"Quantity"), 3);
+
+  REQUIRE(jane->CanPayFor(0) == 0);
+  REQUIRE(jane->CanPayFor(1) == 0);
+  REQUIRE(jane->CanPayFor(2) == 0);
+  REQUIRE(jane->CanPayFor(3) == 0);
+  REQUIRE(jane->CanPayFor(4) == 0);
+  REQUIRE(jane->CanPayFor(5) == 0);
+  REQUIRE(jane->CanPayFor(6) == 0);
+  REQUIRE(jane->CanPayFor(7) == 1); // Can't Make Change
+  REQUIRE(jane->CanPayFor(8) == 1); // Can't Make Change
+  REQUIRE(jane->CanPayFor(9) == 1); // Can't Make Change
+  REQUIRE(jane->CanPayFor(10) == 0);
+  REQUIRE(jane->CanPayFor(11) == 0);
+
+  REQUIRE(jane->CanPayFor(12) == 0);
+  REQUIRE(jane->CanPayFor(120) == 0);
+  REQUIRE(jane->CanPayFor(1200) == 0);
+  REQUIRE(jane->CanPayFor(12000) == 0);
+  REQUIRE(jane->CanPayFor(120000) == -1); // Can't Afford
+
+  REQUIRE(jane->CanPayFor(1) == 0);
+  REQUIRE(jane->CanPayFor(13) == 0);
+  REQUIRE(jane->CanPayFor(130) == 0);
+  REQUIRE(jane->CanPayFor(1300) == 0);
+  REQUIRE(jane->CanPayFor(13000) == 0);
+  REQUIRE(jane->CanPayFor(130000) == -1); // Can't Afford
+
+  REQUIRE(jane->CanPayFor(1) == 0);
+  REQUIRE(jane->CanPayFor(14) == 0);
+  REQUIRE(jane->CanPayFor(140) == 1); // Can't Make Change
+  REQUIRE(jane->CanPayFor(1400) == 1); // Can't Make Change
+  REQUIRE(jane->CanPayFor(14000) == 1); // Can't Make Change
+  REQUIRE(jane->CanPayFor(140000) == -1); // Can't Afford
+
+  REQUIRE(jane->CanPayFor(15) == 0);
+  REQUIRE(jane->CanPayFor(16) == 0);
+  REQUIRE(jane->CanPayFor(17) == 1); // Can't Make Change
+
+  REQUIRE(jane->CanPayFor(4000000000UL) == -1); // Can't Afford
+  REQUIRE(jane->CanPayFor(140000000000UL) == -1); // Can't Afford
+
+  destroy_universe();
+}
