@@ -32,8 +32,8 @@
 #define NUM_STS 5 // No Max
 int handle_command_ccreate(
     Object* body,
-    std::shared_ptr<Mind> mind,
-    const std::u8string_view args,
+    std::shared_ptr<Mind>& mind,
+    const std::u8string_view& args,
     int stealth_t,
     int stealth_s) {
   if (args.empty()) {

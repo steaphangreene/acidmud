@@ -943,8 +943,8 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
 
 int handle_command_wload(
     Object* body,
-    std::shared_ptr<Mind> mind,
-    const std::u8string_view args,
+    std::shared_ptr<Mind>& mind,
+    const std::u8string_view& args,
     int stealth_t,
     int stealth_s) {
   if (args.empty()) {

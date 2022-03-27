@@ -24,9 +24,10 @@ ACIDHOST:=acidmud
 TSTR:=  $(shell date -u +"%Y%m%d%H%M")
 RSTR:=  $(shell git log --oneline | wc -l)
 HSTR:=  $(shell git log -1 --format=%h)
-OBJS:=	global.o version.o stats.o net.o commands.o mind.o player.o npc.o object.o \
-        object_acid.o object_dynamic.o command_ccreate.o command_wload.o utils.o \
-	object_tba.o skills.o properties.o infile.o outfile.o log.o tags.o
+OBJS:=	global.o version.o stats.o net.o mind.o player.o npc.o tags.o \
+        object.o object_acid.o object_dynamic.o object_tba.o \
+	commands.o command_shops.o command_ccreate.o command_wload.o \
+	skills.o properties.o infile.o outfile.o log.o utils.o
 LIBS:=
 COPT:=	-std=c++2b -mbranches-within-32B-boundaries -ferror-limit=2 -stdlib=libc++
 GOPT:=	-std=c++2b
