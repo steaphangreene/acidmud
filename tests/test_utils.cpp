@@ -26,58 +26,64 @@
 TEST_CASE("Test crc32c", "[crc32c]") {
   uint32_t res_r, res_c;
 
-  // Compile Time (conteval) Version
-  REQUIRE(crc32c(u8"") == 0x00000000U);
-  REQUIRE(crc32c(u8"Warm") == 0x0112DB37U);
-  REQUIRE(crc32c(u8"Day Time") == 0x0BDB09F5U);
-  REQUIRE(crc32c(u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/") == 0x497FC7AD);
-  REQUIRE(crc32c(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/") == 0x497FC7AD);
+  SECTION("Basic Tests") {
+    // Compile Time (conteval) Version
+    REQUIRE(crc32c(u8"") == 0x00000000U);
+    REQUIRE(crc32c(u8"Warm") == 0x0112DB37U);
+    REQUIRE(crc32c(u8"Day Time") == 0x0BDB09F5U);
+    REQUIRE(crc32c(u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/") == 0x497FC7AD);
+    REQUIRE(crc32c(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/") == 0x497FC7AD);
 
-  // Runtime (inline) Version
-  REQUIRE(crc32c(std::u8string_view(u8"")) == 0x00000000U);
-  REQUIRE(crc32c(std::u8string_view(u8"Warm")) == 0x0112DB37U);
-  REQUIRE(crc32c(std::u8string_view(u8"Day Time")) == 0x0BDB09F5U);
-  REQUIRE(
-      crc32c(std::u8string_view(u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/")) == 0x497FC7AD);
-  REQUIRE(
-      crc32c(std::u8string_view(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/")) == 0x497FC7AD);
+    // Runtime (inline) Version
+    REQUIRE(crc32c(std::u8string_view(u8"")) == 0x00000000U);
+    REQUIRE(crc32c(std::u8string_view(u8"Warm")) == 0x0112DB37U);
+    REQUIRE(crc32c(std::u8string_view(u8"Day Time")) == 0x0BDB09F5U);
+    REQUIRE(
+        crc32c(std::u8string_view(u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/")) ==
+        0x497FC7AD);
+    REQUIRE(
+        crc32c(std::u8string_view(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/")) ==
+        0x497FC7AD);
 
-  res_r = crc32c(std::u8string_view(u8""));
-  res_c = crc32c(u8"");
-  REQUIRE(res_r == res_c);
+    res_r = crc32c(std::u8string_view(u8""));
+    res_c = crc32c(u8"");
+    REQUIRE(res_r == res_c);
 
-  res_r = crc32c(std::u8string_view(u8"Warm"));
-  res_c = crc32c(u8"Warm");
-  REQUIRE(res_r == res_c);
+    res_r = crc32c(std::u8string_view(u8"Warm"));
+    res_c = crc32c(u8"Warm");
+    REQUIRE(res_r == res_c);
 
-  res_r = crc32c(std::u8string_view(u8"Day Time"));
-  res_c = crc32c(u8"Day Time");
-  REQUIRE(res_r == res_c);
+    res_r = crc32c(std::u8string_view(u8"Day Time"));
+    res_c = crc32c(u8"Day Time");
+    REQUIRE(res_r == res_c);
 
-  res_r = crc32c(std::u8string_view(u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/"));
-  res_c = crc32c(u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/");
-  REQUIRE(res_r == res_c);
+    res_r = crc32c(std::u8string_view(u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/"));
+    res_c = crc32c(u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/");
+    REQUIRE(res_r == res_c);
 
-  res_r = crc32c(std::u8string_view(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/"));
-  res_c = crc32c(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/");
-  REQUIRE(res_r == res_c);
+    res_r = crc32c(std::u8string_view(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/"));
+    res_c = crc32c(u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/");
+    REQUIRE(res_r == res_c);
+  }
 
-  char8_t const* test_string1 = GENERATE(
-      u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/",
-      u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/");
-  char8_t const* test_string2 = GENERATE(
-      u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/",
-      u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/");
-  int off1 = GENERATE(range(0, 8));
-  int off2 = GENERATE(range(0, 16));
+  SECTION("Alignment Tests") {
+    char8_t const* test_string1 = GENERATE(
+        u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/",
+        u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/");
+    char8_t const* test_string2 = GENERATE(
+        u8"ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789-.[]():/",
+        u8"abcdefghijklmnopqrstuvwxyz 0123456789-.[]():/");
+    int off1 = GENERATE(range(0, 8));
+    int off2 = GENERATE(range(0, 16));
 
-  res_r = crc32c(std::u8string_view(test_string1 + off1, 45 - off1 - off2));
-  res_c = crc32c_c(test_string2 + off1, 45 - off1 - off2, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
-  REQUIRE(res_r == res_c);
+    res_r = crc32c(std::u8string_view(test_string1 + off1, 45 - off1 - off2));
+    res_c = crc32c_c(test_string2 + off1, 45 - off1 - off2, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
+    REQUIRE(res_r == res_c);
 
-  res_r = crc32c(std::u8string_view(test_string1 + off1, off2));
-  res_c = crc32c_c(test_string2 + off1, off2, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
-  REQUIRE(res_r == res_c);
+    res_r = crc32c(std::u8string_view(test_string1 + off1, off2));
+    res_c = crc32c_c(test_string2 + off1, off2, 0xFFFFFFFFU, 0) ^ 0xFFFFFFFFU;
+    REQUIRE(res_r == res_c);
+  }
 }
 
 TEST_CASE("Test ascii_* functions", "[ascii]") {

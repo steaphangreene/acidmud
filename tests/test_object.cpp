@@ -433,5 +433,4 @@ TEST_CASE("Object Text Limits", "[object]") {
       u8"AAAAAAAAAAAAAAAAAAAA"
       u8"AAAAAAAAAAAAAAAAAAAA"
       u8"AAAAAAAAAAAAAAAAAAAA");
-
 }
