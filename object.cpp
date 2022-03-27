@@ -48,21 +48,21 @@ const std::u8string pos_str[] = {
 static_assert(std::size(pos_str) == static_cast<uint8_t>(pos_t::MAX));
 
 const std::u8string act_str[] = {
-    u8"doing nothing",  u8"dead",         u8"bleeding and dying",
-    u8"unconscious",    u8"fast asleep",  u8"resting",
-    u8"working",        u8"healing {0}",  u8"pointing {1}{2}at {0}",
-    u8"following {0}",  u8"fighting {0}", u8"offering something to {0}",
-    u8"holding {0}",    u8"wielding {0}", u8"wearing {0}",
-    u8"wearing {0}",    u8"wearing {0}",  u8"wearing {0}",
-    u8"wearing {0}",    u8"wearing {0}",  u8"wearing {0}",
-    u8"wearing {0}",    u8"wearing {0}",  u8"wearing {0}",
-    u8"wearing {0}",    u8"wearing {0}",  u8"wearing {0}",
-    u8"wearing {0}",    u8"wearing {0}",  u8"wearing {0}",
-    u8"wearing {0}",    u8"wearing {0}",  u8"wearing {0}",
-    u8"wearing {0}",    u8"wearing {0}",  u8"wearing {0}",
-    u8"wearing {0}",    u8"wearing_{0}",  u8"SPECIAL_MONITOR",
-    u8"SPECIAL_LINKED", u8"SPECIAL_HOME", u8"SPECIAL_WORK",
-    u8"SPECIAL_ACTEE",
+    u8"doing nothing",  u8"dead",          u8"bleeding and dying",
+    u8"unconscious",    u8"fast asleep",   u8"resting",
+    u8"working",        u8"healing {0}",   u8"pointing {1}{2}at {0}",
+    u8"following {0}",  u8"fighting {0}",  u8"offering something to {0}",
+    u8"holding {0}",    u8"wielding {0}",  u8"wearing {0}",
+    u8"wearing {0}",    u8"wearing {0}",   u8"wearing {0}",
+    u8"wearing {0}",    u8"wearing {0}",   u8"wearing {0}",
+    u8"wearing {0}",    u8"wearing {0}",   u8"wearing {0}",
+    u8"wearing {0}",    u8"wearing {0}",   u8"wearing {0}",
+    u8"wearing {0}",    u8"wearing {0}",   u8"wearing {0}",
+    u8"wearing {0}",    u8"wearing {0}",   u8"wearing {0}",
+    u8"wearing {0}",    u8"wearing {0}",   u8"wearing {0}",
+    u8"wearing {0}",    u8"wearing_{0}",   u8"SPECIAL_MONITOR",
+    u8"SPECIAL_LINKED", u8"SPECIAL_HOME",  u8"SPECIAL_WORK",
+    u8"SPECIAL_OWNER",  u8"SPECIAL_ACTEE",
     //"SPECIAL_MAX"
 };
 // Check if there are too few/many items (forgot to add/remove one here?) in the above list.

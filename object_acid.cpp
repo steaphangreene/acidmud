@@ -49,7 +49,7 @@ const std::u8string act_save[] = {
     u8"WEAR_LFOOT",   u8"WEAR_RFOOT",   u8"WEAR_LHAND",    u8"WEAR_RHAND",      u8"WEAR_LLEG",
     u8"WEAR_RLEG",    u8"WEAR_LWRIST",  u8"WEAR_RWRIST",   u8"WEAR_LSHOULDER",  u8"WEAR_RSHOULDER",
     u8"WEAR_LHIP",    u8"WEAR_RHIP",    u8"WEAR_FACE",     u8"SPECIAL_MONITOR", u8"SPECIAL_LINKED",
-    u8"SPECIAL_HOME", u8"SPECIAL_WORK", u8"SPECIAL_ACTEE",
+    u8"SPECIAL_HOME", u8"SPECIAL_WORK", u8"SPECIAL_OWNER", u8"SPECIAL_ACTEE",
     //	"SPECIAL_MAX"
 };
 // Check if there are too few/many items (forgot to add/remove one here?) in the above list.
