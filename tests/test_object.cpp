@@ -489,8 +489,9 @@ TEST_CASE("Object Money", "[money]") {
   gold->SetValue(1000);
   gold->SetSkill(prhash(u8"Money"), 1000);
   gold->SetSkill(prhash(u8"Quantity"), 3);
+  // Add a different flavor chit of the same value
   Object* chits2 = new Object(jane);
-  chits2->SetShortDesc(u8"a bone chit");
+  chits2->SetShortDesc(u8"a wooden chit");
   chits2->SetValue(1);
   chits2->SetSkill(prhash(u8"Money"), 1);
   chits2->SetSkill(prhash(u8"Quantity"), 3);
