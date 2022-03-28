@@ -130,20 +130,70 @@ static std::map<act_t, std::u8string> wear_attribs = {
     {act_t::WEAR_FACE, u8"Wearable on Face"},
 };
 
-static Object* gold = nullptr;
-static void init_gold() {
-  gold = new Object();
-  gold->SetShortDesc(u8"a gold piece");
-  gold->SetDesc(u8"A standard one-ounce gold piece.");
-  gold->SetWeight(454 / 16);
-  gold->SetVolume(0);
-  gold->SetValue(1);
-  gold->SetSize(0);
-  gold->SetPos(pos_t::LIE);
-  gold->SetSkill(prhash(u8"Money"), 1);
+static std::vector<Object*> coins;
+static void init_coins() {
+  coins.push_back(new Object());
+  coins.back()->SetShortDesc(u8"a platinum piece");
+  coins.back()->SetDesc(u8"A standard one-ounce platinum piece.");
+  coins.back()->SetWeight(454 / 16);
+  coins.back()->SetVolume(0);
+  coins.back()->SetValue(10000);
+  coins.back()->SetSize(0);
+  coins.back()->SetPos(pos_t::LIE);
+  coins.back()->SetSkill(prhash(u8"Money"), 10000);
+
+  coins.push_back(new Object());
+  coins.back()->SetShortDesc(u8"a gold piece");
+  coins.back()->SetDesc(u8"A standard one-ounce gold piece.");
+  coins.back()->SetWeight(454 / 16);
+  coins.back()->SetVolume(0);
+  coins.back()->SetValue(1000);
+  coins.back()->SetSize(0);
+  coins.back()->SetPos(pos_t::LIE);
+  coins.back()->SetSkill(prhash(u8"Money"), 1000);
+
+  coins.push_back(new Object());
+  coins.back()->SetShortDesc(u8"a silver piece");
+  coins.back()->SetDesc(u8"A standard one-ounce silver piece.");
+  coins.back()->SetWeight(454 / 16);
+  coins.back()->SetVolume(0);
+  coins.back()->SetValue(100);
+  coins.back()->SetSize(0);
+  coins.back()->SetPos(pos_t::LIE);
+  coins.back()->SetSkill(prhash(u8"Money"), 100);
+
+  coins.push_back(new Object());
+  coins.back()->SetShortDesc(u8"a copper piece");
+  coins.back()->SetDesc(u8"A standard one-ounce copper piece.");
+  coins.back()->SetWeight(454 / 16);
+  coins.back()->SetVolume(0);
+  coins.back()->SetValue(10);
+  coins.back()->SetSize(0);
+  coins.back()->SetPos(pos_t::LIE);
+  coins.back()->SetSkill(prhash(u8"Money"), 10);
+
+  coins.push_back(new Object());
+  coins.back()->SetShortDesc(u8"a bone chit");
+  coins.back()->SetDesc(u8"A small, ornate, bone chit.");
+  coins.back()->SetWeight(454 / 16);
+  coins.back()->SetVolume(0);
+  coins.back()->SetValue(1);
+  coins.back()->SetSize(0);
+  coins.back()->SetPos(pos_t::LIE);
+  coins.back()->SetSkill(prhash(u8"Money"), 1);
+
+  coins.push_back(new Object());
+  coins.back()->SetShortDesc(u8"a wooden chit");
+  coins.back()->SetDesc(u8"A small, ornate, wooden chit.");
+  coins.back()->SetWeight(454 / 16);
+  coins.back()->SetVolume(0);
+  coins.back()->SetValue(1);
+  coins.back()->SetSize(0);
+  coins.back()->SetPos(pos_t::LIE);
+  coins.back()->SetSkill(prhash(u8"Money"), 1);
 }
 
-static void give_gold(Object* npc, int qty) {
+static void give_coins(Object* npc, size_t amount) {
   Object* bag = new Object(npc);
 
   bag->SetShortDesc(u8"a small purse");
@@ -163,11 +213,23 @@ static void give_gold(Object* npc, int qty) {
   bag->SetPos(pos_t::LIE);
   npc->AddAct(act_t::WEAR_LHIP, bag);
 
-  if (!gold)
-    init_gold();
-  Object* g = new Object(*gold);
-  g->SetParent(bag);
-  g->SetSkill(prhash(u8"Quantity"), qty);
+  if (coins.empty()) {
+    init_coins();
+  }
+  for (auto coin : coins) {
+    size_t val = coin->Value();
+    if (val > 0 && amount >= (2 * val)) {
+      Object* g = new Object(*coin);
+      g->SetParent(bag);
+
+      size_t num = amount / val;
+      if (num * val < amount) {
+        --num;
+      }
+      g->SetSkill(prhash(u8"Quantity"), num);
+      amount -= (num * val);
+    }
+  }
 }
 
 static Object* add_pack(Object* npc) {
@@ -230,7 +292,7 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
   if (type.min_gold_ > 0 || type.max_gold_ > 0) {
     int num_gold = rint3(gen, type.min_gold_, type.max_gold_);
     if (num_gold > 0) {
-      give_gold(this, num_gold);
+      give_coins(this, num_gold);
     }
   }
 
