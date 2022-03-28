@@ -5703,16 +5703,21 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       return 0;
     }
 
-    Object* dest = body->Parent();
+    Object* dest = nullptr;
     if (nmode && args == u8"universe") {
-      dest = dest->Universe();
-    } else if (nmode && args == u8"trashbin") {
-      dest = dest->TrashBin();
-    } else { // Only Ninjas can teleport to u8"Universe"/"TrashBin"
-      while (dest->Parent()->Parent()) {
-        dest = dest->Parent();
-      }
+      // Only Ninjas can teleport to "Universe"
+      dest = body->Universe();
+    } else {
+      dest = body->Zone();
       dest = dest->PickObject(std::u8string(args), vmode | LOC_INTERNAL);
+      if (!dest) {
+        for (auto zone : body->World()->Contents()) {
+          dest = zone->PickObject(std::u8string(args), vmode | LOC_INTERNAL);
+          if (dest) {
+            break;
+          }
+        }
+      }
     }
 
     if (!dest) {
