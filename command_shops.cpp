@@ -201,15 +201,17 @@ int handle_command_shops(
         }
         mind->Send(u8"{} gp: {}\n", price, item->ShortDesc());
 
-        int togo = price, ord = -price;
-        auto pay = body->PickObjects(u8"a gold piece", LOC_INTERNAL, &ord);
-        for (auto coin : pay) {
-          togo -= coin->Quantity();
-        }
-
-        if (togo > 0) {
-          if (mind)
-            mind->Send(u8"You can't afford the {} gold (short {}).\n", price, togo);
+        auto pay = body->PayFor(price);
+        if (pay.size() == 0) {
+          if (mind) {
+            auto offer = body->CanPayFor(price);
+            if (offer > price) {
+              mind->Send(
+                  u8"You don't have change to pay {}gp (you'd have to pay {}gp).\n", price, offer);
+            } else {
+              mind->Send(u8"You can't afford the {}gp (you only have {}gp).\n", price, offer);
+            }
+          }
         } else if (body->Stash(item, 0, 0)) {
           body->Parent()->SendOut(
               stealth_t,
