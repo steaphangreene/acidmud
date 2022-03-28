@@ -30,6 +30,10 @@
 #include <random>
 #include <string>
 
+// Replace with C++20 std::ranges, when widely available
+#include <range/v3/algorithm.hpp>
+namespace rng = ranges;
+
 #include "color.hpp"
 #include "commands.hpp"
 #include "global.hpp"
@@ -2883,6 +2887,35 @@ bool Mind::Think(int istick) {
       if (time > day / 4 - early && time < 3 * day / 4 + late) {
         if (body->Pos() == pos_t::LIE) {
           handle_command(body, u8"wake;stand");
+        } else if (
+            body->ActTarg(act_t::WORK) &&
+            body->ActTarg(act_t::WORK)->HasSkill(prhash(u8"Incomplete"))) {
+          auto project = body->ActTarg(act_t::WORK);
+          auto todo = project->Skill(prhash(u8"Incomplete")) - body->ModAttribute(5);
+          if (todo > 0) {
+            project->SetSkill(prhash(u8"Incomplete"), todo);
+          } else {
+            project->ClearSkill(prhash(u8"Incomplete"));
+            project->SetShortDesc(u8"a piece of charcoal");
+            project->SetShortDesc(u8"a piece of high-quality charcoal");
+            project->SetLongDesc(fmt::format(
+                u8"Created in {} by {}, Master Collier.",
+                project->Zone()->ShortDesc(),
+                body->Name()));
+            project->SetSkill(
+                prhash(u8"Pure Charcoal"), project->Skill(prhash(u8"Made of Wood")) / 2);
+            project->ClearSkill(prhash(u8"Made of Wood"));
+            project->SetValue(project->Value() * 10);
+            project->AddAct(act_t::SPECIAL_OWNER, body->Room());
+            body->Parent()->SendOut(
+                ALL,
+                0,
+                u8";s compeletes {} and places it with the rest of the wares.\n",
+                u8"",
+                body,
+                nullptr,
+                project->ShortDesc());
+          }
         } else if (body->IsAct(act_t::WORK)) {
           if (body->HasTag(crc32c(u8"master"))) {
             bool have_wares = false;
@@ -2904,7 +2937,44 @@ bool Mind::Think(int istick) {
                   ALL, 0, u8";s produces {} for sale.\n", u8"", body, nullptr, widget->ShortDesc());
             }
           }
-          // Already working, nothing to do here.
+
+          if (body->HasTag(crc32c(u8"master")) && body->HasTag(crc32c(u8"collier"))) {
+            std::vector<Object*> materials;
+            auto wares = body->Room()->PickObjects(u8"everything", LOC_INTERNAL);
+            for (auto item : wares) {
+              if (item->ActTarg(act_t::SPECIAL_OWNER) == body->Room() &&
+                  item->Skill(prhash(u8"Made of Wood"))) {
+                materials.push_back(item);
+              }
+            }
+            rng::sort(materials, [](const Object* a, const Object* b) {
+              size_t rat_a = a->Skill(prhash(u8"Made of Wood"));
+              size_t rat_b = b->Skill(prhash(u8"Made of Wood"));
+              rat_a *= 1000UL;
+              rat_b *= 1000UL;
+              rat_a /= a->Value();
+              rat_b /= b->Value();
+              return rat_a > rat_b;
+            });
+            if (materials.size() > 0) {
+              Object* mat = materials.front();
+              if (mat->Quantity() > 1) {
+                mat = mat->Split(1);
+              }
+              mat->SetSkill(prhash(u8"Incomplete"), 1000);
+              mat->SetShortDesc(u8"a piece of work");
+              mat->AddAct(act_t::SPECIAL_OWNER, body);
+              body->AddAct(act_t::WORK, mat);
+              body->Parent()->SendOut(
+                  ALL,
+                  0,
+                  u8";s grabs {} and begins working on it.\n",
+                  u8"",
+                  body,
+                  nullptr,
+                  mat->ShortDesc());
+            }
+          }
         } else if (body->Parent() != body->ActTarg(act_t::SPECIAL_WORK)) {
           if (!svars.contains(u8"path")) {
             auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_WORK), body);

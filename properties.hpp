@@ -29,7 +29,7 @@
 
 #include "utils.hpp"
 
-constexpr std::array<const char8_t*, 547> prop_names = {{
+constexpr std::array<const char8_t*, 549> prop_names = {{
     u8"Accomplishment",
     u8"Accuracy Bonus",
     u8"Accuracy Penalty",
@@ -228,6 +228,7 @@ constexpr std::array<const char8_t*, 547> prop_names = {{
     u8"Identify Juju",
     u8"Identify Person Spell",
     u8"Identify Spell",
+    u8"Incomplete",
     u8"Influence Spell",
     u8"Ingestible",
     u8"Injure Spell",
@@ -388,6 +389,7 @@ constexpr std::array<const char8_t*, 547> prop_names = {{
     u8"Priceless",
     u8"Protection Spell",
     u8"Punching",
+    u8"Pure Charcoal",
     u8"Quantity",
     u8"Quickdraw",
     u8"Quickness",
