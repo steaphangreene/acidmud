@@ -26,6 +26,42 @@
 #include "tags.hpp"
 #include "utils.hpp"
 
+static std::u8string coin_str(size_t amount) {
+  std::u8string ret;
+  if (amount == 0) {
+    ret = u8"0 coins";
+  } else if (amount % 10UL != 0) {
+    ret = fmt::format(u8"{} chits", amount);
+  } else if (amount % 100UL != 0) {
+    ret = fmt::format(u8"{} copper pieces", amount / 10);
+  } else if (amount % 1000UL != 0) {
+    ret = fmt::format(u8"{} silver pieces", amount / 100);
+  } else if (amount % 10000UL != 0) {
+    ret = fmt::format(u8"{} gold pieces", amount / 1000);
+  } else {
+    ret = fmt::format(u8"{} platinum pieces", amount / 10000);
+  }
+  return ret;
+}
+
+static std::u8string coins(size_t amount) {
+  std::u8string ret;
+  if (amount == 0) {
+    ret = u8"0";
+  } else if (amount % 10UL != 0) {
+    ret = fmt::format(u8"{}ch", amount);
+  } else if (amount % 100UL != 0) {
+    ret = fmt::format(u8"{}cp", amount / 10);
+  } else if (amount % 1000UL != 0) {
+    ret = fmt::format(u8"{}sp", amount / 100);
+  } else if (amount % 10000UL != 0) {
+    ret = fmt::format(u8"{}gp", amount / 1000);
+  } else {
+    ret = fmt::format(u8"{}pp", amount / 10000);
+  }
+  return ret;
+}
+
 int handle_command_shops(
     Object* body,
     std::shared_ptr<Mind>& mind,
@@ -82,7 +118,7 @@ int handle_command_shops(
             price += 999;
             price /= 1000;
           }
-          mind->Send(u8"{:>10} gp: {}\n", price, obj->ShortDesc());
+          mind->Send(u8"{:>10}: {}\n", coins(price), obj->ShortDesc());
           oobj = obj;
         }
       } else {
@@ -92,7 +128,7 @@ int handle_command_shops(
           if (item->ActTarg(act_t::SPECIAL_OWNER) == body->Room()) {
             have_stock = true;
             int price = item->Value();
-            mind->Send(u8"{:>10} cp: {}\n", price, item->ShortDesc());
+            mind->Send(CMAG u8"{:>10}: {}\n" CNRM, coins(price), item->ShortDesc());
           }
         }
         if (!have_stock) {
@@ -158,14 +194,14 @@ int handle_command_shops(
             all_for_sale = false;
           } else {
             price += item->Value();
-            mind->Send(u8"{:>10} cp: {}\n", item->Value(), item->ShortDesc());
+            mind->Send(u8"{:>10}: {}\n", coins(item->Value()), item->ShortDesc());
           }
         }
         if (!all_for_sale) {
           mind->Send(CRED u8"Sorry, you can't buy that.\n" CNRM);
           return 0;
         } else {
-          mind->Send(CGRN u8"Deal.  That will be {} cp.\n" CNRM, price);
+          mind->Send(CGRN u8"Deal.  That will be {}.\n" CNRM, coin_str(price));
         }
       }
 
@@ -199,7 +235,7 @@ int handle_command_shops(
             price /= 1000;
           }
         }
-        mind->Send(u8"{} gp: {}\n", price, item->ShortDesc());
+        mind->Send(u8"{}: {}\n", coins(price), item->ShortDesc());
 
         auto pay = body->PayFor(price);
         if (pay.size() == 0) {
@@ -207,9 +243,12 @@ int handle_command_shops(
             auto offer = body->CanPayFor(price);
             if (offer > price) {
               mind->Send(
-                  u8"You don't have change to pay {}gp (you'd have to pay {}gp).\n", price, offer);
+                  u8"You don't have change to pay {} (you'd have to pay {}).\n",
+                  coins(price),
+                  coins(offer));
             } else {
-              mind->Send(u8"You can't afford the {}gp (you only have {}gp).\n", price, offer);
+              mind->Send(
+                  u8"You can't afford the {} (you only have {}).\n", coins(price), coins(offer));
             }
           }
         } else if (body->Stash(item, 0, 0)) {
@@ -481,7 +520,7 @@ int handle_command_shops(
             price = 1;
         }
       }
-      mind->Send(u8"I'll give you {}gp for {}\n", price, item->ShortDesc());
+      mind->Send(u8"I'll give you {} for {}\n", coins(price), item->ShortDesc());
 
       if (cnum == COM_SELL) {
         int togo = price, ord = -price;
@@ -507,12 +546,12 @@ int handle_command_shops(
           } else { // Keeper gets it back
             shpkp->Stash(payment->Contents().front(), 0, 1);
             if (mind)
-              mind->Send(u8"You couldn't stash {} gold!\n", price);
+              mind->Send(u8"You couldn't stash {}!\n", coin_str(price));
           }
           delete payment;
         } else {
           if (mind)
-            mind->Send(u8"I can't afford the {} gold.\n", price);
+            mind->Send(u8"I can't afford the {}.\n", coin_str(price));
         }
       }
     }
