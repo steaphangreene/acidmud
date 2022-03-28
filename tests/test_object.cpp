@@ -584,7 +584,7 @@ TEST_CASE("Object Money", "[money]") {
     REQUIRE(jane->CanPayFor(222) == 1000); // Can't Make Change Anymore
   }
 
-  SECTION("Going Broke  Check") {
+  SECTION("Going Broke Check") {
     REQUIRE(jane->CanPayFor(22222) == 22222);
 
     auto payment = jane->PayFor(31324);
@@ -595,6 +595,43 @@ TEST_CASE("Object Money", "[money]") {
       delete p;
     }
     REQUIRE(jane->CanPayFor(22222) == 2012); // Can No Longer Afford It
+  }
+
+  SECTION("One Big Coin Check") {
+    platinum = new Object(john);
+    platinum->SetShortDesc(u8"a platinum piece");
+    platinum->SetValue(10000);
+    platinum->SetSkill(prhash(u8"Money"), 10000);
+
+    REQUIRE(john->CanPayFor(222) == 10000);
+
+    auto payment = john->PayFor(31324);
+    REQUIRE(payment.size() == 0);
+    REQUIRE(john->CanPayFor(222) == 10000); // Still In His Posession
+
+    for (auto p : payment) {
+      delete p;
+    }
+    REQUIRE(john->CanPayFor(10000) == 10000); // Still In His Posession
+  }
+
+  SECTION("Many Big Coins Check") {
+    platinum = new Object(john);
+    platinum->SetShortDesc(u8"a platinum piece");
+    platinum->SetValue(10000);
+    platinum->SetSkill(prhash(u8"Money"), 10000);
+    platinum->SetSkill(prhash(u8"Quantity"), 323);
+
+    REQUIRE(john->CanPayFor(222) == 10000);
+
+    auto payment = john->PayFor(31324);
+    REQUIRE(payment.size() == 0);
+    REQUIRE(john->CanPayFor(222) == 10000); // Still In His Posession
+
+    for (auto p : payment) {
+      delete p;
+    }
+    REQUIRE(john->CanPayFor(10000) == 10000); // Still In His Posession
   }
 
   destroy_universe();
