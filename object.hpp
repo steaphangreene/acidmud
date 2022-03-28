@@ -648,7 +648,7 @@ class alignas(256) Object {
   bool IsSameAs(const Object& in) const;
 
   int Matches(const std::u8string_view& seek, bool knows = false) const;
-  int LooksLike(Object* other, int vmode = 0, Object* viewer = nullptr) const;
+  bool LooksLike(const Object* other, int vmode = 0, const Object* viewer = nullptr) const;
 
   ObjectTag BuildNPC(const std::u8string_view& tags);
   Object* MakeNPC(std::mt19937&, const ObjectTag& npcdef);

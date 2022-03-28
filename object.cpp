@@ -4153,46 +4153,72 @@ bool Object::Filter(int loc) const {
   return true;
 }
 
-int Object::LooksLike(Object* other, int vmode, Object* viewer) const {
+bool Object::LooksLike(const Object* other, int vmode, const Object* viewer) const {
   if (Noun(false, true, viewer) != other->Noun(false, true, viewer))
-    return 0;
+    return false;
   if (Pos() != other->Pos())
-    return 0;
+    return false;
   if (Using() != other->Using())
-    return 0;
+    return false;
 
   // Neither open/trans/seen inside (if either contain anything)
   if (Contents(vmode).size() > 0 || other->Contents(vmode).size() > 0) {
     if (Skill(prhash(u8"Open")) || Skill(prhash(u8"Transparent")))
-      return 0;
+      return false;
     if (other->Skill(prhash(u8"Open")) || other->Skill(prhash(u8"Transparent")))
-      return 0;
+      return false;
     if (Skill(prhash(u8"Container")) || Skill(prhash(u8"Liquid Container"))) {
       if (vmode && (!Skill(prhash(u8"Locked"))))
-        return 0;
+        return false;
     }
     if (other->Skill(prhash(u8"Container")) || other->Skill(prhash(u8"Liquid Container"))) {
       if (vmode && (!other->Skill(prhash(u8"Locked"))))
-        return 0;
+        return false;
     }
   }
 
-  for (act_t actt = act_t::NONE; actt < act_t::WIELD;) { // Off-By-One!
-    actt = act_t(int(actt) + 1); // Increments First!
-    if (IsAct(actt) != other->IsAct(actt))
-      return 0;
-    if (ActTarg(actt) != other->ActTarg(actt)) {
-      std::u8string s1 = u8"";
-      if (ActTarg(actt))
-        s1 = ActTarg(actt)->Noun(0, 0, this);
-      std::u8string s2 = u8"";
-      if (ActTarg(actt))
-        s2 = other->ActTarg(actt)->Noun(0, 0, other);
-      if (s1 != s2)
-        return 0;
+  for (const auto a : other->act) {
+    if (a.act() > act_t::NONE && a.act() <= act_t::WIELD) {
+      if (!IsAct(a.act())) {
+        // Other is doing something visible that I am not.
+        return false;
+      }
+    } else if (a.act() == act_t::SPECIAL_ACTEE) {
+      if (a.obj() && a.obj()->ActTarg(act_t::HOLD) == other) {
+        // Something visible is being done to the other
+        return false;
+      }
     }
   }
-  return 1;
+
+  for (const auto a : act) {
+    if (a.act() > act_t::NONE && a.act() <= act_t::WIELD) {
+      if (!other->IsAct(a.act())) {
+        // I am doing something visible that the other is not.
+        return false;
+      }
+      if (a.obj() != other->ActTarg(a.act())) {
+        std::u8string s1 = u8"";
+        if (a.obj()) {
+          s1 = a.obj()->Noun(0, 0, this);
+        }
+        std::u8string s2 = u8"";
+        if (other - ActTarg(a.act())) {
+          s2 = other->ActTarg(a.act())->Noun(0, 0, other);
+        }
+        if (s1 != s2) {
+          return false;
+        }
+      }
+    } else if (a.act() == act_t::SPECIAL_ACTEE) {
+      if (a.obj() && a.obj()->ActTarg(act_t::HOLD) == this) {
+        // Something visible is being done to me
+        return false;
+      }
+    }
+  }
+
+  return true;
 }
 
 void Object::Consume(const Object* item) {
