@@ -26,42 +26,6 @@
 #include "tags.hpp"
 #include "utils.hpp"
 
-static std::u8string coin_str(size_t amount) {
-  std::u8string ret;
-  if (amount == 0) {
-    ret = u8"0 coins";
-  } else if (amount % 10UL != 0) {
-    ret = fmt::format(u8"{} chits", amount);
-  } else if (amount % 100UL != 0) {
-    ret = fmt::format(u8"{} copper pieces", amount / 10);
-  } else if (amount % 1000UL != 0) {
-    ret = fmt::format(u8"{} silver pieces", amount / 100);
-  } else if (amount % 10000UL != 0) {
-    ret = fmt::format(u8"{} gold pieces", amount / 1000);
-  } else {
-    ret = fmt::format(u8"{} platinum pieces", amount / 10000);
-  }
-  return ret;
-}
-
-static std::u8string coins(size_t amount) {
-  std::u8string ret;
-  if (amount == 0) {
-    ret = u8"0";
-  } else if (amount % 10UL != 0) {
-    ret = fmt::format(u8"{}ch", amount);
-  } else if (amount % 100UL != 0) {
-    ret = fmt::format(u8"{}cp", amount / 10);
-  } else if (amount % 1000UL != 0) {
-    ret = fmt::format(u8"{}sp", amount / 100);
-  } else if (amount % 10000UL != 0) {
-    ret = fmt::format(u8"{}gp", amount / 1000);
-  } else {
-    ret = fmt::format(u8"{}pp", amount / 10000);
-  }
-  return ret;
-}
-
 int handle_command_shops(
     Object* body,
     std::shared_ptr<Mind>& mind,

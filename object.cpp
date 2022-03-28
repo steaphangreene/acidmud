@@ -1688,18 +1688,24 @@ void Object::SendScore(std::shared_ptr<Mind> m, Object* o) {
           stru <= 9 ? ' ' : 'X');
     } else if (ctr == 5) {
       if (Pos() == pos_t::NONE) {
-        m->Send(u8"  Zone Coords: ({},{},{})  Value: {}Y\n", X(), Y(), Z(), value);
+        m->Send(
+            u8"  Zone Coords: ({},{},{})  Value: {}\n",
+            X(),
+            Y(),
+            Z(),
+            (value > 0) ? coins(value) : coins(0));
+
       } else {
         char8_t gens[4] = {'N', 'F', 'M', 'O'};
         m->Send(
-            u8"  Gen: {}, {}.{:03}kg, {}.{:03}m, {}v, {}Y\n",
+            u8"  Gen: {}, {}.{:03}kg, {}.{:03}m, {}v, {}\n",
             gens[static_cast<int8_t>(gender)],
             weight / 1000,
             weight % 1000,
             size / 1000,
             size % 1000,
             volume,
-            value);
+            (value > 0) ? coins(value) : coins(0));
       }
     }
     m->Send(u8"\n");
@@ -4183,6 +4189,11 @@ bool Object::LooksLike(const Object* other, int vmode, const Object* viewer) con
         // Other is doing something visible that I am not.
         return false;
       }
+    } else if (a.act() == act_t::SPECIAL_OWNER) {
+      if (a.obj() && a.obj() != ActTarg(act_t::SPECIAL_OWNER)) {
+        // The other is visibly owned by someone different than me
+        return false;
+      }
     } else if (a.act() == act_t::SPECIAL_ACTEE) {
       if (a.obj() && a.obj()->ActTarg(act_t::HOLD) == other) {
         // Something visible is being done to the other
@@ -4209,6 +4220,11 @@ bool Object::LooksLike(const Object* other, int vmode, const Object* viewer) con
         if (s1 != s2) {
           return false;
         }
+      }
+    } else if (a.act() == act_t::SPECIAL_OWNER) {
+      if (a.obj() && a.obj() != other->ActTarg(act_t::SPECIAL_OWNER)) {
+        // I am visibly owned by someone different than the other
+        return false;
       }
     } else if (a.act() == act_t::SPECIAL_ACTEE) {
       if (a.obj() && a.obj()->ActTarg(act_t::HOLD) == this) {
