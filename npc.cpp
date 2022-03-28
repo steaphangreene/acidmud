@@ -140,6 +140,7 @@ static void init_gold() {
   gold->SetValue(1);
   gold->SetSize(0);
   gold->SetPos(pos_t::LIE);
+  gold->SetSkill(prhash(u8"Money"), 1);
 }
 
 static void give_gold(Object* npc, int qty) {
