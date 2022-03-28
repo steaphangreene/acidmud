@@ -523,35 +523,43 @@ int handle_command_shops(
       mind->Send(u8"I'll give you {} for {}\n", coins(price), item->ShortDesc());
 
       if (cnum == COM_SELL) {
-        int togo = price, ord = -price;
-        auto pay = shpkp->PickObjects(u8"a gold piece", LOC_INTERNAL, &ord);
-        for (auto coin : pay) {
-          togo -= std::max(1, coin->Skill(prhash(u8"Quantity")));
-        }
+        auto pay = shpkp->PayFor(price);
 
-        if (togo <= 0) {
+        if (pay.size() > 0) {
           body->Parent()->SendOut(
               stealth_t, stealth_s, u8";s sells ;s.\n", u8"You sell ;s.\n", body, item);
-          Object* payment = new Object;
+          bool success = true;
           for (auto coin : pay) {
-            coin->Travel(payment);
-          }
-          if (body->Stash(payment->Contents().front())) {
-            if (vortex) {
-              item->Travel(vortex);
-            } else {
-              item->Travel(body->Room());
-              item->AddAct(act_t::SPECIAL_OWNER, body->Room());
+            if (!body->Stash(coin)) {
+              success = false;
+              shpkp->Drop(coin);
             }
-          } else { // Keeper gets it back
-            shpkp->Stash(payment->Contents().front(), 0, 1);
-            if (mind)
-              mind->Send(u8"You couldn't stash {}!\n", coin_str(price));
           }
-          delete payment;
+          if (vortex) {
+            item->Travel(vortex);
+          } else {
+            item->Travel(body->Room());
+            item->AddAct(act_t::SPECIAL_OWNER, body->Room());
+          }
+          if (!success) {
+            if (mind) {
+              mind->Send(
+                  u8"You couldn't stash {}, so at least some of it fell on the floor!\n",
+                  coin_str(price));
+            }
+          }
         } else {
-          if (mind)
-            mind->Send(u8"I can't afford the {}.\n", coin_str(price));
+          if (mind) {
+            auto offer = shpkp->CanPayFor(price);
+            if (offer > price) {
+              mind->Send(
+                  u8"I don't have change to pay {} (you'd have to make change for {}).\n",
+                  coins(price),
+                  coins(offer));
+            } else {
+              mind->Send(u8"I can't afford the {} (I only have {}).\n", coins(price), coins(offer));
+            }
+          }
         }
       }
     }
