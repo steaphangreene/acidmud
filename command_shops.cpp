@@ -543,6 +543,9 @@ int handle_command_shops(
             item->Travel(vortex);
           } else {
             item->Travel(body->Room());
+            if (body->ActTarg(act_t::HOLD) == item) { // Stop Dragging It
+              body->StopAct(act_t::HOLD);
+            }
             item->AddAct(act_t::SPECIAL_OWNER, body->Room());
           }
           if (!success) {
