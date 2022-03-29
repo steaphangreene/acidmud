@@ -188,20 +188,20 @@ prop:WeaponSkill:3
 s:2-2
 gold:200-400
 
-tag:npc:metalworker
+tag:npc:metalsmith
 includes:civilian
 includes:citizen
-short:a metalworker
+short:a metalsmith
 desc:an artisan who works with molten metals.
 long:{His} skin shows {he} has been around high heat all {his} life.
 prop:WeaponSkill:2
 s:2-2
 gold:200-400
 
-tag:npc:refiner
+tag:npc:smelter
 includes:civilian
 includes:citizen
-short:a refiner
+short:a smelter
 desc:an expert at extracting pure metals from rough ores.
 long:{His} dried out skin is covered in soot.  You get the impress {he} always looks like this.
 s:2-2
@@ -621,9 +621,9 @@ tag:room:bladesmithy
 dtag:forge
 ntag:bladesmith
 
-tag:room:refinery
+tag:room:smeltery
 dtag:furnace
-ntag:refiner
+ntag:smelter
 
 tag:room:woodmill
 ntag:miller
@@ -642,7 +642,7 @@ tag:room:mint
 ntag:coinmaker
 
 tag:room:foundry
-ntag:metalworker
+ntag:metalsmith
 
 tag:room:food
 type:purpose
