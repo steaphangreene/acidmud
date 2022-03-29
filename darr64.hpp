@@ -286,11 +286,11 @@ class alignas(next_pow_2(C * 8)) DArr64 {
     } else if (cap_ == 0) {
       cap_ = next_pow_2(C);
       auto temp = std::allocator<T>().allocate(cap_);
+      std::construct_at(temp + size_, std::forward<Args>(args)...);
       for (uint32_t idx = 0; idx < size_; ++idx) {
         temp[idx] = std::move(data_.val[idx]);
       }
       data_.arr = temp;
-      std::construct_at(data_.arr + size_, std::forward<Args>(args)...);
     } else if (size_ < cap_) {
       std::construct_at(data_.arr + size_, std::forward<Args>(args)...);
     } else {
@@ -299,11 +299,11 @@ class alignas(next_pow_2(C * 8)) DArr64 {
       auto temp_cap = cap_;
       cap_ *= 2;
       data_.arr = std::allocator<T>().allocate(cap_);
+      std::construct_at(data_.arr + size_, std::forward<Args>(args)...);
       for (uint32_t idx = 0; idx < size_; ++idx) {
         data_.arr[idx] = temp[idx];
       }
       std::allocator<T>().deallocate(temp, temp_cap);
-      std::construct_at(data_.arr + size_, std::forward<Args>(args)...);
     }
     ++size_;
   }
