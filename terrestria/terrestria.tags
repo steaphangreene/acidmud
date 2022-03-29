@@ -225,11 +225,11 @@ long:{His} clothing is covered in sawdust.
 s:2-2
 gold:500-1000
 
-tag:npc:woodcarver
+tag:npc:woodworker
 includes:civilian
 includes:citizen
-short:a woodcarver
-desc:a woodcarver
+short:a woodworker
+desc:a woodworker
 long:{He} is an expert carver of wooden items, both functional and decorative.
 prop:WeaponSkill:2
 s:2-2
@@ -629,7 +629,7 @@ tag:room:woodmill
 ntag:miller
 
 tag:room:woodshop
-ntag:woodcarver
+ntag:woodworker
 
 tag:room:inn
 dtag:room
