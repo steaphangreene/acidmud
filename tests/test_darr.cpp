@@ -409,3 +409,62 @@ TEST_CASE("Traced DArr64 Tests", "[DArr64]") {
   arr.push_back(23);
   REQUIRE(counted<int64_t>::total == 23);
 }
+
+template <>
+size_t counted<int32_t>::total = 0;
+TEST_CASE("Traced DArr32 Tests", "[DArr32]") {
+  DArr32<counted<int32_t>> arr;
+
+  arr.push_back(1);
+  REQUIRE(counted<int32_t>::total == 1);
+
+  arr.pop_back();
+  REQUIRE(counted<int32_t>::total == 0);
+
+  arr.push_back(2);
+  arr.push_back(3);
+  arr.push_back(4);
+  REQUIRE(counted<int32_t>::total == 3);
+
+  arr.pop_back();
+  REQUIRE(counted<int32_t>::total == 2);
+
+  arr.clear();
+  REQUIRE(counted<int32_t>::total == 0);
+
+  arr.push_back(1);
+  arr.push_back(2);
+  arr.push_back(3);
+  arr.push_back(4);
+  arr.push_back(5);
+  REQUIRE(counted<int32_t>::total == 5);
+
+  arr.reserve(21);
+  REQUIRE(counted<int32_t>::total == 5);
+
+  arr.push_back(6);
+  arr.push_back(7);
+  arr.push_back(8);
+  arr.push_back(9);
+  arr.push_back(10);
+  arr.push_back(11);
+  arr.push_back(12);
+  arr.push_back(13);
+  arr.push_back(14);
+  arr.push_back(15);
+  arr.push_back(16);
+  arr.push_back(17);
+  arr.push_back(18);
+  arr.push_back(19);
+  arr.push_back(20);
+  REQUIRE(counted<int32_t>::total == 20);
+
+  arr.push_back(21);
+  REQUIRE(counted<int32_t>::total == 21);
+
+  arr.push_back(22);
+  REQUIRE(counted<int32_t>::total == 22);
+
+  arr.push_back(23);
+  REQUIRE(counted<int32_t>::total == 23);
+}
