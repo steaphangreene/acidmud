@@ -211,18 +211,20 @@ class alignas(next_pow_2(C * 8)) DArr64 {
         cap_ = cap;
         auto temp = std::allocator<T>().allocate(cap_);
         for (uint32_t idx = 0; idx < size_; ++idx) {
-          temp[idx] = std::move(data_.val[idx]);
+          std::construct_at(temp + idx, std::move(data_.val[idx]));
+          std::destroy_at(data_.val + idx);
         }
         data_.arr = temp;
       } else {
         T* temp = data_.arr;
-        auto temp_cap = cap_;
+        auto old_cap = cap_;
         cap_ = cap;
         data_.arr = std::allocator<T>().allocate(cap_);
         for (uint32_t idx = 0; idx < size_; ++idx) {
-          data_.arr[idx] = temp[idx];
+          std::construct_at(data_.arr + idx, std::move(temp[idx]));
+          std::destroy_at(temp + idx);
         }
-        std::allocator<T>().deallocate(temp, temp_cap);
+        std::allocator<T>().deallocate(temp, old_cap);
       }
     }
   };
@@ -288,7 +290,8 @@ class alignas(next_pow_2(C * 8)) DArr64 {
       auto temp = std::allocator<T>().allocate(cap_);
       std::construct_at(temp + size_, std::forward<Args>(args)...);
       for (uint32_t idx = 0; idx < size_; ++idx) {
-        temp[idx] = std::move(data_.val[idx]);
+        std::construct_at(temp + idx, std::move(data_.val[idx]));
+        std::destroy_at(data_.val + idx);
       }
       data_.arr = temp;
     } else if (size_ < cap_) {
@@ -296,14 +299,15 @@ class alignas(next_pow_2(C * 8)) DArr64 {
     } else {
       assert(cap_ <= 0x40000000U);
       T* temp = data_.arr;
-      auto temp_cap = cap_;
+      auto old_cap = cap_;
       cap_ *= 2;
       data_.arr = std::allocator<T>().allocate(cap_);
       std::construct_at(data_.arr + size_, std::forward<Args>(args)...);
       for (uint32_t idx = 0; idx < size_; ++idx) {
-        data_.arr[idx] = temp[idx];
+        std::construct_at(data_.arr + idx, std::move(temp[idx]));
+        std::destroy_at(temp + idx);
       }
-      std::allocator<T>().deallocate(temp, temp_cap);
+      std::allocator<T>().deallocate(temp, old_cap);
     }
     ++size_;
   }
