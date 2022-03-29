@@ -86,8 +86,8 @@ tests/test_object: tests/test_object.o $(OBJS)
 tests/test_utils: tests/test_utils.o $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $< $(OBJS) $(LIBS)
 
-tests/test_darr: tests/test_darr.o $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $< $(OBJS) $(LIBS)
+tests/test_darr: tests/test_darr.o
+	$(CXX) $(CXXFLAGS) -o $@ $<
 
 tests/%.o: tests/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
