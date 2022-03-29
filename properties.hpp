@@ -29,7 +29,7 @@
 
 #include "utils.hpp"
 
-constexpr std::array<const char8_t*, 549> prop_names = {{
+constexpr auto prop_names = std::to_array({
     u8"Accomplishment",
     u8"Accuracy Bonus",
     u8"Accuracy Penalty",
@@ -579,7 +579,7 @@ constexpr std::array<const char8_t*, 549> prop_names = {{
     u8"Zap",
     u8"Zero-G Combat",
     u8"Zero-G Ops",
-}};
+});
 template <size_t L>
 constexpr std::array<uint32_t, L> names2crcs(std::array<const char8_t*, L> in) {
   std::array<uint32_t, L> ret;
