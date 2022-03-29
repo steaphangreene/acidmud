@@ -382,6 +382,10 @@ int handle_command_shops(
         if (shpkp->HasTag(crc32c(u8"master")) && shpkp->HasTag(crc32c(u8"collier"))) {
           skill = 0; // Special Marker: Acid Seller, Not Circle/TBA
         }
+      } else if (item->Skill(prhash(u8"Pure Wood")) > 1000) { // Temporary Hard-Code
+        if (shpkp->HasTag(crc32c(u8"master")) && shpkp->HasTag(crc32c(u8"collier"))) {
+          skill = 0; // Special Marker: Acid Seller, Not Circle/TBA
+        }
       } else if (item->Skill(prhash(u8"Money")) == item->Value()) { // 1-1 Money
         for (auto skl : shpkp->GetSkills()) {
           if (SkillName(skl.first).starts_with(u8"Buy ")) {

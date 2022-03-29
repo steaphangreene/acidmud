@@ -2902,8 +2902,11 @@ bool Mind::Think(int istick) {
                 u8"Created in {} by {}, Master Collier.",
                 project->Zone()->ShortDesc(),
                 body->Name()));
-            project->SetSkill(prhash(u8"Pure Charcoal"), project->Skill(prhash(u8"Raw Wood")) / 2);
+            size_t wood = project->Skill(prhash(u8"Raw Wood"));
+            wood += project->Skill(prhash(u8"Pure Wood"));
+            project->SetSkill(prhash(u8"Pure Charcoal"), wood / 2);
             project->ClearSkill(prhash(u8"Raw Wood"));
+            project->ClearSkill(prhash(u8"Pure Wood"));
             project->SetValue(project->Value() * 10);
             project->AddAct(act_t::SPECIAL_OWNER, body->Room());
             body->Parent()->SendOut(
@@ -2916,41 +2919,46 @@ bool Mind::Think(int istick) {
                 project->ShortDesc());
           }
         } else if (body->IsAct(act_t::WORK)) {
-          if (body->HasTag(crc32c(u8"master")) && body->HasTag(crc32c(u8"collier"))) {
-            std::vector<Object*> materials;
-            auto wares = body->Room()->PickObjects(u8"everything", LOC_INTERNAL);
-            for (auto item : wares) {
-              if (item->ActTarg(act_t::SPECIAL_OWNER) == body->Room() &&
-                  item->Skill(prhash(u8"Raw Wood"))) {
-                materials.push_back(item);
+          if (body->HasTag(crc32c(u8"master"))) {
+            if (body->HasTag(crc32c(u8"collier"))) {
+              std::vector<Object*> materials;
+              auto wares = body->Room()->PickObjects(u8"everything", LOC_INTERNAL);
+              for (auto item : wares) {
+                if (item->ActTarg(act_t::SPECIAL_OWNER) == body->Room()) {
+                  if (item->Skill(prhash(u8"Raw Wood")) || item->Skill(prhash(u8"Pure Wood"))) {
+                    materials.push_back(item);
+                  }
+                }
               }
-            }
-            rng::sort(materials, [](const Object* a, const Object* b) {
-              size_t rat_a = a->Skill(prhash(u8"Raw Wood"));
-              size_t rat_b = b->Skill(prhash(u8"Raw Wood"));
-              rat_a *= 1000UL;
-              rat_b *= 1000UL;
-              rat_a /= a->Value();
-              rat_b /= b->Value();
-              return rat_a > rat_b;
-            });
-            if (materials.size() > 0) {
-              Object* mat = materials.front();
-              if (mat->Quantity() > 1) {
-                mat = mat->Split(1);
+              rng::sort(materials, [](const Object* a, const Object* b) {
+                size_t rat_a = a->Skill(prhash(u8"Raw Wood"));
+                rat_a += a->Skill(prhash(u8"Pure Wood"));
+                size_t rat_b = b->Skill(prhash(u8"Raw Wood"));
+                rat_b += b->Skill(prhash(u8"Pure Wood"));
+                rat_a *= 1000UL;
+                rat_b *= 1000UL;
+                rat_a /= a->Value();
+                rat_b /= b->Value();
+                return rat_a > rat_b;
+              });
+              if (materials.size() > 0) {
+                Object* mat = materials.front();
+                if (mat->Quantity() > 1) {
+                  mat = mat->Split(1);
+                }
+                mat->SetSkill(prhash(u8"Incomplete"), 1000);
+                mat->SetShortDesc(u8"a piece of work");
+                mat->AddAct(act_t::SPECIAL_OWNER, body);
+                body->AddAct(act_t::WORK, mat);
+                body->Parent()->SendOut(
+                    ALL,
+                    0,
+                    u8";s grabs {} and begins working on it.\n",
+                    u8"",
+                    body,
+                    nullptr,
+                    mat->ShortDesc());
               }
-              mat->SetSkill(prhash(u8"Incomplete"), 1000);
-              mat->SetShortDesc(u8"a piece of work");
-              mat->AddAct(act_t::SPECIAL_OWNER, body);
-              body->AddAct(act_t::WORK, mat);
-              body->Parent()->SendOut(
-                  ALL,
-                  0,
-                  u8";s grabs {} and begins working on it.\n",
-                  u8"",
-                  body,
-                  nullptr,
-                  mat->ShortDesc());
             }
           }
         } else if (body->Parent() != body->ActTarg(act_t::SPECIAL_WORK)) {
