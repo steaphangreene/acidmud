@@ -25,7 +25,7 @@
 #include "../darr32.hpp"
 #include "../darr64.hpp"
 
-TEST_CASE("Test DArr64", "[DArr64]") {
+TEST_CASE("Basic DArr64 Tests", "[DArr64]") {
   uint64_t val = 0;
 
   DArr64<uint64_t> arr1;
@@ -169,7 +169,7 @@ TEST_CASE("Test DArr64", "[DArr64]") {
   REQUIRE(arr7.capacity() == 7);
 }
 
-TEST_CASE("Test DArr32", "[DArr32]") {
+TEST_CASE("Basic DArr32 Tests", "[DArr32]") {
   uint32_t val = 0;
 
   DArr32<uint32_t> arr3;
@@ -311,4 +311,99 @@ TEST_CASE("Test DArr32", "[DArr32]") {
   REQUIRE(arr3.capacity() == 16);
   REQUIRE(arr7.capacity() == 16);
   REQUIRE(arr15.capacity() == 15);
+}
+
+// Simple Total-Counting Wrapper Class
+template <typename B>
+class counted {
+ public:
+  counted() {
+    ++total;
+  };
+  counted(const B& in) {
+    data = in;
+    ++total;
+  };
+  counted(B&& in) {
+    data = std::move(in);
+    ++total;
+  };
+  counted(const counted& in) {
+    data = in.data;
+    ++total;
+  };
+  counted(counted&& in) {
+    data = std::move(in.data);
+    ++total;
+  };
+  void operator=(const counted& in) {
+    data = in.data;
+  };
+  void operator=(counted&& in) {
+    data = std::move(in.data);
+  };
+  ~counted() {
+    --total;
+  };
+  static size_t total;
+
+ private:
+  B data;
+};
+
+template <>
+size_t counted<int64_t>::total = 0;
+TEST_CASE("Traced DArr64 Tests", "[DArr64]") {
+  DArr64<counted<int64_t>> arr;
+
+  arr.push_back(1);
+  REQUIRE(counted<int64_t>::total == 1);
+
+  arr.pop_back();
+  REQUIRE(counted<int64_t>::total == 0);
+
+  arr.push_back(2);
+  arr.push_back(3);
+  arr.push_back(4);
+  REQUIRE(counted<int64_t>::total == 3);
+
+  arr.pop_back();
+  REQUIRE(counted<int64_t>::total == 2);
+
+  arr.clear();
+  REQUIRE(counted<int64_t>::total == 0);
+
+  arr.reserve(21);
+  REQUIRE(counted<int64_t>::total == 0);
+
+  arr.push_back(1);
+  arr.push_back(2);
+  arr.push_back(3);
+  arr.push_back(4);
+  arr.push_back(5);
+  arr.push_back(6);
+  arr.push_back(7);
+  arr.push_back(8);
+  arr.push_back(9);
+  arr.push_back(10);
+  arr.push_back(11);
+  arr.push_back(12);
+  arr.push_back(13);
+  arr.push_back(14);
+  arr.push_back(15);
+  arr.push_back(16);
+  arr.push_back(17);
+  arr.push_back(18);
+  arr.push_back(19);
+  arr.push_back(20);
+  REQUIRE(counted<int64_t>::total == 20);
+
+  arr.push_back(21);
+  REQUIRE(counted<int64_t>::total == 21);
+
+  arr.push_back(22);
+  REQUIRE(counted<int64_t>::total == 22);
+
+  arr.push_back(23);
+  REQUIRE(counted<int64_t>::total == 23);
 }
