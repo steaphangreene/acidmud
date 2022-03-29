@@ -319,22 +319,27 @@ class counted {
  public:
   counted() {
     ++total;
+    ++constructed;
   };
   counted(const B& in) {
     data = in;
     ++total;
+    ++constructed;
   };
   counted(B&& in) {
     data = std::move(in);
     ++total;
+    ++constructed;
   };
   counted(const counted& in) {
     data = in.data;
     ++total;
+    ++constructed;
   };
   counted(counted&& in) {
     data = std::move(in.data);
     ++total;
+    ++constructed;
   };
   void operator=(const counted& in) {
     data = in.data;
@@ -344,127 +349,224 @@ class counted {
   };
   ~counted() {
     --total;
+    ++destroyed;
   };
+  static size_t constructed;
+  static size_t destroyed;
   static size_t total;
+  static void reset() {
+    constructed = total;
+    destroyed = 0;
+  };
 
  private:
   B data;
 };
 
 template <>
+size_t counted<int64_t>::constructed = 0;
+template <>
+size_t counted<int64_t>::destroyed = 0;
+template <>
 size_t counted<int64_t>::total = 0;
 TEST_CASE("Traced DArr64 Tests", "[DArr64]") {
+  counted<int64_t>::reset();
+
   DArr64<counted<int64_t>> arr;
+  REQUIRE(counted<int64_t>::total == 0);
+  REQUIRE(counted<int64_t>::constructed == 0);
+  REQUIRE(counted<int64_t>::destroyed == 0);
 
   arr.push_back(1);
   REQUIRE(counted<int64_t>::total == 1);
+  REQUIRE(counted<int64_t>::constructed == 2);
+  REQUIRE(counted<int64_t>::destroyed == 1);
 
   arr.pop_back();
   REQUIRE(counted<int64_t>::total == 0);
+  REQUIRE(counted<int64_t>::constructed == 2);
+  REQUIRE(counted<int64_t>::destroyed == 2);
 
-  arr.push_back(2);
-  arr.push_back(3);
-  arr.push_back(4);
+  arr.emplace_back(2);
+  REQUIRE(counted<int64_t>::total == 1);
+  REQUIRE(counted<int64_t>::constructed == 3);
+  REQUIRE(counted<int64_t>::destroyed == 2);
+  arr.emplace_back(3);
+  REQUIRE(counted<int64_t>::total == 2);
+  REQUIRE(counted<int64_t>::constructed == 5);
+  REQUIRE(counted<int64_t>::destroyed == 3);
+  arr.emplace_back(4);
   REQUIRE(counted<int64_t>::total == 3);
+  REQUIRE(counted<int64_t>::constructed == 8);
+  REQUIRE(counted<int64_t>::destroyed == 5);
 
   arr.pop_back();
   REQUIRE(counted<int64_t>::total == 2);
+  REQUIRE(counted<int64_t>::constructed == 8);
+  REQUIRE(counted<int64_t>::destroyed == 6);
 
   arr.clear();
   REQUIRE(counted<int64_t>::total == 0);
+  REQUIRE(counted<int64_t>::constructed == 8);
+  REQUIRE(counted<int64_t>::destroyed == 8);
 
-  arr.push_back(1);
-  arr.push_back(2);
-  arr.push_back(3);
-  arr.push_back(4);
-  arr.push_back(5);
+  counted<int64_t>::reset();
+
+  arr.emplace_back(1);
+  arr.emplace_back(2);
+  arr.emplace_back(3);
+  arr.emplace_back(4);
+  arr.emplace_back(5);
   REQUIRE(counted<int64_t>::total == 5);
+  REQUIRE(counted<int64_t>::constructed == 12);
+  REQUIRE(counted<int64_t>::destroyed == 7);
+
+  counted<int64_t>::reset();
 
   arr.reserve(21);
   REQUIRE(counted<int64_t>::total == 5);
+  REQUIRE(counted<int64_t>::constructed == 10);
+  REQUIRE(counted<int64_t>::destroyed == 5);
 
-  arr.push_back(6);
-  arr.push_back(7);
-  arr.push_back(8);
-  arr.push_back(9);
-  arr.push_back(10);
-  arr.push_back(11);
-  arr.push_back(12);
-  arr.push_back(13);
-  arr.push_back(14);
-  arr.push_back(15);
-  arr.push_back(16);
-  arr.push_back(17);
-  arr.push_back(18);
-  arr.push_back(19);
-  arr.push_back(20);
+  counted<int64_t>::reset();
+
+  arr.emplace_back(6);
+  arr.emplace_back(7);
+  arr.emplace_back(8);
+  arr.emplace_back(9);
+  arr.emplace_back(10);
+  arr.emplace_back(11);
+  arr.emplace_back(12);
+  arr.emplace_back(13);
+  arr.emplace_back(14);
+  arr.emplace_back(15);
+  arr.emplace_back(16);
+  arr.emplace_back(17);
+  arr.emplace_back(18);
+  arr.emplace_back(19);
+  arr.emplace_back(20);
   REQUIRE(counted<int64_t>::total == 20);
+  REQUIRE(counted<int64_t>::constructed == 20);
+  REQUIRE(counted<int64_t>::destroyed == 0);
 
-  arr.push_back(21);
+  arr.emplace_back(21);
   REQUIRE(counted<int64_t>::total == 21);
+  REQUIRE(counted<int64_t>::constructed == 21);
+  REQUIRE(counted<int64_t>::destroyed == 0);
 
-  arr.push_back(22);
+  arr.emplace_back(22);
   REQUIRE(counted<int64_t>::total == 22);
+  REQUIRE(counted<int64_t>::constructed == 43);
+  REQUIRE(counted<int64_t>::destroyed == 21);
 
-  arr.push_back(23);
+  arr.emplace_back(23);
   REQUIRE(counted<int64_t>::total == 23);
+  REQUIRE(counted<int64_t>::constructed == 44);
+  REQUIRE(counted<int64_t>::destroyed == 21);
 }
 
 template <>
+size_t counted<int32_t>::constructed = 0;
+template <>
+size_t counted<int32_t>::destroyed = 0;
+template <>
 size_t counted<int32_t>::total = 0;
 TEST_CASE("Traced DArr32 Tests", "[DArr32]") {
+  counted<int32_t>::reset();
+
   DArr32<counted<int32_t>> arr;
+  REQUIRE(counted<int32_t>::total == 0);
+  REQUIRE(counted<int32_t>::constructed == 0);
+  REQUIRE(counted<int32_t>::destroyed == 0);
 
   arr.push_back(1);
   REQUIRE(counted<int32_t>::total == 1);
+  REQUIRE(counted<int32_t>::constructed == 2);
+  REQUIRE(counted<int32_t>::destroyed == 1);
 
   arr.pop_back();
   REQUIRE(counted<int32_t>::total == 0);
+  REQUIRE(counted<int32_t>::constructed == 2);
+  REQUIRE(counted<int32_t>::destroyed == 2);
 
-  arr.push_back(2);
-  arr.push_back(3);
-  arr.push_back(4);
+  arr.emplace_back(2);
+  REQUIRE(counted<int32_t>::total == 1);
+  REQUIRE(counted<int32_t>::constructed == 3);
+  REQUIRE(counted<int32_t>::destroyed == 2);
+  arr.emplace_back(3);
+  REQUIRE(counted<int32_t>::total == 2);
+  REQUIRE(counted<int32_t>::constructed == 4);
+  REQUIRE(counted<int32_t>::destroyed == 2);
+  arr.emplace_back(4);
   REQUIRE(counted<int32_t>::total == 3);
+  REQUIRE(counted<int32_t>::constructed == 5);
+  REQUIRE(counted<int32_t>::destroyed == 2);
+  arr.emplace_back(5);
+  REQUIRE(counted<int32_t>::total == 4);
+  REQUIRE(counted<int32_t>::constructed == 9);
+  REQUIRE(counted<int32_t>::destroyed == 5);
 
   arr.pop_back();
-  REQUIRE(counted<int32_t>::total == 2);
+  REQUIRE(counted<int32_t>::total == 3);
+  REQUIRE(counted<int32_t>::constructed == 9);
+  REQUIRE(counted<int32_t>::destroyed == 6);
 
   arr.clear();
   REQUIRE(counted<int32_t>::total == 0);
+  REQUIRE(counted<int32_t>::constructed == 9);
+  REQUIRE(counted<int32_t>::destroyed == 9);
 
-  arr.push_back(1);
-  arr.push_back(2);
-  arr.push_back(3);
-  arr.push_back(4);
-  arr.push_back(5);
+  counted<int32_t>::reset();
+
+  arr.emplace_back(1);
+  arr.emplace_back(2);
+  arr.emplace_back(3);
+  arr.emplace_back(4);
+  arr.emplace_back(5);
   REQUIRE(counted<int32_t>::total == 5);
+  REQUIRE(counted<int32_t>::constructed == 12);
+  REQUIRE(counted<int32_t>::destroyed == 7);
+
+  counted<int32_t>::reset();
 
   arr.reserve(21);
   REQUIRE(counted<int32_t>::total == 5);
+  REQUIRE(counted<int32_t>::constructed == 10);
+  REQUIRE(counted<int32_t>::destroyed == 5);
 
-  arr.push_back(6);
-  arr.push_back(7);
-  arr.push_back(8);
-  arr.push_back(9);
-  arr.push_back(10);
-  arr.push_back(11);
-  arr.push_back(12);
-  arr.push_back(13);
-  arr.push_back(14);
-  arr.push_back(15);
-  arr.push_back(16);
-  arr.push_back(17);
-  arr.push_back(18);
-  arr.push_back(19);
-  arr.push_back(20);
+  counted<int32_t>::reset();
+
+  arr.emplace_back(6);
+  arr.emplace_back(7);
+  arr.emplace_back(8);
+  arr.emplace_back(9);
+  arr.emplace_back(10);
+  arr.emplace_back(11);
+  arr.emplace_back(12);
+  arr.emplace_back(13);
+  arr.emplace_back(14);
+  arr.emplace_back(15);
+  arr.emplace_back(16);
+  arr.emplace_back(17);
+  arr.emplace_back(18);
+  arr.emplace_back(19);
+  arr.emplace_back(20);
   REQUIRE(counted<int32_t>::total == 20);
+  REQUIRE(counted<int32_t>::constructed == 20);
+  REQUIRE(counted<int32_t>::destroyed == 0);
 
-  arr.push_back(21);
+  arr.emplace_back(21);
   REQUIRE(counted<int32_t>::total == 21);
+  REQUIRE(counted<int32_t>::constructed == 21);
+  REQUIRE(counted<int32_t>::destroyed == 0);
 
-  arr.push_back(22);
+  arr.emplace_back(22);
   REQUIRE(counted<int32_t>::total == 22);
+  REQUIRE(counted<int32_t>::constructed == 43);
+  REQUIRE(counted<int32_t>::destroyed == 21);
 
-  arr.push_back(23);
+  arr.emplace_back(23);
   REQUIRE(counted<int32_t>::total == 23);
+  REQUIRE(counted<int32_t>::constructed == 44);
+  REQUIRE(counted<int32_t>::destroyed == 21);
 }
