@@ -2916,27 +2916,6 @@ bool Mind::Think(int istick) {
                 project->ShortDesc());
           }
         } else if (body->IsAct(act_t::WORK)) {
-          if (body->HasTag(crc32c(u8"master"))) {
-            bool have_wares = false;
-            auto wares = body->Room()->PickObjects(u8"everything", LOC_INTERNAL);
-            for (auto item : wares) {
-              if (item->ActTarg(act_t::SPECIAL_OWNER) == body->Room()) {
-                have_wares = true;
-                break;
-              }
-            }
-            if (!have_wares) {
-              Object* widget = new Object(body->Room());
-              widget->SetShortDesc(u8"a widget");
-              widget->SetDesc(u8"a nice widget for sale");
-              widget->SetValue(140);
-              widget->SetPos(pos_t::LIE);
-              widget->AddAct(act_t::SPECIAL_OWNER, body->Room());
-              body->Parent()->SendOut(
-                  ALL, 0, u8";s produces {} for sale.\n", u8"", body, nullptr, widget->ShortDesc());
-            }
-          }
-
           if (body->HasTag(crc32c(u8"master")) && body->HasTag(crc32c(u8"collier"))) {
             std::vector<Object*> materials;
             auto wares = body->Room()->PickObjects(u8"everything", LOC_INTERNAL);
