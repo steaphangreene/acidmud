@@ -2896,18 +2896,42 @@ bool Mind::Think(int istick) {
             project->SetSkill(prhash(u8"Incomplete"), todo);
           } else {
             project->ClearSkill(prhash(u8"Incomplete"));
-            project->SetShortDesc(u8"a piece of charcoal");
-            project->SetShortDesc(u8"a piece of high-quality charcoal");
-            project->SetLongDesc(fmt::format(
-                u8"Created in {} by {}, Master Collier.",
-                project->Zone()->ShortDesc(),
-                body->Name()));
-            size_t wood = project->Skill(prhash(u8"Raw Wood"));
-            wood += project->Skill(prhash(u8"Pure Wood"));
-            project->SetSkill(prhash(u8"Pure Charcoal"), wood / 2);
-            project->ClearSkill(prhash(u8"Raw Wood"));
-            project->ClearSkill(prhash(u8"Pure Wood"));
-            project->SetValue(project->Value() * 10);
+            if (body->HasTag(crc32c(u8"collier"))) {
+              project->SetShortDesc(u8"a piece of charcoal");
+              project->SetDesc(u8"a piece of high-quality charcoal");
+              project->SetLongDesc(fmt::format(
+                  u8"Created in {} by {}, Master Collier.",
+                  project->Zone()->ShortDesc(),
+                  body->Name()));
+              size_t wood = project->Skill(prhash(u8"Raw Wood"));
+              wood += project->Skill(prhash(u8"Pure Wood"));
+              project->SetSkill(prhash(u8"Pure Charcoal"), wood / 2);
+              project->ClearSkill(prhash(u8"Pure Wood"));
+              project->ClearSkill(prhash(u8"Raw Wood"));
+              project->SetValue(project->Value() * 10);
+            } else if (body->HasTag(crc32c(u8"miller"))) {
+              project->SetShortDesc(u8"a beam of wood");
+              project->SetDesc(u8"a large piece of finished lumber");
+              project->SetLongDesc(fmt::format(
+                  u8"Created in {} by {}, Master Collier.",
+                  project->Zone()->ShortDesc(),
+                  body->Name()));
+              size_t wood = project->Skill(prhash(u8"Raw Wood"));
+              project->SetSkill(prhash(u8"Pure Wood"), wood / 2);
+              project->ClearSkill(prhash(u8"Raw Wood"));
+              project->SetValue(project->Value() * 10);
+            } else if (body->HasTag(crc32c(u8"woodworker"))) {
+              project->SetShortDesc(u8"an axe handle");
+              project->SetDesc(u8"a high-quality wooden axe handle");
+              project->SetLongDesc(fmt::format(
+                  u8"Created in {} by {}, Master Collier.",
+                  project->Zone()->ShortDesc(),
+                  body->Name()));
+              size_t wood = project->Skill(prhash(u8"Pure Wood"));
+              project->SetSkill(prhash(u8"Made of Wood"), wood / 2);
+              project->ClearSkill(prhash(u8"Pure Wood"));
+              project->SetValue(project->Value() * 10);
+            }
             project->AddAct(act_t::SPECIAL_OWNER, body->Room());
             body->Parent()->SendOut(
                 ALL,
@@ -2920,45 +2944,53 @@ bool Mind::Think(int istick) {
           }
         } else if (body->IsAct(act_t::WORK)) {
           if (body->HasTag(crc32c(u8"master"))) {
-            if (body->HasTag(crc32c(u8"collier"))) {
-              std::vector<Object*> materials;
-              auto wares = body->Room()->PickObjects(u8"everything", LOC_INTERNAL);
-              for (auto item : wares) {
-                if (item->ActTarg(act_t::SPECIAL_OWNER) == body->Room()) {
+            std::vector<Object*> materials;
+            auto wares = body->Room()->PickObjects(u8"everything", LOC_INTERNAL);
+            for (auto item : wares) {
+              if (item->ActTarg(act_t::SPECIAL_OWNER) == body->Room()) {
+                if (body->HasTag(crc32c(u8"collier"))) {
                   if (item->Skill(prhash(u8"Raw Wood")) || item->Skill(prhash(u8"Pure Wood"))) {
+                    materials.push_back(item);
+                  }
+                } else if (body->HasTag(crc32c(u8"miller"))) {
+                  if (item->Skill(prhash(u8"Raw Wood"))) {
+                    materials.push_back(item);
+                  }
+                } else if (body->HasTag(crc32c(u8"woodworker"))) {
+                  if (item->Skill(prhash(u8"Pure Wood"))) {
                     materials.push_back(item);
                   }
                 }
               }
-              rng::sort(materials, [](const Object* a, const Object* b) {
-                size_t rat_a = a->Skill(prhash(u8"Raw Wood"));
-                rat_a += a->Skill(prhash(u8"Pure Wood"));
-                size_t rat_b = b->Skill(prhash(u8"Raw Wood"));
-                rat_b += b->Skill(prhash(u8"Pure Wood"));
-                rat_a *= 1000UL;
-                rat_b *= 1000UL;
-                rat_a /= a->Value();
-                rat_b /= b->Value();
-                return rat_a > rat_b;
-              });
-              if (materials.size() > 0) {
-                Object* mat = materials.front();
-                if (mat->Quantity() > 1) {
-                  mat = mat->Split(1);
-                }
-                mat->SetSkill(prhash(u8"Incomplete"), 1000);
-                mat->SetShortDesc(u8"a piece of work");
-                mat->AddAct(act_t::SPECIAL_OWNER, body);
-                body->AddAct(act_t::WORK, mat);
-                body->Parent()->SendOut(
-                    ALL,
-                    0,
-                    u8";s grabs {} and begins working on it.\n",
-                    u8"",
-                    body,
-                    nullptr,
-                    mat->ShortDesc());
+            }
+            rng::sort(materials, [](const Object* a, const Object* b) {
+              size_t rat_a = a->Skill(prhash(u8"Raw Wood"));
+              rat_a += a->Skill(prhash(u8"Pure Wood"));
+              size_t rat_b = b->Skill(prhash(u8"Raw Wood"));
+              rat_b += b->Skill(prhash(u8"Pure Wood"));
+              rat_a *= 1000UL;
+              rat_b *= 1000UL;
+              rat_a /= a->Value();
+              rat_b /= b->Value();
+              return rat_a > rat_b;
+            });
+            if (materials.size() > 0) {
+              Object* mat = materials.front();
+              if (mat->Quantity() > 1) {
+                mat = mat->Split(1);
               }
+              mat->SetSkill(prhash(u8"Incomplete"), 1000);
+              mat->SetShortDesc(u8"a piece of work");
+              mat->AddAct(act_t::SPECIAL_OWNER, body);
+              body->AddAct(act_t::WORK, mat);
+              body->Parent()->SendOut(
+                  ALL,
+                  0,
+                  u8";s grabs {} and begins working on it.\n",
+                  u8"",
+                  body,
+                  nullptr,
+                  mat->ShortDesc());
             }
           }
         } else if (body->Parent() != body->ActTarg(act_t::SPECIAL_WORK)) {

@@ -379,12 +379,16 @@ int handle_command_shops(
       } else if (shpkp->IsAct(act_t::SLEEP)) {
         reason = u8"Sorry, the shopkeeper is asleep!\n";
       } else if (item->Skill(prhash(u8"Raw Wood")) > 1000) { // Temporary Hard-Code
-        if (shpkp->HasTag(crc32c(u8"master")) && shpkp->HasTag(crc32c(u8"collier"))) {
-          skill = 0; // Special Marker: Acid Seller, Not Circle/TBA
+        if (shpkp->HasTag(crc32c(u8"master"))) {
+          if (shpkp->HasTag(crc32c(u8"collier")) || shpkp->HasTag(crc32c(u8"miller"))) {
+            skill = 0; // Special Marker: Acid Seller, Not Circle/TBA
+          }
         }
       } else if (item->Skill(prhash(u8"Pure Wood")) > 1000) { // Temporary Hard-Code
-        if (shpkp->HasTag(crc32c(u8"master")) && shpkp->HasTag(crc32c(u8"collier"))) {
-          skill = 0; // Special Marker: Acid Seller, Not Circle/TBA
+        if (shpkp->HasTag(crc32c(u8"master"))) {
+          if (shpkp->HasTag(crc32c(u8"collier")) || shpkp->HasTag(crc32c(u8"woodworker"))) {
+            skill = 0; // Special Marker: Acid Seller, Not Circle/TBA
+          }
         }
       } else if (item->Skill(prhash(u8"Money")) == item->Value()) { // 1-1 Money
         for (auto skl : shpkp->GetSkills()) {
