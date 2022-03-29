@@ -172,24 +172,24 @@ class alignas(next_pow_2(C * 4)) DArr32 {
   };
 
   void reserve(std::size_t cap) {
-    if (cap > C && cap > data_.dyn.cao) {
+    if (cap > C && cap > data_.dyn.cap) {
       assert(cap <= 0x80000000UL);
       if (data_.sta.size == 0) {
-        data_.dyn.cao = cap;
-        data_.dyn.arr = new T[data_.dyn.cao];
+        data_.dyn.cap = cap;
+        data_.dyn.arr = new T[data_.dyn.cap];
         data_.dyn.size = 0;
       } else if (data_.sta.size <= C) {
         auto temp = data_;
         data_.dyn.size = data_.sta.size;
-        data_.dyn.cao = cap;
-        data_.dyn.arr = new T[data_.dyn.cao];
+        data_.dyn.cap = cap;
+        data_.dyn.arr = new T[data_.dyn.cap];
         for (uint32_t idx = 0; idx < data_.dyn.size; ++idx) {
           data_.dyn.arr[idx] = temp.sta.val[idx];
         }
       } else {
         T* temp = data_.dyn.arr;
-        data_.dyn.cao = cap;
-        data_.dyn.arr = new T[data_.dyn.cao];
+        data_.dyn.cap = cap;
+        data_.dyn.arr = new T[data_.dyn.cap];
         for (uint32_t idx = 0; idx < data_.dyn.size; ++idx) {
           data_.dyn.arr[idx] = temp[idx];
         }
