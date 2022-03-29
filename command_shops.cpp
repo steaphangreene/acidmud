@@ -76,7 +76,7 @@ int handle_command_shops(
         for (auto obj : objs) {
           if (obj != objs.front() && obj->IsSameAs(*oobj))
             continue;
-          int price = obj->Value();
+          size_t price = obj->Value();
           if (obj->Skill(prhash(u8"Money")) != obj->Value()) { // Not 1-1 Money
             price *= shpkp->Skill(prhash(u8"Sell Profit"));
             price += 999;
@@ -91,7 +91,7 @@ int handle_command_shops(
         for (auto item : items) {
           if (item->ActTarg(act_t::SPECIAL_OWNER) == body->Room()) {
             have_stock = true;
-            int price = item->Value();
+            size_t price = item->Value();
             mind->Send(CMAG u8"{:>10}: {}\n" CNRM, coins(price), item->ShortDesc());
           }
         }
@@ -150,7 +150,7 @@ int handle_command_shops(
         items = vortex->PickObjects(std::u8string(args), LOC_INTERNAL);
 
       } else {
-        int price = 0;
+        size_t price = 0;
         bool all_for_sale = true;
         for (auto item : items) {
           if (item->ActTarg(act_t::SPECIAL_OWNER) != body->Room()) {
@@ -176,7 +176,7 @@ int handle_command_shops(
       }
 
       for (auto item : items) {
-        int price = item->Value() * item->Quantity();
+        size_t price = item->Value() * item->Quantity();
         if (price < 0) {
           if (mind) {
             mind->Send(u8"You can't buy {}.\n", item->Noun(0, 0, body));
@@ -305,7 +305,7 @@ int handle_command_shops(
       return 0;
     }
 
-    int price = item->Value() * item->Quantity();
+    size_t price = item->Value() * item->Quantity();
     if (price < 0 || item->HasSkill(prhash(u8"Priceless")) || item->HasSkill(prhash(u8"Cursed"))) {
       if (mind)
         mind->Send(u8"You can't sell {}.\n", item->Noun(0, 0, body));
