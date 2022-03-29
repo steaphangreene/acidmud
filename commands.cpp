@@ -4534,7 +4534,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
           log->SetVolume(1000);
           log->SetWeight(220000);
           log->SetSize(8000);
-          log->SetSkill(prhash(u8"Made of Wood"), 200000);
+          log->SetSkill(prhash(u8"Raw Wood"), 200000);
         }
         body->Parent()->SendOut(
             ALL,

@@ -382,7 +382,7 @@ int handle_command_shops(
         if (shpkp->HasTag(crc32c(u8"master"))) {
           skill = 0; // Special Marker: Acid Seller, Not Circle/TBA
         }
-      } else if (item->Skill(prhash(u8"Made of Wood")) > 1000) { // Temporary Hard-Code
+      } else if (item->Skill(prhash(u8"Raw Wood")) > 1000) { // Temporary Hard-Code
         if (shpkp->HasTag(crc32c(u8"master")) && shpkp->HasTag(crc32c(u8"collier"))) {
           skill = 0; // Special Marker: Acid Seller, Not Circle/TBA
         }

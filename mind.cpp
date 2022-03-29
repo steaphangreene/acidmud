@@ -2902,9 +2902,8 @@ bool Mind::Think(int istick) {
                 u8"Created in {} by {}, Master Collier.",
                 project->Zone()->ShortDesc(),
                 body->Name()));
-            project->SetSkill(
-                prhash(u8"Pure Charcoal"), project->Skill(prhash(u8"Made of Wood")) / 2);
-            project->ClearSkill(prhash(u8"Made of Wood"));
+            project->SetSkill(prhash(u8"Pure Charcoal"), project->Skill(prhash(u8"Raw Wood")) / 2);
+            project->ClearSkill(prhash(u8"Raw Wood"));
             project->SetValue(project->Value() * 10);
             project->AddAct(act_t::SPECIAL_OWNER, body->Room());
             body->Parent()->SendOut(
@@ -2943,13 +2942,13 @@ bool Mind::Think(int istick) {
             auto wares = body->Room()->PickObjects(u8"everything", LOC_INTERNAL);
             for (auto item : wares) {
               if (item->ActTarg(act_t::SPECIAL_OWNER) == body->Room() &&
-                  item->Skill(prhash(u8"Made of Wood"))) {
+                  item->Skill(prhash(u8"Raw Wood"))) {
                 materials.push_back(item);
               }
             }
             rng::sort(materials, [](const Object* a, const Object* b) {
-              size_t rat_a = a->Skill(prhash(u8"Made of Wood"));
-              size_t rat_b = b->Skill(prhash(u8"Made of Wood"));
+              size_t rat_a = a->Skill(prhash(u8"Raw Wood"));
+              size_t rat_b = b->Skill(prhash(u8"Raw Wood"));
               rat_a *= 1000UL;
               rat_b *= 1000UL;
               rat_a /= a->Value();
