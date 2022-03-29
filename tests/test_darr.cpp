@@ -308,8 +308,8 @@ TEST_CASE("Basic DArr32 Tests", "[DArr32]") {
   REQUIRE(arr3.size() == 0);
   REQUIRE(arr7.size() == 0);
   REQUIRE(arr15.size() == 0);
-  REQUIRE(arr3.capacity() == 16);
-  REQUIRE(arr7.capacity() == 16);
+  REQUIRE(arr3.capacity() == 3);
+  REQUIRE(arr7.capacity() == 7);
   REQUIRE(arr15.capacity() == 15);
 }
 

@@ -55,15 +55,34 @@ class alignas(next_pow_2(C * 4)) DArr32 {
   using const_iterator = T const*;
 
   DArr32() = default;
-  DArr32(const DArr32& in) : data_(in.data_) {
-    if (data_.dyn.cap > C) {
-      data_.dyn.arr = new T[data_.dyn.cap];
+  DArr32(const DArr32& in) {
+    if (in.data_.sta.size <= C) {
+      data_.sta.size = in.data_.sta.size;
+      for (uint32_t idx = 0; idx < data_.sta.size_; ++idx) {
+        std::construct_at(data_.sta.val + idx, in.data_.sta.val[idx]);
+      }
+    } else {
+      data_.dyn.cap = in.data_.dyn.cap;
+      data_.dyn.size = in.data_.dyn.size;
+
+      data_.arr = std::allocator<T>().allocate(data_.dyn.cap);
       for (uint32_t idx = 0; idx < data_.dyn.size; ++idx) {
-        data_.dyn.arr[idx] = in.data_.dyn.arr[idx];
+        std::construct_at(data_.dyn.arr + idx, in.data_.dyn.arr[idx]);
       }
     }
   };
-  DArr32(DArr32&& in) noexcept(noexcept(data_ = std::move(in.data_))) : data_(std::move(in.data_)) {
+  DArr32(DArr32&& in) noexcept(noexcept(data_ = std::move(in.data_))) {
+    if (in.data_.sta.size <= C) {
+      data_.sta.size = in.data_.sta.size;
+      for (uint32_t idx = 0; idx < data_.sta.size_; ++idx) {
+        std::construct_at(data_.sta.val + idx, std::move(in.data_.sta.val[idx]));
+        std::destroy_at(in.data_.sta.val + idx);
+      }
+    } else {
+      data_.dyn.cap = in.data_.dyn.cap;
+      data_.dyn.size = in.data_.dyn.size;
+      data_.dyn.arr = in.data_.dyn.arr;
+    }
     in.data_.sta.size = 0;
   };
 
@@ -71,17 +90,19 @@ class alignas(next_pow_2(C * 4)) DArr32 {
     if (this == &in) {
       return; // Self-assign
     }
-    if (data_.dyn.cap > C) {
-      delete[] data_.dyn.arr;
-    }
-    data_.sta.size = in.data_.sta.size;
-    if (data_.sta.size <= C) {
-      data_ = in.data_;
+    destroy_self();
+    if (in.data_.sta.size <= C) {
+      data_.sta.size = in.data_.sta.size;
+      for (uint32_t idx = 0; idx < data_.sta.size_; ++idx) {
+        std::construct_at(data_.sta.val + idx, in.data_.sta.val[idx]);
+      }
     } else {
+      data_.dyn.cap = in.data_.dyn.cap;
       data_.dyn.size = in.data_.dyn.size;
-      data_.dyn.arr = new T[data_.dyn.cap];
+
+      data_.arr = std::allocator<T>().allocate(data_.dyn.cap);
       for (uint32_t idx = 0; idx < data_.dyn.size; ++idx) {
-        data_.dyn.arr[idx] = in.data_.dyn.arr[idx];
+        std::construct_at(data_.dyn.arr + idx, in.data_.dyn.arr[idx]);
       }
     }
   };
@@ -89,21 +110,17 @@ class alignas(next_pow_2(C * 4)) DArr32 {
     if (this == &in) {
       return; // Self-assign
     }
-    if (data_.dyn.cap > C) {
-      delete[] data_.dyn.arr;
-    }
-    if (in.data_.dyn.cap > C) {
-      data_.dyn.cap = in.data_.dyn.cap;
-      data_.dyn.size = in.data_.dyn.size;
-      for (std::size_t idx = 0; idx < data_.dyn.size; ++idx) {
-        data_.dyn.arr[idx] = std::move(in.data_.dyn.arr[idx]);
+    destroy_self();
+    if (in.data_.sta.size <= C) {
+      data_.sta.size = in.data_.sta.size;
+      for (uint32_t idx = 0; idx < data_.sta.size_; ++idx) {
+        std::construct_at(data_.sta.val + idx, std::move(in.data_.sta.val[idx]));
+        std::destroy_at(in.data_.sta.val + idx);
       }
     } else {
-      data_.sta.size = in.data_.sta.size;
-      data_.sta = std::move(in.data_.sta);
-      for (std::size_t idx = 0; idx < data_.dyn.size; ++idx) {
-        data_.sta.val[idx] = std::move(in.data_.dyn.val[idx]);
-      }
+      data_.dyn.cap = in.data_.dyn.cap;
+      data_.dyn.size = in.data_.dyn.size;
+      data_.dyn.arr = in.data_.dyn.arr;
     }
     in.data_.sta.size = 0;
   };
@@ -144,9 +161,7 @@ class alignas(next_pow_2(C * 4)) DArr32 {
   };
 
   ~DArr32() {
-    if (data_.sta.size > C) {
-      delete[] data_.dyn.arr;
-    }
+    destroy_self();
   };
 
   auto operator[](int idx) -> T& {
@@ -175,35 +190,37 @@ class alignas(next_pow_2(C * 4)) DArr32 {
     if (cap > C && cap > data_.dyn.cap) {
       assert(cap <= 0x80000000UL);
       if (data_.sta.size == 0) {
-        data_.dyn.cap = cap;
-        data_.dyn.arr = new T[data_.dyn.cap];
         data_.dyn.size = 0;
+        data_.dyn.cap = cap;
+        data_.dyn.arr = std::allocator<T>().allocate(data_.dyn.cap);
       } else if (data_.sta.size <= C) {
-        auto temp = data_;
+        auto temp = std::allocator<T>().allocate(cap);
+        for (uint32_t idx = 0; idx < data_.sta.size; ++idx) {
+          std::construct_at(temp + idx, std::move(data_.sta.val[idx]));
+          std::destroy_at(data_.sta.val + idx);
+        }
         data_.dyn.size = data_.sta.size;
         data_.dyn.cap = cap;
-        data_.dyn.arr = new T[data_.dyn.cap];
-        for (uint32_t idx = 0; idx < data_.dyn.size; ++idx) {
-          data_.dyn.arr[idx] = temp.sta.val[idx];
-        }
+        data_.dyn.arr = temp;
       } else {
         T* temp = data_.dyn.arr;
+        auto old_cap = data_.dyn.cap;
         data_.dyn.cap = cap;
-        data_.dyn.arr = new T[data_.dyn.cap];
+        data_.dyn.arr = std::allocator<T>().allocate(cap);
         for (uint32_t idx = 0; idx < data_.dyn.size; ++idx) {
-          data_.dyn.arr[idx] = temp[idx];
+          std::construct_at(data_.dyn.arr + idx, std::move(temp[idx]));
+          std::destroy_at(temp + idx);
         }
-        delete[] temp;
+        std::allocator<T>().deallocate(temp, old_cap);
       }
     }
   };
+
   void clear() {
-    if (data_.sta.size <= C) {
-      data_.sta.size = 0;
-    } else {
-      data_.dyn.size = 0;
-    }
+    destroy_self();
+    data_.sta.size = 0;
   };
+
   void erase(auto b) {
     if (data_.sta.size <= C) {
       --data_.sta.size;
@@ -213,7 +230,9 @@ class alignas(next_pow_2(C * 4)) DArr32 {
     for (auto itr = b; itr != end(); ++itr) {
       *itr = std::move(*(itr + 1));
     }
+    std::destroy_at(end());
   };
+
   void erase(auto b, auto e) {
     assert(e == end()); // Only support truncation of end.
     if (data_.sta.size <= C) {
@@ -222,18 +241,22 @@ class alignas(next_pow_2(C * 4)) DArr32 {
       data_.dyn.size = b - begin(); // Assume deleting all the rest.
     }
   };
+
   void emplace(auto to, auto b, auto e) {
     insert(to, b, e);
   }
+
   void insert(auto to, auto b, auto e) {
     assert(to == end()); // Only support appending to end.
     for (auto idx = b; idx != e; ++idx) {
       push_back(*idx); // Assuming appending to the end.
     }
   };
+
   void emplace(auto to, const T& in) {
     insert(to, in);
   }
+
   void insert(auto to, const T& in) {
     if (to == end()) {
       push_back(in);
@@ -250,40 +273,49 @@ class alignas(next_pow_2(C * 4)) DArr32 {
   void pop_back() {
     if (data_.sta.size <= C) {
       --data_.sta.size;
+      std::destroy_at(data_.sta.val + data_.sta.size);
     } else {
       --data_.dyn.size;
+      std::destroy_at(data_.dyn.arr + data_.dyn.size);
     }
   };
 
-  void push_back(const T& in) {
+  template <typename... Args>
+  void emplace_back(Args&&... args) {
     if (data_.sta.size < C) {
-      data_.sta.val[data_.sta.size] = in;
+      std::construct_at(data_.sta.val + data_.sta.size, std::forward<Args>(args)...);
       ++data_.sta.size;
     } else if (data_.sta.size == C) {
-      auto temp = data_.sta;
-      auto size = data_.sta.size;
-      data_.dyn.cap = next_pow_2(C);
-      data_.dyn.arr = new T[data_.dyn.cap];
-      for (uint32_t idx = 0; idx < size; ++idx) {
-        data_.dyn.arr[idx] = temp.val[idx];
+      auto temp = std::allocator<T>().allocate(next_pow_2(C));
+      std::construct_at(temp + C, std::forward<Args>(args)...);
+      for (uint32_t idx = 0; idx < C; ++idx) {
+        std::construct_at(temp + idx, std::move(data_.sta.val[idx]));
+        std::destroy_at(data_.sta.val + idx);
       }
-      data_.dyn.arr[size] = in;
-      data_.dyn.size = size + 1;
+      data_.dyn.arr = temp;
+      data_.dyn.cap = next_pow_2(C);
+      data_.dyn.size = C + 1;
     } else if (data_.dyn.size < data_.dyn.cap) {
-      data_.dyn.arr[data_.dyn.size] = in;
+      std::construct_at(data_.dyn.arr + data_.dyn.size, std::forward<Args>(args)...);
       ++data_.dyn.size;
     } else {
       assert(data_.dyn.cap <= 0x40000000U);
       T* temp = data_.dyn.arr;
+      auto old_cap = data_.dyn.cap;
       data_.dyn.cap *= 2;
-      data_.dyn.arr = new T[data_.dyn.cap];
+      data_.dyn.arr = std::allocator<T>().allocate(data_.dyn.cap);
+      std::construct_at(data_.dyn.arr + data_.dyn.size, std::forward<Args>(args)...);
       for (uint32_t idx = 0; idx < data_.dyn.size; ++idx) {
-        data_.dyn.arr[idx] = temp[idx];
+        std::construct_at(data_.dyn.arr + idx, std::move(temp[idx]));
+        std::destroy_at(temp + idx);
       }
-      delete[] temp;
-      data_.dyn.arr[data_.dyn.size] = in;
+      std::allocator<T>().deallocate(temp, old_cap);
       ++data_.dyn.size;
     }
+  };
+
+  void push_back(const T& in) {
+    emplace_back(in);
   };
 
   [[nodiscard]] auto front() -> T& {
@@ -359,10 +391,24 @@ class alignas(next_pow_2(C * 4)) DArr32 {
   };
 
  private:
+  void destroy_self() {
+    if (data_.sta.size > C) {
+      for (std::size_t idx = 0; idx < data_.dyn.size; ++idx) {
+        std::destroy_at(data_.dyn.arr + idx);
+      }
+      std::allocator<T>().deallocate(data_.dyn.arr, data_.dyn.cap);
+    } else {
+      for (std::size_t idx = 0; idx < data_.sta.size; ++idx) {
+        std::destroy_at(data_.sta.val + idx);
+      }
+    }
+  }
+
   union internal {
     internal() {
       sta.size = 0;
     }
+    ~internal() {}
     struct {
       uint32_t size; // size > C: this struct is inactive
       T val[C];
