@@ -177,6 +177,11 @@ void Mind::StartNewProject() {
     goal->SetSize(proj->size_);
     goal->SetVolume(proj->volume_);
     goal->SetValue(proj->value_);
+    if (proj->max_qty_ > 1 && proj->amount_ > 0 &&
+        mat->Skill(proj->material_) >= proj->amount_ * 2) {
+      goal->SetSkill(
+          u8"Quantity", std::min(proj->max_qty_, mat->Skill(proj->material_) / proj->amount_));
+    }
 
     body->Parent()->SendOut(
         ALL, 0, u8";s grabs {} and begins working on it.\n", u8"", body, nullptr, mat->ShortDesc());
