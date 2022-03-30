@@ -327,6 +327,8 @@ bool Mind::Think(int istick) {
     if (svars.contains(u8"path")) {
       if (svars[u8"path"].length() < 1) {
         svars.erase(u8"path");
+      } else if (body->Room() != body->Parent()) { // Get out of bed?
+        handle_command(body, u8"leave");
       } else {
         auto old = body->Parent();
         handle_command(body, fmt::format(u8"{}", svars[u8"path"][0]));
@@ -391,7 +393,9 @@ bool Mind::Think(int istick) {
 
       // Work Day (6AM-6PM)
       if (time > day / 4 - early && time < 3 * day / 4 + late) {
-        if (body->Pos() == pos_t::LIE) {
+        if (body->Room() != body->Parent()) { // Get out of bed?
+          handle_command(body, u8"wake;stand;leave");
+        } else if (body->Pos() == pos_t::LIE) {
           handle_command(body, u8"wake;stand");
         } else if (body->ActTarg(act_t::WORK)) {
           auto project = body->ActTarg(act_t::WORK);
@@ -419,7 +423,15 @@ bool Mind::Think(int istick) {
             svars[u8"path"] = path;
           }
         } else if (body->Pos() != pos_t::LIE) {
-          handle_command(body, u8"lie;sleep");
+          if (body->Room() != body->ActTarg(act_t::SPECIAL_HOME)) { // Need to get in bed?
+            handle_command(
+                body,
+                fmt::format(
+                    u8"enter obj:{};lie;sleep",
+                    reinterpret_cast<void*>(body->ActTarg(act_t::SPECIAL_HOME))));
+          } else {
+            handle_command(body, u8"lie;sleep");
+          }
         }
 
         // Evening (6PM-10PM)
@@ -432,7 +444,9 @@ bool Mind::Think(int istick) {
 
         // Morning (4AM-6AM)
       } else {
-        if (body->Pos() != pos_t::STAND) {
+        if (body->Room() != body->Parent()) { // Get out of bed?
+          handle_command(body, u8"wake;stand;leave");
+        } else if (body->Pos() != pos_t::STAND) {
           handle_command(body, u8"wake;stand");
         }
       }
