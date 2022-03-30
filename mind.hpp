@@ -118,6 +118,11 @@ class Mind : public std::enable_shared_from_this<Mind> {
   const std::map<std::u8string, std::u8string> SVars() const;
 
  private:
+  std::u8string TBAMOBTactics(int phase) const;
+  bool TBAMOBSend(const std::u8string_view&); // Returns false when mind needs to be deleted
+  bool TBAMOBThink(int istick); // Returns false when mind needs to be deleted
+  bool TBATriggerThink(int istick); // Returns false when mind needs to be deleted
+
   int TBACanWanderTo(Object* dest) const;
 
   std::u8string TBAComp(const std::u8string_view& expr) const;
