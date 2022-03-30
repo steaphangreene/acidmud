@@ -101,7 +101,7 @@ tests/test_darr: tests/test_darr.o
 tests/%.o: tests/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-version.cpp:	version.cpp.template *.hpp [a-uw-z]*.cpp
+version.cpp:	version.cpp.template *.hpp [a-uw-z]*.cpp .git/logs/HEAD
 	cat version.cpp.template \
 		| sed 's|DATE_STAMP|$(TSTR)|g' \
 		| sed 's|GIT_REVS|$(RSTR)|g' \
