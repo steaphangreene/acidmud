@@ -736,7 +736,7 @@ int Object::Tick() {
   if (Skill(prhash(u8"Day Length")) > 1) { // Must be > 1 (divide by it/2 below!)
     SetSkill(prhash(u8"Day Time"), Skill(prhash(u8"Day Time")) + 1);
     if (Skill(prhash(u8"Day Time")) >= Skill(prhash(u8"Day Length"))) {
-      ClearSkill(prhash(u8"Day Time"));
+      SetSkill(prhash(u8"Day Time"), 0);
     }
     int light = Skill(prhash(u8"Day Time")) - (Skill(prhash(u8"Day Length")) / 2);
     if (light < 0)
