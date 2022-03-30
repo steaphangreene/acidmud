@@ -1479,6 +1479,10 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       }
 
       int reas = 0;
+      bool will_arrive =
+          (dest->Parent() != body->Parent() || // Not going *into* something.
+           (dest->Skill(prhash(u8"Transparent")) < 100 && // Or it's opague...
+            dest->Skill(prhash(u8"Open")) < 100)); // ...and closed.
       if ((!nmode) && (reas = veh->Travel(dest))) {
         if (reas < 0) { // If it's not a script-prevent (which handles alert)
           body->Parent()->SendOut(
@@ -1494,7 +1498,9 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
           body->Parent()->RemoveLink(body);
           body->SetParent(dest);
         }
-        body->Parent()->SendOut(stealth_t, stealth_s, u8";s arrives.\n", u8"", body, nullptr);
+        if (will_arrive) {
+          body->Parent()->SendOut(stealth_t, stealth_s, u8";s arrives.\n", u8"", body, nullptr);
+        }
         if (mind && (vmode & (LOC_NINJA | LOC_DARK)) == 0 && body->Parent()->LightLevel() < 100) {
           mind->Send(u8"It's too dark, you can't see anything.\n");
         } else if (mind && mind->Type() == mind_t::REMOTE) {
