@@ -399,9 +399,10 @@ bool Mind::Think(int istick) {
             ContinueWorkOn(project);
             return true;
           }
-        } else if (body->Parent() != body->ActTarg(act_t::SPECIAL_WORK)) {
+        } else if (body->Room() != body->ActTarg(act_t::SPECIAL_WORK)->Room()) {
           if (!svars.contains(u8"path")) {
-            auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_WORK), body);
+            auto path =
+                body->Room()->DirectionsTo(body->ActTarg(act_t::SPECIAL_WORK)->Room(), body);
             svars[u8"path"] = path;
           }
         } else if (!body->IsAct(act_t::WORK)) {
@@ -411,9 +412,10 @@ bool Mind::Think(int istick) {
 
         // Night (10PM-4AM)
       } else if (time > 11 * day / 12 - early || time < day / 6 + late) {
-        if (body->Parent() != body->ActTarg(act_t::SPECIAL_HOME)) {
+        if (body->Room() != body->ActTarg(act_t::SPECIAL_HOME)->Room()) {
           if (!svars.contains(u8"path")) {
-            auto path = body->Parent()->DirectionsTo(body->ActTarg(act_t::SPECIAL_HOME), body);
+            auto path =
+                body->Room()->DirectionsTo(body->ActTarg(act_t::SPECIAL_HOME)->Room(), body);
             svars[u8"path"] = path;
           }
         } else if (body->Pos() != pos_t::LIE) {
@@ -447,11 +449,13 @@ bool Mind::Think(int istick) {
           std::vector<std::u8string_view> options;
           auto conns = body->Room()->Connections(body);
           std::u8string_view area = u8"";
-          if (body->ActTarg(act_t::SPECIAL_WORK)) { // Only patrol the street you patrol, etc.
-            area = body->ActTarg(act_t::SPECIAL_WORK)->ShortDesc();
+          if (body->ActTarg(act_t::SPECIAL_WORK)
+                  ->Room()) { // Only patrol the street you patrol, etc.
+            area = body->ActTarg(act_t::SPECIAL_WORK)->Room()->ShortDesc();
           }
           if (area.length() > 0 && body->Room()->ShortDesc() != area) { // Out of position, go back.
-            svars[u8"path"] = body->Room()->DirectionsTo(body->ActTarg(act_t::SPECIAL_WORK), body);
+            svars[u8"path"] =
+                body->Room()->DirectionsTo(body->ActTarg(act_t::SPECIAL_WORK)->Room(), body);
           } else {
             for (int d = 0; d < 6; ++d) {
               if (conns[d] && (area.length() == 0 || conns[d]->ShortDesc() == area)) {
