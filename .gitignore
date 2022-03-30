@@ -7,8 +7,6 @@ acid/current.wld
 perf.data
 perf.data.old
 logs/
-tests/test_object
-tests/test_utils
-tests/test_darr
+tests/tests
 *.profraw
 acidmud.profdata

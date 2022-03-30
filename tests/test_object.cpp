@@ -19,7 +19,7 @@
 //
 // *************************************************************************
 
-#include "catch2.hpp"
+#include <catch2/catch.hpp>
 
 #include "../object.hpp"
 #include "../properties.hpp"

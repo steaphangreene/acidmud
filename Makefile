@@ -29,6 +29,7 @@ OBJS:=	global.o version.o stats.o net.o player.o npc.o tags.o \
 	object.o object_acid.o object_dynamic.o object_tba.o \
 	commands.o command_shops.o command_ccreate.o command_wload.o \
 	skills.o properties.o infile.o outfile.o log.o utils.o
+TOBJS:=	tests/test_darr.o tests/test_object.o tests/test_utils.o
 LIBS:=
 COPT:=	-std=c++2b -mbranches-within-32B-boundaries -ferror-limit=2 -stdlib=libc++
 GOPT:=	-std=c++2b
@@ -51,18 +52,16 @@ profile: all
 
 #Use code coverage test-run settings
 coverage: CXXFLAGS=-O0 -fprofile-instr-generate -fcoverage-mapping -g3 $(COMP) $(ARCH) $(COPT)
-coverage: tests/test_darr tests/test_utils tests/test_object
-	LLVM_PROFILE_FILE=test_object.profraw tests/test_object
-	LLVM_PROFILE_FILE=test_utils.profraw tests/test_utils
-	LLVM_PROFILE_FILE=test_darr.profraw tests/test_darr
-	llvm-profdata-13 merge -sparse test_object.profraw test_utils.profraw test_darr.profraw -o acidmud.profdata
+coverage: tests/tests
+	LLVM_PROFILE_FILE=acidmud.profraw tests/tests
+	llvm-profdata-13 merge -sparse acidmud.profraw -o acidmud.profdata
 
 gcc: CXX=g++-11
 gcc: CXXFLAGS=-Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(GOPT)
 gcc: all
 
 clean:
-	rm -f gmon.out *.profraw *.profdata deps.mk tests/*.o tests/*.da *.o *.da version.cpp acidmud changes.txt
+	rm -f gmon.out *.profraw *.profdata deps.mk tests/*.o tests/*.da *.o *.da version.cpp acidmud tests/tests changes.txt
 
 backup:
 	cd ..;tar chvf ~/c/archive/acidmud.$(TSTR).tar \
@@ -84,19 +83,11 @@ acidmud: main.o $(OBJS)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
-test:	tests/test_object tests/test_utils tests/test_darr
-	tests/test_object
-	tests/test_utils
-	tests/test_darr
+test:	tests/tests
+	tests/tests
 
-tests/test_object: tests/test_object.o $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $< $(OBJS) $(LIBS)
-
-tests/test_utils: tests/test_utils.o $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $< $(OBJS) $(LIBS)
-
-tests/test_darr: tests/test_darr.o
-	$(CXX) $(CXXFLAGS) -o $@ $<
+tests/tests: tests/test_main.o $(TOBJS) $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $< $(TOBJS) $(OBJS) $(LIBS)
 
 tests/%.o: tests/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
