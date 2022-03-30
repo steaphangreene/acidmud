@@ -19,6 +19,11 @@
 //
 // *************************************************************************
 
+// WARNING: Below Here Be Dragons.  You Can Not Unsee This "Code", Ever.
+// This is just part of a dirty hack to throw some content into AcidMUD,
+// by directly translating (re: shoe-horning) TBA's world data into AcidMUD.
+// I actually have no plans to maintain or improve this, though may fix bugs.
+
 #include "color.hpp"
 #include "commands.hpp"
 #include "log.hpp"
