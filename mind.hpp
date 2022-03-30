@@ -107,6 +107,9 @@ class Mind : public std::enable_shared_from_this<Mind> {
   int Status() const;
   void ClearStatus();
 
+  void StartNewProject();
+  void ContinueWorkOn(Object* project);
+
   void SetSVar(const std::u8string& var, const std::u8string& val);
   void ClearSVar(const std::u8string& var);
   const std::u8string& SVar(const std::u8string& var) const;
