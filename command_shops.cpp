@@ -92,7 +92,15 @@ int handle_command_shops(
           if (item->ActTarg(act_t::SPECIAL_OWNER) == body->Room()) {
             have_stock = true;
             size_t price = item->Value();
-            mind->Send(CMAG u8"{:>10}: {}\n" CNRM, coins(price), item->ShortDesc());
+            if (item->Quantity() > 1) {
+              mind->Send(
+                  CMAG u8"{:>10}: {} (x{})\n" CNRM,
+                  coins(price),
+                  item->ShortDesc(),
+                  item->Quantity());
+            } else {
+              mind->Send(CMAG u8"{:>10}: {}\n" CNRM, coins(price), item->ShortDesc());
+            }
           }
         }
         if (!have_stock) {
