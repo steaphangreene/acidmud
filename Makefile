@@ -49,12 +49,20 @@ debug: all
 profile: CXXFLAGS=-O3 -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 $(COMP) $(ARCH) $(COPT)
 profile: all
 
+#Use code coverage test-run settings
+coverage: CXXFLAGS=-O0 -fprofile-instr-generate -fcoverage-mapping -g3 $(COMP) $(ARCH) $(COPT)
+coverage: tests/test_darr tests/test_utils tests/test_object
+	LLVM_PROFILE_FILE=test_object.profraw tests/test_object
+	LLVM_PROFILE_FILE=test_utils.profraw tests/test_utils
+	LLVM_PROFILE_FILE=test_darr.profraw tests/test_darr
+	llvm-profdata-13 merge -sparse test_object.profraw test_utils.profraw test_darr.profraw -o acidmud.profdata
+
 gcc: CXX=g++-11
 gcc: CXXFLAGS=-Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(GOPT)
 gcc: all
 
 clean:
-	rm -f gmon.out deps.mk tests/*.o tests/*.da *.o *.da version.cpp acidmud changes.txt
+	rm -f gmon.out *.profraw *.profdata deps.mk tests/*.o tests/*.da *.o *.da version.cpp acidmud changes.txt
 
 backup:
 	cd ..;tar chvf ~/c/archive/acidmud.$(TSTR).tar \
