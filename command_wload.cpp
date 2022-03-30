@@ -896,7 +896,16 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
           // Now, create the actual NPC.
           Object* npc = objs[coord{x, y}][floor]->MakeNPC(gen, npcdef);
           npc->AddAct(act_t::SPECIAL_WORK, employed);
-          npc->AddAct(act_t::SPECIAL_HOME, housed);
+
+          Object* bed = new Object(housed);
+          bed->SetDescs(
+              u8"a bed",
+              u8"",
+              u8"a nice comfortable bed",
+              fmt::format(u8"This is {}'s bed.  It looks vert comfortable.", npc->Name()));
+          bed->SetSkill(prhash(u8"Open"), 1000);
+          bed->SetSkill(prhash(u8"Enterable"), 1000);
+          npc->AddAct(act_t::SPECIAL_HOME, bed);
 
           int timeliness = std::uniform_int_distribution<int>(-5, 20)(gen);
           if (night) {
