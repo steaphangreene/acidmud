@@ -182,6 +182,7 @@ void Mind::StartNewProject() {
       goal->SetSkill(
           u8"Quantity", std::min(proj->max_qty_, mat->Skill(proj->material_) / proj->amount_));
     }
+    goal->SetPos(pos_t::LIE);
 
     body->Parent()->SendOut(
         ALL, 0, u8";s grabs {} and begins working on it.\n", u8"", body, nullptr, mat->ShortDesc());
@@ -200,6 +201,7 @@ void Mind::ContinueWorkOn(Object* project) {
       project->Travel(project->Room());
       delete old_proj;
     }
+    body->AddAct(act_t::WORK);
     project->AddAct(act_t::SPECIAL_OWNER, body->Room());
     body->Parent()->SendOut(
         ALL,

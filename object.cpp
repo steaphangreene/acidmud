@@ -2607,10 +2607,18 @@ Object* Object::Split(int nqty) {
 
   for (int ctr = 0; ctr < 4; ++ctr) {
     int val = Skill(splits[ctr]);
-    int nval = val / (qty + nqty) * nqty;
-    val -= nval;
-    SetSkill(splits[ctr], val);
-    nobj->SetSkill(splits[ctr], nval);
+    if (val > 0) {
+      int nval = val / (qty + nqty) * nqty;
+      val -= nval;
+      SetSkill(splits[ctr], val);
+      nobj->SetSkill(splits[ctr], nval);
+    }
+  }
+
+  // If it was owned, or for sale, it still is.
+  auto owner = ActTarg(act_t::SPECIAL_OWNER);
+  if (owner) {
+    nobj->AddAct(act_t::SPECIAL_OWNER, owner);
   }
 
   return nobj;
