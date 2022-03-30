@@ -4068,10 +4068,14 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       } else {
         body->Travel(body->Parent()->Parent());
       }
-      if (oldp)
+      if (oldp->Skill(prhash(u8"Transparent")) < 100 && oldp->Skill(prhash(u8"Open")) < 100) {
         oldp->SendOut(stealth_t, stealth_s, u8";s leaves.\n", u8"", body, nullptr);
-      body->Parent()->SendDescSurround(body, body);
-      body->Parent()->SendOut(stealth_t, stealth_s, u8";s arrives.\n", u8"", body, nullptr);
+        body->Parent()->SendDescSurround(body, body);
+        body->Parent()->SendOut(stealth_t, stealth_s, u8";s arrives.\n", u8"", body, nullptr);
+      } else {
+        oldp->SendOut(stealth_t, stealth_s, u8";s exits ;s.\n", u8"You exit ;s.", body, oldp);
+        body->Parent()->SendDescSurround(body, body);
+      }
     }
     return 0;
   }
