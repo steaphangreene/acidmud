@@ -42,15 +42,15 @@ struct Project {
   skill_pair prop_ = {prhash(u8"None"), 0};
 
   uint32_t material_;
-  uint32_t amount_ = 1000;
-  uint32_t max_qty_ = 1;
+  int32_t amount_ = 1000;
+  int32_t max_qty_ = 1;
   uint32_t weight_ = 1000;
   uint32_t volume_ = 100;
   uint32_t size_ = 100;
   uint32_t value_ = 10;
 };
 
-static std::vector<const Project> projects = {
+static std::vector<Project> projects = {
     {{crc32c(u8"collier")},
      u8"a piece of charcoal",
      u8"a piece of high-quality charcoal",
