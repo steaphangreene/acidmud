@@ -37,19 +37,19 @@ building:2::tavern
 house:2.1:2-4:civilian,dwarven
 house:2.1:0-2:dwarven
 employ:2.0:1-2:citizen,dwarven
-building:1:kiln,dwarven:The Hillfort Kiln
+building:1:kiln,huge,dwarven:The Hillfort Kiln
 product:charcoal:100:100:kiln,master:wood:200:10
-building:1:armory,dwarven:The Hillfort Armory
-building:1:tavern,dwarven:The Hillfort Tavern
-building:1:smithy,dwarven:The Hillfort Smithy
-building:1:bladesmithy,dwarven:The Hillfort Bladesmithy
-building:1:smeltery,dwarven:The Hillfort Smeltery
-building:1:woodmill,dwarven:The Hillfort Woodmill
-building:1:woodshop,dwarven:The Hillfort Woodshop
+building:1:armory,huge,dwarven:The Hillfort Armory
+building:1:tavern,huge,dwarven:The Hillfort Tavern
+building:1:smithy,huge,dwarven:The Hillfort Smithy
+building:1:bladesmithy,huge,dwarven:The Hillfort Bladesmithy
+building:1:smeltery,huge,dwarven:The Hillfort Smeltery
+building:1:woodmill,huge,dwarven:The Hillfort Woodmill
+building:1:woodshop,huge,dwarven:The Hillfort Woodshop
 building:1:inn,large,good,meals,dwarven:The Hillfort Inn
 building:1:store,food,human:The Hillfort Grocery
-building:1:mint,dwarven:The Hillfort Mint
-building:1:foundry,dwarven:The Hillfort Foundry
+building:1:mint,huge,dwarven:The Hillfort Mint
+building:1:foundry,huge,dwarven:The Hillfort Foundry
 inorder:1
 employ:1:1:master,dwarven
 employ:1:1-3:apprentice,dwarven

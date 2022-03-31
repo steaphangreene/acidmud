@@ -667,7 +667,16 @@ ntag:metalsmith
 tag:room:food
 type:purpose
 
+tag:room:small
+dtag:small
+type:size
+
 tag:room:large
+dtag:large
+type:size
+
+tag:room:huge
+dtag:huge
 type:size
 
 tag:room:meals
@@ -690,6 +699,21 @@ tag:decor:dwarven
 type:origin
 short:a dwarven
 desc:A well-made
+
+tag:decor:small
+type:size
+short:a small
+desc:A small
+
+tag:decor:large
+type:size
+short:a large
+desc:A large
+
+tag:decor:huge
+type:size
+short:a huge
+desc:A huge
 
 tag:decor:fountain
 short:a fountain
