@@ -44,6 +44,7 @@ struct Project {
 
   uint32_t material_;
   uint32_t amount_ = 1000;
+  uint32_t time_ = 1;
   uint32_t max_qty_ = 1;
   ItemAttrs attrs_ = {1000, 100, 100, 10};
 };
@@ -57,6 +58,7 @@ static std::vector<Project> projects = {
      prhash(u8"Raw Wood"),
      200,
      100,
+     1000,
      {1000, 100, 100, 10}},
     {{crc32c(u8"collier"), crc32c(u8"kiln")},
      u8"a piece of charcoal",
@@ -66,6 +68,7 @@ static std::vector<Project> projects = {
      prhash(u8"Pure Wood"),
      100,
      100,
+     1000,
      {1000, 100, 100, 10}},
     {{crc32c(u8"sawyer"), crc32c(u8"sawmill")},
      u8"a beam of wood",
@@ -74,6 +77,7 @@ static std::vector<Project> projects = {
      {prhash(u8"Pure Wood"), 100000},
      prhash(u8"Raw Wood"),
      200000,
+     100,
      1,
      {1000, 100, 100, 10}},
     {{crc32c(u8"woodworker")},
@@ -82,7 +86,8 @@ static std::vector<Project> projects = {
      u8"Created in {} by {}, Master Woodworker.",
      {prhash(u8"Made of Wood"), 200},
      prhash(u8"Pure Wood"),
-     1000,
+     100,
+     10,
      1,
      {1000, 100, 100, 220}},
     {{crc32c(u8"smelter"), crc32c(u8"crucible")},
@@ -92,7 +97,8 @@ static std::vector<Project> projects = {
      {prhash(u8"Pure Platinum"), 100},
      prhash(u8"Raw Platinum"),
      100,
-     1,
+     50,
+     10,
      {1000, 100, 100, 30000}},
     {{crc32c(u8"smelter"), crc32c(u8"crucible")},
      u8"a gold bar",
@@ -101,7 +107,8 @@ static std::vector<Project> projects = {
      {prhash(u8"Pure Gold"), 100},
      prhash(u8"Raw Gold"),
      100,
-     1,
+     50,
+     10,
      {1000, 100, 100, 3000}},
     {{crc32c(u8"smelter"), crc32c(u8"crucible")},
      u8"a silver bar",
@@ -110,7 +117,8 @@ static std::vector<Project> projects = {
      {prhash(u8"Pure Silver"), 100},
      prhash(u8"Raw Silver"),
      100,
-     1,
+     50,
+     10,
      {1000, 100, 100, 300}},
     {{crc32c(u8"smelter"), crc32c(u8"crucible")},
      u8"a copper bar",
@@ -119,7 +127,8 @@ static std::vector<Project> projects = {
      {prhash(u8"Pure Copper"), 100},
      prhash(u8"Raw Copper"),
      100,
-     1,
+     50,
+     10,
      {1000, 100, 100, 30}},
     {{crc32c(u8"smelter"), crc32c(u8"crucible")},
      u8"a tin bar",
@@ -128,7 +137,8 @@ static std::vector<Project> projects = {
      {prhash(u8"Pure Tin"), 100},
      prhash(u8"Raw Tin"),
      100,
-     1,
+     50,
+     10,
      {1000, 100, 100, 10}},
     {{crc32c(u8"smelter"), crc32c(u8"crucible")},
      u8"a iron bar",
@@ -137,7 +147,8 @@ static std::vector<Project> projects = {
      {prhash(u8"Pure Iron"), 100},
      prhash(u8"Raw Iron"),
      100,
-     1,
+     100,
+     10,
      {1000, 100, 100, 20}},
     {{crc32c(u8"metalsmith"), crc32c(u8"crucible")},
      u8"a platinum coin blank",
@@ -146,7 +157,8 @@ static std::vector<Project> projects = {
      {prhash(u8"Made of Platinum"), 30},
      prhash(u8"Pure Platinum"),
      30,
-     10,
+     100,
+     33,
      {30, 1, 1, 9000}},
     {{crc32c(u8"metalsmith"), crc32c(u8"crucible")},
      u8"a gold coin blank",
@@ -155,7 +167,8 @@ static std::vector<Project> projects = {
      {prhash(u8"Made of Gold"), 30},
      prhash(u8"Pure Gold"),
      30,
-     10,
+     100,
+     33,
      {30, 1, 1, 900}},
     {{crc32c(u8"metalsmith"), crc32c(u8"crucible")},
      u8"a silver coin blank",
@@ -164,7 +177,8 @@ static std::vector<Project> projects = {
      {prhash(u8"Made of Silver"), 30},
      prhash(u8"Pure Silver"),
      30,
-     10,
+     100,
+     33,
      {30, 1, 1, 90}},
     {{crc32c(u8"metalsmith"), crc32c(u8"crucible")},
      u8"a copper coin blank",
@@ -173,7 +187,8 @@ static std::vector<Project> projects = {
      {prhash(u8"Made of Copper"), 30},
      prhash(u8"Pure Copper"),
      30,
-     10,
+     100,
+     33,
      {30, 1, 1, 9}},
     {{crc32c(u8"metalsmith"), crc32c(u8"crucible")},
      u8"a steel bar",
@@ -182,6 +197,7 @@ static std::vector<Project> projects = {
      {prhash(u8"Pure Steel"), 100},
      prhash(u8"Pure Iron"),
      100,
+     1000,
      1,
      {1000, 100, 100, 100}},
     {{crc32c(u8"coinmaker"), crc32c(u8"coinpress")},
@@ -192,6 +208,7 @@ static std::vector<Project> projects = {
      prhash(u8"Made of Platinum"),
      30,
      10,
+     1,
      {30, 1, 1, 10000}},
     {{crc32c(u8"coinmaker"), crc32c(u8"coinpress")},
      u8"a gold piece",
@@ -201,6 +218,7 @@ static std::vector<Project> projects = {
      prhash(u8"Made of Gold"),
      30,
      10,
+     1,
      {30, 1, 1, 1000}},
     {{crc32c(u8"coinmaker"), crc32c(u8"coinpress")},
      u8"a silver piece",
@@ -210,6 +228,7 @@ static std::vector<Project> projects = {
      prhash(u8"Made of Silver"),
      30,
      10,
+     1,
      {30, 1, 1, 100}},
     {{crc32c(u8"coinmaker"), crc32c(u8"coinpress")},
      u8"a copper piece",
@@ -219,6 +238,7 @@ static std::vector<Project> projects = {
      prhash(u8"Made of Copper"),
      30,
      10,
+     1,
      {30, 1, 1, 10}},
 };
 
@@ -299,7 +319,7 @@ void Mind::StartNewProject() {
     }
     body->Parent()->SendOut(ALL, 0, u8";s grabs ;s and begins working on it.\n", u8"", body, mat);
 
-    mat->SetSkill(prhash(u8"Incomplete"), 1000);
+    mat->SetSkill(prhash(u8"Incomplete"), proj->time_);
     mat->SetShortDesc(u8"a piece of work");
     mat->AddAct(act_t::SPECIAL_OWNER, body);
     body->AddAct(act_t::WORK, mat);
