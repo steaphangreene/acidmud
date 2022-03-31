@@ -19,7 +19,7 @@
 //
 // *************************************************************************
 
-#include <catch2/catch.hpp>
+#include "test_main.hpp"
 
 #include "../utils.hpp"
 
