@@ -51,7 +51,7 @@ profile: CXXFLAGS=-O3 -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 $(
 profile: all
 
 #Use code coverage test-run settings
-coverage: CXXFLAGS=-O0 -fprofile-instr-generate -fcoverage-mapping -g3 $(COMP) $(ARCH) $(COPT)
+coverage: CXXFLAGS=-O3 -fprofile-instr-generate -fcoverage-mapping -g3 $(COMP) $(ARCH) $(COPT)
 coverage: tests/tests
 	LLVM_PROFILE_FILE=acidmud.profraw tests/tests
 	llvm-profdata-13 merge -sparse acidmud.profraw -o acidmud.profdata

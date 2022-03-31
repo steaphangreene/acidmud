@@ -701,13 +701,13 @@ int Object::Tick() {
   if (HasSkill(prhash(u8"Liquid Source"))) { // Refills Itself
     if (contents.size() > 0) {
       int qty = 1;
-      if (contents.front()->Skill(prhash(u8"Quantity")) > 1) {
-        qty = contents.front()->Skill(prhash(u8"Quantity"));
+      if (contents.front()->Quantity() > 1) {
+        qty = contents.front()->Quantity();
       }
       if (qty < Skill(prhash(u8"Liquid Container"))) {
-        contents.front()->SetSkill(prhash(u8"Quantity"), qty + Skill(prhash(u8"Liquid Source")));
-        if (contents.front()->Skill(prhash(u8"Quantity")) > Skill(prhash(u8"Liquid Container"))) {
-          contents.front()->SetSkill(prhash(u8"Quantity"), Skill(prhash(u8"Liquid Container")));
+        contents.front()->SetQuantity(qty + Skill(prhash(u8"Liquid Source")));
+        if (static_cast<int>(contents.front()->Quantity()) > Skill(prhash(u8"Liquid Container"))) {
+          contents.front()->SetQuantity(Skill(prhash(u8"Liquid Container")));
         }
       }
     } else {
@@ -1264,8 +1264,8 @@ void Object::SendExtendedActions(std::shared_ptr<Mind> m, int vmode) {
       targ = cur.obj()->Noun(0, 0, m->Body(), this);
 
     std::u8string qty = u8"";
-    if (cur.obj()->Skill(prhash(u8"Quantity")) > 1)
-      qty = fmt::format(u8"(x{}) ", cur.obj()->Skill(prhash(u8"Quantity")));
+    if (cur.obj()->Quantity() > 1)
+      qty = fmt::format(u8"(x{}) ", cur.obj()->Quantity());
 
     if (shown.count(cur.obj()) > 0) {
       m->Send(u8"{}{} ({}).\n", qty, targ, shown[cur.obj()]);
@@ -1373,14 +1373,14 @@ void Object::SendContents(std::shared_ptr<Mind> m, Object* o, int vmode, std::u8
 
         /*	Uncomment this and comment the block below to disable
            auto-pluralizing.
-              int qty = std::max(1, ind->Skill(prhash(u8"Quantity")));
+              int qty = std::max(1U, ind->Quantity());
         */
         int qty = 1; // Even animate objects can have higher quantities.
         auto oth = std::find(cont.begin(), cont.end(), ind);
         for (qty = 0; oth != cont.end(); ++oth) {
           if (ind->LooksLike(*oth, vmode, (vmode & LOC_NINJA) ? nullptr : o)) {
             master.erase(*oth);
-            qty += std::max(1, (*oth)->Skill(prhash(u8"Quantity")));
+            qty += std::max(1U, (*oth)->Quantity());
           }
         }
 
@@ -1447,8 +1447,8 @@ void Object::SendFullSituation(std::shared_ptr<Mind> m, Object* o) {
     }
   }
 
-  if (Skill(prhash(u8"Quantity")) > 1) {
-    m->Send(u8"(x{}) ", Skill(prhash(u8"Quantity")));
+  if (Quantity() > 1) {
+    m->Send(u8"(x{}) ", Quantity());
   }
 
   std::u8string buf;
@@ -2212,9 +2212,8 @@ void Object::TryCombine() {
       // loge(u8"Combining '{}'\n", Noun());
       int val;
 
-      val =
-          std::max(1, Skill(prhash(u8"Quantity"))) + std::max(1, obj->Skill(prhash(u8"Quantity")));
-      SetSkill(prhash(u8"Quantity"), val);
+      val = std::max(1U, Quantity()) + std::max(1U, obj->Quantity());
+      SetQuantity(val);
 
       val = Skill(prhash(u8"Hungry")) + obj->Skill(prhash(u8"Hungry"));
       if (val > 0) {
@@ -2587,22 +2586,22 @@ uint32_t splits[4] = {prhash(u8"Hungry"), prhash(u8"Bored"), prhash(u8"Tired"), 
 Object* Object::Split(int nqty) {
   if (nqty < 1)
     nqty = 1;
-  int qty = Skill(prhash(u8"Quantity")) - nqty;
+  int qty = Quantity() - nqty;
   if (qty < 1)
     qty = 1;
 
   Object* nobj = new Object(*this);
   nobj->SetParent(Parent());
   if (nqty <= 1) {
-    nobj->ClearSkill(prhash(u8"Quantity"));
+    nobj->SetQuantity(1);
   } else {
-    nobj->SetSkill(prhash(u8"Quantity"), nqty);
+    nobj->SetQuantity(nqty);
   }
 
   if (qty <= 1) {
-    ClearSkill(prhash(u8"Quantity"));
+    SetQuantity(1);
   } else {
-    SetSkill(prhash(u8"Quantity"), qty);
+    SetQuantity(qty);
   }
 
   for (int ctr = 0; ctr < 4; ++ctr) {
@@ -2640,8 +2639,8 @@ static int tag(Object* obj, DArr64<Object*>& ret, int* ordinal, int vmode = 0) {
 
   int cqty = 1, rqty = 1; // Contains / Requires
 
-  if (obj->Skill(prhash(u8"Quantity")))
-    cqty = obj->Skill(prhash(u8"Quantity"));
+  if (obj->Quantity())
+    cqty = obj->Quantity();
 
   if (*ordinal == -1)
     (*ordinal) = 1; // Need one - make it the first one!
@@ -4802,10 +4801,14 @@ Object* Object::Owner() const {
   return owner;
 }
 
-int Object::Quantity() const {
+void Object::SetQuantity(uint32_t qty) {
+  SetSkill(prhash(u8"Quantity"), qty);
+}
+
+uint32_t Object::Quantity() const {
   if (!HasSkill(prhash(u8"Quantity")))
     return 1;
-  return Skill(prhash(u8"Quantity"));
+  return static_cast<uint32_t>(Skill(prhash(u8"Quantity")));
 }
 
 void Object::Deafen(bool deaf) {
@@ -4913,7 +4916,7 @@ int Object::Wear(Object* targ, unsigned long masks, bool message) {
     while ((mask & masks) == 0 && mask != 0)
       mask <<= 1;
 
-    if (targ->Skill(prhash(u8"Quantity")) > 1) { // One at a time!
+    if (targ->Quantity() > 1) { // One at a time!
       targ = targ->Split(1);
     }
 

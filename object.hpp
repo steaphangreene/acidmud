@@ -532,7 +532,8 @@ class alignas(256) Object {
 
   bool HasKeyFor(const Object* lock, int vmode = 0) const;
 
-  int Quantity() const;
+  uint32_t Quantity() const;
+  void SetQuantity(uint32_t);
 
   void Collapse();
 

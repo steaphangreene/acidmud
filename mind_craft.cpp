@@ -42,8 +42,8 @@ struct Project {
   skill_pair prop_ = {prhash(u8"None"), 0};
 
   uint32_t material_;
-  int32_t amount_ = 1000;
-  int32_t max_qty_ = 1;
+  uint32_t amount_ = 1000;
+  uint32_t max_qty_ = 1;
   uint32_t weight_ = 1000;
   uint32_t volume_ = 100;
   uint32_t size_ = 100;
@@ -113,7 +113,7 @@ void Mind::StartNewProject() {
             relevant = false;
           }
         }
-        if (relevant && item->Skill(proj.material_) >= proj.amount_) {
+        if (relevant && item->Skill(proj.material_) >= static_cast<int>(proj.amount_)) {
           materials.emplace_back(std::make_pair(&proj, item));
           break;
         }
@@ -178,9 +178,9 @@ void Mind::StartNewProject() {
     goal->SetVolume(proj->volume_);
     goal->SetValue(proj->value_);
     if (proj->max_qty_ > 1 && proj->amount_ > 0 &&
-        mat->Skill(proj->material_) >= proj->amount_ * 2) {
-      goal->SetSkill(
-          u8"Quantity", std::min(proj->max_qty_, mat->Skill(proj->material_) / proj->amount_));
+        mat->Skill(proj->material_) >= static_cast<int>(proj->amount_) * 2) {
+      goal->SetQuantity(std::min(
+          proj->max_qty_, static_cast<uint32_t>(mat->Skill(proj->material_)) / proj->amount_));
     }
     goal->SetPos(pos_t::LIE);
 

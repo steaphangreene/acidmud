@@ -285,15 +285,15 @@ int handle_command_ccreate(
             people->SetShortDesc(u8"a person");
             if (i <= 0) {
               people->SetDesc(u8"a sketchy-looking punk.");
-              people->SetSkill(prhash(u8"Quantity"), 10);
+              people->SetQuantity(10);
               people->SetSkill(prhash(u8"Personality"), 3);
             } else if (i == 1) {
               people->SetDesc(u8"an upstanding citizen.");
-              people->SetSkill(prhash(u8"Quantity"), 100);
+              people->SetQuantity(100);
               people->SetSkill(prhash(u8"Personality"), 5);
             } else if (i >= 2) {
               people->SetDesc(u8"a wealthy citizen.");
-              people->SetSkill(prhash(u8"Quantity"), 10);
+              people->SetQuantity(10);
               people->SetSkill(prhash(u8"Personality"), 9);
             }
             people->SetSkill(prhash(u8"Hungry"), 10000);

@@ -280,7 +280,7 @@ void Object::TBAFinishMOB(Object* mob) {
       init_gold();
     Object* g = new Object(*gold);
     g->SetParent(bag);
-    g->SetSkill(prhash(u8"Quantity"), mob->Skill(prhash(u8"TBAGold")));
+    g->SetQuantity(mob->Skill(prhash(u8"TBAGold")));
     mob->ClearSkill(prhash(u8"TBAGold"));
   }
 
@@ -1470,7 +1470,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
         if (!gold)
           init_gold();
         (*obj) = (*gold);
-        obj->SetSkill(prhash(u8"Quantity"), val[0]);
+        obj->SetQuantity(val[0]);
       } else if (tp == 18) { // KEY
         obj->SetSkill(prhash(u8"Key"), 1000000 + onum); // Key's u8"code"
       } else if (tp == 15) { // CONTAINER
@@ -1530,7 +1530,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
         liq->SetSkill(prhash(u8"Ingestible"), 1);
         liq->SetWeight(10);
         liq->SetVolume(1);
-        liq->SetSkill(prhash(u8"Quantity"), 1);
+        liq->SetQuantity(1);
         liq->SetSkill(prhash(u8"Magical"), val[0]);
         liq->SetShortDesc(u8"some liquid");
         for (int idx = 1; idx < 4; ++idx) {
@@ -1661,7 +1661,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
           if (val[3] != 0) {
             liq->SetSkill(prhash(u8"Poisionous"), val[3]);
           }
-          liq->SetSkill(prhash(u8"Quantity"), val[1]);
+          liq->SetQuantity(val[1]);
         }
       } else if (tp == 19) { // FOOD
         obj->SetSkill(prhash(u8"Ingestible"), 1);
@@ -2592,10 +2592,10 @@ void Object::TBALoadSHP(const std::u8string& fn) {
             Object* item = new Object(*(bynumobj[val]));
             Object* item2 = dup_tba_obj(item);
             item->SetParent(vortex);
-            item->SetSkill(prhash(u8"Quantity"), 1000);
+            item->SetQuantity(1000);
             if (item2) {
               item2->SetParent(vortex);
-              item2->SetSkill(prhash(u8"Quantity"), 1000);
+              item2->SetQuantity(1000);
             }
           }
           val = nextnum(mud); // Item sold

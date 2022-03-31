@@ -760,7 +760,7 @@ void Object::GenerateRoom(const ObjectTag& type, std::mt19937& gen) {
       water->SetSkill(prhash(u8"Liquid"), 1);
       water->SetSkill(prhash(u8"Ingestible"), 1);
       water->SetSkill(prhash(u8"Drink"), 10000);
-      water->SetSkill(prhash(u8"Quantity"), std::max(10, obj->Skill(prhash(u8"Liquid Container"))));
+      water->SetQuantity(std::max(10, obj->Skill(prhash(u8"Liquid Container"))));
       obj->Activate();
     }
   }

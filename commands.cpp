@@ -2225,7 +2225,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       }
 
       // Liquid Containers
-      int volume = 0;
+      uint32_t volume = 0;
       if (targ->HasSkill(prhash(u8"Liquid Container"))) {
         mind->Send(u8"{} is a liquid container\n", targ->Noun(1, 1, body));
         volume = targ->Skill(prhash(u8"Liquid Container"));
@@ -2270,9 +2270,9 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
 
         // Liquid Containers
         if (volume && other->HasSkill(prhash(u8"Liquid Container"))) {
-          if (volume < other->Skill(prhash(u8"Liquid Container"))) {
+          if (static_cast<int>(volume) < other->Skill(prhash(u8"Liquid Container"))) {
             mind->Send(CYEL u8"   ...it can't hold as much as {}.\n" CNRM, other->Noun(0, 0, body));
-          } else if (volume > other->Skill(prhash(u8"Liquid Container"))) {
+          } else if (static_cast<int>(volume) > other->Skill(prhash(u8"Liquid Container"))) {
             mind->Send(CGRN u8"   ...it can hold more than {}.\n" CNRM, other->Noun(0, 0, body));
           } else {
             mind->Send(
@@ -3072,7 +3072,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
             body->ActTarg(act_t::HOLD) != body->ActTarg(act_t::WIELD)) {
           if (mind)
             mind->Send(u8"You have no place to stash {}.\n", targ->Noun());
-        } else if (targ->Skill(prhash(u8"Quantity")) > 1) {
+        } else if (targ->Quantity() > 1) {
           if (mind)
             mind->Send(u8"You have no place to stash {}.\n", targ->Noun());
         } else {
@@ -3850,7 +3850,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
         return 0;
       }
       Object* obj = targ->Contents(vmode).front();
-      if (targ->HasSkill(prhash(u8"Liquid Source")) && obj->Skill(prhash(u8"Quantity")) < 2) {
+      if (targ->HasSkill(prhash(u8"Liquid Source")) && obj->Quantity() < 2) {
         if (mind)
           mind->Send(u8"{} is almost empty.  There is nothing to drink\n", targ->Noun(0, 0, body));
         return 0;
@@ -3872,13 +3872,13 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       // Hunger/Thirst/Posion/Potion Effects
       body->Consume(obj);
 
-      if (obj->Skill(prhash(u8"Quantity")) < 2) {
+      if (obj->Quantity() < 2) {
         obj->Recycle();
         if (targ->HasSkill(prhash(u8"Perishable"))) { // One-Use Vials
           targ->Recycle();
         }
       } else {
-        obj->SetSkill(prhash(u8"Quantity"), obj->Skill(prhash(u8"Quantity")) - 1);
+        obj->SetQuantity(obj->Quantity() - 1);
       }
     }
     return 0;
@@ -3984,8 +3984,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       if (mind)
         mind->Send(u8"You can't fill anything from that, it is empty.\n");
     } else if (
-        src->HasSkill(prhash(u8"Liquid Source")) &&
-        src->Contents(vmode).front()->Skill(prhash(u8"Quantity")) < 2) {
+        src->HasSkill(prhash(u8"Liquid Source")) && src->Contents(vmode).front()->Quantity() < 2) {
       if (mind)
         mind->Send(u8"You can't fill anything from that, it is almost empty.\n");
     } else {
@@ -3993,8 +3992,8 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
 
       int sqty = 1;
       int dqty = dst->Skill(prhash(u8"Capacity"));
-      if (src->Contents(vmode).front()->Skill(prhash(u8"Quantity")) > 0) {
-        sqty = src->Contents(vmode).front()->Skill(prhash(u8"Quantity"));
+      if (src->Contents(vmode).front()->Quantity() > 0) {
+        sqty = src->Contents(vmode).front()->Quantity();
       }
 
       if (src->HasSkill(prhash(u8"Liquid Source"))) {
@@ -4013,9 +4012,9 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
         liq = new Object(dst);
       }
       (*liq) = (*(src->Contents(vmode).front()));
-      liq->SetSkill(prhash(u8"Quantity"), dqty);
+      liq->SetQuantity(dqty);
       if (sqty > 0) {
-        src->Contents(vmode).front()->SetSkill(prhash(u8"Quantity"), sqty);
+        src->Contents(vmode).front()->SetQuantity(sqty);
       } else {
         src->Contents(vmode).front()->Recycle();
       }
@@ -4441,8 +4440,8 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
     }
 
     if (src) {
-      if (src->Skill(prhash(u8"Quantity")) > 1) {
-        src->Split(src->Skill(prhash(u8"Quantity")) - 1); // Split off the rest
+      if (src->Quantity() > 1) {
+        src->Split(src->Quantity() - 1); // Split off the rest
       }
       if (src->HasSkill(prhash(u8"Magical Charges"))) {
         if (src->Skill(prhash(u8"Magical Charges")) > 1) {
@@ -7004,10 +7003,10 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
           u8"You double ;s.\n",
           body,
           targ);
-      if (targ->Skill(prhash(u8"Quantity")) > 1) {
-        targ->SetSkill(prhash(u8"Quantity"), targ->Skill(prhash(u8"Quantity")) * 2);
+      if (targ->Quantity() > 1) {
+        targ->SetQuantity(targ->Quantity() * 2);
       } else {
-        targ->SetSkill(prhash(u8"Quantity"), 2);
+        targ->SetQuantity(2);
       }
     }
     return 0;

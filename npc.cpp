@@ -226,7 +226,7 @@ static void give_coins(Object* npc, size_t amount) {
       if (num * val < amount) {
         --num;
       }
-      g->SetSkill(prhash(u8"Quantity"), num);
+      g->SetQuantity(num);
       amount -= (num * val);
     }
   }

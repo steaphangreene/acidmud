@@ -152,8 +152,7 @@ TEST_CASE("Object Movement", "[object]") {
     REQUIRE(!room1a2->HasWithin(item1a1a2));
     REQUIRE(zone1a->HasWithin(room1a1));
     item1a1a1->Travel(obj1a1a);
-    REQUIRE(item1a1a1->HasSkill(prhash(u8"Quantity")));
-    REQUIRE(item1a1a1->Skill(prhash(u8"Quantity")) == 2);
+    REQUIRE(item1a1a1->Quantity() == 2);
     REQUIRE(item1a1a2->Parent() == Object::TrashBin());
     REQUIRE(obj1a1a->Contents().size() == 1);
     REQUIRE(obj1a1b->Contents().size() == 0);
@@ -468,48 +467,48 @@ TEST_CASE("Object Money", "[money]") {
   chits1->SetShortDesc(u8"a bone chit");
   chits1->SetValue(1);
   chits1->SetSkill(prhash(u8"Money"), 1);
-  chits1->SetSkill(prhash(u8"Quantity"), 3);
+  chits1->SetQuantity(3);
   Object* silver = new Object(jane);
   silver->SetShortDesc(u8"a silver piece");
   silver->SetValue(100);
   silver->SetSkill(prhash(u8"Money"), 100);
-  silver->SetSkill(prhash(u8"Quantity"), 3);
+  silver->SetQuantity(3);
   Object* platinum = new Object(jane);
   platinum->SetShortDesc(u8"a platinum piece");
   platinum->SetValue(10000);
   platinum->SetSkill(prhash(u8"Money"), 10000);
-  platinum->SetSkill(prhash(u8"Quantity"), 3);
+  platinum->SetQuantity(3);
   Object* copper = new Object(jane);
   copper->SetShortDesc(u8"a copper piece");
   copper->SetValue(10);
   copper->SetSkill(prhash(u8"Money"), 10);
-  copper->SetSkill(prhash(u8"Quantity"), 3);
+  copper->SetQuantity(3);
   Object* gold = new Object(jane);
   gold->SetShortDesc(u8"a gold piece");
   gold->SetValue(1000);
   gold->SetSkill(prhash(u8"Money"), 1000);
-  gold->SetSkill(prhash(u8"Quantity"), 3);
+  gold->SetQuantity(3);
   // Add a different flavor chit of the same value
   Object* chits2 = new Object(jane);
   chits2->SetShortDesc(u8"a wooden chit");
   chits2->SetValue(1);
   chits2->SetSkill(prhash(u8"Money"), 1);
-  chits2->SetSkill(prhash(u8"Quantity"), 3);
+  chits2->SetQuantity(3);
   // And some money with non-intrinsic value
   Object* dollar = new Object(jane);
   dollar->SetShortDesc(u8"a dollar");
   dollar->SetValue(1);
   dollar->SetSkill(prhash(u8"Money"), 100);
-  dollar->SetSkill(prhash(u8"Quantity"), 3);
+  dollar->SetQuantity(3);
   // And some completely non-intrinsic money
   Object* script = new Object(jane);
   script->SetShortDesc(u8"a credit of script");
   script->SetSkill(prhash(u8"Money"), 10);
-  script->SetSkill(prhash(u8"Quantity"), 3);
+  script->SetQuantity(3);
   // And some worthless fake money
   Object* paper = new Object(jane);
   paper->SetShortDesc(u8"a dollar of Monopoly money");
-  paper->SetSkill(prhash(u8"Quantity"), 3);
+  paper->SetQuantity(3);
 
   SECTION("Simple Read-Only Checks") {
     REQUIRE(jane->CanPayFor(0) == 0);
@@ -621,7 +620,7 @@ TEST_CASE("Object Money", "[money]") {
     platinum->SetShortDesc(u8"a platinum piece");
     platinum->SetValue(10000);
     platinum->SetSkill(prhash(u8"Money"), 10000);
-    platinum->SetSkill(prhash(u8"Quantity"), 323);
+    platinum->SetQuantity(323);
 
     REQUIRE(john->CanPayFor(222) == 10000);
 

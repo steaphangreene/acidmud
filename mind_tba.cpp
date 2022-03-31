@@ -1084,7 +1084,7 @@ int Mind::TBARunLine(std::u8string linestr) {
         logey(u8"#{} Warning: Empty fountain '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
         return -1;
       }
-      ovars[u8"self"]->Contents().front()->SetSkill(prhash(u8"Quantity"), v2 + 1);
+      ovars[u8"self"]->Contents().front()->SetQuantity(v2 + 1);
     } else {
       loger(u8"#{} Error: Unimplemented oset '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
       return -1;

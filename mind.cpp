@@ -490,7 +490,7 @@ bool Mind::Think(int istick) {
   } else if (type == mind_t::MOB) {
     if (body->Skill(prhash(u8"Personality")) & 1) { // Group Mind
       //      body->TryCombine();	// I AM a group, after all.
-      int qty = body->Skill(prhash(u8"Quantity")), req = -1;
+      int qty = body->Quantity(), req = -1;
       if (qty < 1)
         qty = 1;
       for (int item = 0; item < 8; item += 2) {
