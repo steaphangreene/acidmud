@@ -171,10 +171,10 @@ static std::vector<Project> projects = {
      100,
      100,
      20},
-    {{crc32c(u8"metalworker"), crc32c(u8"crucible")},
+    {{crc32c(u8"metalsmith"), crc32c(u8"crucible")},
      u8"a platinum coin blank",
      u8"a blank disk of pure platinum",
-     u8"Formed in {} by {}, Master Metalworker.",
+     u8"Formed in {} by {}, Master Metalsmith.",
      {prhash(u8"Made of Platinum"), 30},
      prhash(u8"Pure Platinum"),
      30,
@@ -183,10 +183,10 @@ static std::vector<Project> projects = {
      1,
      1,
      9000},
-    {{crc32c(u8"metalworker"), crc32c(u8"crucible")},
+    {{crc32c(u8"metalsmith"), crc32c(u8"crucible")},
      u8"a gold coin blank",
      u8"a blank disk of pure gold",
-     u8"Formed in {} by {}, Master Metalworker.",
+     u8"Formed in {} by {}, Master Metalsmith.",
      {prhash(u8"Made of Gold"), 30},
      prhash(u8"Pure Gold"),
      30,
@@ -195,10 +195,10 @@ static std::vector<Project> projects = {
      1,
      1,
      900},
-    {{crc32c(u8"metalworker"), crc32c(u8"crucible")},
+    {{crc32c(u8"metalsmith"), crc32c(u8"crucible")},
      u8"a silver coin blank",
      u8"a blank disk of pure silver",
-     u8"Formed in {} by {}, Master Metalworker.",
+     u8"Formed in {} by {}, Master Metalsmith.",
      {prhash(u8"Made of Silver"), 30},
      prhash(u8"Pure Silver"),
      30,
@@ -207,10 +207,10 @@ static std::vector<Project> projects = {
      1,
      1,
      90},
-    {{crc32c(u8"metalworker"), crc32c(u8"crucible")},
+    {{crc32c(u8"metalsmith"), crc32c(u8"crucible")},
      u8"a copper coin blank",
      u8"a blank disk of pure copper",
-     u8"Formed in {} by {}, Master Metalworker.",
+     u8"Formed in {} by {}, Master Metalsmith.",
      {prhash(u8"Made of Copper"), 30},
      prhash(u8"Pure Copper"),
      30,
@@ -219,10 +219,10 @@ static std::vector<Project> projects = {
      1,
      1,
      9},
-    {{crc32c(u8"metalworker"), crc32c(u8"crucible")},
+    {{crc32c(u8"metalsmith"), crc32c(u8"crucible")},
      u8"a steel bar",
      u8"a bar of pure steel",
-     u8"Alloyed in {} by {}, Master Metalworker.",
+     u8"Alloyed in {} by {}, Master Metalsmith.",
      {prhash(u8"Pure Steel"), 100},
      prhash(u8"Pure Iron"),
      100,
@@ -321,7 +321,7 @@ void Mind::StartNewProject() {
                   item->Skill(prhash(u8"Raw Platinum")) || item->Skill(prhash(u8"Raw Tin"))) {
                 materials.push_back(item);
               }
-            } else if (body->HasTag(crc32c(u8"metalworker"))) {
+            } else if (body->HasTag(crc32c(u8"metalsmith"))) {
               if (item->Skill(prhash(u8"Pure Charcoal")) || item->Skill(prhash(u8"Pure Iron")) ||
                   item->Skill(prhash(u8"Pure Copper")) || item->Skill(prhash(u8"Pure Tin"))) {
                 materials.push_back(item);
