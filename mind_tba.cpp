@@ -2968,9 +2968,10 @@ size_t Mind::TBAMOBWouldBuyFor(const Object* item) {
   }
 
   if (skill == prhash(u8"Money")) { // 1:1 Money
-    return item->Value();
+    return item->Value() * item->Quantity();
   } else if (skill != prhash(u8"None")) {
-    return std::max(1UL, item->Value() * static_cast<size_t>(Body()->Skill(skill)) / 1000);
+    return std::max(
+        1UL, item->Value() * static_cast<size_t>(Body()->Skill(skill)) * item->Quantity() / 1000);
   }
 
   return 0; // Not Interested

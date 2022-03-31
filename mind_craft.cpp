@@ -437,7 +437,7 @@ size_t Mind::NPCWouldBuyFor(const Object* item) {
       }
     }
     if (relevant && item->Skill(proj.material_) >= static_cast<int>(proj.amount_)) {
-      return item->Value();
+      return item->Value() * item->Quantity();
     }
   }
 
