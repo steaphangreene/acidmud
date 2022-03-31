@@ -159,6 +159,8 @@ void Mind::StartNewProject() {
     if (mat->Quantity() > 1) {
       mat = mat->Split(1);
     }
+    body->Parent()->SendOut(ALL, 0, u8";s grabs ;s and begins working on it.\n", u8"", body, mat);
+
     mat->SetSkill(prhash(u8"Incomplete"), 1000);
     mat->SetShortDesc(u8"a piece of work");
     mat->AddAct(act_t::SPECIAL_OWNER, body);
@@ -183,9 +185,6 @@ void Mind::StartNewProject() {
           proj->max_qty_, static_cast<uint32_t>(mat->Skill(proj->material_)) / proj->amount_));
     }
     goal->SetPos(pos_t::LIE);
-
-    body->Parent()->SendOut(
-        ALL, 0, u8";s grabs {} and begins working on it.\n", u8"", body, nullptr, mat->ShortDesc());
   }
 }
 
