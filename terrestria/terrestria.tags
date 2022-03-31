@@ -216,10 +216,10 @@ long:{His} hunched-over body gives away that {his} whole life has been spent ben
 s:2-2
 gold:500-1000
 
-tag:npc:miller
+tag:npc:sawyer
 includes:civilian
 includes:citizen
-short:a miller
+short:a sawyer
 desc:an expert at turning raw logs into usable lumber.
 long:{His} clothing is covered in sawdust.
 s:2-2
@@ -634,7 +634,7 @@ prop:Open:1000
 
 tag:room:woodmill
 dtag:sawmill
-ntag:miller
+ntag:sawyer
 
 tag:decor:sawmill
 short:A sawmill
