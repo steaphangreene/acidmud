@@ -600,6 +600,7 @@ ntag:collier
 tag:decor:kiln
 short:A kiln
 desc:A kiln is set up here, to turn wood to charcoal.
+prop:Open:1000
 
 tag:room:armory
 dtag:forge
@@ -608,6 +609,7 @@ ntag:armorer
 tag:decor:forge
 short:A forge
 desc:A forge has been built here, ready for a smith to use.
+prop:Open:1000
 
 tag:room:tavern
 dtag:bar
@@ -622,11 +624,22 @@ dtag:forge
 ntag:bladesmith
 
 tag:room:smeltery
-dtag:furnace
+dtag:crucible
 ntag:smelter
 
+tag:decor:crucible
+short:A crucible
+desc:A crucible is set up here, ready to melt some metal.
+prop:Open:1000
+
 tag:room:woodmill
+dtag:sawmill
 ntag:miller
+
+tag:decor:sawmill
+short:A sawmill
+desc:A sawmill has been set up here, ready to turn raw wood into lumber (and sawdust)
+prop:Open:1000
 
 tag:room:woodshop
 ntag:woodworker
@@ -639,9 +652,16 @@ tag:room:store
 ntag:storekeeper
 
 tag:room:mint
+dtag:coinpress
 ntag:coinmaker
 
+tag:decor:coinpress
+short:A coin press
+desc:A coin press is here, ready to stamp some blanks into coins
+prop:Open:1000
+
 tag:room:foundry
+dtag:crucible
 ntag:metalsmith
 
 tag:room:food
