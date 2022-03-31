@@ -218,6 +218,21 @@ int handle_command_shops(
                   u8"You don't have change to pay {} (you'd have to pay {}).\n",
                   coins(price),
                   coins(offer));
+              auto refund = offer - price;
+              auto change = shpkp->PayFor(refund);
+              if (change.size() > 0) {
+                pay = body->PayFor(offer);
+                if (pay.size() <= 0) {
+                  mind->Send(u8"...and something went horribly wrong (tell the Ninjas).\n");
+                } else {
+                  for (auto coin : change) {
+                    body->Stash(coin, 0, 1);
+                  }
+                  mind->Send(u8"You get {} from {}.\n", coins(refund), shpkp->ShortDesc());
+                }
+              } else {
+                mind->Send(u8"...and I can't make change for that, sorry.\n");
+              }
             } else {
               mind->Send(
                   u8"You can't afford the {} (you only have {}).\n", coins(price), coins(offer));
