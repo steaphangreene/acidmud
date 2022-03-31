@@ -160,6 +160,8 @@ int Object::SaveTo(outfile& fl) {
   }
   fl.append(u8";\n");
 
+  fl.append(u8"{}\n", quantity);
+
   fl.append(u8"{}\n", (int)(contents.size()));
   for (auto cind : contents) {
     fl.append(u8"{}\n", getonum(cind));
@@ -331,7 +333,11 @@ int Object::LoadFrom(std::u8string_view& fl) {
     if (delim == '|') {
       int val = nextnum(fl);
       delim = nextchar(fl);
-      SetSkill(stok, val);
+      if (stok == prhash(u8"Quantity")) { // Before v0x001C Quantity was saved as a Skill
+        quantity = val;
+      } else {
+        SetSkill(stok, val);
+      }
     } else { // Only the skill name, so "currently used skill"
       StartUsing(stok);
     }
@@ -340,6 +346,11 @@ int Object::LoadFrom(std::u8string_view& fl) {
     logerr(u8"ERROR[{}]: Object skill list parse error (delim='{:c}').\n", ShortDesc(), delim);
   }
   skipspace(fl);
+
+  if (ver >= 0x001C) {
+    quantity = nextnum(fl);
+    skipspace(fl);
+  }
 
   num = nextnum(fl);
   skipspace(fl);

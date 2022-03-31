@@ -696,8 +696,8 @@ class alignas(256) Object {
   int8_t tickstep;
 
   pos_t pos;
+  uint32_t quantity = 1;
 
-  int sexp;
   DArr32<uint32_t> completed;
 
   DArr64<Object*, 3> contents;
@@ -707,6 +707,8 @@ class alignas(256) Object {
   uint32_t busy_until = 0; // Encoded
   const char8_t* dowhenfree = u8"";
   const char8_t* defact = u8"";
+
+  int sexp;
 
   std::forward_list<std::shared_ptr<Mind>> minds;
 

@@ -3809,18 +3809,16 @@ bool Object::IsSameAs(const Object& in) const {
   auto sk1 = skills;
   auto sk2 = in.skills;
   for (auto sk = sk1.begin(); sk != sk1.end();) {
-    if (sk->first == prhash(u8"Quantity") || sk->first == prhash(u8"Hungry") ||
-        sk->first == prhash(u8"Bored") || sk->first == prhash(u8"Needy") ||
-        sk->first == prhash(u8"Tired")) {
+    if (sk->first == prhash(u8"Hungry") || sk->first == prhash(u8"Bored") ||
+        sk->first == prhash(u8"Needy") || sk->first == prhash(u8"Tired")) {
       sk1.erase(sk);
     } else {
       ++sk;
     }
   }
   for (auto sk = sk2.begin(); sk != sk2.end();) {
-    if (sk->first == prhash(u8"Quantity") || sk->first == prhash(u8"Hungry") ||
-        sk->first == prhash(u8"Bored") || sk->first == prhash(u8"Needy") ||
-        sk->first == prhash(u8"Tired")) {
+    if (sk->first == prhash(u8"Hungry") || sk->first == prhash(u8"Bored") ||
+        sk->first == prhash(u8"Needy") || sk->first == prhash(u8"Tired")) {
       sk2.erase(sk);
     } else {
       ++sk;
@@ -4802,13 +4800,11 @@ Object* Object::Owner() const {
 }
 
 void Object::SetQuantity(uint32_t qty) {
-  SetSkill(prhash(u8"Quantity"), qty);
+  quantity = std::max(1U, qty);
 }
 
 uint32_t Object::Quantity() const {
-  if (!HasSkill(prhash(u8"Quantity")))
-    return 1;
-  return static_cast<uint32_t>(Skill(prhash(u8"Quantity")));
+  return quantity;
 }
 
 void Object::Deafen(bool deaf) {

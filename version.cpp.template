@@ -26,7 +26,7 @@
 VersionInformation CurrentVersion = {
     0x00000001UL, // Net Save Version
     0x00000001UL, // Player Save Version
-    0x0000001BUL, // Object/World Save Version
+    0x0000001CUL, // Object/World Save Version
     {0, 0, 1}, // AcidMUD Version (X.X.X-REVS-HASH)
     GIT_REVS, // Dynamically Filled by Makefile
     u8"GIT_HASH", // Dynamically Filled by Makefile
