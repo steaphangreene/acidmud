@@ -523,6 +523,35 @@ int handle_command_shops(
       if (cnum == COM_SELL) {
         auto pay = shpkp->PayFor(price);
 
+        if (pay.size() <= 0) {
+          if (mind) {
+            auto offer = shpkp->CanPayFor(price);
+            if (offer > price) {
+              mind->Send(
+                  u8"I don't have change to pay {}.  You'd have to make change for {}.\n",
+                  coins(price),
+                  coins(offer));
+              auto refund = offer - price;
+              auto change = body->PayFor(refund);
+              if (change.size() > 0) {
+                pay = shpkp->PayFor(offer);
+                if (pay.size() <= 0) {
+                  mind->Send(u8"...and something went horribly wrong (tell Stea).\n");
+                } else {
+                  for (auto coin : change) {
+                    shpkp->Stash(coin, 0, 1);
+                  }
+                  mind->Send(u8"You pay {} to {}.\n", coins(refund), shpkp->ShortDesc());
+                }
+              } else {
+                mind->Send(u8"...but you don't have that change.\n");
+              }
+            } else {
+              mind->Send(u8"I can't afford the {} (I only have {}).\n", coins(price), coins(offer));
+            }
+          }
+        }
+
         if (pay.size() > 0) {
           body->Parent()->SendOut(
               stealth_t, stealth_s, u8";s sells ;s.\n", u8"You sell ;s.\n", body, item);
@@ -549,23 +578,9 @@ int handle_command_shops(
                   coin_str(price));
             }
           }
-        } else {
-          if (mind) {
-            auto offer = shpkp->CanPayFor(price);
-            if (offer > price) {
-              mind->Send(
-                  u8"I don't have change to pay {} (you'd have to make change for {}).\n",
-                  coins(price),
-                  coins(offer));
-            } else {
-              mind->Send(u8"I can't afford the {} (I only have {}).\n", coins(price), coins(offer));
-            }
-          }
         }
       }
     }
-    return 0;
   }
-
   return 0;
 }
