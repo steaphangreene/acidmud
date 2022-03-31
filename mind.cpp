@@ -381,7 +381,7 @@ bool Mind::Think(int istick) {
       int day = body->World()->Skill(prhash(u8"Day Length"));
       int time = body->World()->Skill(prhash(u8"Day Time"));
       int late = body->Skill(prhash(u8"Day Worker"));
-      if (body->HasSkill(prhash(u8"Night Worker"))) {
+      if (day > 0 && body->HasSkill(prhash(u8"Night Worker"))) {
         time = (time + (day / 2)) % day;
         late = body->Skill(prhash(u8"Night Worker"));
       }
