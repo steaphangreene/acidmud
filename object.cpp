@@ -1689,7 +1689,8 @@ void Object::SendScore(std::shared_ptr<Mind> m, Object* o) {
     } else if (ctr == 5) {
       if (Pos() == pos_t::NONE) {
         m->Send(
-            u8"  Zone Coords: ({},{},{})  Value: {}\n",
+            u8"  Qty: {}, Zone Coords: ({},{},{})  Value: {}\n",
+            quantity,
             X(),
             Y(),
             Z(),
@@ -1698,7 +1699,8 @@ void Object::SendScore(std::shared_ptr<Mind> m, Object* o) {
       } else {
         char8_t gens[4] = {'N', 'F', 'M', 'O'};
         m->Send(
-            u8"  Gen: {}, {}.{:03}kg, {}.{:03}m, {}v, {}\n",
+            u8"  Qty: {}, Gen: {}, {}.{:03}kg, {}.{:03}m, {}v, {}\n",
+            quantity,
             gens[static_cast<int8_t>(gender)],
             weight / 1000,
             weight % 1000,
