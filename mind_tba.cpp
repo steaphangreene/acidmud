@@ -24,6 +24,8 @@
 // by directly translating (re: shoe-horning) TBA's world data into AcidMUD.
 // I actually have no plans to maintain or improve this, though may fix bugs.
 
+#include <algorithm>
+
 #include "color.hpp"
 #include "commands.hpp"
 #include "log.hpp"
@@ -2831,4 +2833,145 @@ int new_trigger(
     m->Suspend(msec);
   }
   return status;
+}
+
+// Returns how much NPC/MOB would pay for item, or 0.
+size_t Mind::TBAMOBWouldBuyFor(const Object* item) {
+  bool wearable = false;
+  if (item->HasSkill(prhash(u8"Wearable on Back"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Chest"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Head"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Neck"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Collar"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Waist"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Shield"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Left Arm"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Right Arm"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Left Finger"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Right Finger"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Left Foot"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Right Foot"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Left Hand"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Right Hand"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Left Leg"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Right Leg"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Left Wrist"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Right Wrist"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Left Shoulder"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Right Shoulder"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Left Hip"))) {
+    wearable = true;
+  } else if (item->HasSkill(prhash(u8"Wearable on Right Hip"))) {
+    wearable = true;
+  }
+
+  uint32_t skill = prhash(u8"None");
+
+  if (item->Skill(prhash(u8"Money")) == item->Value()) { // 1-1 Money
+    for (auto skl : Body()->GetSkills()) {
+      if (SkillName(skl.first).starts_with(u8"Buy ")) {
+        skill = prhash(u8"Money");
+        break;
+      }
+    }
+  } else if (wearable && item->NormAttribute(0) > 0) {
+    if (Body()->HasSkill(prhash(u8"Buy Armor"))) {
+      skill = prhash(u8"Buy Armor");
+    }
+  } else if (item->Skill(prhash(u8"Vehicle")) == 4) {
+    if (Body()->HasSkill(prhash(u8"Buy Boat"))) {
+      skill = prhash(u8"Buy Boat");
+    }
+  } else if (item->HasSkill(prhash(u8"Container"))) {
+    if (Body()->HasSkill(prhash(u8"Buy Container"))) {
+      skill = prhash(u8"Buy Container");
+    }
+  } else if (item->HasSkill(prhash(u8"Food")) && (!item->HasSkill(prhash(u8"Drink")))) {
+    if (Body()->HasSkill(prhash(u8"Buy Food"))) {
+      skill = prhash(u8"Buy Food");
+    }
+  }
+  //      else if(false) {    //FIXME: Implement
+  //	if(Body()->HasSkill(prhash(u8"Buy Light"))) {
+  //	  skill = prhash(u8"Buy Light");
+  //	  }
+  //	}
+  else if (item->HasSkill(prhash(u8"Liquid Container"))) { // FIXME: Not Potions?
+    if (Body()->HasSkill(prhash(u8"Buy Liquid Container"))) {
+      skill = prhash(u8"Buy Liquid Container");
+    }
+  } else if (item->HasSkill(prhash(u8"Liquid Container"))) { // FIXME: Not Bottles?
+    if (Body()->HasSkill(prhash(u8"Buy Potion"))) {
+      skill = prhash(u8"Buy Potion");
+    }
+  } else if (item->HasSkill(prhash(u8"Magical Scroll"))) {
+    if (Body()->HasSkill(prhash(u8"Buy Scroll"))) {
+      skill = prhash(u8"Buy Scroll");
+    }
+  } else if (item->HasSkill(prhash(u8"Magical Staff"))) {
+    if (Body()->HasSkill(prhash(u8"Buy Staff"))) {
+      skill = prhash(u8"Buy Staff");
+    }
+  } else if (item->HasSkill(prhash(u8"Magical Wand"))) {
+    if (Body()->HasSkill(prhash(u8"Buy Wand"))) {
+      skill = prhash(u8"Buy Wand");
+    }
+  }
+  //      else if(false) {    //FIXME: Implement
+  //	if(Body()->HasSkill(prhash(u8"Buy Trash"))) {
+  //	  skill = prhash(u8"Buy Trash");
+  //	  }
+  //	}
+  //      else if(false) {    //FIXME: Implement
+  //	if(Body()->HasSkill(prhash(u8"Buy Treasure"))) {
+  //	  skill = prhash(u8"Buy Treasure");
+  //	  }
+  //	}
+  else if (item->Skill(prhash(u8"WeaponType")) > 0) {
+    if (Body()->HasSkill(prhash(u8"Buy Weapon"))) {
+      skill = prhash(u8"Buy Weapon");
+    }
+  } else if (wearable && item->NormAttribute(0) == 0) {
+    if (Body()->HasSkill(prhash(u8"Buy Worn"))) {
+      skill = prhash(u8"Buy Worn");
+    }
+  }
+  //      else if(false) {  //FIXME: Implement
+  //	if(Body()->HasSkill(prhash(u8"Buy Other"))) {
+  //	  skill = prhash(u8"Buy Other");
+  //	  }
+  //	}
+
+  if (skill == prhash(u8"None") && Body()->HasSkill(prhash(u8"Buy All"))) {
+    skill = prhash(u8"Buy All");
+  }
+
+  if (skill == prhash(u8"Money")) { // 1:1 Money
+    return item->Value();
+  } else if (skill != prhash(u8"None")) {
+    return std::max(1UL, item->Value() * static_cast<size_t>(Body()->Skill(skill)) / 1000);
+  }
+
+  return 0; // Not Interested
 }

@@ -5101,3 +5101,12 @@ DArr64<Object*, 3> Object::PayFor(size_t amount) {
   }
   return ret;
 }
+
+size_t Object::WouldBuyFor(const Object* item) {
+  size_t ret = 0;
+  for (auto m : minds) {
+    ret = m->WouldBuyFor(item);
+    return ret;
+  }
+  return 0;
+}

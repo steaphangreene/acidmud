@@ -648,3 +648,14 @@ static std::shared_ptr<Mind> mob_mind = std::make_shared<Mind>(mind_t::MOB);
 std::shared_ptr<Mind> get_mob_mind() {
   return mob_mind;
 }
+
+// Returns how much NPC/MOB would pay for item, or 0.
+size_t Mind::WouldBuyFor(const Object* item) {
+  if (type == mind_t::NPC) {
+    return NPCWouldBuyFor(item);
+  } else if (type == mind_t::TBAMOB) {
+    return TBAMOBWouldBuyFor(item);
+  } else {
+    return 0;
+  }
+}

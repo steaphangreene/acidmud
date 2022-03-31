@@ -366,6 +366,9 @@ class alignas(256) Object {
   size_t CanPayFor(std::size_t amount) const;
   DArr64<Object*, 3> PayFor(std::size_t amount);
 
+  // Returns how much NPC/MOB would pay for item, or 0.
+  size_t WouldBuyFor(const Object* item);
+
   int ContainedWeight();
   int ContainedVolume();
 

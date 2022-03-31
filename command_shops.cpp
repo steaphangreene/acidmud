@@ -340,58 +340,10 @@ int handle_command_shops(
       return 0;
     }
 
-    int wearable = 0;
-    if (item->HasSkill(prhash(u8"Wearable on Back")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Chest")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Head")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Neck")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Collar")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Waist")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Shield")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Left Arm")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Right Arm")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Left Finger")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Right Finger")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Left Foot")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Right Foot")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Left Hand")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Right Hand")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Left Leg")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Right Leg")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Left Wrist")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Right Wrist")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Left Shoulder")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Right Shoulder")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Left Hip")))
-      wearable = 1;
-    if (item->HasSkill(prhash(u8"Wearable on Right Hip")))
-      wearable = 1;
-
     auto people = body->Room()->PickObjects(u8"everyone", LOC_INTERNAL);
     DArr64<Object*> shpkps;
     std::u8string reason = u8"Sorry, nobody is buying that sort of thing here.\n";
-    uint32_t skill = prhash(u8"None");
+    price = 0;
     for (auto shpkp : people) {
       if (shpkp->IsAct(act_t::DEAD)) {
         reason = u8"Sorry, the shopkeeper is dead!\n";
@@ -401,118 +353,13 @@ int handle_command_shops(
         reason = u8"Sorry, the shopkeeper is unconscious!\n";
       } else if (shpkp->IsAct(act_t::SLEEP)) {
         reason = u8"Sorry, the shopkeeper is asleep!\n";
-      } else if (item->Skill(prhash(u8"Raw Wood")) >= 1000) { // Temporary Hard-Code
-        if (shpkp->HasTag(crc32c(u8"master"))) {
-          if (shpkp->HasTag(crc32c(u8"collier")) || shpkp->HasTag(crc32c(u8"miller"))) {
-            skill = 0; // Special Marker: Acid Seller, Not Circle/TBA
-          }
-        }
-      } else if (item->Skill(prhash(u8"Pure Wood")) >= 1000) { // Temporary Hard-Code
-        if (shpkp->HasTag(crc32c(u8"master"))) {
-          if (shpkp->HasTag(crc32c(u8"collier")) || shpkp->HasTag(crc32c(u8"woodworker"))) {
-            skill = 0; // Special Marker: Acid Seller, Not Circle/TBA
-          }
-        }
-      } else if (item->Skill(prhash(u8"Raw Silver")) >= 100) { // Temporary Hard-Code
-        if (shpkp->HasTag(crc32c(u8"master"))) {
-          if (shpkp->HasTag(crc32c(u8"smelter"))) {
-            skill = 0; // Special Marker: Acid Seller, Not Circle/TBA
-          }
-        }
-      } else if (item->Skill(prhash(u8"Pure Silver")) >= 100) { // Temporary Hard-Code
-        if (shpkp->HasTag(crc32c(u8"master"))) {
-          if (shpkp->HasTag(crc32c(u8"metalsmith"))) {
-            skill = 0; // Special Marker: Acid Seller, Not Circle/TBA
-          }
-        }
-      } else if (item->Skill(prhash(u8"Made of Silver")) == 30) { // Temporary Hard-Code
-        if (shpkp->HasTag(crc32c(u8"master"))) {
-          if (shpkp->HasTag(crc32c(u8"coinmaker"))) {
-            skill = 0; // Special Marker: Acid Seller, Not Circle/TBA
-          }
-        }
-      } else if (item->Skill(prhash(u8"Money")) == item->Value()) { // 1-1 Money
-        for (auto skl : shpkp->GetSkills()) {
-          if (SkillName(skl.first).starts_with(u8"Buy ")) {
-            skill = prhash(u8"Money");
-            break;
-          }
-        }
-      } else if (wearable && item->NormAttribute(0) > 0) {
-        if (shpkp->HasSkill(prhash(u8"Buy Armor"))) {
-          skill = prhash(u8"Buy Armor");
-        }
-      } else if (item->Skill(prhash(u8"Vehicle")) == 4) {
-        if (shpkp->HasSkill(prhash(u8"Buy Boat"))) {
-          skill = prhash(u8"Buy Boat");
-        }
-      } else if (item->HasSkill(prhash(u8"Container"))) {
-        if (shpkp->HasSkill(prhash(u8"Buy Container"))) {
-          skill = prhash(u8"Buy Container");
-        }
-      } else if (item->HasSkill(prhash(u8"Food")) && (!item->HasSkill(prhash(u8"Drink")))) {
-        if (shpkp->HasSkill(prhash(u8"Buy Food"))) {
-          skill = prhash(u8"Buy Food");
-        }
-      }
-      //      else if(false) {				//FIXME: Implement
-      //	if(shpkp->HasSkill(prhash(u8"Buy Light"))) {
-      //	  skill = prhash(u8"Buy Light");
-      //	  }
-      //	}
-      else if (item->HasSkill(prhash(u8"Liquid Container"))) { // FIXME: Not Potions?
-        if (shpkp->HasSkill(prhash(u8"Buy Liquid Container"))) {
-          skill = prhash(u8"Buy Liquid Container");
-        }
-      } else if (item->HasSkill(prhash(u8"Liquid Container"))) { // FIXME: Not Bottles?
-        if (shpkp->HasSkill(prhash(u8"Buy Potion"))) {
-          skill = prhash(u8"Buy Potion");
-        }
-      } else if (item->HasSkill(prhash(u8"Magical Scroll"))) {
-        if (shpkp->HasSkill(prhash(u8"Buy Scroll"))) {
-          skill = prhash(u8"Buy Scroll");
-        }
-      } else if (item->HasSkill(prhash(u8"Magical Staff"))) {
-        if (shpkp->HasSkill(prhash(u8"Buy Staff"))) {
-          skill = prhash(u8"Buy Staff");
-        }
-      } else if (item->HasSkill(prhash(u8"Magical Wand"))) {
-        if (shpkp->HasSkill(prhash(u8"Buy Wand"))) {
-          skill = prhash(u8"Buy Wand");
-        }
-      }
-      //      else if(false) {				//FIXME: Implement
-      //	if(shpkp->HasSkill(prhash(u8"Buy Trash"))) {
-      //	  skill = prhash(u8"Buy Trash");
-      //	  }
-      //	}
-      //      else if(false) {				//FIXME: Implement
-      //	if(shpkp->HasSkill(prhash(u8"Buy Treasure"))) {
-      //	  skill = prhash(u8"Buy Treasure");
-      //	  }
-      //	}
-      else if (item->Skill(prhash(u8"WeaponType")) > 0) {
-        if (shpkp->HasSkill(prhash(u8"Buy Weapon"))) {
-          skill = prhash(u8"Buy Weapon");
-        }
-      } else if (wearable && item->NormAttribute(0) == 0) {
-        if (shpkp->HasSkill(prhash(u8"Buy Worn"))) {
-          skill = prhash(u8"Buy Worn");
-        }
-      }
-      //      else if(false) {					//FIXME:
-      //      Implement
-      //	if(shpkp->HasSkill(prhash(u8"Buy Other"))) {
-      //	  skill = prhash(u8"Buy Other");
-      //	  }
-      //	}
+      } else {
+        price = shpkp->WouldBuyFor(item);
 
-      if (skill == prhash(u8"None") && shpkp->HasSkill(prhash(u8"Buy All"))) {
-        skill = prhash(u8"Buy All");
-      }
-
-      if (skill != prhash(u8"None")) {
-        shpkps.push_back(shpkp);
+        if (price > 0) {
+          shpkps.push_back(shpkp);
+          break;
+        }
       }
     }
     if (shpkps.size() == 0) {
@@ -525,13 +372,6 @@ int handle_command_shops(
       if (shpkp->ActTarg(act_t::WEAR_RSHOULDER) &&
           shpkp->ActTarg(act_t::WEAR_RSHOULDER)->Skill(prhash(u8"Vortex"))) { // Circle/TBA
         vortex = shpkp->ActTarg(act_t::WEAR_RSHOULDER);
-        if (skill != prhash(u8"Money")) { // Not 1-1 Money
-          price *= shpkp->Skill(skill);
-          price += 0;
-          price /= 1000;
-          if (price <= 0)
-            price = 1;
-        }
       }
       mind->Send(u8"I'll give you {} for {}\n", coins(price), item->ShortDesc());
 

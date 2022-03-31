@@ -110,6 +110,9 @@ class Mind : public std::enable_shared_from_this<Mind> {
   void StartNewProject();
   void ContinueWorkOn(Object* project);
 
+  // Returns how much NPC/MOB would pay for item, or 0.
+  size_t WouldBuyFor(const Object* item);
+
   void SetSVar(const std::u8string& var, const std::u8string& val);
   void ClearSVar(const std::u8string& var);
   const std::u8string& SVar(const std::u8string& var) const;
@@ -118,6 +121,9 @@ class Mind : public std::enable_shared_from_this<Mind> {
   const std::map<std::u8string, std::u8string> SVars() const;
 
  private:
+  // Returns how much NPC/MOB would pay for item, or 0.
+  size_t NPCWouldBuyFor(const Object* item);
+  size_t TBAMOBWouldBuyFor(const Object* item);
   std::u8string TBAMOBTactics(int phase) const;
   bool TBAMOBSend(const std::u8string_view&); // Returns false when mind needs to be deleted
   bool TBAMOBThink(int istick); // Returns false when mind needs to be deleted

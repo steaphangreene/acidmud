@@ -416,3 +416,39 @@ void Mind::ContinueWorkOn(Object* project) {
         project->ShortDesc());
   }
 }
+
+// Returns how much NPC/MOB would pay for item, or 0.
+size_t Mind::NPCWouldBuyFor(const Object* item) {
+  if (item->Skill(prhash(u8"Raw Wood")) >= 1000) { // Temporary Hard-Code
+    if (Body()->HasTag(crc32c(u8"master"))) {
+      if (Body()->HasTag(crc32c(u8"collier")) || Body()->HasTag(crc32c(u8"miller"))) {
+        return item->Value();
+      }
+    }
+  } else if (item->Skill(prhash(u8"Pure Wood")) >= 1000) { // Temporary Hard-Code
+    if (Body()->HasTag(crc32c(u8"master"))) {
+      if (Body()->HasTag(crc32c(u8"collier")) || Body()->HasTag(crc32c(u8"woodworker"))) {
+        return item->Value();
+      }
+    }
+  } else if (item->Skill(prhash(u8"Raw Silver")) >= 100) { // Temporary Hard-Code
+    if (Body()->HasTag(crc32c(u8"master"))) {
+      if (Body()->HasTag(crc32c(u8"smelter"))) {
+        return item->Value();
+      }
+    }
+  } else if (item->Skill(prhash(u8"Pure Silver")) >= 100) { // Temporary Hard-Code
+    if (Body()->HasTag(crc32c(u8"master"))) {
+      if (Body()->HasTag(crc32c(u8"metalsmith"))) {
+        return item->Value();
+      }
+    }
+  } else if (item->Skill(prhash(u8"Made of Silver")) == 30) { // Temporary Hard-Code
+    if (Body()->HasTag(crc32c(u8"master"))) {
+      if (Body()->HasTag(crc32c(u8"coinmaker"))) {
+        return item->Value();
+      }
+    }
+  }
+  return 0;
+}
