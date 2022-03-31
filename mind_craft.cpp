@@ -51,7 +51,7 @@ struct Project {
 };
 
 static std::vector<Project> projects = {
-    {{crc32c(u8"collier")},
+    {{crc32c(u8"collier"), crc32c(u8"kiln")},
      u8"a piece of charcoal",
      u8"a piece of high-quality charcoal",
      u8"Created in {} by {}, Master Collier.",
@@ -63,7 +63,7 @@ static std::vector<Project> projects = {
      100,
      100,
      10},
-    {{crc32c(u8"collier")},
+    {{crc32c(u8"collier"), crc32c(u8"kiln")},
      u8"a piece of charcoal",
      u8"a piece of high-quality charcoal",
      u8"Created in {} by {}, Master Collier.",
@@ -75,7 +75,7 @@ static std::vector<Project> projects = {
      100,
      100,
      10},
-    {{crc32c(u8"miller")},
+    {{crc32c(u8"miller"), crc32c(u8"sawmill")},
      u8"a beam of wood",
      u8"a large piece of finished lumber",
      u8"Created in {} by {}, Master Wood Miller.",
@@ -101,20 +101,36 @@ static std::vector<Project> projects = {
      220},
 };
 
+struct Plan {
+  const Project* project;
+  Object* material;
+  Object* equipment = nullptr;
+};
+
 void Mind::StartNewProject() {
-  std::vector<std::pair<const Project*, Object*>> materials;
+  std::vector<Plan> materials;
   auto wares = body->Room()->PickObjects(u8"everything", LOC_INTERNAL);
   for (auto item : wares) {
     if (item->ActTarg(act_t::SPECIAL_OWNER) == body->Room()) {
       for (const auto& proj : projects) {
         bool relevant = true;
+        Object* equip = nullptr;
         for (auto tag : proj.tags_) {
           if (!body->HasTag(tag)) {
             relevant = false;
+            for (auto tool : body->PickObjects(u8"everything", LOC_NEARBY)) {
+              if (tool->HasTag(tag)) {
+                equip = tool;
+                relevant = true;
+              }
+            }
+            if (!relevant) {
+              break;
+            }
           }
         }
         if (relevant && item->Skill(proj.material_) >= static_cast<int>(proj.amount_)) {
-          materials.emplace_back(std::make_pair(&proj, item));
+          materials.emplace_back(Plan{&proj, item, equip});
           break;
         }
       }
@@ -154,8 +170,9 @@ void Mind::StartNewProject() {
     });
   */
   if (materials.size() > 0) {
-    const Project* proj = materials.front().first;
-    Object* mat = materials.front().second;
+    const Project* proj = materials.front().project;
+    Object* mat = materials.front().material;
+    Object* equip = materials.front().equipment;
     if (mat->Quantity() > 1) {
       mat = mat->Split(1);
     }
@@ -185,6 +202,10 @@ void Mind::StartNewProject() {
           proj->max_qty_, static_cast<uint32_t>(mat->Skill(proj->material_)) / proj->amount_));
     }
     goal->SetPos(pos_t::LIE);
+    if (equip) {
+      mat->Travel(equip);
+      body->Parent()->SendOut(ALL, 0, u8";s throws it into ;s.\n", u8"", body, equip);
+    }
   }
 }
 
@@ -200,12 +221,15 @@ void Mind::ContinueWorkOn(Object* project) {
       project->Travel(project->Room());
       delete old_proj;
     }
+    if (project->Parent() != body->Room()) {
+      project->Travel(body->Room());
+    }
     body->AddAct(act_t::WORK);
     project->AddAct(act_t::SPECIAL_OWNER, body->Room());
     body->Parent()->SendOut(
         ALL,
         0,
-        u8";s compeletes {} and places it with the rest of the wares.\n",
+        u8";s completes {} and places it with the rest of the wares.\n",
         u8"",
         body,
         nullptr,
