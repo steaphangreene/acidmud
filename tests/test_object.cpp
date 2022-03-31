@@ -636,3 +636,50 @@ TEST_CASE("Object Money", "[money]") {
 
   destroy_universe();
 }
+
+TEST_CASE("Object Quantity", "[object]") {
+  init_universe();
+  REQUIRE(Object::Universe() != nullptr);
+
+  // Note: Each must have a different ShortDesc to avoid being auto-combined.
+  auto world = new Object(Object::Universe());
+  world->SetShortDesc(u8"world");
+  auto zone = new Object(world);
+  zone->SetShortDesc(u8"zone");
+  auto room = new Object(zone);
+  room->SetShortDesc(u8"room");
+  auto obj = new Object(room);
+  obj->SetShortDesc(u8"obj");
+  auto item1 = new Object(obj);
+  item1->SetShortDesc(u8"item1");
+  REQUIRE(item1->Quantity() == 1);
+  auto item2 = new Object(obj);
+  item2->SetShortDesc(u8"item2");
+  item2->SetQuantity(4);
+  REQUIRE(item2->Quantity() == 4);
+  auto item3 = item2->Split(2);
+  REQUIRE(item2->Quantity() == 2);
+  REQUIRE(item3->Quantity() == 2);
+  item3->TryCombine();
+  REQUIRE(item3->Quantity() == 4);
+  REQUIRE(item2->Parent() == Object::TrashBin());
+  auto item4 = new Object(obj);
+  item4->SetShortDesc(u8"item2");
+  REQUIRE(item4->Quantity() == 1);
+  item3->TryCombine();
+  REQUIRE(item3->Quantity() == 5);
+  REQUIRE(item4->Parent() == Object::TrashBin());
+  auto item5 = item3->Split(1);
+  REQUIRE(item3->Quantity() == 4);
+  REQUIRE(item5->Quantity() == 1);
+  auto item6 = item3->Split(3);
+  REQUIRE(item3->Quantity() == 1);
+  REQUIRE(item6->Quantity() == 3);
+  item6->TryCombine();
+  item6->TryCombine(); // FIXME: Running Twice Should Not Be Required
+  REQUIRE(item6->Quantity() == 5);
+  REQUIRE(item3->Parent() == Object::TrashBin());
+  REQUIRE(item5->Parent() == Object::TrashBin());
+
+  destroy_universe();
+}
