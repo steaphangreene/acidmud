@@ -115,16 +115,17 @@ static_assert(act_save[std::to_underlying(act_t::SPECIAL_WORK)] == u8"SPECIAL_WO
 static_assert(act_save[std::to_underlying(act_t::SPECIAL_OWNER)] == u8"SPECIAL_OWNER");
 static_assert(act_save[std::to_underlying(act_t::SPECIAL_ACTEE)] == u8"SPECIAL_ACTEE");
 
-static act_t act_load(const std::u8string_view& str) {
-  static std::map<std::u8string_view, act_t> act_load_map;
-  if (act_load_map.size() < 1) {
-    for (act_t a = act_t::NONE; a != act_t::MAX; ++a) {
-      act_load_map[act_save[std::to_underlying(a)]] = a;
+template <typename T>
+static T enum_load(const std::u8string_view& str, const auto& enum_save) {
+  static std::map<std::u8string_view, T> load_map;
+  if (load_map.size() < 1) {
+    for (T a = T::NONE; a != T::MAX; ++a) {
+      load_map[enum_save[std::to_underlying(a)]] = a;
     }
   }
-  if (act_load_map.count(str) < 1)
-    return act_t::NONE;
-  return act_load_map[str];
+  if (load_map.count(str) < 1)
+    return T::NONE;
+  return load_map[str];
 }
 
 static std::vector<Object*> todo;
@@ -434,7 +435,7 @@ int Object::LoadFrom(std::u8string_view& fl) {
     auto acts = getuntil(fl, ';');
     int onum = nextnum(fl);
     skipspace(fl);
-    act_t a = act_load(acts);
+    act_t a = enum_load<act_t>(acts, act_save);
     if (a != act_t::SPECIAL_ACTEE && a != act_t::NONE) {
       AddAct(a, getbynum(onum));
     }
