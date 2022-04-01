@@ -78,7 +78,10 @@ enum channel_t {
   CHANNEL_ROLLS,
 };
 
-enum class pos_t : uint8_t { NONE = 0, LIE, SIT, STAND, USE, MAX };
+// Changing these requires change to:
+// * pos_str: in object.cpp
+// * pos_save: in object_acid.cpp
+enum class pos_t : uint8_t { NONE = 0, LIE, SIT, PROP, STAND, USE, MAX };
 inline void operator++(pos_t& p) {
   p = static_cast<pos_t>(std::to_underlying(p) + 1);
 };

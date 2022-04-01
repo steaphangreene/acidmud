@@ -44,6 +44,7 @@ static constexpr std::u8string_view pos_save[] = {
     u8"NONE",
     u8"LIE",
     u8"SIT",
+    u8"PROP",
     u8"STAND",
     u8"USE",
     // u8"MAX"
@@ -54,6 +55,7 @@ static_assert(std::size(pos_save) == std::to_underlying(pos_t::MAX));
 static_assert(pos_save[std::to_underlying(pos_t::NONE)] == u8"NONE");
 static_assert(pos_save[std::to_underlying(pos_t::LIE)] == u8"LIE");
 static_assert(pos_save[std::to_underlying(pos_t::SIT)] == u8"SIT");
+static_assert(pos_save[std::to_underlying(pos_t::PROP)] == u8"PROP");
 static_assert(pos_save[std::to_underlying(pos_t::STAND)] == u8"STAND");
 static_assert(pos_save[std::to_underlying(pos_t::USE)] == u8"USE");
 

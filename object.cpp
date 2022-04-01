@@ -45,6 +45,7 @@ const std::u8string pos_str[] = {
     u8"is here",
     u8"is lying here",
     u8"is sitting here",
+    u8"is propped up here",
     u8"is standing here",
     u8"is using a skill",
 };
