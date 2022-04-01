@@ -67,10 +67,10 @@ const std::u8string act_str[] = {
     u8"wearing {0}",    u8"wearing_{0}",   u8"SPECIAL_MONITOR",
     u8"SPECIAL_LINKED", u8"SPECIAL_HOME",  u8"SPECIAL_WORK",
     u8"SPECIAL_OWNER",  u8"SPECIAL_ACTEE",
-    //"SPECIAL_MAX"
+    //"MAX"
 };
 // Check if there are too few/many items (forgot to add/remove one here?) in the above list.
-static_assert(std::size(act_str) == std::to_underlying(act_t::SPECIAL_MAX));
+static_assert(std::size(act_str) == std::to_underlying(act_t::MAX));
 
 static Object* universe = nullptr;
 static Object* trash_bin = nullptr;
@@ -872,7 +872,7 @@ Object::Object(const Object& o) {
       AddAct(act_t::HOLD, nobj);
     if (o.ActTarg(act_t::WIELD) == ind)
       AddAct(act_t::WIELD, nobj);
-    for (act_t actt = act_t::WEAR_BACK; actt < act_t::MAX; actt = act_t(int(actt) + 1))
+    for (act_t actt = act_t::WEAR_BACK; actt < act_t::WEAR_MAX; actt = act_t(int(actt) + 1))
       if (o.ActTarg(actt) == ind)
         AddAct(actt, nobj);
   }
@@ -1302,7 +1302,7 @@ void Object::SendContents(std::shared_ptr<Mind> m, Object* o, int vmode, std::u8
   std::set<Object*> master;
   master.insert(cont.begin(), cont.end());
 
-  for (act_t actt = act_t::HOLD; actt < act_t::MAX; actt = act_t(int(actt) + 1)) {
+  for (act_t actt = act_t::HOLD; actt < act_t::WEAR_MAX; actt = act_t(int(actt) + 1)) {
     master.erase(ActTarg(actt)); // Don't show worn/wielded stuff.
   }
 
@@ -1763,9 +1763,9 @@ void Object::SendScore(std::shared_ptr<Mind> m, Object* o) {
 
   if (nmode) {
     for (const auto a : act) {
-      if (a.act() >= act_t::MAX && a.obj()) {
+      if (a.act() >= act_t::NORMAL_MAX && a.obj()) {
         m->Send(CGRN u8"  {} -> {}\n" CNRM, act_str[std::to_underlying(a.act())], a.obj()->Noun());
-      } else if (a.act() >= act_t::MAX) {
+      } else if (a.act() >= act_t::NORMAL_MAX) {
         m->Send(CGRN u8"  {}\n" CNRM, act_str[std::to_underlying(a.act())]);
       }
     }
@@ -2894,10 +2894,10 @@ void Object::NotifyLeft(Object* obj, Object* newloc) {
   std::set<act_t> stops, stops2;
   int following = 0;
   for (auto curact : act) {
-    if (curact.obj() && curact.act() < act_t::MAX &&
+    if (curact.obj() && curact.act() < act_t::NORMAL_MAX &&
         (curact.obj() == obj || obj->HasWithin(curact.obj()))) {
       if (curact.act() != act_t::FOLLOW || (!newloc)) {
-        if (curact.act() < act_t::MAX_SIMPLE && newloc && Room() == newloc->Room()) {
+        if (curact.act() < act_t::SIMPLE_MAX && newloc && Room() == newloc->Room()) {
           // Simple action, and object is still here, don't stop it.
         } else {
           stops.insert(curact.act());
@@ -2906,9 +2906,9 @@ void Object::NotifyLeft(Object* obj, Object* newloc) {
         following = 1; // Run Follow Response AFTER loop!
       }
     }
-    if (curact.act() >= act_t::MAX && (!newloc) && curact.obj() == obj) {
+    if (curact.act() >= act_t::NORMAL_MAX && (!newloc) && curact.obj() == obj) {
       for (auto curact2 : obj->act) {
-        if (curact2.act() >= act_t::MAX) {
+        if (curact2.act() >= act_t::NORMAL_MAX) {
           if (curact2.obj() == this) {
             stops2.insert(curact2.act());
           }
@@ -4530,7 +4530,7 @@ int Object::Power(uint32_t ptok) const {
 }
 
 int Object::Wearing(const Object* obj) const {
-  for (act_t actt = act_t::HOLD; actt < act_t::MAX; ++actt) {
+  for (act_t actt = act_t::HOLD; actt < act_t::WEAR_MAX; ++actt) {
     if (ActTarg(actt) == obj)
       return 1;
   }

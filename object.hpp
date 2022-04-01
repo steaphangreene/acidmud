@@ -97,8 +97,8 @@ enum class act_t : uint8_t {
   FIGHT,
   OFFER,
   HOLD,
-  MAX_SIMPLE,
-  WIELD = MAX_SIMPLE,
+  SIMPLE_MAX,
+  WIELD = SIMPLE_MAX,
   WEAR_BACK,
   WEAR_CHEST,
   WEAR_HEAD,
@@ -123,19 +123,20 @@ enum class act_t : uint8_t {
   WEAR_LHIP,
   WEAR_RHIP,
   WEAR_FACE,
-  MAX,
-  SPECIAL_MONITOR = MAX,
+  WEAR_MAX,
+  NORMAL_MAX = WEAR_MAX,
+  SPECIAL_MONITOR = WEAR_MAX,
   SPECIAL_LINKED,
   SPECIAL_HOME,
   SPECIAL_WORK,
   SPECIAL_OWNER,
   SPECIAL_ACTEE,
-  SPECIAL_MAX
+  MAX
 };
 inline void operator++(act_t& a) {
   a = static_cast<act_t>(std::to_underlying(a) + 1);
 };
-static_assert(std::to_underlying(act_t::SPECIAL_MAX) < 256);
+static_assert(std::to_underlying(act_t::MAX) < 256);
 class act_pair {
  public:
   act_pair() = default;

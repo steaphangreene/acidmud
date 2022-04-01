@@ -67,10 +67,10 @@ static constexpr std::u8string_view act_save[] = {
     u8"WEAR_RLEG",    u8"WEAR_LWRIST",  u8"WEAR_RWRIST",   u8"WEAR_LSHOULDER",  u8"WEAR_RSHOULDER",
     u8"WEAR_LHIP",    u8"WEAR_RHIP",    u8"WEAR_FACE",     u8"SPECIAL_MONITOR", u8"SPECIAL_LINKED",
     u8"SPECIAL_HOME", u8"SPECIAL_WORK", u8"SPECIAL_OWNER", u8"SPECIAL_ACTEE",
-    // u8"SPECIAL_MAX"
+    // u8"MAX"
 };
 // Check if there are too few/many items (forgot to add/remove one here?) in the above list.
-static_assert(std::size(act_save) == std::to_underlying(act_t::SPECIAL_MAX));
+static_assert(std::size(act_save) == std::to_underlying(act_t::MAX));
 // Check everything else too, because we still can't have nice things (static reflection, please?)
 static_assert(act_save[std::to_underlying(act_t::NONE)] == u8"NONE");
 static_assert(act_save[std::to_underlying(act_t::DEAD)] == u8"DEAD");
@@ -118,7 +118,7 @@ static_assert(act_save[std::to_underlying(act_t::SPECIAL_ACTEE)] == u8"SPECIAL_A
 static act_t act_load(const std::u8string_view& str) {
   static std::map<std::u8string_view, act_t> act_load_map;
   if (act_load_map.size() < 1) {
-    for (act_t a = act_t::NONE; a != act_t::SPECIAL_MAX; ++a) {
+    for (act_t a = act_t::NONE; a != act_t::MAX; ++a) {
       act_load_map[act_save[std::to_underlying(a)]] = a;
     }
   }

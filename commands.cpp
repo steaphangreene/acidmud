@@ -3551,7 +3551,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
           mind->Send(u8"{} won't come off!\n", targ->Noun(0, 0, body));
         return 0;
       }
-      for (act_t act = act_t::WEAR_BACK; act < act_t::MAX; act = act_t(int(act) + 1)) {
+      for (act_t act = act_t::WEAR_BACK; act < act_t::WEAR_MAX; act = act_t(int(act) + 1)) {
         if (body->ActTarg(act) == targ) {
           removed = 1;
           break;
