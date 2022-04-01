@@ -252,7 +252,7 @@ class alignas(256) Object {
   };
   DArr64<Object*> Touching() const {
     DArr64<Object*> ret;
-    for (auto o : act) {
+    for (auto o : actions) {
       if (o.act() == act_t::SPECIAL_ACTEE) {
         ret.push_back(o.obj());
       }
@@ -260,22 +260,24 @@ class alignas(256) Object {
     return ret;
   };
   bool IsTouching(Object* other) const {
-    auto itr = act.begin();
-    for (; itr != act.end() && (itr->act() != act_t::SPECIAL_ACTEE || itr->obj() != other); ++itr) {
+    auto itr = actions.begin();
+    for (; itr != actions.end() && (itr->act() != act_t::SPECIAL_ACTEE || itr->obj() != other);
+         ++itr) {
     }
-    return (itr != act.end());
+    return (itr != actions.end());
   };
   void NowTouching(Object* other) {
     if (!IsTouching(other)) {
-      act.push_back(act_pair(act_t::SPECIAL_ACTEE, other));
+      actions.push_back(act_pair(act_t::SPECIAL_ACTEE, other));
     }
   };
   void NotTouching(Object* other) {
-    auto itr = act.begin();
-    for (; itr != act.end() && (itr->act() != act_t::SPECIAL_ACTEE || itr->obj() != other); ++itr) {
+    auto itr = actions.begin();
+    for (; itr != actions.end() && (itr->act() != act_t::SPECIAL_ACTEE || itr->obj() != other);
+         ++itr) {
     }
-    if (itr != act.end()) {
-      act.erase(itr);
+    if (itr != actions.end()) {
+      actions.erase(itr);
     }
   };
 
@@ -548,7 +550,7 @@ class alignas(256) Object {
   void AddAct(act_t a, Object* o = nullptr);
   void StopAct(act_t a);
   bool IsAct(act_t a) const {
-    for (const auto& ac : act) {
+    for (const auto& ac : actions) {
       if (ac.act() == a) {
         return true;
       }
@@ -556,7 +558,7 @@ class alignas(256) Object {
     return false;
   };
   Object* ActTarg(act_t a) const {
-    for (const auto& ac : act) {
+    for (const auto& ac : actions) {
       if (ac.act() == a) {
         return ac.obj();
       }
@@ -721,7 +723,7 @@ class alignas(256) Object {
 
   DArr32<uint32_t> known;
 
-  DArr64<act_pair, 3> act;
+  DArr64<act_pair, 3> actions;
 
   DArr64<skill_pair, 7> skills;
 

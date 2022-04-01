@@ -230,8 +230,8 @@ int Object::SaveTo(outfile& fl) {
 
   fl.append(u8"{}\n", pos_save[std::to_underlying(position)]);
 
-  fl.append(u8"{}\n", (int)(act.size()));
-  for (auto aind : act) {
+  fl.append(u8"{}\n", (int)(actions.size()));
+  for (auto aind : actions) {
     fl.append(u8"{};{}\n", act_save[std::to_underlying(aind.act())], getonum(aind.obj()));
   }
 
@@ -272,7 +272,7 @@ int Object::Load(const std::u8string& fn) {
 
   for (auto ind : todo) {
     std::vector<act_t> killacts;
-    for (auto aind : ind->act) {
+    for (auto aind : ind->actions) {
       if (aind.act() != act_t::SPECIAL_ACTEE) {
         if (aind.obj()) {
           aind.obj()->NowTouching(ind);

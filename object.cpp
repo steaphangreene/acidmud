@@ -839,7 +839,7 @@ Object::Object(const Object& o) {
     descriptions = new_descs;
   }
 
-  act.clear();
+  actions.clear();
   position = o.position;
   cur_skill = o.cur_skill;
 
@@ -1128,7 +1128,7 @@ void Object::SendLongDesc(Object* targ, Object* o) {
 static std::u8string base = u8"";
 
 void Object::SendActions(std::shared_ptr<Mind> m) {
-  for (auto cur : act) {
+  for (auto cur : actions) {
     if (cur.act() < act_t::WEAR_BACK) {
       std::u8string targ;
       std::u8string dirn = u8"";
@@ -1191,7 +1191,7 @@ void Object::SendActions(std::shared_ptr<Mind> m) {
 
 void Object::SendExtendedActions(std::shared_ptr<Mind> m, int vmode) {
   std::map<Object*, std::u8string> shown;
-  for (auto cur : act) {
+  for (auto cur : actions) {
     if ((vmode & (LOC_TOUCH | LOC_HEAT | LOC_NINJA)) == 0 // Can't See/Feel Invis
         && cur.obj() && cur.obj()->Skill(prhash(u8"Invisible")) > 0) {
       continue; // Don't show invisible equip
@@ -1762,7 +1762,7 @@ void Object::SendScore(std::shared_ptr<Mind> m, Object* o) {
   m->Send(u8"\n");
 
   if (nmode) {
-    for (const auto a : act) {
+    for (const auto a : actions) {
       if (a.act() >= act_t::NORMAL_MAX && a.obj()) {
         m->Send(CGRN u8"  {} -> {}\n" CNRM, act_str[std::to_underlying(a.act())], a.obj()->Noun());
       } else if (a.act() >= act_t::NORMAL_MAX) {
@@ -2199,7 +2199,7 @@ void Object::TryCombine() {
 
     // Never combine with a targeted actor/actee... except ownership
     bool actee = false;
-    for (auto a : act) { // Note, includes act_t::SPECIAL_ACTEE
+    for (auto a : actions) { // Note, includes act_t::SPECIAL_ACTEE
       if (a.act() != act_t::SPECIAL_OWNER && a.obj() != nullptr) {
         actee = true;
         break;
@@ -2430,7 +2430,7 @@ void Object::Recycle(int inbin) {
     parent = nullptr;
   }
 
-  auto acts = act;
+  auto acts = actions;
   for (auto a : acts) {
     if (a.act() != act_t::SPECIAL_ACTEE) {
       StopAct(a.act());
@@ -2440,7 +2440,7 @@ void Object::Recycle(int inbin) {
   auto touches = Touching();
   for (auto touch : touches) {
     bool linked = false;
-    auto other_acts = touch->act;
+    auto other_acts = touch->actions;
     for (auto a : other_acts) {
       if (a.act() != act_t::SPECIAL_ACTEE && a.obj() == this) {
         linked = (linked || a.act() == act_t::SPECIAL_LINKED);
@@ -2793,7 +2793,7 @@ DArr64<Object*> Object::PickObjects(const std::u8string_view& inname, int loc, i
   if (loc & LOC_INTERNAL) {
     auto cont(contents);
 
-    for (auto action : act) {
+    for (auto action : actions) {
       auto ind = std::find(cont.begin(), cont.end(), action.obj());
       if (ind != cont.end()) { // IE: Is action.obj() within cont
         cont.erase(ind);
@@ -2893,7 +2893,7 @@ void Object::NotifyLeft(Object* obj, Object* newloc) {
 
   std::set<act_t> stops, stops2;
   int following = 0;
-  for (auto curact : act) {
+  for (auto curact : actions) {
     if (curact.obj() && curact.act() < act_t::NORMAL_MAX &&
         (curact.obj() == obj || obj->HasWithin(curact.obj()))) {
       if (curact.act() != act_t::FOLLOW || (!newloc)) {
@@ -2907,7 +2907,7 @@ void Object::NotifyLeft(Object* obj, Object* newloc) {
       }
     }
     if (curact.act() >= act_t::NORMAL_MAX && (!newloc) && curact.obj() == obj) {
-      for (auto curact2 : obj->act) {
+      for (auto curact2 : obj->actions) {
         if (curact2.act() >= act_t::NORMAL_MAX) {
           if (curact2.obj() == this) {
             stops2.insert(curact2.act());
@@ -2979,25 +2979,25 @@ void Object::NotifyGone(Object* obj, Object* newloc, int up) {
 
 void Object::AddAct(act_t a, Object* o) {
   StopAct(a);
-  act.push_back(act_pair(a, o));
+  actions.push_back(act_pair(a, o));
   if (o) {
     o->NowTouching(this);
   }
 }
 
 void Object::StopAct(act_t a) {
-  auto itr = act.begin();
-  for (; itr != act.end() && itr->act() != a; ++itr) {
+  auto itr = actions.begin();
+  for (; itr != actions.end() && itr->act() != a; ++itr) {
   }
-  if (itr != act.end()) {
+  if (itr != actions.end()) {
     Object* obj = itr->obj();
-    act.erase(itr);
+    actions.erase(itr);
     if (a == act_t::HOLD && IsAct(act_t::OFFER)) {
       // obj->SendOut(0, 0, u8";s stops offering.\n", u8"", obj, nullptr);
       StopAct(act_t::OFFER);
     }
     if (obj) {
-      for (auto opt : act) {
+      for (auto opt : actions) {
         if (opt.act() != act_t::SPECIAL_ACTEE && opt.obj() == obj) {
           return; // Still touching it, so done
         }
@@ -3008,7 +3008,7 @@ void Object::StopAct(act_t a) {
 }
 
 void Object::StopAll() {
-  auto oldact = act;
+  auto oldact = actions;
   for (auto opt : oldact) {
     if (opt.act() != act_t::SPECIAL_ACTEE) {
       StopAct(opt.act());
@@ -3806,26 +3806,26 @@ bool Object::IsSameAs(const Object& in) const {
   }
 
   // Both must have no acts, or both *only* be owned by the same object
-  if (act.size() != in.act.size()) {
+  if (actions.size() != in.actions.size()) {
     return false;
   }
-  if (act.size() > 1) {
+  if (actions.size() > 1) {
     return false;
   }
   if (contents.size() != 0) {
-    if (act.front().act() != act_t::SPECIAL_OWNER) {
+    if (actions.front().act() != act_t::SPECIAL_OWNER) {
       return false;
     }
-    if (act.front().obj() == this) {
+    if (actions.front().obj() == this) {
       return false;
     }
-    if (act.front().obj() == &in) {
+    if (actions.front().obj() == &in) {
       return false;
     }
-    if (act.front().act() != in.act.front().act()) {
+    if (actions.front().act() != in.actions.front().act()) {
       return false;
     }
-    if (act.front().obj() != in.act.front().obj()) {
+    if (actions.front().obj() != in.actions.front().obj()) {
       return false;
     }
   }
@@ -4212,7 +4212,7 @@ bool Object::LooksLike(const Object* other, int vmode, const Object* viewer) con
     }
   }
 
-  for (const auto a : other->act) {
+  for (const auto a : other->actions) {
     if (a.act() > act_t::NONE && a.act() <= act_t::WIELD) {
       if (!IsAct(a.act())) {
         // Other is doing something visible that I am not.
@@ -4231,7 +4231,7 @@ bool Object::LooksLike(const Object* other, int vmode, const Object* viewer) con
     }
   }
 
-  for (const auto a : act) {
+  for (const auto a : actions) {
     if (a.act() > act_t::NONE && a.act() <= act_t::WIELD) {
       if (!other->IsAct(a.act())) {
         // I am doing something visible that the other is not.
