@@ -40,7 +40,24 @@ const struct {
     {'F', gender_t::FEMALE},
     {'O', gender_t::NEITHER}};
 
-const std::u8string act_save[] = {
+static constexpr std::u8string_view pos_save[] = {
+    u8"NONE",
+    u8"LIE",
+    u8"SIT",
+    u8"STAND",
+    u8"USE",
+    // u8"MAX"
+};
+// Check if there are too few/many items (forgot to add/remove one here?) in the above list.
+static_assert(std::size(pos_save) == std::to_underlying(pos_t::MAX));
+// Check everything else too, because we still can't have nice things (static reflection, please?)
+static_assert(pos_save[std::to_underlying(pos_t::NONE)] == u8"NONE");
+static_assert(pos_save[std::to_underlying(pos_t::LIE)] == u8"LIE");
+static_assert(pos_save[std::to_underlying(pos_t::SIT)] == u8"SIT");
+static_assert(pos_save[std::to_underlying(pos_t::STAND)] == u8"STAND");
+static_assert(pos_save[std::to_underlying(pos_t::USE)] == u8"USE");
+
+static constexpr std::u8string_view act_save[] = {
     u8"NONE",         u8"DEAD",         u8"DYING",         u8"UNCONSCIOUS",     u8"SLEEP",
     u8"REST",         u8"WORK",         u8"HEAL",          u8"POINT",           u8"FOLLOW",
     u8"FIGHT",        u8"OFFER",        u8"HOLD",          u8"WIELD",           u8"WEAR_BACK",
@@ -50,13 +67,56 @@ const std::u8string act_save[] = {
     u8"WEAR_RLEG",    u8"WEAR_LWRIST",  u8"WEAR_RWRIST",   u8"WEAR_LSHOULDER",  u8"WEAR_RSHOULDER",
     u8"WEAR_LHIP",    u8"WEAR_RHIP",    u8"WEAR_FACE",     u8"SPECIAL_MONITOR", u8"SPECIAL_LINKED",
     u8"SPECIAL_HOME", u8"SPECIAL_WORK", u8"SPECIAL_OWNER", u8"SPECIAL_ACTEE",
-    //	"SPECIAL_MAX"
+    // u8"SPECIAL_MAX"
 };
 // Check if there are too few/many items (forgot to add/remove one here?) in the above list.
 static_assert(std::size(act_save) == std::to_underlying(act_t::SPECIAL_MAX));
+// Check everything else too, because we still can't have nice things (static reflection, please?)
+static_assert(act_save[std::to_underlying(act_t::NONE)] == u8"NONE");
+static_assert(act_save[std::to_underlying(act_t::DEAD)] == u8"DEAD");
+static_assert(act_save[std::to_underlying(act_t::DYING)] == u8"DYING");
+static_assert(act_save[std::to_underlying(act_t::UNCONSCIOUS)] == u8"UNCONSCIOUS");
+static_assert(act_save[std::to_underlying(act_t::SLEEP)] == u8"SLEEP");
+static_assert(act_save[std::to_underlying(act_t::REST)] == u8"REST");
+static_assert(act_save[std::to_underlying(act_t::WORK)] == u8"WORK");
+static_assert(act_save[std::to_underlying(act_t::HEAL)] == u8"HEAL");
+static_assert(act_save[std::to_underlying(act_t::POINT)] == u8"POINT");
+static_assert(act_save[std::to_underlying(act_t::FOLLOW)] == u8"FOLLOW");
+static_assert(act_save[std::to_underlying(act_t::FIGHT)] == u8"FIGHT");
+static_assert(act_save[std::to_underlying(act_t::OFFER)] == u8"OFFER");
+static_assert(act_save[std::to_underlying(act_t::HOLD)] == u8"HOLD");
+static_assert(act_save[std::to_underlying(act_t::WEAR_BACK)] == u8"WEAR_BACK");
+static_assert(act_save[std::to_underlying(act_t::WEAR_CHEST)] == u8"WEAR_CHEST");
+static_assert(act_save[std::to_underlying(act_t::WEAR_HEAD)] == u8"WEAR_HEAD");
+static_assert(act_save[std::to_underlying(act_t::WEAR_NECK)] == u8"WEAR_NECK");
+static_assert(act_save[std::to_underlying(act_t::WEAR_COLLAR)] == u8"WEAR_COLLAR");
+static_assert(act_save[std::to_underlying(act_t::WEAR_WAIST)] == u8"WEAR_WAIST");
+static_assert(act_save[std::to_underlying(act_t::WEAR_SHIELD)] == u8"WEAR_SHIELD");
+static_assert(act_save[std::to_underlying(act_t::WEAR_LARM)] == u8"WEAR_LARM");
+static_assert(act_save[std::to_underlying(act_t::WEAR_RARM)] == u8"WEAR_RARM");
+static_assert(act_save[std::to_underlying(act_t::WEAR_LFINGER)] == u8"WEAR_LFINGER");
+static_assert(act_save[std::to_underlying(act_t::WEAR_RFINGER)] == u8"WEAR_RFINGER");
+static_assert(act_save[std::to_underlying(act_t::WEAR_LFOOT)] == u8"WEAR_LFOOT");
+static_assert(act_save[std::to_underlying(act_t::WEAR_RFOOT)] == u8"WEAR_RFOOT");
+static_assert(act_save[std::to_underlying(act_t::WEAR_LHAND)] == u8"WEAR_LHAND");
+static_assert(act_save[std::to_underlying(act_t::WEAR_RHAND)] == u8"WEAR_RHAND");
+static_assert(act_save[std::to_underlying(act_t::WEAR_LLEG)] == u8"WEAR_LLEG");
+static_assert(act_save[std::to_underlying(act_t::WEAR_RLEG)] == u8"WEAR_RLEG");
+static_assert(act_save[std::to_underlying(act_t::WEAR_LWRIST)] == u8"WEAR_LWRIST");
+static_assert(act_save[std::to_underlying(act_t::WEAR_RWRIST)] == u8"WEAR_RWRIST");
+static_assert(act_save[std::to_underlying(act_t::WEAR_LSHOULDER)] == u8"WEAR_LSHOULDER");
+static_assert(act_save[std::to_underlying(act_t::WEAR_RSHOULDER)] == u8"WEAR_RSHOULDER");
+static_assert(act_save[std::to_underlying(act_t::WEAR_LHIP)] == u8"WEAR_LHIP");
+static_assert(act_save[std::to_underlying(act_t::WEAR_RHIP)] == u8"WEAR_RHIP");
+static_assert(act_save[std::to_underlying(act_t::WEAR_FACE)] == u8"WEAR_FACE");
+static_assert(act_save[std::to_underlying(act_t::SPECIAL_LINKED)] == u8"SPECIAL_LINKED");
+static_assert(act_save[std::to_underlying(act_t::SPECIAL_HOME)] == u8"SPECIAL_HOME");
+static_assert(act_save[std::to_underlying(act_t::SPECIAL_WORK)] == u8"SPECIAL_WORK");
+static_assert(act_save[std::to_underlying(act_t::SPECIAL_OWNER)] == u8"SPECIAL_OWNER");
+static_assert(act_save[std::to_underlying(act_t::SPECIAL_ACTEE)] == u8"SPECIAL_ACTEE");
 
-static std::map<std::u8string_view, act_t> act_load_map;
 static act_t act_load(const std::u8string_view& str) {
+  static std::map<std::u8string_view, act_t> act_load_map;
   if (act_load_map.size() < 1) {
     for (act_t a = act_t::NONE; a != act_t::SPECIAL_MAX; ++a) {
       act_load_map[act_save[std::to_underlying(a)]] = a;
