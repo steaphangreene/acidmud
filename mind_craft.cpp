@@ -352,6 +352,7 @@ void Mind::StartNewProject() {
     mat->SetSkill(prhash(u8"Incomplete"), proj->time_);
     mat->SetShortDesc(u8"a piece of work");
     mat->AddAct(act_t::SPECIAL_OWNER, body);
+    mat->SetPosition(pos_t::LIE); // No longer up for sale.
     body->AddAct(act_t::WORK, mat);
 
     Object* goal = new Object(mat);
@@ -397,6 +398,7 @@ void Mind::ContinueWorkOn(Object* project) {
     }
     body->AddAct(act_t::WORK);
     project->AddAct(act_t::SPECIAL_OWNER, body->Room());
+    project->SetPosition(pos_t::PROP); // Put it up for sale.
     project->TryCombine();
     body->Parent()->SendOut(
         ALL,

@@ -89,7 +89,8 @@ int handle_command_shops(
         auto items = body->PickObjects(u8"everything", LOC_NEARBY);
         bool have_stock = false;
         for (auto item : items) {
-          if (item->ActTarg(act_t::SPECIAL_OWNER) == body->Room()) {
+          if (item->ActTarg(act_t::SPECIAL_OWNER) == body->Room() &&
+              item->Position() == pos_t::PROP) {
             have_stock = true;
             size_t price = item->Value();
             if (item->Quantity() > 1) {
@@ -161,7 +162,8 @@ int handle_command_shops(
         size_t price = 0;
         bool all_for_sale = true;
         for (auto item : items) {
-          if (item->ActTarg(act_t::SPECIAL_OWNER) != body->Room()) {
+          if (item->ActTarg(act_t::SPECIAL_OWNER) != body->Room() ||
+              item->Position() != pos_t::PROP) {
             mind->Send(CRED u8" Not For Sale: {}\n" CNRM, item->ShortDesc());
             all_for_sale = false;
           } else {
@@ -247,6 +249,7 @@ int handle_command_shops(
               body,
               item);
           item->StopAct(act_t::SPECIAL_OWNER);
+          item->SetPosition(pos_t::LIE);
           for (auto coin : pay) {
             shpkp->Stash(coin, 0, 1);
           }
@@ -274,6 +277,7 @@ int handle_command_shops(
               body,
               item);
           item->StopAct(act_t::SPECIAL_OWNER);
+          item->SetPosition(pos_t::LIE);
           for (auto coin : pay) {
             shpkp->Stash(coin, 0, 1);
           }
@@ -425,6 +429,7 @@ int handle_command_shops(
               body->StopAct(act_t::HOLD);
             }
             item->AddAct(act_t::SPECIAL_OWNER, body->Room());
+            item->SetPosition(pos_t::LIE); // FIXME: Support Resellers
             item->TryCombine();
           }
           if (!success) {
