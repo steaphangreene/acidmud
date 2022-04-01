@@ -2228,11 +2228,11 @@ bool Mind::TBAVarSub(std::u8string& edit) const {
               val = u8"resting";
             else if (obj->IsAct(act_t::FIGHT))
               val = u8"fighting";
-            else if (obj->Pos() == pos_t::LIE)
+            else if (obj->Position() == pos_t::LIE)
               val = u8"resting";
-            else if (obj->Pos() == pos_t::SIT)
+            else if (obj->Position() == pos_t::SIT)
               val = u8"sitting";
-            else if (obj->Pos() == pos_t::STAND)
+            else if (obj->Position() == pos_t::STAND)
               val = u8"standing";
           }
           obj = nullptr;
@@ -2596,7 +2596,7 @@ bool Mind::TBAVarSub(std::u8string& edit) const {
           is_obj = 0;
         } else if (field == u8"pos(sleeping)") {
           if (obj) {
-            obj->SetPos(pos_t::LIE);
+            obj->SetPosition(pos_t::LIE);
             obj->StopAct(act_t::REST);
             obj->AddAct(act_t::SLEEP);
           }
@@ -2606,7 +2606,7 @@ bool Mind::TBAVarSub(std::u8string& edit) const {
         } else if (field == u8"pos(resting)") {
           if (obj) {
             obj->StopAct(act_t::SLEEP);
-            obj->SetPos(pos_t::SIT);
+            obj->SetPosition(pos_t::SIT);
             obj->AddAct(act_t::REST);
           }
           obj = nullptr;
@@ -2616,7 +2616,7 @@ bool Mind::TBAVarSub(std::u8string& edit) const {
           if (obj) {
             obj->StopAct(act_t::SLEEP);
             obj->StopAct(act_t::REST);
-            obj->SetPos(pos_t::SIT);
+            obj->SetPosition(pos_t::SIT);
           }
           obj = nullptr;
           val = u8"";
@@ -2625,7 +2625,7 @@ bool Mind::TBAVarSub(std::u8string& edit) const {
           if (obj) {
             obj->StopAct(act_t::SLEEP);
             obj->StopAct(act_t::REST);
-            obj->SetPos(pos_t::STAND);
+            obj->SetPosition(pos_t::STAND);
           }
           obj = nullptr;
           val = u8"";
@@ -2634,7 +2634,7 @@ bool Mind::TBAVarSub(std::u8string& edit) const {
           if (obj) {
             obj->StopAct(act_t::SLEEP);
             obj->StopAct(act_t::REST);
-            obj->SetPos(pos_t::STAND);
+            obj->SetPosition(pos_t::STAND);
           }
           obj = nullptr;
           val = u8"";

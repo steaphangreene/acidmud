@@ -139,7 +139,7 @@ static void init_coins() {
   coin_objs.back()->SetVolume(0);
   coin_objs.back()->SetValue(10000);
   coin_objs.back()->SetSize(0);
-  coin_objs.back()->SetPos(pos_t::LIE);
+  coin_objs.back()->SetPosition(pos_t::LIE);
   coin_objs.back()->SetSkill(prhash(u8"Money"), 10000);
 
   coin_objs.push_back(new Object());
@@ -149,7 +149,7 @@ static void init_coins() {
   coin_objs.back()->SetVolume(0);
   coin_objs.back()->SetValue(1000);
   coin_objs.back()->SetSize(0);
-  coin_objs.back()->SetPos(pos_t::LIE);
+  coin_objs.back()->SetPosition(pos_t::LIE);
   coin_objs.back()->SetSkill(prhash(u8"Money"), 1000);
 
   coin_objs.push_back(new Object());
@@ -159,7 +159,7 @@ static void init_coins() {
   coin_objs.back()->SetVolume(0);
   coin_objs.back()->SetValue(100);
   coin_objs.back()->SetSize(0);
-  coin_objs.back()->SetPos(pos_t::LIE);
+  coin_objs.back()->SetPosition(pos_t::LIE);
   coin_objs.back()->SetSkill(prhash(u8"Money"), 100);
 
   coin_objs.push_back(new Object());
@@ -169,7 +169,7 @@ static void init_coins() {
   coin_objs.back()->SetVolume(0);
   coin_objs.back()->SetValue(10);
   coin_objs.back()->SetSize(0);
-  coin_objs.back()->SetPos(pos_t::LIE);
+  coin_objs.back()->SetPosition(pos_t::LIE);
   coin_objs.back()->SetSkill(prhash(u8"Money"), 10);
 
   coin_objs.push_back(new Object());
@@ -179,7 +179,7 @@ static void init_coins() {
   coin_objs.back()->SetVolume(0);
   coin_objs.back()->SetValue(1);
   coin_objs.back()->SetSize(0);
-  coin_objs.back()->SetPos(pos_t::LIE);
+  coin_objs.back()->SetPosition(pos_t::LIE);
   coin_objs.back()->SetSkill(prhash(u8"Money"), 1);
 
   coin_objs.push_back(new Object());
@@ -189,7 +189,7 @@ static void init_coins() {
   coin_objs.back()->SetVolume(0);
   coin_objs.back()->SetValue(1);
   coin_objs.back()->SetSize(0);
-  coin_objs.back()->SetPos(pos_t::LIE);
+  coin_objs.back()->SetPosition(pos_t::LIE);
   coin_objs.back()->SetSkill(prhash(u8"Money"), 1);
 }
 
@@ -210,7 +210,7 @@ static void give_coins(Object* npc, size_t amount) {
   bag->SetVolume(1);
   bag->SetValue(100);
 
-  bag->SetPos(pos_t::LIE);
+  bag->SetPosition(pos_t::LIE);
   npc->AddAct(act_t::WEAR_LHIP, bag);
 
   if (coin_objs.empty()) {
@@ -249,7 +249,7 @@ static Object* add_pack(Object* npc) {
   bag->SetVolume(1);
   bag->SetValue(100);
 
-  bag->SetPos(pos_t::LIE);
+  bag->SetPosition(pos_t::LIE);
   npc->AddAct(act_t::WEAR_LSHOULDER, bag);
 
   return bag;
@@ -264,7 +264,7 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
 
   Attach(std::make_shared<Mind>(mind_t::NPC));
   Activate();
-  SetPos(pos_t::STAND);
+  SetPosition(pos_t::STAND);
   for (int a : {0, 1, 2, 3, 4, 5}) {
     SetAttribute(a, rint3(gen, type.min_.v[a], type.max_.v[a]));
   }
@@ -312,7 +312,7 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
     obj->SetSize(rint3(gen, wp.omin_.size, wp.omax_.size));
     obj->SetVolume(rint3(gen, wp.omin_.volume, wp.omax_.volume));
     obj->SetValue(rint3(gen, wp.omin_.value, wp.omax_.value));
-    obj->SetPos(pos_t::LIE);
+    obj->SetPosition(pos_t::LIE);
     AddAct(act_t::WIELD, obj);
     if (two_handed(wp.wtype_)) {
       AddAct(act_t::HOLD, obj);
@@ -353,7 +353,7 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
     obj->SetSize(rint3(gen, ar.omin_.size, ar.omax_.size));
     obj->SetVolume(rint3(gen, ar.omin_.volume, ar.omax_.volume));
     obj->SetValue(rint3(gen, ar.omin_.value, ar.omax_.value));
-    obj->SetPos(pos_t::LIE);
+    obj->SetPosition(pos_t::LIE);
 
     int modenum = 1;
     for (auto mode : ar.loc_) {
@@ -385,7 +385,7 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
       obj->SetSize(rint3(gen, it.omin_.size, it.omax_.size));
       obj->SetVolume(rint3(gen, it.omin_.volume, it.omax_.volume));
       obj->SetValue(rint3(gen, it.omin_.value, it.omax_.value));
-      obj->SetPos(pos_t::LIE);
+      obj->SetPosition(pos_t::LIE);
 
       int modenum = 1;
       for (auto mode : it.loc_) {

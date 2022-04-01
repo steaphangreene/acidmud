@@ -522,8 +522,8 @@ class alignas(256) Object {
 
   int WoundPenalty() const;
 
-  pos_t Pos() const;
-  void SetPos(pos_t p);
+  pos_t Position() const;
+  void SetPosition(pos_t p);
   std::u8string PosString() const;
   void StartUsing(uint32_t skill);
   void StopUsing();

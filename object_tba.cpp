@@ -187,7 +187,7 @@ static void init_gold() {
   gold->SetVolume(0);
   gold->SetValue(1);
   gold->SetSize(0);
-  gold->SetPos(pos_t::LIE);
+  gold->SetPosition(pos_t::LIE);
   gold->SetSkill(prhash(u8"Money"), 1);
 }
 
@@ -763,7 +763,7 @@ void Object::TBALoadMOB(const std::u8string& fn) {
       }
       // loge(u8"Loaded TBA Mobile with LongDesc = {}\n", buf);
 
-      obj->SetPos(pos_t::STAND);
+      obj->SetPosition(pos_t::STAND);
       obj->SetAttribute(0, 3);
       obj->SetAttribute(1, 3);
       obj->SetAttribute(2, 3);
@@ -884,13 +884,13 @@ void Object::TBALoadMOB(const std::u8string& fn) {
         val3 = nextnum(mud);
         skipspace(mud);
         if (val == 4) { // Mob Starts off Sleeping
-          obj->SetPos(pos_t::LIE);
+          obj->SetPosition(pos_t::LIE);
           obj->AddAct(act_t::SLEEP);
         } else if (val == 5) { // Mob Starts off Resting
-          obj->SetPos(pos_t::SIT);
+          obj->SetPosition(pos_t::SIT);
           obj->AddAct(act_t::REST);
         } else if (val == 6) { // Mob Starts off Sitting
-          obj->SetPos(pos_t::SIT);
+          obj->SetPosition(pos_t::SIT);
         }
 
         static gender_t genderlist[] = {gender_t::NONE, gender_t::MALE, gender_t::FEMALE};
@@ -1297,7 +1297,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       flags = tba_bitvec(getgraph(mud));
       getuntil(mud, '\n');
       if (flags & 1) { // TAKE
-        obj->SetPos(pos_t::LIE);
+        obj->SetPosition(pos_t::LIE);
       }
 
       int sf = 0;

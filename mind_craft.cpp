@@ -372,7 +372,7 @@ void Mind::StartNewProject() {
       goal->SetQuantity(std::min(
           proj->max_qty_, static_cast<uint32_t>(mat->Skill(proj->material_)) / proj->amount_));
     }
-    goal->SetPos(pos_t::LIE);
+    goal->SetPosition(pos_t::LIE);
     if (equip) {
       mat->Travel(equip);
       body->Parent()->SendOut(ALL, 0, u8";s throws it into ;s.\n", u8"", body, equip);

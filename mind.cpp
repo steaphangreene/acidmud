@@ -395,7 +395,7 @@ bool Mind::Think(int istick) {
       if (time > day / 4 - early && time < 3 * day / 4 + late) {
         if (body->Room() != body->Parent()) { // Get out of bed?
           handle_command(body, u8"wake;stand;leave");
-        } else if (body->Pos() == pos_t::LIE) {
+        } else if (body->Position() == pos_t::LIE) {
           handle_command(body, u8"wake;stand");
         } else if (body->ActTarg(act_t::WORK)) {
           auto project = body->ActTarg(act_t::WORK);
@@ -422,7 +422,7 @@ bool Mind::Think(int istick) {
                 body->Room()->DirectionsTo(body->ActTarg(act_t::SPECIAL_HOME)->Room(), body);
             svars[u8"path"] = path;
           }
-        } else if (body->Pos() != pos_t::LIE) {
+        } else if (body->Position() != pos_t::LIE) {
           if (body->Room() != body->ActTarg(act_t::SPECIAL_HOME)) { // Need to get in bed?
             handle_command(
                 body,
@@ -446,7 +446,7 @@ bool Mind::Think(int istick) {
       } else {
         if (body->Room() != body->Parent()) { // Get out of bed?
           handle_command(body, u8"wake;stand;leave");
-        } else if (body->Pos() != pos_t::STAND) {
+        } else if (body->Position() != pos_t::STAND) {
           handle_command(body, u8"wake;stand");
         }
       }

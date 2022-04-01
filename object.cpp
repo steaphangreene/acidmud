@@ -358,7 +358,7 @@ Object* new_body(Object* world) {
   body->SetSkill(prhash(u8"Status Points"), 6);
   body->SetSkill(prhash(u8"Invisible"), 1000);
 
-  body->SetPos(pos_t::STAND);
+  body->SetPosition(pos_t::STAND);
 
   body->Activate();
 
@@ -378,7 +378,7 @@ Object* new_body(Object* world) {
   bag->SetVolume(2);
   bag->SetValue(10);
 
-  bag->SetPos(pos_t::LIE);
+  bag->SetPosition(pos_t::LIE);
 
   body->AddAct(act_t::WEAR_LSHOULDER, bag);
 
@@ -523,7 +523,7 @@ int Object::Tick() {
 
       corpse->SetShortDesc(u8"an unidentifiable corpse");
       corpse->SetDesc(u8"A pile of rotting remains.");
-      corpse->SetPos(pos_t::LIE);
+      corpse->SetPosition(pos_t::LIE);
 
       corpse->SetSkill(prhash(u8"Perishable"), 1);
       corpse->SetSkill(prhash(u8"Rot"), 1);
@@ -539,9 +539,9 @@ int Object::Tick() {
 
       for (auto con : todropfrom) {
         for (auto item : con->contents) {
-          if (item->contents.size() > 0 && item->Pos() == pos_t::NONE) {
+          if (item->contents.size() > 0 && item->Position() == pos_t::NONE) {
             todropfrom.push_back(item);
-          } else if (item->Pos() != pos_t::NONE) { // Fixed items can't be dropped!
+          } else if (item->Position() != pos_t::NONE) { // Fixed items can't be dropped!
             todrop.insert(item);
           }
         }
@@ -1317,7 +1317,7 @@ void Object::SendContents(std::shared_ptr<Mind> m, Object* o, int vmode, std::u8
           if ((vmode & (LOC_TOUCH | LOC_HEAT)) == 0)
             continue;
           // Can't see it, and it's mobile, so can't feel it
-          if ((vmode & LOC_TOUCH) == 0 && ind->Pos() > pos_t::SIT)
+          if ((vmode & LOC_TOUCH) == 0 && ind->Position() > pos_t::SIT)
             continue;
         }
         if (ind->Skill(prhash(u8"Hidden")) > 0)
@@ -1687,7 +1687,7 @@ void Object::SendScore(std::shared_ptr<Mind> m, Object* o) {
           stru <= 8 ? ' ' : 'X',
           stru <= 9 ? ' ' : 'X');
     } else if (ctr == 5) {
-      if (Pos() == pos_t::NONE) {
+      if (Position() == pos_t::NONE) {
         m->Send(
             u8"  Qty: {}, Zone Coords: ({},{},{})  Value: {}\n",
             quantity,
@@ -3094,7 +3094,7 @@ void Object::UpdateDamage() {
         Detach(mnd);
       }
     }
-    SetPos(pos_t::LIE);
+    SetPosition(pos_t::LIE);
   } else if (phys >= 10) {
     if (IsAct(act_t::DYING) + IsAct(act_t::DEAD) == 0) {
       parent->SendOut(
@@ -3113,7 +3113,7 @@ void Object::UpdateDamage() {
       StopAct(act_t::DEAD);
       AddAct(act_t::DYING);
     }
-    SetPos(pos_t::LIE);
+    SetPosition(pos_t::LIE);
   } else if (stun >= 10) {
     if (IsAct(act_t::UNCONSCIOUS) + IsAct(act_t::DYING) + IsAct(act_t::DEAD) == 0) {
       parent->SendOut(
@@ -3132,7 +3132,7 @@ void Object::UpdateDamage() {
       StopAct(act_t::DYING);
       AddAct(act_t::UNCONSCIOUS);
     }
-    SetPos(pos_t::LIE);
+    SetPosition(pos_t::LIE);
   } else if (stun > 0) {
     if (IsAct(act_t::DEAD) + IsAct(act_t::DYING) + IsAct(act_t::UNCONSCIOUS) != 0) {
       parent->SendOut(
@@ -3471,7 +3471,7 @@ void Object::SendOut(
   for (auto ind : contents) {
     if (ind->Skill(prhash(u8"Open")) || ind->Skill(prhash(u8"Transparent")))
       ind->SendOut(tnum, rsucc, mes, youmes, actor, targ, false);
-    else if (ind->Pos() != pos_t::NONE) // FIXME - Understand Transparency
+    else if (ind->Position() != pos_t::NONE) // FIXME - Understand Transparency
       ind->SendOut(tnum, rsucc, mes, youmes, actor, targ, false);
   }
 
@@ -3536,7 +3536,7 @@ void start_universe() {
       Object* autoninja = new Object(universe);
       autoninja->SetShortDesc(u8"The AutoNinja");
       autoninja->SetDesc(u8"The AutoNinja - you should NEVER see this!");
-      autoninja->SetPos(pos_t::STAND);
+      autoninja->SetPosition(pos_t::STAND);
 
       Player* anp = new Player(u8"AutoNinja", u8"AutoNinja");
       anp->Set(PLAYER_SUPERNINJA);
@@ -3911,9 +3911,9 @@ DArr64<Object*, 3> Object::Contents(int vmode) const {
       if ((vmode & (LOC_HEAT | LOC_TOUCH)) == 0 && item->Skill(prhash(u8"Invisible"))) {
         continue;
       }
-      if ((vmode & LOC_FIXED) && item->Pos() != pos_t::NONE)
+      if ((vmode & LOC_FIXED) && item->Position() != pos_t::NONE)
         continue;
-      if ((vmode & LOC_NOTFIXED) && item->Pos() == pos_t::NONE)
+      if ((vmode & LOC_NOTFIXED) && item->Position() == pos_t::NONE)
         continue;
       ret.push_back(item);
     }
@@ -4166,11 +4166,11 @@ int Object::IsUsing(uint32_t skill) const {
   return (skill == cur_skill);
 }
 
-pos_t Object::Pos() const {
+pos_t Object::Position() const {
   return pos;
 }
 
-void Object::SetPos(pos_t p) {
+void Object::SetPosition(pos_t p) {
   if (pos == pos_t::USE && p != pos_t::USE)
     StopUsing();
   pos = p;
@@ -4191,7 +4191,7 @@ bool Object::Filter(int loc) const {
 bool Object::LooksLike(const Object* other, int vmode, const Object* viewer) const {
   if (Noun(false, true, viewer) != other->Noun(false, true, viewer))
     return false;
-  if (Pos() != other->Pos())
+  if (Position() != other->Position())
     return false;
   if (Using() != other->Using())
     return false;

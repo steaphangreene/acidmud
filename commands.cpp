@@ -1139,48 +1139,48 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       }
     }
     if ((comlist[cnum].sit & (SIT_STAND | SIT_USE)) == (SIT_STAND | SIT_USE)) {
-      if (body->Pos() != pos_t::STAND && body->Pos() != pos_t::USE) {
+      if (body->Position() != pos_t::STAND && body->Position() != pos_t::USE) {
         if (mind)
           mind->Send(u8"You must stand up to use that command.\n");
         handle_single_command(body, u8"stand", mind);
-        if (body->Pos() != pos_t::STAND && body->Pos() != pos_t::USE)
+        if (body->Position() != pos_t::STAND && body->Position() != pos_t::USE)
           return 0;
       }
     } else if ((comlist[cnum].sit & (SIT_STAND | SIT_SIT)) == (SIT_STAND | SIT_SIT)) {
-      if (body->Pos() == pos_t::USE) {
+      if (body->Position() == pos_t::USE) {
         if (mind)
           mind->Send(u8"You must stop using this skill to do that.\n");
         handle_single_command(body, u8"stop", mind);
-        if (body->Pos() != pos_t::STAND)
+        if (body->Position() != pos_t::STAND)
           return 0;
-      } else if (body->Pos() != pos_t::SIT && body->Pos() != pos_t::STAND) {
+      } else if (body->Position() != pos_t::SIT && body->Position() != pos_t::STAND) {
         if (mind)
           mind->Send(u8"You must at least sit up to use that command.\n");
         handle_single_command(body, u8"sit", mind);
-        if (body->Pos() != pos_t::SIT && body->Pos() != pos_t::STAND)
+        if (body->Position() != pos_t::SIT && body->Position() != pos_t::STAND)
           return 0;
       }
     } else if (comlist[cnum].sit & SIT_STAND) {
-      if (body->Pos() == pos_t::USE) {
+      if (body->Position() == pos_t::USE) {
         if (mind)
           mind->Send(u8"You must stop using this skill to do that.\n");
         handle_single_command(body, u8"stop", mind);
-        if (body->Pos() != pos_t::STAND)
+        if (body->Position() != pos_t::STAND)
           return 0;
-      } else if (body->Pos() != pos_t::STAND) {
+      } else if (body->Position() != pos_t::STAND) {
         if (mind)
           mind->Send(u8"You must stand up to use that command.\n");
         handle_single_command(body, u8"stand", mind);
-        if (body->Pos() != pos_t::STAND)
+        if (body->Position() != pos_t::STAND)
           return 0;
       }
     }
     if (comlist[cnum].sit & SIT_SIT) {
-      if (body->Pos() != pos_t::SIT) {
+      if (body->Position() != pos_t::SIT) {
         if (mind)
           mind->Send(u8"You must sit to use that command.\n");
         handle_single_command(body, u8"sit", mind);
-        if (body->Pos() != pos_t::SIT)
+        if (body->Position() != pos_t::SIT)
           return 0;
       }
     }
@@ -1924,7 +1924,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
 
     stealth_t = 0;
     stealth_s = 0;
-    if (body->Pos() == pos_t::USE && (!body->IsUsing(prhash(u8"Perception")))) {
+    if (body->Position() == pos_t::USE && (!body->IsUsing(prhash(u8"Perception")))) {
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,
@@ -2951,7 +2951,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       }
     }
 
-    if (targ->Pos() == pos_t::NONE) {
+    if (targ->Position() == pos_t::NONE) {
       if (mind)
         mind->Send(u8"You can't drag {}, it is fixed in place!\n", targ->Noun());
     } else if (targ->IsAnimate()) {
@@ -3011,7 +3011,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
         }
       }
 
-      if ((!nmode) && targ->Pos() == pos_t::NONE) {
+      if ((!nmode) && targ->Position() == pos_t::NONE) {
         if (mind)
           mind->Send(u8"You can't get {}, it is fixed in place!\n", targ->Noun());
       } else if ((!nmode) && targ->IsAnimate()) {
@@ -4092,8 +4092,8 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       return 0;
     }
     int lied = 0;
-    if (body->Pos() != pos_t::LIE) {
-      body->SetPos(pos_t::LIE);
+    if (body->Position() != pos_t::LIE) {
+      body->SetPosition(pos_t::LIE);
       lied = 1;
     }
     if (body->ActTarg(act_t::WIELD)) {
@@ -4163,14 +4163,14 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
           u8"You wake up and start resting.\n",
           body,
           nullptr);
-    } else if (body->Pos() == pos_t::LIE || body->Pos() == pos_t::SIT) {
+    } else if (body->Position() == pos_t::LIE || body->Position() == pos_t::SIT) {
       body->AddAct(act_t::REST);
       body->Parent()->SendOut(
           stealth_t, stealth_s, u8";s starts resting.\n", u8"You start resting.\n", body, nullptr);
     } else {
       body->AddAct(act_t::REST);
-      if (body->Pos() != pos_t::LIE)
-        body->SetPos(pos_t::SIT);
+      if (body->Position() != pos_t::LIE)
+        body->SetPosition(pos_t::SIT);
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,
@@ -4194,11 +4194,11 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
   }
 
   if (cnum == COM_STAND) {
-    if (body->Pos() == pos_t::STAND || body->Pos() == pos_t::USE) {
+    if (body->Position() == pos_t::STAND || body->Position() == pos_t::USE) {
       if (mind)
         mind->Send(u8"But you are already standing!\n");
     } else if (body->IsAct(act_t::SLEEP)) {
-      body->SetPos(pos_t::STAND);
+      body->SetPosition(pos_t::STAND);
       body->StopAct(act_t::SLEEP);
       body->Parent()->SendOut(
           stealth_t,
@@ -4209,7 +4209,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
           nullptr);
     } else if (body->IsAct(act_t::REST)) {
       body->StopAct(act_t::REST);
-      body->SetPos(pos_t::STAND);
+      body->SetPosition(pos_t::STAND);
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,
@@ -4218,7 +4218,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
           body,
           nullptr);
     } else {
-      body->SetPos(pos_t::STAND);
+      body->SetPosition(pos_t::STAND);
       body->Parent()->SendOut(
           stealth_t, stealth_s, u8";s stands up.\n", u8"You stand up.\n", body, nullptr);
     }
@@ -4226,12 +4226,12 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
   }
 
   if (cnum == COM_SIT) {
-    if (body->Pos() == pos_t::SIT) {
+    if (body->Position() == pos_t::SIT) {
       if (mind)
         mind->Send(u8"But you are already sitting!\n");
     } else if (body->IsAct(act_t::SLEEP)) {
       body->StopAct(act_t::SLEEP);
-      body->SetPos(pos_t::SIT);
+      body->SetPosition(pos_t::SIT);
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,
@@ -4239,12 +4239,12 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
           u8"You awaken and sit up.\n",
           body,
           nullptr);
-    } else if (body->Pos() == pos_t::LIE) {
-      body->SetPos(pos_t::SIT);
+    } else if (body->Position() == pos_t::LIE) {
+      body->SetPosition(pos_t::SIT);
       body->Parent()->SendOut(
           stealth_t, stealth_s, u8";s sits up.\n", u8"You sit up.\n", body, nullptr);
     } else {
-      body->SetPos(pos_t::SIT);
+      body->SetPosition(pos_t::SIT);
       body->Parent()->SendOut(
           stealth_t, stealth_s, u8";s sits down.\n", u8"You sit down.\n", body, nullptr);
     }
@@ -4263,11 +4263,11 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
   }
 
   if (cnum == COM_LIE) {
-    if (body->Pos() == pos_t::LIE) {
+    if (body->Position() == pos_t::LIE) {
       if (mind)
         mind->Send(u8"But you are already lying down!\n");
     } else {
-      body->SetPos(pos_t::LIE);
+      body->SetPosition(pos_t::LIE);
       body->Parent()->SendOut(
           stealth_t, stealth_s, u8";s lies down.\n", u8"You lie down.\n", body, nullptr);
     }
@@ -4406,7 +4406,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       obj->SetSkill(prhash(u8"Light Source"), 10);
       obj->SetSkill(prhash(u8"Temporary"), force);
       obj->Activate();
-      obj->SetPos(pos_t::LIE);
+      obj->SetPosition(pos_t::LIE);
       body->AddAct(act_t::HOLD, obj);
       body->Parent()->SendOut(
           0,
@@ -4477,7 +4477,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
   }
   if (cnum == COM_USE) {
     if (args.empty()) {
-      if (body->Pos() != pos_t::USE) {
+      if (body->Position() != pos_t::USE) {
         mind->Send(u8"You're not using a skill.  Try 'use <skillname>' to start.\n");
       } else {
         body->Parent()->SendOut(
@@ -4488,7 +4488,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
             body,
             nullptr,
             body->UsingString());
-        body->SetPos(pos_t::STAND);
+        body->SetPosition(pos_t::STAND);
         return 2;
       }
       return 0;
@@ -4538,7 +4538,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
           log->SetShortDesc(u8"a log");
           log->SetDesc(u8"a fallen tree.");
           log->SetLongDesc(u8"This is a tree that has recently been cut down.");
-          log->SetPos(pos_t::LIE);
+          log->SetPosition(pos_t::LIE);
           log->SetValue(10);
           log->SetVolume(1000);
           log->SetWeight(220000);
@@ -4568,7 +4568,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
         stealth_s = body->Roll(prhash(u8"Stealth"), 2);
       }
 
-      if (body->Pos() != pos_t::STAND && body->Pos() != pos_t::USE) { // FIXME: Unused
+      if (body->Position() != pos_t::STAND && body->Position() != pos_t::USE) { // FIXME: Unused
         body->Parent()->SendOut(
             stealth_t,
             stealth_s,
@@ -5359,7 +5359,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       weap->SetSkill(prhash(u8"WeaponReach"), 1);
       weap->SetSkill(prhash(u8"Wearable on Right Hip"), 1);
       weap->SetSkill(prhash(u8"Wearable on Left Hip"), 2);
-      weap->SetPos(pos_t::LIE);
+      weap->SetPosition(pos_t::LIE);
       body->AddAct(act_t::WIELD, weap);
 
       auto shi = new Object(body);
@@ -5367,7 +5367,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       shi->SetDesc(u8"This shield has seen better days... but, it was pretty bad back then too.");
       shi->SetSkill(prhash(u8"Wearable on Shield"), 1);
       shi->SetAttribute(0, 1);
-      shi->SetPos(pos_t::LIE);
+      shi->SetPosition(pos_t::LIE);
       body->AddAct(act_t::WEAR_SHIELD, shi);
 
       auto arm = new Object(body);
@@ -5380,7 +5380,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       arm->SetSkill(prhash(u8"Wearable on Left Leg"), 1);
       arm->SetSkill(prhash(u8"Wearable on Right Leg"), 1);
       arm->SetAttribute(0, 1);
-      arm->SetPos(pos_t::LIE);
+      arm->SetPosition(pos_t::LIE);
       body->AddAct(act_t::WEAR_BACK, arm);
       body->AddAct(act_t::WEAR_CHEST, arm);
       body->AddAct(act_t::WEAR_LARM, arm);
@@ -5393,7 +5393,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       helm->SetDesc(u8"This is... armor... probably.");
       helm->SetSkill(prhash(u8"Wearable on Head"), 1);
       helm->SetAttribute(0, 1);
-      helm->SetPos(pos_t::LIE);
+      helm->SetPosition(pos_t::LIE);
       body->AddAct(act_t::WEAR_HEAD, helm);
 
       body->ClearSkill(prhash(u8"Status Points"));
