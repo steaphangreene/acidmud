@@ -425,6 +425,7 @@ int handle_command_shops(
               body->StopAct(act_t::HOLD);
             }
             item->AddAct(act_t::SPECIAL_OWNER, body->Room());
+            item->TryCombine();
           }
           if (!success) {
             if (mind) {

@@ -397,6 +397,7 @@ void Mind::ContinueWorkOn(Object* project) {
     }
     body->AddAct(act_t::WORK);
     project->AddAct(act_t::SPECIAL_OWNER, body->Room());
+    project->TryCombine();
     body->Parent()->SendOut(
         ALL,
         0,
