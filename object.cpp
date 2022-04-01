@@ -2246,7 +2246,6 @@ void Object::TryCombine() {
       }
 
       obj->Recycle();
-      break;
     }
   }
 }

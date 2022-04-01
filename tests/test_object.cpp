@@ -676,7 +676,6 @@ TEST_CASE("Object Quantity", "[object]") {
   REQUIRE(item3->Quantity() == 1);
   REQUIRE(item6->Quantity() == 3);
   item6->TryCombine();
-  item6->TryCombine(); // FIXME: Running Twice Should Not Be Required
   REQUIRE(item6->Quantity() == 5);
   REQUIRE(item3->Parent() == Object::TrashBin());
   REQUIRE(item5->Parent() == Object::TrashBin());
