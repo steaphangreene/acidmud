@@ -53,13 +53,13 @@ const std::u8string act_save[] = {
     //	"SPECIAL_MAX"
 };
 // Check if there are too few/many items (forgot to add/remove one here?) in the above list.
-static_assert(std::size(act_save) == static_cast<uint8_t>(act_t::SPECIAL_MAX));
+static_assert(std::size(act_save) == std::to_underlying(act_t::SPECIAL_MAX));
 
 static std::map<std::u8string_view, act_t> act_load_map;
 static act_t act_load(const std::u8string_view& str) {
   if (act_load_map.size() < 1) {
     for (act_t a = act_t::NONE; a != act_t::SPECIAL_MAX; ++a) {
-      act_load_map[act_save[static_cast<uint8_t>(a)]] = a;
+      act_load_map[act_save[std::to_underlying(a)]] = a;
     }
   }
   if (act_load_map.count(str) < 1)
@@ -167,12 +167,12 @@ int Object::SaveTo(outfile& fl) {
     fl.append(u8"{}\n", getonum(cind));
   }
 
-  uint8_t num8 = static_cast<uint8_t>(pos);
+  uint8_t num8 = std::to_underlying(pos);
   fl.append(u8"{}\n", num8);
 
   fl.append(u8"{}\n", (int)(act.size()));
   for (auto aind : act) {
-    fl.append(u8"{};{}\n", act_save[static_cast<uint8_t>(aind.act())], getonum(aind.obj()));
+    fl.append(u8"{};{}\n", act_save[std::to_underlying(aind.act())], getonum(aind.obj()));
   }
 
   fl.append(u8"\n");

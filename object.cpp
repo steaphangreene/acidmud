@@ -49,7 +49,7 @@ const std::u8string pos_str[] = {
     u8"is using a skill",
 };
 // Check if there are too few/many items (forgot to add/remove one here?) in the above list.
-static_assert(std::size(pos_str) == static_cast<uint8_t>(pos_t::MAX));
+static_assert(std::size(pos_str) == std::to_underlying(pos_t::MAX));
 
 const std::u8string act_str[] = {
     u8"doing nothing",  u8"dead",          u8"bleeding and dying",
@@ -70,7 +70,7 @@ const std::u8string act_str[] = {
     //"SPECIAL_MAX"
 };
 // Check if there are too few/many items (forgot to add/remove one here?) in the above list.
-static_assert(std::size(act_str) == static_cast<uint8_t>(act_t::SPECIAL_MAX));
+static_assert(std::size(act_str) == std::to_underlying(act_t::SPECIAL_MAX));
 
 static Object* universe = nullptr;
 static Object* trash_bin = nullptr;
@@ -1158,7 +1158,7 @@ void Object::SendActions(std::shared_ptr<Mind> m) {
         // Show nothing, already included above.
       } else {
         m->Send(u8", ");
-        m->Send(act_str[static_cast<uint8_t>(cur.act())], targ, dirn, dirp);
+        m->Send(act_str[std::to_underlying(cur.act())], targ, dirn, dirp);
       }
     }
   }
@@ -1701,7 +1701,7 @@ void Object::SendScore(std::shared_ptr<Mind> m, Object* o) {
         m->Send(
             u8"  Qty: {}, Gen: {}, {}.{:03}kg, {}.{:03}m, {}v, {}\n",
             quantity,
-            gens[static_cast<int8_t>(gender)],
+            gens[std::to_underlying(gender)],
             weight / 1000,
             weight % 1000,
             size / 1000,
@@ -1764,10 +1764,9 @@ void Object::SendScore(std::shared_ptr<Mind> m, Object* o) {
   if (nmode) {
     for (const auto a : act) {
       if (a.act() >= act_t::MAX && a.obj()) {
-        m->Send(
-            CGRN u8"  {} -> {}\n" CNRM, act_str[static_cast<uint8_t>(a.act())], a.obj()->Noun());
+        m->Send(CGRN u8"  {} -> {}\n" CNRM, act_str[std::to_underlying(a.act())], a.obj()->Noun());
       } else if (a.act() >= act_t::MAX) {
-        m->Send(CGRN u8"  {}\n" CNRM, act_str[static_cast<uint8_t>(a.act())]);
+        m->Send(CGRN u8"  {}\n" CNRM, act_str[std::to_underlying(a.act())]);
       }
     }
 
@@ -4117,7 +4116,7 @@ std::u8string Object::PosString() const {
   if (pos == pos_t::USE) {
     ret = fmt::format(u8"is {} here", UsingString());
   } else {
-    ret = pos_str[static_cast<uint8_t>(pos)];
+    ret = pos_str[std::to_underlying(pos)];
   }
   return ret;
 }

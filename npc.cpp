@@ -43,7 +43,7 @@ static const std::u8string gen_replace[][5] = {
 
 static std::u8string gender_proc(const std::u8string_view& in, gender_t gender) {
   std::u8string ret(in);
-  int ctr = 0, gen = static_cast<int8_t>(gender) + 1;
+  int ctr = 0, gen = std::to_underlying(gender) + 1;
 
   for (ctr = 0; !gen_replace[ctr][0].empty(); ++ctr) {
     size_t where = ret.find(gen_replace[ctr][0]);

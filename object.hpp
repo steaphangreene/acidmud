@@ -133,9 +133,9 @@ enum class act_t : uint8_t {
   SPECIAL_MAX
 };
 inline void operator++(act_t& a) {
-  a = static_cast<act_t>(static_cast<uint8_t>(a) + 1);
+  a = static_cast<act_t>(std::to_underlying(a) + 1);
 };
-static_assert(static_cast<uint8_t>(act_t::SPECIAL_MAX) < 256);
+static_assert(std::to_underlying(act_t::SPECIAL_MAX) < 256);
 class act_pair {
  public:
   act_pair() = default;
