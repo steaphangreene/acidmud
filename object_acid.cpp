@@ -228,8 +228,7 @@ int Object::SaveTo(outfile& fl) {
     fl.append(u8"{}\n", getonum(cind));
   }
 
-  uint8_t num8 = std::to_underlying(pos);
-  fl.append(u8"{}\n", num8);
+  fl.append(u8"{}\n", pos_save[std::to_underlying(pos)]);
 
   fl.append(u8"{}\n", (int)(act.size()));
   for (auto aind : act) {
@@ -426,7 +425,11 @@ int Object::LoadFrom(std::u8string_view& fl) {
     skipspace(fl);
   }
 
-  pos = static_cast<pos_t>(nextnum(fl));
+  if (ver >= 0x001D) {
+    pos = enum_load<pos_t>(getgraph(fl), pos_save);
+  } else { // Prior to v0x001D, pos was saved as a raw int
+    pos = static_cast<pos_t>(nextnum(fl));
+  }
   skipspace(fl);
 
   num = nextnum(fl);

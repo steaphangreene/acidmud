@@ -79,6 +79,9 @@ enum channel_t {
 };
 
 enum class pos_t : uint8_t { NONE = 0, LIE, SIT, STAND, USE, MAX };
+inline void operator++(pos_t& p) {
+  p = static_cast<pos_t>(std::to_underlying(p) + 1);
+};
 
 // Changing these requires change to:
 // * act_str: in object.cpp
