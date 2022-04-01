@@ -1397,9 +1397,9 @@ void Object::SendContents(std::shared_ptr<Mind> m, Object* o, int vmode, std::u8
         if (ind->parent && ind->parent->Skill(prhash(u8"Container"))) {
           buf = ind->Noun();
         } else if (vmode & LOC_NINJA) {
-          buf = fmt::format(u8"{} {}", ind->Noun(false), ind->PosString());
+          buf = fmt::format(u8"{} {}", ind->Noun(false), ind->PositionString());
         } else {
-          buf = fmt::format(u8"{} {}", ind->Noun(false, true, o), ind->PosString());
+          buf = fmt::format(u8"{} {}", ind->Noun(false, true, o), ind->PositionString());
         }
         buf[0] = ascii_toupper(buf[0]);
         m->Send(buf);
@@ -1538,7 +1538,7 @@ void Object::SendFullSituation(std::shared_ptr<Mind> m, Object* o) {
     if (parent) {
       pname = parent->Noun(false, false, o, Owner());
     }
-    buf = fmt::format(u8"{} {} in {}", Noun(false, false, o), PosString(), pname);
+    buf = fmt::format(u8"{} {} in {}", Noun(false, false, o), PositionString(), pname);
   }
 
   buf[0] = ascii_toupper(buf[0]);
@@ -4111,7 +4111,7 @@ int two_handed(int wtype) {
   return int(thsks.count(wtype));
 }
 
-std::u8string Object::PosString() const {
+std::u8string Object::PositionString() const {
   std::u8string ret;
   if (position == pos_t::USE) {
     ret = fmt::format(u8"is {} here", UsingString());

@@ -524,7 +524,7 @@ class alignas(256) Object {
 
   pos_t Position() const;
   void SetPosition(pos_t p);
-  std::u8string PosString() const;
+  std::u8string PositionString() const;
   void StartUsing(uint32_t skill);
   void StopUsing();
   uint32_t Using() const;
