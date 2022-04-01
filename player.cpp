@@ -23,7 +23,7 @@
 #include <set>
 #include <vector>
 
-#include "md5.hpp"
+#include <md5.hpp>
 
 #include "color.hpp"
 #include "log.hpp"
