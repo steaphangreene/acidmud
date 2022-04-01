@@ -2198,10 +2198,10 @@ void Object::TryCombine() {
     if (obj == this)
       continue; // Skip self
 
-    // Never combine with a targeted actor/actee.
+    // Never combine with a targeted actor/actee... except ownership
     bool actee = false;
     for (auto a : act) { // Note, includes act_t::SPECIAL_ACTEE
-      if (a.obj() != nullptr) {
+      if (a.act() != act_t::SPECIAL_OWNER && a.obj() != nullptr) {
         actee = true;
         break;
       }
@@ -3752,60 +3752,84 @@ std::u8string Object::Tactics(int phase) {
 }
 
 bool Object::IsSameAs(const Object& in) const {
-  if (dlens.sd != in.dlens.sd)
+  if (dlens.sd != in.dlens.sd) {
     return false;
-  if (dlens.n != in.dlens.n)
+  }
+  if (dlens.n != in.dlens.n) {
     return false;
-  if (dlens.d != in.dlens.d)
+  }
+  if (dlens.d != in.dlens.d) {
     return false;
-  if (dlens.ld != in.dlens.ld)
+  }
+  if (dlens.ld != in.dlens.ld) {
     return false;
+  }
   if (std::memcmp(descriptions, in.descriptions, dlens.sd + dlens.n + dlens.d + dlens.ld + 4) !=
       0) {
     return false;
   }
-  if (weight != in.weight)
+  if (weight != in.weight) {
     return false;
-  if (volume != in.volume)
+  }
+  if (volume != in.volume) {
     return false;
-  if (size != in.size)
+  }
+  if (size != in.size) {
     return false;
-  if (value != in.value)
+  }
+  if (value != in.value) {
     return false;
-  if (gender != in.gender)
+  }
+  if (gender != in.gender) {
     return false;
+  }
 
-  if (attr[0] != in.attr[0])
-    return false;
-  if (attr[1] != in.attr[1])
-    return false;
-  if (attr[2] != in.attr[2])
-    return false;
-  if (attr[3] != in.attr[3])
-    return false;
-  if (attr[4] != in.attr[4])
-    return false;
-  if (attr[5] != in.attr[5])
-    return false;
+  for (int a : {0, 1, 2, 3, 4, 5}) {
+    if (attr[a] != in.attr[a]) {
+      return false;
+    }
+  }
 
-  if (phys != in.phys)
+  if (phys != in.phys) {
     return false;
-  if (stun != in.stun)
+  }
+  if (stun != in.stun) {
     return false;
-  if (stru != in.stru)
+  }
+  if (stru != in.stru) {
     return false;
+  }
+  if (pos != in.pos) {
+    return false;
+  }
+  if (minds != in.minds) {
+    return false; // Only no-mind or same-group-minds (FIXME: type:MOB)
+  }
 
-  if (pos != in.pos)
+  // Both must have no acts, or both *only* be owned by the same object
+  if (act.size() != in.act.size()) {
     return false;
-
-  if (minds != in.minds)
-    return false; // Only no-mind or same-group-minds
-
-  if (act.size() != 0 || in.act.size() != 0)
+  }
+  if (act.size() > 1) {
     return false;
-
-  if (contents.size() != 0 || in.contents.size() != 0)
-    return false;
+  }
+  if (contents.size() != 0) {
+    if (act.front().act() != act_t::SPECIAL_OWNER) {
+      return false;
+    }
+    if (act.front().obj() == this) {
+      return false;
+    }
+    if (act.front().obj() == &in) {
+      return false;
+    }
+    if (act.front().act() != in.act.front().act()) {
+      return false;
+    }
+    if (act.front().obj() != in.act.front().obj()) {
+      return false;
+    }
+  }
 
   auto sk1 = skills;
   auto sk2 = in.skills;
@@ -3827,9 +3851,9 @@ bool Object::IsSameAs(const Object& in) const {
   }
   std::sort(sk1.begin(), sk1.end());
   std::sort(sk2.begin(), sk2.end());
-  if (sk1 != sk2)
+  if (sk1 != sk2) {
     return false;
-
+  }
   return true;
 }
 
