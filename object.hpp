@@ -702,7 +702,7 @@ class alignas(256) Object {
 
   int8_t tickstep;
 
-  pos_t pos;
+  pos_t position;
   uint32_t quantity = 1;
 
   DArr32<uint32_t> completed;

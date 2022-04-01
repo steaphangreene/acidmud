@@ -771,7 +771,7 @@ int Object::Tick() {
 
 Object::Object() {
   parent = nullptr;
-  pos = pos_t::NONE;
+  position = pos_t::NONE;
   cur_skill = prhash(u8"None");
 
   weight = 0;
@@ -801,7 +801,7 @@ Object::Object() {
 Object::Object(Object* o) {
   parent = nullptr;
   SetParent(o);
-  pos = pos_t::NONE;
+  position = pos_t::NONE;
   cur_skill = prhash(u8"None");
 
   weight = 0;
@@ -840,7 +840,7 @@ Object::Object(const Object& o) {
   }
 
   act.clear();
-  pos = o.pos;
+  position = o.position;
   cur_skill = o.cur_skill;
 
   weight = o.weight;
@@ -1546,7 +1546,7 @@ void Object::SendFullSituation(std::shared_ptr<Mind> m, Object* o) {
 }
 
 void Object::SendDesc(std::shared_ptr<Mind> m, Object* o) {
-  if (pos != pos_t::NONE) {
+  if (position != pos_t::NONE) {
     m->Send(CCYN);
     SendFullSituation(m, o);
     SendActions(m);
@@ -1568,7 +1568,7 @@ void Object::SendDescSurround(std::shared_ptr<Mind> m, Object* o, int vmode) {
   if (no_seek)
     return;
 
-  if (pos != pos_t::NONE) {
+  if (position != pos_t::NONE) {
     m->Send(CCYN);
     SendFullSituation(m, o);
     SendActions(m);
@@ -1603,7 +1603,7 @@ void Object::SendDescSurround(std::shared_ptr<Mind> m, Object* o, int vmode) {
 }
 
 void Object::SendLongDesc(std::shared_ptr<Mind> m, Object* o) {
-  if (pos != pos_t::NONE) {
+  if (position != pos_t::NONE) {
     m->Send(CCYN);
     SendFullSituation(m, o);
     SendActions(m);
@@ -3026,9 +3026,9 @@ void Object::Collapse() {
   StopAct(act_t::POINT);
   StopAct(act_t::FIGHT);
   if (parent) {
-    if (pos != pos_t::LIE) {
+    if (position != pos_t::LIE) {
       parent->SendOut(ALL, -1, u8";s collapses!\n", u8"You collapse!\n", this, nullptr);
-      pos = pos_t::LIE;
+      position = pos_t::LIE;
     }
     if (ActTarg(act_t::WIELD)) {
       parent->SendOut(
@@ -3798,7 +3798,7 @@ bool Object::IsSameAs(const Object& in) const {
   if (stru != in.stru) {
     return false;
   }
-  if (pos != in.pos) {
+  if (position != in.position) {
     return false;
   }
   if (minds != in.minds) {
@@ -3889,7 +3889,7 @@ void Object::operator=(const Object& in) {
 
   skills = in.skills;
 
-  pos = in.pos;
+  position = in.position;
 
   if (in.IsActive())
     Activate();
@@ -4113,17 +4113,17 @@ int two_handed(int wtype) {
 
 std::u8string Object::PosString() const {
   std::u8string ret;
-  if (pos == pos_t::USE) {
+  if (position == pos_t::USE) {
     ret = fmt::format(u8"is {} here", UsingString());
   } else {
-    ret = pos_str[std::to_underlying(pos)];
+    ret = pos_str[std::to_underlying(position)];
   }
   return ret;
 }
 
 std::u8string Object::UsingString() const {
   std::u8string ret;
-  if (pos == pos_t::USE) {
+  if (position == pos_t::USE) {
     if (cur_skill == prhash(u8"Stealth")) {
       ret = u8"sneaking around";
     } else if (cur_skill == prhash(u8"Perception")) {
@@ -4149,12 +4149,12 @@ std::u8string Object::UsingString() const {
 
 void Object::StartUsing(uint32_t skill) {
   cur_skill = skill;
-  pos = pos_t::USE;
+  position = pos_t::USE;
 }
 
 void Object::StopUsing() {
-  if (pos == pos_t::USE)
-    pos = pos_t::STAND;
+  if (position == pos_t::USE)
+    position = pos_t::STAND;
   cur_skill = prhash(u8"None");
 }
 
@@ -4167,13 +4167,13 @@ int Object::IsUsing(uint32_t skill) const {
 }
 
 pos_t Object::Position() const {
-  return pos;
+  return position;
 }
 
 void Object::SetPosition(pos_t p) {
-  if (pos == pos_t::USE && p != pos_t::USE)
+  if (position == pos_t::USE && p != pos_t::USE)
     StopUsing();
-  pos = p;
+  position = p;
 }
 
 bool Object::Filter(int loc) const {
