@@ -52,7 +52,10 @@ profile: all
 
 #Use code coverage test-run settings
 coverage: CXXFLAGS=-O3 -fprofile-instr-generate -fcoverage-mapping -g3 $(COMP) $(ARCH) $(COPT)
-coverage: tests/tests
+coverage: acidmud.profdata
+	LLVM_PROFILE_FILE=/dev/null tests/tests
+	llvm-cov-13 report --ignore-filename-regex='tests/.*' ./tests/tests -instr-profile=acidmud.profdata | tail -n 1 | cut -c27- | fold -w 40
+acidmud.profdata: tests/tests
 	LLVM_PROFILE_FILE=acidmud.profraw tests/tests
 	llvm-profdata-13 merge -sparse acidmud.profraw -o acidmud.profdata
 
