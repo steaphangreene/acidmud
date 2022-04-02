@@ -357,7 +357,7 @@ int handle_command_shops(
         reason = u8"Sorry, the shopkeeper is unconscious!\n";
       } else if (shpkp->IsAct(act_t::SLEEP)) {
         reason = u8"Sorry, the shopkeeper is asleep!\n";
-      } else {
+      } else if (shpkp->ActTarg(act_t::SPECIAL_WORK) == body->Room() && shpkp->IsAct(act_t::WORK)) {
         price = shpkp->WouldBuyFor(item);
 
         if (price > 0) {
