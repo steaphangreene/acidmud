@@ -246,11 +246,11 @@ TEST_CASE("Test string_view functions", "[string_view]") {
     REQUIRE(input == u8"A4 in a sentence.");
     REQUIRE(word == u8"or 0");
 
-    num = gethex(input);
-    REQUIRE(num == nexthex(input));
+    size_t hexnum = gethex(input);
+    REQUIRE(hexnum == nexthex(input));
     skipspace(input);
     REQUIRE(input == u8"in a sentence.");
-    REQUIRE(num == 164);
+    REQUIRE(hexnum == 0xA4);
 
     word = getuntil(input, '.');
     REQUIRE(input == u8"");
