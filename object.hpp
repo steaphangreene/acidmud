@@ -475,7 +475,7 @@ class alignas(256) Object {
   void Consume(const Object* item); // Eat/Drink/Potions/Poison/etc....
 
   bool IsAnimate() const {
-    return (attr[1] != 0);
+    return (attr[5] != 0);
   };
 
   int NormAttribute(int) const;
