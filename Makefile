@@ -29,7 +29,8 @@ OBJS:=	global.o version.o stats.o net.o player.o npc.o tags.o \
 	object.o object_acid.o object_dynamic.o object_tba.o \
 	commands.o command_shops.o command_ccreate.o command_wload.o \
 	skills.o properties.o infile.o outfile.o log.o utils.o
-TOBJS:=	tests/test_darr.o tests/test_object.o tests/test_utils.o tests/test_enums.o
+TOBJS:=	tests/test_darr.o tests/test_object.o tests/test_utils.o tests/test_enums.o \
+	tests/test_commands.o
 LIBS:=
 COPT:=	-std=c++2b -mbranches-within-32B-boundaries -ferror-limit=2 -stdlib=libc++
 GOPT:=	-std=c++2b
@@ -54,7 +55,7 @@ profile: all
 coverage: CXXFLAGS=-O3 -fprofile-instr-generate -fcoverage-mapping -g3 $(COMP) $(ARCH) $(COPT)
 coverage: acidmud.profdata
 	LLVM_PROFILE_FILE=/dev/null tests/tests
-	llvm-cov-13 report --ignore-filename-regex='tests/.*' ./tests/tests -instr-profile=acidmud.profdata | tail -n 1 | cut -c27- | fold -w 40
+	llvm-cov-13 report --ignore-filename-regex='tests/.*' ./tests/tests -instr-profile=acidmud.profdata | tail -n 1 | sed 's|^TOTAL *|    |' | fold -w 40
 acidmud.profdata: tests/tests
 	LLVM_PROFILE_FILE=acidmud.profraw tests/tests
 	llvm-profdata-13 merge -sparse acidmud.profraw -o acidmud.profdata
