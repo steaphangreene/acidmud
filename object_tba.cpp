@@ -86,9 +86,9 @@ void Object::TBALoadAll() {
     }
   }
   TBACleanup();
-  logeyy(u8"Warning: {} untranslated triggers!\n", untrans_trig);
-  logeyy(u8"Warning: {} tacked-on object aliases!\n", obj_aliases);
-  logeyy(u8"Warning: {} tacked-on mob aliases!\n", mob_aliases);
+  logeyy(u8"Warning: {} untranslated triggers!", untrans_trig);
+  logeyy(u8"Warning: {} tacked-on object aliases!", obj_aliases);
+  logeyy(u8"Warning: {} tacked-on mob aliases!", mob_aliases);
 }
 
 static std::vector<Object*> todotrg;
@@ -162,7 +162,7 @@ void Object::TBAFinalizeTriggers() {
       if (bynumwld.count(rnum) > 0) {
         newtext += std::u8string(u8"teleport ") + bynumwld[rnum]->Noun() + u8"\n";
       } else {
-        loge(u8"Error: Can't find teleport dest: {}\n", rnum);
+        loge(u8"Error: Can't find teleport dest: {}", rnum);
       }
       cur = script.find(u8"teleport [");
     }
@@ -198,7 +198,7 @@ static void clean_string(std::u8string& s) {
   // Also remove N00bScript tags
   size_t n00b = s.find('@');
   while (n00b != std::u8string::npos) {
-    // loge(u8"Step: {}\n", s);
+    // loge(u8"Step: {}", s);
     if (s[n00b + 1] == '@') { //@@ -> @
       s = s.substr(0, n00b) + u8"@" + s.substr(n00b + 2);
       n00b = s.find('@', n00b + 1);
@@ -206,7 +206,7 @@ static void clean_string(std::u8string& s) {
       s = s.substr(0, n00b) + s.substr(n00b + 2);
       n00b = s.find('@', n00b);
     }
-    // if(n00b == std::u8string::npos) loge(u8"Done: {}\n\n", s);
+    // if(n00b == std::u8string::npos) loge(u8"Done: {}", s);
   }
 }
 
@@ -232,7 +232,7 @@ Object* dup_tba_obj(Object* obj) {
     obj2->SetSkill(prhash(u8"Wearable on Right Hand"), 1);
     obj->SetShortDesc((std::u8string(obj->ShortDesc()) + u8" (left)"));
     obj2->SetShortDesc((std::u8string(obj2->ShortDesc()) + u8" (right)"));
-    //    loge(u8"Duped: '{}'\n", obj2->ShortDesc());
+    //    loge(u8"Duped: '{}'", obj2->ShortDesc());
   } else if (
       obj->Skill(prhash(u8"Wearable on Left Foot")) !=
       obj->Skill(prhash(u8"Wearable on Right Foot"))) {
@@ -241,17 +241,17 @@ Object* dup_tba_obj(Object* obj) {
     obj2->SetSkill(prhash(u8"Wearable on Right Foot"), 1);
     obj->SetShortDesc((std::u8string(obj->ShortDesc()) + u8" (left)"));
     obj2->SetShortDesc((std::u8string(obj2->ShortDesc()) + u8" (right)"));
-    //    loge(u8"Duped: '{}'\n", obj2->ShortDesc());
+    //    loge(u8"Duped: '{}'", obj2->ShortDesc());
   } else if (
       obj->Skill(prhash(u8"Wearable on Left Leg")) !=
       obj->Skill(prhash(u8"Wearable on Right Leg"))) {
     obj2 = new Object(*obj);
-    //    loge(u8"Duped: '{}'\n", obj2->ShortDesc());
+    //    loge(u8"Duped: '{}'", obj2->ShortDesc());
   } else if (
       obj->Skill(prhash(u8"Wearable on Left Arm")) !=
       obj->Skill(prhash(u8"Wearable on Right Arm"))) {
     obj2 = new Object(*obj);
-    //    loge(u8"Duped: '{}'\n", obj2->ShortDesc());
+    //    loge(u8"Duped: '{}'", obj2->ShortDesc());
   }
   return obj2;
 }
@@ -286,10 +286,10 @@ void Object::TBAFinishMOB(Object* mob) {
 
   if (mob->Skill(prhash(u8"TBAAttack"))) {
     if (mob->IsAct(act_t::WIELD)) {
-      // loge(u8"Weapon def: {}\n", mob->ActTarg(act_t::WIELD)->Noun());
+      // loge(u8"Weapon def: {}", mob->ActTarg(act_t::WIELD)->Noun());
       if (mob->ActTarg(act_t::WIELD)->Skill(prhash(u8"WeaponType")) == 0) {
         if (!mob->ActTarg(act_t::HOLD)) { // Don't wield non-weapons, hold them
-          logey(u8"Warning: Wielded non-weapon: {}\n", mob->ActTarg(act_t::WIELD)->Noun());
+          logey(u8"Warning: Wielded non-weapon: {}", mob->ActTarg(act_t::WIELD)->Noun());
           mob->AddAct(act_t::HOLD, mob->ActTarg(act_t::WIELD));
           mob->StopAct(act_t::WIELD);
         } else {
@@ -344,7 +344,7 @@ void Object::TBALoadZON(const std::u8string& fn) {
     while (!done) {
       char8_t type = nextchar(mud);
       skipspace(mud);
-      // loge(u8"Processing {} zone directive.\n", type);
+      // loge(u8"Processing {} zone directive.", type);
       switch (type) {
         case ('S'): {
           done = 1;
@@ -450,13 +450,13 @@ void Object::TBALoadZON(const std::u8string& fn) {
               case (1): { // Worn
                 lastmob->AddAct(act_t::WEAR_RFINGER, obj);
                 if (obj->Skill(prhash(u8"Wearable on Right Finger")) == 0) {
-                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}", fn, num, obj->ShortDesc());
                 }
               } break;
               case (2): { // Worn
                 lastmob->AddAct(act_t::WEAR_LFINGER, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Finger")) == 0) {
-                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}", fn, num, obj->ShortDesc());
                 }
               } break;
               case (3): { // TBA MOBs have two necks (1/2)
@@ -481,7 +481,7 @@ void Object::TBALoadZON(const std::u8string& fn) {
               case (4): { // TBA MOBs have two necks (2/2)
                 if (obj->Skill(prhash(u8"Wearable on Collar")) == 0) {
                   if (obj->Skill(prhash(u8"Wearable on Face")) == 0) {
-                    logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
+                    logey(u8"{}[#{}]: Warning: Wear item wrong: {}", fn, num, obj->ShortDesc());
                   } else {
                     if (lastmob->IsAct(act_t::WEAR_FACE))
                       bagit = 1;
@@ -499,13 +499,13 @@ void Object::TBALoadZON(const std::u8string& fn) {
                 lastmob->AddAct(act_t::WEAR_CHEST, obj);
                 lastmob->AddAct(act_t::WEAR_BACK, obj);
                 if (obj->Skill(prhash(u8"Wearable on Chest")) == 0) {
-                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}", fn, num, obj->ShortDesc());
                 }
               } break;
               case (6): { // Worn
                 if (obj->Skill(prhash(u8"Wearable on Head")) == 0) {
                   if (obj->Skill(prhash(u8"Wearable on Face")) == 0) {
-                    logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
+                    logey(u8"{}[#{}]: Warning: Wear item wrong: {}", fn, num, obj->ShortDesc());
                   } else {
                     if (lastmob->IsAct(act_t::WEAR_FACE))
                       bagit = 1;
@@ -523,7 +523,7 @@ void Object::TBALoadZON(const std::u8string& fn) {
                 else
                   lastmob->AddAct(act_t::WEAR_RLEG, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Leg")) == 0) {
-                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}", fn, num, obj->ShortDesc());
                 }
               } break;
               case (8): { // Worn
@@ -533,7 +533,7 @@ void Object::TBALoadZON(const std::u8string& fn) {
                 else
                   lastmob->AddAct(act_t::WEAR_RFOOT, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Foot")) == 0) {
-                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}", fn, num, obj->ShortDesc());
                 }
               } break;
               case (9): { // Worn
@@ -543,7 +543,7 @@ void Object::TBALoadZON(const std::u8string& fn) {
                 else
                   lastmob->AddAct(act_t::WEAR_RHAND, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Hand")) == 0) {
-                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}", fn, num, obj->ShortDesc());
                 }
               } break;
               case (10): { // Worn
@@ -553,44 +553,44 @@ void Object::TBALoadZON(const std::u8string& fn) {
                 else
                   lastmob->AddAct(act_t::WEAR_RARM, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Arm")) == 0) {
-                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}", fn, num, obj->ShortDesc());
                 }
               } break;
               case (11): { // Worn
                 lastmob->AddAct(act_t::WEAR_SHIELD, obj);
                 if (obj->Skill(prhash(u8"Wearable on Shield")) == 0) {
-                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}", fn, num, obj->ShortDesc());
                 }
               } break;
               case (12): { // Worn
                 lastmob->AddAct(act_t::WEAR_LSHOULDER, obj);
                 lastmob->AddAct(act_t::WEAR_RSHOULDER, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Shoulder")) == 0) {
-                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}", fn, num, obj->ShortDesc());
                 }
               } break;
               case (13): { // Worn
                 lastmob->AddAct(act_t::WEAR_WAIST, obj);
                 if (obj->Skill(prhash(u8"Wearable on Waist")) == 0) {
-                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}", fn, num, obj->ShortDesc());
                 }
               } break;
               case (14): { // Worn
                 lastmob->AddAct(act_t::WEAR_RWRIST, obj);
                 if (obj->Skill(prhash(u8"Wearable on Right Wrist")) == 0) {
-                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}", fn, num, obj->ShortDesc());
                 }
               } break;
               case (15): { // Worn
                 lastmob->AddAct(act_t::WEAR_LWRIST, obj);
                 if (obj->Skill(prhash(u8"Wearable on Left Wrist")) == 0) {
-                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}\n", fn, num, obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wear item wrong: {}", fn, num, obj->ShortDesc());
                 }
               } break;
               case (16): { // Wielded
                 lastmob->AddAct(act_t::WIELD, obj);
                 if (obj->Skill(prhash(u8"WeaponType")) == 0) {
-                  logey(u8"{}[#{}]: Warning: Wield non-weapon: {}\n", fn, num, obj->ShortDesc());
+                  logey(u8"{}[#{}]: Warning: Wield non-weapon: {}", fn, num, obj->ShortDesc());
                 }
               } break;
               case (17): { // Held
@@ -672,7 +672,7 @@ void Object::TBALoadMOB(const std::u8string& fn) {
       }
       int onum = nextnum(mud);
       skipspace(mud);
-      // loge(u8"Loaded MOB #{}\n", onum);
+      // loge(u8"Loaded MOB #{}", onum);
 
       Object* obj = new Object(mobroom);
       obj->SetSkill(prhash(u8"TBAMOB"), 1000000 + onum);
@@ -700,7 +700,7 @@ void Object::TBALoadMOB(const std::u8string& fn) {
 
       obj->SetShortDesc(load_tba_field(mud));
       skipspace(mud);
-      // loge(u8"Loaded TBA Mobile with Name = {}\n", buf);
+      // loge(u8"Loaded TBA Mobile with Name = {}", buf);
 
       std::u8string label = u8"";
       for (unsigned int actr = 0; actr < aliases.size(); ++actr) {
@@ -749,7 +749,7 @@ void Object::TBALoadMOB(const std::u8string& fn) {
 
       obj->SetDesc(load_tba_field(mud));
       skipspace(mud);
-      // loge(u8"Loaded TBA Mobile with Desc = {}\n", buf);
+      // loge(u8"Loaded TBA Mobile with Desc = {}", buf);
 
       auto field = load_tba_field(mud);
       skipspace(mud);
@@ -761,7 +761,7 @@ void Object::TBALoadMOB(const std::u8string& fn) {
           obj->SetLongDesc(field.substr(1));
         }
       }
-      // loge(u8"Loaded TBA Mobile with LongDesc = {}\n", buf);
+      // loge(u8"Loaded TBA Mobile with LongDesc = {}", buf);
 
       obj->SetPosition(pos_t::STAND);
       obj->SetAttribute(0, 3);
@@ -1140,7 +1140,7 @@ static void add_tba_spell(Object* obj, int spell, int power) {
       obj->SetSkill(prhash(u8"Darkness Spell"), power);
     } break;
     default: {
-      logey(u8"Warning: Unhandled tbaMUD Spell: {}\n", spell);
+      logey(u8"Warning: Unhandled tbaMUD Spell: {}", spell);
     }
   }
 }
@@ -1161,7 +1161,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
       int onum = nextnum(mud);
       skipspace(mud);
       int valmod = 1000, powmod = 1;
-      // loge(u8"Loaded object #{}\n", onum);
+      // loge(u8"Loaded object #{}", onum);
 
       Object* obj = new Object(objroom);
       obj->SetSkill(prhash(u8"TBAObject"), 1000000 + onum);
@@ -1189,7 +1189,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
 
       obj->SetShortDesc(load_tba_field(mud));
       skipspace(mud);
-      // loge(u8"Loaded TBA Object with Name = {}\n", buf);
+      // loge(u8"Loaded TBA Object with Name = {}", buf);
 
       std::u8string label = u8"";
       for (unsigned int actr = 0; actr < aliases.size(); ++actr) {
@@ -1238,7 +1238,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
           obj->SetLongDesc(field.substr(1));
         }
       }
-      // loge(u8"Loaded TBA Object with Desc = {}\n", buf);
+      // loge(u8"Loaded TBA Object with Desc = {}", buf);
 
       int tp = nextnum(mud);
       skipspace(mud);
@@ -2070,7 +2070,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
           else if (skmatch == get_weapon_type(u8"Punching"))
             wreach = 0;
           else {
-            logey(u8"Warning: Using Default reach of zero for '{}'!\n", obj->ShortDesc());
+            logey(u8"Warning: Using Default reach of zero for '{}'!", obj->ShortDesc());
           }
         }
 
@@ -2225,9 +2225,9 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
               chr = ascii_tolower(chr);
             }
             if (buf.find_first_not_of(target_chars) != std::u8string::npos) {
-              logey(u8"Warning: Ignoring non-alpha extra ({}) for '{}'!\n", buf, obj->ShortDesc());
+              logey(u8"Warning: Ignoring non-alpha extra ({}) for '{}'!", buf, obj->ShortDesc());
             } else if (words_match(obj->ShortDesc(), buf)) {
-              // logey(u8"Warning: Duplicate ({}) extra for '{}'!\n", buf,
+              // logey(u8"Warning: Duplicate ({}) extra for '{}'!", buf,
               // obj->ShortDesc());
             } else {
               std::u8string sd(obj->ShortDesc());
@@ -2239,7 +2239,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
               sd += buf;
               sd += ')';
               obj->SetShortDesc(sd);
-              // logey(u8"Warning: Non-matching ({}) extra for '{}'!\n", buf,
+              // logey(u8"Warning: Non-matching ({}) extra for '{}'!", buf,
               // obj->ShortDesc());
             }
           }
@@ -2256,7 +2256,7 @@ void Object::TBALoadOBJ(const std::u8string& fn) {
             // '{}'!\n", obj->LongDesc(), obj->ShortDesc());
           }
         } else { // Extra Descriptions FIXME: Handle!
-          loge(u8"ERROR: Unknown tag!\n");
+          loge(u8"ERROR: Unknown tag!");
         }
       }
       if (magresist > 0) {
@@ -2289,7 +2289,7 @@ void Object::TBALoadWLD(const std::u8string& fn) {
       }
       int onum = nextnum(mud);
       skipspace(mud);
-      // loge(u8"Loading room #{}\n", onum);
+      // loge(u8"Loading room #{}", onum);
 
       Object* obj = new Object(zone);
       olist.push_back(obj);
@@ -2310,11 +2310,11 @@ void Object::TBALoadWLD(const std::u8string& fn) {
 
       obj->SetShortDesc(load_tba_field(mud));
       skipspace(mud);
-      // loge(u8"Loaded TBA Room with Name = {}\n", buf);
+      // loge(u8"Loaded TBA Room with Name = {}", buf);
 
       obj->SetDesc(load_tba_field(mud));
       skipspace(mud);
-      // loge(u8"Loaded TBA Room with Desc = {}\n", buf);
+      // loge(u8"Loaded TBA Room with Desc = {}", buf);
 
       nextnum(mud);
       skipspace(mud);
@@ -2410,7 +2410,7 @@ void Object::TBALoadWLD(const std::u8string& fn) {
           load_tba_field(mud);
           skipspace(mud);
         } else if (mud.front() != 'S') {
-          loge(u8"#{}: Warning, didn't see an ending S!\n", onum);
+          loge(u8"#{}: Warning, didn't see an ending S!", onum);
         } else {
           break;
         }
@@ -2516,14 +2516,14 @@ static const std::u8string base = u8"'^&*abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLM
 static std::set<std::u8string> parse_tba_shop_rules(std::u8string rules) {
   std::set<std::u8string> ret;
   if (rules[0]) {
-    //    loge(u8"Initial: '{}'\n", rules);
+    //    loge(u8"Initial: '{}'", rules);
     size_t done = rules.find_first_not_of(base);
     while (done != std::u8string::npos) {
       if (rules[done] == '|' || rules[done] == '+') {
         std::u8string first = rules.substr(0, done);
         trim_string(first);
         ret.insert(first);
-        //	loge(u8"  Done: '{}'\n", first);
+        //	loge(u8"  Done: '{}'", first);
         rules = rules.substr(done + 1);
         trim_string(rules);
         done = rules.find_first_not_of(base);
@@ -2534,7 +2534,7 @@ static std::set<std::u8string> parse_tba_shop_rules(std::u8string rules) {
         std::set<std::u8string> tmp = parse_tba_shop_rules(rules.substr(done + 1));
         for (auto next : tmp) {
           ret.insert(next + rules.substr(end + 1));
-          //	  loge(u8"  Built: '{}'\n",
+          //	  loge(u8"  Built: '{}'",
           //		((*next) + rules.substr(end+1))
           //		);
         }
@@ -2542,15 +2542,15 @@ static std::set<std::u8string> parse_tba_shop_rules(std::u8string rules) {
       } else if (rules[done] == ')' || rules[done] == ']') {
         std::u8string first = rules.substr(0, done);
         trim_string(first);
-        //	loge(u8"  Done: '{}'\n", first);
+        //	loge(u8"  Done: '{}'", first);
         ret.insert(first);
         return ret; // End of sub-call
       } else {
-        logey(u8"Warning: Can't handle shop rule fragment: '{}'\n", rules);
+        logey(u8"Warning: Can't handle shop rule fragment: '{}'", rules);
         done = std::u8string::npos;
       }
     }
-    //    loge(u8"  Done: '{}'\n", rules);
+    //    loge(u8"  Done: '{}'", rules);
     ret.insert(rules);
   }
   return ret;
@@ -2570,7 +2570,7 @@ void Object::TBALoadSHP(const std::u8string& fn) {
         nextchar(mud); // Skip the extra '~' in these files.
         skipspace(mud);
 
-        // loge(u8"Loading shop #{}\n", val);
+        // loge(u8"Loading shop #{}", val);
 
         vortex = new Object;
         vortex->SetShortDesc(u8"a shopkeeper vortex");
@@ -2587,7 +2587,7 @@ void Object::TBALoadSHP(const std::u8string& fn) {
         skipspace(mud);
         while (val >= 0) {
           if (val != 0 && bynumobj.count(val) == 0) {
-            loge(u8"Error: Shop's item #{} does not exist!\n", val);
+            loge(u8"Error: Shop's item #{} does not exist!", val);
           } else if (val != 0) {
             Object* item = new Object(*(bynumobj[val]));
             Object* item2 = dup_tba_obj(item);
@@ -2719,10 +2719,10 @@ void Object::TBALoadSHP(const std::u8string& fn) {
               type = u8"Cursed"; // According To: Rumble
 
             if (extra[0]) {
-              // loge(u8"Rule: '{}'\n", extra);
+              // loge(u8"Rule: '{}'", extra);
               std::set<std::u8string> extras = parse_tba_shop_rules(extra);
               for (auto ex : extras) {
-                // loge(u8"Adding: 'Accept {}'\n", ex);
+                // loge(u8"Adding: 'Accept {}'", ex);
                 // keeper->SetSkill(prhash(u8"Accept ") + ex, 1);
                 picky += (type + u8": " + ex + u8"\n");
               }
@@ -2737,7 +2737,7 @@ void Object::TBALoadSHP(const std::u8string& fn) {
                 type != u8"Trap" && type != u8"Container" && type != u8"Note" &&
                 type != u8"Liquid Container" && type != u8"Key" && type != u8"Food" &&
                 type != u8"Money" && type != u8"Pen" && type != u8"Boat" && type != u8"Fountain") {
-              logey(u8"Warning: Can't handle {}'s buy target: '{}'\n", keeper->Noun(), type);
+              logey(u8"Warning: Can't handle {}'s buy target: '{}'", keeper->Noun(), type);
             } else if (type != u8"0") { // Apparently 0 used for u8"Ignore This"
               keeper->SetSkill(std::u8string(u8"Buy ") + type, (int)(num2 * 1000.0 + 0.5));
             }
@@ -2747,14 +2747,14 @@ void Object::TBALoadSHP(const std::u8string& fn) {
           keeper->AddAct(act_t::WEAR_RSHOULDER, vortex);
         } else {
           vortex->Recycle();
-          logey(u8"Warning: Can't find shopkeeper #{}!\n", kpr);
+          logey(u8"Warning: Can't find shopkeeper #{}!", kpr);
         }
       }
     } else if (mud.front() != '$') { // Not a Null Shop File!
-      loge(u8"Error: '{}' is not a CircleMUD v3.0 Shop File!\n", fn);
+      loge(u8"Error: '{}' is not a CircleMUD v3.0 Shop File!", fn);
     }
   } else {
-    loge(u8"Error: '{}' does not exist!\n", fn);
+    loge(u8"Error: '{}' does not exist!", fn);
   }
 }
 
@@ -2773,7 +2773,7 @@ void Object::TBALoadTRG(const std::u8string& fn) { // Triggers
       script->SetSkill(prhash(u8"TBAScript"), 1000000 + tnum);
       script->SetSkill(prhash(u8"Accomplishment"), 1200000 + tnum);
       script->SetShortDesc(u8"A tbaMUD trigger script");
-      // loge(u8"Loading #{}\n", tnum);
+      // loge(u8"Loading #{}", tnum);
       load_tba_field(mud); // Trigger Name - Discarded!
       // script->SetDesc(buf);
       skipspace(mud);
@@ -2808,15 +2808,15 @@ void Object::TBALoadTRG(const std::u8string& fn) { // Triggers
 
         // if (dirp) {
         //  if (clsp) {
-        //    loge(u8"{} appears to be a '{}' {}-guild guard trigger.\n", tnum, dir,
+        //    loge(u8"{} appears to be a '{}' {}-guild guard trigger.", tnum, dir,
         //    cls);
         //  } else {
-        //    loge(u8"{} appears to be a '{}' direction guard trigger.\n", tnum, dir);
+        //    loge(u8"{} appears to be a '{}' direction guard trigger.", tnum, dir);
         //  }
         //}
         ++untrans_trig; // This is NOT really handled yet.
       } else if (script->LongDesc().contains(u8"if %direction% == ")) {
-        // loge(u8"{} appears to be a direction trigger.\n", tnum);
+        // loge(u8"{} appears to be a direction trigger.", tnum);
         ++untrans_trig; // This is NOT really handled yet.
       } else if (0) {
       } else {
@@ -2824,6 +2824,6 @@ void Object::TBALoadTRG(const std::u8string& fn) { // Triggers
       }
     }
   } else {
-    loge(u8"Error: '{}' does not exist!\n", fn);
+    loge(u8"Error: '{}' does not exist!", fn);
   }
 }

@@ -97,26 +97,26 @@ int main(int argc, char** argv) {
 
   current_time = get_time();
 
-  logo(u8"Starting networking....\n");
+  logo(u8"Starting networking....");
   if (acceptor >= 0)
     resume_net(acceptor);
   else
     start_net(port, host);
 
-  logo(u8"Initializing universe....\n");
+  logo(u8"Initializing universe....");
   init_universe();
 
-  logo(u8"Starting universe....\n");
+  logo(u8"Starting universe....");
   start_universe();
 
   if (!netstat_file.empty()) {
-    logo(u8"Restoring network state....\n");
+    logo(u8"Restoring network state....");
     load_net(netstat_file);
     unwarn_net(2);
   }
 
   auto lastsave_time = current_time;
-  logo(u8"Ready to play!\n");
+  logo(u8"Ready to play!");
   while (shutdn <= 0) {
     tick_universe();
     update_net();
@@ -128,7 +128,7 @@ int main(int argc, char** argv) {
       usleep(last_time + TICK_USECS - current_time);
       current_time = get_time();
     } else {
-      logey(u8"Warning: Slow tick: {}s > {}s\n", current_time - last_time, TICK_USECS);
+      logey(u8"Warning: Slow tick: {}s > {}s", current_time - last_time, TICK_USECS);
     }
 
     // FIXME: Do real (adjustable) autosave times - hardcoded to 15 minutes!
@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
     warn_net(2);
     save_universe(1);
 
-    logo(u8"Stopping networking....\n");
+    logo(u8"Stopping networking....");
     acceptor = suspend_net();
     std::u8string netacc = fmt::format(u8"--network-acceptor={}", acceptor);
 

@@ -44,7 +44,7 @@ static std::u8string md5_crypt(const std::u8string_view& pass, const std::u8stri
   std::u8string_view salt = insalt;
   if (!salt.starts_with(u8"$1$") || salt.length() < 11 ||
       (salt.length() > 11 && salt[11] != u8'$')) {
-    loger(u8"Invalid magic in salt submitted to md5_crypt!\n");
+    loger(u8"Invalid magic in salt submitted to md5_crypt!");
     return u8"";
   }
   salt = salt.substr(0, 11);
@@ -225,7 +225,7 @@ Player* player_login(const std::u8string_view& name, const std::u8string_view& p
   Player* pl = player_list[std::u8string(name)];
   std::u8string enpass = md5_crypt(pass, pl->pass);
 
-  // loge(u8"Trying {}:\n{}\n{}\n", name, enpass, pl->pass);
+  // loge(u8"Trying {}:\n{}\n{}", name, enpass, pl->pass);
 
   if (enpass != pl->pass) {
     if (non_init.count(pl)) {
@@ -287,7 +287,7 @@ void free_players() {
 }
 
 int load_players(const std::u8string_view& fn) {
-  loge(u8"Loading Players.\n");
+  loge(u8"Loading Players.");
 
   infile fl(fn);
   if (!fl)
@@ -298,13 +298,13 @@ int load_players(const std::u8string_view& fn) {
   int num = nextnum(fl);
   skipspace(fl);
 
-  loge(u8"Loading Players: {},{}\n", ver, num);
+  loge(u8"Loading Players: {},{}", ver, num);
 
   for (int ctr = 0; ctr < num; ++ctr) {
     Player* pl = new Player(u8";;TEMP;;", u8";;TEMP;;");
     non_init.erase(pl);
     pl->LoadFrom(fl);
-    // loge(u8"Loaded Player: {}\n", pl->Name());
+    // loge(u8"Loaded Player: {}", pl->Name());
   }
   return 0;
 }

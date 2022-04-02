@@ -648,7 +648,7 @@ void Object::DynamicInit() {
       DynamicInit1();
     } break;
     default: {
-      loge(u8"Unknown dynamic-type ({}) init requested!\n", Skill(prhash(u8"DynamicInit")));
+      loge(u8"Unknown dynamic-type ({}) init requested!", Skill(prhash(u8"DynamicInit")));
     } break;
   }
   ClearSkill(prhash(u8"DynamicInit"));

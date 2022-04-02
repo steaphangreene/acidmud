@@ -48,7 +48,7 @@ void save_prop_names_to(outfile& fl) {
   fl.append(u8"{}\n", skill_defs.size());
   for (auto skn : skill_defs) {
     if (skn.second.length() > 255) {
-      loger(u8"Error: Skill name too long: '{}'\n", skn.second);
+      loger(u8"Error: Skill name too long: '{}'", skn.second);
       fl.append(u8"{:08X}:Undefined\n", skn.first);
     } else {
       fl.append(u8"{:08X}:{}\n", skn.first, skn.second);
@@ -82,7 +82,7 @@ void confirm_skill_hash(uint32_t stok) {
   for (; itn != skill_defs.end() && itn->first != stok; ++itn) {
   }
   if (itn == skill_defs.end()) {
-    loger(u8"Error: bogus skill hash (x{:08X})\n", stok);
+    loger(u8"Error: bogus skill hash (x{:08X})", stok);
     skill_defs.emplace_back(std::make_pair(stok, u8"Unknown"));
   }
 }

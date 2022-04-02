@@ -78,7 +78,7 @@ int Object::Save(const std::u8string& fn) {
 }
 
 int Object::SaveTo(outfile& fl) {
-  // loge(u8"Saving {}\n", Name());
+  // loge(u8"Saving {}", Name());
 
   fl.append(u8"{}\n", getonum(this));
   fl.append(u8"{}{:c}\n", ShortDesc(), 0);
@@ -154,7 +154,7 @@ int Object::SaveTo(outfile& fl) {
     cind->SaveTo(fl);
   }
 
-  // loge(u8"Saved {}\n", Name());
+  // loge(u8"Saved {}", Name());
   return 0;
 }
 
@@ -216,7 +216,7 @@ int Object::LoadFrom(std::u8string_view& fl) {
   int num = nextnum(fl);
   skipspace(fl);
   if (num2obj[num] != this) {
-    loger(u8"Error: Acid number mismatch ({})!\n", num);
+    loger(u8"Error: Acid number mismatch ({})!", num);
   }
   todo.push_back(this);
 
@@ -234,7 +234,7 @@ int Object::LoadFrom(std::u8string_view& fl) {
 
   SetDescs(sd, n, d, ld);
 
-  // loge(u8"{}Loading {}:{}\n", debug_indent, num, buf);
+  // loge(u8"{}Loading {}:{}", debug_indent, num, buf);
 
   weight = nextnum(fl);
   skipspace(fl);
@@ -316,7 +316,7 @@ int Object::LoadFrom(std::u8string_view& fl) {
     }
   }
   if (delim != ';') {
-    logerr(u8"ERROR[{}]: Object skill list parse error (delim='{:c}').\n", ShortDesc(), delim);
+    logerr(u8"ERROR[{}]: Object skill list parse error (delim='{:c}').", ShortDesc(), delim);
   }
   skipspace(fl);
 
@@ -372,16 +372,16 @@ int Object::LoadFrom(std::u8string_view& fl) {
 
   //  int num_loaded = 0;
   //  if(parent && (!(parent->parent))) {
-  //    loge(u8"Loading: {}\n", ShortDesc());
+  //    loge(u8"Loading: {}", ShortDesc());
   //    }
   for (auto cind : toload) {
-    // loge(u8"{}Calling loader from {}\n", debug_indent,
+    // loge(u8"{}Calling loader from {}", debug_indent,
     // ShortDesc());
     // std::u8string tmp = debug_indent;
     // debug_indent += u8"  ";
     cind->LoadFrom(fl);
     // debug_indent = tmp;
-    // loge(u8"{}Called loader from {}\n", debug_indent,
+    // loge(u8"{}Called loader from {}", debug_indent,
     // ShortDesc());
 
     //    if(parent && (!(parent->parent))) {
@@ -391,10 +391,10 @@ int Object::LoadFrom(std::u8string_view& fl) {
     //      }
   }
   //  if(parent && (!(parent->parent))) {
-  //    loge(u8"\nLoaded.\n");
+  //    loge(u8"\nLoaded.");
   //    }
 
-  // loge(u8"{}Loaded {}\n", debug_indent, ShortDesc());
+  // loge(u8"{}Loaded {}", debug_indent, ShortDesc());
 
   //  if(HasSkill(prhash(u8"Drink"))) {
   //    SetSkill(prhash(u8"Drink"), Skill(prhash(u8"Drink")) * 15);
@@ -435,7 +435,7 @@ int Object::LoadFrom(std::u8string_view& fl) {
   //    }
 
   //  if(IsAct(act_t::SPECIAL_PREPARE)) {
-  //    loge(u8"Found one!\n");
+  //    loge(u8"Found one!");
   //    StopAct(act_t::SPECIAL_PREPARE);
   //    }
 

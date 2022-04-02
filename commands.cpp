@@ -842,7 +842,7 @@ static void load_commands() {
   }
   infile soc(u8"tba/socials.new");
   if (soc) {
-    // loge(u8"There were {} commands!\n", cnum);
+    // loge(u8"There were {} commands!", cnum);
     while (soc.length() > 0 && nextchar(soc) == '~') {
       std::u8string_view com = getuntil(soc, ' ');
       skipspace(soc);
@@ -876,7 +876,7 @@ static void load_commands() {
 
       skipspace(soc); // Eat blank line before next social command, or the terminating '$'
     }
-    // loge(u8"There are now {} commands!\n", cnum);
+    // loge(u8"There are now {} commands!", cnum);
   }
 }
 
@@ -952,7 +952,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
   }
 
   if ((!body) && (!mind)) { // Nobody doing something?
-    loge(u8"Warning: absolutely nobody tried to '{}'.\n", line);
+    loge(u8"Warning: absolutely nobody tried to '{}'.", line);
     return 0;
   }
 
@@ -968,7 +968,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
         if (!(ascii_isalnum(cmd[ctr]) || cmd[ctr] == ' ')) {
           mind->Send(
               u8"Name '{}' is invalid.\nNames can only have letters, numbers, and spaces.\n", cmd);
-          loge(u8"Name '{}' is invalid.\nNames can only have letters, numbers, and spaces.\n", cmd);
+          loge(u8"Name '{}' is invalid.\nNames can only have letters, numbers, and spaces.", cmd);
           break;
         }
       }
@@ -3627,7 +3627,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
 
     int did_something = 0;
     for (auto targ : targs) {
-      // loge(u8"You try to wear {}!\n", targ->Noun(0, 0, body));
+      // loge(u8"You try to wear {}!", targ->Noun(0, 0, body));
       // if(mind) mind->Send(u8"You try to wear {}!\n", targ->Noun(0, 0, body));
       if (body->ActTarg(act_t::WEAR_BACK) == targ || body->ActTarg(act_t::WEAR_CHEST) == targ ||
           body->ActTarg(act_t::WEAR_HEAD) == targ || body->ActTarg(act_t::WEAR_NECK) == targ ||
@@ -4721,7 +4721,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
   }
 
   if (cnum == COM_ATTACK || cnum == COM_KILL || cnum == COM_PUNCH || cnum == COM_KICK) {
-    // logemm(u8"Handling attack command from {} of '{}'\n", body->Name(), args);
+    // logemm(u8"Handling attack command from {} of '{}'", body->Name(), args);
 
     int attacknow = 1;
     if (!body->IsAct(act_t::FIGHT))

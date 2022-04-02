@@ -35,7 +35,7 @@
 #include "properties.hpp"
 #include "utils.hpp"
 
-#define QUOTAERROR1 CRED u8"#{} Error: script quota exceeded - killed.\n" CNRM
+#define QUOTAERROR1 CRED u8"#{} Error: script quota exceeded - killed." CNRM
 #define QUOTAERROR2 body->Skill(prhash(u8"TBAScript"))
 #define PING_QUOTA()                  \
   {                                   \
@@ -396,7 +396,7 @@ std::u8string Mind::TBAComp(const std::u8string_view& in_expr) const {
 
     if (oper <= -3) { // Non-Boolean - actual numeric value
       comp = itos(res);
-      // loge(u8"RES: {}\n", buf);
+      // loge(u8"RES: {}", buf);
     }
 
     if (expr != u8"") {
@@ -520,7 +520,7 @@ bool Mind::TBAMOBThink(int istick) {
           fmt::format(u8"hold obj:{}", static_cast<void*>(body->ActTarg(act_t::WEAR_SHIELD)));
       body->BusyFor(500, command);
     } else {
-      // loge(u8"Warning: {} can't use his shield!\n", body->Noun());
+      // loge(u8"Warning: {} can't use his shield!", body->Noun());
     }
     return true;
   }
@@ -543,7 +543,7 @@ bool Mind::TBAMOBThink(int istick) {
       ) {
         std::u8string command = fmt::format(u8"attack obj:{}", static_cast<void*>(other));
         body->BusyFor(500, command);
-        // loge(u8"{}: Tried '{}'\n", body->ShortDesc(), command);
+        // loge(u8"{}: Tried '{}'", body->ShortDesc(), command);
         return true;
       }
     }
@@ -579,7 +579,7 @@ bool Mind::TBAMOBThink(int istick) {
       ) {
         std::u8string command = fmt::format(u8"attack obj:{}", static_cast<void*>(other));
         body->BusyFor(500, command);
-        // loge(u8"{}: Tried '{}'\n", body->ShortDesc(), command);
+        // loge(u8"{}: Tried '{}'", body->ShortDesc(), command);
         return true;
       }
     }
@@ -616,7 +616,7 @@ bool Mind::TBAMOBThink(int istick) {
         std::u8string command =
             fmt::format(u8"call ALARM; attack obj:{}", static_cast<void*>(other));
         body->BusyFor(500, command);
-        // loge(u8"{}: Tried '{}'\n", body->ShortDesc(), command);
+        // loge(u8"{}: Tried '{}'", body->ShortDesc(), command);
         return true;
       }
     }
@@ -681,7 +681,7 @@ bool Mind::TBAMOBThink(int istick) {
 
 bool Mind::TBATriggerThink(int istick) {
   if (body && body->Parent() && spos_s.size() > 0) {
-    //      logeg(u8"#{} Debug: Running Trigger.\n",
+    //      logeg(u8"#{} Debug: Running Trigger.",
     //	body->Skill(prhash(u8"TBAScript"))
     //	);
     ovars[u8"self"] = body->Parent();
@@ -743,7 +743,7 @@ int Mind::TBARunLine(std::u8string linestr) {
       //	|| linestr.contains(u8"exclaim")
       //	|| linestr.contains(u8"speech")
   ) {
-    logeg(u8"#{} Debug: Running '{}'\n", body->Skill(prhash(u8"TBAScript")), linestr);
+    logeg(u8"#{} Debug: Running '{}'", body->Skill(prhash(u8"TBAScript")), linestr);
   }
   Object* room = ovars.at(u8"self");
   while (room && room->Skill(prhash(u8"TBARoom")) == 0) {
@@ -753,7 +753,7 @@ int Mind::TBARunLine(std::u8string linestr) {
       room = room->Parent();
   }
   if (!room) { // Not in a room (dup clone, in a popper, etc...).
-    //    loger(u8"#{} Error: No room in '{}'\n",
+    //    loger(u8"#{} Error: No room in '{}'",
     //	body->Skill(prhash(u8"TBAScript")), linestr
     //	);
     return -1;
@@ -762,7 +762,7 @@ int Mind::TBARunLine(std::u8string linestr) {
   if ((body->Skill(prhash(u8"TBAScriptType")) & 0x103FFDE) > 0x1000000) {
     if (ovars.at(u8"self")->IsAct(act_t::DEAD) || ovars.at(u8"self")->IsAct(act_t::DYING) ||
         ovars.at(u8"self")->IsAct(act_t::UNCONSCIOUS)) {
-      //      logeg(u8"#{} Debug: Triggered on downed MOB.\n",
+      //      logeg(u8"#{} Debug: Triggered on downed MOB.",
       //	body->Skill(prhash(u8"TBAScript"))
       //	);
       spos_s.back() = std::u8string::npos; // Jump to End
@@ -773,7 +773,7 @@ int Mind::TBARunLine(std::u8string linestr) {
   size_t spos = spos_s.back();
   int vnum = body->Skill(prhash(u8"TBAScript"));
   if (!TBAVarSub(linestr)) {
-    loger(u8"#{} Error: VarSub failed in '{}'\n", vnum, linestr);
+    loger(u8"#{} Error: VarSub failed in '{}'", vnum, linestr);
     return -1;
   }
 
@@ -796,7 +796,7 @@ int Mind::TBARunLine(std::u8string linestr) {
 
   //  //Start of script command if/else if/else
   //  if(line.find(u8"%") != line.rfind(u8"%")) {		//More than one '%'
-  //    loger(u8"#{} Error: Failed to fully expand '{}'\n",
+  //    loger(u8"#{} Error: Failed to fully expand '{}'",
   //	body->Skill(prhash(u8"TBAScript")), line
   //	);
   //    return -1;
@@ -811,7 +811,7 @@ int Mind::TBARunLine(std::u8string linestr) {
       ovars.erase(std::u8string(var));
       ovars[u8"context"]->ClearSkill(fmt::format(u8"TBA:{}", var));
     } else {
-      loger(u8"#{} Error: Malformed unset '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: Malformed unset '{}'", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
     return 0;
@@ -833,12 +833,12 @@ int Mind::TBARunLine(std::u8string linestr) {
               //		|| var.contains(u8"exclaim")
               //		|| var.contains(u8"speech")
           ) {
-            logeg(u8"#{} Debug: '{}' = '{}'\n", body->Skill(prhash(u8"TBAScript")), var, val);
+            logeg(u8"#{} Debug: '{}' = '{}'", body->Skill(prhash(u8"TBAScript")), var, val);
           }
           if (coml == 'e') {
             int valnum = body->Skill(prhash(u8"TBAScript"));
             if (!TBAVarSub(val)) {
-              loger(u8"#{} Error: Eval failed in '{}'\n", valnum, line);
+              loger(u8"#{} Error: Eval failed in '{}'", valnum, line);
               return -1;
             }
             val = TBAComp(val);
@@ -898,11 +898,11 @@ int Mind::TBARunLine(std::u8string linestr) {
             return -1;
           }
         } else { // Only space after varname
-          loger(u8"#{} Error: Malformed extract '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+          loger(u8"#{} Error: Malformed extract '{}'", body->Skill(prhash(u8"TBAScript")), line);
           return -1;
         }
       } else { // Nothing after varname
-        loger(u8"#{} Error: Malformed extract '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+        loger(u8"#{} Error: Malformed extract '{}'", body->Skill(prhash(u8"TBAScript")), line);
         return -1;
       }
     }
@@ -913,7 +913,7 @@ int Mind::TBARunLine(std::u8string linestr) {
     int dnum = nextnum(line);
     skipspace(line);
     // if (ssc:anf(std::u8string(line).c_str(), u8"at %d %n", &dnum, &pos) < 1) {
-    //   loger(u8"#{} Error: Malformed at '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+    //   loger(u8"#{} Error: Malformed at '{}'", body->Skill(prhash(u8"TBAScript")), line);
     //   return -1;
     // }
     room = room->Zone();
@@ -929,7 +929,7 @@ int Mind::TBARunLine(std::u8string linestr) {
       }
     }
     if (!room) {
-      loger(u8"#{} Error: Can't find room in '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: Can't find room in '{}'", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
     Object* oldp = nullptr;
@@ -952,7 +952,7 @@ int Mind::TBARunLine(std::u8string linestr) {
     if (con != nullptr) {
       ovars[u8"context"] = con;
     } else {
-      loger(u8"#{} Error: No Context Object '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: No Context Object '{}'", body->Skill(prhash(u8"TBAScript")), line);
       return 1;
     }
   }
@@ -967,10 +967,10 @@ int Mind::TBARunLine(std::u8string linestr) {
       if (con->IsAnimate()) {
         con->Accomplish(body->Skill(prhash(u8"Accomplishment")), u8"completing a quest");
       }
-      //      logeg(u8"#{} Debug: RDelete '{}'\n",
+      //      logeg(u8"#{} Debug: RDelete '{}'",
       //		body->Skill(prhash(u8"TBAScript")), line);
     } else {
-      loger(u8"#{} Error: No RDelete VarName/ID '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: No RDelete VarName/ID '{}'", body->Skill(prhash(u8"TBAScript")), line);
       return 1;
     }
   }
@@ -987,7 +987,7 @@ int Mind::TBARunLine(std::u8string linestr) {
         if (con->IsAnimate()) {
           con->Accomplish(body->Skill(prhash(u8"Accomplishment")), u8"role playing");
         }
-        //	logeg(u8"#{} Debug: Remote {}={} '{}'\n",
+        //	logeg(u8"#{} Debug: Remote {}={} '{}'",
         //		body->Skill(prhash(u8"TBAScript")), var, val, line);
       } else {
         loger(
@@ -998,7 +998,7 @@ int Mind::TBARunLine(std::u8string linestr) {
         return 1;
       }
     } else {
-      loger(u8"#{} Error: No Remote VarName/ID '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: No Remote VarName/ID '{}'", body->Skill(prhash(u8"TBAScript")), line);
       return 1;
     }
   }
@@ -1010,7 +1010,7 @@ int Mind::TBARunLine(std::u8string linestr) {
       if (svars.count(std::u8string(var)) > 0) {
         int val = getnum(svars[std::u8string(var)]);
         con->SetSkill(fmt::format(u8"TBA:{}", var), val);
-        //	logeg(u8"#{} Debug: Global {}={} '{}'\n",
+        //	logeg(u8"#{} Debug: Global {}={} '{}'",
         //		body->Skill(prhash(u8"TBAScript")), var, val, line);
       } else {
         loger(
@@ -1021,7 +1021,7 @@ int Mind::TBARunLine(std::u8string linestr) {
         return 1;
       }
     } else {
-      loger(u8"#{} Error: No Global VarName '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: No Global VarName '{}'", body->Skill(prhash(u8"TBAScript")), line);
       return 1;
     }
   }
@@ -1051,7 +1051,7 @@ int Mind::TBARunLine(std::u8string linestr) {
         return 1;
       }
     } else {
-      loger(u8"#{} Error: Told '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: Told '{}'", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
   }
@@ -1062,12 +1062,12 @@ int Mind::TBARunLine(std::u8string linestr) {
     if (time > 0) {
       // if(body->Skill(prhash(u8"TBAScript")) >= 5034503 && body->Skill(prhash(u8"TBAScript")) <=
       // 5034507)
-      //  logeb(u8"#{} Suspending for: {}\n",
+      //  logeb(u8"#{} Suspending for: {}",
       //  body->Skill(prhash(u8"TBAScript")), time * 1000);
       Suspend(time * 1000);
       return 1;
     } else {
-      loger(u8"#{} Error: Told '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: Told '{}'", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
   }
@@ -1083,12 +1083,12 @@ int Mind::TBARunLine(std::u8string linestr) {
       ovars[u8"self"]->SetSkill(prhash(u8"Liquid Source"), v2 + 1);
     } else if (ovars[u8"self"]->Skill(prhash(u8"Liquid Source")) && v1 == 1) {
       if (ovars[u8"self"]->Contents().size() < 1) {
-        logey(u8"#{} Warning: Empty fountain '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+        logey(u8"#{} Warning: Empty fountain '{}'", body->Skill(prhash(u8"TBAScript")), line);
         return -1;
       }
       ovars[u8"self"]->Contents().front()->SetQuantity(v2 + 1);
     } else {
-      loger(u8"#{} Error: Unimplemented oset '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: Unimplemented oset '{}'", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
   }
@@ -1307,7 +1307,7 @@ int Mind::TBARunLine(std::u8string linestr) {
   }
 
   else if (process(line, u8"wdamage ")) {
-    //    logeg(u8"#{} Debug: WDamage '{}'\n",
+    //    logeg(u8"#{} Debug: WDamage '{}'",
     //	body->Skill(prhash(u8"TBAScript")), line
     //	);
     int dam = 0;
@@ -1328,13 +1328,13 @@ int Mind::TBARunLine(std::u8string linestr) {
       if (opt->Matches(tname)) {
         if (dam > 0) {
           opt->HitMent(1000, dam, 0);
-          //	  logeg(u8"#{} Debug: WDamage '{}', {}\n",
+          //	  logeg(u8"#{} Debug: WDamage '{}', {}",
           //		body->Skill(prhash(u8"TBAScript")), opt->Noun(), dam
           //		);
         } else if (dam < 0) {
           opt->HealStun(((-dam) + 1) / 2);
           opt->HealPhys(((-dam) + 1) / 2);
-          //	  logeg(u8"#{} Debug: WHeal '{}', {}\n",
+          //	  logeg(u8"#{} Debug: WHeal '{}', {}",
           //		body->Skill(prhash(u8"TBAScript")), opt->Noun(), ((-dam)+1)/2
           //		);
         }
@@ -1374,7 +1374,7 @@ int Mind::TBARunLine(std::u8string linestr) {
       }
     }
     if (!room) {
-      loger(u8"#{} Error: can't find target in '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: can't find target in '{}'", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
 
@@ -1383,7 +1383,7 @@ int Mind::TBARunLine(std::u8string linestr) {
     int tnum;
 
     if (process(line, u8"description ") >= 1) {
-      //      logeg(u8"#{} Debug: door redesc '{}'\n",
+      //      logeg(u8"#{} Debug: door redesc '{}'",
       //	body->Skill(prhash(u8"TBAScript")), line
       //	);
       if (door) {
@@ -1430,7 +1430,7 @@ int Mind::TBARunLine(std::u8string linestr) {
         door->SetSkill(prhash(u8"Locked"), 1);
         door->SetSkill(prhash(u8"Lockable"), 1);
         door->SetSkill(prhash(u8"Pickable"), 4);
-        //	logeg(u8"#{} Debug: {} door is locked in '{}'\n"
+        //	logeg(u8"#{} Debug: {} door is locked in '{}'"
         //,
         //		body->Skill(prhash(u8"TBAScript")), dir, line
         //		);
@@ -1443,7 +1443,7 @@ int Mind::TBARunLine(std::u8string linestr) {
         //		);
       }
     } else if (process(line, u8"name ") >= 1) {
-      //      logeg(u8"#{} Debug: door rename '{}'\n",
+      //      logeg(u8"#{} Debug: door rename '{}'",
       //	body->Skill(prhash(u8"TBAScript")), line
       //	);
       if (door) {
@@ -1457,7 +1457,7 @@ int Mind::TBARunLine(std::u8string linestr) {
         door->SetShortDesc(fmt::format(u8"{} ({})", newname, line));
       }
     } else if (process(line, u8"room ") >= 1) {
-      //      logeg(u8"#{} Debug: door relink '{}'\n",
+      //      logeg(u8"#{} Debug: door relink '{}'",
       //	body->Skill(prhash(u8"TBAScript")), line
       //	);
       tnum = nextnum(line);
@@ -1474,7 +1474,7 @@ int Mind::TBARunLine(std::u8string linestr) {
         }
       }
       if (!toroom) {
-        loger(u8"#{} Error: can't find dest in '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+        loger(u8"#{} Error: can't find dest in '{}'", body->Skill(prhash(u8"TBAScript")), line);
         return -1;
       }
       door = new Object(room);
@@ -1502,18 +1502,18 @@ int Mind::TBARunLine(std::u8string linestr) {
       door->SetSkill(prhash(u8"Key"), 1000000 + tnum);
       if (door->Skill(prhash(u8"Pickable")) < 1)
         door->SetSkill(prhash(u8"Pickable"), 4);
-      //      logeg(u8"#{} Debug: {} door re-keyed ({}) in '{}'\n"
+      //      logeg(u8"#{} Debug: {} door re-keyed ({}) in '{}'"
       //     ,
       //	body->Skill(prhash(u8"TBAScript")), dir, tnum, line
       //	);
     } else if (process(line, u8"purge") >= 1) {
-      //      logeg(u8"#{} Debug: door purge '{}'\n",
+      //      logeg(u8"#{} Debug: door purge '{}'",
       //	body->Skill(prhash(u8"TBAScript")), line
       //	);
       if (door)
         door->Recycle();
     } else {
-      loger(u8"#{} Error: bad door command '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: bad door command '{}'", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
   }
@@ -1564,7 +1564,7 @@ int Mind::TBARunLine(std::u8string linestr) {
         targ->SetParent(dest);
       }
     }
-    //    logeg(u8"#{} Debug: Transport line: '{}'\n",
+    //    logeg(u8"#{} Debug: Transport line: '{}'",
     //	body->Skill(prhash(u8"TBAScript")), line
     //	);
   }
@@ -1584,7 +1584,7 @@ int Mind::TBARunLine(std::u8string linestr) {
           item->Recycle();
       }
     } else {
-      loger(u8"#{} Error: Bad purge target '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: Bad purge target '{}'", body->Skill(prhash(u8"TBAScript")), line);
       return 1;
     }
     if (!body) { // No longer connected, must have purged self or parent.
@@ -1644,7 +1644,7 @@ int Mind::TBARunLine(std::u8string linestr) {
       dest = room;
       src = src->PickObject(u8"tbamud mob room", LOC_NINJA | LOC_INTERNAL);
       if (src == nullptr) {
-        loger(u8"#{} Error: Can't find MOB room '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+        loger(u8"#{} Error: Can't find MOB room '{}'", body->Skill(prhash(u8"TBAScript")), line);
         return 1;
       }
       auto options = src->Contents();
@@ -1656,16 +1656,16 @@ int Mind::TBARunLine(std::u8string linestr) {
       }
     }
     if (item == nullptr) {
-      loger(u8"#{} Error: Failed to find item '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: Failed to find item '{}'", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
     if (params > 2) {
-      //      logeg(u8"#{} Debug: ({}) '{}'\n",
+      //      logeg(u8"#{} Debug: ({}) '{}'",
       //	body->Skill(prhash(u8"TBAScript")), targ, line);
       dest = room->PickObject(targ, LOC_NINJA | LOC_INTERNAL);
     }
     if (!dest) {
-      loger(u8"#{} Error: can't find target in '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: can't find target in '{}'", body->Skill(prhash(u8"TBAScript")), line);
       delete item;
       return -1;
     }
@@ -1730,7 +1730,7 @@ int Mind::TBARunLine(std::u8string linestr) {
       loc = act_t::HOLD;
     } else if (where == u8"inv" || where == u8"18") {
     } else if (params > 2) {
-      loger(u8"#{} Error: Unsupported dest '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: Unsupported dest '{}'", body->Skill(prhash(u8"TBAScript")), line);
       delete item;
       return -1;
     }
@@ -1759,8 +1759,8 @@ int Mind::TBARunLine(std::u8string linestr) {
     auto splen = line.find_first_of(u8"'");
     if (splen != std::u8string::npos) {
       auto spell = tba_spellconvert(line.substr(0, splen));
-      // logeb(u8"Cast[Acid]: {}\n", spell);
-      // logey(u8"Cast[TBA]: {}\n", line.substr(splen));
+      // logeb(u8"Cast[Acid]: {}", spell);
+      // logey(u8"Cast[TBA]: {}", line.substr(splen));
       ovars[u8"self"]->SetSkill(spell + u8" Spell", 5);
       std::u8string cline = u8"shout " + spell;
       if (splen + 1 < line.length()) {
@@ -1774,7 +1774,7 @@ int Mind::TBARunLine(std::u8string linestr) {
       cline += u8";cast " + spell + u8";point";
       handle_command(ovars[u8"self"], cline);
     } else {
-      loger(u8"Error: Bad casting command: '{}'\n", line);
+      loger(u8"Error: Bad casting command: '{}'", line);
     }
   } else if (line.starts_with(u8"case ")) {
     // Ignore these, as we only hit them here when when running over them
@@ -1810,7 +1810,7 @@ int Mind::TBARunLine(std::u8string linestr) {
     if (stuff != std::u8string::npos) {
       handle_command(ovars[u8"self"], line.substr(1));
     } else {
-      loger(u8"#{} Error: Told just '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: Told just '{}'", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
   }
@@ -1835,11 +1835,11 @@ int Mind::TBARunLine(std::u8string linestr) {
           handle_command(ovars[u8"self"], fmt::format(u8"offer {}", line.substr(start)));
         }
       } else {
-        loger(u8"#{} Error: Told just '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+        loger(u8"#{} Error: Told just '{}'", body->Skill(prhash(u8"TBAScript")), line);
         return -1;
       }
     } else {
-      loger(u8"#{} Error: Told just '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: Told just '{}'", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
   }
@@ -1864,7 +1864,7 @@ int Mind::TBARunLine(std::u8string linestr) {
     if (stuff != std::u8string::npos) {
       handle_command(ovars[u8"self"], line);
     } else {
-      loger(u8"#{} Error: Told just '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: Told just '{}'", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
   }
@@ -1884,7 +1884,7 @@ int Mind::TBARunLine(std::u8string linestr) {
   }
 
   else {
-    loger(u8"#{} Error: Gibberish script line '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+    loger(u8"#{} Error: Gibberish script line '{}'", body->Skill(prhash(u8"TBAScript")), line);
     return -1;
   }
   return 0;
@@ -1905,7 +1905,7 @@ bool Mind::TBAVarSub(std::u8string& edit) const {
         //	|| line.contains(u8"exclaim")
         //	|| line.contains(u8"speech")
     ) {
-      logeg(u8"#{} Debug: '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      logeg(u8"#{} Debug: '{}'", body->Skill(prhash(u8"TBAScript")), line);
     }
     std::u8string_view vname = line.substr(cur + 1, end - cur - 1);
     Object* obj = nullptr;
@@ -1945,7 +1945,7 @@ bool Mind::TBAVarSub(std::u8string& edit) const {
             //		|| script.find(u8"%damage% %actor% -%actor.level%") !=
             // std::u8string::npos
         ) {
-          logeg(u8"#{} Random: '{}'\n", body->Skill(prhash(u8"TBAScript")), obj->Noun());
+          logeg(u8"#{} Random: '{}'", body->Skill(prhash(u8"TBAScript")), obj->Noun());
         }
       } else {
         obj = nullptr;
@@ -2697,7 +2697,7 @@ bool Mind::TBAVarSub(std::u8string& edit) const {
       //	|| line.contains(u8"exclaim")
       //	|| line.contains(u8"speech")
   ) {
-    logeg(u8"#{} Debug: '{}' <-Final\n", body->Skill(prhash(u8"TBAScript")), edit);
+    logeg(u8"#{} Debug: '{}' <-Final", body->Skill(prhash(u8"TBAScript")), edit);
   }
   return true;
 }

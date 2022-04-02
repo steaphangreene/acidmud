@@ -114,7 +114,7 @@ static bool wearparam(std::u8string_view& line, std::vector<std::vector<act_t>>&
         } else if (wear.starts_with(u8"HIP")) {
           defs.back().push_back(act_t::WEAR_LHIP);
         } else {
-          loger(u8"ERROR: Unknown left wear location: '{}'\n", line);
+          loger(u8"ERROR: Unknown left wear location: '{}'", line);
         }
       } else if (
           process(wear, u8"RIGHT_") || process(wear, u8"RIGHT.") || process(wear, u8"RIGHT ") ||
@@ -139,10 +139,10 @@ static bool wearparam(std::u8string_view& line, std::vector<std::vector<act_t>>&
         } else if (wear.starts_with(u8"HIP")) {
           defs.back().push_back(act_t::WEAR_RHIP);
         } else {
-          loger(u8"ERROR: Unknown right wear location: '{}'\n", line);
+          loger(u8"ERROR: Unknown right wear location: '{}'", line);
         }
       } else {
-        loger(u8"ERROR: Unknown wear location: '{}'\n", line);
+        loger(u8"ERROR: Unknown wear location: '{}'", line);
       }
     }
     return true;
@@ -194,7 +194,7 @@ static std::vector<ObjectTag> finalize_tags(
         defs.try_emplace(def.type_, def);
       }
     } else {
-      loger(u8"ERROR: Use of undefined tag: '{}'.  Skipping.\n", tag);
+      loger(u8"ERROR: Use of undefined tag: '{}'.  Skipping.", tag);
     }
   }
 
@@ -304,7 +304,7 @@ void ObjectTag::operator+=(const ObjectTag& in) {
   } else if (two_handed(wtype_)) { // Convert Long to Two-Handed
     wtype_ = in.wtype_ + get_weapon_type(u8"Two-Handed Blades") - get_weapon_type(u8"Long Blades");
   } else {
-    // logey(u8"Warning: No idea how to combine weapon types {} and {}.\n", wtype_, in.wtype_);
+    // logey(u8"Warning: No idea how to combine weapon types {} and {}.", wtype_, in.wtype_);
     wtype_ = in.wtype_;
   }
 
@@ -360,7 +360,7 @@ bool ObjectTag::LoadFrom(std::u8string_view& def) {
       } else if (typestr == u8"NOUN") {
         type_ = tag_t::NOUN;
       } else {
-        loger(u8"ERROR: bad tag type: '{}'\n", typestr);
+        loger(u8"ERROR: bad tag type: '{}'", typestr);
       }
     } else if (process(line, u8"short:")) {
       short_desc_ = std::u8string(getuntil(line, '\n'));
@@ -419,7 +419,7 @@ bool ObjectTag::LoadFrom(std::u8string_view& def) {
     } else if (intparam(line, u8"thread:", amin_.thread, amax_.thread)) {
     } else if (intparam(line, u8"planar:", amin_.planar, amax_.planar)) {
     } else {
-      loger(u8"ERROR: bad item tag file entry: '{}'\n", line);
+      loger(u8"ERROR: bad item tag file entry: '{}'", line);
       return false;
     }
   }
@@ -445,11 +445,11 @@ bool Object::LoadTags() {
 
   Object* dataset = PickObject(u8"world data: defined tags", LOC_INTERNAL | LOC_NINJA);
   if (!dataset) {
-    logey(u8"Warning: No Saved Tags For World: '{}'!\n", ShortDesc());
+    logey(u8"Warning: No Saved Tags For World: '{}'!", ShortDesc());
     return false;
   }
   if (!LoadTagsFrom(dataset->LongDesc(), false)) {
-    loger(u8"ERROR: Failed Loading Saved Tags Into World: '{}'!\n", ShortDesc());
+    loger(u8"ERROR: Failed Loading Saved Tags Into World: '{}'!", ShortDesc());
     return false;
   }
   return true;
@@ -472,53 +472,53 @@ bool Object::LoadTagsFrom(const std::u8string_view& tagdefs, bool save) {
       std::u8string_view tag(defs);
       tag = getuntil(tag, '\n');
       if (!npctagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
-        loger(u8"Duplicate NPC tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
+        loger(u8"Duplicate NPC tag '{}' insertion into {} rejected.", tag, ShortDesc());
         return false;
       }
     } else if (process(defs, u8"weapon:")) {
       std::u8string_view tag(defs);
       tag = getuntil(tag, '\n');
       if (!weapontagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
-        loger(u8"Duplicate Weapon tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
+        loger(u8"Duplicate Weapon tag '{}' insertion into {} rejected.", tag, ShortDesc());
         return false;
       }
     } else if (process(defs, u8"armor:")) {
       std::u8string_view tag(defs);
       tag = getuntil(tag, '\n');
       if (!armortagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
-        loger(u8"Duplicate Armor tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
+        loger(u8"Duplicate Armor tag '{}' insertion into {} rejected.", tag, ShortDesc());
         return false;
       }
     } else if (process(defs, u8"item:")) {
       std::u8string_view tag(defs);
       tag = getuntil(tag, '\n');
       if (!itemtagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
-        loger(u8"Duplicate Item tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
+        loger(u8"Duplicate Item tag '{}' insertion into {} rejected.", tag, ShortDesc());
         return false;
       }
     } else if (process(defs, u8"room:")) {
       std::u8string_view tag(defs);
       tag = getuntil(tag, '\n');
       if (!roomtagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
-        loger(u8"Duplicate Room tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
+        loger(u8"Duplicate Room tag '{}' insertion into {} rejected.", tag, ShortDesc());
         return false;
       }
     } else if (process(defs, u8"decor:")) {
       std::u8string_view tag(defs);
       tag = getuntil(tag, '\n');
       if (!decortagdefs[this].try_emplace(add_to_dictionary(tag), defs).second) {
-        loger(u8"Duplicate Decor tag '{}' insertion into {} rejected.\n", tag, ShortDesc());
+        loger(u8"Duplicate Decor tag '{}' insertion into {} rejected.", tag, ShortDesc());
         return false;
       }
     } else {
-      loger(u8"Bad tag type '{}'.\n", getuntil(defs, '\n'));
+      loger(u8"Bad tag type '{}'.", getuntil(defs, '\n'));
       return false;
     }
     skipspace(defs);
   }
 
   if (defs.length() > 0) {
-    loger(u8"Bad content at end of .tags file: '{}'.\n", getuntil(defs, '\n'));
+    loger(u8"Bad content at end of .tags file: '{}'.", getuntil(defs, '\n'));
     return false;
   }
 
@@ -539,7 +539,7 @@ bool Object::LoadTagsFrom(const std::u8string_view& tagdefs, bool save) {
 
 std::u8string get_tags_string(Object* world, const DArr32<uint32_t>& tags) {
   if (!world->LoadTags()) {
-    logey(u8"Warning: Asked to inspect tags in a world with no tags defined.\n");
+    logey(u8"Warning: Asked to inspect tags in a world with no tags defined.");
   }
 
   std::u8string ret = u8"";
@@ -573,7 +573,7 @@ static ObjectTag base_room(
 
 ObjectTag Object::BuildNPC(const std::u8string_view& tagstr) {
   if (!World()->LoadTags()) {
-    loger(u8"ERROR: Asked to load NPC in a world with no tags defined.\n");
+    loger(u8"ERROR: Asked to load NPC in a world with no tags defined.");
   }
 
   // Merge Given NPC Tags into new NPC Def
@@ -604,7 +604,7 @@ ObjectTag Object::BuildNPC(const std::u8string_view& tagstr) {
     if (npctagdefs.at(World()).contains(crc32c(ntag))) {
       tags.push_back(crc32c(ntag));
     } else {
-      loger(u8"ERROR: Use of undefined NPC tag: '{}'.  Skipping.\n", ntag);
+      loger(u8"ERROR: Use of undefined NPC tag: '{}'.  Skipping.", ntag);
     }
     start = end;
     if (start != tagstr.cend()) {
@@ -642,7 +642,7 @@ Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tagstr) {
 
 ObjectTag Object::BuildRoom(const std::u8string_view& tagstr) {
   if (!World()->LoadTags()) {
-    loger(u8"ERROR: Asked to load Room in a world with no tags defined.\n");
+    loger(u8"ERROR: Asked to load Room in a world with no tags defined.");
   }
 
   std::vector<uint32_t> tags;
@@ -653,7 +653,7 @@ ObjectTag Object::BuildRoom(const std::u8string_view& tagstr) {
     if (roomtagdefs.at(World()).contains(crc32c(rtag))) {
       tags.push_back(crc32c(rtag));
     } else {
-      loger(u8"ERROR: Use of undefined Room tag: '{}'.  Skipping.\n", rtag);
+      loger(u8"ERROR: Use of undefined Room tag: '{}'.  Skipping.", rtag);
     }
     start = end;
     if (start != tagstr.cend()) {
@@ -694,7 +694,7 @@ void Object::SetTags(const std::u8string_view& tags_in) {
   while (tag.length() > 0 || tags.length() > 0) {
     if (tag.length() > 0) {
       if (!tag_dictionary.contains(crc32c(tag))) {
-        loger(u8"ERROR: Applied an undefined tag: '{}'\n", tag);
+        loger(u8"ERROR: Applied an undefined tag: '{}'", tag);
       }
       completed.push_back(crc32c(tag));
     }

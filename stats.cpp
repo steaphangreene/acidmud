@@ -41,7 +41,7 @@ int is_skill(uint32_t stok) {
 
 uint32_t get_weapon_skill(int wtype) {
   if (!weaponskills.count(wtype)) {
-    loge(u8"Warning: No Skill Type {}!\n", wtype);
+    loge(u8"Warning: No Skill Type {}!", wtype);
     return prhash(u8"None");
   }
   return weaponskills[wtype];
@@ -49,7 +49,7 @@ uint32_t get_weapon_skill(int wtype) {
 
 int get_weapon_type(const std::u8string_view& wskill) {
   if (!weapontypes.contains(crc32c(wskill))) {
-    loge(u8"Warning: No Skill Named '{}'/[{:8X}]!\n", wskill, crc32c(wskill));
+    loge(u8"Warning: No Skill Named '{}'/[{:8X}]!", wskill, crc32c(wskill));
     return 0;
   }
   return weapontypes[crc32c(wskill)];
@@ -305,7 +305,7 @@ int Object::RollNoWounds(uint32_t stok, int targ, int penalty, std::u8string* re
       dice = ModAttribute(defaults[stok]);
     }
   } else {
-    loger(u8"Error: Asked to roll non-existant skill: '{}'\n", SkillName(stok));
+    loger(u8"Error: Asked to roll non-existant skill: '{}'", SkillName(stok));
     return 0;
   }
 
