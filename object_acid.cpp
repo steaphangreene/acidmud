@@ -21,6 +21,8 @@
 
 #include <map>
 
+#include <magic_enum.hpp>
+
 #include "color.hpp"
 #include "infile.hpp"
 #include "log.hpp"
@@ -118,16 +120,32 @@ static_assert(act_save[std::to_underlying(act_t::SPECIAL_OWNER)] == u8"SPECIAL_O
 static_assert(act_save[std::to_underlying(act_t::SPECIAL_ACTEE)] == u8"SPECIAL_ACTEE");
 
 template <typename T>
-static T enum_load(const std::u8string_view& str, const auto& enum_save) {
-  static std::map<std::u8string_view, T> load_map;
-  if (load_map.size() < 1) {
-    for (T a = T::NONE; a != T::MAX; ++a) {
-      load_map[enum_save[std::to_underlying(a)]] = a;
+static std::u8string_view enum_save(const T enum_val) {
+  static std::array<std::u8string, std::to_underlying(T::MAX)> save_cache;
+  if (save_cache.size() > 0 && save_cache.front() == u8"") {
+    for (T e = T::NONE; e != T::MAX; ++e) {
+      auto char_string_name = magic_enum::enum_name(e);
+      std::u8string char8_string_name(
+          reinterpret_cast<const char8_t*>(char_string_name.data()), char_string_name.length());
+      save_cache[std::to_underlying(e)] = char8_string_name;
     }
   }
-  if (load_map.count(str) < 1)
-    return T::NONE;
-  return load_map[str];
+  return save_cache.at(std::to_underlying(enum_val));
+}
+
+template <typename T>
+static T enum_load(const std::u8string_view& str) {
+  static std::map<std::u8string_view, T> load_cache;
+  if (load_cache.size() < 1) {
+    for (T e = T::NONE; e != T::MAX; ++e) {
+      auto name = enum_save(e);
+      load_cache[name] = e;
+    }
+  }
+  if (load_cache.contains(str)) {
+    return load_cache[str];
+  }
+  return T::NONE;
 }
 
 static std::vector<Object*> todo;
@@ -230,11 +248,11 @@ int Object::SaveTo(outfile& fl) {
     fl.append(u8"{}\n", getonum(cind));
   }
 
-  fl.append(u8"{}\n", pos_save[std::to_underlying(position)]);
+  fl.append(u8"{}\n", enum_save(position));
 
   fl.append(u8"{}\n", (int)(actions.size()));
   for (auto aind : actions) {
-    fl.append(u8"{};{}\n", act_save[std::to_underlying(aind.act())], getonum(aind.obj()));
+    fl.append(u8"{};{}\n", enum_save(aind.act()), getonum(aind.obj()));
   }
 
   fl.append(u8"\n");
@@ -428,7 +446,7 @@ int Object::LoadFrom(std::u8string_view& fl) {
   }
 
   if (ver >= 0x001D) {
-    position = enum_load<pos_t>(getgraph(fl), pos_save);
+    position = enum_load<pos_t>(getgraph(fl));
   } else { // Prior to v0x001D, position was saved as a raw int
     position = static_cast<pos_t>(nextnum(fl));
   }
@@ -440,7 +458,7 @@ int Object::LoadFrom(std::u8string_view& fl) {
     auto acts = getuntil(fl, ';');
     int onum = nextnum(fl);
     skipspace(fl);
-    act_t a = enum_load<act_t>(acts, act_save);
+    act_t a = enum_load<act_t>(acts);
     if (a != act_t::SPECIAL_ACTEE && a != act_t::NONE) {
       AddAct(a, getbynum(onum));
     }
