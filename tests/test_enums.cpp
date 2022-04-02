@@ -25,6 +25,14 @@
 #include "../object.hpp"
 
 TEST_CASE("Test enum Names", "[enums]") {
+  SECTION("Test gender_t") {
+    REQUIRE(enum_save(gender_t::NONE) == u8"NONE");
+    REQUIRE(enum_save(gender_t::FEMALE) == u8"FEMALE");
+    REQUIRE(enum_save(gender_t::MALE) == u8"MALE");
+    REQUIRE(enum_save(gender_t::NEITHER) == u8"NEITHER");
+    REQUIRE(enum_size<gender_t>::value == 4);
+  }
+
   SECTION("Test pos_t") {
     REQUIRE(enum_save(pos_t::NONE) == u8"NONE");
     REQUIRE(enum_save(pos_t::LIE) == u8"LIE");
@@ -32,6 +40,7 @@ TEST_CASE("Test enum Names", "[enums]") {
     REQUIRE(enum_save(pos_t::PROP) == u8"PROP");
     REQUIRE(enum_save(pos_t::STAND) == u8"STAND");
     REQUIRE(enum_save(pos_t::USE) == u8"USE");
+    REQUIRE(enum_size<pos_t>::value == std::to_underlying(pos_t::MAX));
   }
 
   SECTION("Test act_t") {
@@ -77,5 +86,6 @@ TEST_CASE("Test enum Names", "[enums]") {
     REQUIRE(enum_save(act_t::SPECIAL_WORK) == u8"SPECIAL_WORK");
     REQUIRE(enum_save(act_t::SPECIAL_OWNER) == u8"SPECIAL_OWNER");
     REQUIRE(enum_save(act_t::SPECIAL_ACTEE) == u8"SPECIAL_ACTEE");
+    REQUIRE(enum_size<act_t>::value == std::to_underlying(act_t::MAX));
   }
 }

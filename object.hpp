@@ -179,6 +179,9 @@ enum class gender_t : int8_t {
   MALE,
   NEITHER,
 };
+inline void operator++(gender_t& g) {
+  g = static_cast<gender_t>(std::to_underlying(g) + 1);
+};
 
 #define ALL (-0x7FFFFFFF)
 #define SOME (-0x7FFFFFFE)

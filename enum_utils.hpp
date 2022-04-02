@@ -21,14 +21,27 @@
 
 #include <array>
 #include <map>
+#include <type_traits>
 
+#define MAGIC_ENUM_RANGE_MIN 0
+#define MAGIC_ENUM_RANGE_MAX 255
 #include <magic_enum.hpp>
+
+// Base case: use Magic Enum's size for the enum, assuming all values are used: [0-N]
+template <typename T>
+struct enum_size : std::integral_constant<uint8_t, magic_enum::enum_count<T>()> {};
+
+// But, if it is an enum with ::MAX and ::NONE, use MAX as the limit: [NONE-MAX)
+template <typename T>
+  requires(std::is_enum_v<T> && T::MAX > T::NONE && std::to_underlying(T::NONE) == 0)
+struct enum_size<T> : std::integral_constant<uint8_t, std::to_underlying(T::MAX)> {};
 
 template <typename T>
 static std::u8string_view enum_save(const T enum_val) {
-  static std::array<std::u8string, std::to_underlying(T::MAX)> save_cache;
+  constexpr uint8_t max = enum_size<T>();
+  static std::array<std::u8string, max> save_cache;
   if (save_cache.size() > 0 && save_cache.front() == u8"") {
-    for (T e = T::NONE; e != T::MAX; ++e) {
+    for (T e = T::NONE; e != static_cast<T>(max); ++e) {
       auto char_string_name = magic_enum::enum_name(e);
       std::u8string char8_string_name(
           reinterpret_cast<const char8_t*>(char_string_name.data()), char_string_name.length());
@@ -40,9 +53,10 @@ static std::u8string_view enum_save(const T enum_val) {
 
 template <typename T>
 static T enum_load(const std::u8string_view& str) {
+  constexpr uint8_t max = enum_size<T>();
   static std::map<std::u8string_view, T> load_cache;
   if (load_cache.size() < 1) {
-    for (T e = T::NONE; e != T::MAX; ++e) {
+    for (T e = T::NONE; e != static_cast<T>(max); ++e) {
       auto name = enum_save(e);
       load_cache[name] = e;
     }
