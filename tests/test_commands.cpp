@@ -26,30 +26,62 @@
 #include "../object.hpp"
 #include "../properties.hpp"
 
-static void give_money(Object* owner, ssize_t pp, ssize_t gp, ssize_t sp, ssize_t cp) {
+static Object* test_person(Object* room) {
+  Object* person = new Object(room);
+  person->AddTag(crc32c(u8"master"));
+  person->AddTag(crc32c(u8"sawyer"));
+  person->SetAttribute(0, 4);
+  person->SetAttribute(1, 4);
+  person->SetAttribute(2, 4);
+  person->SetAttribute(3, 4);
+  person->SetAttribute(4, 4);
+  person->SetAttribute(5, 4);
+  person->SetPosition(pos_t::STAND);
+  return person;
+}
+
+static Object* give_purse(Object* owner) {
+  Object* purse = new Object(owner);
+  purse->SetShortDesc(u8"a small purse");
+  purse->SetDesc(u8"A small, durable, practical moneypurse.");
+  purse->SetSkill(prhash(u8"Wearable on Left Hip"), 1);
+  purse->SetSkill(prhash(u8"Wearable on Right Hip"), 2);
+  purse->SetSkill(prhash(u8"Container"), 5 * 454);
+  purse->SetSkill(prhash(u8"Capacity"), 5);
+  purse->SetSkill(prhash(u8"Closeable"), 1);
+  purse->SetWeight(1 * 454);
+  purse->SetSize(2);
+  purse->SetVolume(1);
+  purse->SetValue(100);
+  purse->SetPosition(pos_t::LIE);
+  owner->AddAct(act_t::WEAR_LHIP, purse);
+  return purse;
+}
+
+static void give_money(Object* purse, size_t pp, size_t gp, size_t sp, size_t cp) {
   if (pp > 0) {
-    Object* platinum = new Object(owner);
+    Object* platinum = new Object(purse);
     platinum->SetShortDesc(u8"a platinum piece");
     platinum->SetValue(10000);
     platinum->SetSkill(prhash(u8"Money"), 10000);
     platinum->SetQuantity(pp);
   }
   if (gp > 0) {
-    Object* gold = new Object(owner);
+    Object* gold = new Object(purse);
     gold->SetShortDesc(u8"a gold piece");
     gold->SetValue(1000);
     gold->SetSkill(prhash(u8"Money"), 1000);
     gold->SetQuantity(gp);
   }
   if (sp > 0) {
-    Object* silver = new Object(owner);
+    Object* silver = new Object(purse);
     silver->SetShortDesc(u8"a silver piece");
     silver->SetValue(100);
     silver->SetSkill(prhash(u8"Money"), 100);
     silver->SetQuantity(sp);
   }
   if (cp > 0) {
-    Object* copper = new Object(owner);
+    Object* copper = new Object(purse);
     copper->SetShortDesc(u8"a copper piece");
     copper->SetValue(10);
     copper->SetSkill(prhash(u8"Money"), 10);
@@ -71,33 +103,19 @@ TEST_CASE("Shop Commands", "[commands]") {
   room->SetShortDesc(u8"room");
   room->SetSkill(prhash(u8"Light Source"), 1000);
 
-  auto shopkeeper = new Object(room);
+  auto shopkeeper = test_person(room);
   shopkeeper->SetShortDesc(u8"shopkeeper");
-  shopkeeper->AddTag(crc32c(u8"master"));
-  shopkeeper->AddTag(crc32c(u8"sawyer"));
-  shopkeeper->SetAttribute(0, 4);
-  shopkeeper->SetAttribute(1, 4);
-  shopkeeper->SetAttribute(2, 4);
-  shopkeeper->SetAttribute(3, 4);
-  shopkeeper->SetAttribute(4, 4);
-  shopkeeper->SetAttribute(5, 4);
-  shopkeeper->SetPosition(pos_t::STAND);
   shopkeeper->AddAct(act_t::SPECIAL_WORK, room);
   shopkeeper->AddAct(act_t::WORK);
   shopkeeper->Attach(std::make_shared<Mind>(mind_t::NPC));
-  give_money(shopkeeper, 3, 3, 3, 3);
+  Object* shop_purse = give_purse(shopkeeper);
+  give_money(shop_purse, 3, 3, 3, 3);
 
-  auto customer = new Object(room);
+  auto customer = test_person(room);
   customer->SetShortDesc(u8"customer");
-  customer->SetAttribute(0, 4);
-  customer->SetAttribute(1, 4);
-  customer->SetAttribute(2, 4);
-  customer->SetAttribute(3, 4);
-  customer->SetAttribute(4, 4);
-  customer->SetAttribute(5, 4);
-  customer->SetPosition(pos_t::STAND);
   customer->Attach(mind);
-  give_money(customer, 3, 3, 3, 3);
+  Object* cust_purse = give_purse(customer);
+  give_money(cust_purse, 3, 3, 3, 3);
 
   auto equip = new Object(room);
   equip->SetShortDesc(u8"equip");
@@ -116,6 +134,34 @@ TEST_CASE("Shop Commands", "[commands]") {
   item2->SetPosition(pos_t::LIE);
   item2->SetSkill(prhash(u8"Pure Wood"), 100000);
 
+  SECTION("Shop Commands With Missing Args") {
+    handle_command(customer, u8"buy", mind);
+    REQUIRE(customer->LongDesc() == u8"What do you want to buy?");
+    customer->SetLongDesc(u8"");
+
+    handle_command(customer, u8"value", mind);
+    REQUIRE(customer->LongDesc() == u8"What do you want to sell?");
+    customer->SetLongDesc(u8"");
+
+    handle_command(customer, u8"sell", mind);
+    REQUIRE(customer->LongDesc() == u8"What do you want to sell?");
+    customer->SetLongDesc(u8"");
+  }
+
+  SECTION("Shop Commands With Invalid Args") {
+    handle_command(customer, u8"buy nothing", mind);
+    REQUIRE(customer->LongDesc() == u8"The shopkeeper doesn't have that.");
+    customer->SetLongDesc(u8"");
+
+    handle_command(customer, u8"value nothing", mind);
+    REQUIRE(customer->LongDesc() == u8"You want to sell what?");
+    customer->SetLongDesc(u8"");
+
+    handle_command(customer, u8"sell nothing", mind);
+    REQUIRE(customer->LongDesc() == u8"You want to sell what?");
+    customer->SetLongDesc(u8"");
+  }
+
   SECTION("List Items") {
     handle_command(customer, u8"list", mind);
     REQUIRE(!shopkeeper->HasWithin(item1));
@@ -125,6 +171,50 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(customer->HasWithin(item2));
     REQUIRE(item2->Parent() != room);
     REQUIRE(customer->LongDesc().contains(u8"    22cp: item1\n"));
+  }
+
+  SECTION("List Items Missing Mind") {
+    handle_command(customer, u8"list");
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"");
+  }
+
+  SECTION("List Plural-Quantity Items") {
+    item1->SetQuantity(3);
+    handle_command(customer, u8"list", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc().contains(u8"    22cp: item1 (x3)\n"));
+  }
+
+  SECTION("List With A Not-For-Sale Item") {
+    handle_command(customer, u8"sell item2", mind);
+    handle_command(customer, u8"list", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(!customer->HasWithin(item2));
+    REQUIRE(item2->Parent() == room);
+    REQUIRE(customer->LongDesc().contains(u8"    22cp: item1\n"));
+  }
+
+  SECTION("List With No Items") {
+    delete item1;
+    handle_command(customer, u8"list", mind);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Nothing is for sale here, sorry.");
   }
 
   SECTION("List Items Without Seller") {
@@ -147,7 +237,66 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(!shopkeeper->HasWithin(item2));
     REQUIRE(customer->HasWithin(item2));
     REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc().ends_with(u8"You buy and stash your item1."));
+  }
+
+  SECTION("Buy Item Too Heavy For Storage") {
+    item1->SetWeight(5000);
+    handle_command(customer, u8"buy item1", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(customer->HasWithin(item1));
+    REQUIRE(item1->Parent() != room);
+    REQUIRE(customer->ActTarg(act_t::HOLD) == item1);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
     REQUIRE(customer->LongDesc().ends_with(u8"You buy and hold your item1."));
+  }
+
+  SECTION("Buy Item Too Big For Storage") {
+    item1->SetVolume(50);
+    handle_command(customer, u8"buy item1", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(customer->HasWithin(item1));
+    REQUIRE(item1->Parent() != room);
+    REQUIRE(customer->ActTarg(act_t::HOLD) == item1);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc().ends_with(u8"You buy and hold your item1."));
+  }
+
+  SECTION("Buy Item Requiring Release of Shield") {
+    item2->SetVolume(50);
+    customer->AddAct(act_t::WEAR_SHIELD, item2);
+    customer->AddAct(act_t::HOLD, item2);
+    item1->SetVolume(50);
+    handle_command(customer, u8"buy item1", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(customer->HasWithin(item1));
+    REQUIRE(item1->Parent() != room);
+    REQUIRE(customer->ActTarg(act_t::HOLD) == item1);
+    REQUIRE(customer->ActTarg(act_t::WEAR_SHIELD) == item2);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc().contains(u8"You stop holding your item2."));
+    REQUIRE(customer->LongDesc().ends_with(u8"You buy and hold your item1."));
+  }
+
+  SECTION("Buy Item Can't Store Or Hold") {
+    item2->SetVolume(50);
+    customer->AddAct(act_t::HOLD, item2);
+    item1->SetVolume(50);
+    handle_command(customer, u8"buy item1", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(customer->ActTarg(act_t::HOLD) == item2);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc().ends_with(u8"You can't stash or hold item1."));
   }
 
   SECTION("Buy Item Without Seller") {
@@ -160,6 +309,121 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(customer->HasWithin(item2));
     REQUIRE(item2->Parent() != room);
     REQUIRE(customer->LongDesc() == u8"You can only do that around a shopkeeper.");
+  }
+
+  SECTION("Buy Item Without Any Coin") {
+    handle_command(customer, u8"drop all", mind);
+    handle_command(customer, u8"buy item1", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(!customer->HasWithin(item2));
+    REQUIRE(item2->Parent() == room);
+    REQUIRE(customer->LongDesc().ends_with(u8"You can't afford the 22cp (you only have 0)."));
+  }
+
+  SECTION("Buy Item Without Enough Coin") {
+    handle_command(customer, u8"drop all", mind);
+    give_money(customer, 0, 0, 2, 1);
+    handle_command(customer, u8"buy item1", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(!customer->HasWithin(item2));
+    REQUIRE(item2->Parent() == room);
+    REQUIRE(customer->LongDesc().ends_with(u8"You can't afford the 22cp (you only have 21cp)."));
+  }
+
+  SECTION("Buy Item Without Enough Change") {
+    handle_command(customer, u8"drop all", mind);
+    give_money(customer, 1, 0, 0, 0);
+    handle_command(customer, u8"buy item1", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(!customer->HasWithin(item2));
+    REQUIRE(item2->Parent() == room);
+    REQUIRE(customer->LongDesc().contains(
+        u8"You don't have change to pay 22cp (you'd have to pay 1pp)...."));
+    REQUIRE(customer->LongDesc().ends_with(u8"and I can't make change for that, sorry."));
+  }
+
+  SECTION("Buy Item Requiring Change") {
+    handle_command(customer, u8"drop all", mind);
+    give_money(customer, 0, 1, 0, 0);
+    give_money(shopkeeper, 0, 0, 9, 9);
+    handle_command(customer, u8"buy item1", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(!customer->HasWithin(item2));
+    REQUIRE(item2->Parent() == room);
+    REQUIRE(customer->LongDesc().contains(
+        u8"You don't have change to pay 22cp (you'd have to pay 1gp)."));
+    REQUIRE(customer->LongDesc().ends_with(u8"You get 78cp from shopkeeper."));
+  }
+
+  SECTION("Buy All With One For-Sale Item") {
+    handle_command(customer, u8"buy all", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc().contains(u8"Sorry, you can't buy that."));
+  }
+
+  SECTION("Buy All With A Not-For-Sale Item") {
+    handle_command(customer, u8"sell item2", mind);
+    handle_command(customer, u8"buy all", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(!customer->HasWithin(item2));
+    REQUIRE(item2->Parent() == room);
+    REQUIRE(customer->LongDesc().contains(u8"Sorry, you can't buy that."));
+  }
+
+  SECTION("Buy Worthless Item") {
+    item1->SetValue(0);
+    handle_command(customer, u8"buy item1", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc().ends_with(u8"Item1 is worthless."));
+  }
+
+  SECTION("Buy Priceless Item") {
+    item1->SetSkill(prhash(u8"Priceless"), 1);
+    handle_command(customer, u8"buy item1", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc().ends_with(u8"You can't buy item1."));
+  }
+
+  SECTION("Buy Cursed Item") {
+    item1->SetSkill(prhash(u8"Cursed"), 1);
+    handle_command(customer, u8"buy item1", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc().ends_with(u8"You can't buy item1."));
   }
 
   SECTION("Value Item") {
@@ -197,6 +461,89 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(customer->LongDesc().contains(u8"You sell your item2."));
   }
 
+  SECTION("Sell Item Without Purse") {
+    handle_command(customer, u8"remove purse;drop purse", mind);
+    handle_command(customer, u8"sell item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(!customer->HasWithin(item2));
+    REQUIRE(item2->Parent() == room);
+    REQUIRE(customer->LongDesc().ends_with(
+        u8"You couldn't stash 12 copper pieces, so at least some of it fell on the floor!"));
+  }
+
+  SECTION("Sell Collection") {
+    Object* subitem = new Object(item2);
+    subitem->SetPosition(pos_t::LIE);
+    handle_command(customer, u8"sell item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(
+        customer->LongDesc() ==
+        u8"Your item2 is not empty.  You must empty it before you can sell it.");
+  }
+
+  SECTION("Sell Container") {
+    item2->SetSkill(prhash(u8"Container"), 1000);
+    handle_command(customer, u8"sell item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(
+        customer->LongDesc() == u8"Your item2 is a container.  You can't sell containers (yet).");
+  }
+
+  SECTION("Sell Liquid Container") {
+    item2->SetSkill(prhash(u8"Liquid Container"), 1000);
+    handle_command(customer, u8"sell item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(
+        customer->LongDesc() == u8"Your item2 is a container.  You can't sell containers (yet).");
+  }
+
+  SECTION("Sell Held Item") {
+    customer->AddAct(act_t::HOLD, item2);
+    handle_command(customer, u8"sell item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(!customer->HasWithin(item2));
+    REQUIRE(item2->Parent() == room);
+    REQUIRE(!customer->IsAct(act_t::HOLD));
+    REQUIRE(customer->LongDesc().starts_with(u8"I'll give you 12cp for item2"));
+    REQUIRE(customer->LongDesc().contains(u8"You sell your item2."));
+  }
+
+  SECTION("Sell Dragged Item") {
+    item2->Travel(room);
+    customer->AddAct(act_t::HOLD, item2);
+    handle_command(customer, u8"sell item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(!customer->HasWithin(item2));
+    REQUIRE(item2->Parent() == room);
+    REQUIRE(!customer->IsAct(act_t::HOLD));
+    REQUIRE(customer->LongDesc().starts_with(u8"I'll give you 12cp for item2"));
+    REQUIRE(customer->LongDesc().contains(u8"You sell item2."));
+  }
+
   SECTION("Sell Item Without Seller") {
     shopkeeper->StopAct(act_t::WORK);
     handle_command(customer, u8"sell item2", mind);
@@ -207,6 +554,98 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(customer->HasWithin(item2));
     REQUIRE(item2->Parent() != room);
     REQUIRE(customer->LongDesc() == u8"Sorry, nobody is buying that sort of thing here.");
+  }
+
+  SECTION("Sell Item Without Any Coin") {
+    handle_command(shopkeeper, u8"drop all", mind);
+    handle_command(customer, u8"sell item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc().ends_with(u8"I can't afford the 12cp (I only have 0)."));
+  }
+
+  SECTION("Sell Item Without Enough Coin") {
+    handle_command(shopkeeper, u8"drop all", mind);
+    give_money(shopkeeper, 0, 0, 1, 1);
+    handle_command(customer, u8"sell item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc().ends_with(u8"I can't afford the 12cp (I only have 11cp)."));
+  }
+
+  SECTION("Sell Item Without Enough Change") {
+    handle_command(shopkeeper, u8"drop all", mind);
+    give_money(shopkeeper, 1, 0, 0, 0);
+    handle_command(customer, u8"sell item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc().contains(
+        u8"I don't have change to pay 12cp.  You'd have to make change for 1pp...."));
+    REQUIRE(customer->LongDesc().ends_with(u8"but you don't have that change."));
+  }
+
+  SECTION("Sell Item Requiring Change") {
+    handle_command(shopkeeper, u8"drop all", mind);
+    give_money(customer, 0, 0, 9, 9);
+    give_money(shopkeeper, 0, 1, 0, 0);
+    handle_command(customer, u8"sell item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(!customer->HasWithin(item2));
+    REQUIRE(item2->Parent() == room);
+    REQUIRE(customer->LongDesc().contains(
+        u8"I don't have change to pay 12cp.  You'd have to make change for 1gp."));
+    REQUIRE(customer->LongDesc().contains(u8"You pay 88cp to shopkeeper."));
+  }
+
+  SECTION("Sell Worthless Item") {
+    item2->SetValue(0);
+    handle_command(customer, u8"sell item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"your item2 is worthless.");
+  }
+
+  SECTION("Sell Priceless Item") {
+    item2->SetSkill(prhash(u8"Priceless"), 1);
+    handle_command(customer, u8"sell item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"You can't sell your item2.");
+  }
+
+  SECTION("Sell Cursed Item") {
+    item2->SetSkill(prhash(u8"Cursed"), 1);
+    handle_command(customer, u8"sell item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"You can't sell your item2.");
   }
 
   destroy_universe();
