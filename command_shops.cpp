@@ -187,7 +187,7 @@ int handle_command_shops(
 
       for (auto item : items) {
         size_t price = item->Value() * item->Quantity();
-        if (price < 0) {
+        if (item->HasSkill(prhash(u8"Priceless")) || item->HasSkill(prhash(u8"Cursed"))) {
           if (mind) {
             mind->Send(u8"You can't buy {}.\n", item->Noun(0, 0, body));
           }
@@ -329,7 +329,7 @@ int handle_command_shops(
     }
 
     size_t price = item->Value() * item->Quantity();
-    if (price < 0 || item->HasSkill(prhash(u8"Priceless")) || item->HasSkill(prhash(u8"Cursed"))) {
+    if (item->HasSkill(prhash(u8"Priceless")) || item->HasSkill(prhash(u8"Cursed"))) {
       if (mind)
         mind->Send(u8"You can't sell {}.\n", item->Noun(0, 0, body));
       return 0;
