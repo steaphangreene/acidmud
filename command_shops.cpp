@@ -77,7 +77,7 @@ int handle_command_shops(
           if (obj != objs.front() && obj->IsSameAs(*oobj))
             continue;
           size_t price = obj->Value();
-          if (obj->Skill(prhash(u8"Money")) != obj->Value()) { // Not 1-1 Money
+          if (obj->Skill(prhash(u8"Money")) != static_cast<int>(obj->Value())) { // Not 1-1 Money
             price *= shpkp->Skill(prhash(u8"Sell Profit"));
             price += 999;
             price /= 1000;
@@ -203,7 +203,7 @@ int handle_command_shops(
         }
 
         if (shpkp->HasSkill(prhash(u8"Sell Profit"))) { // Circle/TBA
-          if (item->Skill(prhash(u8"Money")) != item->Value()) { // Not 1-1 Money
+          if (item->Skill(prhash(u8"Money")) != static_cast<int>(item->Value())) { // Not 1-1 Money
             price *= shpkp->Skill(prhash(u8"Sell Profit"));
             price += 999;
             price /= 1000;

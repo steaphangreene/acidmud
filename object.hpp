@@ -381,50 +381,50 @@ class alignas(256) Object {
   // Returns how much NPC/MOB would pay for item, or 0.
   size_t WouldBuyFor(const Object* item);
 
-  int ContainedWeight();
-  int ContainedVolume();
+  uint32_t ContainedWeight();
+  uint32_t ContainedVolume();
 
-  int Weight() const {
+  uint32_t Weight() const {
     return weight;
   };
-  int Volume() const {
+  uint32_t Volume() const {
     return volume;
   };
-  int Size() const {
+  uint32_t Size() const {
     return size;
   };
-  int Value() const {
+  size_t Value() const {
     return value;
   };
   gender_t Gender() const {
     return gender;
   };
 
-  void SetCoords(int x, int y, int z = 0) {
+  void SetCoords(uint32_t x, uint32_t y, uint32_t z = 0) {
     weight = x;
     volume = y;
     size = z;
   };
-  int X() const {
+  uint32_t X() const {
     return weight;
   };
-  int Y() const {
+  uint32_t Y() const {
     return volume;
   };
-  int Z() const {
+  uint32_t Z() const {
     return size;
   };
 
-  void SetWeight(int w) {
+  void SetWeight(uint32_t w) {
     weight = w;
   };
-  void SetVolume(int v) {
+  void SetVolume(uint32_t v) {
     volume = v;
   };
-  void SetSize(int s) {
+  void SetSize(uint32_t s) {
     size = s;
   };
-  void SetValue(int v) {
+  void SetValue(uint32_t v) {
     value = v;
   };
   void SetGender(gender_t g) {
@@ -699,10 +699,10 @@ class alignas(256) Object {
   bool no_seek; // Recursion protection
   bool no_hear; // For Send() protection
 
-  int weight; // Also X Coordinate for Zone Locations
-  int volume; // Also Y Coordinate for Zone Locations
-  int size; // Also Z Coordinate for Zone Locations
-  int value;
+  uint32_t weight; // Also X Coordinate for Zone Locations
+  uint32_t volume; // Also Y Coordinate for Zone Locations
+  uint32_t size; // Also Z Coordinate for Zone Locations
+  uint32_t value;
   gender_t gender;
 
   int8_t phys, stun, stru;

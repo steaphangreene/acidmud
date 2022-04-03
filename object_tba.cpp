@@ -932,7 +932,7 @@ void Object::TBALoadMOB(const std::u8string& fn) {
       obj->SetWeight(obj->NormAttribute(0) * 20000);
       obj->SetSize(1000 + obj->NormAttribute(0) * 200);
       obj->SetVolume(100);
-      obj->SetValue(-1);
+      obj->SetValue(0);
 
       if (aware) { // Perception = Int
         obj->SetSkill(prhash(u8"Perception"), obj->NormAttribute(4));
@@ -2303,10 +2303,10 @@ void Object::TBALoadWLD(const std::u8string& fn) {
         }
       }
 
-      obj->SetWeight(-1);
-      obj->SetVolume(-1);
-      obj->SetSize(-1);
-      obj->SetValue(-1);
+      obj->SetWeight(0);
+      obj->SetVolume(0);
+      obj->SetSize(0);
+      obj->SetValue(0);
 
       obj->SetShortDesc(load_tba_field(mud));
       skipspace(mud);

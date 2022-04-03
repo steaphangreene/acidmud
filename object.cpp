@@ -350,7 +350,7 @@ Object* new_body(Object* world) {
   body->SetWeight(body->NormAttribute(0) * 20000);
   body->SetSize(1000 + body->NormAttribute(0) * 200);
   body->SetVolume(100);
-  body->SetValue(-1);
+  body->SetValue(0);
   body->SetWeight(80000);
   body->SetGender(gender_t::MALE);
 
@@ -2262,15 +2262,17 @@ int Object::Travel(Object* dest) {
   int cap = dest->Skill(prhash(u8"Capacity"));
   if (cap > 0) {
     cap -= dest->ContainedVolume();
-    if (Volume() > cap)
+    if (cap <= 0 || Volume() > static_cast<uint32_t>(cap)) {
       return -2;
+    }
   }
 
   int con = dest->Skill(prhash(u8"Container"));
   if (con > 0) {
     con -= dest->ContainedWeight();
-    if (Weight() > con)
+    if (con <= 0 || Weight() > static_cast<uint32_t>(con)) {
       return -3;
+    }
   }
 
   std::u8string dir = u8"";
@@ -2494,16 +2496,16 @@ void Object::Detach(std::shared_ptr<Mind> m) {
   }
 }
 
-int Object::ContainedWeight() {
-  int ret = 0;
+uint32_t Object::ContainedWeight() {
+  uint32_t ret = 0;
   for (auto ind : contents) {
     ret += ind->weight;
   }
   return ret;
 }
 
-int Object::ContainedVolume() {
-  int ret = 0;
+uint32_t Object::ContainedVolume() {
+  uint32_t ret = 0;
   for (auto ind : contents) {
     ret += ind->volume;
   }
@@ -5011,7 +5013,8 @@ size_t Object::CanPayFor(size_t amount) const {
   const auto money = PickObjects(u8"all money", LOC_INTERNAL);
   for (const auto m : money) {
     if (m->Skill(prhash(u8"Money")) > 0) { // Real Money Only
-      if (m->Value() == m->Skill(prhash(u8"Money"))) { // Gold Pieces, Etc.
+      uint32_t money_prop = m->Skill(prhash(u8"Money"));
+      if (m->Value() == money_prop) { // Gold Pieces, Etc.
         // Basic intrinsic money (gp, sp, etc.) is the only thing supported, so far.
         cash.push_back(m);
         if (togo > 0) {
@@ -5024,7 +5027,7 @@ size_t Object::CanPayFor(size_t amount) const {
           }
         }
       } else if (m->Value() <= 0) { // Script, Disney Dollars, Etc.
-      } else if (m->Value() < m->Skill(prhash(u8"Money"))) { // Paper Money, Etc.
+      } else if (m->Value() < money_prop) { // Paper Money, Etc.
       } else { // (Value > Monetary Value): Treasure
       }
     }
@@ -5068,7 +5071,8 @@ DArr64<Object*, 3> Object::PayFor(size_t amount) {
   const auto money = PickObjects(u8"all money", LOC_INTERNAL);
   for (const auto m : money) {
     if (m->Skill(prhash(u8"Money")) > 0) { // Real Money Only
-      if (m->Value() == m->Skill(prhash(u8"Money"))) { // Gold Pieces, Etc.
+      uint32_t money_prop = m->Skill(prhash(u8"Money"));
+      if (m->Value() == money_prop) { // Gold Pieces, Etc.
         // Basic intrinsic money (gp, sp, etc.) is the only thing supported, so far.
         cash.push_back(m);
         if (togo > 0) {
@@ -5081,7 +5085,7 @@ DArr64<Object*, 3> Object::PayFor(size_t amount) {
           }
         }
       } else if (m->Value() <= 0) { // Script, Disney Dollars, Etc.
-      } else if (m->Value() < m->Skill(prhash(u8"Money"))) { // Paper Money, Etc.
+      } else if (m->Value() < money_prop) { // Paper Money, Etc.
       } else { // (Value > Monetary Value): Treasure
       }
     }

@@ -2888,7 +2888,7 @@ size_t Mind::TBAMOBWouldBuyFor(const Object* item) {
 
   uint32_t skill = prhash(u8"None");
 
-  if (item->Skill(prhash(u8"Money")) == item->Value()) { // 1-1 Money
+  if (item->Skill(prhash(u8"Money")) == static_cast<int>(item->Value())) { // 1-1 Money
     for (auto skl : Body()->GetSkills()) {
       if (SkillName(skl.first).starts_with(u8"Buy ")) {
         skill = prhash(u8"Money");

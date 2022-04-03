@@ -2188,8 +2188,8 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       }
 
       // Containers
-      int wtlimit = 0;
-      int szlimit = 0;
+      uint32_t wtlimit = 0;
+      uint32_t szlimit = 0;
       if (targ->HasSkill(prhash(u8"Container"))) {
         mind->Send(u8"{} is a container\n", targ->Noun(1, 1, body));
 
@@ -2250,18 +2250,18 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       if ((volume || wtlimit || szlimit) && other && other != targ) {
         // Containers
         if (szlimit && other->HasSkill(prhash(u8"Capacity"))) {
-          if (szlimit < other->Skill(prhash(u8"Capacity"))) {
+          if (static_cast<int>(szlimit) < other->Skill(prhash(u8"Capacity"))) {
             mind->Send(CYEL u8"   ...it can't fit as much, " CNRM);
-          } else if (szlimit > other->Skill(prhash(u8"Capacity"))) {
+          } else if (static_cast<int>(szlimit) > other->Skill(prhash(u8"Capacity"))) {
             mind->Send(CGRN u8"   ...it can fit more, " CNRM);
           } else {
             mind->Send(u8"   ...it can fit the same, ");
           }
         }
         if (wtlimit && other->HasSkill(prhash(u8"Container"))) {
-          if (wtlimit < other->Skill(prhash(u8"Container"))) {
+          if (static_cast<int>(wtlimit) < other->Skill(prhash(u8"Container"))) {
             mind->Send(CYEL u8"and can't carry as much as {}.\n" CNRM, other->Noun(0, 0, body));
-          } else if (wtlimit > other->Skill(prhash(u8"Container"))) {
+          } else if (static_cast<int>(wtlimit) > other->Skill(prhash(u8"Container"))) {
             mind->Send(CGRN u8"and can carry more than {}.\n" CNRM, other->Noun(0, 0, body));
           } else {
             mind->Send(u8"and can carry the same as {}.\n", other->Noun(0, 0, body));
@@ -2961,7 +2961,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
             targ->Noun(1),
             targ->Noun(0, 0, nullptr, targ));
       }
-    } else if (targ->Weight() > body->ModAttribute(2) * 50000) {
+    } else if (targ->Weight() > static_cast<size_t>(body->ModAttribute(2)) * 50000) {
       if (mind)
         mind->Send(u8"You could never lift {}, it is too heavy.\n", targ->Noun());
     } else if (targ->IsAct(act_t::SPECIAL_OWNER) && targ->ActTarg(act_t::SPECIAL_OWNER) != body) {
@@ -3017,10 +3017,10 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       } else if ((!nmode) && targ->IsAnimate()) {
         if (mind)
           mind->Send(u8"You can't get {}, it is not inanimate.\n", targ->Noun());
-      } else if ((!nmode) && targ->Weight() > body->ModAttribute(2) * 50000) {
+      } else if ((!nmode) && targ->Weight() > static_cast<size_t>(body->ModAttribute(2)) * 50000) {
         if (mind)
           mind->Send(u8"You could never lift {}, it is too heavy.\n", targ->Noun());
-      } else if ((!nmode) && targ->Weight() > body->ModAttribute(2) * 10000) {
+      } else if ((!nmode) && targ->Weight() > static_cast<size_t>(body->ModAttribute(2)) * 10000) {
         if (mind)
           mind->Send(u8"You can't carry {}, it is too heavy.  Try 'drag' instead.\n", targ->Noun());
       } else if (targ->IsAct(act_t::SPECIAL_OWNER) && targ->ActTarg(act_t::SPECIAL_OWNER) != body) {
