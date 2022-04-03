@@ -37,12 +37,13 @@ class Object;
 
 enum class mind_t : uint8_t {
   NONE = 0,
-  REMOTE = 1,
-  NPC = 2,
-  TBAMOB = 3,
-  TBATRIG = 4,
-  MOB = 5,
-  SYSTEM = 6,
+  REMOTE,
+  NPC,
+  TBAMOB,
+  TBATRIG,
+  MOB,
+  SYSTEM,
+  TEST,
 };
 
 class Mind : public std::enable_shared_from_this<Mind> {

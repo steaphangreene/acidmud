@@ -208,6 +208,10 @@ bool Mind::Send(const std::u8string_view& mes) {
     newmes.back() = '\n';
 
     write(pers, newmes.data(), newmes.length());
+  } else if (type == mind_t::TEST) {
+    if (body) {
+      body->SetLongDesc(fmt::format(u8"{}{}\n", body->LongDesc(), mes));
+    }
   }
   return true;
 }
