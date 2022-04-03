@@ -224,14 +224,10 @@ int handle_command_shops(
               auto change = shpkp->PayFor(refund);
               if (change.size() > 0) {
                 pay = body->PayFor(offer);
-                if (pay.size() <= 0) {
-                  mind->Send(u8"...and something went horribly wrong (tell the Ninjas).\n");
-                } else {
-                  for (auto coin : change) {
-                    body->Stash(coin, 0, 1);
-                  }
-                  mind->Send(u8"You get {} from {}.\n", coins(refund), shpkp->ShortDesc());
+                for (auto coin : change) {
+                  body->Stash(coin, 0, 1);
                 }
+                mind->Send(u8"You get {} from {}.\n", coins(refund), shpkp->ShortDesc());
               } else {
                 mind->Send(u8"...and I can't make change for that, sorry.\n");
               }
@@ -394,14 +390,10 @@ int handle_command_shops(
               auto change = body->PayFor(refund);
               if (change.size() > 0) {
                 pay = shpkp->PayFor(offer);
-                if (pay.size() <= 0) {
-                  mind->Send(u8"...and something went horribly wrong (tell Stea).\n");
-                } else {
-                  for (auto coin : change) {
-                    shpkp->Stash(coin, 0, 1);
-                  }
-                  mind->Send(u8"You pay {} to {}.\n", coins(refund), shpkp->ShortDesc());
+                for (auto coin : change) {
+                  shpkp->Stash(coin, 0, 1);
                 }
+                mind->Send(u8"You pay {} to {}.\n", coins(refund), shpkp->ShortDesc());
               } else {
                 mind->Send(u8"...but you don't have that change.\n");
               }
