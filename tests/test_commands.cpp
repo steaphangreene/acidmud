@@ -60,7 +60,7 @@ static void give_money(Object* owner, ssize_t pp, ssize_t gp, ssize_t sp, ssize_
 TEST_CASE("Shop Commands", "[commands]") {
   init_universe();
 
-  auto mind = std::make_shared<Mind>(mind_t::SYSTEM);
+  auto mind = std::make_shared<Mind>(mind_t::TEST);
 
   // Note: Each must have a different ShortDesc to avoid being auto-combined.
   auto world = new Object(Object::Universe());
@@ -124,6 +124,7 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(!shopkeeper->HasWithin(item2));
     REQUIRE(customer->HasWithin(item2));
     REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc().contains(u8"    22cp: item1\n"));
   }
 
   SECTION("List Items Without Seller") {
@@ -135,6 +136,7 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(!shopkeeper->HasWithin(item2));
     REQUIRE(customer->HasWithin(item2));
     REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"You can only do that around a shopkeeper.");
   }
 
   SECTION("Buy Item") {
@@ -145,6 +147,7 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(!shopkeeper->HasWithin(item2));
     REQUIRE(customer->HasWithin(item2));
     REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc().ends_with(u8"You buy and hold your item1."));
   }
 
   SECTION("Buy Item Without Seller") {
@@ -156,6 +159,7 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(!shopkeeper->HasWithin(item2));
     REQUIRE(customer->HasWithin(item2));
     REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"You can only do that around a shopkeeper.");
   }
 
   SECTION("Value Item") {
@@ -166,6 +170,7 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(!shopkeeper->HasWithin(item2));
     REQUIRE(customer->HasWithin(item2));
     REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"I'll give you 12cp for item2");
   }
 
   SECTION("Value Item Without Seller") {
@@ -177,6 +182,7 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(!shopkeeper->HasWithin(item2));
     REQUIRE(customer->HasWithin(item2));
     REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Sorry, nobody is buying that sort of thing here.");
   }
 
   SECTION("Sell Item") {
@@ -187,6 +193,8 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(!shopkeeper->HasWithin(item2));
     REQUIRE(!customer->HasWithin(item2));
     REQUIRE(item2->Parent() == room);
+    REQUIRE(customer->LongDesc().starts_with(u8"I'll give you 12cp for item2"));
+    REQUIRE(customer->LongDesc().contains(u8"You sell your item2."));
   }
 
   SECTION("Sell Item Without Seller") {
@@ -198,6 +206,7 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(!shopkeeper->HasWithin(item2));
     REQUIRE(customer->HasWithin(item2));
     REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Sorry, nobody is buying that sort of thing here.");
   }
 
   destroy_universe();
