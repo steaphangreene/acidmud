@@ -174,7 +174,7 @@ int handle_command_shops(
         if (!all_for_sale) {
           mind->Send(CRED u8"Sorry, you can't buy that.\n" CNRM);
           return 0;
-        } else {
+        } else if (price > 0) {
           mind->Send(CGRN u8"Deal.  That will be {}.\n" CNRM, coin_str(price));
         }
       }
