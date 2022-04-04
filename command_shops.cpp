@@ -91,7 +91,9 @@ int handle_command_list(
           price += 999;
           price /= 1000;
         }
-        mind->Send(u8"{:>10}: {}\n", coins(price), obj->ShortDesc());
+        if (mind) {
+          mind->Send(u8"{:>10}: {}\n", coins(price), obj->ShortDesc());
+        }
         oobj = obj;
       }
     } else {
@@ -108,18 +110,20 @@ int handle_command_list(
             price += 999;
             price /= 1000;
           }
-          if (item->Quantity() > 1) {
-            mind->Send(
-                CMAG u8"{:>10}: {} (x{})\n" CNRM,
-                coins(price),
-                item->ShortDesc(),
-                item->Quantity());
-          } else {
-            mind->Send(CMAG u8"{:>10}: {}\n" CNRM, coins(price), item->ShortDesc());
+          if (mind) {
+            if (item->Quantity() > 1) {
+              mind->Send(
+                  CMAG u8"{:>10}: {} (x{})\n" CNRM,
+                  coins(price),
+                  item->ShortDesc(),
+                  item->Quantity());
+            } else {
+              mind->Send(CMAG u8"{:>10}: {}\n" CNRM, coins(price), item->ShortDesc());
+            }
           }
         }
       }
-      if (!have_stock) {
+      if (mind && !have_stock) {
         mind->Send(u8"Nothing is for sale here, sorry.\n");
       }
     }
@@ -135,8 +139,9 @@ int handle_command_buy(
     int stealth_t,
     int stealth_s) {
   if (args.empty()) {
-    if (mind)
+    if (mind) {
       mind->Send(u8"What do you want to buy?\n");
+    }
     return 0;
   }
 
@@ -177,19 +182,24 @@ int handle_command_buy(
       for (auto item : items) {
         if (item->ActTarg(act_t::SPECIAL_OWNER) != body->Room() ||
             item->Position() != pos_t::PROP) {
-          mind->Send(CRED u8" Not For Sale: {}\n" CNRM, item->ShortDesc());
+          if (mind) {
+            mind->Send(CRED u8" Not For Sale: {}\n" CNRM, item->ShortDesc());
+          }
           all_for_sale = false;
         }
       }
       if (!all_for_sale) {
-        mind->Send(CRED u8"Sorry, you can't buy that.\n" CNRM);
+        if (mind) {
+          mind->Send(CRED u8"Sorry, you can't buy that.\n" CNRM);
+        }
         return 0;
       }
     }
 
     if (items.size() == 0) {
-      if (mind)
+      if (mind) {
         mind->Send(u8"The shopkeeper doesn't have that.\n");
+      }
       return 0;
     }
 
@@ -217,29 +227,37 @@ int handle_command_buy(
           price /= 1000;
         }
       }
-      mind->Send(u8"{}: {}\n", coins(price), item->ShortDesc());
+      if (mind) {
+        mind->Send(u8"{}: {}\n", coins(price), item->ShortDesc());
+      }
 
       auto pay = body->PayFor(price);
       if (pay.size() == 0) {
-        if (mind) {
-          auto offer = body->CanPayFor(price);
-          if (offer > price) {
+        auto offer = body->CanPayFor(price);
+        if (offer > price) {
+          if (mind) {
             mind->Send(
                 u8"You don't have change to pay {} (you'd have to pay {}).\n",
                 coins(price),
                 coins(offer));
-            auto refund = offer - price;
-            auto change = shpkp->PayFor(refund);
-            if (change.size() > 0) {
-              pay = body->PayFor(offer);
-              for (auto coin : change) {
-                body->Stash(coin, 0, 1);
-              }
+          }
+          auto refund = offer - price;
+          auto change = shpkp->PayFor(refund);
+          if (change.size() > 0) {
+            pay = body->PayFor(offer);
+            for (auto coin : change) {
+              body->Stash(coin, 0, 1);
+            }
+            if (mind) {
               mind->Send(u8"You get {} from {}.\n", coins(refund), shpkp->ShortDesc());
-            } else {
-              mind->Send(u8"...and I can't make change for that, sorry.\n");
             }
           } else {
+            if (mind) {
+              mind->Send(u8"...and I can't make change for that, sorry.\n");
+            }
+          }
+        } else {
+          if (mind) {
             mind->Send(
                 u8"You can't afford the {} (you only have {}).\n", coins(price), coins(offer));
           }
@@ -286,8 +304,9 @@ int handle_command_buy(
           shpkp->Stash(coin, 0, 1);
         }
       } else {
-        if (mind)
+        if (mind) {
           mind->Send(u8"You can't stash or hold {}.\n", item->Noun(1));
+        }
       }
     }
   }
@@ -302,8 +321,9 @@ int handle_command_shops(
     int stealth_t,
     int stealth_s) {
   if (args.empty()) {
-    if (mind)
+    if (mind) {
       mind->Send(u8"What do you want to sell?\n");
+    }
     return 0;
   }
 
@@ -315,8 +335,9 @@ int handle_command_shops(
   }
 
   if (!item) {
-    if (mind)
+    if (mind) {
       mind->Send(u8"You want to sell what?\n");
+    }
     return 0;
   }
 
@@ -344,13 +365,15 @@ int handle_command_shops(
 
   size_t price = item->Value() * item->Quantity();
   if (item->HasSkill(prhash(u8"Priceless")) || item->HasSkill(prhash(u8"Cursed"))) {
-    if (mind)
+    if (mind) {
       mind->Send(u8"You can't sell {}.\n", item->Noun(0, 0, body));
+    }
     return 0;
   }
   if (price == 0) {
-    if (mind)
+    if (mind) {
       mind->Send(u8"{} is worthless.\n", item->Noun(0, 0, body));
+    }
     return 0;
   }
 
@@ -379,31 +402,39 @@ int handle_command_shops(
         shpkp->ActTarg(act_t::WEAR_RSHOULDER)->Skill(prhash(u8"Vortex"))) { // Circle/TBA
       vortex = shpkp->ActTarg(act_t::WEAR_RSHOULDER);
     }
-    mind->Send(u8"I'll give you {} for {}\n", coins(price), item->ShortDesc());
+    if (mind) {
+      mind->Send(u8"I'll give you {} for {}\n", coins(price), item->ShortDesc());
+    }
 
     if (cnum == COM_SELL) {
       auto pay = shpkp->PayFor(price);
 
       if (pay.size() <= 0) {
-        if (mind) {
-          auto offer = shpkp->CanPayFor(price);
-          if (offer > price) {
+        auto offer = shpkp->CanPayFor(price);
+        if (offer > price) {
+          if (mind) {
             mind->Send(
                 u8"I don't have change to pay {}.  You'd have to make change for {}.\n",
                 coins(price),
                 coins(offer));
-            auto refund = offer - price;
-            auto change = body->PayFor(refund);
-            if (change.size() > 0) {
-              pay = shpkp->PayFor(offer);
-              for (auto coin : change) {
-                shpkp->Stash(coin, 0, 1);
-              }
+          }
+          auto refund = offer - price;
+          auto change = body->PayFor(refund);
+          if (change.size() > 0) {
+            pay = shpkp->PayFor(offer);
+            for (auto coin : change) {
+              shpkp->Stash(coin, 0, 1);
+            }
+            if (mind) {
               mind->Send(u8"You pay {} to {}.\n", coins(refund), shpkp->ShortDesc());
-            } else {
-              mind->Send(u8"...but you don't have that change.\n");
             }
           } else {
+            if (mind) {
+              mind->Send(u8"...but you don't have that change.\n");
+            }
+          }
+        } else {
+          if (mind) {
             mind->Send(u8"I can't afford the {} (I only have {}).\n", coins(price), coins(offer));
           }
         }
