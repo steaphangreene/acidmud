@@ -173,6 +173,18 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(customer->LongDesc().contains(u8"    22cp: item1\n"));
   }
 
+  SECTION("List Items With Profit") {
+    shopkeeper->SetSkill(prhash(u8"Sell Profit"), 2000);
+    handle_command(customer, u8"list", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc().contains(u8"    44cp: item1\n"));
+  }
+
   SECTION("List Items Missing Mind") {
     handle_command(customer, u8"list");
     REQUIRE(!shopkeeper->HasWithin(item1));
@@ -286,6 +298,33 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(customer->HasWithin(item2));
     REQUIRE(item2->Parent() != room);
     REQUIRE(customer->LongDesc().ends_with(u8"You buy and stash your item1."));
+  }
+
+  SECTION("Buy Item With Profit") {
+    shopkeeper->SetSkill(prhash(u8"Sell Profit"), 2000);
+    give_money(customer, 3, 3, 3, 3);
+    handle_command(customer, u8"buy item1", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(customer->HasWithin(item1));
+    REQUIRE(item1->Parent() != room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc().ends_with(u8"You buy and stash your item1."));
+    REQUIRE(customer->LongDesc().contains(u8"44cp: item1"));
+  }
+
+  SECTION("Buy Item With Too Much Profit") {
+    shopkeeper->SetSkill(prhash(u8"Sell Profit"), 2000);
+    handle_command(customer, u8"buy item1", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc().contains(u8"You don't have change to pay 44cp "));
+    REQUIRE(customer->LongDesc().contains(u8"44cp: item1"));
   }
 
   SECTION("Buy Item Too Heavy For Storage") {
