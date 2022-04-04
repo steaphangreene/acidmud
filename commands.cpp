@@ -73,6 +73,8 @@
 
 int handle_command_ccreate(Object*, std::shared_ptr<Mind>&, const std::u8string_view&, int, int);
 int handle_command_wload(Object*, std::shared_ptr<Mind>&, const std::u8string_view&, int, int);
+int handle_command_list(Object*, std::shared_ptr<Mind>&, int, const std::u8string_view&, int, int);
+int handle_command_buy(Object*, std::shared_ptr<Mind>&, int, const std::u8string_view&, int, int);
 int handle_command_shops(Object*, std::shared_ptr<Mind>&, int, const std::u8string_view&, int, int);
 
 static int count_ones(int mask) {
@@ -2923,7 +2925,15 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
     return 0;
   }
 
-  if (cnum == COM_LIST || cnum == COM_BUY || cnum == COM_VALUE || cnum == COM_SELL) {
+  if (cnum == COM_LIST) {
+    return handle_command_list(body, mind, cnum, args, stealth_t, stealth_s);
+  }
+
+  if (cnum == COM_BUY) {
+    return handle_command_buy(body, mind, cnum, args, stealth_t, stealth_s);
+  }
+
+  if (cnum == COM_VALUE || cnum == COM_SELL) {
     return handle_command_shops(body, mind, cnum, args, stealth_t, stealth_s);
   }
 
