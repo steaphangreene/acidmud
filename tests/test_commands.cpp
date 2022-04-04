@@ -300,6 +300,17 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(customer->LongDesc().ends_with(u8"You buy and stash your item1."));
   }
 
+  SECTION("Buy Item Missing Mind") {
+    handle_command(customer, u8"buy item1");
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(customer->HasWithin(item1));
+    REQUIRE(item1->Parent() != room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"You buy and stash your item1.");
+  }
+
   SECTION("Buy Item With Profit") {
     shopkeeper->SetSkill(prhash(u8"Sell Profit"), 2000);
     give_money(customer, 3, 3, 3, 3);
@@ -572,6 +583,17 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(customer->LongDesc() == u8"I'll give you 12cp for item2");
   }
 
+  SECTION("Value Item Missing Mind") {
+    handle_command(customer, u8"value item2");
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"");
+  }
+
   SECTION("Value Item Without Seller") {
     shopkeeper->StopAct(act_t::WORK);
     handle_command(customer, u8"value item2", mind);
@@ -642,6 +664,17 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(item2->Parent() == room);
     REQUIRE(customer->LongDesc().starts_with(u8"I'll give you 12cp for item2"));
     REQUIRE(customer->LongDesc().contains(u8"You sell your item2."));
+  }
+
+  SECTION("Sell Item Missing Mind") {
+    handle_command(customer, u8"sell item2");
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(!customer->HasWithin(item2));
+    REQUIRE(item2->Parent() == room);
+    REQUIRE(customer->LongDesc().starts_with(u8"You sell your item2."));
   }
 
   SECTION("Sell Item Without Purse") {
