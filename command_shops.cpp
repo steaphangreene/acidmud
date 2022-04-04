@@ -26,6 +26,22 @@
 #include "tags.hpp"
 #include "utils.hpp"
 
+static bool check_shopkeeper(Object* shpkp, auto& shpkps, std::u8string_view& reason) {
+  if (shpkp->IsAct(act_t::DEAD)) {
+    reason = u8"Sorry, the shopkeeper is dead!\n";
+  } else if (shpkp->IsAct(act_t::DYING)) {
+    reason = u8"Sorry, the shopkeeper is dying!\n";
+  } else if (shpkp->IsAct(act_t::UNCONSCIOUS)) {
+    reason = u8"Sorry, the shopkeeper is unconscious!\n";
+  } else if (shpkp->IsAct(act_t::SLEEP)) {
+    reason = u8"Sorry, the shopkeeper is asleep!\n";
+  } else {
+    shpkps.push_back(shpkp);
+    return true;
+  }
+  return false;
+}
+
 int handle_command_shops(
     Object* body,
     std::shared_ptr<Mind>& mind,
@@ -39,26 +55,16 @@ int handle_command_shops(
 
     auto people = body->Room()->PickObjects(u8"everyone", LOC_INTERNAL);
     DArr64<Object*> shpkps;
-    std::u8string reason = u8"";
+    std::u8string_view reason = u8"";
     for (auto shpkp : people) { // Circle/TBA Shopkeepers
       if (shpkp->Skill(prhash(u8"Sell Profit"))) {
-        if (shpkp->IsAct(act_t::DEAD)) {
-          reason = u8"Sorry, the shopkeeper is dead!\n";
-        } else if (shpkp->IsAct(act_t::DYING)) {
-          reason = u8"Sorry, the shopkeeper is dying!\n";
-        } else if (shpkp->IsAct(act_t::UNCONSCIOUS)) {
-          reason = u8"Sorry, the shopkeeper is unconscious!\n";
-        } else if (shpkp->IsAct(act_t::SLEEP)) {
-          reason = u8"Sorry, the shopkeeper is asleep!\n";
-        } else {
-          shpkps.push_back(shpkp);
-        }
+        check_shopkeeper(shpkp, shpkps, reason);
       }
     }
     auto workers = body->Room()->Touching();
     for (auto shpkp : workers) { // Acid Shopkeepers
       if (shpkp->IsAct(act_t::WORK) && shpkp->ActTarg(act_t::SPECIAL_WORK) == body->Room()) {
-        shpkps.push_back(shpkp);
+        check_shopkeeper(shpkp, shpkps, reason);
       }
     }
     if (shpkps.size() == 0) {
@@ -121,26 +127,16 @@ int handle_command_shops(
 
     auto people = body->PickObjects(u8"everyone", LOC_NEARBY);
     DArr64<Object*> shpkps;
-    std::u8string reason = u8"";
+    std::u8string_view reason = u8"";
     for (auto shpkp : people) {
       if (shpkp->Skill(prhash(u8"Sell Profit"))) { // Circle/TBA Shopkeepers
-        if (shpkp->IsAct(act_t::DEAD)) {
-          reason = u8"Sorry, the shopkeeper is dead!\n";
-        } else if (shpkp->IsAct(act_t::DYING)) {
-          reason = u8"Sorry, the shopkeeper is dying!\n";
-        } else if (shpkp->IsAct(act_t::UNCONSCIOUS)) {
-          reason = u8"Sorry, the shopkeeper is unconscious!\n";
-        } else if (shpkp->IsAct(act_t::SLEEP)) {
-          reason = u8"Sorry, the shopkeeper is asleep!\n";
-        } else {
-          shpkps.push_back(shpkp);
-        }
+        check_shopkeeper(shpkp, shpkps, reason);
       }
     }
     auto workers = body->Room()->Touching();
     for (auto shpkp : workers) { // Acid Shopkeepers
       if (shpkp->IsAct(act_t::WORK) && shpkp->ActTarg(act_t::SPECIAL_WORK) == body->Room()) {
-        shpkps.push_back(shpkp);
+        check_shopkeeper(shpkp, shpkps, reason);
       }
     }
     if (shpkps.size() == 0) {
@@ -342,22 +338,14 @@ int handle_command_shops(
 
     auto people = body->Room()->PickObjects(u8"everyone", LOC_INTERNAL);
     DArr64<Object*> shpkps;
-    std::u8string reason = u8"Sorry, nobody is buying that sort of thing here.\n";
+    std::u8string_view reason = u8"Sorry, nobody is buying that sort of thing here.\n";
     price = 0;
     for (auto shpkp : people) {
-      if (shpkp->IsAct(act_t::DEAD)) {
-        reason = u8"Sorry, the shopkeeper is dead!\n";
-      } else if (shpkp->IsAct(act_t::DYING)) {
-        reason = u8"Sorry, the shopkeeper is dying!\n";
-      } else if (shpkp->IsAct(act_t::UNCONSCIOUS)) {
-        reason = u8"Sorry, the shopkeeper is unconscious!\n";
-      } else if (shpkp->IsAct(act_t::SLEEP)) {
-        reason = u8"Sorry, the shopkeeper is asleep!\n";
-      } else if (shpkp->ActTarg(act_t::SPECIAL_WORK) == body->Room() && shpkp->IsAct(act_t::WORK)) {
+      if (shpkp->IsAct(act_t::WORK) && shpkp->ActTarg(act_t::SPECIAL_WORK) == body->Room()) {
         price = shpkp->WouldBuyFor(item);
 
         if (price > 0) {
-          shpkps.push_back(shpkp);
+          check_shopkeeper(shpkp, shpkps, reason);
           break;
         }
       }
