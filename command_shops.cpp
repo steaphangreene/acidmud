@@ -69,8 +69,11 @@ int handle_command_shops(
     }
     if (shpkps.size() == 0) {
       if (mind) {
-        mind->Send(reason);
-        mind->Send(u8"You can only do that around a shopkeeper.\n");
+        if (reason.length() > 0) {
+          mind->Send(reason);
+        } else {
+          mind->Send(u8"You can only do that around a shopkeeper.\n");
+        }
       }
     } else {
       Object* shpkp = shpkps.front();
@@ -141,8 +144,11 @@ int handle_command_shops(
     }
     if (shpkps.size() == 0) {
       if (mind) {
-        mind->Send(reason);
-        mind->Send(u8"You can only do that around a shopkeeper.\n");
+        if (reason.length() > 0) {
+          mind->Send(reason);
+        } else {
+          mind->Send(u8"You can only do that around a shopkeeper.\n");
+        }
       }
     } else {
       auto items = body->PickObjects(args, LOC_NEARBY);
