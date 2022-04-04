@@ -173,23 +173,17 @@ int handle_command_buy(
       items = vortex->PickObjects(std::u8string(args), LOC_INTERNAL);
 
     } else {
-      size_t price = 0;
       bool all_for_sale = true;
       for (auto item : items) {
         if (item->ActTarg(act_t::SPECIAL_OWNER) != body->Room() ||
             item->Position() != pos_t::PROP) {
           mind->Send(CRED u8" Not For Sale: {}\n" CNRM, item->ShortDesc());
           all_for_sale = false;
-        } else {
-          price += item->Value();
-          mind->Send(u8"{:>10}: {}\n", coins(item->Value()), item->ShortDesc());
         }
       }
       if (!all_for_sale) {
         mind->Send(CRED u8"Sorry, you can't buy that.\n" CNRM);
         return 0;
-      } else if (price > 0) {
-        mind->Send(CGRN u8"Deal.  That will be {}.\n" CNRM, coin_str(price));
       }
     }
 
