@@ -229,6 +229,54 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(customer->LongDesc() == u8"You can only do that around a shopkeeper.");
   }
 
+  SECTION("List From Dead Shopkeeper") {
+    shopkeeper->AddAct(act_t::DEAD);
+    handle_command(customer, u8"list", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Sorry, the shopkeeper is dead!");
+  }
+
+  SECTION("List From Dying Shopkeeper") {
+    shopkeeper->AddAct(act_t::DYING);
+    handle_command(customer, u8"list", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Sorry, the shopkeeper is dying!");
+  }
+
+  SECTION("List From Unconscious Shopkeeper") {
+    shopkeeper->AddAct(act_t::UNCONSCIOUS);
+    handle_command(customer, u8"list", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Sorry, the shopkeeper is unconscious!");
+  }
+
+  SECTION("List From Sleeping Shopkeeper") {
+    shopkeeper->AddAct(act_t::SLEEP);
+    handle_command(customer, u8"list", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Sorry, the shopkeeper is asleep!");
+  }
+
   SECTION("Buy Item") {
     handle_command(customer, u8"buy item1", mind);
     REQUIRE(!shopkeeper->HasWithin(item1));
@@ -309,6 +357,54 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(customer->HasWithin(item2));
     REQUIRE(item2->Parent() != room);
     REQUIRE(customer->LongDesc() == u8"You can only do that around a shopkeeper.");
+  }
+
+  SECTION("Buy From Dead Shopkeeper") {
+    shopkeeper->AddAct(act_t::DEAD);
+    handle_command(customer, u8"buy item1", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Sorry, the shopkeeper is dead!");
+  }
+
+  SECTION("Buy From Dying Shopkeeper") {
+    shopkeeper->AddAct(act_t::DYING);
+    handle_command(customer, u8"buy item1", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Sorry, the shopkeeper is dying!");
+  }
+
+  SECTION("Buy From Unconscious Shopkeeper") {
+    shopkeeper->AddAct(act_t::UNCONSCIOUS);
+    handle_command(customer, u8"buy item1", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Sorry, the shopkeeper is unconscious!");
+  }
+
+  SECTION("Buy From Sleeping Shopkeeper") {
+    shopkeeper->AddAct(act_t::SLEEP);
+    handle_command(customer, u8"buy item1", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Sorry, the shopkeeper is asleep!");
   }
 
   SECTION("Buy Item Without Any Coin") {
@@ -447,6 +543,54 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(customer->HasWithin(item2));
     REQUIRE(item2->Parent() != room);
     REQUIRE(customer->LongDesc() == u8"Sorry, nobody is buying that sort of thing here.");
+  }
+
+  SECTION("Value From Dead Shopkeeper") {
+    shopkeeper->AddAct(act_t::DEAD);
+    handle_command(customer, u8"value item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Sorry, the shopkeeper is dead!");
+  }
+
+  SECTION("Value From Dying Shopkeeper") {
+    shopkeeper->AddAct(act_t::DYING);
+    handle_command(customer, u8"value item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Sorry, the shopkeeper is dying!");
+  }
+
+  SECTION("Value From Unconscious Shopkeeper") {
+    shopkeeper->AddAct(act_t::UNCONSCIOUS);
+    handle_command(customer, u8"value item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Sorry, the shopkeeper is unconscious!");
+  }
+
+  SECTION("Value From Sleeping Shopkeeper") {
+    shopkeeper->AddAct(act_t::SLEEP);
+    handle_command(customer, u8"value item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Sorry, the shopkeeper is asleep!");
   }
 
   SECTION("Sell Item") {
@@ -646,6 +790,54 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(customer->HasWithin(item2));
     REQUIRE(item2->Parent() != room);
     REQUIRE(customer->LongDesc() == u8"You can't sell your item2.");
+  }
+
+  SECTION("Sell To Dead Shopkeeper") {
+    shopkeeper->AddAct(act_t::DEAD);
+    handle_command(customer, u8"sell item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Sorry, the shopkeeper is dead!");
+  }
+
+  SECTION("Sell To Dying Shopkeeper") {
+    shopkeeper->AddAct(act_t::DYING);
+    handle_command(customer, u8"sell item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Sorry, the shopkeeper is dying!");
+  }
+
+  SECTION("Sell To Unconscious Shopkeeper") {
+    shopkeeper->AddAct(act_t::UNCONSCIOUS);
+    handle_command(customer, u8"sell item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Sorry, the shopkeeper is unconscious!");
+  }
+
+  SECTION("Sell To Sleeping Shopkeeper") {
+    shopkeeper->AddAct(act_t::SLEEP);
+    handle_command(customer, u8"sell item2", mind);
+    REQUIRE(!shopkeeper->HasWithin(item1));
+    REQUIRE(!customer->HasWithin(item1));
+    REQUIRE(item1->Parent() == room);
+    REQUIRE(!shopkeeper->HasWithin(item2));
+    REQUIRE(customer->HasWithin(item2));
+    REQUIRE(item2->Parent() != room);
+    REQUIRE(customer->LongDesc() == u8"Sorry, the shopkeeper is asleep!");
   }
 
   destroy_universe();
