@@ -85,7 +85,8 @@ int handle_command_list(
         if (obj != objs.front() && obj->IsSameAs(*oobj))
           continue;
         size_t price = obj->Value();
-        if (obj->Skill(prhash(u8"Money")) != static_cast<int>(obj->Value())) { // Not 1-1 Money
+        if (shpkp->Skill(prhash(u8"Sell Profit")) >= 500 &&
+            obj->Skill(prhash(u8"Money")) != static_cast<int>(obj->Value())) { // Not 1-1 Money
           price *= shpkp->Skill(prhash(u8"Sell Profit"));
           price += 999;
           price /= 1000;
@@ -101,6 +102,12 @@ int handle_command_list(
             item->Position() == pos_t::PROP) {
           have_stock = true;
           size_t price = item->Value();
+          if (shpkp->Skill(prhash(u8"Sell Profit")) >= 500 &&
+              item->Skill(prhash(u8"Money")) != static_cast<int>(item->Value())) { // Not 1-1 Money
+            price *= shpkp->Skill(prhash(u8"Sell Profit"));
+            price += 999;
+            price /= 1000;
+          }
           if (item->Quantity() > 1) {
             mind->Send(
                 CMAG u8"{:>10}: {} (x{})\n" CNRM,
