@@ -94,7 +94,7 @@ struct Command {
   com_t id;
 };
 
-constexpr Command static_comlist[COM_MAX] = {
+constexpr Command comlist[COM_MAX + 1] = {
     {u8"", u8"", u8"", 0, COM_NONE},
     {u8"help",
      u8"Get help for a topic or command.",
@@ -701,135 +701,141 @@ constexpr Command static_comlist[COM_MAX] = {
      u8"Ninja command - ninjas only!",
      (REQ_ALERT | REQ_NINJAMODE),
      COM_TCLEAN},
+
+    {u8"", u8"", u8"", 0, COM_MAX},
 };
 
-static_assert(static_comlist[COM_HELP].id == COM_HELP);
-static_assert(static_comlist[COM_QUIT].id == COM_QUIT);
-static_assert(static_comlist[COM_NORTH].id == COM_NORTH);
-static_assert(static_comlist[COM_SOUTH].id == COM_SOUTH);
-static_assert(static_comlist[COM_EAST].id == COM_EAST);
-static_assert(static_comlist[COM_WEST].id == COM_WEST);
-static_assert(static_comlist[COM_UP].id == COM_UP);
-static_assert(static_comlist[COM_DOWN].id == COM_DOWN);
-static_assert(static_comlist[COM_LOOK].id == COM_LOOK);
-static_assert(static_comlist[COM_EXAMINE].id == COM_EXAMINE);
-static_assert(static_comlist[COM_CONSIDER].id == COM_CONSIDER);
-static_assert(static_comlist[COM_INVENTORY].id == COM_INVENTORY);
-static_assert(static_comlist[COM_EQUIPMENT].id == COM_EQUIPMENT);
-static_assert(static_comlist[COM_SEARCH].id == COM_SEARCH);
-static_assert(static_comlist[COM_HIDE].id == COM_HIDE);
-static_assert(static_comlist[COM_LEAVE].id == COM_LEAVE);
-static_assert(static_comlist[COM_ENTER].id == COM_ENTER);
-static_assert(static_comlist[COM_SELECT].id == COM_SELECT);
-static_assert(static_comlist[COM_OPEN].id == COM_OPEN);
-static_assert(static_comlist[COM_CLOSE].id == COM_CLOSE);
-static_assert(static_comlist[COM_UNLOCK].id == COM_UNLOCK);
-static_assert(static_comlist[COM_LOCK].id == COM_LOCK);
-static_assert(static_comlist[COM_GET].id == COM_GET);
-static_assert(static_comlist[COM_DRAG].id == COM_DRAG);
-static_assert(static_comlist[COM_PUT].id == COM_PUT);
-static_assert(static_comlist[COM_DROP].id == COM_DROP);
-static_assert(static_comlist[COM_STASH].id == COM_STASH);
-static_assert(static_comlist[COM_WIELD].id == COM_WIELD);
-static_assert(static_comlist[COM_UNWIELD].id == COM_UNWIELD);
-static_assert(static_comlist[COM_HOLD].id == COM_HOLD);
-static_assert(static_comlist[COM_OFFER].id == COM_OFFER);
-static_assert(static_comlist[COM_LIGHT].id == COM_LIGHT);
-static_assert(static_comlist[COM_WEAR].id == COM_WEAR);
-static_assert(static_comlist[COM_REMOVE].id == COM_REMOVE);
-static_assert(static_comlist[COM_LABEL].id == COM_LABEL);
-static_assert(static_comlist[COM_UNLABEL].id == COM_UNLABEL);
-static_assert(static_comlist[COM_HEAL].id == COM_HEAL);
-static_assert(static_comlist[COM_SLEEP].id == COM_SLEEP);
-static_assert(static_comlist[COM_WAKE].id == COM_WAKE);
-static_assert(static_comlist[COM_LIE].id == COM_LIE);
-static_assert(static_comlist[COM_REST].id == COM_REST);
-static_assert(static_comlist[COM_SIT].id == COM_SIT);
-static_assert(static_comlist[COM_STAND].id == COM_STAND);
-static_assert(static_comlist[COM_USE].id == COM_USE);
-static_assert(static_comlist[COM_STOP].id == COM_STOP);
-static_assert(static_comlist[COM_CAST].id == COM_CAST);
-static_assert(static_comlist[COM_PRAY].id == COM_PRAY);
-static_assert(static_comlist[COM_SHOUT].id == COM_SHOUT);
-static_assert(static_comlist[COM_YELL].id == COM_YELL);
-static_assert(static_comlist[COM_CALL].id == COM_CALL);
-static_assert(static_comlist[COM_SAY].id == COM_SAY);
-static_assert(static_comlist[COM_EMOTE].id == COM_EMOTE);
-static_assert(static_comlist[COM_INTRODUCE].id == COM_INTRODUCE);
-static_assert(static_comlist[COM_EAT].id == COM_EAT);
-static_assert(static_comlist[COM_DRINK].id == COM_DRINK);
-static_assert(static_comlist[COM_FILL].id == COM_FILL);
-static_assert(static_comlist[COM_DUMP].id == COM_DUMP);
-static_assert(static_comlist[COM_POINT].id == COM_POINT);
-static_assert(static_comlist[COM_FOLLOW].id == COM_FOLLOW);
-static_assert(static_comlist[COM_ATTACK].id == COM_ATTACK);
-static_assert(static_comlist[COM_KILL].id == COM_KILL);
-static_assert(static_comlist[COM_PUNCH].id == COM_PUNCH);
-static_assert(static_comlist[COM_KICK].id == COM_KICK);
-static_assert(static_comlist[COM_FLEE].id == COM_FLEE);
-static_assert(static_comlist[COM_LIST].id == COM_LIST);
-static_assert(static_comlist[COM_BUY].id == COM_BUY);
-static_assert(static_comlist[COM_VALUE].id == COM_VALUE);
-static_assert(static_comlist[COM_SELL].id == COM_SELL);
-static_assert(static_comlist[COM_TOGGLE].id == COM_TOGGLE);
-static_assert(static_comlist[COM_WHO].id == COM_WHO);
-static_assert(static_comlist[COM_OOC].id == COM_OOC);
-static_assert(static_comlist[COM_NEWBIE].id == COM_NEWBIE);
-static_assert(static_comlist[COM_NEWCHARACTER].id == COM_NEWCHARACTER);
-static_assert(static_comlist[COM_RAISE].id == COM_RAISE);
-static_assert(static_comlist[COM_LOWER].id == COM_LOWER);
-static_assert(static_comlist[COM_RESETCHARACTER].id == COM_RESETCHARACTER);
-static_assert(static_comlist[COM_RANDOMIZE].id == COM_RANDOMIZE);
-static_assert(static_comlist[COM_ARCHETYPE].id == COM_ARCHETYPE);
-static_assert(static_comlist[COM_SCORE].id == COM_SCORE);
-static_assert(static_comlist[COM_TIME].id == COM_TIME);
-static_assert(static_comlist[COM_WORLD].id == COM_WORLD);
-static_assert(static_comlist[COM_ZONE].id == COM_ZONE);
-static_assert(static_comlist[COM_VERSION].id == COM_VERSION);
-static_assert(static_comlist[COM_SKILLLIST].id == COM_SKILLLIST);
-static_assert(static_comlist[COM_RECALL].id == COM_RECALL);
-static_assert(static_comlist[COM_TELEPORT].id == COM_TELEPORT);
-static_assert(static_comlist[COM_RESURRECT].id == COM_RESURRECT);
-static_assert(static_comlist[COM_NINJAMODE].id == COM_NINJAMODE);
-static_assert(static_comlist[COM_MAKENINJA].id == COM_MAKENINJA);
-static_assert(static_comlist[COM_MAKESUPERNINJA].id == COM_MAKESUPERNINJA);
-static_assert(static_comlist[COM_CREATE].id == COM_CREATE);
-static_assert(static_comlist[COM_DCREATE].id == COM_DCREATE);
-static_assert(static_comlist[COM_CCREATE].id == COM_CCREATE);
-static_assert(static_comlist[COM_WLOAD].id == COM_WLOAD);
-static_assert(static_comlist[COM_ANCHOR].id == COM_ANCHOR);
-static_assert(static_comlist[COM_LINK].id == COM_LINK);
-static_assert(static_comlist[COM_CONNECT].id == COM_CONNECT);
-static_assert(static_comlist[COM_COMMAND].id == COM_COMMAND);
-static_assert(static_comlist[COM_CONTROL].id == COM_CONTROL);
-static_assert(static_comlist[COM_CLONE].id == COM_CLONE);
-static_assert(static_comlist[COM_MIRROR].id == COM_MIRROR);
-static_assert(static_comlist[COM_JUNK].id == COM_JUNK);
-static_assert(static_comlist[COM_PROD].id == COM_PROD);
-static_assert(static_comlist[COM_RESET].id == COM_RESET);
-static_assert(static_comlist[COM_PLAYERS].id == COM_PLAYERS);
-static_assert(static_comlist[COM_DELPLAYER].id == COM_DELPLAYER);
-static_assert(static_comlist[COM_CHARACTERS].id == COM_CHARACTERS);
-static_assert(static_comlist[COM_JACK].id == COM_JACK);
-static_assert(static_comlist[COM_CHUMP].id == COM_CHUMP);
-static_assert(static_comlist[COM_INCREMENT].id == COM_INCREMENT);
-static_assert(static_comlist[COM_DECREMENT].id == COM_DECREMENT);
-static_assert(static_comlist[COM_DOUBLE].id == COM_DOUBLE);
-static_assert(static_comlist[COM_SETSTATS].id == COM_SETSTATS);
-static_assert(static_comlist[COM_BRIEF].id == COM_BRIEF);
-static_assert(static_comlist[COM_NAME].id == COM_NAME);
-static_assert(static_comlist[COM_UNNAME].id == COM_UNNAME);
-static_assert(static_comlist[COM_UNDESCRIBE].id == COM_UNDESCRIBE);
-static_assert(static_comlist[COM_DESCRIBE].id == COM_DESCRIBE);
-static_assert(static_comlist[COM_UNDEFINE].id == COM_UNDEFINE);
-static_assert(static_comlist[COM_DEFINE].id == COM_DEFINE);
-static_assert(static_comlist[COM_STATS].id == COM_STATS);
-static_assert(static_comlist[COM_SHUTDOWN].id == COM_SHUTDOWN);
-static_assert(static_comlist[COM_RESTART].id == COM_RESTART);
-static_assert(static_comlist[COM_SAVEALL].id == COM_SAVEALL);
-static_assert(static_comlist[COM_MAKESTART].id == COM_MAKESTART);
-static_assert(static_comlist[COM_TLOAD].id == COM_TLOAD);
-static_assert(static_comlist[COM_TCLEAN].id == COM_TCLEAN);
+static_assert(comlist[COM_NONE].id == COM_NONE);
+static_assert(comlist[COM_HELP].id == COM_HELP);
+static_assert(comlist[COM_QUIT].id == COM_QUIT);
+static_assert(comlist[COM_NORTH].id == COM_NORTH);
+static_assert(comlist[COM_SOUTH].id == COM_SOUTH);
+static_assert(comlist[COM_EAST].id == COM_EAST);
+static_assert(comlist[COM_WEST].id == COM_WEST);
+static_assert(comlist[COM_UP].id == COM_UP);
+static_assert(comlist[COM_DOWN].id == COM_DOWN);
+static_assert(comlist[COM_LOOK].id == COM_LOOK);
+static_assert(comlist[COM_EXAMINE].id == COM_EXAMINE);
+static_assert(comlist[COM_CONSIDER].id == COM_CONSIDER);
+static_assert(comlist[COM_INVENTORY].id == COM_INVENTORY);
+static_assert(comlist[COM_EQUIPMENT].id == COM_EQUIPMENT);
+static_assert(comlist[COM_SEARCH].id == COM_SEARCH);
+static_assert(comlist[COM_HIDE].id == COM_HIDE);
+static_assert(comlist[COM_LEAVE].id == COM_LEAVE);
+static_assert(comlist[COM_ENTER].id == COM_ENTER);
+static_assert(comlist[COM_SELECT].id == COM_SELECT);
+static_assert(comlist[COM_OPEN].id == COM_OPEN);
+static_assert(comlist[COM_CLOSE].id == COM_CLOSE);
+static_assert(comlist[COM_UNLOCK].id == COM_UNLOCK);
+static_assert(comlist[COM_LOCK].id == COM_LOCK);
+static_assert(comlist[COM_GET].id == COM_GET);
+static_assert(comlist[COM_DRAG].id == COM_DRAG);
+static_assert(comlist[COM_PUT].id == COM_PUT);
+static_assert(comlist[COM_DROP].id == COM_DROP);
+static_assert(comlist[COM_STASH].id == COM_STASH);
+static_assert(comlist[COM_WIELD].id == COM_WIELD);
+static_assert(comlist[COM_UNWIELD].id == COM_UNWIELD);
+static_assert(comlist[COM_HOLD].id == COM_HOLD);
+static_assert(comlist[COM_OFFER].id == COM_OFFER);
+static_assert(comlist[COM_LIGHT].id == COM_LIGHT);
+static_assert(comlist[COM_WEAR].id == COM_WEAR);
+static_assert(comlist[COM_REMOVE].id == COM_REMOVE);
+static_assert(comlist[COM_LABEL].id == COM_LABEL);
+static_assert(comlist[COM_UNLABEL].id == COM_UNLABEL);
+static_assert(comlist[COM_HEAL].id == COM_HEAL);
+static_assert(comlist[COM_SLEEP].id == COM_SLEEP);
+static_assert(comlist[COM_WAKE].id == COM_WAKE);
+static_assert(comlist[COM_LIE].id == COM_LIE);
+static_assert(comlist[COM_REST].id == COM_REST);
+static_assert(comlist[COM_SIT].id == COM_SIT);
+static_assert(comlist[COM_STAND].id == COM_STAND);
+static_assert(comlist[COM_USE].id == COM_USE);
+static_assert(comlist[COM_STOP].id == COM_STOP);
+static_assert(comlist[COM_CAST].id == COM_CAST);
+static_assert(comlist[COM_PRAY].id == COM_PRAY);
+static_assert(comlist[COM_SHOUT].id == COM_SHOUT);
+static_assert(comlist[COM_YELL].id == COM_YELL);
+static_assert(comlist[COM_CALL].id == COM_CALL);
+static_assert(comlist[COM_SAY].id == COM_SAY);
+static_assert(comlist[COM_EMOTE].id == COM_EMOTE);
+static_assert(comlist[COM_INTRODUCE].id == COM_INTRODUCE);
+static_assert(comlist[COM_EAT].id == COM_EAT);
+static_assert(comlist[COM_DRINK].id == COM_DRINK);
+static_assert(comlist[COM_FILL].id == COM_FILL);
+static_assert(comlist[COM_DUMP].id == COM_DUMP);
+static_assert(comlist[COM_POINT].id == COM_POINT);
+static_assert(comlist[COM_FOLLOW].id == COM_FOLLOW);
+static_assert(comlist[COM_ATTACK].id == COM_ATTACK);
+static_assert(comlist[COM_KILL].id == COM_KILL);
+static_assert(comlist[COM_PUNCH].id == COM_PUNCH);
+static_assert(comlist[COM_KICK].id == COM_KICK);
+static_assert(comlist[COM_FLEE].id == COM_FLEE);
+static_assert(comlist[COM_LIST].id == COM_LIST);
+static_assert(comlist[COM_BUY].id == COM_BUY);
+static_assert(comlist[COM_VALUE].id == COM_VALUE);
+static_assert(comlist[COM_SELL].id == COM_SELL);
+static_assert(comlist[COM_TOGGLE].id == COM_TOGGLE);
+static_assert(comlist[COM_WHO].id == COM_WHO);
+static_assert(comlist[COM_OOC].id == COM_OOC);
+static_assert(comlist[COM_NEWBIE].id == COM_NEWBIE);
+static_assert(comlist[COM_NEWCHARACTER].id == COM_NEWCHARACTER);
+static_assert(comlist[COM_RAISE].id == COM_RAISE);
+static_assert(comlist[COM_LOWER].id == COM_LOWER);
+static_assert(comlist[COM_RESETCHARACTER].id == COM_RESETCHARACTER);
+static_assert(comlist[COM_RANDOMIZE].id == COM_RANDOMIZE);
+static_assert(comlist[COM_ARCHETYPE].id == COM_ARCHETYPE);
+static_assert(comlist[COM_SCORE].id == COM_SCORE);
+static_assert(comlist[COM_TIME].id == COM_TIME);
+static_assert(comlist[COM_WORLD].id == COM_WORLD);
+static_assert(comlist[COM_ZONE].id == COM_ZONE);
+static_assert(comlist[COM_VERSION].id == COM_VERSION);
+static_assert(comlist[COM_SKILLLIST].id == COM_SKILLLIST);
+static_assert(comlist[COM_RECALL].id == COM_RECALL);
+static_assert(comlist[COM_TELEPORT].id == COM_TELEPORT);
+static_assert(comlist[COM_RESURRECT].id == COM_RESURRECT);
+static_assert(comlist[COM_NINJAMODE].id == COM_NINJAMODE);
+static_assert(comlist[COM_MAKENINJA].id == COM_MAKENINJA);
+static_assert(comlist[COM_MAKESUPERNINJA].id == COM_MAKESUPERNINJA);
+static_assert(comlist[COM_CREATE].id == COM_CREATE);
+static_assert(comlist[COM_DCREATE].id == COM_DCREATE);
+static_assert(comlist[COM_CCREATE].id == COM_CCREATE);
+static_assert(comlist[COM_WLOAD].id == COM_WLOAD);
+static_assert(comlist[COM_ANCHOR].id == COM_ANCHOR);
+static_assert(comlist[COM_LINK].id == COM_LINK);
+static_assert(comlist[COM_CONNECT].id == COM_CONNECT);
+static_assert(comlist[COM_COMMAND].id == COM_COMMAND);
+static_assert(comlist[COM_CONTROL].id == COM_CONTROL);
+static_assert(comlist[COM_CLONE].id == COM_CLONE);
+static_assert(comlist[COM_MIRROR].id == COM_MIRROR);
+static_assert(comlist[COM_JUNK].id == COM_JUNK);
+static_assert(comlist[COM_PROD].id == COM_PROD);
+static_assert(comlist[COM_RESET].id == COM_RESET);
+static_assert(comlist[COM_PLAYERS].id == COM_PLAYERS);
+static_assert(comlist[COM_DELPLAYER].id == COM_DELPLAYER);
+static_assert(comlist[COM_CHARACTERS].id == COM_CHARACTERS);
+static_assert(comlist[COM_JACK].id == COM_JACK);
+static_assert(comlist[COM_CHUMP].id == COM_CHUMP);
+static_assert(comlist[COM_INCREMENT].id == COM_INCREMENT);
+static_assert(comlist[COM_DECREMENT].id == COM_DECREMENT);
+static_assert(comlist[COM_DOUBLE].id == COM_DOUBLE);
+static_assert(comlist[COM_SETSTATS].id == COM_SETSTATS);
+static_assert(comlist[COM_BRIEF].id == COM_BRIEF);
+static_assert(comlist[COM_NAME].id == COM_NAME);
+static_assert(comlist[COM_UNNAME].id == COM_UNNAME);
+static_assert(comlist[COM_UNDESCRIBE].id == COM_UNDESCRIBE);
+static_assert(comlist[COM_DESCRIBE].id == COM_DESCRIBE);
+static_assert(comlist[COM_UNDEFINE].id == COM_UNDEFINE);
+static_assert(comlist[COM_DEFINE].id == COM_DEFINE);
+static_assert(comlist[COM_STATS].id == COM_STATS);
+static_assert(comlist[COM_SHUTDOWN].id == COM_SHUTDOWN);
+static_assert(comlist[COM_RESTART].id == COM_RESTART);
+static_assert(comlist[COM_SAVEALL].id == COM_SAVEALL);
+static_assert(comlist[COM_MAKESTART].id == COM_MAKESTART);
+static_assert(comlist[COM_TLOAD].id == COM_TLOAD);
+static_assert(comlist[COM_TCLEAN].id == COM_TCLEAN);
+static_assert(comlist[COM_MAX].id == COM_MAX);
+
+/*
 
 Command comlist[1024] = {};
 
@@ -839,7 +845,7 @@ static std::u8string socials[1024][13] = {};
 static void load_commands() {
   int cnum = 1;
   while (cnum < COM_MAX) {
-    comlist[cnum] = static_comlist[cnum];
+    comlist[cnum] = comlist[cnum];
     ++cnum;
   }
   infile soc(u8"tba/socials.new");
@@ -881,12 +887,10 @@ static void load_commands() {
     // loge(u8"There are now {} commands!", cnum);
   }
 }
+*/
 
 com_t identify_command(const std::u8string_view str, bool corporeal) {
-  if (comlist[COM_MAX].id == COM_NONE) { // Haven't loaded commands yet
-    load_commands();
-  }
-  for (int ctr = 1; comlist[ctr].id != COM_NONE; ++ctr) {
+  for (int ctr = 1; comlist[ctr].id != COM_MAX; ++ctr) {
     if (comlist[ctr].sit & SIT_NINJAMODE)
       continue; // Don't match ninja commands here
 
@@ -919,10 +923,6 @@ com_t identify_command(const std::u8string_view str, bool corporeal) {
 //                1: Command NOT Understood
 //                2: Command Understood - No More Actions This Round
 static int handle_single_command(Object* body, std::u8string line, std::shared_ptr<Mind> mind) {
-  if (comlist[COM_MAX].id == COM_NONE) { // Haven't loaded commands yet
-    load_commands();
-  }
-
   std::u8string_view cmd = line;
   std::u8string_view args = line;
   std::u8string args_buf;
@@ -947,10 +947,6 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
     } else {
       std::transform(line.begin(), line.begin() + c2 + 1, line.begin(), ascii_tolower);
     }
-  }
-
-  if (comlist[COM_MAX].id == COM_NONE) { // Haven't loaded commands yet
-    load_commands();
   }
 
   if ((!body) && (!mind)) { // Nobody doing something?
@@ -1001,7 +997,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
 
   int cnum = identify_command(cmd, (body != nullptr));
   if (cnum == COM_NONE && nmode) { // Now match ninja commands (for ninjas)
-    for (int ctr = 1; comlist[ctr].id != COM_NONE; ++ctr) {
+    for (int ctr = 1; comlist[ctr].id != COM_MAX; ++ctr) {
       if ((comlist[ctr].sit & SIT_NINJAMODE) &&
           cmd == comlist[ctr].command.substr(0, cmd.length())) {
         cnum = ctr;
@@ -1048,7 +1044,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
     for (auto obj : items) {
       auto trigs = obj->PickObjects(u8"all tbamud trigger script", LOC_NINJA | LOC_INTERNAL);
       for (auto trig : trigs) {
-        if (trig->Skill(prhash(u8"TBAScriptType")) & 0x04) { //*-COMMAND trigs
+        if (trig->Skill(prhash(u8"TBAScriptType")) & 0x04) { // *-COMMAND trigs
           if ((cnum == COM_NONE &&
                cmd == std::u8string_view(trig->Desc()).substr(0, cmd.length())) ||
               (cnum && cnum == identify_command(trig->Desc(), true))) {
@@ -1551,7 +1547,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       return 0;
     if (args == u8"commands") {
       std::u8string mes = u8"";
-      for (int ctr = 1; comlist[ctr].id != COM_NONE; ++ctr) {
+      for (int ctr = 1; comlist[ctr].id != COM_MAX; ++ctr) {
         if (comlist[ctr].id == COM_SOCIAL)
           continue;
         if ((comlist[ctr].sit & SIT_NINJAMODE) && (!nmode))
@@ -1575,7 +1571,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       return 0;
     } else if (args == u8"socials") {
       std::u8string mes = u8"";
-      for (int ctr = 1; comlist[ctr].id != COM_NONE; ++ctr) {
+      for (int ctr = 1; comlist[ctr].id != COM_MAX; ++ctr) {
         if (comlist[ctr].id != COM_SOCIAL)
           continue;
         if ((comlist[ctr].sit & SIT_NINJAMODE) && (!nmode))
@@ -1658,82 +1654,81 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
     return 0;
   }
 
-  if (cnum >= COM_SOCIAL) {
-    Object* targ = nullptr;
-    if (body && body->Parent()) {
-      std::u8string youmes = socials[cnum][0];
-      std::u8string outmes = socials[cnum][1];
-      std::u8string targmes = u8"";
-      if (!args.empty()) {
-        targ = body->PickObject(std::u8string(args), vmode | LOC_NEARBY | LOC_SELF | LOC_INTERNAL);
-        if (!targ) {
-          youmes = socials[cnum][5];
-          outmes = u8"";
-        } else if (targ == body) {
-          youmes = socials[cnum][6];
-          outmes = socials[cnum][7];
-        } else {
-          youmes = socials[cnum][2];
-          outmes = socials[cnum][3];
-          targmes = socials[cnum][4];
+  /*
+    if (cnum >= COM_SOCIAL) {
+      Object* targ = nullptr;
+      if (body && body->Parent()) {
+        std::u8string youmes = socials[cnum][0];
+        std::u8string outmes = socials[cnum][1];
+        std::u8string targmes = u8"";
+        if (!args.empty()) {
+          targ = body->PickObject(std::u8string(args), vmode | LOC_NEARBY | LOC_SELF |
+    LOC_INTERNAL); if (!targ) { youmes = socials[cnum][5]; outmes = u8""; } else if (targ == body) {
+            youmes = socials[cnum][6];
+            outmes = socials[cnum][7];
+          } else {
+            youmes = socials[cnum][2];
+            outmes = socials[cnum][3];
+            targmes = socials[cnum][4];
+          }
         }
-      }
-      if (outmes[0]) {
-        replace_all(outmes, u8"$e", body->Pron());
-        replace_all(outmes, u8"$m", body->Obje());
-        replace_all(outmes, u8"$s", body->Poss());
-        replace_all(outmes, u8"$n", body->Noun(1));
+        if (outmes[0]) {
+          replace_all(outmes, u8"$e", body->Pron());
+          replace_all(outmes, u8"$m", body->Obje());
+          replace_all(outmes, u8"$s", body->Poss());
+          replace_all(outmes, u8"$n", body->Noun(1));
+          if (targ) {
+            replace_all(outmes, u8"$E", targ->Pron());
+            replace_all(outmes, u8"$M", targ->Obje());
+            replace_all(outmes, u8"$S", targ->Poss());
+            replace_all(outmes, u8"$N", targ->Noun(1));
+            replace_all(outmes, u8"$t", targ->Noun(1));
+            replace_all(outmes, u8"$p", targ->Noun(1));
+          }
+          outmes[0] = ascii_toupper(outmes[0]);
+          outmes += u8"\n";
+        }
+        if (youmes[0]) {
+          replace_all(youmes, u8"$e", body->Pron());
+          replace_all(youmes, u8"$m", body->Obje());
+          replace_all(youmes, u8"$s", body->Poss());
+          replace_all(youmes, u8"$n", body->Noun(1));
+          if (targ) {
+            replace_all(youmes, u8"$E", targ->Pron());
+            replace_all(youmes, u8"$M", targ->Obje());
+            replace_all(youmes, u8"$S", targ->Poss());
+            replace_all(youmes, u8"$N", targ->Noun(1));
+            replace_all(youmes, u8"$t", targ->Noun(1));
+            replace_all(youmes, u8"$p", targ->Noun(1));
+          }
+          youmes[0] = ascii_toupper(youmes[0]);
+          youmes += u8"\n";
+        }
         if (targ) {
-          replace_all(outmes, u8"$E", targ->Pron());
-          replace_all(outmes, u8"$M", targ->Obje());
-          replace_all(outmes, u8"$S", targ->Poss());
-          replace_all(outmes, u8"$N", targ->Noun(1));
-          replace_all(outmes, u8"$t", targ->Noun(1));
-          replace_all(outmes, u8"$p", targ->Noun(1));
+          replace_all(targmes, u8"$e", body->Pron());
+          replace_all(targmes, u8"$m", body->Obje());
+          replace_all(targmes, u8"$s", body->Poss());
+          replace_all(targmes, u8"$n", body->Noun(1));
+          if (targ) {
+            replace_all(targmes, u8"$E", targ->Pron());
+            replace_all(targmes, u8"$M", targ->Obje());
+            replace_all(targmes, u8"$S", targ->Poss());
+            replace_all(targmes, u8"$N", targ->Noun(1));
+            replace_all(targmes, u8"$t", targ->Noun(1));
+            replace_all(targmes, u8"$p", targ->Noun(1));
+          }
+          targmes[0] = ascii_toupper(targmes[0]);
+          targmes += u8"\n";
+          targ->Send(0, 0, targmes);
+          targ->Deafen(true);
         }
-        outmes[0] = ascii_toupper(outmes[0]);
-        outmes += u8"\n";
+        body->Parent()->SendOut(0, 0, outmes, youmes, body, targ);
+        if (targ)
+          targ->Deafen(false);
       }
-      if (youmes[0]) {
-        replace_all(youmes, u8"$e", body->Pron());
-        replace_all(youmes, u8"$m", body->Obje());
-        replace_all(youmes, u8"$s", body->Poss());
-        replace_all(youmes, u8"$n", body->Noun(1));
-        if (targ) {
-          replace_all(youmes, u8"$E", targ->Pron());
-          replace_all(youmes, u8"$M", targ->Obje());
-          replace_all(youmes, u8"$S", targ->Poss());
-          replace_all(youmes, u8"$N", targ->Noun(1));
-          replace_all(youmes, u8"$t", targ->Noun(1));
-          replace_all(youmes, u8"$p", targ->Noun(1));
-        }
-        youmes[0] = ascii_toupper(youmes[0]);
-        youmes += u8"\n";
-      }
-      if (targ) {
-        replace_all(targmes, u8"$e", body->Pron());
-        replace_all(targmes, u8"$m", body->Obje());
-        replace_all(targmes, u8"$s", body->Poss());
-        replace_all(targmes, u8"$n", body->Noun(1));
-        if (targ) {
-          replace_all(targmes, u8"$E", targ->Pron());
-          replace_all(targmes, u8"$M", targ->Obje());
-          replace_all(targmes, u8"$S", targ->Poss());
-          replace_all(targmes, u8"$N", targ->Noun(1));
-          replace_all(targmes, u8"$t", targ->Noun(1));
-          replace_all(targmes, u8"$p", targ->Noun(1));
-        }
-        targmes[0] = ascii_toupper(targmes[0]);
-        targmes += u8"\n";
-        targ->Send(0, 0, targmes);
-        targ->Deafen(true);
-      }
-      body->Parent()->SendOut(0, 0, outmes, youmes, body, targ);
-      if (targ)
-        targ->Deafen(false);
+      return 0;
     }
-    return 0;
-  }
+  */
 
   if (cnum == COM_EMOTE) {
     std::u8string dot = u8".";
