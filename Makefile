@@ -47,6 +47,10 @@ CXXFLAGS=-g3 -O3 $(COMP) $(ARCH) $(COPT) -flto
 debug: CXXFLAGS=-O0 -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(COPT)
 debug: all
 
+#Use sanitizing settings
+sanitize: CXXFLAGS=-O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined -fno-sanitize-recover=undefined $(COMP) $(ARCH) $(COPT)
+sanitize: all
+
 #Use profiling settings
 profile: CXXFLAGS=-O3 -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 $(COMP) $(ARCH) $(COPT)
 profile: all
