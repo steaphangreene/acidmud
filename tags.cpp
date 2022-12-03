@@ -20,6 +20,7 @@
 // *************************************************************************
 
 #include "tags.hpp"
+#include "dice.hpp"
 #include "log.hpp"
 #include "properties.hpp"
 #include "utils.hpp"
@@ -617,7 +618,7 @@ ObjectTag Object::BuildNPC(const std::u8string_view& tagstr) {
   return npcdef;
 }
 
-Object* Object::MakeNPC(std::mt19937& gen, const ObjectTag& npcdef_in) {
+Object* Object::MakeNPC(const ObjectTag& npcdef_in) {
   ObjectTag npcdef = npcdef_in;
 
   npcdef.weapons_ = finalize_tags(1, npcdef.wtags_, weapontagdefs.at(World()));
@@ -628,12 +629,12 @@ Object* Object::MakeNPC(std::mt19937& gen, const ObjectTag& npcdef_in) {
   for (auto t : npcdef.tags_) {
     npc->AddTag(t);
   }
-  npc->GenerateNPC(npcdef, gen);
+  npc->GenerateNPC(npcdef);
   return npc;
 }
 
-Object* Object::AddNPC(std::mt19937& gen, const std::u8string_view& tagstr) {
-  return MakeNPC(gen, BuildNPC(tagstr));
+Object* Object::AddNPC(const std::u8string_view& tagstr) {
+  return MakeNPC(BuildNPC(tagstr));
 }
 
 ObjectTag Object::BuildRoom(const std::u8string_view& tagstr) {
@@ -666,7 +667,7 @@ ObjectTag Object::BuildRoom(const std::u8string_view& tagstr) {
   return roomdef;
 }
 
-Object* Object::MakeRoom(std::mt19937& gen, const ObjectTag& roomdef_in) {
+Object* Object::MakeRoom(const ObjectTag& roomdef_in) {
   ObjectTag roomdef = roomdef_in;
 
   roomdef.decors_ = finalize_tags(1, roomdef.dtags_, decortagdefs.at(World()));
@@ -675,12 +676,12 @@ Object* Object::MakeRoom(std::mt19937& gen, const ObjectTag& roomdef_in) {
   for (auto t : roomdef.tags_) {
     room->AddTag(t);
   }
-  room->GenerateRoom(roomdef, gen);
+  room->GenerateRoom(roomdef);
   return room;
 }
 
-Object* Object::AddRoom(std::mt19937& gen, const std::u8string_view& tagstr) {
-  return MakeRoom(gen, BuildRoom(tagstr));
+Object* Object::AddRoom(const std::u8string_view& tagstr) {
+  return MakeRoom(BuildRoom(tagstr));
 }
 
 void Object::SetTags(const std::u8string_view& tags_in) {
@@ -714,16 +715,7 @@ bool Object::HasTag(uint64_t tag) const {
   return false;
 }
 
-static int rint1(auto& gen, int min, int max) { // Flat
-  return std::uniform_int_distribution<int>(min, max)(gen);
-}
-
-static int rint3(auto& gen, int min, int max) { // Bell-Curve-Ish
-  auto rando = std::uniform_int_distribution<int>(min, max);
-  return (rando(gen) + rando(gen) + rando(gen) + 2) / 3;
-}
-
-void Object::GenerateRoom(const ObjectTag& type, std::mt19937& gen) {
+void Object::GenerateRoom(const ObjectTag& type) {
   for (auto sk : type.props_) {
     SetSkill(sk.first, sk.second);
   }
@@ -740,10 +732,10 @@ void Object::GenerateRoom(const ObjectTag& type, std::mt19937& gen) {
     obj->SetShortDesc(dc.short_desc_);
     obj->SetDesc(dc.desc_);
     obj->SetLongDesc(dc.long_desc_);
-    obj->SetWeight(rint3(gen, dc.omin_.weight, dc.omax_.weight));
-    obj->SetSize(rint3(gen, dc.omin_.size, dc.omax_.size));
-    obj->SetVolume(rint3(gen, dc.omin_.volume, dc.omax_.volume));
-    obj->SetValue(rint3(gen, dc.omin_.value, dc.omax_.value));
+    obj->SetWeight(Dice::Rand3(dc.omin_.weight, dc.omax_.weight));
+    obj->SetSize(Dice::Rand3(dc.omin_.size, dc.omax_.size));
+    obj->SetVolume(Dice::Rand3(dc.omin_.volume, dc.omax_.volume));
+    obj->SetValue(Dice::Rand3(dc.omin_.value, dc.omax_.value));
 
     for (auto t : dc.tags_) {
       obj->AddTag(t);

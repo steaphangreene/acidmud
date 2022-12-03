@@ -21,7 +21,6 @@
 
 #include <forward_list>
 #include <memory>
-#include <random>
 #include <set>
 #include <string>
 #include <vector>
@@ -667,12 +666,12 @@ class alignas(256) Object {
   bool LooksLike(const Object* other, int vmode = 0, const Object* viewer = nullptr) const;
 
   ObjectTag BuildNPC(const std::u8string_view& tags);
-  Object* MakeNPC(std::mt19937&, const ObjectTag& npcdef);
-  Object* AddNPC(std::mt19937&, const std::u8string_view& tags);
+  Object* MakeNPC(const ObjectTag& npcdef);
+  Object* AddNPC(const std::u8string_view& tags);
 
   ObjectTag BuildRoom(const std::u8string_view& tags);
-  Object* MakeRoom(std::mt19937&, const ObjectTag& roomdef);
-  Object* AddRoom(std::mt19937&, const std::u8string_view& tags);
+  Object* MakeRoom(const ObjectTag& roomdef);
+  Object* AddRoom(const std::u8string_view& tags);
 
   bool LoadTagsFrom(const std::u8string_view& tagdefs, bool save = true);
   bool LoadTags();
@@ -680,8 +679,8 @@ class alignas(256) Object {
   static void FreeActions();
 
  private:
-  void GenerateNPC(const ObjectTag&, std::mt19937&);
-  void GenerateRoom(const ObjectTag&, std::mt19937&);
+  void GenerateNPC(const ObjectTag&);
+  void GenerateRoom(const ObjectTag&);
 
   void NotifyLeft(Object* obj, Object* newloc = nullptr);
 

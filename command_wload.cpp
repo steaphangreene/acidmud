@@ -453,7 +453,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
         }
 
         for (int f = 0; f < num_floors; ++f) {
-          objs[coord{x, y}].push_back(add_oid(zone->AddRoom(gen, roomtag)));
+          objs[coord{x, y}].push_back(add_oid(zone->AddRoom(roomtag)));
           if (levels.count(room) > 0) {
             objs[coord{x, y}].back()->SetCoords(x, y, levels.at(room) + f);
           } else {
@@ -535,7 +535,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
           num_floors = 1;
         }
         for (int f = 0; f < num_floors; ++f) {
-          objs[coord{x, y}].push_back(add_oid(zone->AddRoom(gen, u8"")));
+          objs[coord{x, y}].push_back(add_oid(zone->AddRoom(u8"")));
           objs[coord{x, y}].back()->SetCoords(x, y);
           if (indoors[room]) {
             objs[coord{x, y}].back()->SetSkill(prhash(u8"Translucent"), 200);
@@ -592,7 +592,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
 
         Object* entrance;
         if (!linked) { // No object yet, so make one.
-          entrance = add_oid(zone->AddRoom(gen, u8""));
+          entrance = add_oid(zone->AddRoom(u8""));
           entrance->SetShortDesc(u8"a generic zone entrance");
           objs[coord{x, y}].push_back(entrance);
           objs[coord{x, y}].back()->SetCoords(x, y);
@@ -894,7 +894,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
             }
           }
           // Now, create the actual NPC.
-          Object* npc = objs[coord{x, y}][floor]->MakeNPC(gen, npcdef);
+          Object* npc = objs[coord{x, y}][floor]->MakeNPC(npcdef);
           npc->AddAct(act_t::SPECIAL_WORK, employed);
 
           Object* bed = new Object(housed);

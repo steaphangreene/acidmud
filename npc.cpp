@@ -25,6 +25,7 @@
 
 #include "color.hpp"
 #include "commands.hpp"
+#include "dice.hpp"
 #include "log.hpp"
 #include "mind.hpp"
 #include "object.hpp"
@@ -93,15 +94,6 @@ static const std::vector<std::u8string> dwarf_last_names = {
     u8"Stoutale",   u8"Strakeln",     u8"Strongheart",  u8"Thrahak",     u8"Torevir",
     u8"Torunn",     u8"Trollbleeder", u8"Trueanvil",    u8"Trueblood",   u8"Ungart",
 };
-
-static int rint1(auto& gen, int min, int max) { // Flat
-  return std::uniform_int_distribution<int>(min, max)(gen);
-}
-
-static int rint3(auto& gen, int min, int max) { // Bell-Curve-Ish
-  auto rando = std::uniform_int_distribution<int>(min, max);
-  return (rando(gen) + rando(gen) + rando(gen) + 2) / 3;
-}
 
 static std::map<act_t, std::u8string> wear_attribs = {
     {act_t::WEAR_BACK, u8"Wearable on Back"},
@@ -255,7 +247,7 @@ static Object* add_pack(Object* npc) {
   return bag;
 }
 
-void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
+void Object::GenerateNPC(const ObjectTag& type) {
   if (World()) {
     auto obj_id = World()->Skill(prhash(u8"Last Object ID")) + 1;
     World()->SetSkill(prhash(u8"Last Object ID"), obj_id);
@@ -266,7 +258,7 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
   Activate();
   SetPosition(pos_t::STAND);
   for (int a : {0, 1, 2, 3, 4, 5}) {
-    SetAttribute(a, rint3(gen, type.min_.v[a], type.max_.v[a]));
+    SetAttribute(a, Dice::Rand3(type.min_.v[a], type.max_.v[a]));
   }
 
   for (auto sk : type.props_) {
@@ -274,7 +266,9 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
   }
 
   if (type.genders_.size() > 0) {
-    SetGender(type.genders_[rint1(gen, 0, type.genders_.size() - 1)]);
+    gender_t gen;
+    Dice::Sample(type.genders_, &gen);
+    SetGender(gen);
   }
 
   SetShortDesc(gender_proc(type.short_desc_, Gender()));
@@ -283,14 +277,13 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
 
   int gidx = (Gender() == gender_t::FEMALE) ? 0 : 1;
   std::vector<std::u8string> first = {u8""};
-  std::sample(
-      dwarf_first_names[gidx].begin(), dwarf_first_names[gidx].end(), first.begin(), 1, gen);
+  Dice::Sample(dwarf_first_names[gidx], first.begin());
   std::vector<std::u8string> last = {u8""};
-  std::sample(dwarf_last_names.begin(), dwarf_last_names.end(), last.begin(), 1, gen);
+  Dice::Sample(dwarf_last_names, last.begin());
   SetName(first.front() + u8" " + last.front());
 
   if (type.min_gold_ > 0 || type.max_gold_ > 0) {
-    int num_gold = rint3(gen, type.min_gold_, type.max_gold_);
+    int num_gold = Dice::Rand3(type.min_gold_, type.max_gold_);
     if (num_gold > 0) {
       give_coins(this, num_gold);
     }
@@ -299,19 +292,19 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
   for (auto wp : type.weapons_) {
     Object* obj = new Object(this);
     obj->SetSkill(prhash(u8"WeaponType"), wp.wtype_);
-    obj->SetSkill(prhash(u8"WeaponReach"), rint3(gen, wp.wmin_.reach, wp.wmax_.reach));
-    obj->SetSkill(prhash(u8"WeaponForce"), rint3(gen, wp.wmin_.force, wp.wmax_.force));
-    obj->SetSkill(prhash(u8"WeaponSeverity"), rint3(gen, wp.wmin_.severity, wp.wmax_.severity));
+    obj->SetSkill(prhash(u8"WeaponReach"), Dice::Rand3(wp.wmin_.reach, wp.wmax_.reach));
+    obj->SetSkill(prhash(u8"WeaponForce"), Dice::Rand3(wp.wmin_.force, wp.wmax_.force));
+    obj->SetSkill(prhash(u8"WeaponSeverity"), Dice::Rand3(wp.wmin_.severity, wp.wmax_.severity));
     for (auto sk : wp.props_) {
       obj->SetSkill(sk.first, sk.second);
     }
     obj->SetShortDesc(wp.short_desc_);
     obj->SetDesc(wp.desc_);
     obj->SetLongDesc(wp.long_desc_);
-    obj->SetWeight(rint3(gen, wp.omin_.weight, wp.omax_.weight));
-    obj->SetSize(rint3(gen, wp.omin_.size, wp.omax_.size));
-    obj->SetVolume(rint3(gen, wp.omin_.volume, wp.omax_.volume));
-    obj->SetValue(rint3(gen, wp.omin_.value, wp.omax_.value));
+    obj->SetWeight(Dice::Rand3(wp.omin_.weight, wp.omax_.weight));
+    obj->SetSize(Dice::Rand3(wp.omin_.size, wp.omax_.size));
+    obj->SetVolume(Dice::Rand3(wp.omin_.volume, wp.omax_.volume));
+    obj->SetValue(Dice::Rand3(wp.omin_.value, wp.omax_.value));
     obj->SetPosition(pos_t::LIE);
     AddAct(act_t::WIELD, obj);
     if (two_handed(wp.wtype_)) {
@@ -338,21 +331,21 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
 
   for (auto ar : type.armor_) {
     Object* obj = new Object(this);
-    obj->SetAttribute(0, rint3(gen, ar.amin_.bulk, ar.amax_.bulk));
-    obj->SetSkill(prhash(u8"ArmorB"), rint3(gen, ar.amin_.bulk, ar.amax_.bulk));
-    obj->SetSkill(prhash(u8"ArmorI"), rint3(gen, ar.amin_.impact, ar.amax_.impact));
-    obj->SetSkill(prhash(u8"ArmorT"), rint3(gen, ar.amin_.thread, ar.amax_.thread));
-    obj->SetSkill(prhash(u8"ArmorP"), rint3(gen, ar.amin_.planar, ar.amax_.planar));
+    obj->SetAttribute(0, Dice::Rand3(ar.amin_.bulk, ar.amax_.bulk));
+    obj->SetSkill(prhash(u8"ArmorB"), Dice::Rand3(ar.amin_.bulk, ar.amax_.bulk));
+    obj->SetSkill(prhash(u8"ArmorI"), Dice::Rand3(ar.amin_.impact, ar.amax_.impact));
+    obj->SetSkill(prhash(u8"ArmorT"), Dice::Rand3(ar.amin_.thread, ar.amax_.thread));
+    obj->SetSkill(prhash(u8"ArmorP"), Dice::Rand3(ar.amin_.planar, ar.amax_.planar));
     for (auto sk : ar.props_) {
       obj->SetSkill(sk.first, sk.second);
     }
     obj->SetShortDesc(ar.short_desc_);
     obj->SetDesc(ar.desc_);
     obj->SetLongDesc(ar.long_desc_);
-    obj->SetWeight(rint3(gen, ar.omin_.weight, ar.omax_.weight));
-    obj->SetSize(rint3(gen, ar.omin_.size, ar.omax_.size));
-    obj->SetVolume(rint3(gen, ar.omin_.volume, ar.omax_.volume));
-    obj->SetValue(rint3(gen, ar.omin_.value, ar.omax_.value));
+    obj->SetWeight(Dice::Rand3(ar.omin_.weight, ar.omax_.weight));
+    obj->SetSize(Dice::Rand3(ar.omin_.size, ar.omax_.size));
+    obj->SetVolume(Dice::Rand3(ar.omin_.volume, ar.omax_.volume));
+    obj->SetValue(Dice::Rand3(ar.omin_.value, ar.omax_.value));
     obj->SetPosition(pos_t::LIE);
 
     int modenum = 1;
@@ -381,10 +374,10 @@ void Object::GenerateNPC(const ObjectTag& type, std::mt19937& gen) {
       obj->SetShortDesc(it.short_desc_);
       obj->SetDesc(it.desc_);
       obj->SetLongDesc(it.long_desc_);
-      obj->SetWeight(rint3(gen, it.omin_.weight, it.omax_.weight));
-      obj->SetSize(rint3(gen, it.omin_.size, it.omax_.size));
-      obj->SetVolume(rint3(gen, it.omin_.volume, it.omax_.volume));
-      obj->SetValue(rint3(gen, it.omin_.value, it.omax_.value));
+      obj->SetWeight(Dice::Rand3(it.omin_.weight, it.omax_.weight));
+      obj->SetSize(Dice::Rand3(it.omin_.size, it.omax_.size));
+      obj->SetVolume(Dice::Rand3(it.omin_.volume, it.omax_.volume));
+      obj->SetValue(Dice::Rand3(it.omin_.value, it.omax_.value));
       obj->SetPosition(pos_t::LIE);
 
       int modenum = 1;
