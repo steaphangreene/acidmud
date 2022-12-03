@@ -22,10 +22,6 @@
 #include <string>
 #include <vector>
 
-// Replace with C++20 std::ranges, when widely available
-#include <range/v3/algorithm.hpp>
-namespace rng = ranges;
-
 #include "color.hpp"
 #include "log.hpp"
 #include "mind.hpp"
@@ -328,7 +324,7 @@ void Mind::StartNewProject() {
     }
   }
   /*
-    rng::sort(materials, [](const Object* a, const Object* b) {
+    std::ranges::sort(materials, [](const Object* a, const Object* b) {
       size_t rat_a = a->Skill(prhash(u8"Raw Wood"));
       rat_a += a->Skill(prhash(u8"Pure Wood"));
       size_t rat_b = b->Skill(prhash(u8"Raw Wood"));

@@ -26,10 +26,6 @@
 #include <string>
 #include <vector>
 
-// Replace with C++20 std::ranges, when widely available
-#include <range/v3/algorithm.hpp>
-namespace rng = ranges;
-
 #include "color.hpp"
 #include "commands.hpp"
 #include "global.hpp"
@@ -5036,7 +5032,8 @@ size_t Object::CanPayFor(size_t amount) const {
     return amount - togo; // Can't Afford It
   }
   if (cash.size() > 1) {
-    rng::sort(cash, [](const Object* a, const Object* b) { return a->Value() > b->Value(); });
+    std::ranges::sort(
+        cash, [](const Object* a, const Object* b) { return a->Value() > b->Value(); });
   }
 
   togo = amount;
@@ -5094,7 +5091,8 @@ DArr64<Object*, 3> Object::PayFor(size_t amount) {
     return ret; // Can't Afford It
   }
   if (cash.size() > 1) {
-    rng::sort(cash, [](const Object* a, const Object* b) { return a->Value() > b->Value(); });
+    std::ranges::sort(
+        cash, [](const Object* a, const Object* b) { return a->Value() > b->Value(); });
   }
 
   togo = amount;

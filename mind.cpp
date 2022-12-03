@@ -30,10 +30,6 @@
 #include <random>
 #include <string>
 
-// Replace with C++20 std::ranges, when widely available
-#include <range/v3/algorithm.hpp>
-namespace rng = ranges;
-
 #include "color.hpp"
 #include "commands.hpp"
 #include "global.hpp"

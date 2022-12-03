@@ -19,13 +19,9 @@
 //
 // *************************************************************************
 
-// Replace with C++20 std::ranges, when widely available
-#include <range/v3/algorithm.hpp>
-namespace rng = ranges;
-
+#include "tags.hpp"
 #include "log.hpp"
 #include "properties.hpp"
-#include "tags.hpp"
 #include "utils.hpp"
 
 static std::map<const Object*, std::map<uint32_t, ObjectTag>> npctagdefs;
@@ -73,7 +69,7 @@ static bool wearparam(std::u8string_view& line, std::vector<std::vector<act_t>>&
     defs.push_back(std::vector<act_t>());
     while (line.length() > 0) {
       std::u8string wearstr(getuntil(line, ','));
-      rng::transform(wearstr, wearstr.begin(), ascii_toupper);
+      std::ranges::transform(wearstr, wearstr.begin(), ascii_toupper);
       std::u8string_view wear = wearstr;
       if (wear.starts_with(u8"SHIE")) {
         defs.back().push_back(act_t::WEAR_SHIELD);
@@ -334,7 +330,7 @@ bool ObjectTag::LoadFrom(std::u8string_view& def) {
       // Comment or blank link - skip it.
     } else if (process(line, u8"type:")) {
       std::u8string typestr(getuntil(line, '\n'));
-      rng::transform(typestr, typestr.begin(), ascii_toupper);
+      std::ranges::transform(typestr, typestr.begin(), ascii_toupper);
       if (typestr == u8"NONE") {
         type_ = tag_t::NONE;
       } else if (typestr == u8"OPINION") {
