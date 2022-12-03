@@ -1,5 +1,7 @@
 acidmud
 deps.mk
+commands.hpp
+commands.cpp
 version.cpp
 *.o
 acid/current.plr

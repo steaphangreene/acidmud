@@ -69,7 +69,8 @@ gcc: CXXFLAGS=-Og -fno-omit-frame-pointer -fno-optimize-sibling-calls -g3 -fsani
 gcc: all
 
 clean:
-	rm -f gmon.out *.profraw *.profdata deps.mk tests/*.o tests/*.da *.o *.da version.cpp acidmud tests/tests changes.txt
+	rm -f gmon.out *.profraw *.profdata deps.mk tests/*.o tests/*.da *.o *.da \
+		version.cpp commands.cpp commands.hpp acidmud tests/tests changes.txt
 
 backup:
 	cd ..;tar chvf ~/c/archive/acidmud.$(TSTR).tar \
@@ -100,6 +101,16 @@ tests/tests: tests/test_main.o $(TOBJS) $(OBJS)
 tests/%.o: tests/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
+commands.hpp:	commands.hpp.template tba/socials.new
+	cat commands.hpp.template \
+		| grep -v 'COM_SOCIAL,' \
+		> commands.hpp
+
+commands.cpp:	commands.cpp.template tba/socials.new
+	cat commands.cpp.template \
+		| grep -v 'COM_SOCIAL,' \
+		> commands.cpp
+
 version.cpp:	version.cpp.template *.hpp [a-uw-z]*.cpp .git/logs/HEAD
 	cat version.cpp.template \
 		| sed 's|DATE_STAMP|$(TSTR)|g' \
@@ -109,6 +120,6 @@ version.cpp:	version.cpp.template *.hpp [a-uw-z]*.cpp .git/logs/HEAD
 
 include deps.mk
 
-deps.mk:	*.cpp *.hpp tests/*.cpp
+deps.mk:	*.cpp *.hpp tests/*.cpp commands.hpp commands.cpp version.cpp
 	$(CXX) $(CXXFLAGS) -MM *.cpp tests/*.cpp > deps.mk
 	sed -i 's|^test_|tests/test_|' deps.mk

@@ -1874,7 +1874,7 @@ int Mind::TBARunLine(std::u8string linestr) {
       com == COM_NORTH || com == COM_SOUTH || com == COM_EAST || com == COM_WEST || com == COM_UP ||
       com == COM_DOWN || com == COM_SLEEP || com == COM_REST || com == COM_WAKE ||
       com == COM_STAND || com == COM_SIT || com == COM_LIE || com == COM_LOOK || com == COM_FLEE ||
-      com >= COM_SOCIAL) {
+      com > COM_LAST_STANDARD) {
     handle_command(ovars[u8"self"], line);
   }
 

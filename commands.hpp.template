@@ -178,8 +178,12 @@ typedef enum {
   COM_TLOAD,
   COM_TCLEAN,
 
+  COM_LAST_STANDARD = COM_TCLEAN, // Standard commands end here.
+
+  // The rest are commands, loaded from TBA, which all have no real effect.
+  COM_SOCIAL,
+
   COM_MAX,
-  COM_SOCIAL = COM_MAX, // Many commands, which all have no real effect.
 } com_t;
 
 int handle_command(Object*, const std::u8string_view&, std::shared_ptr<Mind> mind = nullptr);
