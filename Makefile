@@ -101,15 +101,11 @@ tests/tests: tests/test_main.o $(TOBJS) $(OBJS)
 tests/%.o: tests/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-commands.hpp:	commands.hpp.template tba/socials.new
-	cat commands.hpp.template \
-		| grep -v 'COM_SOCIAL,' \
-		> commands.hpp
+commands.hpp:	commands.hpp.template tba/socials.new scripts/convert_socials.sh
+	./scripts/convert_socials.sh $@ > $@
 
-commands.cpp:	commands.cpp.template tba/socials.new
-	cat commands.cpp.template \
-		| grep -v 'COM_SOCIAL,' \
-		> commands.cpp
+commands.cpp:	commands.cpp.template tba/socials.new scripts/convert_socials.sh
+	./scripts/convert_socials.sh $@ > $@
 
 version.cpp:	version.cpp.template *.hpp [a-uw-z]*.cpp .git/logs/HEAD
 	cat version.cpp.template \
