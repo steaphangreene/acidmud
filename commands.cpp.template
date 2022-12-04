@@ -76,6 +76,13 @@ int handle_command_wload(Object*, std::shared_ptr<Mind>&, const std::u8string_vi
 int handle_command_list(Object*, std::shared_ptr<Mind>&, int, const std::u8string_view&, int, int);
 int handle_command_buy(Object*, std::shared_ptr<Mind>&, int, const std::u8string_view&, int, int);
 int handle_command_shops(Object*, std::shared_ptr<Mind>&, int, const std::u8string_view&, int, int);
+int handle_social_command(
+    Object*,
+    std::shared_ptr<Mind>&,
+    int,
+    const std::u8string_view&,
+    int,
+    int);
 
 static int count_ones(int mask) {
   int ret = 0;
@@ -1656,81 +1663,9 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
     return 0;
   }
 
-  /*
-    if (cnum > COM_LAST_STANDARD) {
-      Object* targ = nullptr;
-      if (body && body->Parent()) {
-        std::u8string youmes = socials[cnum][0];
-        std::u8string outmes = socials[cnum][1];
-        std::u8string targmes = u8"";
-        if (!args.empty()) {
-          targ = body->PickObject(std::u8string(args), vmode | LOC_NEARBY | LOC_SELF |
-    LOC_INTERNAL); if (!targ) { youmes = socials[cnum][5]; outmes = u8""; } else if (targ == body) {
-            youmes = socials[cnum][6];
-            outmes = socials[cnum][7];
-          } else {
-            youmes = socials[cnum][2];
-            outmes = socials[cnum][3];
-            targmes = socials[cnum][4];
-          }
-        }
-        if (outmes[0]) {
-          replace_all(outmes, u8"$e", body->Pron());
-          replace_all(outmes, u8"$m", body->Obje());
-          replace_all(outmes, u8"$s", body->Poss());
-          replace_all(outmes, u8"$n", body->Noun(1));
-          if (targ) {
-            replace_all(outmes, u8"$E", targ->Pron());
-            replace_all(outmes, u8"$M", targ->Obje());
-            replace_all(outmes, u8"$S", targ->Poss());
-            replace_all(outmes, u8"$N", targ->Noun(1));
-            replace_all(outmes, u8"$t", targ->Noun(1));
-            replace_all(outmes, u8"$p", targ->Noun(1));
-          }
-          outmes[0] = ascii_toupper(outmes[0]);
-          outmes += u8"\n";
-        }
-        if (youmes[0]) {
-          replace_all(youmes, u8"$e", body->Pron());
-          replace_all(youmes, u8"$m", body->Obje());
-          replace_all(youmes, u8"$s", body->Poss());
-          replace_all(youmes, u8"$n", body->Noun(1));
-          if (targ) {
-            replace_all(youmes, u8"$E", targ->Pron());
-            replace_all(youmes, u8"$M", targ->Obje());
-            replace_all(youmes, u8"$S", targ->Poss());
-            replace_all(youmes, u8"$N", targ->Noun(1));
-            replace_all(youmes, u8"$t", targ->Noun(1));
-            replace_all(youmes, u8"$p", targ->Noun(1));
-          }
-          youmes[0] = ascii_toupper(youmes[0]);
-          youmes += u8"\n";
-        }
-        if (targ) {
-          replace_all(targmes, u8"$e", body->Pron());
-          replace_all(targmes, u8"$m", body->Obje());
-          replace_all(targmes, u8"$s", body->Poss());
-          replace_all(targmes, u8"$n", body->Noun(1));
-          if (targ) {
-            replace_all(targmes, u8"$E", targ->Pron());
-            replace_all(targmes, u8"$M", targ->Obje());
-            replace_all(targmes, u8"$S", targ->Poss());
-            replace_all(targmes, u8"$N", targ->Noun(1));
-            replace_all(targmes, u8"$t", targ->Noun(1));
-            replace_all(targmes, u8"$p", targ->Noun(1));
-          }
-          targmes[0] = ascii_toupper(targmes[0]);
-          targmes += u8"\n";
-          targ->Send(0, 0, targmes);
-          targ->Deafen(true);
-        }
-        body->Parent()->SendOut(0, 0, outmes, youmes, body, targ);
-        if (targ)
-          targ->Deafen(false);
-      }
-      return 0;
-    }
-  */
+  if (cnum > COM_LAST_STANDARD) {
+    return handle_social_command(body, mind, cnum, args, stealth_t, stealth_s);
+  }
 
   if (cnum == COM_EMOTE) {
     std::u8string dot = u8".";

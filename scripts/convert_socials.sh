@@ -37,12 +37,25 @@ for com in $(grep ^~ tba/socials.new | cut -c2- | cut -f1 -d' '); do
   enum=$(echo $com | tr a-z A-Z | tr '.-' '__')
   if [ "$target" = "commands.hpp" ]; then
     echo "  COM_SOCIAL_$enum,"
-  else
+  elif [ "$target" = "commands.cpp" ]; then
     echo "    {u8\"$com\","
     echo "     u8\"Social Command.\","
     echo "     u8\"Social Command.\","
     echo "     (REQ_ALERT | REQ_UP | REQ_ACTION),"
     echo "     COM_SOCIAL_$enum},"
+  else
+    ( echo -n "    {"
+      grep -FA 13 "~${com} " tba/socials.new \
+	| sed 's|"|\\"|g' \
+	| sed 's|^|     u8"|g' \
+	| sed 's|$|",|g' \
+	| sed 's|u8"#"|u8""|g' \
+	| grep -v '^     u8"~'
+      echo "},"
+    ) | sed 's|^    {     u8"|    {u8"|g' \
+	| tr '\n' '~' \
+	| sed 's|",~}|"}|' \
+	| tr '~' '\n'
   fi
 done
 

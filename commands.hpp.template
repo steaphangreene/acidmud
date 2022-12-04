@@ -185,6 +185,8 @@ typedef enum {
 
   COM_MAX,
 } com_t;
+const auto COM_MAX_STANDARD = COM_LAST_STANDARD + 1;
+const auto NUM_SOCIALS = COM_MAX - COM_MAX_STANDARD;
 
 int handle_command(Object*, const std::u8string_view&, std::shared_ptr<Mind> mind = nullptr);
 com_t identify_command(const std::u8string_view line, bool corporeal);

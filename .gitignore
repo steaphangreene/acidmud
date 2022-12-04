@@ -2,6 +2,7 @@ acidmud
 deps.mk
 commands.hpp
 commands.cpp
+command_social.cpp
 version.cpp
 *.o
 acid/current.plr
