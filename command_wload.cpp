@@ -21,10 +21,10 @@
 
 #include <algorithm>
 #include <filesystem>
-#include <random>
 
 #include "color.hpp"
 #include "commands.hpp"
+#include "dice.hpp"
 #include "infile.hpp"
 #include "log.hpp"
 #include "mind.hpp"
@@ -32,9 +32,6 @@
 #include "properties.hpp"
 #include "tags.hpp"
 #include "utils.hpp"
-
-static std::random_device rd;
-static std::mt19937 gen(rd());
 
 static Object* add_oid(Object* obj) {
   auto obj_id = obj->World()->Skill(prhash(u8"Last Object ID")) + 1;
@@ -129,11 +126,11 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
   std::map<char8_t, std::vector<bool>> stairblocked;
   std::map<char8_t, std::vector<std::u8string>> stairnames;
   std::map<char8_t, std::vector<std::u8string>> emptags;
-  std::map<char8_t, std::vector<std::uniform_int_distribution<int>>> empnums;
+  std::map<char8_t, std::vector<Dice::Die>> empnums;
   std::map<char8_t, std::vector<int>> empfloors;
   std::map<char8_t, std::vector<bool>> empnight;
   std::map<char8_t, std::vector<std::u8string>> restags;
-  std::map<char8_t, std::vector<std::uniform_int_distribution<int>>> resnums;
+  std::map<char8_t, std::vector<Dice::Die>> resnums;
   std::map<char8_t, std::vector<int>> resfloors;
   std::map<std::pair<Object*, std::u8string>, int> beds;
   std::map<Object*, std::vector<std::pair<char8_t, int32_t>>> loc_keys;
@@ -249,7 +246,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
         parse_error = true;
       }
       if (!parse_error) {
-        empnums[sym].push_back(std::uniform_int_distribution<int>(lnum, hnum));
+        empnums[sym].push_back(Dice::GetDie(lnum, hnum));
         empfloors[sym].push_back(floor);
         empnight[sym].push_back(false);
       }
@@ -276,7 +273,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
         parse_error = true;
       }
       if (!parse_error) {
-        empnums[sym].push_back(std::uniform_int_distribution<int>(lnum, hnum));
+        empnums[sym].push_back(Dice::GetDie(lnum, hnum));
         empfloors[sym].push_back(floor);
         empnight[sym].push_back(true);
       }
@@ -303,7 +300,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
         parse_error = true;
       }
       if (!parse_error) {
-        resnums[sym].push_back(std::uniform_int_distribution<int>(lnum, hnum));
+        resnums[sym].push_back(Dice::GetDie(lnum, hnum));
         resfloors[sym].push_back(floor);
       }
     } else if (process(line, u8"door:")) {
@@ -446,7 +443,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
             std::rotate(rooms[room].begin(), rooms[room].begin() + 1, rooms[room].end());
             std::rotate(roomtags[room].begin(), roomtags[room].begin() + 1, roomtags[room].end());
           } else {
-            int idx = std::uniform_int_distribution<int>(0, rooms[room].size() - 1)(gen);
+            int idx = Dice::Rand(0, rooms[room].size() - 1);
             roomname = rooms[room].at(idx);
             roomtag = roomtags[room].at(idx);
           }
@@ -524,7 +521,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
           for (size_t f = 0; f < restags.at(room).size(); ++f) {
             int resfl = resfloors.at(room)[f];
             if (beds.count(std::make_pair(objs[loc][resfl], restags[room][f])) == 0) {
-              beds[std::make_pair(objs[loc][resfl], restags[room][f])] = resnums.at(room)[f](gen);
+              beds[std::make_pair(objs[loc][resfl], restags[room][f])] = resnums.at(room)[f]();
             }
           }
         }
@@ -569,7 +566,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
           for (size_t f = 0; f < restags.at(room).size(); ++f) {
             int resfl = resfloors.at(room)[f];
             if (beds.count(std::make_pair(objs[loc][resfl], restags[room][f])) == 0) {
-              beds[std::make_pair(objs[loc][resfl], restags[room][f])] = resnums.at(room)[f](gen);
+              beds[std::make_pair(objs[loc][resfl], restags[room][f])] = resnums.at(room)[f]();
             }
           }
         }
@@ -811,7 +808,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
     auto room = ascii_map[y][x];
     if (emptags.count(room) > 0) {
       for (size_t n = 0; n < emptags[room].size(); ++n) {
-        int num = empnums[room][n](gen);
+        int num = empnums[room][n]();
         int floor = empfloors[room][n];
         bool night = empnight[room][n];
         for (int m = 0; m < num; ++m) {
@@ -866,7 +863,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
             }
           }
           if (places.size() > 0) { // FIXME: This just selects one randomly, do better.
-            std::sample(places.begin(), places.end(), std::back_inserter(places), 1, gen);
+            Dice::Sample(places, std::back_inserter(places));
             housed = places.back().first;
             --beds.at(places.back());
 
@@ -907,7 +904,7 @@ load_map(Object* world, std::shared_ptr<Mind> mind, const std::filesystem::direc
           bed->SetSkill(prhash(u8"Enterable"), 1000);
           npc->AddAct(act_t::SPECIAL_HOME, bed);
 
-          int timeliness = std::uniform_int_distribution<int>(-5, 20)(gen);
+          int timeliness = Dice::Rand(-5, 20);
           if (night) {
             npc->SetSkill(prhash(u8"Night Worker"), timeliness);
           } else {

@@ -27,11 +27,11 @@
 #include <algorithm>
 #include <filesystem>
 #include <limits>
-#include <random>
 #include <string>
 
 #include "color.hpp"
 #include "commands.hpp"
+#include "dice.hpp"
 #include "global.hpp"
 #include "log.hpp"
 #include "mind.hpp"
@@ -40,9 +40,6 @@
 #include "player.hpp"
 #include "properties.hpp"
 #include "utils.hpp"
-
-static std::random_device rd;
-static std::mt19937 gen(rd());
 
 static const std::u8string dirnames[6] =
     {u8"north", u8"south", u8"east", u8"west", u8"up", u8"down"};
@@ -459,7 +456,7 @@ bool Mind::Think(int istick) {
 
         // Guards and Soldiers Patrol
       } else if (body->HasTag(crc32c(u8"guard")) || body->HasTag(crc32c(u8"soldier"))) {
-        if (std::uniform_int_distribution(0, 999)(gen) < 55) { // 5.5% Chance
+        if (Dice::Percent(5)) { // 5% Chance
           std::vector<std::u8string_view> options;
           auto conns = body->Room()->Connections(body);
           std::u8string_view area = u8"";
@@ -477,7 +474,7 @@ bool Mind::Think(int istick) {
               }
             }
             if (options.size() > 1) {
-              shuffle(options.begin(), options.end(), gen);
+              Dice::Shuffle(options);
             }
             if (options.size() > 0) {
               svars[u8"path"] = options.front().substr(0, 1);
@@ -524,7 +521,7 @@ bool Mind::Think(int istick) {
           }
         }
 
-        std::shuffle(dirs.begin(), dirs.end(), gen);
+        Dice::Shuffle(dirs);
 
         int orig = body->Skill(items[req + 1]);
         int leave = orig / 10000;

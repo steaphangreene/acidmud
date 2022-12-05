@@ -20,9 +20,9 @@
 // *************************************************************************
 
 #include <algorithm>
-#include <random>
 
 #include "commands.hpp"
+#include "dice.hpp"
 #include "mind.hpp"
 #include "object.hpp"
 #include "properties.hpp"
@@ -229,9 +229,7 @@ int handle_command_ccreate(
       bldg.back()->SetSkill(prhash(u8"Fun"), 10);
     }
 
-    std::random_device rd;
-    std::mt19937 g(rd());
-    std::shuffle(bldg.begin(), bldg.end(), g);
+    Dice::Shuffle(bldg);
 
     std::u8string sname, aname, iname;
     Object* ave[NUM_AVS] = {nullptr};
