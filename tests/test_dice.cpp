@@ -51,3 +51,33 @@ TEST_CASE("Basic Dice Function Sanity Tests", "[Dice]") {
   REQUIRE(freq[5] > 0); // Theoretically can fail, but not realistically.
   REQUIRE(freq[6] > 0); // Theoretically can fail, but not realistically.
 }
+
+TEST_CASE("Dice:Die Function Sanity Tests", "[Dice]") {
+  int freq[8] = {0};
+  REQUIRE(freq[0] == 0); // Something Horrible Has Happened
+  REQUIRE(freq[1] == 0); // Something Horrible Has Happened
+  REQUIRE(freq[6] == 0); // Something Horrible Has Happened
+  REQUIRE(freq[7] == 0); // Something Horrible Has Happened
+
+  int count = 0;
+  unsigned int seen = 0;
+  auto my_d6 = Dice::GetDie(1, 6);
+  while (seen != 0x7E && count < 1000000000) {
+    int val = my_d6();
+    seen |= (1 << val);
+    REQUIRE(val <= 6);
+    REQUIRE(val >= 1);
+    ++freq[val];
+    ++count;
+  }
+
+  REQUIRE(freq[0] == 0); // Something Horrible Has Happened
+  REQUIRE(freq[7] == 0); // Something Horrible Has Happened
+
+  REQUIRE(freq[1] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[2] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[3] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[4] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[5] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[6] > 0); // Theoretically can fail, but not realistically.
+}

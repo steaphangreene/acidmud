@@ -56,6 +56,21 @@ class Dice {
     return (rando(generator_) + rando(generator_) + rando(generator_) + 1) / 3;
   }
 
+  static auto GetDie(int min, int max) {
+    return Die(min, max);
+  }
+
+  class Die {
+   public:
+    Die(int min, int max) : distro_(min, max){};
+    int operator()() {
+      return distro_(Dice::generator_);
+    }
+
+   private:
+    std::uniform_int_distribution<int> distro_;
+  };
+
  private:
   static std::random_device device_;
   static std::mt19937 generator_;
