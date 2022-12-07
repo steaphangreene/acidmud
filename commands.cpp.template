@@ -25,6 +25,7 @@
 
 #include "color.hpp"
 #include "commands.hpp"
+#include "dice.hpp"
 #include "global.hpp"
 #include "infile.hpp"
 #include "log.hpp"
@@ -1316,17 +1317,12 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
     body->StartUsing(prhash(u8"Sprinting"));
     body->ClearSkill(prhash(u8"Hidden"));
 
-    auto dir = dirs.begin();
-    int sel = rand() % dirs.size();
-    while (sel > 0) {
-      ++dir;
-      --sel;
+    auto dir = Dice::Sample(dirs);
+    if (mind) {
+      mind->Send(u8"You try to flee {}.\n", dir->ShortDesc());
     }
-    if (mind)
-      mind->Send(u8"You try to flee {}.\n", (*dir)->ShortDesc());
-
     cnum = COM_ENTER;
-    args_buf = (*dir)->ShortDesc();
+    args_buf = dir->ShortDesc();
     args = args_buf;
   }
 
@@ -2944,7 +2940,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       for (auto trig : trigs) {
         int ttype = trig->Skill(prhash(u8"TBAScriptType"));
         if ((ttype & 0x2000040) == 0x2000040) { // OBJ-GET trigs
-          if ((rand() % 100) < trig->Skill(prhash(u8"TBAScriptNArg"))) { // % Chance
+          if (Dice::Percent(trig->Skill(prhash(u8"TBAScriptNArg")))) { // % Chance
             if (new_trigger(0, trig, body))
               return 0; // Says fail!
             if (targ->Parent() == targ->TrashBin())
@@ -3679,7 +3675,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
         for (auto trig : trigs) {
           int ttype = trig->Skill(prhash(u8"TBAScriptType"));
           if ((ttype & 0x2000080) == 0x2000080) { // OBJ-DROP trigs
-            if ((rand() % 100) < trig->Skill(prhash(u8"TBAScriptNArg"))) { // % Chance
+            if (Dice::Percent(trig->Skill(prhash(u8"TBAScriptNArg")))) { // % Chance
               if (new_trigger(0, trig, body))
                 return 0; // Says FAIL!
               if (targ->Parent() == targ->TrashBin())
@@ -3695,7 +3691,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
         for (auto trig : trigs) {
           int ttype = trig->Skill(prhash(u8"TBAScriptType"));
           if ((ttype & 0x4000080) == 0x4000080) { // ROOM-DROP trigs
-            if ((rand() % 100) < trig->Skill(prhash(u8"TBAScriptNArg"))) { // % Chance
+            if (Dice::Percent(trig->Skill(prhash(u8"TBAScriptNArg")))) { // % Chance
               if (new_trigger(0, trig, body, targ))
                 return 0; // Says FAIL!
               if (targ->Parent() == targ->TrashBin())
@@ -4907,7 +4903,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
         (is_pc(body) || is_pc(targ)) ? &rolls_defense : nullptr);
     int succ = offense - defense;
 
-    int loc = rand() % 100;
+    int loc = Dice::Rand(0, 99);
     act_t loca = act_t::WEAR_CHEST;
     std::u8string locm = u8"";
     int stage = 0;
@@ -5215,7 +5211,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
     }
 
     while (chr->Skill(prhash(u8"Attribute Points")) > 0) {
-      int which = (rand() % 6);
+      int which = Dice::Rand(0, 5);
       if (chr->NormAttribute(which) < 6) {
         chr->SetSkill(prhash(u8"Attribute Points"), chr->Skill(prhash(u8"Attribute Points")) - 1);
         chr->SetAttribute(which, chr->NormAttribute(which) + 1);
@@ -5224,17 +5220,12 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
 
     auto skills = get_skills(u8"all");
     while (chr->Skill(prhash(u8"Skill Points"))) {
-      int which = (rand() % skills.size());
-      auto skl = skills.begin();
-      while (which) {
-        ++skl;
-        --which;
-      }
-      if (chr->Skill(*skl) < (chr->NormAttribute(get_linked(*skl)) + 1) / 2 &&
-          chr->Skill(prhash(u8"Skill Points")) > chr->Skill(*skl)) {
-        chr->SetSkill(*skl, chr->Skill(*skl) + 1);
+      auto skl = Dice::Sample(skills);
+      if (chr->Skill(skl) < (chr->NormAttribute(get_linked(skl)) + 1) / 2 &&
+          chr->Skill(prhash(u8"Skill Points")) > chr->Skill(skl)) {
+        chr->SetSkill(skl, chr->Skill(skl) + 1);
         chr->SetSkill(
-            prhash(u8"Skill Points"), chr->Skill(prhash(u8"Skill Points")) - chr->Skill(*skl));
+            prhash(u8"Skill Points"), chr->Skill(prhash(u8"Skill Points")) - chr->Skill(skl));
       }
     }
     mind->Send(u8"You randomly spend all remaining points for '{}'.\n", chr->ShortDesc());
