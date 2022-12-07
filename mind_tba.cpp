@@ -28,6 +28,7 @@
 
 #include "color.hpp"
 #include "commands.hpp"
+#include "dice.hpp"
 #include "log.hpp"
 #include "mind.hpp"
 #include "net.hpp"
@@ -662,7 +663,7 @@ bool Mind::TBAMOBThink(int istick) {
     }
 
     if (cons.size()) {
-      int res = rand() % cons.size();
+      int res = Dice::Rand(0, cons.size() - 1);
       std::map<Object*, std::u8string>::iterator dir = cons.begin();
       while (res > 0) {
         ++dir;
@@ -718,8 +719,9 @@ bool Mind::TBATriggerThink(int istick) {
         int chance = body->Skill(prhash(u8"TBAScriptNArg")); // Percent Chance
         if (chance > 0) {
           int delay = 13000; // Next try in 13 seconds.
-          while (delay < 1300000 && (rand() % 100) >= chance)
+          while (delay < 1300000 && (!Dice::Percent(chance))) {
             delay += 13000;
+          }
           spos_s.clear();
           spos_s.push_back(0); // We never die!
           Suspend(delay); // We'll be back!
@@ -1935,7 +1937,7 @@ bool Mind::TBAVarSub(std::u8string& edit) const {
         others = ovars.at(u8"self")->PickObjects(u8"everyone", LOC_NEARBY);
       }
       if (others.size() > 0) {
-        int num = rand() % others.size();
+        int num = Dice::Rand(0, others.size() - 1);
         auto item = others.begin();
         for (; num > 0; --num) {
           ++item;
@@ -1966,7 +1968,7 @@ bool Mind::TBAVarSub(std::u8string& edit) const {
         options.insert(room->PickObject(u8"down", LOC_INTERNAL));
         options.erase(nullptr);
         if (options.size() > 0) {
-          int num = rand() % options.size();
+          int num = Dice::Rand(0, options.size() - 1);
           std::set<Object*>::iterator item = options.begin();
           for (; num > 0; --num) {
             ++item;
@@ -1981,7 +1983,7 @@ bool Mind::TBAVarSub(std::u8string& edit) const {
         if (vend != std::u8string::npos && line[vend] == '%') {
           int div = getnum(line.substr(cur + 8));
           if (div > 0) {
-            val = itos((rand() % div) + 1);
+            val = itos(Dice::Rand(1, div));
           } else {
             loger(
                 u8"#{} Error: Division by zero in '{}'\n",
