@@ -32,6 +32,7 @@
 
 #include "color.hpp"
 #include "commands.hpp"
+#include "dice.hpp"
 #include "log.hpp"
 #include "mind.hpp"
 #include "object.hpp"
@@ -172,7 +173,7 @@ void Object::TBAFinalizeTriggers() {
       // loge(u8"{}", newtext);
     } else if (trg->Skill(prhash(u8"TBAScriptType")) & 0x1000000) { // Room or Obj
       trg->Activate();
-      new_trigger(13000 + (rand() % 13000), trg, nullptr, nullptr, u8"");
+      new_trigger(Dice::Rand(13000, 25999), trg, nullptr, nullptr, u8"");
     }
   }
   todotrg.clear();

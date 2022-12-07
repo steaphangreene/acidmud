@@ -22,6 +22,7 @@
 #include <map>
 
 #include "color.hpp"
+#include "dice.hpp"
 #include "enum_utils.hpp"
 #include "infile.hpp"
 #include "log.hpp"
@@ -367,7 +368,7 @@ int Object::LoadFrom(std::u8string_view& fl) {
 
   if (Skill(prhash(u8"TBAScriptType")) & 2) { // Random/Permanent Triggers
     std::shared_ptr<Mind> trig = new_mind(mind_t::TBATRIG, this);
-    trig->Suspend((rand() % 13000) + 3000); // 3-16 Seconds
+    trig->Suspend(Dice::Rand(3000, 15999)); // 3-16 Seconds
   }
 
   //  int num_loaded = 0;
