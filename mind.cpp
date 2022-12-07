@@ -534,10 +534,10 @@ bool Mind::Think(int istick) {
             body->SetSkill(items[req + 1], orig - leave * 10000);
             trav->BusyFor(0, dirs.front());
           }
-          body->BusyFor(8000 + (rand() & 0xFFF));
+          body->BusyFor(Dice::Rand(8000, 11999));
         }
       } else {
-        body->BusyFor(8000 + (rand() & 0xFFF));
+        body->BusyFor(Dice::Rand(8000, 11999));
       }
 
       //      if(body->Skill(prhash(u8"Personality")) & 2) {		// Punk
