@@ -2349,7 +2349,7 @@ int Object::Travel(Object* dest) {
       if ((trig->Skill(prhash(u8"TBAScriptType")) & 0x0000040) &&
           (trig->Skill(prhash(u8"TBAScriptType")) & 0x5000000)) {
         if (trig != this && trig->Parent() != this) {
-          if ((rand() % 100) < 1000 * trig->Skill(prhash(u8"TBAScriptNArg"))) { // % Chance
+          if ((rand() % 100) < trig->Skill(prhash(u8"TBAScriptNArg"))) { // % Chance
             // if (trig->Skill(prhash(u8"TBAScript")) >= 5034503 &&
             // trig->Skill(prhash(u8"TBAScript"))
             // <= 5034507)
