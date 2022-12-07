@@ -4,7 +4,6 @@ Get working NPCs to stand up when they get knocked down.
 Get recovering NPCs to collect their dropped weapon(s).
 
 Replace as many u8string creations as possible with u8string_view usages.
-Replace all uses of rand() with new type/thread safe C++ stuff.
 
 Handle deleting on error cases falling back out of Mind::Send().
 

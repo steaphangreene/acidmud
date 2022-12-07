@@ -93,8 +93,6 @@ int main(int argc, char** argv) {
     }
   }
 
-  srand(time(nullptr));
-
   current_time = get_time();
 
   logo(u8"Starting networking....");
