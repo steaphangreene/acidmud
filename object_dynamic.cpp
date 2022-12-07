@@ -24,6 +24,7 @@
 
 #include "color.hpp"
 #include "commands.hpp"
+#include "dice.hpp"
 #include "log.hpp"
 #include "mind.hpp"
 #include "object.hpp"
@@ -137,19 +138,19 @@ void Object::DynamicInit1() { // Dwarven mine
 
     } break;
     case (1): { // Major Shaft
-      if ((rand() % 100) < 30) {
+      if (Dice::Percent(30)) {
         mojo -= 500;
         AddNPC(u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
-      if ((rand() % 100) < 10) {
+      if (Dice::Percent(10)) {
         mojo -= 500;
         AddNPC(u8"dwarven,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
-      if ((rand() % 100) < 20) {
+      if (Dice::Percent(20)) {
         mojo -= 500;
         AddNPC(u8"dwarven,guard,dungeon_cage_key")->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
-      if ((rand() % 100) < 20) {
+      if (Dice::Percent(20)) {
         mojo -= 500;
         AddNPC(u8"dwarven,guard,dungeon_cage_key")->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
@@ -158,7 +159,7 @@ void Object::DynamicInit1() { // Dwarven mine
         break; // End of Tunnel
 
       int ntypes[] = {1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4};
-      int ntype = ntypes[rand() % (sizeof(ntypes) / sizeof(int))];
+      int ntype = Dice::Sample(ntypes);
 
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
@@ -181,19 +182,19 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetSkill(prhash(u8"Enterable"), 1);
     } break;
     case (2): { // Major Shaft w/ Minor Offshoot
-      if ((rand() % 100) < 30) {
+      if (Dice::Percent(30)) {
         mojo -= 500;
         AddNPC(u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
-      if ((rand() % 100) < 10) {
+      if (Dice::Percent(10)) {
         mojo -= 500;
         AddNPC(u8"dwarven,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
-      if ((rand() % 100) < 20) {
+      if (Dice::Percent(20)) {
         mojo -= 500;
         AddNPC(u8"dwarven,guard,dungeon_cage_key")->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
-      if ((rand() % 100) < 20) {
+      if (Dice::Percent(20)) {
         mojo -= 500;
         AddNPC(u8"dwarven,guard,dungeon_cage_key")->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
@@ -202,7 +203,7 @@ void Object::DynamicInit1() { // Dwarven mine
         break; // End of Tunnel
 
       int ntypes[] = {1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4};
-      int ntype = ntypes[rand() % (sizeof(ntypes) / sizeof(int))];
+      int ntype = Dice::Sample(ntypes);
 
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
@@ -224,7 +225,7 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetSkill(prhash(u8"Open"), 1000);
       door2->SetSkill(prhash(u8"Enterable"), 1);
 
-      if (rand() % 2)
+      if (Dice::Rand(0, 1))
         std::swap(dir2, dir3); // Half left, half right
       next = new Object(parent);
       next->SetShortDesc(names[5]);
@@ -247,19 +248,19 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetSkill(prhash(u8"Enterable"), 1);
     } break;
     case (3): { // Major Shaft w/ Secret Minor Offshoot
-      if ((rand() % 100) < 30) {
+      if (Dice::Percent(30)) {
         mojo -= 500;
         AddNPC(u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
-      if ((rand() % 100) < 10) {
+      if (Dice::Percent(10)) {
         mojo -= 500;
         AddNPC(u8"dwarven,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
-      if ((rand() % 100) < 20) {
+      if (Dice::Percent(20)) {
         mojo -= 500;
         AddNPC(u8"dwarven,guard,dungeon_cage_key")->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
-      if ((rand() % 100) < 20) {
+      if (Dice::Percent(20)) {
         mojo -= 500;
         AddNPC(u8"dwarven,guard,dungeon_cage_key")->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
@@ -268,7 +269,7 @@ void Object::DynamicInit1() { // Dwarven mine
         break; // End of Tunnel
 
       int ntypes[] = {1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4};
-      int ntype = ntypes[rand() % (sizeof(ntypes) / sizeof(int))];
+      int ntype = Dice::Sample(ntypes);
 
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
@@ -290,8 +291,9 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetSkill(prhash(u8"Open"), 1000);
       door2->SetSkill(prhash(u8"Enterable"), 1);
 
-      if (rand() % 2)
+      if (Dice::Rand(0, 1)) {
         std::swap(dir2, dir3); // Half left, half right
+      }
       next = new Object(parent);
       next->SetShortDesc(names[5]);
       next->SetDesc(descs[5]);
@@ -312,46 +314,46 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
       door2->SetSkill(prhash(u8"Open"), 1000);
       door2->SetSkill(prhash(u8"Enterable"), 1);
-      door1->SetSkill(prhash(u8"Hidden"), 4 + rand() % 13);
+      door1->SetSkill(prhash(u8"Hidden"), 4 + Dice::Rand(0, 12));
     } break;
     case (4): { // Major Chamber
-      if ((rand() % 100) < 30) {
+      if (Dice::Percent(30)) {
         mojo -= 500;
         AddNPC(u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
-      if ((rand() % 100) < 30) {
+      if (Dice::Percent(30)) {
         mojo -= 500;
         AddNPC(u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
-      if ((rand() % 100) < 30) {
+      if (Dice::Percent(30)) {
         mojo -= 500;
         AddNPC(u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
-      if ((rand() % 100) < 30) {
+      if (Dice::Percent(30)) {
         mojo -= 500;
         AddNPC(u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
-      if ((rand() % 100) < 10) {
+      if (Dice::Percent(10)) {
         mojo -= 500;
         AddNPC(u8"dwarven,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
-      if ((rand() % 100) < 10) {
+      if (Dice::Percent(10)) {
         mojo -= 500;
         AddNPC(u8"dwarven,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
-      if ((rand() % 100) < 20) {
+      if (Dice::Percent(20)) {
         mojo -= 500;
         AddNPC(u8"dwarven,guard,dungeon_cage_key")->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
-      if ((rand() % 100) < 20) {
+      if (Dice::Percent(20)) {
         mojo -= 500;
         AddNPC(u8"dwarven,guard,dungeon_cage_key")->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
-      if ((rand() % 100) < 20) {
+      if (Dice::Percent(20)) {
         mojo -= 500;
         AddNPC(u8"dwarven,guard,dungeon_cage_key")->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
-      if ((rand() % 100) < 20) {
+      if (Dice::Percent(20)) {
         mojo -= 500;
         AddNPC(u8"dwarven,guard,dungeon_cage_key")->SetSkill(prhash(u8"Accomplishment"), 1500002);
       }
@@ -368,11 +370,11 @@ void Object::DynamicInit1() { // Dwarven mine
       cage->SetSkill(prhash(u8"Closeable"), 1);
       cage->SetSkill(prhash(u8"Accomplishment"), 1510003);
 
-      if ((rand() % 100) < 20) {
+      if (Dice::Percent(20)) {
         mojo -= 500;
         cage->AddNPC(u8"elven,prisoner")->SetSkill(prhash(u8"Accomplishment"), 1500004);
       }
-      if ((rand() % 100) < 20) {
+      if (Dice::Percent(20)) {
         mojo -= 500;
         cage->AddNPC(u8"elven,prisoner")->SetSkill(prhash(u8"Accomplishment"), 1500004);
       }
@@ -381,7 +383,7 @@ void Object::DynamicInit1() { // Dwarven mine
         break; // End of Tunnel
 
       int ntypes[] = {1, 1, 1, 1, 1, 1, 1, 2, 2, 3};
-      int ntype = ntypes[rand() % (sizeof(ntypes) / sizeof(int))];
+      int ntype = Dice::Sample(ntypes);
 
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
@@ -404,19 +406,19 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetSkill(prhash(u8"Enterable"), 1);
     } break;
     case (5): { // Minor Shaft
-      if ((rand() % 100) < 30) {
+      if (Dice::Percent(30)) {
         mojo -= 500;
         AddNPC(u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
-      if ((rand() % 100) < 30) {
+      if (Dice::Percent(30)) {
         mojo -= 500;
         AddNPC(u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
-      if ((rand() % 100) < 10) {
+      if (Dice::Percent(10)) {
         mojo -= 500;
         AddNPC(u8"dwarven,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
-      if ((rand() % 100) < 20) {
+      if (Dice::Percent(20)) {
         mojo -= 500;
         AddNPC(u8"dwarven,explorer")->SetSkill(prhash(u8"Accomplishment"), 1500003);
       }
@@ -426,7 +428,7 @@ void Object::DynamicInit1() { // Dwarven mine
 
       //      int ntypes[] = { 5, 5, 5, 5, 6, 6, 6, 7, 7, 8, 9 };
       int ntypes[] = {5, 5, 5, 5, 5, 6, 6, 7, 7, 8};
-      int ntype = ntypes[rand() % (sizeof(ntypes) / sizeof(int))];
+      int ntype = Dice::Sample(ntypes);
 
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
@@ -449,29 +451,30 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetSkill(prhash(u8"Enterable"), 1);
     } break;
     case (6): { // Minor Shaft (Bend)
-      if ((rand() % 100) < 30) {
+      if (Dice::Percent(30)) {
         mojo -= 500;
         AddNPC(u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
-      if ((rand() % 100) < 30) {
+      if (Dice::Percent(30)) {
         mojo -= 500;
         AddNPC(u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
-      if ((rand() % 100) < 10) {
+      if (Dice::Percent(10)) {
         mojo -= 500;
         AddNPC(u8"dwarven,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
-      if ((rand() % 100) < 20) {
+      if (Dice::Percent(20)) {
         mojo -= 500;
         AddNPC(u8"dwarven,explorer")->SetSkill(prhash(u8"Accomplishment"), 1500003);
       }
 
       //      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7, 8, 9 };
       int ntypes[] = {5, 5, 5, 5, 5, 6, 6, 7, 7, 8};
-      int ntype = ntypes[rand() % (sizeof(ntypes) / sizeof(int))];
+      int ntype = Dice::Sample(ntypes);
 
-      if (rand() % 2)
+      if (Dice::Rand(0, 1)) {
         std::swap(dir2, dir3); // Half left, half right
+      }
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
       next->SetDesc(descs[ntype]);
@@ -493,26 +496,26 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetSkill(prhash(u8"Enterable"), 1);
     } break;
     case (7): { // Minor Shaft Fork
-      if ((rand() % 100) < 30) {
+      if (Dice::Percent(30)) {
         mojo -= 500;
         AddNPC(u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
-      if ((rand() % 100) < 30) {
+      if (Dice::Percent(30)) {
         mojo -= 500;
         AddNPC(u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
-      if ((rand() % 100) < 10) {
+      if (Dice::Percent(10)) {
         mojo -= 500;
         AddNPC(u8"dwarven,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
-      if ((rand() % 100) < 20) {
+      if (Dice::Percent(20)) {
         mojo -= 500;
         AddNPC(u8"dwarven,explorer")->SetSkill(prhash(u8"Accomplishment"), 1500003);
       }
 
       //      int ntypes[] = { 5, 5, 5, 5, 5, 6, 6, 7, 7, 8, 9 };
       int ntypes[] = {5, 5, 5, 5, 5, 6, 6, 7, 7, 8};
-      int ntype = ntypes[rand() % (sizeof(ntypes) / sizeof(int))];
+      int ntype = Dice::Sample(ntypes);
 
       Object* next = new Object(parent);
       next->SetShortDesc(names[ntype]);
@@ -534,7 +537,7 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetSkill(prhash(u8"Open"), 1000);
       door2->SetSkill(prhash(u8"Enterable"), 1);
 
-      ntype = ntypes[rand() % (sizeof(ntypes) / sizeof(int))];
+      ntype = Dice::Sample(ntypes);
       std::swap(dir2, dir3); // Same code, opposite dir.
       next = new Object(parent);
       next->SetShortDesc(names[ntype]);
@@ -557,19 +560,19 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->SetSkill(prhash(u8"Enterable"), 1);
     } break;
     case (8): { // Minor Shaft Alcove
-      if ((rand() % 100) < 30) {
+      if (Dice::Percent(30)) {
         mojo -= 500;
         AddNPC(u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
-      if ((rand() % 100) < 30) {
+      if (Dice::Percent(30)) {
         mojo -= 500;
         AddNPC(u8"dwarven,miner")->SetSkill(prhash(u8"Accomplishment"), 1500000);
       }
-      if ((rand() % 100) < 10) {
+      if (Dice::Percent(10)) {
         mojo -= 500;
         AddNPC(u8"dwarven,engineer")->SetSkill(prhash(u8"Accomplishment"), 1500001);
       }
-      if ((rand() % 100) < 20) {
+      if (Dice::Percent(20)) {
         mojo -= 500;
         AddNPC(u8"dwarven,explorer")->SetSkill(prhash(u8"Accomplishment"), 1500003);
       }
@@ -577,13 +580,13 @@ void Object::DynamicInit1() { // Dwarven mine
       if (mojo <= 0)
         break; // End of Tunnel
 
-      if (mojo > 10000 && (rand() % 100) < 20) {
+      if (mojo > 10000 && Dice::Percent(20)) {
         mojo -= 5000;
-        int option = rand() % 100;
-        if (option >= 70) {
+        auto roll = d10();
+        if (roll <= 3) {
           std::swap(dir, dir2);
           std::swap(dirb, dir3);
-        } else if (option >= 70) {
+        } else if (roll > 7) {
           std::swap(dir, dir3);
           std::swap(dirb, dir2);
         }
@@ -613,7 +616,7 @@ void Object::DynamicInit1() { // Dwarven mine
       door2->AddAct(act_t::SPECIAL_LINKED, door1);
       door2->SetSkill(prhash(u8"Open"), 1000);
       door2->SetSkill(prhash(u8"Enterable"), 1);
-      door1->SetSkill(prhash(u8"Hidden"), 4 + rand() % 13);
+      door1->SetSkill(prhash(u8"Hidden"), 4 + Dice::Rand(0, 12));
     } break;
     default: {
       loge(
