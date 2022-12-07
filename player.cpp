@@ -26,6 +26,7 @@
 #include <md5.hpp>
 
 #include "color.hpp"
+#include "dice.hpp"
 #include "log.hpp"
 #include "net.hpp"
 #include "player.hpp"
@@ -146,7 +147,7 @@ Player::Player(const std::u8string_view& nm, const std::u8string_view& ps) {
   } else {
     std::u8string salt = u8"$1$", app = u8" ";
     for (int ctr = 0; ctr < 8; ++ctr) {
-      app[0] = salt_char[rand() & 63];
+      app[0] = salt_char[Dice::Rand(0, 63)];
       salt += app;
     }
     pass = md5_crypt(ps, salt);
