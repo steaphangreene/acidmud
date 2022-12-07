@@ -31,6 +31,12 @@ class Dice {
     std::ranges::shuffle(deck, generator_);
   }
 
+  static auto Sample(const auto& deck) {
+    std::remove_cvref_t<decltype(*(std::begin(deck)))> target;
+    std::ranges::sample(deck, &target, 1, generator_);
+    return target;
+  }
+
   static void Sample(const auto& deck, auto target, int count = 1) {
     std::ranges::sample(deck, target, count, generator_);
   }
