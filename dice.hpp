@@ -119,12 +119,44 @@ inline int d100() { // 1-100
   return Dice::Roll(100);
 }
 
-inline int dSR() { // 1-6+ (Infinite Rerolls)
-  int val = d6();
-  while ((val % 6) == 0) {
-    val += d6();
+// Constants used by dSR()
+constexpr const int dSR_0d = 1;
+constexpr const int dSR_1d = 6;
+constexpr const int dSR_2d = 6 * 6;
+constexpr const int dSR_3d = 6 * 6 * 6;
+constexpr const int dSR_4d = 6 * 6 * 6 * 6;
+constexpr const int dSR_5d = 6 * 6 * 6 * 6 * 6;
+constexpr const int dSR_d1max = dSR_5d - dSR_4d;
+constexpr const int dSR_d2max = dSR_5d - dSR_3d;
+constexpr const int dSR_d3max = dSR_5d - dSR_2d;
+constexpr const int dSR_d4max = dSR_5d - dSR_1d;
+constexpr const int dSR_d5max = dSR_5d - dSR_0d;
+
+inline int dSR5() { // 1-6+ (+4 Rerolls - up to 5 dice total)
+  int val = Dice::Rand(0, dSR_d5max);
+  if (val < dSR_d1max) { // Rolled: 1-5 on First Die: Result is 1-5
+    return (val / dSR_4d) + 1;
+  } else if (val < dSR_d2max) { // Rolled: 1-5 on Second Die: Result is 7-11
+    return ((val - dSR_d1max) / dSR_3d) + 7;
+  } else if (val < dSR_d3max) { // Rolled: 1-5 on Third Die: Result is 13-17
+    return ((val - dSR_d2max) / dSR_2d) + 13;
+  } else if (val < dSR_d4max) { // Rolled: 1-5 on Fourth Die: Result is 19-23
+    return ((val - dSR_d3max) / dSR_1d) + 19;
+  } else if (val < dSR_d5max) { // Rolled: 1-5 on Fifth Die: Result is 25-29
+    return (val - dSR_d4max) + 25;
+  } else { // Rolled: 6 on Fifth Die: Result is 30+
+    return 30;
   }
-  return val;
+}
+
+inline int dSR() { // 1-6+ (Infinite Rerolls)
+  int val = 0;
+  int total = 0;
+  do {
+    val = dSR5();
+    total += val;
+  } while (val == 30);
+  return total;
 }
 
 #endif // DICE_HPP
