@@ -344,7 +344,7 @@ int handle_command_ccreate(
 
               static int vacants = 0;
               if (bldg.size() > 0 && vacants <= 0) {
-                vacants = rand() & 0x0F;
+                vacants = Dice::Rand(0, 15);
                 places[i * 2] = bldg.back();
                 bldg.pop_back();
                 places[i + 1]->Link(places[i], dir[0], addr, dir[1], addr);
