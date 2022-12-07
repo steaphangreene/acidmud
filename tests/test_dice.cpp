@@ -52,7 +52,7 @@ TEST_CASE("Basic Dice Function Sanity Tests", "[Dice]") {
   REQUIRE(freq[6] > 0); // Theoretically can fail, but not realistically.
 }
 
-TEST_CASE("Dice:Die Function Sanity Tests", "[Dice]") {
+TEST_CASE("Dice::Die Function Sanity Tests", "[Dice]") {
   int freq[8] = {0};
   REQUIRE(freq[0] == 0); // Something Horrible Has Happened
   REQUIRE(freq[1] == 0); // Something Horrible Has Happened
@@ -80,4 +80,93 @@ TEST_CASE("Dice:Die Function Sanity Tests", "[Dice]") {
   REQUIRE(freq[4] > 0); // Theoretically can fail, but not realistically.
   REQUIRE(freq[5] > 0); // Theoretically can fail, but not realistically.
   REQUIRE(freq[6] > 0); // Theoretically can fail, but not realistically.
+}
+
+TEST_CASE("Dice::Shuffle() Sanity Tests", "[Dice]") {
+  int data[6] = {1, 2, 3, 4, 5, 6};
+  REQUIRE(std::ranges::is_sorted(data)); // Something Horrible Has Happened
+
+  int count = 0;
+  while (std::ranges::is_sorted(data) && count < 1000) {
+    Dice::Shuffle(data);
+    ++count;
+  }
+  REQUIRE(!std::ranges::is_sorted(data)); // Theoretically can fail, but not realistically.
+
+  int freq[8] = {0};
+  REQUIRE(freq[0] == 0); // Something Horrible Has Happened
+  REQUIRE(freq[1] == 0); // Something Horrible Has Happened
+  REQUIRE(freq[2] == 0); // Something Horrible Has Happened
+  REQUIRE(freq[3] == 0); // Something Horrible Has Happened
+  REQUIRE(freq[4] == 0); // Something Horrible Has Happened
+  REQUIRE(freq[5] == 0); // Something Horrible Has Happened
+  REQUIRE(freq[6] == 0); // Something Horrible Has Happened
+  REQUIRE(freq[7] == 0); // Something Horrible Has Happened
+
+  for (auto val : data) {
+    REQUIRE(val <= 6);
+    REQUIRE(val >= 1);
+    ++freq[val];
+  }
+
+  REQUIRE(freq[0] == 0); // Something Horrible Has Happened
+  REQUIRE(freq[1] == 1);
+  REQUIRE(freq[2] == 1);
+  REQUIRE(freq[3] == 1);
+  REQUIRE(freq[4] == 1);
+  REQUIRE(freq[5] == 1);
+  REQUIRE(freq[6] == 1);
+  REQUIRE(freq[7] == 0); // Something Horrible Has Happened
+}
+
+TEST_CASE("Dice::Sample() [C Array] Sanity Tests", "[Dice]") {
+  int data[6] = {1, 2, 3, 4, 5, 6};
+  REQUIRE(std::ranges::is_sorted(data)); // Something Horrible Has Happened
+
+  int count = 0;
+  unsigned int seen = 0;
+  while (seen != 0x7E && count < 1000000) {
+    auto val = Dice::Sample(data);
+    seen |= (1 << val);
+    REQUIRE(val <= 6);
+    REQUIRE(val >= 1);
+    ++count;
+  }
+  REQUIRE(seen == 0x7E);
+}
+
+TEST_CASE("Dice::Sample() [std::array] Sanity Tests", "[Dice]") {
+  std::array<int, 6> data = {1, 2, 3, 4, 5, 6};
+  REQUIRE(std::ranges::is_sorted(data)); // Something Horrible Has Happened
+
+  int count = 0;
+  unsigned int seen = 0;
+  while (seen != 0x7E && count < 1000000) {
+    auto val = Dice::Sample(data);
+    seen |= (1 << val);
+    REQUIRE(val <= 6);
+    REQUIRE(val >= 1);
+    ++count;
+  }
+  REQUIRE(seen == 0x7E);
+}
+
+TEST_CASE("Dice::Sample() [multi] Sanity Tests", "[Dice]") {
+  int data[6] = {1, 2, 3, 4, 5, 6};
+  REQUIRE(std::ranges::is_sorted(data)); // Something Horrible Has Happened
+
+  int count = 0;
+  unsigned int seen = 0;
+  while (seen != 0x7E && count < 1000) {
+    std::vector<int> vals;
+    vals.reserve(1000);
+    Dice::Sample(data, std::back_inserter(vals), 1000);
+    for (auto val : vals) {
+      seen |= (1 << val);
+      REQUIRE(val <= 6);
+      REQUIRE(val >= 1);
+    }
+    ++count;
+  }
+  REQUIRE(seen == 0x7E);
 }
