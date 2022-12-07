@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "color.hpp"
+#include "dice.hpp"
 #include "log.hpp"
 #include "object.hpp"
 #include "properties.hpp"
@@ -134,9 +135,9 @@ std::vector<uint32_t> get_skills(const std::u8string_view& in_cat) {
 int roll(int ndice, int targ, std::u8string* res) {
   int succ = 0;
   for (int die = 0; die < ndice; ++die) {
-    int val = 1 + (rand() % 6);
+    int val = d6();
     while ((val % 6) == 0)
-      val += (1 + rand() % 6);
+      val += d6();
     if (res) {
       (*res) += fmt::format(u8"{},", val);
     }
