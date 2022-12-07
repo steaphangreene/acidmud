@@ -28,6 +28,7 @@
 
 #include "color.hpp"
 #include "commands.hpp"
+#include "dice.hpp"
 #include "global.hpp"
 #include "infile.hpp"
 #include "log.hpp"
@@ -496,7 +497,7 @@ int Object::Tick() {
         if (trg->HasSkill(prhash(u8"TBAScript")) &&
             (trg->Skill(prhash(u8"TBAScriptType")) & 0x0000002)) {
           trg->Activate();
-          new_trigger(13000 + (rand() % 13000), trg, nullptr, nullptr, u8"");
+          new_trigger(Dice::Rand(13000, 25999), trg, nullptr, nullptr, u8"");
         }
       }
     }
@@ -719,8 +720,7 @@ int Object::Tick() {
     if (Skill(prhash(u8"Lightable")) < 1) {
       goesout = true;
     } else if (!parent->IsAnimate()) {
-      int chances = Skill(prhash(u8"Resilience"));
-      goesout = ((rand() % 1000) >= chances);
+      goesout = !Dice::Permill(Skill(prhash(u8"Resilience")));
     }
     if (goesout) {
       ClearSkill(prhash(u8"Light Source"));
@@ -2295,7 +2295,7 @@ int Object::Travel(Object* dest) {
     // Type 0x0010000 (*-LEAVE)
     for (auto trig : trigs) {
       if (trig->Skill(prhash(u8"TBAScriptType")) & 0x0010000) {
-        if ((rand() % 100) < trig->Skill(prhash(u8"TBAScriptNArg"))) { // % Chance
+        if (Dice::Percent(trig->Skill(prhash(u8"TBAScriptNArg")))) { // % Chance
           // logeb(u8"Triggering: {}", trig->Noun());
           if (new_trigger(0, trig, this, dir))
             return 1;
@@ -2349,12 +2349,12 @@ int Object::Travel(Object* dest) {
       if ((trig->Skill(prhash(u8"TBAScriptType")) & 0x0000040) &&
           (trig->Skill(prhash(u8"TBAScriptType")) & 0x5000000)) {
         if (trig != this && trig->Parent() != this) {
-          if ((rand() % 100) < trig->Skill(prhash(u8"TBAScriptNArg"))) { // % Chance
+          if (Dice::Percent(trig->Skill(prhash(u8"TBAScriptNArg")))) { // % Chance
             // if (trig->Skill(prhash(u8"TBAScript")) >= 5034503 &&
             // trig->Skill(prhash(u8"TBAScript"))
             // <= 5034507)
             //  logeb(u8"Triggering: {}", trig->Noun());
-            new_trigger((rand() % 400) + 300, trig, this, rdir);
+            new_trigger(Dice::Rand(300, 699), trig, this, rdir);
           }
         }
       }
@@ -3312,14 +3312,14 @@ void Object::SendOut(
         // Type 0x1000010 (MOB + MOB-ACT)
         if ((trig->Skill(prhash(u8"TBAScriptType")) & 0x1000010) == 0x1000010) {
           if (trig->Desc()[0] == '*') { // All Actions
-            new_trigger((rand() % 400) + 300, trig, actor, mes);
+            new_trigger(Dice::Rand(300, 699), trig, actor, mes);
           } else if (trig->Skill(prhash(u8"TBAScriptNArg")) == 0) { // Match Full Phrase
             if (phrase_match(mes, trig->Desc())) {
-              new_trigger((rand() % 400) + 300, trig, actor, mes);
+              new_trigger(Dice::Rand(300, 699), trig, actor, mes);
             }
           } else { // Match Words
             if (words_match(mes, trig->Desc())) {
-              new_trigger((rand() % 400) + 300, trig, actor, mes);
+              new_trigger(Dice::Rand(300, 699), trig, actor, mes);
             }
           }
         }
@@ -3341,14 +3341,14 @@ void Object::SendOut(
           }
 
           if (trig->Desc()[0] == '*') { // All Speech
-            new_trigger((rand() % 400) + 300, trig, actor, speech);
+            new_trigger(Dice::Rand(300, 699), trig, actor, speech);
           } else if (trig->Skill(prhash(u8"TBAScriptNArg")) == 0) { // Match Full Phrase
             if (phrase_match(speech, trig->Desc())) {
               // if (trig->Skill(prhash(u8"TBAScript")) >= 5034503 &&
               // trig->Skill(prhash(u8"TBAScript"))
               // <= 5034507)
               //  logeb(u8"Triggering(f): {}", trig->Noun());
-              new_trigger((rand() % 400) + 300, trig, actor, speech);
+              new_trigger(Dice::Rand(300, 699), trig, actor, speech);
             }
           } else { // Match Words
             if (words_match(speech, trig->Desc())) {
@@ -3356,7 +3356,7 @@ void Object::SendOut(
               // trig->Skill(prhash(u8"TBAScript"))
               // <= 5034507)
               //  logeb(u8"Triggering(w): {}", trig->Noun());
-              new_trigger((rand() % 400) + 300, trig, actor, speech);
+              new_trigger(Dice::Rand(300, 699), trig, actor, speech);
             }
           }
 
@@ -3372,14 +3372,14 @@ void Object::SendOut(
           }
 
           if (trig->Desc()[0] == '*') { // All Speech
-            new_trigger((rand() % 400) + 300, trig, actor, speech);
+            new_trigger(Dice::Rand(300, 699), trig, actor, speech);
           } else if (trig->Skill(prhash(u8"TBAScriptNArg")) == 0) { // Match Full Phrase
             if (phrase_match(speech, trig->Desc())) {
-              new_trigger((rand() % 400) + 300, trig, actor, speech);
+              new_trigger(Dice::Rand(300, 699), trig, actor, speech);
             }
           } else { // Match Words
             if (words_match(speech, trig->Desc())) {
-              new_trigger((rand() % 400) + 300, trig, actor, speech);
+              new_trigger(Dice::Rand(300, 699), trig, actor, speech);
             }
           }
         }
@@ -3728,7 +3728,7 @@ void Object::FreeActions() {
       // Type 0x1000400 (MOB + MOB-FIGHT)
       for (auto trig : init.first->contents) {
         if ((trig->Skill(prhash(u8"TBAScriptType")) & 0x1000400) == 0x1000400) {
-          if ((rand() % 100) < trig->Skill(prhash(u8"TBAScriptNArg"))) { // % Chance
+          if (Dice::Percent(trig->Skill(prhash(u8"TBAScriptNArg")))) { // % Chance
             new_trigger(0, trig, init.first->ActTarg(act_t::FIGHT));
           }
         }
