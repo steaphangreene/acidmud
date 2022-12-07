@@ -46,6 +46,11 @@ class Dice {
     return (roll < chance);
   }
 
+  static bool Permill(int chance) { // change‰ chance of true, else false
+    auto roll = std::uniform_int_distribution<int>(0, 999)(generator_);
+    return (roll < chance);
+  }
+
   static int Roll(int sides) { // 1-sides
     if (sides < 1) {
       return 1;
