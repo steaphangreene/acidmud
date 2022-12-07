@@ -19,6 +19,8 @@
 //
 // *************************************************************************
 
+#include <map>
+
 #include <catch2/catch.hpp>
 
 #include "../dice.hpp"
@@ -169,4 +171,94 @@ TEST_CASE("Dice::Sample() [multi] Sanity Tests", "[Dice]") {
     ++count;
   }
   REQUIRE(seen == 0x7E);
+}
+
+TEST_CASE("SR Dice Rolls", "[Dice]") {
+  int count = 0;
+  std::map<int, int> freq;
+  while (count < 2160000) {
+    auto val = dSR();
+    REQUIRE(val > 0);
+    ++freq[val];
+    ++count;
+  }
+  REQUIRE(freq[1] > 355000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[1] < 365000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[2] > 355000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[2] < 365000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[3] > 355000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[3] < 365000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[4] > 355000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[4] < 365000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[5] > 355000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[5] < 365000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[6] == 0); // Should be impossible.
+  REQUIRE(freq[7] > 55000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[7] < 65000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[8] > 55000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[8] < 65000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[9] > 55000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[9] < 65000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[10] > 55000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[10] < 65000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[11] > 55000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[11] < 65000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[12] == 0); // Should be impossible.
+  REQUIRE(freq[13] > 5000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[13] < 15000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[14] > 5000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[14] < 15000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[15] > 5000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[15] < 15000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[16] > 5000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[16] < 15000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[17] > 5000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[17] < 15000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[18] == 0); // Should be impossible.
+  REQUIRE(freq[19] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[19] < 5000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[20] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[20] < 5000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[21] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[21] < 5000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[22] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[22] < 5000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[23] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[23] < 5000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[24] == 0); // Should be impossible.
+  REQUIRE(freq[25] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[25] < 1000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[26] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[26] < 1000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[27] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[27] < 1000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[28] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[28] < 1000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[29] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[29] < 1000); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[30] == 0); // Should be impossible.
+  REQUIRE(freq[31] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[31] < 200); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[32] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[32] < 200); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[33] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[33] < 200); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[34] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[34] < 200); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[35] > 0); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[35] < 200); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[36] == 0); // Should be impossible.
+  REQUIRE(freq.rbegin()->first > 36); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[37] < 100); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[38] < 100); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[39] < 100); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[40] < 100); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[41] < 100); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[42] == 0); // Should be impossible.
+  REQUIRE(freq[43] < 20); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[44] < 20); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[45] < 20); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[46] < 20); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[47] < 20); // Theoretically can fail, but not realistically.
+  REQUIRE(freq[48] == 0); // Should be impossible.
 }

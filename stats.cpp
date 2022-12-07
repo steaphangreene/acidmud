@@ -135,9 +135,7 @@ std::vector<uint32_t> get_skills(const std::u8string_view& in_cat) {
 int roll(int ndice, int targ, std::u8string* res) {
   int succ = 0;
   for (int die = 0; die < ndice; ++die) {
-    int val = d6();
-    while ((val % 6) == 0)
-      val += d6();
+    int val = dSR();
     if (res) {
       (*res) += fmt::format(u8"{},", val);
     }

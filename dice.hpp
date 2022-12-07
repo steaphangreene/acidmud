@@ -119,4 +119,12 @@ inline int d100() { // 1-100
   return Dice::Roll(100);
 }
 
+inline int dSR() { // 1-6+ (Infinite Rerolls)
+  int val = d6();
+  while ((val % 6) == 0) {
+    val += d6();
+  }
+  return val;
+}
+
 #endif // DICE_HPP
