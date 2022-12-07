@@ -87,6 +87,14 @@ class Dice {
   static std::mt19937 generator_;
 };
 
+inline int d2() { // 1-2
+  return Dice::Roll(2);
+}
+
+inline int d3() { // 1-3
+  return Dice::Roll(3);
+}
+
 inline int d4() { // 1-4
   return Dice::Roll(4);
 }
