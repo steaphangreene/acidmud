@@ -523,7 +523,6 @@ class alignas(256) Object {
   void DynamicInit9();
 
   int RollInitiative() const;
-  int Roll(uint32_t, const Object*, uint32_t, int bias = 0, std::u8string* res = nullptr) const;
   int Roll(uint32_t, int, std::u8string* res = nullptr) const;
   int RollNoWounds(uint32_t, int, int, std::u8string* res = nullptr) const;
 

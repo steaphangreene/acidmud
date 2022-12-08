@@ -248,25 +248,6 @@ int Object::SkillTarget(uint32_t stok) const {
   return 0;
 }
 
-int Object::Roll(uint32_t s1, const Object* p2, uint32_t s2, int bias, std::u8string* res) const {
-  int succ = 0;
-
-  int t1 = p2->SkillTarget(s2) - bias;
-  int t2 = SkillTarget(s1) + bias;
-
-  if (res)
-    (*res) += u8"(";
-  succ = Roll(s1, t1, res);
-  if (s2 != prhash(u8"None")) {
-    if (res)
-      (*res) += u8" - ";
-    succ -= p2->Roll(s2, t2, res);
-  }
-  if (res)
-    (*res) += u8")";
-  return succ;
-}
-
 int Object::Roll(uint32_t stok, int targ, std::u8string* res) const {
   if (phys >= 10 || stun >= 10 || attr[0] == 0 || attr[1] == 0 || attr[2] == 0 || attr[3] == 0 ||
       attr[4] == 0 || attr[5] == 0) {
