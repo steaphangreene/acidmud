@@ -147,6 +147,12 @@ int roll(int ndice, int targ, std::u8string* res) {
   if (res && !res->empty()) {
     res->pop_back();
   }
+  if (succ == 0 && ndice >= targ) {
+    succ = 1;
+    if (res) {
+      (*res) += u8",AUTO";
+    }
+  }
   return succ;
 }
 
