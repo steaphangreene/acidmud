@@ -15,7 +15,7 @@ Implement various types of armor, weapons and damage.
 Do 3-layer armor system.
 Show armor/weapon/hit/miss messages in ninja display.
 Translate circle armor to various armor types.
-Translate circle weapons to various armor types.
+Translate circle weapons to various weapon types.
 
 Handle Multiple Weapon Types (eg: Bastard Swords).
 
@@ -157,13 +157,11 @@ Implement "all of " target for all within.
 Implement "stuff" target.
 Implement "loot" command.
 Allow carrying of dying and KOed creatures.
-Autowield when entering combat.
 
 Make all plural commands see pluralized items correctly.
 Consistently pluralize (or don't) skill names (fix wiki version too!).
 
 Follower should look like he gets there after folowee to those already there.
-Implement money denominations and change.
 Implement item "piles" "pairs", "mixtures", etc....
 Finish article substitution ("A" -> "A second", etc...).
 Pick up a fight's other opponents after your target goes down without delay.
