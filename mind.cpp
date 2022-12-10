@@ -19,8 +19,6 @@
 //
 // *************************************************************************
 
-#include <arpa/telnet.h>
-
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -211,55 +209,32 @@ bool Mind::Send(const std::u8string_view& mes) {
 
 void Mind::SetPName(const std::u8string_view& pn) {
   pname = pn;
-  if (player_exists(pname))
-    Send(
-        u8"{}{}{}Returning player - welcome back!\n",
-        static_cast<char8_t>(IAC),
-        static_cast<char8_t>(WILL),
-        static_cast<char8_t>(TELOPT_ECHO));
-  else
-    Send(
-        u8"{}{}{}New player ({}) - enter SAME new password twice.\n",
-        static_cast<char8_t>(IAC),
-        static_cast<char8_t>(WILL),
-        static_cast<char8_t>(TELOPT_ECHO),
-        pname);
+  if (player_exists(pname)) {
+    SendOutPW(pers, u8"Returning player - welcome back!\n");
+  } else {
+    SendOutPW(pers, fmt::format(u8"New player ({}) - enter SAME new password twice.\n", pname));
+  }
 }
 
 void Mind::SetPPass(const std::u8string_view& ppass) {
   if (player_exists(pname)) {
     player = player_login(pname, ppass);
     if (player == nullptr) {
-      if (player_exists(pname))
-        Send(
-            u8"{}{}{}Name and/or password is incorrect.\n",
-            static_cast<char8_t>(IAC),
-            static_cast<char8_t>(WONT),
-            static_cast<char8_t>(TELOPT_ECHO));
-      else
-        Send(
-            u8"{}{}{}Passwords do not match - try again.\n",
-            static_cast<char8_t>(IAC),
-            static_cast<char8_t>(WONT),
-            static_cast<char8_t>(TELOPT_ECHO));
+      if (player_exists(pname)) {
+        SendOut(pers, u8"Name and/or password is incorrect.\n");
+      } else {
+        SendOut(pers, u8"Passwords do not match - try again.\n");
+      }
       pname = u8"";
       return;
     }
   } else if (!player) {
     new Player(pname, ppass);
-    Send(
-        u8"{}{}{}Enter password again for verification.\n",
-        static_cast<char8_t>(IAC),
-        static_cast<char8_t>(WILL),
-        static_cast<char8_t>(TELOPT_ECHO));
+    SendOutPW(pers, fmt::format(u8"Enter password again for verification.\n"));
     return;
   }
 
-  Send(
-      u8"{}{}{}",
-      static_cast<char8_t>(IAC),
-      static_cast<char8_t>(WONT),
-      static_cast<char8_t>(TELOPT_ECHO));
+  SendOut(pers, u8"");
   svars = player->Vars();
   player->Room()->SendDesc(shared_from_this());
   player->Room()->SendContents(shared_from_this());

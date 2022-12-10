@@ -36,6 +36,7 @@ int save_net(const std::u8string& fn);
 int load_net(const std::u8string& fn);
 
 void SendOut(int, const std::u8string_view&);
+void SendOutPW(int, const std::u8string_view&);
 void SetPrompt(int, const std::u8string_view&);
 
 class Mind;

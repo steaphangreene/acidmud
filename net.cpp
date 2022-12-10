@@ -452,7 +452,21 @@ std::vector<std::shared_ptr<Mind>> get_human_minds() {
 }
 
 void SendOut(int sock, const std::u8string_view& mes) {
-  outbufs[sock] += mes;
+  outbufs[sock] += fmt::format(
+      u8"{}{}{}{}",
+      static_cast<char8_t>(IAC),
+      static_cast<char8_t>(WONT),
+      static_cast<char8_t>(TELOPT_ECHO),
+      mes);
+}
+
+void SendOutPW(int sock, const std::u8string_view& mes) {
+  outbufs[sock] += fmt::format(
+      u8"{}{}{}{}",
+      static_cast<char8_t>(IAC),
+      static_cast<char8_t>(WILL),
+      static_cast<char8_t>(TELOPT_ECHO),
+      mes);
 }
 
 void SetPrompt(int sock, const std::u8string_view& pr) {

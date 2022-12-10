@@ -196,7 +196,6 @@ Add SSL support.
 Add gzipped worlds save/load support.
 Be sure I Handle big messages to/from users correctly.
 Clean up and sort log(s).
-Put telnet stuff ONLY in net.cpp.
 
 Troll Reach.
 Wake someone else up!
