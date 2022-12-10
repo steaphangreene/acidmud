@@ -5205,7 +5205,7 @@ static int handle_single_command(Object* body, std::u8string line, std::shared_p
       return 0;
     }
 
-    if (body->HasSkill(prhash(u8"Object ID"))) {
+    if (chr->HasSkill(prhash(u8"Object ID"))) {
       mind->Send(u8"This is not a new character, you can't modify the chargen steps anymore.\n");
       return 0;
     }
