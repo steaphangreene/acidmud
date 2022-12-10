@@ -2729,8 +2729,15 @@ DArr64<Object*> Object::PickObjects(const std::u8string_view& inname, int loc, i
   }
 
   int len = name.length();
-  while (!isgraph(name[len - 1]))
+  if (len < 1) {
+    return ret;
+  }
+  while (!isgraph(name[len - 1])) {
     --len;
+    if (len < 1) {
+      return ret;
+    }
+  }
 
   if (loc & LOC_SELF) {
     if ((ntok == crc32c(u8"self")) || (ntok == crc32c(u8"myself")) || (ntok == crc32c(u8"me"))) {

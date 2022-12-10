@@ -124,7 +124,7 @@ static std::map<act_t, std::u8string> wear_attribs = {
 
 static std::vector<Object*> coin_objs;
 static void init_coins() {
-  coin_objs.push_back(new Object());
+  coin_objs.push_back(new Object(Object::TrashBin()));
   coin_objs.back()->SetShortDesc(u8"a platinum piece");
   coin_objs.back()->SetDesc(u8"A standard one-ounce platinum piece.");
   coin_objs.back()->SetWeight(454 / 16);
@@ -134,7 +134,7 @@ static void init_coins() {
   coin_objs.back()->SetPosition(pos_t::LIE);
   coin_objs.back()->SetSkill(prhash(u8"Money"), 10000);
 
-  coin_objs.push_back(new Object());
+  coin_objs.push_back(new Object(Object::TrashBin()));
   coin_objs.back()->SetShortDesc(u8"a gold piece");
   coin_objs.back()->SetDesc(u8"A standard one-ounce gold piece.");
   coin_objs.back()->SetWeight(454 / 16);
@@ -144,7 +144,7 @@ static void init_coins() {
   coin_objs.back()->SetPosition(pos_t::LIE);
   coin_objs.back()->SetSkill(prhash(u8"Money"), 1000);
 
-  coin_objs.push_back(new Object());
+  coin_objs.push_back(new Object(Object::TrashBin()));
   coin_objs.back()->SetShortDesc(u8"a silver piece");
   coin_objs.back()->SetDesc(u8"A standard one-ounce silver piece.");
   coin_objs.back()->SetWeight(454 / 16);
@@ -154,7 +154,7 @@ static void init_coins() {
   coin_objs.back()->SetPosition(pos_t::LIE);
   coin_objs.back()->SetSkill(prhash(u8"Money"), 100);
 
-  coin_objs.push_back(new Object());
+  coin_objs.push_back(new Object(Object::TrashBin()));
   coin_objs.back()->SetShortDesc(u8"a copper piece");
   coin_objs.back()->SetDesc(u8"A standard one-ounce copper piece.");
   coin_objs.back()->SetWeight(454 / 16);
@@ -164,7 +164,7 @@ static void init_coins() {
   coin_objs.back()->SetPosition(pos_t::LIE);
   coin_objs.back()->SetSkill(prhash(u8"Money"), 10);
 
-  coin_objs.push_back(new Object());
+  coin_objs.push_back(new Object(Object::TrashBin()));
   coin_objs.back()->SetShortDesc(u8"a bone chit");
   coin_objs.back()->SetDesc(u8"A small, ornate, bone chit.");
   coin_objs.back()->SetWeight(454 / 16);
@@ -174,7 +174,7 @@ static void init_coins() {
   coin_objs.back()->SetPosition(pos_t::LIE);
   coin_objs.back()->SetSkill(prhash(u8"Money"), 1);
 
-  coin_objs.push_back(new Object());
+  coin_objs.push_back(new Object(Object::TrashBin()));
   coin_objs.back()->SetShortDesc(u8"a wooden chit");
   coin_objs.back()->SetDesc(u8"A small, ornate, wooden chit.");
   coin_objs.back()->SetWeight(454 / 16);

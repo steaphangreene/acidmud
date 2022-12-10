@@ -232,6 +232,7 @@ Player* player_login(const std::u8string_view& name, const std::u8string_view& p
     if (non_init.count(pl)) {
       player_list.erase(std::u8string(name));
       non_init.erase(pl);
+      delete pl;
     }
     return nullptr;
   }
