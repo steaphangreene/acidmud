@@ -996,6 +996,9 @@ int handle_command_wload(
   world->SetSkill(prhash(u8"Light Source"), 1000);
   world->SetSkill(prhash(u8"Day Length"), 240);
   world->SetSkill(prhash(u8"Day Time"), 120);
+  if (!world->Parent()->IsAct(act_t::SPECIAL_HOME)) { // If is first world
+    world->Parent()->AddAct(act_t::SPECIAL_HOME, world);
+  }
 
   for (const auto& fl : tag_files) {
     infile tags(fl);

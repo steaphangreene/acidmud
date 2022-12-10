@@ -2300,7 +2300,7 @@ void Object::TBALoadWLD(const std::u8string& fn) {
         Object* world = obj->World();
         world->AddAct(act_t::SPECIAL_HOME, obj);
         if (!world->parent->IsAct(act_t::SPECIAL_HOME)) { // If is first world
-          world->parent->AddAct(act_t::SPECIAL_HOME, obj);
+          world->parent->AddAct(act_t::SPECIAL_HOME, world);
         }
       }
 
