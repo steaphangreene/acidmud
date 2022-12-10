@@ -21,5 +21,5 @@
 
 #include "dice.hpp"
 
-std::random_device Dice::device_;
-std::mt19937 Dice::generator_(Dice::device_());
+thread_local std::random_device Dice::device_;
+thread_local std::mt19937 Dice::generator_(Dice::device_());

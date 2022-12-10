@@ -83,8 +83,8 @@ class Dice {
   };
 
  private:
-  static std::random_device device_;
-  static std::mt19937 generator_;
+  static thread_local std::random_device device_;
+  static thread_local std::mt19937 generator_;
 };
 
 inline int d2() { // 1-2
