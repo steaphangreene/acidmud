@@ -27,8 +27,8 @@ HSTR:=  $(shell git log -1 --format=%h)
 OBJS:=	global.o version.o stats.o net.o player.o npc.o tags.o \
 	mind.o mind_craft.o mind_tba.o \
 	object.o object_acid.o object_dynamic.o object_tba.o \
-	commands.o command_shops.o command_ccreate.o command_wload.o command_social.o \
-	skills.o properties.o infile.o outfile.o log.o utils.o dice.o
+	command_other.o command_shops.o command_ccreate.o command_wload.o command_social.o \
+	commands.o skills.o properties.o infile.o outfile.o log.o utils.o dice.o
 TOBJS:=	tests/test_darr.o tests/test_dice.o tests/test_utils.o \
 	tests/test_enums.o tests/test_object.o tests/test_commands.o tests/test_socials.o
 LIBS:=
