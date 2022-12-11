@@ -895,8 +895,7 @@ int Mind::TBARunLine(std::u8string linestr) {
             }
             ovars.erase(std::u8string(var));
           } else if (wnum < 0) { // Bad number after varname
-            loger(
-                u8"#{} Error: Malformed extract '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+            loger(u8"#{} Error: Malformed extract '{}'", body->Skill(prhash(u8"TBAScript")), line);
             return -1;
           }
         } else { // Only space after varname
@@ -993,7 +992,7 @@ int Mind::TBARunLine(std::u8string linestr) {
         //		body->Skill(prhash(u8"TBAScript")), var, val, line);
       } else {
         loger(
-            u8"#{} Error: Non-Existent Remote {} '{}'\n",
+            u8"#{} Error: Non-Existent Remote {} '{}'",
             body->Skill(prhash(u8"TBAScript")),
             var,
             line);
@@ -1016,7 +1015,7 @@ int Mind::TBARunLine(std::u8string linestr) {
         //		body->Skill(prhash(u8"TBAScript")), var, val, line);
       } else {
         loger(
-            u8"#{} Error: Non-Existent Global {} '{}'\n",
+            u8"#{} Error: Non-Existent Global {} '{}'",
             body->Skill(prhash(u8"TBAScript")),
             var,
             line);
@@ -1381,13 +1380,14 @@ int Mind::TBARunLine(std::u8string linestr) {
     }
 
     Object* door = room->PickObject(dir, LOC_NINJA | LOC_INTERNAL);
+    if (!door) {
+      loger(u8"#{} Error: can't find door '{}'", body->Skill(prhash(u8"TBAScript")), dir);
+    }
 
     int tnum;
 
     if (process(line, u8"description ") >= 1) {
-      //      logeg(u8"#{} Debug: door redesc '{}'",
-      //	body->Skill(prhash(u8"TBAScript")), line
-      //	);
+      // logeg(u8"#{} Debug: door redesc '{}'", body->Skill(prhash(u8"TBAScript")), line);
       if (door) {
         door->SetDesc(line);
       }
@@ -1415,10 +1415,11 @@ int Mind::TBARunLine(std::u8string linestr) {
         door->ClearSkill(prhash(u8"Locked"));
         door->SetSkill(prhash(u8"Lockable"), 1);
         door->SetSkill(prhash(u8"Pickable"), 4);
-        // logeg(u8"#{} Debug: {} door can open/close in '{}'\n ",
-        //       body->Skill(prhash(u8"TBAScript")),
-        //       dir,
-        //       line);
+        // logeg(
+        //     u8"#{} Debug: {} door can open/close in '{}'\n ",
+        //     body->Skill(prhash(u8"TBAScript")),
+        //     dir,
+        //     line);
       }
       if (newfl & 2) { // Closed
         door->ClearSkill(prhash(u8"Open"));
@@ -1432,22 +1433,22 @@ int Mind::TBARunLine(std::u8string linestr) {
         door->SetSkill(prhash(u8"Locked"), 1);
         door->SetSkill(prhash(u8"Lockable"), 1);
         door->SetSkill(prhash(u8"Pickable"), 4);
-        //	logeg(u8"#{} Debug: {} door is locked in '{}'"
-        //,
-        //		body->Skill(prhash(u8"TBAScript")), dir, line
-        //		);
+        // logeg(
+        //     u8"#{} Debug: {} door is locked in '{}'",
+        //     body->Skill(prhash(u8"TBAScript")),
+        //     dir,
+        //     line);
       }
       if (newfl & 8) { // Pick-Proof
         door->SetSkill(prhash(u8"Pickable"), 1000);
-        //	logeg(u8"#{} Debug: {} door is pick-proof in
-        //'{}'\n",
-        //		body->Skill(prhash(u8"TBAScript")), dir, line
-        //		);
+        // logeg(
+        //     u8"#{} Debug: {} door is pick-proof in '{}'\n",
+        //     body->Skill(prhash(u8"TBAScript")),
+        //     dir,
+        //     line);
       }
     } else if (process(line, u8"name ") >= 1) {
-      //      logeg(u8"#{} Debug: door rename '{}'",
-      //	body->Skill(prhash(u8"TBAScript")), line
-      //	);
+      // logeg(u8"#{} Debug: door rename '{}'", body->Skill(prhash(u8"TBAScript")), line);
       if (door) {
         std::u8string newname(door->ShortDesc());
         size_t end = newname.find(u8"(");
@@ -1459,9 +1460,7 @@ int Mind::TBARunLine(std::u8string linestr) {
         door->SetShortDesc(fmt::format(u8"{} ({})", newname, line));
       }
     } else if (process(line, u8"room ") >= 1) {
-      //      logeg(u8"#{} Debug: door relink '{}'",
-      //	body->Skill(prhash(u8"TBAScript")), line
-      //	);
+      // logeg(u8"#{} Debug: door relink '{}'", body->Skill(prhash(u8"TBAScript")), line);
       tnum = nextnum(line);
       skipspace(line);
       if (door)
@@ -1494,7 +1493,7 @@ int Mind::TBARunLine(std::u8string linestr) {
       skipspace(line);
       if (!door) {
         loger(
-            u8"#{} Error: No {} door to re-key in '{}'\n",
+            u8"#{} Error: No {} door to re-key in '{}'",
             body->Skill(prhash(u8"TBAScript")),
             dir,
             line);
@@ -1504,16 +1503,20 @@ int Mind::TBARunLine(std::u8string linestr) {
       door->SetSkill(prhash(u8"Key"), 1000000 + tnum);
       if (door->Skill(prhash(u8"Pickable")) < 1)
         door->SetSkill(prhash(u8"Pickable"), 4);
-      //      logeg(u8"#{} Debug: {} door re-keyed ({}) in '{}'"
-      //     ,
-      //	body->Skill(prhash(u8"TBAScript")), dir, tnum, line
-      //	);
+      // logeg(
+      //     u8"#{} Debug: {} door re-keyed ({}) in '{}'",
+      //     body->Skill(prhash(u8"TBAScript")),
+      //     dir,
+      //     tnum,
+      //     line);
     } else if (process(line, u8"purge") >= 1) {
-      //      logeg(u8"#{} Debug: door purge '{}'",
-      //	body->Skill(prhash(u8"TBAScript")), line
-      //	);
-      if (door)
+      // logeg(u8"#{} Debug: door purge '{}'", body->Skill(prhash(u8"TBAScript")), line);
+      if (door) {
+        if (door->ActTarg(act_t::SPECIAL_LINKED)) {
+          door->ActTarg(act_t::SPECIAL_LINKED)->Recycle();
+        }
         door->Recycle();
+      }
     } else {
       loger(u8"#{} Error: bad door command '{}'", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
@@ -1618,7 +1621,7 @@ int Mind::TBARunLine(std::u8string linestr) {
     }
     if ((params != 2 && params != 4) || (tbatype != 'o' && tbatype != 'm')) {
       loger(
-          u8"#{} Error: Nonsensical script load '{:c}' '{}' '{}' '{}' [{}]\n",
+          u8"#{} Error: Nonsensical script load '{:c}' '{}' '{}' '{}' [{}]",
           body->Skill(prhash(u8"TBAScript")),
           tbatype,
           valnum,
@@ -1631,8 +1634,7 @@ int Mind::TBARunLine(std::u8string linestr) {
     if (tbatype == 'o') {
       src = src->PickObject(u8"tbamud object room", LOC_NINJA | LOC_INTERNAL);
       if (src == nullptr) {
-        loger(
-            u8"#{} Error: Can't find Object room '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+        loger(u8"#{} Error: Can't find Object room '{}'", body->Skill(prhash(u8"TBAScript")), line);
         return 1;
       }
       auto options = src->Contents();
@@ -1789,8 +1791,7 @@ int Mind::TBARunLine(std::u8string linestr) {
   } else if (line.starts_with(u8"done")) {
     // Means we should be within a while(), pop up a level.
     if (spos_s.size() < 2) {
-      loger(
-          u8"#{} Error: Not in while/switch, but '{}'\n", body->Skill(prhash(u8"TBAScript")), line);
+      loger(u8"#{} Error: Not in while/switch, but '{}'", body->Skill(prhash(u8"TBAScript")), line);
       return -1;
     }
     spos_s.pop_back();
