@@ -2649,6 +2649,11 @@ static int tag(Object* obj, DArr64<Object*>& ret, int* ordinal, int vmode = 0) {
   if (*ordinal == 0) {
     return 0; // They don't want anything.
 
+  } else if (*ordinal == ALL) {
+    rqty = cqty + 1;
+  } else if (*ordinal == SOME) {
+    rqty = cqty;
+
   } else if (*ordinal > 0) {
     if (*ordinal > cqty) { // Have not gotten to my targ yet.
       *ordinal -= cqty;
@@ -2663,12 +2668,6 @@ static int tag(Object* obj, DArr64<Object*>& ret, int* ordinal, int vmode = 0) {
       ret.push_back(nobj);
       return 1;
     }
-  }
-
-  else if (*ordinal == ALL) {
-    rqty = cqty + 1;
-  } else if (*ordinal == SOME) {
-    rqty = cqty;
 
   } else if (*ordinal < -1) {
     rqty = -(*ordinal);
@@ -2706,6 +2705,7 @@ DArr64<Object*> Object::PickObjects(const std::u8string_view& inname, int loc, i
     ordinal = &ordcontainer;
     (*ordinal) = strip_ordinal(name);
   }
+
   if (ntok == crc32c(u8"all"))
     (*ordinal) = ALL;
   if (ntok == crc32c(u8"everyone"))
