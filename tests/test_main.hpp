@@ -79,3 +79,12 @@ struct StringMaker<char8_t[SZ]> {
 };
 
 } // namespace Catch
+
+// Get full seen messages from an Object controlled by a mind_t::TEST type Mind
+inline auto witness(const auto o) {
+  auto ret = o->LongDesc();
+  if (ret.length() >= 2) {
+    ret = ret.substr(1, ret.length() - 2);
+  }
+  return ret;
+}

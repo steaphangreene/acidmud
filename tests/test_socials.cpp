@@ -72,336 +72,336 @@ TEST_CASE("Social Commands", "[socials]") {
 
   SECTION("Basic Social Command") {
     handle_command(actor, u8"rofl", mind);
-    REQUIRE(actor->LongDesc() == u8"You roll around on the floor, laughing.");
-    REQUIRE(target->LongDesc() == u8"Actor rolls around on the floor, laughing.");
-    REQUIRE(observer->LongDesc() == u8"Actor rolls around on the floor, laughing.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+    REQUIRE(witness(actor) == u8"You roll around on the floor, laughing.\n");
+    REQUIRE(witness(target) == u8"Actor rolls around on the floor, laughing.\n");
+    REQUIRE(witness(observer) == u8"Actor rolls around on the floor, laughing.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("First Social Command") {
     handle_command(actor, u8"...", mind);
-    REQUIRE(actor->LongDesc() == u8"You're speechless.");
-    REQUIRE(target->LongDesc() == u8"Actor is speechless.");
-    REQUIRE(observer->LongDesc() == u8"Actor is speechless.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+    REQUIRE(witness(actor) == u8"You're speechless.\n");
+    REQUIRE(witness(target) == u8"Actor is speechless.\n");
+    REQUIRE(witness(observer) == u8"Actor is speechless.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Last Social Command") {
     handle_command(actor, u8"zip", mind);
-    REQUIRE(actor->LongDesc() == u8"You zip your mouth shut - zzzzzip!");
-    REQUIRE(target->LongDesc() == u8"Actor zips its mouth shut - zzzzzip!");
-    REQUIRE(observer->LongDesc() == u8"Actor zips its mouth shut - zzzzzip!");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+    REQUIRE(witness(actor) == u8"You zip your mouth shut - zzzzzip!\n");
+    REQUIRE(witness(target) == u8"Actor zips its mouth shut - zzzzzip!\n");
+    REQUIRE(witness(observer) == u8"Actor zips its mouth shut - zzzzzip!\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Social Commands Affected by Gender (Male)") {
     actor->SetGender(gender_t::MALE);
     handle_command(actor, u8"zip", mind);
-    REQUIRE(actor->LongDesc() == u8"You zip your mouth shut - zzzzzip!");
-    REQUIRE(target->LongDesc() == u8"Actor zips his mouth shut - zzzzzip!");
-    REQUIRE(observer->LongDesc() == u8"Actor zips his mouth shut - zzzzzip!");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+    REQUIRE(witness(actor) == u8"You zip your mouth shut - zzzzzip!\n");
+    REQUIRE(witness(target) == u8"Actor zips his mouth shut - zzzzzip!\n");
+    REQUIRE(witness(observer) == u8"Actor zips his mouth shut - zzzzzip!\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Social Commands NOT Affected by Gender (Male)") {
     actor->SetGender(gender_t::MALE);
     handle_command(actor, u8"...", mind);
-    REQUIRE(actor->LongDesc() == u8"You're speechless.");
-    REQUIRE(target->LongDesc() == u8"Actor is speechless.");
-    REQUIRE(observer->LongDesc() == u8"Actor is speechless.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+    REQUIRE(witness(actor) == u8"You're speechless.\n");
+    REQUIRE(witness(target) == u8"Actor is speechless.\n");
+    REQUIRE(witness(observer) == u8"Actor is speechless.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Social Commands Affected by Gender (Female)") {
     actor->SetGender(gender_t::FEMALE);
     handle_command(actor, u8"zip", mind);
-    REQUIRE(actor->LongDesc() == u8"You zip your mouth shut - zzzzzip!");
-    REQUIRE(target->LongDesc() == u8"Actor zips her mouth shut - zzzzzip!");
-    REQUIRE(observer->LongDesc() == u8"Actor zips her mouth shut - zzzzzip!");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+    REQUIRE(witness(actor) == u8"You zip your mouth shut - zzzzzip!\n");
+    REQUIRE(witness(target) == u8"Actor zips her mouth shut - zzzzzip!\n");
+    REQUIRE(witness(observer) == u8"Actor zips her mouth shut - zzzzzip!\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Social Commands NOT Affected by Gender (Female)") {
     actor->SetGender(gender_t::FEMALE);
     handle_command(actor, u8"...", mind);
-    REQUIRE(actor->LongDesc() == u8"You're speechless.");
-    REQUIRE(target->LongDesc() == u8"Actor is speechless.");
-    REQUIRE(observer->LongDesc() == u8"Actor is speechless.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+    REQUIRE(witness(actor) == u8"You're speechless.\n");
+    REQUIRE(witness(target) == u8"Actor is speechless.\n");
+    REQUIRE(witness(observer) == u8"Actor is speechless.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Social Commands Affected by Gender (Neither)") {
     actor->SetGender(gender_t::NEITHER);
     handle_command(actor, u8"zip", mind);
-    REQUIRE(actor->LongDesc() == u8"You zip your mouth shut - zzzzzip!");
-    REQUIRE(target->LongDesc() == u8"Actor zips their mouth shut - zzzzzip!");
-    REQUIRE(observer->LongDesc() == u8"Actor zips their mouth shut - zzzzzip!");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+    REQUIRE(witness(actor) == u8"You zip your mouth shut - zzzzzip!\n");
+    REQUIRE(witness(target) == u8"Actor zips their mouth shut - zzzzzip!\n");
+    REQUIRE(witness(observer) == u8"Actor zips their mouth shut - zzzzzip!\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Social Commands NOT Affected by Gender (Neither)") {
     actor->SetGender(gender_t::NEITHER);
     handle_command(actor, u8"...", mind);
-    REQUIRE(actor->LongDesc() == u8"You're speechless.");
-    REQUIRE(target->LongDesc() == u8"Actor is speechless.");
-    REQUIRE(observer->LongDesc() == u8"Actor is speechless.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+    REQUIRE(witness(actor) == u8"You're speechless.\n");
+    REQUIRE(witness(target) == u8"Actor is speechless.\n");
+    REQUIRE(witness(observer) == u8"Actor is speechless.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Targeted Social Commands, Affected by Gender (None/None)") {
     handle_command(actor, u8"arrest target", mind);
-    REQUIRE(actor->LongDesc() == u8"You read target its rights.");
+    REQUIRE(witness(actor) == u8"You read target its rights.\n");
     REQUIRE(
-        target->LongDesc() ==
+        witness(target) ==
         u8"Actor says, 'You have the right to remain silent. "
-        u8"You have the right to....' it just arrested you!");
+        u8"You have the right to....' it just arrested you!\n");
     REQUIRE(
-        observer->LongDesc() ==
+        witness(observer) ==
         u8"Actor has placed target under arrest. "
-        u8"Everything it will, and can say, will be used against it.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+        u8"Everything it will, and can say, will be used against it.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Targeted Social Commands, Affected by Gender (Male/None)") {
     actor->SetGender(gender_t::MALE);
     handle_command(actor, u8"arrest target", mind);
-    REQUIRE(actor->LongDesc() == u8"You read target its rights.");
+    REQUIRE(witness(actor) == u8"You read target its rights.\n");
     REQUIRE(
-        target->LongDesc() ==
+        witness(target) ==
         u8"Actor says, 'You have the right to remain silent. "
-        u8"You have the right to....' he just arrested you!");
+        u8"You have the right to....' he just arrested you!\n");
     REQUIRE(
-        observer->LongDesc() ==
+        witness(observer) ==
         u8"Actor has placed target under arrest. "
-        u8"Everything it will, and can say, will be used against it.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+        u8"Everything it will, and can say, will be used against it.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Targeted Social Commands, Affected by Gender (Female/None)") {
     actor->SetGender(gender_t::FEMALE);
     handle_command(actor, u8"arrest target", mind);
-    REQUIRE(actor->LongDesc() == u8"You read target its rights.");
+    REQUIRE(witness(actor) == u8"You read target its rights.\n");
     REQUIRE(
-        target->LongDesc() ==
+        witness(target) ==
         u8"Actor says, 'You have the right to remain silent. "
-        u8"You have the right to....' she just arrested you!");
+        u8"You have the right to....' she just arrested you!\n");
     REQUIRE(
-        observer->LongDesc() ==
+        witness(observer) ==
         u8"Actor has placed target under arrest. "
-        u8"Everything it will, and can say, will be used against it.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+        u8"Everything it will, and can say, will be used against it.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Targeted Social Commands, Affected by Gender (Neither/None)") {
     actor->SetGender(gender_t::NEITHER);
     handle_command(actor, u8"arrest target", mind);
-    REQUIRE(actor->LongDesc() == u8"You read target its rights.");
+    REQUIRE(witness(actor) == u8"You read target its rights.\n");
     REQUIRE(
-        target->LongDesc() ==
+        witness(target) ==
         u8"Actor says, 'You have the right to remain silent. "
-        u8"You have the right to....' they just arrested you!");
+        u8"You have the right to....' they just arrested you!\n");
     REQUIRE(
-        observer->LongDesc() ==
+        witness(observer) ==
         u8"Actor has placed target under arrest. "
-        u8"Everything it will, and can say, will be used against it.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+        u8"Everything it will, and can say, will be used against it.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Targeted Social Commands, Affected by Gender (None/Male)") {
     target->SetGender(gender_t::MALE);
     handle_command(actor, u8"arrest target", mind);
-    REQUIRE(actor->LongDesc() == u8"You read target his rights.");
+    REQUIRE(witness(actor) == u8"You read target his rights.\n");
     REQUIRE(
-        target->LongDesc() ==
+        witness(target) ==
         u8"Actor says, 'You have the right to remain silent. "
-        u8"You have the right to....' it just arrested you!");
+        u8"You have the right to....' it just arrested you!\n");
     REQUIRE(
-        observer->LongDesc() ==
+        witness(observer) ==
         u8"Actor has placed target under arrest. "
-        u8"Everything he will, and can say, will be used against him.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+        u8"Everything he will, and can say, will be used against him.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Targeted Social Commands, Affected by Gender (Male/Male)") {
     actor->SetGender(gender_t::MALE);
     target->SetGender(gender_t::MALE);
     handle_command(actor, u8"arrest target", mind);
-    REQUIRE(actor->LongDesc() == u8"You read target his rights.");
+    REQUIRE(witness(actor) == u8"You read target his rights.\n");
     REQUIRE(
-        target->LongDesc() ==
+        witness(target) ==
         u8"Actor says, 'You have the right to remain silent. "
-        u8"You have the right to....' he just arrested you!");
+        u8"You have the right to....' he just arrested you!\n");
     REQUIRE(
-        observer->LongDesc() ==
+        witness(observer) ==
         u8"Actor has placed target under arrest. "
-        u8"Everything he will, and can say, will be used against him.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+        u8"Everything he will, and can say, will be used against him.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Targeted Social Commands, Affected by Gender (Female/Male)") {
     actor->SetGender(gender_t::FEMALE);
     target->SetGender(gender_t::MALE);
     handle_command(actor, u8"arrest target", mind);
-    REQUIRE(actor->LongDesc() == u8"You read target his rights.");
+    REQUIRE(witness(actor) == u8"You read target his rights.\n");
     REQUIRE(
-        target->LongDesc() ==
+        witness(target) ==
         u8"Actor says, 'You have the right to remain silent. "
-        u8"You have the right to....' she just arrested you!");
+        u8"You have the right to....' she just arrested you!\n");
     REQUIRE(
-        observer->LongDesc() ==
+        witness(observer) ==
         u8"Actor has placed target under arrest. "
-        u8"Everything he will, and can say, will be used against him.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+        u8"Everything he will, and can say, will be used against him.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Targeted Social Commands, Affected by Gender (Neither/Male)") {
     actor->SetGender(gender_t::NEITHER);
     target->SetGender(gender_t::MALE);
     handle_command(actor, u8"arrest target", mind);
-    REQUIRE(actor->LongDesc() == u8"You read target his rights.");
+    REQUIRE(witness(actor) == u8"You read target his rights.\n");
     REQUIRE(
-        target->LongDesc() ==
+        witness(target) ==
         u8"Actor says, 'You have the right to remain silent. "
-        u8"You have the right to....' they just arrested you!");
+        u8"You have the right to....' they just arrested you!\n");
     REQUIRE(
-        observer->LongDesc() ==
+        witness(observer) ==
         u8"Actor has placed target under arrest. "
-        u8"Everything he will, and can say, will be used against him.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+        u8"Everything he will, and can say, will be used against him.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Targeted Social Commands, Affected by Gender (None/Female)") {
     target->SetGender(gender_t::FEMALE);
     handle_command(actor, u8"arrest target", mind);
-    REQUIRE(actor->LongDesc() == u8"You read target her rights.");
+    REQUIRE(witness(actor) == u8"You read target her rights.\n");
     REQUIRE(
-        target->LongDesc() ==
+        witness(target) ==
         u8"Actor says, 'You have the right to remain silent. "
-        u8"You have the right to....' it just arrested you!");
+        u8"You have the right to....' it just arrested you!\n");
     REQUIRE(
-        observer->LongDesc() ==
+        witness(observer) ==
         u8"Actor has placed target under arrest. "
-        u8"Everything she will, and can say, will be used against her.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+        u8"Everything she will, and can say, will be used against her.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Targeted Social Commands, Affected by Gender (Male/Female)") {
     actor->SetGender(gender_t::MALE);
     target->SetGender(gender_t::FEMALE);
     handle_command(actor, u8"arrest target", mind);
-    REQUIRE(actor->LongDesc() == u8"You read target her rights.");
+    REQUIRE(witness(actor) == u8"You read target her rights.\n");
     REQUIRE(
-        target->LongDesc() ==
+        witness(target) ==
         u8"Actor says, 'You have the right to remain silent. "
-        u8"You have the right to....' he just arrested you!");
+        u8"You have the right to....' he just arrested you!\n");
     REQUIRE(
-        observer->LongDesc() ==
+        witness(observer) ==
         u8"Actor has placed target under arrest. "
-        u8"Everything she will, and can say, will be used against her.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+        u8"Everything she will, and can say, will be used against her.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Targeted Social Commands, Affected by Gender (Female/Female)") {
     actor->SetGender(gender_t::FEMALE);
     target->SetGender(gender_t::FEMALE);
     handle_command(actor, u8"arrest target", mind);
-    REQUIRE(actor->LongDesc() == u8"You read target her rights.");
+    REQUIRE(witness(actor) == u8"You read target her rights.\n");
     REQUIRE(
-        target->LongDesc() ==
+        witness(target) ==
         u8"Actor says, 'You have the right to remain silent. "
-        u8"You have the right to....' she just arrested you!");
+        u8"You have the right to....' she just arrested you!\n");
     REQUIRE(
-        observer->LongDesc() ==
+        witness(observer) ==
         u8"Actor has placed target under arrest. "
-        u8"Everything she will, and can say, will be used against her.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+        u8"Everything she will, and can say, will be used against her.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Targeted Social Commands, Affected by Gender (Neither/Female)") {
     actor->SetGender(gender_t::NEITHER);
     target->SetGender(gender_t::FEMALE);
     handle_command(actor, u8"arrest target", mind);
-    REQUIRE(actor->LongDesc() == u8"You read target her rights.");
+    REQUIRE(witness(actor) == u8"You read target her rights.\n");
     REQUIRE(
-        target->LongDesc() ==
+        witness(target) ==
         u8"Actor says, 'You have the right to remain silent. "
-        u8"You have the right to....' they just arrested you!");
+        u8"You have the right to....' they just arrested you!\n");
     REQUIRE(
-        observer->LongDesc() ==
+        witness(observer) ==
         u8"Actor has placed target under arrest. "
-        u8"Everything she will, and can say, will be used against her.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+        u8"Everything she will, and can say, will be used against her.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Targeted Social Commands, Affected by Gender (None/Neither)") {
     target->SetGender(gender_t::NEITHER);
     handle_command(actor, u8"arrest target", mind);
-    REQUIRE(actor->LongDesc() == u8"You read target their rights.");
+    REQUIRE(witness(actor) == u8"You read target their rights.\n");
     REQUIRE(
-        target->LongDesc() ==
+        witness(target) ==
         u8"Actor says, 'You have the right to remain silent. "
-        u8"You have the right to....' it just arrested you!");
+        u8"You have the right to....' it just arrested you!\n");
     REQUIRE(
-        observer->LongDesc() ==
+        witness(observer) ==
         u8"Actor has placed target under arrest. "
-        u8"Everything they will, and can say, will be used against them.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+        u8"Everything they will, and can say, will be used against them.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Targeted Social Commands, Affected by Gender (Male/Neither)") {
     actor->SetGender(gender_t::MALE);
     target->SetGender(gender_t::NEITHER);
     handle_command(actor, u8"arrest target", mind);
-    REQUIRE(actor->LongDesc() == u8"You read target their rights.");
+    REQUIRE(witness(actor) == u8"You read target their rights.\n");
     REQUIRE(
-        target->LongDesc() ==
+        witness(target) ==
         u8"Actor says, 'You have the right to remain silent. "
-        u8"You have the right to....' he just arrested you!");
+        u8"You have the right to....' he just arrested you!\n");
     REQUIRE(
-        observer->LongDesc() ==
+        witness(observer) ==
         u8"Actor has placed target under arrest. "
-        u8"Everything they will, and can say, will be used against them.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+        u8"Everything they will, and can say, will be used against them.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Targeted Social Commands, Affected by Gender (Female/Neither)") {
     actor->SetGender(gender_t::FEMALE);
     target->SetGender(gender_t::NEITHER);
     handle_command(actor, u8"arrest target", mind);
-    REQUIRE(actor->LongDesc() == u8"You read target their rights.");
+    REQUIRE(witness(actor) == u8"You read target their rights.\n");
     REQUIRE(
-        target->LongDesc() ==
+        witness(target) ==
         u8"Actor says, 'You have the right to remain silent. "
-        u8"You have the right to....' she just arrested you!");
+        u8"You have the right to....' she just arrested you!\n");
     REQUIRE(
-        observer->LongDesc() ==
+        witness(observer) ==
         u8"Actor has placed target under arrest. "
-        u8"Everything they will, and can say, will be used against them.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+        u8"Everything they will, and can say, will be used against them.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Targeted Social Commands, Affected by Gender (Neither/Neither)") {
     actor->SetGender(gender_t::NEITHER);
     target->SetGender(gender_t::NEITHER);
     handle_command(actor, u8"arrest target", mind);
-    REQUIRE(actor->LongDesc() == u8"You read target their rights.");
+    REQUIRE(witness(actor) == u8"You read target their rights.\n");
     REQUIRE(
-        target->LongDesc() ==
+        witness(target) ==
         u8"Actor says, 'You have the right to remain silent. "
-        u8"You have the right to....' they just arrested you!");
+        u8"You have the right to....' they just arrested you!\n");
     REQUIRE(
-        observer->LongDesc() ==
+        witness(observer) ==
         u8"Actor has placed target under arrest. "
-        u8"Everything they will, and can say, will be used against them.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+        u8"Everything they will, and can say, will be used against them.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   SECTION("Conflicting Social Commands, Ensure The TBA Versions Don't Run") {
     handle_command(actor, u8"point target", mind);
-    REQUIRE(actor->LongDesc() == u8"You start pointing at target.");
-    REQUIRE(target->LongDesc() == u8"Actor starts pointing at you.");
-    REQUIRE(observer->LongDesc() == u8"Actor starts pointing at target.");
-    REQUIRE(uninvolved->LongDesc() == u8"");
+    REQUIRE(witness(actor) == u8"You start pointing at target.\n");
+    REQUIRE(witness(target) == u8"Actor starts pointing at you.\n");
+    REQUIRE(witness(observer) == u8"Actor starts pointing at target.\n");
+    REQUIRE(witness(uninvolved) == u8"");
   }
 
   destroy_universe();

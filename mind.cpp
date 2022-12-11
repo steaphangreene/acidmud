@@ -201,7 +201,30 @@ bool Mind::Send(const std::u8string_view& mes) {
     write(pers, newmes.data(), newmes.length());
   } else if (type == mind_t::TEST) {
     if (body) {
-      body->SetLongDesc(fmt::format(u8"{}{}\n", body->LongDesc(), mes));
+      std::u8string clean = std::u8string(mes);
+      replace_all(clean, CNRM, u8""); // Remove all ANSI color codes
+      replace_all(clean, CBLK, u8"");
+      replace_all(clean, CRED, u8"");
+      replace_all(clean, CGRN, u8"");
+      replace_all(clean, CYEL, u8"");
+      replace_all(clean, CBLU, u8"");
+      replace_all(clean, CMAG, u8"");
+      replace_all(clean, CCYN, u8"");
+      replace_all(clean, CLTG, u8"");
+      replace_all(clean, CDKG, u8"");
+      replace_all(clean, CBRD, u8"");
+      replace_all(clean, CBGR, u8"");
+      replace_all(clean, CBYL, u8"");
+      replace_all(clean, CBBL, u8"");
+      replace_all(clean, CBMG, u8"");
+      replace_all(clean, CBCN, u8"");
+      replace_all(clean, CWHT, u8"");
+      if (body->LongDesc().length() == 0) {
+        body->SetLongDesc(fmt::format(u8"[{}]", clean));
+      } else {
+        auto cur = body->LongDesc().substr(1, body->LongDesc().length() - 2);
+        body->SetLongDesc(fmt::format(u8"[{}{}]", cur, clean));
+      }
     }
   }
   return true;
