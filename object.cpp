@@ -2516,46 +2516,44 @@ static int get_ordinal(const std::u8string_view& t) {
     int prefix_numeral = nextnum(text);
     if (text[0] == '.') {
       ret = prefix_numeral;
-    } else if (!isgraph(text[0])) {
+    } else if (!ascii_isgraph(text[0])) {
       ret = -prefix_numeral;
-    } else if (text.length() >= 3 && isgraph(text[2])) {
-      if (text.substr(0, 2) == u8"st") {
-        ret = -prefix_numeral;
-      } else if (text.substr(0, 2) == u8"nd") {
-        ret = -prefix_numeral;
-      } else if (text.substr(0, 2) == u8"rd") {
-        ret = -prefix_numeral;
-      } else if (text.substr(0, 2) == u8"th") {
-        ret = -prefix_numeral;
-      }
+    } else if (text.starts_with(u8"st ")) {
+      ret = prefix_numeral;
+    } else if (text.starts_with(u8"nd ")) {
+      ret = prefix_numeral;
+    } else if (text.starts_with(u8"rd ")) {
+      ret = prefix_numeral;
+    } else if (text.starts_with(u8"th ")) {
+      ret = prefix_numeral;
     }
-  } else if (text.substr(0, 6) == u8"first ") {
+  } else if (text.starts_with(u8"first ")) {
     ret = 1;
-  } else if (text.substr(0, 7) == u8"second ") {
+  } else if (text.starts_with(u8"second ")) {
     ret = 2;
-  } else if (text.substr(0, 6) == u8"third ") {
+  } else if (text.starts_with(u8"third ")) {
     ret = 3;
-  } else if (text.substr(0, 7) == u8"fourth ") {
+  } else if (text.starts_with(u8"fourth ")) {
     ret = 4;
-  } else if (text.substr(0, 6) == u8"fifth ") {
+  } else if (text.starts_with(u8"fifth ")) {
     ret = 5;
-  } else if (text.substr(0, 6) == u8"sixth ") {
+  } else if (text.starts_with(u8"sixth ")) {
     ret = 6;
-  } else if (text.substr(0, 8) == u8"seventh ") {
+  } else if (text.starts_with(u8"seventh ")) {
     ret = 7;
-  } else if (text.substr(0, 7) == u8"eighth ") {
+  } else if (text.starts_with(u8"eighth ")) {
     ret = 8;
-  } else if (text.substr(0, 6) == u8"ninth ") {
+  } else if (text.starts_with(u8"ninth ")) {
     ret = 9;
-  } else if (text.substr(0, 6) == u8"tenth ") {
+  } else if (text.starts_with(u8"tenth ")) {
     ret = 10;
-  } else if (text.substr(0, 4) == u8"all ") {
+  } else if (text.starts_with(u8"all ")) {
     ret = ALL;
-  } else if (text.substr(0, 4) == u8"all.") {
+  } else if (text.starts_with(u8"all.")) {
     ret = ALL;
-  } else if (text.substr(0, 5) == u8"some ") {
+  } else if (text.starts_with(u8"some ")) {
     ret = SOME;
-  } else if (text.substr(0, 5) == u8"some.") {
+  } else if (text.starts_with(u8"some.")) {
     ret = SOME;
   }
   return ret;
@@ -2565,10 +2563,12 @@ static int strip_ordinal(std::u8string_view& text) {
   trim_string(text);
   int ret = get_ordinal(text);
   if (ret) {
-    while (!text.empty() && isgraph(text[0]) && text[0] != '.')
+    while (!text.empty() && ascii_isgraph(text[0]) && text[0] != '.') {
       text = text.substr(1);
-    while (!text.empty() && (!isgraph(text[0]) || text[0] == '.'))
+    }
+    while (!text.empty() && (!ascii_isgraph(text[0]) || text[0] == '.')) {
       text = text.substr(1);
+    }
   }
   return ret;
 }
@@ -2638,16 +2638,18 @@ static int tag(Object* obj, DArr64<Object*>& ret, int* ordinal, int vmode = 0) {
 
   int cqty = 1, rqty = 1; // Contains / Requires
 
-  if (obj->Quantity())
+  if (obj->Quantity()) {
     cqty = obj->Quantity();
+  }
 
-  if (*ordinal == -1)
+  if (*ordinal == -1) {
     (*ordinal) = 1; // Need one - make it the first one!
+  }
 
-  if (*ordinal == 0)
+  if (*ordinal == 0) {
     return 0; // They don't want anything.
 
-  else if (*ordinal > 0) {
+  } else if (*ordinal > 0) {
     if (*ordinal > cqty) { // Have not gotten to my targ yet.
       *ordinal -= cqty;
       return 0;
@@ -2663,13 +2665,14 @@ static int tag(Object* obj, DArr64<Object*>& ret, int* ordinal, int vmode = 0) {
     }
   }
 
-  else if (*ordinal == ALL)
+  else if (*ordinal == ALL) {
     rqty = cqty + 1;
-  else if (*ordinal == SOME)
+  } else if (*ordinal == SOME) {
     rqty = cqty;
 
-  else if (*ordinal < -1)
+  } else if (*ordinal < -1) {
     rqty = -(*ordinal);
+  }
 
   if (rqty == cqty) { // Exactly this entire thing.
     ret.push_back(obj);
@@ -2732,7 +2735,7 @@ DArr64<Object*> Object::PickObjects(const std::u8string_view& inname, int loc, i
   if (len < 1) {
     return ret;
   }
-  while (!isgraph(name[len - 1])) {
+  while (!ascii_isgraph(name[len - 1])) {
     --len;
     if (len < 1) {
       return ret;

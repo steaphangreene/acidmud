@@ -83,6 +83,10 @@ constexpr bool ascii_isspace(char8_t chr) {
   return (chr == ' ' || chr == '\t' || chr == '\n' || chr == '\r' || chr == '\f' || chr == '\v');
 }
 
+constexpr bool ascii_isgraph(char8_t chr) {
+  return (chr > ' '); // Note: Doesn't check for '\e'(127), nor for non-ascii characters.
+}
+
 inline char8_t nextchar(std::u8string_view& line) {
   char8_t ret = line.front();
   line = line.substr(1);
