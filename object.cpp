@@ -1375,7 +1375,7 @@ void Object::SendContents(std::shared_ptr<Mind> m, Object* o, int vmode, std::u8
         int qty = 1; // Even animate objects can have higher quantities.
         auto oth = std::find(cont.begin(), cont.end(), ind);
         for (qty = 0; oth != cont.end(); ++oth) {
-          if (ind->LooksLike(*oth, vmode, (vmode & LOC_NINJA) ? nullptr : o)) {
+          if (ind == *oth || ind->LooksLike(*oth, vmode, (vmode & LOC_NINJA) ? nullptr : o)) {
             master.erase(*oth);
             qty += std::max(1U, (*oth)->Quantity());
           }
