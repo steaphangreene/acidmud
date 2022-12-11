@@ -3821,7 +3821,7 @@ bool Object::IsSameAs(const Object& in) const {
   if (actions.size() > 1) {
     return false;
   }
-  if (contents.size() != 0) {
+  if (actions.size() != 0) {
     if (actions.front().act() != act_t::SPECIAL_OWNER) {
       return false;
     }
@@ -3862,6 +3862,16 @@ bool Object::IsSameAs(const Object& in) const {
   if (sk1 != sk2) {
     return false;
   }
+
+  // Also only allow objects to contain identical things.
+  if (contents.size() != in.contents.size()) {
+    return false;
+  } else if (contents.size() > 1) {
+    return false;
+  } else if (contents.size() > 0) {
+    return (contents.front()->IsSameAs(*in.contents.front()));
+  }
+
   return true;
 }
 
