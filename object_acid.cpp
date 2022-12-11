@@ -333,9 +333,9 @@ int Object::LoadFrom(std::u8string_view& fl) {
   contents.reserve(num);
   for (int ctr = 0; ctr < num; ++ctr) {
     Object* obj = getbynum(nextnum(fl));
-    obj->SetParent(this);
+    obj->parent = this;
+    contents.push_back(obj);
     toload.push_back(obj);
-    AddLink(obj);
     skipspace(fl);
   }
 
