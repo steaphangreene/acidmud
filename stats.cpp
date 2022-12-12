@@ -50,7 +50,7 @@ uint32_t get_weapon_skill(int wtype) {
 
 int get_weapon_type(const std::u8string_view& wskill) {
   if (!weapontypes.contains(crc32c(wskill))) {
-    loge(u8"Warning: No Skill Named '{}'/[{:8X}]!", wskill, crc32c(wskill));
+    loge(u8"Warning: No Skill Named '{}'/[x{:08X}]!", wskill, crc32c(wskill));
     return 0;
   }
   return weapontypes[crc32c(wskill)];

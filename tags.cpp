@@ -191,7 +191,12 @@ static std::vector<ObjectTag> finalize_tags(
         defs.try_emplace(def.type_, def);
       }
     } else {
-      loger(u8"ERROR: Use of undefined tag: '{}'.  Skipping.", tag);
+      if (tag_dictionary.contains(tag)) {
+        loger(
+            u8"ERROR: Use of undefined tag: '{}' (x{:08X}).  Skipping.", tag_dictionary[tag], tag);
+      } else {
+        loger(u8"ERROR: Use of undefined and unnamed tag: x{:08X}.  Skipping.", tag);
+      }
     }
   }
 
