@@ -615,6 +615,10 @@ tag:room:tavern
 dtag:bar
 ntag:tavernkeeper
 
+tag:decor:bar
+short:A bar
+desc:A bar has been built here, ready to serve drinks and more.
+
 tag:room:smithy
 dtag:forge
 ntag:blacksmith
@@ -647,6 +651,10 @@ ntag:woodworker
 tag:room:inn
 dtag:room
 ntag:innkeeper
+
+tag:decor:room
+short:A room
+desc:A small bedroom is here, for spending the night.
 
 tag:room:store
 ntag:storekeeper
