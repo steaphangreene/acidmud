@@ -8,7 +8,7 @@ atag:breastplate
 atag:helm
 atag:shield
 prop:WeaponSkill:3
-prop:Shield:2
+prop:Shields:2
 s:1
 i:1
 w:1
@@ -279,7 +279,7 @@ long:{He} seems quite prepared, and well-trained.
 wtag:high-quality
 atag:high-quality
 prop:WeaponSkill:4
-prop:Shield:4
+prop:Shields:4
 b:2-2
 q:2-2
 s:2-2
