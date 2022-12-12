@@ -625,7 +625,7 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(!shopkeeper->HasWithin(item2));
     REQUIRE(customer->HasWithin(item2));
     REQUIRE(item2->Parent() != room);
-    REQUIRE(witness(customer) == u8"I'll give you 12cp for item2\n");
+    REQUIRE(witness(customer) == u8"I'll give you 12cp for item2.\n");
   }
 
   SECTION("Value Item Missing Mind") {
@@ -708,7 +708,7 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(!customer->HasWithin(item2));
     REQUIRE(item2->Parent() == room);
     const std::u8string_view res =
-        u8"I'll give you 12cp for item2\n"
+        u8"I'll give you 12cp for item2.\n"
         u8"You sell your item2.\n";
     REQUIRE(witness(customer).substr(0, res.length()) == res);
   }
@@ -737,7 +737,7 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(item2->Parent() == room);
     REQUIRE(
         witness(customer) ==
-        u8"I'll give you 12cp for item2\n"
+        u8"I'll give you 12cp for item2.\n"
         u8"You sell your item2.\n"
         u8"Shopkeeper drops a silver piece.\n"
         u8"Shopkeeper drops a copper piece.\n"
@@ -796,7 +796,7 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(item2->Parent() == room);
     REQUIRE(!customer->IsAct(act_t::HOLD));
     const std::u8string_view res =
-        u8"I'll give you 12cp for item2\n"
+        u8"I'll give you 12cp for item2.\n"
         u8"You sell your item2.\n";
     REQUIRE(witness(customer).substr(0, res.length()) == res);
   }
@@ -813,7 +813,7 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(item2->Parent() == room);
     REQUIRE(!customer->IsAct(act_t::HOLD));
     const std::u8string_view res =
-        u8"I'll give you 12cp for item2\n"
+        u8"I'll give you 12cp for item2.\n"
         u8"You sell item2.\n";
     REQUIRE(witness(customer).substr(0, res.length()) == res);
   }
@@ -842,7 +842,7 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(item2->Parent() != room);
     REQUIRE(
         witness(customer) ==
-        u8"I'll give you 12cp for item2\n"
+        u8"I'll give you 12cp for item2.\n"
         u8"I can't afford the 12cp (I only have 0).\n");
   }
 
@@ -859,7 +859,7 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(item2->Parent() != room);
     REQUIRE(
         witness(customer) ==
-        u8"I'll give you 12cp for item2\n"
+        u8"I'll give you 12cp for item2.\n"
         u8"I can't afford the 12cp (I only have 11cp).\n");
   }
 
@@ -876,7 +876,7 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(item2->Parent() != room);
     REQUIRE(
         witness(customer) ==
-        u8"I'll give you 12cp for item2\n"
+        u8"I'll give you 12cp for item2.\n"
         u8"I don't have change to pay 12cp.  You'd have to make change for 1pp.\n"
         u8"...but you don't have that change.\n");
   }
@@ -894,7 +894,7 @@ TEST_CASE("Shop Commands", "[commands]") {
     REQUIRE(!customer->HasWithin(item2));
     REQUIRE(item2->Parent() == room);
     const std::u8string_view res =
-        u8"I'll give you 12cp for item2\n"
+        u8"I'll give you 12cp for item2.\n"
         u8"I don't have change to pay 12cp.  You'd have to make change for 1gp.\n"
         u8"You pay 88cp to shopkeeper.\n"
         u8"You sell your item2.\n";

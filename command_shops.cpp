@@ -403,7 +403,7 @@ int handle_command_shops(
       vortex = shpkp->ActTarg(act_t::WEAR_RSHOULDER);
     }
     if (mind) {
-      mind->Send(u8"I'll give you {} for {}\n", coins(price), item->ShortDesc());
+      mind->Send(u8"I'll give you {} for {}.\n", coins(price), item->ShortDesc());
     }
 
     if (cnum == COM_SELL) {
