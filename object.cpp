@@ -447,23 +447,27 @@ int Object::Tick() {
     // You are already dead.
   } else if (phys >= 10) {
     int rec = RollNoWounds(prhash(u8"Strength"), phys - 4, 0);
-    if (!rec)
+    if (rec == 0) {
       ++phys;
-    UpdateDamage();
+      UpdateDamage();
+    }
   } else if (phys > 0) {
     int rec = 0;
-    if (IsAct(act_t::SLEEP))
-      rec = Roll(prhash(u8"Body"), 2);
-    else if (IsAct(act_t::REST))
-      rec = Roll(prhash(u8"Body"), 4);
-    else if (!IsAct(act_t::FIGHT))
-      rec = Roll(prhash(u8"Body"), 6);
-    if (phys >= 6 && (!rec))
+    if (IsAct(act_t::SLEEP)) {
+      rec = Roll(prhash(u8"Strength"), 2);
+    } else if (IsAct(act_t::REST)) {
+      rec = Roll(prhash(u8"Strength"), 4);
+    } else if (!IsAct(act_t::FIGHT)) {
+      rec = Roll(prhash(u8"Strength"), 6);
+    }
+    if (phys >= 6 && rec == 0) {
       ++phys;
-    else
+      UpdateDamage();
+    } else if (rec != 0) {
       phys -= rec / 2;
-    phys = std::max(int8_t(0), phys);
-    UpdateDamage();
+      phys = std::max(int8_t(0), phys);
+      UpdateDamage();
+    }
   }
   if (phys < 10 && stun >= 10) {
     int rec = 0;
@@ -473,15 +477,18 @@ int Object::Tick() {
     UpdateDamage();
   } else if (phys < 6 && stun > 0) {
     int rec = 0;
-    if (IsAct(act_t::SLEEP))
+    if (IsAct(act_t::SLEEP)) {
       rec = Roll(prhash(u8"Willpower"), 2);
-    else if (IsAct(act_t::REST))
+    } else if (IsAct(act_t::REST)) {
       rec = Roll(prhash(u8"Willpower"), 4);
-    else if (!IsAct(act_t::FIGHT))
+    } else if (!IsAct(act_t::FIGHT)) {
       rec = Roll(prhash(u8"Willpower"), 6);
-    stun -= rec;
-    stun = std::max(int8_t(0), stun);
-    UpdateDamage();
+    }
+    if (rec != 0) {
+      stun -= rec;
+      stun = std::max(int8_t(0), stun);
+      UpdateDamage();
+    }
   }
 
   if (parent && Skill(prhash(u8"TBAPopper")) > 0 && contents.size() > 0) {
@@ -754,13 +761,16 @@ int Object::Tick() {
         CRED u8"You choke and writhe in pain.  POISON!!!!\n" CNRM,
         this,
         nullptr);
-    if (succ < 2)
+    if (succ < 2) {
       phys += 6;
-    else if (succ < 4)
+      UpdateDamage();
+    } else if (succ < 4) {
       phys += 3;
-    else if (succ < 6)
+      UpdateDamage();
+    } else if (succ < 6) {
       phys += 1;
-    UpdateDamage();
+      UpdateDamage();
+    }
   }
 
   return 0;
