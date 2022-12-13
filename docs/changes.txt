@@ -1,3 +1,45 @@
+commit 00b081a5966213bb71a4ffcb4c0c0aa6892dc2ee
+Author: Steaphan Greene <steaphan@gmail.com>
+Date:   Tue Dec 13 15:16:18 2022 -0800
+
+    Update 'make upload' to reflect that the web pages are in the repo now.
+
+commit e0019e6abc0f867695ddd1680c1a9e88a0d2a340
+Author: Steaphan Greene <steaphan@gmail.com>
+Date:   Tue Dec 13 15:05:16 2022 -0800
+
+    Create CNAME
+
+commit cbca04de28d2d8451e4e5659ec453e657c90a2f9
+Author: Steaphan Greene <steaphan@gmail.com>
+Date:   Tue Dec 13 14:55:16 2022 -0800
+
+    Commit the old AcidMUD web pages, as-is, into the git repo.
+
+commit fc60f1d1b449bac434deea038137fc0328a66f60
+Author: Steaphan Greene <steaphan@gmail.com>
+Date:   Tue Dec 13 10:36:54 2022 -0800
+
+    Clean up and fix up old damage/stun wrangling functions.
+
+commit 80ae0e42f0f133a28551cc7befea359ac44bce7a
+Author: Steaphan Greene <steaphan@gmail.com>
+Date:   Sun Dec 11 17:10:53 2022 -0800
+
+    Correct "Shield" -> "Shields" skill name in Terrestria's tag defs.
+
+commit 094ee283ee267c48b3a4ee9d52a0304f2b1664e7
+Author: Steaphan Greene <steaphan@gmail.com>
+Date:   Sun Dec 11 17:03:01 2022 -0800
+
+    Added missing (stand-in) tag defs in Terrestria.
+
+commit a9d5f2a7e92a371ce5bab5b1acadbe853cd8f7be
+Author: Steaphan Greene <steaphan@gmail.com>
+Date:   Sun Dec 11 16:58:24 2022 -0800
+
+    Clarify a couple of error messages.
+
 commit 1fab448afcd735f00f4286b7630c0d1b592fb7fe
 Author: Steaphan Greene <steaphan@gmail.com>
 Date:   Sun Dec 11 16:36:44 2022 -0800
