@@ -1,0 +1,206 @@
+Let 'consider' command compare armor of considered opponents.
+
+Get working NPCs to stand up when they get knocked down.
+Get recovering NPCs to collect their dropped weapon(s).
+
+Replace as many u8string creations as possible with u8string_view usages.
+
+Handle deleting on error cases falling back out of Mind::Send().
+
+Restore MOB mind types ability for it's bodies to combine.
+
+Move TBA Trigger vars to more efficient storage (token vecs?).
+
+Implement various types of armor, weapons and damage.
+Do 3-layer armor system.
+Show armor/weapon/hit/miss messages in ninja display.
+Translate circle armor to various armor types.
+Translate circle weapons to various weapon types.
+
+Handle Multiple Weapon Types (eg: Bastard Swords).
+
+Refine the fudging of circle MOBs' stats (Better AC Handling, Natural Armor).
+Natural Armor.
+
+Handle Remaining ROOM-* TBA Trigger Scripts:
+	 1) Global       ROOM-GLOBAL
+Done	 2) Random       ROOM-RANDOM
+Done	 3) Command      ROOM-COMMAND
+Done	 4) Speech       ROOM-SPEECH       
+	 6) Zone Reset   ROOM-ZONE       
+Done	 7) Enter        ROOM-ENTER        
+Done	 8) Drop         ROOM-DROP       
+	16) Cast         ROOM-CAST       
+Done	17) Leave        ROOM-LEAVE       
+	18) Door         ROOM-DOOR       
+
+Handle Remaining OBJ-* TBA Trigger Scripts:
+	 1) Global    OBJ-GLOBAL
+Done	 2) Random    OBJ-RANDOM            
+Done	 3) Command   OBJ-COMMAND             
+	 6) Timer     OBJ-TIMER              
+Done	 7) Get       OBJ-GET              
+Done	 8) Drop      OBJ-DROP            
+	 9) Give      OBJ-GIVE              
+Done	10) Wear      OBJ-WEAR              
+Done	12) Remove    OBJ-REMOVE              
+	14) Load      OBJ-LOAD              
+Done	17) Leave     OBJ-LEAVE              
+
+Handle Remaining MOB-* TBA Trigger Scripts:
+	 1) Global      MOB-GLOBAL              
+Done	 2) Random      MOB-RANDOM          
+Done	 3) Command     MOB-COMMAND           
+Done	 4) Speech      MOB-SPEECH          
+Done	 5) Act         MOB-ACT           
+	 6) Death       MOB-DEATH          
+Done	 7) Greet       MOB-GREET           
+	 8) Greet-All   MOB-GREET-ALL          
+	 9) Entry       MOB-ENTRY          
+	10) Receive     MOB-RECEIVE          
+	11) Fight       MOB-FIGHT          
+	12) HitPrcnt    MOB-HITPRCNT          
+	13) Bribe       MOB-BRIBE          
+	14) Load        MOB-LOAD          
+	15) Memory      MOB-MEMORY          
+	16) Cast        MOB-CAST          
+Done	17) Leave       MOB-LEAVE          
+	18) Door        MOB-DOOR          
+
+Fully understand visibility and cut messages accordingly.
+Starlight vision, night vision, low-light vision, and dark vision.
+
+Crafting (weapons, armor, tools, clothes, etc...).
+
+Handle liquids mixing?
+
+Implement object categories (people, weapons, creatures, axes, etc...).
+
+Implement movement settings using skills (walk, run, explore, etc...).
+Travel limitations (speed of movement, fleeing, sprinting, running).
+Encumbrance.
+
+Positional modifyers (sleeping/lying down/standing, etc...).
+
+Curse-ditch police: Buying with cursed gold.
+Curse-ditch police: Throwing a cursed ranged weapon in combat.
+
+Are TBA keys too big/heavy?
+
+Tell how wounded an enemy is.
+
+Implement effects of the Cure Blindness Spell
+Implement effects of the Detect Cursed Items Spell
+Implement effects of the Identify Character Spell
+Implement effects of the Identify Person Spell
+Implement effects of the Personal Shield Spell
+
+Implement sustained detrimental spell effect system.
+	Implement effects of the Blind Spell
+	Implement effects of the Distract Spell
+	Implement effects of the Influence Spell
+	Implement effects of the Misfortune Spell
+	Implement effects of the Weaken Subject Spell
+
+Implement sustained beneficial spell effect system.
+	Implement effects of the Float Spell
+	Implement effects of the Invisibility Spell
+	Implement effects of the Light Spell
+	Implement effects of the Luck Spell
+	Implement effects of the Protection Spell
+	Implement effects of the Resilience Spell
+	Implement effects of the Strength Spell
+	Implement effects of the Treatment Spell
+
+Implement combat spell system.
+	Implement effects of the Earthquake Spell
+	Implement effects of the Fireball Spell
+	Implement effects of the Fire Burst Spell
+	Implement effects of the Fire Dart Spell
+	Implement effects of the Force Arrow Spell
+	Implement effects of the Harm Spell
+	Implement effects of the Lightning Bolt Spell
+
+Implement prayer system.
+
+Implement other in-play magical Bonus/Penalty powers (depend on other stuff):
+	Encumbrance
+	Magic Force
+	Youth
+
+Get shopkeepers to unlabel their purchases.
+Fix exchange system handling odd cases (including sell/buy).
+Selling of containers, or not (contents -vs- container value!).
+Fixup shopkeepers so item numbers NEVER expire.
+
+Do full code constification review.
+
+Really implement ranged combat.
+Implement scabbards and quivers.
+
+Implement All Remaining Weapon Types (Guns, etc...).
+Get it to understand offhand weapon use.
+Get it to understand mounted weapon use.
+Implement Races, Species and Materials.
+Need a way to "find" items you've hidden on yourself.
+Implement Roll Object for passing complete rolls.
+Handle REAL contested roll for perception/stealth in normal actions.
+
+Cleanup item manipulation commands.
+Wear/wield from own containers need auto open/close.
+
+Cleanup the remaining Object::Send*(ALL, 0, ...) hacks.
+
+Place circle-placed objects on back if on chest (plus other corrections).
+Let "remove" command also handle unwielding?
+Implement "all of " target for all within.
+Implement "stuff" target.
+Implement "loot" command.
+Allow carrying of dying and KOed creatures.
+
+Make all plural commands see pluralized items correctly.
+Consistently pluralize (or don't) skill names (fix wiki version too!).
+
+Follower should look like he gets there after folowee to those already there.
+Implement item "piles" "pairs", "mixtures", etc....
+Finish article substitution ("A" -> "A second", etc...).
+Pick up a fight's other opponents after your target goes down without delay.
+Reimplement create-in-direction (currently disabled).
+Check for circle rooms with no exits and add one.
+Implement real Reaction Action.
+Create Real Tie-Breaker for Tied Initiative.
+
+Implement character creation priorities.
+Implement character creation resources.
+Implement character creation race.
+Implement character creation magic.
+
+Make circle MOBs do more stuff.
+Implement full vehicle system (small unpowered boats are done).
+Implement the Rest of the Skills.
+Implement reserved words ("'s", "in", "to", "at", "of", "Ninja").
+See contents when you look at a nearby room (eg: "look north").
+Handle LOC_ADJACENT correctly (eg: "look north").
+
+Create "aim" command to intentionally hit certain locations.
+Enable use of skills to modify combat (Martial Arts, etc...).
+
+Implement AcidMail.
+Should some CircleMOBs be given "Swimming"?
+Add "bug", "request", and "concern" commands (acidmail problems to ninjas).
+User management commands (delete chars, rename users?, etc...).
+Implement skill-to-skill defaults (needs wiki support).
+Case-Insensitive Playernames?
+
+Add SSL support.
+Add gzipped worlds save/load support.
+Be sure I Handle big messages to/from users correctly.
+Clean up and sort log(s).
+
+Troll Reach.
+Wake someone else up!
+Settings for display on go/enter/leave.
+Autostash enable/disable?
+Gossip?
+
+CHECK FIXMEs TOO!
