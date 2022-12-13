@@ -81,10 +81,7 @@ backup:
 
 upload:
 	./scripts/upload_binary.sh
-	scp TODO acidmud@$(ACIDHOST):~acidmud/public_html/todo.txt
-	git log --no-decorate > changes.txt
-	scp changes.txt acidmud@$(ACIDHOST):~acidmud/public_html/
-	rm -f changes.txt
+	git log --no-decorate > docs/changes.txt
 
 acidmud: main.o $(OBJS)
 	rm -f acidmud
