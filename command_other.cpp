@@ -2012,6 +2012,7 @@ int handle_command_other(
         if (mind)
           mind->Send(u8"You can't put it in there.\n");
       } else {
+        body->StopAct(act_t::HOLD);
         if (!targ->Skill(prhash(u8"Open")))
           closed = 1;
         if (closed)
