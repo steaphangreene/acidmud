@@ -41,14 +41,17 @@ class Dice {
     std::ranges::sample(deck, target, count, generator_);
   }
 
+  static bool Odds(int num, int den) { // num in den chance of true, else false
+    auto roll = std::uniform_int_distribution<int>(0, den - 1)(generator_);
+    return (roll < num);
+  }
+
   static bool Percent(int chance) { // change% chance of true, else false
-    auto roll = std::uniform_int_distribution<int>(0, 99)(generator_);
-    return (roll < chance);
+    return Odds(chance, 100);
   }
 
   static bool Permill(int chance) { // change‰ chance of true, else false
-    auto roll = std::uniform_int_distribution<int>(0, 999)(generator_);
-    return (roll < chance);
+    return Odds(chance, 1000);
   }
 
   static int Roll(int sides) { // 1-sides
