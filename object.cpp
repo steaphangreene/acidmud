@@ -3165,7 +3165,7 @@ void Object::UpdateDamage() {
           ALL, -1, u8";s falls unconscious!\n", u8"You fall unconscious!\n", this, nullptr);
       Collapse();
       AddAct(act_t::UNCONSCIOUS);
-    } else if (IsAct(act_t::DEAD) + IsAct(act_t::DYING) != 0) {
+    } else if (IsAct(act_t::DEAD) || IsAct(act_t::DYING)) {
       parent->SendOut(
           ALL,
           -1,
@@ -3179,7 +3179,7 @@ void Object::UpdateDamage() {
     }
     SetPosition(pos_t::LIE);
   } else if (stun > 0) {
-    if (IsAct(act_t::DEAD) + IsAct(act_t::DYING) + IsAct(act_t::UNCONSCIOUS) != 0) {
+    if (IsAct(act_t::DEAD) || IsAct(act_t::DYING) || IsAct(act_t::UNCONSCIOUS)) {
       parent->SendOut(
           ALL,
           -1,
@@ -3192,7 +3192,7 @@ void Object::UpdateDamage() {
       StopAct(act_t::UNCONSCIOUS);
     }
   } else {
-    if (IsAct(act_t::DEAD) + IsAct(act_t::DYING) + IsAct(act_t::UNCONSCIOUS) != 0) {
+    if (IsAct(act_t::DEAD) || IsAct(act_t::DYING) || IsAct(act_t::UNCONSCIOUS)) {
       parent->SendOut(
           ALL,
           -1,
