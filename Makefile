@@ -71,7 +71,7 @@ gcc: all
 
 clean:
 	rm -f gmon.out *.profraw *.profdata deps.mk tests/*.o tests/*.da *.o *.da \
-		version.cpp command_social.cpp commands.cpp commands.hpp acidmud tests/tests changes.txt
+		version.cpp command_social.cpp commands.cpp commands.hpp acidmud tests/tests
 
 backup:
 	cd ..;tar chvf ~/c/archive/acidmud.$(TSTR).tar \
@@ -81,7 +81,6 @@ backup:
 
 upload:
 	./scripts/upload_binary.sh
-	git log --no-decorate > docs/changes.txt
 
 acidmud: main.o $(OBJS)
 	rm -f acidmud
