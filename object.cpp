@@ -428,24 +428,46 @@ void tick_universe() {
 
 // Returns: [bool] Should object be deleted?
 bool Object::Tick() {
-  auto mnds = minds;
-  for (auto m : mnds) {
-    m->body = this;
-    if (!m->Think(1)) {
-      Detach(m);
+  UpdateTime();
+
+  if (Dice::Odds(1, 20)) { // roughly once per min
+    auto mnds = minds;
+    for (auto m : mnds) {
+      m->body = this;
+      if (!m->Think(1)) {
+        Detach(m);
+      }
     }
   }
 
-  UpdatePhysical();
-  UpdateMental();
-  UpdateTBA();
-  UpdateGrowth();
-  UpdateSustenance();
-  UpdateLiquids();
-  UpdateFire();
-  UpdateTime();
-  UpdateIllness();
-  return UpdateDegradation();
+  if (Dice::Odds(1, 20)) { // roughly once per min
+    UpdatePhysical();
+  }
+  if (Dice::Odds(1, 20)) { // roughly once per min
+    UpdateMental();
+  }
+  if (Dice::Odds(1, 20)) { // roughly once per min
+    UpdateTBA();
+  }
+  if (Dice::Odds(1, 20)) { // roughly once per min
+    UpdateGrowth();
+  }
+  if (Dice::Odds(1, 20)) { // roughly once per min
+    UpdateSustenance();
+  }
+  if (Dice::Odds(1, 20)) { // roughly once per min
+    UpdateLiquids();
+  }
+  if (Dice::Odds(1, 20)) { // roughly once per min
+    UpdateFire();
+  }
+  if (Dice::Odds(1, 20)) { // roughly once per min
+    UpdateIllness();
+  }
+  if (Dice::Odds(1, 20)) { // roughly once per min
+    return UpdateDegradation();
+  }
+  return false;
 }
 
 void Object::UpdatePhysical() {
