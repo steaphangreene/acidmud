@@ -471,6 +471,17 @@ class alignas(256) Object {
   };
   void UpdateDamage();
 
+  void UpdatePhysical();
+  void UpdateMental();
+  void UpdateTBA();
+  void UpdateGrowth();
+  void UpdateSustenance();
+  void UpdateLiquids();
+  void UpdateFire();
+  void UpdateTime();
+  void UpdateIllness();
+  bool UpdateDegradation();
+
   void Consume(const Object* item); // Eat/Drink/Potions/Poison/etc....
 
   bool IsAnimate() const {
@@ -647,7 +658,7 @@ class alignas(256) Object {
   int SaveTo(outfile&);
   std::u8string WriteContents();
 
-  int Tick();
+  bool Tick();
 
   bool BusyAct();
   bool StillBusy() const;

@@ -408,33 +408,26 @@ void Object::Deactivate() {
 
 void tick_universe() {
   static int tickstage = 0;
-  std::set<Object*> todel, todeact;
+  std::set<Object*> todel;
 
   auto tkl = ticklist[tickstage];
   for (auto ind : tkl) {
-    int res = ind->Tick();
-    if (res != 0) {
-      if (res == 1) {
-        todel.insert(ind);
-      } else if (res == -1) {
-        todeact.insert(ind);
-      }
+    if (ind->Tick()) {
+      todel.insert(ind);
     }
   }
   for (auto ind : todel) {
-    todeact.erase(ind);
     ind->Recycle();
   }
-  for (auto ind : todeact) {
-    ind->Deactivate();
-  }
   ++tickstage;
-  if (tickstage >= TICKSPLIT)
+  if (tickstage >= TICKSPLIT) {
     tickstage = 0;
+  }
   Mind::Resume(); // Tell suspended minds to resume if their time is up
 }
 
-int Object::Tick() {
+// Returns: [bool] Should object be deleted?
+bool Object::Tick() {
   auto mnds = minds;
   for (auto m : mnds) {
     m->body = this;
@@ -443,6 +436,19 @@ int Object::Tick() {
     }
   }
 
+  UpdatePhysical();
+  UpdateMental();
+  UpdateTBA();
+  UpdateGrowth();
+  UpdateSustenance();
+  UpdateLiquids();
+  UpdateFire();
+  UpdateTime();
+  UpdateIllness();
+  return UpdateDegradation();
+}
+
+void Object::UpdatePhysical() {
   if (phys > (10 + ModAttribute(2))) {
     // You are already dead.
   } else if (phys >= 10) {
@@ -469,6 +475,9 @@ int Object::Tick() {
       UpdateDamage();
     }
   }
+}
+
+void Object::UpdateMental() {
   if (phys < 10 && stun >= 10) {
     int rec = 0;
     rec = RollNoWounds(prhash(u8"Willpower"), 12, 0);
@@ -490,7 +499,9 @@ int Object::Tick() {
       UpdateDamage();
     }
   }
+}
 
+void Object::UpdateTBA() {
   if (parent && Skill(prhash(u8"TBAPopper")) > 0 && contents.size() > 0) {
     if (!ActTarg(act_t::SPECIAL_MONITOR)) {
       Object* obj = new Object(*(contents.front()));
@@ -509,12 +520,16 @@ int Object::Tick() {
       }
     }
   }
+}
 
+void Object::UpdateGrowth() {
   // Grow Trees (Silently)
   if (HasSkill(prhash(u8"Mature Trees")) && Skill(prhash(u8"Mature Trees")) < 100) {
     SetSkill(prhash(u8"Mature Trees"), Skill(prhash(u8"Mature Trees")) + 1);
   }
+}
 
+bool Object::UpdateDegradation() {
   if (parent && IsAct(act_t::DEAD)) { // Rotting corpses
     ++stru;
     if (stru == 1) {
@@ -576,9 +591,10 @@ int Object::Tick() {
         }
         Travel(dest);
         SetSkill(prhash(u8"Hidden"), 65535);
-        return -1; // Deactivate Me!
+        Deactivate();
+        return false;
       } else {
-        return 1; // Delete Me!
+        return true; // Delete Me!
       }
     }
   }
@@ -590,7 +606,7 @@ int Object::Tick() {
       if (stru < 10) {
         SetSkill(prhash(u8"Rot"), Skill(prhash(u8"Perishable")));
       } else {
-        return 1; // Delete Me!
+        return true; // Delete Me!
       }
     }
   }
@@ -601,10 +617,14 @@ int Object::Tick() {
       if (Owner() && Owner()->Parent()) {
         Owner()->Parent()->SendOut(0, 0, u8";s vanishes in a flash of light.", u8"", this, nullptr);
       }
-      return 1; // Delete Me!
+      return true; // Delete Me!
     }
   }
 
+  return false;
+}
+
+void Object::UpdateSustenance() {
   if (NormAttribute(2) > 0 // Needs Food & Water
       && (HasSkill(prhash(u8"Object ID"))) // Active PC/NPC
   ) {
@@ -702,7 +722,9 @@ int Object::Tick() {
       UpdateDamage();
     }
   }
+}
 
+void Object::UpdateLiquids() {
   if (HasSkill(prhash(u8"Liquid Source"))) { // Refills Itself
     if (contents.size() > 0) {
       int qty = 1;
@@ -719,7 +741,9 @@ int Object::Tick() {
       loge(u8"Warning: Fountain completely out of liquid!");
     }
   }
+}
 
+void Object::UpdateFire() {
   // Lit Torches/Lanterns
   if (HasSkill(prhash(u8"Lightable")) && HasSkill(prhash(u8"Light Source"))) {
     SetSkill(prhash(u8"Lightable"), Skill(prhash(u8"Lightable")) - 1);
@@ -732,10 +756,12 @@ int Object::Tick() {
     if (goesout) {
       ClearSkill(prhash(u8"Light Source"));
       parent->SendOut(ALL, -1, u8";s goes out.\n", u8"", this, nullptr);
-      return -1; // Deactivate Me!
+      Deactivate();
     }
   }
+}
 
+void Object::UpdateTime() {
   // Skys
   if (Skill(prhash(u8"Day Length")) > 1) { // Must be > 1 (divide by it/2 below!)
     SetSkill(prhash(u8"Day Time"), Skill(prhash(u8"Day Time")) + 1);
@@ -749,7 +775,9 @@ int Object::Tick() {
     light /= (Skill(prhash(u8"Day Length")) / 2);
     SetSkill(prhash(u8"Light Source"), 1000 - light);
   }
+}
 
+void Object::UpdateIllness() {
   // Poisoned
   if (Skill(prhash(u8"Poisoned")) > 0) {
     int succ = Roll(prhash(u8"Strength"), Skill(prhash(u8"Poisoned")));
@@ -772,8 +800,6 @@ int Object::Tick() {
       UpdateDamage();
     }
   }
-
-  return 0;
 }
 
 Object::Object() {
