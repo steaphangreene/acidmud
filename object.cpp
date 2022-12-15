@@ -2195,10 +2195,12 @@ void Object::AddLink(Object* ob) {
 }
 
 void Object::RemoveLink(Object* ob) {
-  auto ind = std::find(contents.begin(), contents.end(), ob);
-  while (ind != contents.end()) {
-    contents.erase(ind);
-    ind = std::find(contents.begin(), contents.end(), ob);
+  for (auto ind = contents.end(); ind != contents.begin();) {
+    --ind;
+    if (*ind == ob) {
+      contents.erase(ind);
+      return;
+    }
   }
 }
 
@@ -2459,8 +2461,6 @@ void Object::Recycle(int inbin) {
   }
   Deactivate();
 
-  // loge(u8"Deleting: {}", Noun(0));
-
   std::set<Object*> killers;
   for (auto ind : contents) {
     killers.insert(ind);
@@ -2512,8 +2512,10 @@ void Object::Recycle(int inbin) {
   busylist.erase(this);
 
   if (inbin && trash_bin) {
-    parent = trash_bin;
-    parent->AddLink(this);
+    if (parent != trash_bin) {
+      parent = trash_bin;
+      parent->contents.push_back(this);
+    }
   }
 
   // loge(u8"Done deleting: {}", Noun(0));

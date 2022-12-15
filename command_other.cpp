@@ -5426,15 +5426,28 @@ int handle_command_other(
       mind->Send(u8"You want to destroy what?\n");
       return 0;
     }
+    std::ranges::reverse(targs);
     for (auto targ : targs) {
+      if (targs.size() < 10) {
+        body->Parent()->SendOut(
+            stealth_t,
+            stealth_s,
+            u8";s destroys ;s with Ninja Powers[TM].\n",
+            u8"You destroy ;s.\n",
+            body,
+            targ);
+      }
+      targ->Recycle();
+    }
+    if (targs.size() >= 10) {
       body->Parent()->SendOut(
           stealth_t,
           stealth_s,
-          u8";s destroys ;s with Ninja Powers[TM].\n",
-          u8"You destroy ;s.\n",
+          u8";s destroys {} things with Ninja Powers[TM].\n",
+          u8"You destroy {} things.\n",
           body,
-          targ);
-      targ->Recycle();
+          nullptr,
+          targs.size());
     }
     return 0;
   }
