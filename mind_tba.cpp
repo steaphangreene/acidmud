@@ -1380,9 +1380,6 @@ int Mind::TBARunLine(std::u8string linestr) {
     }
 
     Object* door = room->PickObject(dir, LOC_NINJA | LOC_INTERNAL);
-    if (!door) {
-      loger(u8"#{} Error: can't find door '{}'", body->Skill(prhash(u8"TBAScript")), dir);
-    }
 
     int tnum;
 
