@@ -296,6 +296,11 @@ void update_net() {
       }
 
       minds[out.first]->UpdatePrompt();
+      if (prompts[out.first].starts_with(u8"password>")) {
+        outs.push_back(static_cast<char8_t>(IAC));
+        outs.push_back(static_cast<char8_t>(WILL));
+        outs.push_back(static_cast<char8_t>(TELOPT_ECHO));
+      }
       outs += prompts[out.first] + u8"\377\371";
 
       write(out.first, outs.data(), outs.length());

@@ -94,7 +94,7 @@ struct Command {
   com_t id;
 };
 
-constexpr Command comlist[COM_MAX + 1] = {
+constexpr static const Command comlist[COM_MAX + 1] = {
     {u8"", u8"", u8"", 0, COM_NONE},
     {u8"help",
      u8"Get help for a topic or command.",
@@ -102,6 +102,11 @@ constexpr Command comlist[COM_MAX + 1] = {
      (REQ_ANY),
      COM_HELP},
     {u8"quit", u8"Quit the game.", u8"Quit the game.", (REQ_ANY), COM_QUIT},
+    {u8"password",
+     u8"Change player password.",
+     u8"Change player password.",
+     (REQ_ANY | CMD_FLAVORTEXT),
+     COM_PASSWORD},
 
     {u8"north", u8"Travel north.", u8"Travel north.", (REQ_ALERT | REQ_UP | REQ_ACTION), COM_NORTH},
     {u8"south", u8"Travel south.", u8"Travel south.", (REQ_ALERT | REQ_UP | REQ_ACTION), COM_SOUTH},
@@ -710,6 +715,7 @@ constexpr Command comlist[COM_MAX + 1] = {
 static_assert(comlist[COM_NONE].id == COM_NONE);
 static_assert(comlist[COM_HELP].id == COM_HELP);
 static_assert(comlist[COM_QUIT].id == COM_QUIT);
+static_assert(comlist[COM_PASSWORD].id == COM_PASSWORD);
 static_assert(comlist[COM_NORTH].id == COM_NORTH);
 static_assert(comlist[COM_SOUTH].id == COM_SOUTH);
 static_assert(comlist[COM_EAST].id == COM_EAST);

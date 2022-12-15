@@ -42,6 +42,11 @@ class Player {
   Player(const std::u8string_view& nm, const std::u8string_view& ps);
   ~Player();
   void SetName(const std::u8string_view&);
+  void SetPass(const std::u8string_view&);
+  bool AuthPass(const std::u8string_view&);
+  static bool AuthPass(const std::u8string_view&, const std::u8string_view&);
+  static std::u8string EncPass(const std::u8string_view&);
+
   void Link(Object*);
   Object* Room() {
     return room;

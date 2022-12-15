@@ -145,12 +145,7 @@ Player::Player(const std::u8string_view& nm, const std::u8string_view& ps) {
   if (ps[0] == '$' && ps[1] == '1' && ps[2] == '$') {
     pass = ps;
   } else {
-    std::u8string salt = u8"$1$", app = u8" ";
-    for (int ctr = 0; ctr < 8; ++ctr) {
-      app[0] = salt_char[Dice::Rand(0, 63)];
-      salt += app;
-    }
-    pass = md5_crypt(ps, salt);
+    pass = EncPass(ps);
   }
   player_list[name] = this;
   non_init.insert(this);
@@ -164,6 +159,30 @@ Player::~Player() {
   world = nullptr;
   if (room)
     delete room;
+}
+
+void Player::SetPass(const std::u8string_view& nm) {
+  if (nm.starts_with(u8"$1$")) {
+    pass = nm;
+  }
+}
+
+bool Player::AuthPass(const std::u8string_view& ps) {
+  return AuthPass(pass, ps);
+}
+
+bool Player::AuthPass(const std::u8string_view& ep, const std::u8string_view& ps) {
+  std::u8string enpass = md5_crypt(ps, ep);
+  return (enpass == ep);
+}
+
+std::u8string Player::EncPass(const std::u8string_view& ps) {
+  std::u8string salt = u8"$1$", app = u8" ";
+  for (int ctr = 0; ctr < 8; ++ctr) {
+    app[0] = salt_char[Dice::Rand(0, 63)];
+    salt += app;
+  }
+  return md5_crypt(ps, salt);
 }
 
 void Player::SetName(const std::u8string_view& nm) {
@@ -224,11 +243,8 @@ Player* player_login(const std::u8string_view& name, const std::u8string_view& p
     return nullptr;
   }
   Player* pl = player_list[std::u8string(name)];
-  std::u8string enpass = md5_crypt(pass, pl->pass);
 
-  // loge(u8"Trying {}:\n{}\n{}", name, enpass, pl->pass);
-
-  if (enpass != pl->pass) {
+  if (!pl->AuthPass(pass)) {
     if (non_init.count(pl)) {
       player_list.erase(std::u8string(name));
       non_init.erase(pl);

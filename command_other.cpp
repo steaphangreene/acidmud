@@ -159,6 +159,66 @@ int handle_command_other(
     }
   }
 
+  if (cnum == COM_PASSWORD) {
+    if (args.empty()) {
+      if (!mind->SpecialPrompt().starts_with(u8"password")) {
+        mind->SetSVar(u8"change password", u8"old password");
+        mind->SetSpecialPrompt(u8"password");
+        mind->Send(u8"Changing player password.\nFirst enter old password to confirm.");
+      } else {
+        mind->SetSpecialPrompt(u8"");
+        mind->ClearSVar(u8"change password");
+        mind->Send(u8"Password has NOT been changed.");
+      }
+    } else {
+      auto pl = mind->Owner();
+      if (pl == nullptr) {
+        mind->SetSpecialPrompt(u8"");
+        mind->ClearSVar(u8"change password");
+        mind->ClearSVar(u8"encrypted password");
+        mind->Send(u8"Internal error: No Player linked to this Mind.");
+      } else if (!mind->IsSVar(u8"change password")) {
+        mind->SetSpecialPrompt(u8"");
+        mind->ClearSVar(u8"change password");
+        mind->ClearSVar(u8"encrypted password");
+        mind->Send(u8"Type 'password' alone to start the dialog to change your password.");
+      } else if (mind->SVar(u8"change password") == u8"old password") {
+        if (pl->AuthPass(args)) {
+          mind->SetSVar(u8"change password", u8"new password 1");
+          mind->Send(u8"Now, enter the new pasword.");
+        } else {
+          mind->SetSpecialPrompt(u8"");
+          mind->ClearSVar(u8"change password");
+          mind->ClearSVar(u8"encrypted password");
+          mind->Send(u8"Incorrect password.  Password has NOT been changed.");
+        }
+      } else if (mind->SVar(u8"change password") == u8"new password 1") {
+        mind->SetSVar(u8"encrypted password", pl->EncPass(args));
+        mind->SetSVar(u8"change password", u8"new password 2");
+        mind->Send(u8"Now, enter the new pasword again, for verification.");
+      } else if (mind->SVar(u8"change password") == u8"new password 2") {
+        if (pl->AuthPass(mind->SVar(u8"encrypted password"), args)) {
+          mind->SetSpecialPrompt(u8"");
+          mind->ClearSVar(u8"change password");
+          pl->SetPass(mind->SVar(u8"encrypted password"));
+          mind->ClearSVar(u8"encrypted password");
+          mind->Send(u8"Password has been changed.");
+        } else {
+          mind->SetSpecialPrompt(u8"");
+          mind->ClearSVar(u8"change password");
+          mind->ClearSVar(u8"encrypted password");
+          mind->Send(u8"New passwords do not match.  Password has NOT been changed.");
+        }
+      } else {
+        mind->SetSpecialPrompt(u8"");
+        mind->ClearSVar(u8"change password");
+        mind->ClearSVar(u8"encrypted password");
+        mind->Send(u8"Password has NOT been changed.");
+      }
+    }
+    return 0;
+  }
+
   if (cnum == COM_NORTH) {
     cnum = COM_ENTER;
     args = u8"north";
