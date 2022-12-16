@@ -3707,7 +3707,7 @@ bool Object::StillBusy() const {
   if (bu + 0x40000000L < ct) {
     bu += 0x100000000L; // Handle wrapped busy_util
   }
-  return (ct <= bu);
+  return (ct < bu);
 }
 
 void Object::DoWhenFree(const std::u8string& action) {
