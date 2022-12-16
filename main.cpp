@@ -140,7 +140,7 @@ int main(int argc, char** argv) {
       // World save time doesn't count toward the clock
       current_time = get_time();
       logec(
-          u8"World save took {},{:03},{:03}.\n",
+          u8"World save took {},{:03},{:03}.",
           (current_time - before_save) / 1000000,
           ((current_time - before_save) / 1000) % 1000,
           (current_time - before_save) % 1000);
