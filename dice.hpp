@@ -74,6 +74,12 @@ class Dice {
     return Die(min, max);
   }
 
+  // Seed MT with known value to lock in predictable results in this thread.
+  // Overrides the entropy-sourced initial seeding.  Useful for testing.
+  static void Seed(const auto& s) {
+    generator_.seed(s);
+  }
+
   class Die {
    public:
     Die(int min, int max) : distro_(min, max){};
