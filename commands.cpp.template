@@ -861,11 +861,13 @@ com_t identify_command(const std::u8string_view str, bool corporeal) {
     if (comlist[ctr].id == COM_SAY && (str[0] == '\'' || str[0] == '"')) {
       return comlist[ctr].id;
     }
-    if (comlist[ctr].id == COM_DUMP &&
-        str == std::u8string_view(u8"empty").substr(0, str.length())) {
+    if (comlist[ctr].id == COM_DUMP && std::u8string_view(u8"empty").starts_with(str)) {
       return comlist[ctr].id;
     }
-    if (comlist[ctr].id == COM_GET && str == std::u8string_view(u8"take").substr(0, str.length())) {
+    if (comlist[ctr].id == COM_GET && std::u8string_view(u8"take").starts_with(str)) {
+      return comlist[ctr].id;
+    }
+    if (comlist[ctr].id == COM_PASSWORD && std::u8string_view(u8"passwd").starts_with(str)) {
       return comlist[ctr].id;
     }
   }
